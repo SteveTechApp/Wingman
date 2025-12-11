@@ -1,0 +1,190 @@
+/* 
+========================================
+    COMPACT SPACING & HEIGHT OPTIMIZATION
+========================================
+*/
+
+/* Ensure footer is always visible */
+footer { 
+  flex-shrink: 0 !important; 
+  min-height: 48px;
+  max-height: 60px;
+}
+
+/* Optimize main content scrolling */
+main { 
+  min-height: 0; 
+  overflow: hidden; 
+}
+
+/* Compact spacing utilities */
+.compact-section { 
+  padding: 1rem; 
+  margin-bottom: 1rem; 
+}
+
+.compact-grid { 
+  gap: 1rem; 
+}
+
+.compact-stack { 
+  gap: 0.75rem; 
+}
+
+/* Workspace optimizations */
+.workspace-container {
+  padding: 1rem !important;
+  gap: 1rem !important;
+}
+
+/* Panel optimizations */
+.panel-content {
+  padding: 1rem !important;
+}
+
+/* Reduce excessive spacing in specific contexts */
+.workspace-mode .space-y-6 {
+  gap: 1rem;
+}
+
+.workspace-mode .gap-6 {
+  gap: 1rem;
+}
+
+/* Responsive spacing adjustments */
+@media (max-width: 768px) {
+  .panel-content { 
+    padding: 0.75rem !important; 
+  }
+  
+  .workspace-container { 
+    gap: 0.75rem !important; 
+    padding: 0.75rem !important; 
+  }
+  
+  /* Reduce bottom padding on mobile */
+  .pb-20 {
+    padding-bottom: 1rem !important;
+  }
+  
+  .pb-16 {
+    padding-bottom: 1rem !important;
+  }
+  
+  .pb-12 {
+    padding-bottom: 0.75rem !important;
+  }
+  
+  /* Tighter gaps on mobile */
+  .gap-6 {
+    gap: 0.75rem !important;
+  }
+  
+  .space-y-6 > * + * {
+    margin-top: 0.75rem !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Tablet - moderate reduction */
+  .pb-20 {
+    padding-bottom: 1.5rem !important;
+  }
+  
+  .gap-6 {
+    gap: 1rem !important;
+  }
+}
+
+/* Ensure scrollable areas respect footer */
+.h-full.overflow-y-auto {
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 1rem;
+}
+
+/* Sticky elements shouldn't cover footer */
+.xl\:sticky {
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+}
+
+/* Custom scrollbar for compact areas */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Optimize modal positioning to not block footer */
+.modal-container {
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+/* Compact table rows */
+.equipment-table tbody tr {
+  padding: 0.75rem 0;
+}
+
+/* Tighter form spacing */
+.form-group {
+  margin-bottom: 0.75rem;
+}
+
+/* Reduce wizard step padding */
+.wizard-step {
+  padding: 1rem;
+}
+
+/* Print styles - ensure footer visible */
+@media print {
+  footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    page-break-after: always;
+  }
+  
+  main {
+    padding-bottom: 80px;
+  }
+}
+
+/* Utility classes for spacing control */
+.spacing-tight {
+  --spacing-unit: 0.75rem;
+}
+
+.spacing-normal {
+  --spacing-unit: 1rem;
+}
+
+.spacing-comfortable {
+  --spacing-unit: 1.5rem;
+}
+
+/* Apply to children */
+.spacing-tight > * + * {
+  margin-top: 0.75rem;
+}
+
+.spacing-normal > * + * {
+  margin-top: 1rem;
+}
+
+.spacing-comfortable > * + * {
+  margin-top: 1.5rem;
+}

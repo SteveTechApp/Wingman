@@ -1,0 +1,7 @@
+{
+  "name": "WyreStorm Wingman",
+  "description": "An AI-powered platform to train new salespeople on WyreStorm products. It helps them ask the right questions and generates a full sales proposal, including product recommendations, technical explanations, and a connectivity diagram.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

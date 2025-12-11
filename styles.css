@@ -1,0 +1,259 @@
+/*
+=================================================================
+  WYRESTORM WINGMAN - GLOBAL STYLESHEET
+=================================================================
+  TABLE OF CONTENTS
+-----------------------------------------------------------------
+  1. CSS Variables (Color Palette)
+  2. Global Styles (Base, Body, Resets)
+  3. Component Styles (.btn, .prose, etc.)
+  4. Animations (@keyframes)
+  5. Utility & Browser Styles (Scrollbar, Print)
+=================================================================
+*/
+
+/*
+========================================
+    1. CSS Variables (Color Palette)
+========================================
+*/
+:root {
+    /* Light Mode (Default) */
+    --app-bg: #f1f5f9;                 /* slate-100 */
+    --background: #ffffff;            /* white */
+    --background-secondary: #f8fafc;  /* slate-50 */
+    --input-bg: #f1f5f9;               /* slate-100 */
+    --text-primary: #1e293b;           /* slate-800 */
+    --text-secondary: #64748b;         /* slate-500 */
+    --text-on-accent: #ffffff;         /* white */
+    --border-color: #cbd5e1;           /* slate-300 */
+    --border: #e2e8f0;                 /* slate-200 */
+    --accent: #00833D;                 /* WyreStorm Green */
+    --accent-hover: #00642F;           /* Darker Green */
+    --accent-bg-subtle: rgba(0, 131, 61, 0.1);
+    --primary: #00833D;                /* WyreStorm Green */
+    --primary-hover: #00642F;           /* Darker Green */
+    --destructive: #E4002B;            /* WyreStorm Red */
+    --modal-backdrop: rgba(0, 0, 0, 0.5);
+
+    /* RGB versions for Tailwind opacity modifiers */
+    --app-bg-rgb: 241, 245, 249;
+    --background-rgb: 255, 255, 255;
+    --background-secondary-rgb: 248, 250, 252;
+    --input-bg-rgb: 241, 245, 249;
+    --text-primary-rgb: 30, 41, 59;
+    --text-secondary-rgb: 100, 116, 139;
+    --text-on-accent-rgb: 255, 255, 255;
+    --border-color-rgb: 203, 213, 225;
+    --accent-rgb: 0, 131, 61;
+    --accent-hover-rgb: 0, 100, 47;
+    --primary-rgb: 0, 131, 61;
+    --primary-hover-rgb: 0, 100, 47;
+    --destructive-rgb: 228, 0, 43;
+    --border-rgb: 226, 232, 240;
+
+    /* Global Accent Color for Native Inputs */
+    accent-color: var(--accent);
+}
+
+/* Dark Mode Theme */
+[data-theme="dark"] {
+    --app-bg: #0f172a;                 /* slate-900 */
+    --background: #1e293b;             /* slate-800 */
+    --background-secondary: #334155;   /* slate-700 */
+    --input-bg: #334155;               /* slate-700 */
+    --text-primary: #f1f5f9;           /* slate-100 */
+    --text-secondary: #94a3b8;         /* slate-400 */
+    --text-on-accent: #ffffff;         /* white */
+    --border-color: #475569;           /* slate-600 */
+    --border: #334155;                 /* slate-700 */
+    --accent: #10b981;                 /* Brighter green for dark mode */
+    --accent-hover: #059669;           /* emerald-600 */
+    --accent-bg-subtle: rgba(16, 185, 129, 0.1);
+    --primary: #10b981;                /* emerald-500 */
+    --primary-hover: #059669;          /* emerald-600 */
+    --destructive: #f87171;            /* red-400 - softer red for dark */
+    --modal-backdrop: rgba(0, 0, 0, 0.75);
+
+    /* RGB versions for dark mode */
+    --app-bg-rgb: 15, 23, 42;
+    --background-rgb: 30, 41, 59;
+    --background-secondary-rgb: 51, 65, 85;
+    --input-bg-rgb: 51, 65, 85;
+    --text-primary-rgb: 241, 245, 249;
+    --text-secondary-rgb: 148, 163, 184;
+    --text-on-accent-rgb: 255, 255, 255;
+    --border-color-rgb: 71, 85, 105;
+    --accent-rgb: 16, 185, 129;
+    --accent-hover-rgb: 5, 150, 105;
+    --primary-rgb: 16, 185, 129;
+    --primary-hover-rgb: 5, 150, 105;
+    --destructive-rgb: 248, 113, 113;
+    --border-rgb: 51, 65, 85;
+}
+
+/* Auto Dark Mode - Respects system preference */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --app-bg: #0f172a;
+        --background: #1e293b;
+        --background-secondary: #334155;
+        --input-bg: #334155;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-on-accent: #ffffff;
+        --border-color: #475569;
+        --border: #334155;
+        --accent: #10b981;
+        --accent-hover: #059669;
+        --accent-bg-subtle: rgba(16, 185, 129, 0.1);
+        --primary: #10b981;
+        --primary-hover: #059669;
+        --destructive: #f87171;
+        --modal-backdrop: rgba(0, 0, 0, 0.75);
+
+        --app-bg-rgb: 15, 23, 42;
+        --background-rgb: 30, 41, 59;
+        --background-secondary-rgb: 51, 65, 85;
+        --input-bg-rgb: 51, 65, 85;
+        --text-primary-rgb: 241, 245, 249;
+        --text-secondary-rgb: 148, 163, 184;
+        --text-on-accent-rgb: 255, 255, 255;
+        --border-color-rgb: 71, 85, 105;
+        --accent-rgb: 16, 185, 129;
+        --accent-hover-rgb: 5, 150, 105;
+        --primary-rgb: 16, 185, 129;
+        --primary-hover-rgb: 5, 150, 105;
+        --destructive-rgb: 248, 113, 113;
+        --border-rgb: 51, 65, 85;
+    }
+}
+
+/*
+========================================
+    2. Global Styles (Base, Body, Resets)
+========================================
+*/
+html, body, #root {
+    min-height: 100vh;
+}
+
+body {
+    background-color: var(--app-bg);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+select option {
+    color: #1e293b; /* slate-800 */
+    background: #ffffff; /* white */
+}
+
+input[type="radio"], input[type="checkbox"] {
+    accent-color: var(--accent);
+}
+
+/*
+========================================
+    3. Component Styles
+========================================
+*/
+
+/* --- Background Carousel --- */
+.background-carousel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.background-carousel-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    filter: brightness(0.7);
+}
+.background-carousel-image.visible {
+    opacity: 1;
+}
+
+/* --- Grid Pattern (Visual Planner) --- */
+.bg-grid-pattern {
+    background-image: linear-gradient(to right, var(--border-color) 1px, transparent 1px), linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* --- Prose (Markdown Content) --- */
+.prose { color: var(--text-primary); }
+.prose h1, .prose h2, .prose h3, .prose h4, .prose strong { color: var(--text-primary); }
+.prose a { color: var(--accent); }
+.prose blockquote { color: var(--text-secondary); border-left-color: var(--border-color); }
+
+/* --- Buttons --- */
+.btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s ease-in-out; border: 1px solid transparent; }
+.btn-primary, .btn-accent { color: var(--text-on-accent); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
+.btn-primary:hover, .btn-accent:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
+.btn-primary { background-color: var(--primary); border-color: var(--primary); color: #ffffff; }
+.btn-primary:hover { background-color: var(--primary-hover); border-color: var(--primary-hover); }
+.btn-accent { background-color: var(--accent); border-color: var(--accent); }
+.btn-accent:hover { background-color: var(--accent-hover); border-color: var(--accent-hover); }
+.btn-secondary { background-color: transparent; color: var(--text-primary); border-color: var(--border-color); }
+.btn-secondary:hover { background-color: var(--input-bg); border-color: var(--border-color); }
+
+/*
+========================================
+    4. Animations
+========================================
+*/
+@keyframes pulse-bright {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 131, 61, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(0, 131, 61, 0); }
+}
+.animate-pulse-bright { animation: pulse-bright 2.5s infinite; }
+
+@keyframes fade-in-fast {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.animate-fade-in-fast { animation: fade-in-fast 0.3s ease-in-out forwards; }
+
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fade-in-up 0.3s ease-out forwards; }
+
+@keyframes thinking-progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.animate-thinking-progress { animation: thinking-progress 1.5s ease-in-out infinite; }
+
+/*
+========================================
+    5. Utility & Browser Styles
+========================================
+*/
+
+/* --- Custom Scrollbar --- */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--app-bg); }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* --- Print Styles --- */
+@media print {
+    body { background-color: #fff; color: #000; }
+    .print\:hidden { display: none; }
+    .print\:shadow-none { box-shadow: none; }
+}
