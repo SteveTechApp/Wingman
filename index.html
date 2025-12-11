@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>WyreStorm Wingman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'app-bg': 'rgba(var(--app-bg-rgb), <alpha-value>)',
+              'background': '#ffffff',
+              'background-secondary': '#f8fafc',
+              'input-bg': 'rgba(var(--input-bg-rgb), <alpha-value>)',
+              'text-primary': 'rgba(var(--text-primary-rgb), <alpha-value>)',
+              'text-secondary': 'rgba(var(--text-secondary-rgb), <alpha-value>)',
+              'text-on-accent': 'rgba(var(--text-on-accent-rgb), <alpha-value>)',
+              'border-color': 'rgba(var(--border-color-rgb), <alpha-value>)',
+              'border': 'rgba(var(--border-rgb), <alpha-value>)',
+              'accent': 'rgba(var(--accent-rgb), <alpha-value>)',
+              'accent-hover': 'rgba(var(--accent-hover-rgb), <alpha-value>)',
+              'primary': 'rgba(var(--primary-rgb), <alpha-value>)',
+              'primary-hover': 'rgba(var(--primary-hover-rgb), <alpha-value>)',
+              'destructive': 'rgba(var(--destructive-rgb), <alpha-value>)',
+              'modal-backdrop': 'rgba(15, 23, 42, 0.8)',
+              'gradient-from-black-80': 'rgba(0, 0, 0, 0.8)',
+              'gradient-from-black-90': 'rgba(0, 0, 0, 0.9)',
+              'content-overlay': 'rgba(255, 255, 255, 0.95)',
+              'destructive-bg': 'rgba(228, 0, 43, 0.1)',
+              'destructive-border-subtle': 'rgba(228, 0, 43, 0.2)',
+              'accent-bg-subtle': 'rgba(0, 131, 61, 0.1)',
+              'primary-bg-subtle': 'rgba(0, 131, 61, 0.05)',
+              'accent-border-subtle': 'rgba(0, 131, 61, 0.5)',
+              'primary-hover-bg': 'rgba(0, 100, 47, 0.9)',
+              'accent-bg-very-subtle': 'rgba(0, 131, 61, 0.2)',
+              'border-color-subtle': 'rgba(203, 213, 225, 0.5)',
+              'accent-text-subtle': 'rgba(0, 131, 61, 0.5)',
+              'background-secondary-subtle': 'rgba(248, 250, 252, 0.5)',
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="/styles.css">
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.28.0",
+    "@google/genai": "https://esm.sh/@google/genai@0.15.0",
+    "uuid": "https://esm.sh/uuid@9.0.0",
+    "zod": "https://esm.sh/zod@3.23.8",
+    "react-hot-toast": "https://esm.sh/react-hot-toast@2.4.1",
+    "date-fns": "https://esm.sh/date-fns@3.6.0",
+    "react-markdown": "https://esm.sh/react-markdown@9.0.1",
+        "path": "https://aistudiocdn.com/path@^0.12.7",
+    "vite": "https://aistudiocdn.com/vite@^7.2.4",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+    <script src="https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script>
+      function handleMermaidClick(nodeId) {
+        console.log('Mermaid node clicked:', nodeId);
+      }
+      window.handleMermaidClick = handleMermaidClick;
+    </script>
+</body>
+</html>
