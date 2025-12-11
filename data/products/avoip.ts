@@ -1,0 +1,197 @@
+import { Product } from '../../utils/types';
+
+export const AVOIP_PRODUCTS: Product[] = [
+    // 100 SERIES - H.264
+    {
+        sku: 'NHD-120-TX',
+        name: 'NetworkHD 120 Series 4K H.264/H.265 Encoder',
+        category: 'AVoIP Encoder',
+        description: 'A cost-effective "Bronze" tier AVoIP encoder using a low-bandwidth (10-30Mbps) H.264/H.265 stream. Ideal for budget-conscious projects, digital signage, or large-scale deployments on existing 1GbE networks where minimizing network impact is critical. Does not support video wall bezel compensation.',
+        tags: ['NetworkHD', 'AVoIP', 'Encoder', '4K', 'H.264', 'H.265', '1GbE', '4K30', 'Bronze'],
+        videoIO: { inputs: [{ type: 'HDMI', count: 1 }], outputs: [{ type: 'RJ45', count: 1 }] },
+        hdmiVersion: '1.4',
+        hdcpVersion: '2.2',
+        rs232: true,
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'H.264' }
+    },
+    {
+        sku: 'NHD-120-RX',
+        name: 'NetworkHD 120 Series 4K H.264/H.265 Decoder',
+        category: 'AVoIP Decoder',
+        description: 'A cost-effective "Bronze" tier AVoIP decoder for the low-bandwidth NetworkHD 120 series. Ideal for digital signage and large-scale distribution where network efficiency is a priority. Does not support video wall bezel compensation.',
+        tags: ['NetworkHD', 'AVoIP', 'Decoder', '4K', 'H.264', 'H.265', '1GbE', '4K30', 'Bronze'],
+        videoIO: { inputs: [{ type: 'RJ45', count: 1 }], outputs: [{ type: 'HDMI', count: 1 }] },
+        hdmiVersion: '1.4',
+        hdcpVersion: '2.2',
+        rs232: true,
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'H.264' }
+    },
+    {
+        sku: 'NHD-150-RX',
+        name: 'NetworkHD 150 Series Multiview & Video Wall Decoder',
+        category: 'AVoIP Decoder',
+        description: 'A powerful multiview decoder for the low-bandwidth 100/120 Series. Thanks to the low bandwidth of the encoders (10-30Mbps), it can process multiple streams simultaneously, displaying up to 9 sources in a grid layout or 6 user-customizable floating windows. It is an excellent solution for feeding content to large LED video wall processors or for creating simple looped-through video walls (e.g., 2x2, 3x3).',
+        tags: ['NetworkHD', 'AVoIP', 'Decoder', 'Multiview', 'Video Wall', '1GbE', 'H.264'],
+        videoIO: { inputs: [{ type: 'RJ45', count: 1 }], outputs: [{ type: 'HDMI', count: 1 }] },
+        hdmiVersion: '1.4',
+        hdcpVersion: '2.2',
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'H.264' }
+    },
+
+    // 400 SERIES - JPEG2000 (LEGACY)
+    {
+        sku: 'NHD-400-TX',
+        name: 'NetworkHD 400 Series 4K JPEG2000 Encoder',
+        category: 'AVoIP Encoder',
+        description: 'Legacy visually lossless 4K30 4:4:4 video over 1GbE with JPEG2000 compression. Does not support multiview on its own, requires NHD-0401-MV.',
+        tags: ['NetworkHD', 'AVoIP', 'Encoder', '4K', 'JPEG-2000', '1GbE', '4K30', '4:4:4'],
+        videoIO: { inputs: [{ type: 'HDMI', count: 1 }], outputs: [{ type: 'RJ45', count: 1 }] },
+        hdmiVersion: '2.0',
+        hdcpVersion: '2.2',
+        rs232: true,
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'JPEG-2000' },
+        status: 'legacy',
+        legacyReason: 'The 400 Series has been superseded by the 500 Series, which uses the more efficient JPEG-XS codec and offers Dante audio support.'
+    },
+    {
+        sku: 'NHD-400-RX',
+        name: 'NetworkHD 400 Series 4K JPEG2000 Decoder',
+        category: 'AVoIP Decoder',
+        description: 'Decoder for the NetworkHD 400 JPEG2000 series. Supports bezel correction for video walls.',
+        tags: ['NetworkHD', 'AVoIP', 'Decoder', '4K', 'JPEG-2000', '1GbE', '4K30', '4:4:4'],
+        videoIO: { inputs: [{ type: 'RJ45', count: 1 }], outputs: [{ type: 'HDMI', count: 1 }] },
+        hdmiVersion: '2.0',
+        hdcpVersion: '2.2',
+        rs232: true,
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'JPEG-2000' },
+        status: 'legacy',
+        legacyReason: 'The 400 Series has been superseded by the 500 Series, which uses the more efficient JPEG-XS codec and offers Dante audio support.'
+    },
+
+    // 500 SERIES - JPEG-XS
+    {
+        sku: 'NHD-500-TX',
+        name: 'NetworkHD 500 Series 4K60 JPEG-XS Encoder',
+        category: 'AVoIP Encoder',
+        description: 'A "Silver" tier AVoIP encoder representing the industry standard for high-quality AV over 1GbE. It uses a higher bandwidth (250-850Mbps) JPEG-XS stream for visually lossless 4K60 4:4:4 video with extremely low latency. With support for software-activatable Dante audio, it\'s the perfect choice for high-quality TV distribution and presentations in boardrooms, classrooms, and command centers where image quality is paramount. Does not have built-in multiview (requires NHD-0401-MV for this).',
+        tags: ['NetworkHD', 'AVoIP', 'Encoder', '4K', 'JPEG-XS', 'Dante', '1GbE', '4K60', '4:4:4', 'Low Latency', 'Silver'],
+        videoIO: { inputs: [{ type: 'HDMI', count: 1 }], outputs: [{ type: 'RJ45', count: 1 }] },
+        hdmiVersion: '2.0b',
+        hdcpVersion: '2.2',
+        rs232: true,
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'JPEG-XS' },
+        audio: { dsp: true }
+    },
+    {
+        sku: 'NHD-500-RX',
+        name: 'NetworkHD 500 Series 4K60 JPEG-XS Decoder',
+        category: 'AVoIP Decoder',
+        description: 'A "Silver" tier AVoIP decoder for the high-quality NetworkHD 500 series. It decodes the higher bandwidth (250-850Mbps) JPEG-XS stream for visually lossless 4K60 video. It is the ideal endpoint for high-performance applications like high-quality TV and presentation, offering a rich feature set including USB 2.0 (KVM), software-activatable Dante, audio breakout, RS-232, and IR passthrough for total device control. Does not have built-in multiview.',
+        tags: ['NetworkHD', 'AVoIP', 'Decoder', '4K', 'JPEG-XS', 'Dante', '1GbE', '4K60', '4:4:4', 'USB', 'KVM', 'Silver'],
+        videoIO: { inputs: [{ type: 'RJ45', count: 1 }], outputs: [{ type: 'HDMI', count: 1 }] },
+        hdmiVersion: '2.0b',
+        hdcpVersion: '2.2',
+        rs232: true,
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'JPEG-XS' },
+        usb: { ports: [{ type: 'USB-B Host', count: 1 }, { type: 'USB-A Device', count: 2 }], bandwidth: '2.0 (480Mbps)'},
+        audio: { dsp: true }
+    },
+    {
+        sku: 'NHD-500-TXE',
+        name: 'NetworkHD 500 Series 4K60 JPEG-XS Encoder (HDMI Only)',
+        category: 'AVoIP Encoder',
+        description: 'A cost-effective "essentials" version of the 500-series encoder. It provides the same visually lossless 4K60 JPEG-XS video but without the advanced audio and USB features. Perfect for sources that only require HDMI video distribution, such as media players or video wall sources.',
+        tags: ['NetworkHD', 'AVoIP', 'Encoder', '4K', 'JPEG-XS', '1GbE', '4K60', '4:4:4', 'Low Latency', 'Video Wall'],
+        videoIO: { inputs: [{ type: 'HDMI', count: 1 }], outputs: [{ type: 'RJ45', count: 1 }] },
+        hdmiVersion: '2.0b',
+        hdcpVersion: '2.2',
+        rs232: true,
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'JPEG-XS' }
+    },
+    {
+        sku: 'NHD-500-RXE',
+        name: 'NetworkHD 500 Series 4K60 JPEG-XS Decoder (HDMI Only)',
+        category: 'AVoIP Decoder',
+        description: 'A cost-effective "essentials" version of the 500-series decoder. It provides the same visually lossless 4K60 video output, making it the perfect, affordable solution for video wall panels and displays that do not require USB KVM or audio de-embed.',
+        tags: ['NetworkHD', 'AVoIP', 'Decoder', '4K', 'JPEG-XS', '1GbE', '4K60', '4:4:4', 'Low Latency', 'Video Wall'],
+        videoIO: { inputs: [{ type: 'RJ45', count: 1 }], outputs: [{ type: 'HDMI', count: 1 }] },
+        hdmiVersion: '2.0b',
+        hdcpVersion: '2.2',
+        rs232: true,
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'JPEG-XS' }
+    },
+    
+    // 600 SERIES - UNCOMPRESSED 10GbE
+    {
+        sku: 'NHD-600-TRX',
+        name: 'NetworkHD 600 Series 4K60 10GbE Transceiver',
+        category: 'AVoIP Transceiver',
+        description: 'The ultimate "Gold" tier AVoIP solution, representing the best choice for video walls and mission-critical applications. This transceiver delivers pixel-perfect, zero-latency uncompressed 4K60 4:4:4 video performance over a 10GbE network. It features powerful, built-in multiview with up to 16 customizable windows. As a true transceiver, it can be configured as an Encoder, a Decoder, or both simultaneously. This enables unique applications, such as working on a local PC while also receiving a feed from another remote encoder on the same device. It is the required solution where video quality and speed are non-negotiable.',
+        tags: ['NetworkHD', 'AVoIP', 'Transceiver', '4K', 'Uncompressed', '10GbE', '4K60', '4:4:4', 'Zero Latency', 'Multiview', 'Gold'],
+        videoIO: { inputs: [{ type: 'HDMI', count: 1 }], outputs: [{ type: 'SFP+', count: 1 }] },
+        hdmiVersion: '2.0b',
+        hdcpVersion: '2.2',
+        rs232: true,
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'Uncompressed' }
+    },
+    {
+        sku: 'NHD-610-TX',
+        name: 'NetworkHD 600 Series Multi-Input 10GbE Encoder w/ Dante',
+        category: 'AVoIP Encoder',
+        description: 'A premium, multi-input 10GbE encoder for the NetworkHD 600 series. With inputs for HDMI, USB-C, and DisplayPort, it offers maximum source flexibility. A dedicated hardware Dante port ensures robust, broadcast-quality audio integration for the most demanding professional applications.',
+        tags: ['NetworkHD', 'AVoIP', 'Encoder', '10GbE', 'Uncompressed', 'Dante', 'USB-C', 'DisplayPort'],
+        videoIO: { inputs: [{ type: 'HDMI', count: 1 }, { type: 'USB-C', count: 1 }, { type: 'DisplayPort', count: 1 }], outputs: [{ type: 'SFP+', count: 1 }] },
+        hdmiVersion: '2.0b',
+        hdcpVersion: '2.2',
+        rs232: true,
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'Uncompressed' },
+        audio: { inputs: [{ type: 'Dante', count: 1 }], dsp: true }
+    },
+    {
+        sku: 'NHD-610-RX',
+        name: 'NetworkHD 600 Series 10GbE Decoder w/ Dante',
+        category: 'AVoIP Decoder',
+        description: '10GbE decoder for the 600 series with a dedicated hardware Dante port for de-embedding audio to a local sound system.',
+        tags: ['NetworkHD', 'AVoIP', 'Decoder', '10GbE', 'Uncompressed', 'Dante'],
+        videoIO: { inputs: [{ type: 'SFP+', count: 1 }], outputs: [{ type: 'HDMI', count: 1 }] },
+        hdmiVersion: '2.0b',
+        hdcpVersion: '2.2',
+        rs232: true,
+        ethernet: true,
+        poe: true,
+        avoip: { codec: 'Uncompressed' },
+        audio: { outputs: [{ type: 'Dante', count: 1 }], dsp: true }
+    },
+    
+    // CONTROLLERS
+    {
+        sku: 'NHD-CTL-PRO',
+        name: 'NetworkHD Pro Controller v2',
+        category: 'Control',
+        description: 'The brain of any NetworkHD system. This centralized controller is a MANDATORY component REQUIRED for ALL NetworkHD deployments, regardless of series. It provides the web interface for all system configuration and signal routing, and is the single point of control for all third-party integrations via its API.',
+        tags: ['NetworkHD', 'Control', 'Controller'],
+        ethernet: true,
+    },
+];

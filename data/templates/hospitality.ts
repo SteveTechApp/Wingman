@@ -1,0 +1,221 @@
+
+import { v4 as uuidv4 } from 'uuid';
+import { UserTemplate } from '../../utils/types';
+
+export const HOSPITALITY_TEMPLATES: UserTemplate[] = [
+    // --- DIGITAL SIGNAGE ---
+    {
+        templateId: uuidv4(),
+        conceptId: 'digital-signage',
+        conceptName: 'Digital Signage',
+        templateName: 'Lobby Signage',
+        description: 'Simple welcome screens for a hotel lobby using low-bandwidth AVoIP.',
+        vertical: 'hos',
+        roomData: {
+            id: '', roomName: 'Hotel Lobby', roomType: 'Lobby', designTier: 'Bronze',
+            dimensions: { length: 20, width: 15, height: 5 }, maxParticipants: 100, 
+            ioRequirements: [], displayType: 'single', displayCount: 2,
+            features: [],
+            functionalityStatement: 'Two digital signage displays in the hotel lobby fed by NetworkHD 120 series AVoIP decoders. A central media player allows for easy content updates.',
+            manuallyAddedEquipment: [
+                { sku: 'NHD-120-TX', name: 'NetworkHD 120 Series 4K H.264/H.265 Encoder', quantity: 1, category: 'AVoIP Encoder', description: 'Cost-effective H.264/H.265 streaming.', tags: ['NetworkHD', 'AVoIP', 'Encoder', 'Bronze'] },
+                { sku: 'NHD-120-RX', name: 'NetworkHD 120 Series 4K H.264/H.265 Decoder', quantity: 2, category: 'AVoIP Decoder', description: 'Decoder for the NetworkHD 120 series.', tags: ['NetworkHD', 'AVoIP', 'Decoder', 'Bronze'] },
+            ],
+            constructionDetails: { wallConstruction: 'drywall', cableContainment: 'conduit', furnitureType: 'fixed' },
+            audioSystemDetails: { speakerLayout: 'none', systemType: 'high_impedance', useCases: [], microphoneType: 'none', ucCompatibility: false },
+            technicalDetails: { primaryVideoResolution: '1080p', videoSignalTypes: ['HDMI'], controlSystem: 'None', cameraType: 'none', cameraCount: 0, roomPc: false },
+        },
+    },
+     {
+        templateId: uuidv4(),
+        conceptId: 'digital-signage',
+        conceptName: 'Digital Signage',
+        templateName: 'Wayfinding System',
+        description: 'Interactive wayfinding displays distributed through the venue.',
+        vertical: 'hos',
+        roomData: {
+            id: '', roomName: 'Wayfinding', roomType: 'Lobby', designTier: 'Silver',
+            dimensions: { length: 50, width: 30, height: 5 }, maxParticipants: 500, 
+            ioRequirements: [], displayType: 'single', displayCount: 5,
+            features: [],
+            functionalityStatement: 'Interactive wayfinding kiosks driven by NHD-500-RX decoders with USB back-channel for touch support.',
+            manuallyAddedEquipment: [
+                { sku: 'NHD-500-RX', name: 'NetworkHD 500 Series 4K60 JPEG-XS Decoder', quantity: 5, category: 'AVoIP Decoder', description: 'Decoder with USB KVM for touch.', tags: ['NetworkHD', 'AVoIP', 'Decoder', 'Silver', 'KVM'] },
+            ],
+            constructionDetails: { wallConstruction: 'drywall', cableContainment: 'conduit', furnitureType: 'fixed' },
+            audioSystemDetails: { speakerLayout: 'none', systemType: 'high_impedance', useCases: [], microphoneType: 'none', ucCompatibility: false },
+            technicalDetails: { primaryVideoResolution: '4K60', videoSignalTypes: ['HDMI'], controlSystem: 'None', cameraType: 'none', cameraCount: 0, roomPc: false },
+        },
+    },
+    {
+        templateId: uuidv4(),
+        conceptId: 'digital-signage',
+        conceptName: 'Digital Signage',
+        templateName: 'Immersive Video Wall',
+        description: 'High-impact video wall for branding and guest experience.',
+        vertical: 'hos',
+        roomData: {
+            id: '', roomName: 'Lobby Feature Wall', roomType: 'Lobby', designTier: 'Gold',
+            dimensions: { length: 10, width: 1, height: 4 }, maxParticipants: 50, 
+            ioRequirements: [], displayType: 'led_video_wall', displayCount: 1,
+            features: [],
+            functionalityStatement: 'A massive direct-view LED wall driven by a NetworkHD 600 Series transceiver for uncompressed, zero-latency visuals that stun guests upon arrival.',
+            manuallyAddedEquipment: [
+                { sku: 'NHD-600-TRX', name: 'NetworkHD 600 Series 4K60 10GbE Transceiver', quantity: 1, category: 'AVoIP Transceiver', description: 'Uncompressed 4K60 4:4:4 video over 10GbE.', tags: ['NetworkHD', 'AVoIP', 'Transceiver', 'Gold'] },
+            ],
+            constructionDetails: { wallConstruction: 'concrete', cableContainment: 'conduit', furnitureType: 'fixed' },
+            audioSystemDetails: { speakerLayout: 'none', systemType: 'high_impedance', useCases: [], microphoneType: 'none', ucCompatibility: false },
+            technicalDetails: { primaryVideoResolution: '4K60 4:4:4', videoSignalTypes: ['HDMI'], controlSystem: 'None', cameraType: 'none', cameraCount: 0, roomPc: false },
+        },
+    },
+
+    // --- SPORTS BAR ---
+    {
+        templateId: uuidv4(),
+        conceptId: 'sports-bar',
+        conceptName: 'Sports Bar',
+        templateName: 'Neighborhood Bar',
+        description: 'Simple matrix switching for a few TVs.',
+        vertical: 'hos',
+        roomData: {
+            id: '', roomName: 'Bar Area', roomType: 'Sports Bar', designTier: 'Bronze',
+            dimensions: { length: 15, width: 10, height: 3.5 }, maxParticipants: 40, 
+            ioRequirements: [], displayType: 'single', displayCount: 4,
+            features: [],
+            functionalityStatement: 'A simple distribution system using a fixed 4x4 HDMI matrix to route cable boxes to four TVs.',
+            manuallyAddedEquipment: [
+                { sku: 'SW-0401-H2', name: '4x1 4K/60Hz 4:2:0 HDMI Switcher', quantity: 4, category: 'Presentation Switcher', description: 'Local switching.', tags: ['Switcher', 'Bronze'] },
+            ],
+            constructionDetails: { wallConstruction: 'drywall', cableContainment: 'conduit', furnitureType: 'fixed' },
+            audioSystemDetails: { speakerLayout: 'surface_mount', systemType: 'low_impedance', useCases: ['program_audio'], microphoneType: 'none', ucCompatibility: false },
+            technicalDetails: { primaryVideoResolution: '1080p', videoSignalTypes: ['HDMI'], controlSystem: 'IR', cameraType: 'none', cameraCount: 0, roomPc: false },
+        },
+    },
+    {
+        templateId: uuidv4(),
+        conceptId: 'sports-bar',
+        conceptName: 'Sports Bar',
+        templateName: 'Sports Bar & Grill',
+        description: 'A flexible 1GbE AVoIP system for distributing multiple broadcast sources to many displays.',
+        vertical: 'hos',
+        roomData: {
+            id: '',
+            roomName: 'Main Bar Area',
+            roomType: 'Sports Bar',
+            designTier: 'Silver',
+            dimensions: { length: 25, width: 15, height: 4 },
+            maxParticipants: 100,
+            ioRequirements: [
+                { id: uuidv4(), name: 'Satellite Receiver', deviceType: 'Satellite Decoder', type: 'input', quantity: 8, connectionType: 'HDMI', distributionType: 'AVoIP', distance: 5, terminationType: 'Central Rack', control: { needed: false, types: [] } },
+                { id: uuidv4(), name: 'Bar Displays', deviceType: 'Room Display', type: 'output', quantity: 12, connectionType: 'HDMI', distributionType: 'AVoIP', distance: 30, terminationType: 'Wall Mount', control: { needed: false, types: [] } },
+            ],
+            displayType: 'single', // many single displays
+            displayCount: 12,
+            features: [],
+            functionalityStatement: 'A scalable NetworkHD 500 series AVoIP system allows any of the 8 satellite receivers to be routed to any of the 12 displays with high quality. The bartender can easily control the routing from a tablet using the NHD-TOUCH app. The visually lossless JPEG-XS codec ensures excellent picture quality for live sports.',
+            manuallyAddedEquipment: [
+                { sku: 'NHD-500-TX', name: 'NetworkHD 500 Series 4K60 JPEG-XS Encoder', quantity: 8, category: 'AVoIP Encoder', description: 'Visually lossless 4K60 4:4:4 video over 1GbE.', tags: ['NetworkHD', 'AVoIP', 'Encoder', '4K', 'JPEG-XS', 'Dante', '1GbE', '4K60', '4:4:4', 'Low Latency', 'Silver'] },
+                { sku: 'NHD-500-RX', name: 'NetworkHD 500 Series 4K60 JPEG-XS Decoder', quantity: 12, category: 'AVoIP Decoder', description: 'Decoder for the 500 series with USB 2.0 KVM support.', tags: ['NetworkHD', 'AVoIP', 'Decoder', '4K', 'JPEG-XS', 'Dante', '1GbE', '4K60', '4:4:4', 'USB', 'KVM', 'Silver'] },
+                { sku: 'NHD-CTL-PRO', name: 'NetworkHD Pro Controller', quantity: 1, category: 'Control', description: 'Centralized controller for NetworkHD systems.', tags: ['NetworkHD', 'Control', 'Controller'] },
+            ],
+            constructionDetails: { wallConstruction: 'drywall', cableContainment: 'conduit', furnitureType: 'fixed' },
+            audioSystemDetails: { speakerLayout: 'pendant', systemType: 'high_impedance', useCases: ['program_audio'], microphoneType: 'none', ucCompatibility: false },
+            technicalDetails: { primaryVideoResolution: '1080p', videoSignalTypes: ['HDMI'], controlSystem: 'Touch Panel', cameraType: 'none', cameraCount: 0, roomPc: false },
+        },
+    },
+    {
+        templateId: uuidv4(),
+        conceptId: 'sports-bar',
+        conceptName: 'Sports Bar',
+        templateName: 'Premium Sports Lounge',
+        description: 'The ultimate viewing experience with multi-view video walls and zero-latency AVoIP.',
+        vertical: 'hos',
+        roomData: {
+            id: '', roomName: 'VIP Sports Lounge', roomType: 'Sports Bar', designTier: 'Gold',
+            dimensions: { length: 20, width: 15, height: 4 }, maxParticipants: 50, 
+            ioRequirements: [], displayType: 'lcd_video_wall', displayCount: 1,
+            features: [{ name: 'Multi-Display Support', priority: 'must-have' }],
+            functionalityStatement: 'A premium lounge featuring a massive video wall capable of showing up to 16 games at once using NHD-600-TRX transceivers. Zero latency ensures the crowd reaction is instantaneous.',
+            manuallyAddedEquipment: [
+                { sku: 'NHD-600-TRX', name: 'NetworkHD 600 Series 4K60 10GbE Transceiver', quantity: 12, category: 'AVoIP Transceiver', description: 'Uncompressed 4K60 4:4:4.', tags: ['NetworkHD', 'AVoIP', 'Transceiver', 'Gold', 'Multiview'] },
+            ],
+            constructionDetails: { wallConstruction: 'drywall', cableContainment: 'conduit', furnitureType: 'fixed' },
+            audioSystemDetails: { speakerLayout: 'surface_mount', systemType: 'high_impedance', useCases: ['program_audio'], microphoneType: 'none', ucCompatibility: false },
+            technicalDetails: { primaryVideoResolution: '4K60 4:4:4', videoSignalTypes: ['HDMI'], controlSystem: 'Touch Panel', cameraType: 'none', cameraCount: 0, roomPc: false },
+        },
+    },
+
+    // --- BALLROOM / EVENT SPACE ---
+    {
+        templateId: uuidv4(),
+        conceptId: 'event-space',
+        conceptName: 'Event Space',
+        templateName: 'Hotel Ballroom',
+        description: 'A large, divisible ballroom with projection, wireless audio, and flexible routing for events.',
+        vertical: 'hos',
+        roomData: {
+            id: '', roomName: 'Grand Ballroom', roomType: 'Auditorium', designTier: 'Gold',
+            dimensions: { length: 40, width: 25, height: 8 }, maxParticipants: 400, 
+            ioRequirements: [
+                { id: uuidv4(), name: 'Floor Box Inputs', deviceType: 'Guest Device', type: 'input', quantity: 6, connectionType: 'HDMI', distributionType: 'HDBaseT', distance: 20, terminationType: 'Floor Box', control: { needed: false, types: [] } },
+                { id: uuidv4(), name: 'Main Projectors', deviceType: 'Projector', type: 'output', quantity: 3, connectionType: 'HDMI', distributionType: 'HDBaseT', distance: 40, terminationType: 'Ceiling Mount', control: { needed: false, types: [] } },
+            ],
+            displayType: 'projector',
+            displayCount: 3,
+            features: [
+                { name: 'Speech Reinforcement', priority: 'must-have' },
+                { name: 'Multi-Display Support', priority: 'must-have' }
+            ],
+            functionalityStatement: 'A highly flexible ballroom for large events that can be divided into three smaller spaces. Each space has its own projector and audio zone. A powerful MX-1007-HYB hybrid matrix allows any source from multiple floor box locations to be routed to any combination of projectors. The system includes wireless microphones and Dante audio distribution for maximum flexibility.',
+            manuallyAddedEquipment: [
+                { sku: 'MX-1007-HYB', name: '10x7 Hybrid HDBaseT/HDMI Matrix Switcher', quantity: 1, category: 'Matrix Switcher', description: 'A powerful hybrid matrix with 10 inputs (HDMI, HDBaseT) and 7 outputs, with integrated audio DSP.', tags: ['Matrix', 'HDBaseT', 'DSP', '4K', 'Gold', '10x7', 'HDMI'] },
+                { sku: 'AMP-260-DNT', name: '120W Network Amplifier', quantity: 2, category: 'Amplifier', description: '2 x 60w or 4 x 25w Channel Output @ 4ohm | Dual Power Options | Advanced DSP with Dante Integration', tags: ['Amplifier', 'Dante', 'DSP', 'Low Impedance'] },
+            ],
+            constructionDetails: { wallConstruction: 'modular', cableContainment: 'floor_boxes', furnitureType: 'multi_use' },
+            audioSystemDetails: { speakerLayout: 'in_ceiling', systemType: 'high_impedance', useCases: ['speech_reinforcement', 'program_audio'], microphoneType: 'wireless_lav', ucCompatibility: false },
+            technicalDetails: { primaryVideoResolution: '1080p', videoSignalTypes: ['HDMI'], controlSystem: 'Touch Panel', cameraType: 'none', cameraCount: 0, roomPc: false },
+        },
+    },
+    {
+        templateId: uuidv4(),
+        conceptId: 'event-space',
+        conceptName: 'Event Space',
+        templateName: 'Basic Meeting Hall',
+        description: 'A simple projector and mic system for basic functions.',
+        vertical: 'hos',
+        roomData: {
+            id: '', roomName: 'Meeting Hall', roomType: 'Auditorium', designTier: 'Bronze',
+            dimensions: { length: 20, width: 15, height: 5 }, maxParticipants: 100, 
+            ioRequirements: [], displayType: 'projector', displayCount: 1,
+            features: [{ name: 'Speech Reinforcement', priority: 'must-have' }],
+            functionalityStatement: 'A basic HDBaseT extender connects a floor box to a projector. A simple mixer amp handles a wired microphone.',
+            manuallyAddedEquipment: [
+                { sku: 'EX-100-G2', name: '4K60Hz 4.2.0 HDBaseT Extender', quantity: 1, category: 'Extender', description: 'Standard extension.', tags: ['Extender', 'Bronze'] },
+            ],
+            constructionDetails: { wallConstruction: 'concrete', cableContainment: 'floor_boxes', furnitureType: 'multi_use' },
+            audioSystemDetails: { speakerLayout: 'surface_mount', systemType: 'high_impedance', useCases: ['speech_reinforcement'], microphoneType: 'table_mic', ucCompatibility: false },
+            technicalDetails: { primaryVideoResolution: '1080p', videoSignalTypes: ['HDMI'], controlSystem: 'None', cameraType: 'none', cameraCount: 0, roomPc: false },
+        },
+    },
+     {
+        templateId: uuidv4(),
+        conceptId: 'event-space',
+        conceptName: 'Event Space',
+        templateName: 'Conference Center Room',
+        description: 'A dual-projector room for medium sized conferences.',
+        vertical: 'hos',
+        roomData: {
+            id: '', roomName: 'Conference Hall B', roomType: 'Auditorium', designTier: 'Silver',
+            dimensions: { length: 25, width: 18, height: 6 }, maxParticipants: 200, 
+            ioRequirements: [], displayType: 'dual_display', displayCount: 2,
+            features: [{ name: 'Speech Reinforcement', priority: 'must-have' }, { name: 'Multi-Display Support', priority: 'must-have' }],
+            functionalityStatement: 'An 8x4 matrix drives two projectors and two repeater screens. Audio processing for multiple mics.',
+            manuallyAddedEquipment: [
+                { sku: 'MX-0804-EDU', name: '8x4 Education Matrix Switcher', quantity: 1, category: 'Matrix Switcher', description: 'Audio mixing and video routing.', tags: ['Matrix', 'Silver'] },
+            ],
+            constructionDetails: { wallConstruction: 'drywall', cableContainment: 'floor_boxes', furnitureType: 'multi_use' },
+            audioSystemDetails: { speakerLayout: 'in_ceiling', systemType: 'high_impedance', useCases: ['speech_reinforcement'], microphoneType: 'wireless_lav', ucCompatibility: false },
+            technicalDetails: { primaryVideoResolution: '1080p', videoSignalTypes: ['HDMI'], controlSystem: 'Keypad', cameraType: 'none', cameraCount: 0, roomPc: false },
+        },
+    },
+];
