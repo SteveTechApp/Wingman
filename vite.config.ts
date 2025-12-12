@@ -15,8 +15,7 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          // @ts-ignore - Fix: __dirname is not available in all module systems. path.resolve('.') resolves from the current working directory, which is the project root when running Vite.
-          '@': path.resolve('.'),
+          '@': path.resolve(__dirname, './src'),
         }
       }
     };
