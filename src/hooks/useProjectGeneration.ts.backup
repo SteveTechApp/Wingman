@@ -52,19 +52,13 @@ export const useProjectGeneration = () => {
 
     const handleAgentSubmit = useCallback(async (documentText: string, navigate: NavigateFunction) => {
         await withLoading('template', async () => {
-            // Create minimal setup data for AI to analyze
-            const dummySetupData = {
-                projectName: "New Project",
-                clientName: "TBD",
-                rooms: []
-            };
-            const requirements = await analyzeRequirements(documentText, dummySetupData, userProfile);
+            const requirements = await analyzeRequirements(documentText, userProfile);
             const newProject: ProjectData = {
                 projectId: uuidv4(),
                 projectName: requirements.projectName,
                 clientName: requirements.clientName,
                 lastSaved: new Date().toISOString(),
-                rooms: (requirements.rooms || []).map((roomStub, index) => ({
+                rooms: requirements.rooms.map((roomStub, index) => ({
                     ...createNewRoom(),
                     id: uuidv4(),
                     roomName: `Room ${index + 1}`,
@@ -287,6 +281,3 @@ export const useProjectGeneration = () => {
         handleValueEngineerRoom,
     };
 };
-
-
-

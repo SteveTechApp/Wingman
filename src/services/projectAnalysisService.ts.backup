@@ -107,63 +107,40 @@ export async function analyzeRequirements(
     documentText: string,
     userProfile?: UserProfile
   ): Promise<ProjectSetupData> {
-  const userInstruction = `Analyze the following AV project requirements and extract detailed room configurations.
+  const userInstruction = `
+Analyze the following AV project requirements and extract:
 
 Input:
+- Raw requirements / RFP text:
 """${documentText}"""
 
 Extract and return:
 1. projectName: A clear project name
-2. clientName: The client/company name  
-3. rooms: Array of rooms with FULL technical specifications
+2. clientName: The client/company name
+3. rooms: An array of recommended rooms based on the requirements
 
-For EACH room, extract as much detail as possible:
-
-**Basic Info:**
+For each room, provide:
 - roomName: Descriptive name
-- roomType: meeting-room, conference-room, lecture-theatre, training-room, boardroom, huddle-room, etc.
-- designTier: Bronze (basic), Silver (standard), or Gold (premium)
-- maxParticipants: Expected number of people
-- functionalityStatement: Brief description of room purpose
+- roomType: (meeting-room, conference-room, lecture-theatre, etc.)
+- capacity: Estimated number of people
+- designTier: Recommended tier (Bronze, Silver, or Gold)
+- description: Brief description of room purpose
 
-**Dimensions (if mentioned):**
-- dimensions.length: meters
-- dimensions.width: meters  
-- dimensions.height: meters (default 2.7 if not specified)
-
-**Display Configuration:**
-- displayType: single, dual, triple, quad, or video-wall
-- displayCount: Number of displays (default 1)
-- displaySize: Size in inches (default 75)
-
-**I/O Requirements:**
-Extract all mentioned input/output types into ioRequirements array:
-- HDMI, USB-C, DisplayPort, VGA, etc.
-- Wireless presentation (AirPlay, Miracast, etc.)
-- Audio inputs/outputs
-- Network connections
-
-**Audio System:**
-- audioSystemDetails.speakerLayout: none, stereo, 2.1, 5.1, ceiling, line_array
-- audioSystemDetails.systemType: low_impedance, high_impedance, dante, aoip
-- audioSystemDetails.microphoneType: none, handheld, lapel, gooseneck, boundary, ceiling, beamforming
-- audioSystemDetails.ucCompatibility: true if UC/Teams/Zoom mentioned
-
-**Technical Details:**
-- technicalDetails.primaryVideoResolution: 1080p, 4K, or 8K
-- technicalDetails.videoSignalTypes: Array of signal types (HDMI, HDBaseT, etc.)
-- technicalDetails.controlSystem: None (Auto-switching), Touch panel, Wall-mounted, Wireless, Custom
-- technicalDetails.cameraType: none, ptz, fixed, tracking, multi-camera
-- technicalDetails.cameraCount: Number of cameras
-- technicalDetails.roomPc: true if PC/computer mentioned
-
-**Important:**
-- If information is not specified, use sensible defaults based on room type and tier
-- Bronze = basic setup, Silver = standard professional, Gold = premium/executive
-- Extract ALL technical details mentioned in the requirements
-- Be specific with I/O requirements - list every type mentioned
-
-Return JSON matching the REQUIREMENTS_ANALYSIS_SCHEMA structure.`.trim();
+Return a JSON object matching this structure:
+{
+  "projectName": "string",
+  "clientName": "string", 
+  "rooms": [
+    {
+      "roomName": "string",
+      "roomType": "string",
+      "capacity": number,
+      "designTier": "Bronze" | "Silver" | "Gold",
+      "description": "string"
+    }
+  ]
+}
+`.trim();
 
   const prompt = buildBasePrompt(userInstruction, userProfile);
 
@@ -299,7 +276,6 @@ Return a JSON object with the extracted information in a structured format.
     return { error: 'Failed to parse survey document', rawText };
   }
 }
-
 
 
 
