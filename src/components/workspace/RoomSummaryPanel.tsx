@@ -20,7 +20,8 @@ const RoomSummaryPanel: React.FC = () => {
     const METER_TO_FEET = 3.28084;
     const isImperial = userProfile.unitSystem === 'imperial';
 
-    const formatDistance = (meters: number) => {
+    const formatDistance = (meters: number | null | undefined) => {
+        if (!meters && meters !== 0) return 'N/A';
         if (isImperial) {
             return `${(meters * METER_TO_FEET).toFixed(1)}ft`;
         }
