@@ -1,5 +1,5 @@
 
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { RoomData, Product, StructuredSystemDiagram, DesignTier, DisplayType, ProjectInfrastructure } from '../utils/types';
 import { ROOM_DESIGN_SCHEMA, SYSTEM_DIAGRAM_SCHEMA } from './schemas';
 import { safeParseJson } from '../utils/utils';
@@ -9,7 +9,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 if (!API_KEY) {
   throw new Error('VITE_API_KEY environment variable is not configured. Please set it in your .env file.');
 }
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const ai = new GoogleGenerativeAI(API_KEY );
 
 export const designRoom = async (room: RoomData, productDatabase: Product[], infrastructure?: ProjectInfrastructure): Promise<{ functionalityStatement: string; manuallyAddedEquipment: { sku: string; quantity: number }[] }> => {
     const prompt = generateDesignPrompt(room, productDatabase, infrastructure);

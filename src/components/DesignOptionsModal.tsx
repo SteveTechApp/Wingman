@@ -1,5 +1,5 @@
 import React from 'react';
-import { DesignProposal, ManuallyAddedEquipment } from '../utils/types.ts';
+import { DesignProposal, ManuallyAddedEquipment } from '../utils/types';
 import InfoModal from './InfoModal.tsx';
 import TierIcon from './TierIcon.tsx';
 import { SparklesIcon } from './Icons.tsx';

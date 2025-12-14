@@ -1,10 +1,10 @@
-import { GoogleGenAI, Chat } from '@google/genai';
+import { GoogleGenerativeAI, Chat } from '@google/generative-ai';
 import { TECHNICAL_DATABASE } from '../data/technicalDatabase';
 import { PRODUCT_DATABASE } from '../data/productDatabase';
 import { UserProfile } from '../utils/types';
 import { getLocalizationInstructions } from './localizationService';
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
+const ai = new GoogleGenerativeAI(import.meta.env.VITE_API_KEY );
 
 /**
  * Creates and initializes a new chat session with the WyreStorm AI assistant.

@@ -1,9 +1,9 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Product, RelatedProductsPayload } from '../utils/types';
 import { PRODUCT_FINDER_SCHEMA, RELATED_PRODUCTS_SCHEMA } from './schemas';
 import { safeParseJson } from '../utils/utils';
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
+const ai = new GoogleGenerativeAI(import.meta.env.VITE_API_KEY );
 
 /**
  * Finds relevant products based on a user query.

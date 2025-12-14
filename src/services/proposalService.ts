@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ProjectData, UserProfile, Proposal, StructuredSystemDiagram } from '../utils/types';
 import { PROPOSAL_GENERATION_SCHEMA, PROPOSAL_GENERATION_ZOD_SCHEMA } from './schemas';
 import { safeParseJson } from '../utils/utils';
@@ -8,7 +8,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 if (!API_KEY) {
   throw new Error('VITE_API_KEY environment variable is not configured. Please set it in your .env file.');
 }
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const ai = new GoogleGenerativeAI(API_KEY );
 
 type GeneratedProposalData = Omit<Proposal, 'proposalId' | 'version' | 'createdAt' | 'systemDiagram' | 'equipmentList'>;
 

@@ -1,4 +1,4 @@
-
+import { PRODUCT_DATABASE } from '../data/productDatabase';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGenerationContext } from '../context/GenerationContext';
@@ -86,7 +86,7 @@ const GuidedProjectWizard: React.FC = () => {
     const { dispatchProjectAction } = useProjectContext();
     const { isAuthenticated } = useUserContext();
     const projectState = useProjectContext().getState().projectData;
-    const productDatabase = projectState?.productDatabase || []; 
+    const productDatabase = projectState?.productDatabase || PRODUCT_DATABASE; 
     
     const [wizardState, setWizardState] = useLocalStorage<WizardDraftState>('wingman_wizard_draft_v2', DEFAULT_WIZARD_STATE);
     
