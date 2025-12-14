@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/genai": "^0.15.0",
+    "@google/generative-ai": "^0.24.1",
     "@react-three/drei": "^9.92.0",
     "@react-three/fiber": "^8.15.0",
     "date-fns": "^3.6.0",

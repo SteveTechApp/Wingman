@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import {
   ProjectData,
   RoomData,
@@ -23,10 +23,10 @@ if (!API_KEY) {
 }
 
 // ✅ Safe, correct instantiation of the Google GenAI client
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const ai = new GoogleGenerativeAI(API_KEY);
 
 // ✅ Central model config – change here if you want a different Gemini model
-const DEFAULT_MODEL_ID = 'gemini-1.5-flash'; // or 'gemini-1.5-pro', etc.
+const DEFAULT_MODEL_ID = 'gemini-2.5-flash'; // or 'gemini-1.5-pro', etc.
 
 /**
  * Shared helper to call the JSON model and parse with a schema.
@@ -41,19 +41,26 @@ async function callJsonModel<T>(
 ): Promise<T> {
   const model = ai.getGenerativeModel({
     model: DEFAULT_MODEL_ID,
-    generationConfig: {
-      // Ask Gemini to give us structured JSON
-      responseMimeType: 'application/json',
-      responseSchema: schema as any,
-    },
   });
+  
+  const jsonPrompt = `${prompt}
 
-  const result = await model.generateContent(prompt);
+IMPORTANT: You must respond with ONLY valid JSON that matches the required schema. Do not include any markdown formatting, explanations, or text outside the JSON object.`;
+  
+  const result = await model.generateContent(jsonPrompt);
   const response = await result.response;
   const rawText = response.text();
-
+  
+  // Clean any markdown code fences if present
+  let cleanedText = rawText.trim();
+  if (cleanedText.startsWith('```json')) {
+    cleanedText = cleanedText.replace(/^```json\n/, '').replace(/\n```$/, '');
+  } else if (cleanedText.startsWith('```')) {
+    cleanedText = cleanedText.replace(/^```\n/, '').replace(/\n```$/, '');
+  }
+  
   // Use your existing safe JSON + schema validator
-  const parsed = safeParseJson(rawText, schema, contextLabel) as T;
+  const parsed = safeParseJson(cleanedText, schema, contextLabel) as T;
   return parsed;
 }
 

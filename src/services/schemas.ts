@@ -1,17 +1,17 @@
-import { Type } from '@google/genai';
+import { SchemaType } from '@google/generative-ai';
 import { z } from 'zod';
 
 export const ROOM_DESIGN_SCHEMA = {
-  type: Type.OBJECT,
+  type: SchemaType.OBJECT,
   properties: {
-    functionalityStatement: { type: Type.STRING },
+    functionalityStatement: { type: SchemaType.STRING },
     manuallyAddedEquipment: {
-      type: Type.ARRAY,
+      type: SchemaType.ARRAY,
       items: {
-        type: Type.OBJECT,
+        type: SchemaType.OBJECT,
         properties: {
-          sku: { type: Type.STRING },
-          quantity: { type: Type.INTEGER },
+          sku: { type: SchemaType.STRING },
+          quantity: { type: SchemaType.INTEGER },
         },
         required: ['sku', 'quantity'],
       },
@@ -21,29 +21,29 @@ export const ROOM_DESIGN_SCHEMA = {
 };
 
 export const SYSTEM_DIAGRAM_SCHEMA = {
-  type: Type.OBJECT,
+  type: SchemaType.OBJECT,
   properties: {
     nodes: {
-      type: Type.ARRAY,
+      type: SchemaType.ARRAY,
       items: {
-        type: Type.OBJECT,
+        type: SchemaType.OBJECT,
         properties: {
-          id: { type: Type.STRING },
-          label: { type: Type.STRING },
-          type: { type: Type.STRING },
+          id: { type: SchemaType.STRING },
+          label: { type: SchemaType.STRING },
+          type: { type: SchemaType.STRING },
         },
         required: ['id', 'label', 'type'],
       },
     },
     edges: {
-      type: Type.ARRAY,
+      type: SchemaType.ARRAY,
       items: {
-        type: Type.OBJECT,
+        type: SchemaType.OBJECT,
         properties: {
-          from: { type: Type.STRING },
-          to: { type: Type.STRING },
-          label: { type: Type.STRING },
-          type: { type: Type.STRING },
+          from: { type: SchemaType.STRING },
+          to: { type: SchemaType.STRING },
+          label: { type: SchemaType.STRING },
+          type: { type: SchemaType.STRING },
         },
         required: ['from', 'to', 'label', 'type'],
       },
@@ -53,52 +53,52 @@ export const SYSTEM_DIAGRAM_SCHEMA = {
 };
 
 export const PROPOSAL_GENERATION_SCHEMA = {
-  type: Type.OBJECT,
+  type: SchemaType.OBJECT,
   properties: {
-    executiveSummary: { type: Type.STRING },
-    scopeOfWork: { type: Type.STRING },
+    executiveSummary: { type: SchemaType.STRING },
+    scopeOfWork: { type: SchemaType.STRING },
     installationPlan: {
-      type: Type.ARRAY,
+      type: SchemaType.ARRAY,
       items: {
-        type: Type.OBJECT,
+        type: SchemaType.OBJECT,
         properties: {
-          phase: { type: Type.STRING },
-          tasks: { type: Type.ARRAY, items: { type: Type.STRING } },
+          phase: { type: SchemaType.STRING },
+          tasks: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
         },
         required: ['phase', 'tasks'],
       },
     },
      suggestedImprovements: {
-      type: Type.ARRAY,
+      type: SchemaType.ARRAY,
       items: {
-        type: Type.OBJECT,
+        type: SchemaType.OBJECT,
         properties: {
-            roomName: { type: Type.STRING },
-            improvement: { type: Type.STRING },
+            roomName: { type: SchemaType.STRING },
+            improvement: { type: SchemaType.STRING },
         },
         required: ['roomName', 'improvement'],
       },
     },
     upgradeDowngradePaths: {
-      type: Type.ARRAY,
+      type: SchemaType.ARRAY,
       items: {
-        type: Type.OBJECT,
+        type: SchemaType.OBJECT,
         properties: {
-          roomName: { type: Type.STRING },
-          currentTier: { type: Type.STRING },
+          roomName: { type: SchemaType.STRING },
+          currentTier: { type: SchemaType.STRING },
           upgrade: {
-            type: Type.OBJECT,
+            type: SchemaType.OBJECT,
             properties: {
-              toTier: { type: Type.STRING },
-              description: { type: Type.STRING },
+              toTier: { type: SchemaType.STRING },
+              description: { type: SchemaType.STRING },
             },
             required: ['toTier', 'description'],
           },
           downgrade: {
-            type: Type.OBJECT,
+            type: SchemaType.OBJECT,
             properties: {
-              toTier: { type: Type.STRING },
-              description: { type: Type.STRING },
+              toTier: { type: SchemaType.STRING },
+              description: { type: SchemaType.STRING },
             },
             required: ['toTier', 'description'],
           },
@@ -106,7 +106,7 @@ export const PROPOSAL_GENERATION_SCHEMA = {
         required: ['roomName', 'currentTier'],
       },
     },
-    cableInformation: { type: Type.STRING, description: "A section detailing WyreStorm's cable offerings and their costs." }
+    cableInformation: { type: SchemaType.STRING, description: "A section detailing WyreStorm's cable offerings and their costs." }
   },
   required: ['executiveSummary', 'scopeOfWork', 'installationPlan', 'upgradeDowngradePaths'],
 };
@@ -138,15 +138,15 @@ export const PROPOSAL_GENERATION_ZOD_SCHEMA = z.object({
 });
 
 export const PROJECT_INSIGHTS_SCHEMA = {
-    type: Type.OBJECT,
+    type: SchemaType.OBJECT,
     properties: {
         feedback: {
-            type: Type.ARRAY,
+            type: SchemaType.ARRAY,
             items: {
-                type: Type.OBJECT,
+                type: SchemaType.OBJECT,
                 properties: {
-                    type: { type: Type.STRING, enum: ['Warning', 'Suggestion', 'Opportunity', 'Insight'] },
-                    text: { type: Type.STRING },
+                    type: { type: SchemaType.STRING, enum: ['Warning', 'Suggestion', 'Opportunity', 'Insight'] },
+                    text: { type: SchemaType.STRING },
                 },
                 required: ['type', 'text'],
             },
@@ -158,18 +158,18 @@ export const PROJECT_INSIGHTS_SCHEMA = {
 export const ROOM_REVIEW_SCHEMA = PROJECT_INSIGHTS_SCHEMA;
 
 export const REQUIREMENTS_ANALYSIS_SCHEMA = {
-  type: Type.OBJECT,
+  type: SchemaType.OBJECT,
   properties: {
-    projectName: { type: Type.STRING },
-    clientName: { type: Type.STRING },
+    projectName: { type: SchemaType.STRING },
+    clientName: { type: SchemaType.STRING },
     rooms: {
-      type: Type.ARRAY,
+      type: SchemaType.ARRAY,
       items: {
-        type: Type.OBJECT,
+        type: SchemaType.OBJECT,
         properties: {
-          roomName: { type: Type.STRING },
-          roomType: { type: Type.STRING },
-          designTier: { type: Type.STRING, enum: ['Bronze', 'Silver', 'Gold'] },
+          roomName: { type: SchemaType.STRING },
+          roomType: { type: SchemaType.STRING },
+          designTier: { type: SchemaType.STRING, enum: ['Bronze', 'Silver', 'Gold'] },
           // other fields from RoomData can be added here if needed
         },
         required: ['roomName', 'roomType', 'designTier'],
@@ -180,39 +180,39 @@ export const REQUIREMENTS_ANALYSIS_SCHEMA = {
 };
 
 export const PRODUCT_FINDER_SCHEMA = {
-    type: Type.OBJECT,
+    type: SchemaType.OBJECT,
     properties: {
         skus: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING },
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING },
         },
     },
     required: ['skus'],
 };
 
 export const RELATED_PRODUCTS_SCHEMA = {
-    type: Type.OBJECT,
+    type: SchemaType.OBJECT,
     properties: {
         alternatives: {
-            type: Type.ARRAY,
+            type: SchemaType.ARRAY,
             items: {
-                type: Type.OBJECT,
+                type: SchemaType.OBJECT,
                 properties: {
-                    sku: { type: Type.STRING },
-                    name: { type: Type.STRING },
-                    reason: { type: Type.STRING },
+                    sku: { type: SchemaType.STRING },
+                    name: { type: SchemaType.STRING },
+                    reason: { type: SchemaType.STRING },
                 },
                 required: ['sku', 'name', 'reason'],
             },
         },
         accessories: {
-            type: Type.ARRAY,
+            type: SchemaType.ARRAY,
             items: {
-                type: Type.OBJECT,
+                type: SchemaType.OBJECT,
                 properties: {
-                    sku: { type: Type.STRING },
-                    name: { type: Type.STRING },
-                    reason: { type: Type.STRING },
+                    sku: { type: SchemaType.STRING },
+                    name: { type: SchemaType.STRING },
+                    reason: { type: SchemaType.STRING },
                 },
                 required: ['sku', 'name', 'reason'],
             },

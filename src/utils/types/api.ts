@@ -14,7 +14,7 @@ export interface UserTemplate {
     templateName: string;
     description: string;
     vertical: VerticalMarketId;
-    imageUrl: string;
+    imageUrl?: string;
     roomData: RoomData;
 }
 
