@@ -14,20 +14,19 @@ const ai = new GoogleGenerativeAI(API_KEY );
 export const designRoom = async (room: RoomData, productDatabase: Product[], infrastructure?: ProjectInfrastructure): Promise<{ functionalityStatement: string; manuallyAddedEquipment: { sku: string; quantity: number }[] }> => {
     const prompt = generateDesignPrompt(room, productDatabase, infrastructure);
     try {
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: {
-                responseMimeType: 'application/json',
-                responseSchema: ROOM_DESIGN_SCHEMA,
-            },
-        });
-        const text = response.text;
+        const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = result.response.text()();
         if (!text) throw new Error("Empty AI response for room design.");
         return safeParseJson(text);
     } catch (error) {
         console.error("Error designing room:", error);
-        throw new Error("Failed to design room due to an API or parsing error.");
+        if (error instanceof Error) {
+            console.error("Error message:", error.message);
+            console.error("Error stack:", error.stack);
+        }
+        throw error;
     }
 };
 
@@ -124,7 +123,8 @@ const generateDiagramPrompt = (room: RoomData): string => `
 export const generateDiagram = async (room: RoomData): Promise<StructuredSystemDiagram> => {
     const prompt = generateDiagramPrompt(room);
     try {
-        const response = await ai.models.generateContent({
+        const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const result = await model.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
             config: {
@@ -132,7 +132,7 @@ export const generateDiagram = async (room: RoomData): Promise<StructuredSystemD
                 responseSchema: SYSTEM_DIAGRAM_SCHEMA,
             },
         });
-        const text = response.text;
+        const text = result.response.text();
         if (!text) throw new Error("Empty AI response for diagram generation.");
         return safeParseJson(text);
     } catch (error) {
@@ -140,3 +140,6 @@ export const generateDiagram = async (room: RoomData): Promise<StructuredSystemD
         throw new Error("Failed to generate diagram due to an API error.");
     }
 };
+
+
+

@@ -59,79 +59,27 @@ export const useProjectGeneration = () => {
                 rooms: []
             };
             const requirements = await analyzeRequirements(documentText, dummySetupData, userProfile);
-            
-            // DEBUG: Log what AI extracted
-            console.log('?? AI Extracted Requirements:', JSON.stringify(requirements, null, 2));
-            
-            // Create rooms with extracted technical details and flatten displayConfiguration
-            const roomsWithDetails = (requirements.rooms || []).map((roomStub: any, index) => {
-                // Flatten displayConfiguration into root level
-                const { displayConfiguration, ...rest } = roomStub;
-                return {
-                    ...createNewRoom(),
-                    id: uuidv4(),
-                    roomName: roomStub.roomName || `Room ${index + 1}`,
-                    roomType: roomStub.roomType || 'Other',
-                    designTier: roomStub.designTier || 'Silver',
-                    ...rest,
-                    // Map displayConfiguration fields to root level
-                    ...(displayConfiguration && {
-                        displayType: displayConfiguration.displayType,
-                        displayCount: displayConfiguration.displayCount,
-                        displaySize: displayConfiguration.displaySize,
-                    }),
-                };
-            });
-
             const newProject: ProjectData = {
                 projectId: uuidv4(),
                 projectName: requirements.projectName,
                 clientName: requirements.clientName,
                 lastSaved: new Date().toISOString(),
-                rooms: roomsWithDetails,
+                rooms: (requirements.rooms || []).map((roomStub, index) => ({
+                    ...createNewRoom(),
+                    id: uuidv4(),
+                    roomName: `Room ${index + 1}`,
+                    roomType: 'Other',
+                    designTier: 'Silver',
+                    ...roomStub
+                })),
                 proposals: [],
                 unitSystem: 'metric',
                 notes: `Generated from client brief:\n\n${documentText}`,
                 infrastructure: DEFAULT_INFRASTRUCTURE,
                 productDatabase: getActiveProductDatabase(),
             };
-            
-            // Auto-design each room to populate equipment based on extracted requirements
-            toast.success('Analyzing requirements and designing rooms...');
-            const designedRooms = await Promise.all(
-                roomsWithDetails.map(async (room) => {
-                    try {
-                        const designResult = await designRoom(room, newProject.productDatabase);
-                        const fullEquipment: ManuallyAddedEquipment[] = designResult.manuallyAddedEquipment.map(equip => {
-                            const product = newProject.productDatabase.find(p => p.sku === equip.sku);
-                            if (!product) {
-                                console.warn(`Product not found for SKU: ${equip.sku}`);
-                                return {
-                                    sku: equip.sku,
-                                    name: 'Unknown Product',
-                                    category: 'Misc' as any,
-                                    description: 'Product not found in database',
-                                    tags: [],
-                                    quantity: equip.quantity
-                                };
-                            }
-                            return { ...product, quantity: equip.quantity };
-                        });
-                        return {
-                            ...room,
-                            functionalityStatement: designResult.functionalityStatement,
-                            manuallyAddedEquipment: fullEquipment,
-                        };
-                    } catch (error) {
-                        console.error(`Failed to auto-design room ${room.roomName}:`, error);
-                        return room; // Return room without equipment if design fails
-                    }
-                })
-            );
-
-            newProject.rooms = designedRooms;
             dispatchProjectAction({ type: 'SET_PROJECT', payload: newProject });
-            toast.success('Project created from client brief with equipment!');
+            toast.success('Project created from client brief!');
             navigate(`/design/${newProject.projectId}`);
         });
     }, [withLoading, userProfile, getActiveProductDatabase, dispatchProjectAction]);
@@ -339,11 +287,6 @@ export const useProjectGeneration = () => {
         handleValueEngineerRoom,
     };
 };
-
-
-
-
-
 
 
 

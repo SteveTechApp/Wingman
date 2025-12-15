@@ -22,13 +22,13 @@ const ProjectWorkspace: React.FC = () => {
 
     return (
         <>
-            <div className="h-full w-full overflow-y-auto custom-scrollbar p-4 md:p-6">
-                <div className="max-w-[1600px] mx-auto flex flex-col gap-6 animate-fade-in-fast pb-20">
+            <div className="h-full w-full overflow-y-auto custom-scrollbar p-3 md:p-4">
+                <div className="max-w-[1600px] mx-auto flex flex-col gap-3 animate-fade-in-fast pb-4">
                     <WorkspaceHeader />
                     <RoomSummaryPanel />
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 items-start">
                         {/* Left Column: Configuration */}
-                        <div className="space-y-6 min-w-0">
+                        <div className="space-y-3 min-w-0">
                             <FunctionalityStatementPanel />
                             <AIDesignActionPanel />
                             <ValueEngineeringPanel />
@@ -52,3 +52,4 @@ const ProjectWorkspace: React.FC = () => {
 };
 
 export default ProjectWorkspace;
+
