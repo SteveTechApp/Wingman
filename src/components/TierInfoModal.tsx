@@ -16,12 +16,12 @@ const TierInfoModal: React.FC<TierInfoModalProps> = ({ isOpen, onClose }) => {
                   <TierIcon tier="Bronze" className="h-6 w-6" />
                   <h3 className="text-xl font-bold text-[#cd7f32]">Bronze</h3>
               </div>
-              <p className="text-sm mb-3">Focuses on core functionality and cost-effectiveness. Ideal for budget-conscious projects or secondary spaces.</p>
+              <p className="text-sm mb-3 font-semibold">VALUE FOCUSED: Essential functionality at the best price point.</p>
               <ul className="list-disc list-inside text-sm space-y-1 text-text-secondary">
-                  <li>Reliable, essential features</li>
-                  <li>Wired connectivity focus</li>
-                  <li>Auto-switching or simple keypads</li>
-                  <li>Standard documentation</li>
+                  <li>Point-to-point connections</li>
+                  <li>Basic auto-switching</li>
+                  <li>Essentials cabling</li>
+                  <li>Budget-conscious equipment</li>
               </ul>
           </div>
           <div className="p-4 border rounded-lg bg-background-secondary-subtle">
@@ -29,12 +29,12 @@ const TierInfoModal: React.FC<TierInfoModalProps> = ({ isOpen, onClose }) => {
                   <TierIcon tier="Silver" className="h-6 w-6" />
                   <h3 className="text-xl font-bold text-gray-400">Silver</h3>
               </div>
-              <p className="text-sm mb-3">Balanced performance and value. The standard for modern AV systems with enhanced features.</p>
+              <p className="text-sm mb-3 font-semibold">FUNCTION FOCUSED: The "sweet spot" - reliable performance with modern features.</p>
               <ul className="list-disc list-inside text-sm space-y-1 text-text-secondary">
-                  <li>Full 4K video support</li>
-                  <li>USB-C and wireless options</li>
-                  <li>Enhanced audio capabilities</li>
-                  <li>Professional documentation</li>
+                  <li>HDBaseT Class A distribution</li>
+                  <li>Wireless casting & BYOM</li>
+                  <li>Quality audio systems</li>
+                  <li>USB host for UC</li>
               </ul>
           </div>
           <div className="p-4 border rounded-lg bg-background-secondary-subtle">
@@ -42,12 +42,12 @@ const TierInfoModal: React.FC<TierInfoModalProps> = ({ isOpen, onClose }) => {
                   <TierIcon tier="Gold" className="h-6 w-6" />
                   <h3 className="text-xl font-bold text-yellow-400">Gold</h3>
               </div>
-              <p className="text-sm mb-3">Premium, cutting-edge features for executive or high-usage spaces, prioritizing performance and scalability.</p>
+              <p className="text-sm mb-3 font-semibold">EXPERIENCE FOCUSED: Premium technology for executive spaces and mission-critical rooms.</p>
               <ul className="list-disc list-inside text-sm space-y-1 text-text-secondary">
-                  <li>Future-proof 4K60 4:4:4 support</li>
-                  <li>Advanced AVoIP and control</li>
-                  <li>Integrated audio processing (DSP)</li>
-                  <li>Comprehensive system diagrams</li>
+                  <li>AVoIP zero-latency routing</li>
+                  <li>Independent multi-display control</li>
+                  <li>Professional audio DSP</li>
+                  <li>Touch panel automation</li>
               </ul>
           </div>
       </div>

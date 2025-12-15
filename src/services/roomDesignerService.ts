@@ -17,7 +17,7 @@ export const designRoom = async (room: RoomData, productDatabase: Product[], inf
         const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const text = result.response.text()();
+        const text = response.text();
         if (!text) throw new Error("Empty AI response for room design.");
         return safeParseJson(text);
     } catch (error) {
@@ -124,15 +124,9 @@ export const generateDiagram = async (room: RoomData): Promise<StructuredSystemD
     const prompt = generateDiagramPrompt(room);
     try {
         const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
-        const result = await model.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: {
-                responseMimeType: 'application/json',
-                responseSchema: SYSTEM_DIAGRAM_SCHEMA,
-            },
-        });
-        const text = result.response.text();
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
         if (!text) throw new Error("Empty AI response for diagram generation.");
         return safeParseJson(text);
     } catch (error) {
@@ -140,6 +134,8 @@ export const generateDiagram = async (room: RoomData): Promise<StructuredSystemD
         throw new Error("Failed to generate diagram due to an API error.");
     }
 };
+
+
 
 
 

@@ -43,8 +43,15 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, onNodeClick
         });
       } catch (e) {
         console.error('Mermaid render error:', e);
+        // Fallback to simple text-based diagram
         if (containerRef.current) {
-            containerRef.current.innerHTML = `<p class="text-destructive">Error rendering diagram.</p>`;
+            const fallbackHtml = `
+              <div class="p-4 text-center">
+                <p class="text-yellow-600 mb-4">?? Diagram rendering temporarily unavailable</p>
+                <p class="text-sm text-text-secondary">Equipment list shows all connected devices</p>
+              </div>
+            `;
+            containerRef.current.innerHTML = fallbackHtml;
         }
       }
     }
@@ -62,3 +69,4 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, onNodeClick
 };
 
 export default MermaidDiagram;
+
