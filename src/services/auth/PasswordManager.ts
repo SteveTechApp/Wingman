@@ -36,6 +36,8 @@ export class PasswordManager {
     }
 
     async validateCredentials(email: string, password: string): Promise<boolean> {
+
+    async validateCredentials(email: string, password: string): Promise<boolean> {
         const users = this.getStoredPasswords();
         const storedHash = users[email];
         

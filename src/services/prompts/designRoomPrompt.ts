@@ -8,6 +8,7 @@ import { getVideoWallLogic } from './designRoom/videoWallLogic';
 import { getAvoipLogic } from './designRoom/avoipLogic';
 import { getSignalExtensionLogic } from './designRoom/signalExtensionLogic';
 import { getProductCompatibilityRules } from './designRoom/productCompatibility';
+import { getProductConsolidationLogic } from './designRoom/productConsolidation';
 import { getRoomApplicationLogic } from './designRoom/roomApplicationLogic';
 import { getUcLogic } from './designRoom/ucLogic';
 import { getProductGranularity } from './designRoom/productGranularity';
@@ -84,3 +85,4 @@ export const generateDesignPrompt = (
   Return only valid JSON. Do not include markdown formatting or explanations.
   `;
 };
+
