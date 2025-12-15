@@ -10,8 +10,19 @@ const IOConfigurationPanel: React.FC<IOConfigurationPanelProps> = ({ onOpenWizar
   const { projectData, activeRoomId } = useProjectContext();
   const room = projectData?.rooms.find(r => r.id === activeRoomId);
 
-  const inputsCount = room?.ioRequirements.filter(p => p.type === 'input').length || 0;
-  const outputsCount = room?.ioRequirements.filter(p => p.type === 'output').length || 0;
+  // Count only USER-FACING I/O (table inputs and display outputs)
+  const inputsCount = room?.manuallyAddedEquipment.reduce((total, equip) => {
+    const product = projectData?.productDatabase.find(p => p.sku === equip.sku);
+    if (!product?.videoIO?.inputs) return total;
+    // Only count switchers and presentation devices with user-facing inputs
+    const isUserFacingInput = product.category?.includes('Switcher') || 
+                             product.category?.includes('Presentation') ||
+                             product.tags?.includes('Table Input');
+    if (!isUserFacingInput) return total;
+    return total + product.videoIO.inputs.reduce((sum, input) => sum + input.count, 0) * equip.quantity;
+  }, 0) || 0;
+
+  const outputsCount = room?.displayCount || 0; // Just count displays from room config
 
   return (
     <div className="bg-background-secondary p-6 rounded-xl shadow-xl border border-border-color">
@@ -42,3 +53,4 @@ const IOConfigurationPanel: React.FC<IOConfigurationPanelProps> = ({ onOpenWizar
 };
 
 export default IOConfigurationPanel;
+
