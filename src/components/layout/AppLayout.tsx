@@ -20,20 +20,25 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   return (
     <div 
-        className="text-text-primary flex flex-col bg-app-bg shadow-2xl relative isolate overflow-hidden w-screen h-screen"
+        className="text-text-primary flex flex-col bg-app-bg shadow-2xl relative isolate w-full h-full min-h-screen overflow-hidden"
     >
       {/* Background Layer */}
       <div className="absolute inset-0 z-0 pointer-events-none">
       
       </div>
 
-      {/* Content Layer */}
+      {/* Content Layer - Fixed height container */}
       <div className="relative z-10 flex flex-col h-full w-full bg-content-overlay/95 backdrop-blur-sm">
+        {/* Header - fixed height */}
         <Header />
-        <main className="flex-grow flex flex-col relative overflow-hidden min-h-0">
+        
+        {/* Main Content - flex-1 with proper overflow */}
+        <main className="flex-1 flex flex-col relative overflow-hidden min-h-0">
           {/* Children must handle their own scrolling (e.g., h-full w-full overflow-y-auto) */}
           {children}
         </main>
+        
+        {/* Footer - fixed height, always visible */}
         <Footer onFeedbackClick={() => setIsFeedbackModalOpen(true)} />
       </div>
 

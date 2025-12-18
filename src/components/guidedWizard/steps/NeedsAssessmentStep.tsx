@@ -130,14 +130,14 @@ const NeedsAssessmentStep: React.FC<Props> = ({
                 </div>
             </div>
 
-            <div className="p-4 border-t border-border-color bg-background-secondary flex justify-between flex-shrink-0 items-center">
-                <button onClick={onBack} className="btn btn-secondary px-4 py-2 text-sm">
+            <div className="px-4 py-3 border-t border-border-color bg-background-secondary flex justify-between flex-shrink-0 items-center mt-auto gap-4 min-h-[60px]">
+                <button onClick={onBack} className="btn btn-secondary px-4 py-2 text-sm whitespace-nowrap">
                     &larr; Back
                 </button>
-                <button onClick={onSave} className="text-xs font-medium text-accent hover:underline">
+                <button onClick={onSave} className="text-xs font-medium text-accent hover:underline whitespace-nowrap">
                     Save Progress
                 </button>
-                <button onClick={onNext} className="btn btn-primary px-6 py-2 text-base font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all animate-pulse-bright">
+                <button onClick={onNext} className="btn btn-primary px-6 py-2 text-base font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all animate-pulse-bright whitespace-nowrap">
                     Generate Options &rarr;
                 </button>
             </div>

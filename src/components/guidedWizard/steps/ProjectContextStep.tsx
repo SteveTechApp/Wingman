@@ -213,14 +213,14 @@ const ProjectContextStep: React.FC<Props> = ({ details, setDetails, infrastructu
                 </div>
             </div>
 
-            <div className="p-4 border-t border-border-color bg-background-secondary flex justify-between items-center flex-shrink-0">
+            <div className="px-4 py-3 border-t border-border-color bg-background-secondary flex justify-between items-center flex-shrink-0 mt-auto gap-4 min-h-[60px]">
                 <div className="flex-1">
                     {/* Spacer */}
                 </div>
-                <button onClick={onSave} className="text-xs font-medium text-accent hover:underline mr-4">
+                <button onClick={onSave} className="text-xs font-medium text-accent hover:underline mr-4 whitespace-nowrap">
                     Save Progress
                 </button>
-                <button type="submit" form="context-form" className="btn btn-primary px-6 py-2 text-base font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
+                <button type="submit" form="context-form" className="btn btn-primary px-6 py-2 text-base font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all whitespace-nowrap">
                     Next: Select Room Type &rarr;
                 </button>
             </div>
