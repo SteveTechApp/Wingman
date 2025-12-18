@@ -43,6 +43,11 @@ const App: React.FC = () => {
             action: () => navigate('/templates'),
         },
         {
+            key: 'a',
+            description: 'Go to analytics',
+            action: () => navigate('/analytics'),
+        },
+        {
             key: 'l',
             description: 'Go to learning center',
             action: () => navigate('/learn'),

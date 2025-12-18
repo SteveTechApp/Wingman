@@ -9,5 +9,7 @@ export const NAV_LINKS: NavItem[] = [
   { path: '/setup', label: 'New Project', end: false },
   { path: '/agent', label: 'Analyze Intel', end: false },
   { path: '/templates', label: 'Templates', end: false },
+  { path: '/videowall', label: 'Video Wall', end: false },
+  { path: '/analytics', label: 'Analytics', end: false },
   { path: '/training', label: 'Training', end: false },
 ];
