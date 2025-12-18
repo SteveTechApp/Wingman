@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { RoomData, DesignTier } from '../../../utils/types';
 import TierIcon from '../../TierIcon';
@@ -12,6 +11,11 @@ interface Props {
 const TierSelectionStep: React.FC<Props> = ({ options, onSelect, onBack }) => {
     const tiers: DesignTier[] = ['Bronze', 'Silver', 'Gold'];
 
+    // Ensure options data is loaded
+    if (!options || Object.keys(options).length === 0) {
+        return <div className="p-4 text-center text-text-secondary">Loading tier information...</div>;
+    }
+
     return (
         <div className="flex flex-col h-full animate-fade-in-up">
              <div className="flex-grow overflow-y-auto p-6 md:p-8 min-h-0">
@@ -22,7 +26,7 @@ const TierSelectionStep: React.FC<Props> = ({ options, onSelect, onBack }) => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6">
                     {tiers.map(tier => {
-                        const room = options[tier];
+                        const room = options?.[tier];
                         if (!room) return null;
                         
                         return (
@@ -34,19 +38,19 @@ const TierSelectionStep: React.FC<Props> = ({ options, onSelect, onBack }) => {
                                         <TierIcon tier={tier} className="h-8 w-8" />
                                         <h3 className="text-2xl font-bold">{tier}</h3>
                                     </div>
-                                    <p className="text-sm text-text-secondary italic mb-4 min-h-[3rem]">"{room.functionalityStatement.substring(0, 120)}..."</p>
+                                    <p className="text-sm text-text-secondary italic mb-4 min-h-[3rem]">"{room.functionalityStatement?.substring(0, 120) ?? ''}..."</p>
                                     
                                     <div className="space-y-3">
                                         <h4 className="text-xs font-bold uppercase tracking-wider text-text-secondary">Key Equipment</h4>
                                         <ul className="space-y-2">
-                                            {room.manuallyAddedEquipment.slice(0, 5).map((item, i) => (
+                                            {(room.manuallyAddedEquipment ?? []).slice(0, 5).map((item, i) => (
                                                 <li key={i} className="text-xs flex items-start gap-2 bg-background-secondary p-2 rounded">
                                                     <span className="font-mono text-accent font-bold">{item.quantity}x</span>
                                                     <span className="line-clamp-2">{item.name}</span>
                                                 </li>
                                             ))}
                                         </ul>
-                                        {room.manuallyAddedEquipment.length > 5 && (
+                                        {(room.manuallyAddedEquipment?.length ?? 0) > 5 && (
                                             <p className="text-xs text-center text-text-secondary italic">+ {room.manuallyAddedEquipment.length - 5} more items</p>
                                         )}
                                     </div>

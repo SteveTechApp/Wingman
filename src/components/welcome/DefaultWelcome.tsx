@@ -1,13 +1,13 @@
 import React from 'react';
 import RecentProjects from './RecentProjects';
-import { GridIcon, PlusIcon, SparklesIcon, DocumentScannerIcon } from '../Icons';
+import { GridIcon, PlusIcon, SparklesIcon, DocumentScannerIcon, VideoWallIcon } from '../Icons';
 import ActionButton from './ActionButton';
 import WelcomeHeader from './WelcomeHeader';
 
 const DefaultWelcome: React.FC = () => {
     return (
         <div className="h-full w-full overflow-y-auto custom-scrollbar">
-            <div className="container mx-auto p-6 md:p-8 max-w-7xl flex flex-col min-h-full gap-8 pb-20">
+            <div className="container mx-auto px-4 mx-auto p-6 md:p-8 max-w-7xl flex flex-col min-h-full gap-8 pb-20">
                 <div className="flex-shrink-0">
                     <WelcomeHeader />
                 </div>
@@ -42,6 +42,12 @@ const DefaultWelcome: React.FC = () => {
                                 icon={<DocumentScannerIcon />}
                                 title="Site Survey"
                                 description="Import data from a survey document."
+                            />
+                            <ActionButton
+                                to="/videowall"
+                                icon={<VideoWallIcon />}
+                                title="Video Wall Designer"
+                                description="Design and configure video wall layouts."
                             />
                         </div>
                     </div>

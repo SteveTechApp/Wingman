@@ -8,7 +8,7 @@ const DefaultHeader: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-30 bg-background border-b border-border-color print:hidden shadow-sm">
-      <div className="container mx-auto flex justify-between items-center p-3">
+      <div className="container mx-auto px-4 mx-auto flex justify-between items-center p-3">
         <Logo />
         <nav className="hidden md:flex items-center gap-2">
           <NavLink to="/" className={navLinkClass} end>
