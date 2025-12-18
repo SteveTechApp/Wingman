@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useProjectContext } from '../context/ProjectContext';
 import ProjectWorkspace from '../components/ProjectWorkspace';
+import VideoWallManager from '../components/VideoWallManager';
 import ProjectEmptyState from '../components/ProjectEmptyState';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorDisplay from '../components/ErrorDisplay';
@@ -86,19 +87,23 @@ const DesignCoPilot: React.FC = () => {
         return <ProjectEmptyState />;
     }
 
-    return (
-        <>
-            <ProjectWorkspace />
-            {activeRoom && (
-                <DesignOptionsModal
-                    isOpen={isDesignOptionsModalOpen}
-                    onClose={() => setIsDesignOptionsModalOpen(false)}
-                    proposals={activeRoom.aiDesignProposals || []}
-                    onApplyDesign={handleApplyDesign}
-                />
-            )}
-        </>
+     return (
+        <div className="h-full w-full overflow-y-auto overflow-x-hidden">
+            <div className="container mx-auto px-4 py-6 max-w-7xl">
+                <ProjectWorkspace />
+
+                {activeRoom && (
+                    <DesignOptionsModal
+                        isOpen={isDesignOptionsModalOpen}
+                        onClose={() => setIsDesignOptionsModalOpen(false)}
+                        proposals={activeRoom.aiDesignProposals || []}
+                        onApplyDesign={handleApplyDesign}
+                    />
+                )}
+            </div>
+        </div>
     );
 };
 
 export default DesignCoPilot;
+
