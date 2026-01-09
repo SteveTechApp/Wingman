@@ -49,22 +49,21 @@ const PrintLayout = () => (
 const AppRoutes = () => (
     <Routes>
         {/* Main application routes with full layout */}
-        	<Route element={<MainLayout />}>
-		<Route path="/videowall" element={<VideoWallPage />} />
-		<Route path="/videowall/:projectId" element={<VideoWallPage />} />
-		<Route path="/videowall/:projectId/:configId" element={<VideoWallPage />} />
-        	<Route path="/discovery" element={<CustomerDiscoveryWizard />} />
-		<Route path="/" element={<WelcomeScreen />} />
-            	<Route path="/setup" element={<GuidedProjectWizard />} />
-            	<Route path="/agent" element={<AgentInputForm />} />
-            	<Route path="/survey" element={<SurveyImportPage />} />
-            	<Route path="/design/:projectId" element={<DesignCoPilot />} />
-            	<Route path="/training" element={<TrainingPage />} />
-            	<Route path="/templates" element={<TemplateBrowserScreen />} />
-            	<Route path="/analytics" element={<AnalyticsPage />} />
-            	<Route path="/videowall" element={<VideoWallPage />} />
-                <Route path="/ask" element={<QuickQuestionPage />} />
-            	<Route path="*" element={<NotFoundPage />} />
+        <Route element={<MainLayout />}>
+            <Route path="/" element={<WelcomeScreen />} />
+            <Route path="/setup" element={<GuidedProjectWizard />} />
+            <Route path="/agent" element={<AgentInputForm />} />
+            <Route path="/survey" element={<SurveyImportPage />} />
+            <Route path="/design/:projectId" element={<DesignCoPilot />} />
+            <Route path="/training" element={<TrainingPage />} />
+            <Route path="/templates" element={<TemplateBrowserScreen />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/videowall" element={<VideoWallPage />} />
+            <Route path="/videowall/:projectId" element={<VideoWallPage />} />
+            <Route path="/videowall/:projectId/:configId" element={<VideoWallPage />} />
+            <Route path="/discovery" element={<CustomerDiscoveryWizard />} />
+            <Route path="/ask" element={<QuickQuestionPage />} />
+            <Route path="*" element={<NotFoundPage />} />
         </Route>
 
         {/* Proposal routes with print-friendly layout */}

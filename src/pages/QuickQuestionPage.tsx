@@ -51,29 +51,47 @@ const QuickQuestionPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto animate-fade-in-fast flex flex-col h-full">
-      <div className="text-center mb-8 flex-shrink-0">
-        <h1 className="text-4xl font-extrabold text-accent mb-2 uppercase tracking-widest">Wingman AI Chat</h1>
-        <p className="text-lg text-text-secondary">Ask technical questions or get product recommendations.</p>
-      </div>
-
-      <div className="bg-background-secondary p-4 rounded-xl shadow-xl border border-border-color flex-grow flex flex-col">
-        <div className="flex-grow overflow-y-auto space-y-4 p-2">
-          {messages.map((msg, index) => (
-            <ChatMessage key={index} message={msg} />
-          ))}
-          {isLoading && <TypingIndicator />}
-          <div ref={chatEndRef} />
+    <div className="h-full w-full overflow-hidden p-4 md:p-6">
+      <div className="max-w-4xl mx-auto animate-fade-in-fast flex flex-col h-full">
+        <div className="text-center mb-6 flex-shrink-0">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-accent mb-2 uppercase tracking-widest">Wingman AI Chat</h1>
+          <p className="text-lg text-text-secondary">Ask technical questions or get product recommendations.</p>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-border-color flex-shrink-0">
-          <ChatInputForm
-            input={input}
-            setInput={setInput}
-            handleSend={() => handleSend()}
-            isLoading={isLoading}
-          />
-          <PresetQuestions handleSend={handleSend} isLoading={isLoading} />
+        {/* Main Container with Current Process Header */}
+        <div className="bg-background-secondary border-2 border-border-color rounded-xl shadow-xl flex-grow flex flex-col overflow-hidden">
+          {/* Current Process Header */}
+          <div className="bg-accent text-white px-4 py-3 flex-shrink-0">
+            <h2 className="text-lg font-bold uppercase tracking-wide">
+              Current Process: AI Assistant
+            </h2>
+          </div>
+
+          {/* Chat Messages Area */}
+          <div className="flex-grow overflow-y-auto space-y-4 p-4 custom-scrollbar">
+            {messages.map((msg, index) => (
+              <ChatMessage key={index} message={msg} />
+            ))}
+            {isLoading && <TypingIndicator />}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input Section */}
+          <div className="p-4 border-t border-border-color flex-shrink-0 bg-background">
+            {/* Input Container with Label */}
+            <div className="border border-border-color rounded-lg p-3 bg-input-bg mb-3">
+              <label htmlFor="chat-input" className="block text-xs font-bold mb-2 text-text-secondary uppercase tracking-wide">
+                Your Question
+              </label>
+              <ChatInputForm
+                input={input}
+                setInput={setInput}
+                handleSend={() => handleSend()}
+                isLoading={isLoading}
+              />
+            </div>
+            <PresetQuestions handleSend={handleSend} isLoading={isLoading} />
+          </div>
         </div>
       </div>
     </div>

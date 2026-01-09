@@ -153,22 +153,47 @@ const SurveyImportPage: React.FC = () => {
         }
     };
 
+    const getModeLabel = () => {
+        switch (mode) {
+            case 'camera': return 'Camera Capture';
+            case 'preview': return 'Review & Confirm';
+            default: return 'Select Import Method';
+        }
+    };
+
     return (
-        <div className="max-w-4xl mx-auto animate-fade-in-fast">
-            <div className="text-center mb-8">
-                <div className="flex justify-center items-center gap-2 mb-2">
-                    <DocumentScannerIcon className="h-10 w-10 text-accent" />
-                    <h1 className="text-4xl font-extrabold text-accent uppercase tracking-widest">Import Site Survey</h1>
+        <div className="h-full w-full overflow-y-auto custom-scrollbar p-4 md:p-6">
+            <div className="max-w-4xl mx-auto animate-fade-in-fast">
+                <div className="text-center mb-6">
+                    <div className="flex justify-center items-center gap-2 mb-2">
+                        <DocumentScannerIcon className="h-10 w-10 text-accent" />
+                        <h1 className="text-3xl md:text-4xl font-extrabold text-accent uppercase tracking-widest">Import Site Survey</h1>
+                    </div>
+                    <p className="text-lg text-text-secondary">Let the AI read a completed survey form to create a new project room.</p>
                 </div>
-                <p className="text-lg text-text-secondary">Let the AI read a completed survey form to create a new project room.</p>
-                 {mode !== 'select' && (
-                    <button onClick={reset} className="mt-4 text-sm font-semibold text-accent hover:underline flex items-center gap-1 mx-auto">
-                        <ArrowUturnLeftIcon className="h-4 w-4" /> Start Over
-                    </button>
-                )}
-            </div>
-            <div className="p-6 bg-background-secondary border border-border-color rounded-xl shadow-xl">
-                {error ? <p className="text-destructive text-center">{error}</p> : renderContent()}
+
+                {/* Main Container with Current Process Header */}
+                <div className="bg-background-secondary border-2 border-border-color rounded-xl shadow-xl overflow-hidden">
+                    {/* Current Process Header */}
+                    <div className="bg-accent text-white px-4 py-3 flex items-center justify-between">
+                        <h2 className="text-lg font-bold uppercase tracking-wide">
+                            Current Process: {getModeLabel()}
+                        </h2>
+                        {mode !== 'select' && (
+                            <button onClick={reset} className="text-sm font-semibold text-white/90 hover:text-white flex items-center gap-1">
+                                <ArrowUturnLeftIcon className="h-4 w-4" /> Start Over
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="p-6">
+                        {error ? (
+                            <div className="border border-destructive rounded-lg p-4 bg-red-50">
+                                <p className="text-destructive text-center">{error}</p>
+                            </div>
+                        ) : renderContent()}
+                    </div>
+                </div>
             </div>
         </div>
     );

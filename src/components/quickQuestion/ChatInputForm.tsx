@@ -21,11 +21,12 @@ const ChatInputForm: React.FC<ChatInputFormProps> = ({
     return (
         <form onSubmit={handleFormSubmit} className="flex gap-2">
             <input
+                id="chat-input"
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask a question..."
-                className="w-full p-3 rounded-lg bg-input-bg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 ring-offset-background focus:ring-accent shadow-sm border border-border-color"
+                placeholder="Type your question here..."
+                className="w-full p-3 rounded-lg bg-background text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 ring-offset-background focus:ring-accent shadow-sm border border-border-color"
             />
             <button
                 type="submit"

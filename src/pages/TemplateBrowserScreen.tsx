@@ -73,62 +73,66 @@ const TemplateBrowserScreen: React.FC = () => {
 
     return (
         <>
-            <div className="h-full w-full overflow-y-auto custom-scrollbar">
+            <div className="h-full w-full overflow-y-auto custom-scrollbar p-4 md:p-6">
                 <div className="max-w-[1400px] mx-auto animate-fade-in-fast min-h-full flex flex-col">
-                    
+
+                    {/* Page Header */}
+                    <div className="text-center mb-6">
+                        <h1 className="text-3xl md:text-4xl font-extrabold text-accent mb-2 uppercase tracking-widest">
+                            Template Browser
+                        </h1>
+                        <p className="text-lg text-text-secondary">
+                            Browse pre-configured room designs and start your project.
+                        </p>
+                    </div>
+
                     {selectedRoomType ? (
                         // Concept Selection View
-                        <div className="p-4 md:p-6">
-                            {/* Compact Back Button */}
-                            <div className="mb-6">
+                        <div className="bg-background-secondary border-2 border-border-color rounded-xl shadow-xl overflow-hidden">
+                            {/* Current Process Header */}
+                            <div className="bg-accent text-white px-4 py-3 flex items-center justify-between">
+                                <h2 className="text-lg font-bold uppercase tracking-wide">
+                                    Current Process: Select {selectedRoomType} Concept
+                                </h2>
                                 <button
                                     onClick={() => setSelectedRoomType(null)}
-                                    className="flex items-center gap-2 text-sm font-medium text-accent hover:underline transition-colors"
+                                    className="text-sm font-semibold text-white/90 hover:text-white flex items-center gap-1"
                                 >
                                     ← Back to All Room Types
                                 </button>
                             </div>
 
-                            {/* Header */}
-                            <div className="text-center mb-8">
-                                <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2 tracking-tight">
-                                    {selectedRoomType} Concepts
-                                </h1>
-                                <p className="text-base text-slate-600">
-                                    Select a design concept to start your project
-                                </p>
-                            </div>
-
-                            {/* Compact Concept Grid */}
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2">
-                                {groupedConcepts.map(concept => (
-                                    <button
-                                        key={concept.name}
-                                        onClick={() => handleSelectConcept(concept)}
-                                        className="flex flex-col items-center text-center gap-1 p-2 rounded-md transition-all duration-200 hover:bg-background border border-transparent hover:border-accent hover:shadow-md hover:-translate-y-0.5"
-                                    >
-                                        <div className="w-full aspect-video rounded overflow-hidden bg-background-secondary border border-border-color">
-                                            <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 w-full h-full flex items-center justify-center">
-                                                <div className="w-8 h-8 text-white/30">✨</div>
+                            <div className="p-6">
+                                {/* Compact Concept Grid */}
+                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                                    {groupedConcepts.map(concept => (
+                                        <button
+                                            key={concept.name}
+                                            onClick={() => handleSelectConcept(concept)}
+                                            className="flex flex-col items-center text-center gap-1 p-2 rounded-lg transition-all duration-200 hover:bg-background border border-border-color hover:border-accent hover:shadow-md hover:-translate-y-0.5 bg-background"
+                                        >
+                                            <div className="w-full aspect-video rounded overflow-hidden bg-background-secondary border border-border-color">
+                                                <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 w-full h-full flex items-center justify-center">
+                                                    <div className="w-8 h-8 text-white/30">✨</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <p className="font-medium text-xs text-text-primary leading-tight line-clamp-2">{concept.name}</p>
-                                    </button>
-                                ))}
+                                            <p className="font-medium text-xs text-text-primary leading-tight line-clamp-2">{concept.name}</p>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     ) : (
-                        // Room Type Selection View - NEW PROFESSIONAL DESIGN
-                        <div className="bg-gradient-to-br from-gray-50 to-white p-6 md:p-8">
-                            {/* Header */}
-                            <div className="text-center mb-12">
-                                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight">
-                                    Browse by Room Type
-                                </h1>
-                                <p className="text-lg text-slate-600">
-                                    Select the type of room you are designing
-                                </p>
+                        // Room Type Selection View
+                        <div className="bg-background-secondary border-2 border-border-color rounded-xl shadow-xl overflow-hidden">
+                            {/* Current Process Header */}
+                            <div className="bg-accent text-white px-4 py-3">
+                                <h2 className="text-lg font-bold uppercase tracking-wide">
+                                    Current Process: Select Room Type
+                                </h2>
                             </div>
+
+                            <div className="p-6">
 
                             {/* Professional Room Type Grid */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 max-w-7xl mx-auto">
@@ -164,6 +168,7 @@ const TemplateBrowserScreen: React.FC = () => {
                                         </button>
                                     );
                                 })}
+                            </div>
                             </div>
                         </div>
                     )}
