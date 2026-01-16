@@ -1,0 +1,17 @@
+export type ChatSession = {
+  id: string;
+  send: (message: string) => Promise<string>;
+};
+
+export async function askAssistant(_prompt: string): Promise<string> {
+  throw new Error("assistantService is temporarily disabled (stabilisation mode).");
+}
+
+export function createChatSession(): ChatSession {
+  return {
+    id: "disabled",
+    send: async (_message: string) => {
+      throw new Error("Chat session is temporarily disabled (stabilisation mode).");
+    }
+  };
+}
