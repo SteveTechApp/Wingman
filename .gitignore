@@ -27,3 +27,10 @@ dist-ssr
 .env.*
 !.env.example
 
+# Wingman: generated backups / reports
+*.bak_*
+tools/transfer_reports/
+tools/_vite_smoke_*.log
+tools/_*.log
+dist/
+node_modules/

@@ -1,3 +1,0 @@
-export async function askAssistant(_prompt: string): Promise<string> {
-  throw new Error("assistantService is temporarily disabled (API/type drift).");
-}
