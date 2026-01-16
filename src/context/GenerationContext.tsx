@@ -1,57 +1,23 @@
+import React, { createContext, useContext, useMemo } from "react";
+import { useProjectGeneration } from "../hooks/useProjectGeneration";
 
-import React, { createContext, useContext, ReactNode, useMemo } from 'react';
-import { useProjectGeneration } from '../hooks/useProjectGeneration';
+type GenerationContextValue = ReturnType<typeof useProjectGeneration>;
 
-type GenerationContextType = ReturnType<typeof useProjectGeneration>;
+const GenerationContext = createContext<GenerationContextValue | null>(null);
 
-const GenerationContext = createContext<GenerationContextType | undefined>(undefined);
+export function GenerationProvider({ children }: { children: React.ReactNode }) {
+  const gen = useProjectGeneration();
 
-export const GenerationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const generationData = useProjectGeneration();
-    
-    // Destructure to ensure dependencies are clear
-    const {
-        handleAgentSubmit,
-        handleProjectSetupSubmit,
-        handleSurveyImport,
-        handleStartFromTemplate,
-        handleDesignRoom,
-        handleGenerateDiagram,
-        handleGenerateProposal,
-        handleValueEngineerRoom
-    } = generationData;
+  // Ensure provider value always includes isLoading + error + handlers (whatever hook returns)
+  const value = useMemo(() => gen, [gen]);
 
-    const value = useMemo(() => ({
-        handleAgentSubmit,
-        handleProjectSetupSubmit,
-        handleSurveyImport,
-        handleStartFromTemplate,
-        handleDesignRoom,
-        handleGenerateDiagram,
-        handleGenerateProposal,
-        handleValueEngineerRoom
-    }), [
-        handleAgentSubmit,
-        handleProjectSetupSubmit,
-        handleSurveyImport,
-        handleStartFromTemplate,
-        handleDesignRoom,
-        handleGenerateDiagram,
-        handleGenerateProposal,
-        handleValueEngineerRoom
-    ]);
+  return <GenerationContext.Provider value={value}>{children}</GenerationContext.Provider>;
+}
 
-    return (
-        <GenerationContext.Provider value={value}>
-            {children}
-        </GenerationContext.Provider>
-    );
-};
+export function useGeneration() {
+  const ctx = useContext(GenerationContext);
+  if (!ctx) throw new Error("useGeneration must be used within a GenerationProvider");
+  return ctx;
+}
 
-export const useGenerationContext = () => {
-    const context = useContext(GenerationContext);
-    if (context === undefined) {
-        throw new Error('useGenerationContext must be used within a GenerationProvider');
-    }
-    return context;
-};
+export const useGenerationContext = useGeneration;

@@ -1,0 +1,7 @@
+export async function generateVideo(_input: unknown): Promise<unknown> {
+  throw new Error("videoService is temporarily disabled (stabilisation mode).");
+}
+
+export async function generateProductVideo(_input: unknown): Promise<unknown> {
+  throw new Error("generateProductVideo is temporarily disabled (stabilisation mode).");
+}

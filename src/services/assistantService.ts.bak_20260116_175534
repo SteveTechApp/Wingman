@@ -1,0 +1,15 @@
+export async function askAssistant(_prompt: string): Promise<string> {
+  throw new Error("assistantService is temporarily disabled (stabilisation mode).");
+}
+
+/**
+ * Shim for pages that expect a Google GenAI Chat-like object.
+ * We deliberately return `any` to avoid coupling to the GenAI SDK types while stabilising.
+ */
+export function createChatSession(_model?: string): any {
+  return {
+    sendMessage: async (_message: string) => {
+      throw new Error("Chat is temporarily disabled (stabilisation mode).");
+    }
+  };
+}

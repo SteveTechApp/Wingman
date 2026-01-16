@@ -1,0 +1,3 @@
+export async function generateVideo(_input: unknown): Promise<unknown> {
+  throw new Error("videoService is temporarily disabled (API/type drift).");
+}
