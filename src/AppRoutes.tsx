@@ -1,77 +1,746 @@
 import React, { lazy, Suspense } from 'react';
+
+
+
+
+
+
+
+
+import ComparisonPage from './pages/ComparisonPage';
+
+
+
+
+
+
+
+
 import { Routes, Route, Outlet } from 'react-router-dom';
+
+
+
+
+
+
+
+
 import LoadingSpinner from './components/LoadingSpinner';
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Layouts
+
+
+
+
+
+
+
+
 import AppLayout from './components/layout/AppLayout';
+
+
+
+
+
+
+
+
 import ProposalLayout from './components/layout/ProposalLayout';
 
+
+import ToolHubPage from "@/pages/ToolHubPage";
+import RecentRouteTracker from "@/components/tools/RecentRouteTracker";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Lazy load all page components
+
+
+
+
+
+
+
+
 const CustomerDiscoveryWizard = lazy(() => import('./pages/CustomerDiscoveryWizard'));
+
+
+
+
+
+
+
+
 const WelcomeScreen = lazy(() => import('./pages/WelcomeScreen'));
+
+
+
+
+
+
+
+
 const GuidedProjectWizard = lazy(() => import('./pages/GuidedProjectWizard'));
+
+
+
+
+
+
+
+
 const AgentInputForm = lazy(() => import('./pages/AgentInputForm'));
+
+
+
+
+
+
+
+
 const DesignCoPilot = lazy(() => import('./pages/DesignCoPilot'));
+
+
+
+
+
+
+
+
 const ProposalDisplay = lazy(() => import('./pages/ProposalDisplay'));
+
+
+
+
+
+
+
+
 const TrainingPage = lazy(() => import('./pages/TrainingPage'));
+
+
+
+
+
+
+
+
 const TemplateBrowserScreen = lazy(() => import('./pages/TemplateBrowserScreen'));
+
+
+
+
+
+
+
+
 const QuickQuestionPage = lazy(() => import('./pages/QuickQuestionPage'));
+
+
+
+
+
+
+
+
 const SurveyImportPage = lazy(() => import('./pages/SurveyImportPage'));
+
+
+
+
+
+
+
+
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
+
+
+
+
+
+
+
+
 const VideoWallPage = lazy(() => import('./pages/VideoWallPage'));
+
+
+
+
+
+
+
+
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
+
+
+
+
+
+
+
+const RoomEditorEntry = lazy(() => import('./pages/RoomEditorEntry'));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const suspenseFallback = (
+
+
+
+
+
+
+
+
     <div className="flex h-full w-full items-center justify-center p-10">
+
+
+
+
+
+
+
+
         <LoadingSpinner />
+
+
+
+
+
+
+
+
     </div>
+
+
+
+
+
+
+
+
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Layout wrapper for main app routes
+
+
+
+
+
+
+
+
 const MainLayout = () => (
+
+
+
+
+
+
+
+
     <AppLayout>
+
+
+
+
+
+
+
+
         <Suspense fallback={suspenseFallback}>
+
+
+
+
+
+
+
+
             <Outlet />
+
+
+
+
+
+
+
+
         </Suspense>
+
+
+
+
+
+
+
+
     </AppLayout>
+
+
+
+
+
+
+
+
 );
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Layout wrapper for proposal routes
+
+
+
+
+
+
+
+
 const PrintLayout = () => (
+
+
+
+
+
+
+
+
     <ProposalLayout>
+
+
+
+
+
+
+
+
         <Suspense fallback={suspenseFallback}>
+
+
+
+
+
+
+
+
             <Outlet />
+
+
+
+
+
+
+
+
         </Suspense>
+
+
+
+
+
+
+
+
     </ProposalLayout>
+
+
+
+
+
+
+
+
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 const AppRoutes = () => (
-    <Routes>
+
+
+
+
+
+
+
+
+    <>
+      <RecentRouteTracker />
+      <Routes>
+
+
+
+
+
+
+
+
         {/* Main application routes with full layout */}
+
+
+
+
+
+
+
+
         	<Route element={<MainLayout />}>
+
+
+
+
+
+
+
+
 		<Route path="/videowall" element={<VideoWallPage />} />
+
+
+
+
+
+
+
+
 		<Route path="/videowall/:projectId" element={<VideoWallPage />} />
+
+
+
+
+
+
+
+
 		<Route path="/videowall/:projectId/:configId" element={<VideoWallPage />} />
+
+
+
+
+
+
+
+
         	<Route path="/discovery" element={<CustomerDiscoveryWizard />} />
+
+
+
+
+
+
+
+
 		<Route path="/" element={<WelcomeScreen />} />
+
+
+
+
+
+
+
+
+                <Route path="/room/:roomId" element={<RoomEditorEntry />} />
+
+
+
+
+
+
+
+
             	<Route path="/setup" element={<GuidedProjectWizard />} />
+
+
+
+
+
+
+
+
             	<Route path="/agent" element={<AgentInputForm />} />
+
+
+
+
+
+
+
+
             	<Route path="/survey" element={<SurveyImportPage />} />
+
+
+
+
+
+
+
+
             	<Route path="/design/:projectId" element={<DesignCoPilot />} />
+
+
+
+
+
+
+
+
             	<Route path="/training" element={<TrainingPage />} />
+
+
+
+
+
+
+
+
             	<Route path="/templates" element={<TemplateBrowserScreen />} />
+
+
+
+
+
+
+
+
             	<Route path="/analytics" element={<AnalyticsPage />} />
+
+
+
+
+
+
+
+
             	<Route path="/videowall" element={<VideoWallPage />} />
+
+
+
+
+
+
+
+
                 <Route path="/ask" element={<QuickQuestionPage />} />
-            	<Route path="*" element={<NotFoundPage />} />
+
+
+
+
+
+
+
+
+    <Route path="/compare" element={<ComparisonPage />} />
+
+
+
+
+
+
+
+
+    <Route path="/tools" element={<ToolHubPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+
+
+
+
+
+
+
+
         </Route>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         {/* Proposal routes with print-friendly layout */}
+
+
+
+
+
+
+
+
         <Route element={<PrintLayout />}>
+
+
+
+
+
+
+
+
             <Route path="/proposal/:projectId/:proposalId" element={<ProposalDisplay />} />
+
+
+
+
+
+
+
+
         </Route>
+
+
+
+
+
+
+
+
     </Routes>
+    </>
+
+
+
+
+
+
+
+
 );
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export default AppRoutes;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
