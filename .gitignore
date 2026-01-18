@@ -34,3 +34,13 @@ tools/_vite_smoke_*.log
 tools/_*.log
 dist/
 node_modules/
+
+# Wingman local artifacts
+tools/_reports/
+tools/_ARCHIVE/
+Wingman-USB/
+
+
+playwright-report/
+test-results/
+.playwright/
