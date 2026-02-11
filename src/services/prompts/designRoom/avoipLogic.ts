@@ -1,3 +1,4 @@
+
 export const getAvoipLogic = () => `
   **AVoIP System Design**:
   If an AVoIP system is selected, you MUST use the corresponding NetworkHD series.
@@ -14,3 +15,6 @@ export const getAvoipLogic = () => `
   **NHD 500 Series "E" Version Logic**:
   Use 'NHD-500-TXE'/'NHD-500-RXE' for sources/displays that only need HDMI, especially for video wall panels, to reduce cost.
 `;
+
+
+

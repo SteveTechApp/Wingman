@@ -1,41 +1,62 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 
-function getStorageValue<T>(key: string, defaultValue: T): T {
-  if (typeof window !== 'undefined') {
-    const saved = localStorage.getItem(key);
-    if (saved !== null) {
-      try {
-        const parsed = JSON.parse(saved);
-        // Basic validation: check if parsed value is of similar type to default
-        if (typeof parsed !== typeof defaultValue && defaultValue !== null) {
-          console.warn(`localStorage key "${key}" has unexpected type. Clearing corrupted data.`);
-          localStorage.removeItem(key);
-          return defaultValue;
-        }
-        return parsed;
-      } catch (error) {
-        console.error(`Error parsing localStorage key "${key}":`, error);
-        // Clear corrupted data to prevent future errors
-        localStorage.removeItem(key);
-        return defaultValue;
-      }
-    }
-  }
-  return defaultValue;
-}
+import { useCallback, useEffect, useRef, useState } from "react";
 
-export const useLocalStorage = <T,>(key: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>] => {
+/**
+ * Loop-proof localStorage hook:
+ * - Reads once on mount (lazy initializer)
+ * - Writes only when value changes
+ * - If `initialValue` is an object literal passed inline, it will NOT trigger re-hydration loops
+ * - Only re-hydrates when `key` changes
+ */
+export function useLocalStorage<T>(key: string, initialValue: T) {
+  const keyRef = useRef(key);
+  const initialRef = useRef(initialValue);
+
+  // Keep latest initialValue in a ref (does not trigger effects/rerenders)
+  initialRef.current = initialValue;
+
   const [value, setValue] = useState<T>(() => {
-    return getStorageValue(key, defaultValue);
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw == null) return initialValue;
+      return JSON.parse(raw) as T;
+    } catch {
+      return initialValue;
+    }
   });
 
+  // If key changes, re-hydrate from the new key (DO NOT depend on initialValue)
+  useEffect(() => {
+    if (keyRef.current === key) return;
+
+    keyRef.current = key;
+
+    try {
+      const raw = localStorage.getItem(key);
+      setValue(raw == null ? initialRef.current : (JSON.parse(raw) as T));
+    } catch {
+      setValue(initialRef.current);
+    }
+  }, [key]);
+
+  // Persist when value changes
   useEffect(() => {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      console.error(`Error setting localStorage key "${key}":`, error);
+      localStorage.setItem(keyRef.current, JSON.stringify(value));
+    } catch {
+      // ignore quota/private mode errors
     }
-  }, [key, value]);
+  }, [value]);
 
-  return [value, setValue];
-};
+  const remove = useCallback(() => {
+    try {
+      localStorage.removeItem(keyRef.current);
+    } catch {}
+    setValue(initialRef.current);
+  }, []);
+
+  return [value, setValue, remove] as const;
+}
+
+export default useLocalStorage;
+

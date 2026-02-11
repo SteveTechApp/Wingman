@@ -1,3 +1,4 @@
+
 import { ProjectData, RoomData, Proposal, ProjectInfrastructure, ManuallyAddedEquipment, DesignProposal } from '../../utils/types';
 
 export type ProjectAction =
@@ -120,3 +121,6 @@ export const projectReducer = (state: ProjectData | null, action: ProjectAction)
       return state;
   }
 };
+
+
+

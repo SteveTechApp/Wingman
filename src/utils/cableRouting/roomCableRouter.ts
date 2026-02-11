@@ -1,3 +1,4 @@
+
 import { EquipmentPosition, CableRoute, TechnologyRequirement } from './types';
 import { calculateCableDistance } from './distanceCalculator';
 import { determineCableType } from './cableTypeSelector';
@@ -153,3 +154,6 @@ function routeSpeakers(
     });
   }
 }
+
+
+

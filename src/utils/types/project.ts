@@ -67,7 +67,9 @@ export interface AVoIPNetworkDetails {
 }
 
 export interface TechnicalDetails {
-  primaryVideoResolution: string;
+  
+  dimensions?: { length?: number; width?: number; height?: number };
+primaryVideoResolution: string;
   videoSignalTypes: string[];
   controlSystem: string;
   cameraType: 'none' | 'usb_webcam' | 'hdmi_ptz';
@@ -177,3 +179,6 @@ export interface ProjectSetupData {
   clientName: string;
   rooms: RoomData[];
 }
+
+
+

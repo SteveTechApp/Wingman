@@ -15,3 +15,6 @@ export const getProductCompatibilityRules = () => `
       -   **Apple (AirPlay)**: The WyreStorm device and the Apple device MUST be on the **same IP subnet**.
       -   **Multi-View**: Supported devices can display up to 4 wireless streams simultaneously (Dongles + Native).
 `;
+
+
+

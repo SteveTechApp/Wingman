@@ -219,3 +219,6 @@ export const HOSPITALITY_TEMPLATES: UserTemplate[] = [
         },
     },
 ];
+
+
+

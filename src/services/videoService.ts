@@ -1,3 +1,4 @@
+
 export async function generateVideo(_input: unknown): Promise<unknown> {
   throw new Error("videoService is temporarily disabled (stabilisation mode).");
 }
@@ -10,3 +11,6 @@ export async function generateProductVideo(_prompt: string, _options?: any): Pro
   // In stabilisation mode we return a deterministic placeholder.
   return "about:blank";
 }
+
+
+

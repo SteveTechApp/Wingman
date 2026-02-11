@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Product } from '../utils/types';
 import InfoModal from './InfoModal';
@@ -143,3 +144,6 @@ const RelatedProductsModal: React.FC<RelatedProductsModalProps> = ({
 };
 
 export default RelatedProductsModal;
+
+
+

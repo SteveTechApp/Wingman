@@ -1,6 +1,7 @@
+
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { recordRecentTool } from "@/components/tools/recentTools";
+import { recordRecentTool } from "@/components/app/tools/recentTools";
 import { getToolByPath } from "@/data/toolCategories";
 
 export default function RecentRouteTracker() {
@@ -20,3 +21,6 @@ export default function RecentRouteTracker() {
 
   return null;
 }
+
+
+

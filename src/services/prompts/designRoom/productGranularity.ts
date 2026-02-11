@@ -29,3 +29,6 @@ export const getProductGranularity = () => `
       -   **Primary**: The main display(s) at the front of the room. Connected directly to the main Switcher or Decoder.
       -   **Repeater/Confidence**: Displays located halfway down a long room or facing the presenter.
 `;
+
+
+

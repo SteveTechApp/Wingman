@@ -1,5 +1,6 @@
+
 import React from 'react';
-import ToggleSwitch from '../../ui/ToggleSwitch';
+import ToggleSwitch from '@/components/ui/ToggleSwitch';
 
 interface WizardToggleOptionProps {
     label: string;
@@ -11,10 +12,10 @@ interface WizardToggleOptionProps {
 
 const WizardToggleOption: React.FC<WizardToggleOptionProps> = ({ label, description, checked, onChange, htmlForId }) => {
     return (
-        <div className="flex items-center justify-between p-3 bg-background rounded-md border border-border-color">
+        <div className="flex\ items-center\ justify-between\ p-3\ bg-background\ rounded-md\ border\ border-border-color">
             <div>
-                <label htmlFor={htmlForId} className="text-sm font-medium">{label}</label>
-                <p className="text-xs text-text-secondary">{description}</p>
+                <label htmlFor={htmlForId} className="text-sm\ font-medium">{label}</label>
+                <p className="text-xs\ text-text-secondary">{description}</p>
             </div>
             <ToggleSwitch
                 checked={checked}
@@ -25,3 +26,6 @@ const WizardToggleOption: React.FC<WizardToggleOptionProps> = ({ label, descript
 };
 
 export default WizardToggleOption;
+
+
+

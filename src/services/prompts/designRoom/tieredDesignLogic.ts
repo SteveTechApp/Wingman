@@ -20,3 +20,6 @@ export const getTieredDesignLogic = () => `
       -   **Silver**: Optimize for FUNCTION. The "Sweet Spot". HDBaseT Class A, BYOM support, decent audio.
       -   **Gold**: Optimize for EXPERIENCE. AVoIP (Zero Latency), Independent Routing, High-End Audio, Touch Panel Control.
 `;
+
+
+

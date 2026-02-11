@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { UserTemplate, DesignTier } from '../utils/types';
 import InfoModal from './InfoModal';
@@ -15,7 +16,7 @@ const TierColumn: React.FC<{ template: UserTemplate; onSelect: (template: UserTe
     return (
         <div className="flex flex-col bg-background p-4 rounded-lg border border-border-color h-full">
             <div className="flex items-center gap-2 mb-2">
-                <TierIcon tier={template.roomData.designTier} className="h-6 w-6" />
+                <TierIcon tier={template.roomData.designTier} className="h-14 w-6" />
                 <h3 className="text-xl font-bold">{template.roomData.designTier}</h3>
             </div>
             <p className="text-xs text-text-secondary italic mb-4 h-24 overflow-y-auto">{template.description}</p>
@@ -65,7 +66,7 @@ const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({ isOpen, onClo
               ) : (
                   <div key={tier} className="flex flex-col bg-background p-4 rounded-lg border border-border-color h-full opacity-50">
                       <div className="flex items-center gap-2 mb-2">
-                          <TierIcon tier={tier} className="h-6 w-6" />
+                          <TierIcon tier={tier} className="h-14 w-6" />
                           <h3 className="text-xl font-bold">{tier}</h3>
                       </div>
                        <div className="flex-grow flex items-center justify-center">
@@ -80,3 +81,6 @@ const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({ isOpen, onClo
 };
 
 export default TemplateDetailModal;
+
+
+

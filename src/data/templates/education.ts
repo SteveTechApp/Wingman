@@ -177,3 +177,6 @@ export const EDUCATION_TEMPLATES: UserTemplate[] = [
         },
     }
 ];
+
+
+

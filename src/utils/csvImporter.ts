@@ -1,3 +1,4 @@
+
 import { ManuallyAddedEquipment, Product } from './types';
 import toast from 'react-hot-toast';
 
@@ -163,3 +164,6 @@ export const downloadCSVTemplate = () => {
 
   toast.success('Template downloaded');
 };
+
+
+

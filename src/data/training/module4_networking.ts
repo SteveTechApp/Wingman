@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_4_NETWORKING: TrainingModule = {
@@ -72,3 +73,6 @@ export const MODULE_4_NETWORKING: TrainingModule = {
     { question: "You plug a new AVoIP decoder into a network and it gets an IP address automatically. This is the work of...", options: ["IGMP Snooping", "PoE", "DHCP"], correctAnswer: "DHCP", explanation: "The DHCP service on the network is responsible for automatically assigning IP addresses to new devices." }
   ],
 };
+
+
+

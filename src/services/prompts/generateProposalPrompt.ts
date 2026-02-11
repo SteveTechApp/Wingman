@@ -30,3 +30,6 @@ export const generateProposalPrompt = (project: ProjectData, userProfile: UserPr
         Return only valid JSON that conforms to the schema.
     `;
 };
+
+
+

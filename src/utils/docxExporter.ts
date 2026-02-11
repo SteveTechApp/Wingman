@@ -1,3 +1,4 @@
+
 // This is a placeholder for a DOCX exporting utility.
 // In a real application, this would use a library like docx.js to generate a .docx file.
 
@@ -31,3 +32,6 @@ export const exportProposalToDocx = (proposal: Proposal, project: ProjectData) =
 
   alert('Proposal exported as a plain text file (DOCX export is a mock).');
 };
+
+
+

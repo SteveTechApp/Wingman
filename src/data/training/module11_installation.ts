@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_11_INSTALLATION: TrainingModule = {
@@ -68,3 +69,6 @@ export const MODULE_11_INSTALLATION: TrainingModule = {
     { question: "When testing a newly terminated category cable, what tool provides the most comprehensive results?", options: ["A simple continuity tester", "A cable certifier", "A multimeter"], correctAnswer: "A cable certifier", explanation: "While a continuity tester checks for basic wiring faults, a certifier tests for performance metrics like bandwidth and crosstalk, ensuring the cable can handle high-speed signals." }
   ],
 };
+
+
+

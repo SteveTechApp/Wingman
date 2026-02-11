@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_1_SIGNALS: TrainingModule = {
@@ -98,3 +99,6 @@ export const MODULE_1_SIGNALS: TrainingModule = {
     { question: 'What does "plug and play" for an HDMI device rely on?', options: ['HDCP', 'EDID', 'Bandwidth'], correctAnswer: 'EDID', explanation: 'The EDID handshake is the automatic process where the source learns what the display can handle, making the connection seamless for the user.' }
   ],
 };
+
+
+

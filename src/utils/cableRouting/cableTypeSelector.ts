@@ -1,3 +1,4 @@
+
 import { EquipmentPosition, CableType, TechnologyRequirement } from './types';
 
 /**
@@ -59,3 +60,6 @@ export function determineCableType(
   // Default to Cat6 for control/network
   return 'Cat6';
 }
+
+
+

@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_8_BANT: TrainingModule = {
@@ -48,3 +49,6 @@ export const MODULE_8_BANT: TrainingModule = {
     },
   ],
 };
+
+
+

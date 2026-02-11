@@ -1,4 +1,5 @@
-﻿// src/services/database/types.ts
+
+// src/services/database/types.ts
 // Database configuration and types
 
 /**
@@ -59,3 +60,6 @@ export interface ExportData {
  * Store Names Type
  */
 export type StoreName = typeof STORES[keyof typeof STORES];
+
+
+

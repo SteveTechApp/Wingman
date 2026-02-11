@@ -1,3 +1,4 @@
+
 import { CableType, CableSpec } from './types';
 
 /**
@@ -84,3 +85,6 @@ export const CABLE_SPECS: Record<CableType, CableSpec> = {
 export function getCableSpecs(cableType: CableType): CableSpec {
   return CABLE_SPECS[cableType];
 }
+
+
+

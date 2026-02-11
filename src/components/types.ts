@@ -1,4 +1,5 @@
-﻿// src/components/types.ts
+
+// src/components/types.ts
 // Component-specific type definitions
 
 /**
@@ -29,3 +30,6 @@ export interface DisplayGroup {
     rows?: number;
     columns?: number;
 }
+
+
+

@@ -1,3 +1,4 @@
+
 import { Product } from '../../utils/types';
 
 export const CABLES: Product[] = [
@@ -27,3 +28,6 @@ export const CABLES: Product[] = [
         tags: ['Cable', 'HDMI', '4K', '18Gbps', '2m'],
     },
 ];
+
+
+

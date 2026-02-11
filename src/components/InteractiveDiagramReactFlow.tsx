@@ -1,3 +1,4 @@
+
 import React, { useCallback, useMemo } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -12,7 +13,6 @@ import ReactFlow, {
   MarkerType,
   BackgroundVariant,
 } from 'reactflow';
-import 'reactflow/dist/style.css';
 import { StructuredSystemDiagram, ManuallyAddedEquipment } from '../utils/types';
 
 interface InteractiveDiagramProps {
@@ -286,10 +286,10 @@ const InteractiveDiagram: React.FC<InteractiveDiagramProps> = ({
 
   if (equipment.length === 0) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-800 border border-border-color rounded-lg">
-        <div className="text-center p-8">
-          <div className="text-6xl mb-4">🔌</div>
-          <h3 className="text-xl font-bold mb-2">No Equipment Yet</h3>
+      <div className="h-full\ flex\ items-center\ justify-center\ bg-gray-50\ dark:bg-gray-800\ border\ border-border-color\ rounded-lg">
+        <div className="text-center\ p-8">
+          <div className="text-6xl\ mb-4">🔌</div>
+          <h3 className="text-xl\ font-bold\ mb-2">No Equipment Yet</h3>
           <p className="text-text-secondary">
             Add equipment to your room to see the system diagram
           </p>
@@ -299,7 +299,7 @@ const InteractiveDiagram: React.FC<InteractiveDiagramProps> = ({
   }
 
   return (
-    <div className="h-full w-full bg-white dark:bg-gray-900 border border-border-color rounded-lg overflow-hidden">
+    <div className="h-full\ w-full\ bg-white\ dark:bg-gray-900\ border\ border-border-color\ rounded-lg\ overflow-hidden">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -316,7 +316,7 @@ const InteractiveDiagram: React.FC<InteractiveDiagramProps> = ({
             const style = node.style as any;
             return style?.backgroundColor || '#64748b';
           }}
-          className="bg-gray-100 dark:bg-gray-800 border border-border-color"
+          className="bg-gray-100\ dark:bg-gray-800\ border\ border-border-color"
         />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
       </ReactFlow>
@@ -325,3 +325,6 @@ const InteractiveDiagram: React.FC<InteractiveDiagramProps> = ({
 };
 
 export default InteractiveDiagram;
+
+
+

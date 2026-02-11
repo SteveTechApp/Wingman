@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { useProjectContext } from '../../context/ProjectContext';
+import { useProjectContext } from "@/context/ProjectContext";
 
 interface TabConfig {
   id: string;
@@ -30,3 +31,6 @@ const WorkspaceContent: React.FC<WorkspaceContentProps> = ({ tabs, activeTab }) 
 };
 
 export default WorkspaceContent;
+
+
+

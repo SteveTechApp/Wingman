@@ -1,3 +1,4 @@
+
 export interface TrainingAsset {
     url: string;
     title: string;
@@ -35,3 +36,6 @@ export interface QuizAnswer {
     answer: string;
     isCorrect: boolean;
 }
+
+
+

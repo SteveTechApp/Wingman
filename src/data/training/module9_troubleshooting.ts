@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_9_TROUBLESHOOTING: TrainingModule = {
@@ -78,3 +79,6 @@ export const MODULE_9_TROUBLESHOOTING: TrainingModule = {
     { question: "What do status LEDs on extenders and switchers often indicate?", options: ["The product's age", "Power status and signal/link presence", "The current firmware version"], correctAnswer: "Power status and signal/link presence", explanation: "LEDs are a vital first-look diagnostic tool to see if devices are powered and if they are detecting a signal or link." },
   ],
 };
+
+
+

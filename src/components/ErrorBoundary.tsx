@@ -1,6 +1,7 @@
+
 import React from 'react';
 import ErrorDisplay from './ErrorDisplay';
-import { useProjectContext } from '../context/ProjectContext';
+import { useProjectContext } from "@/context/ProjectContext";
 
 // --- Internal Class Component for Error Handling Logic ---
 
@@ -17,7 +18,6 @@ interface State {
 
 class ErrorBoundaryInternal extends React.Component<ErrorBoundaryInternalProps, State> {
   state: State;
-  public readonly props: ErrorBoundaryInternalProps & { children?: React.ReactNode };
 
   constructor(props: ErrorBoundaryInternalProps) {
     super(props);
@@ -70,3 +70,6 @@ const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 };
 
 export default ErrorBoundary;
+
+
+

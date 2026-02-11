@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { RoomWizardAnswers } from '../utils/types';
 import toast from 'react-hot-toast';
@@ -35,3 +36,6 @@ export const useWizardStepsAndValidation = (answers: RoomWizardAnswers, totalSte
 
     return { currentStep, errors, handleNext, handlePrev, setCurrentStep, setErrors };
 };
+
+
+

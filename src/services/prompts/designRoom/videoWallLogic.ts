@@ -1,3 +1,4 @@
+
 export const getVideoWallLogic = () => `
   **Video Wall Design Logic (CRITICAL):**
   Your approach MUST differ based on whether the wall is LCD or LED.
@@ -29,3 +30,6 @@ export const getVideoWallLogic = () => `
     - **Gold/High-Detail**: You **MUST** use 'NHD-600-TRX'. It provides the best video handling with zero latency and can show up to 16 uncompressed sources, ideal for high-detail content where a 4K image is spread across the entire wall.
   - **If Single Source (No Multiview)**: Select a single, high-quality decoder. 'NHD-600-TRX' provides the absolute best quality. A 'NHD-500-RX' is an excellent Silver-tier choice. A 'NHD-120-RX' is a budget-friendly Bronze option but uses high compression.
 `;
+
+
+

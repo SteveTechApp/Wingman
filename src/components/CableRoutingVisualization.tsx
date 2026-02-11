@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { RoomData, ManuallyAddedEquipment } from '../utils/types';
 import { 
@@ -205,10 +206,10 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
 
   if (equipment.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-800 border border-border-color rounded-lg p-8">
+      <div className="flex\ items-center\ justify-center\ h-full\ bg-gray-50\ dark:bg-gray-800\ border\ border-border-color\ rounded-lg\ p-8">
         <div className="text-center">
-          <div className="text-6xl mb-4">🔌</div>
-          <h3 className="text-xl font-bold mb-2">No Equipment to Route</h3>
+          <div className="text-6xl\ mb-4">🔌</div>
+          <h3 className="text-xl\ font-bold\ mb-2">No Equipment to Route</h3>
           <p className="text-text-secondary">
             Add equipment to see cable routing visualization
           </p>
@@ -219,10 +220,10 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="bg-white dark:bg-gray-900 border border-border-color rounded-lg p-4">
+      <div className="bg-white\ dark:bg-gray-900\ border\ border-border-color\ rounded-lg\ p-4">
         <svg
           viewBox={`0 0 ${roomWidth + viewBoxPadding * 2} ${roomDepth + viewBoxPadding * 2}`}
-          className="w-full h-auto"
+          className="w-full\ h-auto"
           style={{ minHeight: '400px' }}
         >
           {/* Room outline */}
@@ -242,7 +243,7 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
             x={viewBoxPadding + roomWidth / 2}
             y={viewBoxPadding - 20}
             textAnchor="middle"
-            className="fill-text-primary font-semibold text-sm"
+            className="fill-text-primary\ font-semibold\ text-sm"
           >
             {room.roomName} ({roomWidth}cm × {roomDepth}cm)
           </text>
@@ -281,7 +282,7 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
                     x={(adjustedStart.x + adjustedEnd.x) / 2}
                     y={(adjustedStart.y + adjustedEnd.y) / 2}
                     textAnchor="middle"
-                    className="text-xs fill-text-primary"
+                    className="text-xs\ fill-text-primary"
                     style={{ fontSize: '10px' }}
                   >
                     {route.cableType.toUpperCase()} ({route.distance}m)
@@ -322,7 +323,7 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
                     x={adjustedPos.x}
                     y={adjustedPos.y + 35}
                     textAnchor="middle"
-                    className="text-xs fill-text-primary font-semibold"
+                    className="text-xs\ fill-text-primary\ font-semibold"
                     style={{ fontSize: '10px' }}
                   >
                     {item.name}
@@ -336,13 +337,13 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
 
       {/* Legend */}
       {showLegend && (
-        <div className="bg-background-secondary border border-border-color rounded-lg p-4">
-          <h3 className="font-semibold text-sm uppercase tracking-wide mb-3">Cable Legend</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="bg-background-secondary\ border\ border-border-color\ rounded-lg\ p-4">
+          <h3 className="font-semibold\ text-sm\ uppercase\ tracking-wide\ mb-3">Cable Legend</h3>
+          <div className="grid\ grid-cols-2\ md:grid-cols-4\ gap-3">
             {Object.entries(cableTypeCounts).map(([type, count]) => (
-              <div key={type} className="flex items-center gap-2">
+              <div key={type} className="flex\ items-center\ gap-2">
                 <div
-                  className="w-4 h-4 rounded"
+                  className="w-4\ h-4\ rounded"
                   style={{ backgroundColor: CABLE_COLORS[type as CableType] }}
                 />
                 <span className="text-sm">
@@ -352,19 +353,19 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
             ))}
           </div>
 
-          <div className="mt-4 pt-4 border-t border-border-color">
-            <h4 className="font-semibold text-sm mb-2">Equipment Types</h4>
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-[#00833D]" />
+          <div className="mt-4\ pt-4\ border-t\ border-border-color">
+            <h4 className="font-semibold\ text-sm\ mb-2">Equipment Types</h4>
+            <div className="grid\ grid-cols-3\ gap-2\ text-xs">
+              <div className="flex\ items-center\ gap-2">
+                <div className="w-4\ h-4\ rounded-full\ bg-\[\#00833D]" />
                 <span>Switchers</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-[#1e40af]" />
+              <div className="flex\ items-center\ gap-2">
+                <div className="w-4\ h-4\ rounded-full\ bg-\[\#1e40af]" />
                 <span>Displays</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-[#94a3b8]" />
+              <div className="flex\ items-center\ gap-2">
+                <div className="w-4\ h-4\ rounded-full\ bg-\[\#94a3b8]" />
                 <span>Sources</span>
               </div>
             </div>
@@ -373,26 +374,26 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
       )}
 
       {/* Cable Schedule */}
-      <div className="bg-background-secondary border border-border-color rounded-lg p-4">
-        <h3 className="font-semibold text-sm uppercase tracking-wide mb-3">Cable Schedule</h3>
+      <div className="bg-background-secondary\ border\ border-border-color\ rounded-lg\ p-4">
+        <h3 className="font-semibold\ text-sm\ uppercase\ tracking-wide\ mb-3">Cable Schedule</h3>
         <div className="space-y-2">
           {cableRoutes.map((route, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between p-2 bg-background border border-border-color rounded text-sm"
+              className="flex\ items-center\ justify-between\ p-2\ bg-background\ border\ border-border-color\ rounded\ text-sm"
             >
-              <div className="flex items-center gap-2 flex-1">
+              <div className="flex\ items-center\ gap-2\ flex-1">
                 <div
-                  className="w-3 h-3 rounded"
+                  className="w-3\ h-3\ rounded"
                   style={{ backgroundColor: CABLE_COLORS[route.cableType] }}
                 />
-                <span className="font-mono text-xs">C{idx + 1}</span>
+                <span className="font-mono\ text-xs">C{idx + 1}</span>
                 <span>→</span>
                 <span className="truncate">{route.from.name}</span>
                 <span>→</span>
                 <span className="truncate">{route.to.name}</span>
               </div>
-              <div className="flex items-center gap-3 text-xs text-text-secondary">
+              <div className="flex\ items-center\ gap-3\ text-xs\ text-text-secondary">
                 <span className="font-semibold">{route.cableType.toUpperCase()}</span>
                 <span>{route.distance}m</span>
               </div>
@@ -405,3 +406,6 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
 };
 
 export default CableRoutingVisualization;
+
+
+

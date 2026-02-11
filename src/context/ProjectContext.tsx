@@ -79,7 +79,22 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
 export const useProjectContext = () => {
   const context = useContext(ProjectContext);
   if (context === undefined) {
-    throw new Error('useProjectContext must be used within a ProjectProvider');
+    // Wingman hardening: do not hard-crash the whole app if provider is missing.
+    // Return a minimal safe fallback object; guards can redirect appropriately.
+    console.warn("useProjectContext used without ProjectProvider — returning fallback context");
+    return {
+      project: null,
+      activeProjectId: null,
+      setActiveProjectId: () => {},
+      setProject: () => {},
+      updateProject: () => {},
+      clearProject: () => {},
+      rooms: [],
+      setRooms: () => {}
+    } as any;
   }
   return context;
 };
+
+
+

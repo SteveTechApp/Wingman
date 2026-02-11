@@ -1,3 +1,4 @@
+
 export const PART_2_EXTENSION = `
 ## Part 2: Signal Extension Technologies
 
@@ -12,3 +13,6 @@ A point-to-point technology for sending AV, USB, Control, and Power over a singl
 - **Benefits**: Extremely long distances (km), immune to EMI, high security.
 - **Drawbacks**: More fragile and typically more expensive than category cable.
 `;
+
+
+

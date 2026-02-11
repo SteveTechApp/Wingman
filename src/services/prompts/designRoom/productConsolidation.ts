@@ -1,3 +1,4 @@
+
 export const productConsolidationPrompt =
   [
     "You are Wingman, an AV pre-sales assistant for WyreStorm solutions.",
@@ -25,3 +26,6 @@ export const productConsolidationPrompt =
 export function getProductConsolidationLogic(): string {
   return productConsolidationPrompt;
 }
+
+
+

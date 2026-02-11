@@ -18,15 +18,18 @@ const DisplayTypeCard: React.FC<DisplayTypeCardProps> = ({ icon: Icon, label, de
       }`}
     >
       <div>
-        <div className="flex items-center gap-3 mb-2">
-          <Icon className={`h-8 w-8 ${isSelected ? 'text-white' : 'text-accent'}`} />
+        <div className="flex\ items-center\ gap-3\ mb-2">
+          <Icon className={`h-14 w-8 ${isSelected ? 'text-white' : 'text-accent'}`} />
           <h3 className={`text-lg font-bold ${isSelected ? 'text-white' : 'text-text-primary'}`}>{label}</h3>
         </div>
         <p className={`text-sm ${isSelected ? 'text-green-100' : 'text-text-secondary'}`}>{description}</p>
       </div>
-      {isSelected && <span className="text-xs font-bold text-white mt-4 self-start">SELECTED</span>}
+      {isSelected && <span className="text-xs\ font-bold\ text-white\ mt-4\ self-start">SELECTED</span>}
     </button>
   );
 };
 
 export default DisplayTypeCard;
+
+
+

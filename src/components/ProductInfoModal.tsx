@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Product } from '../utils/types';
 import InfoModal from './InfoModal';
@@ -34,3 +35,6 @@ const ProductInfoModal: React.FC<ProductInfoModalProps> = ({ isOpen, onClose, pr
 };
 
 export default ProductInfoModal;
+
+
+

@@ -1,3 +1,4 @@
+
 import { TechnologyRequirement, CableType } from './types';
 import { CABLE_SPECS } from './cableSpecs';
 
@@ -90,3 +91,6 @@ export function analyzeTechnologyRequirements(
     notes
   };
 }
+
+
+

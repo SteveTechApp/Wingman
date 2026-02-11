@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import InfoModal from './InfoModal';
 import {
@@ -125,42 +126,42 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
     <InfoModal isOpen={isOpen} onClose={onClose} title="Technology Specification Analyzer">
       <div className="space-y-6">
         {/* Key Insight Banner */}
-        <div className="bg-accent-bg-subtle border border-accent rounded-lg p-4">
-          <h3 className="font-bold text-accent mb-2">💰 Cost Optimization Insight</h3>
-          <p className="text-sm text-text-primary">
+        <div className="bg-accent-bg-subtle\ border\ border-accent\ rounded-lg\ p-4">
+          <h3 className="font-bold\ text-accent\ mb-2">💰 Cost Optimization Insight</h3>
+          <p className="text-sm\ text-text-primary">
             By choosing the right specification for your needs, you can save up to{' '}
             <strong className="text-accent">${potentialSavings.toFixed(0)} ({savingsPercentage}%)</strong>{' '}
             on cable costs alone for this {cableDistance.toFixed(1)}m run.
           </p>
-          <p className="text-xs text-text-secondary mt-2">
+          <p className="text-xs\ text-text-secondary\ mt-2">
             💡 Not every application needs 4K@60Hz 4:4:4. Match specs to actual requirements!
           </p>
         </div>
 
         {/* Room Context */}
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="bg-background-secondary p-3 rounded-lg">
+        <div className="grid\ grid-cols-2\ gap-4\ text-sm">
+          <div className="bg-background-secondary\ p-3\ rounded-lg">
             <p className="text-text-secondary">Room Type</p>
-            <p className="font-semibold text-text-primary">{roomType}</p>
+            <p className="font-semibold\ text-text-primary">{roomType}</p>
           </div>
-          <div className="bg-background-secondary p-3 rounded-lg">
+          <div className="bg-background-secondary\ p-3\ rounded-lg">
             <p className="text-text-secondary">Display Size</p>
-            <p className="font-semibold text-text-primary">{displaySize}"</p>
+            <p className="font-semibold\ text-text-primary">{displaySize}"</p>
           </div>
-          <div className="bg-background-secondary p-3 rounded-lg">
+          <div className="bg-background-secondary\ p-3\ rounded-lg">
             <p className="text-text-secondary">Viewing Distance</p>
-            <p className="font-semibold text-text-primary">{viewingDistance.toFixed(1)}m</p>
+            <p className="font-semibold\ text-text-primary">{viewingDistance.toFixed(1)}m</p>
           </div>
-          <div className="bg-background-secondary p-3 rounded-lg">
+          <div className="bg-background-secondary\ p-3\ rounded-lg">
             <p className="text-text-secondary">Cable Distance</p>
-            <p className="font-semibold text-text-primary">{cableDistance.toFixed(1)}m</p>
+            <p className="font-semibold\ text-text-primary">{cableDistance.toFixed(1)}m</p>
           </div>
         </div>
 
         {/* Content Type Selector */}
         <div>
-          <h3 className="font-bold text-text-primary mb-3">Select Your Content Type</h3>
-          <div className="grid grid-cols-2 gap-2">
+          <h3 className="font-bold\ text-text-primary\ mb-3">Select Your Content Type</h3>
+          <div className="grid\ grid-cols-2\ gap-2">
             {allRequirements.map(({ contentType, requirement }) => (
               <button
                 key={contentType}
@@ -171,10 +172,10 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
                     : 'border-border-color hover:border-accent'
                 }`}
               >
-                <p className="font-semibold text-text-primary capitalize">
+                <p className="font-semibold\ text-text-primary\ capitalize">
                   {contentType.replace('-', ' ')}
                 </p>
-                <p className="text-xs text-text-secondary mt-1">
+                <p className="text-xs\ text-text-secondary\ mt-1">
                   {requirement.resolution} @ {requirement.refreshRate}Hz {requirement.colorSubsampling}
                 </p>
               </button>
@@ -184,48 +185,48 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
 
         {/* Selected Requirement Details */}
         {selectedRequirement && (
-          <div className="bg-background-secondary p-4 rounded-lg border border-border-color">
-            <h3 className="font-bold text-text-primary mb-3">
+          <div className="bg-background-secondary\ p-4\ rounded-lg\ border\ border-border-color">
+            <h3 className="font-bold\ text-text-primary\ mb-3">
               Recommended Specification: {selectedContentType.replace('-', ' ')}
             </h3>
 
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
+            <div className="space-y-2\ text-sm">
+              <div className="flex\ justify-between">
                 <span className="text-text-secondary">Resolution:</span>
-                <span className="font-semibold text-text-primary">{selectedRequirement.resolution}</span>
+                <span className="font-semibold\ text-text-primary">{selectedRequirement.resolution}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex\ justify-between">
                 <span className="text-text-secondary">Refresh Rate:</span>
-                <span className="font-semibold text-text-primary">{selectedRequirement.refreshRate}Hz</span>
+                <span className="font-semibold\ text-text-primary">{selectedRequirement.refreshRate}Hz</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex\ justify-between">
                 <span className="text-text-secondary">Color Subsampling:</span>
-                <span className="font-semibold text-text-primary">{selectedRequirement.colorSubsampling}</span>
+                <span className="font-semibold\ text-text-primary">{selectedRequirement.colorSubsampling}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex\ justify-between">
                 <span className="text-text-secondary">HDR:</span>
-                <span className="font-semibold text-text-primary">{selectedRequirement.hdr ? 'Yes' : 'No'}</span>
+                <span className="font-semibold\ text-text-primary">{selectedRequirement.hdr ? 'Yes' : 'No'}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex\ justify-between">
                 <span className="text-text-secondary">Max Distance:</span>
-                <span className="font-semibold text-text-primary">{selectedRequirement.maxDistance}m</span>
+                <span className="font-semibold\ text-text-primary">{selectedRequirement.maxDistance}m</span>
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-border-color">
-              <p className="text-sm text-text-secondary">{selectedRequirement.notes}</p>
+            <div className="mt-4\ pt-3\ border-t\ border-border-color">
+              <p className="text-sm\ text-text-secondary">{selectedRequirement.notes}</p>
             </div>
 
             <div className="mt-4">
-              <h4 className="font-semibold text-text-primary text-sm mb-2">Recommended Cables:</h4>
-              <div className="flex flex-wrap gap-2">
+              <h4 className="font-semibold\ text-text-primary\ text-sm\ mb-2">Recommended Cables:</h4>
+              <div className="flex\ flex-wrap\ gap-2">
                 {selectedRequirement.recommendedCables.map(cable => {
                   const specs = getCableSpecs(cable);
                   return (
                     <button
                       key={cable}
                       onClick={() => handleSelectSpec(selectedRequirement, cable)}
-                      className="px-3 py-2 bg-accent-bg-subtle text-accent rounded-lg text-xs font-mono hover:bg-accent hover:text-white transition-colors"
+                      className="px-3\ py-2\ bg-accent-bg-subtle\ text-accent\ rounded-lg\ text-xs\ font-mono\ hover:bg-accent\ hover:text-white\ transition-colors"
                       title={specs.notes}
                     >
                       {cable}
@@ -239,16 +240,16 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
 
         {/* Cost Comparison Table */}
         <div>
-          <h3 className="font-bold text-text-primary mb-3">Cost Comparison</h3>
+          <h3 className="font-bold\ text-text-primary\ mb-3">Cost Comparison</h3>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full\ text-sm">
               <thead>
-                <tr className="bg-background-secondary border-b border-border-color">
-                  <th className="p-2 text-left font-semibold text-text-primary">Specification</th>
-                  <th className="p-2 text-left font-semibold text-text-primary">Cable Type</th>
-                  <th className="p-2 text-right font-semibold text-text-primary">Cable Cost</th>
-                  <th className="p-2 text-right font-semibold text-text-primary">Hardware</th>
-                  <th className="p-2 text-right font-semibold text-text-primary">Total</th>
+                <tr className="bg-background-secondary\ border-b\ border-border-color">
+                  <th className="p-2\ text-left\ font-semibold\ text-text-primary">Specification</th>
+                  <th className="p-2\ text-left\ font-semibold\ text-text-primary">Cable Type</th>
+                  <th className="p-2\ text-right\ font-semibold\ text-text-primary">Cable Cost</th>
+                  <th className="p-2\ text-right\ font-semibold\ text-text-primary">Hardware</th>
+                  <th className="p-2\ text-right\ font-semibold\ text-text-primary">Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -267,30 +268,30 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
                     >
                       <td className="p-2">
                         <div>
-                          <p className="font-medium text-text-primary">{comparison.name}</p>
+                          <p className="font-medium\ text-text-primary">{comparison.name}</p>
                           {isCheapest && (
-                            <span className="text-xs text-accent font-semibold">💰 Most Cost-Effective</span>
+                            <span className="text-xs\ text-accent\ font-semibold">💰 Most Cost-Effective</span>
                           )}
                         </div>
                       </td>
                       <td className="p-2">
-                        <span className="font-mono text-xs bg-input-bg px-2 py-1 rounded">
+                        <span className="font-mono\ text-xs\ bg-input-bg\ px-2\ py-1\ rounded">
                           {comparison.cableType}
                         </span>
                       </td>
-                      <td className="p-2 text-right font-semibold text-text-primary">
+                      <td className="p-2\ text-right\ font-semibold\ text-text-primary">
                         ${comparison.cableCost.toFixed(0)}
                       </td>
-                      <td className="p-2 text-right text-text-secondary">
+                      <td className="p-2\ text-right\ text-text-secondary">
                         {comparison.additionalHardwareCost > 0
                           ? `$${comparison.additionalHardwareCost}`
                           : '-'}
                       </td>
-                      <td className="p-2 text-right">
+                      <td className="p-2\ text-right">
                         <div>
-                          <p className="font-bold text-text-primary">${comparison.totalCost.toFixed(0)}</p>
+                          <p className="font-bold\ text-text-primary">${comparison.totalCost.toFixed(0)}</p>
                           {savings > 0 && (
-                            <p className="text-xs text-accent">Save ${savings.toFixed(0)}</p>
+                            <p className="text-xs\ text-accent">Save ${savings.toFixed(0)}</p>
                           )}
                         </div>
                       </td>
@@ -303,8 +304,8 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
 
           {/* Selected comparison details */}
           {selectedComparison && (
-            <div className="mt-3 p-3 bg-background-secondary rounded-lg border border-border-color">
-              <p className="text-xs text-text-secondary">
+            <div className="mt-3\ p-3\ bg-background-secondary\ rounded-lg\ border\ border-border-color">
+              <p className="text-xs\ text-text-secondary">
                 {costComparisons.find(c => c.name === selectedComparison)?.notes}
               </p>
             </div>
@@ -312,11 +313,11 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
         </div>
 
         {/* Technical Explanation */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2">
+        <div className="bg-blue-50\ dark:bg-blue-900/20\ border\ border-blue-200\ dark:border-blue-800\ rounded-lg\ p-4">
+          <h3 className="font-bold\ text-blue-900\ dark:text-blue-100\ mb-2">
             📚 Understanding Color Subsampling
           </h3>
-          <div className="text-xs text-blue-800 dark:text-blue-200 space-y-2">
+          <div className="text-xs\ text-blue-800\ dark:text-blue-200\ space-y-2">
             <p>
               <strong>4:4:4 (Full Chroma)</strong> - Every pixel has full color information. Essential for sharp text,
               graphics, and detailed images. Best for presentations and training.
@@ -333,10 +334,10 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 justify-end pt-4 border-t border-border-color">
+        <div className="flex\ gap-2\ justify-end\ pt-4\ border-t\ border-border-color">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-border-color rounded-lg hover:bg-background-secondary transition-colors"
+            className="px-4\ py-2\ border\ border-border-color\ rounded-lg\ hover:bg-background-secondary\ transition-colors"
           >
             Cancel
           </button>
@@ -345,7 +346,7 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
               selectedRequirement,
               selectedRequirement.recommendedCables[0]
             )}
-            className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors"
+            className="px-4\ py-2\ bg-accent\ text-white\ rounded-lg\ hover:bg-accent/90\ transition-colors"
             disabled={!selectedRequirement}
           >
             Apply Recommendation
@@ -357,3 +358,6 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
 };
 
 export default TechnologySpecAnalyzer;
+
+
+

@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { useProjectContext } from '../context/ProjectContext';
+import { useProjectContext } from "@/context/ProjectContext";
 import InfoModal from './InfoModal';
 
 interface EditProjectDetailsModalProps {
@@ -53,3 +54,6 @@ const EditProjectDetailsModal: React.FC<EditProjectDetailsModalProps> = ({ isOpe
 };
 
 export default EditProjectDetailsModal;
+
+
+

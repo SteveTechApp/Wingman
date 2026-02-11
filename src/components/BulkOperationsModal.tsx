@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import InfoModal from './InfoModal';
 import { RoomData, DesignTier, Product } from '../utils/types';
@@ -96,7 +97,7 @@ const BulkOperationsModal: React.FC<BulkOperationsModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto custom-scrollbar p-2 border border-border-color rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-140 overflow-y-auto custom-scrollbar p-2 border border-border-color rounded-lg">
             {rooms.map(room => (
               <label
                 key={room.id}
@@ -206,3 +207,6 @@ const BulkOperationsModal: React.FC<BulkOperationsModalProps> = ({
 };
 
 export default BulkOperationsModal;
+
+
+

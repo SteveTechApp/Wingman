@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 
 declare const mermaid: any;
@@ -59,14 +60,16 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, onNodeClick
 
   return (
     <div 
-        className="p-4 bg-background border border-border-color rounded-md flex justify-center items-center w-full h-full"
+        className="p-4\ bg-background\ border\ border-border-color\ rounded-md\ flex\ justify-center\ items-center\ w-full\ h-full"
         onClick={() => onNodeClick && onNodeClick('mock-node-id')}
         style={{ cursor: onNodeClick ? 'pointer' : 'default' }}
     >
-      <div ref={containerRef} className="w-full h-full flex justify-center items-center" />
+      <div ref={containerRef} className="w-full\ h-full\ flex\ justify-center\ items-center" />
     </div>
   );
 };
 
 export default MermaidDiagram;
+
+
 

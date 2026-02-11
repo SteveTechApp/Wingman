@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 // Market Icons
@@ -137,3 +138,6 @@ export const InteractiveDisplayIcon: React.FC<{className?: string}> = ({ classNa
       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 11.25a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
     </svg>
 );
+
+
+

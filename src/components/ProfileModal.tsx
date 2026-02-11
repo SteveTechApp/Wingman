@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { useUserContext } from '../context/UserContext';
 import { UserProfile, Product } from '../utils/types';
 import { SUPPORTED_LANGUAGES } from '../data/constants';
 import toast from 'react-hot-toast';
-import ToggleSwitch from './ui/ToggleSwitch';
+import ToggleSwitch from '@/components/ui/ToggleSwitch';
 import InfoModal from './InfoModal';
 
 interface ProfileModalProps {
@@ -152,9 +153,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                   <label htmlFor="show-background" className="text-sm font-medium">Show Background Image Carousel</label>
                   <ToggleSwitch
                       checked={localProfile.showBackground}
-                      onChange={(isChecked) => setLocalProfile(p => ({ ...p, showBackground: isChecked }))}
-                      offColor="bg-gray-400"
-                  />
+                      onChange={(isChecked) => setLocalProfile(p => ({ ...p, showBackground: isChecked }))} />
               </div>
           </div>
           <div>
@@ -188,3 +187,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
 };
 
 export default ProfileModal;
+
+
+

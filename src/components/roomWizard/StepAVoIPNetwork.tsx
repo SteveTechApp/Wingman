@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { RoomWizardAnswers } from '../../utils/types';
 import { SWITCH_FEATURES } from '../../data/wizardOptions';
@@ -37,8 +38,8 @@ const StepAVoIPNetwork: React.FC<StepAVoIPNetworkProps> = ({ answers, updateAnsw
 
   if (!isAvoipSelected) {
     return (
-      <div className="text-center py-10">
-        <h2 className="text-2xl font-bold mb-4 text-text-primary">AVoIP Network</h2>
+      <div className="text-center\ py-10">
+        <h2 className="text-2xl\ font-bold\ mb-4\ text-text-primary">AVoIP Network</h2>
         <p className="text-text-secondary">This step is only required if an AVoIP system is selected in the 'Technical Details' step.</p>
       </div>
     );
@@ -46,18 +47,18 @@ const StepAVoIPNetwork: React.FC<StepAVoIPNetworkProps> = ({ answers, updateAnsw
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4 text-text-primary">AVoIP Network Details</h2>
-      <p className="text-text-secondary mb-6">Specify details about the network that will support the AVoIP system.</p>
+      <h2 className="text-2xl\ font-bold\ mb-4\ text-text-primary">AVoIP Network Details</h2>
+      <p className="text-text-secondary\ mb-6">Specify details about the network that will support the AVoIP system.</p>
       
       {isUnsuitableNetwork && (
-        <div className="p-4 mb-6 bg-destructive-bg border-l-4 border-destructive rounded-r-lg">
+        <div className="p-4\ mb-6\ bg-destructive-bg\ border-l-4\ border-destructive\ rounded-r-lg">
             <div className="flex">
                 <div className="flex-shrink-0">
-                    <WarningIcon className="h-5 w-5 text-destructive" />
+                    <WarningIcon className="h-5\ w-5\ text-destructive" />
                 </div>
                 <div className="ml-3">
-                    <h3 className="text-sm font-bold text-destructive">Configuration Not Recommended</h3>
-                    <p className="text-sm mt-1 text-text-secondary">
+                    <h3 className="text-sm\ font-bold\ text-destructive">Configuration Not Recommended</h3>
+                    <p className="text-sm\ mt-1\ text-text-secondary">
                         The current network configuration (shared network, no PoE, and no IGMP Snooping) is not suitable for a reliable AVoIP deployment. This will likely result in network instability and system failure. Please enable these features or use a dedicated AV network.
                     </p>
                 </div>
@@ -66,7 +67,7 @@ const StepAVoIPNetwork: React.FC<StepAVoIPNetworkProps> = ({ answers, updateAnsw
       )}
 
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid\ grid-cols-1\ md:grid-cols-2\ gap-4">
             <WizardToggleOption
                 label="Use Dedicated AV Network"
                 description="The AVoIP system will run on its own physically separate network switches."
@@ -81,18 +82,18 @@ const StepAVoIPNetwork: React.FC<StepAVoIPNetworkProps> = ({ answers, updateAnsw
             />
         </div>
         <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">Supported Network Switch Features</label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <label className="block\ text-sm\ font-medium\ text-text-secondary\ mb-2">Supported Network Switch Features</label>
+            <div className="grid\ grid-cols-1\ md:grid-cols-2\ gap-3">
                 {SWITCH_FEATURES.map(feat => (
-                    <div key={feat.id} className="flex items-center p-3 bg-background rounded-md border">
+                    <div key={feat.id} className="flex\ items-center\ p-3\ bg-background\ rounded-md\ border">
                         <input
                             type="checkbox"
                             id={`feature-${feat.id}`}
                             checked={networkDetails.switchFeatures.includes(feat.id as any)}
                             onChange={() => handleFeatureChange(feat.id)}
-                            className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
+                            className="h-4\ w-4\ rounded\ border-gray-300\ text-accent\ focus:ring-accent"
                         />
-                        <label htmlFor={`feature-${feat.id}`} className="ml-2 text-sm">{feat.label}</label>
+                        <label htmlFor={`feature-${feat.id}`} className="ml-2\ text-sm">{feat.label}</label>
                     </div>
                 ))}
             </div>
@@ -103,3 +104,6 @@ const StepAVoIPNetwork: React.FC<StepAVoIPNetworkProps> = ({ answers, updateAnsw
 };
 
 export default StepAVoIPNetwork;
+
+
+

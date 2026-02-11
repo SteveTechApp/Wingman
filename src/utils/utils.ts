@@ -1,3 +1,4 @@
+
 import { RoomData, Feature } from './types';
 
 export const createNewRoom = (): Omit<RoomData, 'id' | 'roomName' | 'roomType' | 'designTier'> => ({
@@ -88,3 +89,6 @@ export const toggleFeature = (features: Feature[], featureName: string, isEnable
     }
     return features;
 };
+
+
+

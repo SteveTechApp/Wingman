@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { UserProfile } from '../utils/types';
 import { useLocalStorage } from './useLocalStorage';
@@ -26,3 +27,6 @@ export const useUserProfile = () => {
 
   return { userProfile, updateUserProfile, isProfileModalOpen, openProfileModal, closeProfileModal };
 };
+
+
+

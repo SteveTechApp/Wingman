@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   Users, 
@@ -46,17 +47,17 @@ export function RoomTypeStep() {
   const [selectedType, setSelectedType] = React.useState<string | null>(null);
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6">
+    <div className="w-full\ max-w-7xl\ mx-auto\ p-6">
       {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+      <div className="text-center\ mb-8">
+        <h2 className="text-2xl\ font-bold\ text-gray-800\ mb-2">
           Select the type of room you are designing
         </h2>
         <p className="text-gray-600">Choose from our collection of professionally designed spaces</p>
       </div>
 
       {/* Room Type Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid\ grid-cols-2\ sm:grid-cols-3\ md:grid-cols-4\ lg:grid-cols-5\ gap-4">
         {roomTypes.map((room) => {
           const Icon = room.icon;
           const isSelected = selectedType === room.type;
@@ -81,26 +82,26 @@ export function RoomTypeStep() {
               `} />
               
               {/* Shine Effect */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute\ inset-0\ bg-gradient-to-tr\ from-transparent\ via-white/20\ to-transparent\ opacity-0\ group-hover:opacity-100\ transition-opacity\ duration-300" />
               
               {/* Content */}
-              <div className="relative flex flex-col items-center justify-center p-6 min-h-[140px]">
+              <div className="relative\ flex\ flex-col\ items-center\ justify-center\ p-6\ min-h-\[140px]">
                 {/* Icon */}
                 <div className={`
                   mb-3 transition-transform duration-300
                   ${isSelected ? 'scale-110' : 'group-hover:scale-110'}
                 `}>
-                  <Icon className="w-10 h-10 text-white drop-shadow-lg" strokeWidth={2} />
+                  <Icon className="w-10\ h-14\ text-white\ drop-shadow-lg" strokeWidth={2} />
                 </div>
                 
                 {/* Room Type Name */}
-                <h3 className="text-white font-bold text-center text-sm leading-tight mb-2 drop-shadow-md">
+                <h3 className="text-white\ font-bold\ text-center\ text-sm\ leading-tight\ mb-2\ drop-shadow-md">
                   {room.type}
                 </h3>
                 
                 {/* Options Count Badge */}
-                <div className="bg-white/30 backdrop-blur-sm px-3 py-1 rounded-full">
-                  <span className="text-white text-xs font-semibold">
+                <div className="bg-white/30\ backdrop-blur-sm\ px-3\ py-1\ rounded-full">
+                  <span className="text-white\ text-xs\ font-semibold">
                     {room.count} {room.count === 1 ? 'option' : 'options'}
                   </span>
                 </div>
@@ -108,9 +109,9 @@ export function RoomTypeStep() {
               
               {/* Selected Indicator */}
               {isSelected && (
-                <div className="absolute top-2 right-2">
-                  <div className="bg-white rounded-full p-1 shadow-lg">
-                    <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <div className="absolute\ top-2\ right-2">
+                  <div className="bg-white\ rounded-full\ p-1\ shadow-lg">
+                    <svg className="w-4\ h-4\ text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
@@ -123,8 +124,8 @@ export function RoomTypeStep() {
 
       {/* Selected Type Display */}
       {selectedType && (
-        <div className="mt-8 p-6 bg-blue-50 border-2 border-blue-200 rounded-xl animate-fadeIn">
-          <p className="text-center text-blue-900 font-semibold">
+        <div className="mt-8\ p-6\ bg-blue-50\ border-2\ border-blue-200\ rounded-xl\ animate-fadeIn">
+          <p className="text-center\ text-blue-900\ font-semibold">
             Selected: <span className="text-blue-600">{selectedType}</span>
           </p>
         </div>
@@ -150,3 +151,6 @@ const styles = `
   animation: fadeIn 0.3s ease-out;
 }
 `;
+
+
+

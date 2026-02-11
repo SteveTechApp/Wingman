@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_0_TERMINOLOGY: TrainingModule = {
@@ -82,3 +83,6 @@ export const MODULE_0_TERMINOLOGY: TrainingModule = {
     { question: 'What does "HDCP" stand for?', options: ['High-Definition Color Profile', 'High-bandwidth Digital Content Protection', 'Hardware Device Control Protocol'], correctAnswer: 'High-bandwidth Digital Content Protection', explanation: 'HDCP is the encryption standard used on HDMI and other connections to prevent unauthorized copying of content.' }
   ],
 };
+
+
+

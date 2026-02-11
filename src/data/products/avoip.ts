@@ -1,3 +1,4 @@
+
 import { Product } from '../../utils/types';
 
 export const AVOIP_PRODUCTS: Product[] = [
@@ -195,3 +196,6 @@ export const AVOIP_PRODUCTS: Product[] = [
         ethernet: true,
     },
 ];
+
+
+

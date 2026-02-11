@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { useProjectContext } from '../../context/ProjectContext';
+import { useProjectContext } from "@/context/ProjectContext";
 import { InputIcon, OutputIcon } from '../Icons';
 
 interface IOConfigurationPanelProps {
@@ -25,26 +26,26 @@ const IOConfigurationPanel: React.FC<IOConfigurationPanelProps> = ({ onOpenWizar
   const outputsCount = room?.displayCount || 0; // Just count displays from room config
 
   return (
-    <div className="bg-background-secondary p-6 rounded-xl shadow-xl border border-border-color">
-      <h3 className="font-bold text-lg mb-4">I/O Configuration</h3>
-      <div className="flex items-center justify-between bg-background p-4 rounded-md border border-border-color">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <InputIcon className="h-6 w-6 text-accent" />
+    <div className="bg-background-secondary\ p-6\ rounded-xl\ shadow-xl\ border\ border-border-color">
+      <h3 className="font-bold\ text-lg\ mb-4">I/O Configuration</h3>
+      <div className="flex\ items-center\ justify-between\ bg-background\ p-4\ rounded-md\ border\ border-border-color">
+        <div className="flex\ items-center\ gap-6">
+          <div className="flex\ items-center\ gap-2">
+            <InputIcon className="h-14\ w-6\ text-accent" />
             <div>
-              <p className="font-bold text-2xl">{inputsCount}</p>
-              <p className="text-xs text-text-secondary uppercase">Inputs</p>
+              <p className="font-bold\ text-2xl">{inputsCount}</p>
+              <p className="text-xs\ text-text-secondary\ uppercase">Inputs</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <OutputIcon className="h-6 w-6 text-accent" />
+          <div className="flex\ items-center\ gap-2">
+            <OutputIcon className="h-14\ w-6\ text-accent" />
             <div>
-              <p className="font-bold text-2xl">{outputsCount}</p>
-              <p className="text-xs text-text-secondary uppercase">Outputs</p>
+              <p className="font-bold\ text-2xl">{outputsCount}</p>
+              <p className="text-xs\ text-text-secondary\ uppercase">Outputs</p>
             </div>
           </div>
         </div>
-        <button onClick={onOpenWizard} className="btn btn-secondary">
+        <button onClick={onOpenWizard} className="btn\ btn-secondary">
           Configure I/O Points
         </button>
       </div>
@@ -53,4 +54,6 @@ const IOConfigurationPanel: React.FC<IOConfigurationPanelProps> = ({ onOpenWizar
 };
 
 export default IOConfigurationPanel;
+
+
 

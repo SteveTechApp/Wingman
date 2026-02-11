@@ -1,3 +1,4 @@
+
 export const PART_1_SIGNALS = `
 ## Part 1: Signal Types & Connectivity
 
@@ -10,3 +11,6 @@ export const PART_1_SIGNALS = `
 - **EDID**: Data from a display telling a source its capabilities. A failed "EDID handshake" causes "No Signal" errors.
 - **HDCP**: Content protection encryption. HDCP 2.2/2.3 is required for most commercial 4K content.
 `;
+
+
+

@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_6_VIDEOWALLS: TrainingModule = {
@@ -49,3 +50,6 @@ export const MODULE_6_VIDEOWALLS: TrainingModule = {
     },
   ],
 };
+
+
+

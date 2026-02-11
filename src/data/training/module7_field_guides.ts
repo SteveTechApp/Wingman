@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_7_FIELD_GUIDES: TrainingModule = {
@@ -38,3 +39,6 @@ export const MODULE_7_FIELD_GUIDES: TrainingModule = {
     },
   ],
 };
+
+
+

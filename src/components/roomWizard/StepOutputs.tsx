@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { RoomWizardAnswers } from '../../utils/types';
 import { MAIN_DISPLAY_OPTIONS } from '../../data/wizardOptions';
@@ -35,9 +36,9 @@ const StepOutputs: React.FC<StepOutputsProps> = ({ answers, updateAnswers }) => 
 
     return (
         <div>
-            <h2 className="text-2xl font-bold mb-4">Main Display Configuration</h2>
-            <p className="text-text-secondary mb-6">Select the primary display type for this room.</p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <h2 className="text-2xl\ font-bold\ mb-4">Main Display Configuration</h2>
+            <p className="text-text-secondary\ mb-6">Select the primary display type for this room.</p>
+            <div className="grid\ grid-cols-2\ md:grid-cols-3\ gap-4">
                 {MAIN_DISPLAY_OPTIONS.map(opt => (
                     <DisplayTypeCard key={opt.id} {...opt} onClick={() => handleSelectType(opt.id)} isSelected={selectedType === opt.id} />
                 ))}
@@ -46,7 +47,7 @@ const StepOutputs: React.FC<StepOutputsProps> = ({ answers, updateAnswers }) => 
             {selectedType !== 'video_wall' && <DisplayConfig answers={answers} updateAnswers={updateAnswers} isProjector={selectedType.includes('projector')} />}
             
             {selectedType === 'video_wall' && (
-                 <div className="mt-6 pt-6 border-t border-border-color">
+                 <div className="mt-6\ pt-6\ border-t\ border-border-color">
                     <VideoWallConfigurator answers={answers} updateAnswers={updateAnswers} />
                  </div>
             )}
@@ -55,3 +56,6 @@ const StepOutputs: React.FC<StepOutputsProps> = ({ answers, updateAnswers }) => 
 };
 
 export default StepOutputs;
+
+
+

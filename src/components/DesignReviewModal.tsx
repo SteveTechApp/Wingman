@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { DesignFeedbackItem } from '../utils/types';
 import FeedbackCategory from '../designReview/FeedbackCategory';
@@ -12,10 +13,10 @@ interface DesignReviewModalProps {
 }
 
 const iconMap: Record<string, React.ReactNode> = {
-    'Warning': <WarningIcon className="h-6 w-6 text-yellow-500" />,
-    'Suggestion': <SuggestionIcon className="h-6 w-6 text-blue-500" />,
-    'Opportunity': <OpportunityIcon className="h-6 w-6 text-green-500" />,
-    'Insight': <InsightIcon className="h-6 w-6 text-purple-500" />,
+    'Warning': <WarningIcon className="h-14 w-6 text-yellow-500" />,
+    'Suggestion': <SuggestionIcon className="h-14 w-6 text-blue-500" />,
+    'Opportunity': <OpportunityIcon className="h-14 w-6 text-green-500" />,
+    'Insight': <InsightIcon className="h-14 w-6 text-purple-500" />,
 };
 
 const DesignReviewModal: React.FC<DesignReviewModalProps> = ({ isOpen, onClose, feedbackItems, title }) => {
@@ -43,3 +44,6 @@ const DesignReviewModal: React.FC<DesignReviewModalProps> = ({ isOpen, onClose, 
 };
 
 export default DesignReviewModal;
+
+
+

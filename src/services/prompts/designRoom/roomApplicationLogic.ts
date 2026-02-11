@@ -23,3 +23,6 @@ export const getRoomApplicationLogic = () => `
       -   **Display**: Always implies a **Video Wall** or many individual workstation displays.
       -   **Tech**: Zero-latency is critical. Prioritize 10GbE AVoIP (NetworkHD 600) or dedicated processors.
 `;
+
+
+

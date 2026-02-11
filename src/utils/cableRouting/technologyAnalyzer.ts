@@ -1,3 +1,4 @@
+
 import { TechnologyRequirement, CableType } from './types';
 import { CABLE_SPECS } from './cableSpecs';
 
@@ -60,7 +61,7 @@ export function analyzeTechnologyRequirements(
 
   // Calculate recommended cables
   const recommendedCables: CableType[] = [];
-  if (resolution === '8K') {
+  if ((resolution as unknown as string) === '8K') {
     recommendedCables.push('HDMI-2.1', 'Fiber-OM4');
   } else if (resolution === '4K' && refreshRate === 60 && colorSubsampling === '4:4:4') {
     recommendedCables.push('HDMI-2.1', 'HDBaseT', 'DisplayPort-1.4');
@@ -90,3 +91,6 @@ export function analyzeTechnologyRequirements(
     notes
   };
 }
+
+
+

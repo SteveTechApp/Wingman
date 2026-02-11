@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_2_HDBASET: TrainingModule = {
@@ -86,3 +87,6 @@ export const MODULE_2_HDBASET: TrainingModule = {
     { question: 'You have a 4K source. An HDBaseT Class B extender will transmit this signal up to what distance?', options: ['100m', '70m', '35m'], correctAnswer: '35m', explanation: 'Class B extenders support 4K signals up to 35 meters. They support 1080p up to 70 meters.' }
   ],
 };
+
+
+

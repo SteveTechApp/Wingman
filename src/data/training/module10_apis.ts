@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_10_APIS: TrainingModule = {
@@ -78,3 +79,6 @@ export const MODULE_10_APIS: TrainingModule = {
     { question: "True or False: All WyreStorm products use the exact same API commands.", options: ["True", "False"], correctAnswer: "False", explanation: "While many product families share a similar API structure, different products (like a matrix vs. NetworkHD) have different capabilities and thus different APIs." },
   ],
 };
+
+
+

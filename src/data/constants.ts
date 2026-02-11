@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { LanguageCode, DesignTier } from '../utils/types';
 import { 
@@ -110,3 +111,6 @@ export const ROOM_TYPE_ICONS: Record<string, React.FC<{ className?: string }>> =
     'Large Venue': LargeVenueIcon,
     'Other': SparklesIcon,
 };
+
+
+

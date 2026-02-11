@@ -1,3 +1,4 @@
+
 export const PART_3_AVOIP = `
 ## Part 3: AVoIP (Audio-Visual over Internet Protocol)
 
@@ -11,3 +12,6 @@ Sends AV signals over a network using Encoders (at sources) and Decoders (at dis
 - **Network Requirements**: Requires a **Managed Switch** with **PoE+** and **IGMP Snooping**.
 - **Controller**: Every NetworkHD system **requires one NHD-CTL-PRO v2** for configuration and routing.
 `;
+
+
+

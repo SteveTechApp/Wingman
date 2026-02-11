@@ -1,3 +1,4 @@
+
 export const getSignalExtensionLogic = () => `
   **Signal Distribution & Extension Logic:**
   Follow these rules when a signal needs extension (e.g., >10m HDMI, >3m USB 3.x).
@@ -10,3 +11,6 @@ export const getSignalExtensionLogic = () => `
           -   **> 40m 4K or > 70m 1080p**: A **Class A** extender is required.
   3.  **Add Equipment**: You **MUST** add the SKU for the complete **Extender Kit** (e.g., 'EX-100-KVM') to the equipment list. Quantity is 1 per link.
 `;
+
+
+

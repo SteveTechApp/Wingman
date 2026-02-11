@@ -1,3 +1,4 @@
+
 export const getControlSystemLogic = () => `
   **Control System Design Logic (CRITICAL):**
   Every professional space requires a defined method of control. You must select hardware or define the strategy based on the 'controlSystem' field.
@@ -20,3 +21,6 @@ export const getControlSystemLogic = () => `
       -   **Strategy**: Rely on the switcher's built-in "Auto-Switching" logic (last connected, first detected).
       -   **Restriction**: Only valid for 'Bronze' tier, single-display rooms. Never use for Matrix or Video Wall systems.
 `;
+
+
+

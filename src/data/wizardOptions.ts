@@ -1,3 +1,4 @@
+
 import { DesignTier } from '../utils/types';
 import {
     DisplayIcon, DualDisplayIcon, ProjectorIcon, VideoWallIcon, InteractiveDisplayIcon
@@ -166,3 +167,6 @@ export const MICROPHONE_TYPES = [
     { value: 'ceiling_mic', label: 'Ceiling Microphones' },
     { value: 'wireless_lav', label: 'Wireless (Lav/Handheld)' },
 ];
+
+
+

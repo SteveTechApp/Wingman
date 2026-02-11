@@ -1,3 +1,4 @@
+
 export interface Product {
     sku: string;
     name: string;
@@ -39,3 +40,6 @@ export interface Product {
     status?: 'active' | 'legacy' | 'eol';
     legacyReason?: string;
 }
+
+
+

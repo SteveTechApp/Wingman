@@ -24,21 +24,21 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ name, description, selectedFe
   };
 
   return (
-    <div className="p-4 border rounded-lg bg-background flex flex-col justify-between">
+    <div className="p-4\ border\ rounded-lg\ bg-background\ flex\ flex-col\ justify-between">
       <div>
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex\ items-center\ gap-2\ mb-1">
             <h3 className="font-bold">{name}</h3>
             {infoContent && (
                 <InfoTooltip content={infoContent}>
                     <div className="cursor-help">
-                        <InformationCircleIcon className="h-4 w-4 text-text-secondary hover:text-accent" />
+                        <InformationCircleIcon className="h-4\ w-4\ text-text-secondary\ hover:text-accent" />
                     </div>
                 </InfoTooltip>
             )}
         </div>
-        <p className="text-sm text-text-secondary mb-4 h-14">{description}</p>
+        <p className="text-sm\ text-text-secondary\ mb-4\ h-14">{description}</p>
       </div>
-      <div className="flex gap-2">
+      <div className="flex\ gap-2">
         <button
           onClick={() => onToggle(name, 'nice-to-have')}
           style={{ backgroundColor: isNice ? 'var(--accent)' : undefined }}
@@ -59,3 +59,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ name, description, selectedFe
 };
 
 export default FeatureCard;
+
+
+

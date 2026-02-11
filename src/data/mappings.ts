@@ -1,3 +1,4 @@
+
 import { VerticalMarketId } from '../utils/types';
 
 export const roomTypeToVerticalMap: Record<string, VerticalMarketId> = {
@@ -14,3 +15,6 @@ export const roomTypeToVerticalMap: Record<string, VerticalMarketId> = {
     'Large Venue': 'ven',
     'Other': 'corp', // default
 };
+
+
+

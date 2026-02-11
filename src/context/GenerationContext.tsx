@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useMemo } from "react";
 import { useProjectGeneration } from "../hooks/useProjectGeneration";
 
@@ -21,3 +22,6 @@ export function useGeneration() {
 }
 
 export const useGenerationContext = useGeneration;
+
+
+

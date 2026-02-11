@@ -1,3 +1,4 @@
+
 import { CableRoute, CableType, TechnologyRequirement } from './types';
 import { CABLE_SPECS } from './cableSpecs';
 
@@ -82,3 +83,6 @@ export function calculateTotalCableCosts(routes: CableRoute[]): {
     breakdown: breakdown as Record<CableType, { distance: number; cost: number; count: number }>
   };
 }
+
+
+
