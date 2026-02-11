@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import LoadingSpinner from '../LoadingSpinner';
-import { useProjectContext } from '../../context/ProjectContext';
+import { useProjectContext } from "@/context/ProjectContext";
 import InfoModal from '../InfoModal';
 
 const LOADING_MESSAGES: Record<string, { title: string, messages: string[] }> = {
@@ -41,13 +42,16 @@ const ContextualLoadingUI: React.FC = () => {
 
     return (
         <InfoModal isOpen={true} onClose={() => {}} className="max-w-md">
-            <div className="text-center p-4">
+            <div className="text-center\ p-4">
                 <LoadingSpinner />
-                <h2 className="text-2xl font-bold mt-4 uppercase tracking-widest text-accent">{context.title}</h2>
-                <p className="text-text-primary mt-2 h-6">{context.messages[messageIndex]}</p>
+                <h2 className="text-2xl\ font-bold\ mt-4\ uppercase\ tracking-widest\ text-accent">{context.title}</h2>
+                <p className="text-text-primary\ mt-2\ h-14">{context.messages[messageIndex]}</p>
             </div>
         </InfoModal>
     );
 };
 
 export default ContextualLoadingUI;
+
+
+

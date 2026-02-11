@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 
 export const useServiceWorker = () => {
@@ -51,3 +52,6 @@ export const useServiceWorker = () => {
     updateApp,
   };
 };
+
+
+

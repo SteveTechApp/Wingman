@@ -1,3 +1,4 @@
+
 import { Product } from '../../utils/types';
 
 export const ACCESSORIES: Product[] = [
@@ -24,3 +25,6 @@ export const ACCESSORIES: Product[] = [
         usb: { ports: [{ type: 'USB-A', count: 4 }], bandwidth: '3.0' }
     },
 ];
+
+
+

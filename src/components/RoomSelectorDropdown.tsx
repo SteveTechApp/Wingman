@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { useProjectContext } from '../context/ProjectContext';
+import { useProjectContext } from "@/context/ProjectContext";
 
 const RoomSelectorDropdown: React.FC = () => {
     const { projectData, activeRoomId, setActiveRoomId } = useProjectContext();
@@ -12,7 +13,7 @@ const RoomSelectorDropdown: React.FC = () => {
         <select
             value={activeRoomId || ''}
             onChange={(e) => setActiveRoomId(e.target.value)}
-            className="p-2 border rounded-md bg-input-bg"
+            className="p-2\ border\ rounded-md\ bg-input-bg"
         >
             {projectData.rooms.map(room => (
                 <option key={room.id} value={room.id}>
@@ -24,3 +25,6 @@ const RoomSelectorDropdown: React.FC = () => {
 };
 
 export default RoomSelectorDropdown;
+
+
+

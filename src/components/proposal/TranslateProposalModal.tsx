@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { SUPPORTED_LANGUAGES } from '../../data/constants';
 import { LanguageCode } from '../../utils/types';
@@ -43,3 +44,6 @@ const TranslateProposalModal: React.FC<TranslateProposalModalProps> = ({ isOpen,
 };
 
 export default TranslateProposalModal;
+
+
+

@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import PageShell from "@/components/layout/PageShell";
 import { useNavigate } from 'react-router-dom';
 import { useGenerationContext } from '../context/GenerationContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -36,31 +38,36 @@ John Smith
     };
 
     return (
-        <div className="h-full w-full overflow-y-auto custom-scrollbar p-4 md:p-6 flex flex-col">
-            <div className="max-w-5xl mx-auto w-full animate-fade-in-fast flex flex-col h-full pb-6">
-                <div className="text-center mb-6 flex-shrink-0">
-                    <h1 className="text-3xl md:text-4xl font-extrabold text-accent mb-2 uppercase tracking-widest">Analyze Intel</h1>
-                    <p className="text-lg text-text-secondary">Paste your client's RFQ, email, or field notes. The AI will parse the intel and build a project plan.</p>
+    <PageShell>
+      <div className="wm-page\ min-h-0\ w-full\ overflow-visible\ \ md:\ flex\ flex-col">
+            <div className="max-w-5xl\ mx-auto\ w-full\ animate-fade-in-fast\ flex\ flex-col\ h-full\ pb-6">
+                <div className="text-center\ mb-6\ flex-shrink-0">
+                    <h1 className="text-3xl\ md:text-4xl\ font-extrabold\ text-accent\ mb-2\ uppercase\ tracking-widest">Analyze Intel</h1>
+                    <p className="text-lg\ text-text-secondary">Paste your client's RFQ, email, or field notes. The AI will parse the intel and build a project plan.</p>
                 </div>
-                <form onSubmit={handleSubmit} className="p-6 bg-background-secondary border border-border-color rounded-xl shadow-xl flex flex-col gap-4 flex-grow min-h-0">
+                <form onSubmit={handleSubmit} className="p-6\ bg-background-secondary\ border\ border-border-color\ rounded-xl\ shadow-xl\ flex\ flex-col\ gap-4\ flex-grow\ min-h-0">
                     <textarea
                         value={documentText}
                         onChange={(e) => setDocumentText(e.target.value)}
                         placeholder="// PASTE INTEL HERE..."
-                        className="w-full flex-grow p-4 border border-border-color rounded-md bg-input-bg focus:outline-none focus:border-accent resize-none font-mono text-sm leading-relaxed"
+                        className="w-full\ flex-grow\ p-4\ border\ border-border-color\ rounded-md\ bg-input-bg\ focus:outline-none\ focus:border-accent\ resize-none\ font-mono\ text-sm\ leading-relaxed"
                     />
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 flex-shrink-0">
-                        <button type="button" onClick={loadSampleBrief} className="text-sm font-medium text-accent hover:underline uppercase">
+                    <div className="flex\ flex-col\ sm:flex-row\ justify-between\ items-center\ gap-4\ flex-shrink-0">
+                        <button type="button" onClick={loadSampleBrief} className="text-sm\ font-medium\ text-accent\ hover:underline\ uppercase">
                             Load Sample Intel
                         </button>
-                        <button type="submit" className="btn btn-primary text-lg px-8 w-full sm:w-auto">
+                        <button type="submit" className="btn\ btn-primary\ text-lg\ px-8\ w-full\ sm:w-auto">
                             Analyze & Build Project
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-    );
+    </PageShell>
+  );
 };
 
 export default AgentInputForm;
+
+
+

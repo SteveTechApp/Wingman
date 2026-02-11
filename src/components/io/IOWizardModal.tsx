@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { IOPoint, RoomData } from '../../utils/types';
 import { v4 as uuidv4 } from 'uuid';
-import { useProjectContext } from '../../context/ProjectContext';
+import { useProjectContext } from "@/context/ProjectContext";
 import IoColumnPanel from './IoColumnPanel';
 import IOPointConfigModal from '../roomWizard/IOPointConfigModal';
 import InfoModal from '../InfoModal';
@@ -86,3 +87,6 @@ const IOWizardModal: React.FC<IOWizardModalProps> = ({ isOpen, onClose, room }) 
 };
 
 export default IOWizardModal;
+
+
+

@@ -1,0 +1,261 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================
+   Wingman UI (Uniform v1)
+   - tokens + base layout
+   - consistent cards/buttons/sections
+   ========================= */
+
+:root{
+  --wm-bg0: #070a10;
+  --wm-bg1: #0a1020;
+  --wm-surface: rgba(255,255,255,0.06);
+  --wm-surface2: rgba(255,255,255,0.04);
+  --wm-border: rgba(255,255,255,0.14);
+  --wm-border2: rgba(255,255,255,0.10);
+
+  --wm-text: rgba(255,255,255,0.92);
+  --wm-muted: rgba(255,255,255,0.70);
+  --wm-dim: rgba(255,255,255,0.56);
+
+  --wm-accent: #00d6d6; /* teal-ish */
+  --wm-accent2: #3aa0ff; /* cool blue */
+  --wm-danger: #ff3b3b;
+
+  --wm-radius-lg: 18px;
+  --wm-radius-md: 14px;
+  --wm-shadow: 0 16px 40px rgba(0,0,0,0.35);
+
+  --wm-max: 1180px;
+  --wm-pad: 18px;
+}
+
+html, body, #root { height: 100%; }
+body{
+  margin:0;
+  color: var(--wm-text);
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(0,214,214,0.18), transparent 60%),
+    radial-gradient(900px 480px at 90% 20%, rgba(58,160,255,0.12), transparent 60%),
+    radial-gradient(900px 520px at 10% 30%, rgba(255,59,59,0.08), transparent 60%),
+    linear-gradient(180deg, var(--wm-bg0), var(--wm-bg1));
+}
+
+/* ---------- App Shell ---------- */
+.wm-app{
+  min-height: 100%;
+  display:flex;
+  flex-direction:column;
+}
+
+.wm-topbar{
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.15));
+  border-bottom: 1px solid var(--wm-border2);
+}
+
+.wm-body{
+  flex: 1;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 0;
+}
+
+@media (max-width: 1024px){
+  .wm-body{ grid-template-columns: 1fr; }
+}
+
+.wm-sidenav{
+  border-right: 1px solid var(--wm-border2);
+  background: rgba(0,0,0,0.22);
+}
+
+.wm-main{
+  padding: var(--wm-pad);
+}
+
+.wm-container{
+  max-width: var(--wm-max);
+  margin: 0 auto;
+}
+
+/* ---------- Cards / Sections ---------- */
+.wm-card{
+  border: 1px solid var(--wm-border);
+  background: var(--wm-surface);
+  border-radius: var(--wm-radius-lg);
+  box-shadow: var(--wm-shadow);
+}
+
+.wm-card2{
+  border: 1px solid var(--wm-border2);
+  background: var(--wm-surface2);
+  border-radius: var(--wm-radius-md);
+}
+
+.wm-section{
+  border-radius: var(--wm-radius-lg);
+  border: 1px solid var(--wm-border2);
+  background: rgba(0,0,0,0.18);
+}
+
+.wm-divider{
+  height: 1px;
+  background: var(--wm-border2);
+}
+
+/* ---------- Typography ---------- */
+.wm-h1{
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-weight: 900;
+}
+
+.wm-subtitle{
+  font-size: clamp(14px, 1.6vw, 18px);
+  line-height: 1.4;
+  color: var(--wm-muted);
+}
+
+.wm-kicker{
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wm-dim);
+}
+
+/* ---------- Buttons ---------- */
+.wm-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--wm-border);
+  background: rgba(255,255,255,0.06);
+  color: inherit;
+  cursor:pointer;
+  font-weight: 800;
+  font-size: 12px;
+  text-decoration: none;
+  user-select:none;
+}
+
+.wm-btn:hover{
+  background: rgba(255,255,255,0.09);
+}
+
+.wm-btn-primary{
+  border-color: rgba(0,214,214,0.45);
+  background: linear-gradient(180deg, rgba(0,214,214,0.18), rgba(0,214,214,0.08));
+}
+
+.wm-btn-primary:hover{
+  background: linear-gradient(180deg, rgba(0,214,214,0.22), rgba(0,214,214,0.10));
+}
+
+.wm-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--wm-border2);
+  background: rgba(255,255,255,0.04);
+  font-size: 12px;
+  color: var(--wm-muted);
+}
+
+/* ---------- Hero ---------- */
+.wm-hero{
+  position: relative;
+  padding: 44px 18px 22px;
+  border-radius: 26px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background:
+    radial-gradient(900px 420px at 50% 0%, rgba(0,214,214,0.22), transparent 62%),
+    radial-gradient(760px 360px at 80% 20%, rgba(58,160,255,0.14), transparent 62%),
+    rgba(0,0,0,0.22);
+  overflow:hidden;
+}
+
+.wm-hero::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  background:
+    radial-gradient(700px 220px at 50% -40px, rgba(255,255,255,0.06), transparent 65%);
+  pointer-events:none;
+}
+
+/* ---------- Brand Lockup ---------- */
+.wm-brand{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 14px;
+  margin-bottom: 18px;
+  position: relative;
+  z-index: 1;
+}
+
+.wm-brand-logo{
+  height: 46px;
+  width: auto;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.45));
+}
+
+.wm-brand-text{
+  display:flex;
+  flex-direction:column;
+  line-height: 1.05;
+  text-align:left;
+}
+
+.wm-brand-name{
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  font-size: 18px;
+}
+
+.wm-brand-tag{
+  font-size: 12px;
+  color: var(--wm-muted);
+}
+
+/* ---------- Feature Grid ---------- */
+.wm-grid{
+  display:grid;
+  gap: 12px;
+}
+
+@media (min-width: 900px){
+  .wm-grid-3{ grid-template-columns: repeat(3, 1fr); }
+}
+
+.wm-tile{
+  padding: 14px;
+  border-radius: var(--wm-radius-md);
+  border: 1px solid var(--wm-border2);
+  background: rgba(255,255,255,0.04);
+}
+
+.wm-tile-title{
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.wm-tile-sub{
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--wm-muted);
+  line-height: 1.35;
+}

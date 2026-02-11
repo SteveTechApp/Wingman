@@ -1,3 +1,4 @@
+
 import { EquipmentPosition, CableRoute } from './types';
 
 /**
@@ -53,3 +54,6 @@ export function calculateCableDistance(
 
   return Math.ceil(finalDistance * 10) / 10; // Round to 0.1m
 }
+
+
+

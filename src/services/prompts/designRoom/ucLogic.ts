@@ -31,3 +31,6 @@ export const getUcLogic = () => `
   - **USB Extension**: If a camera is connected to a switcher at a lectern/table, but the camera is mounted at the display >5m away, you MUST include a USB extender like **'EX-40-USE2'**.
   - **BYOM**: "Bring Your Own Meeting" means a user's laptop runs the call. This requires the system to have a USB-B or USB-C host connection from the switcher to the laptop. Ensure your selected switcher has this.
 `;
+
+
+

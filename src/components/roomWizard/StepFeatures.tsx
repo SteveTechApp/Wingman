@@ -29,16 +29,16 @@ const StepFeatures: React.FC<StepFeaturesProps> = ({ answers, updateAnswers }) =
   const getInfoContent = (featureName: string) => {
       if (featureName === 'Wireless Presentation') {
           return (
-              <div className="text-xs space-y-2 min-w-[280px]">
-                  <p className="font-bold border-b border-border-color pb-1 mb-1">WyreStorm Dongle Guide:</p>
-                  <ul className="list-disc pl-4 space-y-2">
+              <div className="text-xs\ space-y-2\ min-w-\[280px]">
+                  <p className="font-bold\ border-b\ border-border-color\ pb-1\ mb-1">WyreStorm Dongle Guide:</p>
+                  <ul className="list-disc\ pl-4\ space-y-2">
                       <li>
                           <strong>APO-DG1:</strong> Video/Audio Casting ONLY. 
-                          <br/><span className="text-[10px] text-text-secondary opacity-90">Compatible with SW-220-TX-W, APO-210-UC. Does not support USB peripherals.</span>
+                          <br/><span className="text-\[10px]\ text-text-secondary\ opacity-90">Compatible with SW-220-TX-W, APO-210-UC. Does not support USB peripherals.</span>
                       </li>
                       <li>
                           <strong>APO-DG2:</strong> Full BYOM (Video + USB Peripherals). 
-                          <br/><span className="text-[10px] text-text-secondary opacity-90">REQUIRED for wireless conferencing (using room cam/mic). ONLY compatible with -W SKUs (e.g., SW-640L-TX-W).</span>
+                          <br/><span className="text-\[10px]\ text-text-secondary\ opacity-90">REQUIRED for wireless conferencing (using room cam/mic). ONLY compatible with -W SKUs (e.g., SW-640L-TX-W).</span>
                       </li>
                   </ul>
               </div>
@@ -49,10 +49,10 @@ const StepFeatures: React.FC<StepFeaturesProps> = ({ answers, updateAnswers }) =
   
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Select Key Features</h2>
-      <p className="text-text-secondary mb-6">Specify if a feature is essential or just nice to have.</p>
+      <h2 className="text-2xl\ font-bold\ mb-4">Select Key Features</h2>
+      <p className="text-text-secondary\ mb-6">Specify if a feature is essential or just nice to have.</p>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid\ grid-cols-1\ md:grid-cols-2\ lg:grid-cols-3\ gap-4">
         {COMMON_FEATURES.map(feature => (
           <FeatureCard
             key={feature.name}
@@ -69,3 +69,6 @@ const StepFeatures: React.FC<StepFeaturesProps> = ({ answers, updateAnswers }) =
 };
 
 export default StepFeatures;
+
+
+

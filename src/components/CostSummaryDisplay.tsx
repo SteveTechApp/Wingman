@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { ProjectData, RoomData, ManuallyAddedEquipment } from '../utils/types';
 
@@ -118,8 +119,8 @@ const CostSummaryDisplay: React.FC<CostSummaryDisplayProps> = ({
         // Add hours for audio system
         if (room.audioSystemDetails) {
             hours += 4;
-            if (room.audioSystemDetails.ceilingMics > 0) hours += 2;
-            if (room.audioSystemDetails.talkbackMics > 0) hours += 2;
+            if ((room.audioSystemDetails as any).ceilingMics > 0) hours += 2;
+            if ((room.audioSystemDetails as any).talkbackMics > 0) hours += 2;
         }
 
         // Add hours for I/O points
@@ -136,64 +137,64 @@ const CostSummaryDisplay: React.FC<CostSummaryDisplayProps> = ({
     };
 
     return (
-        <div className="bg-background-secondary rounded-xl border border-border-color overflow-hidden">
-            <div className="bg-gradient-to-r from-accent to-accent-dark p-6 text-white">
-                <h2 className="text-2xl font-bold mb-2">Project Cost Summary</h2>
+        <div className="bg-background-secondary\ rounded-xl\ border\ border-border-color\ overflow-hidden">
+            <div className="bg-gradient-to-r\ from-accent\ to-accent-dark\ p-6\ text-white">
+                <h2 className="text-2xl\ font-bold\ mb-2">Project Cost Summary</h2>
                 <p className="text-white/80">{projectData.projectName}</p>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-6\ space-y-6">
                 {/* High-level summary */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-background-secondary-subtle p-4 rounded-lg">
-                        <p className="text-xs text-text-secondary uppercase mb-1">Equipment</p>
-                        <p className="text-2xl font-bold">{formatCurrency(costBreakdown.equipmentCost)}</p>
+                <div className="grid\ grid-cols-2\ md:grid-cols-4\ gap-4">
+                    <div className="bg-background-secondary-subtle\ p-4\ rounded-lg">
+                        <p className="text-xs\ text-text-secondary\ uppercase\ mb-1">Equipment</p>
+                        <p className="text-2xl\ font-bold">{formatCurrency(costBreakdown.equipmentCost)}</p>
                     </div>
-                    <div className="bg-background-secondary-subtle p-4 rounded-lg">
-                        <p className="text-xs text-text-secondary uppercase mb-1">Labor</p>
-                        <p className="text-2xl font-bold">{formatCurrency(costBreakdown.laborCost)}</p>
+                    <div className="bg-background-secondary-subtle\ p-4\ rounded-lg">
+                        <p className="text-xs\ text-text-secondary\ uppercase\ mb-1">Labor</p>
+                        <p className="text-2xl\ font-bold">{formatCurrency(costBreakdown.laborCost)}</p>
                     </div>
-                    <div className="bg-background-secondary-subtle p-4 rounded-lg">
-                        <p className="text-xs text-text-secondary uppercase mb-1">Ancillary</p>
-                        <p className="text-2xl font-bold">{formatCurrency(costBreakdown.ancillaryCosts)}</p>
+                    <div className="bg-background-secondary-subtle\ p-4\ rounded-lg">
+                        <p className="text-xs\ text-text-secondary\ uppercase\ mb-1">Ancillary</p>
+                        <p className="text-2xl\ font-bold">{formatCurrency(costBreakdown.ancillaryCosts)}</p>
                     </div>
-                    <div className="bg-accent-bg-subtle p-4 rounded-lg border-2 border-accent">
-                        <p className="text-xs text-accent uppercase mb-1 font-bold">Total</p>
-                        <p className="text-2xl font-bold text-accent">{formatCurrency(costBreakdown.total)}</p>
+                    <div className="bg-accent-bg-subtle\ p-4\ rounded-lg\ border-2\ border-accent">
+                        <p className="text-xs\ text-accent\ uppercase\ mb-1\ font-bold">Total</p>
+                        <p className="text-2xl\ font-bold\ text-accent">{formatCurrency(costBreakdown.total)}</p>
                     </div>
                 </div>
 
                 {/* Detailed breakdown */}
                 {showDetails && (
                     <>
-                        <div className="border-t border-border-color pt-6">
-                            <h3 className="font-bold text-lg mb-4">Cost Breakdown</h3>
+                        <div className="border-t\ border-border-color\ pt-6">
+                            <h3 className="font-bold\ text-lg\ mb-4">Cost Breakdown</h3>
                             <div className="space-y-2">
-                                <div className="flex justify-between py-2">
+                                <div className="flex\ justify-between\ py-2">
                                     <span className="text-text-secondary">Equipment Subtotal</span>
                                     <span className="font-medium">{formatCurrency(costBreakdown.equipmentCost)}</span>
                                 </div>
-                                <div className="flex justify-between py-2">
+                                <div className="flex\ justify-between\ py-2">
                                     <span className="text-text-secondary">Labor Subtotal</span>
                                     <span className="font-medium">{formatCurrency(costBreakdown.laborCost)}</span>
                                 </div>
-                                <div className="flex justify-between py-2">
+                                <div className="flex\ justify-between\ py-2">
                                     <span className="text-text-secondary">Ancillary Costs (cables, materials, etc.)</span>
                                     <span className="font-medium">{formatCurrency(costBreakdown.ancillaryCosts)}</span>
                                 </div>
-                                <div className="flex justify-between py-2 border-t border-border-color font-medium">
+                                <div className="flex\ justify-between\ py-2\ border-t\ border-border-color\ font-medium">
                                     <span>Subtotal</span>
                                     <span>{formatCurrency(costBreakdown.subtotal)}</span>
                                 </div>
-                                <div className="flex justify-between py-2">
+                                <div className="flex\ justify-between\ py-2">
                                     <span className="text-text-secondary">Markup ({markup}%)</span>
                                     <span className="font-medium">{formatCurrency(costBreakdown.markup)}</span>
                                 </div>
-                                <div className="flex justify-between py-2">
+                                <div className="flex\ justify-between\ py-2">
                                     <span className="text-text-secondary">Tax (8%)</span>
                                     <span className="font-medium">{formatCurrency(costBreakdown.tax)}</span>
                                 </div>
-                                <div className="flex justify-between py-3 border-t-2 border-accent text-lg font-bold text-accent">
+                                <div className="flex\ justify-between\ py-3\ border-t-2\ border-accent\ text-lg\ font-bold\ text-accent">
                                     <span>Total Project Cost</span>
                                     <span>{formatCurrency(costBreakdown.total)}</span>
                                 </div>
@@ -201,21 +202,21 @@ const CostSummaryDisplay: React.FC<CostSummaryDisplayProps> = ({
                         </div>
 
                         {/* Per-room breakdown */}
-                        <div className="border-t border-border-color pt-6">
-                            <h3 className="font-bold text-lg mb-4">Cost by Room</h3>
+                        <div className="border-t\ border-border-color\ pt-6">
+                            <h3 className="font-bold\ text-lg\ mb-4">Cost by Room</h3>
                             <div className="space-y-3">
                                 {costBreakdown.roomBreakdown.map(room => (
                                     <div
                                         key={room.roomId}
-                                        className="bg-background-secondary-subtle p-4 rounded-lg"
+                                        className="bg-background-secondary-subtle\ p-4\ rounded-lg"
                                     >
-                                        <div className="flex justify-between items-start mb-2">
+                                        <div className="flex\ justify-between\ items-start\ mb-2">
                                             <h4 className="font-medium">{room.roomName}</h4>
                                             <span className="font-bold">
                                                 {formatCurrency(room.equipmentCost + room.laborCost)}
                                             </span>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div className="grid\ grid-cols-2\ gap-4\ text-sm">
                                             <div>
                                                 <span className="text-text-secondary">Equipment: </span>
                                                 <span className="font-medium">{formatCurrency(room.equipmentCost)}</span>
@@ -237,9 +238,9 @@ const CostSummaryDisplay: React.FC<CostSummaryDisplayProps> = ({
                 )}
 
                 {/* Notes */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-sm">
-                    <p className="font-semibold mb-2">Cost Estimate Notes:</p>
-                    <ul className="list-disc list-inside space-y-1 text-text-secondary">
+                <div className="bg-blue-50\ dark:bg-blue-900/20\ p-4\ rounded-lg\ text-sm">
+                    <p className="font-semibold\ mb-2">Cost Estimate Notes:</p>
+                    <ul className="list-disc\ list-inside\ space-y-1\ text-text-secondary">
                         <li>Equipment costs based on MSRP pricing</li>
                         <li>Labor estimates include installation and configuration</li>
                         <li>Ancillary costs include cabling, conduit, and misc materials</li>
@@ -252,3 +253,6 @@ const CostSummaryDisplay: React.FC<CostSummaryDisplayProps> = ({
 };
 
 export default CostSummaryDisplay;
+
+
+

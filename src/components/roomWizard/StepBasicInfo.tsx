@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { RoomWizardAnswers } from '../../utils/types';
 import RoomDetailsInputs from './basicInfo/RoomDetailsInputs';
@@ -19,3 +20,6 @@ const StepBasicInfo: React.FC<StepBasicInfoProps> = ({ answers, updateAnswers, e
 };
 
 export default StepBasicInfo;
+
+
+

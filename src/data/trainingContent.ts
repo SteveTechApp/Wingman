@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../utils/types';
 import { MODULE_0_TERMINOLOGY } from './training/module0_terminology';
 import { MODULE_1_SIGNALS } from './training/module1_signals';
@@ -30,3 +31,6 @@ export const TRAINING_MODULES: TrainingModule[] = [
     MODULE_11_INSTALLATION,
     MODULE_12_SITE_SURVEY,
 ];
+
+
+

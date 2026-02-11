@@ -1,3 +1,4 @@
+
 // This is a placeholder for a CSV exporting utility.
 
 import { Proposal } from './types';
@@ -34,3 +35,6 @@ export const exportEquipmentListToCsv = (proposal: Proposal, projectName: string
         URL.revokeObjectURL(url);
     }
 };
+
+
+

@@ -1,3 +1,4 @@
+
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Proposal, ProjectData } from './types';
@@ -172,3 +173,6 @@ export const exportProposalToPdf = (proposal: Proposal, project: ProjectData) =>
   // Save the PDF
   doc.save(`${project.projectName}_Proposal_v${proposal.version}.pdf`);
 };
+
+
+

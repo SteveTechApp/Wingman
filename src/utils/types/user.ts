@@ -1,3 +1,4 @@
+
 import { LanguageCode } from './common';
 import { Product } from './product';
 
@@ -11,3 +12,6 @@ export interface UserProfile {
     zoomLevel: number;
     customProductDatabase?: Product[];
 }
+
+
+

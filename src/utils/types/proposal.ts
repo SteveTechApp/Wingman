@@ -1,3 +1,4 @@
+
 import { DesignTier } from './common';
 import type { StructuredSystemDiagram } from './project';
 
@@ -30,3 +31,6 @@ export interface Proposal {
     upgradeDowngradePaths?: UpgradeDowngradePath[];
     cableInformation?: string;
 }
+
+
+

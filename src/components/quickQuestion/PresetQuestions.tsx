@@ -15,13 +15,13 @@ const PRESET_QUESTIONS = [
 
 const PresetQuestions: React.FC<PresetQuestionsProps> = ({ handleSend, isLoading }) => (
     <div className="mt-4">
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex\ flex-wrap\ justify-center\ gap-2">
             {PRESET_QUESTIONS.map((q, i) => (
                 <button
                     key={i}
                     onClick={() => handleSend(q)}
                     disabled={isLoading}
-                    className="text-xs text-left p-2 bg-background hover:bg-input-bg rounded-md border border-border-color transition-colors disabled:opacity-50"
+                    className="text-xs\ text-left\ p-2\ bg-background\ hover:bg-input-bg\ rounded-md\ border\ border-border-color\ transition-colors\ disabled:opacity-50"
                 >
                     {q}
                 </button>
@@ -31,3 +31,6 @@ const PresetQuestions: React.FC<PresetQuestionsProps> = ({ handleSend, isLoading
 );
 
 export default PresetQuestions;
+
+
+

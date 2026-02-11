@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { Dimensions } from '../../utils/types';
 
@@ -159,10 +160,10 @@ const PlannerCanvas: React.FC<PlannerCanvasProps> = ({
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-border-color p-4">
+        <div className="bg-white\ dark:bg-gray-800\ rounded-lg\ border\ border-border-color\ p-4">
             <div className="mb-4">
-                <h3 className="font-bold text-lg">Room Layout</h3>
-                <p className="text-sm text-text-secondary">
+                <h3 className="font-bold\ text-lg">Room Layout</h3>
+                <p className="text-sm\ text-text-secondary">
                     Visual representation of your room. Click and drag equipment to reposition.
                 </p>
             </div>
@@ -170,13 +171,13 @@ const PlannerCanvas: React.FC<PlannerCanvasProps> = ({
                 ref={canvasRef}
                 width={800}
                 height={600}
-                className="border border-border-color rounded cursor-move"
+                className="border\ border-border-color\ rounded\ cursor-move"
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
             />
-            <div className="mt-4 flex justify-between text-sm text-text-secondary">
+            <div className="mt-4\ flex\ justify-between\ text-sm\ text-text-secondary">
                 <div>
                     Grid: 1m × 1m
                 </div>
@@ -189,3 +190,6 @@ const PlannerCanvas: React.FC<PlannerCanvasProps> = ({
 };
 
 export default PlannerCanvas;
+
+
+

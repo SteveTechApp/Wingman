@@ -80,3 +80,6 @@ export const INDUSTRIAL_TEMPLATES: UserTemplate[] = [
         },
     }
 ];
+
+
+

@@ -1,3 +1,4 @@
+
 /**
  * User Profile Store
  * Handles user profile database operations
@@ -70,3 +71,6 @@ export class SettingsStore extends DatabaseService {
         });
     }
 }
+
+
+

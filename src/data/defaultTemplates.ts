@@ -1,3 +1,4 @@
+
 import { UserTemplate } from '../utils/types';
 import { CORPORATE_TEMPLATES } from './templates/corporate';
 import { EDUCATION_TEMPLATES } from './templates/education';
@@ -26,3 +27,6 @@ export const DEFAULT_TEMPLATES: UserTemplate[] = [
     ...TRANSPORTATION_TEMPLATES,
     ...INDUSTRIAL_TEMPLATES,
 ];
+
+
+

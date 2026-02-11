@@ -1,4 +1,5 @@
-﻿// src/utils/cableRouting/types.ts
+
+// src/utils/cableRouting/types.ts
 // Cable routing type definitions
 
 import { ManuallyAddedEquipment } from '../../components/types';
@@ -50,3 +51,6 @@ export interface CableSpec {
   bandwidth: string;
   notes: string;
 }
+
+
+

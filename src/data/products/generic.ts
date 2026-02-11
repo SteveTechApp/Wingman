@@ -1,3 +1,4 @@
+
 import { Product } from '../../utils/types';
 
 export const GENERIC_DEVICES: Product[] = [
@@ -57,3 +58,6 @@ export const GENERIC_DEVICES: Product[] = [
         }
     },
 ];
+
+
+

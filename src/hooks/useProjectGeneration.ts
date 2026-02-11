@@ -1,3 +1,4 @@
+
 type DisabledResult = { ok: false; message: string };
 
 async function disabled<T = unknown>(_name: string): Promise<T> {
@@ -20,3 +21,6 @@ export function useProjectGeneration() {
     handleValueEngineerRoom: async (..._args: unknown[]) => disabled("handleValueEngineerRoom")
   };
 }
+
+
+

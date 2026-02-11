@@ -94,3 +94,6 @@ export const getInfrastructureLogic = () => `
       -   **Port Aggregation (HUB4)**:
           -   If the room has multiple USB peripherals at the display/table (e.g., Camera + Mic + Touch Screen) and the chosen Extender/Switcher has limited USB host/device ports, you **MUST** add the **'EXP-USB3-HUB4'** (WyreStorm 4-Port USB 3.0 Hub) to connect them all.
 `;
+
+
+

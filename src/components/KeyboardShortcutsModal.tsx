@@ -1,3 +1,4 @@
+
 import React from 'react';
 import InfoModal from './InfoModal';
 import { KeyboardShortcut, getShortcutLabel } from '../hooks/useKeyboardShortcuts';
@@ -68,3 +69,6 @@ const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen,
 };
 
 export default KeyboardShortcutsModal;
+
+
+

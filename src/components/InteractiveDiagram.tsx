@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { StructuredSystemDiagram } from '../utils/types';
 
@@ -11,12 +12,12 @@ const InteractiveDiagram: React.FC<InteractiveDiagramProps> = ({ diagram }) => {
   // For now, it will just show a message.
 
   return (
-    <div className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800 text-center text-gray-500 min-h-[400px] flex items-center justify-center">
+    <div className="p-4\ border\ rounded-lg\ bg-gray-50\ dark:bg-gray-800\ text-center\ text-gray-500\ min-h-\[400px]\ flex\ items-center\ justify-center">
       <div>
-        <h3 className="font-bold text-lg">Interactive System Diagram</h3>
+        <h3 className="font-bold\ text-lg">Interactive System Diagram</h3>
         <p className="text-sm">This is a placeholder for an interactive diagram component.</p>
         {diagram && (
-            <pre className="text-xs text-left mt-4 bg-white dark:bg-gray-700 p-2 rounded">
+            <pre className="text-xs\ text-left\ mt-4\ bg-white\ dark:bg-gray-700\ p-2\ rounded">
                 {JSON.stringify(diagram, null, 2)}
             </pre>
         )}
@@ -26,3 +27,6 @@ const InteractiveDiagram: React.FC<InteractiveDiagramProps> = ({ diagram }) => {
 };
 
 export default InteractiveDiagram;
+
+
+

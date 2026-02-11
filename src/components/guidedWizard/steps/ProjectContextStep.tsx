@@ -39,20 +39,20 @@ const ProjectContextStep: React.FC<Props> = ({ details, setDetails, infrastructu
     const selectedClass = "shadow-md ring-1 ring-[#00833D] border-[#00833D]";
 
     return (
-        <div className="flex flex-col h-full animate-fade-in-up">
-            <div className="flex-grow overflow-y-auto p-4 md:p-6 min-h-0">
-                <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
-                    <h1 className="text-2xl font-extrabold text-text-primary mb-2 text-center">Project Context</h1>
-                    <p className="text-text-secondary mb-6 text-center text-sm">Define the client and the physical environment.</p>
+        <div className="flex\ flex-col\ h-full\ animate-fade-in-up">
+            <div className="flex-grow\ overflow-visible\ p-4\ md:p-6\ min-h-0">
+                <div className="max-w-4xl\ mx-auto\ w-full\ flex\ flex-col\ items-center">
+                    <h1 className="text-2xl\ font-extrabold\ text-text-primary\ mb-2\ text-center">Project Context</h1>
+                    <p className="text-text-secondary\ mb-6\ text-center\ text-sm">Define the client and the physical environment.</p>
                     
-                    <form id="context-form" onSubmit={handleSubmit} className="w-full space-y-6">
+                    <form id="context-form" onSubmit={handleSubmit} className="w-full\ space-y-6">
                         {/* Basic Info */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid\ grid-cols-1\ md:grid-cols-2\ gap-4">
                             <div>
-                                <label className="block text-xs font-bold mb-1 text-text-secondary uppercase">Project Name</label>
+                                <label className="block\ text-xs\ font-bold\ mb-1\ text-text-secondary\ uppercase">Project Name</label>
                                 <input 
                                     type="text" 
-                                    className="w-full p-2 rounded-lg border border-border-color bg-input-bg focus:ring-2 focus:ring-accent focus:border-transparent outline-none text-sm"
+                                    className="w-full\ p-2\ rounded-lg\ border\ border-border-color\ bg-input-bg\ focus:ring-2\ focus:ring-accent\ focus:border-transparent\ outline-none\ text-sm"
                                     placeholder="e.g. HQ Boardroom Upgrade"
                                     value={details.projectName}
                                     onChange={e => setDetails({...details, projectName: e.target.value})}
@@ -61,10 +61,10 @@ const ProjectContextStep: React.FC<Props> = ({ details, setDetails, infrastructu
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold mb-1 text-text-secondary uppercase">Client Name</label>
+                                <label className="block\ text-xs\ font-bold\ mb-1\ text-text-secondary\ uppercase">Client Name</label>
                                 <input 
                                     type="text" 
-                                    className="w-full p-2 rounded-lg border border-border-color bg-input-bg focus:ring-2 focus:ring-accent focus:border-transparent outline-none text-sm"
+                                    className="w-full\ p-2\ rounded-lg\ border\ border-border-color\ bg-input-bg\ focus:ring-2\ focus:ring-accent\ focus:border-transparent\ outline-none\ text-sm"
                                     placeholder="e.g. Acme Corp"
                                     value={details.clientName}
                                     onChange={e => setDetails({...details, clientName: e.target.value})}
@@ -74,16 +74,16 @@ const ProjectContextStep: React.FC<Props> = ({ details, setDetails, infrastructu
                         </div>
 
                         {/* Infrastructure Context */}
-                        <div className="bg-background-secondary p-4 rounded-xl border border-border-color">
-                            <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
-                                <BuildingIcon className="h-4 w-4 text-accent" />
+                        <div className="bg-background-secondary\ p-4\ rounded-xl\ border\ border-border-color">
+                            <h3 className="text-sm\ font-bold\ mb-3\ flex\ items-center\ gap-2">
+                                <BuildingIcon className="h-4\ w-4\ text-accent" />
                                 Venue Infrastructure
                             </h3>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid\ grid-cols-1\ md:grid-cols-2\ gap-6">
                                 {/* Building Layout */}
                                 <div>
-                                    <label className="block text-xs font-bold mb-2 text-text-secondary">Building Layout</label>
+                                    <label className="block\ text-xs\ font-bold\ mb-2\ text-text-secondary">Building Layout</label>
                                     <div className="space-y-2">
                                         <button
                                             type="button"
@@ -108,9 +108,9 @@ const ProjectContextStep: React.FC<Props> = ({ details, setDetails, infrastructu
 
                                 {/* Rack Strategy - Hybrid Support */}
                                 <div>
-                                    <label className="block text-xs font-bold mb-2 text-text-secondary">
+                                    <label className="block\ text-xs\ font-bold\ mb-2\ text-text-secondary">
                                         Equipment Location
-                                        <span className="ml-2 text-accent font-normal">(Select one or both)</span>
+                                        <span className="ml-2\ text-accent\ font-normal">(Select one or both)</span>
                                     </label>
                                     <div className="space-y-2">
                                         <button
@@ -140,10 +140,10 @@ const ProjectContextStep: React.FC<Props> = ({ details, setDetails, infrastructu
                                             style={getSelectionStyle(infrastructure.hasLocalRacks === true)}
                                             className={`w-full p-3 text-left text-sm border rounded-lg transition-all duration-200 flex items-start gap-3 ${infrastructure.hasLocalRacks ? selectedClass : unselectedClass}`}
                                         >
-                                            <div className="flex-shrink-0 mt-0.5">
+                                            <div className="flex-shrink-0\ mt-0\.5">
                                                 <div className={`w-5 h-5 border-2 rounded flex items-center justify-center ${infrastructure.hasLocalRacks ? 'bg-white border-white' : 'border-gray-400'}`}>
                                                     {infrastructure.hasLocalRacks && (
-                                                        <svg className="w-4 h-4" style={{color: ACCENT_COLOR}} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <svg className="w-4\ h-4" style={{color: ACCENT_COLOR}} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                                         </svg>
                                                     )}
@@ -182,10 +182,10 @@ const ProjectContextStep: React.FC<Props> = ({ details, setDetails, infrastructu
                                             style={getSelectionStyle(infrastructure.hasCentralizedInfrastructure === true)}
                                             className={`w-full p-3 text-left text-sm border rounded-lg transition-all duration-200 flex items-start gap-3 ${infrastructure.hasCentralizedInfrastructure ? selectedClass : unselectedClass}`}
                                         >
-                                            <div className="flex-shrink-0 mt-0.5">
+                                            <div className="flex-shrink-0\ mt-0\.5">
                                                 <div className={`w-5 h-5 border-2 rounded flex items-center justify-center ${infrastructure.hasCentralizedInfrastructure ? 'bg-white border-white' : 'border-gray-400'}`}>
                                                     {infrastructure.hasCentralizedInfrastructure && (
-                                                        <svg className="w-4 h-4" style={{color: ACCENT_COLOR}} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <svg className="w-4\ h-4" style={{color: ACCENT_COLOR}} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                                         </svg>
                                                     )}
@@ -199,8 +199,8 @@ const ProjectContextStep: React.FC<Props> = ({ details, setDetails, infrastructu
 
                                         {/* Show hybrid indicator when both are selected */}
                                         {infrastructure.hasLocalRacks && infrastructure.hasCentralizedInfrastructure && (
-                                            <div className="mt-2 p-2 bg-accent-bg-subtle border border-accent rounded-lg">
-                                                <p className="text-xs text-accent font-semibold">
+                                            <div className="mt-2\ p-2\ bg-accent-bg-subtle\ border\ border-accent\ rounded-lg">
+                                                <p className="text-xs\ text-accent\ font-semibold">
                                                     ✓ Hybrid Configuration: Using both local and centralized equipment
                                                 </p>
                                             </div>
@@ -213,14 +213,14 @@ const ProjectContextStep: React.FC<Props> = ({ details, setDetails, infrastructu
                 </div>
             </div>
 
-            <div className="px-4 py-3 border-t border-border-color bg-background-secondary flex justify-between items-center flex-shrink-0 mt-auto gap-4 min-h-[60px]">
+            <div className="px-4\ py-3\ border-t\ border-border-color\ bg-background-secondary\ flex\ justify-between\ items-center\ flex-shrink-0\ mt-auto\ gap-4\ min-h-\[60px]">
                 <div className="flex-1">
                     {/* Spacer */}
                 </div>
-                <button onClick={onSave} className="text-xs font-medium text-accent hover:underline mr-4 whitespace-nowrap">
+                <button onClick={onSave} className="text-xs\ font-medium\ text-accent\ hover:underline\ mr-4\ whitespace-nowrap">
                     Save Progress
                 </button>
-                <button type="submit" form="context-form" className="btn btn-primary px-6 py-2 text-base font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all whitespace-nowrap">
+                <button type="submit" form="context-form" className="btn\ btn-primary\ px-6\ py-2\ text-base\ font-bold\ shadow-lg\ hover:shadow-xl\ transform\ hover:-translate-y-0\.5\ transition-all\ whitespace-nowrap">
                     Next: Select Room Type &rarr;
                 </button>
             </div>
@@ -229,3 +229,6 @@ const ProjectContextStep: React.FC<Props> = ({ details, setDetails, infrastructu
 };
 
 export default ProjectContextStep;
+
+
+

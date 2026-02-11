@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 
 
 import { NavLink } from 'react-router-dom';
 
 
-import Logo from './Logo';
+import WingmanBrand from "@/components/branding/WingmanBrand";
 
 
 import { useUserContext } from '../../context/UserContext';
@@ -22,13 +23,7 @@ import { NAV_LINKS } from '../../data/navigation';
 import Search from './Search';
 
 
-import ThemeToggle from '../ThemeToggle';
 import CategoryMenu from "@/components/nav/CategoryMenu";
-
-
-
-
-
 const Header: React.FC = () => {
 
 
@@ -56,28 +51,26 @@ const Header: React.FC = () => {
     <>
 
 
-      <header className="sticky top-0 z-30 bg-background border-b border-border-color print:hidden shadow-sm">
+      <header className="sticky\ top-0\ z-30\ bg-background\ border-b\ border-border-color\ print:hidden\ shadow-sm">
 
 
-        <div className="container mx-auto px-4 mx-auto flex justify-between items-center p-3">
+        <div className="container\ mx-auto\ px-4\ mx-auto\ flex\ justify-between\ items-center\ p-3">
 
 
-          <Logo />
+          <WingmanBrand size="md" align="left" />
 
 
-          <div className="flex items-center gap-3"><CategoryMenu /></div>
+
+          <div className="flex\ items-center\ gap-3"><CategoryMenu /></div>
 
 
-          <div className="flex items-center gap-4">
+          <div className="flex\ items-center\ gap-4">
 
 
             <Search />
 
 
-            <div className="hidden md:flex items-center gap-4">
-
-
-              <ThemeToggle />
+            <div className="hidden\ md:flex\ items-center\ gap-4">
 
 
               <button
@@ -86,7 +79,7 @@ const Header: React.FC = () => {
                 onClick={openProfileModal}
 
 
-                className="btn btn-secondary text-sm px-4 py-2"
+                className="btn\ btn-secondary\ text-sm\ px-4\ py-2"
 
 
               >
@@ -110,7 +103,7 @@ const Header: React.FC = () => {
                 onClick={() => setIsMenuOpen(true)}
 
 
-                className="p-2 rounded-md hover:bg-border-color"
+                className="p-2\ rounded-md\ hover:bg-border-color"
 
 
                 aria-label="Open navigation menu"
@@ -119,7 +112,7 @@ const Header: React.FC = () => {
               >
 
 
-                <HamburgerIcon className="h-6 w-6 text-text-primary" />
+                <HamburgerIcon className="h-14\ w-6\ text-text-primary" />
 
 
               </button>
@@ -153,5 +146,6 @@ const Header: React.FC = () => {
 
 
 export default Header;
+
 
 

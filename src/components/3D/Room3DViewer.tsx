@@ -1,3 +1,4 @@
+
 import React, { Suspense, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Grid, Box, Text, PerspectiveCamera, Environment } from '@react-three/drei';
@@ -139,7 +140,7 @@ const Room3DViewer: React.FC<Room3DViewerProps> = ({ room, onEquipmentClick }) =
   const equipmentPositions = getEquipmentPositions();
 
   return (
-    <div className="w-full h-[600px] bg-background-secondary rounded-lg overflow-hidden border border-border-color">
+    <div className="w-full\ h-\[600px]\ bg-background-secondary\ rounded-lg\ overflow-hidden\ border\ border-border-color">
       <Canvas shadows>
         <PerspectiveCamera makeDefault position={[length * 0.8, height * 1.5, width * 0.8]} />
 
@@ -193,7 +194,7 @@ const Room3DViewer: React.FC<Room3DViewerProps> = ({ room, onEquipmentClick }) =
       </Canvas>
 
       {/* Instructions overlay */}
-      <div className="absolute bottom-4 left-4 bg-background border border-border-color rounded-lg p-3 text-sm text-text-secondary shadow-lg">
+      <div className="absolute\ bottom-4\ left-4\ bg-background\ border\ border-border-color\ rounded-lg\ p-3\ text-sm\ text-text-secondary\ shadow-lg">
         <p><strong>Controls:</strong></p>
         <p>🖱️ Left click + drag: Rotate</p>
         <p>🖱️ Right click + drag: Pan</p>
@@ -205,3 +206,6 @@ const Room3DViewer: React.FC<Room3DViewerProps> = ({ room, onEquipmentClick }) =
 };
 
 export default Room3DViewer;
+
+
+

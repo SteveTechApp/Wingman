@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface TabConfig {
@@ -13,8 +14,8 @@ interface WorkspaceTabsProps {
 
 const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ tabs, activeTab, setActiveTab }) => {
   return (
-    <div className="border-b-2 border-border-color">
-      <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+    <div className="border-b-2\ border-border-color">
+      <nav className="-mb-px\ flex\ space-x-6" aria-label="Tabs">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -34,3 +35,6 @@ const WorkspaceTabs: React.FC<WorkspaceTabsProps> = ({ tabs, activeTab, setActiv
 };
 
 export default WorkspaceTabs;
+
+
+

@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useCallback } from 'react';
 
 export interface KeyboardShortcut {
@@ -64,3 +65,6 @@ export const getShortcutLabel = (shortcut: Omit<KeyboardShortcut, 'action' | 'de
 
   return parts.join(isMac ? '' : '+');
 };
+
+
+

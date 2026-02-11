@@ -1,3 +1,4 @@
+
 export const getFeatureDrivenDesignLogic = () => `
   **Functionality Questionnaire & Feature-Driven Design:**
   Treat the 'Key Features Required' list as definitive answers to a functionality questionnaire.
@@ -5,3 +6,6 @@ export const getFeatureDrivenDesignLogic = () => `
   - **'nice-to-have' Features**: Include these only if they fit the tier and budget.
   - **Functionality Statement Link**: Your 'functionalityStatement' **MUST** explicitly reference how the design meets the 'must-have' features.
 `;
+
+
+

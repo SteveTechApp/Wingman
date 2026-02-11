@@ -1,3 +1,4 @@
+
 import React, { Suspense, useRef, useState, useCallback } from 'react';
 import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, Grid, Box, Text, PerspectiveCamera, Environment, Line } from '@react-three/drei';
@@ -318,8 +319,8 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
   const cableCosts = calculateTotalCableCosts(cableRoutes);
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="flex-1 relative">
+    <div className="w-full\ h-full\ flex\ flex-col">
+      <div className="flex-1\ relative">
         <Canvas shadows>
           <PerspectiveCamera makeDefault position={[length * 0.8, height * 1.5, width * 0.8]} />
 
@@ -379,8 +380,8 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
         </Canvas>
 
         {/* Instructions overlay */}
-        <div className="absolute bottom-4 left-4 bg-background border border-border-color rounded-lg p-3 text-sm text-text-secondary shadow-lg max-w-xs">
-          <p className="font-bold text-text-primary mb-2">Controls:</p>
+        <div className="absolute\ bottom-4\ left-4\ bg-background\ border\ border-border-color\ rounded-lg\ p-3\ text-sm\ text-text-secondary\ shadow-lg\ max-w-xs">
+          <p className="font-bold\ text-text-primary\ mb-2">Controls:</p>
           <p>🖱️ Left click + drag: Rotate view</p>
           <p>🖱️ Right click + drag: Pan view</p>
           <p>🖱️ Scroll: Zoom in/out</p>
@@ -390,12 +391,12 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
 
         {/* Cable costs summary */}
         {showCableRoutes && cableRoutes.length > 0 && (
-          <div className="absolute top-4 right-4 bg-background border border-border-color rounded-lg p-4 text-sm shadow-lg max-w-md">
-            <h3 className="font-bold text-text-primary mb-2">Cable Analysis</h3>
-            <div className="space-y-1 text-text-secondary">
+          <div className="absolute\ top-4\ right-4\ bg-background\ border\ border-border-color\ rounded-lg\ p-4\ text-sm\ shadow-lg\ max-w-md">
+            <h3 className="font-bold\ text-text-primary\ mb-2">Cable Analysis</h3>
+            <div className="space-y-1\ text-text-secondary">
               <p>Total Distance: <strong className="text-accent">{cableCosts.totalDistance}m</strong></p>
               <p>Total Cost: <strong className="text-accent">${cableCosts.totalCost}</strong></p>
-              <p className="text-xs mt-2 border-t border-border-color pt-2">
+              <p className="text-xs\ mt-2\ border-t\ border-border-color\ pt-2">
                 {Object.entries(cableCosts.breakdown).map(([type, data]) => (
                   <span key={type} className="block">
                     {type}: {data.distance.toFixed(1)}m × {data.count} = ${data.cost.toFixed(0)}
@@ -411,3 +412,6 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
 };
 
 export default Room3DViewerAdvanced;
+
+
+

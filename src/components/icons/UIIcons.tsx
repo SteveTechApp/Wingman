@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export const ClockIcon: React.FC<{className?: string}> = ({ className }) => (
@@ -101,3 +102,6 @@ export const DocumentScannerIcon: React.FC<{className?: string}> = ({ className 
       <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-4.5 0V6.75A2.25 2.25 0 0111.25 4.5h3.75a2.25 2.25 0 012.25 2.25v3.75m-4.5 0h4.5m-4.5 0l-1.5-1.5m1.5 1.5l-1.5 1.5M6 12h3" />
     </svg>
 );
+
+
+

@@ -1,3 +1,4 @@
+
 import { Product } from '../utils/types';
 
 import { ACCESSORIES } from './products/accessories';
@@ -28,3 +29,6 @@ export const PRODUCT_DATABASE: Product[] = [
     ...SWITCHERS_PRESENTATION,
     ...UC_SOLUTIONS,
 ];
+
+
+

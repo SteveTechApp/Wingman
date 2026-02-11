@@ -1,3 +1,4 @@
+
 import { Product } from '../../utils/types';
 
 export const CONTROL_SOLUTIONS: Product[] = [
@@ -46,3 +47,6 @@ export const CONTROL_SOLUTIONS: Product[] = [
         tags: ['Control', 'Software', 'NetworkHD'],
     },
 ];
+
+
+

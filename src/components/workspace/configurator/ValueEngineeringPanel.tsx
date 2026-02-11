@@ -1,5 +1,6 @@
+
 import React, { useMemo, useState, useEffect } from 'react';
-import { useProjectContext } from '../../../context/ProjectContext';
+import { useProjectContext } from "@/context/ProjectContext";
 import { useGenerationContext } from '../../../context/GenerationContext';
 import WizardToggleOption from '../../roomWizard/common/WizardToggleOption';
 import { toggleArrayItem } from '../../../utils/utils';
@@ -73,16 +74,16 @@ const ValueEngineeringPanel: React.FC = () => {
     };
 
     return (
-        <div className="bg-background-secondary p-6 rounded-xl shadow-xl border border-border-color">
-            <h3 className="font-bold text-lg mb-2">Value Engineering</h3>
-            <p className="text-xs text-text-secondary mb-4">
+        <div className="bg-background-secondary\ p-6\ rounded-xl\ shadow-xl\ border\ border-border-color">
+            <h3 className="font-bold\ text-lg\ mb-2">Value Engineering</h3>
+            <p className="text-xs\ text-text-secondary\ mb-4">
                 Apply constraints or suggest product substitutions, then click "Re-Design with AI" to generate a more cost-effective solution.
             </p>
             
             {availableFeatures.length > 0 && (
                 <div className="mb-6">
-                    <h4 className="font-bold text-md mb-2">Feature Constraints</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <h4 className="font-bold\ text-md\ mb-2">Feature Constraints</h4>
+                    <div className="grid\ grid-cols-1\ md:grid-cols-2\ gap-4">
                         {availableFeatures.map(feature => (
                             <WizardToggleOption
                                 key={feature.id}
@@ -96,21 +97,21 @@ const ValueEngineeringPanel: React.FC = () => {
                 </div>
             )}
 
-            <div className="pt-6 border-t border-border-color">
-                <h4 className="font-bold text-md mb-2">Product Substitution Suggestions</h4>
-                <div className="space-y-2 mb-4">
+            <div className="pt-6\ border-t\ border-border-color">
+                <h4 className="font-bold\ text-md\ mb-2">Product Substitution Suggestions</h4>
+                <div className="space-y-2\ mb-4">
                     {suggestions.map(s => (
-                        <div key={s.originalSku} className="flex justify-between items-center bg-background p-2 rounded-md border border-border-color-subtle text-sm">
+                        <div key={s.originalSku} className="flex\ justify-between\ items-center\ bg-background\ p-2\ rounded-md\ border\ border-border-color-subtle\ text-sm">
                             <span>Replace <strong>{s.originalSku}</strong> with <strong>{s.suggestedSku}</strong></span>
-                            <button onClick={() => handleRemoveSuggestion(s.originalSku)} className="text-destructive hover:underline text-xs font-semibold">Remove</button>
+                            <button onClick={() => handleRemoveSuggestion(s.originalSku)} className="text-destructive\ hover:underline\ text-xs\ font-semibold">Remove</button>
                         </div>
                     ))}
-                     {suggestions.length === 0 && <p className="text-xs text-text-secondary text-center py-2">No substitutions suggested.</p>}
+                     {suggestions.length === 0 && <p className="text-xs\ text-text-secondary\ text-center\ py-2">No substitutions suggested.</p>}
                 </div>
-                <form onSubmit={handleAddSuggestion} className="flex items-end gap-2">
+                <form onSubmit={handleAddSuggestion} className="flex\ items-end\ gap-2">
                     <div className="flex-grow">
-                        <label htmlFor="original-sku" className="text-xs font-medium text-text-secondary">Replace Product</label>
-                        <select id="original-sku" value={originalSku} onChange={e => setOriginalSku(e.target.value)} className="w-full p-2 border rounded-md bg-input-bg mt-1 text-sm">
+                        <label htmlFor="original-sku" className="text-xs\ font-medium\ text-text-secondary">Replace Product</label>
+                        <select id="original-sku" value={originalSku} onChange={e => setOriginalSku(e.target.value)} className="w-full\ p-2\ border\ rounded-md\ bg-input-bg\ mt-1\ text-sm">
                             <option value="">-- Select Product --</option>
                             {room.manuallyAddedEquipment.map(item => (
                                 <option key={item.sku} value={item.sku} disabled={suggestions.some(s => s.originalSku === item.sku)}>{item.name} ({item.sku})</option>
@@ -118,16 +119,16 @@ const ValueEngineeringPanel: React.FC = () => {
                         </select>
                     </div>
                     <div className="flex-grow">
-                        <label htmlFor="suggested-sku" className="text-xs font-medium text-text-secondary">With SKU</label>
-                        <input type="text" id="suggested-sku" value={suggestedSku} onChange={e => setSuggestedSku(e.target.value)} placeholder="e.g., EX-70-G2" className="w-full p-2 border rounded-md bg-input-bg mt-1 text-sm" />
+                        <label htmlFor="suggested-sku" className="text-xs\ font-medium\ text-text-secondary">With SKU</label>
+                        <input type="text" id="suggested-sku" value={suggestedSku} onChange={e => setSuggestedSku(e.target.value)} placeholder="e.g., EX-70-G2" className="w-full\ p-2\ border\ rounded-md\ bg-input-bg\ mt-1\ text-sm" />
                     </div>
-                    <button type="submit" className="btn btn-secondary px-4 py-2 text-sm">Add</button>
+                    <button type="submit" className="btn\ btn-secondary\ px-4\ py-2\ text-sm">Add</button>
                 </form>
             </div>
             
-            <div className="mt-6 pt-6 border-t border-border-color">
-                <button onClick={handleRedesign} className="w-full btn btn-primary flex items-center justify-center gap-2 text-base">
-                    <SparklesIcon className="h-5 w-5" />
+            <div className="mt-6\ pt-6\ border-t\ border-border-color">
+                <button onClick={handleRedesign} className="w-full\ btn\ btn-primary\ flex\ items-center\ justify-center\ gap-2\ text-base">
+                    <SparklesIcon className="h-5\ w-5" />
                     Re-Design with AI
                 </button>
             </div>
@@ -136,3 +137,6 @@ const ValueEngineeringPanel: React.FC = () => {
 };
 
 export default ValueEngineeringPanel;
+
+
+

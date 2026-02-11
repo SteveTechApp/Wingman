@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect, useRef } from 'react';
+import PageShell from "@/components/layout/PageShell";
 import { useUserContext } from '../context/UserContext';
 import { createChatSession } from '../services/assistantService';
 import type { Chat } from '@google/genai';
@@ -41,7 +43,7 @@ const QuickQuestionPage: React.FC = () => {
         throw new Error("Chat session not initialized.");
       }
       const response = await chatRef.current.sendMessage({ message: textToSend });
-      setMessages(prev => [...prev, { role: 'model', content: response.text }]);
+      setMessages(prev => [...prev, { role: 'model', content: response.text ?? '' }]);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
       setMessages(prev => [...prev, { role: 'model', content: `Sorry, I encountered an error: ${errorMessage}` }]);
@@ -51,14 +53,15 @@ const QuickQuestionPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto animate-fade-in-fast flex flex-col h-full">
-      <div className="text-center mb-8 flex-shrink-0">
-        <h1 className="text-4xl font-extrabold text-accent mb-2 uppercase tracking-widest">Wingman AI Chat</h1>
-        <p className="text-lg text-text-secondary">Ask technical questions or get product recommendations.</p>
+    <PageShell>
+      <div className="wm-page\ animate-fade-in-fast\ flex\ flex-col\ h-full">
+      <div className="text-center\ mb-8\ flex-shrink-0">
+        <h1 className="text-4xl\ font-extrabold\ text-accent\ mb-2\ uppercase\ tracking-widest">Wingman AI Chat</h1>
+        <p className="text-lg\ text-text-secondary">Ask technical questions or get product recommendations.</p>
       </div>
 
-      <div className="bg-background-secondary p-4 rounded-xl shadow-xl border border-border-color flex-grow flex flex-col">
-        <div className="flex-grow overflow-y-auto space-y-4 p-2">
+      <div className="bg-background-secondary\ p-4\ rounded-xl\ shadow-xl\ border\ border-border-color\ flex-grow\ flex\ flex-col">
+        <div className="flex-grow\ overflow-visible\ space-y-4\ p-2">
           {messages.map((msg, index) => (
             <ChatMessage key={index} message={msg} />
           ))}
@@ -66,7 +69,7 @@ const QuickQuestionPage: React.FC = () => {
           <div ref={chatEndRef} />
         </div>
 
-        <div className="mt-4 pt-4 border-t border-border-color flex-shrink-0">
+        <div className="mt-4\ pt-4\ border-t\ border-border-color\ flex-shrink-0">
           <ChatInputForm
             input={input}
             setInput={setInput}
@@ -77,7 +80,11 @@ const QuickQuestionPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </PageShell>
   );
 };
 
 export default QuickQuestionPage;
+
+
+

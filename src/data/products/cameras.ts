@@ -1,3 +1,4 @@
+
 import { Product } from '../../utils/types';
 
 export const CAMERAS: Product[] = [
@@ -59,3 +60,6 @@ export const CAMERAS: Product[] = [
         }
     }
 ];
+
+
+

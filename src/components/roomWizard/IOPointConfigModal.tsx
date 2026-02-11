@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { IOPoint } from '../../utils/types';
 import BasicInfoInputs from './ioConfig/BasicInfoInputs';
@@ -80,7 +81,7 @@ const IOPointConfigModal: React.FC<IOPointConfigModalProps> = ({ isOpen, onClose
         <ConnectivityInputs point={currentPoint} onUpdate={handleUpdate} errors={errors} />
         {currentPoint.type === 'input' && (
           <ControlInputs 
-            control={currentPoint.control}
+            control={currentPoint.control ?? ({} as any)}
             onUpdate={(newControl) => handleUpdate({ control: newControl })}
           />
         )}
@@ -93,3 +94,6 @@ const IOPointConfigModal: React.FC<IOPointConfigModalProps> = ({ isOpen, onClose
 };
 
 export default IOPointConfigModal;
+
+
+

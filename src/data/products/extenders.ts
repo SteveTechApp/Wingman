@@ -1,3 +1,4 @@
+
 import { Product } from '../../utils/types';
 
 export const EXTENDERS: Product[] = [
@@ -23,3 +24,6 @@ export const EXTENDERS: Product[] = [
         hdbaset: { version: '2.0 Class B', poh: true },
     },
 ];
+
+
+

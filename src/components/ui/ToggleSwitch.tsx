@@ -1,35 +1,44 @@
+import React from "react";
 
-import React from 'react';
-
-interface ToggleSwitchProps {
+type ToggleSwitchProps = {
   checked: boolean;
   onChange: (checked: boolean) => void;
-  onColor?: string;
-  offColor?: string;
-}
-
-const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ checked, onChange, onColor = 'bg-accent', offColor = 'bg-border-color' }) => {
-    // Use explicit inline style for background to ensure visibility regardless of Tailwind config
-    const bgStyle = checked ? { backgroundColor: '#00833D' } : { backgroundColor: '#cbd5e1' };
-    const ringClass = checked ? 'ring-2 ring-[#00833D] ring-offset-2' : '';
-
-    return (
-        <button
-            type="button"
-            role="switch"
-            aria-checked={checked}
-            onClick={() => onChange(!checked)}
-            style={bgStyle}
-            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-200 ease-in-out focus:outline-none ${ringClass}`}
-        >
-            <span
-                aria-hidden="true"
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    checked ? 'translate-x-5' : 'translate-x-0'
-                }`}
-            />
-        </button>
-    );
+  disabled?: boolean;
+  label?: string;
+  className?: string;
 };
 
-export default ToggleSwitch;
+export default function ToggleSwitch({
+  checked,
+  onChange,
+  disabled,
+  label,
+  className = "",
+}: ToggleSwitchProps) {
+  return (
+    <label className={"inline-flex items-center gap-2 select-none " + className}>
+      <button
+        type="button"
+        aria-pressed={checked}
+        aria-label={label || "Toggle"}
+        disabled={disabled}
+        onClick={() => onChange(!checked)}
+        className={[
+          "relative inline-flex h-14 w-11 items-center rounded-full transition",
+          disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
+          checked ? "bg-emerald-500" : "bg-white/15",
+          "shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]",
+        ].join(" ")}
+      >
+        <span
+          className={[
+            "inline-block h-5 w-5 transform rounded-full bg-white transition",
+            checked ? "translate-x-5" : "translate-x-1",
+            "shadow-sm",
+          ].join(" ")}
+        />
+      </button>
+      {label ? <span className="text-sm text-white/80">{label}</span> : null}
+    </label>
+  );
+}

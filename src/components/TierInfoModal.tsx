@@ -1,3 +1,4 @@
+
 import React from 'react';
 import InfoModal from './InfoModal';
 import TierIcon from './TierIcon';
@@ -13,7 +14,7 @@ const TierInfoModal: React.FC<TierInfoModalProps> = ({ isOpen, onClose }) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-4 border rounded-lg bg-background-secondary-subtle">
               <div className="flex items-center gap-2 mb-2">
-                  <TierIcon tier="Bronze" className="h-6 w-6" />
+                  <TierIcon tier="Bronze" className="h-14 w-6" />
                   <h3 className="text-xl font-bold text-[#cd7f32]">Bronze</h3>
               </div>
               <p className="text-sm mb-3 font-semibold">VALUE FOCUSED: Essential functionality at the best price point.</p>
@@ -26,7 +27,7 @@ const TierInfoModal: React.FC<TierInfoModalProps> = ({ isOpen, onClose }) => {
           </div>
           <div className="p-4 border rounded-lg bg-background-secondary-subtle">
               <div className="flex items-center gap-2 mb-2">
-                  <TierIcon tier="Silver" className="h-6 w-6" />
+                  <TierIcon tier="Silver" className="h-14 w-6" />
                   <h3 className="text-xl font-bold text-gray-400">Silver</h3>
               </div>
               <p className="text-sm mb-3 font-semibold">FUNCTION FOCUSED: The "sweet spot" - reliable performance with modern features.</p>
@@ -39,7 +40,7 @@ const TierInfoModal: React.FC<TierInfoModalProps> = ({ isOpen, onClose }) => {
           </div>
           <div className="p-4 border rounded-lg bg-background-secondary-subtle">
               <div className="flex items-center gap-2 mb-2">
-                  <TierIcon tier="Gold" className="h-6 w-6" />
+                  <TierIcon tier="Gold" className="h-14 w-6" />
                   <h3 className="text-xl font-bold text-yellow-400">Gold</h3>
               </div>
               <p className="text-sm mb-3 font-semibold">EXPERIENCE FOCUSED: Premium technology for executive spaces and mission-critical rooms.</p>
@@ -56,3 +57,6 @@ const TierInfoModal: React.FC<TierInfoModalProps> = ({ isOpen, onClose }) => {
 };
 
 export default TierInfoModal;
+
+
+

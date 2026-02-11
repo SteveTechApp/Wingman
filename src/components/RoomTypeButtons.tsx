@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface RoomType {
@@ -31,7 +32,6 @@ const RoomTypeButtons: React.FC = () => {
 
   return (
     <div style={{
-      minHeight: '100vh',
       background: 'linear-gradient(135deg, #f8fafb 0%, #ffffff 100%)',
       padding: '4rem 2rem',
       fontFamily: '"Cabinet Grotesk", system-ui, -apple-system, sans-serif',
@@ -231,3 +231,6 @@ const RoomTypeButtons: React.FC = () => {
 };
 
 export default RoomTypeButtons;
+
+
+

@@ -1,3 +1,4 @@
+
 export type PasswordHashRecord = {
   version: 1;
   saltB64: string;
@@ -152,3 +153,6 @@ export class PasswordManager {
     return toB64(hash) === rec.hashB64;
   }
 }
+
+
+

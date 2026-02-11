@@ -44,3 +44,7 @@ Wingman-USB/
 playwright-report/
 test-results/
 .playwright/
+
+# Wingman: quarantine ESM importmaps
+_ARCHIVE/importmaps/
+

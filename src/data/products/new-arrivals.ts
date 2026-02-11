@@ -1,3 +1,4 @@
+
 import { Product } from '../../utils/types';
 
 export const NEW_ARRIVALS: Product[] = [
@@ -110,3 +111,6 @@ export const NEW_ARRIVALS: Product[] = [
         hdbaset: { version: '2.0 Class B', poh: false }
     },
 ];
+
+
+

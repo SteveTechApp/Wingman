@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { RoomData, RoomWizardAnswers } from '../utils/types';
 import { useWizardState } from './useWizardState';
@@ -55,3 +56,6 @@ export const useRoomWizard = (
         isLastStep: currentStep === totalSteps - 1,
     };
 };
+
+
+

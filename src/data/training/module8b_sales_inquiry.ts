@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_8B_SALES_INQUIRY: TrainingModule = {
@@ -45,3 +46,6 @@ export const MODULE_8B_SALES_INQUIRY: TrainingModule = {
     },
   ],
 };
+
+
+

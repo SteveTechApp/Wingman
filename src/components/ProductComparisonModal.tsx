@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Product } from '../utils/types';
 import InfoModal from './InfoModal';
@@ -209,3 +210,6 @@ const ProductComparisonModal: React.FC<ProductComparisonModalProps> = ({
 };
 
 export default ProductComparisonModal;
+
+
+

@@ -1,3 +1,4 @@
+
 export const getSKUNamingConventions = (): string => `
 ## SKU NAMING CONVENTIONS & PRODUCT CAPABILITIES
 
@@ -54,4 +55,6 @@ export const getSKUNamingConventions = (): string => `
 ? **WRONG**: "Any product works with APO-DG2"
 ? **CORRECT**: "APO-DG2 only works with -W suffix products"
 `;
+
+
 

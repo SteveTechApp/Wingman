@@ -1,7 +1,8 @@
+
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { getAllTools, type ToolLink, type ToolPriority } from "@/data/toolCategories";
-import { useRecentTools, useUsageCounts } from "@/components/tools/recentTools";
+import { useRecentTools, useUsageCounts } from "@/components/app/tools/recentTools";
 
 const INTERNAL_FLAG_KEY = "wingman_enable_internal_tools_v1";
 
@@ -33,7 +34,7 @@ function matches(t: ToolLink, search: string) {
 
 function badge(text: string) {
   return (
-    <span className="inline-flex items-center rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-emerald-100/60">
+    <span className="inline-flex\ items-center\ rounded-full\ border\ border-white/10\ bg-black/20\ px-2\ py-0\.5\ text-\[10px]\ font-bold\ uppercase\ tracking-widest\ text-emerald-100/60">
       {text}
     </span>
   );
@@ -43,26 +44,26 @@ function ToolCard({ t, usage }: { t: ToolLink; usage: number }) {
   return (
     <Link
       to={t.path}
-      className="rounded-2xl border border-white/10 bg-black/10 p-4 hover:bg-emerald-950/30 transition-colors"
+      className="rounded-2xl\ border\ border-white/10\ bg-black/10\ p-4\ hover:bg-emerald-950/30\ transition-colors"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="text-white font-semibold">{t.label}</div>
-        <div className="flex items-center gap-2">
+      <div className="flex\ items-start\ justify-between\ gap-3">
+        <div className="text-white\ font-semibold">{t.label}</div>
+        <div className="flex\ items-center\ gap-2">
           {t.internal ? badge("Internal") : null}
           {t.category ? badge(t.category) : null}
         </div>
       </div>
 
       {t.description ? (
-        <div className="mt-1 text-xs text-emerald-100/60">{t.description}</div>
+        <div className="mt-1\ text-xs\ text-emerald-100/60">{t.description}</div>
       ) : (
-        <div className="mt-1 text-xs text-emerald-100/50">Open</div>
+        <div className="mt-1\ text-xs\ text-emerald-100/50">Open</div>
       )}
 
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <div className="text-[11px] text-emerald-100/50 font-mono">{t.path}</div>
+      <div className="mt-3\ flex\ items-center\ justify-between\ gap-3">
+        <div className="text-\[11px]\ text-emerald-100/50\ font-mono">{t.path}</div>
         {usage > 0 ? (
-          <div className="text-[10px] text-emerald-100/60 font-mono">Used: {usage}</div>
+          <div className="text-\[10px]\ text-emerald-100/60\ font-mono">Used: {usage}</div>
         ) : null}
       </div>
     </Link>
@@ -72,9 +73,9 @@ function ToolCard({ t, usage }: { t: ToolLink; usage: number }) {
 function Section({ title, items, usage }: { title: string; items: ToolLink[]; usage: Record<string, number> }) {
   if (!items.length) return null;
   return (
-    <section className="rounded-2xl border border-white/10 bg-black/20 p-4">
-      <div className="text-sm font-bold uppercase tracking-widest text-emerald-100/70">{title}</div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <section className="rounded-2xl\ border\ border-white/10\ bg-black/20\ p-4">
+      <div className="text-sm\ font-bold\ uppercase\ tracking-widest\ text-emerald-100/70">{title}</div>
+      <div className="mt-4\ grid\ gap-3\ sm:grid-cols-2\ lg:grid-cols-3">
         {items.map((t) => (
           <ToolCard key={t.path} t={t} usage={Number(usage[t.path] ?? 0) || 0} />
         ))}
@@ -134,15 +135,18 @@ export default function ToolGrid({
 
   const recentFiltered = useMemo(() => {
     const allowed = new Set(filtered.map((t) => t.path));
-    return recent.filter((t) => allowed.has(t.path)).slice(0, 6);
+    return recent.filter((t) => allowed.has(((t as any).path ?? (t as any).href ?? (t as any).route) as string)).slice(0, 6);
   }, [recent, filtered]);
 
   return (
     <div className="space-y-6">
-      <Section title="Recently Used" items={recentFiltered} usage={usage} />
+      <Section title="Recently Used" items={recentFiltered.map((t: any) => ({ label: t.label ?? t.name ?? t.title ?? "Tool", path: t.path ?? t.href ?? t.route ?? "/" }))} usage={usage} />
       <Section title={priorityLabel("primary")} items={pinPrimary ? primaryPinned : primaryPinned.filter((t) => matches(t, search))} usage={usage} />
       <Section title={priorityLabel("common")} items={common} usage={usage} />
       <Section title={priorityLabel("advanced")} items={advanced} usage={usage} />
     </div>
   );
 }
+
+
+

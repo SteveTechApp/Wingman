@@ -1,3 +1,4 @@
+
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_3_AVOIP: TrainingModule = {
@@ -68,3 +69,6 @@ export const MODULE_3_AVOIP: TrainingModule = {
     { question: "An AVoIP system's distance is limited by...", options: ["The length of an HDMI cable (15m)", "The capability of the network infrastructure", "The size of the displays"], correctAnswer: "The capability of the network infrastructure", explanation: "As long as the network can reach, so can the AVoIP signal, making distance virtually unlimited within a LAN." }
   ],
 };
+
+
+

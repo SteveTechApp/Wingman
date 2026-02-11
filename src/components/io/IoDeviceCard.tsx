@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { IOPoint } from '../../utils/types';
 import { useUserContext } from '../../context/UserContext';
@@ -15,7 +16,7 @@ const getIoIconComponent = (type: string): React.FC<{ className?: string }> => {
 };
 
 const DetailTag: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <span className="text-xs font-mono bg-background text-text-secondary px-2 py-1 rounded-md border border-border-color-subtle">
+    <span className="text-xs\ font-mono\ bg-background\ text-text-secondary\ px-2\ py-1\ rounded-md\ border\ border-border-color-subtle">
         {children}
     </span>
 );
@@ -35,26 +36,26 @@ const IoDeviceCard: React.FC<IoDeviceCardProps> = ({ point, onEdit, onRemove }) 
     };
 
     return (
-        <div className="bg-background p-3 rounded-lg border border-border-color space-y-3 transition-all hover:shadow-md hover:border-border-color">
-            <div className="flex justify-between items-start">
-                <div className="flex items-start gap-3">
-                    <IconComponent className="h-6 w-6 text-accent flex-shrink-0 mt-1" />
+        <div className="bg-background\ p-3\ rounded-lg\ border\ border-border-color\ space-y-3\ transition-all\ hover:shadow-md\ hover:border-border-color">
+            <div className="flex\ justify-between\ items-start">
+                <div className="flex\ items-start\ gap-3">
+                    <IconComponent className="h-14\ w-6\ text-accent\ flex-shrink-0\ mt-1" />
                     <div>
                         <h4 className="font-bold">{point.name}</h4>
-                        <p className="text-xs text-text-secondary">Quantity: {point.quantity}</p>
+                        <p className="text-xs\ text-text-secondary">Quantity: {point.quantity}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex\ items-center\ gap-2\ flex-shrink-0">
                     {/* FIX: Conditionally render buttons only if functions are provided. */}
-                    {onEdit && <button onClick={() => onEdit(point)} className="btn btn-secondary text-xs px-3 py-1">Edit</button>}
-                    {onRemove && <button onClick={() => onRemove(point.id)} className="text-destructive hover:underline text-xs font-semibold">Remove</button>}
+                    {onEdit && <button onClick={() => onEdit(point)} className="btn\ btn-secondary\ text-xs\ px-3\ py-1">Edit</button>}
+                    {onRemove && <button onClick={() => onRemove(point.id)} className="text-destructive\ hover:underline\ text-xs\ font-semibold">Remove</button>}
                 </div>
             </div>
-             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border-color-subtle">
+             <div className="flex\ flex-wrap\ items-center\ gap-2\ pt-2\ border-t\ border-border-color-subtle">
                 <DetailTag>{point.connectionType}</DetailTag>
-                <span className="text-text-secondary text-sm" title="Transport Type">&rarr;</span>
+                <span className="text-text-secondary\ text-sm" title="Transport Type">&rarr;</span>
                 <DetailTag>{point.distributionType}</DetailTag>
-                <span className="text-text-secondary text-sm" title="Location">@</span>
+                <span className="text-text-secondary\ text-sm" title="Location">@</span>
                 <DetailTag>{point.terminationType}</DetailTag>
                 <DetailTag>{formatDistance(point.distance)}</DetailTag>
             </div>
@@ -63,3 +64,6 @@ const IoDeviceCard: React.FC<IoDeviceCardProps> = ({ point, onEdit, onRemove }) 
 };
 
 export default IoDeviceCard;
+
+
+

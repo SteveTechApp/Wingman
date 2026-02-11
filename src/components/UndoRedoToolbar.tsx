@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface UndoRedoToolbarProps {
@@ -31,7 +32,7 @@ const UndoRedoToolbar: React.FC<UndoRedoToolbarProps> = ({
         aria-label="Undo"
       >
         <svg
-          className="h-5 w-5"
+          className="h-5\ w-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -57,7 +58,7 @@ const UndoRedoToolbar: React.FC<UndoRedoToolbarProps> = ({
         aria-label="Redo"
       >
         <svg
-          className="h-5 w-5"
+          className="h-5\ w-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -72,7 +73,7 @@ const UndoRedoToolbar: React.FC<UndoRedoToolbarProps> = ({
       </button>
 
       {lastCommand && canUndo && (
-        <span className="text-sm text-text-secondary ml-2">
+        <span className="text-sm\ text-text-secondary\ ml-2">
           {lastCommand}
         </span>
       )}
@@ -81,3 +82,6 @@ const UndoRedoToolbar: React.FC<UndoRedoToolbarProps> = ({
 };
 
 export default UndoRedoToolbar;
+
+
+

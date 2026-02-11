@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { RoomWizardAnswers } from '../../../utils/types';
 import WizardToggleOption from '../common/WizardToggleOption';
@@ -55,28 +56,28 @@ const DisplayConfig: React.FC<DisplayConfigProps> = ({ answers, updateAnswers, i
     const sizeLabel = isProjector ? 'Screen Diagonal (in)' : 'Display Size (in)';
 
     return (
-        <div className="space-y-6 mt-6 p-4 border-t border-border-color">
-             <h3 className="text-xl font-bold">Display Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-6\ mt-6\ p-4\ border-t\ border-border-color">
+             <h3 className="text-xl\ font-bold">Display Details</h3>
+            <div className="grid\ grid-cols-1\ md:grid-cols-2\ gap-6">
                 <div>
-                    <label htmlFor="display-size" className="block text-sm font-medium text-text-secondary">{sizeLabel}</label>
+                    <label htmlFor="display-size" className="block\ text-sm\ font-medium\ text-text-secondary">{sizeLabel}</label>
                     <input
                         type="number"
                         id="display-size"
                         value={localSize}
                         onChange={handleSizeChange}
                         onBlur={handleSizeBlur}
-                        className="w-full p-2 border rounded-md bg-input-bg mt-1"
+                        className="w-full\ p-2\ border\ rounded-md\ bg-input-bg\ mt-1"
                     />
                 </div>
                 {isProjector && (
                     <div>
-                        <label htmlFor="projector-lens" className="block text-sm font-medium text-text-secondary">Projector Lens Type</label>
+                        <label htmlFor="projector-lens" className="block\ text-sm\ font-medium\ text-text-secondary">Projector Lens Type</label>
                         <select
                           id="projector-lens"
                           value={projectorLensType}
                           onChange={handleLensTypeChange}
-                          className="w-full p-2 border rounded-md bg-input-bg mt-1"
+                          className="w-full\ p-2\ border\ rounded-md\ bg-input-bg\ mt-1"
                         >
                           {PROJECTOR_LENS_TYPES.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                         </select>
@@ -96,3 +97,6 @@ const DisplayConfig: React.FC<DisplayConfigProps> = ({ answers, updateAnswers, i
 };
 
 export default DisplayConfig;
+
+
+

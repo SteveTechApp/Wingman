@@ -1,3 +1,4 @@
+
 export const getDesignMinimalismRules = (): string => `
 ## DESIGN MINIMALISM & COST OPTIMIZATION
 
@@ -56,3 +57,6 @@ export const getDesignMinimalismRules = (): string => `
 
 **If unsure ? Don't add it. Simple is better.**
 `;
+
+
+

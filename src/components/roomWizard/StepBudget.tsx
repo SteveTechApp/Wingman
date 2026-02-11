@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { RoomWizardAnswers } from '../../utils/types';
 import DesignTierSelector from './basicInfo/DesignTierSelector';
@@ -17,3 +18,6 @@ const StepBudget: React.FC<StepBudgetProps> = ({ answers, updateAnswers }) => {
 };
 
 export default StepBudget;
+
+
+

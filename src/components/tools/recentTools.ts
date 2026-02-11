@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import { getAllTools, type ToolLink } from "@/data/toolCategories";
 
@@ -103,3 +104,20 @@ export function useUsageCounts(): Counts {
 
   return useMemo(() => getUsageCounts(), [tick]);
 }
+export function recordRecentTool(toolId: string) {
+  try {
+    const KEY = "wingman.recentTools.v1";
+    const now = Date.now();
+    const raw = localStorage.getItem(KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    const items = Array.isArray(arr) ? arr : [];
+    const filtered = (items as any[]).filter(x => x && x.id !== toolId);
+    filtered.unshift({ id: toolId, at: now });
+    localStorage.setItem(KEY, JSON.stringify(filtered.slice(0, 12)));
+  } catch {
+    // no-op
+  }
+}
+
+
+

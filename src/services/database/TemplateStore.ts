@@ -1,3 +1,4 @@
+
 /**
  * Template Store
  * Handles template-related database operations
@@ -56,3 +57,6 @@ export class TemplateStore extends DatabaseService {
         });
     }
 }
+
+
+

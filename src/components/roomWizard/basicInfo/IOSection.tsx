@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { RoomWizardAnswers, IOPoint } from '../../../utils/types';
 import IOPointEditor from '../IOPointEditor';
@@ -48,7 +49,7 @@ const IOSection: React.FC<IOSectionProps> = ({ answers, updateAnswers }) => {
 
   return (
     <div>
-        <h3 className="text-xl font-bold mb-4">I/O Requirements</h3>
+        <h3 className="text-xl\ font-bold\ mb-4">I/O Requirements</h3>
         <IOPointEditor 
             points={answers.ioRequirements}
             onAdd={handleAddPoint}
@@ -66,3 +67,6 @@ const IOSection: React.FC<IOSectionProps> = ({ answers, updateAnswers }) => {
 };
 
 export default IOSection;
+
+
+

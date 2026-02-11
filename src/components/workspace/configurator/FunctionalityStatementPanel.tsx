@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { useProjectContext } from '../../../context/ProjectContext';
+import { useProjectContext } from "@/context/ProjectContext";
 
 const FunctionalityStatementPanel: React.FC = () => {
     const { projectData, activeRoomId, dispatchProjectAction } = useProjectContext();
@@ -14,15 +15,15 @@ const FunctionalityStatementPanel: React.FC = () => {
     };
 
     return (
-        <div className="bg-background-secondary p-6 rounded-xl shadow-xl border border-border-color">
-            <h3 className="font-bold text-lg mb-2">Functionality Statement</h3>
-            <p className="text-xs text-text-secondary mb-2">
+        <div className="bg-background-secondary\ p-6\ rounded-xl\ shadow-xl\ border\ border-border-color">
+            <h3 className="font-bold\ text-lg\ mb-2">Functionality Statement</h3>
+            <p className="text-xs\ text-text-secondary\ mb-2">
                 This statement is used by the AI to understand the room's purpose. Be descriptive.
             </p>
             <textarea
                 value={room.functionalityStatement}
                 onChange={handleStatementChange}
-                className="w-full h-32 p-2 border rounded-md bg-input-bg text-sm"
+                className="w-full\ h-32\ p-2\ border\ rounded-md\ bg-input-bg\ text-sm"
                 placeholder="e.g., A dual-display video conferencing room where users can connect via USB-C or cast wirelessly..."
             />
         </div>
@@ -30,3 +31,6 @@ const FunctionalityStatementPanel: React.FC = () => {
 };
 
 export default FunctionalityStatementPanel;
+
+
+

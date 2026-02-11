@@ -36,12 +36,12 @@ const QuizView: React.FC<QuizViewProps> = ({ module, onQuizComplete }) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-background-secondary p-6 md:p-8 rounded-xl shadow-xl animate-fade-in-fast">
+    <div className="max-w-4xl\ mx-auto\ bg-background-secondary\ p-6\ md:p-8\ rounded-xl\ shadow-xl\ animate-fade-in-fast">
         <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Quiz: {module.title}</h1>
+            <h1 className="text-2xl\ font-bold\ mb-4">Quiz: {module.title}</h1>
         </div>
-        <div className="bg-background p-6 rounded-lg border border-border-color">
-            <p className="text-lg font-semibold mb-4">({currentQuestion + 1}/{module.quiz.length}) {question.question}</p>
+        <div className="bg-background\ p-6\ rounded-lg\ border\ border-border-color">
+            <p className="text-lg\ font-semibold\ mb-4">({currentQuestion + 1}/{module.quiz.length}) {question.question}</p>
             <div className="space-y-3">
               {question.options.map(option => (
                 <button
@@ -59,11 +59,11 @@ const QuizView: React.FC<QuizViewProps> = ({ module, onQuizComplete }) => {
               ))}
             </div>
         </div>
-        <div className="text-right mt-6">
+        <div className="text-right\ mt-6">
             <button
               onClick={handleNext}
               disabled={selectedAnswer === null}
-              className="btn btn-primary"
+              className="btn\ btn-primary"
             >
               {currentQuestion < module.quiz.length - 1 ? 'Next' : 'Finish Quiz'}
             </button>
@@ -73,3 +73,6 @@ const QuizView: React.FC<QuizViewProps> = ({ module, onQuizComplete }) => {
 };
 
 export default QuizView;
+
+
+

@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { DesignProposal, ManuallyAddedEquipment } from '../utils/types';
-import InfoModal from './InfoModal.tsx';
-import TierIcon from './TierIcon.tsx';
-import { SparklesIcon } from './Icons.tsx';
+import InfoModal from './InfoModal';
+import TierIcon from './TierIcon';
+import { SparklesIcon } from './Icons';
 
 interface DesignOptionsModalProps {
   isOpen: boolean;
@@ -25,7 +26,7 @@ const DesignTierColumn: React.FC<{ proposal: DesignProposal, onApply: () => void
     return (
         <div className="flex flex-col bg-background-secondary p-4 rounded-lg border border-border-color h-full">
             <div className="flex items-center gap-2 mb-2">
-                <TierIcon tier={proposal.tier} className="h-6 w-6" />
+                <TierIcon tier={proposal.tier} className="h-14 w-6" />
                 <h3 className="text-xl font-bold">{proposal.tier} Design</h3>
             </div>
             {totalMsrp !== null && (
@@ -67,7 +68,7 @@ const DesignOptionsModal: React.FC<DesignOptionsModalProps> = ({ isOpen, onClose
     return (
         <InfoModal isOpen={isOpen} onClose={onClose} className="max-w-7xl h-[90vh]" title={
             <div className="flex items-center gap-2">
-                <SparklesIcon className="h-6 w-6 text-accent"/>
+                <SparklesIcon className="h-14 w-6 text-accent"/>
                 AI Design Options
             </div>
         } footer={footer}>
@@ -91,3 +92,6 @@ const DesignOptionsModal: React.FC<DesignOptionsModalProps> = ({ isOpen, onClose
 };
 
 export default DesignOptionsModal;
+
+
+

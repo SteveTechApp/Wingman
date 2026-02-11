@@ -1,3 +1,4 @@
+
 /**
  * Main Database Service
  * Combines all database operations and provides utility methods
@@ -52,6 +53,8 @@ class Database {
         const exportData: ExportData = {
             version: DB_VERSION,
             exportDate: new Date().toISOString(),
+      userProfile: profile,
+      settings: [],
             projects,
             profile,
             templates,
@@ -106,12 +109,15 @@ class Database {
         const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
 
         return {
+            totalSize: sizeInBytes,
             projectCount: projects.length,
             templateCount: templates.length,
             hasUserProfile: profile !== null,
-            databaseSize: `${sizeInMB} MB`,
         };
     }
 }
 
 export const db = new Database();
+
+
+
