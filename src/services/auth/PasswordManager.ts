@@ -40,7 +40,7 @@ async function sha256(data: Uint8Array): Promise<Uint8Array> {
 
 function randomToken(len = 32): string {
   const bytes = crypto.getRandomValues(new Uint8Array(len));
-  return toB64(bytes).replace(/=+$/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+  return toB64(bytes).replace(/=+$/g, ").replace(/\+/g, "-").replace(/\//g, "_");
 }
 
 /**

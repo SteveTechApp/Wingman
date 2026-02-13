@@ -61,7 +61,7 @@ export default function CategoryMenu() {
             </div>
             <div className="mt-2\ flex\ items-center\ justify-between\ gap-3">
               <Link
-                to="/app/toolhub"
+                to="/tools"
                 onClick={() => setOpen(false)}
                 className="text-xs\ text-emerald-100/70\ hover:text-emerald-100\ underline"
               >

@@ -1,2 +1,2 @@
-export * from "@/components/tools/recentTools";
-export { default } from "@/components/tools/recentTools";
+export * from "@/components/app/tools/recentTools";
+export { default } from "@/components/app/tools/recentTools";

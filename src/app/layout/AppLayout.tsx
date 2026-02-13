@@ -20,20 +20,20 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   return (
     <div 
-        className="text-text-primary\ flex\ flex-col\ bg-app-bg\ shadow-2xl\ relative\ isolate\ w-full\ h-full\ min-h-0\ overflow-hidden"
+        className="text-text-primary\ flex\ flex-col\ bg-app-bg\ shadow-2xl\ relative\ isolate\ w-full\ h-full\ min-h-0\ overflow-hidden wm-density-compact"
     >
       {/* Background Layer */}
-      <div className="absolute\ inset-0\ z-0\ pointer-events-none">
+      <div className="absolute\ inset-0\ z-0\ pointer-events-none wm-density-compact">
       
       </div>
 
       {/* Content Layer - Fixed height container */}
-      <div className="relative\ z-10\ flex\ flex-col\ h-full\ w-full\ bg-content-overlay/95\ backdrop-blur-sm">
+      <div className="relative\ z-10\ flex\ flex-col\ h-full\ w-full\ bg-content-overlay/95\ backdrop-blur-sm wm-density-compact">
         {/* Header - fixed height */}
         <Header />
         
         {/* Main Content - flex-1 with proper overflow */}
-        <main className="flex-1\ flex\ flex-col\ relative\ overflow-hidden\ min-h-0">
+        <main className="flex-1\ flex\ flex-col\ relative\ overflow-hidden\ min-h-0 wm-density-compact wm-container wm-page">
           {/* Children must handle their own scrolling (e.g., h-full w-full overflow-y-auto) */}
           {children}
         </main>

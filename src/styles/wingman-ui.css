@@ -1,261 +1,341 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* =========================
-   Wingman UI (Uniform v1)
-   - tokens + base layout
-   - consistent cards/buttons/sections
-   ========================= */
+/* Wingman UI System — compact, premium, readable
+   Goals: consistent density, clear hierarchy, subtle depth, modern neutral palette.
+*/
 
 :root{
-  --wm-bg0: #070a10;
-  --wm-bg1: #0a1020;
+  /* Brand accents (tune later) */
+  --wm-accent:  #21c38b; /* Wingman green accent */
+  --wm-accent2: #11a8ff; /* optional secondary */
+  --wm-danger:  #ff3b30;
+
+  /* Surfaces */
+  --wm-bg:      #070A0F;
+  --wm-bg2:     #0B1020;
   --wm-surface: rgba(255,255,255,0.06);
-  --wm-surface2: rgba(255,255,255,0.04);
-  --wm-border: rgba(255,255,255,0.14);
-  --wm-border2: rgba(255,255,255,0.10);
+  --wm-surface2: rgba(255,255,255,0.08);
+  --wm-border:  rgba(255,255,255,0.10);
 
-  --wm-text: rgba(255,255,255,0.92);
-  --wm-muted: rgba(255,255,255,0.70);
-  --wm-dim: rgba(255,255,255,0.56);
+  /* Text */
+  --wm-text:    rgba(255,255,255,0.92);
+  --wm-muted:   rgba(255,255,255,0.70);
+  --wm-faint:   rgba(255,255,255,0.55);
 
-  --wm-accent: #00d6d6; /* teal-ish */
-  --wm-accent2: #3aa0ff; /* cool blue */
-  --wm-danger: #ff3b3b;
+  /* Radius / shadows */
+  --wm-rad-lg:  16px;
+  --wm-rad-md:  12px;
+  --wm-shadow:  0 10px 30px rgba(0,0,0,0.45);
+  --wm-shadow2: 0 6px 18px rgba(0,0,0,0.35);
 
-  --wm-radius-lg: 18px;
-  --wm-radius-md: 14px;
-  --wm-shadow: 0 16px 40px rgba(0,0,0,0.35);
+  /* Density scale (compact) */
+  --wm-pad-1: 8px;
+  --wm-pad-2: 10px;
+  --wm-pad-3: 12px;
+  --wm-pad-4: 14px;
 
-  --wm-max: 1180px;
-  --wm-pad: 18px;
+  --wm-gap-1: 8px;
+  --wm-gap-2: 10px;
+  --wm-gap-3: 12px;
+  --wm-gap-4: 14px;
+
+  /* Container */
+  --wm-max: 1240px;
 }
 
+/* App background */
 html, body, #root { height: 100%; }
 body{
-  margin:0;
   color: var(--wm-text);
   background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(0,214,214,0.18), transparent 60%),
-    radial-gradient(900px 480px at 90% 20%, rgba(58,160,255,0.12), transparent 60%),
-    radial-gradient(900px 520px at 10% 30%, rgba(255,59,59,0.08), transparent 60%),
-    linear-gradient(180deg, var(--wm-bg0), var(--wm-bg1));
+    radial-gradient(1200px 600px at 20% -10%, rgba(33,195,139,0.16), transparent 60%),
+    radial-gradient(900px 500px at 85% 0%, rgba(17,168,255,0.12), transparent 55%),
+    linear-gradient(180deg, var(--wm-bg), var(--wm-bg2));
 }
 
-/* ---------- App Shell ---------- */
-.wm-app{
-  min-height: 100%;
-  display:flex;
-  flex-direction:column;
+/* Density switch (future): .wm-density-compact is default */
+.wm-density-compact{
+  --wm-pad-1: 8px;
+  --wm-pad-2: 10px;
+  --wm-pad-3: 12px;
+  --wm-pad-4: 14px;
+  --wm-gap-1: 8px;
+  --wm-gap-2: 10px;
+  --wm-gap-3: 12px;
+  --wm-gap-4: 14px;
 }
 
-.wm-topbar{
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  backdrop-filter: blur(10px);
-  background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.15));
-  border-bottom: 1px solid var(--wm-border2);
-}
-
-.wm-body{
-  flex: 1;
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 0;
-}
-
-@media (max-width: 1024px){
-  .wm-body{ grid-template-columns: 1fr; }
-}
-
-.wm-sidenav{
-  border-right: 1px solid var(--wm-border2);
-  background: rgba(0,0,0,0.22);
-}
-
-.wm-main{
-  padding: var(--wm-pad);
-}
-
+/* Layout primitives */
 .wm-container{
   max-width: var(--wm-max);
   margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
 }
-
-/* ---------- Cards / Sections ---------- */
-.wm-card{
-  border: 1px solid var(--wm-border);
-  background: var(--wm-surface);
-  border-radius: var(--wm-radius-lg);
-  box-shadow: var(--wm-shadow);
+.wm-page{
+  padding-top: 14px;
+  padding-bottom: 18px;
 }
-
-.wm-card2{
-  border: 1px solid var(--wm-border2);
-  background: var(--wm-surface2);
-  border-radius: var(--wm-radius-md);
-}
-
-.wm-section{
-  border-radius: var(--wm-radius-lg);
-  border: 1px solid var(--wm-border2);
-  background: rgba(0,0,0,0.18);
-}
-
+.wm-section{ margin-top: 14px; }
 .wm-divider{
   height: 1px;
-  background: var(--wm-border2);
+  background: rgba(255,255,255,0.08);
+  margin: 12px 0;
 }
 
-/* ---------- Typography ---------- */
-.wm-h1{
-  font-size: clamp(36px, 6vw, 64px);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  font-weight: 900;
-}
-
-.wm-subtitle{
-  font-size: clamp(14px, 1.6vw, 18px);
-  line-height: 1.4;
-  color: var(--wm-muted);
-}
-
+/* Typography */
 .wm-kicker{
   font-size: 12px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: var(--wm-dim);
+  color: var(--wm-faint);
+}
+.wm-h1{
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+.wm-h2{
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 650;
+}
+.wm-p{
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--wm-muted);
 }
 
-/* ---------- Buttons ---------- */
-.wm-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap: 10px;
-  height: 38px;
-  padding: 0 14px;
-  border-radius: 12px;
+/* Cards */
+.wm-card{
+  border-radius: var(--wm-rad-lg);
+  background: linear-gradient(180deg, var(--wm-surface), rgba(255,255,255,0.035));
   border: 1px solid var(--wm-border);
-  background: rgba(255,255,255,0.06);
-  color: inherit;
-  cursor:pointer;
-  font-weight: 800;
-  font-size: 12px;
-  text-decoration: none;
-  user-select:none;
+  box-shadow: var(--wm-shadow2);
+  backdrop-filter: blur(10px);
 }
+.wm-card-pad{ padding: var(--wm-pad-3); }
+.wm-card:hover{
+  border-color: rgba(33,195,139,0.28);
+  box-shadow: var(--wm-shadow);
+  transform: translateY(-1px);
+}
+.wm-card{ transition: transform 120ms ease, box-shadow 160ms ease, border-color 160ms ease; }
 
+/* Buttons */
+.wm-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: var(--wm-text);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 120ms ease, border-color 160ms ease, background 160ms ease;
+}
 .wm-btn:hover{
   background: rgba(255,255,255,0.09);
+  border-color: rgba(33,195,139,0.26);
+  transform: translateY(-1px);
 }
-
 .wm-btn-primary{
-  border-color: rgba(0,214,214,0.45);
-  background: linear-gradient(180deg, rgba(0,214,214,0.18), rgba(0,214,214,0.08));
+  border-color: rgba(33,195,139,0.35);
+  background: linear-gradient(180deg, rgba(33,195,139,0.22), rgba(33,195,139,0.12));
 }
-
 .wm-btn-primary:hover{
-  background: linear-gradient(180deg, rgba(0,214,214,0.22), rgba(0,214,214,0.10));
+  border-color: rgba(33,195,139,0.55);
 }
 
-.wm-chip{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--wm-border2);
-  background: rgba(255,255,255,0.04);
-  font-size: 12px;
-  color: var(--wm-muted);
-}
-
-/* ---------- Hero ---------- */
-.wm-hero{
-  position: relative;
-  padding: 44px 18px 22px;
-  border-radius: 26px;
+/* Inputs */
+.wm-input, .wm-select, .wm-textarea{
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.12);
-  background:
-    radial-gradient(900px 420px at 50% 0%, rgba(0,214,214,0.22), transparent 62%),
-    radial-gradient(760px 360px at 80% 20%, rgba(58,160,255,0.14), transparent 62%),
-    rgba(0,0,0,0.22);
-  overflow:hidden;
+  background: rgba(0,0,0,0.18);
+  color: var(--wm-text);
+  outline: none;
+}
+.wm-input:focus, .wm-select:focus, .wm-textarea:focus{
+  border-color: rgba(33,195,139,0.55);
+  box-shadow: 0 0 0 3px rgba(33,195,139,0.12);
 }
 
-.wm-hero::after{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  background:
-    radial-gradient(700px 220px at 50% -40px, rgba(255,255,255,0.06), transparent 65%);
-  pointer-events:none;
-}
-
-/* ---------- Brand Lockup ---------- */
-.wm-brand{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap: 14px;
-  margin-bottom: 18px;
-  position: relative;
-  z-index: 1;
-}
-
-.wm-brand-logo{
-  height: 46px;
-  width: auto;
-  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.45));
-}
-
-.wm-brand-text{
-  display:flex;
-  flex-direction:column;
-  line-height: 1.05;
-  text-align:left;
-}
-
-.wm-brand-name{
-  font-weight: 900;
-  letter-spacing: -0.01em;
-  font-size: 18px;
-}
-
-.wm-brand-tag{
-  font-size: 12px;
-  color: var(--wm-muted);
-}
-
-/* ---------- Feature Grid ---------- */
+/* Simple responsive grid */
 .wm-grid{
-  display:grid;
-  gap: 12px;
+  display: grid;
+  gap: var(--wm-gap-3);
+}
+.wm-grid-3{ grid-template-columns: repeat(1, minmax(0, 1fr)); }
+@media (min-width: 880px){
+  .wm-grid-3{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 640px) and (max-width: 879px){
+  .wm-grid-3{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-@media (min-width: 900px){
-  .wm-grid-3{ grid-template-columns: repeat(3, 1fr); }
+
+/* ===== WINGMAN_DENSITY_TIGHTENER_V2 ===== */
+
+/* tighter page padding */
+.wm-page{ padding-top: 10px; padding-bottom: 12px; }
+.wm-section{ margin-top: 10px; }
+.wm-divider{ margin: 10px 0; }
+
+/* tighter typography scale */
+.wm-h1{ font-size: 22px; line-height: 1.12; }
+.wm-h2{ font-size: 15px; line-height: 1.22; }
+.wm-p { font-size: 13.5px; line-height: 1.45; }
+
+/* cards slightly tighter by default */
+.wm-card-pad{ padding: var(--wm-pad-2); }
+
+/* app chrome: common class hooks (works even if components use different layouts) */
+.wm-topbar, .TopBar, header.wm-header{
+  height: 52px;
+}
+.wm-sidenav, .SideNav, nav.wm-nav{
+  width: 240px;
+}
+@media (max-width: 1024px){
+  .wm-sidenav, .SideNav, nav.wm-nav{ width: 220px; }
 }
 
-.wm-tile{
-  padding: 14px;
-  border-radius: var(--wm-radius-md);
-  border: 1px solid var(--wm-border2);
-  background: rgba(255,255,255,0.04);
+/* main content should not feel like a giant whiteboard */
+.wm-app-surface, main.wm-app-surface, main.wm-container.wm-page{
+  padding-top: 10px !important;
+  padding-bottom: 12px !important;
 }
 
-.wm-tile-title{
-  font-weight: 900;
-  font-size: 13px;
+/* compact forms */
+label{ font-size: 12px; color: var(--wm-faint); }
+input, select, textarea{
+  font-size: 13.5px;
+}
+.wm-field{
+  display: grid;
+  gap: 6px;
 }
 
-.wm-tile-sub{
-  margin-top: 6px;
+/* subtle separators */
+.wm-hairline{
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}/* ===== WINGMAN PREMIUM POLISH ===== */
+
+/* Wider workspace */
+:root{
+ --wm-max:1480px;
+}
+
+/* Header density */
+.wm-topbar{
+ height:48px!important;
+ backdrop-filter:blur(10px);
+ background:linear-gradient(
+   180deg,
+   rgba(10,18,32,.85),
+   rgba(5,10,20,.85)
+ );
+ border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+/* Sidebar */
+.wm-sidenav{
+ width:230px!important;
+ border-right:1px solid rgba(255,255,255,.05);
+}
+
+/* Card hierarchy */
+.wm-card-primary{
+ background:linear-gradient(
+   180deg,
+   rgba(33,195,139,.15),
+   rgba(255,255,255,.03)
+ );
+ border:1px solid rgba(33,195,139,.28);
+}
+
+.wm-card-secondary{
+ background:rgba(255,255,255,.035);
+ border:1px solid rgba(255,255,255,.08);
+}
+
+.wm-card:hover{
+ transform:translateY(-2px);
+ box-shadow:0 12px 32px rgba(0,0,0,.55);
+}
+
+/* Tool emphasis */
+.wm-card:hover .wm-h2{
+ color:var(--wm-accent);
+}
+
+/* Wizard grouping */
+.wm-field-group{
+ background:rgba(255,255,255,.03);
+ border:1px solid rgba(255,255,255,.06);
+ border-radius:14px;
+ padding:12px;
+}
+
+label{
+ font-weight:500;
+ letter-spacing:.02em;
+}
+
+.wm-field{
+ gap:4px!important;
+}
+
+/* Inputs */
+select,input,textarea{
+ background:rgba(0,0,0,.25)!important;
+ border:1px solid rgba(255,255,255,.12)!important;
+}
+
+/* Product cards */
+.wm-product-card{
+ background:linear-gradient(
+   180deg,
+   rgba(17,168,255,.12),
+   rgba(255,255,255,.03)
+ );
+ border:1px solid rgba(17,168,255,.25);
+}
+
+/* Section titles */
+.wm-section-title{
+ font-size:14px;
+ letter-spacing:.08em;
+ text-transform:uppercase;
+ color:var(--wm-faint);
+ margin-bottom:6px;
+}
+
+/* Grid tightening */
+.wm-grid{
+ gap:10px!important;
+}
+
+/* Scrollbar polish */
+::-webkit-scrollbar{
+ width:10px;
+}
+::-webkit-scrollbar-thumb{
+ background:rgba(255,255,255,.15);
+ border-radius:10px;
+}
+::-webkit-scrollbar-thumb:hover{
+ background:rgba(33,195,139,.45);
+}
+/* ===== WINGMAN_CATALOG_UI ===== */
+.wm-section-title{
   font-size: 12px;
-  color: var(--wm-muted);
-  line-height: 1.35;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  color: var(--wm-faint);
+  margin-bottom: 8px;
 }
