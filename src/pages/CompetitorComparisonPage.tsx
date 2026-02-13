@@ -1,7 +1,7 @@
 
 import React from "react";
 import PageShell from "@/components/layout/PageShell";
-import CompetitorMatchFinderPanel from "@/components/app/tools/competitor-compare/CompetitorMatchFinderPanel";
+import CompetitorMatchFinderPanel from "@/components/competitor/CompetitorMatchFinderPanel";
 
 export default function CompetitorComparisonPage() {
   return (

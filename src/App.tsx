@@ -1,10 +1,16 @@
-import React from "react";
+import React, { Suspense } from "react";
+
 import AppRoutes from "./AppRoutes";
+import { AuthProvider } from "@/auth/AuthContext";
 
 export default function App() {
   return (
-    <React.Suspense fallback={<div className="p-4">Loading…</div>}>
-      <AppRoutes />
-    </React.Suspense>
+    
+      <AuthProvider>
+        <Suspense fallback={<div className="wm-bg wm-page wm-container"><div className="wm-card wm-card-pad">Loading…</div></div>}>
+          <AppRoutes />
+        </Suspense>
+      </AuthProvider>
+    
   );
 }

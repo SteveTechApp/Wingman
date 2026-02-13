@@ -6,7 +6,7 @@ import {
   getProjectsState,
   setActiveProject,
   subscribeProjects,
-} from "@/state/projectsStore";
+} from "@/state/app/projectsStore";
 
 export default function ProjectOverviewPage() {
   const nav = useNavigate();

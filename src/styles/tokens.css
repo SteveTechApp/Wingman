@@ -1,132 +1,17 @@
 :root{
-  --wm-bg: #070b14;
-  --wm-surface-1: rgba(255,255,255,0.04);
-  --wm-surface-2: rgba(255,255,255,0.06);
-  --wm-surface-3: rgba(255,255,255,0.085);
-
-  --wm-border-1: rgba(255,255,255,0.10);
-  --wm-border-2: rgba(255,255,255,0.16);
-
+  /* Brand */
+  --wm-bg: #0b0f14;
+  --wm-surface: rgba(255,255,255,0.06);
+  --wm-surface-2: rgba(255,255,255,0.08);
+  --wm-border: rgba(255,255,255,0.12);
   --wm-text: rgba(255,255,255,0.92);
-  --wm-muted: rgba(255,255,255,0.68);
+  --wm-muted: rgba(255,255,255,0.70);
 
-  --wm-brand: #18c37e;
+  --wm-accent: #1fe0a3;     /* WyreStorm-ish green */
+  --wm-accent-2: #00b3ff;   /* secondary tech accent */
+  --wm-danger: #ff3b3b;
 
   --wm-radius: 16px;
-  --wm-shadow-1: 0 10px 30px rgba(0,0,0,0.35);
-  --wm-shadow-2: 0 18px 50px rgba(0,0,0,0.50);
+  --wm-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --wm-max: 1180px;
 }
-
-/* Page background + subtle vignette */
-.wm-app-bg{
-  background:
-    radial-gradient(900px 420px at 22% 8%, rgba(24,195,126,0.14), transparent 60%),
-    radial-gradient(900px 520px at 80% 20%, rgba(59,130,246,0.10), transparent 60%),
-    radial-gradient(1200px 800px at 50% 30%, rgba(255,255,255,0.05), transparent 65%),
-    linear-gradient(180deg, #070b14 0%, #050812 100%);
-  color: var(--wm-text);
-}
-
-/* Higher-separation cards */
-.wm-card{
-  background: var(--wm-surface-2);
-  border: 1px solid var(--wm-border-1);
-  border-radius: var(--wm-radius);
-  box-shadow: var(--wm-shadow-1);
-}
-
-/* Elevated panels (right rail, header strips, sections) */
-.wm-panel{
-  background: var(--wm-surface-3);
-  border: 1px solid var(--wm-border-2);
-  border-radius: var(--wm-radius);
-  box-shadow: var(--wm-shadow-2);
-}
-
-/* Section container with left accent bar */
-.wm-section{
-  position: relative;
-  background: var(--wm-surface-1);
-  border: 1px solid var(--wm-border-1);
-  border-radius: var(--wm-radius);
-  padding: 14px;
-}
-
-.wm-section::before{
-  content:"";
-  position:absolute;
-  left: 10px;
-  top: 12px;
-  bottom: 12px;
-  width: 3px;
-  border-radius: 999px;
-  background: rgba(24,195,126,0.65);
-  box-shadow: 0 0 0 1px rgba(24,195,126,0.25);
-}
-
-/* Section header strip */
-.wm-section-head{
-  padding-left: 14px;
-  margin-left: 8px;
-  margin-bottom: 10px;
-}
-
-.wm-kicker{
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.72);
-  font-weight: 800;
-}
-
-.wm-sub{
-  font-size: 12px;
-  color: rgba(255,255,255,0.55);
-  margin-top: 2px;
-}
-
-/* Tile: stronger edge + top highlight */
-.wm-tile{
-  background: rgba(255,255,255,0.045);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  padding: 14px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
-  position: relative;
-}
-
-.wm-tile::before{
-  content:"";
-  position:absolute;
-  left: 10px;
-  right: 10px;
-  top: 8px;
-  height: 1px;
-  background: rgba(255,255,255,0.10);
-}
-
-.wm-tile:hover{
-  border-color: rgba(255,255,255,0.20);
-  background: rgba(255,255,255,0.06);
-}
-
-/* Small pill tags */
-.wm-pill{
-  font-size: 11px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(0,0,0,0.22);
-  color: rgba(255,255,255,0.70);
-}
-
-/* Primary button */
-.wm-btn-primary{
-  background: var(--wm-brand);
-  color: #052012;
-  font-weight: 900;
-  border-radius: 14px;
-  padding: 10px 16px;
-  box-shadow: 0 14px 28px rgba(0,0,0,0.35);
-}
-.wm-btn-primary:hover{ filter: brightness(1.05); }

@@ -1,3 +1,4 @@
+import { getAnyAuth, loginLocal, logout } from "./authStore";
 
 export type WingmanUser = {
   id: string;
@@ -5,37 +6,27 @@ export type WingmanUser = {
   email?: string;
 };
 
-const KEY = "wingman.auth.user.v1";
-
 export function getUser(): WingmanUser | null {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return null;
-    const u = JSON.parse(raw);
-    if (!u || typeof u.id !== "string" || typeof u.name !== "string") return null;
-    return u as WingmanUser;
-  } catch {
-    return null;
-  }
+  const a = getAnyAuth();
+  if (!a?.user?.email) return null;
+  return {
+    id: a.user.email,
+    name: a.user.name || a.user.email,
+    email: a.user.email,
+  };
 }
 
 export function isAuthed(): boolean {
-  return !!getUser();
+  return !!getAnyAuth();
 }
 
+// Legacy helper: creates a session using the authStore mechanism
 export function signIn(): WingmanUser {
-  const u: WingmanUser = {
-    id: crypto?.randomUUID?.() ?? String(Date.now()),
-    name: "Steve",
-    email: "@wingman.local",
-  };
-  try { localStorage.setItem(KEY, JSON.stringify(u)); } catch {}
-  return u;
+  const user = { email: "user@wingman.local", name: "User" };
+  loginLocal(user, true);
+  return { id: user.email, name: user.name, email: user.email };
 }
 
 export function signOut(): void {
-  try { localStorage.removeItem(KEY); } catch {}
+  logout();
 }
-
-
-

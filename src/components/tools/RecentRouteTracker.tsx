@@ -1,7 +1,7 @@
 
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { recordRecentTool } from "@/components/app/tools/recentTools";
+import recordRecentTool from "@/components/app/tools/recentTools";
 import { getToolByPath } from "@/data/toolCategories";
 
 export default function RecentRouteTracker() {
@@ -13,7 +13,7 @@ export default function RecentRouteTracker() {
 
     // Record only known tool paths (avoid recording project-specific routes like /design/:id)
     if (getToolByPath(p)) {
-      recordRecentTool(p);
+      recordRecentTool.pushRecentTool({ title: p, href: p });
       // best-effort: notify same-tab listeners too
       window.dispatchEvent(new StorageEvent("storage", { key: "wingman_recent_tools_v1" }));
     }

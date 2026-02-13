@@ -4,9 +4,9 @@ import { generateProductVideo } from "../services/videoService";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const VideoGeneratorPage: React.FC = () => {
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(""));
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("");
+  const [loadingMessage, setLoadingMessage] = useState(""));
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +17,7 @@ const VideoGeneratorPage: React.FC = () => {
     setIsLoading(true);
     setVideoUrl(null);
     setError(null);
-    setLoadingMessage("");
+    setLoadingMessage(");
 
     try {
       const url = await generateProductVideo(prompt, (message: any) => setLoadingMessage(message));
@@ -30,11 +30,11 @@ const VideoGeneratorPage: React.FC = () => {
   };
 
   const handleReset = () => {
-    setPrompt("");
+    setPrompt(");
     setVideoUrl(null);
     setError(null);
     setIsLoading(false);
-    setLoadingMessage("");
+    setLoadingMessage(");
   };
 
   return (

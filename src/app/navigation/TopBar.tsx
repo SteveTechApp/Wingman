@@ -1,64 +1,31 @@
-import React, { useMemo } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
-import CategoryMenu from "@/components/nav/CategoryMenu";
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import WingmanBrand from "@/components/branding/WingmanBrand";
 
-function crumbLabel(path: string) {
-  if (path.startsWith("/app/dashboard")) return "Dashboard";
-  if (path.startsWith("/app/projects")) return "Projects";
-  if (path.startsWith("/app/import")) return "Import";
-  if (path.startsWith("/app/toolhub")) return "Tool Hub";
-  if (path.startsWith("/app/tools/competitor-compare")) return "Competitor Compare";
-  if (path === "/" || path.startsWith("/public")) return "Welcome";
-  return "Workspace";
+function NavLink({ to, label }) {
+  const loc = useLocation();
+  const active = loc.pathname.startsWith(to);
+  return (
+    <Link className={"wm-navlink " + (active ? "wm-navlink-active" : "")} to={to}>
+      {label}
+    </Link>
+  );
 }
 
 export default function TopBar() {
-  const loc = useLocation();
-
-  const crumbs = useMemo(() => {
-    const here = crumbLabel(loc.pathname);
-    return [
-      { label: "Workspace", href: "/app/dashboard" },
-      { label: here }
-    ];
-  }, [loc.pathname]);
-
-  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    "wm-toplink" + (isActive ? " wm-toplink-active" : "");
-
   return (
-    <header className="wm-app-header">
-      <div className="wm-container wm-topbar">
-        <div className="wm-topbar-left">
-          <Link to="/app/dashboard" className="wm-brand">
-            <span className="wm-brand-mark">W</span>
-            <span className="wm-brand-text">
-              <span className="wm-brand-title">Wingman</span>
-</span>
-          </Link>
-
-          <div className="wm-crumbs">
-            {crumbs.map((c, i) => (
-              <span key={i} className="wm-crumb">
-                {c.href ? <a className="wm-crumb-link" href={c.href}>{c.label}</a> : <span>{c.label}</span>}
-                {i < crumbs.length - 1 ? <span className="wm-crumb-sep">/</span> : null}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="wm-topbar-right">
-          <div className="wm-topbar-actions">
-            <CategoryMenu />
-
-            <NavLink to="/app/projects" className={navLinkClass}>Projects</NavLink>
-            <NavLink to="/app/toolhub" className={navLinkClass}>Tool Hub</NavLink>
-            <NavLink to="/app/import" className={navLinkClass}>Import</NavLink>
-          </div>
-        </div>
+    <header className="wm-topbar">
+      <div className="wm-container" style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <Link to="/"><WingmanBrand size={26}/></Link>
+        <nav style={{display:"flex",gap:10}}>
+          <NavLink to="/tools" label="Tools"/>
+          <NavLink to="/app/dashboard" label="Workspace"/>
+          <NavLink to="/app/projects" label="Projects"/>
+        </nav>
+        <Link className="wm-btn wm-btn-primary" to="/tools/room-wizard">
+          Start Design
+        </Link>
       </div>
     </header>
   );
 }
-
-
