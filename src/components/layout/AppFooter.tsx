@@ -1,12 +1,12 @@
 import React from "react";
 
-export default function AppFooter(){
+export default function AppFooter() {
   return (
-    <footer className="wm-footer">
-      <div className="wm-container" style={{display:"flex",justifyContent:"space-between",fontSize:12}}>
-        <div>© {new Date().getFullYear()} WyreStorm</div>
-        <div>Wingman Pre-Sales Toolkit</div>
+    <>
+      <div className="wm-footer-muted">© {new Date().getFullYear()} WyreStorm</div>
+      <div className="wm-footer-right">
+        <span className="wm-footer-link">Wingman Pre-Sales Toolkit</span>
       </div>
-    </footer>
+    </>
   );
 }

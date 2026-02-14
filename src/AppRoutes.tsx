@@ -35,6 +35,25 @@ export default function AppRoutes() {
         <Route path="/tools/training-hub" element={<ToolTraining />} />
         <Route path="/tools/video-wall-planner" element={<ToolVideowall />} />
         <Route path="/tools/catalog" element={<ToolCatalog />} />
+
+        <Route path="/landing" element={<Navigate to="/" replace />} />
+        <Route path="/welcome" element={<Navigate to="/app/dashboard" replace />} />
+        <Route path="/workspace" element={<Navigate to="/app/dashboard" replace />} />
+
+        <Route path="/tools/compare" element={<Navigate to="/tools/competitor-compare" replace />} />
+        <Route path="/tools/proposal" element={<Navigate to="/tools/proposal-builder" replace />} />
+        <Route path="/tools/room" element={<Navigate to="/tools/room-wizard" replace />} />
+        <Route path="/tools/videowall" element={<Navigate to="/tools/video-wall-planner" replace />} />
+        <Route path="/tools/video-generator" element={<Navigate to="/tools/video-wall-planner" replace />} />
+        <Route path="/tools/discovery" element={<Navigate to="/app/import" replace />} />
+        <Route path="/tools/guided-project" element={<Navigate to="/tools/room-wizard" replace />} />
+        <Route path="/tools/copilot" element={<Navigate to="/app/import" replace />} />
+        <Route path="/tools/analytics" element={<Navigate to="/app/dashboard" replace />} />
+        <Route path="/tools/agent" element={<Navigate to="/app/import" replace />} />
+        <Route path="/tools/ask" element={<Navigate to="/app/import" replace />} />
+        <Route path="/tools/training" element={<Navigate to="/tools/training-hub" replace />} />
+        <Route path="/signup" element={<Navigate to="/" replace />} />
+        <Route path="/login" element={<Navigate to="/" replace />} />
       </Route>
 
       {/* Protected workspace */}
@@ -60,6 +79,12 @@ export default function AppRoutes() {
         <Route path="/app/tools/training" element={<Navigate to="/tools/training-hub" replace />} />
         <Route path="/app/tools/ask" element={<Navigate to="/app/import" replace />} />
         <Route path="/app/tools/agent" element={<Navigate to="/app/import" replace />} />
+        <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
+        <Route path="/projects" element={<Navigate to="/app/projects" replace />} />
+        <Route path="/import" element={<Navigate to="/app/import" replace />} />
+        <Route path="/toolhub" element={<Navigate to="/tools" replace />} />
+        <Route path="/app/compare" element={<Navigate to="/tools/competitor-compare" replace />} />
+        <Route path="/app/competitor-compare" element={<Navigate to="/tools/competitor-compare" replace />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

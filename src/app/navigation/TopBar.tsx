@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+
 import WingmanBrand from "@/components/branding/WingmanBrand";
 
 type TopNavItem = {
@@ -26,20 +27,18 @@ function NavLink({ to, label }: TopNavItem) {
 
 export default function TopBar() {
   return (
-    <header className="wm-topbar">
-      <div className="wm-container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Link to="/">
-          <WingmanBrand />
-        </Link>
-        <nav style={{ display: "flex", gap: 10 }}>
-          {TOP_NAV_ITEMS.map((item) => (
-            <NavLink key={item.to} {...item} />
-          ))}
-        </nav>
-        <Link className="wm-btn wm-btn-primary" to="/tools/room-wizard">
-          Start Design
-        </Link>
-      </div>
-    </header>
+    <>
+      <Link to="/" className="wm-brand" style={{ textDecoration: "none" }}>
+        <WingmanBrand />
+      </Link>
+      <nav style={{ display: "flex", gap: 10 }}>
+        {TOP_NAV_ITEMS.map((item) => (
+          <NavLink key={item.to} {...item} />
+        ))}
+      </nav>
+      <Link className="wm-btn wm-btn-primary" to="/tools/room-wizard">
+        Start Design
+      </Link>
+    </>
   );
 }

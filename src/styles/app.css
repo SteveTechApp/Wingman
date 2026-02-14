@@ -239,3 +239,24 @@
   text-decoration: none;
 }
 .wm-footer-link:hover{ opacity: .95; text-decoration: underline; }
+
+/* Compatibility + nav polish */
+.wm-navlink{
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.18);
+  color: rgba(255,255,255,.86);
+}
+.wm-navlink:hover{ background: rgba(0,0,0,.26); }
+.wm-navlink-active{
+  border-color: rgba(16,185,129,.28);
+  background: rgba(16,185,129,.12);
+  color: rgba(236,253,245,.92);
+}
+
+.wm-app-footer .wm-container{ width: 100%; }
+.wm-app-footer .wm-footerbar{ min-height: 44px; }
