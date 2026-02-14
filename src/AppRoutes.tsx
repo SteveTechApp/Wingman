@@ -49,6 +49,17 @@ export default function AppRoutes() {
         <Route path="/app/dashboard" element={<DashboardPage />} />
         <Route path="/app/projects" element={<ProjectsPage />} />
         <Route path="/app/import" element={<ImportIntakePage />} />
+
+        {/* Legacy route compatibility */}
+        <Route path="/app/toolhub" element={<Navigate to="/tools" replace />} />
+        <Route path="/app/workspace" element={<Navigate to="/app/dashboard" replace />} />
+        <Route path="/app/setup" element={<Navigate to="/tools/room-wizard" replace />} />
+        <Route path="/app/survey-import" element={<Navigate to="/app/import" replace />} />
+        <Route path="/app/tools/templates" element={<Navigate to="/tools/catalog" replace />} />
+        <Route path="/app/tools/videowall" element={<Navigate to="/tools/video-wall-planner" replace />} />
+        <Route path="/app/tools/training" element={<Navigate to="/tools/training-hub" replace />} />
+        <Route path="/app/tools/ask" element={<Navigate to="/app/import" replace />} />
+        <Route path="/app/tools/agent" element={<Navigate to="/app/import" replace />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
