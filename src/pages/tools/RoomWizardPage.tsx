@@ -1,12 +1,21 @@
 import React from "react";
+import RoomWizard from "@/components/RoomWizard";
 
 export default function RoomWizardPage() {
   return (
-    <div className="wm-card wm-card-pad">
-      <h1 className="wm-h2">Room Wizard</h1>
-      <p className="wm-p" style={{ marginTop: 8 }}>
-        Build room layouts, assign I/O, and generate implementation-ready recommendations.
-      </p>
+    <div className="wm-page">
+      <div className="wm-page-header">
+        <div>
+          <div className="wm-page-title">Room Wizard</div>
+          <div className="wm-page-sub">Guided room design flow with implementation recommendations.</div>
+        </div>
+      </div>
+
+      <div className="wm-page-body" style={{ display: "grid", gap: "var(--wm-gap)" }}>
+        <div className="wm-card wm-card-pad">
+          <RoomWizard />
+        </div>
+      </div>
     </div>
   );
 }
