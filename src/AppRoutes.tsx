@@ -1,21 +1,20 @@
 import React, { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
-import PublicShell from "@/app/shell/PublicShell";
 import AppShell from "@/app/shell/AppShell";
+import PublicShell from "@/app/shell/PublicShell";
 import RequireAuth from "@/auth/RequireAuth";
 
 const PublicLandingPage = lazy(() => import("@/pages/PublicLandingPage"));
 const ToolHubPage = lazy(() => import("@/pages/ToolHubPage"));
 
 /** Tools (public) */
-
 const ToolCatalog = lazy(() => import("@/pages/tools/ProductCatalogPage"));
 const ToolCompetitor = lazy(() => import("@/pages/tools/CompetitorComparePage"));
-const ToolProposal   = lazy(() => import("@/pages/tools/ProposalBuilderPage"));
-const ToolRoom       = lazy(() => import("@/pages/tools/RoomWizardPage"));
-const ToolTraining   = lazy(() => import("@/pages/tools/TrainingHubPage"));
-const ToolVideowall  = lazy(() => import("@/pages/tools/VideoWallPlannerPage"));
+const ToolProposal = lazy(() => import("@/pages/tools/ProposalBuilderPage"));
+const ToolRoom = lazy(() => import("@/pages/tools/RoomWizardPage"));
+const ToolTraining = lazy(() => import("@/pages/tools/TrainingHubPage"));
+const ToolVideowall = lazy(() => import("@/pages/tools/VideoWallPlannerPage"));
 
 /** Workspace (protected) */
 const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
@@ -35,9 +34,8 @@ export default function AppRoutes() {
         <Route path="/tools/room-wizard" element={<ToolRoom />} />
         <Route path="/tools/training-hub" element={<ToolTraining />} />
         <Route path="/tools/video-wall-planner" element={<ToolVideowall />} />
-      
         <Route path="/tools/catalog" element={<ToolCatalog />} />
-</Route>
+      </Route>
 
       {/* Protected workspace */}
       <Route
