@@ -13,6 +13,16 @@ export type RequirementsResult = {
   meta?: Record<string, any>;
 };
 
+
+export type ExtractedRequirements = {
+  intent: "room" | "product";
+  byodUsbC?: boolean;
+  switchingNeeded?: boolean;
+  resolution?: "4K60" | "4K" | string;
+  distanceHint?: "short" | "medium" | "long" | string;
+  endpoints?: number;
+};
+
 /**
  * Minimal requirements extraction to unblock builds.
  * Converts intake into rawText then pulls:
@@ -53,11 +63,20 @@ export function extractRequirements(input: unknown): RequirementsResult {
   // AVoIP hint
   if (t.includes("av over ip") || t.includes("avoip") || t.includes("ndh") || t.includes("nhd")) add("transport", "AVoIP", 0.5);
 
+  const extracted: ExtractedRequirements = {
+    intent: t.includes("room") ? "room" : "product",
+    byodUsbC: t.includes("usb-c") || t.includes("byod"),
+    switchingNeeded: t.includes("switch") || t.includes("matrix"),
+    resolution: t.includes("4k60") ? "4K60" : t.includes("4k") ? "4K" : undefined,
+    distanceHint: t.includes("fiber") || t.includes("long") ? "long" : t.includes("cat6") ? "medium" : "short",
+    endpoints: Number((t.match(/(\d+)\s*(endpoints|encoders|decoders)/)?.[1]) || 0) || undefined,
+  };
+
   return {
     rawText,
     requirements,
     kv,
-    meta: { extractor: "minimal-v1" }
+    meta: { extractor: "minimal-v1", extracted }
   };
 }
 
