@@ -21,7 +21,7 @@
         "docx": "^8.5.0",
         "firebase": "^12.7.0",
         "fuse.js": "^7.0.0",
-        "jspdf": "^4.0.0",
+        "jspdf": "^4.2.0",
         "jspdf-autotable": "^5.0.2",
         "lucide-react": "^0.563.0",
         "mammoth": "^1.11.0",
