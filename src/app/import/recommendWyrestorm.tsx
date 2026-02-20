@@ -1,2 +1,2 @@
-export * from "@/app/import/recommendWyrestorm";
-export { default } from "@/app/import/recommendWyrestorm";
+export * from "@/import/recommendWyrestorm";
+export { recommendWyrestorm as default } from "@/import/recommendWyrestorm";
