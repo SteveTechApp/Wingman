@@ -1,3 +1,4 @@
+import GuruFab from "@/guru/GuruFab";
 
 import {Outlet} from "react-router-dom";
 
@@ -6,6 +7,7 @@ export default function PublicShell(){
   <div className="ws-app wm-density-compact">
    <main className="ws-page wm-density-compact wm-container wm-page">
     <Outlet/>
+    <GuruFab/>
    </main>
   </div>
  )

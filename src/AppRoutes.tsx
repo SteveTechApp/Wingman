@@ -7,6 +7,7 @@ import RequireAuth from "@/auth/RequireAuth";
 
 const PublicLandingPage = lazy(() => import("@/pages/PublicLandingPage"));
 const ToolHubPage = lazy(() => import("@/pages/ToolHubPage"));
+const QuickQuestionPage = lazy(() => import("@/pages/QuickQuestionPage"));
 
 /** Tools (public) */
 
@@ -37,6 +38,8 @@ export default function AppRoutes() {
         <Route path="/tools/video-wall-planner" element={<ToolVideowall />} />
       
         <Route path="/tools/catalog" element={<ToolCatalog />} />
+        <Route path="/ask" element={<QuickQuestionPage />} />
+        <Route path="/app/tools/ask" element={<QuickQuestionPage />} />
 </Route>
 
       {/* Protected workspace */}

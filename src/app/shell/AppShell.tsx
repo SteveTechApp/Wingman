@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import TopBar from "@/app/navigation/TopBar";
 import SideNav from "@/app/navigation/SideNav";
 import AppFooter from "@/components/layout/AppFooter";
+import GuruFab from "@/guru/GuruFab";
 
 export default function AppShell(){
   return (
@@ -15,6 +16,7 @@ export default function AppShell(){
           <AppFooter/>
         </main>
       </div>
+      <GuruFab />
     </div>
   );
 }
