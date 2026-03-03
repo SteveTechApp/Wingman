@@ -1,0 +1,91 @@
+[
+  {
+    "brand": "Extron",
+    "model": "NAV E 501",
+    "name": "AV over IP Encoder",
+    "category": "AVoIP",
+    "role": "TX",
+    "tags": ["AVoIP", "4K60", "managed-network"],
+    "video": { "maxResolution": "4K60", "hdmi": "2.0", "hdr": true },
+    "notes": ["Typical enterprise AVoIP encoder use-case."]
+  },
+  {
+    "brand": "Extron",
+    "model": "NAV SD 501",
+    "name": "AV over IP Decoder",
+    "category": "AVoIP",
+    "role": "RX",
+    "tags": ["AVoIP", "4K60", "managed-network"],
+    "video": { "maxResolution": "4K60", "hdmi": "2.0", "hdr": true }
+  },
+  {
+    "brand": "Crestron",
+    "model": "DM-NVX-E30",
+    "name": "AV over IP Encoder",
+    "category": "AVoIP",
+    "role": "TX",
+    "tags": ["AVoIP", "4K60", "low-latency"],
+    "video": { "maxResolution": "4K60", "hdmi": "2.0", "hdr": true }
+  },
+  {
+    "brand": "Crestron",
+    "model": "DM-NVX-D30",
+    "name": "AV over IP Decoder",
+    "category": "AVoIP",
+    "role": "RX",
+    "tags": ["AVoIP", "4K60", "low-latency"],
+    "video": { "maxResolution": "4K60", "hdmi": "2.0", "hdr": true }
+  },
+  {
+    "brand": "Kramer",
+    "model": "KDS-EN7",
+    "name": "AV over IP Encoder",
+    "category": "AVoIP",
+    "role": "TX",
+    "tags": ["AVoIP", "4K60"],
+    "video": { "maxResolution": "4K60", "hdmi": "2.0", "hdr": true }
+  },
+  {
+    "brand": "Kramer",
+    "model": "KDS-DEC7",
+    "name": "AV over IP Decoder",
+    "category": "AVoIP",
+    "role": "RX",
+    "tags": ["AVoIP", "4K60"],
+    "video": { "maxResolution": "4K60", "hdmi": "2.0", "hdr": true }
+  },
+  {
+    "brand": "Atlona",
+    "model": "OmniStream AT-OMNI-121",
+    "name": "AV over IP Decoder",
+    "category": "AVoIP",
+    "role": "RX",
+    "tags": ["AVoIP", "4K60"],
+    "video": { "maxResolution": "4K60", "hdmi": "2.0", "hdr": true }
+  },
+  {
+    "brand": "Extron",
+    "model": "DTP CrossPoint 84",
+    "name": "Matrix Switcher",
+    "category": "Matrix",
+    "role": "Matrix",
+    "tags": ["matrix", "switching"],
+    "notes": ["Typical fixed matrix/switching requirement."]
+  },
+  {
+    "brand": "Crestron",
+    "model": "DM-MD8X8",
+    "name": "Matrix Switcher",
+    "category": "Matrix",
+    "role": "Matrix",
+    "tags": ["matrix", "switching"]
+  },
+  {
+    "brand": "Extron",
+    "model": "IN1608",
+    "name": "Presentation Switcher",
+    "category": "Switcher",
+    "role": "Switcher",
+    "tags": ["switcher", "presentation"]
+  }
+]
