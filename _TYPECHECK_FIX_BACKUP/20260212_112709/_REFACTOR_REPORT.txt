@@ -1,0 +1,32 @@
+System32-safe refactor complete.
+Backup: C:\Users\steve\wingman\_TYPECHECK_FIX_BACKUP\20260212_112709
+Library: tools\_lib\wingman-io.ps1
+Scripts updated: 27
+
+tools\apply-tsc-hotfixes.ps1
+tools\enforce-style-single-source.ps1
+tools\fix-competitor-compare-service-exports.ps1
+tools\fix-import-pipeline-and-stubs.ps1
+tools\fix-missing-CompetitorMatchFinderPanel.ps1
+tools\fix-missing-extractRequirements.ps1
+tools\fix-missing-textExtractors.ps1
+tools\fix-nav-app-prefix.ps1
+tools\fix-projectoverview-and-projectsStore-shim.ps1
+tools\fix-recentTools-hooks.ps1
+tools\fix-tsc-errors-minimal-v2.ps1
+tools\fix-tsc-errors-minimal.ps1
+tools\heal-missing-modules.ps1
+tools\polish-wingman-ui-fix-main-import.ps1
+tools\polish-wingman-ui.ps1
+tools\route-cleanup.ps1
+tools\run-wingman-tool.ps1
+tools\stabilise-routing.ps1
+tools\upgrade-wingman-ux-pack.ps1
+tools\wingman-archive-unused.ps1
+tools\wingman-auto-route-repair.ps1
+tools\wingman-nav-standardise.ps1
+tools\wingman-production-validate.ps1
+tools\wingman-readiness-and-features-audit.ps1
+tools\wingman-repo-stabilise.ps1
+tools\wingman-style-token-enforce.ps1
+tools\wingman-tools-restructure.ps1
