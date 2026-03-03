@@ -1,0 +1,172 @@
+/* __WM_TOKENS_POLISH_PACK_V2_ENGINEERING__ */
+:root{
+  /* Font (engineering: crisp + compact) */
+  --wm-font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+  --wm-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Type scale (slightly tighter than SaaS) */
+  --wm-text-xs: 12px;
+  --wm-text-sm: 13px;
+  --wm-text-md: 14px;
+  --wm-text-lg: 15px;
+  --wm-text-xl: 17px;
+  --wm-text-2xl: 20px;
+  --wm-text-3xl: 26px;
+
+  /* Line heights */
+  --wm-lh-tight: 1.12;
+  --wm-lh-snug: 1.22;
+  --wm-lh-normal: 1.40;
+  --wm-lh-relaxed: 1.58;
+
+  /* Spacing (slightly denser grid) */
+  --wm-1: 4px;
+  --wm-2: 8px;
+  --wm-3: 12px;
+  --wm-4: 14px;   /* was 16 */
+  --wm-5: 18px;   /* was 20 */
+  --wm-6: 22px;   /* was 24 */
+  --wm-7: 26px;   /* was 28 */
+  --wm-8: 30px;   /* was 32 */
+
+  /* Radius (engineering: less pill, more panel) */
+  --wm-r-sm: 8px;    /* was 10 */
+  --wm-r-md: 12px;   /* was 14 */
+  --wm-r-lg: 14px;   /* was 18 */
+  --wm-r-xl: 18px;   /* was 22 */
+
+  /* Elevation (engineering: reduce floatiness) */
+  --wm-shadow-sm: 0 4px 12px rgba(0,0,0,0.28);
+  --wm-shadow-md: 0 10px 24px rgba(0,0,0,0.34);
+  --wm-shadow-lg: 0 16px 44px rgba(0,0,0,0.42);
+
+  /* Dark theme baseline */
+  --wm-bg0: #070b14;
+  --wm-bg1: #0b1220;
+
+  /* Surfaces (panel feel) */
+  --wm-panel: rgba(255,255,255,0.05);
+  --wm-panel2: rgba(255,255,255,0.075);
+
+  /* Borders (engineering: clearer separation) */
+  --wm-border: rgba(255,255,255,0.14);   /* was 0.10 */
+  --wm-border2: rgba(255,255,255,0.22);  /* was 0.14 */
+
+  /* Text */
+  --wm-text: rgba(255,255,255,0.92);
+  --wm-muted: rgba(255,255,255,0.72);
+
+  /* Accent */
+  --wm-accent: #5eead4;      /* teal */
+  --wm-accent2:#60a5fa;      /* blue */
+  --wm-focus: rgba(96,165,250,0.42);
+
+  /* Layout density helpers */
+  --wm-topbar-h: 56px;
+  --wm-control-h: 34px;
+}
+/* __WM_ENGINEERING_TOKENS_V1__ */
+:root{ --wm-control-radius: 10px; }
+/* __END_WM_ENGINEERING_TOKENS_V1__ */
+
+/* __WM_CONTROL_TOKENS_CANONICAL_V1__ */
+:root{
+  --wm-control-radius: 10px;
+  --wm-control-radius-sm: 8px;
+
+  --wm-control-h: 32px;
+  --wm-control-h-lg: 36px;
+
+  --wm-control-px: 10px;
+  --wm-control-gap: 8px;
+
+  --wm-control-bg: rgba(255,255,255,0.05);
+  --wm-control-bg-hover: rgba(255,255,255,0.07);
+
+  --wm-control-border: rgba(255,255,255,0.14);
+  --wm-control-border-strong: rgba(255,255,255,0.18);
+
+  --wm-control-text: rgba(255,255,255,0.92);
+}
+/* __END_WM_CONTROL_TOKENS_CANONICAL_V1__ */
+
+/* __WM_FONT_STACK_TECHNICAL_V1__ */
+:root{
+  --wm-font-sans:
+    "IBM Plex Sans",
+    "Inter",
+    "Segoe UI Variable",
+    "Segoe UI",
+    Roboto,
+    Arial,
+    system-ui,
+    sans-serif;
+
+  --wm-font-ui:
+    "IBM Plex Sans",
+    "Inter",
+    "Segoe UI Variable",
+    "Segoe UI",
+    Roboto,
+    Arial,
+    system-ui,
+    sans-serif;
+
+  --wm-font-label:
+    "IBM Plex Sans",
+    "Inter",
+    "Segoe UI Variable",
+    "Segoe UI",
+    Roboto,
+    Arial,
+    system-ui,
+    sans-serif;
+
+  --wm-font-mono:
+    "IBM Plex Mono",
+    "Cascadia Mono",
+    "Consolas",
+    "SFMono-Regular",
+    "Courier New",
+    monospace;
+}
+/* __END_WM_FONT_STACK_TECHNICAL_V1__ */
+
+/* __WM_HEADER_SCALE_TOKENS_V1__ */
+:root{
+  --wm-topbar-h: 64px;
+  --wm-topbar-pad-x: 18px;
+  --wm-topbar-gap: 12px;
+
+  --wm-logo-h: 28px;
+  --wm-brand-title-size: 13px;
+  --wm-brand-sub-size: 11px;
+
+  --wm-workarea-max: 1680px;
+  --wm-page-pad-x: clamp(18px, 2.4vw, 34px);
+}
+/* __END_WM_HEADER_SCALE_TOKENS_V1__ */
+
+/* __WM_SCALE_UP_PASS2_V1__ */
+:root{
+  --wm-topbar-h: 72px;
+  --wm-topbar-pad-x: 20px;
+  --wm-topbar-gap: 14px;
+
+  --wm-logo-h: 32px;
+  --wm-brand-title-size: 14px;
+  --wm-brand-sub-size: 11px;
+
+  --wm-workarea-max: 1920px;
+  --wm-page-pad-x: clamp(22px, 2.8vw, 42px);
+}
+/* __END_WM_SCALE_UP_PASS2_V1__ */
+
+/* __WM_SIDEBAR_WIDTH_REBALANCE_V1__ */
+:root{
+  --wm-sidenav-w: 236px;
+  --wm-sidenav-w-collapsed: 64px;
+  --wm-sidenav-pad: 8px;
+  --wm-sidenav-section-gap: 10px;
+}
+/* __END_WM_SIDEBAR_WIDTH_REBALANCE_V1__ */

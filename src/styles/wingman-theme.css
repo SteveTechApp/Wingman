@@ -1,0 +1,211 @@
+/* ============================================================
+   Wingman Theme Balancing + Glass Buttons + WyreStorm Brand CTA
+   File: src/styles/wingman-theme.css
+   ============================================================ */
+
+:root{
+  /* Brand */
+  --wm-brand: #34d7ff;     /* cyan */
+  --wm-brand2:#4f7dff;     /* blue */
+  --wm-accent: #5eead4;    /* teal */
+  --wm-danger: #ff4d6d;
+
+  /* Light theme surfaces */
+  --wm-bg: #f6f7fb;
+  --wm-panel: rgba(255,255,255,.78);
+  --wm-panel-strong: rgba(255,255,255,.92);
+  --wm-border: rgba(20,25,35,.12);
+  --wm-border-strong: rgba(20,25,35,.18);
+
+  /* Light theme text (softer than pure black) */
+  --wm-text: rgba(10,14,22,.88);
+  --wm-text-muted: rgba(10,14,22,.62);
+  --wm-text-soft: rgba(10,14,22,.72);
+
+  /* Shadows */
+  --wm-shadow: 0 10px 30px rgba(0,0,0,.10);
+  --wm-shadow-soft: 0 8px 18px rgba(0,0,0,.08);
+
+  /* Button glass */
+  --wm-btn-bg: rgba(255,255,255,.62);
+  --wm-btn-bg-hover: rgba(255,255,255,.76);
+  --wm-btn-border: rgba(20,25,35,.16);
+  --wm-btn-text: rgba(10,14,22,.86);
+  --wm-btn-glow: 0 10px 28px rgba(52,215,255,.20);
+
+  /* Typography */
+  --wm-font: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --wm-radius: 14px;
+}
+
+[data-theme="dark"],
+.theme-dark,
+.dark{
+  /* Dark theme surfaces */
+  --wm-bg: #070b14;
+  --wm-panel: rgba(16,22,36,.62);
+  --wm-panel-strong: rgba(16,22,36,.78);
+  --wm-border: rgba(255,255,255,.10);
+  --wm-border-strong: rgba(255,255,255,.16);
+
+  /* Dark theme text (softer than pure white) */
+  --wm-text: rgba(255,255,255,.90);
+  --wm-text-muted: rgba(255,255,255,.64);
+  --wm-text-soft: rgba(255,255,255,.76);
+
+  --wm-shadow: 0 14px 40px rgba(0,0,0,.45);
+  --wm-shadow-soft: 0 10px 22px rgba(0,0,0,.35);
+
+  /* Button glass (dark) */
+  --wm-btn-bg: rgba(255,255,255,.06);
+  --wm-btn-bg-hover: rgba(255,255,255,.10);
+  --wm-btn-border: rgba(255,255,255,.12);
+  --wm-btn-text: rgba(255,255,255,.86);
+  --wm-btn-glow: 0 12px 30px rgba(52,215,255,.22);
+}
+
+/* Global typography softening */
+html, body { background: var(--wm-bg); }
+
+p, li, .muted, .wm-muted{
+  color: var(--wm-text-muted);
+}
+
+/* Panels/cards: glass feel */
+.wm-card, .wm-panel, .card, .panel{
+  background: var(--wm-panel);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius);
+  box-shadow: var(--wm-shadow-soft);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ============================================================
+   Buttons (baseline)
+   Targets common classes you already use: .wm-btn, .btn, buttons
+   ============================================================ */
+
+.wm-btn, .btn, .wm-btn-quiet, .wm-iconbtn{
+  font-family: var(--wm-font);
+  border-radius: 12px;
+  border: 1px solid var(--wm-btn-border);
+  background: var(--wm-btn-bg);
+  color: var(--wm-btn-text);
+  box-shadow: 0 1px 0 rgba(255,255,255,.08) inset, var(--wm-shadow-soft);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform .12s ease, background .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.wm-btn:hover, .btn:hover, .wm-btn-quiet:hover, .wm-iconbtn:hover{
+  background: var(--wm-btn-bg-hover);
+  border-color: var(--wm-border-strong);
+  box-shadow: 0 1px 0 rgba(255,255,255,.10) inset, var(--wm-shadow), var(--wm-btn-glow);
+}
+
+.wm-btn:active, .btn:active, .wm-btn-quiet:active, .wm-iconbtn:active{
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 rgba(255,255,255,.08) inset, var(--wm-shadow-soft);
+}
+
+.wm-btn:disabled, .btn:disabled, .wm-btn-quiet:disabled, .wm-iconbtn:disabled{
+  opacity: .55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ============================================================
+   WyreStorm brand buttons
+   Use: class="wm-btn wm-btn-brand" (or add wm-btn-brand to existing)
+   ============================================================ */
+
+.wm-btn-brand{
+  border: 1px solid rgba(255,255,255,.14);
+  background: linear-gradient(135deg, rgba(52,215,255,.92), rgba(79,125,255,.92));
+  color: rgba(8,10,16,.92);
+  box-shadow: 0 10px 30px rgba(52,215,255,.20), 0 14px 38px rgba(79,125,255,.14);
+}
+
+[data-theme="dark"] .wm-btn-brand,
+.theme-dark .wm-btn-brand,
+.dark .wm-btn-brand{
+  color: rgba(6,8,12,.94);
+  box-shadow: 0 12px 34px rgba(52,215,255,.20), 0 18px 44px rgba(79,125,255,.18);
+}
+
+.wm-btn-brand:hover{
+  box-shadow: 0 14px 40px rgba(52,215,255,.28), 0 20px 54px rgba(79,125,255,.22);
+  transform: translateY(-1px);
+}
+
+.wm-btn-ghost{
+  background: transparent;
+  border: 1px solid var(--wm-btn-border);
+  color: var(--wm-btn-text);
+  box-shadow: none;
+}
+
+.wm-btn-ghost:hover{
+  background: var(--wm-btn-bg-hover);
+  box-shadow: var(--wm-shadow-soft);
+}
+
+/* Small button density improvements */
+.wm-btn, .btn, .wm-btn-quiet, .wm-iconbtn{
+  padding: 10px 14px;
+  line-height: 1.15;
+}
+
+/* Make â€œchipâ€ style controls read better (Theme/Language/Profile pills) */
+.wm-chip, .wm-userchip, .chip{
+  background: var(--wm-panel);
+  border: 1px solid var(--wm-border);
+  color: var(--wm-text-soft);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Links: softer contrast */
+a{
+  color: rgba(52,215,255,.95);
+}
+a:hover{
+  color: rgba(94,234,212,.95);
+}
+
+/* Inputs: glass consistent */
+input, select, textarea{
+  background: var(--wm-panel-strong);
+  border: 1px solid var(--wm-border);
+  color: var(--wm-text);
+  border-radius: 12px;
+}
+input::placeholder, textarea::placeholder{
+  color: var(--wm-text-muted);
+}
+
+/* ============================================================
+   Optional: Footer link readability (prevents clipping looking â€œfadedâ€)
+   ============================================================ */
+footer a, .wm-footer a{
+  color: var(--wm-text-soft);
+}
+footer a:hover, .wm-footer a:hover{
+  color: var(--wm-text);
+}
+
+/* ThemeToggle uses: wm-btn wm-btn-quiet */
+.wm-btn-quiet{
+  background: var(--wm-btn-bg);
+  border-color: var(--wm-btn-border);
+  color: var(--wm-btn-text);
+  box-shadow: 0 1px 0 rgba(255,255,255,.08) inset, var(--wm-shadow-soft);
+}
+
+.wm-btn-quiet:hover{
+  background: var(--wm-btn-bg-hover);
+  border-color: var(--wm-border-strong);
+  box-shadow: 0 1px 0 rgba(255,255,255,.10) inset, var(--wm-shadow), var(--wm-btn-glow);
+}

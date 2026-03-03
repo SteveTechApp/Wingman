@@ -1,0 +1,66 @@
+/* =======================================================================
+   WINGMAN LAYOUT STANDARD (SAFE, APP FULL-WIDTH)
+   - /app/* uses full-width content (no centered max-width containers)
+   - Does NOT apply container-killer rules to header/topbar/nav
+   ======================================================================= */
+
+html, body, #root { width:100%; max-width:100%; margin:0; padding:0; }
+* { box-sizing:border-box; }
+
+/* Mode flags are applied by JS/router logic */
+body.wm-mode-app{}
+body.wm-mode-public{}
+
+/* -----------------------------------------------------------------------
+   APP MODE: full-width content area only
+   ----------------------------------------------------------------------- */
+
+/* The shell should be full width, but do not globally pad it (topbar lives here) */
+.wm-mode-app .wm-shell,
+.wm-mode-app .wm-page,
+.wm-mode-app .wm-page__inner{
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Apply readable horizontal padding to MAIN content wrappers only */
+.wm-mode-app main,
+.wm-mode-app .wm-main,
+.wm-mode-app .wm-content,
+.wm-mode-app .wm-page__content,
+.wm-mode-app .wm-page__header,
+.wm-mode-app .wm-app-pad,
+.wm-mode-app .wm-toolhub-wrap{
+  padding-left: clamp(12px, 2vw, 24px);
+  padding-right: clamp(12px, 2vw, 24px);
+}
+
+/* Ensure main content area is not constrained by legacy containers */
+.wm-mode-app main :where(.container, .wm-container, [class*="container"]),
+.wm-mode-app .wm-content :where(.container, .wm-container, [class*="container"]),
+.wm-mode-app .wm-page__content :where(.container, .wm-container, [class*="container"]){
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* ToolHub grid standard */
+.wm-mode-app .wm-tilegrid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: none;
+  padding: 8px 0 18px;
+}
+
+.wm-mode-app .wm-tile{
+  grid-column: auto;
+}
+
+/* -----------------------------------------------------------------------
+   PUBLIC MODE: do not force full-width (leave public pages to their own CSS)
+   ----------------------------------------------------------------------- */

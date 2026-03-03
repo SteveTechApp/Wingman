@@ -1,0 +1,1 @@
+export { validateDesign } from "./validator";

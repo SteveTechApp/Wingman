@@ -1,0 +1,1579 @@
+/* Wingman UI consistency layer */
+.wm-surface{
+  background: var(--wm-surface);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius);
+  box-shadow: var(--wm-shadow);
+}
+.wm-surface-2{
+  background: var(--wm-surface-2);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius);
+}
+
+/* Canonical "dark" button (Language-style) */
+.wm-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--wm-btn-border);
+  background: var(--wm-btn-bg);
+  color: var(--wm-btn-text);
+  cursor:pointer;
+  text-decoration:none;
+  user-select:none;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+.wm-btn:hover{ background: var(--wm-btn-bg-hover); }
+.wm-btn:active{ transform: translateY(1px); }
+.wm-btn--primary{
+  border-color: color-mix(in srgb, var(--wm-accent) 55%, var(--wm-btn-border));
+  background: color-mix(in srgb, var(--wm-accent) 22%, var(--wm-btn-bg));
+}
+.wm-btn--ghost{ background: transparent; }
+.wm-btn--icon{ padding:10px; width:40px; height:40px; }
+
+/* Page frame */
+.wm-page{
+  padding: calc(var(--wm-pad) * 1.25);
+  max-width:none; width:100%;
+  margin:0;
+}
+.wm-page__header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: var(--wm-gap);
+  margin-bottom: calc(var(--wm-gap) * 1.5);
+}
+.wm-page__title{
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--wm-text);
+}
+.wm-page__sub{
+  margin-top: 6px;
+  color: var(--wm-text-muted);
+  font-size: 14px;
+}
+.wm-page__actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 10px;
+  align-items:center;
+}
+.wm-nav{
+  width:260px;
+  transition:width .18s ease;
+}
+.wm-nav.collapsed{
+  width:70px;
+}
+.wm-nav.collapsed .wm-nav-label{
+  display:none;
+}
+/* Optional polish: landing hero glow + fade-in */
+.wm-landing-hero{
+  position: relative;
+  animation: wmFadeUp 420ms ease both;
+}
+
+.wm-landing-hero::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:34px;
+  transform: translateX(-50%);
+  width: 520px;
+  height: 220px;
+  background: radial-gradient(closest-side, rgba(34,193,184,0.18), rgba(34,193,184,0.0));
+  filter: blur(6px);
+  pointer-events:none;
+}
+
+@keyframes wmFadeUp{
+  from{ opacity: 0; transform: translateY(8px); }
+  to{ opacity: 1; transform: translateY(0); }
+}
+/* Optional polish: landing hero glow + fade-in */
+.wm-landing-hero{
+  position: relative;
+  animation: wmFadeUp 420ms ease both;
+}
+
+.wm-landing-hero::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:34px;
+  transform: translateX(-50%);
+  width: 520px;
+  height: 220px;
+  background: radial-gradient(closest-side, rgba(34,193,184,0.18), rgba(34,193,184,0.0));
+  filter: blur(6px);
+  pointer-events:none;
+}
+
+@keyframes wmFadeUp{
+  from{ opacity: 0; transform: translateY(8px); }
+  to{ opacity: 1; transform: translateY(0); }
+}
+
+/* Landing hero (clean + premium) */
+.wm-public{
+  min-height: calc(100vh - 80px);
+}
+
+.wm-landing-hero{
+  position: relative;
+  text-align: center;
+  padding: 88px 20px 70px;
+  max-width: 980px;
+  margin: 0 auto;
+  animation: wmFadeUp 420ms ease both;
+}
+
+.wm-landing-hero::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:38px;
+  transform: translateX(-50%);
+  width: 620px;
+  height: 260px;
+  background: radial-gradient(closest-side, rgba(34,193,184,0.18), rgba(34,193,184,0.0));
+  filter: blur(8px);
+  pointer-events:none;
+}
+
+.wm-landing-hero__logo{
+  height: 140px; /* â€œmake biggerâ€ */
+  width: auto;
+  display: block;
+  margin: 0 auto 22px;
+}
+
+.wm-landing-hero__kicker{
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+  margin-bottom: 10px;
+}
+
+.wm-landing-hero__title{
+  margin: 0;
+  font-size: 44px;
+  line-height: 1.08;
+  font-weight: 900;
+}
+
+.wm-landing-hero__sub{
+  margin: 16px auto 0;
+  max-width: 680px;
+  opacity: 0.78;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.wm-landing-hero__actions{
+  margin-top: 26px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+@keyframes wmFadeUp{
+  from{ opacity: 0; transform: translateY(8px); }
+  to{ opacity: 1; transform: translateY(0); }
+}
+
+
+/* Backdrop depth */
+html, body{ background: var(--wm-bg); }
+body{
+  background-image:
+    radial-gradient(900px 520px at 22% -8%, rgba(34,193,184,0.15), transparent 60%),
+    radial-gradient(760px 520px at 92% 10%, rgba(109,134,255,0.10), transparent 55%),
+    radial-gradient(900px 720px at 62% 92%, rgba(255,255,255,0.05), transparent 60%);
+}
+
+/* Surfaces / cards */
+.wm-surface,
+.wm-surface-2{
+  background: linear-gradient(180deg, rgba(255,255,255,0.070), rgba(255,255,255,0.045));
+  border: 1px solid var(--wm-border);
+  box-shadow: var(--wm-shadow);
+}
+.wm-surface:hover,
+.wm-surface-2:hover{ border-color: var(--wm-border-2); }
+
+.wm-surface{ position: relative; }
+.wm-surface::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius: inherit;
+  pointer-events:none;
+  background: radial-gradient(600px 240px at 30% 0%, rgba(34,193,184,0.09), transparent 55%);
+  opacity: .9;
+}
+
+/* Lift on hover */
+.wm-surface:hover{
+  box-shadow: var(--wm-shadow-2);
+  transform: translateY(-1px);
+  transition: transform 140ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+/* Buttons */
+.wm-btn{
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+  border-color: var(--wm-btn-border);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+}
+.wm-btn:hover{
+  background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.08));
+  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+}
+.wm-btn--primary{
+  background: linear-gradient(180deg, rgba(34,193,184,0.32), rgba(34,193,184,0.18));
+  border-color: rgba(34,193,184,0.38);
+  box-shadow: var(--wm-glow);
+}
+
+/* Sidebar active indicator (NavLink uses aria-current="page") */
+a[aria-current="page"]{ position: relative; }
+a[aria-current="page"]::before{
+  content:"";
+  position:absolute;
+  left: 8px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 999px;
+  background: rgba(34,193,184,0.85);
+  box-shadow: 0 0 0 1px rgba(34,193,184,0.18);
+}
+
+/* Chips / badges */
+.wm-pill, .wm-badge, .wm-chip{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+}
+.wm-pill:hover{ border-color: rgba(255,255,255,0.16); }
+
+/* Text rhythm */
+.wm-muted{ color: rgba(255,255,255,0.72); }
+h1,h2,h3{ letter-spacing: 0.01em; }
+
+/* Ultra-light noise (optional) */
+.wm-shell::after, body::after{
+  content:"";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+}
+
+/* __WM_TOOLHUB_TILE_POLISH_V1__ */
+
+/* Tile card */
+.wm-tile{
+  grid-column: span 4;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: linear-gradient(180deg, rgba(255,255,255,0.070), rgba(255,255,255,0.045));
+  box-shadow: 0 10px 30px rgba(0,0,0,0.30);
+  padding: 14px 14px 12px;
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.wm-tile::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  pointer-events:none;
+  background:
+    radial-gradient(520px 220px at 18% 0%, rgba(34,193,184,0.11), transparent 55%),
+    radial-gradient(420px 240px at 100% 10%, rgba(109,134,255,0.10), transparent 55%);
+  opacity:.95;
+}
+
+.wm-tile:hover{
+  border-color: rgba(255,255,255,0.18);
+  box-shadow: 0 16px 44px rgba(0,0,0,0.45);
+  transform: translateY(-2px);
+  transition: transform 140ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.wm-tile__top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.wm-tile__icon{
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.22);
+}
+
+.wm-tile__title{
+  margin: 10px 0 0;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  color: rgba(255,255,255,0.92);
+  position: relative;
+  z-index: 1;
+}
+
+.wm-tile__desc{
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: rgba(255,255,255,0.70);
+  position: relative;
+  z-index: 1;
+  min-height: 36px;
+}
+
+.wm-tile__meta{
+  margin-top: 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.wm-tile__tag{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.75);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wm-tile__cta{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(34,193,184,0.95);
+}
+
+.wm-tile:hover .wm-tile__cta{
+  text-decoration: none;
+  filter: drop-shadow(0 10px 22px rgba(34,193,184,0.18));
+}
+
+/* Make ToolHub panel feel less empty */
+.wm-toolhub-wrap{
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 10px 6px 14px;
+}
+.wm-toolhub-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.wm-toolhub-kicker{
+  color: rgba(255,255,255,0.70);
+  font-size: 13px;
+  margin-top: 4px;
+}
+.wm-toolhub-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 10px;
+  align-items:center;
+}
+ /* === TOOLHUB TILE FIX === */
+
+.wm-tilegrid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+ gap:16px;
+ padding:8px 6px 18px;
+}
+
+.wm-tile{
+ border-radius:16px;
+ padding:16px;
+ border:1px solid rgba(255,255,255,.10);
+ background:linear-gradient(180deg,
+   rgba(255,255,255,.06),
+   rgba(255,255,255,.035));
+ box-shadow:0 14px 38px rgba(0,0,0,.42);
+ transition:.18s ease;
+ text-decoration:none;
+ color:inherit;
+}
+
+.wm-tile:hover{
+ transform:translateY(-3px);
+ border-color:rgba(255,255,255,.22);
+ box-shadow:0 20px 54px rgba(0,0,0,.55);
+}
+
+.wm-tile__title{
+ font-weight:800;
+ font-size:16px;
+ margin-top:10px;
+}
+
+.wm-tile__desc{
+ font-size:13px;
+ opacity:.75;
+ margin-top:6px;
+}
+
+.wm-tile__tag{
+ font-size:12px;
+ padding:5px 10px;
+ border-radius:999px;
+ background:rgba(255,255,255,.08);
+ border:1px solid rgba(255,255,255,.14);
+ font-weight:700;
+}
+
+.wm-tile__cta{
+ margin-top:12px;
+ font-weight:700;
+ color:#22c1b8;
+}
+
+html,body{
+ background:var(--wm-bg);
+ -webkit-font-smoothing:antialiased;
+}
+ .wm-tile{
+ border-radius:16px;
+ padding:16px;
+ border:1px solid rgba(255,255,255,.10);
+ background:linear-gradient(180deg,
+   rgba(255,255,255,.06),
+   rgba(255,255,255,.035));
+ box-shadow:0 14px 38px rgba(0,0,0,.42);
+ transition:.18s ease;
+ text-decoration:none;
+ color:inherit;
+}
+
+.wm-tile:hover{
+ transform:translateY(-3px);
+ border-color:rgba(255,255,255,.22);
+ box-shadow:0 20px 54px rgba(0,0,0,.55);
+}
+
+.wm-tile__title{
+ font-weight:800;
+ font-size:16px;
+ margin-top:10px;
+}
+
+.wm-tile__desc{
+ font-size:13px;
+ opacity:.75;
+ margin-top:6px;
+}
+
+.wm-tile__tag{
+ font-size:12px;
+ padding:5px 10px;
+ border-radius:999px;
+ background:rgba(255,255,255,.08);
+ border:1px solid rgba(255,255,255,.14);
+ font-weight:700;
+}
+
+.wm-tile__cta{
+ margin-top:12px;
+ font-weight:700;
+ color:#22c1b8;
+}
+
+html,body{
+ background:var(--wm-bg);
+ -webkit-font-smoothing:antialiased;
+}
+
+/* ===== LANDING CENTER + READABILITY FIX ===== */
+
+.wm-landing-hero{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:90px 24px 60px;
+}
+
+/* Logo sizing */
+.wm-landing-hero img{
+  max-width:520px;
+  width:70%;
+  margin-bottom:18px;
+}
+
+/* Headline */
+.wm-h1,
+.wm-landing-hero h1{
+  color:#ffffff !important;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+
+/* Sub text */
+.wm-muted,
+.wm-landing-hero p{
+  color:rgba(255,255,255,.82) !important;
+}
+
+/* Remove accidental dark text inheritance */
+body, main, .wm-page{
+  color:#e8f3ff;
+}
+
+/* CTA button readability */
+.wm-btn--primary,
+.wm-landing-hero .wm-btn{
+  color:#fff !important;
+  background:linear-gradient(
+    180deg,
+    rgba(34,193,184,.34),
+    rgba(34,193,184,.18)
+  );
+  border-color:rgba(34,193,184,.38);
+}
+
+/* Prevent flat typography */
+h1,h2,h3{
+  text-shadow:0 2px 12px rgba(0,0,0,.25);
+}
+
+/* Ensure consistent central alignment */
+.wm-landing-hero > *{
+  max-width:820px;
+}
+
+
+/* ===== LANDING CENTER + READABILITY FIX ===== */
+
+.wm-landing-hero{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:90px 24px 60px;
+}
+
+/* Logo sizing */
+.wm-landing-hero img{
+  max-width:520px;
+  width:70%;
+  margin-bottom:18px;
+}
+
+/* Headline */
+.wm-h1,
+.wm-landing-hero h1{
+  color:#ffffff !important;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+
+/* Sub text */
+.wm-muted,
+.wm-landing-hero p{
+  color:rgba(255,255,255,.82) !important;
+}
+
+/* Remove accidental dark text inheritance */
+body, main, .wm-page{
+  color:#e8f3ff;
+}
+
+/* CTA button readability */
+.wm-btn--primary,
+.wm-landing-hero .wm-btn{
+  color:#fff !important;
+  background:linear-gradient(
+    180deg,
+    rgba(34,193,184,.34),
+    rgba(34,193,184,.18)
+  );
+  border-color:rgba(34,193,184,.38);
+}
+
+/* Prevent flat typography */
+h1,h2,h3{
+  text-shadow:0 2px 12px rgba(0,0,0,.25);
+}
+
+/* Ensure consistent central alignment */
+.wm-landing-hero > *{
+  max-width:820px;
+}
+
+
+ /* ===== FINAL LANDING POLISH ===== */
+
+ /* Center hero properly */
+ .wm-landing-hero,
+ .wm-landing-hero-wrapper{
+   display:flex;
+   flex-direction:column;
+   align-items:center;
+   justify-content:center;
+   text-align:center;
+   margin:auto;
+ }
+
+ /* Logo balance */
+ .wm-landing-hero img{
+   max-width:460px;
+   width:65%;
+   margin:10px auto 20px;
+   display:block;
+ }
+
+ /* Strong headline */
+ .wm-landing-hero h1,
+ .wm-h1{
+   color:#ffffff !important;
+   font-size:2.4rem;
+   font-weight:800;
+   letter-spacing:.02em;
+ }
+
+ /* Subtext readability */
+ .wm-landing-hero p,
+ .wm-muted{
+   color:rgba(255,255,255,.85) !important;
+   font-size:1.05rem;
+ }
+
+ /* Prevent inherited dark text */
+ body, main, .wm-page{
+   color:#eaf6ff !important;
+ }
+
+ /* CTA button clarity */
+ .wm-btn,
+ .wm-btn--primary{
+   color:#fff !important;
+   border-color:rgba(34,193,184,.35);
+   background:linear-gradient(
+     180deg,
+     rgba(34,193,184,.32),
+     rgba(34,193,184,.18)
+   );
+ }
+
+ .wm-btn:hover{
+   background:linear-gradient(
+     180deg,
+     rgba(34,193,184,.44),
+     rgba(34,193,184,.24)
+   );
+ }
+
+ /* Improve vertical spacing */
+ .wm-landing-hero > *{
+   max-width:820px;
+   margin-left:auto;
+   margin-right:auto;
+ }
+
+ /* Slight glow for brand feel */
+ .wm-landing-hero h1{
+   text-shadow:0 4px 18px rgba(0,0,0,.35);
+ }
+
+
+ /* ===== FINAL LANDING POLISH ===== */
+
+ /* Center hero properly */
+ .wm-landing-hero,
+ .wm-landing-hero-wrapper{
+   display:flex;
+   flex-direction:column;
+   align-items:center;
+   justify-content:center;
+   text-align:center;
+   margin:auto;
+ }
+
+ /* Logo balance */
+ .wm-landing-hero img{
+   max-width:460px;
+   width:65%;
+   margin:10px auto 20px;
+   display:block;
+ }
+
+ /* Strong headline */
+ .wm-landing-hero h1,
+ .wm-h1{
+   color:#ffffff !important;
+   font-size:2.4rem;
+   font-weight:800;
+   letter-spacing:.02em;
+ }
+
+ /* Subtext readability */
+ .wm-landing-hero p,
+ .wm-muted{
+   color:rgba(255,255,255,.85) !important;
+   font-size:1.05rem;
+ }
+
+ /* Prevent inherited dark text */
+ body, main, .wm-page{
+   color:#eaf6ff !important;
+ }
+
+ /* CTA button clarity */
+ .wm-btn,
+ .wm-btn--primary{
+   color:#fff !important;
+   border-color:rgba(34,193,184,.35);
+   background:linear-gradient(
+     180deg,
+     rgba(34,193,184,.32),
+     rgba(34,193,184,.18)
+   );
+ }
+
+ .wm-btn:hover{
+   background:linear-gradient(
+     180deg,
+     rgba(34,193,184,.44),
+     rgba(34,193,184,.24)
+   );
+ }
+
+ /* Improve vertical spacing */
+ .wm-landing-hero > *{
+   max-width:820px;
+   margin-left:auto;
+   margin-right:auto;
+ }
+
+ /* Slight glow for brand feel */
+ .wm-landing-hero h1{
+   text-shadow:0 4px 18px rgba(0,0,0,.35);
+ }
+
+/* __WM_CSS_MARKER__ START */
+/* Visible marker to prove wingman-ui.consistency.css is loaded */
+body::after{
+  content:""WM CSS LOADED"";
+  position:fixed;
+  right:14px;
+  bottom:14px;
+  z-index:99999;
+  padding:8px 10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.55);
+  color:#fff;
+  font:600 12px/1.1 Inter,system-ui,Segoe UI,Arial,sans-serif;
+  box-shadow:0 10px 28px rgba(0,0,0,.45);
+  pointer-events:none;
+}
+/* __WM_CSS_MARKER__ END */
+
+/* ==== Wingman Layout Center Fix ==== */
+
+/* Prevent browser edge overflow */
+html,body,#root{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+}
+
+/* Core container alignment */
+.wm-shell,
+main,
+.wm-page{
+  max-width:1400px;
+  margin:0 auto;
+  padding-left:24px;
+  padding-right:24px;
+  box-sizing:border-box;
+}
+
+/* Hero landing section */
+.wm-landing-hero{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  min-height:70vh;
+}
+
+/* Topbar inner alignment */
+.wm-topbar{
+  padding-left:24px;
+  padding-right:24px;
+  box-sizing:border-box;
+}
+
+/* Footer alignment */
+footer,
+/* DISABLED_BY_CANONICALISER */ .wm-footer{
+  padding-left:24px;
+  padding-right:24px;
+  box-sizing:border-box;
+  max-width:1400px;
+  margin:0 auto;
+}
+
+/* Prevent stray horizontal scroll */
+body{
+  overflow-x:hidden;
+}
+
+/* Improve readability on dark background */
+.wm-h1,
+h1,h2,h3{
+  color:rgba(255,255,255,0.92);
+}
+
+.wm-muted{
+  color:rgba(255,255,255,0.75);
+}
+
+/* Button centering */
+.wm-btn{
+  margin-top:16px;
+}
+
+/* __WM_LANDING_CENTER_V1__ */
+
+/* Public landing layout */
+.wm-public{
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  box-sizing: border-box;
+}
+
+/* Center hero group */
+.wm-landing-hero{
+  width: min(980px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 14px;
+
+  /* Make it feel less â€œflatâ€ */
+  padding: 54px 36px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
+  box-shadow: 0 22px 60px rgba(0,0,0,0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.wm-landing-hero::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  pointer-events:none;
+  background:
+    radial-gradient(700px 240px at 25% 0%, rgba(34,193,184,0.14), transparent 55%),
+    radial-gradient(700px 240px at 75% 0%, rgba(110,140,255,0.12), transparent 60%);
+  opacity: .95;
+}
+
+.wm-landing-hero > *{
+  position: relative;
+  z-index: 1;
+}
+
+.wm-landing-hero__logo{
+  width: min(760px, 92%);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 16px 28px rgba(0,0,0,0.45));
+  margin-bottom: 4px;
+}
+
+.wm-landing-hero__kicker{
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.70);
+}
+
+.wm-landing-hero__title{
+  margin: 0;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.06;
+  color: rgba(255,255,255,0.95);
+}
+
+.wm-landing-hero__sub{
+  margin: 0;
+  max-width: 68ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.78);
+}
+
+.wm-landing-hero__actions{
+  margin-top: 10px;
+}
+
+/* Make primary CTA look premium */
+.wm-landing-hero__actions .wm-btn.wm-btn--primary{
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(34,193,184,0.38), rgba(34,193,184,0.18));
+  border-color: rgba(34,193,184,0.35);
+  box-shadow: 0 18px 44px rgba(34,193,184,0.18), 0 18px 44px rgba(0,0,0,0.35);
+}
+.wm-landing-hero__actions .wm-btn.wm-btn--primary:hover{
+  transform: translateY(-1px);
+}
+
+/* Footer shouldnâ€™t â€œfloatâ€ full width; keep it aligned */
+.wm-footer, footer{
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+/* __WM_TOOLHUB_TILES_V1__ */
+/* Gives â€œcardsâ€ more presence without touching TSX */
+
+.wm-page .wm-surface{
+  border-color: rgba(255,255,255,0.10);
+  background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.040));
+}
+
+.wm-page .wm-surface:hover{
+  border-color: rgba(34,193,184,0.22);
+  box-shadow: 0 22px 60px rgba(0,0,0,0.42);
+}
+
+.wm-page a{
+  color: rgba(255,255,255,0.86);
+}
+.wm-page a:hover{
+  color: rgba(34,193,184,0.95);
+}
+
+
+/* __WM_LAYOUT_CONTAINER_FIX__ */
+
+/* Global centered container */
+.wm-container{
+  max-width: 1320px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 28px;
+  padding-right: 28px;
+  box-sizing: border-box;
+}
+
+/* Header alignment */
+header,
+.wm-topbar,
+nav{
+  width:100%;
+}
+
+header > *,
+.wm-topbar > *,
+nav > *{
+  max-width:1320px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+/* Public hero wrapper */
+.wm-public{
+  display:flex;
+  justify-content:center;
+}
+
+/* Footer alignment */
+footer,
+/* DISABLED_BY_CANONICALISER */ .wm-footer{
+  width:100%;
+}
+
+footer > *,
+.wm-footer > *{
+  max-width:1320px;
+  margin-left:auto;
+  margin-right:auto;
+  padding-left:28px;
+  padding-right:28px;
+}
+
+/* __WM_LAYOUT_SPACING_FIX__ */
+
+/* Consistent vertical spacing across pages */
+main,
+.wm-page{
+  padding-top: 42px;
+  padding-bottom: 42px;
+}
+
+/* ToolHub cards spacing */
+.wm-surface{
+  margin-bottom: 18px;
+}
+
+/* Sidebar breathing room */
+aside{
+  padding-top: 16px;
+}
+
+/* __WM_SCROLL_AND_FOOTER_FIX__ */
+
+/* Remove vertical padding causing scroll */
+main,
+.wm-page,
+.wm-public{
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Prevent artificial page height inflation */
+html, body{
+  height:100%;
+  margin:0;
+  overflow-x:hidden;
+}
+
+/* Ensure main content fits viewport */
+.wm-shell main{
+  min-height: calc(100vh - 120px);
+}
+
+/* Footer layout */
+footer,
+/* DISABLED_BY_CANONICALISER */ .wm-footer{
+  display:flex;
+  align-items:center;
+}
+
+/* Push legal links right */
+footer nav,
+.wm-footer nav{
+  margin-left:auto;
+  text-align:right;
+}
+
+/* Remove extra footer spacing */
+footer a,
+.wm-footer a{
+  margin-left:18px;
+}
+
+/* __WM_LAYOUT_FINALISE__ */
+
+/* STOP horizontal scroll */
+html, body{
+    overflow-x:hidden !important;
+}
+
+/* Ensure main wrapper fits viewport cleanly */
+.wm-shell main,
+main{
+    min-height:calc(100vh - 120px);
+    margin:0 auto;
+    max-width:1400px;
+}
+
+/* Center hero panel properly */
+.wm-landing-hero{
+    margin:40px auto 20px auto;
+    max-width:900px;
+    width:90%;
+    text-align:center;
+}
+
+/* Prevent wide background panels from pushing layout */
+.wm-surface,
+.wm-surface-2{
+    max-width:100%;
+}
+
+/* Footer layout */
+footer,
+/* DISABLED_BY_CANONICALISER */ .wm-footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 28px;
+}
+
+/* Right align legal links */
+.wm-footer nav,
+footer nav{
+    margin-left:auto;
+}
+
+/* Avoid footer overlap */
+footer a,
+.wm-footer a{
+    margin-left:18px;
+    white-space:nowrap;
+}
+
+/* Prevent phantom bottom spacing */
+body{
+    margin-bottom:0;
+    
+    
+}
+
+/* __WM_LANDING_FOOTER_FIX_V1__ */
+
+/* Prevent accidental horizontal scroll */
+html, body {
+  width: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* -------- Landing page: full-height, no extra padding that forces scroll -------- */
+.wm-public{
+  width: 100%;
+  min-height: calc(100vh - 0px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* If the landing page sits under a topbar, this prevents overflow */
+.wm-public .wm-landing-hero{
+  width: min(980px, calc(100vw - 48px));
+  margin: 0 auto;
+}
+
+/* Make sure hero card never pushes the page taller than the viewport */
+.wm-landing-hero{
+  max-height: calc(100vh - 96px);
+  overflow: hidden;
+}
+
+/* Tighten any large logo spacing that can cause vertical overflow */
+.wm-landing-hero__logo{
+  max-width: min(820px, 92vw);
+  height: auto;
+  display: block;
+  margin: 0 auto 14px;
+}
+
+/* Improve text contrast (your screenshot shows low-contrast body text) */
+.wm-landing-hero__kicker,
+.wm-landing-hero__sub{
+  color: rgba(255,255,255,0.80);
+}
+.wm-landing-hero__title{
+  color: rgba(255,255,255,0.96);
+}
+
+/* -------- Footer: compact + links right aligned --------
+   Works whether footer is <footer>, .wm-footer, or .wm-app-footer.
+*/
+footer,
+.wm-footer,
+.wm-app-footer{
+  padding: 10px 16px !important;
+  min-height: 44px;
+}
+
+/* Try to lay out footer as: [left info] [right links] */
+footer > div,
+.wm-footer > div,
+.wm-app-footer > div{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+/* If there are multiple blocks, push the links block right */
+footer nav,
+footer .wm-footer-links,
+footer .wm-links,
+.wm-footer nav,
+.wm-footer .wm-footer-links,
+.wm-footer .wm-links,
+.wm-app-footer nav,
+.wm-app-footer .wm-footer-links,
+.wm-app-footer .wm-links{
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  justify-content: flex-end;
+}
+
+/* Make footer links a bit more compact */
+footer a,
+.wm-footer a,
+.wm-app-footer a{
+  font-size: 13px;
+  opacity: 0.92;
+  white-space: nowrap;
+}
+/* DISABLED_BY_CANONICALISER */ .wm-footer{
+  width: 100%;
+  padding: 10px 16px;
+  min-height: 44px;
+}
+
+.wm-footer .wm-footer-inner{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.wm-footer .wm-footer-left{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wm-footer .wm-footer-links{
+  margin-left: auto;           /* pushes links to the right */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.wm-footer .wm-footer-link,
+.wm-footer .wm-footer-button{
+  font-size: 13px;
+  opacity: 0.92;
+}
+
+.wm-footer .wm-footer-small{
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* __WM_LANDING_FOOTER_LAYOUT_V2__ */
+:root{
+  /* Tunable heights used to eliminate accidental page scroll */
+  --wm-topbar-h: 72px;
+  --wm-footer-h: 56px;
+}
+
+/* ---------------- Footer: fixed, slim, links right ---------------- */
+/* DISABLED_BY_CANONICALISER */ .wm-footer{
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 60;
+  height: var(--wm-footer-h);
+  display: flex;
+  align-items: center;
+  background: rgba(10,18,34,0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.wm-footer-inner{
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.wm-footer-left{
+  display: grid;
+  gap: 2px;
+  min-width: 220px;
+}
+
+.wm-footer-small{
+  font-size: 12px;
+  opacity: .85;
+}
+
+.wm-footer-links{
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.wm-footer-sep{
+  opacity: .35;
+}
+
+.wm-footer-link, .wm-footer-button{
+  font-size: 13px;
+  color: rgba(255,255,255,0.78);
+}
+
+.wm-footer-link:hover, .wm-footer-button:hover{
+  color: rgba(34,193,184,0.95);
+}
+
+/* ---------------- Landing page: no vertical scroll ---------------- */
+/* PublicLandingPage uses .wm-public + .wm-landing-hero */
+.wm-public{
+  /* fit exactly between topbar + footer */
+  height: calc(100vh - var(--wm-topbar-h) - var(--wm-footer-h));
+  min-height: calc(100vh - var(--wm-topbar-h) - var(--wm-footer-h));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;  /* horizontal only */
+  box-sizing: border-box;
+  overflow: hidden; /* kill tiny scroll from shadows/padding */
+}
+
+/* Give the hero card more width without forcing scroll */
+.wm-landing-hero{
+  width: min(1100px, 100%);
+  margin: 0 auto;
+}
+
+/* Ensure any accidental margins don’t create a scroll */
+.wm-landing-hero__logo,
+.wm-landing-hero__title,
+.wm-landing-hero__sub,
+.wm-landing-hero__actions{
+  max-width: 100%;
+}
+
+/* ---------------- App content: avoid being hidden behind fixed footer ---------------- */
+/* Ensure main pages have enough bottom space so content never sits under footer */
+.wm-shell main, main{
+  padding-bottom: calc(var(--wm-footer-h) + 12px);
+}
+
+/* __WM_LANDING_FINAL_LAYOUT_FIX_V3__ */
+
+/* Prevent global page scroll */
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Landing page container */
+.wm-public {
+  height: calc(100vh - 72px - 56px); /* topbar + footer */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Hero card width + centering */
+.wm-landing-hero {
+  max-width: 1100px;
+  width: 92%;
+  margin: 0 auto;
+}
+
+/* Footer compact + right aligned links */
+/* DISABLED_BY_CANONICALISER */ .wm-footer{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  background: rgba(10,18,34,.78);
+  border-top: 1px solid rgba(255,255,255,.08);
+  backdrop-filter: blur(8px);
+}
+
+.wm-footer-inner {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+}
+
+.wm-footer-links {
+  margin-left: auto;
+  display: flex;
+  gap: 18px;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+/* === WM_CRITICAL_LAYOUT_FIX_V4 === */
+/* Removes vertical scroll + fixes footer alignment cleanly */
+
+/* Reset global overflow correctly */
+html, body, #root{
+  height:100%;
+  margin:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+}
+
+/* Landing wrapper should fit viewport */
+.wm-public{
+  min-height:calc(100vh - 72px - 56px);
+  height:auto;
+  padding:0 !important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* Hero card should not force extra height */
+.wm-landing-hero{
+  margin:0 auto;
+  max-height:none;
+  overflow:visible;
+}
+
+/* Footer — compact, right aligned */
+/* DISABLED_BY_CANONICALISER */ .wm-footer{
+  position:relative !important;
+  height:auto !important;
+  min-height:48px;
+  padding:8px 18px;
+}
+
+.wm-footer-inner{
+  display:flex;
+  align-items:center;
+  width:100%;
+}
+
+.wm-footer-links{
+  margin-left:auto;
+  display:flex;
+  gap:16px;
+  justify-content:flex-end;
+  white-space:nowrap;
+}
+
+/* Prevent footer overlap with content */
+main{
+  padding-bottom:20px !important;
+}
+
+
+/* === WM_CRITICAL_LAYOUT_FIX_V4 === */
+/* Removes vertical scroll + fixes footer alignment cleanly */
+
+/* Reset global overflow correctly */
+html, body, #root{
+  height:100%;
+  margin:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+}
+
+/* Landing wrapper should fit viewport */
+.wm-public{
+  min-height:calc(100vh - 72px - 56px);
+  height:auto;
+  padding:0 !important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* Hero card should not force extra height */
+.wm-landing-hero{
+  margin:0 auto;
+  max-height:none;
+  overflow:visible;
+}
+
+/* Footer — compact, right aligned */
+/* DISABLED_BY_CANONICALISER */ .wm-footer{
+  position:relative !important;
+  height:auto !important;
+  min-height:48px;
+  padding:8px 18px;
+}
+
+.wm-footer-inner{
+  display:flex;
+  align-items:center;
+  width:100%;
+}
+
+.wm-footer-links{
+  margin-left:auto;
+  display:flex;
+  gap:16px;
+  justify-content:flex-end;
+  white-space:nowrap;
+}
+
+/* Prevent footer overlap with content */
+main{
+  padding-bottom:20px !important;
+}
+

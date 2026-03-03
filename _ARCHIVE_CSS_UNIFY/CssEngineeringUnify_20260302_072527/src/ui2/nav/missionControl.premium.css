@@ -1,0 +1,69 @@
+/* __WM_PREMIUM_NAV_POLISH_V1__
+   Premium polish for MissionControlNav. Scoped to .wm-mc to avoid global side effects.
+*/
+.wm-mc {
+  --mc-border: rgba(255,255,255,0.08);
+  --mc-border2: rgba(255,255,255,0.10);
+  --mc-panel: rgba(255,255,255,0.03);
+  --mc-panel2: rgba(0,0,0,0.10);
+  --mc-fg: var(--wm-fg, #eaf2ff);
+}
+
+/* Remove “boxed” look, soften separators */
+.wm-mc :where(.wm-card, .wm-panel, .panel, .card) {
+  background: var(--mc-panel);
+  border: 1px solid var(--mc-border);
+  box-shadow: none !important;
+}
+
+/* Headline areas: smaller, cleaner */
+.wm-mc :where(h1,h2,h3,.title,.heading,.sectionTitle){
+  letter-spacing: 0.02em;
+}
+
+/* If a “MISSION CONTROL” label exists, make it subtle */
+.wm-mc :where(.wm-mc-kicker, .kicker, .eyebrow, .label){
+  font-size: 11px !important;
+  letter-spacing: 0.16em !important;
+  opacity: 0.55 !important;
+}
+
+/* Buttons in nav: premium pill, less heavy borders */
+.wm-mc button {
+  border: 1px solid var(--mc-border);
+  background: rgba(255,255,255,0.035);
+  box-shadow: none;
+}
+.wm-mc button:hover {
+  background: rgba(255,255,255,0.055);
+  border-color: var(--mc-border2);
+}
+
+/* Links: keep clean */
+.wm-mc a {
+  text-decoration: none;
+}
+
+/* Reduce visual noise: remove thick dividers if present */
+.wm-mc :where(hr,.divider,.separator){
+  border: none;
+  height: 1px;
+  background: var(--mc-border);
+  opacity: 0.9;
+}
+
+/* Logo block: give it breathing space */
+.wm-mc :where(img){
+  filter: drop-shadow(0 8px 22px rgba(0,0,0,0.35));
+}
+
+/* Tighten overall spacing a bit */
+.wm-mc :where(.wm-mc-section, section){
+  gap: 10px;
+}
+
+/* Smaller “info cards” like Active Opportunity */
+.wm-mc :where(.wm-mc-mini, .mini, .smallCard){
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--mc-border);
+}

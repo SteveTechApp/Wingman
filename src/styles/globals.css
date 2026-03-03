@@ -1,0 +1,62 @@
+/* globals.css (consolidated): keep ONLY global element rules here. Imports moved to index.css. */
+
+ /* WINGMAN_FULLWIDTH */
+ html, body, #root {
+   width:100%;
+   max-width:100%;
+   margin:0;
+   padding:0;
+ }
+
+ .container, .app-container, .page-frame {
+   max-width:100% !important;
+   width:100% !important;
+   padding-left:clamp(12px,2vw,24px);
+   padding-right:clamp(12px,2vw,24px);
+ }
+
+
+/* WINGMAN_FULLWIDTH_SHELL */
+html, body, #root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+* { box-sizing: border-box; }
+
+/* WINGMAN_ROOT_FULLWIDTH */
+html, body, #root { width:100%; max-width:100%; margin:0; padding:0; }
+* { box-sizing:border-box; }
+
+/* WINGMAN_TOOLHUB_FULLWIDTH */
+.wm-toolhub-fullwidth{
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.wm-toolhub-fullwidth .wm-tilegrid{
+  width: 100%;
+  max-width: none;
+}
+
+ /* __WM_LOGO_SCALE_FIX_V1__ */
+ .wm-logo {
+   max-height: 42px;
+   height: auto;
+   width: auto;
+   object-fit: contain;
+ }
+
+ .navbar .wm-logo,
+ header .wm-logo {
+   max-height: 36px;
+ }
+
+ .public-landing .wm-logo {
+   max-height: 48px;
+ }
+ /* __END_WM_LOGO_SCALE_FIX_V1__ */
+

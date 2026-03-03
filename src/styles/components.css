@@ -1,0 +1,68 @@
+/* Wingman components.css
+   Exists to satisfy legacy import paths during stabilisation.
+   You can later consolidate into globals.css / wingman-ui.css.
+*/
+
+
+
+/* Wingman: shared pill styling (header controls + logo capsule) */
+.wm-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  padding:.5rem .75rem;
+  border-radius:9999px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.35);          /* makes the pill DARKER */
+  color:rgba(255,255,255,.92);
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+  backdrop-filter: blur(10px);
+}
+
+.wm-pill:hover{
+  background:rgba(0,0,0,.45);
+  border-color:rgba(255,255,255,.16);
+}
+
+.wm-pill:active{
+  transform: translateY(0.5px);
+}
+
+.wm-pill--tight{ padding:.4rem .6rem; gap:.4rem; }
+.wm-pill--logo{ padding:.35rem .55rem; } /* slightly tighter for the logo capsule */
+.wm-pill .wm-pill__muted{ opacity:.75; }
+
+ /* WINGMAN_FULLWIDTH */
+ html, body, #root {
+   width:100%;
+   max-width:100%;
+   margin:0;
+   padding:0;
+ }
+
+ .container, .app-container, .page-frame {
+   max-width:100% !important;
+   width:100% !important;
+   padding-left:clamp(12px,2vw,24px);
+   padding-right:clamp(12px,2vw,24px);
+ }
+
+
+ /* __WM_LOGO_SCALE_FIX_V1__ */
+ .wm-logo {
+   max-height: 42px;
+   height: auto;
+   width: auto;
+   object-fit: contain;
+ }
+
+ .navbar .wm-logo,
+ header .wm-logo {
+   max-height: 36px;
+ }
+
+ .public-landing .wm-logo {
+   max-height: 48px;
+ }
+ /* __END_WM_LOGO_SCALE_FIX_V1__ */
+

@@ -1,0 +1,107 @@
+/* __WM_PREMIUM_SAAS_THEME_V1_1__ */
+:root{
+  --wm-bg: #070A10;
+  --wm-bg2: #0B1220;
+  --wm-fg: #EAF2FF;
+
+  --wm-text-dim: rgba(234,242,255,0.74);
+  --wm-text-dimmer: rgba(234,242,255,0.56);
+
+  --wm-border: rgba(255,255,255,0.08);
+  --wm-border2: rgba(255,255,255,0.12);
+
+  --wm-surface: rgba(255,255,255,0.03);
+  --wm-surface2: rgba(255,255,255,0.05);
+
+  --wm-accent: #35D0FF;
+  --wm-accentSoft: rgba(53,208,255,0.18);
+  --wm-accentSoft2: rgba(53,208,255,0.28);
+
+  --wm-shadow-lg: 0 28px 90px rgba(0,0,0,0.55);
+  --wm-shadow-md: 0 16px 50px rgba(0,0,0,0.38);
+  --wm-shadow-sm: 0 10px 30px rgba(0,0,0,0.25);
+
+  --wm-r-lg: 18px;
+  --wm-r-md: 14px;
+  --wm-r-sm: 12px;
+
+  --wm-ease: cubic-bezier(0.2,0.8,0.2,1);
+  --wm-fast: 140ms;
+  --wm-med: 220ms;
+}
+
+html, body{
+  background:
+    radial-gradient(1100px 680px at 15% 10%, rgba(53,208,255,0.10), rgba(0,0,0,0) 55%),
+    radial-gradient(900px 620px at 85% 18%, rgba(255,255,255,0.05), rgba(0,0,0,0) 56%),
+    linear-gradient(180deg, var(--wm-bg2), var(--wm-bg));
+  color: var(--wm-fg);
+}
+
+.wm-page{ padding: 22px 22px 28px; }
+.wm-page-title{
+  font-size: clamp(32px, 3vw, 42px);
+  font-weight: 760;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.wm-page-eyebrow{
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wm-text-dimmer);
+  margin-bottom: 10px;
+}
+
+.wm-card, .wm-panel, .wm-surface{
+  background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-r-lg);
+  box-shadow: var(--wm-shadow-sm);
+}
+.wm-card:hover, .wm-panel:hover, .wm-surface:hover{ border-color: var(--wm-border2); }
+
+input, select, textarea{
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--wm-fg);
+  border-radius: var(--wm-r-sm);
+  padding: 10px 12px;
+  transition: border-color var(--wm-fast) var(--wm-ease), background var(--wm-fast) var(--wm-ease);
+}
+input:focus, select:focus, textarea:focus{
+  outline: none;
+  border-color: rgba(53,208,255,0.28);
+  background: rgba(255,255,255,0.045);
+}
+::placeholder{ color: rgba(234,242,255,0.42); }
+
+button{ transition: transform var(--wm-fast) var(--wm-ease), background var(--wm-fast) var(--wm-ease), border-color var(--wm-fast) var(--wm-ease), box-shadow var(--wm-fast) var(--wm-ease); }
+
+.wm-btn{
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: var(--wm-fg);
+  cursor: pointer;
+}
+.wm-btn:hover{
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.16);
+}
+.wm-btn:active{ transform: translateY(1px); }
+
+.wm-btn-primary{
+  border: 1px solid rgba(53,208,255,0.18);
+  background: linear-gradient(90deg, rgba(53,208,255,0.95), rgba(53,208,255,0.70));
+  color: #07111a;
+  box-shadow: 0 12px 30px rgba(53,208,255,0.32);
+}
+.wm-btn-primary:hover{ box-shadow: 0 14px 36px rgba(53,208,255,0.40); }
+
+:where(button,a,input,select,textarea):focus-visible{
+  outline: 2px solid var(--wm-accentSoft);
+  outline-offset: 2px;
+}

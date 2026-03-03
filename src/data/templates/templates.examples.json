@@ -1,0 +1,228 @@
+{
+  "tieredBomExamples": [
+    {
+      "templateId": "tpl_meetingroom_byod_hybrid_v1",
+      "inputs": {
+        "sourcesWired": 2,
+        "displays": 1,
+        "distanceMeters": 18,
+        "wirelessRequired": true
+      },
+      "expected": {
+        "gold": {
+          "lines": [
+            {
+              "sku": "APO-VX20-UC v2",
+              "qty": 1
+            },
+            {
+              "sku": "APO-DG2-PRO",
+              "qty": 2
+            }
+          ]
+        },
+        "silver": {
+          "lines": [
+            {
+              "sku": "SW-620-TX-W",
+              "qty": 1
+            },
+            {
+              "sku": "APO-DG2",
+              "qty": 2
+            }
+          ]
+        },
+        "bronze": {
+          "lines": [
+            {
+              "sku": "SW-120-TX3-UK",
+              "qty": 1
+            },
+            {
+              "sku": "RX3-100",
+              "qty": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "templateId": "tpl_meetingroom_byod_hybrid_v1",
+      "inputs": {
+        "sourcesWired": 3,
+        "displays": 2,
+        "distanceMeters": 35,
+        "wirelessRequired": true
+      },
+      "expected": {
+        "gold": {
+          "lines": [
+            {
+              "sku": "APO-VX20-UC v2",
+              "qty": 1
+            },
+            {
+              "sku": "APO-DG2-PRO",
+              "qty": 3
+            }
+          ]
+        },
+        "silver": {
+          "lines": [
+            {
+              "sku": "SW-620-TX-W",
+              "qty": 1
+            },
+            {
+              "sku": "APO-DG2",
+              "qty": 3
+            }
+          ]
+        },
+        "bronze": {
+          "lines": [
+            {
+              "sku": "SW-120-TX3-UK",
+              "qty": 1
+            },
+            {
+              "sku": "RX3-100",
+              "qty": 2
+            }
+          ],
+          "warnings": [
+            "Two displays: expect tier upgrade recommendation."
+          ]
+        }
+      }
+    },
+    {
+      "templateId": "tpl_avoip_distribution_v1",
+      "inputs": {
+        "sources": 6,
+        "latencyClass": "standard",
+        "networkSpeed": "1G",
+        "endpoints": 12
+      },
+      "expected": {
+        "bronze": {
+          "lines": [
+            {
+              "sku": "NHD-120-TX",
+              "qty": 6
+            },
+            {
+              "sku": "NHD-120-RX",
+              "qty": 12
+            },
+            {
+              "sku": "NHD-CTL-PRO v2",
+              "qty": 1
+            }
+          ]
+        },
+        "silver": {
+          "lines": [
+            {
+              "sku": "NHD-500-TX v2",
+              "qty": 6
+            },
+            {
+              "sku": "NHD-500-RX v2",
+              "qty": 12
+            },
+            {
+              "sku": "NHD-CTL-PRO v2",
+              "qty": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "templateId": "tpl_avoip_distribution_v1",
+      "inputs": {
+        "sources": 5,
+        "latencyClass": "zero",
+        "networkSpeed": "10G",
+        "endpoints": 10
+      },
+      "expected": {
+        "gold": {
+          "lines": [
+            {
+              "sku": "NHD-600-TRX",
+              "qty": 15
+            },
+            {
+              "sku": "NHD-CTL-PRO v2",
+              "qty": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "templateId": "tpl_avoip_distribution_v1",
+      "inputs": {
+        "sources": 5,
+        "latencyClass": "zero",
+        "networkSpeed": "1G",
+        "endpoints": 10
+      },
+      "expected": {
+        "failure": {
+          "blocked": true,
+          "reason": "Zero latency requires 10G backbone (hard block expected)."
+        }
+      }
+    },
+    {
+      "templateId": "tpl_trainingroom_switching_v1",
+      "inputs": {
+        "outputs": 3,
+        "inputs": 6,
+        "needDante": true,
+        "needAvOverIpInterop": true
+      },
+      "expected": {
+        "gold": {
+          "lines": [
+            {
+              "sku": "MX-1007-HYB",
+              "qty": 1
+            },
+            {
+              "sku": "NHD-500-TX v2",
+              "qty": 1
+            },
+            {
+              "sku": "NHD-500-RX v2",
+              "qty": 1
+            }
+          ]
+        },
+        "silver": {
+          "lines": [
+            {
+              "sku": "MX-0804-EDC",
+              "qty": 1
+            }
+          ]
+        },
+        "bronze": {
+          "lines": [
+            {
+              "sku": "MX-0404-SCL",
+              "qty": 1
+            }
+          ],
+          "warnings": [
+            "I/O exceeds 4x4: Bronze should warn/deny."
+          ]
+        }
+      }
+    }
+  ]
+}

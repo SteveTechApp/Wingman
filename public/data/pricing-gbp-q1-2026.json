@@ -1,0 +1,18 @@
+[
+  {
+    "sku": "SW-620-TX-W",
+    "distributor_gbp": 417,
+    "dealer_gbp": 595,
+    "msrp_gbp": 1190,
+    "warranty_years": 5,
+    "note": "New, will be available Q1 2026"
+  },
+  {
+    "sku": "CAM-420-PTZ",
+    "distributor_gbp": 378,
+    "dealer_gbp": 540,
+    "msrp_gbp": 1081,
+    "warranty_years": 5,
+    "note": ""
+  }
+]

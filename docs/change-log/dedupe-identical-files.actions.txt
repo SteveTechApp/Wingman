@@ -1,0 +1,10 @@
+Identical-file dedupe actions
+Generated: 2026-03-01 17:58:27Z
+
+Removed: .\src\app\pages\ToolHubPage.tsx
+Kept:    .\src\pages\ToolHubPage.tsx
+Rescue:  .\_RESCUE\StructureCleanup_20260301_175824\dedupe_removed\._src_app_pages_ToolHubPage.tsx
+
+Removed: .\src\app\shell\New Text Document.txt
+Kept:    .\src\app\pages\New Text Document.txt
+Rescue:  .\_RESCUE\StructureCleanup_20260301_175824\dedupe_removed\._src_app_shell_New Text Document.txt

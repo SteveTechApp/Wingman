@@ -1,0 +1,22 @@
+[
+  {
+    "technical": "Competitor Compare",
+    "sales": "Find Replacement / Match Competitor",
+    "help": "Use this when the customer references another brand or an existing installed part."
+  },
+  {
+    "technical": "Room Wizard",
+    "sales": "Build a Room System",
+    "help": "Use this when you know the room type but not the full technical design."
+  },
+  {
+    "technical": "BOM / Export",
+    "sales": "Create Quote Pack",
+    "help": "Use this when you need a sales-safe summary for handoff, pricing, or proposal drafting."
+  },
+  {
+    "technical": "Guru",
+    "sales": "Ask Wingman",
+    "help": "Use this when you need guided advice in plain English."
+  }
+]

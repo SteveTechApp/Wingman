@@ -1,0 +1,14 @@
+# Normalise line endings for text files (prevents TS1127 "Invalid character" issues)
+* text=auto eol=lf
+
+# Treat common binaries as binary (no line ending conversion)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+
+# Keep SVG as text (diff-friendly)
+*.svg text eol=lf
