@@ -15,7 +15,7 @@ const ProjectsPage = React.lazy(() => import("@/features/projects/ProjectsPage")
 const ToolHubPage = React.lazy(() => import("@/features/tools/ToolHubPage"));
 const ExportSnapshotPage = React.lazy(() => import("@/features/export/ExportSnapshotPage"));
 
-// App (tools/workflows — canonical wiring)
+// App (tools/workflows ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â canonical wiring)
 const DiscoveryWizardPage = React.lazy(() => import("@/features/discovery/DiscoveryWizardPage"));
 const CatalogPage = React.lazy(() => import("@/features/catalog/CatalogPage"));
 const CompetitorComparePage = React.lazy(() => import("@/features/compare/CompetitorComparePage"));
@@ -28,13 +28,11 @@ const VideoWallPlannerPage = React.lazy(() => import("@/features/misc/VideoWallP
 // App (pages)
 const QuickQuestionPage = React.lazy(() => import("@/pages/QuickQuestionPage"));
 const ComparisonPage = React.lazy(() => import("@/pages/ComparisonPage"));
-const ProposalDisplay = React.lazy(() => import("@/pages/ProposalDisplay"));
 const ProjectOverviewPage = React.lazy(() => import("@/pages/ProjectOverviewPage"));
 const GuidedProjectWizard = React.lazy(() => import("@/pages/GuidedProjectWizard"));
 
 // Optional orphans you likely want soon (uncomment if/when you need them)
-// const SurveyImportPage = React.lazy(() => import("@/pages/SurveyImportPage"));
-// const TemplateBrowserScreen = React.lazy(() => import("@/pages/TemplateBrowserScreen"));
+// // const TemplateBrowserScreen = React.lazy(() => import("@/pages/TemplateBrowserScreen"));
 // const WorkspaceHomePage = React.lazy(() => import("@/pages/WorkspaceHomePage"));
 // const AnalyticsPage = React.lazy(() => import("@/pages/AnalyticsPage"));
 // const GuruPage = React.lazy(() => import("@/features/guru/GuruPage"));
@@ -45,7 +43,7 @@ const NotFoundPage = React.lazy(() => import("@/app/system/NotFoundPage"));
 function Loading() {
   return (
     <div style={{ padding: 18, color: "rgba(255,255,255,0.75)" }}>
-      Loading…
+      LoadingÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦
     </div>
   );
 }
@@ -88,7 +86,6 @@ export default function AppRoutes() {
           {/* Utility pages */}
           <Route path="quick-question" element={<QuickQuestionPage />} />
           <Route path="compare" element={<ComparisonPage />} />
-          <Route path="proposal" element={<ProposalDisplay />} />
           <Route path="guided-wizard" element={<GuidedProjectWizard />} />
 
           {/* Export */}

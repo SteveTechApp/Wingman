@@ -1,231 +1,456 @@
-// src/features/projects/projectStore.ts
-import * as React from "react";
-import type { DiscoveryRecord } from "@/features/discovery/DiscoveryWizardPage";
+export type DiscoveryProductFamily =
+  | "Apollo"
+  | "HDBaseT"
+  | "AVoIP"
+  | "Matrix"
+  | "USB Extension"
+  | "Video Wall";
 
-export type ProjectStatus =
-  | "Draft"
-  | "Discovery Complete"
-  | "Proposal Ready";
+export type ProjectDiscovery = {
+  customer: string;
+  site: string;
+  roomName: string;
+  applicationType?: string;
+  roomLengthM?: string;
+  roomWidthM?: string;
+  roomHeightM?: string;
+  displayLocation?: string;
+  sourceLocation?: string;
+  rackLocation?: string;
+  cableDistanceM?: string;
+  displayCount?: string;
+  sourceCount?: string;
+  usbNeeds?: string;
+  audioNeeds?: string;
+  controlNeeds?: string;
+  budgetBand?: string;
+  urgency?: string;
+  notes?: string;
+  recommendedFamilies?: DiscoveryProductFamily[];
+  recommendedNextTool?: string;
+  createdAt?: string;
+};
+
+export type ProjectCatalog = {
+  skus?: string[];
+  selectedBrand?: string;
+  notes?: string;
+};
 
 export type ProjectProposal = {
-  selectedTier: "Bronze" | "Silver" | "Gold";
-  families: string[];
-  updatedAt: string;
+  selectedTier?: string;
+  title?: string;
+  notes?: string;
 };
 
-export type ProjectCatalogSelection = {
-  families: string[];
-  skus: string[];
-  updatedAt: string;
-};
-
-export type ProjectRecord = {
+export type StoredProject = {
   id: string;
   name: string;
   customer: string;
   site: string;
-  status: ProjectStatus;
-  createdAt: string;
+  roomName: string;
+  stage: string;
+  status: string;
+  notes: string;
   updatedAt: string;
-  discovery?: DiscoveryRecord;
+  createdAt: string;
+  discovery?: ProjectDiscovery;
+  catalog?: ProjectCatalog;
   proposal?: ProjectProposal;
-  catalog?: ProjectCatalogSelection;
 };
 
-const PROJECTS_KEY = "wm_projects_v1";
-const ACTIVE_PROJECT_KEY = "wm_active_project_id";
+const STORAGE_KEY = "wm_projects_v1";
+const SEEDED_KEY = "wm_projects_seeded_v1";
+const ACTIVE_PROJECT_ID_KEY = "wm_active_project_id_v1";
+
+type Listener = () => void;
+const listeners = new Set<Listener>();
 
 function nowIso(): string {
   return new Date().toISOString();
 }
 
 function makeId(): string {
-  const stamp = Date.now().toString(36);
-  const rand = Math.random().toString(36).slice(2, 8);
-  return `prj_${stamp}_${rand}`;
+  try {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+  } catch {}
+  return `proj_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function safeParse<T>(raw: string | null, fallback: T): T {
-  if (!raw) return fallback;
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
+function normalizeRecommendedFamilies(
+  value: unknown
+): DiscoveryProductFamily[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+
+  const allowed: DiscoveryProductFamily[] = [
+    "Apollo",
+    "HDBaseT",
+    "AVoIP",
+    "Matrix",
+    "USB Extension",
+    "Video Wall",
+  ];
+
+  return value.filter((item): item is DiscoveryProductFamily =>
+    typeof item === "string" && allowed.includes(item as DiscoveryProductFamily)
+  );
 }
 
-function saveProjects(projects: ProjectRecord[]): void {
-  localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
+function normalizeDiscovery(
+  discovery?: ProjectDiscovery
+): ProjectDiscovery | undefined {
+  if (!discovery) return undefined;
+
+  return {
+    ...discovery,
+    customer: discovery.customer ?? "",
+    site: discovery.site ?? "",
+    roomName: discovery.roomName ?? "",
+    notes: discovery.notes ?? "",
+    recommendedFamilies: normalizeRecommendedFamilies(discovery.recommendedFamilies),
+  };
+}
+
+function defaultSeed(): StoredProject[] {
+  const now = nowIso();
+  return [
+    {
+      id: "p1",
+      name: "Boardroom Refresh",
+      customer: "Sample customer",
+      site: "Banbury HQ",
+      roomName: "Boardroom",
+      stage: "Discovery",
+      status: "Draft",
+      notes: "Initial discovery captured. Confirm display sizes, source count, and cable paths.",
+      updatedAt: now,
+      createdAt: now,
+      discovery: {
+        customer: "Sample customer",
+        site: "Banbury HQ",
+        roomName: "Boardroom",
+        applicationType: "Meeting Space",
+        notes: "Initial discovery captured. Confirm display sizes, source count, and cable paths.",
+        recommendedFamilies: ["Apollo", "HDBaseT"],
+        createdAt: now,
+      },
+      catalog: {
+        skus: [],
+        selectedBrand: "WyreStorm",
+      },
+      proposal: {
+        selectedTier: "None",
+      },
+    },
+    {
+      id: "p2",
+      name: "Training Suite Upgrade",
+      customer: "Sample customer",
+      site: "Training Centre",
+      roomName: "Training Suite",
+      stage: "Specify",
+      status: "Draft",
+      notes: "Shortlisted products and accessories. Proposal structure to follow.",
+      updatedAt: now,
+      createdAt: now,
+      discovery: {
+        customer: "Sample customer",
+        site: "Training Centre",
+        roomName: "Training Suite",
+        applicationType: "Training Room",
+        notes: "Shortlisted products and accessories. Proposal structure to follow.",
+        recommendedFamilies: ["AVoIP"],
+        createdAt: now,
+      },
+      catalog: {
+        skus: [],
+        selectedBrand: "WyreStorm",
+      },
+      proposal: {
+        selectedTier: "None",
+      },
+    },
+  ];
+}
+
+function emit(): void {
+  listeners.forEach((listener) => {
+    try {
+      listener();
+    } catch {}
+  });
+}
+
+function touchProjectsTick(): void {
+  if (typeof window === "undefined") return;
   try {
-    localStorage.setItem("wm_projects_tick", String(Date.now()));
+    window.localStorage.setItem("wm_projects_tick", nowIso());
   } catch {}
 }
 
-export function touchProjects(): void {
+function safeParse(value: string | null): StoredProject[] {
+  if (!value) return [];
   try {
-    localStorage.setItem("wm_projects_tick", String(Date.now()));
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function normalizeProject(project: StoredProject): StoredProject {
+  const discovery = normalizeDiscovery(project.discovery);
+  return {
+    ...project,
+    customer: project.customer ?? discovery?.customer ?? "",
+    site: project.site ?? discovery?.site ?? "",
+    roomName: project.roomName ?? discovery?.roomName ?? "",
+    notes: project.notes ?? discovery?.notes ?? "",
+    discovery,
+    catalog: project.catalog ?? { skus: [] },
+    proposal: project.proposal,
+  };
+}
+
+function setActiveProjectIdInternal(id: string | null): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (id) {
+      window.localStorage.setItem(ACTIVE_PROJECT_ID_KEY, id);
+    } else {
+      window.localStorage.removeItem(ACTIVE_PROJECT_ID_KEY);
+    }
   } catch {}
 }
 
 export function getProjectsTick(): string {
+  if (typeof window === "undefined") return "server";
   try {
-    return localStorage.getItem("wm_projects_tick") || "";
+    return window.localStorage.getItem("wm_projects_tick") ?? "0";
   } catch {
-    return "";
+    return "0";
   }
 }
 
-export function getProjects(): ProjectRecord[] {
-  const rows = safeParse<ProjectRecord[]>(
-    localStorage.getItem(PROJECTS_KEY),
-    [],
-  );
+export function loadProjects(): StoredProject[] {
+  if (typeof window === "undefined") return [];
+  const existing = safeParse(window.localStorage.getItem(STORAGE_KEY)).map(normalizeProject);
 
-  return Array.isArray(rows) ? rows : [];
+  if (existing.length > 0) {
+    return existing.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  }
+
+  const seeded = window.localStorage.getItem(SEEDED_KEY) === "1";
+  if (!seeded) {
+    const seed = defaultSeed();
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
+    window.localStorage.setItem(SEEDED_KEY, "1");
+    if (!window.localStorage.getItem(ACTIVE_PROJECT_ID_KEY) && seed[0]) {
+      window.localStorage.setItem(ACTIVE_PROJECT_ID_KEY, seed[0].id);
+    }
+    touchProjectsTick();
+    return seed.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  }
+
+  return [];
 }
 
-export function getProjectById(id: string): ProjectRecord | null {
-  const found = getProjects().find((p) => p.id === id);
-  return found ?? null;
+export function saveProjects(projects: StoredProject[]): void {
+  if (typeof window === "undefined") return;
+  const normalized = [...projects].map(normalizeProject).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+
+  const activeId = getActiveProjectId();
+  if (activeId && !normalized.some((p) => p.id === activeId)) {
+    setActiveProjectIdInternal(normalized[0]?.id ?? null);
+  } else if (!activeId && normalized[0]) {
+    setActiveProjectIdInternal(normalized[0].id);
+  }
+
+  touchProjectsTick();
+  emit();
 }
 
-export function getActiveProjectId(): string | null {
-  const id = localStorage.getItem(ACTIVE_PROJECT_KEY);
-  return id || null;
-}
+export function subscribeProjects(listener: Listener): () => void {
+  listeners.add(listener);
 
-export function setActiveProject(id: string): void {
-  localStorage.setItem(ACTIVE_PROJECT_KEY, id);
-  touchProjects();
-}
-
-export function getActiveProject(): ProjectRecord | null {
-  const id = getActiveProjectId();
-  if (!id) return null;
-  return getProjectById(id);
-}
-
-export function deriveProjectName(seed?: {
-  roomName?: string;
-  customer?: string;
-  site?: string;
-}): string {
-  const room = String(seed?.roomName || "").trim();
-  const customer = String(seed?.customer || "").trim();
-  const site = String(seed?.site || "").trim();
-
-  if (room) return room;
-  if (customer && site) return `${customer} - ${site}`;
-  if (customer) return customer;
-  if (site) return site;
-  return "New Project";
-}
-
-export function createProject(
-  seed?: Partial<Pick<ProjectRecord, "name" | "customer" | "site">>,
-): ProjectRecord {
-  const ts = nowIso();
-
-  const project: ProjectRecord = {
-    id: makeId(),
-    name: String(seed?.name || "").trim() || "New Project",
-    customer: String(seed?.customer || "").trim(),
-    site: String(seed?.site || "").trim(),
-    status: "Draft",
-    createdAt: ts,
-    updatedAt: ts,
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === STORAGE_KEY || event.key === ACTIVE_PROJECT_ID_KEY || event.key === "wm_projects_tick") {
+      listener();
+    }
   };
 
-  const projects = getProjects();
-  projects.unshift(project);
-  saveProjects(projects);
-  setActiveProject(project.id);
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", onStorage);
+  }
 
+  return () => {
+    listeners.delete(listener);
+    if (typeof window !== "undefined") {
+      window.removeEventListener("storage", onStorage);
+    }
+  };
+}
+
+export function createProject(partial?: Partial<StoredProject>): StoredProject {
+  const timestamp = nowIso();
+  const discovery = normalizeDiscovery(partial?.discovery);
+
+  const project: StoredProject = normalizeProject({
+    id: partial?.id ?? makeId(),
+    name: partial?.name ?? "New Project",
+    customer: partial?.customer ?? discovery?.customer ?? "Sample customer",
+    site: partial?.site ?? discovery?.site ?? "",
+    roomName: partial?.roomName ?? discovery?.roomName ?? "",
+    stage: partial?.stage ?? "Discovery",
+    status: partial?.status ?? "Draft",
+    notes: partial?.notes ?? discovery?.notes ?? "",
+    updatedAt: timestamp,
+    createdAt: partial?.createdAt ?? timestamp,
+    discovery,
+    catalog: partial?.catalog ?? { skus: [] },
+    proposal: partial?.proposal,
+  });
+
+  const projects = loadProjects();
+  saveProjects([project, ...projects.filter((item) => item.id !== project.id)]);
+  setActiveProjectIdInternal(project.id);
   return project;
 }
 
-export function updateProject(
-  id: string,
-  updater: (current: ProjectRecord) => ProjectRecord,
-): ProjectRecord | null {
-  const projects = getProjects();
-  const idx = projects.findIndex((p) => p.id === id);
-  if (idx < 0) return null;
+export function updateProject(id: string, patch: Partial<StoredProject>): StoredProject | undefined {
+  const projects = loadProjects();
+  let updated: StoredProject | undefined;
 
-  const current = projects[idx];
-  const next = {
-    ...updater(current),
-    id: current.id,
-    updatedAt: nowIso(),
-  };
+  const next = projects.map((project) => {
+    if (project.id !== id) return project;
+    updated = normalizeProject({
+      ...project,
+      ...patch,
+      id: project.id,
+      createdAt: project.createdAt,
+      updatedAt: nowIso(),
+      discovery: patch.discovery ? normalizeDiscovery(patch.discovery) : project.discovery,
+      catalog: patch.catalog ?? project.catalog,
+      proposal: patch.proposal ?? project.proposal,
+    });
+    return updated;
+  });
 
-  projects[idx] = next;
-  saveProjects(projects);
-
-  return next;
+  saveProjects(next);
+  return updated;
 }
 
-export function ensureActiveProject(seed?: {
-  roomName?: string;
-  customer?: string;
-  site?: string;
-}): ProjectRecord {
-  const active = getActiveProject();
-  if (active) return active;
+export function deleteProject(id: string): void {
+  const projects = loadProjects();
+  saveProjects(projects.filter((project) => project.id !== id));
+}
 
-  return createProject({
-    name: deriveProjectName(seed),
-    customer: seed?.customer || "",
-    site: seed?.site || "",
+export function getProjectById(id: string): StoredProject | undefined {
+  return loadProjects().find((project) => project.id === id);
+}
+
+export function getActiveProjectId(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = window.localStorage.getItem(ACTIVE_PROJECT_ID_KEY);
+    if (saved) return saved;
+
+    const projects = loadProjects();
+    const fallback = projects[0]?.id ?? null;
+    if (fallback) {
+      window.localStorage.setItem(ACTIVE_PROJECT_ID_KEY, fallback);
+    }
+    return fallback;
+  } catch {
+    return null;
+  }
+}
+
+export function setActiveProjectId(id: string): void {
+  setActiveProjectIdInternal(id);
+  touchProjectsTick();
+  emit();
+}
+
+export function getActiveProject(): StoredProject | undefined {
+  const id = getActiveProjectId();
+  if (!id) return undefined;
+  return getProjectById(id);
+}
+
+export function ensureActiveProject(partial?: Partial<StoredProject>): StoredProject {
+  const existing = getActiveProject();
+  if (existing) {
+    if (partial && Object.keys(partial).length > 0) {
+      return (
+        updateProject(existing.id, partial) ??
+        existing
+      );
+    }
+    return existing;
+  }
+
+  const projects = loadProjects();
+  if (projects[0]) {
+    setActiveProjectIdInternal(projects[0].id);
+    if (partial && Object.keys(partial).length > 0) {
+      return updateProject(projects[0].id, partial) ?? projects[0];
+    }
+    return projects[0];
+  }
+
+  const created = createProject({
+    name: partial?.name ?? "New Project",
+    customer: partial?.customer ?? "Sample customer",
+    site: partial?.site ?? "",
+    roomName: partial?.roomName ?? "",
+    stage: partial?.stage ?? "Discovery",
+    status: partial?.status ?? "Draft",
+    notes: partial?.notes ?? "",
+    discovery: partial?.discovery ?? {
+      customer: partial?.customer ?? "Sample customer",
+      site: partial?.site ?? "",
+      roomName: partial?.roomName ?? "",
+      notes: partial?.notes ?? "",
+      createdAt: nowIso(),
+    },
+    catalog: partial?.catalog ?? { skus: [] },
+    proposal: partial?.proposal,
   });
+
+  setActiveProjectIdInternal(created.id);
+  return created;
 }
 
 export function updateProjectDiscovery(
   projectId: string,
-  discovery: DiscoveryRecord,
-): ProjectRecord | null {
-  return updateProject(projectId, (current) => ({
-    ...current,
-    name: deriveProjectName({
-      roomName: discovery.roomName,
-      customer: discovery.customer,
-      site: discovery.site,
-    }),
-    customer: discovery.customer,
-    site: discovery.site,
-    status: "Discovery Complete",
-    discovery,
-  }));
-}
+  discoveryPatch: Partial<ProjectDiscovery>
+): StoredProject | undefined {
+  const project = getProjectById(projectId);
+  if (!project) return undefined;
 
-export function updateProjectProposal(
-  projectId: string,
-  selectedTier: "Bronze" | "Silver" | "Gold",
-  families: string[],
-): ProjectRecord | null {
-  return updateProject(projectId, (current) => ({
-    ...current,
-    status: "Proposal Ready",
-    proposal: {
-      selectedTier,
-      families,
-      updatedAt: nowIso(),
-    },
-  }));
-}
+  const existingDiscovery: ProjectDiscovery = normalizeDiscovery(project.discovery) ?? {
+    customer: project.customer ?? "",
+    site: project.site ?? "",
+    roomName: project.roomName ?? "",
+    notes: project.notes ?? "",
+    createdAt: project.createdAt,
+  };
 
-export function updateProjectCatalogSelection(
-  projectId: string,
-  families: string[],
-  skus: string[],
-): ProjectRecord | null {
-  return updateProject(projectId, (current) => ({
-    ...current,
-    catalog: {
-      families,
-      skus,
-      updatedAt: nowIso(),
-    },
-  }));
-}
+  const nextDiscovery = normalizeDiscovery({
+    ...existingDiscovery,
+    ...discoveryPatch,
+  })!;
 
+  return updateProject(projectId, {
+    customer: nextDiscovery.customer ?? project.customer,
+    site: nextDiscovery.site ?? project.site,
+    roomName: nextDiscovery.roomName ?? project.roomName,
+    notes: nextDiscovery.notes ?? project.notes,
+    stage: "Discovery",
+    discovery: nextDiscovery,
+  });
+}

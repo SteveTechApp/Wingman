@@ -1,0 +1,6 @@
+Repo:    C:\Users\steve\wingman
+Mode:    APPLY
+Rescue:  _RESCUE\RepoStructureCleanup_Phase30_20260306_112005
+Archive: _ARCHIVE\RepoStructureCleanup_Phase30_20260306_112005
+Audit:   _AUDITS\RepoStructureCleanup_Phase30_20260306_112005
+Kept:    src\services\videoService.ts

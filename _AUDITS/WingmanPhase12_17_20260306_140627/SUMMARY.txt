@@ -1,0 +1,18 @@
+Wingman Phase 12-17 Bundle
+Mode: APPLY
+
+Created/Updated:
+- src\features\proposals\proposalTemplates.ts
+- src\features\proposals\proposalExport.ts
+- src\features\proposals\proposalRender.ts
+- src\features\proposals\proposalDocxBridge.ts
+- src\features\proposals\proposalExportFacade.ts
+- src\features\proposals\ProposalBuilderPage.tsx
+
+Audit:
+- exporter-audit.csv
+
+Next:
+- npm run typecheck
+- review exporter-audit.csv
+- choose one canonical DOCX exporter

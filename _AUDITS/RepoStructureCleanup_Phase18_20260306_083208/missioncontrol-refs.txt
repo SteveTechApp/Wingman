@@ -1,0 +1,3 @@
+src\app\shell\AppShell.tsx
+src\ui2\nav\MissionControlNav.tsx
+src\ui2\nav\WorkspaceSidePanel.tsx

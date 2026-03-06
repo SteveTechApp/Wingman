@@ -1,0 +1,13 @@
+Wingman Catalog Phase 10
+Mode: APPLY
+
+Created/Updated:
+- src\features\proposals\proposalExport.ts
+- src\features\proposals\proposalDocxBridge.ts
+- src\features\proposals\proposalRender.ts
+- src\features\proposals\ProposalBuilderPage.tsx
+
+Next:
+- map proposalDocxBridge.ts into your real DOCX exporter
+- add WyreStorm branding/styling layer
+- add optional pricing/equipment section to export payload

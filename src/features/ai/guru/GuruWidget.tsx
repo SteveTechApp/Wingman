@@ -170,7 +170,7 @@ export default function GuruWidget() {
         onClick={() => api.toggle()}
         onPointerDown={fabDrag.start}
         aria-label="Open Guru Helper"
-        title="Guru Helper (Ctrl+G) â€” drag to move"
+        title="Guru Helper (Ctrl+G) Ã¢â‚¬â€ drag to move"
         style={{ left: fabPos.x, top: fabPos.y }}
       >
         <span className="wm-guru-fab-dot" aria-hidden="true" />
@@ -184,7 +184,7 @@ export default function GuruWidget() {
             <div className="wm-guru-handle" onPointerDown={panelDrag.start} title="Drag to move">
               <div>
                 <div className="wm-guru-title">AV Guru Helper</div>
-                <div className="wm-guru-sub">Always available â€¢ Ctrl+G â€¢ Esc to close â€¢ Drag to move</div>
+                <div className="wm-guru-sub">Always available Ã¢â‚¬Â¢ Ctrl+G Ã¢â‚¬Â¢ Esc to close Ã¢â‚¬Â¢ Drag to move</div>
               </div>
               <button className="wm-btn" onClick={() => api.close()}>Close</button>
             </div>
@@ -200,13 +200,13 @@ export default function GuruWidget() {
                 <div className="wm-row" style={{ gap: 10 }}>
                   <input
                     className="wm-input"
-                    placeholder="Ask an AV question or a WyreStorm product questionâ€¦"
+                    placeholder="Ask an AV question or a WyreStorm product questionÃ¢â‚¬Â¦"
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
                   />
                   <button className={cls("wm-btn", "wm-btn-primary")} onClick={submit} disabled={busy}>
-                    {busy ? "Thinkingâ€¦" : "Ask"}
+                    {busy ? "ThinkingÃ¢â‚¬Â¦" : "Ask"}
                   </button>
                 </div>
 
@@ -270,7 +270,7 @@ export default function GuruWidget() {
                     Next: pass live Room/VideoWall/BOM context to Guru so it can flag errors (I/O mismatch, distances, missing endpoints, windowing limits).
                   </div>
                   <div className="wm-muted" style={{ marginTop: 10 }}>
-                    For now, use â€œAskâ€ and include your design notes in the question.
+                    For now, use Ã¢â‚¬Å“AskÃ¢â‚¬Â and include your design notes in the question.
                   </div>
                 </div>
               </div>

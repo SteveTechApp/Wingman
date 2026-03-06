@@ -1,0 +1,13 @@
+Wingman Catalog Phase 1
+Mode: APPLY
+
+Created:
+- src\data\catalog\wyrestorm-catalog.phase1.json
+- src\catalog\types.ts
+- src\catalog\normalize.ts
+- src\catalog\repository.ts
+
+Next:
+- wire CatalogPage to repository
+- replace seed records with validated WyreStorm SKU dataset
+- add competitor dataset in same schema family

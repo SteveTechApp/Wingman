@@ -1,0 +1,6 @@
+Repo:    C:\Users\steve\wingman
+Mode:    APPLY
+Rescue:  _RESCUE\RepoStructureCleanup_Phase21_20260306_084416
+Archive: _ARCHIVE\RepoStructureCleanup_Phase21_20260306_084416
+Audit:   _AUDITS\RepoStructureCleanup_Phase21_20260306_084416
+Kept:    src\features\projects\ProjectsPage.tsx

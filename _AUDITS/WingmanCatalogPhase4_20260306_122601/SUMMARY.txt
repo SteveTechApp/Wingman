@@ -1,0 +1,12 @@
+Wingman Catalog Phase 4
+Mode: APPLY
+
+Created:
+- src\data\catalog\competitor-catalog.phase4.json
+- src\competitor\repository.ts
+- src\competitor\index.ts
+
+Next:
+- wire CompetitorComparePage to competitor repository
+- add side-by-side WyreStorm vs competitor scoring
+- expand competitor dataset by category and brand

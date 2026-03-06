@@ -156,7 +156,7 @@ const Search: React.FC = () => {
             >
                 <SearchIcon className="h-4\ w-4" />
                 <span>Search...</span>
-                <kbd className="ml-auto\ text-xs\ font-mono\ bg-background\ border\ border-border-color\ rounded\ px-1\.5\ py-0\.5">âŒ˜K</kbd>
+                <kbd className="ml-auto\ text-xs\ font-mono\ bg-background\ border\ border-border-color\ rounded\ px-1\.5\ py-0\.5">ÃƒÂ¢Ã…â€™Ã‹Å“K</kbd>
             </button>
 
             <InfoModal isOpen={isOpen} onClose={handleCloseModal} className="max-w-2xl" title={null}>

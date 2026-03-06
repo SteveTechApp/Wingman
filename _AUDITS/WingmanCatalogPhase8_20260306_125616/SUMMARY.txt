@@ -1,0 +1,11 @@
+Wingman Catalog Phase 8
+Mode: APPLY
+
+Created/Updated:
+- src\features\proposals\proposalPositioning.ts
+- src\features\proposals\ProposalBuilderPage.tsx
+
+Next:
+- inject positioning block into proposal export/output
+- add category-specific wording templates
+- persist compare handoff into project data model

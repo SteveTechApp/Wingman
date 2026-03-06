@@ -122,7 +122,7 @@ export const wingmanActions = {
       ui: { ...(STATE.ui ?? {}), loadingContext: ctx },
     });
   },
-};/** useWingman(selector?) â€“ supports both patterns:
+};/** useWingman(selector?) Ã¢â‚¬â€œ supports both patterns:
  *   const s = useWingman()
  *   const v = useWingman(s => s.auth.isAuthed)
  */

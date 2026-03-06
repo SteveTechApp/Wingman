@@ -37,7 +37,7 @@ export type ProjectData = {
   status?: "Draft" | "In progress" | "Quoted" | "Won" | "Lost";
   lastSaved?: string; // ISO
 
-  // Minimal “dashboard numbers” (extend later)
+  // Minimal â€œdashboard numbersâ€ (extend later)
   displays?: number;
   sources?: number;
   rooms?: number;
@@ -68,7 +68,7 @@ export type WingmanState = {
     activeId: string | null;
   };
 
-  /** The active project “working set” (what the dashboard reads) */
+  /** The active project â€œworking setâ€ (what the dashboard reads) */
   projectData: ProjectData | null;
 
   /** Room selection (optional now, but components expect it exists) */

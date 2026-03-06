@@ -1,0 +1,4 @@
+"Step","File","Action"
+"StripSideNavImport","src\features\tools\ToolHubPage.tsx","NoChange"
+"StripSideNavImport","src\pages\ToolHubPage.tsx","NoChange"
+"ArchiveSideNav","src\app\navigation\SideNav.tsx","NotFound"

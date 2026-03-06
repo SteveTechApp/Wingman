@@ -1,0 +1,12 @@
+Wingman Catalog Phase 6
+Mode: APPLY
+
+Created/Updated:
+- src\competitor\positioning.ts
+- src\competitor\index.ts
+- src\features\compare\CompetitorComparePage.tsx
+
+Next:
+- read wm_compare_handoff inside Proposal Builder
+- surface sales-led talking points in proposal draft
+- add stronger weighting rules per AV category

@@ -112,7 +112,7 @@ const BulkOperationsModal: React.FC<BulkOperationsModalProps> = ({
                 <div className="flex-1">
                   <p className="font-semibold text-text-primary">{room.roomName}</p>
                   <p className="text-sm text-text-secondary">
-                    {room.roomType} • {room.designTier}
+                    {room.roomType} â€¢ {room.designTier}
                   </p>
                 </div>
               </label>

@@ -44,7 +44,7 @@ export const RESIDENTIAL_TEMPLATES: UserTemplate[] = [
             features: [{ name: 'Program Audio', priority: 'must-have' }],
             functionalityStatement: 'A high-quality but discreet living room entertainment system. A large 4K OLED TV is mounted on the wall, paired with a high-performance soundbar with eARC. All source devices (streaming box, cable box, game console) are located remotely in a nearby closet and connected via an EX-40-H2-ARC HDBaseT extender for a clean, wire-free look. A universal remote controls the entire system.',
             manuallyAddedEquipment: [
-                { sku: 'EX-40-H2-ARC', name: '4K60Hz 4.4.4 HDBaseT™ Extender Set', quantity: 1, category: 'Extender', description: 'Dolby Vision & HDR | ARC | RS232 & 2-Way IR Passthrough (4K: 40m/115ft, 1080p: 70m/230ft)', tags: ['Extender', 'HDBaseT', 'ARC', 'Class B', '4K60', '4:4:4', 'HDR', 'RS232', 'IR'] },
+                { sku: 'EX-40-H2-ARC', name: '4K60Hz 4.4.4 HDBaseTâ„¢ Extender Set', quantity: 1, category: 'Extender', description: 'Dolby Vision & HDR | ARC | RS232 & 2-Way IR Passthrough (4K: 40m/115ft, 1080p: 70m/230ft)', tags: ['Extender', 'HDBaseT', 'ARC', 'Class B', '4K60', '4:4:4', 'HDR', 'RS232', 'IR'] },
             ],
             constructionDetails: { wallConstruction: 'drywall', cableContainment: 'conduit', furnitureType: 'fixed' },
             audioSystemDetails: { speakerLayout: 'soundbar', systemType: 'low_impedance', useCases: ['program_audio'], microphoneType: 'none', ucCompatibility: false },

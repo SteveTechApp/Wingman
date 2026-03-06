@@ -207,7 +207,7 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
     return (
       <div className="flex\ items-center\ justify-center\ h-full\ bg-gray-50\ dark:bg-gray-800\ border\ border-border-color\ rounded-lg\ p-8">
         <div className="text-center">
-          <div className="text-6xl\ mb-4">🔌</div>
+          <div className="text-6xl\ mb-4">ðŸ”Œ</div>
           <h3 className="text-xl\ font-bold\ mb-2">No Equipment to Route</h3>
           <p className="text-text-secondary">
             Add equipment to see cable routing visualization
@@ -244,7 +244,7 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
             textAnchor="middle"
             className="fill-text-primary\ font-semibold\ text-sm"
           >
-            {room.roomName} ({roomWidth}cm × {roomDepth}cm)
+            {room.roomName} ({roomWidth}cm Ã— {roomDepth}cm)
           </text>
 
           {/* Cable routes */}
@@ -387,9 +387,9 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
                   style={{ backgroundColor: CABLE_COLORS[route.cableType] }}
                 />
                 <span className="font-mono\ text-xs">C{idx + 1}</span>
-                <span>→</span>
+                <span>â†’</span>
                 <span className="truncate">{route.from.name}</span>
-                <span>→</span>
+                <span>â†’</span>
                 <span className="truncate">{route.to.name}</span>
               </div>
               <div className="flex\ items-center\ gap-3\ text-xs\ text-text-secondary">

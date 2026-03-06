@@ -137,7 +137,7 @@ const PricingCalculator: React.FC<PricingCalculatorProps> = ({ equipment, onPric
       {itemsWithoutPricing > 0 && (
         <div className="bg-yellow-50\ dark:bg-yellow-900/20\ border\ border-yellow-200\ dark:border-yellow-700\ rounded-lg\ p-3">
           <p className="text-sm\ text-yellow-800\ dark:text-yellow-200">
-            ⚠️ {itemsWithoutPricing} item{itemsWithoutPricing > 1 ? 's' : ''} without pricing data. 
+            âš ï¸ {itemsWithoutPricing} item{itemsWithoutPricing > 1 ? 's' : ''} without pricing data. 
             Total may be incomplete.
           </p>
         </div>
@@ -179,7 +179,7 @@ const PricingCalculator: React.FC<PricingCalculatorProps> = ({ equipment, onPric
                       <div className="font-semibold\ text-sm">{item.name}</div>
                       <div className="text-xs\ text-text-secondary">{item.sku}</div>
                       <div className="text-xs\ text-text-secondary\ mt-1">
-                        {formatCurrency(unitPrice)} × {quantity}
+                        {formatCurrency(unitPrice)} Ã— {quantity}
                       </div>
                     </div>
                     <div className="text-right">

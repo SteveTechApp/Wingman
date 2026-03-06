@@ -1,0 +1,7 @@
+Repo:    C:\Users\steve\wingman
+Mode:    APPLY
+Rescue:  _RESCUE\RepoStructureCleanup_Phase25_20260306_102623
+Archive: _ARCHIVE\RepoStructureCleanup_Phase25_20260306_102623
+Audit:   _AUDITS\RepoStructureCleanup_Phase25_20260306_102623
+Kept:    src\features\misc\TrainingHubPage.tsx
+Kept:    src\features\misc\VideoWallPlannerPage.tsx

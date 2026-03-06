@@ -1,0 +1,15 @@
+Wingman Catalog Phase 3
+Mode: APPLY
+
+Created/Updated:
+- src\catalog\types.ts
+- src\catalog\enrich.ts
+- src\catalog\match.ts
+- src\catalog\index.ts
+- src\catalog\repository.ts
+- src\features\catalog\CatalogPage.tsx
+
+Next:
+- create competitor dataset in same schema
+- use matchCatalogProducts() inside compare tool
+- replace starter records with expanded validated WyreStorm models
