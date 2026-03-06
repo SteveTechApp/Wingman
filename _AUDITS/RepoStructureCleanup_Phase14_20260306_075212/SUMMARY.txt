@@ -1,4 +1,0 @@
-Repo:    C:\Users\steve\wingman
-Mode:    APPLY
-Rescue:  _RESCUE\RepoStructureCleanup_Phase14_20260306_075212
-Audit:   _AUDITS\RepoStructureCleanup_Phase14_20260306_075212

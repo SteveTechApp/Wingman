@@ -1,4 +1,0 @@
-"Step","Source","Target","Action"
-"PromoteRealProfileModal","src\components\ProfileModal.tsx","src\app\ProfileModal.tsx","Promoted"
-"WrapLegacyProfileModal","src\components\ProfileModal.tsx","src\components\ProfileModal.tsx","Wrapped"
-"ArchiveAltStubProfileModal","src\app\components\ProfileModal.tsx","","SkippedReferenced"

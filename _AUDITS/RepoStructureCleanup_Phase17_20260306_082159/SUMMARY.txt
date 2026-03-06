@@ -1,5 +1,0 @@
-Repo:   C:\Users\steve\wingman
-Mode:   APPLY
-Rescue: _RESCUE\RepoStructureCleanup_Phase17_20260306_082159
-Audit:  _AUDITS\RepoStructureCleanup_Phase17_20260306_082159
-RewriteCount: 0

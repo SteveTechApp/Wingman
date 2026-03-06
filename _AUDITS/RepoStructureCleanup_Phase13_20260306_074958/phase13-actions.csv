@@ -1,3 +1,0 @@
-"Step","Source","Target","Action"
-"PromoteRealFeedbackModal","src\components\FeedbackModal.tsx","src\app\FeedbackModal.tsx","Promoted"
-"WrapLegacyFeedbackModal","src\components\FeedbackModal.tsx","src\components\FeedbackModal.tsx","Wrapped"
