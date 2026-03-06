@@ -1,5 +1,5 @@
 
-import { useReducer, useState, useEffect, useCallback, useRef } from 'react';
+import * as React from "react";
 import { ProjectData, Product } from '../utils/types';
 import { useLocalStorage } from './useLocalStorage';
 import { projectReducer } from './reducers/projectReducer';
@@ -11,27 +11,27 @@ export type LoadingContext = 'template' | 'proposal' | 'design' | 'diagram' | 'd
 export type ProjectManagementType = ReturnType<typeof useProjectManagement>;
 
 export const useProjectManagement = () => {
-    const [projectData, dispatchProjectAction] = useReducer(projectReducer, null);
+    const [projectData, dispatchProjectAction] = React.useReducer(projectReducer, null);
     const [savedProjects, setSavedProjects] = useLocalStorage<ProjectData[]>('savedProjects', []);
     const [lastActiveProjectId, setLastActiveProjectId] = useLocalStorage<string | null>('lastActiveProjectId', null);
-    const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
+    const [activeRoomId, setActiveRoomId] = React.useState<string | null>(null);
     
-    const [appState, setAppState] = useState<AppState>('idle');
-    const [loadingContext, setLoadingContext] = useState<LoadingContext>('default');
-    const [error, setError] = useState<string | null>(null);
+    const [appState, setAppState] = React.useState<AppState>('idle');
+    const [loadingContext, setLoadingContext] = React.useState<LoadingContext>('default');
+    const [error, setError] = React.useState<string | null>(null);
     
-    const [isDesignOptionsModalOpen, setIsDesignOptionsModalOpen] = useState(false);
-    const [comparisonList, setComparisonList] = useState<Product[]>([]);
+    const [isDesignOptionsModalOpen, setIsDesignOptionsModalOpen] = React.useState(false);
+    const [comparisonList, setComparisonList] = React.useState<Product[]>([]);
     
-    const projectDataRef = useRef(projectData);
-    const isRestoringRef = useRef(false);
+    const projectDataRef = React.useRef(projectData);
+    const isRestoringRef = React.useRef(false);
 
-    useEffect(() => {
+    React.useEffect(() => {
         projectDataRef.current = projectData;
     }, [projectData]);
 
     // 1. SESSION RESTORE: Attempt to load the last active project on mount
-    useEffect(() => {
+    React.useEffect(() => {
         // Only try to restore if we don't have a project loaded and we have a history
         if (!projectData && lastActiveProjectId && savedProjects.length > 0 && !isRestoringRef.current) {
             const lastProject = savedProjects.find(p => p.projectId === lastActiveProjectId);
@@ -45,7 +45,7 @@ export const useProjectManagement = () => {
     }, []); // Run once on mount
 
     // 2. AUTO-SAVE & TRACKING: Save project and update last active ID
-    useEffect(() => {
+    React.useEffect(() => {
         // Skip auto-save during initial restoration
         if (projectData && !isRestoringRef.current) {
             // Update the list of saved projects
@@ -76,7 +76,7 @@ export const useProjectManagement = () => {
     }, [projectData]);
 
     // 3. AUTO-SELECT ROOM: Select first room if none selected
-    useEffect(() => {
+    React.useEffect(() => {
         if (projectData && projectData.rooms.length > 0) {
             if (!activeRoomId || !projectData.rooms.find(r => r.id === activeRoomId)) {
                 setActiveRoomId(projectData.rooms[0].id);
@@ -86,7 +86,7 @@ export const useProjectManagement = () => {
         }
     }, [projectData, activeRoomId]);
 
-    const handleLoadProject = useCallback((projectId: string) => {
+    const handleLoadProject = React.useCallback((projectId: string) => {
         setAppState('loading');
         const projectToLoad = savedProjects.find(p => p.projectId === projectId);
         if (projectToLoad) {
@@ -101,7 +101,7 @@ export const useProjectManagement = () => {
         }
     }, [savedProjects, setLastActiveProjectId]);
 
-    const handleDeleteProject = useCallback((projectId: string) => {
+    const handleDeleteProject = React.useCallback((projectId: string) => {
         setSavedProjects(prev => prev.filter(p => p.projectId !== projectId));
         if (projectData?.projectId === projectId) {
             dispatchProjectAction({type: 'SET_PROJECT', payload: null!});
@@ -110,11 +110,11 @@ export const useProjectManagement = () => {
         toast.success("Project deleted.");
     }, [projectData, setSavedProjects, setLastActiveProjectId]);
     
-    const getState = useCallback(() => {
+    const getState = React.useCallback(() => {
         return { projectData: projectDataRef.current };
     }, []);
 
-    const toggleComparison = useCallback((product: Product) => {
+    const toggleComparison = React.useCallback((product: Product) => {
         setComparisonList(prev => {
             const isComparing = prev.some(p => p.sku === product.sku);
             if (isComparing) {
@@ -129,7 +129,7 @@ export const useProjectManagement = () => {
         });
     }, []);
 
-    const clearComparison = useCallback(() => {
+    const clearComparison = React.useCallback(() => {
         setComparisonList([]);
     }, []);
 

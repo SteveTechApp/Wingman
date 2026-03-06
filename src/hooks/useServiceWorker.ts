@@ -1,11 +1,11 @@
 
-import { useEffect, useState } from 'react';
+import * as React from "react";
 
 export const useServiceWorker = () => {
-  const [updateAvailable, setUpdateAvailable] = useState(false);
-  const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const [updateAvailable, setUpdateAvailable] = React.useState(false);
+  const [registration, setRegistration] = React.useState<ServiceWorkerRegistration | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')

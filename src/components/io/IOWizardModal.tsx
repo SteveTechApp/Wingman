@@ -1,8 +1,7 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { IOPoint, RoomData } from '../../utils/types';
 import { v4 as uuidv4 } from 'uuid';
-import { useProjectContext } from "@/context/ProjectContext";
+import { useProjectContext } from "@/context";
 import IoColumnPanel from './IoColumnPanel';
 import IOPointConfigModal from '../roomWizard/IOPointConfigModal';
 import InfoModal from '../InfoModal';
@@ -15,8 +14,8 @@ interface IOWizardModalProps {
 
 const IOWizardModal: React.FC<IOWizardModalProps> = ({ isOpen, onClose, room }) => {
     const { dispatchProjectAction } = useProjectContext();
-    const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
-    const [editingPoint, setEditingPoint] = useState<IOPoint | null>(null);
+    const [isConfigModalOpen, setIsConfigModalOpen] = React.useState(false);
+    const [editingPoint, setEditingPoint] = React.useState<IOPoint | null>(null);
 
     if (!isOpen) return null;
 
@@ -87,6 +86,4 @@ const IOWizardModal: React.FC<IOWizardModalProps> = ({ isOpen, onClose, room }) 
 };
 
 export default IOWizardModal;
-
-
 

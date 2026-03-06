@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { EngineeringContext, Phase, RoomProfile } from "../types";
 
 export type Rule = {

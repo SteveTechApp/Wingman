@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { Product } from '../utils/types';
 import InfoModal from './InfoModal';
 

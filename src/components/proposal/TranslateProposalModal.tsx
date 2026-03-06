@@ -1,5 +1,5 @@
+import * as React from "react";
 
-import React, { useState } from 'react';
 import { SUPPORTED_LANGUAGES } from '../../data/constants';
 import { LanguageCode } from '../../utils/types';
 import InfoModal from '../InfoModal';
@@ -11,7 +11,7 @@ interface TranslateProposalModalProps {
 }
 
 const TranslateProposalModal: React.FC<TranslateProposalModalProps> = ({ isOpen, onClose, onTranslate }) => {
-  const [targetLang, setTargetLang] = useState<LanguageCode>('fr-FR');
+  const [targetLang, setTargetLang] = React.useState<LanguageCode>('fr-FR');
 
   const footer = (
     <>
@@ -44,6 +44,4 @@ const TranslateProposalModal: React.FC<TranslateProposalModalProps> = ({ isOpen,
 };
 
 export default TranslateProposalModal;
-
-
 

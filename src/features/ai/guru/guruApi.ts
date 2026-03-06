@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export type GuruMode = "ask" | "resources" | "project-check";
 
 export type GuruAnswer = {

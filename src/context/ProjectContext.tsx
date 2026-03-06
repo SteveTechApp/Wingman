@@ -1,100 +1,102 @@
+import * as React from "react";
+import { createStrictContext } from "./createStrictContext";
+import { useWingman, wingmanActions } from "@/state/useWingman";
+import type { LoadingContext, WingmanProjectSummary } from "@/state/defaults";
 
-import React, { createContext, useContext, ReactNode, useMemo } from 'react';
-import { useProjectManagement, ProjectManagementType } from '../hooks/useProjectManagement';
+export type ProjectManagementType = {
+  savedProjects: any[];
+  activeProjectId: string | null;
+  setActiveProjectId: (id: string | null) => void;
 
-const ProjectContext = createContext<ProjectManagementType | undefined>(undefined);
+  projectData: any;
+  dispatchProjectAction: (...args: any[]) => void;
 
-export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const projectManagementData = useProjectManagement();
+  activeRoomId: string | null;
+  setActiveRoomId: (id: string | null) => void;
 
-  const {
+  loadingContext: LoadingContext | null;
+
+  comparisonList: any[];
+  toggleComparison: (item: any) => void;
+  clearComparison: () => void;
+
+  handleDeleteProject: (id: string) => void;
+};
+
+const [ProjectContext, useProjectContext] =
+  createStrictContext<ProjectManagementType>("Project");
+
+export { useProjectContext };
+
+export function ProjectProvider(props: { children: React.ReactNode }) {
+  const savedProjects = useWingman((s) => s.projects.list);
+  const activeProjectId = useWingman((s) => s.projects.activeId);
+  const loadingContext = useWingman((s) => s.ui.loadingContext);
+  const comparisonList = useWingman((s) => s.comparison.comparisonList);
+
+  const [activeRoomId, setActiveRoomIdLocal] = React.useState<string | null>(null);
+
+  const setActiveProjectId = React.useCallback((id: string | null) => {
+    wingmanActions.setActiveProjectId(id);
+  }, []);
+
+  const dispatchProjectAction = React.useCallback((..._args: any[]) => {
+    // placeholder for legacy reducers
+  }, []);
+
+  const setActiveRoomId = React.useCallback((id: string | null) => {
+    setActiveRoomIdLocal(id);
+  }, []);
+
+  const toggleComparison = React.useCallback((item: any) => {
+    wingmanActions.toggleComparison(item);
+  }, []);
+
+  const clearComparison = React.useCallback(() => {
+    wingmanActions.clearComparison();
+  }, []);
+
+  const handleDeleteProject = React.useCallback((id: string) => {
+    wingmanActions.setProjects(savedProjects.filter((p) => p.id !== id));
+    if (activeProjectId === id) wingmanActions.setActiveProjectId(null);
+  }, [savedProjects, activeProjectId]);
+
+  const projectData = React.useMemo(() => {
+    const active = savedProjects.find((p) => p.id === activeProjectId) ?? null;
+    return {
+      activeProject: active,
+      projects: savedProjects,
+      activeId: activeProjectId,
+    };
+  }, [savedProjects, activeProjectId]);
+
+  const value = React.useMemo<ProjectManagementType>(() => ({
+    savedProjects,
+    activeProjectId,
+    setActiveProjectId,
     projectData,
     dispatchProjectAction,
-    savedProjects,
-    handleLoadProject,
-    handleDeleteProject,
     activeRoomId,
     setActiveRoomId,
-    appState,
-    setAppState,
     loadingContext,
-    setLoadingContext,
-    error,
-    getState,
     comparisonList,
     toggleComparison,
     clearComparison,
-    isDesignOptionsModalOpen,
-    setIsDesignOptionsModalOpen
-  } = projectManagementData;
-
-  const value = useMemo(() => ({
-    projectData,
-    dispatchProjectAction,
-    savedProjects,
-    handleLoadProject,
     handleDeleteProject,
-    activeRoomId,
-    setActiveRoomId,
-    appState,
-    setAppState,
-    loadingContext,
-    setLoadingContext,
-    error,
-    getState,
-    comparisonList,
-    toggleComparison,
-    clearComparison,
-    isDesignOptionsModalOpen,
-    setIsDesignOptionsModalOpen
   }), [
-    // Explicitly list dependencies to ensure stability
-    projectData, // Re-renders only when projectData changes (which is correct)
-    dispatchProjectAction,
     savedProjects,
-    handleLoadProject,
-    handleDeleteProject,
+    activeProjectId,
+    setActiveProjectId,
+    projectData,
+    dispatchProjectAction,
     activeRoomId,
     setActiveRoomId,
-    appState,
-    setAppState,
     loadingContext,
-    setLoadingContext,
-    error,
-    getState,
     comparisonList,
     toggleComparison,
     clearComparison,
-    isDesignOptionsModalOpen,
-    setIsDesignOptionsModalOpen
+    handleDeleteProject,
   ]);
 
-  return (
-    <ProjectContext.Provider value={value}>
-      {children}
-    </ProjectContext.Provider>
-  );
-};
-
-export const useProjectContext = () => {
-  const context = useContext(ProjectContext);
-  if (context === undefined) {
-    // Wingman hardening: do not hard-crash the whole app if provider is missing.
-    // Return a minimal safe fallback object; guards can redirect appropriately.
-    console.warn("useProjectContext used without ProjectProvider — returning fallback context");
-    return {
-      project: null,
-      activeProjectId: null,
-      setActiveProjectId: () => {},
-      setProject: () => {},
-      updateProject: () => {},
-      clearProject: () => {},
-      rooms: [],
-      setRooms: () => {}
-    } as any;
-  }
-  return context;
-};
-
-
-
+  return <ProjectContext.Provider value={value}>{props.children}</ProjectContext.Provider>;
+}

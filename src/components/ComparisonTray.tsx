@@ -1,11 +1,10 @@
-
-import React, { useState } from 'react';
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import { useProjectContext } from "@/context";
 import ProductComparisonModal from './ProductComparisonModal';
 
 const ComparisonTray: React.FC = () => {
   const { comparisonList, clearComparison, toggleComparison } = useProjectContext();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   if (comparisonList.length === 0) {
     return null;
@@ -42,6 +41,4 @@ const ComparisonTray: React.FC = () => {
 };
 
 export default ComparisonTray;
-
-
 

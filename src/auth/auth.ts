@@ -1,3 +1,4 @@
+import * as React from "react";
 import { getAnyAuth, loginLocal, logout } from "./authStore";
 
 export type WingmanUser = {

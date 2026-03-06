@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { AudioIcon, PlusIcon, CloseIcon } from '../../Icons';
 import { AudioSystemDetails, AudioZone } from '../../../utils/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,7 +13,7 @@ interface Props {
 }
 
 const AudioDesignStep: React.FC<Props> = ({ audioDetails, setAudioDetails, onNext, onBack, onSave }) => {
-    const [newZoneName, setNewZoneName] = useState('');
+    const [newZoneName, setNewZoneName] = React.useState('');
 
     // Ensure zones array exists
     const zones = audioDetails.zones || [];
@@ -172,6 +171,4 @@ const AudioDesignStep: React.FC<Props> = ({ audioDetails, setAudioDetails, onNex
 };
 
 export default AudioDesignStep;
-
-
 

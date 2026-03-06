@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { BomLine, Money, ProposalTotals } from "./types";
 
 function val(m?: Money): number { return m?.value ?? 0; }

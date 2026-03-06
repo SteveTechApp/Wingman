@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { supabase } from "@/lib/supabase";
 
 export type Category = "AVOIP" | "HDBT_EXTENDER" | "PRESENTATION_SWITCHER";

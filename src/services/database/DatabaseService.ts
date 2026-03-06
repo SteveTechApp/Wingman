@@ -3,6 +3,7 @@
  * Database Service - Core initialization and setup
  */
 
+import * as React from "react";
 import { DB_NAME, DB_VERSION, STORES } from './types';
 
 export class DatabaseService {

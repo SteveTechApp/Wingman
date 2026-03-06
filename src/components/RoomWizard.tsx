@@ -1,5 +1,4 @@
-
-import React from "react";
+import * as React from "react";
 
 export default function RoomWizard() {
   return (
@@ -11,6 +10,4 @@ export default function RoomWizard() {
     </div>
   );
 }
-
-
 

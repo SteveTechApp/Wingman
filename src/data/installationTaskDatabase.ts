@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export const INSTALLATION_TASK_DATABASE = {
     "Pre-Wire & First Fix": ["Run all low-voltage cabling", "Install back boxes and wall plates", "Coordinate with electrical contractor for power placement", "Verify all cable paths"],

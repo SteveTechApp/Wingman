@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { Proposal, BomLine } from "./types";
 import { money } from "./pricing";
 
@@ -15,7 +16,7 @@ export function loadProposal(): Proposal | null {
 
 export function saveProposal(p: Proposal) {
   try {
-    window.localStorage.setItem(KEY, JSON.stringify(p));
+    window.localStorage.setItem(KEY, JSON.stringify(p, null, 2));
   } catch {
     // ignore
   }

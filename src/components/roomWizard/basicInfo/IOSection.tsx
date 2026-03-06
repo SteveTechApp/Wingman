@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { RoomWizardAnswers, IOPoint } from '../../../utils/types';
 import IOPointEditor from '../IOPointEditor';
 import IOPointConfigModal from '../IOPointConfigModal';
@@ -11,8 +10,8 @@ interface IOSectionProps {
 }
 
 const IOSection: React.FC<IOSectionProps> = ({ answers, updateAnswers }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPoint, setEditingPoint] = useState<IOPoint | null>(null);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [editingPoint, setEditingPoint] = React.useState<IOPoint | null>(null);
 
   const handleAddPoint = (type: 'input' | 'output') => {
     // FIX: Added missing deviceType and control properties to match IOPoint type.
@@ -67,6 +66,4 @@ const IOSection: React.FC<IOSectionProps> = ({ answers, updateAnswers }) => {
 };
 
 export default IOSection;
-
-
 

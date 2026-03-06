@@ -1,7 +1,7 @@
 
-import React from 'react';
+import * as React from "react";
 import ErrorDisplay from './ErrorDisplay';
-import { useProjectContext } from "@/context/ProjectContext";
+import { useProjectContext } from "@/context";
 
 // --- Internal Class Component for Error Handling Logic ---
 

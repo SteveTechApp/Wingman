@@ -1,52 +1,50 @@
+import * as React from "react";
+import type { UserProfile } from "@/utils/types/user";
+import { createStrictContext } from "./createStrictContext";
+import { useWingman, wingmanActions } from "@/state/useWingman";
 
-import React, { createContext, useContext, ReactNode, useState, useMemo } from 'react';
-import { useUserProfile } from '../hooks/useUserProfile';
+export type UserContextType = {
+  isAuthenticated: boolean;
+  setIsAuthenticated: (v: boolean) => void;
 
-export type UserContextType = ReturnType<typeof useUserProfile> & {
-    isAuthenticated: boolean;
-    setIsAuthenticated: (value: boolean) => void;
+  userProfile: UserProfile;
+  updateUserProfile: (patch: Partial<UserProfile>) => void;
+
+  isProfileModalOpen: boolean;
+  openProfileModal: () => void;
+  closeProfileModal: () => void;
 };
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const [UserContext, useUserContext] = createStrictContext<UserContextType>("User");
 
-export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { userProfile, updateUserProfile, isProfileModalOpen, openProfileModal, closeProfileModal } = useUserProfile();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+export { useUserContext };
 
-  // Memoize the value to ensure stable object reference
-  const value = useMemo(() => ({
-      userProfile,
-      updateUserProfile,
-      isProfileModalOpen,
-      openProfileModal,
-      closeProfileModal,
-      isAuthenticated,
-      setIsAuthenticated
-  }), [
-      // Destructure userProfile properties if needed for granular control, 
-      // but here we want to update on any profile change.
-      userProfile, 
-      updateUserProfile, 
-      isProfileModalOpen, 
-      openProfileModal, 
-      closeProfileModal, 
-      isAuthenticated
-  ]);
+export function UserProvider(props: { children: React.ReactNode }) {
+  const isAuthenticated = useWingman((s) => s.auth.isAuthed);
+  const userProfile = useWingman((s) => s.user.profile);
 
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  );
-};
+  const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
 
-export const useUserContext = () => {
-  const context = useContext(UserContext);
-  if (context === undefined) {
-    throw new Error('useUserContext must be used within a UserProvider');
-  }
-  return context;
-};
+  const setIsAuthenticated = React.useCallback((v: boolean) => {
+    if (v) { wingmanActions.signInDemo("local-user"); } else { wingmanActions.signOut(); }
+  }, []);
 
+  const updateUserProfile = React.useCallback((patch: Partial<UserProfile>) => {
+    wingmanActions.updateUserProfile(patch);
+  }, []);
 
+  const openProfileModal = React.useCallback(() => setIsProfileModalOpen(true), []);
+  const closeProfileModal = React.useCallback(() => setIsProfileModalOpen(false), []);
 
+  const value = React.useMemo<UserContextType>(() => ({
+    isAuthenticated,
+    setIsAuthenticated,
+    userProfile,
+    updateUserProfile,
+    isProfileModalOpen,
+    openProfileModal,
+    closeProfileModal,
+  }), [isAuthenticated, setIsAuthenticated, userProfile, updateUserProfile, isProfileModalOpen, openProfileModal, closeProfileModal]);
+
+  return <UserContext.Provider value={value}>{props.children}</UserContext.Provider>;
+}

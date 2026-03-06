@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export const PART_2_EXTENSION = `
 ## Part 2: Signal Extension Technologies

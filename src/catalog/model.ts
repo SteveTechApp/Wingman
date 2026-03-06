@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export type Lifecycle = "current" | "legacy" | "eol";
 
 export type ProductCategory =

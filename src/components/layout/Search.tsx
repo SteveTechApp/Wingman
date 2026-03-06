@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import * as React from "react";
 import { useNavigate } from 'react-router-dom';
 import Fuse from 'fuse.js';
 import { Product } from '../../utils/types';
@@ -33,19 +32,18 @@ const SearchIcon: React.FC<{className?: string}> = ({ className }) => (
     </svg>
 );
 
-
 // --- Main Search Component ---
 
 const Search: React.FC = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [query, setQuery] = useState('');
-    const [results, setResults] = useState<{ products: Product[]; training: typeof TRAINING_MODULES; pages: any[] }>({ products: [], training: [], pages: [] });
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [isOpen, setIsOpen] = React.useState(false);
+    const [query, setQuery] = React.useState('');
+    const [results, setResults] = React.useState<{ products: Product[]; training: typeof TRAINING_MODULES; pages: any[] }>({ products: [], training: [], pages: [] });
+    const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
     const navigate = useNavigate();
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef = React.useRef<HTMLInputElement>(null);
 
     // Initialize Fuse.js instances for fuzzy search
-    const productFuse = useMemo(() => new Fuse(PRODUCT_DATABASE, {
+    const productFuse = React.useMemo(() => new Fuse(PRODUCT_DATABASE, {
         keys: [
             { name: 'name', weight: 0.4 },
             { name: 'sku', weight: 0.3 },
@@ -57,7 +55,7 @@ const Search: React.FC = () => {
         minMatchCharLength: 2,
     }), []);
 
-    const trainingFuse = useMemo(() => new Fuse(TRAINING_MODULES, {
+    const trainingFuse = React.useMemo(() => new Fuse(TRAINING_MODULES, {
         keys: [
             { name: 'title', weight: 0.7 },
             { name: 'contentPages.content', weight: 0.3 },
@@ -67,14 +65,14 @@ const Search: React.FC = () => {
         minMatchCharLength: 2,
     }), []);
 
-    const pageFuse = useMemo(() => new Fuse(NAV_LINKS, {
+    const pageFuse = React.useMemo(() => new Fuse(NAV_LINKS, {
         keys: ['label'],
         threshold: 0.3,
         includeScore: true,
     }), []);
 
     // Keyboard shortcut listener (Cmd+K / Ctrl+K)
-    useEffect(() => {
+    React.useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
                 event.preventDefault();
@@ -88,14 +86,14 @@ const Search: React.FC = () => {
     }, []);
     
     // Focus input when modal opens
-    useEffect(() => {
+    React.useEffect(() => {
         if (isOpen) {
             setTimeout(() => inputRef.current?.focus(), 100);
         }
     }, [isOpen])
 
     // Debounced fuzzy search logic with Fuse.js
-    useEffect(() => {
+    React.useEffect(() => {
         const handler = setTimeout(() => {
             if (!query.trim()) {
                 setResults({ products: [], training: [], pages: [] });
@@ -214,6 +212,4 @@ const Search: React.FC = () => {
 };
 
 export default Search;
-
-
 

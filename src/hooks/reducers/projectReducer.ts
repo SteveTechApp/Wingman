@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { ProjectData, RoomData, Proposal, ProjectInfrastructure, ManuallyAddedEquipment, DesignProposal } from '../../utils/types';
 
 export type ProjectAction =

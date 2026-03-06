@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from 'react';
+import * as React from "react";
 import { ManuallyAddedEquipment } from '../utils/types';
 import { 
   getPricingBySku, 
@@ -14,11 +13,11 @@ interface PricingCalculatorProps {
 }
 
 const PricingCalculator: React.FC<PricingCalculatorProps> = ({ equipment, onPricingUpdate }) => {
-  const [selectedTier, setSelectedTier] = useState<'msrp' | 'bronze' | 'silver' | 'gold'>('silver');
-  const [showDetails, setShowDetails] = useState(false);
-  const [marginPercentage, setMarginPercentage] = useState(20); // Default 20% margin
+  const [selectedTier, setSelectedTier] = React.useState<'msrp' | 'bronze' | 'silver' | 'gold'>('silver');
+  const [showDetails, setShowDetails] = React.useState(false);
+  const [marginPercentage, setMarginPercentage] = React.useState(20); // Default 20% margin
 
-  const equipmentWithPricing = useMemo(() => {
+  const equipmentWithPricing = React.useMemo(() => {
     return equipment.map(item => {
       const pricing = getPricingBySku(item.sku);
       return {
@@ -28,7 +27,7 @@ const PricingCalculator: React.FC<PricingCalculatorProps> = ({ equipment, onPric
     });
   }, [equipment]);
 
-  const totals = useMemo(() => {
+  const totals = React.useMemo(() => {
     const equipmentList = equipment.map(e => ({ sku: e.sku, quantity: e.quantity || 1 }));
     
     return {
@@ -226,6 +225,4 @@ const PricingCalculator: React.FC<PricingCalculatorProps> = ({ equipment, onPric
 };
 
 export default PricingCalculator;
-
-
 

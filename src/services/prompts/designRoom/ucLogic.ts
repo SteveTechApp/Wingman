@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export const getUcLogic = () => `
   **Unified Communications (UC), Camera & Audio Logic (CRITICAL):**

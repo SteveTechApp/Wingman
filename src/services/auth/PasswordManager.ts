@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export type PasswordHashRecord = {
   version: 1;
@@ -96,7 +98,7 @@ export class PasswordManager {
     const token = randomToken(24);
     const expiresAtIso = new Date(Date.now() + ttlMinutes * 60_000).toISOString();
     const rec: ResetTokenRecord = { token, expiresAtIso };
-    localStorage.setItem(this.resetKey, JSON.stringify(rec));
+    localStorage.setItem(this.resetKey, JSON.stringify(rec, null, 2));
     return rec;
   }
 
@@ -137,7 +139,7 @@ export class PasswordManager {
       createdAtIso: new Date().toISOString(),
     };
 
-    localStorage.setItem(this.storageKey, JSON.stringify(rec));
+    localStorage.setItem(this.storageKey, JSON.stringify(rec, null, 2));
     return rec;
   }
 

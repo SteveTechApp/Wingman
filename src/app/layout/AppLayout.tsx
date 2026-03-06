@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { useUserContext } from '../../context/UserContext';
 
 import Header from './Header';
@@ -14,7 +13,7 @@ interface AppLayoutProps {
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { isProfileModalOpen, closeProfileModal, userProfile } = useUserContext();
-  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = React.useState(false);
 
   const showBg = userProfile.showBackground;
 
@@ -51,6 +50,4 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 };
 
 export default AppLayout;
-
-
 

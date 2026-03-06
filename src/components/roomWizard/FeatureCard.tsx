@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { Feature } from '../../utils/types';
 import { InformationCircleIcon } from '../Icons';
 import InfoTooltip from '../InfoTooltip';

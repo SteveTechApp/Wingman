@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { RoomData } from './project';
 
 export interface DesignFeedbackItem {

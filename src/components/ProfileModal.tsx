@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
 import { useUserContext } from '../context/UserContext';
 import { UserProfile, Product } from '../utils/types';
 import { SUPPORTED_LANGUAGES } from '../data/constants';
@@ -14,9 +13,9 @@ interface ProfileModalProps {
 
 const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   const { userProfile, updateUserProfile } = useUserContext();
-  const [localProfile, setLocalProfile] = useState<UserProfile>(userProfile);
+  const [localProfile, setLocalProfile] = React.useState<UserProfile>(userProfile);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // When the modal is opened, reset the local state to match the current user profile.
     // This ensures that each time the modal is opened, it starts with fresh, up-to-date data.
     // We intentionally omit `userProfile` from the dependency array because we *only* want
@@ -40,7 +39,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   };
 
   const handleSave = () => {
-    if (JSON.stringify(localProfile) !== JSON.stringify(userProfile)) {
+    if (JSON.stringify(localProfile, null, 2) !== JSON.stringify(userProfile, null, 2)) {
         updateUserProfile(localProfile);
         const nameToDisplay = localProfile.name || "Profile";
         toast.success(`${nameToDisplay} saved!`);
@@ -187,6 +186,4 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
 };
 
 export default ProfileModal;
-
-
 

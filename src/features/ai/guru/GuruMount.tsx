@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
-
+import * as React from "react";
 export default function GuruMount() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const onToggle = () => setOpen((v) => !v);
     const onOpen = () => setOpen(true);
     const onClose = () => setOpen(false);

@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import type { ExtractedRequirements } from "@/app/import/extractRequirements";
 import catalog from "@/data/wyrestormSkuCatalog.2026";
 

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { FixedSizeList as List } from 'react-window';
 import { Product } from '../utils/types';
 

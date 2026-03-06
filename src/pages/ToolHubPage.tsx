@@ -1,44 +1,154 @@
-import React from "react";
+import * as React from "react";
+// src/pages/ToolHubPage.tsx
+
 import { Link } from "react-router-dom";
+import {
+  LayoutGrid,
+  Boxes,
+  Shuffle,
+  FileText,
+  Wand2,
+  Video,
+  GraduationCap,
+  ArrowRight,
+  ClipboardList,
+  FolderPlus,
+} from "lucide-react";
+
+type Tool = {
+  title: string;
+  desc: string;
+  tag: string;
+  to: string;
+  Icon: React.ComponentType<{ size?: string | number }>;
+};
+
+const TOOLS: Tool[] = [
+  {
+    title: "Start New Project",
+    desc: "Create a blank project workspace and begin a new design or sales workflow.",
+    tag: "Workspace",
+    to: "/app/projects/new",
+    Icon: FolderPlus,
+  },
+  {
+    title: "Product Catalog",
+    desc: "Browse SKUs and families (seed dataset).",
+    tag: "Core",
+    to: "/app/tools/catalog",
+    Icon: Boxes,
+  },
+  {
+    title: "Discovery Wizard",
+    desc: "Capture customer requirements before choosing products.",
+    tag: "Design",
+    to: "/app/tools/discovery",
+    Icon: ClipboardList,
+  },
+  {
+    title: "Templates",
+    desc: "Tiered starting-point BOMs with guided inputs (Bronze/Silver/Gold).",
+    tag: "Design",
+    to: "/app/tools/templates",
+    Icon: ClipboardList,
+  },
+  {
+    title: "Competitor Compare",
+    desc: "Map competitor items to suggested WyreStorm SKUs.",
+    tag: "Sales",
+    to: "/app/tools/competitor",
+    Icon: Shuffle,
+  },
+  {
+    title: "Proposal Builder",
+    desc: "Generate Bronze/Silver/Gold style proposals.",
+    tag: "Sales",
+    to: "/app/tools/proposal",
+    Icon: FileText,
+  },
+  {
+    title: "Room Wizard",
+    desc: "Guided AV room design intake.",
+    tag: "Design",
+    to: "/app/tools/room",
+    Icon: Wand2,
+  },
+  {
+    title: "Video Wall Planner",
+    desc: "LED/LCD planning and layout scaffolds.",
+    tag: "Design",
+    to: "/app/tools/videowall",
+    Icon: Video,
+  },
+  {
+    title: "Training Hub",
+    desc: "Sales enablement modules and quick reference.",
+    tag: "Enablement",
+    to: "/app/tools/training",
+    Icon: GraduationCap,
+  },
+];
+
+function ToolTile({ t }: { t: Tool }) {
+  const I = t.Icon;
+  return (
+    <Link className="wm-tile" to={t.to}>
+      <div className="wm-tile__top">
+        <div className="wm-tile__icon">
+          <I size={20} />
+        </div>
+        <span className="wm-tile__tag">{t.tag}</span>
+      </div>
+
+      <div className="wm-tile__title">{t.title}</div>
+      <div className="wm-tile__desc">{t.desc}</div>
+
+      <div className="wm-tile__meta">
+        <span className="wm-tile__cta">
+          Open <ArrowRight size={16} />
+        </span>
+        <span style={{ opacity: 0.55, fontSize: 12 }}>Ready</span>
+      </div>
+    </Link>
+  );
+}
 
 export default function ToolHubPage() {
   return (
-    <div className="wm-container wm-page"><div className="wm-kicker">Tools</div>
-      <div className="wm-h1" style={{ marginTop: 6 }}>Tool Hub</div>
-      <p className="wm-p" style={{ marginTop: 6 }}>
-        Pre-sales toolset for distributors and system integrators. This hub auto-lists all discovered tool pages.
-      </p>
-
-      <div className="wm-divider" />
-
-      <div className="wm-grid wm-grid-3">
-        <Link className="wm-card wm-card-pad" to="/tools/competitor-compare" style={{ textDecoration: "none" }}>
-          <div className="wm-h2">Competitor Compare</div>
-          <div className="wm-p" style={{ marginTop: 6, opacity: 0.9 }}>/tools/competitor-compare</div>
-          <div className="wm-p" style={{ marginTop: 6, opacity: 0.7, fontSize: 11 }}>src\pages\tools\CompetitorComparePage.tsx</div>
-        </Link>
-        <Link className="wm-card wm-card-pad" to="/tools/proposal-builder" style={{ textDecoration: "none" }}>
-          <div className="wm-h2">Proposal Builder</div>
-          <div className="wm-p" style={{ marginTop: 6, opacity: 0.9 }}>/tools/proposal-builder</div>
-          <div className="wm-p" style={{ marginTop: 6, opacity: 0.7, fontSize: 11 }}>src\pages\tools\ProposalBuilderPage.tsx</div>
-        </Link>
-        <Link className="wm-card wm-card-pad" to="/tools/room-wizard" style={{ textDecoration: "none" }}>
-          <div className="wm-h2">Room Wizard</div>
-          <div className="wm-p" style={{ marginTop: 6, opacity: 0.9 }}>/tools/room-wizard</div>
-          <div className="wm-p" style={{ marginTop: 6, opacity: 0.7, fontSize: 11 }}>src\pages\tools\RoomWizardPage.tsx</div>
-        </Link>
-        <Link className="wm-card wm-card-pad" to="/tools/training-hub" style={{ textDecoration: "none" }}>
-          <div className="wm-h2">Training Hub</div>
-          <div className="wm-p" style={{ marginTop: 6, opacity: 0.9 }}>/tools/training-hub</div>
-          <div className="wm-p" style={{ marginTop: 6, opacity: 0.7, fontSize: 11 }}>src\pages\tools\TrainingHubPage.tsx</div>
-        </Link>
-        <Link className="wm-card wm-card-pad" to="/tools/video-wall-planner" style={{ textDecoration: "none" }}>
-          <div className="wm-h2">Video Wall Planner</div>
-          <div className="wm-p" style={{ marginTop: 6, opacity: 0.9 }}>/tools/video-wall-planner</div>
-          <div className="wm-p" style={{ marginTop: 6, opacity: 0.7, fontSize: 11 }}>src\pages\tools\VideoWallPlannerPage.tsx</div>
-        </Link>
-
+    <div className="wm-shell-body" style={{ display: "flex" }}>
+      <div className="wm-sidenav-wrap">
+        <aside className="wm-sidenav">
+          {/* __WM_MISSION_CONTROL_SHELL_PATCH_V1__ */}
+        </aside>
       </div>
+
+      <main className="wm-main">
+        <div className="wm-toolhub-head wm-page-toolhub">
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <LayoutGrid size={18} />
+              <div
+                style={{
+                  fontWeight: 900,
+                  fontSize: 18,
+                  color: "rgba(255,255,255,0.92)",
+                }}
+              >
+                Tool Hub
+              </div>
+            </div>
+            <div className="wm-toolhub-kicker">
+              Launch tools. Left panel now shows workspace context.
+            </div>
+          </div>
+        </div>
+
+        <div className="wm-tilegrid">
+          {TOOLS.map((t) => (
+            <ToolTile key={t.to} t={t} />
+          ))}
+        </div>
+      </main>
     </div>
   );
 }

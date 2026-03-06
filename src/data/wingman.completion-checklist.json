@@ -1,0 +1,890 @@
+{
+  "checklistId": "wingman-v1-master",
+  "schemaVersion": 1,
+  "title": "Wingman Completion Tracker",
+  "description": "Tracked completion checklist for the Wingman platform.",
+  "generatedAtUtc": "2026-03-03T16:33:03Z",
+  "targetVersion": "v1",
+  "statusLegend": [
+    {
+      "label": "[ ] Not started",
+      "key": "Not started"
+    },
+    {
+      "label": "[~] In progress",
+      "key": "In progress"
+    },
+    {
+      "label": "[x] Complete",
+      "key": "Complete"
+    },
+    {
+      "label": "[!] Blocked",
+      "key": "Blocked"
+    },
+    {
+      "label": "[-] Deferred",
+      "key": "Deferred"
+    }
+  ],
+  "priorityLegend": [
+    {
+      "label": "Launch critical",
+      "key": "P1"
+    },
+    {
+      "label": "Important",
+      "key": "P2"
+    },
+    {
+      "label": "Enhancement",
+      "key": "P3"
+    }
+  ],
+  "summary": {
+    "totalTasks": 41,
+    "byStatus": {
+      "Not started": 41,
+      "In progress": 0,
+      "Complete": 0,
+      "Blocked": 0,
+      "Deferred": 0
+    },
+    "byPriority": {
+      "P1": 37,
+      "P2": 4,
+      "P3": 0
+    },
+    "recommendedFocus": [
+      "W-001",
+      "W-002",
+      "W-003",
+      "W-004",
+      "W-005",
+      "W-006",
+      "UI-001",
+      "UI-003",
+      "NAV-001",
+      "NAV-002",
+      "CAT-001",
+      "CAT-002",
+      "CAT-003",
+      "PD-001",
+      "PD-002",
+      "RW-001",
+      "RW-002",
+      "RW-003",
+      "CMP-001",
+      "CMP-002",
+      "CMP-003",
+      "BOM-001",
+      "BOM-002",
+      "AI-001",
+      "AI-002",
+      "AUTH-001",
+      "AUTH-002",
+      "QA-001",
+      "QA-002",
+      "QA-003"
+    ]
+  },
+  "tasks": [
+    {
+      "order": 1,
+      "id": "W-001",
+      "phase": "Phase 1 - Core App Stability",
+      "section": "Build and routing",
+      "name": "Fix TypeScript compile errors",
+      "description": "Resolve all current TypeScript errors blocking a clean build.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "npm run typecheck returns zero errors.",
+      "tags": [
+        "core",
+        "typescript",
+        "build"
+      ]
+    },
+    {
+      "order": 2,
+      "id": "W-002",
+      "phase": "Phase 1 - Core App Stability",
+      "section": "Build and routing",
+      "name": "Fix broken route imports",
+      "description": "Correct bad route imports and broken aliases in AppRoutes and related pages.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "All route imports resolve and no missing module errors remain.",
+      "tags": [
+        "core",
+        "routing"
+      ]
+    },
+    {
+      "order": 3,
+      "id": "W-003",
+      "phase": "Phase 1 - Core App Stability",
+      "section": "Build and routing",
+      "name": "Remove duplicate lazy imports and dynamic import failures",
+      "description": "Clean duplicate declarations and lazy-loaded page failures that cause browser crashes.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "No duplicate identifiers and no failed dynamic module fetches in browser console.",
+      "tags": [
+        "core",
+        "routing",
+        "lazy-load"
+      ]
+    },
+    {
+      "order": 4,
+      "id": "W-004",
+      "phase": "Phase 1 - Core App Stability",
+      "section": "Build and routing",
+      "name": "Confirm clean typecheck and build",
+      "description": "Validate that both typecheck and production build complete cleanly.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "npm run typecheck and npm run build both pass.",
+      "tags": [
+        "core",
+        "build",
+        "qa"
+      ]
+    },
+    {
+      "order": 5,
+      "id": "W-005",
+      "phase": "Phase 1 - Core App Stability",
+      "section": "Shell stability",
+      "name": "Stabilise AppShell layout",
+      "description": "Ensure AppShell, TopBar, navigation and content grid behave correctly without overflow glitches.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Shell renders consistently and no unexpected scroll/overflow issues appear on core pages.",
+      "tags": [
+        "shell",
+        "layout"
+      ]
+    },
+    {
+      "order": 6,
+      "id": "W-006",
+      "phase": "Phase 1 - Core App Stability",
+      "section": "Page loading",
+      "name": "Verify all core pages load",
+      "description": "Check Dashboard, Projects, Import, ToolHub, Login, Signup, Landing and NotFound pages.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "All key pages render without blank screens or runtime errors.",
+      "tags": [
+        "pages",
+        "qa"
+      ]
+    },
+    {
+      "order": 7,
+      "id": "UI-001",
+      "phase": "Phase 2 - UI Framework Lockdown",
+      "section": "Layout standardisation",
+      "name": "Define one internal page layout standard",
+      "description": "Choose the final wrapper, spacing and page-shell pattern for all internal app pages.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "All internal pages use the same shell and wrapper convention.",
+      "tags": [
+        "ui",
+        "layout"
+      ]
+    },
+    {
+      "order": 8,
+      "id": "UI-002",
+      "phase": "Phase 2 - UI Framework Lockdown",
+      "section": "Layout standardisation",
+      "name": "Define one public page layout standard",
+      "description": "Standardise the layout for public landing, login and signup pages.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Public/auth pages share one consistent layout pattern.",
+      "tags": [
+        "ui",
+        "public"
+      ]
+    },
+    {
+      "order": 9,
+      "id": "UI-003",
+      "phase": "Phase 2 - UI Framework Lockdown",
+      "section": "Styling cleanup",
+      "name": "Consolidate CSS layers and remove duplicates",
+      "description": "Merge duplicate CSS, remove stale rules, and enforce one clear style loading order.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "No duplicate CSS blocks remain and stylesheet load order is intentional.",
+      "tags": [
+        "ui",
+        "css"
+      ]
+    },
+    {
+      "order": 10,
+      "id": "UI-004",
+      "phase": "Phase 2 - UI Framework Lockdown",
+      "section": "Styling cleanup",
+      "name": "Standardise spacing, typography and card scale",
+      "description": "Normalize spacing, type scale, panel size and visual density across the app.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Common cards and page sections follow one spacing and sizing system.",
+      "tags": [
+        "ui",
+        "typography",
+        "spacing"
+      ]
+    },
+    {
+      "order": 11,
+      "id": "UI-005",
+      "phase": "Phase 2 - UI Framework Lockdown",
+      "section": "Branding",
+      "name": "Finalise Wingman branding rules",
+      "description": "Lock logo usage, colour palette, icon style and brand tokens.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Brand presentation is consistent across public and internal pages.",
+      "tags": [
+        "ui",
+        "branding",
+        "tokens"
+      ]
+    },
+    {
+      "order": 12,
+      "id": "NAV-001",
+      "phase": "Phase 3 - Navigation Completion",
+      "section": "Left navigation",
+      "name": "Finalise left navigation structure",
+      "description": "Set final nav groups, labels and workflow-oriented ordering.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Navigation sections are stable, clear and reflect real workflows.",
+      "tags": [
+        "nav",
+        "ux"
+      ]
+    },
+    {
+      "order": 13,
+      "id": "NAV-002",
+      "phase": "Phase 3 - Navigation Completion",
+      "section": "Left navigation",
+      "name": "Remove dead and duplicate links",
+      "description": "Clean duplicate launch points and links to incomplete or missing pages.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Every visible nav item points to a valid working page once.",
+      "tags": [
+        "nav",
+        "routing"
+      ]
+    },
+    {
+      "order": 14,
+      "id": "NAV-003",
+      "phase": "Phase 3 - Navigation Completion",
+      "section": "Tool access model",
+      "name": "Define tool tiers and hide unfinished tools",
+      "description": "Separate core, advanced and admin/internal tools and hide non-launch items.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Only ready tools appear in primary navigation for launch users.",
+      "tags": [
+        "nav",
+        "product",
+        "launch"
+      ]
+    },
+    {
+      "order": 15,
+      "id": "CAT-001",
+      "phase": "Phase 4 - Data Foundation",
+      "section": "WyreStorm master catalog",
+      "name": "Finalise product schema",
+      "description": "Lock the master JSON schema used by product records in Wingman.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "A single documented schema exists and all records conform to it.",
+      "tags": [
+        "data",
+        "schema",
+        "catalog"
+      ]
+    },
+    {
+      "order": 16,
+      "id": "CAT-002",
+      "phase": "Phase 4 - Data Foundation",
+      "section": "Required schema fields",
+      "name": "Complete required catalog fields",
+      "description": "Populate core fields such as type, role, I/O, connectivity, control, power, resolution and lifecycle.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "All required fields are present for launch catalogue records.",
+      "tags": [
+        "data",
+        "catalog",
+        "fields"
+      ]
+    },
+    {
+      "order": 17,
+      "id": "CAT-003",
+      "phase": "Phase 4 - Data Foundation",
+      "section": "Data quality",
+      "name": "Add schema validation and bad-import protection",
+      "description": "Add validation checks so malformed or incomplete records cannot break the app.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Invalid data is flagged before use and import failures are handled safely.",
+      "tags": [
+        "data",
+        "validation",
+        "imports"
+      ]
+    },
+    {
+      "order": 18,
+      "id": "CAT-004",
+      "phase": "Phase 4 - Data Foundation",
+      "section": "Data quality",
+      "name": "Standardise tags, categories and lifecycle labels",
+      "description": "Enforce controlled vocabulary for filtering and consistent output language.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Equivalent products use the same tags and category terms throughout the dataset.",
+      "tags": [
+        "data",
+        "taxonomy",
+        "catalog"
+      ]
+    },
+    {
+      "order": 19,
+      "id": "PD-001",
+      "phase": "Phase 5 - Product Discovery Workflow",
+      "section": "Catalog browsing",
+      "name": "Add product browse and search",
+      "description": "Allow browsing by family, category and use case, plus search by SKU and product name.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Users can reliably locate products through browse or search.",
+      "tags": [
+        "product-discovery",
+        "search"
+      ]
+    },
+    {
+      "order": 20,
+      "id": "PD-002",
+      "phase": "Phase 5 - Product Discovery Workflow",
+      "section": "Product detail view",
+      "name": "Build product detail pages",
+      "description": "Display core specs, ports, power, control, compatibility and lifecycle information.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Product detail views are readable and show all launch-critical data points.",
+      "tags": [
+        "product-discovery",
+        "detail"
+      ]
+    },
+    {
+      "order": 21,
+      "id": "PD-003",
+      "phase": "Phase 5 - Product Discovery Workflow",
+      "section": "Catalog browsing",
+      "name": "Add filters by use case and transport type",
+      "description": "Support filtering for AVoIP, matrix, extender, USB/KVM and other solution classes.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Filtering narrows results correctly using consistent dataset fields.",
+      "tags": [
+        "product-discovery",
+        "filters"
+      ]
+    },
+    {
+      "order": 22,
+      "id": "RW-001",
+      "phase": "Phase 6 - RoomWizard / System Design",
+      "section": "Input collection",
+      "name": "Capture room requirements",
+      "description": "Collect room type, sources, displays, distance, USB, audio, control and casting requirements.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "The workflow captures enough inputs to recommend a valid baseline design.",
+      "tags": [
+        "roomwizard",
+        "inputs"
+      ]
+    },
+    {
+      "order": 23,
+      "id": "RW-002",
+      "phase": "Phase 6 - RoomWizard / System Design",
+      "section": "Recommendation logic",
+      "name": "Build recommendation logic",
+      "description": "Map user requirements to suitable WyreStorm product classes and solution patterns.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "RoomWizard produces sensible recommendations grounded in the approved catalog.",
+      "tags": [
+        "roomwizard",
+        "logic"
+      ]
+    },
+    {
+      "order": 24,
+      "id": "RW-003",
+      "phase": "Phase 6 - RoomWizard / System Design",
+      "section": "Output",
+      "name": "Generate system design summary output",
+      "description": "Produce a readable recommendation, product stack, caveats and internal handover notes.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Output includes a clear design summary and the recommended hardware stack.",
+      "tags": [
+        "roomwizard",
+        "output"
+      ]
+    },
+    {
+      "order": 25,
+      "id": "CMP-001",
+      "phase": "Phase 7 - Competitor Comparison",
+      "section": "Competitor data readiness",
+      "name": "Build competitor datasets",
+      "description": "Create structured competitor product datasets for Crestron, Extron, Lightware, BluStream and Atlona.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Launch competitor brands are represented in a consistent structured format.",
+      "tags": [
+        "competitors",
+        "data"
+      ]
+    },
+    {
+      "order": 26,
+      "id": "CMP-002",
+      "phase": "Phase 7 - Competitor Comparison",
+      "section": "Matching logic",
+      "name": "Define equivalency rules",
+      "description": "Match by product type, I/O profile, transport type, features and control interfaces.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Equivalent and partial-equivalent logic is documented and applied consistently.",
+      "tags": [
+        "competitors",
+        "logic"
+      ]
+    },
+    {
+      "order": 27,
+      "id": "CMP-003",
+      "phase": "Phase 7 - Competitor Comparison",
+      "section": "Comparison output",
+      "name": "Build comparison output",
+      "description": "Show the nearest WyreStorm alternative with differences, advantages and warning notes.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Users receive a clear sales-friendly comparison result for supported competitor SKUs.",
+      "tags": [
+        "competitors",
+        "output"
+      ]
+    },
+    {
+      "order": 28,
+      "id": "BOM-001",
+      "phase": "Phase 8 - BOM and Proposal Output",
+      "section": "Bill of materials",
+      "name": "Generate BOM from selected design",
+      "description": "Build a bill of materials including primary hardware and prompted accessories.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Room/design selections generate a reusable BOM list.",
+      "tags": [
+        "bom",
+        "proposal"
+      ]
+    },
+    {
+      "order": 29,
+      "id": "BOM-002",
+      "phase": "Phase 8 - BOM and Proposal Output",
+      "section": "Proposal support",
+      "name": "Generate proposal and justification text",
+      "description": "Output internal and customer-facing summary text explaining the recommended solution.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Proposal text is concise, technically safe and usable by sales teams.",
+      "tags": [
+        "proposal",
+        "sales"
+      ]
+    },
+    {
+      "order": 30,
+      "id": "AI-001",
+      "phase": "Phase 9 - Guru AI Assistant",
+      "section": "Scope definition",
+      "name": "Define Guru operating modes",
+      "description": "Set the supported modes for recommendation, design help, competitor substitution, BOM help and proposal wording.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Guru scope is clearly defined and reflected in prompt logic.",
+      "tags": [
+        "guru",
+        "ai"
+      ]
+    },
+    {
+      "order": 31,
+      "id": "AI-002",
+      "phase": "Phase 9 - Guru AI Assistant",
+      "section": "Reliability rules",
+      "name": "Restrict Guru to approved data only",
+      "description": "Ensure responses are grounded in approved structured data and avoid invented SKUs or unsupported claims.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Guru only answers from approved sources and flags uncertainty when data is incomplete.",
+      "tags": [
+        "guru",
+        "ai",
+        "safety"
+      ]
+    },
+    {
+      "order": 32,
+      "id": "AI-003",
+      "phase": "Phase 9 - Guru AI Assistant",
+      "section": "Guided workflow",
+      "name": "Build guided questioning and fallbacks",
+      "description": "Add sensible prompts so less technical sales users can still reach a valid answer.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Guru asks useful clarifying questions and provides fallback guidance when data is missing.",
+      "tags": [
+        "guru",
+        "ux",
+        "sales"
+      ]
+    },
+    {
+      "order": 33,
+      "id": "AUTH-001",
+      "phase": "Phase 10 - Accounts and Access Control",
+      "section": "Authentication",
+      "name": "Confirm auth flows work",
+      "description": "Validate login, signup, email verification and password reset.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "All required user auth flows complete successfully end-to-end.",
+      "tags": [
+        "auth",
+        "security"
+      ]
+    },
+    {
+      "order": 34,
+      "id": "AUTH-002",
+      "phase": "Phase 10 - Accounts and Access Control",
+      "section": "Roles",
+      "name": "Define roles and protected routes",
+      "description": "Implement sales, pre-sales and admin access boundaries with route protection.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Users only see and access tools appropriate to their role.",
+      "tags": [
+        "auth",
+        "roles",
+        "security"
+      ]
+    },
+    {
+      "order": 35,
+      "id": "HELP-001",
+      "phase": "Phase 11 - Help and Training",
+      "section": "In-app support",
+      "name": "Add contextual help and onboarding",
+      "description": "Add first-use prompts, definitions and basic page-level guidance.",
+      "priority": "P2",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Major tools include enough help for first-time sales users to self-serve.",
+      "tags": [
+        "help",
+        "training",
+        "ux"
+      ]
+    },
+    {
+      "order": 36,
+      "id": "HELP-002",
+      "phase": "Phase 11 - Help and Training",
+      "section": "Internal training support",
+      "name": "Create quick-start and role-based guides",
+      "description": "Provide simple guides for sales and pre-sales workflows.",
+      "priority": "P2",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Users have a concise quick-start path and role-specific usage guidance.",
+      "tags": [
+        "help",
+        "training"
+      ]
+    },
+    {
+      "order": 37,
+      "id": "ADMIN-001",
+      "phase": "Phase 12 - Admin and Content Maintenance",
+      "section": "Data management",
+      "name": "Add data import and update workflow",
+      "description": "Create a safe workflow to maintain catalog and competitor records.",
+      "priority": "P2",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Admin users can update data without manual code edits.",
+      "tags": [
+        "admin",
+        "data",
+        "imports"
+      ]
+    },
+    {
+      "order": 38,
+      "id": "ADMIN-002",
+      "phase": "Phase 12 - Admin and Content Maintenance",
+      "section": "Admin safety",
+      "name": "Add versioning, rollback and health checks",
+      "description": "Protect admin changes with history, rollback and health visibility.",
+      "priority": "P2",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Bad imports can be detected and reverted without breaking the app.",
+      "tags": [
+        "admin",
+        "safety",
+        "ops"
+      ]
+    },
+    {
+      "order": 39,
+      "id": "QA-001",
+      "phase": "Phase 13 - QA and Pilot Readiness",
+      "section": "Testing",
+      "name": "Test routes and workflows end-to-end",
+      "description": "Validate every route and each core business workflow manually.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "All launch-critical routes and workflows have been tested and signed off.",
+      "tags": [
+        "qa",
+        "testing"
+      ]
+    },
+    {
+      "order": 40,
+      "id": "QA-002",
+      "phase": "Phase 13 - QA and Pilot Readiness",
+      "section": "Testing",
+      "name": "Test bad inputs, sessions and screen sizes",
+      "description": "Check invalid inputs, fresh browser sessions and practical screen sizes.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "Core workflows remain stable under realistic edge cases.",
+      "tags": [
+        "qa",
+        "testing",
+        "ux"
+      ]
+    },
+    {
+      "order": 41,
+      "id": "QA-003",
+      "phase": "Phase 13 - QA and Pilot Readiness",
+      "section": "Launch readiness",
+      "name": "Create pilot launch package",
+      "description": "Prepare known-issues list, launch scope, pilot demo flow and rollback plan.",
+      "priority": "P1",
+      "status": "Not started",
+      "owner": "Steve",
+      "targetVersion": "v1",
+      "blockedBy": "",
+      "notes": "",
+      "doneCriteria": "A clear pilot-ready release candidate exists with launch notes and rollback plan.",
+      "tags": [
+        "qa",
+        "launch",
+        "pilot"
+      ]
+    }
+  ]
+}

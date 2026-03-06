@@ -1,23 +1,43 @@
-import React from "react";
-import { useAuth } from "@/auth/AuthContext";
+import * as React from "react";
 
-export default function LoginForm({
-  embedded,
-  title = "Sign in",
-  subtitle,
-}: {
+import { useAuth } from "@/context";
+
+type LoginFormProps = {
   embedded?: boolean;
   title?: string;
   subtitle?: string;
-}) {
+};
+
+export default function LoginForm({
+  embedded = false,
+  title = "Sign in",
+  subtitle,
+}: LoginFormProps) {
   const { signInDemo } = useAuth();
-  return (
-    <div className={embedded ? "wm-card wm-card-pad" : undefined}>
-      <div className="wm-h2">{title}</div>
-      {subtitle && <div className="wm-p" style={{ marginTop: 6 }}>{subtitle}</div>}
-      <button className="wm-btn wm-btn-primary" style={{ marginTop: 10 }} onClick={() => signInDemo()}>
-        Sign in as Demo User
+
+  const content = (
+    <>
+      {!!title && <div className="wm-h2">{title}</div>}
+
+      {!!subtitle && (
+        <div className="wm-p" style={{ marginTop: title ? 6 : 0 }}>
+          {subtitle}
+        </div>
+      )}
+
+      <button
+        className="wm-btn wm-btn-primary"
+        style={{ marginTop: title || subtitle ? 10 : 0, width: "100%" }}
+        onClick={() => signInDemo()}
+      >
+        Continue to Wingman
       </button>
-    </div>
+    </>
   );
+
+  if (embedded) {
+    return <div>{content}</div>;
+  }
+
+  return <div className="wm-card wm-card-pad">{content}</div>;
 }

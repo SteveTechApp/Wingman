@@ -1,7 +1,7 @@
 
-import React from 'react';
-import PageShell from "@/components/layout/PageShell";
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import PageShell from "@/app/layout/PageShell";
+import { useProjectContext } from "@/context";
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -28,6 +28,7 @@ const AnalyticsPage: React.FC = () => {
 };
 
 export default AnalyticsPage;
+
 
 
 

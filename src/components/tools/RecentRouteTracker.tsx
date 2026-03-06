@@ -1,26 +1,16 @@
-
-import React, { useEffect } from "react";
+import * as React from "react";
 import { useLocation } from "react-router-dom";
-import recordRecentTool from "@/components/app/tools/recentTools";
-import { getToolByPath } from "@/data/toolCategories";
+import { getToolByPath, noteRecentTool } from "./recentTools";
 
 export default function RecentRouteTracker() {
-  const loc = useLocation();
+  const location = useLocation();
 
-  useEffect(() => {
-    const p = loc.pathname;
-    if (!p) return;
-
-    // Record only known tool paths (avoid recording project-specific routes like /design/:id)
-    if (getToolByPath(p)) {
-      recordRecentTool.pushRecentTool({ title: p, href: p });
-      // best-effort: notify same-tab listeners too
-      window.dispatchEvent(new StorageEvent("storage", { key: "wingman_recent_tools_v1" }));
+  React.useEffect(() => {
+    const path = location.pathname;
+    if (getToolByPath(path)) {
+      noteRecentTool(path);
     }
-  }, [loc.pathname]);
+  }, [location.pathname]);
 
   return null;
 }
-
-
-

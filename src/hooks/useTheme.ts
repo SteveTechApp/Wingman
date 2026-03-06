@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import * as React from "react";
 import { useLocalStorage } from './useLocalStorage';
 
 export type Theme = 'light' | 'dark' | 'auto';
@@ -7,7 +7,7 @@ export type Theme = 'light' | 'dark' | 'auto';
 export const useTheme = () => {
   const [theme, setTheme] = useLocalStorage<Theme>('wingman-theme', 'auto');
 
-  useEffect(() => {
+  React.useEffect(() => {
     const root = document.documentElement;
 
     // Remove any existing theme attributes

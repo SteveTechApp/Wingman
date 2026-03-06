@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import RecentProjects from './RecentProjects';
 import { GridIcon, PlusIcon, SparklesIcon, DocumentScannerIcon, VideoWallIcon } from '../Icons';
 import ActionButton from './ActionButton';

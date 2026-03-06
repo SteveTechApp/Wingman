@@ -1,0 +1,12 @@
+
+src\AppRoutes.tsx:33:        <Route path="/" element={<PublicLandingPage />} />
+src\AppRoutes.tsx:34:        <Route path="/login" element={<LoginPage />} />
+src\AppRoutes.tsx:35:        <Route path="/signup" element={<SignupPage />} />
+src\AppRoutes.tsx:38:        <Route path="/app" element={<AppShell />}>
+src\AppRoutes.tsx:40:          <Route path="dashboard" element={<DashboardPage />} />
+src\AppRoutes.tsx:41:          <Route path="projects" element={<ProjectsPage />} />
+src\AppRoutes.tsx:42:          <Route path="tools" element={<ToolHubPage />} />
+src\AppRoutes.tsx:43:          <Route path="export" element={<ExportSnapshotPage />} />
+src\AppRoutes.tsx:44:          <Route path="*" element={<NotFoundPage />} />
+src\AppRoutes.tsx:48:        <Route path="*" element={<NotFoundPage />} />
+

@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from 'react';
+import * as React from "react";
 import InfoModal from './InfoModal';
 import {
   analyzeTechnologyRequirements,
@@ -28,14 +27,14 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
   cableDistance,
   onSelectSpecification
 }) => {
-  const [selectedContentType, setSelectedContentType] = useState<
+  const [selectedContentType, setSelectedContentType] = React.useState<
     'presentation' | 'video-conference' | 'digital-signage' | 'broadcast' | 'training'
   >('presentation');
 
-  const [selectedComparison, setSelectedComparison] = useState<string | null>(null);
+  const [selectedComparison, setSelectedComparison] = React.useState<string | null>(null);
 
   // Analyze requirements for each content type
-  const allRequirements = useMemo(() => {
+  const allRequirements = React.useMemo(() => {
     const types: Array<'presentation' | 'video-conference' | 'digital-signage' | 'broadcast' | 'training'> = [
       'presentation',
       'video-conference',
@@ -51,7 +50,7 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
   }, [roomType, displaySize, viewingDistance]);
 
   // Cost comparison scenarios
-  const costComparisons = useMemo(() => {
+  const costComparisons = React.useMemo(() => {
     const scenarios = [
       {
         name: '4K 30Hz 4:4:4 (Presentation Quality)',
@@ -358,6 +357,4 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
 };
 
 export default TechnologySpecAnalyzer;
-
-
 

@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { DesignPackage, EngineeringContext, RoomProfile } from "../types";
 
 function safeLine(s: string) { return (s || "").trim(); }

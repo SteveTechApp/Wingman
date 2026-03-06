@@ -1,17 +1,13 @@
+export type UserProfile = {
+  name: string
+  email: string
+  company: string
 
-import { LanguageCode } from './common';
-import { Product } from './product';
+  showBackground?: boolean
+  unitSystem?: "metric" | "imperial"
+  logoUrl?: string
+  language?: string
+  zoomLevel?: number
 
-export interface UserProfile {
-    name: string;
-    company: string;
-    logoUrl: string;
-    language: LanguageCode;
-    unitSystem: 'metric' | 'imperial';
-    showBackground: boolean;
-    zoomLevel: number;
-    customProductDatabase?: Product[];
+  customProductDatabase?: any[]
 }
-
-
-

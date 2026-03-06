@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export type ExtractResult = { text: string; meta?: any };
 
 export function extractPlainText(input: unknown): ExtractResult {

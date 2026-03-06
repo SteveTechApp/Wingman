@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export type LocalAuthUser = { email: string; name?: string };
 export type AuthState = { user: LocalAuthUser; remember?: boolean };
 
@@ -14,7 +16,7 @@ export function getAnyAuth(): AuthState | null {
 
 export function loginLocal(user: LocalAuthUser, remember = true): AuthState {
   const state: AuthState = { user, remember };
-  localStorage.setItem(KEY, JSON.stringify(state));
+  localStorage.setItem(KEY, JSON.stringify(state, null, 2));
   return state;
 }
 

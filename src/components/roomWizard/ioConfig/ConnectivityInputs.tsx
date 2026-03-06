@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
 import { IOPoint } from '../../../utils/types';
 import { useUserContext } from '../../../context/UserContext';
 import { CONNECTION_TYPES, TRANSPORT_TYPES, LOCATION_TYPES } from '../../../data/wizardOptions';
@@ -24,9 +23,9 @@ const ConnectivityInputs: React.FC<ConnectivityInputsProps> = ({ point, onUpdate
     return isImperial ? num / METER_TO_FEET : num;
   };
 
-  const [localDistance, setLocalDistance] = useState(() => toDisplay(point.distance));
+  const [localDistance, setLocalDistance] = React.useState(() => toDisplay(point.distance));
 
-  useEffect(() => {
+  React.useEffect(() => {
     setLocalDistance(toDisplay(point.distance));
   }, [point.distance, isImperial]);
 
@@ -94,6 +93,4 @@ const ConnectivityInputs: React.FC<ConnectivityInputsProps> = ({ point, onUpdate
 };
 
 export default ConnectivityInputs;
-
-
 

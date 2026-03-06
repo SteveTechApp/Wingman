@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { Product } from '../../utils/types';
 
 export const SWITCHERS_PRESENTATION: Product[] = [

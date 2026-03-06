@@ -1,14 +1,15 @@
-import React from "react";
+import * as React from "react";
+
 import { useNavigate } from "react-router-dom";
-import heroLogo from "@/assets/branding/heroLogo.png";
-import { useAuth } from "@/auth/AuthContext";
+import heroLogo from "@/assets/branding/hero-logo.png";
+import { useAuth } from "@/context";
 
 export default function PublicLandingPage() {
   const nav = useNavigate();
   const { signInDemo } = useAuth();
 
   function enterWorkspace() {
-    signInDemo("demo@wingman.local");
+    signInDemo();
     nav("/app/dashboard");
   }
 

@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
 import { RoomWizardAnswers } from '../../utils/types';
 import { MAIN_DISPLAY_OPTIONS } from '../../data/wizardOptions';
 import { toggleFeature } from '../../utils/utils';
@@ -20,9 +19,9 @@ const getSelectedType = (answers: RoomWizardAnswers): string => {
 };
 
 const StepOutputs: React.FC<StepOutputsProps> = ({ answers, updateAnswers }) => {
-    const [selectedType, setSelectedType] = useState(() => getSelectedType(answers));
+    const [selectedType, setSelectedType] = React.useState(() => getSelectedType(answers));
 
-    useEffect(() => { setSelectedType(getSelectedType(answers)); }, [answers]);
+    React.useEffect(() => { setSelectedType(getSelectedType(answers)); }, [answers]);
 
     const handleSelectType = (typeId: string) => {
         const newAnswers: Partial<RoomWizardAnswers> = {
@@ -56,6 +55,4 @@ const StepOutputs: React.FC<StepOutputsProps> = ({ answers, updateAnswers }) => 
 };
 
 export default StepOutputs;
-
-
 

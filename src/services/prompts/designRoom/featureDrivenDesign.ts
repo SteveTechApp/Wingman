@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export const getFeatureDrivenDesignLogic = () => `
   **Functionality Questionnaire & Feature-Driven Design:**

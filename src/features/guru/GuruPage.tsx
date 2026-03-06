@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
+import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import CollapsibleCard from "@/ui2/components/CollapsibleCard";
 import { askGuru, type GuruResponse } from "./guruService";
 
 const SUGGESTIONS = [
@@ -27,72 +28,7 @@ const EMPTY_RESPONSE: GuruResponse = {
   ],
 };
 
-function SectionCard({
-  title,
-  subtitle,
-  right,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  right?: React.ReactNode;
-  children?: React.ReactNode;
-}) {
-  return (
-    <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: 12,
-          flexWrap: "wrap",
-        }}
-      >
-        <div>
-          <div style={{ fontWeight: 900, fontSize: 16 }}>{title}</div>
-          {subtitle ? (
-            <div style={{ marginTop: 4, fontSize: 12, color: "rgba(255,255,255,0.80)", lineHeight: 1.45 }}>
-              {subtitle}
-            </div>
-          ) : null}
-        </div>
-        {right ? <div>{right}</div> : null}
-      </div>
-      <div style={{ marginTop: 14 }}>{children}</div>
-    </section>
-  );
-}
-
-function SuggestionChip({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="wm-hover-lift"
-      style={{
-        textAlign: "left",
-        width: "100%",
-        borderRadius: 12,
-        border: "1px solid rgba(168,85,247,0.22)",
-        background: "linear-gradient(180deg, rgba(168,85,247,0.12) 0%, rgba(168,85,247,0.06) 100%)",
-        padding: "12px 14px",
-        color: "rgba(255,255,255,0.94)",
-        cursor: "pointer",
-      }}
-    >
-      <div style={{ fontSize: 13, lineHeight: 1.4 }}>{label}</div>
-    </button>
-  );
-}
-
-function BulletList({
+function ResultBulletList({
   items,
   accentRgb,
 }: {
@@ -131,15 +67,42 @@ function BulletList({
   );
 }
 
+function buildRefinedQuestion(baseQuestion: string, questions: string[], answers: string[]): string {
+  const safeBase = (baseQuestion || "").trim();
+  const lines: string[] = [];
+
+  for (let i = 0; i < questions.length; i++) {
+    const answer = (answers[i] || "").trim();
+    if (!answer) continue;
+    lines.push(`${questions[i]} ${answer}`);
+  }
+
+  if (!lines.length) return safeBase;
+
+  return [safeBase, "", "Further qualification answers:", ...lines.map((x) => `- ${x}`)].join("\n");
+}
+
 export default function GuruPage() {
   const nav = useNavigate();
-  const [draftQuestion, setDraftQuestion] = useState(SUGGESTIONS[0]);
-  const [submittedQuestion, setSubmittedQuestion] = useState("");
-  const [result, setResult] = useState<GuruResponse>(EMPTY_RESPONSE);
-  const [loading, setLoading] = useState(false);
+  const [draftQuestion, setDraftQuestion] = React.useState(SUGGESTIONS[0]);
+  const [submittedQuestion, setSubmittedQuestion] = React.useState("");
+  const [result, setResult] = React.useState<GuruResponse>(EMPTY_RESPONSE);
+  const [loading, setLoading] = React.useState(false);
 
-  const canSubmit = useMemo(() => draftQuestion.trim().length > 0, [draftQuestion]);
+  const [followUpAnswers, setFollowUpAnswers] = React.useState<string[]>([]);
+  const [refinedQuestion, setRefinedQuestion] = React.useState("");
+  const [lastRefinementApplied, setLastRefinementApplied] = React.useState(false);
+
+  const canSubmit = React.useMemo(() => draftQuestion.trim().length > 0, [draftQuestion]);
   const hasSkuSuggestions = result.skuSuggestions.length > 0;
+
+  const preparedAnswers = React.useMemo(() => {
+    return result.qualificationQuestions.map((_, i) => followUpAnswers[i] || "");
+  }, [result.qualificationQuestions, followUpAnswers]);
+
+  const hasAnyFollowUpAnswer = React.useMemo(() => {
+    return preparedAnswers.some((x) => x.trim().length > 0);
+  }, [preparedAnswers]);
 
   async function submitQuestion() {
     const next = draftQuestion.trim();
@@ -150,6 +113,34 @@ export default function GuruPage() {
       const response = await askGuru(next);
       setSubmittedQuestion(next);
       setResult(response);
+      setFollowUpAnswers(new Array(response.qualificationQuestions.length).fill(""));
+      setRefinedQuestion("");
+      setLastRefinementApplied(false);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function applyFurtherQuestioning() {
+    const base = submittedQuestion.trim() || draftQuestion.trim();
+    if (!base) return;
+
+    const nextRefinedQuestion = buildRefinedQuestion(
+      base,
+      result.qualificationQuestions,
+      preparedAnswers
+    );
+
+    if (nextRefinedQuestion.trim() === base.trim()) return;
+
+    setLoading(true);
+    try {
+      const response = await askGuru(nextRefinedQuestion);
+      setSubmittedQuestion(nextRefinedQuestion);
+      setRefinedQuestion(nextRefinedQuestion);
+      setResult(response);
+      setFollowUpAnswers(new Array(response.qualificationQuestions.length).fill(""));
+      setLastRefinementApplied(true);
     } finally {
       setLoading(false);
     }
@@ -159,6 +150,22 @@ export default function GuruPage() {
     setDraftQuestion("");
     setSubmittedQuestion("");
     setResult(EMPTY_RESPONSE);
+    setFollowUpAnswers([]);
+    setRefinedQuestion("");
+    setLastRefinementApplied(false);
+  }
+
+  function clearFollowUpAnswers() {
+    setFollowUpAnswers(new Array(result.qualificationQuestions.length).fill(""));
+  }
+
+  function updateFollowUpAnswer(index: number, value: string) {
+    setFollowUpAnswers((prev) => {
+      const next = [...prev];
+      while (next.length < result.qualificationQuestions.length) next.push("");
+      next[index] = value;
+      return next;
+    });
   }
 
   function buildProposal() {
@@ -174,7 +181,7 @@ export default function GuruPage() {
           guidanceNotes: result.guidanceNotes,
           matchedProducts: result.matchedProducts,
           savedAt: new Date().toISOString(),
-        }),
+        })
       );
     } catch {}
 
@@ -186,20 +193,55 @@ export default function GuruPage() {
       <div style={{ display: "grid", gap: 14 }}>
         <div>
           <div className="wm-page-eyebrow">GUIDED ASSISTANCE</div>
-          <h1 className="wm-page-title" style={{ marginBottom: 8 }}>Wingman Guru</h1>
-          <div style={{ maxWidth: 940, fontSize: 14, color: "rgba(255,255,255,0.88)", lineHeight: 1.5 }}>
-            Guru now gives a product starting point first, then follow-up qualification questions, and finally a proposal handoff when SKU suggestions are available.
+          <h1 className="wm-page-title" style={{ marginBottom: 8 }}>
+            Wingman Guru
+          </h1>
+          <div
+            style={{
+              maxWidth: 760,
+              fontSize: 14,
+              color: "rgba(255,255,255,0.88)",
+              lineHeight: 1.45,
+            }}
+          >
+            Ask one clear question, get a practical starting point, then refine only if needed.
           </div>
         </div>
 
-        <SectionCard
-          title="Ask a question"
-          subtitle="Describe the requirement clearly, then use Submit question to commit it."
-          right={
+        <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <div style={{ fontWeight: 900, fontSize: 16 }}>Ask Guru</div>
+              <div
+                style={{
+                  marginTop: 4,
+                  fontSize: 12,
+                  color: "rgba(255,255,255,0.80)",
+                  lineHeight: 1.45,
+                }}
+              >
+                Describe the room, workflow, distances, and any competitor reference.
+              </div>
+            </div>
+
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button type="button" className="wm-btn" style={{ height: 36, padding: "0 12px" }} onClick={clearAll}>
+              <button
+                type="button"
+                className="wm-btn"
+                style={{ height: 36, padding: "0 12px" }}
+                onClick={clearAll}
+              >
                 Clear
               </button>
+
               <button
                 type="button"
                 className="wm-btn wm-btn-primary"
@@ -215,87 +257,87 @@ export default function GuruPage() {
                 {loading ? "Working..." : "Submit question"}
               </button>
             </div>
-          }
-        >
-          <textarea
-            value={draftQuestion}
-            onChange={(e) => setDraftQuestion(e.target.value)}
-            placeholder="Describe the room, source count, display count, cable distances, user workflow, or competitor reference."
-            style={{
-              width: "100%",
-              minHeight: 110,
-              resize: "vertical",
-              borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.14)",
-              background: "rgba(255,255,255,0.05)",
-              padding: 14,
-              color: "rgba(255,255,255,0.96)",
-              fontSize: 14,
-              lineHeight: 1.5,
-              boxSizing: "border-box",
-            }}
-          />
-        </SectionCard>
-
-        <SectionCard
-          title="Suggested inputs"
-          subtitle="Selecting one loads it into the question box."
-        >
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 10 }}>
-            {SUGGESTIONS.map((item) => (
-              <SuggestionChip key={item} label={item} onClick={() => setDraftQuestion(item)} />
-            ))}
           </div>
-        </SectionCard>
 
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 14 }}>
-          <SectionCard title="Current question" subtitle="The last committed question.">
-            <div
+          <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
+            <textarea
+              value={draftQuestion}
+              onChange={(e) => setDraftQuestion(e.target.value)}
+              placeholder="Describe the room, source count, display count, cable distances, user workflow, or competitor reference."
               style={{
+                width: "100%",
+                minHeight: 110,
+                resize: "vertical",
                 borderRadius: 14,
-                border: "1px solid rgba(255,255,255,0.12)",
-                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.14)",
+                background: "rgba(255,255,255,0.05)",
                 padding: 14,
-                minHeight: 120,
+                color: "rgba(255,255,255,0.96)",
                 fontSize: 14,
-                lineHeight: 1.55,
-                color: "rgba(255,255,255,0.94)",
-                whiteSpace: "pre-wrap",
+                lineHeight: 1.5,
+                boxSizing: "border-box",
               }}
-            >
-              {submittedQuestion || "No question submitted yet."}
-            </div>
-          </SectionCard>
+            />
 
-          <SectionCard
-            title="Product starting point"
-            subtitle="Guru should always suggest a practical starting direction first."
-            right={
-              hasSkuSuggestions ? (
-                <span
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {SUGGESTIONS.slice(0, 3).map((item) => (
+                <button
+                  key={item}
+                  type="button"
                   className="wm-btn"
-                  style={{
-                    height: 30,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    padding: "0 10px",
-                    borderColor: "rgba(168,85,247,0.28)",
-                    background: "rgba(168,85,247,0.12)",
-                    color: "rgba(255,255,255,0.94)",
-                  }}
+                  style={{ minHeight: 34, padding: "6px 10px", textAlign: "left" }}
+                  onClick={() => setDraftQuestion(item)}
                 >
-                  SKU-aware
-                </span>
-              ) : null
-            }
+                  Load example
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
           >
+            <div>
+              <div style={{ fontWeight: 900, fontSize: 16 }}>Guru result</div>
+              <div
+                style={{
+                  marginTop: 4,
+                  fontSize: 12,
+                  color: "rgba(255,255,255,0.80)",
+                  lineHeight: 1.45,
+                }}
+              >
+                Practical starting point first. Refine only if you need more precision.
+              </div>
+            </div>
+
+            {hasSkuSuggestions ? (
+              <button
+                type="button"
+                className="wm-btn wm-btn-primary"
+                style={{ height: 34, padding: "0 14px" }}
+                onClick={buildProposal}
+              >
+                Build proposal
+              </button>
+            ) : null}
+          </div>
+
+          <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
             <div
               style={{
                 borderRadius: 14,
                 border: "1px solid rgba(168,85,247,0.20)",
                 background: "linear-gradient(180deg, rgba(168,85,247,0.10) 0%, rgba(168,85,247,0.05) 100%)",
                 padding: 14,
-                minHeight: 120,
                 fontSize: 14,
                 lineHeight: 1.6,
                 color: "rgba(255,255,255,0.94)",
@@ -303,21 +345,7 @@ export default function GuruPage() {
             >
               {result.productStartingPoint}
             </div>
-          </SectionCard>
-        </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 14 }}>
-          <SectionCard
-            title="Suggested SKU starting point"
-            subtitle="Provisional SKUs only — confirm fit after qualification."
-            right={
-              hasSkuSuggestions ? (
-                <button type="button" className="wm-btn wm-btn-primary" style={{ height: 34, padding: "0 14px" }} onClick={buildProposal}>
-                  Build proposal around this response
-                </button>
-              ) : null
-            }
-          >
             {hasSkuSuggestions ? (
               <div style={{ display: "grid", gap: 10 }}>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -338,57 +366,116 @@ export default function GuruPage() {
                     </span>
                   ))}
                 </div>
+              </div>
+            ) : null}
+          </div>
+        </section>
 
-                {result.matchedProducts.length ? (
-                  <div style={{ display: "grid", gap: 8 }}>
-                    {result.matchedProducts.map((item) => (
-                      <div
-                        key={item.sku}
-                        style={{
-                          borderRadius: 12,
-                          border: "1px solid rgba(255,255,255,0.10)",
-                          background: "rgba(255,255,255,0.04)",
-                          padding: 12,
-                        }}
-                      >
-                        <div style={{ fontWeight: 800, fontSize: 13 }}>{item.sku} — {item.name}</div>
-                        <div style={{ marginTop: 4, fontSize: 12, color: "rgba(255,255,255,0.82)", lineHeight: 1.45 }}>
-                          {item.summary}
-                        </div>
-                      </div>
-                    ))}
+        <CollapsibleCard
+          id="guru_refine"
+          title="Refine the recommendation"
+          subtitle="Answer follow-up questions only when you need a more precise result."
+          defaultCollapsed
+        >
+          {result.qualificationQuestions.length ? (
+            <div style={{ display: "grid", gap: 12 }}>
+              {result.qualificationQuestions.map((question, index) => (
+                <div
+                  key={`${question}-${index}`}
+                  style={{
+                    borderRadius: 12,
+                    border: "1px solid rgba(94,234,212,0.16)",
+                    background: "rgba(94,234,212,0.05)",
+                    padding: 12,
+                    display: "grid",
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "rgba(220,252,247,0.96)" }}>
+                    {question}
                   </div>
-                ) : null}
-              </div>
-            ) : (
-              <div
-                style={{
-                  borderRadius: 14,
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  background: "rgba(255,255,255,0.04)",
-                  padding: 14,
-                  minHeight: 120,
-                  fontSize: 13,
-                  color: "rgba(255,255,255,0.82)",
-                  lineHeight: 1.55,
-                }}
-              >
-                No SKU suggestions yet. Add more detail about the room, distances, sources, displays, or workflow and submit again.
-              </div>
-            )}
-          </SectionCard>
 
-          <SectionCard
-            title="Further qualification"
-            subtitle="Questions that help build out the original requirement."
-          >
-            <BulletList items={result.qualificationQuestions} accentRgb="94,234,212" />
-          </SectionCard>
-        </div>
+                  <textarea
+                    value={preparedAnswers[index]}
+                    onChange={(e) => updateFollowUpAnswer(index, e.target.value)}
+                    placeholder="Enter the customer's answer or your best known detail here."
+                    style={{
+                      width: "100%",
+                      minHeight: 74,
+                      resize: "vertical",
+                      borderRadius: 10,
+                      border: "1px solid rgba(255,255,255,0.12)",
+                      background: "rgba(255,255,255,0.04)",
+                      padding: 10,
+                      color: "rgba(255,255,255,0.94)",
+                      fontSize: 13,
+                      lineHeight: 1.45,
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+              ))}
 
-        <SectionCard title="Guided notes" subtitle="Additional guidance to support the original request.">
-          <BulletList items={result.guidanceNotes} accentRgb="125,211,252" />
-        </SectionCard>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  className="wm-btn"
+                  style={{ height: 34, padding: "0 12px" }}
+                  onClick={clearFollowUpAnswers}
+                  disabled={!result.qualificationQuestions.length || loading}
+                >
+                  Clear answers
+                </button>
+
+                <button
+                  type="button"
+                  className="wm-btn wm-btn-primary"
+                  style={{
+                    height: 34,
+                    padding: "0 14px",
+                    opacity: hasAnyFollowUpAnswer && !loading ? 1 : 0.65,
+                    cursor: hasAnyFollowUpAnswer && !loading ? "pointer" : "not-allowed",
+                  }}
+                  disabled={!hasAnyFollowUpAnswer || loading}
+                  onClick={applyFurtherQuestioning}
+                >
+                  {loading ? "Working..." : "Refine design"}
+                </button>
+              </div>
+
+              {lastRefinementApplied && refinedQuestion ? (
+                <div
+                  style={{
+                    borderRadius: 12,
+                    border: "1px solid rgba(94,234,212,0.18)",
+                    background: "rgba(94,234,212,0.05)",
+                    padding: 12,
+                    fontSize: 12,
+                    lineHeight: 1.5,
+                    color: "rgba(240,253,250,0.92)",
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {refinedQuestion}
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <ResultBulletList
+              items={["No further qualification questions are currently available."]}
+              accentRgb="94,234,212"
+            />
+          )}
+        </CollapsibleCard>
+
+        <CollapsibleCard
+          id="guru_notes"
+          title="Guided notes"
+          subtitle="Additional supporting guidance."
+          defaultCollapsed
+        >
+          <ResultBulletList items={result.guidanceNotes} accentRgb="125,211,252" />
+        </CollapsibleCard>
       </div>
     </div>
   );

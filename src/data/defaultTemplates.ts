@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { UserTemplate } from '../utils/types';
 import { CORPORATE_TEMPLATES } from './templates/corporate';
 import { EDUCATION_TEMPLATES } from './templates/education';

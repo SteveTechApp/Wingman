@@ -1,6 +1,5 @@
-
-import React, { useState, useRef, useEffect } from 'react';
-import PageShell from "@/components/layout/PageShell";
+import * as React from "react";
+import PageShell from "@/app/layout/PageShell";
 import { useNavigate } from 'react-router-dom';
 import { useGenerationContext } from '../context/GenerationContext';
 import toast from 'react-hot-toast';
@@ -23,12 +22,12 @@ const blobToBase64 = (blob: Blob): Promise<{mimeType: string, data: string}> => 
 const SurveyImportPage: React.FC = () => {
     const navigate = useNavigate();
     const { handleSurveyImport } = useGenerationContext();
-    const [mode, setMode] = useState<'select' | 'camera' | 'preview'>('select');
-    const [image, setImage] = useState<{ blob: Blob, url: string } | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [mode, setMode] = React.useState<'select' | 'camera' | 'preview'>('select');
+    const [image, setImage] = React.useState<{ blob: Blob, url: string } | null>(null);
+    const [error, setError] = React.useState<string | null>(null);
     
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const streamRef = useRef<MediaStream | null>(null);
+    const videoRef = React.useRef<HTMLVideoElement>(null);
+    const streamRef = React.useRef<MediaStream | null>(null);
 
     const startCamera = async () => {
         try {
@@ -94,7 +93,7 @@ const SurveyImportPage: React.FC = () => {
         handleSurveyImport(data, mimeType, navigate);
     };
     
-    useEffect(() => {
+    React.useEffect(() => {
         // Cleanup camera stream on component unmount or mode change
         return () => {
             stopCamera();
@@ -169,6 +168,5 @@ const SurveyImportPage: React.FC = () => {
 };
 
 export default SurveyImportPage;
-
 
 

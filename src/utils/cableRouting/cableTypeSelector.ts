@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { EquipmentPosition, CableType, TechnologyRequirement } from './types';
 
 /**

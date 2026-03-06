@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 
 interface EquipmentTableProps {
   equipmentList: { sku: string; name: string; quantity: number }[];

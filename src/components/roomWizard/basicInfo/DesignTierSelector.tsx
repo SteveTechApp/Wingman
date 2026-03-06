@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { RoomWizardAnswers, DesignTier } from '../../../utils/types';
 import { DESIGN_TIER_OPTIONS } from '../../../data/constants';
 import TierTooltip from '../../TierTooltip';
@@ -12,7 +11,7 @@ interface DesignTierSelectorProps {
 }
 
 const DesignTierSelector: React.FC<DesignTierSelectorProps> = ({ answers, updateAnswers }) => {
-    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+    const [isInfoModalOpen, setIsInfoModalOpen] = React.useState(false);
 
     return (
         <div>
@@ -48,6 +47,4 @@ const DesignTierSelector: React.FC<DesignTierSelectorProps> = ({ answers, update
 };
 
 export default DesignTierSelector;
-
-
 

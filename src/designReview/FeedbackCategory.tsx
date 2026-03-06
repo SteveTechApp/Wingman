@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { DesignFeedbackItem } from '../utils/types';
 
 interface FeedbackCategoryProps {

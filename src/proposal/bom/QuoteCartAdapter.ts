@@ -1,3 +1,4 @@
+import * as React from "react";
 import { addLineToSavedProposal } from "@/proposal/bom/store";
 
 export function addProductToProposal(product: {

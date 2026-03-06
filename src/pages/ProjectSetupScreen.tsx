@@ -2,8 +2,8 @@
 // DEPRECATED: This component is obsolete and has been fully replaced by the more advanced `pages/GuidedProjectWizard.tsx`.
 // This file is kept to prevent breaking imports but should not be used in new development.
 
-import React from 'react';
-import PageShell from "@/components/layout/PageShell";
+import * as React from "react";
+import PageShell from "@/app/layout/PageShell";
 import { Link } from 'react-router-dom';
 
 const ObsoleteProjectSetupScreen: React.FC = () => {
@@ -23,6 +23,7 @@ const ObsoleteProjectSetupScreen: React.FC = () => {
 };
 
 export default ObsoleteProjectSetupScreen;
+
 
 
 

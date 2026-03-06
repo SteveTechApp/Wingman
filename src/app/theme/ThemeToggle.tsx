@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import * as React from "react";
 import type { ThemeMode } from "./theme";
 import { applyTheme, getSavedTheme, saveTheme, startThemeSync } from "./theme";
 
@@ -10,17 +10,17 @@ function next(mode: ThemeMode): ThemeMode {
 }
 
 export default function ThemeToggle() {
-  const [mode, setMode] = useState<ThemeMode>(() => {
+  const [mode, setMode] = React.useState<ThemeMode>(() => {
     try { return getSavedTheme(); } catch { return "system"; }
   });
 
-  const label = useMemo(() => {
+  const label = React.useMemo(() => {
     if (mode === "system") return "Theme: Auto";
     if (mode === "dark") return "Theme: Dark";
     return "Theme: Light";
   }, [mode]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     try {
       saveTheme(mode);
       const stop = startThemeSync(mode);

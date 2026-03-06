@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export const getControlSystemLogic = () => `
   **Control System Design Logic (CRITICAL):**

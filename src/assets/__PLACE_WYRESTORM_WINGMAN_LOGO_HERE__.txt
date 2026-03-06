@@ -1,1 +1,0 @@
-Place wyrestorm-wingman-logo.png in src/assets/

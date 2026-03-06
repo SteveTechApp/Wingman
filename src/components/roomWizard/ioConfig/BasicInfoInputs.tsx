@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { IOPoint } from '../../../utils/types';
 import { SOURCE_DEVICE_TYPES, OUTPUT_DEVICE_TYPES, OUTPUT_ROLES } from '../../../data/wizardOptions';
 

@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import { useProjectContext } from "@/context";
 
 const RoomSelectorDropdown: React.FC = () => {
     const { projectData, activeRoomId, setActiveRoomId } = useProjectContext();

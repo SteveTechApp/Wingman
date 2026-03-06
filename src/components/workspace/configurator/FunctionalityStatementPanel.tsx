@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import { useProjectContext } from "@/context";
 
 const FunctionalityStatementPanel: React.FC = () => {
     const { projectData, activeRoomId, dispatchProjectAction } = useProjectContext();

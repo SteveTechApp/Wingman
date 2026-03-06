@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { RoomWizardAnswers } from '../../utils/types';
 import RoomDetailsInputs from './basicInfo/RoomDetailsInputs';
 import RoomSpecsInputs from './basicInfo/RoomSpecsInputs';

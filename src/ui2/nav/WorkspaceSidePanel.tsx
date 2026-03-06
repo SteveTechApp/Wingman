@@ -1,8 +1,9 @@
+import * as React from "react";
 /* __WM_WORKSPACE_NAV_V2__
    Workspace-centric side panel (context + stage + pinned + recent).
    NOT the primary tool list (that lives in MissionControlNav).
 */
-import React from "react";
+
 import { Link, useLocation } from "react-router-dom";
 import {
   SALES_STAGES,

@@ -1,4 +1,6 @@
-﻿export type ProjectData = any;
+import * as React from "react";
+
+export type ProjectData = any;
 
 export type Proposal = {
   equipmentList: any[];

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { RoomData, DesignTier } from '../../../utils/types';
 import TierIcon from '../../TierIcon';
 

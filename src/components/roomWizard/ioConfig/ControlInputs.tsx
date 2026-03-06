@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { IOControl } from '../../../utils/types';
 import { CONTROL_TYPES } from '../../../data/wizardOptions';
 import WizardToggleOption from '../common/WizardToggleOption';

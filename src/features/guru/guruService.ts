@@ -1,3 +1,4 @@
+import * as React from "react";
 import WYRESTORM_CATALOG from "./guruCatalog.generated";
 import type { GuruCatalogItem } from "./guruCatalog.seed";
 

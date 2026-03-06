@@ -1,5 +1,4 @@
-
-import React, { Suspense, useRef, useState, useCallback } from 'react';
+import * as React from "react";
 import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, Grid, Box, Text, PerspectiveCamera, Environment, Line } from '@react-three/drei';
 import { RoomData, ManuallyAddedEquipment } from '../../utils/types';
@@ -33,10 +32,10 @@ const DraggableEquipment: React.FC<{
   isDraggable?: boolean;
   isSelected?: boolean;
 }> = ({ equipment, position, onClick, onDragEnd, isDraggable = false, isSelected = false }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset] = useState(new THREE.Vector3());
+  const meshRef = React.useRef<THREE.Mesh>(null);
+  const [hovered, setHovered] = React.useState(false);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [dragOffset] = React.useState(new THREE.Vector3());
 
   useFrame(() => {
     if (meshRef.current && (hovered || isSelected) && !isDragging) {
@@ -242,7 +241,7 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
   const height = room.technicalDetails?.dimensions?.height || 3;
 
   // Initialize equipment positions (load from room data or auto-place)
-  const [equipmentPositions, setEquipmentPositions] = useState<EquipmentPosition[]>(() => {
+  const [equipmentPositions, setEquipmentPositions] = React.useState<EquipmentPosition[]>(() => {
     const equipment = room.manuallyAddedEquipment || [];
 
     // Try to load saved positions or auto-place
@@ -275,11 +274,11 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
     });
   });
 
-  const [selectedEquipment, setSelectedEquipment] = useState<string | null>(null);
-  const [cableRoutes, setCableRoutes] = useState<CableRoute[]>([]);
+  const [selectedEquipment, setSelectedEquipment] = React.useState<string | null>(null);
+  const [cableRoutes, setCableRoutes] = React.useState<CableRoute[]>([]);
 
   // Calculate cable routes
-  const updateCableRoutes = useCallback(() => {
+  const updateCableRoutes = React.useCallback(() => {
     if (!showCableRoutes || equipmentPositions.length === 0) return;
 
     const routes = calculateRoomCableRoutes(
@@ -324,7 +323,7 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
         <Canvas shadows>
           <PerspectiveCamera makeDefault position={[length * 0.8, height * 1.5, width * 0.8]} />
 
-          <Suspense fallback={null}>
+          <React.Suspense fallback={null}>
             {/* Lighting */}
             <ambientLight intensity={0.5} />
             <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
@@ -376,7 +375,7 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
               maxDistance={length * 2}
               maxPolarAngle={Math.PI / 2}
             />
-          </Suspense>
+          </React.Suspense>
         </Canvas>
 
         {/* Instructions overlay */}
@@ -412,6 +411,4 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
 };
 
 export default Room3DViewerAdvanced;
-
-
 

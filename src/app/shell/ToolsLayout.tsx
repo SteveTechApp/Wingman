@@ -1,7 +1,9 @@
-import React from "react";
+import * as React from "react";
+
 import { NavLink, Outlet } from "react-router-dom";
 
 const TOOL_LINKS = [
+  { to: "/app/tools/discovery", label: "Discovery Wizard" },
   { to: "/app/tools/catalog", label: "Product Catalog" },
   { to: "/app/tools/competitor", label: "Competitor Compare" },
   { to: "/app/tools/proposal", label: "Proposal Builder" },

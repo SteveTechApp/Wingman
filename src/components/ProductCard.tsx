@@ -1,8 +1,7 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { Product } from '../utils/types';
 import ProductInfoModal from './ProductInfoModal';
-import { useProjectContext } from "@/context/ProjectContext";
+import { useProjectContext } from "@/context";
 import { CheckIcon } from './Icons';
 
 interface ProductCardProps {
@@ -11,7 +10,7 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAdd }) => {
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = React.useState(false);
   const { comparisonList, toggleComparison } = useProjectContext();
 
   const isComparing = comparisonList.some(p => p.sku === product.sku);
@@ -53,6 +52,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAdd }) => {
 };
 
 export default ProductCard;
-
-
 

@@ -1,10 +1,11 @@
+import * as React from "react";
 // src/pages/public/PublicAboutPage.tsx
-import React, { useEffect, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
+  const [reduced, setReduced] = React.useState(false);
+  React.useEffect(() => {
     const m = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     if (!m) return;
     const onChange = () => setReduced(!!m.matches);

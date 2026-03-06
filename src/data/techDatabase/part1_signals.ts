@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export const PART_1_SIGNALS = `
 ## Part 1: Signal Types & Connectivity

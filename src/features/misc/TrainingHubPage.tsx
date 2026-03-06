@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import * as React from "react";
 import { TRAINING_MODULES, TrainingModule } from "@/training/trainingModules";
 
 function pill(level: TrainingModule["level"]) {
@@ -14,15 +14,15 @@ function pill(level: TrainingModule["level"]) {
 }
 
 export default function TrainingHubPage() {
-  const [q, setQ] = useState("");
-  const [track, setTrack] = useState<TrainingModule["track"] | "All">("All");
-  const [level, setLevel] = useState<TrainingModule["level"] | "All">("All");
-  const [openId, setOpenId] = useState<string | null>(TRAINING_MODULES[0]?.id ?? null);
+  const [q, setQ] = React.useState("");
+  const [track, setTrack] = React.useState<TrainingModule["track"] | "All">("All");
+  const [level, setLevel] = React.useState<TrainingModule["level"] | "All">("All");
+  const [openId, setOpenId] = React.useState<string | null>(TRAINING_MODULES[0]?.id ?? null);
 
   const tracks: Array<TrainingModule["track"] | "All"> = ["All", "Sales", "Design", "Products", "Tools"];
   const levels: Array<TrainingModule["level"] | "All"> = ["All", "Foundation", "Intermediate", "Advanced"];
 
-  const filtered = useMemo(() => {
+  const filtered = React.useMemo(() => {
     const qq = q.trim().toLowerCase();
     return TRAINING_MODULES.filter(m => {
       if (track !== "All" && m.track !== track) return false;

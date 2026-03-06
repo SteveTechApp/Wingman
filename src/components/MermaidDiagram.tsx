@@ -1,6 +1,4 @@
-
-import React, { useEffect, useRef } from 'react';
-
+import * as React from "react";
 declare const mermaid: any;
 
 interface MermaidDiagramProps {
@@ -9,9 +7,9 @@ interface MermaidDiagramProps {
 }
 
 const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, onNodeClick }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (containerRef.current && definition) {
       containerRef.current.innerHTML = '';
       
@@ -70,6 +68,4 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, onNodeClick
 };
 
 export default MermaidDiagram;
-
-
 

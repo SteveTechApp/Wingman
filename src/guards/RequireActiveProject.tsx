@@ -1,6 +1,7 @@
-import React from "react";
+import * as React from "react";
+
 import { Navigate, useLocation } from "react-router-dom";
-import { useProjectContext } from "@/context/ProjectContext";
+import { useProjectContext } from "@/context";
 
 export default function RequireActiveProject(props: { children: React.ReactNode }) {
   const { children } = props;
@@ -26,5 +27,4 @@ export default function RequireActiveProject(props: { children: React.ReactNode 
 
   return <>{children}</>;
 }
-
 

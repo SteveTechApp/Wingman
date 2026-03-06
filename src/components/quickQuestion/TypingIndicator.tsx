@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 
 const TypingIndicator: React.FC = () => {
     return (

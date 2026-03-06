@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { UserTemplate } from '../../utils/types';
 

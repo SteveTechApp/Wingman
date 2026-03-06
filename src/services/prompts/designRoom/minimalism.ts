@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export const getDesignMinimalismRules = (): string => `
 ## DESIGN MINIMALISM & COST OPTIMIZATION

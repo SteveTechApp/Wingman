@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { UserTemplate } from '../utils/types';
 import { VERTICAL_MARKETS } from '../data/constants';
 import TemplateCard from './TemplateCard';

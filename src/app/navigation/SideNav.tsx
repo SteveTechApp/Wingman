@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from "react";
+
 import { NavLink } from "react-router-dom";
 import { ROUTES } from "@/app/routes/navConfig";
 

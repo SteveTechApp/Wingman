@@ -1,12 +1,11 @@
-
-import React, { useState } from 'react';
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import { useProjectContext } from "@/context";
 import AddRoomModal from './AddRoomModal';
 import { RoomData } from '../utils/types';
 
 const ProjectEmptyState: React.FC = () => {
   const { dispatchProjectAction } = useProjectContext();
-  const [isAddRoomModalOpen, setIsAddRoomModalOpen] = useState(false);
+  const [isAddRoomModalOpen, setIsAddRoomModalOpen] = React.useState(false);
 
   const handleAddRoom = (newRoom: RoomData) => {
     dispatchProjectAction({ type: 'ADD_ROOM', payload: newRoom });
@@ -32,6 +31,4 @@ const ProjectEmptyState: React.FC = () => {
 };
 
 export default ProjectEmptyState;
-
-
 

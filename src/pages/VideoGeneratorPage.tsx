@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import PageShell from "@/components/layout/PageShell";
+import * as React from "react";
+import PageShell from "@/app/layout/PageShell";
 import { generateProductVideo } from "../services/videoService";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const VideoGeneratorPage: React.FC = () => {
-  const [prompt, setPrompt] = useState(""));
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState(""));
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [prompt, setPrompt] = React.useState(""));
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [loadingMessage, setLoadingMessage] = React.useState(""));
+  const [videoUrl, setVideoUrl] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
 
   const handleGenerateVideo = async (e: React.FormEvent) => {
     e.preventDefault();

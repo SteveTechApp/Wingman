@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import InfoModal from './InfoModal';
 import { useUserContext } from '../context/UserContext';
 
@@ -11,7 +10,7 @@ interface LoginModalProps {
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess }) => {
   const { userProfile, updateUserProfile, setIsAuthenticated } = useUserContext();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = React.useState({
     name: userProfile.name !== 'AV Professional' ? userProfile.name : '',
     company: userProfile.company !== 'Your Company' ? userProfile.company : '',
     email: ''
@@ -96,6 +95,4 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
 };
 
 export default LoginModal;
-
-
 

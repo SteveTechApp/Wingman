@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 /* Auto-generated. Do not edit manually. */
 export type WyreStormSkuItem = { sku: string; description: string; family: string; tier: string };

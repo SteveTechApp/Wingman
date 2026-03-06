@@ -1,5 +1,4 @@
-
-import React from "react";
+import * as React from "react";
 
 type Props = {
   diagram?: unknown;
@@ -15,6 +14,4 @@ export default function SystemDiagram(_props: Props) {
     </div>
   );
 }
-
-
 

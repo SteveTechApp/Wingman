@@ -2,6 +2,7 @@
 // This is a placeholder for a DOCX exporting utility.
 // In a real application, this would use a library like docx.js to generate a .docx file.
 
+import * as React from "react";
 import { Proposal, ProjectData } from './types';
 
 export const exportProposalToDocx = (proposal: Proposal, project: ProjectData) => {

@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export type UserProfile = {
   displayName: string;
   email?: string;
@@ -23,7 +25,7 @@ export function loadUserProfile(): UserProfile | null {
 }
 
 export function saveUserProfile(p: UserProfile) {
-  localStorage.setItem(KEY, JSON.stringify(p));
+  localStorage.setItem(KEY, JSON.stringify(p, null, 2));
 }
 
 export function hasUserIdentity(): boolean {

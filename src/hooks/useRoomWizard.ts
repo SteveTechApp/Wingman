@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import * as React from "react";
 import { RoomData, RoomWizardAnswers } from '../utils/types';
 import { useWizardState } from './useWizardState';
 import { useWizardStepsAndValidation } from './useWizardStepsAndValidation';
@@ -21,7 +21,7 @@ export const useRoomWizard = (
         setErrors,
     } = useWizardStepsAndValidation(answers, totalSteps);
 
-    useEffect(() => {
+    React.useEffect(() => {
         updateAnswers(createInitialAnswers(initialData));
         setErrors({});
         setCurrentStep(0);

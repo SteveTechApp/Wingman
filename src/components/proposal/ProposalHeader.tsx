@@ -1,7 +1,7 @@
 
-import React from 'react';
+import * as React from "react";
 import { ProjectData, Proposal } from '../../utils/types';
-import Logo from '../layout/Logo';
+import Logo from '@/app/layout/Logo';
 
 interface ProposalHeaderProps {
   project: ProjectData;
@@ -25,6 +25,7 @@ const ProposalHeader: React.FC<ProposalHeaderProps> = ({ project, proposal }) =>
 };
 
 export default ProposalHeader;
+
 
 
 

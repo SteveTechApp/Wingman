@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
 import { IOPoint } from '../../utils/types';
 import BasicInfoInputs from './ioConfig/BasicInfoInputs';
 import ConnectivityInputs from './ioConfig/ConnectivityInputs';
@@ -16,10 +15,10 @@ interface IOPointConfigModalProps {
 }
 
 const IOPointConfigModal: React.FC<IOPointConfigModalProps> = ({ isOpen, onClose, onSave, point }) => {
-  const [currentPoint, setCurrentPoint] = useState<IOPoint | null>(point);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [currentPoint, setCurrentPoint] = React.useState<IOPoint | null>(point);
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
 
-  useEffect(() => {
+  React.useEffect(() => {
     setCurrentPoint(point);
     setErrors({}); // Reset errors when modal is opened or point changes
   }, [point, isOpen]);
@@ -94,6 +93,4 @@ const IOPointConfigModal: React.FC<IOPointConfigModalProps> = ({ isOpen, onClose
 };
 
 export default IOPointConfigModal;
-
-
 

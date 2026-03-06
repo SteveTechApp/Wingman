@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { GuruCatalogItem } from "./guruCatalog.seed";
 
 export const WYRESTORM_CATALOG: GuruCatalogItem[] = [

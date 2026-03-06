@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import * as React from "react";
 
 /**
  * Loop-proof localStorage hook:
@@ -9,13 +9,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * - Only re-hydrates when `key` changes
  */
 export function useLocalStorage<T>(key: string, initialValue: T) {
-  const keyRef = useRef(key);
-  const initialRef = useRef(initialValue);
+  const keyRef = React.useRef(key);
+  const initialRef = React.useRef(initialValue);
 
   // Keep latest initialValue in a ref (does not trigger effects/rerenders)
   initialRef.current = initialValue;
 
-  const [value, setValue] = useState<T>(() => {
+  const [value, setValue] = React.useState<T>(() => {
     try {
       const raw = localStorage.getItem(key);
       if (raw == null) return initialValue;
@@ -26,7 +26,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   });
 
   // If key changes, re-hydrate from the new key (DO NOT depend on initialValue)
-  useEffect(() => {
+  React.useEffect(() => {
     if (keyRef.current === key) return;
 
     keyRef.current = key;
@@ -40,15 +40,15 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   }, [key]);
 
   // Persist when value changes
-  useEffect(() => {
+  React.useEffect(() => {
     try {
-      localStorage.setItem(keyRef.current, JSON.stringify(value));
+      localStorage.setItem(keyRef.current, JSON.stringify(value, null, 2));
     } catch {
       // ignore quota/private mode errors
     }
   }, [value]);
 
-  const remove = useCallback(() => {
+  const remove = React.useCallback(() => {
     try {
       localStorage.removeItem(keyRef.current);
     } catch {}

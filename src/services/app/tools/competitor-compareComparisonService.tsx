@@ -1,9 +1,10 @@
-import React from "react";
 
 /**
  * AUTO-STUB: competitor_compareComparisonService
  * This placeholder exists to unblock builds; replace with real implementation.
  */
+
+import * as React from "react";
 export default function competitor_compareComparisonService() {
   return (
     <div style={{

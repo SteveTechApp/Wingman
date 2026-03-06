@@ -1,6 +1,7 @@
 
 // This is a placeholder for a CSV exporting utility.
 
+import * as React from "react";
 import { Proposal } from './types';
 
 function convertToCSV(data: any[]): string {

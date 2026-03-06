@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import { useProjectContext } from "@/context";
 import { IOPoint } from '../../utils/types';
 import IoDeviceCard from './IoDeviceCard';
 import { PlusIcon } from '../Icons';

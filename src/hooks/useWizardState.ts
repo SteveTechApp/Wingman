@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from 'react';
+import * as React from "react";
 import { RoomData, RoomWizardAnswers, DisplayType } from '../utils/types';
 import { createNewRoom } from '../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -21,14 +21,14 @@ const createInitialAnswers = (initialData: RoomData | null): RoomWizardAnswers =
 };
 
 export const useWizardState = (initialData: RoomData | null) => {
-    const [answers, setAnswers] = useState<RoomWizardAnswers>(() => createInitialAnswers(initialData));
+    const [answers, setAnswers] = React.useState<RoomWizardAnswers>(() => createInitialAnswers(initialData));
 
-    const updateAnswers = useCallback((newAnswers: Partial<RoomWizardAnswers>) => {
+    const updateAnswers = React.useCallback((newAnswers: Partial<RoomWizardAnswers>) => {
         setAnswers(prev => ({ ...prev, ...newAnswers }));
     }, []);
 
     // Effect to keep video wall config and display properties in sync
-    useEffect(() => {
+    React.useEffect(() => {
         const { videoWallConfig, displayType, displayCount } = answers;
         if (videoWallConfig) {
             const newType: DisplayType = videoWallConfig.type === 'led' ? 'led_video_wall' : 'lcd_video_wall';

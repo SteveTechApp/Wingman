@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import ReactMarkdown from 'react-markdown';
 
 interface EditableSectionProps {
@@ -8,8 +7,8 @@ interface EditableSectionProps {
 }
 
 const EditableSection: React.FC<EditableSectionProps> = ({ initialContent, onSave }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [content, setContent] = useState(initialContent);
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [content, setContent] = React.useState(initialContent);
 
   const handleSave = () => {
     onSave(content);
@@ -48,6 +47,4 @@ const EditableSection: React.FC<EditableSectionProps> = ({ initialContent, onSav
 };
 
 export default EditableSection;
-
-
 

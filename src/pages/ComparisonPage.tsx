@@ -1,5 +1,6 @@
 
-import PageShell from "@/components/layout/PageShell";
+import * as React from "react";
+import PageShell from "@/app/layout/PageShell";
 export default function ComparisonPage() {
   return (
     <PageShell>
@@ -12,6 +13,7 @@ export default function ComparisonPage() {
     </PageShell>
   );
 }
+
 
 
 

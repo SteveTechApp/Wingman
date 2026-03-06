@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { ManuallyAddedEquipment, Product } from './types';
 import toast from 'react-hot-toast';
 

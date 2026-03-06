@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export const getRoomApplicationLogic = () => `
   **Room Application & Archetype Logic:**

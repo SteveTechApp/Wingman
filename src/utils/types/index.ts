@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 // src/utils/types/index.ts
 // Central export point for all type definitions

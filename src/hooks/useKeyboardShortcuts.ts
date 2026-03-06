@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useCallback } from 'react';
+import * as React from "react";
 
 export interface KeyboardShortcut {
   key: string;
@@ -13,13 +13,13 @@ export interface KeyboardShortcut {
 }
 
 export const useKeyboardShortcuts = (shortcuts: KeyboardShortcut[], enabled = true) => {
-  const shortcutsRef = useRef(shortcuts);
+  const shortcutsRef = React.useRef(shortcuts);
 
-  useEffect(() => {
+  React.useEffect(() => {
     shortcutsRef.current = shortcuts;
   }, [shortcuts]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!enabled) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {

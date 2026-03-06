@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { EngineeringContext, RoomProfile, ValidationIssue } from "../types";
 
 function addViolation(ctx: EngineeringContext, issue: ValidationIssue) {

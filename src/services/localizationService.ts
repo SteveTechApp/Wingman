@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { UserProfile } from '../utils/types';
 import { SUPPORTED_LANGUAGES } from '../data/constants';
 

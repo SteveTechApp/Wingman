@@ -1,5 +1,5 @@
+import * as React from "react";
 
-import React, { useMemo } from 'react';
 import { ProjectData, RoomData, ManuallyAddedEquipment } from '../utils/types';
 
 interface CostSummaryDisplayProps {
@@ -36,7 +36,7 @@ const CostSummaryDisplay: React.FC<CostSummaryDisplayProps> = ({
     markup = 20,
     laborRates = []
 }) => {
-    const costBreakdown = useMemo<CostBreakdown>(() => {
+    const costBreakdown = React.useMemo<CostBreakdown>(() => {
         let totalEquipmentCost = 0;
         let totalLaborCost = 0;
         const roomBreakdown: CostBreakdown['roomBreakdown'] = [];
@@ -254,5 +254,4 @@ const CostSummaryDisplay: React.FC<CostSummaryDisplayProps> = ({
 
 export default CostSummaryDisplay;
 
-
 

@@ -1,55 +1,165 @@
+import * as React from "react";
 import type { CompetitorItem } from "./types";
-function norm(s: string){ return (s || "").trim(); }
-function lower(s: string){ return norm(s).toLowerCase(); }
-function splitCsvLine(line: string): string[]{
-  const out: string[] = []; let cur=""; let inQ=false;
-  for(let i=0;i<line.length;i++){
-    const ch=line[i];
-    if(ch === `"`){ if(inQ && line[i+1]===`"`){ cur+=`"`; i++; continue; } inQ=!inQ; continue; }
-    if(ch === "," && !inQ){ out.push(cur); cur=""; continue; }
+
+function norm(s: string) {
+  return (s || "").trim();
+}
+
+function lower(s: string) {
+  return norm(s).toLowerCase();
+}
+
+function splitCsvLine(line: string): string[] {
+  const out: string[] = [];
+  let cur = "";
+  let inQ = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+
+    if (ch === `"`) {
+      if (inQ && line[i + 1] === `"`) {
+        cur += `"`;
+        i++;
+        continue;
+      }
+      inQ = !inQ;
+      continue;
+    }
+
+    if (ch === "," && !inQ) {
+      out.push(cur);
+      cur = "";
+      continue;
+    }
+
     cur += ch;
   }
+
   out.push(cur);
-  return out.map(s=>s.trim());
+  return out.map((s) => s.trim());
 }
-function intOrUndef(s: string){ const n=parseInt(norm(s),10); return Number.isFinite(n)?n:undefined; }
+
+function intOrUndef(s: string) {
+  const n = parseInt(norm(s), 10);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function parseResolution(value: string): CompetitorItem["video"] extends infer V
+  ? V extends { maxResolution?: infer R }
+    ? R
+    : never
+  : never {
+  const v = lower(value);
+
+  if (v.includes("8k")) return "8K" as any;
+  if (v.includes("4k60") || v.includes("4k 60")) return "4K60" as any;
+  if (v.includes("4k30") || v.includes("4k 30")) return "4K30" as any;
+  if (v.includes("1080")) return "1080p" as any;
+
+  return undefined as any;
+}
+
 export function competitorCsvTemplate(): string {
   return [
-    "brand,model,name,category,role,maxResolution,hdmi,hdr,latency,inputs,outputs,tags,features,notes",
-    "Crestron,DM-NVX-E30,AVoIP Encoder,AVoIP,TX,4K60,2.0,true,low,1,0,AVoIP;low-latency;managed-network,multicast;igmp;vlan,Example row",
-    "Extron,NAV SD 501,AVoIP Decoder,AVoIP,RX,4K60,2.0,true,low,0,1,AVoIP;4K60,multicast;igmp,Example row"
-  ].join("\\n");
+    "brand,model,category,role,maxResolution,hdmi,hdr,latency,inputs,outputs,tags,features,notes",
+    "Crestron,DM-NVX-E30,AVoIP,TX,4K60,2.0,true,low,1,0,AVoIP;low-latency;managed-network,multicast;igmp;vlan,Example row",
+    "Extron,NAV SD 501,AVoIP,RX,4K60,2.0,true,low,0,1,AVoIP;4K60,multicast;igmp,Example row",
+  ].join("\n");
 }
-export function parseCompetitorCsv(text: string): { items: CompetitorItem[]; warnings: string[] } {
+
+export function parseCompetitorCsv(
+  text: string,
+): { items: CompetitorItem[]; warnings: string[] } {
   const warnings: string[] = [];
-  const lines = text.split(/\\r?\\n/).map(l=>l.trim()).filter(Boolean);
-  if(lines.length < 2) return { items: [], warnings: ["CSV has no data rows."] };
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  if (lines.length < 2) {
+    return { items: [], warnings: ["CSV has no data rows."] };
+  }
+
   const header = splitCsvLine(lines[0]).map(lower);
   const idx = (k: string) => header.indexOf(k);
-  const req = ["brand","model","name","category","role"];
-  for(const r of req){ if(idx(r) < 0) warnings.push(`Missing column: ${r}`); }
-  const items: CompetitorItem[] = [];
-  for(let r=1;r<lines.length;r++){
-    const cols = splitCsvLine(lines[r]);
-    const get = (k: string) => { const i=idx(k); return i>=0 ? (cols[i]||"") : ""; };
-    const brand=norm(get("brand")); const model=norm(get("model")); const name=norm(get("name"));
-    const category=norm(get("category")) as any; const role=norm(get("role")) as any;
-    if(!brand||!model||!name||!category||!role){ warnings.push(`Row ${r+1}: missing required fields`); continue; }
-    const tags = norm(get("tags")) ? norm(get("tags")).split(";").map(norm).filter(Boolean) : undefined;
-    const features = norm(get("features")) ? norm(get("features")).split(";").map(norm).filter(Boolean) : undefined;
-    const notes = norm(get("notes")) ? [norm(get("notes"))] : undefined;
-    const maxResolution = norm(get("maxResolution")) as any;
-    const hdmi = norm(get("hdmi")) as any;
-    const hdrRaw = lower(get("hdr"));
-    const hdr = hdrRaw==="true"||hdrRaw==="yes"||hdrRaw==="1" ? true : hdrRaw==="false"||hdrRaw==="no"||hdrRaw==="0" ? false : undefined;
-    const latency = (norm(get("latency")) || "unknown") as any;
-    const inputs=intOrUndef(get("inputs")); const outputs=intOrUndef(get("outputs"));
-    items.push({
-      brand, model, name, category, role, tags, features, latency,
-      io: (typeof inputs==="number" || typeof outputs==="number") ? { inputs, outputs } : undefined,
-      video: (maxResolution || hdmi || typeof hdr==="boolean") ? { maxResolution, hdmi, hdr } : undefined,
-      notes
-    });
+  const req = ["brand", "model", "category", "role"];
+
+  for (const r of req) {
+    if (idx(r) < 0) warnings.push(`Missing column: ${r}`);
   }
+
+  const items: CompetitorItem[] = [];
+
+  for (let r = 1; r < lines.length; r++) {
+    const cols = splitCsvLine(lines[r]);
+    const get = (k: string) => {
+      const i = idx(k);
+      return i >= 0 ? (cols[i] || "") : "";
+    };
+
+    const brand = norm(get("brand"));
+    const model = norm(get("model"));
+    const category = norm(get("category"));
+    const role = norm(get("role"));
+
+    if (!brand || !model || !category || !role) {
+      warnings.push(`Row ${r + 1}: missing required fields`);
+      continue;
+    }
+
+    const tagFeatures = norm(get("tags"))
+      ? norm(get("tags"))
+          .split(";")
+          .map(norm)
+          .filter(Boolean)
+      : [];
+
+    const listedFeatures = norm(get("features"))
+      ? norm(get("features"))
+          .split(";")
+          .map(norm)
+          .filter(Boolean)
+      : [];
+
+    const features =
+      tagFeatures.length || listedFeatures.length
+        ? Array.from(new Set([...tagFeatures, ...listedFeatures]))
+        : undefined;
+
+    const noteText = norm(get("notes"));
+    const maxResolution = parseResolution(get("maxResolution"));
+    const latency = norm(get("latency")) || undefined;
+    const inputs = intOrUndef(get("inputs"));
+    const outputs = intOrUndef(get("outputs"));
+
+    const item: CompetitorItem = {
+      brand,
+      sku: model,
+      model,
+      category,
+      role,
+      features,
+      latency,
+      io:
+        typeof inputs === "number" || typeof outputs === "number"
+          ? {
+              inputs:
+                typeof inputs === "number" && inputs > 0
+                  ? Array.from({ length: inputs }, (_, i) => `Input ${i + 1}`)
+                  : undefined,
+              outputs:
+                typeof outputs === "number" && outputs > 0
+                  ? Array.from({ length: outputs }, (_, i) => `Output ${i + 1}`)
+                  : undefined,
+            }
+          : undefined,
+      video: maxResolution ? { maxResolution } : undefined,
+      familyHint: noteText || undefined,
+    };
+
+    items.push(item);
+  }
+
   return { items, warnings };
 }

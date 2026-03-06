@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import InfoModal from './InfoModal';
 import toast from 'react-hot-toast';
 
@@ -9,9 +8,9 @@ interface FeedbackModalProps {
 }
 
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
-  const [feedbackType, setFeedbackType] = useState('general');
-  const [feedbackText, setFeedbackText] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedbackType, setFeedbackType] = React.useState('general');
+  const [feedbackText, setFeedbackText] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +73,4 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
 };
 
 export default FeedbackModal;
-
-
 

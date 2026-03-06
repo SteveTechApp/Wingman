@@ -4,6 +4,7 @@
  * Handles user profile operations and storage
  */
 
+import * as React from "react";
 import { AuthUser } from './types';
 
 export class UserManager {
@@ -40,7 +41,7 @@ export class UserManager {
     async updateUser(user: AuthUser): Promise<void> {
         const users = this.getStoredUsers();
         users[user.email] = user;
-        localStorage.setItem('wingman_user_profiles', JSON.stringify(users));
+        localStorage.setItem('wingman_user_profiles', JSON.stringify(users, null, 2));
     }
 
     async updateLastLogin(email: string): Promise<void> {
@@ -74,7 +75,7 @@ export class UserManager {
     private async saveUser(user: AuthUser): Promise<void> {
         const users = this.getStoredUsers();
         users[user.email] = user;
-        localStorage.setItem('wingman_user_profiles', JSON.stringify(users));
+        localStorage.setItem('wingman_user_profiles', JSON.stringify(users, null, 2));
     }
 
     private getStoredUsers(): Record<string, AuthUser> {

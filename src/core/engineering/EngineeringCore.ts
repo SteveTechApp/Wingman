@@ -1,3 +1,4 @@
+import * as React from "react";
 import type {
   DesignPackage, EngineeringContext, Phase, RoomProfile
 } from "./types";
@@ -10,7 +11,7 @@ function logRule(ctx: EngineeringContext, ruleId: string, phase: Phase, priority
   ctx.decisionLog.push({ ruleId, phase, priority, inputsUsed, message, diff });
 }
 
-function createContext(): EngineeringContext {
+function createEngineeringContext(): EngineeringContext {
   return {
     phase: "normalize",
     designTypeCandidate: "HDBaseT",
@@ -94,7 +95,7 @@ function chooseTopology(ctx: EngineeringContext) {
  * normalize -> classify -> derive -> select_pattern -> chooseTopology -> bind_products -> validate -> explain
  */
 export function runEngineering(profile: RoomProfile): DesignPackage {
-  const ctx = createContext();
+  const ctx = createEngineeringContext();
 
   // Phase 0: normalize (minimal now)
   executePhase(profile, ctx, "normalize");

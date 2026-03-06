@@ -2,6 +2,7 @@
 // src/utils/cableRouting/types.ts
 // Cable routing type definitions
 
+import * as React from "react";
 import { ManuallyAddedEquipment } from '../../components/types';
 
 export interface EquipmentPosition {

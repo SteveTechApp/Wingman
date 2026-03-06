@@ -1,6 +1,4 @@
-
-import React, { useState } from 'react';
-
+import * as React from "react";
 export interface AncillaryCost {
     id: string;
     category: 'cabling' | 'labor' | 'materials' | 'shipping' | 'permits' | 'other';
@@ -25,9 +23,9 @@ const COST_CATEGORIES = [
 ] as const;
 
 const AncillaryCostsForm: React.FC<AncillaryCostsFormProps> = ({ costs, onUpdate }) => {
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [isAdding, setIsAdding] = useState(false);
-    const [newCost, setNewCost] = useState<Omit<AncillaryCost, 'id'>>({
+    const [editingId, setEditingId] = React.useState<string | null>(null);
+    const [isAdding, setIsAdding] = React.useState(false);
+    const [newCost, setNewCost] = React.useState<Omit<AncillaryCost, 'id'>>({
         category: 'materials',
         description: '',
         quantity: 1,
@@ -267,6 +265,4 @@ const AncillaryCostsForm: React.FC<AncillaryCostsFormProps> = ({ costs, onUpdate
 };
 
 export default AncillaryCostsForm;
-
-
 

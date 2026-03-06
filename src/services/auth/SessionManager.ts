@@ -4,6 +4,7 @@
  * Handles session storage, validation, and expiration
  */
 
+import * as React from "react";
 import { AuthSession, AuthUser } from './types';
 
 export class SessionManager {
@@ -56,7 +57,7 @@ export class SessionManager {
 
     private saveSession(): void {
         if (this.currentSession) {
-            localStorage.setItem(this.SESSION_KEY, JSON.stringify(this.currentSession));
+            localStorage.setItem(this.SESSION_KEY, JSON.stringify(this.currentSession, null, 2));
         }
     }
 

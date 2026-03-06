@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import { useProjectContext } from "@/context";
 import InfoModal from './InfoModal';
 
 interface ProjectNotesModalProps {
@@ -10,9 +9,9 @@ interface ProjectNotesModalProps {
 
 const ProjectNotesModal: React.FC<ProjectNotesModalProps> = ({ isOpen, onClose }) => {
   const { projectData, dispatchProjectAction } = useProjectContext();
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = React.useState('');
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen && projectData) {
       setNotes(projectData.notes);
     }
@@ -43,6 +42,4 @@ const ProjectNotesModal: React.FC<ProjectNotesModalProps> = ({ isOpen, onClose }
 };
 
 export default ProjectNotesModal;
-
-
 

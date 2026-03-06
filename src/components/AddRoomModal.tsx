@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { RoomData, DesignTier } from '../utils/types';
 import { createNewRoom } from '../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,9 +13,9 @@ interface AddRoomModalProps {
 }
 
 const AddRoomModal: React.FC<AddRoomModalProps> = ({ isOpen, onClose, onAddRoom }) => {
-  const [roomName, setRoomName] = useState('New Room');
-  const [roomType, setRoomType] = useState('Conference Room');
-  const [designTier, setDesignTier] = useState<DesignTier>('Silver');
+  const [roomName, setRoomName] = React.useState('New Room');
+  const [roomType, setRoomType] = React.useState('Conference Room');
+  const [designTier, setDesignTier] = React.useState<DesignTier>('Silver');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +88,4 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({ isOpen, onClose, onAddRoom 
 };
 
 export default AddRoomModal;
-
-
 

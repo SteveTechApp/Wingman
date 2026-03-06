@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { SchemaType } from '@google/generative-ai';
 
 // EXPANDED REQUIREMENTS_ANALYSIS_SCHEMA

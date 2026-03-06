@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { useUserContext } from '../../context/UserContext';
 
 const WelcomeHeader: React.FC = () => {

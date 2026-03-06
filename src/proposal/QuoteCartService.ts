@@ -1,3 +1,4 @@
+import * as React from "react";
 import { addLineToSavedProposal } from "@/proposal/bom/store";
 
 /**
@@ -45,7 +46,7 @@ function safeGet(): QuoteCartItem[] {
 
 function safeSet(items: QuoteCartItem[]) {
   try {
-    window.localStorage.setItem(CART_KEY, JSON.stringify(items));
+    window.localStorage.setItem(CART_KEY, JSON.stringify(items, null, 2));
   } catch {
     // ignore
   }

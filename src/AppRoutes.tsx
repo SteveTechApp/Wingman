@@ -1,63 +1,113 @@
-import React, { Suspense, lazy } from "react";
+// src/AppRoutes.tsx
+import * as React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import AppShell from "@/app/shell/AppShell";
-import PublicShell from "@/pages/public/PublicShell";
 
-// Public pages
-const PublicLandingPage = lazy(() => import("@/pages/public/PublicLandingPage"));
-const PublicAboutPage = lazy(() => import("@/pages/public/PublicAboutPage"));
+// Public (keep minimal)
+const PublicLandingPage = React.lazy(() => import("@/pages/PublicLandingPage"));
+const LoginPage = React.lazy(() => import("@/pages/LoginPage"));
+const SignupPage = React.lazy(() => import("@/pages/SignupPage"));
 
-// App pages
-const DashboardPage = lazy(() => import("@/features/dashboard/DashboardPage"));
-const TemplatesPage = lazy(() => import("@/features/misc/TemplatesPage"));
-const CatalogPage = lazy(() => import("@/features/catalog/CatalogPage"));
-const ProjectsPage = lazy(() => import("@/features/projects/ProjectsPage"));
-const ImportIntakePage = lazy(() => import("@/features/import/ImportIntakePage"));
-const CompetitorComparePage = lazy(() => import("@/features/compare/CompetitorComparePage"));
-const ProposalBuilderPage = lazy(() => import("@/features/proposals/ProposalBuilderPage"));
-const RoomWizardPage = lazy(() => import("@/features/roomwizard/RoomWizardPage"));
-const VideoWallPlannerPage = lazy(() => import("@/features/misc/VideoWallPlannerPage"));
-const TrainingHubPage = lazy(() => import("@/features/misc/TrainingHubPage"));
-const GuruPage = lazy(() => import("@/features/guru/GuruPage"));
-const NotFoundPage = lazy(() => import("@/app/system/NotFoundPage"));
+// App (core)
+const DashboardPage = React.lazy(() => import("@/features/dashboard/DashboardPage"));
+const ProjectsPage = React.lazy(() => import("@/features/projects/ProjectsPage"));
+const ToolHubPage = React.lazy(() => import("@/features/tools/ToolHubPage"));
+const ExportSnapshotPage = React.lazy(() => import("@/features/export/ExportSnapshotPage"));
+
+// App (tools/workflows — canonical wiring)
+const DiscoveryWizardPage = React.lazy(() => import("@/features/discovery/DiscoveryWizardPage"));
+const CatalogPage = React.lazy(() => import("@/features/catalog/CatalogPage"));
+const CompetitorComparePage = React.lazy(() => import("@/features/compare/CompetitorComparePage"));
+const RoomWizardPage = React.lazy(() => import("@/features/roomwizard/RoomWizardPage"));
+const ProposalBuilderPage = React.lazy(() => import("@/features/proposals/ProposalBuilderPage"));
+const ImportIntakePage = React.lazy(() => import("@/features/import/ImportIntakePage"));
+const TrainingHubPage = React.lazy(() => import("@/features/misc/TrainingHubPage"));
+const VideoWallPlannerPage = React.lazy(() => import("@/features/misc/VideoWallPlannerPage"));
+
+// App (pages)
+const QuickQuestionPage = React.lazy(() => import("@/pages/QuickQuestionPage"));
+const ComparisonPage = React.lazy(() => import("@/pages/ComparisonPage"));
+const ProposalDisplay = React.lazy(() => import("@/pages/ProposalDisplay"));
+const ProjectOverviewPage = React.lazy(() => import("@/pages/ProjectOverviewPage"));
+const GuidedProjectWizard = React.lazy(() => import("@/pages/GuidedProjectWizard"));
+
+// Optional orphans you likely want soon (uncomment if/when you need them)
+// const SurveyImportPage = React.lazy(() => import("@/pages/SurveyImportPage"));
+// const TemplateBrowserScreen = React.lazy(() => import("@/pages/TemplateBrowserScreen"));
+// const WorkspaceHomePage = React.lazy(() => import("@/pages/WorkspaceHomePage"));
+// const AnalyticsPage = React.lazy(() => import("@/pages/AnalyticsPage"));
+// const GuruPage = React.lazy(() => import("@/features/guru/GuruPage"));
+
+// System
+const NotFoundPage = React.lazy(() => import("@/app/system/NotFoundPage"));
 
 function Loading() {
-  return <div style={{ padding: 24, opacity: 0.8 }}>Loading…</div>;
+  return (
+    <div style={{ padding: 18, color: "rgba(255,255,255,0.75)" }}>
+      Loading…
+    </div>
+  );
 }
 
 export default function AppRoutes() {
   return (
-    <Suspense fallback={<Loading />}>
+    <React.Suspense fallback={<Loading />}>
       <Routes>
-        <Route element={<PublicShell />}>
-          <Route path="/" element={<PublicLandingPage />} />
-          <Route path="/about" element={<PublicAboutPage />} />
-        </Route>
+        {/* Public */}
+        <Route path="/" element={<PublicLandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
 
+        {/* App */}
         <Route path="/app" element={<AppShell />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route index element={<Navigate to="/app/dashboard" replace />} />
 
+          {/* Mission Control */}
           <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="templates" element={<TemplatesPage />} />
+
+          {/* Projects */}
           <Route path="projects" element={<ProjectsPage />} />
-          <Route path="survey-import" element={<ImportIntakePage />} />
+          <Route path="project-overview" element={<ProjectOverviewPage />} />
 
-          <Route path="tools/catalog" element={<CatalogPage />} />
+          {/* Primary hub */}
+          <Route path="tools" element={<ToolHubPage />} />
 
-          <Route path="tools/competitor" element={<CompetitorComparePage />} />
+          <Route path="tools/import" element={<ImportIntakePage />} />
           <Route path="tools/proposal" element={<ProposalBuilderPage />} />
-          <Route path="tools/room" element={<RoomWizardPage />} />
-          <Route path="tools/videowall" element={<VideoWallPlannerPage />} />
+          {/* Tool routes (AV workflow aligned) */}
+          <Route path="tools/discovery" element={<DiscoveryWizardPage />} />
+          <Route path="tools/catalog" element={<CatalogPage />} />
+          <Route path="tools/compare" element={<CompetitorComparePage />} />
+          <Route path="tools/room-wizard" element={<RoomWizardPage />} />
+          <Route path="tools/proposal-builder" element={<ProposalBuilderPage />} />
+          <Route path="tools/import-intake" element={<ImportIntakePage />} />
           <Route path="tools/training" element={<TrainingHubPage />} />
-          <Route path="tools/guru" element={<GuruPage />} />
+          <Route path="tools/video-wall" element={<VideoWallPlannerPage />} />
 
+          {/* Utility pages */}
+          <Route path="quick-question" element={<QuickQuestionPage />} />
+          <Route path="compare" element={<ComparisonPage />} />
+          <Route path="proposal" element={<ProposalDisplay />} />
+          <Route path="guided-wizard" element={<GuidedProjectWizard />} />
+
+          {/* Export */}
+          <Route path="export" element={<ExportSnapshotPage />} />
+
+          {/* Optional (wire when ready) */}
+          {/* <Route path="tools/survey-import" element={<SurveyImportPage />} /> */}
+          {/* <Route path="tools/templates" element={<TemplateBrowserScreen />} /> */}
+          {/* <Route path="workspace" element={<WorkspaceHomePage />} /> */}
+          {/* <Route path="analytics" element={<AnalyticsPage />} /> */}
+          {/* <Route path="tools/guru" element={<GuruPage />} /> */}
+
+          {/* App 404 */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
-        <Route path="/home" element={<Navigate to="/" replace />} />
+        {/* Catch-all */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </Suspense>
+    </React.Suspense>
   );
 }

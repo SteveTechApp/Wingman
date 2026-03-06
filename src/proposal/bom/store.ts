@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import type { BomLine, Proposal } from "./types";
 import { money } from "./pricing";
 import { loadProposal, saveProposal, addLineToSavedProposal } from "./persist";
