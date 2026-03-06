@@ -1,0 +1,3 @@
+"Step","Source","Target","Action"
+"PromoteRealComparisonTray","src\components\ComparisonTray.tsx","src\app\ComparisonTray.tsx","Promoted"
+"WrapLegacyComparisonTray","src\components\ComparisonTray.tsx","src\components\ComparisonTray.tsx","Wrapped"

@@ -1,0 +1,18 @@
+Wingman Phase 21-24
+Mode: APPLY
+
+Created/Updated:
+- src\features\proposals\proposalDocxFacade.ts
+- src\features\proposals\ProposalBuilderPage.tsx
+
+Adds:
+- rendered DOCX export
+- branded title/header
+- sectioned document body
+- equipment list in DOCX
+- commercial summary in DOCX
+
+Next:
+- npm run typecheck
+- validate DOCX download in UI
+- next bundle can add pricing tables and richer BOM formatting

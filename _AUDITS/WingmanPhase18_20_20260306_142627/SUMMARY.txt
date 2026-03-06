@@ -1,0 +1,15 @@
+Wingman Phase 18-20
+Mode: APPLY
+
+Created/Updated:
+- src\features\proposals\proposalDocxFacade.ts
+- src\features\proposals\ProposalBuilderPage.tsx
+
+Audit:
+- docx-candidate-audit.csv
+- docx-choice.txt
+
+Next:
+- npm run typecheck
+- review docx-choice.txt
+- if needed, wire surviving legacy DOCX exporter into proposalDocxFacade.ts

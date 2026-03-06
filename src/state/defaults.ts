@@ -43,13 +43,13 @@ export const DEFAULT_WINGMAN_STATE: WingmanState = {
 };
 
 export const LOADING_MESSAGES: Record<LoadingContext | "default", string> = {
-  default: "Loading…",
-  projects: "Loading projects…",
-  discovery: "Preparing discovery…",
-  design: "Preparing design workspace…",
-  catalog: "Loading catalog…",
-  proposal: "Preparing proposal…",
-  export: "Preparing export…",
+  default: "Loadingâ€¦",
+  projects: "Loading projectsâ€¦",
+  discovery: "Preparing discoveryâ€¦",
+  design: "Preparing design workspaceâ€¦",
+  catalog: "Loading catalogâ€¦",
+  proposal: "Preparing proposalâ€¦",
+  export: "Preparing exportâ€¦",
 };
 
 // Re-export types people tried to import from defaults.ts

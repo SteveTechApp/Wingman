@@ -1,256 +1,279 @@
 import * as React from "react";
-// src/features/projects/ProjectsPage.tsx
-
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-  getProjects,
-  setActiveProject,
-  type ProjectRecord,
+  createProject,
+  deleteProject,
+  loadProjects,
+  subscribeProjects,
+  type StoredProject,
 } from "@/features/projects/projectStore";
 
-function card(): React.CSSProperties {
-  return {
-    border: "1px solid rgba(255,255,255,0.10)",
-    borderRadius: 16,
-    background: "rgba(16,22,32,0.72)",
-    padding: 14,
-  };
+function matchesQuery(project: StoredProject, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+
+  const haystack = [
+    project.name,
+    project.customer,
+    project.site,
+    project.roomName,
+    project.stage,
+    project.status,
+    project.notes,
+    project.id,
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return haystack.includes(q);
 }
 
-function chip(): React.CSSProperties {
-  return {
-    display: "inline-flex",
-    alignItems: "center",
-    minHeight: 28,
-    padding: "6px 10px",
-    borderRadius: 999,
-    border: "1px solid rgba(255,255,255,0.10)",
-    background: "rgba(255,255,255,0.06)",
-    fontSize: 12,
-    lineHeight: 1,
-    whiteSpace: "nowrap",
-  };
-}
-
-function buttonStyle(primary?: boolean): React.CSSProperties {
-  return {
-    borderRadius: 12,
-    border: primary
-      ? "1px solid rgba(120,200,255,0.26)"
-      : "1px solid rgba(255,255,255,0.12)",
-    background: primary
-      ? "rgba(120,200,255,0.14)"
-      : "rgba(255,255,255,0.08)",
-    color: "rgba(255,255,255,0.92)",
-    padding: "9px 12px",
-    minHeight: 36,
-    cursor: "pointer",
-    font: "inherit",
-    whiteSpace: "nowrap",
-  };
-}
-
-function fmtDate(iso?: string): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleString();
-}
-
-function proposalText(p: ProjectRecord): string {
-  if (!p.proposal) return "No proposal saved";
-  const tier = p.proposal.selectedTier || "—";
-  const fams =
-    Array.isArray(p.proposal.families) && p.proposal.families.length
-      ? p.proposal.families.join(", ")
-      : "No families";
-  return `${tier} · ${fams}`;
-}
-
-function catalogText(p: ProjectRecord): string {
-  if (!p.catalog) return "No catalog selection";
-  const fams =
-    Array.isArray(p.catalog.families) && p.catalog.families.length
-      ? p.catalog.families.join(", ")
-      : "No families";
-  const count = Array.isArray(p.catalog.skus) ? p.catalog.skus.length : 0;
-  return `${count} SKU(s) · ${fams}`;
-}
-
-function progress(p: ProjectRecord): { done: number; total: number } {
-  const hasDiscovery = !!p.discovery;
-  const hasCatalog = Array.isArray(p.catalog?.skus) && p.catalog!.skus.length > 0;
-  const hasProposal = !!p.proposal;
-  const done = [hasDiscovery, hasCatalog, hasProposal].filter(Boolean).length;
-  return { done, total: 3 };
-}
-
-function projectToText(p: ProjectRecord): string {
-  return [
-    `Project: ${p.name || "Untitled Project"}`,
-    `Customer: ${p.customer || "—"}`,
-    `Site: ${p.site || "—"}`,
-    `Status: ${p.status}`,
-    `Updated: ${fmtDate(p.updatedAt)}`,
-    `Catalog: ${catalogText(p)}`,
-    `Proposal: ${proposalText(p)}`,
-  ].join("\n");
-}
-
-function downloadTxt(fileName: string, text: string) {
-  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = fileName;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+function formatDateTime(value: string): string {
+  return new Date(value).toLocaleString();
 }
 
 export default function ProjectsPage() {
   const nav = useNavigate();
-  const [q, setQ] = React.useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [projects, setProjects] = React.useState<StoredProject[]>(() => loadProjects());
+  const query = searchParams.get("q") ?? "";
+  const selectedId = searchParams.get("projectId") ?? "";
 
-  const projects = React.useMemo(() => {
-    const rows = getProjects();
-    return Array.isArray(rows) ? rows : [];
+  React.useEffect(() => {
+    const refresh = () => setProjects(loadProjects());
+    const unsubscribe = subscribeProjects(refresh);
+    refresh();
+    return unsubscribe;
   }, []);
 
-  const filtered = React.useMemo(() => {
-    const s = q.trim().toLowerCase();
-    if (!s) return projects;
-    return projects.filter((p) => {
-      const blob = [
-        p.name,
-        p.customer,
-        p.site,
-        p.status,
-        p.proposal?.selectedTier || "",
-        Array.isArray(p.catalog?.skus) ? p.catalog!.skus.join(" ") : "",
-        Array.isArray(p.catalog?.families) ? p.catalog!.families.join(" ") : "",
-      ]
-        .join(" ")
-        .toLowerCase();
-      return blob.includes(s);
+  const filtered = React.useMemo(
+    () => projects.filter((project) => matchesQuery(project, query)),
+    [projects, query]
+  );
+
+  const selected = React.useMemo(
+    () => filtered.find((project) => project.id === selectedId) ?? filtered[0] ?? null,
+    [filtered, selectedId]
+  );
+
+  React.useEffect(() => {
+    if (!selected && filtered.length === 0) return;
+    if (selected && selected.id === selectedId) return;
+
+    const next = new URLSearchParams(searchParams);
+    if (selected) {
+      next.set("projectId", selected.id);
+    } else {
+      next.delete("projectId");
+    }
+    setSearchParams(next, { replace: true });
+  }, [filtered, searchParams, selected, selectedId, setSearchParams]);
+
+  const setQuery = (value: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (value.trim()) {
+      next.set("q", value);
+    } else {
+      next.delete("q");
+    }
+    setSearchParams(next, { replace: true });
+  };
+
+  const openProject = (projectId: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.set("projectId", projectId);
+    setSearchParams(next, { replace: true });
+  };
+
+  const createBlankProject = () => {
+    const created = createProject({
+      name: `New Project ${projects.length + 1}`,
+      customer: "Sample customer",
+      stage: "Discovery",
+      status: "Draft",
+      notes: "New blank project created from the Projects page.",
     });
-  }, [projects, q]);
+    const next = new URLSearchParams(searchParams);
+    next.set("projectId", created.id);
+    setSearchParams(next, { replace: true });
+  };
 
-  function open(p: ProjectRecord, to: string) {
-    setActiveProject(p.id);
-    nav(to);
-  }
+  const removeSelectedProject = (project: StoredProject) => {
+    const ok = window.confirm(`Delete project "${project.name}"?`);
+    if (!ok) return;
 
-  function exportProject(p: ProjectRecord) {
-    const fileName = `${(p.name || "project").replace(/[^a-z0-9_\-]+/gi, "_")}.txt`;
-    downloadTxt(fileName, projectToText(p));
-  }
+    deleteProject(project.id);
+
+    const next = new URLSearchParams(searchParams);
+    if (next.get("projectId") === project.id) {
+      next.delete("projectId");
+    }
+    setSearchParams(next, { replace: true });
+  };
 
   return (
-    <div style={{ minHeight: "100%", padding: 16, color: "rgba(255,255,255,0.92)" }}>
-      <div style={{ ...card(), marginBottom: 14 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-          <div>
-            <div style={{ fontSize: 18, fontWeight: 900 }}>Projects</div>
-            <div style={{ opacity: 0.78, fontSize: 13, marginTop: 4 }}>
-              Manage active project context. Jump straight into the next step.
-            </div>
-          </div>
-
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button type="button" onClick={() => nav("/app/dashboard")} style={buttonStyle()}>
-              Dashboard
-            </button>
-            <button type="button" onClick={() => nav("/app/tools")} style={buttonStyle()}>
-              Tool Hub
-            </button>
-            <button type="button" onClick={() => nav("/app/projects/new")} style={buttonStyle(true)}>
-              Start New Project
-            </button>
-          </div>
+    <div className="wm-dashboard">
+      <section className="wm-dashboard__hero" style={{ alignItems: "center" }}>
+        <div>
+          <div className="wm-dashboard__eyebrow">Projects</div>
+          <h1 className="wm-dashboard__title" style={{ fontSize: "clamp(1.8rem, 2.8vw, 2.5rem)" }}>
+            Active project workspace
+          </h1>
+          <p className="wm-dashboard__subtitle">
+            Manage active project context, search live project data, and jump straight into the next step.
+          </p>
         </div>
 
-        <div style={{ marginTop: 12 }}>
+        <div className="wm-dashboard__heroactions">
+          <button type="button" className="wm-btn wm-btn--ghost" onClick={() => nav("/app/dashboard")}>
+            Dashboard
+          </button>
+          <button type="button" className="wm-btn wm-btn--ghost" onClick={() => nav("/app/tools")}>
+            Tool Hub
+          </button>
+          <button type="button" className="wm-btn wm-btn--primary" onClick={createBlankProject}>
+            Start New Project
+          </button>
+        </div>
+      </section>
+
+      <section className="wm-card">
+        <div className="wm-card__title">Project search</div>
+        <div className="wm-card__subtitle">Search by customer, site, room, status, stage, notes or project name.</div>
+
+        <div style={{ marginTop: 14 }}>
           <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
             placeholder="e.g: Search by customer, site, room, status, tier, sku"
             style={{
               width: "100%",
+              height: 42,
               borderRadius: 12,
-              border: "1px solid rgba(255,255,255,0.10)",
-              background: "rgba(255,255,255,0.05)",
-              color: "rgba(255,255,255,0.92)",
-              padding: "10px 10px",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.06)",
+              color: "rgba(255,255,255,0.95)",
+              padding: "0 14px",
               outline: "none",
-              font: "inherit",
+              boxSizing: "border-box",
             }}
           />
         </div>
-      </div>
+      </section>
 
-      <div style={{ display: "grid", gap: 12 }}>
-        {filtered.map((p) => {
-          const pr = progress(p);
-          return (
-            <div key={p.id} style={card()}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontWeight: 900, fontSize: 16, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {p.name || "Untitled Project"}
-                  </div>
-                  <div style={{ opacity: 0.78, fontSize: 13, marginTop: 4 }}>
-                    {(p.customer || "—") + " · " + (p.site || "—")}
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                  <span style={chip()}>{p.status}</span>
-                  <span style={chip()}>Updated: {fmtDate(p.updatedAt)}</span>
-                  <span style={chip()}>Progress: {pr.done}/{pr.total}</span>
-                </div>
-              </div>
-
-              <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  <span style={chip()}>Catalog: {catalogText(p)}</span>
-                  {p.catalog?.updatedAt ? <span style={chip()}>Catalog updated: {fmtDate(p.catalog.updatedAt)}</span> : null}
-                </div>
-
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  <span style={chip()}>Proposal: {proposalText(p)}</span>
-                  {p.proposal?.updatedAt ? <span style={chip()}>Proposal updated: {fmtDate(p.proposal.updatedAt)}</span> : null}
-                </div>
-
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <button type="button" onClick={() => open(p, "/app/tools/discovery")} style={buttonStyle()}>
-                    Discovery
-                  </button>
-                  <button type="button" onClick={() => open(p, "/app/tools/catalog")} style={buttonStyle()}>
-                    Catalog
-                  </button>
-                  <button type="button" onClick={() => open(p, "/app/tools/proposal")} style={buttonStyle(true)}>
-                    Proposal
-                  </button>
-                  <button type="button" onClick={() => open(p, "/app/tools")} style={buttonStyle()}>
-                    Tool Hub
-                  </button>
-                  <button type="button" onClick={() => exportProject(p)} style={buttonStyle()}>
-                    Export
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-
-        {!filtered.length && (
-          <div style={{ ...card(), opacity: 0.8 }}>
-            No projects found.
+      {filtered.length === 0 ? (
+        <section className="wm-card">
+          <div className="wm-card__title">No projects found</div>
+          <div className="wm-card__subtitle">
+            Your dashboard recent projects and this page now use the same shared project store. Create a new project to begin.
           </div>
-        )}
-      </div>
+
+          <div className="wm-inline-actions">
+            <button type="button" className="wm-btn wm-btn--primary" onClick={createBlankProject}>
+              Create first project
+            </button>
+          </div>
+        </section>
+      ) : (
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(360px, 0.95fr) minmax(0, 1.25fr)",
+            gap: 16,
+          }}
+        >
+          <div className="wm-card">
+            <div className="wm-card__title">Project list</div>
+            <div className="wm-card__subtitle">These projects are live and shared with the Dashboard recent projects panel.</div>
+
+            <div className="wm-project-list">
+              {filtered.map((project) => {
+                const isSelected = selected?.id === project.id;
+                return (
+                  <button
+                    key={project.id}
+                    type="button"
+                    onClick={() => openProject(project.id)}
+                    className="wm-project-row"
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      background: isSelected
+                        ? "linear-gradient(90deg, rgba(18,182,166,0.16), rgba(255,255,255,0.04))"
+                        : undefined,
+                      borderColor: isSelected ? "rgba(18,182,166,0.28)" : undefined,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div className="wm-project-row__main">
+                      <div className="wm-project-row__name">{project.name}</div>
+                      <div className="wm-project-row__customer">{project.customer}</div>
+                    </div>
+                    <div className="wm-project-row__stage">{project.stage}</div>
+                    <div className="wm-project-row__updated">{new Date(project.updatedAt).toLocaleDateString()}</div>
+                    <div className="wm-project-row__actions">
+                      <span className="wm-chip" style={{ fontSize: 11 }}>{project.status}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="wm-card">
+            {selected ? (
+              <>
+                <div className="wm-card__title">{selected.name}</div>
+                <div className="wm-card__subtitle">Selected live project context from the shared project workspace.</div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: 12, marginTop: 16 }}>
+                  <div className="wm-nextstep__project">
+                    <div className="wm-nextstep__label">Customer</div>
+                    <h3 style={{ marginBottom: 4 }}>{selected.customer || "Not set"}</h3>
+                    <p>Site: {selected.site || "Not set"}</p>
+                    <p>Room: {selected.roomName || "Not set"}</p>
+                  </div>
+
+                  <div className="wm-nextstep__project">
+                    <div className="wm-nextstep__label">Project state</div>
+                    <h3 style={{ marginBottom: 4 }}>{selected.stage}</h3>
+                    <p>Status: {selected.status}</p>
+                    <p>Updated: {formatDateTime(selected.updatedAt)}</p>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 16 }} className="wm-card">
+                  <div className="wm-card__title" style={{ fontSize: 18 }}>Notes</div>
+                  <div className="wm-card__subtitle" style={{ marginTop: 10 }}>
+                    {selected.notes || "No notes added yet."}
+                  </div>
+                </div>
+
+                <div className="wm-inline-actions">
+                  <button type="button" className="wm-btn wm-btn--ghost" onClick={() => nav("/app/dashboard")}>
+                    Back to Dashboard
+                  </button>
+                  <button type="button" className="wm-btn wm-btn--ghost" onClick={() => nav("/app/tools/discovery")}>
+                    Open Discovery
+                  </button>
+                  <button
+                    type="button"
+                    className="wm-btn wm-btn--primary"
+                    onClick={() => removeSelectedProject(selected)}
+                  >
+                    Delete Project
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="wm-card__title">No project selected</div>
+                <div className="wm-card__subtitle">Choose a project from the list to load its live context.</div>
+              </>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

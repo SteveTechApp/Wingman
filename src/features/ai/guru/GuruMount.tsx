@@ -42,7 +42,7 @@ export default function GuruMount() {
                 <li>Tool-aware help panels</li>
                 <li>Competitor compare workflows</li>
                 <li>Design/risk review checklists</li>
-                <li>“Add to proposal” recommendations</li>
+                <li>â€œAdd to proposalâ€ recommendations</li>
               </ul>
             </div>
 

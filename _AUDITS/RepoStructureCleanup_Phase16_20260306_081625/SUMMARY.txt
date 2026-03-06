@@ -1,0 +1,5 @@
+Repo:    C:\Users\steve\wingman
+Mode:    APPLY
+Rescue:  _RESCUE\RepoStructureCleanup_Phase16_20260306_081625
+Archive: _ARCHIVE\RepoStructureCleanup_Phase16_20260306_081625
+Audit:   _AUDITS\RepoStructureCleanup_Phase16_20260306_081625

@@ -66,7 +66,7 @@ function buildTemplate(
   roomName: string
 ): TemplatePack {
   const items: string[] = [];
-  const title = roomName ? `${tier} template · ${roomName}` : `${tier} template`;
+  const title = roomName ? `${tier} template Â· ${roomName}` : `${tier} template`;
 
   if (families.includes("Apollo")) {
     items.push(
@@ -227,7 +227,7 @@ export default function TemplatesPage() {
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 10 }}>
           <span style={chipStyle()}>Project: {activeProject?.name || "No active project"}</span>
-          <span style={chipStyle()}>Room: {discovery?.roomName || "—"}</span>
+          <span style={chipStyle()}>Room: {discovery?.roomName || "â€”"}</span>
           <span style={chipStyle()}>
             Families: {recommendedFamilies.length ? recommendedFamilies.join(", ") : "No discovery recommendations"}
           </span>

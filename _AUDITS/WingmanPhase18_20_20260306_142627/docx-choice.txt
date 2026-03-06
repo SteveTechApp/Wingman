@@ -1,0 +1,1 @@
+Canonical DOCX choice: src\utils\docxExporter.ts

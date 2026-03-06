@@ -1,0 +1,4 @@
+"File","Source","Target","SourceExists","TargetExists","Action"
+"Header.tsx","src\components\layout\Header.tsx","src\app\layout\Header.tsx","True","True","PromoteAndWrap"
+"Footer.tsx","src\components\layout\Footer.tsx","src\app\layout\Footer.tsx","True","True","PromoteAndWrap"
+"Logo.tsx","src\components\layout\Logo.tsx","src\app\layout\Logo.tsx","True","True","PromoteAndWrap"

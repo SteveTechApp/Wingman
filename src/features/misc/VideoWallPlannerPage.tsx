@@ -1,26 +1,19 @@
 import * as React from "react";
 import CollapsibleCard from "@/ui2/components/CollapsibleCard";
+import {
+  PageHeader,
+  pageWrapStyle,
+  stackStyle,
+  cardStyle,
+  sectionTitleStyle,
+  sectionTextStyle,
+  inputStyle,
+  Field,
+} from "@/ui2/page/PageChrome";
 
 type WallType = "LCD" | "LED";
 type Layout = "2x2" | "3x3" | "4x4" | "Custom";
 type MultiViewMode = "None" | "Fixed Windows" | "Active Windowing";
-
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        fontSize: 11,
-        fontWeight: 800,
-        letterSpacing: "0.12em",
-        textTransform: "uppercase",
-        color: "rgba(255,255,255,0.62)",
-        marginBottom: 6,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
 
 function SummaryRow({
   label,
@@ -98,174 +91,96 @@ export default function VideoWallPlannerPage() {
   }, [wallType, multiview]);
 
   return (
-    <div
-      className="wm-page wm-animate-in"
-      style={{ width: "100%", maxWidth: "none", margin: 0, minWidth: 0 }}
-    >
-      <div style={{ display: "grid", gap: 14 }}>
-        <div>
-          <div className="wm-page-eyebrow">TOOL</div>
-          <h1 className="wm-page-title" style={{ marginBottom: 8 }}>
-            Video Wall Planner
-          </h1>
-          <div
-            style={{
-              maxWidth: 760,
-              fontSize: 14,
-              color: "rgba(255,255,255,0.88)",
-              lineHeight: 1.45,
-            }}
-          >
-            Define the wall type, layout, and viewing behaviour first, then use that as the basis for processing and BOM decisions.
-          </div>
-        </div>
+    <div className="wm-page wm-animate-in" style={pageWrapStyle()}>
+      <div style={stackStyle(14)}>
+        <PageHeader
+          eyebrow="TOOL"
+          title="Video Wall Planner"
+          description="Define the wall type, layout and viewing behaviour first, then use that as the basis for processing and BOM decisions."
+        />
 
-        <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
-          <div style={{ fontWeight: 900, fontSize: 16 }}>Planner inputs</div>
-          <div
-            style={{
-              marginTop: 6,
-              fontSize: 12,
-              color: "rgba(255,255,255,0.80)",
-              lineHeight: 1.45,
-            }}
-          >
+        <section style={cardStyle()}>
+          <div style={sectionTitleStyle()}>Planner inputs</div>
+          <div style={sectionTextStyle()}>
             Enter only the core planning inputs first.
           </div>
 
           <div
             style={{
-              marginTop: 14,
+              marginTop: 16,
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              gridTemplateColumns: "repeat(4, minmax(0,1fr))",
               gap: 14,
             }}
           >
-            <label>
-              <FieldLabel>Wall type</FieldLabel>
-              <select
-                value={wallType}
-                onChange={(e) => setWallType(e.target.value as WallType)}
-                style={{ width: "100%", padding: 10, borderRadius: 12 }}
-              >
+            <Field label="Wall type">
+              <select value={wallType} onChange={(e) => setWallType(e.target.value as WallType)} style={inputStyle()}>
                 <option>LED</option>
                 <option>LCD</option>
               </select>
-            </label>
+            </Field>
 
-            <label>
-              <FieldLabel>Layout</FieldLabel>
-              <select
-                value={layout}
-                onChange={(e) => setLayout(e.target.value as Layout)}
-                style={{ width: "100%", padding: 10, borderRadius: 12 }}
-              >
+            <Field label="Layout">
+              <select value={layout} onChange={(e) => setLayout(e.target.value as Layout)} style={inputStyle()}>
                 <option>2x2</option>
                 <option>3x3</option>
                 <option>4x4</option>
                 <option>Custom</option>
               </select>
-            </label>
+            </Field>
 
-            <label>
-              <FieldLabel>Approx. size (diagonal inches)</FieldLabel>
-              <input
-                type="number"
-                min={40}
-                value={diagonalInches}
-                onChange={(e) => setDiagonalInches(Number(e.target.value || 0))}
-                style={{ width: "100%", padding: 10, borderRadius: 12 }}
-              />
-            </label>
+            <Field label="Approx. size (diagonal inches)">
+              <input type="number" min={40} value={diagonalInches} onChange={(e) => setDiagonalInches(Number(e.target.value || 0))} style={inputStyle()} />
+            </Field>
 
-            <label>
-              <FieldLabel>Multiview</FieldLabel>
-              <select
-                value={multiview}
-                onChange={(e) => setMultiview(e.target.value as MultiViewMode)}
-                style={{ width: "100%", padding: 10, borderRadius: 12 }}
-              >
+            <Field label="Multiview">
+              <select value={multiview} onChange={(e) => setMultiview(e.target.value as MultiViewMode)} style={inputStyle()}>
                 <option>None</option>
                 <option>Fixed Windows</option>
                 <option>Active Windowing</option>
               </select>
-            </label>
+            </Field>
           </div>
 
-          {layout === "Custom" && (
+          {layout === "Custom" ? (
             <div
               style={{
                 marginTop: 14,
                 display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(140px, 220px))",
+                gridTemplateColumns: "repeat(2, minmax(180px, 280px))",
                 gap: 14,
               }}
             >
-              <label>
-                <FieldLabel>Rows</FieldLabel>
-                <input
-                  type="number"
-                  min={1}
-                  value={customRows}
-                  onChange={(e) => setCustomRows(Math.max(1, Number(e.target.value || 1)))}
-                  style={{ width: "100%", padding: 10, borderRadius: 12 }}
-                />
-              </label>
-
-              <label>
-                <FieldLabel>Columns</FieldLabel>
-                <input
-                  type="number"
-                  min={1}
-                  value={customCols}
-                  onChange={(e) => setCustomCols(Math.max(1, Number(e.target.value || 1)))}
-                  style={{ width: "100%", padding: 10, borderRadius: 12 }}
-                />
-              </label>
+              <Field label="Rows">
+                <input type="number" min={1} value={customRows} onChange={(e) => setCustomRows(Math.max(1, Number(e.target.value || 1)))} style={inputStyle()} />
+              </Field>
+              <Field label="Columns">
+                <input type="number" min={1} value={customCols} onChange={(e) => setCustomCols(Math.max(1, Number(e.target.value || 1)))} style={inputStyle()} />
+              </Field>
             </div>
-          )}
+          ) : null}
 
-          {wallType === "LED" && (
-            <div style={{ marginTop: 14, maxWidth: 260 }}>
-              <label>
-                <FieldLabel>Pixel pitch (mm)</FieldLabel>
-                <input
-                  type="number"
-                  step="0.1"
-                  min={0.5}
-                  value={pixelPitch}
-                  onChange={(e) => setPixelPitch(Number(e.target.value || 0))}
-                  style={{ width: "100%", padding: 10, borderRadius: 12 }}
-                />
-              </label>
+          {wallType === "LED" ? (
+            <div style={{ marginTop: 14, maxWidth: 280 }}>
+              <Field label="Pixel pitch (mm)">
+                <input type="number" step="0.1" min={0.5} value={pixelPitch} onChange={(e) => setPixelPitch(Number(e.target.value || 0))} style={inputStyle()} />
+              </Field>
             </div>
-          )}
+          ) : null}
         </section>
 
-        <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
-          <div style={{ fontWeight: 900, fontSize: 16 }}>Planning summary</div>
-          <div
-            style={{
-              marginTop: 6,
-              fontSize: 12,
-              color: "rgba(255,255,255,0.80)",
-              lineHeight: 1.45,
-            }}
-          >
-            Use this as the starting point for processor, distribution, and BOM decisions.
+        <section style={cardStyle()}>
+          <div style={sectionTitleStyle()}>Planning summary</div>
+          <div style={sectionTextStyle()}>
+            Use this as the starting point for processor, distribution and BOM decisions.
           </div>
 
-          <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
+          <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
             <SummaryRow label="Wall type" value={wallType} />
             <SummaryRow label="Layout" value={layoutLabel} />
-            <SummaryRow
-              label={wallType === "LCD" ? "Panels" : "Display object"}
-              value={String(displayCount)}
-            />
+            <SummaryRow label={wallType === "LCD" ? "Panels" : "Display object"} value={String(displayCount)} />
             <SummaryRow label="Approx. size" value={`${diagonalInches}"`} />
-            {wallType === "LED" ? (
-              <SummaryRow label="Pixel pitch" value={`${pixelPitch} mm`} />
-            ) : null}
+            {wallType === "LED" ? <SummaryRow label="Pixel pitch" value={`${pixelPitch} mm`} /> : null}
             <SummaryRow label="Multiview" value={multiview} />
             <SummaryRow label="Planning note" value={planningNote} />
           </div>
@@ -284,7 +199,7 @@ export default function VideoWallPlannerPage() {
               color: "rgba(255,255,255,0.86)",
             }}
           >
-            Next, split LED vs LCD workflows and apply WyreStorm processing, routing, and multiview rules from this configuration.
+            Next, split LED vs LCD workflows and apply WyreStorm processing, routing and multiview rules from this configuration.
           </div>
         </CollapsibleCard>
       </div>

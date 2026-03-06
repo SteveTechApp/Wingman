@@ -1,0 +1,6 @@
+"Step","File","Action"
+"Presence","src\features\import\ImportIntakePage.tsx","Exists"
+"Presence","src\pages\SurveyImportPage.tsx","Exists"
+"LegacyInspection","src\pages\SurveyImportPage.tsx","LooksLegacy"
+"ArchiveLegacyImportPage","src\pages\SurveyImportPage.tsx","Archived"
+"PatchAppRoutesImports","src\AppRoutes.tsx","Patched"

@@ -1,0 +1,11 @@
+Wingman Catalog Phase 11
+Mode: APPLY
+
+Created/Updated:
+- src\features\proposals\proposalExportFacade.ts
+- src\features\proposals\ProposalBuilderPage.tsx
+
+Next:
+- choose one legacy DOCX exporter to keep
+- map proposalExportFacade.ts payload into that exporter
+- add WyreStorm branded sections and equipment/pricing blocks

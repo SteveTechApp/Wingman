@@ -85,7 +85,7 @@ const TemplateBrowserScreen: React.FC = () => {
                                     onClick={() => setSelectedRoomType(null)}
                                     className="flex\ items-center\ gap-2\ text-sm\ font-medium\ text-accent\ hover:underline\ transition-colors"
                                 >
-                                    â† Back to All Room Types
+                                    Ã¢â€ Â Back to All Room Types
                                 </button>
                             </div>
 
@@ -109,7 +109,7 @@ const TemplateBrowserScreen: React.FC = () => {
                                     >
                                         <div className="w-full\ aspect-video\ rounded\ overflow-hidden\ bg-background-secondary\ border\ border-border-color">
                                             <div className="bg-gradient-to-br\ from-blue-600\ via-blue-500\ to-blue-400\ w-full\ h-full\ flex\ items-center\ justify-center">
-                                                <div className="w-8\ h-14\ text-white/30">âœ¨</div>
+                                                <div className="w-8\ h-14\ text-white/30">Ã¢Å“Â¨</div>
                                             </div>
                                         </div>
                                         <p className="font-medium\ text-xs\ text-text-primary\ leading-tight\ line-clamp-2">{concept.name}</p>

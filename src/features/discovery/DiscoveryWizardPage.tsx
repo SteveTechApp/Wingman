@@ -326,7 +326,7 @@ function SummaryRow({ k, v }: { k: string; v: string }) {
   return (
     <div className="wm-srow">
       <div className="wm-srow__k">{k}</div>
-      <div className="wm-srow__v">{v || "—"}</div>
+      <div className="wm-srow__v">{v || "â€”"}</div>
     </div>
   );
 }
@@ -778,7 +778,7 @@ export default function DiscoveryWizardPage() {
       <div className="wm-grid">
         <div>
           <div className="wm-card">
-            <div className="wm-card__h">Step 1 · Basic context</div>
+            <div className="wm-card__h">Step 1 Â· Basic context</div>
             <div className="wm-formgrid">
               <label className="wm-field">
                 <div className="wm-field__label">Customer</div>
@@ -820,7 +820,7 @@ export default function DiscoveryWizardPage() {
           </div>
 
           <div className="wm-card">
-            <div className="wm-card__h">Step 2 · Physical and practical layout</div>
+            <div className="wm-card__h">Step 2 Â· Physical and practical layout</div>
             <div className="wm-formgrid">
               <label className="wm-field">
                 <div className="wm-field__label">Room length (m)</div>
@@ -890,7 +890,7 @@ export default function DiscoveryWizardPage() {
           </div>
 
           <div className="wm-card">
-            <div className="wm-card__h">Step 3 · Technical and commercial qualifiers</div>
+            <div className="wm-card__h">Step 3 Â· Technical and commercial qualifiers</div>
             <div className="wm-formgrid">
               <label className="wm-field">
                 <div className="wm-field__label">Display count</div>
@@ -973,7 +973,7 @@ export default function DiscoveryWizardPage() {
             <SummaryRow k="Room" v={record.roomName} />
             <SummaryRow
               k="Physical size"
-              v={[record.roomLengthM, record.roomWidthM, record.roomHeightM].filter(Boolean).join(" × ")}
+              v={[record.roomLengthM, record.roomWidthM, record.roomHeightM].filter(Boolean).join(" Ã— ")}
             />
             <SummaryRow
               k="Cable route"
