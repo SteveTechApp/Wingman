@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 // WyreStorm Product Pricing Database
 // MSRP = Manufacturer's Suggested Retail Price

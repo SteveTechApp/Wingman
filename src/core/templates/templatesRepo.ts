@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export type TemplateTier = "bronze" | "silver" | "gold";
 
 export type TemplateField =

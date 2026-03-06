@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from "react";
+
 import { useNavigate } from "react-router-dom";
 
 type SalesStatus = "Draft" | "Review Needed" | "Commercial Ready" | "Engineering Review Required";

@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useRef } from 'react';
+import * as React from "react";
 
 export interface Command<T> {
   execute: (state: T) => T;
@@ -13,17 +13,17 @@ export interface UndoRedoState<T> {
 }
 
 export const useUndoRedo = <T,>(initialState: T, maxHistory = 50) => {
-  const [state, setState] = useState<T>(initialState);
-  const [history, setHistory] = useState<UndoRedoState<T>>({
+  const [state, setState] = React.useState<T>(initialState);
+  const [history, setHistory] = React.useState<UndoRedoState<T>>({
     past: [],
     future: [],
   });
-  const stateRef = useRef(state);
+  const stateRef = React.useRef(state);
 
   // Update ref when state changes
   stateRef.current = state;
 
-  const execute = useCallback((command: Command<T>) => {
+  const execute = React.useCallback((command: Command<T>) => {
     const newState = command.execute(stateRef.current);
     setState(newState);
     stateRef.current = newState;
@@ -34,7 +34,7 @@ export const useUndoRedo = <T,>(initialState: T, maxHistory = 50) => {
     }));
   }, [maxHistory]);
 
-  const undo = useCallback(() => {
+  const undo = React.useCallback(() => {
     setHistory(prev => {
       if (prev.past.length === 0) return prev;
 
@@ -50,7 +50,7 @@ export const useUndoRedo = <T,>(initialState: T, maxHistory = 50) => {
     });
   }, []);
 
-  const redo = useCallback(() => {
+  const redo = React.useCallback(() => {
     setHistory(prev => {
       if (prev.future.length === 0) return prev;
 
@@ -69,11 +69,11 @@ export const useUndoRedo = <T,>(initialState: T, maxHistory = 50) => {
   const canUndo = history.past.length > 0;
   const canRedo = history.future.length > 0;
 
-  const clear = useCallback(() => {
+  const clear = React.useCallback(() => {
     setHistory({ past: [], future: [] });
   }, []);
 
-  const reset = useCallback((newState: T) => {
+  const reset = React.useCallback((newState: T) => {
     setState(newState);
     stateRef.current = newState;
     setHistory({ past: [], future: [] });

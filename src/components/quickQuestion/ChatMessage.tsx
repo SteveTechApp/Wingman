@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import ReactMarkdown from 'react-markdown';
 import { Message } from '../../utils/types';
 

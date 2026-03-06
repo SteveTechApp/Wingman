@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { ProjectData, UserProfile } from '../../utils/types';
 import { getLocalizationInstructions } from '../localizationService';
 import { INSTALLATION_TASK_DATABASE } from '../../data/installationTaskDatabase';

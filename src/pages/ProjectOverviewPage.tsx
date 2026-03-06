@@ -1,6 +1,5 @@
-
-import React, { useEffect, useMemo, useState } from "react";
-import PageShell from "@/components/layout/PageShell";
+import * as React from "react";
+import PageShell from "@/app/layout/PageShell";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   getProjectsState,
@@ -11,13 +10,13 @@ import {
 export default function ProjectOverviewPage() {
   const nav = useNavigate();
   const { id } = useParams();
-  const [tick, setTick] = useState(0);
+  const [tick, setTick] = React.useState(0);
 
-  useEffect(() => { return subscribeProjects(() => setTick(t => t + 1)); }, []);
-  const s = useMemo(() => getProjectsState(), [tick]);
+  React.useEffect(() => { return subscribeProjects(() => setTick(t => t + 1)); }, []);
+  const s = React.useMemo(() => getProjectsState(), [tick]);
   const p = s.projects.find(x => x.id === id) ?? null;
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (p) setActiveProject(p.id);
   }, [p?.id]);
 
@@ -73,7 +72,5 @@ export default function ProjectOverviewPage() {
     </PageShell>
   );
 }
-
-
 
 

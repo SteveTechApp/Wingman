@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export type Money = { currency: "GBP" | "EUR" | "USD" | "OTHER"; value: number };
 
 export type PriceTier = "MSRP" | "Dealer" | "Distributor";

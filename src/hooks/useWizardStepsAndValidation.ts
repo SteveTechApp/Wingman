@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import * as React from "react";
 import { RoomWizardAnswers } from '../utils/types';
 import toast from 'react-hot-toast';
 
@@ -16,8 +16,8 @@ const validateStep = (stepIndex: number, answers: RoomWizardAnswers): Record<str
 };
 
 export const useWizardStepsAndValidation = (answers: RoomWizardAnswers, totalSteps: number) => {
-    const [currentStep, setCurrentStep] = useState(0);
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [currentStep, setCurrentStep] = React.useState(0);
+    const [errors, setErrors] = React.useState<Record<string, string>>({});
 
     const handleNext = () => {
         const stepErrors = validateStep(currentStep, answers);

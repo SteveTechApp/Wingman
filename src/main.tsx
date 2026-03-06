@@ -1,13 +1,23 @@
-import React from "react";
+import * as React from "react";
+import "./styles/index.css";
+
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import "./styles/index.css";
 import App from "./App";
+import WingmanProviders from "@/app/providers/WingmanProviders";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+import { AuthProvider } from "@/context";
+
+const root = document.getElementById("root");
+
+if (!root) {
+  throw new Error("Root element #root not found");
+}
+
+ReactDOM.createRoot(root).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter><WingmanProviders><App /></WingmanProviders></BrowserRouter>
+    </AuthProvider>
   </React.StrictMode>
 );

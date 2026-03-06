@@ -1,5 +1,4 @@
-
-import React, { Suspense, useRef, useState } from 'react';
+import * as React from "react";
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Grid, Box, Text, PerspectiveCamera, Environment } from '@react-three/drei';
 import { RoomData, ManuallyAddedEquipment } from '../../utils/types';
@@ -16,8 +15,8 @@ const Equipment: React.FC<{
   position: [number, number, number];
   onClick?: () => void;
 }> = ({ equipment, position, onClick }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
+  const meshRef = React.useRef<THREE.Mesh>(null);
+  const [hovered, setHovered] = React.useState(false);
 
   useFrame(() => {
     if (meshRef.current && hovered) {
@@ -144,7 +143,7 @@ const Room3DViewer: React.FC<Room3DViewerProps> = ({ room, onEquipmentClick }) =
       <Canvas shadows>
         <PerspectiveCamera makeDefault position={[length * 0.8, height * 1.5, width * 0.8]} />
 
-        <Suspense fallback={null}>
+        <React.Suspense fallback={null}>
           {/* Lighting */}
           <ambientLight intensity={0.5} />
           <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
@@ -190,7 +189,7 @@ const Room3DViewer: React.FC<Room3DViewerProps> = ({ room, onEquipmentClick }) =
             maxDistance={length * 2}
             maxPolarAngle={Math.PI / 2}
           />
-        </Suspense>
+        </React.Suspense>
       </Canvas>
 
       {/* Instructions overlay */}
@@ -206,6 +205,4 @@ const Room3DViewer: React.FC<Room3DViewerProps> = ({ room, onEquipmentClick }) =
 };
 
 export default Room3DViewer;
-
-
 

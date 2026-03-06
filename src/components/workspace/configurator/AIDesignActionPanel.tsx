@@ -1,7 +1,7 @@
 
-import React from 'react';
+import * as React from "react";
 import { useGenerationContext } from '../../../context/GenerationContext';
-import { useProjectContext } from "@/context/ProjectContext";
+import { useProjectContext } from "@/context";
 import { SparklesIcon } from '../../Icons';
 
 const AIDesignActionPanel: React.FC = () => {

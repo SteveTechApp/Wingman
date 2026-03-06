@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 
 // Market Icons
 export const BuildingIcon: React.FC<{className?: string}> = ({ className }) => (

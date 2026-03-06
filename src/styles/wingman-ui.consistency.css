@@ -828,9 +828,9 @@ html,body,#root{
 }
 
 /* Core container alignment */
-.wm-shell,
-main,
-.wm-page{
+/* Centering should apply to PUBLIC pages only (not the app shell) */
+.wm-public main,
+.wm-public .wm-page{
   max-width:1400px;
   margin:0 auto;
   padding-left:24px;
@@ -1576,4 +1576,5 @@ html, body, #root{
 main{
   padding-bottom:20px !important;
 }
+
 

@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { CompetitorItem, MatchReason, MatchResult, Product } from "./types";
 import { WYRESTORM_PRODUCTS } from "./competitorDataset";
 
@@ -130,4 +131,13 @@ export function parseCompetitorInput(input: string): CompetitorItem {
     return { brand: parts[0], sku: parts.slice(1).join(" ") };
   }
   return { brand: "Unknown", sku: raw };
+}
+export function searchCompetitors(_query: string): CompetitorItem[] {
+  return [];
+}
+export function matchToCatalog(competitor: CompetitorItem, opts: MatchOptions = {}): MatchResult[] {
+  return matchCompetitor(competitor, opts);
+}
+export function canAddSku(sku: string): boolean {
+  return !!sku && !!sku.trim();
 }

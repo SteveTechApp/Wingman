@@ -1,5 +1,4 @@
-
-import React, { useMemo, useState } from "react";
+import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { TOOL_CATEGORIES, type ToolCategory } from "@/data/toolCategories";
 
@@ -15,11 +14,11 @@ function getInternalEnabled(): boolean {
 }
 
 export default function CategoryMenu() {
-  const [open, setOpen] = useState(false);
-  const [showInternal, setShowInternal] = useState<boolean>(() => getInternalEnabled());
+  const [open, setOpen] = React.useState(false);
+  const [showInternal, setShowInternal] = React.useState<boolean>(() => getInternalEnabled());
   const loc = useLocation();
 
-  const active = useMemo(() => {
+  const active = React.useMemo(() => {
     const current = loc.pathname;
     for (const c of TOOL_CATEGORIES) {
       for (const it of c.items) {
@@ -130,9 +129,4 @@ export default function CategoryMenu() {
     </div>
   );
 }
-
-
-
-
-
 

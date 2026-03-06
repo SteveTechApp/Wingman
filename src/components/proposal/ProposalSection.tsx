@@ -1,9 +1,9 @@
 
-import React, { ReactNode } from 'react';
+import * as React from "react";
 
 interface ProposalSectionProps {
   title: string;
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 const ProposalSection: React.FC<ProposalSectionProps> = ({ title, children }) => {

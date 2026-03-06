@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { CableRoute, CableType, TechnologyRequirement } from './types';
 import { CABLE_SPECS } from './cableSpecs';
 

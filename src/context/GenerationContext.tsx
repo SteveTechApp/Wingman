@@ -1,27 +1,27 @@
+import * as React from "react";
+import { createStrictContext } from "./createStrictContext";
 
-import React, { createContext, useContext, useMemo } from "react";
-import { useProjectGeneration } from "../hooks/useProjectGeneration";
+export type GenerationContextValue = {
+  handleDesignRoom: (...args: any[]) => Promise<void>;
+  handleAgentSubmit: (...args: any[]) => Promise<void>;
+  handleSurveyImport: (...args: any[]) => Promise<void>;
+  handleStartFromTemplate: (...args: any[]) => Promise<void>;
+};
 
-type GenerationContextValue = ReturnType<typeof useProjectGeneration>;
+const noop = async () => {};
 
-const GenerationContext = createContext<GenerationContextValue | null>(null);
+const [GenerationContext, useGenerationContext] =
+  createStrictContext<GenerationContextValue>("Generation");
 
-export function GenerationProvider({ children }: { children: React.ReactNode }) {
-  const gen = useProjectGeneration();
+export { useGenerationContext };
 
-  // Ensure provider value always includes isLoading + error + handlers (whatever hook returns)
-  const value = useMemo(() => gen, [gen]);
+export function GenerationProvider(props: { children: React.ReactNode }) {
+  const value = React.useMemo<GenerationContextValue>(() => ({
+    handleDesignRoom: noop,
+    handleAgentSubmit: noop,
+    handleSurveyImport: noop,
+    handleStartFromTemplate: noop,
+  }), []);
 
-  return <GenerationContext.Provider value={value}>{children}</GenerationContext.Provider>;
+  return <GenerationContext.Provider value={value}>{props.children}</GenerationContext.Provider>;
 }
-
-export function useGeneration() {
-  const ctx = useContext(GenerationContext);
-  if (!ctx) throw new Error("useGeneration must be used within a GenerationProvider");
-  return ctx;
-}
-
-export const useGenerationContext = useGeneration;
-
-
-

@@ -1,5 +1,4 @@
-
-import React, { useMemo } from 'react';
+import * as React from "react";
 import { RoomWizardAnswers, VideoWallConfig } from '../../../utils/types';
 import WizardToggleOption from '../common/WizardToggleOption';
 import WallLayoutDisplay from '../../WallLayoutDisplay';
@@ -48,7 +47,7 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
     const panelCount = config.layout.rows * config.layout.cols;
 
     // Generate product recommendations based on configuration
-    const recommendations = useMemo((): ProductRecommendation[] => {
+    const recommendations = React.useMemo((): ProductRecommendation[] => {
         const products: ProductRecommendation[] = [];
 
         if (config.type === 'lcd') {
@@ -385,6 +384,4 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
 };
 
 export default VideoWallConfigurator;
-
-
 

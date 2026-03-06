@@ -1,1134 +1,528 @@
-/* __WM_OVERRIDES_ENGINEERING_CANONICAL_V1__
-   Engineering UI (B):
-   - Minimal overrides only
-   - Single source of truth for header/footer sizing + background
-   - Avoid broad selectors like "header * { ... !important }"
-*/
+/* =========================================================
+   WINGMAN UI OVERRIDES
+   Clean baseline override layer
+   ========================================================= */
 
-/* ---------------------------------------
-   Background (engineering dark, no glow)
----------------------------------------- */
-html[data-theme="dark"] body{
-  background: linear-gradient(180deg,#07101d 0%,#07101d 35%,#050b14 100%) !important;
-  color: rgba(255,255,255,0.88);
-}
-html[data-theme="light"] body{
-  background: linear-gradient(180deg,#f5f7fb 0%,#eef3f9 65%,#edf1f7 100%) !important;
-  color: rgba(10,20,40,0.92);
+:root{
+  --wm-workarea-max: 1920px;
+  --wm-topbar-h: 76px;
+
+  --wm-bg-deep: #071523;
+  --wm-bg-mid: #0a2135;
+  --wm-bg-soft: #0c2942;
+
+  --wm-text: rgba(255,255,255,0.92);
 }
 
-/* Prevent legacy overlay layers */
-.wm-shell::before,
-.wm-shell::after,
-body::before,
-body::after{
+
+/* =========================================================
+   GLOBAL APP LAYOUT
+   ========================================================= */
+
+.wm-shell,
+.wm-shell__body,
+.wm-shell__main,
+.wm-page{
+  width:100%;
+  max-width:none;
+  margin:0;
+}
+
+.wm-mode-app main{
+  padding-top:10px !important;
+}
+
+
+/* =========================================================
+   TOPBAR (DEEPER ×2)
+   ========================================================= */
+
+.wm-topbar{
+  position:sticky;
+  top:0;
+  z-index:80;
+
+  height:var(--wm-topbar-h);
+
+  display:flex;
+  align-items:center;
+
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(6,20,36,0.98) 0%,
+      rgba(8,28,48,0.92) 45%,
+      rgba(10,36,60,0.82) 100%
+    );
+
+  border-bottom:1px solid rgba(255,255,255,0.10);
+  box-shadow:0 6px 26px rgba(0,0,0,0.45);
+}
+
+.wm-topbar__inner{
+  width:100%;
+  max-width:var(--wm-workarea-max);
+
+  margin:0 auto;
+  padding:0 22px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+
+/* =========================================================
+   TOPBAR LEFT / RIGHT
+   ========================================================= */
+
+.wm-topbar__left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.wm-topbar__right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.wm-topbar__logo{
+  height:58px;
+  width:auto;
+  object-fit:contain;
+
+  filter:
+    drop-shadow(0 12px 28px rgba(0,0,0,0.55));
+}
+
+
+/* =========================================================
+   PAGE HEADER (REMOVE FLOAT ABOVE DASHBOARD)
+   ========================================================= */
+
+.wm-page-header{
+  margin-top:0;
+  padding-top:4px;
+}
+
+.wm-page-header h1{
+  margin-top:0;
+}
+
+
+/* =========================================================
+   GRID (DASHBOARD LAYOUT BALANCE)
+   ========================================================= */
+
+.wm-grid{
+  width:100%;
+  max-width:none;
+
+  grid-template-columns:
+    1.25fr
+    0.9fr;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.wm-footer{
+  margin-top:auto;
+
+  border-top:1px solid rgba(255,255,255,0.06);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(6,18,32,0.65),
+      rgba(6,18,32,0.92)
+    );
+
+  backdrop-filter:blur(10px);
+}
+
+.wm-footer__inner{
+  max-width:var(--wm-workarea-max);
+  margin:0 auto;
+  padding:18px 24px;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  font-size:13px;
+  color:rgba(255,255,255,0.7);
+}
+
+/* __WM_DARK_POLISH_V1__ */
+/* Force dark theme + premium surfaces + restore nav styling */
+
+/* ---- Theme tokens ---- */
+:root{
+  --wm-font: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+  --wm-bg0: #070B12;           /* deepest */
+  --wm-bg1: #0B1220;           /* main */
+  --wm-bg2: rgba(255,255,255,0.04);
+
+  --wm-text: rgba(255,255,255,0.92);
+  --wm-muted: rgba(255,255,255,0.70);
+
+  --wm-border: rgba(255,255,255,0.10);
+
+  --wm-accent: #22c1b8;        /* WyreStorm teal */
+  --wm-accentA: rgba(34,193,184,0.18);
+  --wm-accentB: rgba(34,193,184,0.10);
+  --wm-accentBorder: rgba(34,193,184,0.40);
+}
+
+/* ---- Global dark base ---- */
+html, body{
+  background: radial-gradient(1200px 700px at 30% -10%, rgba(34,193,184,0.16), transparent 60%),
+              radial-gradient(900px 500px at 85% 10%, rgba(96,165,250,0.12), transparent 55%),
+              linear-gradient(180deg, var(--wm-bg1), var(--wm-bg0));
+  color: var(--wm-text);
+  font-family: var(--wm-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
+/* Kill accidental dim overlays/backdrops */
+body::before, body::after,
+.wm-shell::before, .wm-shell::after,
+main::before, main::after{
   content: none !important;
   display: none !important;
 }
-
-/* ---------------------------------------
-   Topbar (compact engineering)
----------------------------------------- */
-:root{
-  --wm-topbar-h: 56px;
+.wm-shell, .wm-shell__main, .wm-dashboard{
+  opacity: 1 !important;
+  filter: none !important;
 }
 
-.wm-topbar{
-  height: var(--wm-topbar-h) !important;
-  min-height: var(--wm-topbar-h) !important;
-  padding: 8px 14px !important;
+/* ---- Shell layout polish ---- */
+.wm-shell{
+  background: transparent !important; /* allow body gradient */
 }
 
-.wm-topbar-left{ gap: 10px !important; min-width: 0 !important; }
-
-.wm-topbar-logo img,
-.wm-logo{
-  height: 28px !important;
-  max-height: 28px !important;
-  width: auto !important;
-  display:block;
-}
-
-.wm-topbar-title{
-  font-size: 16px !important;
-  font-weight: 650 !important;
-  line-height: 1.1 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-.wm-topbar-sub{
-  font-size: 12px !important;
-  margin-top: 1px !important;
-}
-
-.wm-topbar-right{
-  gap: 8px !important;
-  flex-wrap: nowrap !important;
-  white-space: nowrap !important;
-}
-
-.wm-topbar .wm-pill,
-.wm-topbar .wm-btn,
-.wm-topbar .wm-iconbtn,
-.wm-topbar .wm-userchip{
-  padding: 6px 10px !important;
-  height: 34px !important;
-  min-height: 34px !important;
-}
-.wm-topbar .wm-iconbtn{ width: 34px !important; }
-
-/* ---------------------------------------
-   Footer (one line desktop, wraps on small)
----------------------------------------- */
-.wm-footer{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:space-between !important;
-  gap: 16px !important;
-  padding: 10px 18px !important;
-  flex-wrap: nowrap !important;
-}
-
-.wm-footer__left{
-  display:flex !important;
-  align-items:center !important;
-  gap: 10px !important;
-  white-space: nowrap !important;
-  min-width: 0;
-}
-
-.wm-footer__right{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:flex-end !important;
-  gap: 16px !important;
-  white-space: nowrap !important;
-  flex-wrap: nowrap !important;
-}
-
-.wm-footer__right a{
-  white-space: nowrap !important;
-  text-decoration:none;
-  opacity:.9;
-}
-.wm-footer__right a:hover{ opacity:1; text-decoration:underline; }
-
-@media (max-width: 640px){
-  .wm-footer{ flex-wrap: wrap !important; }
-  .wm-footer__right{ width:100%; justify-content:flex-start !important; flex-wrap: wrap !important; white-space: normal !important; }
-}
-
-/* ---------------------------------------
-   Public mode helpers (optional)
----------------------------------------- */
-.wm-mode-public .wm-main.wm-main-public{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height: calc(100vh - var(--wm-topbar-h, 56px));
-  padding: 24px 18px;
-}
-
-/* __WM_ENGINEERING_PROFILE_RECT_HEADER_V1__ */
-/* Engineering UI profile (final-layer overrides)
-   Goals:
-   - Remove glow banding
-   - Harden panels (less SaaS glass)
-   - Tighten vertical density
-   - Sidebar more instrument-panel
-   - Header controls: NOT pills (rectangular 8–10px)
-*/
-
-/* 1) Remove glow background completely */
-.wm-main{
-  background: none !important;
-}
-
-/* 2) Harden panel contrast (less blur, less shadow) */
-.wm-card,
-.wm-panel{
+/* ---- Cards / surfaces (premium, less harsh) ---- */
+.wm-surface{
+  border: 1px solid var(--wm-border) !important;
   background: rgba(255,255,255,0.035) !important;
-  border: 1px solid rgba(255,255,255,0.18) !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.40) !important;
+  backdrop-filter: blur(10px);
 }
-
-/* 3) Tighten vertical density */
-.wm-page{
-  padding: 14px 18px 20px !important;
-}
-.wm-page h1{ margin-bottom: 8px !important; }
-.wm-page h2{ margin-bottom: 6px !important; }
-.wm-card{ margin-bottom: 14px !important; }
-
-/* 4) Sidebar: more instrumental, less floating card */
-.wm-sidenav-wrap{
-  background: rgba(0,0,0,0.35) !important;
-  border-right: 1px solid rgba(255,255,255,0.12) !important;
-}
-.wm-sidenav{
-  padding: 10px !important;
-}
-
-/* 5) Header controls: remove rounded “pill” look -> rectangular 8–10px */
-:root{
-  --wm-header-control-radius: 10px;
-  --wm-header-control-h: 32px;
-}
-
-/* Make any pill-like controls in the header rectangular */
-.wm-topbar .wm-pill,
-.wm-topbar .wm-btn,
-.wm-topbar .wm-btn-quiet,
-.wm-topbar .wm-iconbtn,
-.wm-topbar .wm-userchip,
-.wm-topbar select,
-.wm-topbar .wm-select,
-.wm-topbar [data-topbar-actions] button,
-.wm-topbar [data-topbar-actions] a{
-  border-radius: var(--wm-header-control-radius) !important;
-}
-
-/* Ensure consistent control height in header */
-.wm-topbar .wm-pill,
-.wm-topbar .wm-btn,
-.wm-topbar .wm-btn-quiet,
-.wm-topbar .wm-userchip{
-  height: var(--wm-header-control-h) !important;
-  min-height: var(--wm-header-control-h) !important;
-  padding: 6px 10px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-}
-
-/* Icon buttons: square-ish */
-.wm-topbar .wm-iconbtn{
-  width: var(--wm-header-control-h) !important;
-  height: var(--wm-header-control-h) !important;
-  min-width: var(--wm-header-control-h) !important;
-  min-height: var(--wm-header-control-h) !important;
-  padding: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* Optional: avoid excessive capsule look from very high border-radius on any header element */
-.wm-topbar *{
-  border-radius: inherit;
-}
-/* __END_WM_ENGINEERING_PROFILE_RECT_HEADER_V1__ */
-
-/* __WM_TOPBAR_CLASSES_ENGINEERING_V1__ */
-
-.wm-topbar--engineering{
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  gap: 12px;
-  background: linear-gradient(180deg, rgba(18,22,32,0.92), rgba(12,14,20,0.72));
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+.wm-surface-2{
+  border: 1px solid rgba(255,255,255,0.09) !important;
+  background: rgba(255,255,255,0.03) !important;
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
-.wm-topbar-cluster{
+/* Accent variants */
+.wm-surface--accent{
+  border-color: var(--wm-accentBorder) !important;
+  background: linear-gradient(180deg, rgba(34,193,184,0.10), rgba(255,255,255,0.02)) !important;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.40), 0 0 30px rgba(34,193,184,0.12) !important;
+}
+.wm-surface--blue{
+  border-color: rgba(96,165,250,0.32) !important;
+  background: linear-gradient(180deg, rgba(96,165,250,0.10), rgba(255,255,255,0.02)) !important;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.40), 0 0 26px rgba(96,165,250,0.10) !important;
+}
+.wm-surface--amber{
+  border-color: rgba(245,158,11,0.30) !important;
+  background: linear-gradient(180deg, rgba(245,158,11,0.09), rgba(255,255,255,0.02)) !important;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.40), 0 0 24px rgba(245,158,11,0.10) !important;
+}
+
+/* ---- Typography polish ---- */
+.wm-h1{
+  letter-spacing: -0.025em;
+}
+.wm-lead{
+  color: var(--wm-muted) !important;
+}
+
+/* ---- Buttons / pills ---- */
+.wm-btn{
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  background: rgba(255,255,255,0.04) !important;
+}
+.wm-btn--ghost{
+  background: rgba(255,255,255,0.02) !important;
+  border-color: rgba(255,255,255,0.09) !important;
+}
+.wm-btn--primary{
+  border-color: rgba(34,193,184,0.55) !important;
+  background: linear-gradient(180deg, rgba(34,193,184,0.42), rgba(34,193,184,0.18)) !important;
+  box-shadow: 0 12px 26px rgba(0,0,0,0.36), 0 0 0 1px rgba(34,193,184,0.16) inset, 0 0 18px rgba(34,193,184,0.12) !important;
+}
+.wm-pill{
+  border-color: rgba(255,255,255,0.12) !important;
+  background: rgba(255,255,255,0.045) !important;
+}
+.wm-pill--accent{
+  border-color: rgba(34,193,184,0.32) !important;
+  background: rgba(34,193,184,0.12) !important;
+  color: rgba(255,255,255,0.92) !important;
+}
+
+/* ---- Restore left nav styling even if markup is simple anchors ---- */
+.wm-shell__nav{
+  background: rgba(0,0,0,0.14) !important;
+  border-right: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+/* If nav is a list of <a> links, make them look like a proper menu */
+.wm-shell__nav a{
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 0;
-}
-
-.wm-topbar-cluster--left{
-  min-width: 260px;
-}
-
-.wm-topbar-cluster--right{
-  margin-left: auto;
-  flex-wrap: nowrap;
-}
-
-.wm-topbar-btn{
-  height: 32px;
-  min-height: 32px;
-  padding: 0 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.07);
-  color: var(--wm-text, rgba(255,255,255,0.92));
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-weight: 700;
+  gap: 10px;
+  padding: 10px 12px;
+  margin: 6px 10px;
+  border-radius: 12px;
+  color: rgba(255,255,255,0.78);
+  text-decoration: none;
+  font-weight: 650;
   font-size: 13px;
-  letter-spacing: 0.01em;
-  box-shadow: none;
+  letter-spacing: -0.01em;
+  border: 1px solid transparent;
+  background: transparent;
 }
-
-.wm-topbar-btn--subtle{
-  border-color: rgba(255,255,255,0.12);
+.wm-shell__nav a:hover{
+  color: rgba(255,255,255,0.92);
+  border-color: rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.04);
 }
-
-.wm-topbar-brandlink{
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 0;
-  background: transparent;
-  border-radius: 0;
-  padding: 0;
-  cursor: pointer;
-  box-shadow: none;
-  text-align: left;
+.wm-shell__nav a[aria-current="page"],
+.wm-shell__nav a.is-active{
+  color: rgba(255,255,255,0.94);
+  border-color: rgba(34,193,184,0.30);
+  background: linear-gradient(180deg, rgba(34,193,184,0.14), rgba(255,255,255,0.02));
+  box-shadow: 0 0 0 1px rgba(34,193,184,0.10) inset;
 }
 
-.wm-topbar-brandlogo{
-  height: 20px;
-  width: auto;
-  opacity: 0.92;
-  display: block;
-}
-
-.wm-topbar-brandtext{
-  display: flex;
-  flex-direction: column;
-  line-height: 1.05;
-  min-width: 0;
-}
-
-.wm-topbar-brandtitle{
-  font-weight: 800;
+/* Make “Workspace / Tools” headings (if plain text nodes) look intentional */
+.wm-shell__nav h1,
+.wm-shell__nav h2,
+.wm-shell__nav h3,
+.wm-shell__nav .section-title{
+  margin: 14px 12px 8px;
   font-size: 12px;
-  opacity: 0.92;
-  color: var(--wm-text, rgba(255,255,255,0.92));
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.55);
 }
 
-.wm-topbar-brandsub{
-  font-size: 10px;
-  opacity: 0.62;
-  color: var(--wm-muted, rgba(255,255,255,0.70));
-  white-space: nowrap;
+/* __WM_DARK_POLISH_V1_END__ */
+
+/* __WM_DARK_FORCE_V2__ */
+/* Hard-force dark theme and nav styling to win against any legacy/light CSS */
+
+/* Hard force app background everywhere */
+html, body, #root{
+  background: radial-gradient(1200px 700px at 30% -10%, rgba(34,193,184,0.16), transparent 60%),
+              radial-gradient(900px 500px at 85% 10%, rgba(96,165,250,0.12), transparent 55%),
+              linear-gradient(180deg, #0B1220, #070B12) !important;
+  color: rgba(255,255,255,0.92) !important;
 }
 
-.wm-topbar-icon{
-  font-size: 14px;
-  line-height: 1;
-}
-
-.wm-topbar-backwrap{
-  margin-left: 4px;
-}
-
-/* __WM_SIDEBAR_ENGINEERING_V1__ */
-/* Sidebar: engineering console language
-   - Rectangular controls
-   - Harder borders
-   - Less glow / less glass
-   - Tighter spacing
-*/
-
-/* Sidebar container */
-.wm-sidenav-wrap{
-  background: rgba(0,0,0,0.30) !important;
-  border-right: 1px solid rgba(255,255,255,0.12) !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-.wm-sidenav{
-  padding: 10px !important;
+/* If any container is painting a light layer, kill it */
+.wm-shell,
+.wm-shell__body,
+.wm-shell__main,
+.wm-shell__page,
+.wm-page,
+.wm-dashboard,
+main{
   background: transparent !important;
+  color: rgba(255,255,255,0.92) !important;
 }
 
-/* Section cards/panels inside sidebar */
-.wm-sidenav-section,
-.wm-mc__section,
-.wm-sidepanel__section{
-  background: rgba(255,255,255,0.03) !important;
-  border: 1px solid rgba(255,255,255,0.10) !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+/* Kill common “wash” causes */
+*{
+  text-shadow: none;
+}
+.wm-shell, .wm-dashboard, main{
+  opacity: 1 !important;
+  filter: none !important;
 }
 
-/* Section titles */
-.wm-sidenav-title,
-.wm-mc__title,
-.wm-mc__kicker{
-  font-size: 11px !important;
-  letter-spacing: 0.12em !important;
-  text-transform: uppercase !important;
-  opacity: 0.72 !important;
-  margin-bottom: 8px !important;
+/* If any global rule set anchors to browser default, neutralise inside app */
+.wm-shell a,
+.wm-shell__nav a,
+aside a,
+nav a{
+  color: inherit !important;
+  text-decoration: none !important;
 }
 
-/* Grid spacing */
-.wm-sidenav-grid,
-.wm-mc__list{
-  gap: 8px !important;
+/* Restore nav styling for multiple possible nav implementations */
+.wm-shell__nav,
+aside,
+nav{
+  background: rgba(0,0,0,0.14) !important;
+  border-right: 1px solid rgba(255,255,255,0.08) !important;
 }
 
-/* Legacy sidebar controls */
-.wm-sidenav .wm-btn,
-.wm-sidenav .wm-pill,
-.wm-sidenav a.wm-btn,
-.wm-sidenav button.wm-btn{
-  min-height: 34px !important;
-  padding: 0 12px !important;
-  border-radius: 10px !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  background: rgba(255,255,255,0.04) !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-}
-
-/* Mission Control / UI2 nav links */
-.wm-mc__link,
-.wm-mc__item > a,
-.wm-mc__item > button,
-.wm-mc__action{
-  min-height: 36px !important;
-  padding: 0 12px !important;
-  border-radius: 10px !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
-  background: rgba(255,255,255,0.035) !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+/* Make nav links look like menu items (covers raw <a> lists) */
+.wm-shell__nav a,
+aside a,
+nav a{
   display: flex !important;
   align-items: center !important;
   gap: 10px !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  text-decoration: none !important;
-}
-
-/* Hover/active */
-.wm-mc__link:hover,
-.wm-mc__item > a:hover,
-.wm-mc__item > button:hover,
-.wm-mc__action:hover,
-.wm-sidenav .wm-btn:hover,
-.wm-sidenav .wm-pill:hover{
-  background: rgba(255,255,255,0.06) !important;
-  border-color: rgba(255,255,255,0.18) !important;
-  filter: none !important;
-  transform: none !important;
-}
-
-.wm-mc__link[aria-current="page"],
-.wm-mc__link.is-active,
-.wm-mc__item.is-active > a,
-.wm-mc__item.is-active > button,
-.wm-sidenav .is-active,
-.wm-sidenav [aria-current="page"]{
-  background: rgba(94,234,212,0.10) !important;
-  border-color: rgba(94,234,212,0.24) !important;
-}
-
-/* Icons */
-.wm-mc__icon,
-.wm-sidenav .wm-nav-icon{
-  width: 16px !important;
-  min-width: 16px !important;
-  height: 16px !important;
-  opacity: 0.88 !important;
-}
-
-/* Labels */
-.wm-mc__link span:last-child,
-.wm-sidenav .wm-nav-label{
-  line-height: 1.2 !important;
-}
-
-/* Remove “pill” language from sidebar only */
-.wm-sidenav .wm-pill,
-.wm-mc__link,
-.wm-mc__item > a,
-.wm-mc__item > button{
-  border-radius: 10px !important;
-}
-
-/* Compact collapsed mode */
-.wm-shell[data-nav-collapsed="1"] .wm-sidenav,
-.wm-sidenav.is-collapsed{
-  padding-left: 8px !important;
-  padding-right: 8px !important;
-}
-/* __END_WM_SIDEBAR_ENGINEERING_V1__ */
-
-/* __WM_DASHBOARD_CARDS_ENGINEERING_V1__ */
-/* Dashboard cards: engineering console profile
-   - hard edges
-   - stronger borders
-   - no blur / no floaty glow
-   - tighter spacing
-*/
-
-/* Core card surfaces */
-.wm-card,
-.wm-panel,
-.wm-page .wm-card,
-.wm-tile,
-.dashboard-card,
-.shortcut-card,
-.tile,
-.Card,
-.card,
-.Panel,
-.panel{
-  background: rgba(255,255,255,0.035) !important;
-  border: 1px solid rgba(255,255,255,0.18) !important;
+  padding: 10px 12px !important;
+  margin: 6px 10px !important;
   border-radius: 12px !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* Hover cards: remove floaty motion */
-.wm-card-hover,
-.wm-card-hover:hover,
-.wm-tile:hover,
-.dashboard-card:hover,
-.shortcut-card:hover,
-.tile:hover{
-  transform: none !important;
-  box-shadow: none !important;
-  filter: none !important;
-}
-
-/* Internal card spacing */
-.wm-card,
-.wm-panel,
-.wm-tile,
-.dashboard-card,
-.shortcut-card,
-.tile{
-  padding: 14px 16px !important;
-}
-
-/* Card header/body rhythm */
-.wm-card-header,
-.wm-panel-header,
-.wm-tile__header,
-.dashboard-card__header{
-  padding: 12px 14px 8px !important;
-  margin: 0 !important;
-  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
-}
-
-.wm-card-body,
-.wm-panel-body,
-.wm-tile__body,
-.dashboard-card__body{
-  padding: 10px 14px 14px !important;
-  margin: 0 !important;
-}
-
-/* Dashboard tile/title hierarchy */
-.wm-card h1,
-.wm-card h2,
-.wm-card h3,
-.wm-panel h1,
-.wm-panel h2,
-.wm-panel h3,
-.wm-tile h1,
-.wm-tile h2,
-.wm-tile h3,
-.dashboard-card h1,
-.dashboard-card h2,
-.dashboard-card h3,
-.shortcut-card h1,
-.shortcut-card h2,
-.shortcut-card h3{
-  margin: 0 0 6px 0 !important;
-  line-height: 1.2 !important;
-  letter-spacing: -0.01em !important;
   font-weight: 650 !important;
-}
-
-.wm-card p,
-.wm-panel p,
-.wm-tile p,
-.dashboard-card p,
-.shortcut-card p{
-  margin: 0 !important;
-  line-height: 1.45 !important;
-  opacity: 0.9 !important;
-}
-
-/* Card grids */
-.wm-grid,
-.wm-grid2,
-.wm-tilegrid{
-  gap: 12px !important;
-}
-
-/* Dashboard badges / chips inside cards: rectangular, not pills */
-.wm-card .wm-pill,
-.wm-panel .wm-pill,
-.wm-tile .wm-pill,
-.dashboard-card .wm-pill,
-.shortcut-card .wm-pill,
-.wm-card .wm-chip,
-.wm-panel .wm-chip,
-.wm-tile .wm-chip{
-  min-height: 28px !important;
-  padding: 4px 8px !important;
-  border-radius: 8px !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  background: rgba(255,255,255,0.05) !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  font-size: 12px !important;
-  line-height: 1.1 !important;
-}
-
-/* Card actions/buttons inside dashboard cards */
-.wm-card .wm-btn,
-.wm-panel .wm-btn,
-.wm-tile .wm-btn,
-.dashboard-card .wm-btn,
-.shortcut-card .wm-btn,
-.wm-card button,
-.wm-panel button,
-.wm-tile button{
-  min-height: 32px !important;
-  padding: 0 10px !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-}
-
-/* Subtle active/recommended emphasis without glow */
-.wm-card.is-active,
-.wm-panel.is-active,
-.wm-tile.is-active,
-.dashboard-card.is-active,
-.shortcut-card.is-active,
-.wm-card[data-state="active"],
-.wm-panel[data-state="active"]{
-  border-color: rgba(94,234,212,0.26) !important;
-  background: rgba(94,234,212,0.04) !important;
-}
-
-/* Section wrappers on dashboards */
-.wm-page section,
-.wm-dashboard-section,
-.wm-toolhub-section{
-  margin-bottom: 14px !important;
-}
-
-/* Tighten page rhythm slightly */
-.wm-page{
-  padding: 14px 18px 20px !important;
-}
-/* __END_WM_DASHBOARD_CARDS_ENGINEERING_V1__ */
-
-/* __WM_GLOBAL_CONTROLS_STANDARD_V1__ */
-/* Global engineering control standard
-   Applies one consistent control language across:
-   - Header
-   - Sidebar
-   - Cards
-   - Forms
-   - Tool actions
-*/
-
-/* Base button-like controls */
-.wm-btn,
-.wm-btn-quiet,
-.wm-pill,
-.wm-userchip,
-.wm-footer-button,
-.wm-sidenav .wm-btn,
-.wm-sidenav .wm-pill,
-.wm-card .wm-btn,
-.wm-panel .wm-btn,
-button.wm-btn,
-a.wm-btn{
-  min-height: var(--wm-control-h, 32px) !important;
-  padding: 0 var(--wm-control-px, 10px) !important;
-  border-radius: var(--wm-control-radius, 10px) !important;
-  border: 1px solid var(--wm-control-border, rgba(255,255,255,0.14)) !important;
-  background: var(--wm-control-bg, rgba(255,255,255,0.05)) !important;
-  color: var(--wm-control-text, rgba(255,255,255,0.92)) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: var(--wm-control-gap, 8px) !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  text-decoration: none !important;
-  line-height: 1.1 !important;
-}
-
-/* Hover */
-.wm-btn:hover,
-.wm-btn-quiet:hover,
-.wm-pill:hover,
-.wm-userchip:hover,
-.wm-footer-button:hover,
-a.wm-btn:hover,
-button.wm-btn:hover{
-  background: var(--wm-control-bg-hover, rgba(255,255,255,0.07)) !important;
-  border-color: var(--wm-control-border-strong, rgba(255,255,255,0.18)) !important;
-  box-shadow: none !important;
-  filter: none !important;
-  transform: none !important;
-}
-
-/* Primary buttons keep accent, but same shape */
-.wm-btn-primary,
-.wm-btn-brand{
-  min-height: var(--wm-control-h, 32px) !important;
-  padding: 0 var(--wm-control-px, 10px) !important;
-  border-radius: var(--wm-control-radius, 10px) !important;
-  box-shadow: none !important;
-}
-
-/* Large action buttons */
-.wm-btn-lg,
-.wm-toolbar .wm-btn,
-.wm-actions .wm-btn{
-  min-height: var(--wm-control-h-lg, 36px) !important;
-  padding: 0 12px !important;
-}
-
-/* Icon buttons */
-.wm-iconbtn,
-button.wm-iconbtn{
-  width: var(--wm-control-h, 32px) !important;
-  height: var(--wm-control-h, 32px) !important;
-  min-width: var(--wm-control-h, 32px) !important;
-  min-height: var(--wm-control-h, 32px) !important;
-  padding: 0 !important;
-  border-radius: var(--wm-control-radius, 10px) !important;
-  border: 1px solid var(--wm-control-border, rgba(255,255,255,0.14)) !important;
-  background: var(--wm-control-bg, rgba(255,255,255,0.05)) !important;
-  color: var(--wm-control-text, rgba(255,255,255,0.92)) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-.wm-iconbtn:hover,
-button.wm-iconbtn:hover{
-  background: var(--wm-control-bg-hover, rgba(255,255,255,0.07)) !important;
-  border-color: var(--wm-control-border-strong, rgba(255,255,255,0.18)) !important;
-  box-shadow: none !important;
-  filter: none !important;
-  transform: none !important;
-}
-
-/* Form controls */
-.wm-input,
-input,
-select,
-textarea{
-  min-height: var(--wm-control-h, 32px);
-  border-radius: var(--wm-control-radius, 10px) !important;
-  border: 1px solid var(--wm-control-border, rgba(255,255,255,0.14)) !important;
-  background: rgba(255,255,255,0.04) !important;
-  color: var(--wm-control-text, rgba(255,255,255,0.92)) !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-textarea{
-  min-height: 96px;
-  padding: 8px 10px !important;
-}
-
-.wm-input:focus,
-input:focus,
-select:focus,
-textarea:focus{
-  outline: none !important;
-  border-color: var(--wm-control-border-strong, rgba(255,255,255,0.18)) !important;
-  box-shadow: none !important;
-}
-
-/* Chips/badges: smaller rectangle, not pill */
-.wm-chip,
-.wm-badge,
-.wm-tag,
-.wm-status{
-  min-height: 24px !important;
-  padding: 2px 8px !important;
-  border-radius: var(--wm-control-radius-sm, 8px) !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
-  background: rgba(255,255,255,0.05) !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  line-height: 1.05 !important;
-}
-
-/* Strip residual "pill" look from header/sidebar specifically */
-.wm-topbar .wm-pill,
-.wm-topbar .wm-userchip,
-.wm-sidenav .wm-pill,
-.wm-sidenav .wm-userchip{
-  border-radius: var(--wm-control-radius, 10px) !important;
-}
-
-/* Remove transform animations from controls globally */
-.wm-btn,
-.wm-btn:hover,
-.wm-btn:active,
-.wm-btn-quiet,
-.wm-btn-quiet:hover,
-.wm-btn-quiet:active,
-.wm-pill,
-.wm-pill:hover,
-.wm-iconbtn,
-.wm-iconbtn:hover{
-  transform: none !important;
-  filter: none !important;
-}
-/* __END_WM_GLOBAL_CONTROLS_STANDARD_V1__ */
-
-/* __WM_FONT_APPLY_TECHNICAL_V1__ */
-/* Technical UI font application */
-
-html, body, #root,
-.wm-shell, .wm-page, .wm-main, .wm-topbar, .wm-sidenav,
-button, input, select, textarea{
-  font-family: var(--wm-font-ui, var(--wm-font-sans, system-ui, sans-serif)) !important;
-}
-
-/* Headings: clean, modern, not decorative */
-h1, h2, h3, h4, h5, h6,
-.wm-h1, .wm-h2, .wm-h3{
-  font-family: var(--wm-font-ui, var(--wm-font-sans, system-ui, sans-serif)) !important;
-  letter-spacing: -0.01em;
-  font-feature-settings: "cv11" 1, "ss01" 1;
-}
-
-/* Labels / section kickers: slightly more technical */
-.wm-label,
-.wm-sidenav-title,
-.wm-mc__title,
-.wm-mc__kicker,
-.wm-footer-small{
-  font-family: var(--wm-font-label, var(--wm-font-sans, system-ui, sans-serif)) !important;
-  letter-spacing: 0.02em;
-}
-
-/* Optional: tabular feel for SKUs / compact technical values */
-code, pre,
-.wm-sku,
-table td:first-child,
-table th:first-child{
-  font-family: var(--wm-font-mono, Consolas, monospace);
-  font-size: 0.96em;
-}
-/* __END_WM_FONT_APPLY_TECHNICAL_V1__ */
-
-/* __WM_HEADER_AND_WORKAREA_SCALE_V1__ */
-/* Wider page working area */
-.wm-page{
-  width: 100% !important;
-  max-width: var(--wm-workarea-max, 1680px) !important;
-  padding-left: var(--wm-page-pad-x, 24px) !important;
-  padding-right: var(--wm-page-pad-x, 24px) !important;
-  margin: 0 !important;
-}
-
-/* Allow main content to breathe more horizontally */
-.wm-main,
-.wm-page__content,
-.wm-content{
-  padding-left: var(--wm-page-pad-x, 24px) !important;
-  padding-right: var(--wm-page-pad-x, 24px) !important;
-}
-
-/* Header container scale-up */
-.wm-topbar,
-.wm-topbar--engineering{
-  min-height: var(--wm-topbar-h, 64px) !important;
-  height: var(--wm-topbar-h, 64px) !important;
-  padding-left: var(--wm-topbar-pad-x, 18px) !important;
-  padding-right: var(--wm-topbar-pad-x, 18px) !important;
-  gap: var(--wm-topbar-gap, 12px) !important;
-}
-
-/* Left / right clusters proportionate to wider shell */
-.wm-topbar-cluster{
-  gap: 10px !important;
-}
-
-.wm-topbar-cluster--left{
-  min-width: 340px !important;
-}
-
-.wm-topbar-cluster--right{
-  margin-left: auto !important;
-}
-
-/* Larger logo and brand block */
-.wm-topbar-brandlogo,
-.wm-topbar .wm-logo,
-.wm-topbar img.wm-logo{
-  height: var(--wm-logo-h, 28px) !important;
-  max-height: var(--wm-logo-h, 28px) !important;
-  width: auto !important;
-}
-
-.wm-topbar-brandlink{
-  gap: 10px !important;
-}
-
-.wm-topbar-brandtitle{
-  font-size: var(--wm-brand-title-size, 13px) !important;
-  font-weight: 800 !important;
-  line-height: 1.05 !important;
-}
-
-.wm-topbar-brandsub{
-  font-size: var(--wm-brand-sub-size, 11px) !important;
-  line-height: 1.05 !important;
-  opacity: 0.66 !important;
-}
-
-/* Keep header controls proportionate */
-.wm-topbar-btn{
-  min-height: 34px !important;
-  height: 34px !important;
-  padding: 0 11px !important;
-}
-
-.wm-topbar-icon{
-  font-size: 15px !important;
-}
-
-/* Wider templates workspace specifically */
-body[class*="wm-mode"] .wm-page{
-  overflow: visible;
-}
-/* __END_WM_HEADER_AND_WORKAREA_SCALE_V1__ */
-
-/* __WM_SCALE_UP_PASS2_APPLY_V1__ */
-.wm-page{
-  width: 100% !important;
-  max-width: var(--wm-workarea-max, 1920px) !important;
-  padding-left: var(--wm-page-pad-x, 28px) !important;
-  padding-right: var(--wm-page-pad-x, 28px) !important;
-  margin: 0 !important;
-}
-
-.wm-main,
-.wm-page__content,
-.wm-content{
-  padding-left: var(--wm-page-pad-x, 28px) !important;
-  padding-right: var(--wm-page-pad-x, 28px) !important;
-}
-
-.wm-topbar,
-.wm-topbar--engineering{
-  min-height: var(--wm-topbar-h, 72px) !important;
-  height: var(--wm-topbar-h, 72px) !important;
-  padding-left: var(--wm-topbar-pad-x, 20px) !important;
-  padding-right: var(--wm-topbar-pad-x, 20px) !important;
-  gap: var(--wm-topbar-gap, 14px) !important;
-}
-
-.wm-topbar-cluster--left{
-  min-width: 420px !important;
-}
-
-.wm-topbar-brandlogo,
-.wm-topbar .wm-logo,
-.wm-topbar img.wm-logo{
-  height: var(--wm-logo-h, 32px) !important;
-  max-height: var(--wm-logo-h, 32px) !important;
-  width: auto !important;
-}
-
-.wm-topbar-brandlink{
-  gap: 12px !important;
-}
-
-.wm-topbar-brandtitle{
-  font-size: var(--wm-brand-title-size, 14px) !important;
-  font-weight: 800 !important;
-}
-
-.wm-topbar-brandsub{
-  font-size: var(--wm-brand-sub-size, 11px) !important;
-  opacity: 0.68 !important;
-}
-
-.wm-topbar-btn{
-  min-height: 36px !important;
-  height: 36px !important;
-  padding: 0 12px !important;
-}
-
-.wm-topbar-icon{
-  font-size: 16px !important;
-}
-/* __END_WM_SCALE_UP_PASS2_APPLY_V1__ */
-
-/* __WM_SIDEBAR_WIDTH_REBALANCE_APPLY_V1__ */
-/* Slimmer sidebar = more room for workbench */
-.wm-sidenav-wrap{
-  width: var(--wm-sidenav-w, 236px) !important;
-  flex: 0 0 var(--wm-sidenav-w, 236px) !important;
-}
-
-.wm-shell[data-nav-collapsed="1"] .wm-sidenav-wrap{
-  width: var(--wm-sidenav-w-collapsed, 64px) !important;
-  flex-basis: var(--wm-sidenav-w-collapsed, 64px) !important;
-}
-
-.wm-sidenav{
-  width: 100% !important;
-  padding: var(--wm-sidenav-pad, 8px) !important;
-}
-
-.wm-sidenav-section,
-.wm-mc__section,
-.wm-sidepanel__section{
-  margin-bottom: var(--wm-sidenav-section-gap, 10px) !important;
-}
-
-/* Slightly tighter sidebar controls */
-.wm-sidenav .wm-btn,
-.wm-sidenav .wm-pill,
-.wm-mc__link,
-.wm-mc__item > a,
-.wm-mc__item > button,
-.wm-mc__action{
-  min-height: 34px !important;
-  padding-left: 10px !important;
-  padding-right: 10px !important;
   font-size: 13px !important;
+  letter-spacing: -0.01em !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: rgba(255,255,255,0.78) !important;
 }
 
-/* Tighten section headers */
-.wm-sidenav-title,
-.wm-mc__title,
-.wm-mc__kicker{
-  margin-bottom: 6px !important;
-  font-size: 10px !important;
+.wm-shell__nav a:hover,
+aside a:hover,
+nav a:hover{
+  color: rgba(255,255,255,0.92) !important;
+  border-color: rgba(255,255,255,0.10) !important;
+  background: rgba(255,255,255,0.04) !important;
 }
 
-/* Give main content a touch more room */
-.wm-main,
-.wm-page,
-.wm-page__content,
-.wm-content{
-  min-width: 0 !important;
+/* Active link patterns (React Router often sets aria-current) */
+.wm-shell__nav a[aria-current="page"],
+aside a[aria-current="page"],
+nav a[aria-current="page"],
+.wm-shell__nav a.is-active,
+aside a.is-active,
+nav a.is-active{
+  color: rgba(255,255,255,0.94) !important;
+  border-color: rgba(34,193,184,0.30) !important;
+  background: linear-gradient(180deg, rgba(34,193,184,0.14), rgba(255,255,255,0.02)) !important;
+  box-shadow: 0 0 0 1px rgba(34,193,184,0.10) inset !important;
 }
 
-/* Templates / workbench pages should use available width */
-.wm-page{
-  max-width: var(--wm-workarea-max, 1920px) !important;
-}
-/* __END_WM_SIDEBAR_WIDTH_REBALANCE_APPLY_V1__ */
-
-/* __WM_TEMPLATES_SHELL_FIX_V1__ */
-/* Templates page shell correction */
-.wm-page{
-  width: 100% !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding-top: 22px !important;
-  padding-left: clamp(26px, 3vw, 56px) !important;
-  padding-right: clamp(26px, 3vw, 56px) !important;
+/* Section headings inside nav */
+.wm-shell__nav h1,
+.wm-shell__nav h2,
+.wm-shell__nav h3,
+aside h1, aside h2, aside h3,
+nav h1, nav h2, nav h3{
+  margin: 14px 12px 8px !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: rgba(255,255,255,0.55) !important;
 }
 
-/* Keep the title clear of the sticky topbar */
-.wm-page h1{
-  margin-top: 4px !important;
+/* __WM_DARK_FORCE_V2_END__ */
+
+/* __WM_DARK_LOGO__ */
+/* Force Wingman logo to appear dark */
+.wm-topbar__logo{
+  filter: brightness(0.35) contrast(1.25) saturate(0.9) !important;
+}
+/* __WM_MISSIONCONTROL_NAV_POLISH__ */
+.wm-mc{
+  padding: 10px 0;
+  height: 100%;
 }
 
-/* Give main content a more neutral horizontal start */
-.wm-main,
-.wm-content,
-.wm-page__content{
-  padding-left: clamp(26px, 3vw, 56px) !important;
-  padding-right: clamp(26px, 3vw, 56px) !important;
-}
-/* __END_WM_TEMPLATES_SHELL_FIX_V1__ */
-
-/* __WM_TEMPLATES_VISUAL_FORCE_V1__ */
-/* Force stronger visible layout changes for Templates workbench */
-
-/* Give the page more width and space */
-.wm-page{
-  max-width: none !important;
-  width: 100% !important;
+.wm-mc__top{
+  display:flex;
+  justify-content:flex-end;
+  padding: 2px 10px 10px;
 }
 
-/* Make direct child flex workbench breathe */
-.wm-page > div + div[style*="display: flex"]{
-  gap: 24px !important;
-  align-items: stretch !important;
-  width: 100% !important;
+.wm-mc__collapse{
+  width: 34px;
+  height: 28px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.85);
+  cursor: pointer;
 }
 
-/* Left rail */
-.wm-page > div + div[style*="display: flex"] > section:nth-child(1){
-  flex: 0 0 280px !important;
-  width: 280px !important;
+.wm-mc__section{
+  padding: 4px 10px 10px;
 }
 
-/* Middle rail */
-.wm-page > div + div[style*="display: flex"] > section:nth-child(2){
-  flex: 0 0 340px !important;
-  width: 340px !important;
+.wm-mc__label{
+  margin: 10px 6px 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.55);
 }
 
-/* Right preset panel */
-.wm-page > div + div[style*="display: flex"] > section:nth-child(3){
-  flex: 1 1 auto !important;
-  min-width: 980px !important;
-  width: auto !important;
+.wm-mc__item{
+  display:flex;
+  align-items:center;
+  padding: 10px 12px;
+  margin: 6px 0;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255,255,255,0.78);
+  text-decoration:none;
+  font-weight: 650;
+  font-size: 13px;
 }
 
-/* Force a visible split inside the preset panel */
-.wm-page > div + div[style*="display: flex"] > section:nth-child(3) > div:last-child{
-  display: grid !important;
-  grid-template-columns: minmax(340px, 460px) minmax(520px, 1fr) !important;
-  gap: 20px !important;
-  align-items: start !important;
+.wm-mc__item:hover{
+  color: rgba(255,255,255,0.92);
+  border-color: rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
 }
 
-/* Make the two inner preset cards visibly roomier */
-.wm-page > div + div[style*="display: flex"] > section:nth-child(3) > div:last-child > div{
-  padding: 18px !important;
-  border-radius: 12px !important;
+.wm-mc__item.is-active{
+  color: rgba(255,255,255,0.94);
+  border-color: rgba(34,193,184,0.30);
+  background: linear-gradient(180deg, rgba(34,193,184,0.14), rgba(255,255,255,0.02));
+  box-shadow: 0 0 0 1px rgba(34,193,184,0.10) inset;
 }
 
-/* Make BOM table use width clearly */
-.wm-page table{
-  width: 100% !important;
+/* Collapsed: hide labels/text */
+.wm-mc.is-collapsed .wm-mc__label,
+.wm-mc.is-collapsed .wm-mc__text{
+  display:none;
+}
+.wm-mc.is-collapsed .wm-mc__item{
+  justify-content:center;
+  padding: 10px 0;
+}
+.wm-nav__collapse-row{
+  display:flex;
+  justify-content:flex-end;
+  padding:10px 10px 0;
 }
 
-/* Slightly reduce heading so space change is more noticeable */
-.wm-page h1{
-  font-size: 30px !important;
+.wm-nav__collapse-btn{
+  height:28px;
+  min-width:32px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.04);
+  color:rgba(255,255,255,0.86);
+  font-weight:800;
+  cursor:pointer;
 }
-/* __END_WM_TEMPLATES_VISUAL_FORCE_V1__ */
+.wm-nav__collapse-btn:hover{
+  background:rgba(255,255,255,0.06);
+  border-color:rgba(255,255,255,0.14);
+}

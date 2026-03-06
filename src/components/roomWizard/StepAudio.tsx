@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { RoomWizardAnswers } from '../../utils/types';
 import { 
     AUDIO_SPEAKER_LAYOUT_OPTIONS, 
@@ -17,7 +16,7 @@ interface StepAudioProps {
 }
 
 const StepAudio: React.FC<StepAudioProps> = ({ answers, updateAnswers }) => {
-    const [isGuideOpen, setIsGuideOpen] = useState(false);
+    const [isGuideOpen, setIsGuideOpen] = React.useState(false);
 
     const handleAudioDetailChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -95,6 +94,4 @@ const StepAudio: React.FC<StepAudioProps> = ({ answers, updateAnswers }) => {
 };
 
 export default StepAudio;
-
-
 

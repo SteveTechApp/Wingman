@@ -1,3 +1,4 @@
+import * as React from "react";
 import { generateProposalFromRoom } from "@/core/engineering/roomToProposal";
 import { buildRoomWizardProposal } from "@/core/adapters/RoomWizardProposalAdapter";
 

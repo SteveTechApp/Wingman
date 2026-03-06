@@ -1,0 +1,65 @@
+/* ===== Wingman Shell: single source of truth ===== */
+
+.wm-shell{
+  min-height: 100vh;
+  width: 100%;
+  background: var(--wm-bg);
+  overflow-x: hidden;
+}
+
+.wm-shell__top{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Full-width, 2-column workspace */
+.wm-shell__body{
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 56px); /* if TopBar is ~56px; safe even if slightly off */
+}
+
+.wm-shell__nav{
+  border-right: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.08);
+}
+
+.wm-shell__nav.is-collapsed{
+  width: 76px;
+}
+
+.wm-shell__main{
+  width: 100%;
+  min-width: 0; /* CRITICAL: allows grids inside to shrink correctly */
+}
+
+/* Global page padding lives here */
+.wm-shell__page{
+  width: 100%;
+  max-width: none; /* CRITICAL: removes accidental centering */
+  padding: 22px 28px;
+}
+
+/* Better on large screens */
+@media (min-width: 1600px){
+  .wm-shell__page{
+    padding: 26px 44px;
+  }
+}
+
+/* Smaller screens: allow nav to collapse */
+@media (max-width: 1100px){
+  .wm-shell__body{
+    grid-template-columns: 76px 1fr;
+  }
+}
+/* __WM_NAV_ANIMATION__ */
+
+.wm-shell__nav{
+  transition: width .22s ease, transform .22s ease;
+}
+
+.wm-shell__main{
+  transition: margin-left .22s ease;
+}

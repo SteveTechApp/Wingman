@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import { useProjectContext } from "@/context";
 import InfoTooltip from './InfoTooltip';
 import { ProjectInfrastructure } from '../utils/types';
 import ToggleSwitch from '@/components/ui/ToggleSwitch';

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { ChatBubbleIcon } from '../icons/UIIcons';
 interface FooterProps {
   onFeedbackClick?: () => void;

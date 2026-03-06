@@ -1,6 +1,7 @@
-import React from "react";
+import * as React from "react";
+
 import { Link } from "react-router-dom";
-import PageShell from "@/components/layout/PageShell";
+import PageShell from "@/app/layout/PageShell";
 import LogoLockup from "@/components/brand/LogoLockup";
 
 function FeatureTile(props: { title: string; desc: string }) {

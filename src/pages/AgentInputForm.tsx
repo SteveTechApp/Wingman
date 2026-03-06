@@ -1,6 +1,6 @@
+import * as React from "react";
 
-import React, { useState } from 'react';
-import PageShell from "@/components/layout/PageShell";
+import PageShell from "@/app/layout/PageShell";
 import { useNavigate } from 'react-router-dom';
 import { useGenerationContext } from '../context/GenerationContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -68,6 +68,5 @@ John Smith
 };
 
 export default AgentInputForm;
-
 
 

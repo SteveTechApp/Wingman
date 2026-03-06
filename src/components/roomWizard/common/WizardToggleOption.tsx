@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import ToggleSwitch from '@/components/ui/ToggleSwitch';
 
 interface WizardToggleOptionProps {

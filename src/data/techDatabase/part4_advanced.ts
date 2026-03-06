@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export const PART_4_ADVANCED = `
 ## Part 4: Advanced AV Concepts

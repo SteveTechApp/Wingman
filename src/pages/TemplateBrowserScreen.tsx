@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from 'react';
+import * as React from "react";
 import { useNavigate } from 'react-router-dom';
 import { useGenerationContext } from '../context/GenerationContext';
 import { UserTemplate } from '../utils/types';
@@ -14,8 +13,8 @@ interface Concept {
 }
 
 const TemplateBrowserScreen: React.FC = () => {
-    const [selectedRoomType, setSelectedRoomType] = useState<string | null>(null);
-    const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
+    const [selectedRoomType, setSelectedRoomType] = React.useState<string | null>(null);
+    const [selectedConcept, setSelectedConcept] = React.useState<Concept | null>(null);
     const { handleStartFromTemplate } = useGenerationContext();
     const navigate = useNavigate();
     const { userTemplates } = useUserTemplates();
@@ -29,7 +28,7 @@ const TemplateBrowserScreen: React.FC = () => {
     };
 
     // Group templates by Room Type
-    const roomTypeGroups = useMemo(() => {
+    const roomTypeGroups = React.useMemo(() => {
         const groups: Record<string, UserTemplate[]> = {};
 
         ROOM_TYPES.forEach(type => groups[type] = []);
@@ -50,12 +49,12 @@ const TemplateBrowserScreen: React.FC = () => {
             }));
     }, [userTemplates]);
 
-    const activeTemplates = useMemo(() => {
+    const activeTemplates = React.useMemo(() => {
         if (!selectedRoomType) return [];
         return userTemplates.filter(t => t.roomData.roomType === selectedRoomType);
     }, [selectedRoomType, userTemplates]);
 
-    const groupedConcepts = useMemo(() => {
+    const groupedConcepts = React.useMemo(() => {
         if (!selectedRoomType) return [];
         const grouped = new Map<string, { name: string; imageUrl: string; templates: UserTemplate[] }>();
         activeTemplates.forEach(template => {
@@ -181,7 +180,4 @@ const TemplateBrowserScreen: React.FC = () => {
 };
 
 export default TemplateBrowserScreen;
-
-
-
 

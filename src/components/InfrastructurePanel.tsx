@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import NetworkInfrastructurePanel from './NetworkInfrastructurePanel';
 
 const InfrastructurePanel: React.FC = () => {

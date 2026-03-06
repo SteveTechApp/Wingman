@@ -1,7 +1,7 @@
 
-import React from 'react';
+import * as React from "react";
 import { UserProfile } from '../../utils/types';
-import Logo from '../layout/Logo';
+import Logo from '@/app/layout/Logo';
 
 interface CertificateProps {
   userProfile: UserProfile;
@@ -43,5 +43,6 @@ const Certificate: React.FC<CertificateProps> = ({ userProfile }) => {
 
 export default Certificate;
 
+
 
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import * as React from "react";
 import type { GuruMode, GuruContext } from "./guruApi";
 
 const KEY = "wingman.guru.state.v1";
@@ -23,15 +23,15 @@ function read(): GuruState {
 }
 
 function write(s: GuruState) {
-  try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {}
+  try { localStorage.setItem(KEY, JSON.stringify(s, null, 2)); } catch {}
 }
 
 export function useGuruState() {
-  const [state, setState] = useState<GuruState>(() => read());
+  const [state, setState] = React.useState<GuruState>(() => read());
 
-  useEffect(() => { write(state); }, [state]);
+  React.useEffect(() => { write(state); }, [state]);
 
-  const api = useMemo(() => ({
+  const api = React.useMemo(() => ({
     open: () => setState(s => ({ ...s, open: true })),
     close: () => setState(s => ({ ...s, open: false })),
     toggle: () => setState(s => ({ ...s, open: !s.open })),

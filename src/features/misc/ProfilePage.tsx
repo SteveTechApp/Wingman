@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ProfileModal from "@/app/components/ProfileModal";
 
 export default function ProfilePage() {
   const nav = useNavigate();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = React.useState(true);
 
   return (
     <div className="wm-page wm-profile-page" style={{ padding: 24 }}>

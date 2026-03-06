@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export function recommendAccessories(product){
   if(product.role==="Transmitter"){
     return ["HDMI Cable","Mount Kit"];

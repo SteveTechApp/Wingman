@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export type CompetitorIO = {
   inputs?: string[];
   outputs?: string[];
@@ -11,6 +13,8 @@ export type CompetitorVideo = {
 export type CompetitorItem = {
   brand: string;
   sku: string;
+  model?: string;
+  latency?: string;
 
   // Broad grouping (switcher, matrix, extender, encoder, decoder, etc.)
   category?: string;

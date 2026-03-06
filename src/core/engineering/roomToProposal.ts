@@ -1,3 +1,4 @@
+import * as React from "react";
 import { addProductToProposal } from "@/proposal/bom/QuoteCartAdapter";
 
 export function generateProposalFromRoom(summary){

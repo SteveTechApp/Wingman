@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export async function generateVideo(_input: unknown): Promise<unknown> {
   throw new Error("videoService is temporarily disabled (stabilisation mode).");

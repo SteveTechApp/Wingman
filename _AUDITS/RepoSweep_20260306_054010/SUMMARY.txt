@@ -1,0 +1,12 @@
+
+Repo                          : C:\Users\steve\wingman
+ScannedFiles                  : 827
+ScannedFolders                : 244
+DuplicateFolderNames          : 35
+ExactDuplicateFileGroups      : 34
+SameFilenameMultipleLocations : 95
+SameCodeBasenameGroups        : 56
+FocusedPublicScreenFileCount  : 33
+ReferenceHitCount             : 102
+ReportDir                     : C:\Users\steve\wingman\_AUDITS\RepoSweep_20260306_054010
+

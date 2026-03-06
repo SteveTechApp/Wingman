@@ -1,5 +1,4 @@
-
-import React, { useMemo } from 'react';
+import * as React from "react";
 import { RoomData, ManuallyAddedEquipment } from '../utils/types';
 import { 
   calculateCableRouting, 
@@ -139,13 +138,13 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
   
   const equipment = room.manuallyAddedEquipment || [];
   
-  const equipmentPositions = useMemo(
+  const equipmentPositions = React.useMemo(
     () => calculateEquipmentPositions(equipment, roomWidth, roomDepth),
     [equipment, roomWidth, roomDepth]
   );
 
   // Calculate cable routes
-  const cableRoutes = useMemo(() => {
+  const cableRoutes = React.useMemo(() => {
     const routes: Array<{
       from: ManuallyAddedEquipment;
       to: ManuallyAddedEquipment;
@@ -196,7 +195,7 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
     return routes;
   }, [equipment]);
 
-  const cableTypeCounts = useMemo(() => {
+  const cableTypeCounts = React.useMemo(() => {
     const counts: Record<string, number> = {};
     cableRoutes.forEach(route => {
       counts[route.cableType] = (counts[route.cableType] || 0) + 1;
@@ -406,6 +405,4 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
 };
 
 export default CableRoutingVisualization;
-
-
 

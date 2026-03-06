@@ -1,24 +1,22 @@
-
-import React, { ReactNode, useEffect, useRef } from 'react';
-
+import * as React from "react";
 interface InfoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
-  title?: ReactNode;
-  footer?: ReactNode;
+  title?: React.ReactNode;
+  footer?: React.ReactNode;
 }
 
 const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose, children, className, title, footer }) => {
   // Use ref to avoid re-creating event listeners when onClose changes
-  const onCloseRef = useRef(onClose);
+  const onCloseRef = React.useRef(onClose);
 
-  useEffect(() => {
+  React.useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
             onCloseRef.current();
@@ -75,6 +73,4 @@ const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose, children, classN
 };
 
 export default InfoModal;
-
-
 

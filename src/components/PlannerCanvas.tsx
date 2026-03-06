@@ -1,5 +1,4 @@
-
-import React, { useRef, useEffect, useState } from 'react';
+import * as React from "react";
 import { Dimensions } from '../../utils/types';
 
 interface PlannerCanvasProps {
@@ -20,12 +19,12 @@ const PlannerCanvas: React.FC<PlannerCanvasProps> = ({
     equipment = [],
     onEquipmentMove 
 }) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [scale, setScale] = useState(20); // pixels per meter
-    const [draggedItem, setDraggedItem] = useState<string | null>(null);
-    const [offset, setOffset] = useState({ x: 0, y: 0 });
+    const canvasRef = React.useRef<HTMLCanvasElement>(null);
+    const [scale, setScale] = React.useState(20); // pixels per meter
+    const [draggedItem, setDraggedItem] = React.useState<string | null>(null);
+    const [offset, setOffset] = React.useState({ x: 0, y: 0 });
 
-    useEffect(() => {
+    React.useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -190,6 +189,4 @@ const PlannerCanvas: React.FC<PlannerCanvasProps> = ({
 };
 
 export default PlannerCanvas;
-
-
 

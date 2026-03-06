@@ -4,6 +4,7 @@
  * Main service that orchestrates authentication operations
  */
 
+import * as React from "react";
 import { AuthUser, RegistrationData } from './types';
 import { SessionManager } from './SessionManager';
 import { PasswordManager } from './PasswordManager';

@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { RoomWizardAnswers, IOPoint } from '../../utils/types';
 import IOPointConfigModal from './IOPointConfigModal';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,8 +11,8 @@ interface StepInputsProps {
 }
 
 const StepInputs: React.FC<StepInputsProps> = ({ answers, updateAnswers }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingPoint, setEditingPoint] = useState<IOPoint | null>(null);
+    const [isModalOpen, setIsModalOpen] = React.useState(false);
+    const [editingPoint, setEditingPoint] = React.useState<IOPoint | null>(null);
 
     const inputs = answers.ioRequirements.filter(p => p.type === 'input');
 
@@ -105,6 +104,4 @@ const StepInputs: React.FC<StepInputsProps> = ({ answers, updateAnswers }) => {
 };
 
 export default StepInputs;
-
-
 

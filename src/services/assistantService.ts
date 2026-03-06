@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export async function askAssistant(_prompt: string): Promise<string> {
   throw new Error("assistantService is temporarily disabled (stabilisation mode).");

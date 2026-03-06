@@ -1,5 +1,5 @@
+import * as React from "react";
 
-import React, { useState } from 'react';
 import InfoModal from './InfoModal';
 import { RoomData, DesignTier, Product } from '../utils/types';
 import toast from 'react-hot-toast';
@@ -17,9 +17,9 @@ const BulkOperationsModal: React.FC<BulkOperationsModalProps> = ({
   rooms,
   onApplyChanges,
 }) => {
-  const [selectedRooms, setSelectedRooms] = useState<Set<string>>(new Set());
-  const [operation, setOperation] = useState<'tier' | 'equipment' | 'feature'>('tier');
-  const [newTier, setNewTier] = useState<DesignTier>('Silver');
+  const [selectedRooms, setSelectedRooms] = React.useState<Set<string>>(new Set());
+  const [operation, setOperation] = React.useState<'tier' | 'equipment' | 'feature'>('tier');
+  const [newTier, setNewTier] = React.useState<DesignTier>('Silver');
 
   const toggleRoom = (roomId: string) => {
     setSelectedRooms(prev => {
@@ -207,6 +207,4 @@ const BulkOperationsModal: React.FC<BulkOperationsModalProps> = ({
 };
 
 export default BulkOperationsModal;
-
-
 

@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import { useProjectContext } from "@/context";
 import InfoModal from './InfoModal';
 
 interface EditProjectDetailsModalProps {
@@ -10,10 +9,10 @@ interface EditProjectDetailsModalProps {
 
 const EditProjectDetailsModal: React.FC<EditProjectDetailsModalProps> = ({ isOpen, onClose }) => {
   const { projectData, dispatchProjectAction } = useProjectContext();
-  const [projectName, setProjectName] = useState('');
-  const [clientName, setClientName] = useState('');
+  const [projectName, setProjectName] = React.useState('');
+  const [clientName, setClientName] = React.useState('');
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (projectData) {
       setProjectName(projectData.projectName);
       setClientName(projectData.clientName);
@@ -54,6 +53,4 @@ const EditProjectDetailsModal: React.FC<EditProjectDetailsModalProps> = ({ isOpe
 };
 
 export default EditProjectDetailsModal;
-
-
 

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { DesignProposal, ManuallyAddedEquipment } from '../utils/types';
 import InfoModal from './InfoModal';
 import TierIcon from './TierIcon';

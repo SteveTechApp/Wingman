@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
 import { RoomWizardAnswers } from '../../../utils/types';
 import WizardToggleOption from '../common/WizardToggleOption';
 import { toggleFeature } from '../../../utils/utils';
@@ -13,12 +12,11 @@ interface DisplayConfigProps {
 
 const DisplayConfig: React.FC<DisplayConfigProps> = ({ answers, updateAnswers, isProjector }) => {
     
-    const [localSize, setLocalSize] = useState(answers.displaySize || 75);
+    const [localSize, setLocalSize] = React.useState(answers.displaySize || 75);
     
-    useEffect(() => {
+    React.useEffect(() => {
         setLocalSize(answers.displaySize || 75);
     }, [answers.displaySize]);
-
 
     const handleSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLocalSize(Number(e.target.value));
@@ -97,6 +95,4 @@ const DisplayConfig: React.FC<DisplayConfigProps> = ({ answers, updateAnswers, i
 };
 
 export default DisplayConfig;
-
-
 

@@ -1,11 +1,10 @@
-
-import React, { useMemo } from "react";
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import { useProjectContext } from "@/context";
 
 export default function ProjectWorkspace() {
   const { projectData, activeRoomId } = useProjectContext();
 
-  const room = useMemo(() => {
+  const room = React.useMemo(() => {
     const rooms = (projectData as any)?.rooms ?? [];
     return rooms.find((r: any) => r.id === activeRoomId) ?? null;
   }, [projectData, activeRoomId]);

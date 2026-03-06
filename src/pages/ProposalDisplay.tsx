@@ -1,8 +1,8 @@
 
-import React from 'react';
-import PageShell from "@/components/layout/PageShell";
+import * as React from "react";
+import PageShell from "@/app/layout/PageShell";
 import { useParams } from 'react-router-dom';
-import { useProjectContext } from "@/context/ProjectContext";
+import { useProjectContext } from "@/context";
 import { Proposal } from '../utils/types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ProposalHeader from '../components/proposal/ProposalHeader';
@@ -51,6 +51,7 @@ const ProposalDisplay: React.FC = () => {
 };
 
 export default ProposalDisplay;
+
 
 
 

@@ -1,77 +1,48 @@
+import React from "react";
 
-import React, { useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
-import { CloseIcon } from '../Icons';
-import Logo from './Logo';
-import { useUserContext } from '../../context/UserContext';
-import { NAV_LINKS } from '../../data/navigation';
-interface MobileNavMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+export type MobileNavMenuProps = {
+  open?: boolean;
+  isOpen?: boolean;
+  onClose?: () => void;
+  children?: React.ReactNode;
+  className?: string;
+  [key: string]: any;
+};
 
-const MobileNavMenu: React.FC<MobileNavMenuProps> = ({ isOpen, onClose }) => {
-  const { openProfileModal } = useUserContext();
-  
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    } else {
-      document.body.style.overflow = 'hidden';
-    }
-    return () => {
-      document.body.style.overflow = 'hidden';
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
+export default function MobileNavMenu(props: MobileNavMenuProps) {
+  const { open, isOpen, onClose, children, className, ...rest } = props;
+  const visible = Boolean(open ?? isOpen);
 
-  if (!isOpen) return null;
-  
-  const handleOpenProfile = () => {
-    onClose();
-    openProfileModal();
-  };
-
-  const navLinkClass = "block py-3 text-2xl font-bold text-center text-text-primary hover:text-accent transition-colors duration-300";
+  if (!visible) return null;
 
   return (
-    <div 
-      className="fixed\ inset-0\ bg-background-secondary\ z-50\ flex\ flex-col\ animate-fade-in-fast"
-      role="dialog"
-      aria-modal="true"
+    <div
+      className={className}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 1000,
+        background: "rgba(0,0,0,0.45)",
+        display: "flex",
+        justifyContent: "flex-end",
+      }}
+      onClick={onClose}
+      {...rest}
     >
-      <div className="flex\ justify-between\ items-center\ p-4\ border-b\ border-border-color">
-        <Logo />
-        <button onClick={onClose} aria-label="Close menu" className="p-2">
-          <CloseIcon className="h-14\ w-8\ text-text-primary" />
-        </button>
-      </div>
-      <nav className="flex\ flex-col\ justify-center\ items-center\ flex-grow\ gap-4\ px-4\ overflow-visible">
-        {NAV_LINKS.map((item) => (
-            <NavLink key={item.path} to={item.path} className={navLinkClass} onClick={onClose} end={item.end}>
-              {item.label}
-            </NavLink>
-        ))}
-      </nav>
-      <div className="p-6\ border-t\ border-border-color\ flex\ flex-col\ items-center\ gap-4">
-        <button
-          onClick={handleOpenProfile}
-          className="btn\ btn-primary\ w-full\ max-w-xs"
-        >
-          Profile
-        </button>
+      <div
+        style={{
+          width: "min(360px, 92vw)",
+          height: "100%",
+          background: "var(--wm-surface, #0f172a)",
+          borderLeft: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "-12px 0 32px rgba(0,0,0,0.35)",
+          padding: 16,
+          overflowY: "auto",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
       </div>
     </div>
   );
-};
-
-export default MobileNavMenu;
-
-
-
+}

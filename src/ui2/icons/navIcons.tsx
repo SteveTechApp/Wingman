@@ -1,5 +1,5 @@
+import * as React from "react";
 // src/ui2/icons/navIcons.tsx
-import React from "react";
 
 type IconProps = { size?: number; stroke?: string; opacity?: number };
 

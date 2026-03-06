@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 type DisabledResult = { ok: false; message: string };
 

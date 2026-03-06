@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { LanguageCode, DesignTier } from '../utils/types';
 import { 
     BuildingIcon, 

@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import { useProjectContext } from "@/context";
 import { ManuallyAddedEquipment, Product } from '../../../utils/types';
 import ProductFinderModal from "@/components/ProductFinderModal";
 import { PRODUCT_CATEGORY_ICONS } from '../../../data/constants';
@@ -11,13 +10,12 @@ const getCategoryIconComponent = (category: string): React.FC<{ className?: stri
     return iconEntry ? iconEntry[1] : PRODUCT_CATEGORY_ICONS.default;
 };
 
-
 const EquipmentListPanel: React.FC = () => {
     const { projectData, activeRoomId, dispatchProjectAction } = useProjectContext();
     const room = projectData?.rooms.find(r => r.id === activeRoomId);
-    const [isFinderOpen, setIsFinderOpen] = useState(false);
-    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
-    const [selectedProductInfo, setSelectedProductInfo] = useState<Product | null>(null);
+    const [isFinderOpen, setIsFinderOpen] = React.useState(false);
+    const [isInfoModalOpen, setIsInfoModalOpen] = React.useState(false);
+    const [selectedProductInfo, setSelectedProductInfo] = React.useState<Product | null>(null);
 
     if (!room) return null;
 
@@ -105,5 +103,4 @@ const EquipmentListPanel: React.FC = () => {
 
 export default EquipmentListPanel;
 
-
 

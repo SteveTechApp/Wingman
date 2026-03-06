@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
 import { PlusIcon, CloseIcon, InputIcon } from '../../Icons';
 import { SOURCE_DEVICE_TYPES } from '../../../data/wizardOptions';
 import { v4 as uuidv4 } from 'uuid';
@@ -23,7 +22,7 @@ interface Props {
 }
 
 const InputSourcesStep: React.FC<Props> = ({ inputs, setInputs, onNext, onBack, onSave }) => {
-    const [newInput, setNewInput] = useState<Omit<WizardInput, 'id'>>({
+    const [newInput, setNewInput] = React.useState<Omit<WizardInput, 'id'>>({
         deviceType: 'Laptop',
         interfaceType: 'HDMI',
         transport: 'Direct / Copper',
@@ -33,7 +32,7 @@ const InputSourcesStep: React.FC<Props> = ({ inputs, setInputs, onNext, onBack, 
     });
 
     // Smart defaults based on location
-    useEffect(() => {
+    React.useEffect(() => {
         if (newInput.location.includes('Wall')) {
             setNewInput(prev => ({ ...prev, transport: 'HDBaseT Class B (Standard)' }));
         } else if (newInput.location.includes('Floor')) {
@@ -230,6 +229,4 @@ const InputSourcesStep: React.FC<Props> = ({ inputs, setInputs, onNext, onBack, 
 };
 
 export default InputSourcesStep;
-
-
 

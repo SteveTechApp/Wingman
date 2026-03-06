@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { RoomWizardAnswers } from '../../utils/types';
 import { VIDEO_RESOLUTIONS, CONTROL_SYSTEMS, AVOIP_SYSTEM_TYPES } from '../../data/wizardOptions';
 

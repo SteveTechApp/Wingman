@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export type GuruCatalogItem = {
   sku: string;
   name: string;

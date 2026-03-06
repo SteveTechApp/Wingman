@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export const PART_5_WYRESTORM = `
 ## Part 5: WyreStorm Specific Technologies & Naming

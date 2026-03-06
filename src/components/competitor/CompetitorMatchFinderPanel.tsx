@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from "react";
+
 export default function CompetitorMatchFinderPanel(){
   return <div className="wm-card wm-card-pad">Competitor finder placeholder</div>;
 }

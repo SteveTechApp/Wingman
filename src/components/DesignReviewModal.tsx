@@ -1,5 +1,4 @@
-
-import React, { useMemo } from 'react';
+import * as React from "react";
 import { DesignFeedbackItem } from '../utils/types';
 import FeedbackCategory from '../designReview/FeedbackCategory';
 import { WarningIcon, SuggestionIcon, OpportunityIcon, InsightIcon } from './Icons';
@@ -20,7 +19,7 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 const DesignReviewModal: React.FC<DesignReviewModalProps> = ({ isOpen, onClose, feedbackItems, title }) => {
-  const groupedFeedback = useMemo(() => {
+  const groupedFeedback = React.useMemo(() => {
     return feedbackItems.reduce((acc, item) => {
       const type = item.type;
       if (!acc[type]) {
@@ -44,6 +43,4 @@ const DesignReviewModal: React.FC<DesignReviewModalProps> = ({ isOpen, onClose, 
 };
 
 export default DesignReviewModal;
-
-
 

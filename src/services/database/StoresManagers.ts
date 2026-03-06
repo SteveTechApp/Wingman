@@ -4,6 +4,7 @@
  * Handles user profile database operations
  */
 
+import * as React from "react";
 import { DatabaseService } from './DatabaseService';
 import { STORES } from './types';
 

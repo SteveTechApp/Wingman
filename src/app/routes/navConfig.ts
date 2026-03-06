@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export type NavGroup = "Workspace" | "Tools" | "Training" | "Other";
 
 export type RouteDef = {

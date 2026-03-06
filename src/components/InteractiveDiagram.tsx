@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { StructuredSystemDiagram } from '../utils/types';
 
 interface InteractiveDiagramProps {

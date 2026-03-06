@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { TrainingModule, QuizAnswer } from '../../utils/types';
 
 interface QuizViewProps {
@@ -8,9 +7,9 @@ interface QuizViewProps {
 }
 
 const QuizView: React.FC<QuizViewProps> = ({ module, onQuizComplete }) => {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [answers, setAnswers] = useState<QuizAnswer[]>([]);
+  const [currentQuestion, setCurrentQuestion] = React.useState(0);
+  const [selectedAnswer, setSelectedAnswer] = React.useState<string | null>(null);
+  const [answers, setAnswers] = React.useState<QuizAnswer[]>([]);
   
   const question = module.quiz[currentQuestion];
 
@@ -73,6 +72,4 @@ const QuizView: React.FC<QuizViewProps> = ({ module, onQuizComplete }) => {
 };
 
 export default QuizView;
-
-
 

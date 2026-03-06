@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export const getSKUNamingConventions = (): string => `
 ## SKU NAMING CONVENTIONS & PRODUCT CAPABILITIES

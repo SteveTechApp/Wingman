@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { TrainingModule } from '../../utils/types';
 // A basic markdown parser could be used here in a real app
 import ReactMarkdown from 'react-markdown';
@@ -10,7 +9,7 @@ interface TrainingModuleViewProps {
 }
 
 const TrainingModuleView: React.FC<TrainingModuleViewProps> = ({ module, onComplete }) => {
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = React.useState(0);
   const page = module.contentPages[currentPage];
 
   return (
@@ -59,6 +58,4 @@ const TrainingModuleView: React.FC<TrainingModuleViewProps> = ({ module, onCompl
 };
 
 export default TrainingModuleView;
-
-
 

@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 
 type Variant = "default" | "primary" | "ghost" | "icon";
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {

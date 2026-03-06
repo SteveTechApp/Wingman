@@ -1,0 +1,6 @@
+
+FullName                                                              Length
+--------                                                              ------
+C:\Users\steve\wingman\src\assets\branding\heroLogo.png               286269
+C:\Users\steve\wingman\src\assets\branding\wyrestorm-wingman-logo.png 286269
+

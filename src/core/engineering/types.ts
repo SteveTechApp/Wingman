@@ -1,3 +1,5 @@
+import * as React from "react";
+
 export type RoomType =
   | "huddle" | "small" | "medium" | "large"
   | "divisible" | "training" | "boardroom" | "classroom" | "auditorium";

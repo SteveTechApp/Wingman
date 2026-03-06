@@ -1,9 +1,48 @@
-import { Outlet } from "react-router-dom";
+import * as React from "react";
+
+import { Link, Outlet, useLocation } from "react-router-dom";
+
+function navLinkStyle(active: boolean): React.CSSProperties {
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    height: 36,
+    padding: "0 12px",
+    borderRadius: 10,
+    textDecoration: "none",
+    fontSize: 13,
+    fontWeight: 600,
+    color: active ? "rgba(255,255,255,0.96)" : "rgba(255,255,255,0.82)",
+    border: active
+      ? "1px solid rgba(96,165,250,0.28)"
+      : "1px solid rgba(255,255,255,0.10)",
+    background: active ? "rgba(59,130,246,0.10)" : "rgba(255,255,255,0.03)",
+    whiteSpace: "nowrap",
+  };
+}
+
+function footerLinkStyle(): React.CSSProperties {
+  return {
+    color: "rgba(255,255,255,0.78)",
+    textDecoration: "none",
+    whiteSpace: "nowrap",
+  };
+}
 
 export default function PublicShell() {
+  const location = useLocation();
+  const path = location.pathname.toLowerCase();
+
+  const isLogin = path.includes("/login");
+  const isSignup = path.includes("/signup");
+
   return (
-    <div className="ws-app wm-density-compact" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div
+      className="ws-app wm-density-compact"
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+    >
       <header
+        className="wm-topbar"
         style={{
           borderBottom: "1px solid rgba(255,255,255,0.08)",
           background: "rgba(5, 11, 26, 0.88)",
@@ -12,38 +51,126 @@ export default function PublicShell() {
       >
         <div
           className="wm-container"
-          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, minHeight: 58 }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            minHeight: 56,
+          }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 700 }}>WyreStorm Wingman</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
-            <button className="wm-btn" type="button" style={{ fontSize: 12, padding: "7px 12px" }}>
-              Language EN
-            </button>
-            <span style={{ border: "1px solid rgba(255,255,255,0.18)", borderRadius: 999, padding: "7px 12px", fontSize: 12, opacity: 0.9 }}>Theme: Dark</span>
-            <span style={{ border: "1px solid rgba(255,255,255,0.18)", borderRadius: 999, padding: "7px 12px", fontSize: 12, opacity: 0.9 }}>Steve</span>
-            <button className="wm-btn" type="button" style={{ fontSize: 12, padding: "7px 12px" }}>
-              Profile
-            </button>
-          </div>
+          <Link
+            to="/"
+            aria-label="Go to public landing page"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              textDecoration: "none",
+              color: "rgba(255,255,255,0.92)",
+              fontSize: 14,
+              fontWeight: 800,
+              letterSpacing: 0.2,
+              whiteSpace: "nowrap",
+            }}
+          >
+            WyreStorm
+          </Link>
+
+          <nav
+            aria-label="Public navigation"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexWrap: "nowrap",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Link to="/login" style={navLinkStyle(isLogin)}>
+              Login
+            </Link>
+
+            <Link
+              to="/signup"
+              style={{
+                ...navLinkStyle(isSignup),
+                border: "1px solid rgba(96,165,250,0.30)",
+                background:
+                  "linear-gradient(180deg, rgba(59,130,246,0.16), rgba(59,130,246,0.08))",
+                color: "rgba(255,255,255,0.96)",
+              }}
+            >
+              Create account
+            </Link>
+          </nav>
         </div>
       </header>
 
-      <main className="ws-page wm-density-compact wm-container wm-page" style={{ flex: 1, display: "grid" }}>
+      <main
+        className="ws-page wm-density-compact wm-container wm-page"
+        style={{ flex: 1, display: "grid" }}
+      >
         <Outlet />
       </main>
 
-      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", background: "rgba(5, 11, 26, 0.82)" }}>
+      <footer
+        style={{
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          background: "rgba(5, 11, 26, 0.82)",
+        }}
+      >
         <div
           className="wm-container"
-          style={{ minHeight: 48, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, fontSize: 12 }}
+          style={{
+            minHeight: 42,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 16,
+            fontSize: 12,
+            paddingTop: 6,
+            paddingBottom: 6,
+            flexWrap: "nowrap",
+            overflowX: "auto",
+          }}
         >
-          <div style={{ opacity: 0.8 }}>WyreStorm Wingman Build 2026.02</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", justifyContent: "flex-end" }}>
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Cookies</a>
-            <a href="#">WyreStorm Corporate</a>
-            <a href="#">Support</a>
+          <div
+            style={{
+              opacity: 0.8,
+              whiteSpace: "nowrap",
+              flex: "0 0 auto",
+            }}
+          >
+            WyreStorm Wingman Build 2026.02
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              justifyContent: "flex-end",
+              flexWrap: "nowrap",
+              whiteSpace: "nowrap",
+              flex: "1 1 auto",
+              minWidth: 0,
+            }}
+          >
+            <a href="#" style={footerLinkStyle()}>
+              Privacy
+            </a>
+            <a href="#" style={footerLinkStyle()}>
+              Terms
+            </a>
+            <a href="#" style={footerLinkStyle()}>
+              Cookies
+            </a>
+            <a href="#" style={footerLinkStyle()}>
+              WyreStorm Corporate
+            </a>
+            <a href="#" style={footerLinkStyle()}>
+              Support
+            </a>
           </div>
         </div>
       </footer>

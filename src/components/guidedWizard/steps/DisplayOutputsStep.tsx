@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { DisplayIcon, ProjectorIcon, VideoWallIcon, SparklesIcon, GridIcon, InteractiveDisplayIcon, PlusIcon, CloseIcon } from '../../Icons';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -21,8 +20,8 @@ interface Props {
 }
 
 const DisplayOutputsStep: React.FC<Props> = ({ displayGroups, setDisplayGroups, onNext, onBack, onSave }) => {
-    const [isAdding, setIsAdding] = useState(false);
-    const [newGroup, setNewGroup] = useState<Omit<DisplayGroup, 'id'>>({
+    const [isAdding, setIsAdding] = React.useState(false);
+    const [newGroup, setNewGroup] = React.useState<Omit<DisplayGroup, 'id'>>({
         name: 'Main Display',
         type: 'flat_panel',
         quantity: 1,
@@ -210,6 +209,4 @@ const DisplayOutputsStep: React.FC<Props> = ({ displayGroups, setDisplayGroups, 
 };
 
 export default DisplayOutputsStep;
-
-
 

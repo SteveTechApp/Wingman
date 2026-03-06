@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import * as React from "react";
 import { Link } from "react-router-dom";
 import { askGuru, type GuruAnswer } from "./guruApi";
 import { buildGuruContext, useGuruState } from "./guruStore";
@@ -25,7 +25,7 @@ function readPos(key: string): Pos | null {
 }
 
 function writePos(key: string, pos: Pos) {
-  try { localStorage.setItem(key, JSON.stringify(pos)); } catch {}
+  try { localStorage.setItem(key, JSON.stringify(pos, null, 2)); } catch {}
 }
 
 /**
@@ -53,11 +53,11 @@ function useDrag(
   setPos: (p: Pos) => void,
   boundsPad = 8
 ) {
-  const dragRef = useRef<{ startX: number; startY: number; baseX: number; baseY: number; dragging: boolean }>({
+  const dragRef = React.useRef<{ startX: number; startY: number; baseX: number; baseY: number; dragging: boolean }>({
     startX: 0, startY: 0, baseX: 0, baseY: 0, dragging: false
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!enabled) return;
 
     function onMove(e: PointerEvent) {
@@ -107,21 +107,21 @@ function useDrag(
 export default function GuruWidget() {
   const { state, api } = useGuruState();
 
-  const [q, setQ] = useState(state.lastQuestion || "");
-  const [busy, setBusy] = useState(false);
-  const [ans, setAns] = useState<GuruAnswer | null>(null);
-  const [err, setErr] = useState<string | null>(null);
+  const [q, setQ] = React.useState(state.lastQuestion || "");
+  const [busy, setBusy] = React.useState(false);
+  const [ans, setAns] = React.useState<GuruAnswer | null>(null);
+  const [err, setErr] = React.useState<string | null>(null);
 
   // Positions
-  const [fabPos, setFabPos] = useState<Pos>(() => readPos(FAB_KEY) ?? defaultFabPos());
-  const [panelPos, setPanelPos] = useState<Pos>(() => readPos(PANEL_KEY) ?? defaultPanelPos());
+  const [fabPos, setFabPos] = React.useState<Pos>(() => readPos(FAB_KEY) ?? defaultFabPos());
+  const [panelPos, setPanelPos] = React.useState<Pos>(() => readPos(PANEL_KEY) ?? defaultPanelPos());
 
   // Persist positions
-  useEffect(() => { writePos(FAB_KEY, fabPos); }, [fabPos]);
-  useEffect(() => { writePos(PANEL_KEY, panelPos); }, [panelPos]);
+  React.useEffect(() => { writePos(FAB_KEY, fabPos); }, [fabPos]);
+  React.useEffect(() => { writePos(PANEL_KEY, panelPos); }, [panelPos]);
 
   // Keep positions in bounds on resize
-  useEffect(() => {
+  React.useEffect(() => {
     function onResize() {
       setFabPos(p => ({ x: clamp(p.x, 8, window.innerWidth - 8), y: clamp(p.y, 8, window.innerHeight - 8) }));
       setPanelPos(p => ({ x: clamp(p.x, 8, window.innerWidth - 8), y: clamp(p.y, 8, window.innerHeight - 8) }));
@@ -133,9 +133,9 @@ export default function GuruWidget() {
   const fabDrag = useDrag(true, fabPos, setFabPos);
   const panelDrag = useDrag(state.open, panelPos, setPanelPos);
 
-  const ctx = useMemo(() => buildGuruContext(state.mode), [state.mode]);
+  const ctx = React.useMemo(() => buildGuruContext(state.mode), [state.mode]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.ctrlKey && (e.key === "g" || e.key === "G")) {
         e.preventDefault();

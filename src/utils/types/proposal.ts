@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { DesignTier } from './common';
 import type { StructuredSystemDiagram } from './project';
 

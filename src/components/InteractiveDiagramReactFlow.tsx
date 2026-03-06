@@ -1,5 +1,4 @@
-
-import React, { useCallback, useMemo } from 'react';
+import * as React from "react";
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -263,18 +262,18 @@ const InteractiveDiagram: React.FC<InteractiveDiagramProps> = ({
   equipment,
   onEquipmentClick 
 }) => {
-  const initialNodes = useMemo(() => createNodesFromEquipment(equipment), [equipment]);
-  const initialEdges = useMemo(() => createEdgesFromEquipment(equipment), [equipment]);
+  const initialNodes = React.useMemo(() => createNodesFromEquipment(equipment), [equipment]);
+  const initialEdges = React.useMemo(() => createEdgesFromEquipment(equipment), [equipment]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  const onConnect = useCallback(
+  const onConnect = React.useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
 
-  const onNodeClick = useCallback(
+  const onNodeClick = React.useCallback(
     (_event: React.MouseEvent, node: Node) => {
       const equipmentItem = equipment.find(e => e.id === node.id);
       if (equipmentItem && onEquipmentClick) {
@@ -325,6 +324,4 @@ const InteractiveDiagram: React.FC<InteractiveDiagramProps> = ({
 };
 
 export default InteractiveDiagram;
-
-
 

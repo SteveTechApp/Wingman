@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { IOPoint } from '../../utils/types';
 import { useUserContext } from '../../context/UserContext';
 import { CONNECTION_TYPE_ICONS } from '../../data/constants';

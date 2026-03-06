@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { RoomData, Product, ProjectInfrastructure } from '../../utils/types';
 import { TECHNICAL_DATABASE } from '../../data/technicalDatabase';
 import { getCorePrinciples } from './designRoom/corePrinciples';
@@ -52,7 +53,7 @@ export const generateDesignPrompt = (
   - IO Points: ${JSON.stringify(room.ioRequirements, null, 2)}
   - Audio Details: ${JSON.stringify(room.audioSystemDetails, null, 2)}
   - Control System: ${room.technicalDetails.controlSystem}
-  ${room.videoWallConfig ? `- Video Wall Config: ${JSON.stringify(room.videoWallConfig)}` : ''}
+  ${room.videoWallConfig ? `- Video Wall Config: ${JSON.stringify(room.videoWallConfig, null, 2)}` : ''}
   - AVoIP System Selected: ${room.technicalDetails.avoipSystem || 'None'}
   ${infraContext}
 

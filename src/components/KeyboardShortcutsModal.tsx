@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import InfoModal from './InfoModal';
 import { KeyboardShortcut, getShortcutLabel } from '../hooks/useKeyboardShortcuts';
 

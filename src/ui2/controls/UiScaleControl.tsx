@@ -1,5 +1,4 @@
-import React from "react";
-
+import * as React from "react";
 const KEY = "wm_ui_scale";
 
 function clamp(n: number, a: number, b: number) {

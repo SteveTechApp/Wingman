@@ -1,3 +1,5 @@
+import * as React from "react";
+
 /* __WM_WORKSPACE_NAV_MODEL_V2__
    Persistent nav state + pinned tools + recent activity.
    LocalStorage-backed, safe defaults, and legacy path migration.
@@ -107,13 +109,13 @@ function sanitizePinned(list: unknown): PinnedTool[] {
 export function getPinnedTools(): PinnedTool[] {
   const parsed = safeParseJson<unknown>(safeGetItem(LS.pinned));
   const pinned = sanitizePinned(parsed);
-  safeSetItem(LS.pinned, JSON.stringify(pinned));
+  safeSetItem(LS.pinned, JSON.stringify(pinned, null, 2));
   return pinned;
 }
 
 export function setPinnedTools(pinned: PinnedTool[]) {
   const clean = sanitizePinned(pinned);
-  safeSetItem(LS.pinned, JSON.stringify(clean));
+  safeSetItem(LS.pinned, JSON.stringify(clean, null, 2));
 }
 
 /* Recent */
@@ -140,7 +142,7 @@ function sanitizeRecent(list: unknown): RecentItem[] {
 export function getRecent(): RecentItem[] {
   const parsed = safeParseJson<unknown>(safeGetItem(LS.recent));
   const recent = sanitizeRecent(parsed);
-  safeSetItem(LS.recent, JSON.stringify(recent));
+  safeSetItem(LS.recent, JSON.stringify(recent, null, 2));
   return recent;
 }
 
@@ -150,5 +152,5 @@ export function addRecent(label: string, path: string) {
   if (!l || !p) return;
   const cur = getRecent();
   const next = [{ label: l, path: p, ts: Date.now() }, ...cur.filter((r) => r.path !== p)].slice(0, RECENT_MAX);
-  safeSetItem(LS.recent, JSON.stringify(next));
+  safeSetItem(LS.recent, JSON.stringify(next, null, 2));
 }

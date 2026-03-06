@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
 import { useUserContext } from '../../../context/UserContext';
 import { RoomWizardAnswers } from '../../../utils/types';
 
@@ -21,11 +20,11 @@ const RoomSpecsInputs: React.FC<RoomSpecsInputsProps> = ({ answers, updateAnswer
     return isImperial ? num / METER_TO_FEET : num;
   };
 
-  const [localLength, setLocalLength] = useState(() => toDisplay(answers.dimensions.length));
-  const [localWidth, setLocalWidth] = useState(() => toDisplay(answers.dimensions.width));
-  const [localHeight, setLocalHeight] = useState(() => toDisplay(answers.dimensions.height));
+  const [localLength, setLocalLength] = React.useState(() => toDisplay(answers.dimensions.length));
+  const [localWidth, setLocalWidth] = React.useState(() => toDisplay(answers.dimensions.width));
+  const [localHeight, setLocalHeight] = React.useState(() => toDisplay(answers.dimensions.height));
 
-  useEffect(() => {
+  React.useEffect(() => {
     setLocalLength(toDisplay(answers.dimensions.length));
     setLocalWidth(toDisplay(answers.dimensions.width));
     setLocalHeight(toDisplay(answers.dimensions.height));
@@ -94,6 +93,4 @@ const RoomSpecsInputs: React.FC<RoomSpecsInputsProps> = ({ answers, updateAnswer
 };
 
 export default RoomSpecsInputs;
-
-
 

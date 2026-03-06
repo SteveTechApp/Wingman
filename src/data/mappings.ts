@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { VerticalMarketId } from '../utils/types';
 
 export const roomTypeToVerticalMap: Record<string, VerticalMarketId> = {

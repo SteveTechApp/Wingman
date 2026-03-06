@@ -1,5 +1,5 @@
+import * as React from "react";
 
-import React, { useState } from 'react';
 import { Product } from '../utils/types';
 import InfoModal from './InfoModal';
 import ProductCard from './ProductCard';
@@ -19,7 +19,7 @@ const RelatedProductsModal: React.FC<RelatedProductsModalProps> = ({
   relatedProducts,
   onAddProduct 
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = React.useState<string>('all');
 
   // Group related products by category
   const categories = Array.from(new Set(relatedProducts.map(p => p.category)));
@@ -144,6 +144,4 @@ const RelatedProductsModal: React.FC<RelatedProductsModalProps> = ({
 };
 
 export default RelatedProductsModal;
-
-
 

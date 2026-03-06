@@ -1,3 +1,4 @@
+import * as React from "react";
 import { extractPlainText, extractKeyValueLines } from "./textExtractors";
 
 export type Requirement = {

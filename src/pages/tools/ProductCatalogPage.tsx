@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from "react";
+
 import { PRODUCT_DATABASE } from "@/data/productDatabase";
 
 export default function ProductCatalogPage() {

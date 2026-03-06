@@ -1,6 +1,6 @@
+import * as React from "react";
 
-import React, { useState } from 'react';
-import PageShell from "@/components/layout/PageShell";
+import PageShell from "@/app/layout/PageShell";
 import { TRAINING_MODULES } from '../data/trainingContent';
 import { TrainingModule as TrainingModuleType, QuizAnswer } from '../utils/types';
 import { useUserContext } from '../context/UserContext';
@@ -15,9 +15,9 @@ type TrainingStatus = 'idle' | 'in_module' | 'in_quiz' | 'quiz_results' | 'compl
 
 const TrainingPage: React.FC = () => {
     const { userProfile } = useUserContext();
-    const [status, setStatus] = useState<TrainingStatus>('idle');
-    const [activeModule, setActiveModule] = useState<TrainingModuleType | null>(null);
-    const [lastQuizScore, setLastQuizScore] = useState<number | null>(null);
+    const [status, setStatus] = React.useState<TrainingStatus>('idle');
+    const [activeModule, setActiveModule] = React.useState<TrainingModuleType | null>(null);
+    const [lastQuizScore, setLastQuizScore] = React.useState<number | null>(null);
     const [completedModules, setCompletedModules] = useLocalStorage<string[]>('completedTrainingModules', []);
 
     const startModule = (module: TrainingModuleType) => {
@@ -156,6 +156,5 @@ const TrainingPage: React.FC = () => {
 };
 
 export default TrainingPage;
-
 
 

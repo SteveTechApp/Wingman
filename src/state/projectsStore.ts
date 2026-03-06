@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 export type ProjectRecord = {
   id: string;
@@ -27,7 +29,7 @@ function safeParse(json: string | null): StoreState {
 
 function save(state: StoreState) {
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    localStorage.setItem(LS_KEY, JSON.stringify(state, null, 2));
   } catch {
     // ignore
   }

@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { TrainingModule } from '../../utils/types';
 
 export const MODULE_7_FIELD_GUIDES: TrainingModule = {

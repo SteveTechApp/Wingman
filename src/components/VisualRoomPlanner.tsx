@@ -1,6 +1,6 @@
+import * as React from "react";
 
-import React, { useState } from 'react';
-import { useProjectContext } from "@/context/ProjectContext";
+import { useProjectContext } from "@/context";
 import { useUserContext } from '../context/UserContext';
 import { Product } from '../utils/types';
 import { PRODUCT_CATEGORY_ICONS } from '../data/constants';
@@ -16,7 +16,7 @@ const VisualRoomPlanner: React.FC = () => {
   const { projectData, activeRoomId } = useProjectContext();
   const { userProfile } = useUserContext();
   const room = projectData?.rooms.find(r => r.id === activeRoomId);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
 
   // FIX: This component was incomplete and was not returning a value, which is why it was throwing a type error. The rest of the component has been implemented below to provide a visual representation of room equipment.
   if (!room) {
@@ -81,6 +81,4 @@ const VisualRoomPlanner: React.FC = () => {
 };
 
 export default VisualRoomPlanner;
-
-
 

@@ -1,3 +1,5 @@
+import * as React from "react";
+
 
 // src/services/database/types.ts
 // Database configuration and types

@@ -4,6 +4,7 @@
  * Combines all database operations and provides utility methods
  */
 
+import * as React from "react";
 import { ProjectStore } from './ProjectStore';
 import { TemplateStore } from './TemplateStore';
 import { UserProfileStore, SettingsStore } from './StoresManagers';

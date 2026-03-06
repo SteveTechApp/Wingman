@@ -1,11 +1,11 @@
-import { useState } from "react";
+import * as React from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function SignupPage(){
   const nav=useNavigate();
-  const [email,setEmail]=useState("");
-  const [name,setName]=useState("");
-  const [company,setCompany]=useState("");
+  const [email,setEmail]=React.useState("");
+  const [name,setName]=React.useState("");
+  const [company,setCompany]=React.useState("");
 
   const onSubmit=(e:any)=>{
     e.preventDefault();

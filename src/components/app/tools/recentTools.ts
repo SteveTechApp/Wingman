@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import * as React from "react";
 
 export type RecentTool = { title: string; href: string; ts?: number };
 export type UsageCounts = Record<string, number>;
@@ -22,7 +22,7 @@ function readJson<T>(key: string, fallback: T): T {
 }
 
 function writeJson(key: string, value: any) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+  try { localStorage.setItem(key, JSON.stringify(value, null, 2)); } catch {}
 }
 
 /** --- non-hook APIs (can be used elsewhere) --- */
@@ -54,9 +54,9 @@ export function bumpUsage(href: string) {
 
 /** --- hooks expected by src/components/tools/ToolGrid.tsx --- */
 export function useRecentTools(limit = 6): RecentTool[] {
-  const [tick, setTick] = useState(0);
+  const [tick, setTick] = React.useState(0);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const unsub = subscribeRecentTools(() => setTick(t => t + 1));
 
     // also respond to storage updates from other tabs
@@ -67,13 +67,13 @@ export function useRecentTools(limit = 6): RecentTool[] {
     return () => { unsub(); window.removeEventListener("storage", onStorage); };
   }, []);
 
-  return useMemo(() => getRecentTools(limit), [tick, limit]);
+  return React.useMemo(() => getRecentTools(limit), [tick, limit]);
 }
 
 export function useUsageCounts(): UsageCounts {
-  const [tick, setTick] = useState(0);
+  const [tick, setTick] = React.useState(0);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const unsub = subscribeRecentTools(() => setTick(t => t + 1));
     const onStorage = (e: StorageEvent) => {
       if (e.key === RECENT_KEY || e.key === USAGE_KEY) setTick(t => t + 1);
@@ -82,7 +82,7 @@ export function useUsageCounts(): UsageCounts {
     return () => { unsub(); window.removeEventListener("storage", onStorage); };
   }, []);
 
-  return useMemo(() => getUsageCounts(), [tick]);
+  return React.useMemo(() => getUsageCounts(), [tick]);
 }
 
 export default {

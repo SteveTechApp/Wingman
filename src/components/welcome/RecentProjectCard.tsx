@@ -1,8 +1,8 @@
 
-import React from 'react';
+import * as React from "react";
 import { useNavigate } from 'react-router-dom';
 import { ProjectData } from '../../utils/types';
-import { useProjectContext } from "@/context/ProjectContext";
+import { useProjectContext } from "@/context";
 import { formatDistanceToNow } from 'date-fns';
 
 interface RecentProjectCardProps {

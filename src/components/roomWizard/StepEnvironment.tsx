@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from "react";
 import { RoomWizardAnswers } from '../../utils/types';
 import {
   WALL_CONSTRUCTION_OPTIONS,
@@ -15,7 +14,7 @@ interface StepEnvironmentProps {
 }
 
 const StepEnvironment: React.FC<StepEnvironmentProps> = ({ answers, updateAnswers }) => {
-  const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = React.useState(false);
 
   const handleConstructionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -84,6 +83,4 @@ const StepEnvironment: React.FC<StepEnvironmentProps> = ({ answers, updateAnswer
 };
 
 export default StepEnvironment;
-
-
 

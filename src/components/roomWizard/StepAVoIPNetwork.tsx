@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { RoomWizardAnswers } from '../../utils/types';
 import { SWITCH_FEATURES } from '../../data/wizardOptions';
 import { toggleArrayItem } from '../../utils/utils';

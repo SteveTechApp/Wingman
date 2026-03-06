@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+import { useProjectContext } from "@/context";
 import IoDeviceCard from './IoDeviceCard';
 
 const OutputsPanel: React.FC = () => {

@@ -22,8 +22,6 @@
     "docx": "^8.5.0",
     "firebase": "^12.7.0",
     "fuse.js": "^7.0.0",
-    "jspdf": "^4.0.0",
-    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.563.0",
     "mammoth": "^1.11.0",
     "pdfjs-dist": "^5.4.530",
@@ -55,6 +53,7 @@
     "vite": "^7.2.6"
   },
   "overrides": {
-    "three-mesh-bvh": "0.8.0"
+    "three-mesh-bvh": "0.8.0",
+    "dompurify": "^3.2.4"
   }
 }

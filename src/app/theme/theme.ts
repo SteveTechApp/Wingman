@@ -1,3 +1,5 @@
+import * as React from "react";
+
 function resolveSystemTheme(): "dark" | "light" {
   if (typeof window === "undefined") return "dark";
   try {

@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { Product } from "./model";
 import data from "@/data/catalog.wyrestorm.json";
 

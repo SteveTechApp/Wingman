@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { RoomData, Feature } from './types';
 
 export const createNewRoom = (): Omit<RoomData, 'id' | 'roomName' | 'roomType' | 'designTier'> => ({

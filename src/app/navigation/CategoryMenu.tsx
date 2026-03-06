@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import * as React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { TOOL_CATEGORIES, type ToolCategory } from "@/data/toolCategories";
 
@@ -19,7 +19,7 @@ export default function CategoryMenu({
   const loc = useLocation();
   const current = loc.pathname;
 
-  const [showInternal, setShowInternal] = useState<boolean>(() => {
+  const [showInternal, setShowInternal] = React.useState<boolean>(() => {
     try {
       return localStorage.getItem("wm_nav_internal") === "1";
     } catch {
@@ -27,13 +27,13 @@ export default function CategoryMenu({
     }
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     try {
       localStorage.setItem("wm_nav_internal", showInternal ? "1" : "0");
     } catch {}
   }, [showInternal]);
 
-  const active: Active = useMemo(() => {
+  const active: Active = React.useMemo(() => {
     for (const c of TOOL_CATEGORIES) {
       for (const it of c.items) {
         if (isActivePath(current, it.path)) return { category: c, item: it };

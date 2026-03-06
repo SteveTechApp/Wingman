@@ -1,3 +1,5 @@
+import * as React from "react";
+
 const lines = [
   "Task:",
   "Consolidate AV products.",

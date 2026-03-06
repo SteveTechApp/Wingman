@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { DesignTier } from './common';
 import { Product } from './product';
 import type { Proposal } from './proposal';

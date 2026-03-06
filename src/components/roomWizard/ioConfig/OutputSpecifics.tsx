@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { IOPoint, DisplayType, ProjectorLensType } from '../../../utils/types';
 import { DISPLAY_TYPES, PROJECTOR_LENS_TYPES } from '../../../data/wizardOptions';
 

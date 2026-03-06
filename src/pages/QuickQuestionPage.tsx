@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import PageShell from "@/components/layout/PageShell";
+import * as React from "react";
+import PageShell from "@/app/layout/PageShell";
 import { useUserContext } from '../context/UserContext';
 import { createChatSession } from '../services/assistantService';
 import type { Chat } from '@google/genai';
@@ -11,22 +10,22 @@ import ChatInputForm from '../components/quickQuestion/ChatInputForm';
 import PresetQuestions from '../components/quickQuestion/PresetQuestions';
 
 const QuickQuestionPage: React.FC = () => {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [input, setInput] = React.useState('');
+  const [messages, setMessages] = React.useState<Message[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
   const { userProfile } = useUserContext();
 
-  const chatRef = useRef<Chat | null>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatRef = React.useRef<Chat | null>(null);
+  const chatEndRef = React.useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     chatRef.current = createChatSession(userProfile);
     setMessages([
       { role: 'model', content: "Hello! As your WyreStorm AI assistant, how can I help you with our products or AV technology today?" }
     ]);
   }, [userProfile]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
@@ -85,6 +84,5 @@ const QuickQuestionPage: React.FC = () => {
 };
 
 export default QuickQuestionPage;
-
 
 

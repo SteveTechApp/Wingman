@@ -1,5 +1,6 @@
-import React from "react";
-import { useProjectContext } from "@/context/ProjectContext";
+import * as React from "react";
+
+import { useProjectContext } from "@/context";
 import { PlusIcon } from "../Icons";
 
 interface AssignedInputsProps {

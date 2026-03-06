@@ -1,7 +1,6 @@
+import * as React from "react";
 
-import React from "react";
-
-import PageShell from "@/components/layout/PageShell";
+import PageShell from "@/app/layout/PageShell";
 export default function DesignCoPilot() {
   return (
     <PageShell>
@@ -14,6 +13,5 @@ export default function DesignCoPilot() {
     </PageShell>
   );
 }
-
 
 

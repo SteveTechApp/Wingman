@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { PART_1_SIGNALS } from './techDatabase/part1_signals';
 import { PART_2_EXTENSION } from './techDatabase/part2_extension';
 import { PART_3_AVOIP } from './techDatabase/part3_avoip';

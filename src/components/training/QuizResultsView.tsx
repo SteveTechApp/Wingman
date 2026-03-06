@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from "react";
 import { TrainingModule } from '../../utils/types';
 
 interface QuizResultsViewProps {

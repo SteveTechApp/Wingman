@@ -1,7 +1,7 @@
 
-import React from 'react';
+import * as React from "react";
 import { NavLink } from 'react-router-dom';
-import Logo from "@/components/layout/Logo";
+import Logo from "@/app/layout/Logo";
 
 const DefaultHeader: React.FC = () => {
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -37,6 +37,7 @@ const DefaultHeader: React.FC = () => {
 
 export default DefaultHeader;
 
+
 
 
 

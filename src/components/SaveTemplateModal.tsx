@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
 import { RoomData, UserTemplate } from '../utils/types';
 import { VERTICAL_MARKETS } from '../data/constants';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,11 +14,11 @@ interface SaveTemplateModalProps {
 }
 
 const SaveTemplateModal: React.FC<SaveTemplateModalProps> = ({ isOpen, onClose, onSave, roomData }) => {
-  const [templateName, setTemplateName] = useState('');
-  const [description, setDescription] = useState('');
-  const [vertical, setVertical] = useState('corp');
+  const [templateName, setTemplateName] = React.useState('');
+  const [description, setDescription] = React.useState('');
+  const [vertical, setVertical] = React.useState('corp');
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen && roomData) {
       setTemplateName(roomData.roomName);
       setDescription(`A custom template based on the configuration of '${roomData.roomName}'.`);
@@ -93,6 +92,4 @@ const SaveTemplateModal: React.FC<SaveTemplateModalProps> = ({ isOpen, onClose, 
 };
 
 export default SaveTemplateModal;
-
-
 

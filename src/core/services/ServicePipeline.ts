@@ -1,3 +1,4 @@
+import * as React from "react";
 import { validateRecommendation, Recommendation } from "./ValidationEngine";
 import { ProductCapability } from "../models/ProductCapability";
 

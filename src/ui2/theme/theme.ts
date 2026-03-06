@@ -1,3 +1,5 @@
+import * as React from "react";
+
 /* __WM_THEME_TOGGLE_V2__ */
 export type ThemeMode = "dark" | "light";
 const KEY = "wm_theme_mode";

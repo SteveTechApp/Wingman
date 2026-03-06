@@ -1,7 +1,6 @@
-
-import React, { useState, useEffect } from 'react';
+import * as React from "react";
 import LoadingSpinner from '../LoadingSpinner';
-import { useProjectContext } from "@/context/ProjectContext";
+import { useProjectContext } from "@/context";
 import InfoModal from '../InfoModal';
 
 const LOADING_MESSAGES: Record<string, { title: string, messages: string[] }> = {
@@ -29,11 +28,11 @@ const LOADING_MESSAGES: Record<string, { title: string, messages: string[] }> = 
 
 const ContextualLoadingUI: React.FC = () => {
     const { loadingContext } = useProjectContext();
-    const [messageIndex, setMessageIndex] = useState(0);
+    const [messageIndex, setMessageIndex] = React.useState(0);
 
-    const context = LOADING_MESSAGES[loadingContext] || LOADING_MESSAGES['default'];
+    const context = LOADING_MESSAGES[loadingContext ?? "default"] || LOADING_MESSAGES['default'];
 
-    useEffect(() => {
+    React.useEffect(() => {
         const interval = setInterval(() => {
             setMessageIndex(prev => (prev + 1) % context.messages.length);
         }, 1500);
@@ -52,6 +51,4 @@ const ContextualLoadingUI: React.FC = () => {
 };
 
 export default ContextualLoadingUI;
-
-
 
