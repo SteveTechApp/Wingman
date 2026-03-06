@@ -1,0 +1,179 @@
+[
+  {
+    "sku": "DM-NVX-E30",
+    "name": "AV-over-IP Encoder/Decoder",
+    "brand": "Crestron",
+    "family": "AVoIP",
+    "category": "AVoIP",
+    "subcategory": "Encoder/Decoder",
+    "status": "active",
+    "summary": "AV-over-IP endpoint for network-based switching and distribution.",
+    "inputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "LAN", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "LAN", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "IR" ],
+    "audio": [ "Embedded Audio" ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true
+    },
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "Network dependent"
+    },
+    "features": [ "AVoIP", "Matrix Switching", "Video Wall", "PoE" ],
+    "notes": "Starter competitor record for compare workflow."
+  },
+  {
+    "sku": "DTP3-TX-201",
+    "name": "DTP3 Transmitter",
+    "brand": "Extron",
+    "family": "HDBaseT",
+    "category": "Transmitter",
+    "subcategory": "Extender Transmitter",
+    "status": "active",
+    "summary": "Signal extension transmitter for long-distance AV transport.",
+    "inputs": [
+      { "type": "HDMI", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDBaseT", "count": 1 }
+    ],
+    "control": [ "RS-232", "IR" ],
+    "audio": [ "Embedded Audio" ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": false
+    },
+    "transport": "HDBaseT",
+    "distance": {
+      "meters": 100,
+      "notes": "Classified as long-distance extension class"
+    },
+    "features": [ "Long Distance", "Signal Extension", "Remote Endpoint" ],
+    "notes": "Starter competitor record for compare workflow."
+  },
+  {
+    "sku": "OME-MS52W",
+    "name": "Presentation Switcher",
+    "brand": "Atlona",
+    "family": "Presentation",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "Multi-input presentation switcher with collaboration-oriented features.",
+    "inputs": [
+      { "type": "HDMI", "count": 2 },
+      { "type": "USB-C", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 2 }
+    ],
+    "control": [ "TCP/IP", "USB", "RS-232" ],
+    "audio": [ "Embedded Audio", "De-Embedded Audio" ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false
+    },
+    "transport": "Local",
+    "distance": {
+      "meters": 0,
+      "notes": "Local switcher"
+    },
+    "features": [ "Presentation", "USB-C", "Auto Switching", "Collaboration" ],
+    "notes": "Starter competitor record for compare workflow."
+  },
+  {
+    "sku": "DA2-HDMI",
+    "name": "HDMI Distribution Amplifier",
+    "brand": "Lightware",
+    "family": "Distribution",
+    "category": "Distribution Amplifier",
+    "subcategory": "HDMI DA",
+    "status": "active",
+    "summary": "Compact HDMI distribution amplifier.",
+    "inputs": [
+      { "type": "HDMI", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 2 }
+    ],
+    "control": [ "EDID" ],
+    "audio": [ "Embedded Audio" ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false
+    },
+    "transport": "Local",
+    "distance": {
+      "meters": 0,
+      "notes": "Local distribution"
+    },
+    "features": [ "Distribution", "EDID", "Compact" ],
+    "notes": "Starter competitor record for compare workflow."
+  },
+  {
+    "sku": "IP300UHD-TX",
+    "name": "AVoIP Encoder",
+    "brand": "Blustream",
+    "family": "AVoIP",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
+    "status": "active",
+    "summary": "Network-based AV encoder for matrix and video-wall workflows.",
+    "inputs": [
+      { "type": "HDMI", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "LAN", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "IR" ],
+    "audio": [ "Embedded Audio" ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true
+    },
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "Network dependent"
+    },
+    "features": [ "AVoIP", "Video Wall", "PoE", "Matrix Switching" ],
+    "notes": "Starter competitor record for compare workflow."
+  },
+  {
+    "sku": "ZVPRO-810",
+    "name": "HDMI Encoder Modulator",
+    "brand": "ZeeVee",
+    "family": "AVoIP",
+    "category": "Encoder",
+    "subcategory": "IP Encoder",
+    "status": "active",
+    "summary": "Enterprise AV distribution encoder for IP-based workflows.",
+    "inputs": [
+      { "type": "HDMI", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "LAN", "count": 1 }
+    ],
+    "control": [ "TCP/IP" ],
+    "audio": [ "Embedded Audio" ],
+    "video": {
+      "maxResolution": "1080p",
+      "hdr": false
+    },
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "Network dependent"
+    },
+    "features": [ "IP Distribution", "Enterprise AV", "Centralized Delivery" ],
+    "notes": "Starter competitor record for compare workflow."
+  }
+]

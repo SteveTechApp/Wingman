@@ -4,7 +4,13 @@
    - Does NOT apply container-killer rules to header/topbar/nav
    ======================================================================= */
 
-html, body, #root { width:100%; max-width:100%; margin:0; padding:0; }
+html,
+body,
+#root {
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+}
 * { box-sizing:border-box; }
 
 /* Mode flags are applied by JS/router logic */
@@ -64,3 +70,18 @@ body.wm-mode-public{}
 /* -----------------------------------------------------------------------
    PUBLIC MODE: do not force full-width (leave public pages to their own CSS)
    ----------------------------------------------------------------------- */
+
+body {
+  overflow-x: hidden;
+}
+
+
+.wm-page {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: 24px;
+}

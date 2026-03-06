@@ -571,7 +571,7 @@ export default function TemplatesPage() {
             </div>
 
             <div style={{ fontWeight: 900, fontSize: 18 }}>
-              {market.name} → {room.name} → {tierProfile.label}
+              {market.name} â†’ {room.name} â†’ {tierProfile.label}
             </div>
 
             <div style={{ fontSize: 13, color: "rgba(255,255,255,0.88)", lineHeight: 1.5 }}>

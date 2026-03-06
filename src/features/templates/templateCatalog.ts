@@ -43,7 +43,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
         templates: [
           {
             id: "corp-huddle-bronze",
-            name: "Bronze – Wired Presentation",
+            name: "Bronze â€“ Wired Presentation",
             tier: "Bronze",
             summary: "Single display, wired BYOD switching, cost-conscious baseline.",
             lines: [
@@ -54,7 +54,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "corp-huddle-silver",
-            name: "Silver – BYOD / Hybrid",
+            name: "Silver â€“ BYOD / Hybrid",
             tier: "Silver",
             summary: "Wireless + wired input path with integrated collaboration flexibility.",
             lines: [
@@ -65,7 +65,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "corp-huddle-gold",
-            name: "Gold – Premium UC Ready",
+            name: "Gold â€“ Premium UC Ready",
             tier: "Gold",
             summary: "Enhanced user workflow, simplified room handoff and polished finish.",
             lines: [
@@ -83,7 +83,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
         templates: [
           {
             id: "corp-board-bronze",
-            name: "Bronze – Classic Boardroom",
+            name: "Bronze â€“ Classic Boardroom",
             tier: "Bronze",
             summary: "Reliable switched presentation for traditional boardroom deployments.",
             lines: [
@@ -94,7 +94,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "corp-board-silver",
-            name: "Silver – Hybrid Boardroom",
+            name: "Silver â€“ Hybrid Boardroom",
             tier: "Silver",
             summary: "Dual display hybrid room with simplified switching and flexible source access.",
             lines: [
@@ -105,7 +105,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "corp-board-gold",
-            name: "Gold – Executive Boardroom",
+            name: "Gold â€“ Executive Boardroom",
             tier: "Gold",
             summary: "Premium multi-source workflow with cleaner user interaction and BOM completeness.",
             lines: [
@@ -130,7 +130,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
         templates: [
           {
             id: "edu-classroom-bronze",
-            name: "Bronze – Standard Classroom",
+            name: "Bronze â€“ Standard Classroom",
             tier: "Bronze",
             summary: "Simple teacher-podium switching with one main display path.",
             lines: [
@@ -141,7 +141,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "edu-classroom-silver",
-            name: "Silver – Hybrid Classroom",
+            name: "Silver â€“ Hybrid Classroom",
             tier: "Silver",
             summary: "Better instructor flexibility and room-sharing workflow.",
             lines: [
@@ -152,7 +152,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "edu-classroom-gold",
-            name: "Gold – Flexible Teaching Space",
+            name: "Gold â€“ Flexible Teaching Space",
             tier: "Gold",
             summary: "Higher-end room prepared for mixed teaching and presentation modes.",
             lines: [
@@ -170,7 +170,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
         templates: [
           {
             id: "edu-training-bronze",
-            name: "Bronze – Trainer Display Room",
+            name: "Bronze â€“ Trainer Display Room",
             tier: "Bronze",
             summary: "One instructor display with straightforward switching.",
             lines: [
@@ -181,7 +181,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "edu-training-silver",
-            name: "Silver – Dual Display Training",
+            name: "Silver â€“ Dual Display Training",
             tier: "Silver",
             summary: "Dual-screen session room with better presenter flexibility.",
             lines: [
@@ -192,7 +192,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "edu-training-gold",
-            name: "Gold – Advanced Training Space",
+            name: "Gold â€“ Advanced Training Space",
             tier: "Gold",
             summary: "Scalable room with cleaner expansion path for larger rollouts.",
             lines: [
@@ -217,7 +217,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
         templates: [
           {
             id: "hosp-suite-bronze",
-            name: "Bronze – Suite Display Package",
+            name: "Bronze â€“ Suite Display Package",
             tier: "Bronze",
             summary: "Simple suite display routing and source management.",
             lines: [
@@ -228,7 +228,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "hosp-suite-silver",
-            name: "Silver – Premium Suite",
+            name: "Silver â€“ Premium Suite",
             tier: "Silver",
             summary: "Enhanced flexibility with improved input handling and cleaner user experience.",
             lines: [
@@ -239,7 +239,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "hosp-suite-gold",
-            name: "Gold – Luxury Suite",
+            name: "Gold â€“ Luxury Suite",
             tier: "Gold",
             summary: "Higher-tier hospitality package with stronger expansion path.",
             lines: [
@@ -264,7 +264,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
         templates: [
           {
             id: "retail-showroom-bronze",
-            name: "Bronze – Dual Display Signage",
+            name: "Bronze â€“ Dual Display Signage",
             tier: "Bronze",
             summary: "Entry signage package for simple content distribution.",
             lines: [
@@ -275,7 +275,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "retail-showroom-silver",
-            name: "Silver – Multi-Zone Showroom",
+            name: "Silver â€“ Multi-Zone Showroom",
             tier: "Silver",
             summary: "More flexible source routing for zones and promo loops.",
             lines: [
@@ -286,7 +286,7 @@ export const TEMPLATE_MARKETS: VerticalMarket[] = [
           },
           {
             id: "retail-showroom-gold",
-            name: "Gold – Dynamic Signage Platform",
+            name: "Gold â€“ Dynamic Signage Platform",
             tier: "Gold",
             summary: "Scalable multi-display retail platform with future growth in mind.",
             lines: [

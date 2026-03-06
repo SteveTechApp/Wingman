@@ -1,34 +1,36 @@
-import * as React from "react";
+import {
+  getSavedTheme,
+  saveTheme,
+  resolveTheme,
+  applyTheme,
+  startThemeSync,
+} from "@/app/theme/theme";
 
-/* __WM_THEME_TOGGLE_V2__ */
-export type ThemeMode = "dark" | "light";
-const KEY = "wm_theme_mode";
+export type ThemeMode = "light" | "dark" | "system";
 
-export function getThemeMode(): ThemeMode {
-  try {
-    const v = (localStorage.getItem(KEY) || "").toLowerCase();
-    return v === "light" ? "light" : "dark";
-  } catch {
-    return "dark";
-  }
+export {
+  getSavedTheme,
+  saveTheme,
+  resolveTheme,
+  applyTheme,
+  startThemeSync,
+};
+
+export function getThemeMode(): "light" | "dark" {
+  return resolveTheme(getSavedTheme());
 }
 
-export function applyThemeMode(mode: ThemeMode) {
-  try {
-    document.documentElement.setAttribute("data-theme", mode);
-    localStorage.setItem(KEY, mode);
-  } catch {
-    // ignore
-  }
+export function applyThemeMode(mode: "light" | "dark") {
+  saveTheme(mode);
+  applyTheme(mode);
 }
 
-export function toggleThemeMode(): ThemeMode {
-  const next: ThemeMode = getThemeMode() === "dark" ? "light" : "dark";
+export function toggleThemeMode(): "light" | "dark" {
+  const next = getThemeMode() === "dark" ? "light" : "dark";
   applyThemeMode(next);
   return next;
 }
 
-/** Call once on app startup */
 export function initThemeMode() {
-  applyThemeMode(getThemeMode());
+  applyTheme(getSavedTheme());
 }

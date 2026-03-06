@@ -51,8 +51,8 @@ export default function ExportSnapshotPage() {
   const today = React.useMemo(() => new Date(), []);
   const proj = React.useMemo(() => readActiveProject(), []);
 
-  const customer = proj.customer || "—";
-  const site = proj.site || "—";
+  const customer = proj.customer || "â€”";
+  const site = proj.site || "â€”";
   const status = proj.status || "Draft";
 
   function handlePrint() {
@@ -71,7 +71,7 @@ export default function ExportSnapshotPage() {
         <button className="wm-btn wm-btn--primary" onClick={handlePrint}>
           Print / Save PDF
         </button>
-        <div className="wm-export-hint">Tip: choose “Save as PDF” in the print dialog.</div>
+        <div className="wm-export-hint">Tip: choose â€œSave as PDFâ€ in the print dialog.</div>
       </div>
 
       <div className="wm-export-container">
@@ -80,7 +80,7 @@ export default function ExportSnapshotPage() {
           <div className="wm-docbar no-print">
             <div className="wm-docbar__brand">
   <div className="wm-docbar__mark">WYRESTORM</div>
-  <div className="wm-docbar__sub">Wingman • Snapshot</div>
+  <div className="wm-docbar__sub">Wingman â€¢ Snapshot</div>
 </div>
             <div className="wm-docbar__actions">
               {proj.id ? (
@@ -101,7 +101,7 @@ export default function ExportSnapshotPage() {
           <header className="wm-export-header">
             <div>
               <h1>Project Snapshot</h1>
-              <div className="wm-export-sub">WyreStorm Wingman • Internal snapshot</div>
+              <div className="wm-export-sub">WyreStorm Wingman â€¢ Internal snapshot</div>
             </div>
 
             <div className="wm-export-meta">
@@ -116,9 +116,9 @@ export default function ExportSnapshotPage() {
             <h2>Discovery Summary</h2>
             <table className="wm-export-table">
               <tbody>
-                <tr><td>Application</td><td>—</td></tr>
-                <tr><td>Displays</td><td>—</td></tr>
-                <tr><td>Sources</td><td>—</td></tr>
+                <tr><td>Application</td><td>â€”</td></tr>
+                <tr><td>Displays</td><td>â€”</td></tr>
+                <tr><td>Sources</td><td>â€”</td></tr>
               </tbody>
             </table>
           </section>
@@ -135,9 +135,9 @@ export default function ExportSnapshotPage() {
               </thead>
               <tbody>
                 <tr>
-                  <td>—</td>
-                  <td>—</td>
-                  <td style={{ textAlign: "right" }}>—</td>
+                  <td>â€”</td>
+                  <td>â€”</td>
+                  <td style={{ textAlign: "right" }}>â€”</td>
                 </tr>
               </tbody>
             </table>
@@ -158,7 +158,7 @@ export default function ExportSnapshotPage() {
 
           {/* Print-only fixed footer with page numbering */}
           <div className="wm-print-footer">
-            <span>WyreStorm Wingman • Project Snapshot</span>
+            <span>WyreStorm Wingman â€¢ Project Snapshot</span>
             <span className="wm-print-footer__page">Page </span>
           </div>
         </div>

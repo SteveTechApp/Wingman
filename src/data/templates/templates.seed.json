@@ -5,10 +5,10 @@
       "version": "1.0.0",
       "category": "meeting_room",
       "lifecyclePolicy": "exclude_eol",
-      "name": "Small Meeting Room – BYOD / Hybrid",
+      "name": "Small Meeting Room â€“ BYOD / Hybrid",
       "tiers": [
         {
-          "displayName": "Bronze – Wired HDBaseT 3.0",
+          "displayName": "Bronze â€“ Wired HDBaseT 3.0",
           "bom": {
             "lines": [
               {
@@ -30,7 +30,7 @@
           "tier": "bronze"
         },
         {
-          "displayName": "Silver – Wireless Presentation",
+          "displayName": "Silver â€“ Wireless Presentation",
           "bom": {
             "lines": [
               {
@@ -52,7 +52,7 @@
           "tier": "silver"
         },
         {
-          "displayName": "Gold – Integrated UC Video Bar",
+          "displayName": "Gold â€“ Integrated UC Video Bar",
           "bom": {
             "lines": [
               {
@@ -116,10 +116,10 @@
       "version": "1.0.0",
       "category": "av_over_ip_distribution",
       "lifecyclePolicy": "exclude_eol",
-      "name": "AV over IP – Multi-Room Distribution",
+      "name": "AV over IP â€“ Multi-Room Distribution",
       "tiers": [
         {
-          "displayName": "Bronze – NHD 120 (1G)",
+          "displayName": "Bronze â€“ NHD 120 (1G)",
           "bom": {
             "lines": [
               {
@@ -148,7 +148,7 @@
           "tier": "bronze"
         },
         {
-          "displayName": "Silver – NHD 500 (1G ultra-low)",
+          "displayName": "Silver â€“ NHD 500 (1G ultra-low)",
           "bom": {
             "lines": [
               {
@@ -177,7 +177,7 @@
           "tier": "silver"
         },
         {
-          "displayName": "Gold – NHD 600 (10G lossless)",
+          "displayName": "Gold â€“ NHD 600 (10G lossless)",
           "bom": {
             "lines": [
               {
@@ -248,10 +248,10 @@
       "version": "1.0.0",
       "category": "training_room",
       "lifecyclePolicy": "exclude_eol",
-      "name": "Medium Training Room – Scalable Switching",
+      "name": "Medium Training Room â€“ Scalable Switching",
       "tiers": [
         {
-          "displayName": "Bronze – MX-0404-SCL",
+          "displayName": "Bronze â€“ MX-0404-SCL",
           "bom": {
             "lines": [
               {
@@ -266,7 +266,7 @@
           "tier": "bronze"
         },
         {
-          "displayName": "Silver – MX-0804-EDC",
+          "displayName": "Silver â€“ MX-0804-EDC",
           "bom": {
             "lines": [
               {
@@ -281,7 +281,7 @@
           "tier": "silver"
         },
         {
-          "displayName": "Gold – MX-1007-HYB + interop",
+          "displayName": "Gold â€“ MX-1007-HYB + interop",
           "bom": {
             "lines": [
               {

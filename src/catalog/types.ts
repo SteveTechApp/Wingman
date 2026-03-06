@@ -1,13 +1,71 @@
-import * as React from "react";
+export type CatalogTransport =
+  | "HDBaseT"
+  | "AVoIP"
+  | "Local"
+  | "USB Extension"
+  | "Unknown";
 
-export type Product = {
+export type CatalogStatus = "active" | "legacy" | "draft";
+
+export type CatalogPortCount = {
+  type: string;
+  count: number;
+};
+
+export type CatalogVideo = {
+  maxResolution?: string;
+  hdr?: boolean;
+};
+
+export type CatalogDistance = {
+  meters?: number;
+  notes?: string;
+};
+
+export type CatalogProduct = {
   sku: string;
   name: string;
-  category?: string;
-  role?: "TX" | "RX" | "TRX" | string;
-  lifecycle?: "current" | "legacy" | "eol" | string;
-  video?: { maxResolution?: string };
+  family: string;
+  category: string;
+  subcategory?: string;
+  status: CatalogStatus;
+  summary?: string;
+  inputs?: CatalogPortCount[];
+  outputs?: CatalogPortCount[];
+  control?: string[];
+  audio?: string[];
+  video?: CatalogVideo;
+  transport?: CatalogTransport;
+  distance?: CatalogDistance;
   features?: string[];
-  io?: { inputs?: number; outputs?: number };
-  [key: string]: unknown;
+  notes?: string;
+
+  normalizedTags?: string[];
+  ioSummary?: string;
+  controlSummary?: string;
+  matchKeywords?: string[];
+};
+
+export type CatalogFilters = {
+  q?: string;
+  family?: string;
+  category?: string;
+  transport?: CatalogTransport | "All";
+  status?: CatalogStatus | "All";
+  feature?: string | "All";
+};
+
+export type CatalogMatchRequest = {
+  family?: string;
+  category?: string;
+  transport?: CatalogTransport | "All";
+  requiredFeatures?: string[];
+  minDistanceM?: number;
+  q?: string;
+};
+
+export type CatalogMatchResult = {
+  product: CatalogProduct;
+  score: number;
+  reasons: string[];
 };

@@ -17,7 +17,7 @@ export function money(currency: Money["currency"], value: number): Money {
 }
 
 export function formatMoney(currency: Money["currency"], value: number): string {
-  const symbol = currency === "GBP" ? "£" : currency === "EUR" ? "€" : currency === "USD" ? "$" : "";
+  const symbol = currency === "GBP" ? "Â£" : currency === "EUR" ? "â‚¬" : currency === "USD" ? "$" : "";
   const n = Number.isFinite(value) ? value : 0;
   return `${symbol}${n.toFixed(2)}`;
 }

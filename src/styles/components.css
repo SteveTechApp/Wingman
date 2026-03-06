@@ -66,3 +66,48 @@
  }
  /* __END_WM_LOGO_SCALE_FIX_V1__ */
 
+
+ /* __WM_REMOVE_BOTTOM_SPACE__ */
+
+ .wm-dashboard{
+   padding-bottom:0 !important;
+   margin-bottom:0 !important;
+ }
+
+ .wm-dashboard > *:last-child{
+   margin-bottom:0 !important;
+   padding-bottom:0 !important;
+ }
+
+ .wm-page{
+   padding-bottom:0 !important;
+ }
+
+
+ /* __WM_FIX_BOTTOM_SPACE__ */
+
+ html, body, #root {
+   height: 100%;
+ }
+
+ .wm-shell {
+   min-height: 100vh;
+   display: flex;
+   flex-direction: column;
+ }
+
+ .wm-main {
+   flex: 1;
+   padding-bottom: 0 !important;
+ }
+
+ .wm-page {
+   min-height: calc(100vh - 74px);
+   padding-bottom: 0 !important;
+ }
+
+ .wm-dashboard {
+   margin-bottom: 0 !important;
+   padding-bottom: 0 !important;
+ }
+

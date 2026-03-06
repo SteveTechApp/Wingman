@@ -1,8 +1,0 @@
-"File","Action"
-"src\app\layout\Search.tsx","CreateFromComponentsLayout"
-"src\app\layout\Footer.tsx","Patched"
-"src\app\layout\MobileNavMenu.tsx","Patched"
-"src\app\layout\NavDropdown.tsx","Patched"
-"src\app\layout\PageShell.tsx","Patched"
-"src\components\proposal\ProposalHeader.tsx","Patched"
-"src\components\training\Certificate.tsx","Patched"

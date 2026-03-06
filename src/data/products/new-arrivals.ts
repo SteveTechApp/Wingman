@@ -74,7 +74,7 @@ export const NEW_ARRIVALS: Product[] = [
     },
     {
         sku: 'MXV-0808-H2A-KIT',
-        name: '4K60Hz 4.4.4 8x8 HDBaseT™ Matrix Kit',
+        name: '4K60Hz 4.4.4 8x8 HDBaseTâ„¢ Matrix Kit',
         category: 'Matrix Switcher',
         description: 'w/ 8 standard receivers & 2 Scaling receivers | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft)',
         tags: ['Matrix', 'HDBaseT', 'Kit', '8x8', 'Class B', '4K60', '4:4:4', 'HDR', 'Audio De-embed', 'CEC', 'RS232'],
@@ -101,7 +101,7 @@ export const NEW_ARRIVALS: Product[] = [
     },
     {
         sku: 'EX-40-H2-ARC',
-        name: '4K60Hz 4.4.4 HDBaseT™ Extender Set',
+        name: '4K60Hz 4.4.4 HDBaseTâ„¢ Extender Set',
         category: 'Extender',
         description: 'Dolby Vision & HDR | ARC | RS232 & 2-Way IR Passthrough (4K: 40m/115ft, 1080p: 70m/230ft)',
         tags: ['Extender', 'HDBaseT', 'ARC', 'Class B', '4K60', '4:4:4', 'HDR', 'RS232', 'IR'],

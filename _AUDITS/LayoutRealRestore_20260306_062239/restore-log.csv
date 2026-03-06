@@ -1,7 +1,0 @@
-"File","Source","Target","Action"
-"MobileNavMenu.tsx","C:\Users\steve\wingman\_ARCHIVE\RepoStructureCleanup_Phase1_20260306_055606\src\components\layout\MobileNavMenu.tsx","src\app\layout\MobileNavMenu.tsx","RestoreRealImplementationToAppLayout"
-"NavDropdown.tsx","C:\Users\steve\wingman\_ARCHIVE\RepoStructureCleanup_Phase1_20260306_055606\src\components\layout\NavDropdown.tsx","src\app\layout\NavDropdown.tsx","RestoreRealImplementationToAppLayout"
-"PageShell.tsx","C:\Users\steve\wingman\_ARCHIVE\RepoStructureCleanup_Phase1_20260306_055606\src\components\layout\PageShell.tsx","src\app\layout\PageShell.tsx","RestoreRealImplementationToAppLayout"
-"MobileNavMenu.tsx","-","src\components\layout\MobileNavMenu.tsx","CreateCompatibilityWrapper"
-"NavDropdown.tsx","-","src\components\layout\NavDropdown.tsx","CreateCompatibilityWrapper"
-"PageShell.tsx","-","src\components\layout\PageShell.tsx","CreateCompatibilityWrapper"
