@@ -1,3 +1,0 @@
-Repo:  C:\Users\steve\wingman
-Audit: _AUDITS\RepoStructureGuard_20260306_115339
-Issues: 1

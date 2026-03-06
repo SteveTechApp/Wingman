@@ -1,4 +1,0 @@
-Repo:    C:\Users\steve\wingman
-Mode:    APPLY
-Canonical: src\features\import\ImportIntakePage.tsx
-Legacy:    src\pages\SurveyImportPage.tsx

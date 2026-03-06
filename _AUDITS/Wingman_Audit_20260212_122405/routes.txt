@@ -1,5 +1,0 @@
-/dashboard
-/import
-/projects
-/toolhub
-/tools/*

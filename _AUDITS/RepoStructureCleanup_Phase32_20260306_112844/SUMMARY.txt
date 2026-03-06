@@ -1,7 +1,0 @@
-Repo:    C:\Users\steve\wingman
-Audit:   _AUDITS\RepoStructureCleanup_Phase32_20260306_112844
-Reports:
-  all-files-normalized.csv
-  identical-code-groups.csv
-  identical-code-summary.csv
-  identical-code-summary-real-only.csv

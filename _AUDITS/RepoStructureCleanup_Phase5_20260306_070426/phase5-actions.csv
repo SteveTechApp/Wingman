@@ -1,3 +1,0 @@
-"Source","Target","SourceExists","TargetExists","Action"
-"src\components\layout\Search.tsx","src\app\layout\Search.tsx","True","True","PromoteAndWrap"
-"src\components\nav\CategoryMenu.tsx","src\app\navigation\CategoryMenu.tsx","True","True","PromoteAndWrap"

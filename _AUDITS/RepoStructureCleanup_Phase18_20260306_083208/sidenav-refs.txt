@@ -1,3 +1,0 @@
-src\app\navigation\SideNav.tsx
-src\features\tools\ToolHubPage.tsx
-src\pages\ToolHubPage.tsx
