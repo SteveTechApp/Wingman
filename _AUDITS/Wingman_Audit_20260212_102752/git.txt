@@ -1,4 +1,0 @@
-main
-?? _AUDITS/
-?? tools/wingman-readiness-and-features-audit.ps1
-15aa3ab (HEAD -> main, origin/main, origin/HEAD) Wingman update 2026-02-11 20:39

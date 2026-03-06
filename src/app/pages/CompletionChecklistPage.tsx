@@ -97,7 +97,7 @@ function CheckRow({
           fontWeight: 900,
         }}
       >
-        {checked ? "✓" : ""}
+        {checked ? "âœ“" : ""}
       </div>
 
       <div>

@@ -1,289 +1,351 @@
 import * as React from "react";
-import { matchCompetitor, parseCompetitorInput } from "@/competitor/CompetitorMatchService";
-import type { MatchResult } from "@/competitor/types";
+import { useNavigate } from "react-router-dom";
+import { findCatalogProductBySku, getCatalogProducts } from "@/catalog";
+import { getCompetitorBrands, matchCompetitorProducts } from "@/competitor";
+import { explainWyreStormAdvantage } from "@/competitor";
+import type { CatalogProduct } from "@/catalog/types";
+import type { CompetitorProduct } from "@/competitor/repository";
 
-function badgeLabel(pct: number) {
-  if (pct >= 90) return "Direct equivalent";
-  if (pct >= 75) return "Strong match";
-  if (pct >= 55) return "Closest option";
-  return "Low confidence";
+function panelStyle(): React.CSSProperties {
+  return {
+    border: "1px solid rgba(255,255,255,0.10)",
+    borderRadius: 16,
+    background: "rgba(16,22,32,0.72)",
+    padding: 14,
+  };
 }
 
-function scoreAccent(pct: number) {
-  if (pct >= 90) return "77,183,255";
-  if (pct >= 75) return "94,234,212";
-  if (pct >= 55) return "251,191,36";
-  return "248,113,113";
+function inputStyle(): React.CSSProperties {
+  return {
+    width: "100%",
+    padding: 10,
+    borderRadius: 10,
+    border: "1px solid rgba(255,255,255,0.10)",
+    background: "rgba(255,255,255,0.05)",
+    color: "rgba(255,255,255,0.92)",
+    font: "inherit",
+    outline: "none",
+  };
+}
+
+function buttonStyle(primary?: boolean): React.CSSProperties {
+  return {
+    borderRadius: 10,
+    padding: "9px 12px",
+    border: primary
+      ? "1px solid rgba(120,200,255,0.24)"
+      : "1px solid rgba(255,255,255,0.10)",
+    background: primary
+      ? "rgba(120,200,255,0.12)"
+      : "rgba(255,255,255,0.06)",
+    color: "rgba(255,255,255,0.92)",
+    cursor: "pointer",
+    font: "inherit",
+  };
+}
+
+function chip(text: string): React.ReactNode {
+  return (
+    <span
+      key={text}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "5px 9px",
+        borderRadius: 999,
+        fontSize: 12,
+        border: "1px solid rgba(255,255,255,0.10)",
+        background: "rgba(255,255,255,0.06)",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {text}
+    </span>
+  );
+}
+
+function joinPorts(
+  ports?: Array<{ type: string; count: number }>
+): string {
+  if (!Array.isArray(ports) || ports.length === 0) return "None";
+  return ports.map((p) => `${p.count}x ${p.type}`).join(", ");
+}
+
+function renderProductFacts(p?: CatalogProduct | CompetitorProduct | null) {
+  if (!p) return null;
+
+  return (
+    <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+      <div><strong>Family:</strong> {p.family}</div>
+      <div><strong>Category:</strong> {p.category}</div>
+      <div><strong>Transport:</strong> {p.transport || "Unknown"}</div>
+      <div><strong>Video:</strong> {p.video?.maxResolution || "Not set"}</div>
+      <div><strong>Distance:</strong> {p.distance?.meters ?? 0}m</div>
+      <div><strong>Inputs:</strong> {joinPorts(p.inputs)}</div>
+      <div><strong>Outputs:</strong> {joinPorts(p.outputs)}</div>
+      <div><strong>Control:</strong> {(p.control || []).join(", ") || "None"}</div>
+      <div><strong>Features:</strong> {(p.features || []).join(", ") || "None"}</div>
+      {p.summary ? <div><strong>Summary:</strong> {p.summary}</div> : null}
+    </div>
+  );
 }
 
 export default function CompetitorComparePage() {
-  const [input, setInput] = React.useState("");
-  const [results, setResults] = React.useState<MatchResult[] | null>(null);
-  const [expanded, setExpanded] = React.useState(false);
+  const nav = useNavigate();
+  const wyrestormProducts = React.useMemo(() => getCatalogProducts(), []);
+  const competitorBrands = React.useMemo(() => ["All", ...getCompetitorBrands()], []);
 
-  const best = results?.[0] ?? null;
+  const [selectedSku, setSelectedSku] = React.useState<string>(
+    wyrestormProducts[0]?.sku || ""
+  );
+  const [brand, setBrand] = React.useState<string>("All");
+  const [query, setQuery] = React.useState<string>("");
 
-  const hint = React.useMemo(
-    () => "Enter competitor SKU (optionally include brand), e.g. Extron DTP2 T 211",
-    []
+  const selected = React.useMemo(
+    () => findCatalogProductBySku(selectedSku) || null,
+    [selectedSku]
   );
 
-  function run() {
-    const item = parseCompetitorInput(input);
-    if (!item.sku.trim()) {
-      setResults(null);
-      setExpanded(false);
-      return;
-    }
+  const matches = React.useMemo(() => {
+    if (!selected) return [];
 
-    const r = matchCompetitor(item, { topN: 5 });
-    setResults(r);
-    setExpanded(false);
-  }
+    const ranked = matchCompetitorProducts({
+      family: selected.family,
+      category: selected.category,
+      transport: selected.transport || "All",
+      requiredFeatures: selected.features || [],
+      minDistanceM: selected.distance?.meters,
+      q: query || selected.name,
+    });
 
-  function clearAll() {
-    setInput("");
-    setResults(null);
-    setExpanded(false);
+    const filtered = ranked.filter((x) => {
+      const competitor = x.product as CompetitorProduct;
+      return brand === "All" || String(competitor.brand || "").trim() === brand;
+    });
+
+    return filtered.slice(0, 8);
+  }, [selected, brand, query]);
+
+  function handoffToProposal(p: CompetitorProduct) {
+    if (!selected) return;
+
+    const payload = {
+      source: "competitor-compare",
+      wyrestormSku: selected.sku,
+      wyrestormName: selected.name,
+      competitorBrand: p.brand || "Unknown",
+      competitorSku: p.sku,
+      competitorName: p.name,
+      family: selected.family,
+      category: selected.category,
+    };
+
+    try {
+      localStorage.setItem("wm_compare_handoff", JSON.stringify(payload));
+    } catch {}
+
+    nav("/app/tools/proposal-builder");
   }
 
   return (
-    <div className="wm-page wm-animate-in" style={{ width: "100%", maxWidth: "none", margin: 0, minWidth: 0 }}>
-      <div style={{ display: "grid", gap: 14 }}>
-        <div>
-          <div className="wm-page-eyebrow">COMPARE</div>
-          <h1 className="wm-page-title" style={{ marginBottom: 8 }}>
-            Competitor Compare
-          </h1>
-          <div
-            style={{
-              maxWidth: 760,
-              fontSize: 14,
-              color: "rgba(255,255,255,0.88)",
-              lineHeight: 1.45,
-            }}
-          >
-            Enter a competitor SKU to get the best WyreStorm starting point first, then review detail only if needed.
-          </div>
+    <div className="wm-page" style={{ padding: 16 }}>
+      <div style={{ ...panelStyle(), marginBottom: 14 }}>
+        <div style={{ fontSize: 22, fontWeight: 900 }}>Competitor Compare</div>
+        <div style={{ marginTop: 6, opacity: 0.8 }}>
+          Select a WyreStorm product and rank competitor alternatives using shared catalog logic.
         </div>
 
-        <section className="wm-card wm-card-pad" style={{ borderRadius: 18 }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 1fr) auto auto",
-              gap: 10,
-              alignItems: "center",
-            }}
+        <div
+          style={{
+            display: "grid",
+            gap: 10,
+            gridTemplateColumns: "2fr 1fr 1fr",
+            marginTop: 14,
+          }}
+        >
+          <select
+            value={selectedSku}
+            onChange={(e) => setSelectedSku(e.target.value)}
+            style={inputStyle()}
           >
-            <input
-              className="wm-input"
-              style={{ minWidth: 220 }}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Competitor SKU"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") run();
-              }}
-            />
+            {wyrestormProducts.map((p) => (
+              <option key={p.sku} value={p.sku}>
+                {p.sku} - {p.name}
+              </option>
+            ))}
+          </select>
 
-            <button className="wm-btn wm-btn-primary" onClick={run}>
-              Find match
-            </button>
+          <select
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+            style={inputStyle()}
+          >
+            {competitorBrands.map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
+            ))}
+          </select>
 
-            <button className="wm-btn" onClick={clearAll}>
-              Clear
-            </button>
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Optional keyword bias"
+            style={inputStyle()}
+          />
+        </div>
+
+        {selected ? (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+            {chip(`Family: ${selected.family}`)}
+            {chip(`Category: ${selected.category}`)}
+            {chip(`Transport: ${selected.transport || "Unknown"}`)}
+            {chip(`Distance: ${selected.distance?.meters ?? 0}m`)}
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gap: 14,
+          gridTemplateColumns: "minmax(320px, 1fr) minmax(420px, 1.4fr)",
+        }}
+      >
+        <div style={panelStyle()}>
+          <div style={{ fontSize: 18, fontWeight: 800 }}>
+            Selected WyreStorm Product
           </div>
 
-          {!results && (
-            <div className="wm-p" style={{ marginTop: 10, opacity: 0.8, fontSize: 12 }}>
-              {hint}
-            </div>
+          {selected ? (
+            <>
+              <div style={{ marginTop: 10, fontWeight: 800 }}>
+                {selected.sku} - {selected.name}
+              </div>
+              {renderProductFacts(selected)}
+            </>
+          ) : (
+            <div style={{ marginTop: 10, opacity: 0.8 }}>No product selected.</div>
           )}
-        </section>
+        </div>
 
-        {results && best && (
-          <section
-            className="wm-card wm-card-pad"
-            style={{
-              borderRadius: 18,
-              borderColor: `rgba(${scoreAccent(best.percent)},0.24)`,
-              background: `linear-gradient(180deg, rgba(${scoreAccent(best.percent)},0.08) 0%, rgba(255,255,255,0.03) 100%)`,
-            }}
-          >
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "minmax(0,1fr) auto",
-                gap: 14,
-                alignItems: "start",
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 800,
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    color: "rgba(255,255,255,0.66)",
-                  }}
-                >
-                  Best match
-                </div>
+        <div style={panelStyle()}>
+          <div style={{ fontSize: 18, fontWeight: 800 }}>
+            Ranked Competitor Matches
+          </div>
 
-                <div
-                  style={{
-                    marginTop: 6,
-                    fontWeight: 900,
-                    fontSize: 22,
-                    lineHeight: 1.2,
-                    color: "rgba(255,255,255,0.97)",
-                  }}
-                >
-                  {best.product.sku}
-                </div>
+          <div style={{ marginTop: 6, opacity: 0.8 }}>
+            {matches.length} ranked match(es)
+          </div>
 
-                <div
-                  style={{
-                    marginTop: 4,
-                    fontSize: 14,
-                    color: "rgba(255,255,255,0.86)",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {best.product.name || "WyreStorm product"}
-                </div>
+          <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+            {matches.map((m) => {
+              const p = m.product as CompetitorProduct;
+              const positioning = selected
+                ? explainWyreStormAdvantage(selected, p)
+                : { score: 0, reasons: [], summary: "" };
 
+              return (
                 <div
+                  key={`${p.brand || "Unknown"}-${p.sku}`}
                   style={{
-                    marginTop: 8,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    padding: "6px 10px",
-                    borderRadius: 999,
-                    border: "1px solid rgba(255,255,255,0.10)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 14,
                     background: "rgba(255,255,255,0.04)",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: "rgba(255,255,255,0.90)",
+                    padding: 12,
                   }}
                 >
-                  {badgeLabel(best.percent)}
-                </div>
-              </div>
-
-              <div style={{ textAlign: "right" }}>
-                <div className="wm-h2" style={{ margin: 0 }}>
-                  {best.percent}%
-                </div>
-                <div className="wm-p" style={{ opacity: 0.75, fontSize: 12 }}>
-                  Match
-                </div>
-              </div>
-            </div>
-
-            <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button
-                className="wm-btn"
-                onClick={() => setExpanded((v) => !v)}
-              >
-                {expanded ? "Hide detail" : "Show detail"}
-              </button>
-
-              <button
-                className="wm-btn"
-                onClick={() => navigator.clipboard?.writeText(best.product.sku)}
-              >
-                Copy SKU
-              </button>
-            </div>
-
-            {expanded && (
-              <div style={{ marginTop: 14, display: "grid", gap: 14 }}>
-                <div>
-                  <div className="wm-h3" style={{ marginBottom: 6 }}>
-                    Why this match
-                  </div>
-
-                  <ul
-                    className="wm-p"
+                  <div
                     style={{
-                      opacity: 0.9,
-                      fontSize: 13,
-                      marginLeft: 18,
-                      marginBottom: 0,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      alignItems: "start",
                     }}
                   >
-                    {best.reasons
-                      .filter((r) => r.score > 0)
-                      .sort((a, b) => b.score - a.score)
-                      .map((r) => (
-                        <li key={r.key} style={{ marginBottom: 6 }}>
-                          {r.text}{" "}
-                          <span style={{ opacity: 0.7 }}>
-                            ({Math.round(r.score * 100)} pts)
-                          </span>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-
-                {results.length > 1 && (
-                  <div>
-                    <div className="wm-h3" style={{ marginBottom: 6 }}>
-                      Alternatives
+                    <div>
+                      <div style={{ fontWeight: 800 }}>
+                        {String(p.brand || "Unknown")} - {p.sku}
+                      </div>
+                      <div style={{ marginTop: 4 }}>{p.name}</div>
                     </div>
 
-                    <div style={{ display: "grid", gap: 8 }}>
-                      {results.slice(1, 5).map((alt) => (
-                        <div
-                          key={alt.product.sku}
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns: "minmax(0,1fr) auto",
-                            gap: 12,
-                            alignItems: "center",
-                            borderRadius: 12,
-                            border: "1px solid rgba(255,255,255,0.10)",
-                            background: "rgba(255,255,255,0.035)",
-                            padding: 10,
-                          }}
-                        >
-                          <div
-                            className="wm-p"
-                            style={{ opacity: 0.95, margin: 0 }}
-                          >
-                            <strong>{alt.product.sku}</strong>{" "}
-                            <span style={{ opacity: 0.75 }}>
-                              {alt.product.name || ""}
-                            </span>
-                          </div>
+                    <div style={{ display: "grid", gap: 6 }}>
+                      <div
+                        style={{
+                          padding: "6px 10px",
+                          borderRadius: 999,
+                          fontSize: 12,
+                          border: "1px solid rgba(120,200,255,0.24)",
+                          background: "rgba(120,200,255,0.10)",
+                          whiteSpace: "nowrap",
+                          textAlign: "center",
+                        }}
+                      >
+                        Match {m.score}
+                      </div>
 
-                          <div
-                            className="wm-p"
-                            style={{ opacity: 0.85, margin: 0 }}
-                          >
-                            {alt.percent}%
-                          </div>
-                        </div>
-                      ))}
+                      <div
+                        style={{
+                          padding: "6px 10px",
+                          borderRadius: 999,
+                          fontSize: 12,
+                          border: "1px solid rgba(134,239,172,0.20)",
+                          background: "rgba(134,239,172,0.10)",
+                          whiteSpace: "nowrap",
+                          textAlign: "center",
+                        }}
+                      >
+                        Win {positioning.score}
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-          </section>
-        )}
 
-        {results && !best && (
-          <section className="wm-card wm-card-pad" style={{ borderRadius: 18 }}>
-            <div className="wm-p" style={{ margin: 0 }}>
-              No match found.
-            </div>
-          </section>
-        )}
+                  <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {chip(p.family)}
+                    {chip(p.category)}
+                    {chip(p.transport || "Unknown")}
+                    {chip(`${p.distance?.meters ?? 0}m`)}
+                  </div>
+
+                  {renderProductFacts(p)}
+
+                  <div style={{ marginTop: 10, fontSize: 13, opacity: 0.82 }}>
+                    <strong>Match reasons:</strong> {m.reasons.join(", ") || "No rule hits"}
+                  </div>
+
+                  <div style={{ marginTop: 8, fontSize: 13, opacity: 0.86 }}>
+                    <strong>Why WyreStorm wins:</strong> {positioning.summary || "No strong differentiator detected"}
+                  </div>
+
+                  {positioning.reasons.length ? (
+                    <ul style={{ marginTop: 8, paddingLeft: 18, fontSize: 13, opacity: 0.82 }}>
+                      {positioning.reasons.slice(0, 5).map((r) => (
+                        <li key={r}>{r}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+
+                  <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      style={buttonStyle(true)}
+                      onClick={() => handoffToProposal(p)}
+                    >
+                      Send to Proposal Builder
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+
+            {matches.length === 0 ? (
+              <div style={{ opacity: 0.8 }}>
+                No competitor matches found for the current selection.
+              </div>
+            ) : null}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -126,14 +126,14 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
       <div className="space-y-6">
         {/* Key Insight Banner */}
         <div className="bg-accent-bg-subtle\ border\ border-accent\ rounded-lg\ p-4">
-          <h3 className="font-bold\ text-accent\ mb-2">💰 Cost Optimization Insight</h3>
+          <h3 className="font-bold\ text-accent\ mb-2">ðŸ’° Cost Optimization Insight</h3>
           <p className="text-sm\ text-text-primary">
             By choosing the right specification for your needs, you can save up to{' '}
             <strong className="text-accent">${potentialSavings.toFixed(0)} ({savingsPercentage}%)</strong>{' '}
             on cable costs alone for this {cableDistance.toFixed(1)}m run.
           </p>
           <p className="text-xs\ text-text-secondary\ mt-2">
-            💡 Not every application needs 4K@60Hz 4:4:4. Match specs to actual requirements!
+            ðŸ’¡ Not every application needs 4K@60Hz 4:4:4. Match specs to actual requirements!
           </p>
         </div>
 
@@ -269,7 +269,7 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
                         <div>
                           <p className="font-medium\ text-text-primary">{comparison.name}</p>
                           {isCheapest && (
-                            <span className="text-xs\ text-accent\ font-semibold">💰 Most Cost-Effective</span>
+                            <span className="text-xs\ text-accent\ font-semibold">ðŸ’° Most Cost-Effective</span>
                           )}
                         </div>
                       </td>
@@ -314,7 +314,7 @@ const TechnologySpecAnalyzer: React.FC<TechnologySpecAnalyzerProps> = ({
         {/* Technical Explanation */}
         <div className="bg-blue-50\ dark:bg-blue-900/20\ border\ border-blue-200\ dark:border-blue-800\ rounded-lg\ p-4">
           <h3 className="font-bold\ text-blue-900\ dark:text-blue-100\ mb-2">
-            📚 Understanding Color Subsampling
+            ðŸ“š Understanding Color Subsampling
           </h3>
           <div className="text-xs\ text-blue-800\ dark:text-blue-200\ space-y-2">
             <p>

@@ -13,7 +13,7 @@ import { NAV_LINKS } from '../../data/navigation';
 
 import Search from './Search';
 
-import CategoryMenu from "@/components/nav/CategoryMenu";
+import CategoryMenu from "@/app/navigation/CategoryMenu";
 const Header: React.FC = () => {
 
   const { openProfileModal } = useUserContext();

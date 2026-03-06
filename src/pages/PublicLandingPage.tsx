@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { useNavigate } from "react-router-dom";
-import heroLogo from "@/assets/branding/hero-logo.png";
+import heroLogo from "../assets/branding/wyrestorm-wingman-logo.png";
 import { useAuth } from "@/context";
 
 export default function PublicLandingPage() {

@@ -18,13 +18,13 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "APO-210-UC",
-      "description": "Apollo™ Video-speakerphone switcher |USB-C & HDMI input  | HDMI Out & HDBaseT™ Out  |10W Speaker | Omni-direction 4xMics | Dual-View | Airplay & Miracast & APO-DG1 dongle",
+      "description": "Apolloâ„¢ Video-speakerphone switcher |USB-C & HDMI input  | HDMI Out & HDBaseTâ„¢ Out  |10W Speaker | Omni-direction 4xMics | Dual-View | Airplay & Miracast & APO-DG1 dongle",
       "family": "APO",
       "tier": "Unclassified"
     },
     {
       "sku": "APO-COM-MIC",
-      "description": "Apollo™ companion mic | MINI USB connection | Mounting on table",
+      "description": "Apolloâ„¢ companion mic | MINI USB connection | Mounting on table",
       "family": "APO",
       "tier": "Unclassified"
     },
@@ -36,25 +36,25 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "APO-DG-HDMI",
-      "description": "HDMI – USB C Adapter for the APO-DG1/2",
+      "description": "HDMI â€“ USB C Adapter for the APO-DG1/2",
       "family": "APO",
       "tier": "Unclassified"
     },
     {
       "sku": "APO-DG1",
-      "description": "Apollo™  1080p USB-C(DP Atl mode) dongle for wireless casting",
+      "description": "Apolloâ„¢  1080p USB-C(DP Atl mode) dongle for wireless casting",
       "family": "APO",
       "tier": "Unclassified"
     },
     {
       "sku": "APO-DG2",
-      "description": "Apollo™  4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing( with APP)",
+      "description": "Apolloâ„¢  4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing( with APP)",
       "family": "APO",
       "tier": "Unclassified"
     },
     {
       "sku": "APO-DG2-PRO",
-      "description": "Apollo™  4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing( without APP)",
+      "description": "Apolloâ„¢  4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing( without APP)",
       "family": "APO",
       "tier": "Unclassified"
     },
@@ -66,19 +66,19 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "APO-SKY-MIC",
-      "description": "Apollo™ companion  Add-On Ceiling Mic | RJ45 connection",
+      "description": "Apolloâ„¢ companion  Add-On Ceiling Mic | RJ45 connection",
       "family": "APO",
       "tier": "Unclassified"
     },
     {
       "sku": "APO-VX20-MNT",
-      "description": "Wall Mounting Kit for the APO-VX20-UC Video Bar",
+      "description": "WallÂ MountingÂ KitÂ forÂ theÂ APO-VX20-UCÂ VideoÂ Bar",
       "family": "APO",
       "tier": "Unclassified"
     },
     {
       "sku": "APO-VX20-UC",
-      "description": "Apollo™  Video Bar & Switcher | USB-C & HDMI input | HDMI Output |  4K AI camera | 120° DFOV | Auto Framing and Presenter Tracking|Dual 8w stereo Speakers | Airplay & Miracast & APO-DG1，ZOOM Certification",
+      "description": "Apolloâ„¢  Video Bar & Switcher | USB-C & HDMI input | HDMI Output |  4K AI camera | 120Â° DFOV | Auto Framing and Presenter Tracking|Dual 8w stereo Speakers | Airplay & Miracast & APO-DG1ï¼ŒZOOM Certification",
       "family": "APO",
       "tier": "Unclassified"
     },
@@ -180,7 +180,7 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "EX-100-KVM",
-      "description": "4K60Hz 4:2:0  HDBT 2.0 Extender Set | PoH | USB 2.0 |Analog Audio & RS-232 Passthrough (4K: 100m/328ft)",
+      "description": "4K60Hz 4:2:0Â  HDBT 2.0 Extender Set | PoH | USB 2.0 |Analog Audio & RS-232 Passthrough (4K: 100m/328ft)",
       "family": "EX",
       "tier": "Unclassified"
     },
@@ -198,13 +198,13 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "EX-35-H2",
-      "description": "4K60Hz 4:4:4 HDBaseT™ Extender Set | Dolby Vision & HDR | PoH | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
+      "description": "4K60Hz 4:4:4 HDBaseTâ„¢ Extender Set | Dolby Vision & HDR | PoH | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
       "family": "EX",
       "tier": "Unclassified"
     },
     {
       "sku": "EX-35-H2-ARC",
-      "description": "4K60Hz 4:4:4 HDBaseT™ Extender Set | Dolby Vision & HDR | ARC | PoH | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
+      "description": "4K60Hz 4:4:4 HDBaseTâ„¢ Extender Set | Dolby Vision & HDR | ARC | PoH | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
       "family": "EX",
       "tier": "Unclassified"
     },
@@ -216,7 +216,7 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "EX-40-H2-ARC",
-      "description": "4K60Hz 4:4:4 HDBaseT™ Extender Set | Dolby Vision & HDR | ARC | PoH | RS232 & 2-Way IR Passthrough (4K: 40m/115ft, 1080p: 70m/230ft)",
+      "description": "4K60Hz 4:4:4 HDBaseTâ„¢ Extender Set | Dolby Vision & HDR | ARC | PoH | RS232 & 2-Way IR Passthrough (4K: 40m/115ft, 1080p: 70m/230ft)",
       "family": "EX",
       "tier": "Unclassified"
     },
@@ -228,19 +228,19 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "EX-60-USB2",
-      "description": "USB2.0 Extender Set | 60m | 480Mbps | PoC (Tx - Rx) | 1x USB Host & 4x USB-A ports",
+      "description": "USB2.0Â ExtenderÂ SetÂ |Â 60mÂ |Â 480MbpsÂ |Â PoCÂ (TxÂ -Â Rx)Â |Â 1xÂ USBÂ HostÂ &Â 4xÂ USB-AÂ ports",
       "family": "EX",
       "tier": "Unclassified"
     },
     {
       "sku": "EX-70-G2",
-      "description": "4K60Hz 4:2:0  HDBaseT™ Extender Set | PoC | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
+      "description": "4K60Hz 4:2:0  HDBaseTâ„¢ Extender Set | PoC | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
       "family": "EX",
       "tier": "Unclassified"
     },
     {
       "sku": "EX-70-H2",
-      "description": "4K60Hz 4:4:4 HDBaseT™ Extender Set | Dolby Vision & HDR | PoH | RS232 & 2-Way IR Passthrough (4K: 70m/230ft, 1080p: 100m/328ft)",
+      "description": "4K60Hz 4:4:4 HDBaseTâ„¢ Extender Set | Dolby Vision & HDR | PoH | RS232 & 2-Way IR Passthrough (4K: 70m/230ft, 1080p: 100m/328ft)",
       "family": "EX",
       "tier": "Unclassified"
     },
@@ -252,7 +252,7 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "EX3-100-EARC",
-      "description": "4K60Hz 4:4:4，5K30Hz 4:4:4 HDBaseT™ Extender Set | Test Pattern | Dolby Vision and HDR | eARC | Audio De-embedding | POH | Low-bandwidth mode | RS232 | 2 Way IR Passthrough 4K 60hz 100m (Cat6a)",
+      "description": "4K60Hz 4:4:4ï¼Œ5K30Hz 4:4:4 HDBaseTâ„¢ Extender Set | Test Pattern | Dolby Vision and HDR | eARC | Audio De-embedding | POH | Low-bandwidth mode | RS232 | 2 Way IR Passthrough 4K 60hz 100m (Cat6a)",
       "family": "EX3",
       "tier": "Unclassified"
     },
@@ -372,19 +372,19 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "FOCUS 200 Pro",
-      "description": "4K AI Webcam | 120° DFOV | Gesture Control, Auto Framing and Presenter Tracking| Zoom certified |  USB 3.0 Support | Integrated Mic | High fram rate，ZOOM Certification",
+      "description": "4K AI Webcam | 120Â° DFOV | Gesture Control, Auto Framing and Presenter Tracking| Zoom certified |  USB 3.0 Support | Integrated Mic | High fram rateï¼ŒZOOM Certification",
       "family": "FOCUS 200 Pro",
       "tier": "Unclassified"
     },
     {
       "sku": "HALO-COM-MIC",
-      "description": "Apollo™ companion mic | USB mini connection | Mounting on table",
+      "description": "Apolloâ„¢ companion mic | USB mini connection | Mounting on table",
       "family": "HALO",
       "tier": "Unclassified"
     },
     {
       "sku": "HALO-VX10-V2",
-      "description": "HALO Video Bar mini  |  4K AI camera | 120° DFOV | Auto Framing and Presenter Tracking|Dual 5w stereo Speakers | ZOOM Certification",
+      "description": "HALO Video Bar mini  |  4K AI camera | 120Â° DFOV | Auto Framing and Presenter Tracking|Dual 5w stereo Speakers | ZOOM Certification",
       "family": "HALO",
       "tier": "Unclassified"
     },
@@ -480,13 +480,13 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "MX-0402-MST",
-      "description": "Synergy 4K60Hz HDR 4x2 HDMI & USB-C Matrix Switcher with MST | Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling",
+      "description": "SynergyÂ 4K60Hz HDR 4x2 HDMI & USB-C Matrix Switcher with MST | Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling",
       "family": "MX",
       "tier": "Unclassified"
     },
     {
       "sku": "MX-0403-H3-MST",
-      "description": "Synergy 4K60Hz HDR 4x3 HDMI & USB-C Matrix Switcher with MST & HDBaseT 3.0 Output| Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling",
+      "description": "SynergyÂ 4K60Hz HDR 4x3 HDMI & USB-C Matrix Switcher with MST & HDBaseT 3.0 Output| Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling",
       "family": "MX",
       "tier": "Unclassified"
     },
@@ -498,7 +498,7 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "MX-0404-KIT",
-      "description": "4K60Hz  4:2:0 4x4 (3 HDBaseT™, 1 HDMI) Matrix | PoH | Includes 3 Receivers | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft)",
+      "description": "4K60Hz  4:2:0 4x4 (3 HDBaseTâ„¢, 1 HDMI) Matrix | PoH | Includes 3 Receivers | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft)",
       "family": "MX",
       "tier": "Unclassified"
     },
@@ -522,7 +522,7 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "MX-0808-KIT-V2",
-      "description": "4K60Hz  4:2:0  8x8 HDBaseT™ Matrix | PoH | Includes 8 Receivers | 4x Mirrored HDMI | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft)",
+      "description": "4K60Hz  4:2:0  8x8 HDBaseTâ„¢ Matrix | PoH | Includes 8 Receivers | 4x Mirrored HDMI | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft)",
       "family": "MX",
       "tier": "Unclassified"
     },
@@ -552,32 +552,32 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "MXV-0404-H2A-KIT",
-      "description": "4K60Hz  4:4:4 4x4 HDBaseT™ Matrix | Dolby Vision & HDR | PoH | Includes 4 Receivers | Audio De-embed | (4K: 35m/115ft, 1080p: 70m/230ft)",
+      "description": "4K60Hz  4:4:4 4x4 HDBaseTâ„¢ Matrix | Dolby Vision & HDR | PoH | Includes 4 Receivers | Audio De-embed | (4K: 35m/115ft, 1080p: 70m/230ft)",
       "family": "MXV",
       "tier": "Unclassified"
     },
     {
       "sku": "MXV-0808-H2A-70-V3",
-      "description": "4K60Hz  4:4:4 8x8 HDBaseT™ Matrix | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 70m/230ft, 1080p: 100m/328ft)",
+      "description": "4K60Hz  4:4:4 8x8 HDBaseTâ„¢ Matrix | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 70m/230ft, 1080p: 100m/328ft)",
       "family": "MXV",
       "tier": "Unclassified"
     },
     {
       "sku": "MXV-0808-H2A-KIT",
-      "description": "4K60Hz  4:4:4 8x8 HDBaseT™ Matrix  Kit w/ 6 standard receivers & 2 Scaling receivers | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft)",
+      "description": "4K60HzÂ  4:4:4 8x8 HDBaseTâ„¢ MatrixÂ  Kit w/ 6 standard receivers & 2 Scaling receivers | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft)",
       "family": "MXV",
       "tier": "Unclassified"
     },
     {
       "sku": "MXV-0808-H2A-V3",
-      "description": "4K60Hz  4:4:4 8x8 HDBaseT™ Matrix | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft)",
+      "description": "4K60Hz  4:4:4 8x8 HDBaseTâ„¢ Matrix | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft)",
       "family": "MXV",
       "tier": "Unclassified"
     },
     {
-      "sku": "NetworkHD Touch™",
+      "sku": "NetworkHD Touchâ„¢",
       "description": "Free iPad & Android Control App for NetworkHD 100, 200 & 400 Series",
-      "family": "NetworkHD Touch™",
+      "family": "NetworkHD Touchâ„¢",
       "tier": "Unclassified"
     },
     {
@@ -642,7 +642,7 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "NHD-RACK-1U",
-      "description": "1U/2 Slot Rack Mount for NetworkHD™ 110/120/500/600/CTL",
+      "description": "1U/2 Slot Rack Mount for NetworkHDâ„¢ 110/120/500/600/CTL",
       "family": "NHD",
       "tier": "Unclassified"
     },
@@ -726,7 +726,7 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "RX-35-POH",
-      "description": "4K60Hz 4:2:0  HDBaseT™ Receiver | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For TX-35-IW]",
+      "description": "4K60Hz 4:2:0  HDBaseTâ„¢ Receiver | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For TX-35-IW]",
       "family": "RX",
       "tier": "Unclassified"
     },
@@ -744,13 +744,13 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "RX-70-4K",
-      "description": "4K60Hz 4:2:0  HDBaseT™ Receiver | PoH | Ethernet, IR & RS232 Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) [For TX-70-4K]",
+      "description": "4K60Hz 4:2:0  HDBaseTâ„¢ Receiver | PoH | Ethernet, IR & RS232 Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) [For TX-70-4K]",
       "family": "RX",
       "tier": "Unclassified"
     },
     {
       "sku": "RX-70-4K-SCL",
-      "description": "4K60Hz 4:2:0  HDBaseT™ Scaling Receiver | PoH | Ethernet, IR & RS232 Passthrough |ARC (4K: 70m/230ft, 1080p: 100m/328ft)",
+      "description": "4K60Hz 4:2:0  HDBaseTâ„¢ Scaling Receiver | PoH | Ethernet, IR & RS232 Passthrough |ARC (4K: 70m/230ft, 1080p: 100m/328ft)",
       "family": "RX",
       "tier": "Unclassified"
     },
@@ -846,25 +846,25 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "SW-130-TX-UK",
-      "description": "3-Input 4K60Hz 4:2:0 In-wall HDBaseT™ Switcher | 2 HDMI + USB-C | CEC  | 2-Gang (4K: 100m/328ft)",
+      "description": "3-Input 4K60Hz 4:2:0 In-wall HDBaseTâ„¢ Switcher | 2 HDMI + USB-C | CEC  | 2-Gang (4K: 100m/328ft)",
       "family": "SW",
       "tier": "Unclassified"
     },
     {
       "sku": "SW-220-TX-W",
-      "description": "Synergy™ 2-Input 4K30Hz Switcher | USB 3.0 | Airplay & Miracast | Dual-View | Supports APO-DG1 Dongle",
+      "description": "Synergyâ„¢ 2-Input 4K30Hz Switcher | USB 3.0 | Airplay & Miracast | Dual-View | Supports APO-DG1 Dongle",
       "family": "SW",
       "tier": "Unclassified"
     },
     {
       "sku": "SW-510-TX",
-      "description": "Synergy™ 4-input 4K60Hz 4:2:0 HDBaseT™  Switcher | USB 2.0 | Ethernet Passthrough | IR, CEC & RS232 Passthrough (4K: 100m/328ft)",
+      "description": "Synergyâ„¢ 4-input 4K60Hz 4:2:0 HDBaseTâ„¢  Switcher | USB 2.0 | Ethernet Passthrough | IR, CEC & RS232 Passthrough (4K: 100m/328ft)",
       "family": "SW",
       "tier": "Unclassified"
     },
     {
       "sku": "SW-515-RX",
-      "description": "Synergy™ 3-input 4K60Hz 4:2:0 HDBaseT™ Switching Receiver | USB 2.0 | Ethernet Passthrough | Relays | IR, CEC & RS232 Passthrough (4K: 100m/328ft)",
+      "description": "Synergyâ„¢ 3-input 4K60Hz 4:2:0 HDBaseTâ„¢ Switching Receiver | USB 2.0 | Ethernet Passthrough | Relays | IR, CEC & RS232 Passthrough (4K: 100m/328ft)",
       "family": "SW",
       "tier": "Unclassified"
     },
@@ -882,13 +882,13 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "SYN-KEY10",
-      "description": "Synergy™ 10-button Keypad Controller | Only comes with US back box",
+      "description": "Synergyâ„¢ 10-button Keypad Controller | Only comes with US back box",
       "family": "SYN",
       "tier": "Unclassified"
     },
     {
       "sku": "SYN-TOUCH10",
-      "description": "Synergy™ 10.1” All-In-One Touchpad IP Controller | PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible)",
+      "description": "Synergyâ„¢ 10.1â€ All-In-One Touchpad IP Controller | PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible)",
       "family": "SYN",
       "tier": "Unclassified"
     },
@@ -900,7 +900,7 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "TX-35-IW",
-      "description": "4K60Hz 4:2:0   HDBaseT™ Single Gang In-Wall Transmitter | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
+      "description": "4K60Hz 4:2:0   HDBaseTâ„¢ Single Gang In-Wall Transmitter | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
       "family": "TX",
       "tier": "Unclassified"
     },
@@ -918,7 +918,7 @@ const catalog: WyreStormSkuCatalog = {
     },
     {
       "sku": "TX-SCL-HDBT",
-      "description": "4K60Hz 4:2:0 HDBaseT™ Scaling  Output Card for MX-1616-SCL | HDR | PoH | Audio De-Embed (4K: 100m/328ft)",
+      "description": "4K60Hz 4:2:0 HDBaseTâ„¢ ScalingÂ  Output Card for MX-1616-SCL | HDR | PoH | Audio De-Embed (4K: 100m/328ft)",
       "family": "TX",
       "tier": "Unclassified"
     },

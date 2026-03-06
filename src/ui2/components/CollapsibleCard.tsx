@@ -73,7 +73,7 @@ export default function CollapsibleCard({
           }}
         >
           <span className={collapsed ? "wm-chevron is-collapsed" : "wm-chevron"} aria-hidden="true">
-            ▾
+            â–¾
           </span>
           <span style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: "-0.01em" }}>{title}</div>

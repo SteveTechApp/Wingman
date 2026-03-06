@@ -1,19 +1,34 @@
 import * as React from "react";
-import { TRAINING_MODULES, TrainingModule } from "@/training/trainingModules";
+import { useNavigate } from "react-router-dom";
+import { TRAINING_MODULES, type TrainingModule } from "@/training/trainingModules";
+import {
+  PageHeader,
+  pageWrapStyle,
+  stackStyle,
+  cardStyle,
+  sectionTitleStyle,
+  sectionTextStyle,
+  inputStyle,
+  Field,
+} from "@/ui2/page/PageChrome";
 
 function pill(level: TrainingModule["level"]) {
-  const base = "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border";
-  switch (level) {
-    case "Foundation":
-      return base + " border-slate-200 text-slate-700 bg-white/60";
-    case "Intermediate":
-      return base + " border-slate-200 text-slate-700 bg-white/60";
-    default:
-      return base + " border-slate-200 text-slate-700 bg-white/60";
-  }
+  const base: React.CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    borderRadius: 999,
+    padding: "6px 10px",
+    fontSize: 12,
+    fontWeight: 700,
+    border: "1px solid rgba(255,255,255,0.10)",
+    background: "rgba(255,255,255,0.05)",
+    color: "rgba(255,255,255,0.86)",
+  };
+  return base;
 }
 
 export default function TrainingHubPage() {
+  const nav = useNavigate();
   const [q, setQ] = React.useState("");
   const [track, setTrack] = React.useState<TrainingModule["track"] | "All">("All");
   const [level, setLevel] = React.useState<TrainingModule["level"] | "All">("All");
@@ -24,180 +39,174 @@ export default function TrainingHubPage() {
 
   const filtered = React.useMemo(() => {
     const qq = q.trim().toLowerCase();
-    return TRAINING_MODULES.filter(m => {
+    return TRAINING_MODULES.filter((m) => {
       if (track !== "All" && m.track !== track) return false;
       if (level !== "All" && m.level !== level) return false;
       if (!qq) return true;
       const inTitle = m.title.toLowerCase().includes(qq);
       const inDesc = m.description.toLowerCase().includes(qq);
-      const inLesson = m.lessons.some(l => l.title.toLowerCase().includes(qq) || l.bullets.some(b => b.toLowerCase().includes(qq)));
+      const inLesson = m.lessons.some((l) => l.title.toLowerCase().includes(qq) || l.bullets.some((b) => b.toLowerCase().includes(qq)));
       return inTitle || inDesc || inLesson;
     });
   }, [q, track, level]);
 
-  const open = filtered.find(m => m.id === openId) ?? filtered[0] ?? null;
+  const open = filtered.find((m) => m.id === openId) ?? filtered[0] ?? null;
 
-  return (<div className="wm-page">
+  return (
+    <div className="wm-page wm-animate-in" style={pageWrapStyle()}>
+      <div style={stackStyle(14)}>
+        <PageHeader
+          eyebrow="TRAINING"
+          title="Training Hub"
+          description="Modular learning blocks for sales discovery, system design, product positioning and tool use."
+          actions={
+            <button className="wm-btn" type="button" onClick={() => nav("/app/dashboard")}>
+              Dashboard
+            </button>
+          }
+        />
 
-    <div className="mx-auto w-full max-w-6xl px-4 py-6">
-      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Training</h1>
-          <p className="text-sm text-slate-600">
-            Modular learning blocks for sales discovery, system design, and product positioning.
-          </p>
-        </div>
+        <section style={cardStyle()}>
+          <div style={sectionTitleStyle()}>Find a module</div>
+          <div style={sectionTextStyle()}>
+            Filter by track or level, then open a module for more detail.
+          </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search modules or lessons…"
-            className="w-full sm:w-72 rounded-lg border border-slate-200 bg-white/70 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-200"
-          />
-          <select
-            value={track}
-            onChange={(e) => setTrack(e.target.value as any)}
-            className="rounded-lg border border-slate-200 bg-white/70 px-3 py-2 text-sm"
+          <div
+            style={{
+              marginTop: 16,
+              display: "grid",
+              gap: 14,
+              gridTemplateColumns: "2fr 1fr 1fr",
+            }}
           >
-            {tracks.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-          <select
-            value={level}
-            onChange={(e) => setLevel(e.target.value as any)}
-            className="rounded-lg border border-slate-200 bg-white/70 px-3 py-2 text-sm"
-          >
-            {levels.map(l => <option key={l} value={l}>{l}</option>)}
-          </select>
-        </div>
-      </div>
+            <Field label="Search">
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search modules or lessons"
+                style={inputStyle()}
+              />
+            </Field>
 
-      <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-12">
-        {/* Left: module list */}
-        <div className="md:col-span-5">
-          <div className="rounded-2xl border border-slate-200 bg-white/60 p-3">
-            <div className="flex items-center justify-between px-1 pb-2">
-              <div className="text-sm font-medium text-slate-800">Modules</div>
-              <div className="text-xs text-slate-500">{filtered.length} shown</div>
-            </div>
+            <Field label="Track">
+              <select value={track} onChange={(e) => setTrack(e.target.value as any)} style={inputStyle()}>
+                {tracks.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </Field>
 
-            <div className="space-y-2">
-              {filtered.map(m => {
+            <Field label="Level">
+              <select value={level} onChange={(e) => setLevel(e.target.value as any)} style={inputStyle()}>
+                {levels.map((l) => (
+                  <option key={l} value={l}>{l}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
+        </section>
+
+        <div
+          style={{
+            display: "grid",
+            gap: 14,
+            gridTemplateColumns: "minmax(360px, 0.9fr) minmax(420px, 1.1fr)",
+          }}
+        >
+          <section style={cardStyle()}>
+            <div style={sectionTitleStyle()}>Modules</div>
+            <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
+              {filtered.map((m) => {
                 const active = m.id === (open?.id ?? openId);
                 return (
                   <button
                     key={m.id}
+                    type="button"
                     onClick={() => setOpenId(m.id)}
-                    className={[
-                      "w-full text-left rounded-xl border px-3 py-3 transition",
-                      active ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white/50 hover:bg-white/70"
-                    ].join(" ")}
+                    style={{
+                      textAlign: "left",
+                      borderRadius: 14,
+                      border: active
+                        ? "1px solid rgba(15,154,126,0.28)"
+                        : "1px solid rgba(255,255,255,0.08)",
+                      background: active
+                        ? "linear-gradient(90deg, rgba(9,44,39,0.92), rgba(7,18,30,0.92))"
+                        : "rgba(255,255,255,0.03)",
+                      padding: 14,
+                      cursor: "pointer",
+                    }}
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="font-medium text-slate-900 truncate">{m.title}</div>
-                        <div className="text-xs text-slate-600 line-clamp-2">{m.description}</div>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          <span className={pill(m.level)}>{m.level}</span>
-                          <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border border-slate-200 text-slate-700 bg-white/60">
-                            {m.track}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-xs text-slate-500 whitespace-nowrap">
-                        {m.lessons.length} lessons
-                      </div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: "rgba(255,255,255,0.94)" }}>
+                      {m.title}
+                    </div>
+                    <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.68)" }}>
+                      {m.description}
+                    </div>
+                    <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      <span style={pill(m.level)}>{m.level}</span>
+                      <span style={pill(m.level)}>{m.track}</span>
                     </div>
                   </button>
                 );
               })}
 
-              {filtered.length === 0 && (
-                <div className="rounded-xl border border-dashed border-slate-200 bg-white/40 p-4 text-sm text-slate-600">
-                  No results. Try a different search term.
+              {!filtered.length ? (
+                <div style={{ ...sectionTextStyle(), marginTop: 0 }}>
+                  No modules matched your filters.
                 </div>
-              )}
+              ) : null}
             </div>
-          </div>
-        </div>
+          </section>
 
-        {/* Right: module detail */}
-        <div className="md:col-span-7">
-          <div className="rounded-2xl border border-slate-200 bg-white/60 p-5">
+          <section style={cardStyle()}>
+            <div style={sectionTitleStyle()}>Module detail</div>
+
             {!open ? (
-              <div className="text-sm text-slate-600">Select a module to view details.</div>
+              <div style={sectionTextStyle()}>Select a module to view details.</div>
             ) : (
-              <>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <div className="text-lg font-semibold text-slate-900">{open.title}</div>
-                    <div className="text-sm text-slate-600">{open.description}</div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <span className={pill(open.level)}>{open.level}</span>
-                      <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border border-slate-200 text-slate-700 bg-white/60">
-                        {open.track}
-                      </span>
-                    </div>
+              <div style={{ marginTop: 14, display: "grid", gap: 14 }}>
+                <div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: "rgba(255,255,255,0.96)" }}>
+                    {open.title}
                   </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      className="rounded-lg border border-slate-200 bg-white/70 px-3 py-2 text-sm hover:bg-white"
-                      onClick={() => alert("Next step: wire this to progress tracking (localStorage or user account).")}
-                    >
-                      Mark complete
-                    </button>
-                    <button
-                      className="rounded-lg border border-slate-200 bg-white/70 px-3 py-2 text-sm hover:bg-white"
-                      onClick={() => navigator.clipboard?.writeText(window.location.href)}
-                    >
-                      Copy link
-                    </button>
+                  <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.55, color: "rgba(255,255,255,0.72)" }}>
+                    {open.description}
+                  </div>
+                  <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <span style={pill(open.level)}>{open.level}</span>
+                    <span style={pill(open.level)}>{open.track}</span>
                   </div>
                 </div>
 
-                <div className="mt-5 space-y-3">
-                  {open.lessons.map((l) => (
-                    <div key={l.id} className="rounded-xl border border-slate-200 bg-white/55 p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="font-medium text-slate-900">{l.title}</div>
-                          <div className="text-xs text-slate-500">{l.minutes} min</div>
-                        </div>
-                        <button
-                          className="rounded-lg border border-slate-200 bg-white/70 px-2.5 py-1.5 text-xs hover:bg-white"
-                          onClick={() => alert("Next step: open lesson player (slides/notes/quiz).")}
-                        >
-                          Open
-                        </button>
+                <div style={{ display: "grid", gap: 10 }}>
+                  {open.lessons.map((lesson) => (
+                    <div
+                      key={lesson.id}
+                      style={{
+                        borderRadius: 14,
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "rgba(255,255,255,0.03)",
+                        padding: 14,
+                      }}
+                    >
+                      <div style={{ fontSize: 15, fontWeight: 800, color: "rgba(255,255,255,0.94)" }}>
+                        {lesson.title}
                       </div>
-
-                      <ul className="mt-3 list-disc pl-5 text-sm text-slate-700 space-y-1">
-                        {l.bullets.map((b, i) => <li key={i}>{b}</li>)}
+                      <div style={{ marginTop: 4, fontSize: 12, color: "rgba(255,255,255,0.58)" }}>
+                        {lesson.minutes} min
+                      </div>
+                      <ul style={{ margin: "10px 0 0", paddingLeft: 18, color: "rgba(255,255,255,0.76)" }}>
+                        {lesson.bullets.map((b, i) => <li key={i} style={{ marginTop: 6 }}>{b}</li>)}
                       </ul>
-
-                      {l.resources && l.resources.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {l.resources.map((r, i) => (
-                            <span key={i} className="inline-flex items-center rounded-full px-2.5 py-1 text-xs border border-slate-200 bg-white/60 text-slate-700">
-                              {r.label}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
-
-                <div className="mt-4 text-xs text-slate-500">
-                  Next: connect lessons to printable notes + short quizzes, and store completion per user.
-                </div>
-              </>
+              </div>
             )}
-          </div>
+          </section>
         </div>
       </div>
     </div>
-  
-</div>);
+  );
 }

@@ -1,65 +1,88 @@
-import * as React from "react";
-
+import React from "react";
 import { NavLink } from "react-router-dom";
 
-type Props = {
+export type MissionControlNavProps = {
   collapsed?: boolean;
   onToggleCollapse?: () => void;
-};;
+};
 
-function itemClass(isActive: boolean) {
-  return [
-    "wm-mc__item",
-    isActive ? "is-active" : "",
-  ].filter(Boolean).join(" ");
+type NavItem = {
+  label: string;
+  to: string;
+};
+
+type NavSection = {
+  title: string;
+  items: NavItem[];
+};
+
+const sections: NavSection[] = [
+  {
+    title: "Workspace",
+    items: [
+      { label: "Dashboard", to: "/app/dashboard" },
+      { label: "Projects", to: "/app/projects" },
+    ],
+  },
+  {
+    title: "Core Tools",
+    items: [
+      { label: "Discovery", to: "/app/tools/discovery" },
+      { label: "Room Wizard", to: "/app/tools/room-wizard" },
+      { label: "Product Catalog", to: "/app/tools/catalog" },
+      { label: "Proposal Builder", to: "/app/tools/proposal" },
+    ],
+  },
+  {
+    title: "More",
+    items: [
+      { label: "Tool Hub", to: "/app/tools" },
+      { label: "Import Intake", to: "/app/import" },
+    ],
+  },
+];
+
+function itemClass(active: boolean): string {
+  return active ? "wm-mission-nav__item is-active" : "wm-mission-nav__item";
 }
 
-export default function MissionControlNav({ collapsed, onToggleCollapse }: Props) { 
+export default function MissionControlNav({
+  collapsed = false,
+  onToggleCollapse,
+}: MissionControlNavProps) {
   return (
-    <div className={["wm-mc", collapsed ? "is-" : ""].filter(Boolean).join(" ") }>
-      <div className="wm-mc__top">
+    <aside
+      className={collapsed ? "wm-mission-nav is-collapsed" : "wm-mission-nav"}
+      aria-label="Workspace navigation"
+    >
+      <div className="wm-mission-nav__topbar">
         <button
           type="button"
-          className="wm-mc__collapse"
+          className="wm-mission-nav__collapsebtn"
           onClick={onToggleCollapse}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+          title={collapsed ? "Expand navigation" : "Collapse navigation"}
         >
           {collapsed ? "»" : "«"}
         </button>
       </div>
 
-      <div className="wm-mc__section">
-        <div className="wm-mc__label">Workspace</div>
-        <NavLink to="/app/dashboard" className={({ isActive }) => itemClass(isActive)}>
-          <span className="wm-mc__text">Dashboard</span>
-        </NavLink>
-        <NavLink to="/app/projects" className={({ isActive }) => itemClass(isActive)}>
-          <span className="wm-mc__text">Projects</span>
-        </NavLink>
-      </div>
-
-      <div className="wm-mc__section">
-        <div className="wm-mc__label">Tools</div>
-        <NavLink to="/app/tools" className={({ isActive }) => itemClass(isActive)}>
-          <span className="wm-mc__text">Tool Hub</span>
-        </NavLink>
-        <NavLink to="/app/tools/catalog" className={({ isActive }) => itemClass(isActive)}>
-          <span className="wm-mc__text">Product Catalog</span>
-        </NavLink>
-        <NavLink to="/app/tools/proposal" className={({ isActive }) => itemClass(isActive)}>
-          <span className="wm-mc__text">Proposal Builder</span>
-        </NavLink>
-        <NavLink to="/app/tools/room-wizard" className={({ isActive }) => itemClass(isActive)}>
-          <span className="wm-mc__text">Room Wizard</span>
-        </NavLink>
-        <NavLink to="/app/tools/video-wall" className={({ isActive }) => itemClass(isActive)}>
-          <span className="wm-mc__text">Video Wall</span>
-        </NavLink>
-        <NavLink to="/app/tools/import" className={({ isActive }) => itemClass(isActive)}>
-          <span className="wm-mc__text">Import Intake</span>
-        </NavLink>
-      </div>
-    </div>
+      {!collapsed && sections.map((section) => (
+        <section className="wm-mission-nav__section" key={section.title}>
+          <div className="wm-mission-nav__heading">{section.title}</div>
+          <div className="wm-mission-nav__list">
+            {section.items.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) => itemClass(isActive)}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
+        </section>
+      ))}
+    </aside>
   );
 }

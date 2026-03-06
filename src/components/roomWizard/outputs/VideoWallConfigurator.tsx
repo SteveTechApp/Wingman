@@ -231,9 +231,9 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
                             Tiled panels with thin bezels
                         </p>
                         <ul className={`text-xs mt-2 space-y-0.5 ${config.type === 'lcd' ? 'text-green-100' : 'text-text-secondary'}`}>
-                            <li>• Commercial displays (55"-65")</li>
-                            <li>• Visible mullions between panels</li>
-                            <li>• Cost-effective for large sizes</li>
+                            <li>â€¢ Commercial displays (55"-65")</li>
+                            <li>â€¢ Visible mullions between panels</li>
+                            <li>â€¢ Cost-effective for large sizes</li>
                         </ul>
                     </button>
                     <button 
@@ -249,9 +249,9 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
                             Seamless modular LED
                         </p>
                         <ul className={`text-xs mt-2 space-y-0.5 ${config.type === 'led' ? 'text-green-100' : 'text-text-secondary'}`}>
-                            <li>• No bezels - seamless image</li>
-                            <li>• Own processor (single HDMI in)</li>
-                            <li>• Premium visual impact</li>
+                            <li>â€¢ No bezels - seamless image</li>
+                            <li>â€¢ Own processor (single HDMI in)</li>
+                            <li>â€¢ Premium visual impact</li>
                         </ul>
                     </button>
                 </div>
@@ -323,7 +323,7 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
                                 </p>
                                 <div className="flex\ gap-4\ mt-2\ text-xs">
                                     <div>
-                                        <span className={config.technology === opt.id ? 'text-green-200' : 'text-green-600'}>✓</span>
+                                        <span className={config.technology === opt.id ? 'text-green-200' : 'text-green-600'}>âœ“</span>
                                         {' '}{opt.pros.join(', ')}
                                     </div>
                                 </div>
@@ -369,7 +369,7 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
                                 <p className="text-xs\ text-text-secondary">{product.role}</p>
                             </div>
                             <div className="text-right">
-                                <span className="text-lg\ font-bold\ text-slate-700">×{product.quantity}</span>
+                                <span className="text-lg\ font-bold\ text-slate-700">Ã—{product.quantity}</span>
                             </div>
                         </div>
                     ))}

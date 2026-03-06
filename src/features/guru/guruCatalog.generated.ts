@@ -69,7 +69,7 @@ export const WYRESTORM_CATALOG: GuruCatalogItem[] = [
     "category": "Imported",
     "role": "",
     "status": "unknown",
-    "summary": "The MX-0808-H2A-MK2 is a welcome refresh to the powerful line of H2A pure HDMI switchers. The MK2 is familiar on the surface but has a host of improvements and added features. To start, the HDMI outputs now feature 5K & 1080p downscalers promoting easier integration of mixed resolution displays into a single system. The HDMI outputs also now support Audio Return Channel from smart TVs to bring audio from apps like Netflix, Prime Video, Hulu, etc.…to an external audio system. Speaking of audio, the analog audio outputs have been updated to balanced connections to ensure there is no loss in fidelity or interference.",
+    "summary": "The MX-0808-H2A-MK2 is a welcome refresh to the powerful line of H2A pure HDMI switchers. The MK2 is familiar on the surface but has a host of improvements and added features. To start, the HDMI outputs now feature 5K & 1080p downscalers promoting easier integration of mixed resolution displays into a single system. The HDMI outputs also now support Audio Return Channel from smart TVs to bring audio from apps like Netflix, Prime Video, Hulu, etc.â€¦to an external audio system. Speaking of audio, the analog audio outputs have been updated to balanced connections to ensure there is no loss in fidelity or interference.",
     "io": [],
     "connectivity": [],
     "control": [],
