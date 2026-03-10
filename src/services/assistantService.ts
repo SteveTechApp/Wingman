@@ -47,7 +47,7 @@ function suggestReply(prompt: string, userProfile?: UserProfileLike): string {
   }
 
   if (hasAny(text, ["hdbaset", "distance", "cat6", "long run", "long distance"])) {
-    return `${prefix}HDBaseT is usually a strong fit for longer point-to-point transport. Capture distance and endpoint counts in Discovery, then shortlist in Product Catalog.`;
+    return `${prefix}HDBaseT is usually a strong fit for longer point-to-point transport. Capture distance and endpoint counts in Guided Project, then shortlist in Product Catalog.`;
   }
 
   if (hasAny(text, ["av over ip", "avoip", "networkhd", "nhd"])) {
@@ -55,7 +55,7 @@ function suggestReply(prompt: string, userProfile?: UserProfileLike): string {
   }
 
   if (hasAny(text, ["proposal", "quote", "pricing", "commercial", "handoff"])) {
-    return `${prefix}open Proposal Builder after Discovery data is complete. Include assumptions, exclusions, and BOM summary so the readiness score reaches commercial-ready status.`;
+    return `${prefix}open Proposal Builder after Guided Project data is complete. Include assumptions, exclusions, and BOM summary so the readiness score reaches commercial-ready status.`;
   }
 
   if (hasAny(text, ["competitor", "replacement", "alternative", "vs ", "versus"])) {
@@ -63,11 +63,11 @@ function suggestReply(prompt: string, userProfile?: UserProfileLike): string {
   }
 
   if (hasAny(text, ["usb-c", "byod", "teams", "zoom", "meeting room"])) {
-    return `${prefix}this reads like a collaboration room scenario. Start in Discovery, validate USB and switching needs, then evaluate Apollo and room workflow options.`;
+    return `${prefix}this reads like a collaboration room scenario. Start in Guided Project, validate USB and switching needs, then evaluate Apollo and room workflow options.`;
   }
 
   const greeting = name ? `${name}, ` : "";
-  return `${greeting}${prefix}start with Discovery Wizard to structure requirements, then continue to Product Catalog and Proposal Builder based on recommended families.`;
+  return `${greeting}${prefix}start with Guided Project to structure requirements, then continue to Product Catalog and Proposal Builder based on recommended families.`;
 }
 
 export async function askAssistant(prompt: string): Promise<string> {

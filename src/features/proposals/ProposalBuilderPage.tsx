@@ -1,5 +1,7 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
+import { WM_ROUTES } from "@/core/wingman/routeMap";
 import ProposalHandoffPanel from "@/features/proposals/ProposalHandoffPanel";
 import {
   getActiveProject,
@@ -141,6 +143,7 @@ function createProjectNotes(draft: ProposalDraft): string {
 }
 
 export default function ProposalBuilderPage() {
+  const navigate = useNavigate();
   const activeProject = React.useSyncExternalStore(
     subscribeProjects,
     getActiveProject,
@@ -195,6 +198,14 @@ export default function ProposalBuilderPage() {
     }));
   };
 
+  const openCompletionWorkflow = () => {
+    if (!activeProject?.id) {
+      navigate(WM_ROUTES.completion);
+      return;
+    }
+    navigate(`/app/projects/${encodeURIComponent(activeProject.id)}/completion`);
+  };
+
   const saveDraftToProject = () => {
     if (!activeProject) return;
 
@@ -232,6 +243,14 @@ export default function ProposalBuilderPage() {
           <div className="wm-actions-row">
             <button type="button" className="wm-btn" onClick={saveDraftToProject} disabled={!activeProject}>
               Save Proposal Draft
+            </button>
+            <button
+              type="button"
+              className="wm-btn"
+              onClick={openCompletionWorkflow}
+              disabled={!activeProject}
+            >
+              Open Completion Workflow
             </button>
             <button
               type="button"

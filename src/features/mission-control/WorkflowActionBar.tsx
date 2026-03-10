@@ -32,7 +32,7 @@ export default function WorkflowActionBar() {
 
       <div className="wm-mc-actions-grid">
         <Link to="/app/tools/discovery" className="wm-btn wm-btn-primary">
-          Run Discovery
+          Open Guided Project
         </Link>
 
         <button

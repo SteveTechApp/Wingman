@@ -10,7 +10,7 @@ export const NAV_LINKS: NavItem[] = [
   { label: "Dashboard", path: "/app/dashboard", end: false },
   { label: "Projects", path: "/app/projects", end: false },
   { label: "Tool Hub", path: "/app/tools", end: false },
-  { label: "Discovery", path: "/app/tools/discovery", end: false },
+  { label: "Guided Project", path: "/app/tools/discovery", end: false },
   { label: "Templates", path: "/app/tools/templates", end: false },
   { label: "Competitor Compare", path: "/app/tools/compare", end: false },
   { label: "Video Wall", path: "/app/tools/video-wall", end: false },

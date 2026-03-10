@@ -3,7 +3,7 @@ import * as React from "react";
 import { NavLink, Outlet } from "react-router-dom";
 
 const TOOL_LINKS = [
-  { to: "/app/tools/discovery", label: "Discovery Wizard" },
+  { to: "/app/tools/discovery", label: "Guided Project" },
   { to: "/app/tools/catalog", label: "Product Catalog" },
   { to: "/app/tools/compare", label: "Competitor Compare" },
   { to: "/app/tools/proposal", label: "Proposal Builder" },

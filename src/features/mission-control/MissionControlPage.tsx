@@ -1,11 +1,10 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import WorkflowPipeline from "./WorkflowPipeline";
 import WorkflowActionBar from "./WorkflowActionBar";
 import ActiveProjectSummary from "./ActiveProjectSummary";
 import ProposalReadinessPanel from "./ProposalReadinessPanel";
 import {
-  createWorkflowProject,
   ensureWorkflowSeed,
   getWorkflowProjects,
   resetWorkflowProjects,
@@ -17,6 +16,7 @@ import ProjectIntelligencePanel from "./ProjectIntelligencePanel";
 import SalesActionStrip from "@/features/dashboard/SalesActionStrip";
 
 export default function MissionControlPage() {
+  const navigate = useNavigate();
   const [, setTick] = React.useState(0);
   ensureWorkflowSeed();
   const projects = getWorkflowProjects();
@@ -39,16 +39,6 @@ export default function MissionControlPage() {
     };
   }, [projects]);
 
-  const handleCreate = () => {
-    createWorkflowProject({
-      name: "New Project",
-      customer: "Sample customer",
-      roomType: "General AV space",
-      stage: "discovery",
-    });
-    setTick((v) => v + 1);
-  };
-
   const handleReset = () => {
     resetWorkflowProjects();
     setTick((v) => v + 1);
@@ -61,16 +51,16 @@ export default function MissionControlPage() {
           <div className="wm-mc-kicker">Mission Control</div>
           <h1 className="wm-title wm-mc-title">Run every AV opportunity through a structured workflow.</h1>
           <p className="wm-mc-subtitle">
-            Guide projects from discovery to architecture, product selection, and proposal output
+            Guide projects from Guided Project to architecture, product selection, and proposal output
             without losing commercial control.
           </p>
 
           <div className="wm-mc-actions">
-            <button type="button" className="wm-btn wm-btn-primary" onClick={handleCreate}>
+            <button type="button" className="wm-btn wm-btn-primary" onClick={() => navigate("/app/projects/new")}>
               Start New Project
             </button>
             <Link to="/app/tools/discovery" className="wm-btn wm-btn-secondary">
-              Run Discovery Wizard
+              Open Guided Project
             </Link>
             <Link to="/app/tools" className="wm-btn wm-btn-secondary">
               Open Tool Hub

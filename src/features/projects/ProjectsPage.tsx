@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
 import { useBoundProjects } from "@/core/wingman/storeBridge";
+import { setActiveProjectId } from "@/features/projects/projectStore";
 
 export default function ProjectsPage() {
   const navigate = useNavigate();
@@ -31,12 +32,12 @@ export default function ProjectsPage() {
       </section>
 
       <section className="wm-section">
-        <div className="wm-section__head">
-          <div className="wm-section__titles">
-            <h2>Live project store</h2>
-            <p>Open an opportunity and continue with Discovery, product selection, or proposal output.</p>
+          <div className="wm-section__head">
+            <div className="wm-section__titles">
+              <h2>Live project store</h2>
+            <p>Open an opportunity and continue with Guided Project, product selection, or proposal output.</p>
+            </div>
           </div>
-        </div>
 
         <div className="wm-grid-cards">
           {projects.map((project) => (
@@ -53,15 +54,42 @@ export default function ProjectsPage() {
                 <button
                   type="button"
                   className="wm-btn"
-                  onClick={() => navigate(`/app/projects/${encodeURIComponent(project.id)}`)}
+                  onClick={() => {
+                    setActiveProjectId(project.id);
+                    navigate(`/app/projects/${encodeURIComponent(project.id)}`);
+                  }}
                 >
                   Open Project
                 </button>
-                <button type="button" className="wm-btn" onClick={() => navigate(WM_ROUTES.discovery)}>
-                  Continue Discovery
+                <button
+                  type="button"
+                  className="wm-btn"
+                  onClick={() => {
+                    setActiveProjectId(project.id);
+                    navigate(WM_ROUTES.discovery);
+                  }}
+                >
+                  Continue Guided Project
                 </button>
-                <button type="button" className="wm-btn" onClick={() => navigate(WM_ROUTES.proposals)}>
+                <button
+                  type="button"
+                  className="wm-btn"
+                  onClick={() => {
+                    setActiveProjectId(project.id);
+                    navigate(WM_ROUTES.proposals);
+                  }}
+                >
                   Open Proposal Builder
+                </button>
+                <button
+                  type="button"
+                  className="wm-btn wm-btn-primary"
+                  onClick={() => {
+                    setActiveProjectId(project.id);
+                    navigate(`/app/projects/${encodeURIComponent(project.id)}/completion`);
+                  }}
+                >
+                  Completion Gate
                 </button>
               </div>
             </article>

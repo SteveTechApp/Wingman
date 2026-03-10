@@ -14,9 +14,9 @@ import {
 const workflow = [
   {
     step: "01",
-    title: "Discovery",
+    title: "Guided Project",
     description:
-      "Capture application, display count, source requirements, cable distance, USB, control, and commercial priorities before solution building begins.",
+      "Capture the brief, room shape, source origins, signal path, cable distance, USB, control, and commercial priorities before solution building begins.",
     Icon: ClipboardList,
   },
   {
@@ -85,7 +85,7 @@ export default function AboutWingmanPage() {
               Build a New Project
             </Link>
             <Link to="/app/tools/discovery" className="wm-btn">
-              Open Sales Tools
+              Open Guided Project
             </Link>
             <Link to="/app/dashboard" className="wm-btn">
               Back to Dashboard
@@ -143,7 +143,7 @@ export default function AboutWingmanPage() {
         </div>
 
         <div className="wm-body wm-about-page__summary">
-          Start with the application, move into architecture, then product selection, and only then move toward
+          Start with Guided Project, move into architecture, then product selection, and only then move toward
           proposal output. This makes Wingman useful both as a sales support platform and as a practical project-building tool.
         </div>
       </section>

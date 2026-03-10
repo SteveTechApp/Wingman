@@ -64,7 +64,7 @@ const NEXT_TOOL_LABELS: Record<string, string> = {
   "/app/tools/room-wizard": "Room Designer",
   "/app/tools/proposal": "Proposal Builder",
   "/app/tools/catalog": "Product Catalog",
-  "/app/tools/discovery": "Discovery Wizard",
+  "/app/tools/discovery": "Guided Project",
 };
 
 function emptyChecklist(): IntakeChecklistState {
@@ -98,7 +98,7 @@ function buildQualificationSummary(checklist: IntakeChecklistState): string {
 }
 
 function getNextToolLabel(path: string): string {
-  return NEXT_TOOL_LABELS[path] ?? "Discovery Wizard";
+  return NEXT_TOOL_LABELS[path] ?? "Guided Project";
 }
 
 function distanceHintToMeters(distanceHint?: string): string {
@@ -339,7 +339,7 @@ export default function ImportIntakePage() {
         <PageHeader
           eyebrow="TOOL"
           title="Import Intake"
-          description="Capture a clean opportunity brief before discovery so downstream design and proposal steps stay reliable."
+          description="Capture a clean opportunity brief before Guided Project so downstream design and proposal steps stay reliable."
           actions={
             <>
               <button className="wm-btn" type="button" onClick={() => nav("/app/tools")}>
@@ -355,7 +355,7 @@ export default function ImportIntakePage() {
                 </button>
               ) : null}
               <button className="wm-btn wm-btn-primary" type="button" onClick={() => upsertProjectFromIntake("/app/tools/discovery")}>
-                Open Discovery
+                Open Guided Project
               </button>
             </>
           }
@@ -435,7 +435,7 @@ export default function ImportIntakePage() {
 
           <div style={{ marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button className="wm-btn wm-btn-primary" type="button" onClick={() => upsertProjectFromIntake("/app/tools/discovery")}>
-              Continue to Discovery
+              Continue to Guided Project
             </button>
             <button className="wm-btn" type="button" onClick={() => upsertProjectFromIntake("/app/projects")}>
               Save Intake to Projects

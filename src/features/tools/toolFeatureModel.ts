@@ -88,12 +88,12 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
   },
   {
     id: "discovery",
-    title: "Discovery Wizard",
-    description: "Capture customer requirements and steer toward the right solution path.",
+    title: "Guided Project",
+    description: "Capture customer needs, room dynamics, and signal-path decisions without overwhelming the conversation.",
     kind: "feature",
     to: "/app/tools/discovery",
     tag: "Workflow",
-    highlight: "Gather requirements",
+    highlight: "Guide the opportunity",
   },
   {
     id: "templates",
@@ -121,6 +121,15 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
     to: "/app/tools/proposal",
     tag: "Output",
     highlight: "Generate deliverables",
+  },
+  {
+    id: "completion-workflow",
+    title: "Completion Workflow",
+    description: "Run the final handoff gate, log assumptions, and mark the active project commercially ready.",
+    kind: "feature",
+    to: "/app/workflow/completion",
+    tag: "Output",
+    highlight: "Final readiness gate",
   },
   {
     id: "training",

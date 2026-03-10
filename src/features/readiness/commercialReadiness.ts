@@ -67,9 +67,9 @@ export function evaluateCommercialReadiness(
   const checks: CommercialReadinessCheck[] = [
     {
       id: "discovery",
-      label: "Discovery context captured",
+      label: "Guided Project context captured",
       complete: discoveryComplete,
-      detail: "Customer and room context are needed before commercial positioning.",
+      detail: "Customer, room, and physical signal-path context are needed before commercial positioning.",
     },
     {
       id: "solution",
@@ -117,7 +117,7 @@ export function evaluateCommercialReadiness(
 
   const nextStep =
     status === "Draft"
-      ? "Capture customer context and room requirements first."
+      ? "Capture customer context, room dynamics, and signal path first."
       : status === "Review Needed"
         ? "Complete solution mapping and prepare proposal narrative."
         : status === "Engineering Review Required"

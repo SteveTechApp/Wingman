@@ -7,6 +7,7 @@ export const WM_ROUTES = {
   templates: "/app/tools/templates",
   roomDesigner: "/app/tools/room-wizard",
   proposals: "/app/tools/proposal",
+  completion: "/app/workflow/completion",
   guru: "/app/tools/guru",
   catalogue: "/app/tools/catalog",
   videowall: "/app/tools/video-wall",

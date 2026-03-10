@@ -91,6 +91,10 @@ export type ProjectDiscovery = {
   cableDistanceM?: string;
   displayCount?: string;
   sourceCount?: string;
+  sourceTypes?: string;
+  sourcePlacement?: string;
+  sourceConnectionPath?: string;
+  displayConnectionPath?: string;
   usbNeeds?: string;
   audioNeeds?: string;
   controlNeeds?: string;
@@ -140,6 +144,9 @@ const PROJECTS_TICK_KEY = "wm_projects_tick";
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
+let projectsCache: StoredProject[] = [];
+let projectsCacheRaw: string | null | undefined;
+let projectsCacheSeeded: string | null | undefined;
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -174,6 +181,10 @@ function normalizeDiscovery(discovery?: ProjectDiscovery): ProjectDiscovery | un
     site: discovery.site ?? "",
     roomName: discovery.roomName ?? "",
     notes: discovery.notes ?? "",
+    sourceTypes: discovery.sourceTypes ?? "",
+    sourcePlacement: discovery.sourcePlacement ?? "",
+    sourceConnectionPath: discovery.sourceConnectionPath ?? "",
+    displayConnectionPath: discovery.displayConnectionPath ?? "",
     recommendedFamilies: normalizeRecommendedFamilies(discovery.recommendedFamilies),
   };
 }
@@ -362,25 +373,41 @@ export function getProjectsTick(): string {
 
 export function loadProjects(): StoredProject[] {
   if (typeof window === "undefined") return [];
-  const existing = safeParse(window.localStorage.getItem(STORAGE_KEY)).map(normalizeProject);
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const seeded = window.localStorage.getItem(SEEDED_KEY);
+
+  if (raw === projectsCacheRaw && seeded === projectsCacheSeeded) {
+    return projectsCache;
+  }
+
+  const existing = safeParse(raw).map(normalizeProject);
 
   if (existing.length > 0) {
-    const sorted = existing.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    const sorted = [...existing].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     const activeId = getActiveProjectId();
     if (!activeId && sorted[0]) setActiveProjectIdInternal(sorted[0].id);
+    projectsCache = sorted;
+    projectsCacheRaw = raw;
+    projectsCacheSeeded = seeded;
     return sorted;
   }
 
-  const seeded = window.localStorage.getItem(SEEDED_KEY) === "1";
-  if (!seeded) {
+  if (seeded !== "1") {
     const seed = defaultSeed();
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
+    const rawSeed = JSON.stringify(seed);
+    window.localStorage.setItem(STORAGE_KEY, rawSeed);
     window.localStorage.setItem(SEEDED_KEY, "1");
     if (seed[0]) setActiveProjectIdInternal(seed[0].id);
     touchProjectsTick();
-    return seed.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    projectsCache = [...seed].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    projectsCacheRaw = rawSeed;
+    projectsCacheSeeded = "1";
+    return projectsCache;
   }
 
+  projectsCache = [];
+  projectsCacheRaw = raw;
+  projectsCacheSeeded = seeded;
   return [];
 }
 
@@ -391,7 +418,11 @@ export function saveProjects(projects: StoredProject[]): void {
     .map(normalizeProject)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+  const raw = JSON.stringify(normalized);
+  window.localStorage.setItem(STORAGE_KEY, raw);
+  projectsCache = normalized;
+  projectsCacheRaw = raw;
+  projectsCacheSeeded = window.localStorage.getItem(SEEDED_KEY);
 
   const activeId = getActiveProjectId();
   if (activeId && !normalized.some((p) => p.id === activeId)) {

@@ -7,7 +7,7 @@ function recommendation(active: ReturnType<typeof getActiveWorkflowProject>): st
   if (!active) return "Create or select a project from Mission Control.";
   switch (active.stage) {
     case "discovery":
-      return "Run Discovery Wizard and confirm sources, displays, signal distance, USB, control, and audio needs.";
+      return "Open Guided Project and confirm sources, displays, signal distance, USB, control, and audio needs.";
     case "architecture":
       return "Select the right signal transport model and define system architecture before final product choice.";
     case "products":

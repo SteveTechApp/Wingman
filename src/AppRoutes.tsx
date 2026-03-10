@@ -15,6 +15,7 @@ const ProjectsPage = React.lazy(() => import("@/features/projects/ProjectsPage")
 const ProjectNewPage = React.lazy(() => import("@/features/projects/ProjectNewPage"));
 const ToolHubPage = React.lazy(() => import("@/features/tools/ToolHubPage"));
 const ExportSnapshotPage = React.lazy(() => import("@/features/export/ExportSnapshotPage"));
+const CompletionChecklistPage = React.lazy(() => import("@/app/pages/CompletionChecklistPage"));
 
 // Tools / workflows
 const DiscoveryWizardPage = React.lazy(() => import("@/features/discovery/DiscoveryWizardPage"));
@@ -73,7 +74,9 @@ export default function AppRoutes() {
           <Route path="projects" element={<ProjectsPage />} />
           <Route path="projects/new" element={<ProjectNewPage />} />
           <Route path="projects/:id" element={<ProjectOverviewPage />} />
+          <Route path="projects/:id/completion" element={<CompletionChecklistPage />} />
           <Route path="project-overview" element={<ProjectOverviewPage />} />
+          <Route path="workflow/completion" element={<CompletionChecklistPage />} />
 
           {/* Primary hub */}
           <Route path="tools" element={<ToolHubPage />} />
@@ -87,6 +90,7 @@ export default function AppRoutes() {
           <Route path="tools/room-wizard" element={<RoomWizardPage />} />
           <Route path="tools/proposal" element={<ProposalBuilderPage />} />
           <Route path="tools/proposal-builder" element={<ProposalBuilderPage />} />
+          <Route path="tools/completion" element={<CompletionChecklistPage />} />
           <Route path="tools/training" element={<TrainingHubPage />} />
           <Route path="tools/video-wall" element={<VideoWallPlannerPage />} />
           <Route path="tools/templates" element={<TemplatesPage />} />
