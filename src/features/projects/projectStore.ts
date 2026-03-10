@@ -31,8 +31,33 @@ export type ProjectVideoWall = {
   panelDiagonalIn?: number;
   bezelMm?: number;
   viewingDistanceM?: number;
+  sourceCount?: number;
+  outputRows?: number;
+  outputCols?: number;
+  panelCount?: number;
+  cabinetRows?: number;
+  cabinetCols?: number;
+  canvasWidthPx?: number;
+  canvasHeightPx?: number;
+  ledTechnologyProfileId?: string;
+  ledProcessorProfileId?: string;
+  ledProcessorMaxPixels?: number;
+  ledProcessorMaxWidthPx?: number;
+  ledProcessorMaxHeightPx?: number;
+  ledProcessorMaxInputs?: number;
+  ledProcessorMaxWindows?: number;
+  ledProcessorMode?: "single-source" | "multiview";
+  ledScreenClass?: "modular" | "all-in-one-96-120";
+  lcdDriveStrategy?: "decoder-per-screen" | "tile-loop-multiview" | "dedicated-processor";
+  contentAspectRatio?: string;
+  distortionRiskScore?: number;
+  distortionRiskLevel?: "Low" | "Medium" | "High";
+  hardWarnings?: string[];
+  recommendedSku?: string;
+  recommendedSkuQty?: number;
   processorRecommendation?: string;
   mountingNotes?: string[];
+  warnings?: string[];
   summary?: string;
   createdAt?: string;
 };
@@ -179,7 +204,32 @@ function normalizeVideoWall(videowall?: ProjectVideoWall): ProjectVideoWall | un
     panelDiagonalIn: videowall.panelDiagonalIn != null ? Number(videowall.panelDiagonalIn) : undefined,
     bezelMm: videowall.bezelMm != null ? Number(videowall.bezelMm) : undefined,
     viewingDistanceM: videowall.viewingDistanceM != null ? Number(videowall.viewingDistanceM) : undefined,
+    sourceCount: videowall.sourceCount != null ? Number(videowall.sourceCount) : undefined,
+    outputRows: videowall.outputRows != null ? Number(videowall.outputRows) : undefined,
+    outputCols: videowall.outputCols != null ? Number(videowall.outputCols) : undefined,
+    panelCount: videowall.panelCount != null ? Number(videowall.panelCount) : undefined,
+    cabinetRows: videowall.cabinetRows != null ? Number(videowall.cabinetRows) : undefined,
+    cabinetCols: videowall.cabinetCols != null ? Number(videowall.cabinetCols) : undefined,
+    canvasWidthPx: videowall.canvasWidthPx != null ? Number(videowall.canvasWidthPx) : undefined,
+    canvasHeightPx: videowall.canvasHeightPx != null ? Number(videowall.canvasHeightPx) : undefined,
+    ledTechnologyProfileId: typeof videowall.ledTechnologyProfileId === "string" ? videowall.ledTechnologyProfileId : undefined,
+    ledProcessorProfileId: typeof videowall.ledProcessorProfileId === "string" ? videowall.ledProcessorProfileId : undefined,
+    ledProcessorMaxPixels: videowall.ledProcessorMaxPixels != null ? Number(videowall.ledProcessorMaxPixels) : undefined,
+    ledProcessorMaxWidthPx: videowall.ledProcessorMaxWidthPx != null ? Number(videowall.ledProcessorMaxWidthPx) : undefined,
+    ledProcessorMaxHeightPx: videowall.ledProcessorMaxHeightPx != null ? Number(videowall.ledProcessorMaxHeightPx) : undefined,
+    ledProcessorMaxInputs: videowall.ledProcessorMaxInputs != null ? Number(videowall.ledProcessorMaxInputs) : undefined,
+    ledProcessorMaxWindows: videowall.ledProcessorMaxWindows != null ? Number(videowall.ledProcessorMaxWindows) : undefined,
+    ledProcessorMode: videowall.ledProcessorMode,
+    ledScreenClass: videowall.ledScreenClass,
+    lcdDriveStrategy: videowall.lcdDriveStrategy,
+    contentAspectRatio: typeof videowall.contentAspectRatio === "string" ? videowall.contentAspectRatio : undefined,
+    distortionRiskScore: videowall.distortionRiskScore != null ? Number(videowall.distortionRiskScore) : undefined,
+    distortionRiskLevel: videowall.distortionRiskLevel,
+    hardWarnings: Array.isArray(videowall.hardWarnings) ? videowall.hardWarnings.filter((x): x is string => typeof x === "string") : [],
+    recommendedSku: typeof videowall.recommendedSku === "string" ? videowall.recommendedSku : undefined,
+    recommendedSkuQty: videowall.recommendedSkuQty != null ? Number(videowall.recommendedSkuQty) : undefined,
     mountingNotes: Array.isArray(videowall.mountingNotes) ? videowall.mountingNotes.filter((x): x is string => typeof x === "string") : [],
+    warnings: Array.isArray(videowall.warnings) ? videowall.warnings.filter((x): x is string => typeof x === "string") : [],
   };
 }
 
@@ -668,22 +718,7 @@ export function applyProjectTemplate(
 
 export function applyVideoWallToProject(
   id: string,
-  videowall: {
-    technology: "LCD" | "LED";
-    rows: number;
-    cols: number;
-    widthM: number;
-    heightM: number;
-    diagonalIn: number;
-    pixelPitchMm?: number;
-    panelDiagonalIn?: number;
-    bezelMm?: number;
-    viewingDistanceM?: number;
-    processorRecommendation?: string;
-    mountingNotes?: string[];
-    summary?: string;
-    createdAt?: string;
-  }
+  videowall: ProjectVideoWall
 ): StoredProject | undefined {
   const project = getProjectById(id);
   if (!project) return undefined;

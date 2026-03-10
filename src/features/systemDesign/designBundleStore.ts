@@ -31,7 +31,17 @@ export function summariseDesignBundle(bundle: DesignBundle): {
     : "No template applied.";
 
   const videoWallSummary = bundle.videoWall
-    ? `Video wall: ${bundle.videoWall.displayType} ${bundle.videoWall.rows} x ${bundle.videoWall.columns}, ${bundle.videoWall.sourceCount} source(s), processor preference: ${bundle.videoWall.processorPreference}.`
+    ? (() => {
+        const wall = bundle.videoWall!;
+        const outputRows = wall.outputRows ?? wall.rows;
+        const outputColumns = wall.outputColumns ?? wall.columns;
+        const physicalRows = wall.displayType === "LED" ? (wall.cabinetRows ?? wall.rows) : wall.rows;
+        const physicalColumns = wall.displayType === "LED" ? (wall.cabinetColumns ?? wall.columns) : wall.columns;
+        const canvas = wall.canvasWidthPx && wall.canvasHeightPx
+          ? ` Canvas target: ${wall.canvasWidthPx}x${wall.canvasHeightPx}px.`
+          : "";
+        return `Video wall: ${wall.displayType} output ${outputRows} x ${outputColumns}, physical layout ${physicalRows} x ${physicalColumns}, ${wall.sourceCount} source(s), processor preference: ${wall.processorPreference}.${canvas}`;
+      })()
     : "No video wall configuration stored.";
 
   const signalMix = Array.from(new Set(bundle.cables.map((x) => x.signalType)));

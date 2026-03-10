@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { APP_BUILD_CHANNEL, APP_VERSION_LABEL, CORPORATE_LINKS } from "@/app/layout/footerConfig";
 
 function navLinkStyle(active: boolean): React.CSSProperties {
   return {
@@ -141,7 +142,7 @@ export default function PublicShell() {
               flex: "0 0 auto",
             }}
           >
-            WyreStorm Wingman Build 2026.02
+            WyreStorm Wingman {APP_VERSION_LABEL} · {APP_BUILD_CHANNEL}
           </div>
 
           <div
@@ -156,21 +157,17 @@ export default function PublicShell() {
               minWidth: 0,
             }}
           >
-            <a href="#" style={footerLinkStyle()}>
-              Privacy
-            </a>
-            <a href="#" style={footerLinkStyle()}>
-              Terms
-            </a>
-            <a href="#" style={footerLinkStyle()}>
-              Cookies
-            </a>
-            <a href="#" style={footerLinkStyle()}>
-              WyreStorm Corporate
-            </a>
-            <a href="#" style={footerLinkStyle()}>
-              Support
-            </a>
+            {CORPORATE_LINKS.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                style={footerLinkStyle()}
+              >
+                {item.label}
+              </a>
+            ))}
           </div>
         </div>
       </footer>

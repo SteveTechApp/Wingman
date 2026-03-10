@@ -1,5 +1,8 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import { askGuru, type GuruAnswer, type GuruMode as ApiGuruMode } from "@/features/ai/guru/guruApi";
+import { getActiveProject, updateProject } from "@/features/projects/projectStore";
+import { addLineToSavedProposal } from "@/proposal/bom/store";
 
 type GuruMode =
   | "general"
@@ -137,6 +140,38 @@ function buildPrompt(mode: GuruMode, question: string, context: string): string 
   return sections.join("\n");
 }
 
+function mapModeToApiMode(mode: GuruMode): ApiGuruMode {
+  if (mode === "training") return "resources";
+  if (mode === "design" || mode === "troubleshooting") return "project-check";
+  return "ask";
+}
+
+function confidenceLabel(value: GuruAnswer["confidence"]): string {
+  if (!value) return "Unknown";
+  if (value === "high") return "High";
+  if (value === "medium") return "Medium";
+  return "Low";
+}
+
+function normalizeSuggestedSkus(answer: GuruAnswer | null): Array<{ sku: string; name?: string; reason?: string }> {
+  if (!answer?.suggestedSkus || answer.suggestedSkus.length === 0) return [];
+  const seen = new Set<string>();
+  const out: Array<{ sku: string; name?: string; reason?: string }> = [];
+
+  for (const item of answer.suggestedSkus) {
+    const sku = String(item.sku ?? "").trim().toUpperCase();
+    if (!sku || seen.has(sku)) continue;
+    seen.add(sku);
+    out.push({
+      sku,
+      name: item.name?.trim() || undefined,
+      reason: item.reason?.trim() || undefined,
+    });
+  }
+
+  return out;
+}
+
 const pageStyles = `
 .wm-guru-page{
   padding: 14px 16px 18px;
@@ -188,6 +223,11 @@ export default function GuruPage() {
   const [question, setQuestion] = React.useState(initial.question);
   const [context, setContext] = React.useState(initial.context);
   const [copiedAt, setCopiedAt] = React.useState("");
+  const [answerBusy, setAnswerBusy] = React.useState(false);
+  const [answerError, setAnswerError] = React.useState("");
+  const [answer, setAnswer] = React.useState<GuruAnswer | null>(null);
+  const [answeredAt, setAnsweredAt] = React.useState("");
+  const [transferMessage, setTransferMessage] = React.useState("");
 
   React.useEffect(() => {
     writeState({ mode, question, context });
@@ -196,6 +236,7 @@ export default function GuruPage() {
   const def = MODE_DEFS[mode];
   const promptPreview = React.useMemo(() => buildPrompt(mode, question, context), [mode, question, context]);
   const hasContent = question.trim().length > 0 || context.trim().length > 0;
+  const suggestedSkus = React.useMemo(() => normalizeSuggestedSkus(answer), [answer]);
 
   const copyPrompt = async () => {
     try {
@@ -209,6 +250,10 @@ export default function GuruPage() {
     setQuestion("");
     setContext("");
     setCopiedAt("");
+    setAnswerError("");
+    setAnswer(null);
+    setAnsweredAt("");
+    setTransferMessage("");
   };
 
   const insertContextTemplate = () => {
@@ -228,6 +273,82 @@ export default function GuruPage() {
     });
   };
 
+  const askLiveGuru = async () => {
+    const primaryQuestion = question.trim();
+    const contextText = context.trim();
+    const combined = contextText
+      ? `${primaryQuestion || "Use the following context to answer the request."}\n\nContext:\n${contextText}`
+      : primaryQuestion;
+
+    if (!combined.trim()) {
+      setAnswerError("Add a question or context before asking Guru.");
+      setAnswer(null);
+      return;
+    }
+
+    setAnswerBusy(true);
+    setAnswerError("");
+    setTransferMessage("");
+    try {
+      const result = await askGuru(combined, {
+        mode: mapModeToApiMode(mode),
+        notes: contextText || undefined,
+      });
+      setAnswer(result);
+      setAnsweredAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+    } catch {
+      setAnswerError("Guru request failed. Retry, or open diagnostics if this persists.");
+      setAnswer(null);
+    } finally {
+      setAnswerBusy(false);
+    }
+  };
+
+  const sendSuggestedSkusToProject = () => {
+    if (suggestedSkus.length === 0) {
+      setTransferMessage("No WyreStorm SKU suggestions found in this answer.");
+      return;
+    }
+
+    const active = getActiveProject();
+    if (!active) {
+      setTransferMessage("No active project found. Open a project first, then transfer SKUs.");
+      return;
+    }
+
+    const existing = Array.isArray(active.catalog?.skus) ? active.catalog!.skus! : [];
+    const merged = Array.from(new Set([...existing, ...suggestedSkus.map((item) => item.sku)]));
+
+    updateProject(active.id, {
+      catalog: {
+        ...(active.catalog ?? {}),
+        selectedBrand: "WyreStorm",
+        skus: merged,
+      },
+      stage: active.stage || "Specify",
+    });
+
+    setTransferMessage(`Added ${suggestedSkus.length} SKU(s) to project catalog (${active.name}).`);
+  };
+
+  const sendSuggestedSkusToProposal = () => {
+    if (suggestedSkus.length === 0) {
+      setTransferMessage("No WyreStorm SKU suggestions found in this answer.");
+      return;
+    }
+
+    suggestedSkus.forEach((item) => {
+      addLineToSavedProposal({
+        sku: item.sku,
+        name: item.name || item.sku,
+        qty: 1,
+        source: "guru",
+      });
+    });
+
+    setTransferMessage(`Added ${suggestedSkus.length} SKU(s) to Proposal BOM draft.`);
+  };
+
   return (
     <div className="wm-guru-page wm-ui">
       <style>{pageStyles}</style>
@@ -239,13 +360,19 @@ export default function GuruPage() {
               <p className="wm-guru-page__eyebrow">Guru</p>
               <h1 className="wm-ui__title">AV knowledge workspace</h1>
               <p className="wm-ui__subtitle">
-                Standalone assistant for general AV advice, WyreStorm guidance, design help, troubleshooting and training.
+                Standalone AI assistant for WyreStorm expertise and general AV guidance. Use it for answers first, then optionally push suggested SKUs into project or proposal workflows.
               </p>
             </div>
 
             <div className="wm-guru-page__heroActions">
               <button className="wm-ui__btn wm-ui__btn--ghost" onClick={() => navigate("/app/tools")}>
                 Tool Hub
+              </button>
+              <button className="wm-ui__btn wm-ui__btn--ghost" onClick={() => navigate("/app/tools/product-intelligence")}>
+                Product Intelligence
+              </button>
+              <button className="wm-ui__btn" onClick={askLiveGuru} disabled={!hasContent || answerBusy}>
+                {answerBusy ? "Thinking..." : "Ask Guru"}
               </button>
               <button className="wm-ui__btn wm-ui__btn--primary" onClick={copyPrompt} disabled={!hasContent}>
                 Copy prompt
@@ -316,6 +443,9 @@ export default function GuruPage() {
           </div>
 
           <div className="wm-ui__actions">
+            <button className="wm-ui__btn wm-ui__btn--primary" onClick={askLiveGuru} disabled={!hasContent || answerBusy}>
+              {answerBusy ? "Thinking..." : "Ask Guru"}
+            </button>
             <button className="wm-ui__btn" onClick={insertContextTemplate}>
               Insert context template
             </button>
@@ -336,6 +466,91 @@ export default function GuruPage() {
           <div className="wm-ui__helper">
             {copiedAt ? `Copied at ${copiedAt}` : "Use Copy prompt when the wording looks right."}
           </div>
+        </section>
+
+        <section className="wm-ui__card">
+          <h3 className="wm-ui__sectionTitle">Live answer</h3>
+          {answerError ? (
+            <div className="wm-ui__helper">{answerError}</div>
+          ) : answer ? (
+            <>
+              <div className="wm-ui__preview">{answer.text}</div>
+              <div className="wm-ui__helper">
+                Confidence: {confidenceLabel(answer.confidence)}
+                {answeredAt ? ` · Updated at ${answeredAt}` : ""}
+              </div>
+              {answer.sources && answer.sources.length > 0 ? (
+                <div className="wm-ui__chips">
+                  {answer.sources.map((source) => (
+                    source.to ? (
+                      <button
+                        key={`${source.title}_${source.to}`}
+                        type="button"
+                        className="wm-ui__chip"
+                        onClick={() => navigate(source.to || "/app/tools")}
+                      >
+                        {source.title}
+                      </button>
+                    ) : source.url ? (
+                      <a
+                        key={`${source.title}_${source.url}`}
+                        className="wm-ui__chip"
+                        href={source.url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {source.title}
+                      </a>
+                    ) : null
+                  ))}
+                </div>
+              ) : null}
+              {suggestedSkus.length > 0 ? (
+                <>
+                  <div className="wm-ui__helper" style={{ marginTop: 10 }}>
+                    WyreStorm products detected in this answer:
+                  </div>
+                  <div className="wm-ui__chips">
+                    {suggestedSkus.map((item) => (
+                      <span key={item.sku} className="wm-ui__chip">
+                        {item.sku}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="wm-ui__actions" style={{ marginTop: 10 }}>
+                    <button
+                      type="button"
+                      className="wm-ui__btn wm-ui__btn--primary"
+                      onClick={sendSuggestedSkusToProject}
+                    >
+                      Send To Active Project
+                    </button>
+                    <button
+                      type="button"
+                      className="wm-ui__btn"
+                      onClick={sendSuggestedSkusToProposal}
+                    >
+                      Send To Proposal BOM
+                    </button>
+                    <button
+                      type="button"
+                      className="wm-ui__btn"
+                      onClick={() => navigate("/app/tools/catalog")}
+                    >
+                      Open Product Catalogue
+                    </button>
+                  </div>
+                </>
+              ) : null}
+              {transferMessage ? (
+                <div className="wm-ui__helper" style={{ marginTop: 8 }}>
+                  {transferMessage}
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <div className="wm-ui__helper">Run Ask Guru to generate an answer with confidence and support links.</div>
+          )}
         </section>
 
         <section className="wm-ui__card">

@@ -39,14 +39,44 @@ const styles = `
 `;
 
 function readSeed(): VideoWallSeed {
+  const fallback: VideoWallSeed = {
+    displayType: "LCD",
+    rows: 2,
+    columns: 2,
+    sourceCount: 1,
+    processorPreference: "Auto",
+    processorInputMode: "single-source",
+    qualityProfile: "balanced",
+    lcdDriveMode: "decoder-per-screen",
+    outputRows: 2,
+    outputColumns: 2,
+    cabinetRows: 6,
+    cabinetColumns: 10,
+    cabinetWidthPx: 192,
+    cabinetHeightPx: 192,
+    cabinetWidthMm: 500,
+    cabinetHeightMm: 500,
+  };
+
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      return { displayType: "LCD", rows: 2, columns: 2, sourceCount: 1, processorPreference: "Auto" };
+      return fallback;
     }
-    return JSON.parse(raw) as VideoWallSeed;
+    const parsed = JSON.parse(raw) as VideoWallSeed;
+    return {
+      ...fallback,
+      ...parsed,
+      rows: Math.max(1, Number(parsed.rows) || fallback.rows),
+      columns: Math.max(1, Number(parsed.columns) || fallback.columns),
+      outputRows: Math.max(1, Number(parsed.outputRows) || Number(parsed.rows) || fallback.outputRows || 1),
+      outputColumns: Math.max(1, Number(parsed.outputColumns) || Number(parsed.columns) || fallback.outputColumns || 1),
+      cabinetRows: Math.max(1, Number(parsed.cabinetRows) || Number(parsed.rows) || fallback.cabinetRows || 1),
+      cabinetColumns: Math.max(1, Number(parsed.cabinetColumns) || Number(parsed.columns) || fallback.cabinetColumns || 1),
+      sourceCount: Math.max(1, Number(parsed.sourceCount) || fallback.sourceCount),
+    };
   } catch {
-    return { displayType: "LCD", rows: 2, columns: 2, sourceCount: 1, processorPreference: "Auto" };
+    return fallback;
   }
 }
 
@@ -63,9 +93,31 @@ export default function VideoWallBuilderPage() {
     saveVideoWallSeedToProject(seed);
   }, [seed]);
 
-  const displayCount = Math.max(1, seed.rows * seed.columns);
+  const signalRows = seed.displayType === "LED" ? 1 : Math.max(1, seed.rows);
+  const signalColumns = seed.displayType === "LED" ? 1 : Math.max(1, seed.columns);
+  const physicalRows = seed.displayType === "LED" ? Math.max(1, seed.cabinetRows ?? seed.rows) : Math.max(1, seed.rows);
+  const physicalColumns = seed.displayType === "LED" ? Math.max(1, seed.cabinetColumns ?? seed.columns) : Math.max(1, seed.columns);
+  const displayCount = Math.max(1, physicalRows * physicalColumns);
+  const canvasWidthPx = seed.displayType === "LED"
+    ? Math.max(1, seed.cabinetWidthPx ?? 192) * physicalColumns
+    : undefined;
+  const canvasHeightPx = seed.displayType === "LED"
+    ? Math.max(1, seed.cabinetHeightPx ?? 192) * physicalRows
+    : undefined;
   const processor = seed.processorPreference === "Auto"
-    ? displayCount > 4 ? "Dedicated wall processor recommended" : "Compact wall processor / multiview solution likely sufficient"
+    ? seed.displayType === "LED"
+      ? seed.processorInputMode === "multiview"
+        ? (seed.qualityProfile === "premium" || seed.sourceCount > 9
+          ? "NHD-600-TRX composite multiview feed to LED processor"
+          : "NHD-150-RX composite multiview feed to LED processor")
+        : (seed.qualityProfile === "premium"
+          ? "NHD-600-TRX single-canvas feed to LED processor"
+          : "NHD-500-RX single-canvas feed to LED processor")
+      : seed.lcdDriveMode === "decoder-per-screen"
+        ? "Decoder-per-panel (NHD-500/NHD-600 class) recommended"
+        : seed.lcdDriveMode === "tile-loop-multiview"
+          ? "Tile-loop multiview path (NHD-150-RX / NHD-600-TRX)"
+          : "Dedicated wall processor path (SW-0204/0206-VW)"
     : seed.processorPreference;
 
   return (
@@ -94,25 +146,49 @@ export default function VideoWallBuilderPage() {
             <div className="wm-vw__grid" style={{ marginTop: 12 }}>
               <label className="wm-vw__field">
                 <span>Display type</span>
-                <select value={seed.displayType} onChange={(e) => setSeed({ ...seed, displayType: e.target.value as "LCD" | "LED" })}>
+                <select
+                  value={seed.displayType}
+                  onChange={(e) => {
+                    const displayType = e.target.value as "LCD" | "LED";
+                    if (displayType === "LED") {
+                      setSeed({
+                        ...seed,
+                        displayType,
+                        rows: 1,
+                        columns: 1,
+                        outputRows: 1,
+                        outputColumns: 1,
+                        processorInputMode: seed.processorInputMode ?? "single-source",
+                      });
+                      return;
+                    }
+                    setSeed({
+                      ...seed,
+                      displayType,
+                      rows: Math.max(1, seed.rows || 2),
+                      columns: Math.max(1, seed.columns || 2),
+                      outputRows: Math.max(1, seed.rows || 2),
+                      outputColumns: Math.max(1, seed.columns || 2),
+                    });
+                  }}
+                >
                   <option value="LCD">LCD</option>
                   <option value="LED">LED</option>
                 </select>
               </label>
 
               <label className="wm-vw__field">
-                <span>Rows</span>
-                <input type="number" value={seed.rows} onChange={(e) => setSeed({ ...seed, rows: Math.max(1, Number(e.target.value) || 1) })} />
-              </label>
-
-              <label className="wm-vw__field">
-                <span>Columns</span>
-                <input type="number" value={seed.columns} onChange={(e) => setSeed({ ...seed, columns: Math.max(1, Number(e.target.value) || 1) })} />
-              </label>
-
-              <label className="wm-vw__field">
                 <span>Source count</span>
                 <input type="number" value={seed.sourceCount} onChange={(e) => setSeed({ ...seed, sourceCount: Math.max(1, Number(e.target.value) || 1) })} />
+              </label>
+
+              <label className="wm-vw__field">
+                <span>Quality profile</span>
+                <select value={seed.qualityProfile ?? "balanced"} onChange={(e) => setSeed({ ...seed, qualityProfile: e.target.value as VideoWallSeed["qualityProfile"] })}>
+                  <option value="cost">Cost-aware</option>
+                  <option value="balanced">Balanced</option>
+                  <option value="premium">Premium</option>
+                </select>
               </label>
 
               <label className="wm-vw__field">
@@ -126,10 +202,106 @@ export default function VideoWallBuilderPage() {
               </label>
 
               <label className="wm-vw__field">
-                <span>Pixel pitch / bezel</span>
+                <span>{seed.displayType === "LED" ? "Signal output map" : "Wall rows"}</span>
+                {seed.displayType === "LED" ? (
+                  <input value="1 x 1 (fixed for LED feed)" disabled />
+                ) : (
+                  <input type="number" value={seed.rows} onChange={(e) => {
+                    const rows = Math.max(1, Number(e.target.value) || 1);
+                    setSeed({ ...seed, rows, outputRows: rows });
+                  }} />
+                )}
+              </label>
+
+              <label className="wm-vw__field">
+                <span>{seed.displayType === "LED" ? "Processor input mode" : "Wall columns"}</span>
+                {seed.displayType === "LED" ? (
+                  <select value={seed.processorInputMode ?? "single-source"} onChange={(e) => setSeed({ ...seed, processorInputMode: e.target.value as VideoWallSeed["processorInputMode"] })}>
+                    <option value="single-source">Single source</option>
+                    <option value="multiview">Multiview</option>
+                  </select>
+                ) : (
+                  <input type="number" value={seed.columns} onChange={(e) => {
+                    const columns = Math.max(1, Number(e.target.value) || 1);
+                    setSeed({ ...seed, columns, outputColumns: columns });
+                  }} />
+                )}
+              </label>
+
+              {seed.displayType === "LCD" ? (
+                <label className="wm-vw__field">
+                  <span>LCD drive mode</span>
+                  <select value={seed.lcdDriveMode ?? "decoder-per-screen"} onChange={(e) => setSeed({ ...seed, lcdDriveMode: e.target.value as VideoWallSeed["lcdDriveMode"] })}>
+                    <option value="decoder-per-screen">Decoder per screen</option>
+                    <option value="tile-loop-multiview">Tile-loop multiview</option>
+                    <option value="dedicated-processor">Dedicated processor</option>
+                  </select>
+                </label>
+              ) : (
+                <label className="wm-vw__field">
+                  <span>Cabinet rows</span>
+                  <input type="number" value={seed.cabinetRows ?? seed.rows} onChange={(e) => {
+                    const cabinetRows = Math.max(1, Number(e.target.value) || 1);
+                    setSeed({ ...seed, cabinetRows, rows: 1, outputRows: 1 });
+                  }} />
+                </label>
+              )}
+
+              {seed.displayType === "LED" ? (
+                <label className="wm-vw__field">
+                  <span>Cabinet columns</span>
+                  <input type="number" value={seed.cabinetColumns ?? seed.columns} onChange={(e) => {
+                    const cabinetColumns = Math.max(1, Number(e.target.value) || 1);
+                    setSeed({ ...seed, cabinetColumns, columns: 1, outputColumns: 1 });
+                  }} />
+                </label>
+              ) : null}
+
+              {seed.displayType === "LED" ? (
+                <label className="wm-vw__field">
+                  <span>Cabinet pixel size</span>
+                  <input
+                    value={`${seed.cabinetWidthPx ?? 192} x ${seed.cabinetHeightPx ?? 192}`}
+                    onChange={(e) => {
+                      const [w, h] = e.target.value.split("x").map((v) => Number(v.trim()));
+                      if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) {
+                        setSeed({ ...seed, cabinetWidthPx: Math.floor(w), cabinetHeightPx: Math.floor(h) });
+                      }
+                    }}
+                  />
+                </label>
+              ) : null}
+
+              {seed.displayType === "LED" ? (
+                <label className="wm-vw__field">
+                  <span>Cabinet physical size (mm)</span>
+                  <input
+                    value={`${seed.cabinetWidthMm ?? 500} x ${seed.cabinetHeightMm ?? 500}`}
+                    onChange={(e) => {
+                      const [w, h] = e.target.value.split("x").map((v) => Number(v.trim()));
+                      if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) {
+                        setSeed({ ...seed, cabinetWidthMm: w, cabinetHeightMm: h });
+                      }
+                    }}
+                  />
+                </label>
+              ) : null}
+
+              <label className="wm-vw__field">
+                <span>{seed.displayType === "LED" ? "Pixel pitch" : "Bezel / pitch"}</span>
                 <input value={seed.displayType === "LED" ? (seed.pixelPitch ?? "") : (seed.bezelMm ?? "")}
                   onChange={(e) => seed.displayType === "LED" ? setSeed({ ...seed, pixelPitch: e.target.value }) : setSeed({ ...seed, bezelMm: e.target.value })}
                   placeholder={seed.displayType === "LED" ? "e.g. 1.9mm" : "e.g. 3.5mm"} />
+              </label>
+
+              <label className="wm-vw__field">
+                <span>Source aspect</span>
+                <select value={seed.contentAspectRatio ?? "16:9"} onChange={(e) => setSeed({ ...seed, contentAspectRatio: e.target.value })}>
+                  <option value="16:9">16:9</option>
+                  <option value="16:10">16:10</option>
+                  <option value="21:9">21:9</option>
+                  <option value="32:9">32:9</option>
+                </select>
               </label>
 
               <label className="wm-vw__field">
@@ -144,7 +316,11 @@ export default function VideoWallBuilderPage() {
 
             <div className="wm-vw__panel" style={{ marginTop: 12 }}>
               <div style={{ fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
-                {seed.displayType} wall, {seed.rows} x {seed.columns}, {displayCount} surfaces total, {seed.sourceCount} source{seed.sourceCount === 1 ? "" : "s"}.
+                {seed.displayType} wall.
+                Signal output map: {signalColumns} x {signalRows}.
+                Physical layout: {physicalColumns} x {physicalRows} ({displayCount} surfaces).
+                {seed.sourceCount} source{seed.sourceCount === 1 ? "" : "s"}.
+                {canvasWidthPx && canvasHeightPx ? ` Canvas: ${canvasWidthPx}x${canvasHeightPx}px.` : ""}
               </div>
               <div style={{ marginTop: 10, fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.82)" }}>
                 Processor recommendation: {processor}
@@ -153,10 +329,10 @@ export default function VideoWallBuilderPage() {
 
             <div
               className="wm-vw__wall"
-              style={{ gridTemplateColumns: `repeat(${seed.columns}, minmax(0, 1fr))` }}
+              style={{ gridTemplateColumns: `repeat(${physicalColumns}, minmax(0, 1fr))` }}
             >
               {Array.from({ length: displayCount }).map((_, i) => (
-                <div key={i} className="wm-vw__tile">{i + 1}</div>
+                <div key={i} className="wm-vw__tile">{seed.displayType === "LED" ? `C${i + 1}` : i + 1}</div>
               ))}
             </div>
           </section>

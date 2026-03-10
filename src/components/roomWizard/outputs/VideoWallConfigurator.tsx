@@ -44,6 +44,27 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
     };
 
     const panelCount = config ? config.layout.rows * config.layout.cols : 0;
+    const isFourByTwoLayout = Boolean(
+        config &&
+        config.type === 'lcd' &&
+        config.layout.rows === 2 &&
+        config.layout.cols === 4
+    );
+    const designWarnings = React.useMemo(() => {
+        if (!config) return [] as string[];
+        const warnings: string[] = [];
+        if (config.type === 'led') {
+            warnings.push('LED walls should be treated as a single 1x1 signal output to the LED processor.');
+        }
+        if (isFourByTwoLayout && config.type === 'lcd') {
+            warnings.push('4x2 LCD layouts are non-standard for single-source content and can stretch 16:10 feeds.');
+            warnings.push('Prefer decoder-per-screen driving for grouped content zones unless content is authored to final wall resolution.');
+        }
+        if (config.type === 'lcd' && config.technology === 'avoip') {
+            warnings.push('NHD-120 is intentionally avoided for bezel-critical LCD wall paths; NHD-500/NHD-600 are preferred.');
+        }
+        return warnings;
+    }, [config, isFourByTwoLayout]);
 
     // Generate product recommendations based on configuration
     const recommendations = React.useMemo((): ProductRecommendation[] => {
@@ -72,10 +93,10 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
                     });
                 } else {
                     products.push({
-                        sku: 'NHD-120-RX',
-                        name: 'NetworkHD 120 H.264 Decoder',
+                        sku: 'NHD-500-RXE',
+                        name: 'NetworkHD 500 JPEG-XS Decoder',
                         quantity: panelCount,
-                        role: 'One per panel - compressed stream',
+                        role: 'One per panel - entry tier without dropping to NHD-120',
                         tier: 'Bronze'
                     });
                 }
@@ -99,10 +120,10 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
                     });
                 } else {
                     products.push({
-                        sku: 'NHD-120-TX',
-                        name: 'NetworkHD 120 H.264 Encoder',
+                        sku: 'NHD-500-TX',
+                        name: 'NetworkHD 500 JPEG-XS Encoder',
                         quantity: 1,
-                        role: 'Source encoder',
+                        role: 'Source encoder (bezel-critical LCD path)',
                         tier: 'Bronze'
                     });
                 }
@@ -144,7 +165,7 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
                         sku: 'NHD-600-TRX',
                         name: 'NetworkHD 600 Transceiver',
                         quantity: 1,
-                        role: 'Up to 16 sources, zero latency multiview',
+                        role: 'Up to 16 sources, premium multiview to single LED processor feed',
                         tier: 'Gold'
                     });
                 } else if (designTier === 'Silver') {
@@ -152,15 +173,15 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
                         sku: 'NHD-150-RX',
                         name: 'NetworkHD 150 Multiview Decoder',
                         quantity: 1,
-                        role: 'Up to 9 sources (H.264 compression)',
+                        role: 'Up to 9 sources, low-bandwidth multiview to single LED feed',
                         tier: 'Silver'
                     });
                 } else {
                     products.push({
-                        sku: 'NHD-0401-MV',
-                        name: 'NetworkHD 4-Input Multiview',
+                        sku: 'NHD-150-RX',
+                        name: 'NetworkHD 150 Multiview Decoder',
                         quantity: 1,
-                        role: 'Up to 4 sources',
+                        role: 'Up to 9 sources (lower-bandwidth multiview)',
                         tier: 'Bronze'
                     });
                 }
@@ -171,7 +192,7 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
                         sku: 'NHD-600-TRX',
                         name: 'NetworkHD 600 Transceiver',
                         quantity: 1,
-                        role: 'Uncompressed 4K60 feed to LED processor',
+                        role: 'Premium single-canvas feed to LED processor (1x1 output)',
                         tier: 'Gold'
                     });
                 } else if (designTier === 'Silver') {
@@ -179,15 +200,15 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
                         sku: 'NHD-500-RX',
                         name: 'NetworkHD 500 Decoder',
                         quantity: 1,
-                        role: 'Visually lossless feed to LED processor',
+                        role: 'Single-canvas feed to LED processor (1x1 output)',
                         tier: 'Silver'
                     });
                 } else {
                     products.push({
-                        sku: 'NHD-120-RX',
-                        name: 'NetworkHD 120 Decoder',
+                        sku: 'NHD-500-RX',
+                        name: 'NetworkHD 500 Decoder',
                         quantity: 1,
-                        role: 'Compressed feed to LED processor',
+                        role: 'Entry single-canvas feed to LED processor (1x1 output)',
                         tier: 'Bronze'
                     });
                 }
@@ -346,6 +367,17 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
                 checked={config.multiviewRequired}
                 onChange={(isChecked) => updateConfig({ multiviewRequired: isChecked })}
             />
+
+            {designWarnings.length > 0 && (
+                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <h4 className="text-sm font-semibold text-amber-900 mb-2">Design advisories</h4>
+                    <ul className="text-xs text-amber-800 space-y-1">
+                        {designWarnings.map((warning) => (
+                            <li key={warning}>- {warning}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
             {/* Product Recommendations */}
             <div className="mt-6\ p-4\ bg-slate-50\ rounded-lg\ border\ border-slate-200">

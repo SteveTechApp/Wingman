@@ -18,6 +18,11 @@ import {
   type CompetitorLookupRecord,
   type CompetitorLookupResult,
 } from "@/services/competitorLookupService";
+import {
+  assessComparisonIntelligence,
+  type ComparisonIntelligenceAssessment,
+  type IntelligenceSupportAction,
+} from "@/services/productIntelligenceAdvisor";
 
 export type ComparisonProvenance = {
   mode: "curated" | "lookup";
@@ -26,6 +31,20 @@ export type ComparisonProvenance = {
   fetchedAt: string;
   cacheHit?: boolean;
   sourceUrl?: string;
+};
+
+export type ComparisonIntelligence = {
+  score: number;
+  confidence: CompareConfidence;
+  escalationRequired: boolean;
+  escalationReasons: string[];
+  recommendations: string[];
+  supportActions: IntelligenceSupportAction[];
+  warnings: string[];
+  summary: string;
+  fetchedAt: string;
+  competitorStatus?: string;
+  wyrestormStatus?: string;
 };
 
 export type CompetitorComparisonRecord = {
@@ -44,6 +63,7 @@ export type CompetitorComparisonRecord = {
   recommendedFamilies: DiscoveryProductFamily[];
   notes: string[];
   provenance?: ComparisonProvenance;
+  intelligence?: ComparisonIntelligence;
 };
 
 export type LookupAndCompareResult = {
@@ -373,6 +393,54 @@ function toComparisonRecord(
   };
 }
 
+function toIntelligence(assessment: ComparisonIntelligenceAssessment): ComparisonIntelligence {
+  return {
+    score: assessment.score,
+    confidence: assessment.confidence,
+    escalationRequired: assessment.escalationRequired,
+    escalationReasons: assessment.escalationReasons,
+    recommendations: assessment.recommendations,
+    supportActions: assessment.supportActions,
+    warnings: assessment.warnings,
+    summary: assessment.summary,
+    fetchedAt: assessment.fetchedAt,
+    competitorStatus: assessment.competitorRecord?.status,
+    wyrestormStatus: assessment.wyrestormRecord?.status,
+  };
+}
+
+async function withIntelligenceAssessment(
+  record: CompetitorComparisonRecord,
+  input: {
+    query: string;
+    baselineScore: number;
+  },
+): Promise<CompetitorComparisonRecord> {
+  try {
+    const assessment = await assessComparisonIntelligence({
+      competitorBrand: record.brand,
+      competitorSku: record.competitorSku,
+      wyrestormSku: record.wyrestormSku,
+      query: input.query,
+      baselineScore: input.baselineScore,
+    });
+
+    const intelligence = toIntelligence(assessment);
+    return {
+      ...record,
+      confidence: assessment.confidence,
+      matchScore: assessment.score,
+      notes: Array.from(new Set([...record.notes, intelligence.summary, ...intelligence.escalationReasons])).slice(0, 10),
+      intelligence,
+    };
+  } catch {
+    return {
+      ...record,
+      notes: Array.from(new Set([...record.notes, "Product intelligence assessment unavailable; using deterministic score only."])).slice(0, 10),
+    };
+  }
+}
+
 function toLookupProduct(record: CompetitorLookupRecord): CompetitorProduct {
   const product: CatalogProduct = {
     sku: normalizeSku(record.sku),
@@ -559,11 +627,33 @@ export async function lookupAndCompare(query: string): Promise<LookupAndCompareR
       notes: ["Review competitor specs and map manually in catalog workflow."],
       provenance: toComparisonProvenance("lookup", lookup.provenance),
     };
-    return { lookup, records: [fallback] };
+    const assessedFallback = await withIntelligenceAssessment(fallback, {
+      query,
+      baselineScore: 24,
+    });
+    const fallbackWithWarnings =
+      lookup.warnings.length > 0
+        ? {
+            ...assessedFallback,
+            notes: Array.from(new Set([...assessedFallback.notes, ...lookup.warnings])).slice(0, 10),
+          }
+        : assessedFallback;
+    return { lookup, records: [fallbackWithWarnings] };
   }
 
   const record = toComparisonRecord(competitor, best, toComparisonProvenance("lookup", lookup.provenance));
-  return { lookup, records: [record] };
+  const assessed = await withIntelligenceAssessment(record, {
+    query,
+    baselineScore: best.score,
+  });
+  const recordWithWarnings =
+    lookup.warnings.length > 0
+      ? {
+          ...assessed,
+          notes: Array.from(new Set([...assessed.notes, ...lookup.warnings])).slice(0, 10),
+        }
+      : assessed;
+  return { lookup, records: [recordWithWarnings] };
 }
 
 export function toProjectCompareRecord(item: CompetitorComparisonRecord): ProjectCompareRecord {
@@ -595,4 +685,3 @@ const competitorComparisonService = {
 };
 
 export default competitorComparisonService;
-
