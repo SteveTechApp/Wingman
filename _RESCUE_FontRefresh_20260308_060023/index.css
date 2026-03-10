@@ -1,0 +1,187 @@
+/* Wingman global style entry */
+
+@import "./tokens.css";
+@import "./tokens.classic.css";
+@import "./wingman-brand.tokens.css";
+
+/* Theme */
+@import "./wingman-theme.css";
+
+/* Base */
+@import "./globals.css";
+@import "./utilities.css";
+
+/* Layout */
+@import "./layout-standard.css";
+@import "./wm-shell.css";
+
+/* Components */
+@import "./components.css";
+
+/* Wingman UI */
+@import "./wingman-ui.css";
+@import "./wingman-ui.consistency.css";
+@import "./wingman-commercial.css";
+
+/* Density + polish */
+
+@import "./polish.css";
+
+/* Feature styles */
+@import "./wm-dashboard.css";
+@import "./wm-export.css";
+
+/* Final overrides */
+
+@import "./overrides.css";
+
+/* Wingman shell baseline */
+.wm-shell{ width:100%; min-height:100vh; }
+
+
+/* Full-width container (no max-width clamp) */
+.wm-container{ width:100%; max-width:none; padding:20px 28px; }
+
+
+/* __WM_MC_DASHBOARD_DENSITY_V1__
+   Mission Control Dashboard: ~20% denser, AV workflow aligned.
+*/
+.wm-mcDash{
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 2.1fr 1fr;
+  align-items: start;
+}
+
+@media (max-width: 1100px){
+  .wm-mcDash{ grid-template-columns: 1fr; }
+}
+
+.wm-mcDash__card{
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(8px);
+}
+
+.wm-mcDash__cardHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  padding: 10px 12px 6px 12px;
+}
+
+.wm-mcDash__title{
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  opacity: 0.95;
+}
+
+.wm-mcDash__body{ padding: 0 12px 12px 12px; }
+
+.wm-mcDash__chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.wm-mcDash__chip{
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  font-size: 12px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.wm-mcDash__twoRow{
+  display:grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 12px;
+  align-items: start;
+}
+
+@media (max-width: 1100px){
+  .wm-mcDash__twoRow{ grid-template-columns: 1fr; }
+}
+
+.wm-mcDash__rightStack{
+  display:grid;
+  gap: 12px;
+}
+
+.wm-mcDash__actions{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wm-mcDash__btnRow{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.wm-mcDash__kpiGrid{
+  display:grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+.wm-mcDash__kpiRow{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wm-mcDash__mini{
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+  padding: 10px 12px 12px 12px;
+}
+
+.wm-mcDash__miniLine{
+  display:flex;
+  justify-content:space-between;
+  gap: 10px;
+  font-size: 12px;
+  opacity: 0.92;
+}
+
+.wm-mcDash__quickLaunch{
+  display:grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 1100px){
+  .wm-mcDash__quickLaunch{ grid-template-columns: 1fr; }
+}
+
+.wm-mcDash__qlCard{
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.035);
+  padding: 10px 12px;
+}
+
+.wm-mcDash__qlTitle{
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.wm-mcDash__qlDesc{
+  font-size: 12px;
+  opacity: 0.9;
+  line-height: 1.25;
+}

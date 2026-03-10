@@ -6,7 +6,6 @@ export default function GuruFloatingButton() {
   const nav = useNavigate();
   const loc = useLocation();
 
-  // Hide on public routes and on the Guru page itself
   const isPublic =
     loc.pathname === "/" ||
     loc.pathname.startsWith("/login") ||
@@ -14,13 +13,13 @@ export default function GuruFloatingButton() {
     loc.pathname.startsWith("/about");
 
   if (isPublic) return null;
-  if (loc.pathname.startsWith("/app/guru")) return null;
+  if (loc.pathname.startsWith("/app/tools/guru")) return null;
 
   return (
     <button
       type="button"
       title="Open Guru"
-      onClick={() => nav("/app/guru")}
+      onClick={() => nav("/app/tools/guru")}
       style={{
         position: "fixed",
         right: 18,

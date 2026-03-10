@@ -1,0 +1,136 @@
+import * as React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+const GURU_ROUTE = "/app/tools/guru";
+
+const styles = `
+.wm-guru-launch__fab{
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9997;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(34,199,184,0.22);
+  background: linear-gradient(180deg, rgba(23,84,77,0.95), rgba(18,63,58,0.98));
+  color: #f3fffd;
+  font: 600 0.92rem/1 "Aptos Narrow","Arial Narrow","Inter","Segoe UI",Arial,sans-serif;
+  box-shadow: 0 14px 30px rgba(0,0,0,0.28);
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.wm-guru-launch__fab:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px rgba(0,0,0,0.34);
+  border-color: rgba(34,199,184,0.32);
+}
+
+.wm-guru-launch__fab:active{
+  transform: translateY(0);
+}
+
+.wm-guru-launch__icon{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.wm-guru-launch__label{
+  white-space: nowrap;
+}
+
+.wm-guru-launch__hint{
+  position: fixed;
+  right: 18px;
+  bottom: 72px;
+  z-index: 9996;
+  max-width: 240px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(110,145,190,0.14);
+  background: rgba(9,16,28,0.94);
+  color: rgba(232,241,255,0.76);
+  font: 500 0.82rem/1.35 "Aptos Narrow","Arial Narrow","Inter","Segoe UI",Arial,sans-serif;
+  box-shadow: 0 12px 26px rgba(0,0,0,0.24);
+  pointer-events: none;
+}
+
+@media (max-width: 720px){
+  .wm-guru-launch__fab{
+    right: 12px;
+    bottom: 12px;
+    min-height: 44px;
+    padding: 0 14px;
+  }
+
+  .wm-guru-launch__hint{
+    right: 12px;
+    bottom: 64px;
+    max-width: 200px;
+  }
+}
+`;
+
+export default function GuruMount() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showHint, setShowHint] = React.useState(false);
+
+  const hidden = React.useMemo(() => {
+    return (
+      location.pathname.startsWith("/app/tools/guru") ||
+      location.pathname.startsWith("/app/guru")
+    );
+  }, [location.pathname]);
+
+  React.useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const isG = event.key.toLowerCase() === "g";
+      if ((event.ctrlKey || event.metaKey) && isG) {
+        event.preventDefault();
+        navigate(GURU_ROUTE);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [navigate]);
+
+  if (hidden) return null;
+
+  return (
+    <>
+      <style>{styles}</style>
+
+      {showHint ? (
+        <div className="wm-guru-launch__hint">
+          Open Guru as a standalone AV knowledge workspace.
+        </div>
+      ) : null}
+
+      <button
+        type="button"
+        className="wm-guru-launch__fab"
+        onClick={() => navigate(GURU_ROUTE)}
+        onMouseEnter={() => setShowHint(true)}
+        onMouseLeave={() => setShowHint(false)}
+        onFocus={() => setShowHint(true)}
+        onBlur={() => setShowHint(false)}
+        aria-label="Open Guru"
+        title="Open Guru"
+      >
+        <span className="wm-guru-launch__icon">✦</span>
+        <span className="wm-guru-launch__label">Guru</span>
+      </button>
+    </>
+  );
+}

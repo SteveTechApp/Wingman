@@ -2,7 +2,6 @@ import * as React from "react";
 
 import { Product } from '../utils/types';
 import InfoModal from './InfoModal';
-import ProductCard from './ProductCard';
 
 interface RelatedProductsModalProps {
   isOpen: boolean;

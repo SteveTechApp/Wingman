@@ -13,6 +13,7 @@ const DeviceAttributeSelector: React.FC<DeviceAttributeSelectorProps> = ({ label
   return (
     <div className="relative">
       <select 
+        aria-label={label}
         className="appearance-none\ bg-background-secondary\ text-xs\ font-medium\ rounded-full\ py-1\ pl-3\ pr-8\ border\ border-transparent\ hover:border-border-color"
         value={value}
         onChange={(e) => onChange && onChange(e.target.value)}

@@ -1,5 +1,5 @@
-import React, * as ReactHooks from "react";
-const { useState, useEffect, useMemo, useRef, useContext, createContext, lazy, Suspense } = ReactHooks;
+import React from "react";
+const { useState } = React;
 export interface AncillaryCost {
     id: string;
     category: 'cabling' | 'labor' | 'materials' | 'shipping' | 'permits' | 'other';
@@ -24,7 +24,6 @@ const COST_CATEGORIES = [
 ] as const;
 
 const AncillaryCostsForm: React.FC<AncillaryCostsFormProps> = ({ costs, onUpdate }) => {
-    const [editingId, setEditingId] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
     const [newCost, setNewCost] = useState<Omit<AncillaryCost, 'id'>>({
         category: 'materials',
@@ -48,12 +47,6 @@ const AncillaryCostsForm: React.FC<AncillaryCostsFormProps> = ({ costs, onUpdate
             notes: '',
         });
         setIsAdding(false);
-    };
-
-    const updateCost = (id: string, updates: Partial<AncillaryCost>) => {
-        onUpdate(costs.map(cost => 
-            cost.id === id ? { ...cost, ...updates } : cost
-        ));
     };
 
     const removeCost = (id: string) => {
@@ -266,4 +259,6 @@ const AncillaryCostsForm: React.FC<AncillaryCostsFormProps> = ({ costs, onUpdate
 };
 
 export default AncillaryCostsForm;
+
+
 

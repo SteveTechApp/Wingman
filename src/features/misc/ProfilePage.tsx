@@ -24,7 +24,7 @@ export default function ProfilePage() {
 
             <button
               className="wm-pill wm-pill--btn wm-pill--primary"
-              onClick={() => nav("/app/toolhub")}
+              onClick={() => nav("/app/tools")}
               type="button"
             >
               Enter Workspace

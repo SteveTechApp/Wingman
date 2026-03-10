@@ -1,0 +1,19 @@
+/* Force Guru to bottom-right of viewport */
+[class*="guru"],
+[class*="guruFab"],
+[class*="guru-fab"] {
+  position: fixed !important;
+  right: 24px !important;
+  bottom: 24px !important;
+  z-index: 5000 !important;
+  inset: auto 24px 24px auto !important;
+}
+
+[class*="guru"] button,
+button[class*="guru"],
+[class*="guruFab"] button,
+[class*="guru-fab"] button {
+  position: static !important;
+  right: auto !important;
+  bottom: auto !important;
+}

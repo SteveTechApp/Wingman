@@ -1,0 +1,17 @@
+export const WM_ROUTES = {
+  dashboard: "/app/dashboard",
+  projects: "/app/projects",
+  newProject: "/app/projects/new",
+  tools: "/app/tools",
+  discovery: "/app/tools/discovery",
+  templates: "/app/tools/templates",
+  roomDesigner: "/app/tools/room-wizard",
+  proposals: "/app/tools/proposal",
+  guru: "/app/tools/guru",
+  catalogue: "/app/tools/catalog",
+  videowall: "/app/tools/video-wall",
+  competitorCompare: "/app/tools/compare",
+  runtimeDiagnostics: "/app/tools/runtime-diagnostics",
+  training: "/app/tools/training",
+  settings: "/app/dashboard",
+} as const;

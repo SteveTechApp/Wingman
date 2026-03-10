@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DisplayIcon, ProjectorIcon, VideoWallIcon, SparklesIcon, GridIcon, InteractiveDisplayIcon, PlusIcon, CloseIcon } from '../../Icons';
+import { DisplayIcon, ProjectorIcon, SparklesIcon, GridIcon, InteractiveDisplayIcon, PlusIcon, CloseIcon } from '../../Icons';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface DisplayGroup {
@@ -83,7 +83,7 @@ const DisplayOutputsStep: React.FC<Props> = ({ displayGroups, setDisplayGroups, 
                             </div>
                         )}
 
-                        {displayGroups.map((group, index) => (
+                        {displayGroups.map((group) => (
                             <div key={group.id} className="bg-background\ border\ border-border-color\ rounded-lg\ p-4\ shadow-sm\ flex\ justify-between\ items-center\ gap-4">
                                 <div className="flex\ items-center\ gap-4">
                                     <div className="bg-accent-bg-subtle\ p-2\ rounded-full">

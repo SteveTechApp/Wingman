@@ -1,0 +1,23 @@
+Wingman tool/feature restructure implemented.
+
+Created / updated:
+- src\features\tools\toolFeatureModel.ts
+- src\features\tools\ToolHubPage.tsx
+- src\ui2\nav\MissionControlNav.tsx  (best-effort patch)
+- src\features\dashboard\DashboardPage.tsx (best-effort patch)
+
+Model:
+- Tools = Guru, Product Catalogue, Video Wall Designer, Competitor Comparison
+- Features = Start New Project, Discovery Wizard, Templates, Room Designer, Proposal Builder, Training Hub
+
+Review likely route alignment after apply:
+- /app/guru
+- /app/catalogue
+- /app/tools/videowall
+- /app/tools/competitor-compare
+- /app/projects/new
+- /app/tools/discovery
+- /app/tools/templates
+- /app/tools/room-designer
+- /app/tools/proposals
+- /app/training

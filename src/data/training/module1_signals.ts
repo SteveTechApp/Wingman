@@ -49,7 +49,7 @@ export const MODULE_1_SIGNALS: TrainingModule = {
     {
       title: 'Chroma Subsampling',
       content:
-        "To save bandwidth, video signals often use chroma subsampling. It's expressed as a ratio like **4:4:4**, **4:2:2**, or **4:2:0**.\n\n- **4:4:4**: **No compression**. Every pixel gets full color information. This is **crucial** for sharp text and computer graphics.\n- **4:2:0**: **High compression**. Color information is shared across a 2x2 block of pixels. It\'s acceptable for movies and broadcast TV but can make text look blurry.\n\nFor most corporate and education applications, **4:4:4** support is preferred to ensure computer-generated content looks crisp.",
+        "To save bandwidth, video signals often use chroma subsampling. It's expressed as a ratio like **4:4:4**, **4:2:2**, or **4:2:0**.\n\n- **4:4:4**: **No compression**. Every pixel gets full color information. This is **crucial** for sharp text and computer graphics.\n- **4:2:0**: **High compression**. Color information is shared across a 2x2 block of pixels. It's acceptable for movies and broadcast TV but can make text look blurry.\n\nFor most corporate and education applications, **4:4:4** support is preferred to ensure computer-generated content looks crisp.",
       asset: {
         url: 'https://i.imgur.com/qO5m3J6.png',
         title: 'A visual comparison of 4:4:4 vs 4:2:0 on fine text.',

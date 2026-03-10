@@ -1,0 +1,21 @@
+Wingman legacy CSS cleanup report
+Repo:   C:\Users\steve\wingman
+Backup: C:\Users\steve\wingman\_RESCUE_RemoveLegacyCss_20260308_140200
+Apply:  True
+
+REVIEW:  .\src\features\ai\guru\GuruWidget.tsx
+  - Contains legacy guru reference: wm-guru-panel
+  - Contains legacy guru reference: wm-guru-title
+REVIEW:  .\src\features\guru\GuruFab.tsx
+  - Contains legacy guru reference: guruFab
+REVIEW:  .\src\features\guru\GuruPanel.tsx
+  - Contains legacy guru reference: wm-guru-panel
+CHANGED: .\src\styles\layout-standard.css
+  - Removed CSS block pattern: (?ms)\.wm-guru-panel\s*\{.*?\}
+CHANGED: .\src\styles\wingman-commercial.css
+  - Removed CSS block pattern: (?ms)\.wm-guru-panel\s*\{.*?\}
+  - Removed CSS block pattern: (?ms)\.wm-guru-header\s*\{.*?\}
+  - Removed CSS block pattern: (?ms)\.wm-guru-title\s*\{.*?\}
+  - Removed CSS block pattern: (?ms)\.wm-guru-body\s*\{.*?\}
+REVIEW:  .\_ARCHIVE\RepoStructureCleanup_Phase15_20260306_080517\src\guru\GuruFab.tsx
+  - Contains legacy guru reference: guruFab

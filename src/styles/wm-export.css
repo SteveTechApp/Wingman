@@ -1,5 +1,5 @@
 /* =========================================================
-   WM EXPORT — Conform to Wingman styling upgrades
+   WM EXPORT â€” Conform to Wingman styling upgrades
    Screen: dark premium backdrop + clean document preview
    Print: pure white output
    ========================================================= */
@@ -160,10 +160,9 @@
     display:none !important;
   }
 
-  html, body, #root{
-    background:#ffffff !important;
-    color:#000000 !important;
-  }
+  /* LEGACY GLOBAL DISABLED
+
+*/
 
   .wm-shell,
   .wm-shell__main,
@@ -210,7 +209,7 @@
   border:1px solid rgba(0,0,0,0.06);
 }
 
-/* Soften “clinical” look */
+/* Soften â€œclinicalâ€ look */
 .wm-export-section{
   margin-top:18px;
 }

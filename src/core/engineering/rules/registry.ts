@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Rule } from "./types";
-import type { EngineeringContext, Requirement, RoomProfile } from "../types";
+import type { EngineeringContext, Requirement } from "../types";
 
 /**
  * Rule registry (v1).

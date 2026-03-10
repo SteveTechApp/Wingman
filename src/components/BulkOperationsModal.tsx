@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import InfoModal from './InfoModal';
-import { RoomData, DesignTier, Product } from '../utils/types';
+import { RoomData, DesignTier } from '../utils/types';
 import toast from 'react-hot-toast';
 
 interface BulkOperationsModalProps {

@@ -1,352 +1,258 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { findCatalogProductBySku, getCatalogProducts } from "@/catalog";
-import { getCompetitorBrands, matchCompetitorProducts } from "@/competitor";
-import { explainWyreStormAdvantage } from "@/competitor";
-import type { CatalogProduct } from "@/catalog/types";
-import type { CompetitorProduct } from "@/competitor/repository";
+import compareSeed from "@/data/catalog/competitor-compare.seed.json";
+import {
+  applyCompareToProject,
+  createProject,
+  ensureActiveProject,
+  getActiveProject,
+  setActiveProjectId,
+  type CompareConfidence,
+} from "@/features/projects/projectStore";
+import {
+  type CompetitorComparisonRecord,
+  findComparisonRecord,
+  searchComparisonRecords,
+  toProjectCompareRecord,
+} from "@/services/competitorComparisonService";
 
-function panelStyle(): React.CSSProperties {
-  return {
-    border: "1px solid rgba(255,255,255,0.10)",
-    borderRadius: 16,
-    background: "rgba(16,22,32,0.72)",
-    padding: 14,
-  };
-}
-
-function inputStyle(): React.CSSProperties {
-  return {
-    width: "100%",
-    padding: 10,
-    borderRadius: 10,
-    border: "1px solid rgba(255,255,255,0.10)",
-    background: "rgba(255,255,255,0.05)",
-    color: "rgba(255,255,255,0.92)",
-    font: "inherit",
-    outline: "none",
-  };
-}
-
-function buttonStyle(primary?: boolean): React.CSSProperties {
-  return {
-    borderRadius: 10,
-    padding: "9px 12px",
-    border: primary
-      ? "1px solid rgba(120,200,255,0.24)"
-      : "1px solid rgba(255,255,255,0.10)",
-    background: primary
-      ? "rgba(120,200,255,0.12)"
-      : "rgba(255,255,255,0.06)",
-    color: "rgba(255,255,255,0.92)",
-    cursor: "pointer",
-    font: "inherit",
-  };
-}
-
-function chip(text: string): React.ReactNode {
-  return (
-    <span
-      key={text}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        padding: "5px 9px",
-        borderRadius: 999,
-        fontSize: 12,
-        border: "1px solid rgba(255,255,255,0.10)",
-        background: "rgba(255,255,255,0.06)",
-        whiteSpace: "nowrap",
-      }}
-    >
-      {text}
-    </span>
-  );
-}
-
-function joinPorts(
-  ports?: Array<{ type: string; count: number }>
-): string {
-  if (!Array.isArray(ports) || ports.length === 0) return "None";
-  return ports.map((p) => `${p.count}x ${p.type}`).join(", ");
-}
-
-function renderProductFacts(p?: CatalogProduct | CompetitorProduct | null) {
-  if (!p) return null;
-
-  return (
-    <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
-      <div><strong>Family:</strong> {p.family}</div>
-      <div><strong>Category:</strong> {p.category}</div>
-      <div><strong>Transport:</strong> {p.transport || "Unknown"}</div>
-      <div><strong>Video:</strong> {p.video?.maxResolution || "Not set"}</div>
-      <div><strong>Distance:</strong> {p.distance?.meters ?? 0}m</div>
-      <div><strong>Inputs:</strong> {joinPorts(p.inputs)}</div>
-      <div><strong>Outputs:</strong> {joinPorts(p.outputs)}</div>
-      <div><strong>Control:</strong> {(p.control || []).join(", ") || "None"}</div>
-      <div><strong>Features:</strong> {(p.features || []).join(", ") || "None"}</div>
-      {p.summary ? <div><strong>Summary:</strong> {p.summary}</div> : null}
-    </div>
-  );
+function confidenceClass(value: CompareConfidence): string {
+  if (value === "High") return "wm-compare-confidence is-high";
+  if (value === "Medium") return "wm-compare-confidence is-medium";
+  return "wm-compare-confidence is-low";
 }
 
 export default function CompetitorComparePage() {
   const nav = useNavigate();
-  const wyrestormProducts = React.useMemo(() => getCatalogProducts(), []);
-  const competitorBrands = React.useMemo(() => ["All", ...getCompetitorBrands()], []);
+  const activeProject = getActiveProject();
+  const items = compareSeed as CompetitorComparisonRecord[];
 
-  const [selectedSku, setSelectedSku] = React.useState<string>(
-    wyrestormProducts[0]?.sku || ""
-  );
-  const [brand, setBrand] = React.useState<string>("All");
-  const [query, setQuery] = React.useState<string>("");
+  const [query, setQuery] = React.useState("");
+  const filtered = React.useMemo(() => searchComparisonRecords(items, query), [items, query]);
+  const [selectedSku, setSelectedSku] = React.useState<string>(filtered[0]?.competitorSku ?? "");
 
-  const selected = React.useMemo(
-    () => findCatalogProductBySku(selectedSku) || null,
-    [selectedSku]
-  );
+  React.useEffect(() => {
+    if (!filtered.some((item) => item.competitorSku === selectedSku)) {
+      setSelectedSku(filtered[0]?.competitorSku ?? "");
+    }
+  }, [filtered, selectedSku]);
 
-  const matches = React.useMemo(() => {
-    if (!selected) return [];
+  const selected = React.useMemo(() => findComparisonRecord(filtered, selectedSku) ?? filtered[0] ?? null, [filtered, selectedSku]);
 
-    const ranked = matchCompetitorProducts({
-      family: selected.family,
-      category: selected.category,
-      transport: selected.transport || "All",
-      requiredFeatures: selected.features || [],
-      minDistanceM: selected.distance?.meters,
-      q: query || selected.name,
-    });
-
-    const filtered = ranked.filter((x) => {
-      const competitor = x.product as CompetitorProduct;
-      return brand === "All" || String(competitor.brand || "").trim() === brand;
-    });
-
-    return filtered.slice(0, 8);
-  }, [selected, brand, query]);
-
-  function handoffToProposal(p: CompetitorProduct) {
+  const applyToActiveProject = () => {
     if (!selected) return;
 
-    const payload = {
-      source: "competitor-compare",
-      wyrestormSku: selected.sku,
-      wyrestormName: selected.name,
-      competitorBrand: p.brand || "Unknown",
-      competitorSku: p.sku,
-      competitorName: p.name,
-      family: selected.family,
-      category: selected.category,
-    };
+    const active = ensureActiveProject({
+      customer: activeProject?.customer || "Sample customer",
+      site: activeProject?.site || "",
+      roomName: activeProject?.roomName || "Replacement Opportunity",
+      stage: "Specify",
+      status: activeProject?.status || "Draft",
+    });
 
-    try {
-      localStorage.setItem("wm_compare_handoff", JSON.stringify(payload));
-    } catch {}
+    applyCompareToProject(active.id, toProjectCompareRecord(selected));
+    setActiveProjectId(active.id);
+    nav(`/app/projects/${encodeURIComponent(active.id)}`);
+  };
 
-    nav("/app/tools/proposal-builder");
-  }
+  const createReplacementProject = () => {
+    if (!selected) return;
+
+    const payload = toProjectCompareRecord(selected);
+    const created = createProject({
+      name: `${selected.brand} ${selected.competitorSku} replacement`,
+      customer: activeProject?.customer || "Sample customer",
+      site: activeProject?.site || "",
+      roomName: "Replacement Opportunity",
+      stage: "Specify",
+      status: "Draft",
+      notes: `${selected.summary}\n\nRationale: ${selected.rationale}`,
+      compare: payload,
+      discovery: {
+        customer: activeProject?.customer || "Sample customer",
+        site: activeProject?.site || "",
+        roomName: "Replacement Opportunity",
+        applicationType: selected.category,
+        notes: `${selected.summary}\n\nRationale: ${selected.rationale}`,
+        recommendedFamilies: selected.recommendedFamilies,
+        createdAt: new Date().toISOString(),
+      },
+    });
+
+    setActiveProjectId(created.id);
+    nav(`/app/projects/${encodeURIComponent(created.id)}`);
+  };
 
   return (
-    <div className="wm-page" style={{ padding: 16 }}>
-      <div style={{ ...panelStyle(), marginBottom: 14 }}>
-        <div style={{ fontSize: 22, fontWeight: 900 }}>Competitor Compare</div>
-        <div style={{ marginTop: 6, opacity: 0.8 }}>
-          Select a WyreStorm product and rank competitor alternatives using shared catalog logic.
+    <div className="wm-dashboard">
+      <section className="wm-dashboard__hero">
+        <div>
+          <div className="wm-dashboard__eyebrow">Competitor Compare</div>
+          <h1 className="wm-dashboard__title">Competitor SKU comparison tool</h1>
+          <p className="wm-dashboard__subtitle">
+            Search competitor SKUs, review the closest WyreStorm direction, and save the replacement logic into the active project.
+          </p>
+
+          <div className="wm-dashboard__meta">
+            <span className="wm-chip">Records: {items.length}</span>
+            <span className="wm-chip">Active project: {activeProject?.name || "None"}</span>
+          </div>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gap: 10,
-            gridTemplateColumns: "2fr 1fr 1fr",
-            marginTop: 14,
-          }}
-        >
-          <select
-            value={selectedSku}
-            onChange={(e) => setSelectedSku(e.target.value)}
-            style={inputStyle()}
-          >
-            {wyrestormProducts.map((p) => (
-              <option key={p.sku} value={p.sku}>
-                {p.sku} - {p.name}
-              </option>
-            ))}
-          </select>
+        <div className="wm-dashboard__heroactions">
+          <button type="button" className="wm-btn wm-btn--ghost" onClick={() => nav("/app/dashboard")}>
+            Dashboard
+          </button>
+          <button type="button" className="wm-btn wm-btn--ghost" onClick={() => nav("/app/projects")}>
+            Projects
+          </button>
+          <button type="button" className="wm-btn wm-btn--primary" onClick={createReplacementProject} disabled={!selected}>
+            Create Replacement Project
+          </button>
+        </div>
+      </section>
 
-          <select
-            value={brand}
-            onChange={(e) => setBrand(e.target.value)}
-            style={inputStyle()}
-          >
-            {competitorBrands.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
-          </select>
+      <section className="wm-page-grid-sidebar">
+        <div className="wm-card">
+          <div className="wm-card__title">Search competitor SKUs</div>
+          <div className="wm-card__subtitle">Search by brand, SKU, category, feature, or WyreStorm direction.</div>
 
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Optional keyword bias"
-            style={inputStyle()}
-          />
+          <div className="wm-field-wrap" style={{ marginTop: 12 }}>
+            <span className="wm-label">Search</span>
+            <input
+              className="wm-field"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="e.g. DM-NVX, OME, matrix, AVoIP"
+            />
+          </div>
+
+          <div className="wm-project-list" style={{ marginTop: 14 }}>
+            {filtered.length === 0 ? (
+              <div className="wm-card__subtitle">No comparison records found.</div>
+            ) : (
+              filtered.map((item) => {
+                const isSelected = selected?.competitorSku === item.competitorSku;
+                return (
+                  <button
+                    key={`${item.brand}-${item.competitorSku}`}
+                    type="button"
+                    className="wm-project-row"
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      background: isSelected
+                        ? "linear-gradient(90deg, rgba(18,182,166,0.16), rgba(255,255,255,0.04))"
+                        : undefined,
+                      borderColor: isSelected ? "rgba(18,182,166,0.28)" : undefined,
+                      cursor: "pointer",
+                    }}
+                    onClick={() => setSelectedSku(item.competitorSku)}
+                  >
+                    <div className="wm-project-row__main">
+                      <div className="wm-project-row__name">{item.brand} {item.competitorSku}</div>
+                      <div className="wm-project-row__customer">{item.category}</div>
+                    </div>
+                    <div className="wm-project-row__stage">{item.wyrestormCategory}</div>
+                    <div className="wm-project-row__updated">{item.confidence}</div>
+                    <div className="wm-project-row__actions">
+                      <span className={`wm-compare-confidence ${confidenceClass(item.confidence)}`}>{item.confidence}</span>
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
         </div>
 
-        {selected ? (
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-            {chip(`Family: ${selected.family}`)}
-            {chip(`Category: ${selected.category}`)}
-            {chip(`Transport: ${selected.transport || "Unknown"}`)}
-            {chip(`Distance: ${selected.distance?.meters ?? 0}m`)}
-          </div>
-        ) : null}
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gap: 14,
-          gridTemplateColumns: "minmax(320px, 1fr) minmax(420px, 1.4fr)",
-        }}
-      >
-        <div style={panelStyle()}>
-          <div style={{ fontSize: 18, fontWeight: 800 }}>
-            Selected WyreStorm Product
-          </div>
-
+        <div className="wm-section-stack">
           {selected ? (
             <>
-              <div style={{ marginTop: 10, fontWeight: 800 }}>
-                {selected.sku} - {selected.name}
+              <div className="wm-card">
+                <div className="wm-card__title">{selected.brand} {selected.competitorSku}</div>
+                <div className="wm-card__subtitle">{selected.summary}</div>
+
+                <div className="wm-summary-list">
+                  <div className="wm-summary-row"><span>Brand</span><strong>{selected.brand}</strong></div>
+                  <div className="wm-summary-row"><span>Competitor SKU</span><strong>{selected.competitorSku}</strong></div>
+                  <div className="wm-summary-row"><span>Category</span><strong>{selected.category}</strong></div>
+                  <div className="wm-summary-row"><span>WyreStorm direction</span><strong>{selected.wyrestormSku}</strong></div>
+                  <div className="wm-summary-row"><span>Category match</span><strong>{selected.wyrestormCategory}</strong></div>
+                  <div className="wm-summary-row"><span>Confidence</span><strong>{selected.confidence}</strong></div>
+                </div>
+
+                <div className="wm-inline-actions">
+                  {selected.recommendedFamilies.map((family) => (
+                    <span key={family} className="wm-chip">{family}</span>
+                  ))}
+                </div>
               </div>
-              {renderProductFacts(selected)}
-            </>
-          ) : (
-            <div style={{ marginTop: 10, opacity: 0.8 }}>No product selected.</div>
-          )}
-        </div>
 
-        <div style={panelStyle()}>
-          <div style={{ fontSize: 18, fontWeight: 800 }}>
-            Ranked Competitor Matches
-          </div>
+              <div className="wm-page-grid-2">
+                <div className="wm-card">
+                  <div className="wm-card__title">Feature view</div>
+                  <div className="wm-card__subtitle">Useful comparison points to discuss during replacement positioning.</div>
 
-          <div style={{ marginTop: 6, opacity: 0.8 }}>
-            {matches.length} ranked match(es)
-          </div>
-
-          <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-            {matches.map((m) => {
-              const p = m.product as CompetitorProduct;
-              const positioning = selected
-                ? explainWyreStormAdvantage(selected, p)
-                : { score: 0, reasons: [], summary: "" };
-
-              return (
-                <div
-                  key={`${p.brand || "Unknown"}-${p.sku}`}
-                  style={{
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: 14,
-                    background: "rgba(255,255,255,0.04)",
-                    padding: 12,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: 12,
-                      alignItems: "start",
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 800 }}>
-                        {String(p.brand || "Unknown")} - {p.sku}
+                  <div className="wm-summary-list">
+                    {selected.features.map((feature) => (
+                      <div className="wm-summary-row" key={feature}>
+                        <span>Feature</span>
+                        <strong>{feature}</strong>
                       </div>
-                      <div style={{ marginTop: 4 }}>{p.name}</div>
-                    </div>
-
-                    <div style={{ display: "grid", gap: 6 }}>
-                      <div
-                        style={{
-                          padding: "6px 10px",
-                          borderRadius: 999,
-                          fontSize: 12,
-                          border: "1px solid rgba(120,200,255,0.24)",
-                          background: "rgba(120,200,255,0.10)",
-                          whiteSpace: "nowrap",
-                          textAlign: "center",
-                        }}
-                      >
-                        Match {m.score}
-                      </div>
-
-                      <div
-                        style={{
-                          padding: "6px 10px",
-                          borderRadius: 999,
-                          fontSize: 12,
-                          border: "1px solid rgba(134,239,172,0.20)",
-                          background: "rgba(134,239,172,0.10)",
-                          whiteSpace: "nowrap",
-                          textAlign: "center",
-                        }}
-                      >
-                        Win {positioning.score}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    {chip(p.family)}
-                    {chip(p.category)}
-                    {chip(p.transport || "Unknown")}
-                    {chip(`${p.distance?.meters ?? 0}m`)}
-                  </div>
-
-                  {renderProductFacts(p)}
-
-                  <div style={{ marginTop: 10, fontSize: 13, opacity: 0.82 }}>
-                    <strong>Match reasons:</strong> {m.reasons.join(", ") || "No rule hits"}
-                  </div>
-
-                  <div style={{ marginTop: 8, fontSize: 13, opacity: 0.86 }}>
-                    <strong>Why WyreStorm wins:</strong> {positioning.summary || "No strong differentiator detected"}
-                  </div>
-
-                  {positioning.reasons.length ? (
-                    <ul style={{ marginTop: 8, paddingLeft: 18, fontSize: 13, opacity: 0.82 }}>
-                      {positioning.reasons.slice(0, 5).map((r) => (
-                        <li key={r}>{r}</li>
-                      ))}
-                    </ul>
-                  ) : null}
-
-                  <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <button
-                      type="button"
-                      style={buttonStyle(true)}
-                      onClick={() => handoffToProposal(p)}
-                    >
-                      Send to Proposal Builder
-                    </button>
+                    ))}
                   </div>
                 </div>
-              );
-            })}
 
-            {matches.length === 0 ? (
-              <div style={{ opacity: 0.8 }}>
-                No competitor matches found for the current selection.
+                <div className="wm-card">
+                  <div className="wm-card__title">Replacement rationale</div>
+                  <div className="wm-card__subtitle">{selected.rationale}</div>
+
+                  <div className="wm-summary-list">
+                    {selected.notes.map((note) => (
+                      <div className="wm-summary-row" key={note}>
+                        <span>Check</span>
+                        <strong>{note}</strong>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            ) : null}
-          </div>
+
+              <div className="wm-card">
+                <div className="wm-card__title">Project target</div>
+                <div className="wm-card__subtitle">
+                  {activeProject
+                    ? `Current active project: ${activeProject.name}`
+                    : "No active project selected. Applying will create or use a live project record."}
+                </div>
+
+                <div className="wm-summary-list">
+                  <div className="wm-summary-row"><span>Customer</span><strong>{activeProject?.customer || "Sample customer"}</strong></div>
+                  <div className="wm-summary-row"><span>Site</span><strong>{activeProject?.site || "Not set"}</strong></div>
+                  <div className="wm-summary-row"><span>Current stage</span><strong>{activeProject?.stage || "Discovery"}</strong></div>
+                </div>
+
+                <div className="wm-inline-actions">
+                  <button type="button" className="wm-btn wm-btn--primary" onClick={applyToActiveProject}>
+                    Apply To Active Project
+                  </button>
+                  <button type="button" className="wm-btn wm-btn--ghost" onClick={createReplacementProject}>
+                    Create New Replacement Project
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="wm-card">
+              <div className="wm-card__title">No comparison selected</div>
+              <div className="wm-card__subtitle">Choose a competitor SKU from the list to review the replacement path.</div>
+            </div>
+          )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }
+
+
+

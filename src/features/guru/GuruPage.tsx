@@ -1,481 +1,360 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import CollapsibleCard from "@/ui2/components/CollapsibleCard";
-import { askGuru, type GuruResponse } from "./guruService";
 
-const SUGGESTIONS = [
-  "Recommend a WyreStorm starting point for a BYOD meeting room with 2 displays, USB-C and wireless casting",
-  "Suggest a WyreStorm KVM starting point for a control room with 4K30 and USB extension",
-  "What WyreStorm product should I start with for a 4-input presentation space with multiview?",
-  "Recommend a starting SKU for an audio collaboration room with ceiling mics and external speakers",
-  "Suggest a like-for-like WyreStorm starting point for a competitor replacement matrix requirement",
-];
+type GuruMode =
+  | "general"
+  | "wyrestorm"
+  | "design"
+  | "troubleshooting"
+  | "training";
 
-const EMPTY_RESPONSE: GuruResponse = {
-  question: "",
-  productStartingPoint:
-    "Describe the room, use case, source count, display count, cable distances, and any competitor reference so Guru can suggest a WyreStorm starting point.",
-  skuSuggestions: [],
-  matchedProducts: [],
-  qualificationQuestions: [
-    "What is the room type or application?",
-    "How many sources and displays are involved?",
-    "What are the required cable distances?",
-    "Is this a new design, an upgrade, or a competitor replacement?",
-  ],
-  guidanceNotes: [
-    "Guru works best when the question includes the commercial objective and the core technical constraints.",
-  ],
+type GuruWorkspaceState = {
+  mode: GuruMode;
+  question: string;
+  context: string;
 };
 
-function ResultBulletList({
-  items,
-  accentRgb,
-}: {
-  items: string[];
-  accentRgb?: string;
-}) {
-  const rgb = accentRgb || "255,255,255";
+type GuruModeDef = {
+  id: GuruMode;
+  label: string;
+  subtitle: string;
+  placeholder: string;
+  persona: string;
+  quickAsks: string[];
+};
 
-  return (
-    <div style={{ display: "grid", gap: 8 }}>
-      {items.map((item, i) => (
-        <div
-          key={i}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "10px 1fr",
-            gap: 10,
-            alignItems: "start",
-          }}
-        >
-          <div
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: 999,
-              marginTop: 6,
-              background: `rgba(${rgb},0.92)`,
-            }}
-          />
-          <div style={{ fontSize: 13, lineHeight: 1.55, color: "rgba(255,255,255,0.90)" }}>
-            {item}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+const STORAGE_KEY = "wm_guru_workspace_v3";
+
+const MODE_DEFS: Record<GuruMode, GuruModeDef> = {
+  general: {
+    id: "general",
+    label: "General AV advice",
+    subtitle: "Broad AV guidance, terminology, workflows and best practice.",
+    placeholder:
+      "Ask a general AV question, for example: What should I consider when specifying a meeting room signal path?",
+    persona:
+      "You are Guru, an AV industry assistant. Give clear, commercially useful advice in plain English. Focus on practical audiovisual guidance, signal flow, room design logic and product-category reasoning.",
+    quickAsks: [
+      "Explain the difference between matrix switching, extension and AVoIP.",
+      "What should I ask during an AV discovery call?",
+      "How do I choose between HDBaseT and AVoIP?",
+      "What are the key design considerations for a boardroom AV system?",
+    ],
+  },
+  wyrestorm: {
+    id: "wyrestorm",
+    label: "WyreStorm guidance",
+    subtitle: "WyreStorm-focused product and application support.",
+    placeholder:
+      "Ask a WyreStorm-specific question, for example: Which WyreStorm family fits a small Teams room with USB-C BYOD?",
+    persona:
+      "You are Guru, a WyreStorm-focused AV assistant. Prioritise WyreStorm product families, application fit and plain-English guidance. State assumptions clearly when exact product detail is missing.",
+    quickAsks: [
+      "Which WyreStorm family best suits a small meeting room?",
+      "When should I recommend Apollo instead of HDBaseT?",
+      "How would you position WyreStorm against larger AV brands?",
+      "What discovery answers matter most before choosing WyreStorm products?",
+    ],
+  },
+  design: {
+    id: "design",
+    label: "Design support",
+    subtitle: "Signal paths, room planning and system architecture advice.",
+    placeholder:
+      "Describe the room, sources, displays and constraints, then ask for a design recommendation.",
+    persona:
+      "You are Guru, an AV design assistant. Help structure signal paths, room layouts, extension methods, switching logic, USB transport, audio integration, control considerations and design risks.",
+    quickAsks: [
+      "Propose a signal path for a boardroom with two displays and three sources.",
+      "What inputs do I need before designing a divisible training space?",
+      "How should I structure USB, video and control in a meeting room?",
+      "What are the typical pitfalls in AV system design?",
+    ],
+  },
+  troubleshooting: {
+    id: "troubleshooting",
+    label: "Troubleshooting",
+    subtitle: "Fault-finding for signal, USB, audio and control problems.",
+    placeholder:
+      "Describe the fault symptoms, what is connected, and what has already been tested.",
+    persona:
+      "You are Guru, an AV troubleshooting assistant. Help isolate likely causes, suggest ordered checks and separate symptoms from root causes. Keep answers structured and practical.",
+    quickAsks: [
+      "Help me troubleshoot intermittent HDMI sync issues.",
+      "Why might USB devices fail over extension?",
+      "What should I check when audio is missing but video is present?",
+      "Create a structured AV fault-finding checklist.",
+    ],
+  },
+  training: {
+    id: "training",
+    label: "Training and explainers",
+    subtitle: "Learning support, sales coaching and concept explainers.",
+    placeholder:
+      "Ask Guru to explain a concept, teach a workflow, or simplify a technical topic.",
+    persona:
+      "You are Guru, an AV trainer and explainer. Teach clearly, keep the language simple, and connect technical concepts to real sales and design decisions.",
+    quickAsks: [
+      "Explain HDCP, EDID and scaling in simple terms.",
+      "Teach me how to qualify an AV opportunity.",
+      "What are the core AV concepts a salesperson should understand?",
+      "Summarise AVoIP for a non-technical audience.",
+    ],
+  },
+};
+
+function readState(): GuruWorkspaceState {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return { mode: "general", question: "", context: "" };
+    }
+    const parsed = JSON.parse(raw) as Partial<GuruWorkspaceState>;
+    return {
+      mode: parsed.mode ?? "general",
+      question: parsed.question ?? "",
+      context: parsed.context ?? "",
+    };
+  } catch {
+    return { mode: "general", question: "", context: "" };
+  }
 }
 
-function buildRefinedQuestion(baseQuestion: string, questions: string[], answers: string[]): string {
-  const safeBase = (baseQuestion || "").trim();
-  const lines: string[] = [];
+function writeState(state: GuruWorkspaceState) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+  }
+}
 
-  for (let i = 0; i < questions.length; i++) {
-    const answer = (answers[i] || "").trim();
-    if (!answer) continue;
-    lines.push(`${questions[i]} ${answer}`);
+function buildPrompt(mode: GuruMode, question: string, context: string): string {
+  const def = MODE_DEFS[mode];
+  const sections: string[] = [def.persona, "", `Mode: ${def.label}`];
+
+  if (context.trim()) sections.push("", "Optional context:", context.trim());
+  sections.push("", `Task: ${question.trim() || ""}`);
+
+  return sections.join("\n");
+}
+
+const pageStyles = `
+.wm-guru-page{
+  padding: 14px 16px 18px;
+}
+
+.wm-guru-page__hero{
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.wm-guru-page__heroActions{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.wm-guru-page__eyebrow{
+  margin: 0 0 4px;
+  color: #66eadb;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.wm-guru-page__modes{
+  margin-top: 12px;
+}
+
+@media (max-width: 900px){
+  .wm-guru-page__hero{
+    grid-template-columns: 1fr;
   }
 
-  if (!lines.length) return safeBase;
-
-  return [safeBase, "", "Further qualification answers:", ...lines.map((x) => `- ${x}`)].join("\n");
+  .wm-guru-page__heroActions{
+    justify-content: flex-start;
+  }
 }
+`;
 
 export default function GuruPage() {
-  const nav = useNavigate();
-  const [draftQuestion, setDraftQuestion] = React.useState(SUGGESTIONS[0]);
-  const [submittedQuestion, setSubmittedQuestion] = React.useState("");
-  const [result, setResult] = React.useState<GuruResponse>(EMPTY_RESPONSE);
-  const [loading, setLoading] = React.useState(false);
+  const navigate = useNavigate();
 
-  const [followUpAnswers, setFollowUpAnswers] = React.useState<string[]>([]);
-  const [refinedQuestion, setRefinedQuestion] = React.useState("");
-  const [lastRefinementApplied, setLastRefinementApplied] = React.useState(false);
+  const initial = React.useMemo(() => readState(), []);
+  const [mode, setMode] = React.useState<GuruMode>(initial.mode);
+  const [question, setQuestion] = React.useState(initial.question);
+  const [context, setContext] = React.useState(initial.context);
+  const [copiedAt, setCopiedAt] = React.useState("");
 
-  const canSubmit = React.useMemo(() => draftQuestion.trim().length > 0, [draftQuestion]);
-  const hasSkuSuggestions = result.skuSuggestions.length > 0;
+  React.useEffect(() => {
+    writeState({ mode, question, context });
+  }, [mode, question, context]);
 
-  const preparedAnswers = React.useMemo(() => {
-    return result.qualificationQuestions.map((_, i) => followUpAnswers[i] || "");
-  }, [result.qualificationQuestions, followUpAnswers]);
+  const def = MODE_DEFS[mode];
+  const promptPreview = React.useMemo(() => buildPrompt(mode, question, context), [mode, question, context]);
+  const hasContent = question.trim().length > 0 || context.trim().length > 0;
 
-  const hasAnyFollowUpAnswer = React.useMemo(() => {
-    return preparedAnswers.some((x) => x.trim().length > 0);
-  }, [preparedAnswers]);
-
-  async function submitQuestion() {
-    const next = draftQuestion.trim();
-    if (!next) return;
-
-    setLoading(true);
+  const copyPrompt = async () => {
     try {
-      const response = await askGuru(next);
-      setSubmittedQuestion(next);
-      setResult(response);
-      setFollowUpAnswers(new Array(response.qualificationQuestions.length).fill(""));
-      setRefinedQuestion("");
-      setLastRefinementApplied(false);
-    } finally {
-      setLoading(false);
+      await navigator.clipboard.writeText(promptPreview);
+      setCopiedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+    } catch {
     }
-  }
+  };
 
-  async function applyFurtherQuestioning() {
-    const base = submittedQuestion.trim() || draftQuestion.trim();
-    if (!base) return;
+  const clearAll = () => {
+    setQuestion("");
+    setContext("");
+    setCopiedAt("");
+  };
 
-    const nextRefinedQuestion = buildRefinedQuestion(
-      base,
-      result.qualificationQuestions,
-      preparedAnswers
-    );
-
-    if (nextRefinedQuestion.trim() === base.trim()) return;
-
-    setLoading(true);
-    try {
-      const response = await askGuru(nextRefinedQuestion);
-      setSubmittedQuestion(nextRefinedQuestion);
-      setRefinedQuestion(nextRefinedQuestion);
-      setResult(response);
-      setFollowUpAnswers(new Array(response.qualificationQuestions.length).fill(""));
-      setLastRefinementApplied(true);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function clearAll() {
-    setDraftQuestion("");
-    setSubmittedQuestion("");
-    setResult(EMPTY_RESPONSE);
-    setFollowUpAnswers([]);
-    setRefinedQuestion("");
-    setLastRefinementApplied(false);
-  }
-
-  function clearFollowUpAnswers() {
-    setFollowUpAnswers(new Array(result.qualificationQuestions.length).fill(""));
-  }
-
-  function updateFollowUpAnswer(index: number, value: string) {
-    setFollowUpAnswers((prev) => {
-      const next = [...prev];
-      while (next.length < result.qualificationQuestions.length) next.push("");
-      next[index] = value;
-      return next;
+  const insertContextTemplate = () => {
+    setContext((prev) => {
+      if (prev.trim()) return prev;
+      return [
+        "Project or room type:",
+        "Customer goal:",
+        "Source devices:",
+        "Displays:",
+        "Distances:",
+        "Audio requirements:",
+        "Control requirements:",
+        "Budget band:",
+        "Constraints or risks:",
+      ].join("\n");
     });
-  }
-
-  function buildProposal() {
-    try {
-      localStorage.setItem(
-        "wm_guru_proposal_seed",
-        JSON.stringify({
-          source: "guru",
-          question: submittedQuestion,
-          productStartingPoint: result.productStartingPoint,
-          skuSuggestions: result.skuSuggestions,
-          qualificationQuestions: result.qualificationQuestions,
-          guidanceNotes: result.guidanceNotes,
-          matchedProducts: result.matchedProducts,
-          savedAt: new Date().toISOString(),
-        })
-      );
-    } catch {}
-
-    nav("/app/tools/proposal");
-  }
+  };
 
   return (
-    <div className="wm-page wm-animate-in" style={{ width: "100%", maxWidth: "none", margin: 0 }}>
-      <div style={{ display: "grid", gap: 14 }}>
-        <div>
-          <div className="wm-page-eyebrow">GUIDED ASSISTANCE</div>
-          <h1 className="wm-page-title" style={{ marginBottom: 8 }}>
-            Wingman Guru
-          </h1>
-          <div
-            style={{
-              maxWidth: 760,
-              fontSize: 14,
-              color: "rgba(255,255,255,0.88)",
-              lineHeight: 1.45,
-            }}
-          >
-            Ask one clear question, get a practical starting point, then refine only if needed.
-          </div>
-        </div>
+    <div className="wm-guru-page wm-ui">
+      <style>{pageStyles}</style>
 
-        <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              gap: 12,
-              flexWrap: "wrap",
-            }}
-          >
+      <div className="wm-ui__stack">
+        <section className="wm-ui__card wm-ui__card--hero">
+          <div className="wm-guru-page__hero">
             <div>
-              <div style={{ fontWeight: 900, fontSize: 16 }}>Ask Guru</div>
-              <div
-                style={{
-                  marginTop: 4,
-                  fontSize: 12,
-                  color: "rgba(255,255,255,0.80)",
-                  lineHeight: 1.45,
-                }}
-              >
-                Describe the room, workflow, distances, and any competitor reference.
-              </div>
+              <p className="wm-guru-page__eyebrow">Guru</p>
+              <h1 className="wm-ui__title">AV knowledge workspace</h1>
+              <p className="wm-ui__subtitle">
+                Standalone assistant for general AV advice, WyreStorm guidance, design help, troubleshooting and training.
+              </p>
             </div>
 
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button
-                type="button"
-                className="wm-btn"
-                style={{ height: 36, padding: "0 12px" }}
-                onClick={clearAll}
-              >
-                Clear
+            <div className="wm-guru-page__heroActions">
+              <button className="wm-ui__btn wm-ui__btn--ghost" onClick={() => navigate("/app/tools")}>
+                Tool Hub
               </button>
-
-              <button
-                type="button"
-                className="wm-btn wm-btn-primary"
-                style={{
-                  height: 36,
-                  padding: "0 14px",
-                  opacity: canSubmit && !loading ? 1 : 0.65,
-                  cursor: canSubmit && !loading ? "pointer" : "not-allowed",
-                }}
-                disabled={!canSubmit || loading}
-                onClick={submitQuestion}
-              >
-                {loading ? "Working..." : "Submit question"}
+              <button className="wm-ui__btn wm-ui__btn--primary" onClick={copyPrompt} disabled={!hasContent}>
+                Copy prompt
               </button>
             </div>
           </div>
+        </section>
 
-          <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
+        <section className="wm-ui__card">
+          <h2 className="wm-ui__sectionTitle">Mode</h2>
+          <p className="wm-ui__sectionText">Select how Guru should respond before you ask the question.</p>
+
+          <div className="wm-ui__grid wm-ui__grid--auto wm-guru-page__modes">
+            {(Object.values(MODE_DEFS) as GuruModeDef[]).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={`wm-ui__chip ${item.id === mode ? "wm-ui__chip--active" : ""}`}
+                onClick={() => setMode(item.id)}
+                style={{ justifyContent: "flex-start", minHeight: "auto", padding: "12px 14px", borderRadius: "14px", display: "block", textAlign: "left" }}
+              >
+                <strong style={{ display: "block", marginBottom: "4px", fontSize: "0.96rem", fontWeight: 650 }}>{item.label}</strong>
+                <span style={{ display: "block", color: "rgba(232,241,255,0.72)", fontSize: "0.82rem", lineHeight: 1.28 }}>{item.subtitle}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="wm-ui__card">
+          <h2 className="wm-ui__sectionTitle">{def.label}</h2>
+          <p className="wm-ui__sectionText">{def.subtitle}</p>
+
+          <label className="wm-ui__field" style={{ marginTop: "12px" }}>
+            <span className="wm-ui__label">Main question</span>
             <textarea
-              value={draftQuestion}
-              onChange={(e) => setDraftQuestion(e.target.value)}
-              placeholder="Describe the room, source count, display count, cable distances, user workflow, or competitor reference."
-              style={{
-                width: "100%",
-                minHeight: 110,
-                resize: "vertical",
-                borderRadius: 14,
-                border: "1px solid rgba(255,255,255,0.14)",
-                background: "rgba(255,255,255,0.05)",
-                padding: 14,
-                color: "rgba(255,255,255,0.96)",
-                fontSize: 14,
-                lineHeight: 1.5,
-                boxSizing: "border-box",
-              }}
+              className="wm-ui__textarea wm-ui__textarea--lg"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder={def.placeholder}
             />
+          </label>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {SUGGESTIONS.slice(0, 3).map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  className="wm-btn"
-                  style={{ minHeight: 34, padding: "6px 10px", textAlign: "left" }}
-                  onClick={() => setDraftQuestion(item)}
-                >
-                  Load example
-                </button>
-              ))}
-            </div>
+          <div className="wm-ui__helper">
+            Put the actual question first. Add room notes, customer details or system constraints only if they help.
           </div>
-        </section>
 
-        <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              gap: 12,
-              flexWrap: "wrap",
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 900, fontSize: 16 }}>Guru result</div>
-              <div
-                style={{
-                  marginTop: 4,
-                  fontSize: 12,
-                  color: "rgba(255,255,255,0.80)",
-                  lineHeight: 1.45,
-                }}
-              >
-                Practical starting point first. Refine only if you need more precision.
-              </div>
-            </div>
+          <label className="wm-ui__field">
+            <span className="wm-ui__label">Optional context</span>
+            <textarea
+              className="wm-ui__textarea wm-ui__textarea--sm"
+              value={context}
+              onChange={(e) => setContext(e.target.value)}
+              placeholder="Paste room notes, customer requirements, design constraints, existing kit, or any other useful context."
+            />
+          </label>
 
-            {hasSkuSuggestions ? (
+          <div className="wm-ui__chips">
+            {def.quickAsks.map((ask) => (
               <button
+                key={ask}
                 type="button"
-                className="wm-btn wm-btn-primary"
-                style={{ height: 34, padding: "0 14px" }}
-                onClick={buildProposal}
+                className="wm-ui__chip"
+                onClick={() => setQuestion(ask)}
               >
-                Build proposal
+                {ask}
               </button>
-            ) : null}
+            ))}
           </div>
 
-          <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
-            <div
-              style={{
-                borderRadius: 14,
-                border: "1px solid rgba(168,85,247,0.20)",
-                background: "linear-gradient(180deg, rgba(168,85,247,0.10) 0%, rgba(168,85,247,0.05) 100%)",
-                padding: 14,
-                fontSize: 14,
-                lineHeight: 1.6,
-                color: "rgba(255,255,255,0.94)",
-              }}
-            >
-              {result.productStartingPoint}
-            </div>
-
-            {hasSkuSuggestions ? (
-              <div style={{ display: "grid", gap: 10 }}>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {result.skuSuggestions.map((sku) => (
-                    <span
-                      key={sku}
-                      style={{
-                        padding: "8px 12px",
-                        borderRadius: 999,
-                        border: "1px solid rgba(251,191,36,0.24)",
-                        background: "rgba(251,191,36,0.10)",
-                        color: "rgba(255,245,214,0.96)",
-                        fontSize: 13,
-                        fontWeight: 800,
-                      }}
-                    >
-                      {sku}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+          <div className="wm-ui__actions">
+            <button className="wm-ui__btn" onClick={insertContextTemplate}>
+              Insert context template
+            </button>
+            <button className="wm-ui__btn" onClick={clearAll}>
+              Clear
+            </button>
+            <button className="wm-ui__btn wm-ui__btn--primary" onClick={copyPrompt} disabled={!hasContent}>
+              Copy prompt
+            </button>
           </div>
         </section>
 
-        <CollapsibleCard
-          id="guru_refine"
-          title="Refine the recommendation"
-          subtitle="Answer follow-up questions only when you need a more precise result."
-          defaultCollapsed
-        >
-          {result.qualificationQuestions.length ? (
-            <div style={{ display: "grid", gap: 12 }}>
-              {result.qualificationQuestions.map((question, index) => (
-                <div
-                  key={`${question}-${index}`}
-                  style={{
-                    borderRadius: 12,
-                    border: "1px solid rgba(94,234,212,0.16)",
-                    background: "rgba(94,234,212,0.05)",
-                    padding: 12,
-                    display: "grid",
-                    gap: 8,
-                  }}
-                >
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "rgba(220,252,247,0.96)" }}>
-                    {question}
-                  </div>
+        <section className="wm-ui__card">
+          <h3 className="wm-ui__sectionTitle">Prompt preview</h3>
+          <div className="wm-ui__preview">
+            {hasContent ? promptPreview : "Your prompt preview will appear here as soon as you type a question or add context."}
+          </div>
+          <div className="wm-ui__helper">
+            {copiedAt ? `Copied at ${copiedAt}` : "Use Copy prompt when the wording looks right."}
+          </div>
+        </section>
 
-                  <textarea
-                    value={preparedAnswers[index]}
-                    onChange={(e) => updateFollowUpAnswer(index, e.target.value)}
-                    placeholder="Enter the customer's answer or your best known detail here."
-                    style={{
-                      width: "100%",
-                      minHeight: 74,
-                      resize: "vertical",
-                      borderRadius: 10,
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      background: "rgba(255,255,255,0.04)",
-                      padding: 10,
-                      color: "rgba(255,255,255,0.94)",
-                      fontSize: 13,
-                      lineHeight: 1.45,
-                      boxSizing: "border-box",
-                    }}
-                  />
-                </div>
-              ))}
-
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <button
-                  type="button"
-                  className="wm-btn"
-                  style={{ height: 34, padding: "0 12px" }}
-                  onClick={clearFollowUpAnswers}
-                  disabled={!result.qualificationQuestions.length || loading}
-                >
-                  Clear answers
-                </button>
-
-                <button
-                  type="button"
-                  className="wm-btn wm-btn-primary"
-                  style={{
-                    height: 34,
-                    padding: "0 14px",
-                    opacity: hasAnyFollowUpAnswer && !loading ? 1 : 0.65,
-                    cursor: hasAnyFollowUpAnswer && !loading ? "pointer" : "not-allowed",
-                  }}
-                  disabled={!hasAnyFollowUpAnswer || loading}
-                  onClick={applyFurtherQuestioning}
-                >
-                  {loading ? "Working..." : "Refine design"}
-                </button>
-              </div>
-
-              {lastRefinementApplied && refinedQuestion ? (
-                <div
-                  style={{
-                    borderRadius: 12,
-                    border: "1px solid rgba(94,234,212,0.18)",
-                    background: "rgba(94,234,212,0.05)",
-                    padding: 12,
-                    fontSize: 12,
-                    lineHeight: 1.5,
-                    color: "rgba(240,253,250,0.92)",
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  {refinedQuestion}
-                </div>
-              ) : null}
+        <section className="wm-ui__card">
+          <h3 className="wm-ui__sectionTitle">How to use Guru</h3>
+          <div className="wm-ui__miniGrid" style={{ marginTop: "12px" }}>
+            <div className="wm-ui__miniItem">
+              <strong>1. Pick a mode</strong>
+              <span>Choose the kind of help you want before writing the question.</span>
             </div>
-          ) : (
-            <ResultBulletList
-              items={["No further qualification questions are currently available."]}
-              accentRgb="94,234,212"
-            />
-          )}
-        </CollapsibleCard>
-
-        <CollapsibleCard
-          id="guru_notes"
-          title="Guided notes"
-          subtitle="Additional supporting guidance."
-          defaultCollapsed
-        >
-          <ResultBulletList items={result.guidanceNotes} accentRgb="125,211,252" />
-        </CollapsibleCard>
+            <div className="wm-ui__miniItem">
+              <strong>2. Ask plainly</strong>
+              <span>Write the real AV question first. Keep it direct and specific.</span>
+            </div>
+            <div className="wm-ui__miniItem">
+              <strong>3. Add context only when useful</strong>
+              <span>Paste notes only if they improve the answer. Guru should work without project data.</span>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

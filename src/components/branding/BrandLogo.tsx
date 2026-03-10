@@ -21,18 +21,18 @@ export default function PublicLandingPage() {
           <LogoLockup />
 
           <div style={{ position: "relative", zIndex: 1, textAlign: "center", display: "grid", gap: 10 }}>
-            <div className="wm-kicker">Design â€¢ Compare â€¢ Propose â€¢ Win</div>
+            <div className="wm-kicker">Design | Compare | Propose | Win</div>
 
             <div className="wm-h1">AV Sales. Simplified.</div>
 
             <div className="wm-subtitle">
-              Design systems, compare competitors, generate proposals and win projects faster â€” all from one intelligent workspace.
+              Design systems, compare competitors, generate proposals and win projects faster | all from one intelligent workspace.
             </div>
 
             <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 6 }}>
               <Link className="wm-btn wm-btn-primary" to="/login">Log in</Link>
               <Link className="wm-btn" to="/signup">Create account</Link>
-              <Link className="wm-btn" to="/app/toolhub">Open ToolHub</Link>
+              <Link className="wm-btn" to="/app/tools">Open ToolHub</Link>
             </div>
 
             <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 8 }}>
@@ -62,3 +62,4 @@ export default function PublicLandingPage() {
     </PageShell>
   );
 }
+

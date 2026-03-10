@@ -14,11 +14,11 @@ const RoomSpecsInputs: React.FC<RoomSpecsInputsProps> = ({ answers, updateAnswer
   const { userProfile } = useUserContext();
   const isImperial = userProfile.unitSystem === 'imperial';
 
-  const toDisplay = (meters: number) => (isImperial ? (meters * METER_TO_FEET).toFixed(1) : String(meters));
-  const fromDisplay = (value: string) => {
+  const toDisplay = React.useCallback((meters: number) => (isImperial ? (meters * METER_TO_FEET).toFixed(1) : String(meters)), [isImperial]);
+  const fromDisplay = React.useCallback((value: string) => {
     const num = parseFloat(value) || 0;
     return isImperial ? num / METER_TO_FEET : num;
-  };
+  }, [isImperial]);
 
   const [localLength, setLocalLength] = React.useState(() => toDisplay(answers.dimensions.length));
   const [localWidth, setLocalWidth] = React.useState(() => toDisplay(answers.dimensions.width));
@@ -28,7 +28,7 @@ const RoomSpecsInputs: React.FC<RoomSpecsInputsProps> = ({ answers, updateAnswer
     setLocalLength(toDisplay(answers.dimensions.length));
     setLocalWidth(toDisplay(answers.dimensions.width));
     setLocalHeight(toDisplay(answers.dimensions.height));
-  }, [answers.dimensions, isImperial]);
+  }, [answers.dimensions, toDisplay]);
 
   const handleBlur = (field: 'length' | 'width' | 'height', value: string) => {
     updateAnswers({ dimensions: { ...answers.dimensions, [field]: fromDisplay(value) } });

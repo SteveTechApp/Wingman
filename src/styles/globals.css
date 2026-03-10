@@ -1,12 +1,9 @@
 /* globals.css (consolidated): keep ONLY global element rules here. Imports moved to index.css. */
 
  /* WINGMAN_FULLWIDTH */
- html, body, #root {
-   width:100%;
-   max-width:100%;
-   margin:0;
-   padding:0;
- }
+ /* LEGACY GLOBAL DISABLED
+
+*/
 
  .container, .app-container, .page-frame {
    max-width:100% !important;
@@ -17,25 +14,14 @@
 
 
 /* WINGMAN_FULLWIDTH_SHELL */
-html, body, #root {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-}
-* { box-sizing: border-box; }
+/* LEGACY GLOBAL DISABLED
+
+*/
+/* REMOVED by wingman-design-system-cleanup: box-sizing now lives in tokens.css */
 
 /* WINGMAN_ROOT_FULLWIDTH */
-html, body, #root { width:100%; max-width:100%; margin:0; padding:0; }
-* { box-sizing:border-box; }
+/* LEGACY GLOBAL DISABLED
 
-/* WINGMAN_TOOLHUB_FULLWIDTH */
-.wm-toolhub-fullwidth{
-  width: 100%;
-  max-width: none;
-  margin-left: 0;
-  margin-right: 0;
-}
 
 .wm-toolhub-fullwidth .wm-tilegrid{
   width: 100%;
@@ -59,7 +45,6 @@ html, body, #root { width:100%; max-width:100%; margin:0; padding:0; }
    max-height: 48px;
  }
  /* __END_WM_LOGO_SCALE_FIX_V1__ */
-
 
 
 /* __WM_MISSION_CONTROL_REFRESH__ */
@@ -518,18 +503,10 @@ html, body, #root { width:100%; max-width:100%; margin:0; padding:0; }
 
 
 /* __WM_DASHBOARD_SCROLL_LOCK__ */
-html,
-body,
-#root {
-  height: 100%;
-  min-height: 100%;
-  margin: 0;
-  overflow: hidden;
-}
+/* LEGACY GLOBAL DISABLED
 
-body {
-  overflow: hidden;
-}
+*/
+
 
 .wm-shell {
   height: 100vh !important;
@@ -665,7 +642,7 @@ body {
 
 /* Brighter larger logo */
 .wm-topbar__logo{
-  height:66px !important;         /* ~20Ã¢â‚¬â€œ30% larger */
+  height:66px !important;         /* ~20ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“30% larger */
   width:auto !important;
   filter:brightness(1.45) contrast(1.12) saturate(1.1);
 }

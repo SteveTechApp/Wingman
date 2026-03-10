@@ -1,5 +1,5 @@
-import React, * as ReactHooks from "react";
-const { useState, useEffect, useMemo, useRef, useContext, createContext, lazy, Suspense } = ReactHooks;
+import React from "react";
+const { useState, useEffect, useRef } = React;
 import { Dimensions } from '../../utils/types';
 
 interface PlannerCanvasProps {
@@ -190,4 +190,6 @@ const PlannerCanvas: React.FC<PlannerCanvasProps> = ({
 };
 
 export default PlannerCanvas;
+
+
 

@@ -1,0 +1,162 @@
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import type { VideoWallSeed } from "@/features/systemDesign/designTypes";
+
+const STORAGE_KEY = "wm_video_wall_seed";
+
+const styles = `
+.wm-vw{ padding:12px 16px 16px; }
+.wm-vw__stack{ display:grid; gap:12px; }
+.wm-vw__hero{
+  display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:start;
+  padding:14px 16px; border-radius:18px; border:1px solid rgba(110,145,190,0.16);
+  background:
+    radial-gradient(circle at top right, rgba(25,83,173,0.16), transparent 36%),
+    radial-gradient(circle at left center, rgba(34,199,184,0.10), transparent 30%),
+    linear-gradient(180deg, rgba(13,22,37,0.96), rgba(7,13,24,0.96));
+}
+.wm-vw__eyebrow{ margin:0 0 4px; color:#66eadb; font-size:.78rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
+.wm-vw__title{ margin:0; font-size:1.7rem; line-height:1.02; font-weight:700; letter-spacing:-.02em; }
+.wm-vw__subtitle{ margin:6px 0 0; color:rgba(232,241,255,0.74); font-size:.92rem; line-height:1.32; max-width:76ch; }
+.wm-vw__card{ padding:16px 18px; border-radius:18px; border:1px solid rgba(110,145,190,0.16); background:linear-gradient(180deg, rgba(13,22,37,0.94), rgba(7,13,24,0.94)); }
+.wm-vw__grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.wm-vw__field{ display:grid; gap:6px; }
+.wm-vw__field span{ font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,0.62); }
+.wm-vw__field input,.wm-vw__field select,.wm-vw__field textarea{
+  border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.94);
+  padding:12px; font:inherit; outline:none;
+}
+.wm-vw__field input,.wm-vw__field select{ min-height:42px; }
+.wm-vw__field textarea{ min-height:110px; resize:vertical; }
+.wm-vw__panel{ border-radius:14px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03); padding:14px; }
+.wm-vw__wall{ display:grid; gap:4px; width:min(100%,420px); margin-top:10px; }
+.wm-vw__tile{ min-height:44px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(34,199,184,0.12); display:flex; align-items:center; justify-content:center; font-size:.82rem; font-weight:700; }
+@media (max-width:900px){
+  .wm-vw__hero{ grid-template-columns:1fr; }
+  .wm-vw__grid{ grid-template-columns:1fr; }
+}
+`;
+
+function readSeed(): VideoWallSeed {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return { displayType: "LCD", rows: 2, columns: 2, sourceCount: 1, processorPreference: "Auto" };
+    }
+    return JSON.parse(raw) as VideoWallSeed;
+  } catch {
+    return { displayType: "LCD", rows: 2, columns: 2, sourceCount: 1, processorPreference: "Auto" };
+  }
+}
+
+function writeSeed(seed: VideoWallSeed) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(seed)); } catch {}
+}
+
+export default function VideoWallBuilderPage() {
+  const nav = useNavigate();
+  const [seed, setSeed] = React.useState<VideoWallSeed>(() => readSeed());
+
+  React.useEffect(() => { writeSeed(seed); }, [seed]);
+
+  const displayCount = Math.max(1, seed.rows * seed.columns);
+  const processor = seed.processorPreference === "Auto"
+    ? displayCount > 4 ? "Dedicated wall processor recommended" : "Compact wall processor / multiview solution likely sufficient"
+    : seed.processorPreference;
+
+  return (
+    <div className="wm-vw">
+      <style>{styles}</style>
+
+      <div className="wm-vw__stack">
+        <section className="wm-vw__hero">
+          <div>
+            <div className="wm-vw__eyebrow">Video Wall</div>
+            <h1 className="wm-vw__title">Video wall builder</h1>
+            <div className="wm-vw__subtitle">
+              Define the wall format, processor direction, and assumptions. This seed is later consumed by cable schedule and block diagram tools.
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button type="button" className="wm-btn" style={{ height: 40, padding: "0 16px" }} onClick={() => nav("/app/tools")}>Tool Hub</button>
+            <button type="button" className="wm-btn wm-btn-primary" style={{ height: 40, padding: "0 16px" }} onClick={() => nav("/app/tools/cable-schedule")}>Cable Schedule</button>
+          </div>
+        </section>
+
+        <section className="wm-vw__grid">
+          <section className="wm-vw__card">
+            <div style={{ fontWeight: 900, fontSize: 16 }}>Wall definition</div>
+            <div className="wm-vw__grid" style={{ marginTop: 12 }}>
+              <label className="wm-vw__field">
+                <span>Display type</span>
+                <select value={seed.displayType} onChange={(e) => setSeed({ ...seed, displayType: e.target.value as "LCD" | "LED" })}>
+                  <option value="LCD">LCD</option>
+                  <option value="LED">LED</option>
+                </select>
+              </label>
+
+              <label className="wm-vw__field">
+                <span>Rows</span>
+                <input type="number" value={seed.rows} onChange={(e) => setSeed({ ...seed, rows: Math.max(1, Number(e.target.value) || 1) })} />
+              </label>
+
+              <label className="wm-vw__field">
+                <span>Columns</span>
+                <input type="number" value={seed.columns} onChange={(e) => setSeed({ ...seed, columns: Math.max(1, Number(e.target.value) || 1) })} />
+              </label>
+
+              <label className="wm-vw__field">
+                <span>Source count</span>
+                <input type="number" value={seed.sourceCount} onChange={(e) => setSeed({ ...seed, sourceCount: Math.max(1, Number(e.target.value) || 1) })} />
+              </label>
+
+              <label className="wm-vw__field">
+                <span>Processor preference</span>
+                <select value={seed.processorPreference} onChange={(e) => setSeed({ ...seed, processorPreference: e.target.value })}>
+                  <option value="Auto">Auto</option>
+                  <option value="Dedicated Processor">Dedicated Processor</option>
+                  <option value="Integrated Switching">Integrated Switching</option>
+                  <option value="Network-based">Network-based</option>
+                </select>
+              </label>
+
+              <label className="wm-vw__field">
+                <span>Pixel pitch / bezel</span>
+                <input value={seed.displayType === "LED" ? (seed.pixelPitch ?? "") : (seed.bezelMm ?? "")}
+                  onChange={(e) => seed.displayType === "LED" ? setSeed({ ...seed, pixelPitch: e.target.value }) : setSeed({ ...seed, bezelMm: e.target.value })}
+                  placeholder={seed.displayType === "LED" ? "e.g. 1.9mm" : "e.g. 3.5mm"} />
+              </label>
+
+              <label className="wm-vw__field">
+                <span>Assumptions</span>
+                <textarea value={seed.assumptions ?? ""} onChange={(e) => setSeed({ ...seed, assumptions: e.target.value })} />
+              </label>
+            </div>
+          </section>
+
+          <section className="wm-vw__card">
+            <div style={{ fontWeight: 900, fontSize: 16 }}>Wall summary</div>
+
+            <div className="wm-vw__panel" style={{ marginTop: 12 }}>
+              <div style={{ fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
+                {seed.displayType} wall, {seed.rows} x {seed.columns}, {displayCount} surfaces total, {seed.sourceCount} source{seed.sourceCount === 1 ? "" : "s"}.
+              </div>
+              <div style={{ marginTop: 10, fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.82)" }}>
+                Processor recommendation: {processor}
+              </div>
+            </div>
+
+            <div
+              className="wm-vw__wall"
+              style={{ gridTemplateColumns: `repeat(${seed.columns}, minmax(0, 1fr))` }}
+            >
+              {Array.from({ length: displayCount }).map((_, i) => (
+                <div key={i} className="wm-vw__tile">{i + 1}</div>
+              ))}
+            </div>
+          </section>
+        </section>
+      </div>
+    </div>
+  );
+}

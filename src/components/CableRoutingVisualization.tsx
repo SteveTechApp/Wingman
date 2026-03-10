@@ -1,9 +1,7 @@
 import * as React from "react";
 import { RoomData, ManuallyAddedEquipment } from '../utils/types';
-import { 
-  calculateCableRouting, 
-  CableRoute,
-  CableType 
+import {
+  CableType
 } from '../utils/cableRouting';
 
 interface CableRoutingVisualizationProps {
@@ -136,7 +134,7 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
   const roomDepth = room.wallDepth || 400;
   const viewBoxPadding = 100;
   
-  const equipment = room.manuallyAddedEquipment || [];
+  const equipment = React.useMemo(() => room.manuallyAddedEquipment ?? [], [room.manuallyAddedEquipment]);
   
   const equipmentPositions = React.useMemo(
     () => calculateEquipmentPositions(equipment, roomWidth, roomDepth),
@@ -405,4 +403,6 @@ const CableRoutingVisualization: React.FC<CableRoutingVisualizationProps> = ({
 };
 
 export default CableRoutingVisualization;
+
+
 

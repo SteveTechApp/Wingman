@@ -12,7 +12,7 @@ import {
   Field,
 } from "@/ui2/page/PageChrome";
 
-function pill(level: TrainingModule["level"]) {
+function pill(_level: TrainingModule["level"]) {
   const base: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",

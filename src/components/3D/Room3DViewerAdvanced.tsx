@@ -6,12 +6,8 @@ import * as THREE from 'three';
 import {
   EquipmentPosition,
   CableRoute,
-  calculateCableDistance,
   calculateRoomCableRoutes,
   calculateTotalCableCosts,
-  getCableSpecs,
-  analyzeTechnologyRequirements,
-  compareTechnologyCosts
 } from '../../utils/cableRouting';
 
 interface Room3DViewerAdvancedProps {
@@ -411,4 +407,5 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
 };
 
 export default Room3DViewerAdvanced;
+
 

@@ -1,0 +1,22 @@
+import { buildProposalExportPayload, type ProposalExportInput, type ProposalExportPayload } from "./proposalExport";
+
+export function buildProposalDocxBridgePayload(input: ProposalExportInput): ProposalExportPayload {
+  return buildProposalExportPayload(input);
+}
+
+export function downloadProposalBridgeJson(payload: ProposalExportPayload): void {
+  if (typeof document === "undefined") return;
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json;charset=utf-8",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${payload.fileName}.export.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}

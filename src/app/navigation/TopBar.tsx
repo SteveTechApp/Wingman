@@ -1,78 +1,113 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import heroLogo from "../../assets/branding/wyrestorm-wingman-logo.png";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
+import { useBoundActiveProjectName } from "@/core/wingman/storeBridge";
+import { brand } from "@/branding/brand";
 
-export type TopBarProps = {
-  collapsed?: boolean;
-  onToggleNav?: () => void;
-};
+function LogoMark() {
+  const [failed, setFailed] = React.useState(false);
 
-function tabClass(active: boolean): string {
-  return active ? "wm-topbar__tab is-active" : "wm-topbar__tab";
-}
-
-export default function TopBar({
-  collapsed = false,
-  onToggleNav,
-}: TopBarProps) {
-  const nav = useNavigate();
-  const loc = useLocation();
+  if (failed) {
+    return (
+      <div style={{ display: "grid", gap: 1, lineHeight: 1 }}>
+        <div style={{ fontSize: 20, fontWeight: 900, color: "#73e7ff", letterSpacing: -0.4 }}>
+          WyreStorm
+        </div>
+        <div style={{ fontSize: 10, fontWeight: 800, color: "#eef6ff", opacity: 0.9 }}>
+          Wingman
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <header className="wm-topbar">
-      <div className="wm-topbar__left">
-        <button
-          type="button"
-          className="wm-topbar__brand wm-topbar__brand--logoonly"
-          onClick={() => nav("/app/dashboard")}
-          title="Go to Dashboard"
-        >
-          <img
-            src={heroLogo}
-            alt="WyreStorm Wingman"
-            className="wm-topbar__logo"
-          />
-        </button>
+    <img
+      src="/wyrestorm-logo.png"
+      alt={brand.fullName}
+      onError={() => setFailed(true)}
+      style={{ display: "block", width: "auto", height: 30, objectFit: "contain" }}
+    />
+  );
+}
+
+export default function TopBar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activeProjectName = useBoundActiveProjectName();
+
+  const navItems = [
+    { label: "Home", to: WM_ROUTES.dashboard },
+    { label: "Projects", to: WM_ROUTES.projects },
+    { label: "Tools", to: WM_ROUTES.tools },
+  ];
+
+  return (
+    <header
+      style={{
+        height: "var(--wm-topbar-h)",
+        minHeight: "var(--wm-topbar-h)",
+        display: "grid",
+        gridTemplateColumns: "122px minmax(260px, 1fr) auto",
+        alignItems: "center",
+        gap: 12,
+        padding: "0 14px",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        background: "linear-gradient(180deg, rgba(7,14,24,0.98), rgba(8,16,27,0.96))",
+        backdropFilter: "blur(10px)",
+        position: "sticky",
+        top: 0,
+        zIndex: 50,
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => navigate(WM_ROUTES.dashboard)}
+        style={{
+          appearance: "none",
+          border: "none",
+          background: "transparent",
+          padding: 0,
+          margin: 0,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          minWidth: 0,
+        }}
+        title="Go to Dashboard"
+      >
+        <LogoMark />
+      </button>
+
+      <div className="wm-input-shell">
+        Active Project - {activeProjectName}
       </div>
 
-      <nav className="wm-topbar__center" aria-label="Primary">
-        <button
-          type="button"
-          className={tabClass(loc.pathname.startsWith("/app/dashboard"))}
-          onClick={() => nav("/app/dashboard")}
-        >
-          Dashboard
-        </button>
-        <button
-          type="button"
-          className={tabClass(loc.pathname.startsWith("/app/projects"))}
-          onClick={() => nav("/app/projects")}
-        >
-          Projects
-        </button>
-        <button
-          type="button"
-          className={tabClass(loc.pathname.startsWith("/app/tools"))}
-          onClick={() => nav("/app/tools")}
-        >
-          Tools
-        </button>
-      </nav>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {navItems.map((item) => {
+          const active = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
+          return (
+            <button
+              key={item.to}
+              type="button"
+              onClick={() => navigate(item.to)}
+              className={`wm-btn-nav${active ? " is-active" : ""}`}
+            >
+              {item.label}
+            </button>
+          );
+        })}
 
-      <div className="wm-topbar__right">
         <button
           type="button"
-          className="wm-topbar__ghost"
-          onClick={() => nav("/")}
+          onClick={() => navigate(WM_ROUTES.newProject)}
+          className="wm-btn-nav"
+          style={{
+            border: "1px solid rgba(115,231,255,0.22)",
+            background: "linear-gradient(90deg, rgba(23,57,93,0.96), rgba(14,37,61,0.96))",
+          }}
         >
-          Home
-        </button>
-        <button
-          type="button"
-          className="wm-topbar__ghost"
-          onClick={() => nav(-1)}
-        >
-          Back
+          + New Project
         </button>
       </div>
     </header>

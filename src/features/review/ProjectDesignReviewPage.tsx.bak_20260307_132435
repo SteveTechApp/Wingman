@@ -1,0 +1,307 @@
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import { readDesignBundle, summariseDesignBundle } from "@/features/systemDesign/designBundleStore";
+
+const styles = `
+.wm-review{
+  padding: 12px 16px 16px;
+}
+.wm-review__stack{
+  display: grid;
+  gap: 12px;
+}
+.wm-review__hero{
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(110,145,190,0.16);
+  background:
+    radial-gradient(circle at top right, rgba(25,83,173,0.16), transparent 36%),
+    radial-gradient(circle at left center, rgba(34,199,184,0.10), transparent 30%),
+    linear-gradient(180deg, rgba(13,22,37,0.96), rgba(7,13,24,0.96));
+}
+.wm-review__eyebrow{
+  margin: 0 0 4px;
+  color: #66eadb;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.wm-review__title{
+  margin: 0;
+  font-size: 1.7rem;
+  line-height: 1.02;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.wm-review__subtitle{
+  margin: 6px 0 0;
+  color: rgba(232,241,255,0.74);
+  font-size: .92rem;
+  line-height: 1.32;
+  max-width: 80ch;
+}
+.wm-review__grid{
+  display: grid;
+  grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr);
+  gap: 12px;
+}
+.wm-review__card{
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(110,145,190,0.16);
+  background: linear-gradient(180deg, rgba(13,22,37,0.94), rgba(7,13,24,0.94));
+}
+.wm-review__miniGrid{
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.wm-review__miniItem{
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+}
+.wm-review__miniItem strong{
+  display: block;
+  margin-bottom: 4px;
+  font-size: .9rem;
+  font-weight: 700;
+}
+.wm-review__list{
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.wm-review__listItem{
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.86);
+}
+.wm-review__ok{
+  color: rgba(134,239,172,0.96);
+  font-weight: 700;
+}
+.wm-review__warn{
+  color: rgba(251,191,36,0.96);
+  font-weight: 700;
+}
+.wm-review__actions{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.wm-review__pre{
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  white-space: pre-wrap;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.88);
+}
+@media (max-width: 980px){
+  .wm-review__hero{
+    grid-template-columns: 1fr;
+  }
+  .wm-review__grid{
+    grid-template-columns: 1fr;
+  }
+  .wm-review__miniGrid{
+    grid-template-columns: 1fr;
+  }
+}
+`;
+
+function yesNo(ok: boolean) {
+  return ok ? "Ready" : "Missing";
+}
+
+export default function ProjectDesignReviewPage() {
+  const nav = useNavigate();
+  const bundle = React.useMemo(() => readDesignBundle(), []);
+  const summary = React.useMemo(() => (bundle ? summariseDesignBundle(bundle) : null), [bundle]);
+
+  const readiness = React.useMemo(() => {
+    if (!bundle) {
+      return {
+        hasBundle: false,
+        hasTemplate: false,
+        hasDevices: false,
+        hasCables: false,
+        hasDiagram: false,
+        hasVideoWall: false,
+      };
+    }
+
+    return {
+      hasBundle: true,
+      hasTemplate: !!bundle.template,
+      hasDevices: bundle.devices.length > 0,
+      hasCables: bundle.cables.length > 0,
+      hasDiagram: bundle.nodes.length > 0 && bundle.edges.length > 0,
+      hasVideoWall: !!bundle.videoWall,
+    };
+  }, [bundle]);
+
+  const readyCount = Object.values(readiness).filter(Boolean).length;
+  const totalCount = Object.keys(readiness).length;
+
+  return (
+    <div className="wm-review">
+      <style>{styles}</style>
+
+      <div className="wm-review__stack">
+        <section className="wm-review__hero">
+          <div>
+            <div className="wm-review__eyebrow">Design Review</div>
+            <h1 className="wm-review__title">Project design review</h1>
+            <div className="wm-review__subtitle">
+              Review the current design bundle before moving into final proposal editing and export.
+            </div>
+          </div>
+
+          <div className="wm-review__actions">
+            <button type="button" className="wm-btn" style={{ height: 40, padding: "0 16px" }} onClick={() => nav("/app/tools/block-diagram")}>
+              Block Diagram
+            </button>
+            <button type="button" className="wm-btn" style={{ height: 40, padding: "0 16px" }} onClick={() => nav("/app/tools/cable-schedule")}>
+              Cable Schedule
+            </button>
+            <button type="button" className="wm-btn wm-btn-primary" style={{ height: 40, padding: "0 16px" }} onClick={() => nav("/app/tools/proposal-builder")}>
+              Proposal Builder
+            </button>
+          </div>
+        </section>
+
+        {!bundle ? (
+          <section className="wm-review__card">
+            <div style={{ fontWeight: 900, fontSize: 18 }}>No stored design bundle</div>
+            <div style={{ marginTop: 8, fontSize: 14, color: "rgba(255,255,255,0.82)", lineHeight: 1.5 }}>
+              Visit Templates, Video Wall Builder, Cable Schedule, or Block Diagram first so Wingman can generate and store a design bundle for review.
+            </div>
+          </section>
+        ) : (
+          <div className="wm-review__grid">
+            <div style={{ display: "grid", gap: 12 }}>
+              <section className="wm-review__card">
+                <div style={{ fontWeight: 900, fontSize: 16 }}>Readiness</div>
+                <div className="wm-review__miniGrid">
+                  <div className="wm-review__miniItem">
+                    <strong>Bundle</strong>
+                    <div className={readiness.hasBundle ? "wm-review__ok" : "wm-review__warn"}>{yesNo(readiness.hasBundle)}</div>
+                  </div>
+                  <div className="wm-review__miniItem">
+                    <strong>Template</strong>
+                    <div className={readiness.hasTemplate ? "wm-review__ok" : "wm-review__warn"}>{yesNo(readiness.hasTemplate)}</div>
+                  </div>
+                  <div className="wm-review__miniItem">
+                    <strong>Generated devices</strong>
+                    <div className={readiness.hasDevices ? "wm-review__ok" : "wm-review__warn"}>{yesNo(readiness.hasDevices)}</div>
+                  </div>
+                  <div className="wm-review__miniItem">
+                    <strong>Cable schedule</strong>
+                    <div className={readiness.hasCables ? "wm-review__ok" : "wm-review__warn"}>{yesNo(readiness.hasCables)}</div>
+                  </div>
+                  <div className="wm-review__miniItem">
+                    <strong>Block diagram</strong>
+                    <div className={readiness.hasDiagram ? "wm-review__ok" : "wm-review__warn"}>{yesNo(readiness.hasDiagram)}</div>
+                  </div>
+                  <div className="wm-review__miniItem">
+                    <strong>Video wall</strong>
+                    <div className={readiness.hasVideoWall ? "wm-review__ok" : "wm-review__warn"}>{yesNo(readiness.hasVideoWall)}</div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="wm-review__card">
+                <div style={{ fontWeight: 900, fontSize: 16 }}>Current design outputs</div>
+                <div className="wm-review__pre">
+{summary ? `${summary.templateSummary}
+
+${summary.videoWallSummary}
+
+${summary.cableSummary}
+
+${summary.diagramSummary}` : "No design summary available."}
+                </div>
+              </section>
+
+              <section className="wm-review__card">
+                <div style={{ fontWeight: 900, fontSize: 16 }}>Generated devices</div>
+                <div className="wm-review__list">
+                  {bundle.devices.length ? bundle.devices.map((d) => (
+                    <div key={d.id} className="wm-review__listItem">
+                      <strong>{d.name}</strong><br />
+                      Role: {d.role}{d.family ? ` | Family: ${d.family}` : ""}{d.location ? ` | Location: ${d.location}` : ""}
+                    </div>
+                  )) : (
+                    <div className="wm-review__listItem">No generated devices.</div>
+                  )}
+                </div>
+              </section>
+            </div>
+
+            <div style={{ display: "grid", gap: 12 }}>
+              <section className="wm-review__card">
+                <div style={{ fontWeight: 900, fontSize: 16 }}>Bundle counts</div>
+                <div className="wm-review__miniGrid">
+                  <div className="wm-review__miniItem">
+                    <strong>Readiness score</strong>
+                    <div>{readyCount} / {totalCount}</div>
+                  </div>
+                  <div className="wm-review__miniItem">
+                    <strong>Devices</strong>
+                    <div>{bundle.devices.length}</div>
+                  </div>
+                  <div className="wm-review__miniItem">
+                    <strong>Cables</strong>
+                    <div>{bundle.cables.length}</div>
+                  </div>
+                  <div className="wm-review__miniItem">
+                    <strong>Diagram links</strong>
+                    <div>{bundle.edges.length}</div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="wm-review__card">
+                <div style={{ fontWeight: 900, fontSize: 16 }}>Assumptions</div>
+                <div className="wm-review__list">
+                  {bundle.assumptions.length ? bundle.assumptions.map((a, i) => (
+                    <div key={i} className="wm-review__listItem">{a}</div>
+                  )) : (
+                    <div className="wm-review__listItem">No assumptions stored.</div>
+                  )}
+                </div>
+              </section>
+
+              <section className="wm-review__card">
+                <div style={{ fontWeight: 900, fontSize: 16 }}>Next actions</div>
+                <div className="wm-review__list">
+                  {!readiness.hasTemplate ? <div className="wm-review__listItem">Apply a template to set a stronger project starting point.</div> : null}
+                  {!readiness.hasVideoWall ? <div className="wm-review__listItem">Use Video Wall Builder if this project includes multi-display or wall processing needs.</div> : null}
+                  {!readiness.hasCables ? <div className="wm-review__listItem">Generate and save a cable schedule before final proposal issue.</div> : null}
+                  {!readiness.hasDiagram ? <div className="wm-review__listItem">Generate a block diagram so the signal path can be reviewed visually.</div> : null}
+                  {readiness.hasCables -and readiness.hasDiagram ? <div className="wm-review__listItem">Proceed to Proposal Builder and confirm the design summaries before export.</div> : null}
+                </div>
+              </section>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

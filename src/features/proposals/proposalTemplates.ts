@@ -47,7 +47,7 @@ export function buildSolutionOverviewTemplate(input: ProposalTemplateInput): str
   return sentence(parts.join(" "));
 }
 
-export function buildAssumptionsTemplate(input: ProposalTemplateInput): string {
+export function buildAssumptionsTemplate(_input: ProposalTemplateInput): string {
   const parts = [
     "Pricing, final device counts, and site-specific infrastructure requirements remain subject to final survey confirmation",
     "Existing containment, power availability, and network readiness are assumed to be suitable unless otherwise noted",
@@ -57,7 +57,7 @@ export function buildAssumptionsTemplate(input: ProposalTemplateInput): string {
   return parts.join("\n");
 }
 
-export function buildExclusionsTemplate(input: ProposalTemplateInput): string {
+export function buildExclusionsTemplate(_input: ProposalTemplateInput): string {
   const parts = [
     "Builder's works, specialist construction works, and decoration are excluded",
     "Network switching, structured cabling, and third-party services are excluded unless specifically stated",
@@ -79,7 +79,7 @@ export function buildCommercialNotesTemplate(input: ProposalTemplateInput): stri
   return parts.join(" ");
 }
 
-export function buildNextStepsTemplate(input: ProposalTemplateInput): string {
+export function buildNextStepsTemplate(_input: ProposalTemplateInput): string {
   return [
     "Confirm final room requirements and site constraints.",
     "Validate final SKU selection and any optional accessories.",

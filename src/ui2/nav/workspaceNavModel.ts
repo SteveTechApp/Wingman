@@ -63,7 +63,7 @@ function normalizePath(p: string): string {
   if (p === "/app/toolhub" || p.startsWith("/app/toolhub/")) return "/app/tools/catalog";
   if (p === "/app/guru" || p.startsWith("/app/guru")) return "/app/tools/guru";
   if (p === "/tools" || p.startsWith("/tools/")) return "/app/tools/catalog";
-  if (p.includes("/app/tools/roomwizard") || p.includes("/app/tools/room-wizard")) return "/app/tools/room";
+  if (p.includes("/app/tools/roomwizard") || p.includes("/app/tools/room-wizard")) return "/app/tools/room-wizard";
   return p;
 }
 
@@ -83,8 +83,8 @@ function defaultPinned(): PinnedTool[] {
   return [
     { id: "catalog", label: "Product Catalog", path: "/app/tools/catalog", group: "Tools" },
     { id: "proposal", label: "Proposal Builder", path: "/app/tools/proposal", group: "Tools" },
-    { id: "room", label: "Room Wizard", path: "/app/tools/room", group: "Tools" },
-    { id: "competitor", label: "Competitor Compare", path: "/app/tools/competitor", group: "Tools" },
+    { id: "room", label: "Room Wizard", path: "/app/tools/room-wizard", group: "Tools" },
+    { id: "competitor", label: "Competitor Compare", path: "/app/tools/compare", group: "Tools" },
   ];
 }
 
@@ -154,3 +154,4 @@ export function addRecent(label: string, path: string) {
   const next = [{ label: l, path: p, ts: Date.now() }, ...cur.filter((r) => r.path !== p)].slice(0, RECENT_MAX);
   safeSetItem(LS.recent, JSON.stringify(next, null, 2));
 }
+

@@ -16,7 +16,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             <div className={`p-3 rounded-lg max-w-xl prose ${isUser ? 'bg-accent text-text-on-accent' : 'bg-background border border-border-color'}`}>
                 <ReactMarkdown
                   components={{
-                    a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-accent\ hover:underline" />
+                    a: ({node: _node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-accent\ hover:underline" />
                   }}
                 >
                     {content}

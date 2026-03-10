@@ -1,1 +1,19 @@
-/* utilities.css (placeholder) */
+.wm-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-flex {
+  display: flex;
+  gap: 8px;
+}
+
+.wm-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wm-muted {
+  color: var(--wm-text-dim);
+}

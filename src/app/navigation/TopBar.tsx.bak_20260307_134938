@@ -1,0 +1,85 @@
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import heroLogo from "../../assets/branding/wyrestorm-wingman-logo.png";
+
+export type TopBarProps = {
+  collapsed?: boolean;
+  onToggleNav?: () => void;
+};
+
+function tabClass(active: boolean): string {
+  return active ? "wm-topbar__tab is-active" : "wm-topbar__tab";
+}
+
+function currentFeature(pathname: string): string {
+  if (pathname.startsWith("/app/dashboard")) return "Dashboard";
+  if (pathname.startsWith("/app/projects")) return "Projects";
+  if (pathname.startsWith("/app/tools")) return "Tools";
+  if (pathname.startsWith("/app/import")) return "Import Intake";
+  if (pathname.startsWith("/app/catalog")) return "Catalog";
+  return "Wingman";
+}
+
+export default function TopBar({
+  collapsed = false,
+  onToggleNav,
+}: TopBarProps) {
+  const nav = useNavigate();
+  const loc = useLocation();
+  const current = currentFeature(loc.pathname);
+
+  return (
+    <header className="wm-topbar">
+      <div className="wm-topbar__left">
+        <button
+          type="button"
+          className="wm-topbar__brand wm-topbar__brand--logoonly"
+          onClick={() => nav("/app/dashboard")}
+          title="Open Dashboard" data-wm-tooltip="Open Dashboard"
+        >
+          <img
+            src={heroLogo}
+            alt="WyreStorm Wingman"
+            className="wm-topbar__logo"
+          />
+        </button>
+      </div>
+
+      <div className="wm-topbar__center">
+        <span className="wm-topbar__current">{current}</span>
+      </div>
+
+      <div className="wm-topbar__right">
+        <button
+          type="button"
+          className={tabClass(loc.pathname.startsWith("/app/dashboard"))}
+          onClick={() => nav("/app/dashboard")}
+         data-wm-tooltip="Go to Dashboard overview">Dashboard</button>
+
+        <button
+          type="button"
+          className={tabClass(loc.pathname.startsWith("/app/projects"))}
+          onClick={() => nav("/app/projects")}
+         data-wm-tooltip="Open live project workspace">Projects</button>
+
+        <button
+          type="button"
+          className={tabClass(loc.pathname.startsWith("/app/tools"))}
+          onClick={() => nav("/app/tools")}
+         data-wm-tooltip="Open the core tools menu">Tools</button>
+
+        <button
+          type="button"
+          className="wm-topbar__ghost"
+          onClick={() => nav("/")}
+         data-wm-tooltip="Return to public landing page">Home</button>
+
+        <button
+          type="button"
+          className="wm-topbar__ghost"
+          onClick={() => nav(-1)}
+         data-wm-tooltip="Go back to the previous page">Back</button>
+      </div>
+    </header>
+  );
+}

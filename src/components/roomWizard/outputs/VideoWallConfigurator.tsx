@@ -37,18 +37,19 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
     const config = answers.videoWallConfig;
     const designTier = answers.designTier || 'Silver';
 
-    if (!config) return null;
-
     const updateConfig = (newConfig: Partial<VideoWallConfig>) => {
-        const updatedConfig = { ...config, ...newConfig };
+        if (!config) return;
+        const updatedConfig: VideoWallConfig = { ...config, ...newConfig };
         updateAnswers({ videoWallConfig: updatedConfig });
     };
 
-    const panelCount = config.layout.rows * config.layout.cols;
+    const panelCount = config ? config.layout.rows * config.layout.cols : 0;
 
     // Generate product recommendations based on configuration
     const recommendations = React.useMemo((): ProductRecommendation[] => {
         const products: ProductRecommendation[] = [];
+
+        if (!config) return products;
 
         if (config.type === 'lcd') {
             if (config.technology === 'avoip') {
@@ -195,6 +196,8 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
 
         return products;
     }, [config, designTier, panelCount]);
+
+    if (!config) return null;
 
     const getTierColor = (tier: string) => {
         switch (tier) {
@@ -384,4 +387,8 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({ answers, 
 };
 
 export default VideoWallConfigurator;
+
+
+
+
 

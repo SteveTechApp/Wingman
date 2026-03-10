@@ -14,16 +14,16 @@ interface ProfileModalProps {
 const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   const { userProfile, updateUserProfile } = useUserContext();
   const [localProfile, setLocalProfile] = React.useState<UserProfile>(userProfile);
+  const userProfileRef = React.useRef(userProfile);
 
   React.useEffect(() => {
-    // When the modal is opened, reset the local state to match the current user profile.
-    // This ensures that each time the modal is opened, it starts with fresh, up-to-date data.
-    // We intentionally omit `userProfile` from the dependency array because we *only* want
-    // this effect to run when the modal's `isOpen` state changes from false to true.
-    // If we included `userProfile`, any external update to the profile (like changing the resolution
-    // in the footer) would overwrite the user's edits inside the modal.
+    userProfileRef.current = userProfile;
+  }, [userProfile]);
+
+  React.useEffect(() => {
+    // Reset local state only when opening to avoid clobbering in-progress edits.
     if (isOpen) {
-      setLocalProfile(userProfile);
+      setLocalProfile(userProfileRef.current);
     }
   }, [isOpen]);
 
@@ -107,7 +107,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
 
   const handleRemoveCustomDb = () => {
     setLocalProfile(prev => {
-        const { customProductDatabase, ...rest } = prev;
+        const { customProductDatabase: _customProductDatabase, ...rest } = prev;
         return rest;
     });
     toast.success('Custom product database removed.');

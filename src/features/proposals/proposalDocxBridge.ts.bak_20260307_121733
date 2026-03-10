@@ -1,0 +1,49 @@
+import { buildProposalExportPayload, type ProposalExportInput, type ProposalExportPayload } from "./proposalExport";
+
+function tidy(value: unknown): string {
+  return String(value ?? "").trim();
+}
+
+export function buildProposalDocxBridgePayload(input: ProposalExportInput): ProposalExportPayload {
+  const payload = buildProposalExportPayload(input);
+
+  const extraSections = [
+    tidy((input as any).designSummary)
+      ? { key: "design-summary", title: "Design Summary", body: tidy((input as any).designSummary) }
+      : null,
+    tidy((input as any).cableScheduleSummary)
+      ? { key: "cable-schedule-summary", title: "Cable Schedule Summary", body: tidy((input as any).cableScheduleSummary) }
+      : null,
+    tidy((input as any).diagramSummary)
+      ? { key: "block-diagram-summary", title: "Block Diagram Summary", body: tidy((input as any).diagramSummary) }
+      : null,
+    tidy((input as any).usedDevicesSummary)
+      ? { key: "generated-devices", title: "Generated Devices", body: tidy((input as any).usedDevicesSummary) }
+      : null,
+  ].filter(Boolean) as Array<{ key: string; title: string; body: string }>;
+
+  return {
+    ...payload,
+    sections: [
+      ...(payload.sections ?? []),
+      ...extraSections,
+    ],
+  };
+}
+
+export function downloadProposalBridgeJson(payload: ProposalExportPayload): void {
+  if (typeof document === "undefined") return;
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json;charset=utf-8",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${payload.fileName}.export.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}

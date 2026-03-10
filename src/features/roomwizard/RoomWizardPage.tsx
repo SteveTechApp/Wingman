@@ -92,6 +92,7 @@ function Area({
   );
 }
 
+
 export default function RoomWizardPage() {
   const nav = useNavigate();
   const ctx = React.useMemo(() => getActiveProjectContext(), []);
@@ -132,7 +133,7 @@ export default function RoomWizardPage() {
 
   return (
     <div
-      className="wm-page wm-animate-in"
+      className="wm-page wm-animate-in wm-room wm-ui"
       style={{ width: "100%", maxWidth: "none", margin: 0, minWidth: 0 }}
     >
       <div style={{ display: "grid", gap: 14 }}>
@@ -154,7 +155,7 @@ export default function RoomWizardPage() {
         </div>
 
         {!ctx ? (
-          <section className="wm-card" style={{ padding: 18, borderRadius: 18 }}>
+          <section className="wm-card wm-ui__card" style={{ padding: 18, borderRadius: 18 }}>
             <div style={{ fontWeight: 900, fontSize: 18 }}>No active project</div>
             <div
               style={{
@@ -169,7 +170,7 @@ export default function RoomWizardPage() {
             <div style={{ marginTop: 14 }}>
               <button
                 type="button"
-                className="wm-btn wm-btn-primary"
+                className="wm-btn wm-btn-primary wm-ui__btn"
                 style={{ height: 40, padding: "0 16px" }}
                 onClick={() => nav("/app/projects")}
               >
@@ -179,7 +180,7 @@ export default function RoomWizardPage() {
           </section>
         ) : (
           <>
-            <section className="wm-card" style={{ padding: 18, borderRadius: 18 }}>
+            <section className="wm-card wm-ui__card" style={{ padding: 18, borderRadius: 18 }}>
               <div
                 style={{
                   fontSize: 11,
@@ -206,7 +207,7 @@ export default function RoomWizardPage() {
               </div>
             </section>
 
-            <section className="wm-card" style={{ padding: 18, borderRadius: 18 }}>
+            <section className="wm-card wm-ui__card" style={{ padding: 18, borderRadius: 18 }}>
               <div style={{ fontWeight: 900, fontSize: 16 }}>Room requirements</div>
               <div
                 style={{
@@ -273,7 +274,7 @@ export default function RoomWizardPage() {
               >
                 <button
                   type="button"
-                  className="wm-btn wm-btn-primary"
+                  className="wm-btn wm-btn-primary wm-ui__btn"
                   style={{ height: 40, padding: "0 16px" }}
                   onClick={saveRoomRequirements}
                 >
@@ -303,7 +304,7 @@ export default function RoomWizardPage() {
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <button
                   type="button"
-                  className="wm-btn"
+                  className="wm-btn wm-ui__btn"
                   style={{ height: 40, padding: "0 16px" }}
                   onClick={() => nav("/app/tools/proposal")}
                 >

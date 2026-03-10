@@ -1,5 +1,6 @@
 import type { ProposalExportInput, ProposalExportPayload } from "./proposalExport";
 import { buildProposalExportPayload } from "./proposalExport";
+import { buildProposalDesignSections } from "./proposalDesignSections";
 
 function tidy(value: unknown): string {
   return String(value ?? "").trim();
@@ -50,9 +51,14 @@ export function buildProposalExportText(input: ProposalExportInput): string {
     .map((s) => section(s.title, s.body))
     .filter(Boolean);
 
+  const designBlocks = buildProposalDesignSections(input)
+    .map((s) => section(s.title, s.body))
+    .filter(Boolean);
+
   const blocks = [
     header,
     ...sectionBlocks,
+    ...designBlocks,
     equipmentBlock(payload),
     pricingBlock(payload),
   ].filter(Boolean);

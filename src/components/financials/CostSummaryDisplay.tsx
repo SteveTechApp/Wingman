@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { ProjectData, RoomData, ManuallyAddedEquipment } from '@/utils/types';
+import { ProjectData, RoomData } from '@/utils/types';
 
 interface CostSummaryDisplayProps {
     projectData: ProjectData;

@@ -20,7 +20,7 @@ export const CATALOG_SEED: CatalogEntry[] = [
     summary: "Best for flexible signal distribution where scale, switching, and expansion matter more than point-to-point simplicity.",
     tags: ["AVoIP", "scalable", "multi-endpoint", "distribution"],
     nextLabel: "Open Templates",
-    nextRoute: "/app/templates",
+    nextRoute: "/app/tools/templates",
   },
   {
     id: "hdbaset-extension",
@@ -30,7 +30,7 @@ export const CATALOG_SEED: CatalogEntry[] = [
     summary: "Best when the requirement is a cleaner direct extension path with fewer moving parts than a wider switching system.",
     tags: ["HDBaseT", "extension", "distance", "display"],
     nextLabel: "Open Room Wizard",
-    nextRoute: "/app/tools/room",
+    nextRoute: "/app/tools/room-wizard",
   },
   {
     id: "matrix-switching",
@@ -50,7 +50,7 @@ export const CATALOG_SEED: CatalogEntry[] = [
     summary: "Best when the requirement starts with collaboration, laptop connectivity, and practical in-room usability.",
     tags: ["BYOD", "meeting room", "USB-C", "collaboration"],
     nextLabel: "Open Templates",
-    nextRoute: "/app/templates",
+    nextRoute: "/app/tools/templates",
   },
   {
     id: "competitor-replacement",
@@ -60,7 +60,7 @@ export const CATALOG_SEED: CatalogEntry[] = [
     summary: "Best when the conversation starts with a competitor SKU or an installed-base reference point.",
     tags: ["competitor", "replacement", "cross-reference", "migration"],
     nextLabel: "Open Competitor Compare",
-    nextRoute: "/app/tools/competitor",
+    nextRoute: "/app/tools/compare",
   },
   {
     id: "video-wall",
@@ -70,7 +70,7 @@ export const CATALOG_SEED: CatalogEntry[] = [
     summary: "Best when the requirement includes video wall layouts, display processing, or more advanced display logic.",
     tags: ["videowall", "multiview", "processing", "display"],
     nextLabel: "Open Video Wall Planner",
-    nextRoute: "/app/tools/videowall",
+    nextRoute: "/app/tools/video-wall",
   },
   {
     id: "sales-guidance",

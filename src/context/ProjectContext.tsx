@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createStrictContext } from "./createStrictContext";
 import { useWingman, wingmanActions } from "@/state/useWingman";
-import type { LoadingContext, WingmanProjectSummary } from "@/state/defaults";
+import type { LoadingContext } from "@/state/defaults";
 
 export type ProjectManagementType = {
   savedProjects: any[];

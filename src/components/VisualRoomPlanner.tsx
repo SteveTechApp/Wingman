@@ -1,7 +1,6 @@
 import * as React from "react";
 
 import { useProjectContext } from "@/context";
-import { useUserContext } from '../context/UserContext';
 import { Product } from '../utils/types';
 import { PRODUCT_CATEGORY_ICONS } from '../data/constants';
 import InfoTooltip from './InfoTooltip';
@@ -14,7 +13,6 @@ const getCategoryIconComponent = (category: string): React.FC<{ className?: stri
 
 const VisualRoomPlanner: React.FC = () => {
   const { projectData, activeRoomId } = useProjectContext();
-  const { userProfile } = useUserContext();
   const room = projectData?.rooms.find(r => r.id === activeRoomId);
   const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
 

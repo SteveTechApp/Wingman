@@ -3,11 +3,9 @@
    Purpose: slightly tighter spacing without changing layout width rules.
 */
 
-:root{
-  /* A gentle compact feel (avoid breaking layout) */
-  --wm-ui-scale: 0.98;
-  --wm-page-pad-x: clamp(16px, 2.2vw, 30px);
-}
+/* LEGACY ROOT DISABLED
+
+*/
 
 .wm-density-compact .wm-page{
   padding: 14px;
@@ -16,3 +14,4 @@
 .wm-density-compact .wm-card-pad{
   padding: 12px;
 }
+

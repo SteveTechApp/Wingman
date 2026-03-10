@@ -1,0 +1,242 @@
+
+
+/* =========================================================
+   1. Global calm-down
+   ========================================================= */
+/* REMOVED by wingman-design-system-cleanup: destructive wildcard box-shadow reset */
+
+
+[style*="box-shadow"] {
+  box-shadow: 0 8px 20px rgba(0,0,0,0.10) !important;
+}
+
+[style*="border: 1px solid rgba(255,255,255,0.10)"],
+[style*="border: 1px solid rgba(255,255,255,0.08)"],
+[style*="border: 1px solid rgba(255,255,255,0.06)"] {
+  border-color: var(--wm-calm-border) !important;
+}
+
+/* =========================================================
+   2. Sidebar softer
+   ========================================================= */
+aside,
+[class*="sidebar"],
+[class*="sidenav"] {
+  background: linear-gradient(180deg, rgba(6,17,31,0.90), rgba(5,14,27,0.88)) !important;
+}
+
+aside [style*="background"],
+[class*="sidebar"] [style*="background"] {
+  background-image: none !important;
+}
+
+aside h1,
+aside h2,
+aside h3,
+[class*="sidebar"] h1,
+[class*="sidebar"] h2,
+[class*="sidebar"] h3 {
+  color: #eef5ff !important;
+}
+
+aside p,
+aside small,
+aside span,
+[class*="sidebar"] p,
+[class*="sidebar"] small,
+[class*="sidebar"] span {
+  color: var(--wm-calm-text-dim) !important;
+}
+
+aside button,
+aside a,
+[class*="sidebar"] button,
+[class*="sidebar"] a {
+  box-shadow: none !important;
+}
+
+aside [style*="linear-gradient"],
+[class*="sidebar"] [style*="linear-gradient"] {
+  background-image: none !important;
+  background-color: rgba(255,255,255,0.03) !important;
+}
+
+aside [style*="active"],
+[class*="sidebar"] [style*="active"] {
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   3. Topbar cleaner
+   ========================================================= */
+.wm-topbar {
+  background: rgba(7,16,30,0.70) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+.wm-topbar img {
+  opacity: 0.96;
+}
+
+.wm-topbar button {
+  box-shadow: none !important;
+}
+
+.wm-topbar [style*="background: rgba(255,255,255,0.03)"] {
+  background: rgba(255,255,255,0.02) !important;
+}
+
+/* =========================================================
+   4. Main content hierarchy
+   ========================================================= */
+main {
+  background: transparent !important;
+}
+
+main h1,
+main h2 {
+  letter-spacing: -0.02em !important;
+}
+
+[style*="font-size: 42px"],
+[style*="font-size:42px"] {
+  font-size: 34px !important;
+}
+
+[style*="font-size: 36px"],
+[style*="font-size:36px"] {
+  font-size: 28px !important;
+}
+
+[style*="padding: 16px"],
+[style*="padding:16px"] {
+  padding: 14px !important;
+}
+
+/* =========================================================
+   5. Make main dashboard panel strongest
+   ========================================================= */
+main section:first-of-type,
+main article:first-of-type {
+  background: linear-gradient(180deg, rgba(8,24,48,0.78), rgba(6,17,33,0.82)) !important;
+  border-color: rgba(79,150,255,0.10) !important;
+}
+
+/* =========================================================
+   6. Mute right-hand stats rail
+   ========================================================= */
+[style*="Active project"],
+[style*="CURRENT SKUS"],
+[style*="PROPOSAL STATE"],
+[style*="PROJECTS SAVED"] {
+  box-shadow: none !important;
+}
+
+main > div > section:last-child > div,
+main > div > aside > div,
+main > div > section:last-child [style*="linear-gradient"],
+main > div > section:last-child [style*="rgba(7,23,48"] {
+  background: linear-gradient(180deg, rgba(8,21,40,0.55), rgba(6,16,30,0.62)) !important;
+  border-color: rgba(255,255,255,0.05) !important;
+}
+
+main > div > section:last-child [style*="font-size: 24px"],
+main > div > section:last-child [style*="font-size:24px"] {
+  font-size: 20px !important;
+}
+
+/* =========================================================
+   7. Chips and status pills quieter
+   ========================================================= */
+[style*="border-radius: 999"],
+[style*="border-radius:999"] {
+  background: rgba(255,255,255,0.035) !important;
+  border-color: rgba(255,255,255,0.04) !important;
+  color: rgba(230,238,255,0.76) !important;
+}
+
+/* =========================================================
+   8. Quick Actions: reduce shouting
+   ========================================================= */
+[style*="Quick Actions"] + div,
+[style*="Quick Actions"] {
+  box-shadow: none !important;
+}
+
+[style*="Quick Actions"] ~ div [style*="min-height: 138px"],
+[style*="Quick Actions"] ~ div [style*="min-height:138px"],
+[style*="Quick Actions"] ~ div [style*="min-height: 122px"],
+[style*="Quick Actions"] ~ div [style*="min-height:122px"] {
+  min-height: 110px !important;
+}
+
+[style*="Quick Actions"] ~ div button,
+[style*="Quick Actions"] ~ div [style*="linear-gradient(135deg"] {
+  background-image: none !important;
+  background-color: rgba(255,255,255,0.025) !important;
+  border-color: rgba(255,255,255,0.05) !important;
+}
+
+[style*="Quick Actions"] ~ div [style*="featured"],
+[style*="Quick Actions"] ~ div [style*="Primary"] {
+  background-color: rgba(21,174,205,0.12) !important;
+}
+
+[style*="Quick Actions"] ~ div [style*="font-size: 21px"],
+[style*="Quick Actions"] ~ div [style*="font-size:21px"] {
+  font-size: 16px !important;
+}
+
+[style*="Quick Actions"] ~ div [style*="font-size: 14px"],
+[style*="Quick Actions"] ~ div [style*="font-size:14px"] {
+  color: var(--wm-calm-text-soft) !important;
+}
+
+/* =========================================================
+   9. Workflow steps cleaner
+   ========================================================= */
+[style*="Discovery"],
+[style*="System Design"],
+[style*="Proposal"] {
+  box-shadow: none !important;
+}
+
+[style*="Discovery"] button,
+[style*="System Design"] button,
+[style*="Proposal"] button {
+  background-image: none !important;
+}
+
+/* =========================================================
+   10. Footer lower contrast
+   ========================================================= */
+footer,
+[class*="footer"] {
+  background: rgba(5,12,22,0.96) !important;
+  border-top: 1px solid rgba(255,255,255,0.04) !important;
+}
+
+footer a,
+footer span,
+footer div {
+  color: rgba(220,232,255,0.72) !important;
+}
+
+/* =========================================================
+   11. Guru less loud
+   ========================================================= */
+[class*="guru"],
+[class*="guruFab"],
+[class*="guru-fab"] {
+  box-shadow: 0 10px 22px rgba(0,0,0,0.22) !important;
+}
+
+[class*="guru"] button,
+button[class*="guru"],
+[class*="guruFab"] button,
+[class*="guru-fab"] button {
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  padding: 0 !important;
+}

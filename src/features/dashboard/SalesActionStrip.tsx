@@ -1,20 +1,26 @@
 import * as React from "react";
 
 import { useNavigate } from "react-router-dom";
-
-type SalesStatus = "Draft" | "Review Needed" | "Commercial Ready" | "Engineering Review Required";
+import {
+  getActiveProject,
+  subscribeProjects,
+} from "@/features/projects/projectStore";
+import {
+  evaluateCommercialReadiness,
+  type CommercialReadinessStatus,
+} from "@/features/readiness/commercialReadiness";
 
 type ActionItem = {
   id: string;
   label: string;
   salesLabel: string;
   description: string;
-  status: SalesStatus;
+  status: CommercialReadinessStatus;
   to: string;
   why: string;
 };
 
-function badgeStyle(status: SalesStatus): React.CSSProperties {
+function badgeStyle(status: CommercialReadinessStatus): React.CSSProperties {
   switch (status) {
     case "Commercial Ready":
       return {
@@ -61,6 +67,23 @@ function badgeStyle(status: SalesStatus): React.CSSProperties {
 
 export default function SalesActionStrip() {
   const navigate = useNavigate();
+  const activeProject = React.useSyncExternalStore(
+    subscribeProjects,
+    getActiveProject,
+    getActiveProject
+  );
+
+  const readiness = React.useMemo(
+    () => evaluateCommercialReadiness(activeProject),
+    [activeProject]
+  );
+
+  const hasCompare = Boolean(activeProject?.compare);
+  const hasRoomPlan = Boolean(
+    activeProject?.template ||
+      activeProject?.videowall ||
+      (activeProject?.discovery?.recommendedFamilies?.length ?? 0) > 0
+  );
 
   const items: ActionItem[] = [
     {
@@ -69,43 +92,47 @@ export default function SalesActionStrip() {
       salesLabel: "Capture the customer need",
       description: "Collect the minimum information needed before choosing products.",
       status: "Draft",
-      to: "/survey-import",
+      to: "/app/projects/new",
       why: "Best for first conversations and early qualification.",
     },
     {
       id: "competitor-match",
       label: "Match Competitor SKU",
       salesLabel: "Find a like-for-like starting point",
-      description: "Translate a competing part number into a practical Wingman-aligned direction.",
-      status: "Review Needed",
-      to: "/tools/competitor",
+      description:
+        "Translate a competing part number into a practical Wingman-aligned direction.",
+      status: hasCompare ? "Commercial Ready" : activeProject ? "Review Needed" : "Draft",
+      to: "/app/tools/compare",
       why: "Best when the customer already has a competing part in mind.",
     },
     {
       id: "build-room",
       label: "Build Room System",
       salesLabel: "Create a guided room solution",
-      description: "Use templates to build a working first-pass design without deep technical steps.",
-      status: "Commercial Ready",
-      to: "/templates",
+      description:
+        "Use templates to build a working first-pass design without deep technical steps.",
+      status: hasRoomPlan ? "Commercial Ready" : activeProject ? "Review Needed" : "Draft",
+      to: "/app/tools/room-wizard",
       why: "Best for meeting rooms, learning spaces, and repeatable designs.",
     },
     {
       id: "quote-pack",
       label: "Create Quote Pack",
       salesLabel: "Prepare a customer-safe summary",
-      description: "Move from design intent to BOM summary, assumptions, and exclusions.",
-      status: "Engineering Review Required",
-      to: "/tools/proposal",
+      description:
+        "Move from design intent to BOM summary, assumptions, and exclusions.",
+      status: readiness.status,
+      to: "/app/tools/proposal",
       why: "Best before sending anything externally or for internal pricing handoff.",
     },
     {
       id: "ask-wingman",
       label: "Ask Wingman",
       salesLabel: "Get guided sales help",
-      description: "Use the assistant for product direction, positioning, and confidence checks.",
-      status: "Review Needed",
-      to: "/tools/guru",
+      description:
+        "Use the assistant for product direction, positioning, and confidence checks.",
+      status: activeProject ? "Review Needed" : "Draft",
+      to: "/app/tools/guru",
       why: "Best when you need a plain-English second opinion.",
     },
   ];
@@ -134,6 +161,9 @@ export default function SalesActionStrip() {
           <div style={{ fontSize: 18, fontWeight: 700 }}>Start with the outcome</div>
           <div style={{ fontSize: 13, opacity: 0.82, marginTop: 4 }}>
             Designed for non-technical sales users: choose the customer task first, then let Wingman guide the detail.
+          </div>
+          <div style={{ fontSize: 12, opacity: 0.72, marginTop: 6 }}>
+            Active project: {activeProject?.name ?? "None selected"} | Quote pack readiness: {readiness.score}%
           </div>
         </div>
         <div style={{ fontSize: 12, opacity: 0.75 }}>

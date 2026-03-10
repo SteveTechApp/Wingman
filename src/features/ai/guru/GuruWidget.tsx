@@ -255,7 +255,7 @@ export default function GuruWidget() {
                   <div className="wm-row" style={{ flexWrap: "wrap", gap: 8, marginTop: 12 }}>
                     <Link to="/app/tools/training" className="wm-pill" style={{ textDecoration: "none", color: "inherit" }}>Training Hub</Link>
                     <Link to="/app/tools/catalog" className="wm-pill" style={{ textDecoration: "none", color: "inherit" }}>Product Catalog</Link>
-                    <Link to="/app/tools/videowall" className="wm-pill" style={{ textDecoration: "none", color: "inherit" }}>Video Wall (Next)</Link>
+                    <Link to="/app/tools/video-wall" className="wm-pill" style={{ textDecoration: "none", color: "inherit" }}>Video Wall (Next)</Link>
                     <Link to="/app/tools/proposal" className="wm-pill" style={{ textDecoration: "none", color: "inherit" }}>Proposal (Next)</Link>
                   </div>
                 </div>
@@ -282,3 +282,4 @@ export default function GuruWidget() {
     </>
   );
 }
+

@@ -1,7 +1,6 @@
-:root{
-  --wm-radius:12px;
-  --wm-border:rgba(255,255,255,0.08);
-}
+/* LEGACY ROOT DISABLED
+
+*/
 
 .wm-page{padding:24px;}
 .wm-hero-title{font-size:22px;font-weight:600;}
@@ -15,47 +14,14 @@
   z-index: 9998;
 }
 
-.wm-guru-panel{
-  position: fixed;
-  top: 72px;
-  right: 16px;
-  width: min(520px, calc(100vw - 32px));
-  height: min(720px, calc(100vh - 96px));
-  background: rgba(20,20,20,0.96);
-  border: 1px solid var(--wm-border);
-  border-radius: 16px;
-  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
-  z-index: 9999;
-  transform: translateX(calc(100% + 24px));
-  transition: transform 0.22s ease;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
 .wm-guru-panel.is-open{
   transform: translateX(0);
-}
-
-.wm-guru-header{
-  padding: 12px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--wm-border);
-}
-
-.wm-guru-title{
-  font-weight: 700;
-  letter-spacing: 0.2px;
 }
 
 .wm-guru-actions{
   display: flex;
   gap: 8px;
 }
-
-.wm-guru-body { background: var(--wm-bg); }
 
 .wm-guru-log{
   padding: 10px;
@@ -179,34 +145,11 @@
   background: rgba(0,0,0,0.45);
   z-index: 9998;
 }
-.wm-guru-panel{
-  position: fixed;
-  top: 72px;
-  right: 16px;
-  width: min(520px, calc(100vw - 32px));
-  height: min(720px, calc(100vh - 96px));
-  background: rgba(20,20,20,0.96);
-  border: 1px solid var(--wm-border);
-  border-radius: 16px;
-  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
-  z-index: 9999;
-  transform: translateX(calc(100% + 24px));
-  transition: transform 0.22s ease;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
+
 .wm-guru-panel.is-open{ transform: translateX(0); }
-.wm-guru-header{
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--wm-border);
-}
-.wm-guru-title{ font-weight: 700; }
+
 .wm-guru-actions{ display: flex; gap: 8px; }
-.wm-guru-body { background: var(--wm-bg); }
+
 .wm-guru-log{ padding: 10px; overflow: auto; flex: 1; min-height: 0; }
 .wm-guru-msg{
   border: 1px solid rgba(255,255,255,0.08);
@@ -228,7 +171,6 @@
   display: flex;
   justify-content: flex-end;
 }
-
 
 /* WINGMAN_GURU_FAB_V1 */
 .wm-guru-fab{

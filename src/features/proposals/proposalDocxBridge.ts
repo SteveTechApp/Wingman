@@ -1,7 +1,17 @@
 import { buildProposalExportPayload, type ProposalExportInput, type ProposalExportPayload } from "./proposalExport";
+import { buildProposalDesignSections } from "./proposalDesignSections";
 
 export function buildProposalDocxBridgePayload(input: ProposalExportInput): ProposalExportPayload {
-  return buildProposalExportPayload(input);
+  const payload = buildProposalExportPayload(input);
+  const extraSections = buildProposalDesignSections(input);
+
+  return {
+    ...payload,
+    sections: [
+      ...(payload.sections ?? []),
+      ...extraSections,
+    ],
+  };
 }
 
 export function downloadProposalBridgeJson(payload: ProposalExportPayload): void {

@@ -1,0 +1,79 @@
+:root {
+  --wm-shell-topbar-h: 80px;
+  --wm-shell-footer-h: 44px;
+  --wm-shell-page-pad: 12px;
+}
+
+/* App shell spacing */
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+/* Top bar */
+.wm-topbar {
+  height: var(--wm-shell-topbar-h) !important;
+  min-height: var(--wm-shell-topbar-h) !important;
+}
+
+/* Footer */
+footer,
+[class*="footer"] {
+  min-height: var(--wm-shell-footer-h) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Main content breathing room */
+main {
+  padding-bottom: calc(var(--wm-shell-footer-h) + 12px) !important;
+}
+
+/* Common content wrappers */
+main > *,
+[class*="wm-page"],
+[class*="page-shell"],
+[class*="dashboard"],
+[class*="toolhub"] {
+  box-sizing: border-box;
+}
+
+/* Keep Guru pinned to viewport */
+[class*="guru"],
+[class*="guruFab"],
+[class*="guru-fab"] {
+  position: fixed !important;
+  right: 24px !important;
+  bottom: 24px !important;
+  inset: auto 24px 24px auto !important;
+  z-index: 5000 !important;
+}
+
+/* Prevent huge floating expansions */
+[class*="guru"] button,
+button[class*="guru"],
+[class*="guruFab"] button,
+[class*="guru-fab"] button {
+  min-width: 88px !important;
+  white-space: nowrap !important;
+}
+
+/* Slight density normalisation */
+button {
+  line-height: 1 !important;
+}
+
+[style*="font-size: 42px"],
+[style*="font-size:42px"] {
+  font-size: 32px !important;
+}
+
+[style*="font-size: 36px"],
+[style*="font-size:36px"] {
+  font-size: 28px !important;
+}

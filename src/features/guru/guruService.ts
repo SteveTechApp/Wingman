@@ -17,7 +17,7 @@ function normalise(value: string): string {
 
 function tokensFor(text: string): string[] {
   return normalise(text)
-    .replace(/[^a-z0-9\s\-\/]/g, " ")
+    .replace(/[^a-z0-9\s/-]/g, " ")
     .split(/\s+/)
     .filter(Boolean);
 }

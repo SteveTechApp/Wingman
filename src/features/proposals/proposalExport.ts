@@ -40,6 +40,10 @@ export type ProposalExportInput = {
   positioningBlock?: string;
   compareSummary?: string;
   nextSteps?: string;
+  designSummary?: string;
+  cableScheduleSummary?: string;
+  diagramSummary?: string;
+  usedDevicesSummary?: string;
   equipment?: Array<{
     sku?: string;
     name: string;
@@ -61,7 +65,7 @@ function tidy(value: unknown): string {
 
 function safeFileName(value: string): string {
   const v = tidy(value) || "proposal";
-  return v.replace(/[^a-z0-9_\-]+/gi, "_");
+  return v.replace(/[^a-z0-9_-]+/gi, "_");
 }
 
 function pushSection(sections: ProposalSection[], key: string, title: string, body?: string) {
