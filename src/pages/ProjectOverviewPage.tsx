@@ -73,9 +73,12 @@ export default function ProjectOverviewPage() {
 
           <div className="wm-actions-row">
             <Link className="wm-btn" to="/app/projects">Projects</Link>
-            <Link className="wm-btn" to="/app/tools/discovery">Discovery</Link>
+            <Link className="wm-btn" to="/app/tools/discovery">Guided Project</Link>
             <Link className="wm-btn" to="/app/tools/catalog">Catalog</Link>
             <Link className="wm-btn wm-btn-primary" to="/app/tools/proposal">Proposal</Link>
+            <Link className="wm-btn" to={`/app/projects/${encodeURIComponent(project.id)}/completion`}>
+              Completion Workflow
+            </Link>
           </div>
         </div>
       </section>
@@ -128,8 +131,8 @@ export default function ProjectOverviewPage() {
         <section className="wm-section wm-section--compact">
           <div className="wm-section__head">
             <div className="wm-section__titles">
-              <h2>Discovery snapshot</h2>
-              <p>Latest recorded requirements from the Discovery workflow.</p>
+              <h2>Guided Project snapshot</h2>
+              <p>Latest recorded room, source, and transport context from Guided Project.</p>
             </div>
           </div>
 
@@ -138,6 +141,9 @@ export default function ProjectOverviewPage() {
             <div className="wm-summary-row"><span>Display count</span><strong>{project.discovery?.displayCount || "-"}</strong></div>
             <div className="wm-summary-row"><span>Source count</span><strong>{project.discovery?.sourceCount || "-"}</strong></div>
             <div className="wm-summary-row"><span>Distance</span><strong>{project.discovery?.cableDistanceM || "-"}</strong></div>
+            <div className="wm-summary-row"><span>Source placement</span><strong>{project.discovery?.sourcePlacement || "-"}</strong></div>
+            <div className="wm-summary-row"><span>Source ingress</span><strong>{project.discovery?.sourceConnectionPath || "-"}</strong></div>
+            <div className="wm-summary-row"><span>Display delivery</span><strong>{project.discovery?.displayConnectionPath || "-"}</strong></div>
           </div>
         </section>
       </div>

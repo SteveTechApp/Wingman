@@ -21,8 +21,8 @@ export default function DiscoveryWorkflowBridge() {
     saveActiveProjectFromDiscoverySeed({ advanceToArchitecture });
     setStatus(
       advanceToArchitecture
-        ? "Discovery saved. Active project moved to Architecture."
-        : "Discovery saved to the active project."
+        ? "Guided Project saved. Active project moved to Architecture."
+        : "Guided Project saved to the active project."
     );
     setTick((v) => v + 1);
   };
@@ -37,7 +37,7 @@ export default function DiscoveryWorkflowBridge() {
           </h3>
           <p className="wm-muted wm-discovery-bridge-copy">
             {active
-              ? "Save the current Discovery Wizard fields into the active Mission Control project."
+              ? "Save the current Guided Project fields into the active Mission Control project."
               : "Go to Mission Control, create or select a project, then return here."}
           </p>
         </div>

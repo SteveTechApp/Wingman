@@ -52,7 +52,7 @@ export async function analyzeProject(input: unknown): Promise<ProjectAnalysisRes
 
   if (findings.length === 0) {
     findings.push("Input is sparse; no high-confidence risk indicators were detected.");
-    nextActions.push("Run Discovery Wizard to capture source/display counts and transport constraints.");
+    nextActions.push("Open Guided Project to capture source/display counts and transport constraints.");
   }
 
   let riskLevel: "Low" | "Medium" | "High" = "Low";

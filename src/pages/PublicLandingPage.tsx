@@ -37,7 +37,7 @@ export default function PublicLandingPage() {
             </Link>
 
             <Link to="/app/tools/discovery" style={{ ...styles.button, ...styles.secondaryButton }}>
-              Run Discovery Wizard
+              Open Guided Project
             </Link>
 
             <Link to="/app/dashboard" style={{ ...styles.button, ...styles.secondaryButton }}>

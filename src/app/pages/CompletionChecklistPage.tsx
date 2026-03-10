@@ -1,5 +1,17 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { WM_ROUTES } from "@/core/wingman/routeMap";
+import {
+  getActiveProject,
+  getProjectById,
+  setActiveProjectId,
+  subscribeProjects,
+  updateProject,
+  type StoredProject,
+} from "@/features/projects/projectStore";
+import { evaluateCommercialReadiness } from "@/features/readiness/commercialReadiness";
+import { useProposalStore } from "@/proposal/bom/store";
 
 type TemplateSeed = {
   source?: string;
@@ -28,7 +40,41 @@ type ManualChecks = {
   risksLogged: boolean;
 };
 
-const STORAGE_KEY = "wm_completion_checklist_v1";
+type ProposalDraft = {
+  executiveSummary?: string;
+  customerRequirements?: string;
+  systemOverview?: string;
+  billOfMaterials?: string;
+  commercialNotes?: string;
+  assumptions?: string;
+  exclusions?: string;
+  nextStep?: string;
+};
+
+const DEFAULT_CHECKS: ManualChecks = {
+  projectDetails: false,
+  roomRequirements: false,
+  solutionSelected: false,
+  proposalNotes: false,
+  bomReady: false,
+  risksLogged: false,
+};
+
+const CHECKLIST_STORAGE_PREFIX = "wm_completion_checklist_v2";
+const RESULT_STORAGE_PREFIX = "wm_completion_result_v2";
+const TEMPLATE_SEED_KEY = "wm_template_seed";
+
+function checklistStorageKey(projectId: string): string {
+  return `${CHECKLIST_STORAGE_PREFIX}:${projectId}`;
+}
+
+function resultStorageKey(projectId: string): string {
+  return `${RESULT_STORAGE_PREFIX}:${projectId}`;
+}
+
+function proposalStorageKey(projectId: string): string {
+  return `wm_proposal_builder_v2:${projectId}`;
+}
 
 function readJson<T>(key: string, fallback: T): T {
   try {
@@ -42,8 +88,35 @@ function readJson<T>(key: string, fallback: T): T {
 
 function writeJson(key: string, value: unknown) {
   try {
-    sessionStorage.setItem(key, JSON.stringify(value));
-  } catch {}
+    const json = JSON.stringify(value);
+    localStorage.setItem(key, json);
+    sessionStorage.setItem(key, json);
+  } catch {
+  }
+}
+
+function hasText(value: string | undefined | null): boolean {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function hasSectionText(value: string | undefined | null, label: string): boolean {
+  return typeof value === "string" && value.toLowerCase().includes(`${label.toLowerCase()}:`);
+}
+
+function hasSolutionContext(project: StoredProject | null, templateSeed: TemplateSeed): boolean {
+  if (project?.template || project?.compare || project?.videowall) return true;
+  if ((project?.catalog?.skus?.length ?? 0) > 0) return true;
+  if ((project?.discovery?.recommendedFamilies?.length ?? 0) > 0) return true;
+  return Boolean(templateSeed.tier?.label || templateSeed.includedSystems?.length);
+}
+
+function replaceCompletionNote(existing: string | undefined, nextNote: string): string {
+  const blocks = (existing ?? "")
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter((block) => block.length > 0 && !block.startsWith("Completion gate passed on "));
+
+  return [...blocks, nextNote].join("\n\n");
 }
 
 function CheckRow({
@@ -93,11 +166,12 @@ function CheckRow({
             ? "1px solid rgba(94,234,212,0.45)"
             : "1px solid rgba(255,255,255,0.18)",
           background: checked ? "rgba(94,234,212,0.18)" : "rgba(255,255,255,0.02)",
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: 900,
+          letterSpacing: "0.04em",
         }}
       >
-        {checked ? "âœ“" : ""}
+        {checked ? "OK" : ""}
       </div>
 
       <div>
@@ -134,94 +208,164 @@ function InfoCard({
 
 export default function CompletionChecklistPage() {
   const nav = useNavigate();
+  const { id } = useParams<{ id?: string }>();
+  const [proposalState] = useProposalStore();
 
   const templateSeed = React.useMemo(
-    () => readJson<TemplateSeed>("wm_template_seed", {}),
+    () => readJson<TemplateSeed>(TEMPLATE_SEED_KEY, {}),
     [],
   );
 
-  const [checks, setChecks] = React.useState<ManualChecks>(() =>
-    readJson<ManualChecks>(STORAGE_KEY, {
-      projectDetails: false,
-      roomRequirements: false,
-      solutionSelected: false,
-      proposalNotes: false,
-      bomReady: false,
-      risksLogged: false,
-    }),
+  const project = React.useSyncExternalStore(
+    subscribeProjects,
+    () => {
+      if (id) return getProjectById(id) ?? null;
+      return getActiveProject() ?? null;
+    },
+    () => getActiveProject() ?? null,
   );
 
   React.useEffect(() => {
-    writeJson(STORAGE_KEY, checks);
-  }, [checks]);
+    if (project?.id) {
+      setActiveProjectId(project.id);
+    }
+  }, [project?.id]);
+
+  const projectId = project?.id ?? id ?? "draft";
+  const proposalDraft = React.useMemo(
+    () => readJson<ProposalDraft>(proposalStorageKey(projectId), {}),
+    [projectId],
+  );
+
+  const [checks, setChecks] = React.useState<ManualChecks>(() =>
+    readJson<ManualChecks>(checklistStorageKey(projectId), DEFAULT_CHECKS),
+  );
+
+  React.useEffect(() => {
+    setChecks(readJson<ManualChecks>(checklistStorageKey(projectId), DEFAULT_CHECKS));
+  }, [projectId]);
+
+  React.useEffect(() => {
+    writeJson(checklistStorageKey(projectId), checks);
+  }, [projectId, checks]);
+
+  const hasNarrative =
+    (
+      hasText(proposalDraft.executiveSummary) &&
+      hasText(proposalDraft.customerRequirements) &&
+      hasText(proposalDraft.systemOverview)
+    ) ||
+    hasText(project?.proposal?.title) ||
+    hasText(project?.proposal?.notes);
+
+  const hasAssumptions =
+    hasText(proposalDraft.assumptions) ||
+    hasSectionText(project?.proposal?.notes, "Assumptions") ||
+    hasSectionText(project?.notes, "Assumptions");
+
+  const hasExclusions =
+    hasText(proposalDraft.exclusions) ||
+    hasSectionText(project?.proposal?.notes, "Exclusions") ||
+    hasSectionText(project?.notes, "Exclusions");
+
+  const bomLineCount = Math.max(
+    proposalState.lines.length,
+    project?.catalog?.skus?.length ?? 0,
+  );
+
+  const readiness = React.useMemo(
+    () =>
+      evaluateCommercialReadiness(project ?? undefined, {
+        hasNarrative,
+        hasAssumptions,
+        hasExclusions,
+        bomLineCount,
+      }),
+    [bomLineCount, hasAssumptions, hasExclusions, hasNarrative, project],
+  );
 
   const autoSignals = React.useMemo(() => {
-    const hasProjectName = !!templateSeed.projectName?.trim();
-    const hasVertical = !!templateSeed.verticalMarket?.name?.trim();
-    const hasRoom = !!templateSeed.roomType?.name?.trim();
-    const hasTier = !!templateSeed.tier?.label?.trim();
-    const hasSystems = !!templateSeed.includedSystems?.length;
-    const hasCommercial = !!templateSeed.tier?.commercialNote?.trim();
+    const hasProjectName = hasText(project?.name) || hasText(templateSeed.projectName);
+    const hasCustomerContext =
+      hasText(project?.customer) ||
+      hasText(project?.site) ||
+      hasText(project?.roomName);
+    const hasRoomContext =
+      hasText(project?.discovery?.applicationType) ||
+      (hasText(templateSeed.verticalMarket?.name) && hasText(templateSeed.roomType?.name));
+    const hasCommercialNotes =
+      hasText(project?.proposal?.notes) ||
+      hasText(project?.proposal?.title) ||
+      hasText(proposalDraft.commercialNotes) ||
+      hasText(templateSeed.tier?.commercialNote);
 
     return {
-      hasProjectName,
-      hasVertical,
-      hasRoom,
-      hasTier,
-      hasSystems,
-      hasCommercial,
+      hasProjectDetails: hasProjectName && (hasCustomerContext || hasRoomContext),
+      hasRoomRequirements: Boolean(hasRoomContext || project?.discovery?.notes),
+      hasSolutionSelected: hasSolutionContext(project, templateSeed),
+      hasProposalNotes: hasCommercialNotes || readiness.checks.some((check) => check.id === "narrative" && check.complete),
+      hasBom: bomLineCount > 0,
+      hasRisks: hasAssumptions && hasExclusions,
     };
-  }, [templateSeed]);
+  }, [
+    bomLineCount,
+    hasAssumptions,
+    hasExclusions,
+    project,
+    proposalDraft.commercialNotes,
+    readiness.checks,
+    templateSeed,
+  ]);
 
   const effective = {
-    projectDetails: checks.projectDetails || autoSignals.hasProjectName,
-    roomRequirements: checks.roomRequirements || (autoSignals.hasVertical && autoSignals.hasRoom),
-    solutionSelected: checks.solutionSelected || (autoSignals.hasTier && autoSignals.hasSystems),
-    proposalNotes: checks.proposalNotes || autoSignals.hasCommercial,
-    bomReady: checks.bomReady,
-    risksLogged: checks.risksLogged,
+    projectDetails: checks.projectDetails || autoSignals.hasProjectDetails,
+    roomRequirements: checks.roomRequirements || autoSignals.hasRoomRequirements,
+    solutionSelected: checks.solutionSelected || autoSignals.hasSolutionSelected,
+    proposalNotes: checks.proposalNotes || autoSignals.hasProposalNotes,
+    bomReady: checks.bomReady || autoSignals.hasBom,
+    risksLogged: checks.risksLogged || autoSignals.hasRisks,
   };
 
   const checklist = [
     {
       key: "projectDetails" as const,
       label: "Project details confirmed",
-      help: "Project name and base context are defined before hand-off.",
+      help: "Project name plus customer, site, or room context are defined before hand-off.",
       checked: effective.projectDetails,
     },
     {
       key: "roomRequirements" as const,
       label: "Application and room requirements captured",
-      help: "The customer vertical and typical room type have been selected.",
+      help: "The workflow has enough room or opportunity context to defend the solution path.",
       checked: effective.roomRequirements,
     },
     {
       key: "solutionSelected" as const,
       label: "Solution direction selected",
-      help: "A capability tier and system direction have been chosen.",
+      help: "A template, mapped product family, SKU set, compare outcome, or video wall design exists.",
       checked: effective.solutionSelected,
     },
     {
       key: "proposalNotes" as const,
       label: "Proposal positioning notes ready",
-      help: "Commercial or customer-facing proposal notes are prepared.",
+      help: "Customer-facing narrative or commercial notes are prepared for the handoff pack.",
       checked: effective.proposalNotes,
     },
     {
       key: "bomReady" as const,
       label: "BOM / export readiness checked",
-      help: "You have reviewed the product set and are satisfied it is ready for quote/export.",
+      help: "There is a product set or BOM line list ready to support pricing and proposal issue.",
       checked: effective.bomReady,
     },
     {
       key: "risksLogged" as const,
       label: "Risks, assumptions, and exclusions noted",
-      help: "Any caveats, dependencies, or open points have been captured.",
+      help: "The proposal clearly states assumptions and exclusions to reduce rework.",
       checked: effective.risksLogged,
     },
   ];
 
-  const completedCount = checklist.filter((x) => x.checked).length;
+  const completedCount = checklist.filter((item) => item.checked).length;
   const totalCount = checklist.length;
   const percent = Math.round((completedCount / totalCount) * 100);
   const isReady = completedCount === totalCount;
@@ -231,17 +375,41 @@ export default function CompletionChecklistPage() {
   }
 
   function markReady() {
-    writeJson("wm_completion_result", {
-      status: "ready",
-      completedAt: new Date().toISOString(),
+    const completedAt = new Date().toISOString();
+    const completionNote = `Completion gate passed on ${new Date(completedAt).toLocaleString()} (${completedCount}/${totalCount} checks).`;
+    const completionResult = {
+      projectId,
+      projectName: project?.name ?? templateSeed.projectName ?? "Current Draft Project",
+      status: "Commercial Ready",
+      completedAt,
       completionPercent: percent,
       checklist: effective,
+      readiness,
       templateSeed,
-    });
-    nav("/app/projects");
+    };
+
+    writeJson(resultStorageKey(projectId), completionResult);
+    writeJson("wm_completion_result", completionResult);
+
+    if (project?.id) {
+      updateProject(project.id, {
+        stage: project.stage || "Proposal",
+        status: "Commercial Ready",
+        notes: replaceCompletionNote(project.notes, completionNote),
+        proposal: {
+          ...(project.proposal ?? {}),
+          notes: replaceCompletionNote(project.proposal?.notes, completionNote),
+        },
+      });
+      nav(`/app/projects/${encodeURIComponent(project.id)}`);
+      return;
+    }
+
+    nav(WM_ROUTES.projects);
   }
 
   const projectTitle =
+    project?.name ||
     templateSeed.projectName ||
     [
       templateSeed.verticalMarket?.name,
@@ -252,6 +420,8 @@ export default function CompletionChecklistPage() {
       .join(" / ") ||
     "Current Draft Project";
 
+  const statusLabel = isReady ? "Commercial Ready" : readiness.status;
+
   return (
     <div
       className="wm-page wm-animate-in"
@@ -261,7 +431,7 @@ export default function CompletionChecklistPage() {
         <div>
           <div className="wm-page-eyebrow">WORKFLOW VALIDATION</div>
           <h1 className="wm-page-title" style={{ marginBottom: 8 }}>
-            Completion Checklist
+            Completion Workflow
           </h1>
           <div
             style={{
@@ -271,10 +441,39 @@ export default function CompletionChecklistPage() {
               lineHeight: 1.5,
             }}
           >
-            Use this page as the final review gate before proposal issue, export, or internal hand-off.
-            Any item not yet complete should send you back to the relevant tool page.
+            Use this as the final gate before proposal issue, export, or internal hand-off. The
+            checklist combines manual confirmation with live project and proposal signals so the
+            active opportunity can be marked commercially ready in the shared project store.
           </div>
         </div>
+
+        {!project ? (
+          <InfoCard title="Active project required">
+            <div className="wm-body-sm" style={{ color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
+              No active project is currently selected. Start or open a project first, then come
+              back here to complete the final handoff gate.
+            </div>
+
+            <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <button
+                type="button"
+                className="wm-btn wm-btn-primary"
+                style={{ height: 40, padding: "0 16px" }}
+                onClick={() => nav(WM_ROUTES.projects)}
+              >
+                Open Projects
+              </button>
+              <button
+                type="button"
+                className="wm-btn"
+                style={{ height: 40, padding: "0 16px" }}
+                onClick={() => nav(WM_ROUTES.newProject)}
+              >
+                Start New Project
+              </button>
+            </div>
+          </InfoCard>
+        ) : null}
 
         <div
           style={{
@@ -299,16 +498,45 @@ export default function CompletionChecklistPage() {
             >
               <div
                 style={{
-                  fontSize: 11,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.68)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  flexWrap: "wrap",
                 }}
               >
-                Current project
-              </div>
-              <div style={{ marginTop: 8, fontSize: 22, fontWeight: 900 }}>
-                {projectTitle}
+                <div>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase",
+                      color: "rgba(255,255,255,0.68)",
+                    }}
+                  >
+                    Current project
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 22, fontWeight: 900 }}>
+                    {projectTitle}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    borderRadius: 999,
+                    padding: "6px 10px",
+                    border: isReady
+                      ? "1px solid rgba(94,234,212,0.40)"
+                      : "1px solid rgba(245,158,11,0.32)",
+                    background: isReady
+                      ? "rgba(94,234,212,0.12)"
+                      : "rgba(245,158,11,0.10)",
+                    fontSize: 12,
+                    fontWeight: 800,
+                  }}
+                >
+                  {statusLabel}
+                </div>
               </div>
 
               <div
@@ -345,11 +573,15 @@ export default function CompletionChecklistPage() {
               <div
                 style={{
                   marginTop: 10,
+                  display: "grid",
+                  gap: 6,
                   fontSize: 13,
                   color: "rgba(255,255,255,0.82)",
                 }}
               >
-                {completedCount} of {totalCount} checks complete
+                <div>{completedCount} of {totalCount} checks complete</div>
+                <div>Commercial readiness engine: {readiness.status} ({readiness.score}%)</div>
+                <div>Next step: {isReady ? "Mark the project ready and return to the workspace." : readiness.nextStep}</div>
               </div>
 
               <div
@@ -365,7 +597,7 @@ export default function CompletionChecklistPage() {
                   className="wm-btn wm-btn-primary"
                   style={{ height: 40, padding: "0 16px" }}
                   onClick={markReady}
-                  disabled={!isReady}
+                  disabled={!project || !isReady}
                   title={isReady ? "Mark this project ready" : "Complete all checks first"}
                 >
                   Mark project ready
@@ -375,9 +607,9 @@ export default function CompletionChecklistPage() {
                   type="button"
                   className="wm-btn"
                   style={{ height: 40, padding: "0 16px" }}
-                  onClick={() => nav("/app/projects")}
+                  onClick={() => nav(project ? `/app/projects/${encodeURIComponent(project.id)}` : WM_ROUTES.projects)}
                 >
-                  Back to Projects
+                  Back to Project
                 </button>
               </div>
             </div>
@@ -393,9 +625,9 @@ export default function CompletionChecklistPage() {
                   background: "rgba(255,255,255,0.03)",
                 }}
               >
-                <div style={{ fontSize: 12, fontWeight: 800 }}>Vertical market</div>
+                <div style={{ fontSize: 12, fontWeight: 800 }}>Stage and status</div>
                 <div style={{ marginTop: 4, fontSize: 13, color: "rgba(255,255,255,0.82)" }}>
-                  {templateSeed.verticalMarket?.name || "Not yet detected"}
+                  {project ? `${project.stage || "Discovery"} / ${project.status || "Draft"}` : "Not yet detected"}
                 </div>
               </div>
 
@@ -407,9 +639,11 @@ export default function CompletionChecklistPage() {
                   background: "rgba(255,255,255,0.03)",
                 }}
               >
-                <div style={{ fontSize: 12, fontWeight: 800 }}>Room type</div>
+                <div style={{ fontSize: 12, fontWeight: 800 }}>Application context</div>
                 <div style={{ marginTop: 4, fontSize: 13, color: "rgba(255,255,255,0.82)" }}>
-                  {templateSeed.roomType?.name || "Not yet detected"}
+                  {project?.discovery?.applicationType ||
+                    templateSeed.roomType?.name ||
+                    "Not yet detected"}
                 </div>
               </div>
 
@@ -421,9 +655,11 @@ export default function CompletionChecklistPage() {
                   background: "rgba(255,255,255,0.03)",
                 }}
               >
-                <div style={{ fontSize: 12, fontWeight: 800 }}>Capability tier</div>
+                <div style={{ fontSize: 12, fontWeight: 800 }}>Solution evidence</div>
                 <div style={{ marginTop: 4, fontSize: 13, color: "rgba(255,255,255,0.82)" }}>
-                  {templateSeed.tier?.label || "Not yet detected"}
+                  {autoSignals.hasSolutionSelected
+                    ? "Template, mapped family, comparison, or SKU path detected"
+                    : "No solution direction detected yet"}
                 </div>
               </div>
 
@@ -435,11 +671,9 @@ export default function CompletionChecklistPage() {
                   background: "rgba(255,255,255,0.03)",
                 }}
               >
-                <div style={{ fontSize: 12, fontWeight: 800 }}>Included system behaviours</div>
+                <div style={{ fontSize: 12, fontWeight: 800 }}>BOM line count</div>
                 <div style={{ marginTop: 4, fontSize: 13, color: "rgba(255,255,255,0.82)" }}>
-                  {templateSeed.includedSystems?.length
-                    ? `${templateSeed.includedSystems.length} detected`
-                    : "Not yet detected"}
+                  {bomLineCount > 0 ? `${bomLineCount} line(s) detected` : "No BOM lines detected"}
                 </div>
               </div>
             </div>
@@ -466,16 +700,25 @@ export default function CompletionChecklistPage() {
               type="button"
               className="wm-btn"
               style={{ height: 40, padding: "0 16px" }}
-              onClick={() => nav("/app/templates")}
+              onClick={() => nav(WM_ROUTES.projects)}
             >
-              Open Templates
+              Open Projects
             </button>
 
             <button
               type="button"
               className="wm-btn"
               style={{ height: 40, padding: "0 16px" }}
-              onClick={() => nav("/app/tools/room-wizard")}
+              onClick={() => nav(WM_ROUTES.discovery)}
+            >
+              Open Guided Project
+            </button>
+
+            <button
+              type="button"
+              className="wm-btn"
+              style={{ height: 40, padding: "0 16px" }}
+              onClick={() => nav(WM_ROUTES.roomDesigner)}
             >
               Open Room Wizard
             </button>
@@ -484,18 +727,18 @@ export default function CompletionChecklistPage() {
               type="button"
               className="wm-btn"
               style={{ height: 40, padding: "0 16px" }}
-              onClick={() => nav("/app/tools/proposal")}
+              onClick={() => nav(WM_ROUTES.catalogue)}
             >
-              Open Proposal Builder
+              Open Catalog
             </button>
 
             <button
               type="button"
               className="wm-btn"
               style={{ height: 40, padding: "0 16px" }}
-              onClick={() => nav("/app/tools/catalog")}
+              onClick={() => nav(WM_ROUTES.proposals)}
             >
-              Open Catalog
+              Open Proposal Builder
             </button>
           </div>
         </InfoCard>

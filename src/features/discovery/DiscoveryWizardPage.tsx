@@ -1,16 +1,16 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import DiscoveryWorkflowBridge from "@/features/discovery/DiscoveryWorkflowBridge";
 
-type DiscoveryProductFamily =
-  | "Apollo"
-  | "HDBaseT"
-  | "AVoIP"
-  | "Matrix"
-  | "USB Extension"
-  | "Video Wall";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
+import {
+  getActiveProject,
+  subscribeProjects,
+  updateProjectDiscovery,
+} from "@/features/projects/projectStore";
 
-type DiscoveryRecord = {
+type Family = "Apollo" | "HDBaseT" | "AVoIP" | "Matrix" | "USB Extension" | "Video Wall";
+type Confidence = "Low" | "Medium" | "High";
+type RecordState = {
   customer: string;
   site: string;
   roomName: string;
@@ -18,115 +18,59 @@ type DiscoveryRecord = {
   roomLengthM: string;
   roomWidthM: string;
   roomHeightM: string;
-  displayLocation: string;
-  sourceLocation: string;
-  rackLocation: string;
   cableDistanceM: string;
   displayCount: string;
   sourceCount: string;
+  sourceTypes: string;
+  sourcePlacement: string;
+  sourceConnectionPath: string;
+  displayConnectionPath: string;
   usbNeeds: string;
   audioNeeds: string;
   controlNeeds: string;
   budgetBand: string;
   urgency: string;
   notes: string;
-  recommendedFamilies: DiscoveryProductFamily[];
+  recommendedFamilies: Family[];
   recommendedNextTool: string;
   createdAt: string;
 };
 
-type ArchitecturePreview = {
-  primary: string;
-  confidence: "Low" | "Medium" | "High";
+type Advice = {
+  primary: Family;
+  confidence: Confidence;
+  families: Family[];
   summary: string;
+  cues: string[];
   reasons: string[];
   nextActions: string[];
-  bomDirection: string[];
-};
-
-type ProductFamilyRecommendation = {
-  platform: string;
-  family: string;
-  familyDescription: string;
-  starterSkus: string[];
-  bomSkeleton: string[];
-  notes: string[];
+  nextToolPath: string;
 };
 
 const STORAGE_KEY = "wm_discovery_seed";
-
-const APPLICATION_OPTIONS = [
-  "Meeting Space",
-  "Boardroom",
-  "Huddle Space",
-  "Training Room",
-  "Classroom",
-  "Control Room",
-  "Reception",
-  "Retail",
-  "Custom",
-];
-
-const POSITION_OPTIONS = [
-  "Front wall",
-  "Rear wall",
-  "Side wall",
-  "Table",
-  "Lectern",
-  "Ceiling",
-  "Rack room",
-  "Under display",
-  "Other",
-];
-
-const USB_OPTIONS = [
-  "None",
-  "USB 2.0",
-  "USB 3.x",
-  "USB-C BYOD",
-  "Camera + audio peripherals",
-  "Mixed peripherals",
-];
-
-const AUDIO_OPTIONS = [
-  "None",
-  "Display audio only",
-  "Microphones + speakers",
-  "DSP / Dante ready",
-  "USB audio bridge",
-];
-
-const CONTROL_OPTIONS = [
-  "None",
-  "IR",
-  "RS-232",
-  "IP control",
-  "Simple room control",
-  "Matrix / multi-zone",
-];
-
-const BUDGET_OPTIONS = [
-  "Entry",
-  "Mid",
-  "Performance",
-  "Premium",
-  "Open",
-];
-
-const URGENCY_OPTIONS = [
-  "Immediate",
-  "This month",
-  "This quarter",
-  "Planning stage",
-];
-
 const STEP_DEFS = [
-  { id: "context", title: "Context", subtitle: "Customer, site and room profile." },
-  { id: "layout", title: "Layout", subtitle: "Room dimensions, cable path and equipment locations." },
-  { id: "qualifiers", title: "Technical", subtitle: "Commercial and technical signals that shape the design." },
+  ["Customer Brief", "Start with the basic customer and room context."],
+  ["Space and Distance", "Capture the physical envelope and longest likely route."],
+  ["Physical Dynamics", "Understand where sources live and how the signal moves."],
+  ["User Experience", "Capture USB, audio, control, and commercial caveats."],
 ] as const;
+const STEP_FIELDS: Array<Array<keyof RecordState>> = [
+  ["customer", "site", "roomName", "applicationType"],
+  ["roomLengthM", "roomWidthM", "roomHeightM", "displayCount", "cableDistanceM"],
+  ["sourceCount", "sourceTypes", "sourcePlacement", "sourceConnectionPath", "displayConnectionPath"],
+  ["usbNeeds", "audioNeeds", "controlNeeds", "budgetBand", "urgency", "notes"],
+];
+const APPLICATIONS = ["Meeting Space", "Boardroom", "Huddle Space", "Training Room", "Classroom", "Control Room", "Reception", "Retail", "Flexible Space", "Custom"];
+const SOURCE_PLACEMENT = ["Mostly BYOD at the table", "Fixed devices in the room", "Central rack", "Local rack / credenza", "Mixed local and central", "Not sure yet"];
+const SOURCE_PATH = ["Direct cable to the next device", "Via floor box or wall plate", "Via local rack", "Via central rack", "Via network drop", "Mixed path", "Not sure yet"];
+const DISPLAY_PATH = ["Direct to the display", "Via receiver or decoder", "Via switcher then display", "Via video wall processor", "Mixed display path", "Not sure yet"];
+const USB = ["None", "Basic USB only", "USB-C BYOD", "Camera + audio peripherals", "Mixed peripherals"];
+const AUDIO = ["None", "Display audio only", "Microphones + speakers", "DSP / Dante ready", "USB audio bridge"];
+const CONTROL = ["None", "Simple room control", "IP control", "Touch panel / automation", "Matrix / multi-zone control"];
+const BUDGET = ["Entry", "Mid", "Performance", "Premium", "Open"];
+const URGENCY = ["Immediate", "This month", "This quarter", "Planning stage"];
 
-function emptyDiscoveryRecord(): DiscoveryRecord {
+function emptyRecord(): RecordState {
   return {
     customer: "",
     site: "",
@@ -135,12 +79,13 @@ function emptyDiscoveryRecord(): DiscoveryRecord {
     roomLengthM: "",
     roomWidthM: "",
     roomHeightM: "",
-    displayLocation: "",
-    sourceLocation: "",
-    rackLocation: "",
     cableDistanceM: "",
     displayCount: "",
     sourceCount: "",
+    sourceTypes: "",
+    sourcePlacement: "",
+    sourceConnectionPath: "",
+    displayConnectionPath: "",
     usbNeeds: "",
     audioNeeds: "",
     controlNeeds: "",
@@ -148,772 +93,391 @@ function emptyDiscoveryRecord(): DiscoveryRecord {
     urgency: "",
     notes: "",
     recommendedFamilies: [],
-    recommendedNextTool: "Product Catalog",
+    recommendedNextTool: WM_ROUTES.catalogue,
     createdAt: new Date().toISOString(),
   };
 }
 
-function readDiscovery(): DiscoveryRecord {
+function readRecord(): RecordState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return emptyDiscoveryRecord();
-    const parsed = JSON.parse(raw) as Partial<DiscoveryRecord>;
-    return { ...emptyDiscoveryRecord(), ...parsed };
+    return raw ? { ...emptyRecord(), ...(JSON.parse(raw) as Partial<RecordState>) } : emptyRecord();
   } catch {
-    return emptyDiscoveryRecord();
+    return emptyRecord();
   }
 }
 
-function writeDiscovery(record: DiscoveryRecord) {
+function writeRecord(record: RecordState) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
   } catch {}
 }
 
-function asNumber(value: string): number {
+function num(value: string) {
   const n = Number(value);
   return Number.isFinite(n) ? n : 0;
 }
 
-function pickTopFamilies(record: DiscoveryRecord): {
-  families: DiscoveryProductFamily[];
-  reasons: string[];
-  nextTool: string;
-} {
-  const families = new Set<DiscoveryProductFamily>();
-  const reasons: string[] = [];
+function filled(value: string | undefined) {
+  return Boolean(value && value.trim());
+}
 
-  const distance = asNumber(record.cableDistanceM);
-  const displays = asNumber(record.displayCount);
-  const sources = asNumber(record.sourceCount);
+function mergeFirst(...values: Array<string | undefined>) {
+  return values.find((value) => filled(value)) ?? "";
+}
 
-  const usb = record.usbNeeds.toLowerCase();
-  const audio = record.audioNeeds.toLowerCase();
-  const control = record.controlNeeds.toLowerCase();
-  const app = record.applicationType.toLowerCase();
-
-  if (
-    usb.includes("usb-c") ||
-    usb.includes("camera") ||
-    usb.includes("peripheral") ||
-    app.includes("meeting") ||
-    app.includes("boardroom") ||
-    app.includes("huddle")
-  ) {
-    families.add("Apollo");
-    reasons.push("Collaboration and BYOD workflow likely.");
-  }
-
-  if (distance > 15 || displays > 1 || sources > 2) {
-    families.add("HDBaseT");
-    reasons.push("Point-to-point extension or longer cable path.");
-  }
-
-  if (distance > 70 || displays > 4 || sources > 4 || audio.includes("dante")) {
-    families.add("AVoIP");
-    reasons.push("Networked distribution is a better fit at this scale.");
-  }
-
-  if (displays > 1 || app.includes("control room")) {
-    families.add("Video Wall");
-    reasons.push("Multiple displays suggest video wall or multiview needs.");
-  }
-
-  if (control.includes("matrix") || control.includes("multi") || sources > 3) {
-    families.add("Matrix");
-    reasons.push("Source switching density points toward matrix logic.");
-  }
-
-  if ((usb.includes("usb 3") || usb.includes("camera") || usb.includes("peripheral")) && distance > 5) {
-    families.add("USB Extension");
-    reasons.push("USB transport likely needs dedicated extension.");
-  }
-
-  if (families.size === 0) {
-    families.add("Apollo");
-    reasons.push("Safe starting point for a compact meeting-space design.");
-  }
-
-  const familyOrder: DiscoveryProductFamily[] = [
-    "Apollo",
-    "HDBaseT",
-    "AVoIP",
-    "Matrix",
-    "USB Extension",
-    "Video Wall",
-  ];
-
-  const ordered = familyOrder.filter((item) => families.has(item));
-
-  let nextTool = "Product Catalog";
-  if (ordered.includes("Video Wall")) nextTool = "Video Wall Wizard";
-  else if (ordered.includes("Matrix")) nextTool = "Product Catalog";
-  else if (ordered.includes("Apollo")) nextTool = "Product Catalog";
-
+function mergeProject(record: RecordState, project: ReturnType<typeof getActiveProject>): RecordState {
+  if (!project) return record;
+  const d = project.discovery;
   return {
-    families: ordered.slice(0, 3),
-    reasons: reasons.slice(0, 4),
-    nextTool,
+    ...record,
+    customer: mergeFirst(record.customer, d?.customer, project.customer),
+    site: mergeFirst(record.site, d?.site, project.site),
+    roomName: mergeFirst(record.roomName, d?.roomName, project.roomName, project.name),
+    applicationType: mergeFirst(record.applicationType, d?.applicationType),
+    roomLengthM: mergeFirst(record.roomLengthM, d?.roomLengthM),
+    roomWidthM: mergeFirst(record.roomWidthM, d?.roomWidthM),
+    roomHeightM: mergeFirst(record.roomHeightM, d?.roomHeightM),
+    cableDistanceM: mergeFirst(record.cableDistanceM, d?.cableDistanceM),
+    displayCount: mergeFirst(record.displayCount, d?.displayCount),
+    sourceCount: mergeFirst(record.sourceCount, d?.sourceCount),
+    sourceTypes: mergeFirst(record.sourceTypes, d?.sourceTypes),
+    sourcePlacement: mergeFirst(record.sourcePlacement, d?.sourcePlacement),
+    sourceConnectionPath: mergeFirst(record.sourceConnectionPath, d?.sourceConnectionPath),
+    displayConnectionPath: mergeFirst(record.displayConnectionPath, d?.displayConnectionPath),
+    usbNeeds: mergeFirst(record.usbNeeds, d?.usbNeeds),
+    audioNeeds: mergeFirst(record.audioNeeds, d?.audioNeeds),
+    controlNeeds: mergeFirst(record.controlNeeds, d?.controlNeeds),
+    budgetBand: mergeFirst(record.budgetBand, d?.budgetBand),
+    urgency: mergeFirst(record.urgency, d?.urgency),
+    notes: mergeFirst(record.notes, d?.notes),
   };
 }
 
-function buildArchitecturePreview(record: DiscoveryRecord): ArchitecturePreview {
-  const distance = asNumber(record.cableDistanceM);
-  const displays = asNumber(record.displayCount);
-  const sources = asNumber(record.sourceCount);
+function uniq(items: string[]) {
+  return Array.from(new Set(items.filter((item) => item.trim())));
+}
+
+function buildAdvice(record: RecordState): Advice {
   const app = record.applicationType.toLowerCase();
+  const sourceTypes = record.sourceTypes.toLowerCase();
+  const sourcePlacement = record.sourcePlacement.toLowerCase();
+  const sourcePath = record.sourceConnectionPath.toLowerCase();
+  const displayPath = record.displayConnectionPath.toLowerCase();
   const usb = record.usbNeeds.toLowerCase();
   const audio = record.audioNeeds.toLowerCase();
   const control = record.controlNeeds.toLowerCase();
-
+  const distance = num(record.cableDistanceM);
+  const displays = num(record.displayCount);
+  const sources = num(record.sourceCount);
+  const families = new Set<Family>();
+  const cues: string[] = [];
   const reasons: string[] = [];
   const nextActions: string[] = [];
-  const bomDirection: string[] = [];
 
-  let primary = "HDBaseT";
-  let confidence: "Low" | "Medium" | "High" = "Medium";
-  let summary = "The project currently leans toward an HDBaseT-led room architecture.";
-
-  if (app.includes("control room") || displays >= 4) {
-    primary = "Video Wall";
-    summary = "The project currently leans toward a processor-led multi-display architecture.";
-    reasons.push("Multiple displays indicate processing or wall-style presentation logic.");
-    bomDirection.push("Processor or video wall engine");
-    bomDirection.push("Input switching layer");
-    bomDirection.push("Display feed outputs");
+  if (app.includes("boardroom") || app.includes("meeting") || app.includes("huddle") || usb.includes("byod")) {
+    families.add("Apollo");
+    reasons.push("The user workflow points to collaboration and BYOD handling.");
+  }
+  if (distance >= 15 || sourcePath.includes("floor box") || sourcePath.includes("wall plate") || sourcePath.includes("central rack") || displayPath.includes("receiver")) {
+    families.add("HDBaseT");
+    reasons.push("The physical path suggests structured extension rather than only short local cabling.");
+  }
+  if (distance >= 60 || sourcePlacement.includes("mixed") || sourcePath.includes("network") || displayPath.includes("decoder") || (sources >= 4 && displays >= 3)) {
+    families.add("AVoIP");
+    reasons.push("Longer or mixed transport paths suggest a network backbone may be the cleaner answer.");
+  }
+  if (sources >= 3 || displays >= 2 || control.includes("matrix")) {
+    families.add("Matrix");
+    reasons.push("The I/O density and routing requirement suggest switching flexibility matters.");
+  }
+  if ((usb.includes("camera") || usb.includes("peripheral") || sourceTypes.includes("camera")) && (distance >= 5 || sourcePath.includes("rack"))) {
+    families.add("USB Extension");
+    reasons.push("USB devices and room cameras imply a separate USB transport decision.");
+  }
+  if (app.includes("control room") || displays >= 4 || displayPath.includes("video wall")) {
+    families.add("Video Wall");
+    reasons.push("The endpoint model looks more like a processor-led multi-display problem.");
+  }
+  if (families.size === 0) {
+    families.add("Apollo");
+    reasons.push("With limited detail, a collaboration-led baseline is the safest start.");
   }
 
-  if (distance >= 70 || (sources >= 4 && displays >= 4) || audio.includes("dante")) {
-    primary = "AVoIP";
-    summary = "The project currently leans toward a network-distributed AV architecture.";
-    reasons.push("Scale, signal distance, or audio networking suggest distributed transport.");
-    bomDirection.push("AVoIP encoders");
-    bomDirection.push("AVoIP decoders");
-    bomDirection.push("Managed network switching");
-  }
+  cues.push(filled(record.sourcePlacement) ? `Sources are expected to live ${record.sourcePlacement.toLowerCase()}.` : "Source placement is still unclear.");
+  cues.push(filled(record.sourceConnectionPath) ? `Sources likely join the system ${record.sourceConnectionPath.toLowerCase()}.` : "The first hop into the system is still unclear.");
+  cues.push(filled(record.displayConnectionPath) ? `Displays are likely reached ${record.displayConnectionPath.toLowerCase()}.` : "The final hop to the display is still unclear.");
+  if (distance > 0) cues.push(`The longest likely installed route is about ${distance} m.`);
 
-  if (sources >= 2 && displays >= 2 && displays < 4 && distance < 70) {
-    if (primary !== "AVoIP" && primary !== "Video Wall") {
-      primary = "Matrix";
-      summary = "The project currently leans toward a matrix-led switching architecture.";
-      reasons.push("Moderate I/O counts suggest central switching and routing flexibility.");
-      bomDirection.push("Matrix switch");
-      bomDirection.push("TX/RX or local endpoints");
-    }
-  }
+  if (!filled(record.sourceTypes)) nextActions.push("Confirm the real source mix: laptops, cameras, PCs, players, or a mix.");
+  if (!filled(record.sourcePlacement)) nextActions.push("Confirm where sources physically live: table, local rack, central rack, or fixed around the room.");
+  if (!filled(record.sourceConnectionPath) || !filled(record.displayConnectionPath)) nextActions.push("Map the first hop and the last hop before finalising technology.");
+  if (!filled(record.usbNeeds) || !filled(record.controlNeeds)) nextActions.push("Confirm USB and control expectations so the user experience is not under-scoped.");
+  if (audio.includes("dsp") || audio.includes("dante")) nextActions.push("Validate the audio network and DSP boundary early because it changes transport choices.");
 
-  if (usb.includes("usb-c") || usb.includes("camera") || usb.includes("peripheral")) {
-    reasons.push("USB collaboration needs must be preserved in the architecture.");
-    nextActions.push("Confirm USB host/device roles and BYOD or camera workflows.");
-    bomDirection.push("USB extension support");
-  }
+  const order: Family[] = ["Apollo", "HDBaseT", "AVoIP", "Matrix", "USB Extension", "Video Wall"];
+  const ordered = order.filter((family) => families.has(family));
+  const primaryOrder: Family[] = ["Video Wall", "AVoIP", "Matrix", "Apollo", "HDBaseT", "USB Extension"];
+  const primary = primaryOrder.find((family) => ordered.includes(family)) ?? "Apollo";
+  const known = [record.applicationType, record.displayCount, record.sourceCount, record.sourcePlacement, record.sourceConnectionPath, record.displayConnectionPath, record.cableDistanceM].filter(filled).length;
+  const confidence: Confidence = known >= 6 ? "High" : known >= 4 ? "Medium" : "Low";
+  const nextToolPath = primary === "Video Wall" ? WM_ROUTES.videowall : WM_ROUTES.catalogue;
+  const summary =
+    primary === "AVoIP" ? "Wingman currently sees a distributed transport problem, so a network backbone is the leading fit."
+    : primary === "Matrix" ? "Wingman currently sees a switching and routing problem, so central matrix logic is the leading fit."
+    : primary === "Video Wall" ? "Wingman currently sees a multi-display endpoint problem, so a processor-led path is the leading fit."
+    : primary === "Apollo" ? "Wingman currently sees a collaboration-led room where user workflow matters as much as transport."
+    : primary === "USB Extension" ? "Wingman currently sees a USB transport risk that should be solved explicitly."
+    : "Wingman currently sees a structured extension problem, where HDBaseT is the leading fit.";
 
-  if (control.includes("ip") || control.includes("room") || control.includes("matrix")) {
-    reasons.push("Control requirements should be included early in the system logic.");
-    nextActions.push("Confirm control interfaces and user operation workflow.");
-    bomDirection.push("Control layer");
-  }
-
-  if (audio.includes("microphones") || audio.includes("dsp") || audio.includes("dante") || audio.includes("usb audio")) {
-    reasons.push("Audio requirements will affect signal breakout, DSP, or audio transport.");
-    nextActions.push("Confirm microphone, speaker, DSP, and local audio path requirements.");
-    bomDirection.push("Audio integration path");
-  }
-
-  if (primary === "HDBaseT") {
-    reasons.push("The current room scope looks suited to extension-led distribution.");
-    nextActions.push("Confirm cable route lengths and final TX/RX endpoint count.");
-    bomDirection.push("HDBaseT transmitters");
-    bomDirection.push("HDBaseT receivers");
-    bomDirection.push("Switcher or presentation input layer");
-  }
-
-  if (primary === "Matrix") {
-    nextActions.push("Confirm final source and display counts for switch sizing.");
-    bomDirection.push("Room routing interface");
-  }
-
-  if (primary === "AVoIP") {
-    nextActions.push("Confirm network boundaries, endpoint count, and switching assumptions.");
-    bomDirection.push("AV routing/control layer");
-  }
-
-  if (primary === "Video Wall") {
-    nextActions.push("Confirm wall layout, presets, and content presentation scenarios.");
-    bomDirection.push("Control/preset recall");
-  }
-
-  if (sources > 0 && displays > 0 && distance > 0) {
-    confidence = "High";
-  } else if (sources === 0 || displays === 0 || distance === 0) {
-    confidence = "Low";
-  }
-
-  if (reasons.length === 0) {
-    reasons.push("More technical qualifiers are needed before the architecture can be confirmed.");
-  }
-
-  if (nextActions.length === 0) {
-    nextActions.push("Continue Discovery and confirm remaining technical qualifiers.");
-  }
-
-  if (bomDirection.length === 0) {
-    bomDirection.push("Core transport layer");
-    bomDirection.push("Display endpoints");
-  }
-
-  return {
-    primary,
-    confidence,
-    summary,
-    reasons: Array.from(new Set(reasons)).slice(0, 4),
-    nextActions: Array.from(new Set(nextActions)).slice(0, 4),
-    bomDirection: Array.from(new Set(bomDirection)).slice(0, 5),
-  };
+  return { primary, confidence, families: ordered, summary, cues: uniq(cues).slice(0, 4), reasons: uniq(reasons).slice(0, 4), nextActions: uniq(nextActions).slice(0, 4), nextToolPath };
 }
 
-function buildProductFamilyRecommendation(
-  architecture: ArchitecturePreview,
-  record: DiscoveryRecord
-): ProductFamilyRecommendation {
-  const usb = record.usbNeeds.toLowerCase();
-  const app = record.applicationType.toLowerCase();
-
-  if (architecture.primary === "AVoIP") {
-    return {
-      platform: "WyreStorm NetworkHD-style workflow",
-      family: "AV over IP distribution",
-      familyDescription: "Use a network-distributed platform for larger endpoint counts, longer distance, or wider distribution.",
-      starterSkus: [
-        "NHD encoder candidate",
-        "NHD decoder candidate",
-        "Managed switch candidate",
-      ],
-      bomSkeleton: [
-        "Encoder endpoints",
-        "Decoder endpoints",
-        "Network switching",
-        "Control/routing layer",
-      ],
-      notes: [
-        "Confirm multicast and switching assumptions before final product selection.",
-        "Use when scale or distance makes direct extension less practical.",
-      ],
-    };
-  }
-
-  if (architecture.primary === "Video Wall") {
-    return {
-      platform: "WyreStorm video wall workflow",
-      family: "Processor-led display system",
-      familyDescription: "Use a processor or presentation-led path where display layout and canvas control matter more than simple transport.",
-      starterSkus: [
-        "Processor candidate",
-        "Input layer candidate",
-        "Output/distribution candidate",
-      ],
-      bomSkeleton: [
-        "Processor engine",
-        "Input switching",
-        "Display outputs",
-        "Preset/control layer",
-      ],
-      notes: [
-        "Confirm wall layout and content behaviour before final BOM.",
-        "Best fit for control room or multi-display presentation applications.",
-      ],
-    };
-  }
-
-  if (architecture.primary === "Matrix") {
-    return {
-      platform: "WyreStorm matrix switching workflow",
-      family: "Central switching",
-      familyDescription: "Use a central switch where routing flexibility and source-to-display reassignment are key requirements.",
-      starterSkus: [
-        "Matrix chassis candidate",
-        "TX/RX endpoint candidate",
-        "Control interface candidate",
-      ],
-      bomSkeleton: [
-        "Matrix switch",
-        "Input endpoints",
-        "Output endpoints",
-        "User control layer",
-      ],
-      notes: [
-        "Confirm final I/O count before sizing the switch.",
-        "Good fit where multiple sources need flexible routing.",
-      ],
-    };
-  }
-
-  if (
-    app.includes("meeting") ||
-    app.includes("boardroom") ||
-    app.includes("huddle") ||
-    usb.includes("usb-c") ||
-    usb.includes("camera")
-  ) {
-    return {
-      platform: "WyreStorm Apollo-style collaboration workflow",
-      family: "Meeting room collaboration",
-      familyDescription: "Use a collaboration-led room platform where switching, USB, and BYOD are central to the user experience.",
-      starterSkus: [
-        "Apollo switch candidate",
-        "Room USB/peripheral support",
-        "Display extension candidate",
-      ],
-      bomSkeleton: [
-        "Collaboration switch",
-        "USB/peripheral support",
-        "Display transport",
-        "Room control",
-      ],
-      notes: [
-        "Strong fit for modern meeting spaces and BYOD rooms.",
-        "Confirm host switching and peripheral requirements early.",
-      ],
-    };
-  }
-
-  return {
-    platform: "WyreStorm HDBaseT workflow",
-    family: "Extension-led distribution",
-    familyDescription: "Use an HDBaseT-led architecture for contained rooms with moderate distances and clear endpoint locations.",
-    starterSkus: [
-      "HDBaseT transmitter candidate",
-      "HDBaseT receiver candidate",
-      "Presentation switch candidate",
-    ],
-    bomSkeleton: [
-      "Source-side TX",
-      "Display-side RX",
-      "Switching/input layer",
-      "Control/audio support as needed",
-    ],
-    notes: [
-      "Best fit where direct extension is cleaner than network distribution.",
-      "Confirm installed cable route and endpoint count before product selection.",
-    ],
-  };
+function nextToolLabel(path: string) {
+  return path === WM_ROUTES.videowall ? "Video Wall Designer" : "Product Catalog";
 }
 
-function show(value: string): string {
-  return value.trim() ? value : "-";
+function notesFrom(record: RecordState, advice: Advice) {
+  return [
+    record.notes.trim(),
+    "Guided Project summary:",
+    `Primary fit: ${advice.primary} (${advice.confidence})`,
+    `Source placement: ${record.sourcePlacement || "Not confirmed"}`,
+    `Source ingress: ${record.sourceConnectionPath || "Not confirmed"}`,
+    `Display path: ${record.displayConnectionPath || "Not confirmed"}`,
+    `Source types: ${record.sourceTypes || "Not confirmed"}`,
+  ].filter(Boolean).join("\n");
 }
 
-function showSize(record: DiscoveryRecord): string {
-  const l = show(record.roomLengthM);
-  const w = show(record.roomWidthM);
-  const h = show(record.roomHeightM);
-  if (l === "-" && w === "-" && h === "-") return "-";
-  return `${l} x ${w} x ${h} m`;
+function countStep(record: RecordState, step: number) {
+  return STEP_FIELDS[step].filter((field) => filled(record[field] as string)).length;
 }
 
-function countFilled(values: string[]): number {
-  return values.filter((value) => value.trim().length > 0).length;
-}
-
-function stepCompletion(record: DiscoveryRecord, index: number): { done: number; total: number } {
-  if (index === 0) {
-    return { done: countFilled([record.customer, record.site, record.roomName, record.applicationType]), total: 4 };
-  }
-  if (index === 1) {
-    return {
-      done: countFilled([
-        record.roomLengthM,
-        record.roomWidthM,
-        record.roomHeightM,
-        record.cableDistanceM,
-        record.displayLocation,
-        record.sourceLocation,
-        record.rackLocation,
-      ]),
-      total: 7,
-    };
-  }
-  return {
-    done: countFilled([
-      record.displayCount,
-      record.sourceCount,
-      record.usbNeeds,
-      record.audioNeeds,
-      record.controlNeeds,
-      record.budgetBand,
-      record.urgency,
-      record.notes,
-    ]),
-    total: 8,
-  };
-}
-
-function TextField(props: {
-  label: string;
-  value: string;
-  placeholder?: string;
-  type?: string;
-  onChange: (value: string) => void;
-}) {
+function Field(props: { label: string; helper: string; children: React.ReactNode }) {
   return (
     <label className="wm-ui__field">
       <span className="wm-ui__label">{props.label}</span>
-      <input
-        className="wm-ui__input"
-        type={props.type ?? "text"}
-        value={props.value}
-        placeholder={props.placeholder}
-        onChange={(e) => props.onChange(e.target.value)}
-      />
-    </label>
-  );
-}
-
-function SelectField(props: {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="wm-ui__field">
-      <span className="wm-ui__label">{props.label}</span>
-      <select className="wm-ui__select" value={props.value} onChange={(e) => props.onChange(e.target.value)}>
-        <option value="">Select an option</option>
-        {props.options.map((option) => (
-          <option key={option} value={option}>{option}</option>
-        ))}
-      </select>
+      {props.children}
+      <span className="wm-gp__field-help">{props.helper}</span>
     </label>
   );
 }
 
 export default function DiscoveryWizardPage() {
   const navigate = useNavigate();
-  const [record, setRecord] = React.useState<DiscoveryRecord>(() => readDiscovery());
+  const activeProject = React.useSyncExternalStore(subscribeProjects, () => getActiveProject() ?? null, () => null);
+  const [record, setRecord] = React.useState<RecordState>(() => readRecord());
   const [savedAt, setSavedAt] = React.useState("");
   const [activeStep, setActiveStep] = React.useState(0);
+  const advice = React.useMemo(() => buildAdvice(record), [record]);
+  const progress = STEP_DEFS.map((_, index) => countStep(record, index));
+  const totalDone = progress.reduce((sum, value) => sum + value, 0);
+  const totalFields = STEP_FIELDS.reduce((sum, value) => sum + value.length, 0);
 
-  const recommendation = React.useMemo(() => pickTopFamilies(record), [record]);
-  const architecturePreview = React.useMemo(() => buildArchitecturePreview(record), [record]);
-  const productFamilyRecommendation = React.useMemo(
-    () => buildProductFamilyRecommendation(architecturePreview, record),
-    [architecturePreview, record]
-  );
+  React.useEffect(() => {
+    if (!activeProject) return;
+    setRecord((prev) => {
+      const next = mergeProject(prev, activeProject);
+      return JSON.stringify(prev) === JSON.stringify(next) ? prev : next;
+    });
+  }, [activeProject]);
 
-  const update = <K extends keyof DiscoveryRecord>(key: K, value: DiscoveryRecord[K]) => {
-    setRecord((prev) => ({ ...prev, [key]: value }));
-  };
+  function update(field: keyof RecordState, value: string) {
+    setRecord((prev) => ({ ...prev, [field]: value }));
+  }
 
-  const saveNow = () => {
-    const payload: DiscoveryRecord = {
-      ...record,
-      recommendedFamilies: recommendation.families,
-      recommendedNextTool: recommendation.nextTool,
-    };
-    writeDiscovery(payload);
+  function save() {
+    const payload = { ...record, recommendedFamilies: advice.families, recommendedNextTool: advice.nextToolPath };
+    writeRecord(payload);
+    if (activeProject?.id) {
+      updateProjectDiscovery(activeProject.id, {
+        customer: payload.customer || activeProject.customer,
+        site: payload.site || activeProject.site,
+        roomName: payload.roomName || activeProject.roomName || activeProject.name,
+        applicationType: payload.applicationType,
+        roomLengthM: payload.roomLengthM,
+        roomWidthM: payload.roomWidthM,
+        roomHeightM: payload.roomHeightM,
+        cableDistanceM: payload.cableDistanceM,
+        displayCount: payload.displayCount,
+        sourceCount: payload.sourceCount,
+        sourceTypes: payload.sourceTypes,
+        sourcePlacement: payload.sourcePlacement,
+        sourceConnectionPath: payload.sourceConnectionPath,
+        displayConnectionPath: payload.displayConnectionPath,
+        usbNeeds: payload.usbNeeds,
+        audioNeeds: payload.audioNeeds,
+        controlNeeds: payload.controlNeeds,
+        budgetBand: payload.budgetBand,
+        urgency: payload.urgency,
+        notes: notesFrom(payload, advice),
+        recommendedFamilies: payload.recommendedFamilies,
+        recommendedNextTool: payload.recommendedNextTool,
+      });
+    }
     setSavedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
-  };
+  }
 
-  const startBlank = () => {
-    const fresh = emptyDiscoveryRecord();
+  function reset() {
+    const fresh = emptyRecord();
     setRecord(fresh);
-    writeDiscovery(fresh);
+    writeRecord(fresh);
     setSavedAt("");
     setActiveStep(0);
-  };
+  }
 
-  const goCatalog = () => {
-    saveNow();
-    navigate("/app/tools/catalog");
-  };
-
-  const currentStepMeta = STEP_DEFS[activeStep];
-  const currentProgress = stepCompletion(record, activeStep);
-  const totalComplete =
-    stepCompletion(record, 0).done +
-    stepCompletion(record, 1).done +
-    stepCompletion(record, 2).done;
-  const totalFields =
-    stepCompletion(record, 0).total +
-    stepCompletion(record, 1).total +
-    stepCompletion(record, 2).total;
-
-  function renderStep() {
-    if (activeStep === 0) {
-      return (
-        <div className="wm-ui__grid wm-ui__grid--2">
-          <TextField label="Customer" value={record.customer} placeholder="Sample customer" onChange={(v) => update("customer", v)} />
-          <TextField label="Site" value={record.site} placeholder="Banbury HQ" onChange={(v) => update("site", v)} />
-          <TextField label="Room name" value={record.roomName} placeholder="Boardroom" onChange={(v) => update("roomName", v)} />
-          <SelectField label="Application type" value={record.applicationType} options={APPLICATION_OPTIONS} onChange={(v) => update("applicationType", v)} />
-        </div>
-      );
-    }
-
-    if (activeStep === 1) {
-      return (
-        <div className="wm-ui__grid wm-ui__grid--2">
-          <TextField label="Room length (m)" type="number" value={record.roomLengthM} placeholder="10" onChange={(v) => update("roomLengthM", v)} />
-          <TextField label="Room width (m)" type="number" value={record.roomWidthM} placeholder="5" onChange={(v) => update("roomWidthM", v)} />
-          <TextField label="Room height (m)" type="number" value={record.roomHeightM} placeholder="2.8" onChange={(v) => update("roomHeightM", v)} />
-          <TextField label="Expected longest route (m)" type="number" value={record.cableDistanceM} placeholder="Installed route length" onChange={(v) => update("cableDistanceM", v)} />
-          <SelectField label="Display location" value={record.displayLocation} options={POSITION_OPTIONS} onChange={(v) => update("displayLocation", v)} />
-          <SelectField label="Source position" value={record.sourceLocation} options={POSITION_OPTIONS} onChange={(v) => update("sourceLocation", v)} />
-          <SelectField label="Rack / comms location" value={record.rackLocation} options={POSITION_OPTIONS} onChange={(v) => update("rackLocation", v)} />
-        </div>
-      );
-    }
-
-    return (
-      <div className="wm-ui__grid wm-ui__grid--2">
-        <TextField label="Display count" type="number" value={record.displayCount} placeholder="2" onChange={(v) => update("displayCount", v)} />
-        <TextField label="Source count" type="number" value={record.sourceCount} placeholder="4" onChange={(v) => update("sourceCount", v)} />
-        <SelectField label="USB needs" value={record.usbNeeds} options={USB_OPTIONS} onChange={(v) => update("usbNeeds", v)} />
-        <SelectField label="Audio needs" value={record.audioNeeds} options={AUDIO_OPTIONS} onChange={(v) => update("audioNeeds", v)} />
-        <SelectField label="Control needs" value={record.controlNeeds} options={CONTROL_OPTIONS} onChange={(v) => update("controlNeeds", v)} />
-        <SelectField label="Budget band" value={record.budgetBand} options={BUDGET_OPTIONS} onChange={(v) => update("budgetBand", v)} />
-        <SelectField label="Urgency / timeline" value={record.urgency} options={URGENCY_OPTIONS} onChange={(v) => update("urgency", v)} />
-
-        <label className="wm-ui__field wm-dw6__field--full">
-          <span className="wm-ui__label">Call notes / constraints</span>
-          <textarea
-            className="wm-ui__textarea wm-ui__textarea--sm"
-            value={record.notes}
-            placeholder="Known constraints, preferred platforms, cable routes, existing room tech, Teams / BYOD requirements, consultant preferences."
-            onChange={(e) => update("notes", e.target.value)}
-          />
-        </label>
-      </div>
-    );
+  function next() {
+    if (activeStep < STEP_DEFS.length - 1) return setActiveStep((value) => value + 1);
+    save();
+    navigate(advice.nextToolPath);
   }
 
   return (
-    <div className="wm-page wm-dw6 wm-ui">
+    <div className="wm-page wm-dw6 wm-ui wm-guided-project-page">
       <div className="wm-ui__stack">
         <section className="wm-hero">
           <div className="wm-page-hero-row wm-dw6__hero">
             <div>
-              <p className="wm-ui__eyebrow">Discovery</p>
-              <h1 className="wm-ui__title">Discovery Wizard</h1>
-              <p className="wm-ui__subtitle">
-                Guide the user step by step, reduce clutter, and keep the workflow focused.
-              </p>
+              <p className="wm-ui__eyebrow">GUIDED PROJECT</p>
+              <h1 className="wm-ui__title">Guided Project</h1>
+              <p className="wm-ui__subtitle">Keep the questions simple, but make the physical dynamics explicit. Wingman should understand the room, the source path, and the endpoint path before it recommends technology.</p>
             </div>
-
             <div className="wm-actions-row wm-dw6__heroActions">
-              <button className="wm-ui__btn wm-ui__btn--ghost" onClick={startBlank}>Start blank</button>
-              <button className="wm-ui__btn" onClick={() => navigate("/app/tools")}>Tool Hub</button>
+              <button className="wm-ui__btn wm-ui__btn--ghost" onClick={reset}>Start blank</button>
+              <button className="wm-ui__btn" onClick={() => navigate(WM_ROUTES.newProject)}>Project launcher</button>
             </div>
           </div>
         </section>
 
         <section className="wm-section">
           <div className="wm-wizard-progress">
-            {STEP_DEFS.map((step, index) => {
-              const progress = stepCompletion(record, index);
-              const isActive = index === activeStep;
-              return (
-                <React.Fragment key={step.id}>
-                  <button
-                    type="button"
-                    className={`wm-wizard-step ${isActive ? "active" : ""}`}
-                    onClick={() => setActiveStep(index)}
-                  >
-                    <span className="wm-wizard-index">{index + 1}</span>
-                    <span>{step.title}</span>
-                    <span className="wm-wizard-meta">({progress.done}/{progress.total})</span>
-                  </button>
-                  {index < STEP_DEFS.length - 1 ? <div className="wm-wizard-divider" /> : null}
-                </React.Fragment>
-              );
-            })}
+            {STEP_DEFS.map(([title], index) => (
+              <React.Fragment key={title}>
+                <button type="button" className={`wm-wizard-step ${index === activeStep ? "active" : ""}`} onClick={() => setActiveStep(index)}>
+                  <span className="wm-wizard-index">{index + 1}</span>
+                  <span>{title}</span>
+                  <span className="wm-wizard-meta">({progress[index]}/{STEP_FIELDS[index].length})</span>
+                </button>
+                {index < STEP_DEFS.length - 1 ? <div className="wm-wizard-divider" /> : null}
+              </React.Fragment>
+            ))}
           </div>
 
-          <div className="wm-dw6__content">
-            <div className="wm-dw6__sectionTop">
-              <div>
-                <h2 className="wm-ui__sectionTitle">Step {activeStep + 1} - {currentStepMeta.title}</h2>
-                <p className="wm-ui__sectionText">{currentStepMeta.subtitle}</p>
-              </div>
-              <div className="wm-dw6__stepBadge">{currentProgress.done}/{currentProgress.total} complete</div>
-            </div>
-
-            <div className="wm-dw6__wizardShell">
-              <div className="wm-dw6__formWrap">
-                {renderStep()}
+          <div className="wm-gp__layout">
+            <div className="wm-dw6__content">
+              <div className="wm-dw6__sectionTop">
+                <div>
+                  <h2 className="wm-ui__sectionTitle">Step {activeStep + 1} - {STEP_DEFS[activeStep][0]}</h2>
+                  <p className="wm-ui__sectionText">{STEP_DEFS[activeStep][1]}</p>
+                </div>
+                <div className="wm-dw6__stepBadge">{progress[activeStep]}/{STEP_FIELDS[activeStep].length} complete</div>
               </div>
 
-              <div className="wm-dw6__nav">
-                <div className="wm-dw6__navLeft">
-                  <span className="wm-ui__helper wm-dw6__save-meta">
-                    {savedAt ? `Last saved at ${savedAt}` : `Progress ${totalComplete}/${totalFields}`}
-                  </span>
+              <div className="wm-dw6__wizardShell">
+                <div className="wm-dw6__formWrap">
+                  <div className="wm-ui__grid wm-ui__grid--2">
+                    {activeStep === 0 ? (
+                      <>
+                        <Field label="Customer" helper="Who is the end customer or internal stakeholder?"><input className="wm-ui__input" value={record.customer} onChange={(e) => update("customer", e.target.value)} placeholder="e.g. Acme Ltd" /></Field>
+                        <Field label="Site" helper="Where is the space physically located?"><input className="wm-ui__input" value={record.site} onChange={(e) => update("site", e.target.value)} placeholder="e.g. London HQ" /></Field>
+                        <Field label="Room or project name" helper="Keep this plain and customer-friendly."><input className="wm-ui__input" value={record.roomName} onChange={(e) => update("roomName", e.target.value)} placeholder="e.g. Boardroom Refresh" /></Field>
+                        <Field label="Application type" helper="What kind of environment are we designing for?"><select className="wm-ui__select" value={record.applicationType} onChange={(e) => update("applicationType", e.target.value)}><option value="">Select an option</option>{APPLICATIONS.map((value) => <option key={value} value={value}>{value}</option>)}</select></Field>
+                      </>
+                    ) : null}
+
+                    {activeStep === 1 ? (
+                      <>
+                        <Field label="Room length (m)" helper="Approximate is fine at this stage."><input className="wm-ui__input" type="number" value={record.roomLengthM} onChange={(e) => update("roomLengthM", e.target.value)} placeholder="10" /></Field>
+                        <Field label="Room width (m)" helper="Enough to understand cable and viewing constraints."><input className="wm-ui__input" type="number" value={record.roomWidthM} onChange={(e) => update("roomWidthM", e.target.value)} placeholder="5" /></Field>
+                        <Field label="Room height (m)" helper="Helpful for cameras, ceiling equipment, and coverage."><input className="wm-ui__input" type="number" value={record.roomHeightM} onChange={(e) => update("roomHeightM", e.target.value)} placeholder="2.8" /></Field>
+                        <Field label="Display count" helper="How many primary displays need feeding?"><input className="wm-ui__input" type="number" value={record.displayCount} onChange={(e) => update("displayCount", e.target.value)} placeholder="1" /></Field>
+                        <Field label="Longest likely installed route (m)" helper="Think installed route, not just line-of-sight distance."><input className="wm-ui__input" type="number" value={record.cableDistanceM} onChange={(e) => update("cableDistanceM", e.target.value)} placeholder="15" /></Field>
+                      </>
+                    ) : null}
+
+                    {activeStep === 2 ? (
+                      <>
+                        <Field label="Source count" helper="How many sources need to enter the system?"><input className="wm-ui__input" type="number" value={record.sourceCount} onChange={(e) => update("sourceCount", e.target.value)} placeholder="3" /></Field>
+                        <Field label="Typical source types" helper="Keep this simple: laptops, cameras, PCs, players, or a mix."><input className="wm-ui__input" value={record.sourceTypes} onChange={(e) => update("sourceTypes", e.target.value)} placeholder="Laptops, cameras, PC, signage player" /></Field>
+                        <Field label="Where are sources located?" helper="This is one of the most important technology signals."><select className="wm-ui__select" value={record.sourcePlacement} onChange={(e) => update("sourcePlacement", e.target.value)}><option value="">Select an option</option>{SOURCE_PLACEMENT.map((value) => <option key={value} value={value}>{value}</option>)}</select></Field>
+                        <Field label="How do sources enter the system?" helper="Think first hop: direct cable, floor box, wall plate, rack, or network."><select className="wm-ui__select" value={record.sourceConnectionPath} onChange={(e) => update("sourceConnectionPath", e.target.value)}><option value="">Select an option</option>{SOURCE_PATH.map((value) => <option key={value} value={value}>{value}</option>)}</select></Field>
+                        <Field label="How do displays receive the signal?" helper="Think final hop: direct, receiver, decoder, processor, or mixed."><select className="wm-ui__select" value={record.displayConnectionPath} onChange={(e) => update("displayConnectionPath", e.target.value)}><option value="">Select an option</option>{DISPLAY_PATH.map((value) => <option key={value} value={value}>{value}</option>)}</select></Field>
+                      </>
+                    ) : null}
+
+                    {activeStep === 3 ? (
+                      <>
+                        <Field label="USB needs" helper="Only ask what the user workflow really demands."><select className="wm-ui__select" value={record.usbNeeds} onChange={(e) => update("usbNeeds", e.target.value)}><option value="">Select an option</option>{USB.map((value) => <option key={value} value={value}>{value}</option>)}</select></Field>
+                        <Field label="Audio needs" helper="Enough to decide whether audio transport changes the design."><select className="wm-ui__select" value={record.audioNeeds} onChange={(e) => update("audioNeeds", e.target.value)}><option value="">Select an option</option>{AUDIO.map((value) => <option key={value} value={value}>{value}</option>)}</select></Field>
+                        <Field label="Control needs" helper="Simple control vs automation materially changes the path."><select className="wm-ui__select" value={record.controlNeeds} onChange={(e) => update("controlNeeds", e.target.value)}><option value="">Select an option</option>{CONTROL.map((value) => <option key={value} value={value}>{value}</option>)}</select></Field>
+                        <Field label="Budget band" helper="Useful for early tiering, not just pricing."><select className="wm-ui__select" value={record.budgetBand} onChange={(e) => update("budgetBand", e.target.value)}><option value="">Select an option</option>{BUDGET.map((value) => <option key={value} value={value}>{value}</option>)}</select></Field>
+                        <Field label="Urgency" helper="Helps shape how much detail we need immediately."><select className="wm-ui__select" value={record.urgency} onChange={(e) => update("urgency", e.target.value)}><option value="">Select an option</option>{URGENCY.map((value) => <option key={value} value={value}>{value}</option>)}</select></Field>
+                        <label className="wm-ui__field wm-dw6__field--full">
+                          <span className="wm-ui__label">Notes, caveats, or unknowns</span>
+                          <textarea className="wm-ui__textarea wm-ui__textarea--sm" value={record.notes} onChange={(e) => update("notes", e.target.value)} placeholder="Capture anything that changes the physical design: floor boxes, local racks, consultant preference, BYOD expectations, existing cabling, or open questions." />
+                          <span className="wm-gp__field-help">If something is uncertain, note it. Wingman should treat unknown physical dynamics as a design risk, not ignore them.</span>
+                        </label>
+                      </>
+                    ) : null}
+                  </div>
                 </div>
 
-                <div className="wm-dw6__navRight">
-                  <button className="wm-ui__btn wm-ui__btn--ghost" onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))} disabled={activeStep === 0}>
-                    Previous
-                  </button>
-
-                  <button className="wm-ui__btn" onClick={saveNow}>
-                    Save discovery
-                  </button>
-
-                  {activeStep < STEP_DEFS.length - 1 ? (
-                    <button className="wm-ui__btn wm-ui__btn--primary" onClick={() => setActiveStep((prev) => Math.min(STEP_DEFS.length - 1, prev + 1))}>
-                      Next
-                    </button>
-                  ) : (
-                    <button className="wm-ui__btn wm-ui__btn--primary" onClick={goCatalog}>
-                      Open Catalog
-                    </button>
-                  )}
+                <div className="wm-dw6__nav">
+                  <div className="wm-dw6__navLeft">
+                    <span className="wm-ui__helper wm-dw6__save-meta">{savedAt ? `Last saved at ${savedAt}` : `Progress ${totalDone}/${totalFields}`}</span>
+                  </div>
+                  <div className="wm-dw6__navRight">
+                    <button className="wm-ui__btn wm-ui__btn--ghost" onClick={() => setActiveStep((value) => Math.max(0, value - 1))} disabled={activeStep === 0}>Previous</button>
+                    <button className="wm-ui__btn" onClick={save}>Save Guided Project</button>
+                    <button className="wm-ui__btn wm-ui__btn--primary" onClick={next}>{activeStep < STEP_DEFS.length - 1 ? "Next" : `Save and Open ${nextToolLabel(advice.nextToolPath)}`}</button>
+                  </div>
                 </div>
               </div>
             </div>
+
+            <aside className="wm-gp__sidebar">
+              <section className="wm-gp__summaryCard">
+                <div className="wm-gp__summaryEyebrow">Active project</div>
+                <div className="wm-gp__summaryTitle">{activeProject?.name || record.roomName || "Current guided project"}</div>
+                <div className="wm-gp__summaryCopy">{activeProject ? `${activeProject.customer || "Customer not set"} · ${activeProject.stage || "Discovery"}` : "Save this input into an active project as you go."}</div>
+              </section>
+              <section className="wm-gp__summaryCard">
+                <div className="wm-gp__summaryEyebrow">Wingman is hearing</div>
+                <div className="wm-gp__summaryTitle">{advice.primary} is the current lead fit</div>
+                <div className="wm-gp__confidence">Confidence: {advice.confidence}</div>
+                <p className="wm-gp__summaryCopy">{advice.summary}</p>
+                <div className="wm-ui__chips">{advice.families.map((family) => <span key={family} className="wm-ui__chip wm-ui__chip--active">{family}</span>)}</div>
+              </section>
+              <section className="wm-gp__summaryCard">
+                <div className="wm-gp__summaryEyebrow">Physical dynamics</div>
+                <ul className="wm-gp__list">{advice.cues.map((item) => <li key={item}>{item}</li>)}</ul>
+              </section>
+              <section className="wm-gp__summaryCard">
+                <div className="wm-gp__summaryEyebrow">Why Wingman is leaning this way</div>
+                <ul className="wm-gp__list">{advice.reasons.map((item) => <li key={item}>{item}</li>)}</ul>
+              </section>
+              <section className="wm-gp__summaryCard">
+                <div className="wm-gp__summaryEyebrow">Next actions</div>
+                <ul className="wm-gp__list">{advice.nextActions.map((item) => <li key={item}>{item}</li>)}</ul>
+              </section>
+            </aside>
           </div>
         </section>
 
         <section className="wm-section">
-          <div className="wm-dw6__insights">
-            <div>
-              <h3 className="wm-ui__sectionTitle">Recommended product families</h3>
-              <p className="wm-ui__sectionText">Use this as the next-step guide rather than as a final product decision.</p>
-            </div>
-
-            <div className="wm-ui__chips">
-              {recommendation.families.map((family) => (
-                <span key={family} className="wm-ui__chip wm-ui__chip--active">{family}</span>
-              ))}
-            </div>
-
-            <div className="wm-dw6__insightStack">
-              <div className="wm-ui__miniGrid">
-                {recommendation.reasons.map((reason) => (
-                  <div key={reason} className="wm-ui__miniItem">
-                    <strong>Reason</strong>
-                    <span>{reason}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="wm-ui__miniGrid">
-                <div className="wm-ui__miniItem">
-                  <strong>Next tool</strong>
-                  <span>{recommendation.nextTool}</span>
-                </div>
-                <div className="wm-ui__miniItem">
-                  <strong>Room size</strong>
-                  <span>{showSize(record)}</span>
-                </div>
-                <div className="wm-ui__miniItem">
-                  <strong>Displays / sources</strong>
-                  <span>{record.displayCount || "-"} / {record.sourceCount || "-"}</span>
-                </div>
-              </div>
+          <div className="wm-section__head">
+            <div className="wm-section__titles">
+              <h2>How Wingman should reason about the room</h2>
+              <p>Keep the logic decision-tree based so the questioning stays light while the technology reasoning stays deep.</p>
             </div>
           </div>
+          <div className="wm-gp__decisionTree">
+            <article className="wm-gp__decisionCard"><div className="wm-gp__summaryEyebrow">1. Source origin</div><div className="wm-gp__summaryTitle">Where do signals start?</div><div className="wm-gp__summaryCopy">Separate table BYOD, fixed cameras, local racks, and central racks because each one changes the first technology decision.</div></article>
+            <article className="wm-gp__decisionCard"><div className="wm-gp__summaryEyebrow">2. First hop</div><div className="wm-gp__summaryTitle">How do they enter the system?</div><div className="wm-gp__summaryCopy">Floor boxes, wall plates, direct patching, network drops, and rack ingress imply different transport and cable assumptions.</div></article>
+            <article className="wm-gp__decisionCard"><div className="wm-gp__summaryEyebrow">3. Backbone</div><div className="wm-gp__summaryTitle">What carries the signal between nodes?</div><div className="wm-gp__summaryCopy">This is where Wingman should decide between direct cable, HDBaseT, matrix switching, AVoIP, USB extension, or processor-led paths.</div></article>
+            <article className="wm-gp__decisionCard"><div className="wm-gp__summaryEyebrow">4. Endpoint delivery</div><div className="wm-gp__summaryTitle">How does the signal finally reach the display?</div><div className="wm-gp__summaryCopy">Direct display feed, receiver, decoder, or processor output should be explicit because the last hop often exposes the real system shape.</div></article>
+          </div>
         </section>
-
-        {activeStep === 2 ? (
-          <>
-            <section className="wm-section">
-              <div className="wm-dw6__insights">
-                <div className="wm-dw6__architectureHead">
-                  <div>
-                    <h3 className="wm-ui__sectionTitle">Suggested architecture</h3>
-                    <p className="wm-ui__sectionText">{architecturePreview.summary}</p>
-                  </div>
-                  <div className={`wm-mc-confidence is-${architecturePreview.confidence.toLowerCase()}`}>
-                    {architecturePreview.confidence}
-                  </div>
-                </div>
-
-                <div className="wm-ui__chips">
-                  <span className="wm-ui__chip wm-ui__chip--active">{architecturePreview.primary}</span>
-                </div>
-
-                <div className="wm-ui__miniGrid">
-                  <div className="wm-ui__miniItem">
-                    <strong>Primary path</strong>
-                    <span>{architecturePreview.primary}</span>
-                  </div>
-                  <div className="wm-ui__miniItem">
-                    <strong>Confidence</strong>
-                    <span>{architecturePreview.confidence}</span>
-                  </div>
-                </div>
-
-                <div className="wm-ui__miniGrid">
-                  <div className="wm-ui__miniItem">
-                    <strong>Why Wingman chose this</strong>
-                    <ul className="wm-dw6__list">
-                      {architecturePreview.reasons.map((item) => <li key={item}>{item}</li>)}
-                    </ul>
-                  </div>
-
-                  <div className="wm-ui__miniItem">
-                    <strong>Next design actions</strong>
-                    <ul className="wm-dw6__list">
-                      {architecturePreview.nextActions.map((item) => <li key={item}>{item}</li>)}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="wm-ui__miniItem">
-                  <strong>Initial BOM direction</strong>
-                  <ul className="wm-dw6__list">
-                    {architecturePreview.bomDirection.map((item) => <li key={item}>{item}</li>)}
-                  </ul>
-                </div>
-              </div>
-            </section>
-
-            <section className="wm-section">
-              <div className="wm-dw6__insights">
-                <div>
-                  <h3 className="wm-ui__sectionTitle">Recommended WyreStorm product family</h3>
-                  <p className="wm-ui__sectionText">{productFamilyRecommendation.familyDescription}</p>
-                </div>
-
-                <div className="wm-ui__miniGrid">
-                  <div className="wm-ui__miniItem">
-                    <strong>Platform</strong>
-                    <span>{productFamilyRecommendation.platform}</span>
-                  </div>
-                  <div className="wm-ui__miniItem">
-                    <strong>Family</strong>
-                    <span>{productFamilyRecommendation.family}</span>
-                  </div>
-                </div>
-
-                <div className="wm-ui__miniItem">
-                  <strong>Starter SKU placeholders</strong>
-                  <ul className="wm-dw6__list">
-                    {productFamilyRecommendation.starterSkus.map((item) => <li key={item}>{item}</li>)}
-                  </ul>
-                </div>
-
-                <div className="wm-ui__miniItem">
-                  <strong>BOM skeleton</strong>
-                  <ul className="wm-dw6__list">
-                    {productFamilyRecommendation.bomSkeleton.map((item) => <li key={item}>{item}</li>)}
-                  </ul>
-                </div>
-
-                <div className="wm-ui__miniItem">
-                  <strong>Selection notes</strong>
-                  <ul className="wm-dw6__list">
-                    {productFamilyRecommendation.notes.map((item) => <li key={item}>{item}</li>)}
-                  </ul>
-                </div>
-              </div>
-            </section>
-          </>
-        ) : null}
-
-        <DiscoveryWorkflowBridge />
       </div>
     </div>
   );

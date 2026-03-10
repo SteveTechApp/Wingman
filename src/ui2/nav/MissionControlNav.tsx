@@ -1,7 +1,9 @@
 import * as React from "react";
 import { NavLink } from "react-router-dom";
-import { brand } from "@/branding/brand";
-import { getActiveWorkflowProject } from "@/workflow/workflowStore";
+import {
+  getActiveProject,
+  subscribeProjects,
+} from "@/features/projects/projectStore";
 
 type MissionControlNavProps = {
   collapsed?: boolean;
@@ -21,7 +23,7 @@ const NAV_ITEMS: NavItem[] = [
   { section: "Mission Control", title: "Projects", desc: "All active opportunities", short: "PR", to: "/app/projects" },
   { section: "Mission Control", title: "Active Project Workflow", desc: "Discovery and solution logic", short: "AW", to: "/app/dashboard" },
 
-  { section: "Workflow", title: "Discovery", desc: "Capture requirements", short: "D", to: "/app/tools/discovery" },
+  { section: "Workflow", title: "Guided Project", desc: "Capture needs and room dynamics", short: "GP", to: "/app/tools/discovery" },
   { section: "Workflow", title: "Architecture", desc: "Advance to solution logic", short: "A", to: "/app/dashboard" },
   { section: "Workflow", title: "Products", desc: "Select core products", short: "P", to: "/app/tools/catalog" },
   { section: "Workflow", title: "Proposal", desc: "Build customer output", short: "PB", to: "/app/tools/proposal" },
@@ -43,25 +45,22 @@ function groupedItems(items: NavItem[]): Array<{ section: string; items: NavItem
 }
 
 export default function MissionControlNav({ collapsed = false, onToggleCollapse }: MissionControlNavProps) {
-  const [, setTick] = React.useState(0);
-
-  React.useEffect(() => {
-    const id = window.setInterval(() => setTick((v) => v + 1), 1200);
-    return () => window.clearInterval(id);
-  }, []);
-
-  const activeProject = getActiveWorkflowProject();
+  const activeProject = React.useSyncExternalStore(
+    subscribeProjects,
+    () => getActiveProject() ?? null,
+    () => null,
+  );
   const sections = React.useMemo(() => groupedItems(NAV_ITEMS), []);
 
   return (
     <aside className={`wm-nav${collapsed ? " is-collapsed" : ""}`}>
       <div className="wm-nav__top">
         <div className="wm-nav__brand">
-          <img src={brand.logo} alt={brand.fullName} className="wm-nav__logo" />
+          <div className="wm-nav__brand-mark">WM</div>
           {!collapsed ? (
             <div className="wm-nav__brand-copy">
               <div className="wm-nav__brand-title">Wingman</div>
-              <div className="wm-nav__brand-subtitle">Workflow platform</div>
+              <div className="wm-nav__brand-subtitle">Guided project workspace</div>
             </div>
           ) : null}
         </div>
@@ -85,7 +84,7 @@ export default function MissionControlNav({ collapsed = false, onToggleCollapse 
         {!collapsed ? (
           <div className="wm-nav__active-copy">
             {activeProject
-              ? `${activeProject.customer} | ${activeProject.roomType}`
+              ? `${activeProject.customer || "Customer not set"} | ${activeProject.stage || "Discovery"}`
               : "Create or select a project from Mission Control"}
           </div>
         ) : null}

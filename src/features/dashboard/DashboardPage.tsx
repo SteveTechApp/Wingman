@@ -41,10 +41,10 @@ type UtilityCard = {
 
 const workflowCards: WorkflowCard[] = [
   {
-    eyebrow: "Discovery",
+    eyebrow: "Guided Project",
     title: "Capture requirements",
     description:
-      "Structure room conditions, displays, source counts, cable distance, USB, control, and audio needs before product selection begins.",
+      "Structure the customer brief, room geometry, source origins, signal path, transport distance, and user workflow before product selection begins.",
     to: "/app/tools/discovery",
     Icon: ClipboardList,
   },
@@ -208,7 +208,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="wm-body wm-dashboard-page__hero-body">
-            Wingman helps sales and pre-sales teams use guided sales tools, capture room requirements, build projects, select the right WyreStorm architecture, and move opportunities toward proposal-ready output.
+            Wingman helps sales and pre-sales teams capture room requirements, understand the physical dynamics of the space, select the right WyreStorm architecture, and move opportunities toward proposal-ready output.
           </div>
 
           <div className="wm-hero-actions">
@@ -226,7 +226,7 @@ export default function DashboardPage() {
               onClick={() => navigate("/app/tools/discovery")}
               className="wm-btn"
             >
-              Run Discovery Wizard
+              Open Guided Project
             </button>
 
             <button
@@ -239,7 +239,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="wm-hero-tools" aria-label="Quick tools">
-            <Link to="/app/tools/discovery" className="wm-chip">Discovery</Link>
+            <Link to="/app/tools/discovery" className="wm-chip">Guided Project</Link>
             <Link to="/app/tools/templates" className="wm-chip">Architecture</Link>
             <Link to="/app/tools/catalog" className="wm-chip">Products</Link>
             <Link to="/app/tools/proposal" className="wm-chip">Proposal</Link>
@@ -258,7 +258,7 @@ export default function DashboardPage() {
           <div className="wm-section__head">
             <div className="wm-section__titles">
               <h2>Core sales tools and project-building workflow</h2>
-              <p>Use these tools to support sales activity, build projects, and move from discovery through to proposal-ready output.</p>
+              <p>Use these tools to support sales activity, build projects, and move from Guided Project through to proposal-ready output.</p>
             </div>
           </div>
 

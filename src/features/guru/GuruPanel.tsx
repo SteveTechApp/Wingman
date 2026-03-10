@@ -10,7 +10,7 @@ type Props = {
 function pageLabel(pathname: string): string {
   if (pathname.startsWith("/app/dashboard")) return "Dashboard";
   if (pathname.startsWith("/app/projects")) return "Projects";
-  if (pathname.startsWith("/app/tools/discovery")) return "Discovery Wizard";
+  if (pathname.startsWith("/app/tools/discovery")) return "Guided Project";
   if (pathname.startsWith("/app/tools/templates")) return "Templates";
   if (pathname.startsWith("/app/tools/catalog")) return "Catalog";
   if (pathname.startsWith("/app/tools/proposal")) return "Proposal Builder";
@@ -50,8 +50,8 @@ function buildSuggestions(currentPage: string, project?: StoredProject): string[
     base.unshift("Summarise the selected project and identify missing information.");
   }
 
-  if (currentPage === "Discovery Wizard") {
-    base.unshift("Review the discovery context and tell me what inputs are still missing.");
+  if (currentPage === "Guided Project") {
+    base.unshift("Review the guided project context and tell me what physical or workflow inputs are still missing.");
   }
 
   if (currentPage === "Templates") {
