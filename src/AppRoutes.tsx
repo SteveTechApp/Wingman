@@ -33,6 +33,7 @@ const VideoWallBuilderPage = React.lazy(() => import("@/features/videowall/Video
 const TemplatesPage = React.lazy(() => import("@/features/templates/TemplatesPage"));
 const RuntimeDiagnosticsPage = React.lazy(() => import("@/features/support/RuntimeDiagnosticsPage"));
 const CompetitorLookupDiagnosticsPage = React.lazy(() => import("@/features/support/CompetitorLookupDiagnosticsPage"));
+const ProductIntelligencePage = React.lazy(() => import("@/features/support/ProductIntelligencePage"));
 
 // Pages
 const QuickQuestionPage = React.lazy(() => import("@/pages/QuickQuestionPage"));
@@ -96,10 +97,12 @@ export default function AppRoutes() {
           <Route path="tools/guru" element={<GuruPage />} />
           <Route path="tools/runtime-diagnostics" element={<RuntimeDiagnosticsPage />} />
           <Route path="tools/competitor-lookup-diagnostics" element={<CompetitorLookupDiagnosticsPage />} />
+          <Route path="tools/product-intelligence" element={<ProductIntelligencePage />} />
 
           {/* Support */}
           <Route path="support/runtime-diagnostics" element={<RuntimeDiagnosticsPage />} />
           <Route path="support/competitor-lookup-diagnostics" element={<CompetitorLookupDiagnosticsPage />} />
+          <Route path="support/product-intelligence" element={<ProductIntelligencePage />} />
 
           {/* Utility pages */}
           <Route path="quick-question" element={<QuickQuestionPage />} />

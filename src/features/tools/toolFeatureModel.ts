@@ -65,6 +65,15 @@ export const WINGMAN_TOOLS: WingmanItem[] = [
     tag: "Support",
     highlight: "Inspect lookup pipeline",
   },
+  {
+    id: "product-intelligence",
+    title: "Product Intelligence",
+    description: "Review canonical WyreStorm and competitor records with confidence, evidence, and approval state.",
+    kind: "tool",
+    to: "/app/tools/product-intelligence",
+    tag: "Support",
+    highlight: "Approve trusted product data",
+  },
 ];
 
 export const WINGMAN_FEATURES: WingmanItem[] = [

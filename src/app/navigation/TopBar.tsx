@@ -18,7 +18,7 @@ function LogoMark() {
 
   return (
     <img
-      src="/wyrestorm-logo.png"
+      src={brand.logo}
       alt={brand.fullName}
       onError={() => setFailed(true)}
       className="wm-topbar__logo"

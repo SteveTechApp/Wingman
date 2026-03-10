@@ -1,0 +1,1242 @@
+{
+  "version": 1,
+  "generatedAt": "2026-03-10T10:23:35.236Z",
+  "updatedAt": "2026-03-10T10:23:35.236Z",
+  "records": [
+    {
+      "id": "competitor::atlona::OME-MS52W",
+      "vendorType": "competitor",
+      "brand": "Atlona",
+      "sku": "OME-MS52W",
+      "name": "Presentation Switcher",
+      "family": "Presentation",
+      "category": "Switcher",
+      "summary": "Multi-input presentation switcher with collaboration-oriented features.",
+      "features": [
+        "Presentation",
+        "USB-C",
+        "Auto Switching",
+        "Collaboration"
+      ],
+      "transport": "Local",
+      "inputs": [
+        {
+          "type": "HDMI",
+          "count": 2
+        },
+        {
+          "type": "USB-C",
+          "count": 1
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDMI",
+          "count": 2
+        }
+      ],
+      "control": [
+        "TCP/IP",
+        "USB",
+        "RS-232"
+      ],
+      "audio": [
+        "Embedded Audio",
+        "De-Embedded Audio"
+      ],
+      "video": {
+        "maxResolution": "4K",
+        "hdr": false
+      },
+      "status": "draft",
+      "confidence": 0.72,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://atlona.com/"
+      ],
+      "tags": [
+        "presentation",
+        "switcher",
+        "local",
+        "usbc",
+        "autoswitching",
+        "collaboration"
+      ],
+      "notes": "Starter competitor record for compare workflow.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "evidence": [
+        {
+          "id": "omems52w-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Multi-input presentation switcher with collaboration-oriented features.",
+          "sourceUrl": "https://atlona.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "omems52w-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Presentation; USB-C; Auto Switching; Collaboration",
+          "sourceUrl": "https://atlona.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "competitor::blustream::IP300UHD-TX",
+      "vendorType": "competitor",
+      "brand": "Blustream",
+      "sku": "IP300UHD-TX",
+      "name": "AVoIP Encoder",
+      "family": "AVoIP",
+      "category": "AVoIP",
+      "summary": "Network-based AV encoder for matrix and video-wall workflows.",
+      "features": [
+        "AVoIP",
+        "Video Wall",
+        "PoE",
+        "Matrix Switching"
+      ],
+      "transport": "AVoIP",
+      "inputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        }
+      ],
+      "outputs": [
+        {
+          "type": "LAN",
+          "count": 1
+        }
+      ],
+      "control": [
+        "TCP/IP",
+        "RS-232",
+        "IR"
+      ],
+      "audio": [
+        "Embedded Audio"
+      ],
+      "video": {
+        "maxResolution": "4K60",
+        "hdr": true
+      },
+      "distanceMeters": 100,
+      "status": "draft",
+      "confidence": 0.72,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.blustream-us.com/"
+      ],
+      "tags": [
+        "avoip",
+        "videowall",
+        "poe",
+        "matrixswitching"
+      ],
+      "notes": "Starter competitor record for compare workflow.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "evidence": [
+        {
+          "id": "ip300uhdtx-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Network-based AV encoder for matrix and video-wall workflows.",
+          "sourceUrl": "https://www.blustream-us.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "ip300uhdtx-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP; Video Wall; PoE; Matrix Switching",
+          "sourceUrl": "https://www.blustream-us.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "competitor::crestron::DM-NVX-E30",
+      "vendorType": "competitor",
+      "brand": "Crestron",
+      "sku": "DM-NVX-E30",
+      "name": "AV-over-IP Encoder/Decoder",
+      "family": "AVoIP",
+      "category": "AVoIP",
+      "summary": "AV-over-IP endpoint for network-based switching and distribution.",
+      "features": [
+        "AVoIP",
+        "Matrix Switching",
+        "Video Wall",
+        "PoE"
+      ],
+      "transport": "AVoIP",
+      "inputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        },
+        {
+          "type": "LAN",
+          "count": 1
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        },
+        {
+          "type": "LAN",
+          "count": 1
+        }
+      ],
+      "control": [
+        "TCP/IP",
+        "RS-232",
+        "IR"
+      ],
+      "audio": [
+        "Embedded Audio"
+      ],
+      "video": {
+        "maxResolution": "4K60",
+        "hdr": true
+      },
+      "distanceMeters": 100,
+      "status": "draft",
+      "confidence": 0.72,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.crestron.com/"
+      ],
+      "tags": [
+        "avoip",
+        "matrixswitching",
+        "videowall",
+        "poe"
+      ],
+      "notes": "Starter competitor record for compare workflow.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "evidence": [
+        {
+          "id": "dmnvxe30-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "AV-over-IP endpoint for network-based switching and distribution.",
+          "sourceUrl": "https://www.crestron.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "dmnvxe30-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP; Matrix Switching; Video Wall; PoE",
+          "sourceUrl": "https://www.crestron.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "competitor::extron::DTP3-TX-201",
+      "vendorType": "competitor",
+      "brand": "Extron",
+      "sku": "DTP3-TX-201",
+      "name": "DTP3 Transmitter",
+      "family": "HDBaseT",
+      "category": "Transmitter",
+      "summary": "Signal extension transmitter for long-distance AV transport.",
+      "features": [
+        "Long Distance",
+        "Signal Extension",
+        "Remote Endpoint"
+      ],
+      "transport": "HDBaseT",
+      "inputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDBaseT",
+          "count": 1
+        }
+      ],
+      "control": [
+        "RS-232",
+        "IR"
+      ],
+      "audio": [
+        "Embedded Audio"
+      ],
+      "video": {
+        "maxResolution": "4K60",
+        "hdr": false
+      },
+      "distanceMeters": 100,
+      "status": "draft",
+      "confidence": 0.72,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.extron.com/"
+      ],
+      "tags": [
+        "hdbaset",
+        "transmitter",
+        "longdistance",
+        "signalextension",
+        "remoteendpoint"
+      ],
+      "notes": "Starter competitor record for compare workflow.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "evidence": [
+        {
+          "id": "dtp3tx201-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Signal extension transmitter for long-distance AV transport.",
+          "sourceUrl": "https://www.extron.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "dtp3tx201-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Long Distance; Signal Extension; Remote Endpoint",
+          "sourceUrl": "https://www.extron.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "competitor::lightware::DA2-HDMI",
+      "vendorType": "competitor",
+      "brand": "Lightware",
+      "sku": "DA2-HDMI",
+      "name": "HDMI Distribution Amplifier",
+      "family": "Distribution",
+      "category": "Distribution Amplifier",
+      "summary": "Compact HDMI distribution amplifier.",
+      "features": [
+        "Distribution",
+        "EDID",
+        "Compact"
+      ],
+      "transport": "Local",
+      "inputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDMI",
+          "count": 2
+        }
+      ],
+      "control": [
+        "EDID"
+      ],
+      "audio": [
+        "Embedded Audio"
+      ],
+      "video": {
+        "maxResolution": "4K",
+        "hdr": false
+      },
+      "status": "draft",
+      "confidence": 0.72,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://lightware.com/"
+      ],
+      "tags": [
+        "distribution",
+        "distributionamplifier",
+        "local",
+        "edid",
+        "compact"
+      ],
+      "notes": "Starter competitor record for compare workflow.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "evidence": [
+        {
+          "id": "da2hdmi-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Compact HDMI distribution amplifier.",
+          "sourceUrl": "https://lightware.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "da2hdmi-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Distribution; EDID; Compact",
+          "sourceUrl": "https://lightware.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "competitor::zeevee::ZVPRO-810",
+      "vendorType": "competitor",
+      "brand": "ZeeVee",
+      "sku": "ZVPRO-810",
+      "name": "HDMI Encoder Modulator",
+      "family": "AVoIP",
+      "category": "Encoder",
+      "summary": "Enterprise AV distribution encoder for IP-based workflows.",
+      "features": [
+        "IP Distribution",
+        "Enterprise AV",
+        "Centralized Delivery"
+      ],
+      "transport": "AVoIP",
+      "inputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        }
+      ],
+      "outputs": [
+        {
+          "type": "LAN",
+          "count": 1
+        }
+      ],
+      "control": [
+        "TCP/IP"
+      ],
+      "audio": [
+        "Embedded Audio"
+      ],
+      "video": {
+        "maxResolution": "1080p",
+        "hdr": false
+      },
+      "distanceMeters": 100,
+      "status": "draft",
+      "confidence": 0.72,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.zeevee.com/"
+      ],
+      "tags": [
+        "avoip",
+        "encoder",
+        "ipdistribution",
+        "enterpriseav",
+        "centralizeddelivery"
+      ],
+      "notes": "Starter competitor record for compare workflow.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "evidence": [
+        {
+          "id": "zvpro810-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Enterprise AV distribution encoder for IP-based workflows.",
+          "sourceUrl": "https://www.zeevee.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "zvpro810-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "IP Distribution; Enterprise AV; Centralized Delivery",
+          "sourceUrl": "https://www.zeevee.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.72,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "wyrestorm::wyrestorm::EX-100-KVM",
+      "vendorType": "wyrestorm",
+      "brand": "WyreStorm",
+      "sku": "EX-100-KVM",
+      "name": "4K HDMI & USB Extender Kit over HDBaseT 2.0 with PoH",
+      "family": "HDBaseT",
+      "category": "Extender",
+      "summary": "4K HDMI and USB 2.0 KVM extender over HDBaseT 2.0.",
+      "features": [
+        "USB 2.0",
+        "KVM",
+        "PoH",
+        "HDBaseT 2.0"
+      ],
+      "transport": "HDBaseT",
+      "inputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        },
+        {
+          "type": "USB-B",
+          "count": 1
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDBaseT",
+          "count": 1
+        },
+        {
+          "type": "HDMI",
+          "count": 1
+        },
+        {
+          "type": "USB-A",
+          "count": 2
+        }
+      ],
+      "control": [
+        "IR",
+        "RS-232",
+        "USB"
+      ],
+      "audio": [],
+      "video": {
+        "maxResolution": "4K",
+        "hdr": false
+      },
+      "distanceMeters": 100,
+      "status": "approved",
+      "confidence": 0.87,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.wyrestorm.com/"
+      ],
+      "tags": [
+        "hdbaset",
+        "extender",
+        "usb2.0",
+        "kvm",
+        "poh",
+        "hdbaset2.0"
+      ],
+      "notes": "Validated starter record from official WyreStorm product page.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "lastReviewedAt": "2026-03-10T10:23:35.229Z",
+      "reviewedBy": "seed-catalog",
+      "evidence": [
+        {
+          "id": "ex100kvm-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "4K HDMI and USB 2.0 KVM extender over HDBaseT 2.0.",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "ex100kvm-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "USB 2.0; KVM; PoH; HDBaseT 2.0",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "wyrestorm::wyrestorm::EX-70-H2",
+      "vendorType": "wyrestorm",
+      "brand": "WyreStorm",
+      "sku": "EX-70-H2",
+      "name": "18Gbps 4K HDR HDBaseT Extender with HDCP 2.2 and 2-way PoH",
+      "family": "HDBaseT",
+      "category": "Extender",
+      "summary": "4K HDR HDBaseT extender for long-distance HDMI extension.",
+      "features": [
+        "2-way PoH",
+        "HDCP 2.2",
+        "HDR"
+      ],
+      "transport": "HDBaseT",
+      "inputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDBaseT",
+          "count": 1
+        },
+        {
+          "type": "HDMI",
+          "count": 1
+        }
+      ],
+      "control": [
+        "IR",
+        "RS-232"
+      ],
+      "audio": [],
+      "video": {
+        "maxResolution": "4K HDR 18Gbps",
+        "hdr": true
+      },
+      "distanceMeters": 70,
+      "status": "approved",
+      "confidence": 0.87,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.wyrestorm.com/"
+      ],
+      "tags": [
+        "hdbaset",
+        "extender",
+        "2waypoh",
+        "hdcp2.2",
+        "hdr"
+      ],
+      "notes": "Validated starter record from official WyreStorm product page.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "lastReviewedAt": "2026-03-10T10:23:35.229Z",
+      "reviewedBy": "seed-catalog",
+      "evidence": [
+        {
+          "id": "ex70h2-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "4K HDR HDBaseT extender for long-distance HDMI extension.",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "ex70h2-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "2-way PoH; HDCP 2.2; HDR",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "wyrestorm::wyrestorm::MX-0808-KIT-V2",
+      "vendorType": "wyrestorm",
+      "brand": "WyreStorm",
+      "sku": "MX-0808-KIT-V2",
+      "name": "8x8 4K UHD HDBaseT Matrix Kit",
+      "family": "HDBaseT",
+      "category": "Matrix",
+      "summary": "8x8 HDBaseT matrix kit with included receivers and mirrored outputs.",
+      "features": [
+        "Matrix Kit",
+        "Mirrored HDMI Outputs",
+        "Included Receivers"
+      ],
+      "transport": "HDBaseT",
+      "inputs": [
+        {
+          "type": "HDMI",
+          "count": 8
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDBaseT",
+          "count": 8
+        },
+        {
+          "type": "HDMI",
+          "count": 4
+        }
+      ],
+      "control": [
+        "IR",
+        "RS-232",
+        "TCP/IP"
+      ],
+      "audio": [],
+      "video": {
+        "maxResolution": "4K UHD",
+        "hdr": false
+      },
+      "distanceMeters": 35,
+      "status": "approved",
+      "confidence": 0.87,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.wyrestorm.com/"
+      ],
+      "tags": [
+        "hdbaset",
+        "matrix",
+        "matrixkit",
+        "mirroredhdmioutputs",
+        "includedreceivers"
+      ],
+      "notes": "Validated starter record from official WyreStorm product page.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "lastReviewedAt": "2026-03-10T10:23:35.229Z",
+      "reviewedBy": "seed-catalog",
+      "evidence": [
+        {
+          "id": "mx0808kitv2-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "8x8 HDBaseT matrix kit with included receivers and mirrored outputs.",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "mx0808kitv2-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Matrix Kit; Mirrored HDMI Outputs; Included Receivers",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "wyrestorm::wyrestorm::MXV-0808-H2A-70-V3",
+      "vendorType": "wyrestorm",
+      "brand": "WyreStorm",
+      "sku": "MXV-0808-H2A-70-V3",
+      "name": "70m 4K60 8x8 HDBaseT Matrix",
+      "family": "HDBaseT",
+      "category": "Matrix",
+      "summary": "8x8 HDBaseT matrix with 70m extension and 4K60 4:4:4 support.",
+      "features": [
+        "Lossless Compression",
+        "4K60 4:4:4",
+        "HDR"
+      ],
+      "transport": "HDBaseT",
+      "inputs": [
+        {
+          "type": "HDMI",
+          "count": 8
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDBaseT",
+          "count": 8
+        }
+      ],
+      "control": [
+        "IR",
+        "RS-232",
+        "TCP/IP"
+      ],
+      "audio": [],
+      "video": {
+        "maxResolution": "4K60 4:4:4 18Gbps",
+        "hdr": true
+      },
+      "distanceMeters": 70,
+      "status": "approved",
+      "confidence": 0.87,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.wyrestorm.com/"
+      ],
+      "tags": [
+        "hdbaset",
+        "matrix",
+        "losslesscompression",
+        "4k604:4:4",
+        "hdr"
+      ],
+      "notes": "Validated starter record from official WyreStorm product page.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "lastReviewedAt": "2026-03-10T10:23:35.229Z",
+      "reviewedBy": "seed-catalog",
+      "evidence": [
+        {
+          "id": "mxv0808h2a70v3-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "8x8 HDBaseT matrix with 70m extension and 4K60 4:4:4 support.",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "mxv0808h2a70v3-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Lossless Compression; 4K60 4:4:4; HDR",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "wyrestorm::wyrestorm::NHD-CTL-PRO",
+      "vendorType": "wyrestorm",
+      "brand": "WyreStorm",
+      "sku": "NHD-CTL-PRO",
+      "name": "NetworkHD Controller",
+      "family": "NetworkHD",
+      "category": "AVoIP",
+      "summary": "Starter NetworkHD controller record for AVoIP system architecture.",
+      "features": [
+        "AVoIP Control",
+        "System Management"
+      ],
+      "transport": "AVoIP",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "LAN",
+          "count": 1
+        }
+      ],
+      "control": [
+        "TCP/IP"
+      ],
+      "audio": [],
+      "video": {
+        "hdr": false
+      },
+      "distanceMeters": 100,
+      "status": "approved",
+      "confidence": 0.87,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.wyrestorm.com/"
+      ],
+      "tags": [
+        "networkhd",
+        "avoip",
+        "avoipcontrol",
+        "systemmanagement"
+      ],
+      "notes": "Family/category validated from official NetworkHD pages; item details should be expanded in later pass.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "lastReviewedAt": "2026-03-10T10:23:35.229Z",
+      "reviewedBy": "seed-catalog",
+      "evidence": [
+        {
+          "id": "nhdctlpro-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Starter NetworkHD controller record for AVoIP system architecture.",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "nhdctlpro-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP Control; System Management",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "wyrestorm::wyrestorm::RX-35-POH",
+      "vendorType": "wyrestorm",
+      "brand": "WyreStorm",
+      "sku": "RX-35-POH",
+      "name": "35m 4K HDBaseT Receiver",
+      "family": "HDBaseT",
+      "category": "Receiver",
+      "summary": "Compact Class B HDBaseT receiver for 4K HDR transmissions.",
+      "features": [
+        "Class B HDBaseT",
+        "2-way PoH",
+        "4K HDR"
+      ],
+      "transport": "HDBaseT",
+      "inputs": [
+        {
+          "type": "HDBaseT",
+          "count": 1
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        }
+      ],
+      "control": [
+        "IR",
+        "RS-232"
+      ],
+      "audio": [],
+      "video": {
+        "maxResolution": "4K HDR",
+        "hdr": true
+      },
+      "distanceMeters": 35,
+      "status": "approved",
+      "confidence": 0.87,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.wyrestorm.com/"
+      ],
+      "tags": [
+        "hdbaset",
+        "receiver",
+        "classbhdbaset",
+        "2waypoh",
+        "4khdr"
+      ],
+      "notes": "Validated starter record from official WyreStorm product page.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "lastReviewedAt": "2026-03-10T10:23:35.229Z",
+      "reviewedBy": "seed-catalog",
+      "evidence": [
+        {
+          "id": "rx35poh-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Compact Class B HDBaseT receiver for 4K HDR transmissions.",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "rx35poh-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Class B HDBaseT; 2-way PoH; 4K HDR",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "wyrestorm::wyrestorm::SW-515-RX",
+      "vendorType": "wyrestorm",
+      "brand": "WyreStorm",
+      "sku": "SW-515-RX",
+      "name": "4K HDBaseT Receiver with USB & Local Inputs",
+      "family": "HDBaseT",
+      "category": "Presentation",
+      "summary": "Presentation receiver with remote HDBaseT and local HDMI source handling plus USB extension.",
+      "features": [
+        "USB Device Extension",
+        "Local Inputs",
+        "Auto Switching",
+        "CEC"
+      ],
+      "transport": "HDBaseT",
+      "inputs": [
+        {
+          "type": "HDBaseT",
+          "count": 1
+        },
+        {
+          "type": "HDMI",
+          "count": 2
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        },
+        {
+          "type": "USB",
+          "count": 2
+        }
+      ],
+      "control": [
+        "CEC",
+        "TCP/IP",
+        "USB"
+      ],
+      "audio": [],
+      "video": {
+        "maxResolution": "4K",
+        "hdr": false
+      },
+      "status": "approved",
+      "confidence": 0.87,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.wyrestorm.com/"
+      ],
+      "tags": [
+        "hdbaset",
+        "presentation",
+        "usbdeviceextension",
+        "localinputs",
+        "autoswitching",
+        "cec"
+      ],
+      "notes": "Validated starter record from official WyreStorm product page.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "lastReviewedAt": "2026-03-10T10:23:35.229Z",
+      "reviewedBy": "seed-catalog",
+      "evidence": [
+        {
+          "id": "sw515rx-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Presentation receiver with remote HDBaseT and local HDMI source handling plus USB extension.",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "sw515rx-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "USB Device Extension; Local Inputs; Auto Switching; CEC",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "wyrestorm::wyrestorm::TX-35-IW",
+      "vendorType": "wyrestorm",
+      "brand": "WyreStorm",
+      "sku": "TX-35-IW",
+      "name": "HDMI Single Gang In-Wall HDBaseT Transmitter",
+      "family": "HDBaseT",
+      "category": "Transmitter",
+      "summary": "Single-gang wall plate HDBaseT transmitter for remote HDMI input locations.",
+      "features": [
+        "Wall Plate",
+        "PoH Compatible",
+        "Remote Input"
+      ],
+      "transport": "HDBaseT",
+      "inputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDBaseT",
+          "count": 1
+        }
+      ],
+      "control": [
+        "IR",
+        "RS-232"
+      ],
+      "audio": [],
+      "video": {
+        "maxResolution": "4K UHD",
+        "hdr": false
+      },
+      "distanceMeters": 35,
+      "status": "approved",
+      "confidence": 0.87,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.wyrestorm.com/"
+      ],
+      "tags": [
+        "hdbaset",
+        "transmitter",
+        "wallplate",
+        "pohcompatible",
+        "remoteinput"
+      ],
+      "notes": "Validated starter record from official WyreStorm product page.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "lastReviewedAt": "2026-03-10T10:23:35.229Z",
+      "reviewedBy": "seed-catalog",
+      "evidence": [
+        {
+          "id": "tx35iw-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Single-gang wall plate HDBaseT transmitter for remote HDMI input locations.",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "tx35iw-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wall Plate; PoH Compatible; Remote Input",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    },
+    {
+      "id": "wyrestorm::wyrestorm::UC-SWITCHER-SEED",
+      "vendorType": "wyrestorm",
+      "brand": "WyreStorm",
+      "sku": "UC-SWITCHER-SEED",
+      "name": "Unified Communication Switcher",
+      "family": "Unified Communication",
+      "category": "UC",
+      "summary": "Starter UC family record to support collaboration workflow filtering.",
+      "features": [
+        "BYOD",
+        "USB Routing",
+        "Collaboration"
+      ],
+      "transport": "Local",
+      "inputs": [
+        {
+          "type": "USB-C",
+          "count": 1
+        },
+        {
+          "type": "HDMI",
+          "count": 1
+        }
+      ],
+      "outputs": [
+        {
+          "type": "HDMI",
+          "count": 1
+        },
+        {
+          "type": "USB",
+          "count": 2
+        }
+      ],
+      "control": [
+        "USB",
+        "TCP/IP"
+      ],
+      "audio": [
+        "USB Audio"
+      ],
+      "video": {
+        "maxResolution": "4K60",
+        "hdr": false
+      },
+      "status": "approved",
+      "confidence": 0.87,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.wyrestorm.com/"
+      ],
+      "tags": [
+        "unifiedcommunication",
+        "uc",
+        "local",
+        "byod",
+        "usbrouting",
+        "collaboration"
+      ],
+      "notes": "Family/category validated from official Unified Communication category page; SKU must be replaced with a real validated model in next pass.",
+      "createdAt": "2026-03-10T10:23:35.229Z",
+      "updatedAt": "2026-03-10T10:23:35.229Z",
+      "lastCapturedAt": "2026-03-10T10:23:35.229Z",
+      "lastReviewedAt": "2026-03-10T10:23:35.229Z",
+      "reviewedBy": "seed-catalog",
+      "evidence": [
+        {
+          "id": "ucswitcherseed-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Starter UC family record to support collaboration workflow filtering.",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog summary field."
+        },
+        {
+          "id": "ucswitcherseed-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "BYOD; USB Routing; Collaboration",
+          "sourceUrl": "https://www.wyrestorm.com/",
+          "capturedAt": "2026-03-10T10:23:35.229Z",
+          "confidence": 0.87,
+          "notes": "Derived from catalog feature list."
+        }
+      ]
+    }
+  ]
+}

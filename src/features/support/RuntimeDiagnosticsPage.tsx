@@ -82,6 +82,9 @@ export default function RuntimeDiagnosticsPage() {
             <button type="button" className="wm-btn" onClick={() => nav("/app/tools/competitor-lookup-diagnostics")}>
               Lookup Diagnostics
             </button>
+            <button type="button" className="wm-btn" onClick={() => nav("/app/tools/product-intelligence")}>
+              Product Intelligence
+            </button>
             <button type="button" className="wm-btn" onClick={refresh}>
               Refresh
             </button>
