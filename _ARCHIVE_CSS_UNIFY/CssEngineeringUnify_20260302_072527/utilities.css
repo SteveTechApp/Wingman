@@ -1,5 +1,0 @@
-/* utilities.css (shim)
-   Some legacy CSS import expects this file at repo root.
-   Keep this file to prevent PostCSS ENOENT errors.
-*/
-@import "./src/styles/utilities.css";
