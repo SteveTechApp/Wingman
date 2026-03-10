@@ -5,6 +5,12 @@ import {
   getRecentRuntimeErrors,
   type RuntimeErrorEntry,
 } from "@/app/runtime/errorReporting";
+import {
+  fetchDeploymentTelemetry,
+  getPersistedDeploymentSession,
+  type DeploymentTelemetryEvent,
+} from "@/app/api/wingmanDeploymentClient";
+import { useAuth } from "@/context";
 
 function formatTimestamp(value: string): string {
   const date = new Date(value);
@@ -36,12 +42,58 @@ function toSupportText(entries: RuntimeErrorEntry[]): string {
 
 export default function RuntimeDiagnosticsPage() {
   const nav = useNavigate();
+  const { mode, workspace } = useAuth();
   const [entries, setEntries] = React.useState<RuntimeErrorEntry[]>(() => getRecentRuntimeErrors());
+  const [remoteEntries, setRemoteEntries] = React.useState<DeploymentTelemetryEvent[]>([]);
   const [copyState, setCopyState] = React.useState<"idle" | "copied" | "failed">("idle");
+
+  const loadRemote = React.useCallback(async () => {
+    if (mode !== "backend") {
+      setRemoteEntries([]);
+      return;
+    }
+    try {
+      const session = getPersistedDeploymentSession();
+      if (!session || session.mode !== "backend") return;
+      const response = await fetchDeploymentTelemetry(session);
+      setRemoteEntries(response.events);
+    } catch {
+      setRemoteEntries([]);
+    }
+  }, [mode]);
 
   const refresh = React.useCallback(() => {
     setEntries(getRecentRuntimeErrors());
-  }, []);
+    void loadRemote();
+  }, [loadRemote]);
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    async function loadRemote() {
+      try {
+        if (mode !== "backend") {
+          setRemoteEntries([]);
+          return;
+        }
+        const session = getPersistedDeploymentSession();
+        if (!session || session.mode !== "backend") return;
+        const response = await fetchDeploymentTelemetry(session);
+        if (!cancelled) {
+          setRemoteEntries(response.events);
+        }
+      } catch {
+        if (!cancelled) {
+          setRemoteEntries([]);
+        }
+      }
+    }
+
+    void loadRemote();
+    return () => {
+      cancelled = true;
+    };
+  }, [mode]);
 
   const clearAll = React.useCallback(() => {
     clearRecentRuntimeErrors();
@@ -119,6 +171,12 @@ export default function RuntimeDiagnosticsPage() {
             {copyState === "idle" ? "Ready" : copyState === "copied" ? "Copied" : "Copy failed"}
           </div>
         </article>
+        <article className="wm-work-card">
+          <div className="wm-section-title">Remote telemetry</div>
+          <div className="wm-title-lg wm-runtime-page__meta">
+            {mode === "backend" ? remoteEntries.length : "Demo only"}
+          </div>
+        </article>
       </section>
 
       <section className="wm-section">
@@ -152,6 +210,50 @@ export default function RuntimeDiagnosticsPage() {
                     </div>
                   ) : null}
 
+                  {entry.stack ? (
+                    <details>
+                      <summary className="wm-runtime-page__stack-summary">Stack trace</summary>
+                      <pre className="wm-runtime-page__stack">{entry.stack}</pre>
+                    </details>
+                  ) : null}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="wm-section">
+        <div className="wm-section__head">
+          <div className="wm-section__titles">
+            <h2>Remote deployment telemetry</h2>
+            <p>
+              {mode === "backend"
+                ? `Server-side runtime events captured for ${workspace?.name ?? "this workspace"}.`
+                : "Sign into a persisted workspace to capture remote telemetry and audit history."}
+            </p>
+          </div>
+        </div>
+
+        {mode !== "backend" ? (
+          <div className="wm-body">Remote telemetry is only available in backend workspace mode.</div>
+        ) : remoteEntries.length === 0 ? (
+          <div className="wm-body">No remote runtime events have been captured yet.</div>
+        ) : (
+          <div className="wm-runtime-page__list">
+            {remoteEntries.map((entry, index) => (
+              <article key={entry.id ?? `${entry.timestamp}_${index}`} className="wm-panel">
+                <div className="wm-runtime-page__entry">
+                  <div className="wm-runtime-page__entry-head">
+                    <strong>#{index + 1} {entry.kind}</strong>
+                    <span className="wm-runtime-page__entry-time">{formatTimestamp(entry.timestamp)}</span>
+                  </div>
+                  <div className="wm-runtime-page__entry-message">{entry.message}</div>
+                  {entry.source ? (
+                    <div className="wm-runtime-page__entry-source">
+                      Source: {entry.source}{entry.line != null ? `:${entry.line}` : ""}{entry.column != null ? `:${entry.column}` : ""}
+                    </div>
+                  ) : null}
                   {entry.stack ? (
                     <details>
                       <summary className="wm-runtime-page__stack-summary">Stack trace</summary>

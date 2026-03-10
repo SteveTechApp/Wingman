@@ -1,3 +1,5 @@
+import { postDeploymentTelemetry } from "@/app/api/wingmanDeploymentClient";
+
 export type RuntimeErrorEntry = {
   id: string;
   kind: "error" | "unhandledrejection";
@@ -52,6 +54,17 @@ function writeEntries(entries: RuntimeErrorEntry[]): void {
 function appendEntry(entry: RuntimeErrorEntry): void {
   const current = readEntries();
   writeEntries([entry, ...current]);
+  void postDeploymentTelemetry({
+    id: entry.id,
+    kind: entry.kind,
+    message: entry.message,
+    stack: entry.stack,
+    source: entry.source,
+    line: entry.line,
+    column: entry.column,
+    timestamp: entry.timestamp,
+    route: typeof window !== "undefined" ? window.location.pathname : undefined,
+  });
 }
 
 function makeId(): string {

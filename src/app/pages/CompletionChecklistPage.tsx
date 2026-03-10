@@ -5,13 +5,14 @@ import { WM_ROUTES } from "@/core/wingman/routeMap";
 import {
   getActiveProject,
   getProjectById,
+  markProjectCommercialReady,
   setActiveProjectId,
   subscribeProjects,
-  updateProject,
   type StoredProject,
 } from "@/features/projects/projectStore";
 import { evaluateCommercialReadiness } from "@/features/readiness/commercialReadiness";
 import { useProposalStore } from "@/proposal/bom/store";
+import { useAuth } from "@/context";
 
 type TemplateSeed = {
   source?: string;
@@ -110,15 +111,6 @@ function hasSolutionContext(project: StoredProject | null, templateSeed: Templat
   return Boolean(templateSeed.tier?.label || templateSeed.includedSystems?.length);
 }
 
-function replaceCompletionNote(existing: string | undefined, nextNote: string): string {
-  const blocks = (existing ?? "")
-    .split(/\n{2,}/)
-    .map((block) => block.trim())
-    .filter((block) => block.length > 0 && !block.startsWith("Completion gate passed on "));
-
-  return [...blocks, nextNote].join("\n\n");
-}
-
 function CheckRow({
   label,
   help,
@@ -210,6 +202,7 @@ export default function CompletionChecklistPage() {
   const nav = useNavigate();
   const { id } = useParams<{ id?: string }>();
   const [proposalState] = useProposalStore();
+  const { permissions } = useAuth();
 
   const templateSeed = React.useMemo(
     () => readJson<TemplateSeed>(TEMPLATE_SEED_KEY, {}),
@@ -240,6 +233,8 @@ export default function CompletionChecklistPage() {
   const [checks, setChecks] = React.useState<ManualChecks>(() =>
     readJson<ManualChecks>(checklistStorageKey(projectId), DEFAULT_CHECKS),
   );
+  const [savingReady, setSavingReady] = React.useState(false);
+  const [saveError, setSaveError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setChecks(readJson<ManualChecks>(checklistStorageKey(projectId), DEFAULT_CHECKS));
@@ -374,7 +369,7 @@ export default function CompletionChecklistPage() {
     setChecks((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
-  function markReady() {
+  async function markReady() {
     const completedAt = new Date().toISOString();
     const completionNote = `Completion gate passed on ${new Date(completedAt).toLocaleString()} (${completedCount}/${totalCount} checks).`;
     const completionResult = {
@@ -392,15 +387,19 @@ export default function CompletionChecklistPage() {
     writeJson("wm_completion_result", completionResult);
 
     if (project?.id) {
-      updateProject(project.id, {
-        stage: project.stage || "Proposal",
-        status: "Commercial Ready",
-        notes: replaceCompletionNote(project.notes, completionNote),
-        proposal: {
-          ...(project.proposal ?? {}),
-          notes: replaceCompletionNote(project.proposal?.notes, completionNote),
-        },
-      });
+      setSavingReady(true);
+      setSaveError(null);
+      try {
+        await markProjectCommercialReady(
+          project.id,
+          completionNote,
+        );
+      } catch (error) {
+        setSaveError(error instanceof Error ? error.message : "Unable to complete the commercial readiness gate.");
+        setSavingReady(false);
+        return;
+      }
+      setSavingReady(false);
       nav(`/app/projects/${encodeURIComponent(project.id)}`);
       return;
     }
@@ -582,6 +581,10 @@ export default function CompletionChecklistPage() {
                 <div>{completedCount} of {totalCount} checks complete</div>
                 <div>Commercial readiness engine: {readiness.status} ({readiness.score}%)</div>
                 <div>Next step: {isReady ? "Mark the project ready and return to the workspace." : readiness.nextStep}</div>
+                {!permissions.canMarkCommercialReady ? (
+                  <div>Only sales and admin workspace roles can complete the commercial readiness gate.</div>
+                ) : null}
+                {saveError ? <div style={{ color: "#ff9da5" }}>{saveError}</div> : null}
               </div>
 
               <div
@@ -596,11 +599,17 @@ export default function CompletionChecklistPage() {
                   type="button"
                   className="wm-btn wm-btn-primary"
                   style={{ height: 40, padding: "0 16px" }}
-                  onClick={markReady}
-                  disabled={!project || !isReady}
-                  title={isReady ? "Mark this project ready" : "Complete all checks first"}
+                  onClick={() => { void markReady(); }}
+                  disabled={!project || !isReady || !permissions.canMarkCommercialReady || savingReady}
+                  title={
+                    !permissions.canMarkCommercialReady
+                      ? "Only sales and admin roles can complete the gate"
+                      : isReady
+                        ? "Mark this project ready"
+                        : "Complete all checks first"
+                  }
                 >
-                  Mark project ready
+                  {savingReady ? "Marking ready..." : "Mark project ready"}
                 </button>
 
                 <button

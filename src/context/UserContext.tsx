@@ -2,6 +2,7 @@ import * as React from "react";
 import type { UserProfile } from "@/utils/types/user";
 import { createStrictContext } from "./createStrictContext";
 import { useWingman, wingmanActions } from "@/state/useWingman";
+import { useAuth } from "./AuthContext";
 
 export type UserContextType = {
   isAuthenticated: boolean;
@@ -22,12 +23,17 @@ export { useUserContext };
 export function UserProvider(props: { children: React.ReactNode }) {
   const isAuthenticated = useWingman((s) => s.auth.isAuthed);
   const userProfile = useWingman((s) => s.user.profile);
+  const auth = useAuth();
 
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
 
   const setIsAuthenticated = React.useCallback((v: boolean) => {
-    if (v) { wingmanActions.signInDemo("local-user"); } else { wingmanActions.signOut(); }
-  }, []);
+    if (v) {
+      void auth.signInDemo("local-user");
+      return;
+    }
+    void auth.signOut();
+  }, [auth]);
 
   const updateUserProfile = React.useCallback((patch: Partial<UserProfile>) => {
     wingmanActions.updateUserProfile(patch);

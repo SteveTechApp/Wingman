@@ -2,11 +2,13 @@ import * as React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import AppShell from "@/app/shell/AppShell";
+import RequireAuth from "@/auth/RequireAuth";
 
 // Public
 const PublicLandingPage = React.lazy(() => import("@/pages/PublicLandingPage"));
 const LoginPage = React.lazy(() => import("@/pages/LoginPage"));
 const SignupPage = React.lazy(() => import("@/pages/SignupPage"));
+const InviteAcceptancePage = React.lazy(() => import("@/pages/InviteAcceptancePage"));
 
 // Core app
 const DashboardPage = React.lazy(() => import("@/features/dashboard/DashboardPage"));
@@ -32,6 +34,7 @@ const ProjectDesignReviewPage = React.lazy(() => import("@/features/review/Proje
 const CableSchedulePage = React.lazy(() => import("@/features/cables/CableSchedulePage"));
 const VideoWallBuilderPage = React.lazy(() => import("@/features/videowall/VideoWallBuilderPage"));
 const TemplatesPage = React.lazy(() => import("@/features/templates/TemplatesPage"));
+const WorkspaceAdminPage = React.lazy(() => import("@/features/workspace/WorkspaceAdminPage"));
 const RuntimeDiagnosticsPage = React.lazy(() => import("@/features/support/RuntimeDiagnosticsPage"));
 const CompetitorLookupDiagnosticsPage = React.lazy(() => import("@/features/support/CompetitorLookupDiagnosticsPage"));
 const ProductIntelligencePage = React.lazy(() => import("@/features/support/ProductIntelligencePage"));
@@ -61,9 +64,10 @@ export default function AppRoutes() {
         <Route path="/" element={<PublicLandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/invite" element={<InviteAcceptancePage />} />
 
         {/* App shell */}
-        <Route path="/app" element={<AppShell />}>
+        <Route path="/app" element={<RequireAuth><AppShell /></RequireAuth>}>
           <Route index element={<Navigate to="/app/dashboard" replace />} />
 
           {/* Mission Control */}
@@ -77,6 +81,7 @@ export default function AppRoutes() {
           <Route path="projects/:id/completion" element={<CompletionChecklistPage />} />
           <Route path="project-overview" element={<ProjectOverviewPage />} />
           <Route path="workflow/completion" element={<CompletionChecklistPage />} />
+          <Route path="settings/workspace" element={<WorkspaceAdminPage />} />
 
           {/* Primary hub */}
           <Route path="tools" element={<ToolHubPage />} />

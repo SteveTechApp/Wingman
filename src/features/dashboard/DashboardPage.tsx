@@ -44,7 +44,7 @@ const workflowCards: WorkflowCard[] = [
     eyebrow: "Guided Project",
     title: "Capture requirements",
     description:
-      "Structure the customer brief, room geometry, source origins, signal path, transport distance, and user workflow before product selection begins.",
+      "Capture room context, sources, endpoints, and user needs before design choices start.",
     to: "/app/tools/discovery",
     Icon: ClipboardList,
   },
@@ -52,7 +52,7 @@ const workflowCards: WorkflowCard[] = [
     eyebrow: "Architecture",
     title: "Choose signal path",
     description:
-      "Guide users toward HDBaseT, AVoIP, matrix switching, USB extension, or video wall workflows based on the application.",
+      "Choose transport, topology, and extension strategy around the application and distances.",
     to: "/app/tools/templates",
     Icon: LayoutTemplate,
   },
@@ -60,7 +60,7 @@ const workflowCards: WorkflowCard[] = [
     eyebrow: "Products",
     title: "Build the solution",
     description:
-      "Turn architecture direction into recommended WyreStorm platforms, building blocks, and a starter BOM.",
+      "Turn the chosen architecture into core WyreStorm platforms and a starter BOM.",
     to: "/app/tools/catalog",
     Icon: Boxes,
   },
@@ -68,7 +68,7 @@ const workflowCards: WorkflowCard[] = [
     eyebrow: "Proposal",
     title: "Move to output",
     description:
-      "Keep commercial logic, documentation, and proposal readiness aligned to the active project workflow.",
+      "Package commercial logic and project detail into customer-ready output.",
     to: "/app/tools/proposal",
     Icon: FileText,
   },
@@ -202,53 +202,57 @@ export default function DashboardPage() {
   return (
     <div className="wm-page wm-dashboard-page">
       <section className="wm-hero">
-        <div className="wm-grid wm-hero__content wm-dashboard-page__hero-content">
-          <div className="wm-title-xl wm-dashboard-page__hero-title">
-            Turn AV requirements into proposal-ready system designs.
+        <div className="wm-dashboard-page__hero-shell">
+          <div className="wm-grid wm-hero__content wm-dashboard-page__hero-content">
+            <div className="wm-title-xl wm-dashboard-page__hero-title">
+              Turn AV requirements into proposal-ready system designs.
+            </div>
+
+            <div className="wm-body wm-dashboard-page__hero-body">
+              Wingman helps sales and pre-sales teams capture room requirements, understand the physical dynamics of the space, select the right WyreStorm architecture, and move opportunities toward proposal-ready output.
+            </div>
           </div>
 
-          <div className="wm-body wm-dashboard-page__hero-body">
-            Wingman helps sales and pre-sales teams capture room requirements, understand the physical dynamics of the space, select the right WyreStorm architecture, and move opportunities toward proposal-ready output.
-          </div>
+          <div className="wm-dashboard-page__hero-panel">
+            <div className="wm-hero-actions wm-dashboard-page__hero-actions">
+              <button
+                type="button"
+                onClick={() => navigate("/app/projects/new")}
+                className="wm-btn wm-btn-primary"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Start New Project
+              </button>
 
-          <div className="wm-hero-actions">
-            <button
-              type="button"
-              onClick={() => navigate("/app/projects/new")}
-              className="wm-btn wm-btn-primary"
-            >
-              <PlusCircle className="h-4 w-4" />
-              Start New Project
-            </button>
+              <button
+                type="button"
+                onClick={() => navigate("/app/tools/discovery")}
+                className="wm-btn"
+              >
+                Open Guided Project
+              </button>
 
-            <button
-              type="button"
-              onClick={() => navigate("/app/tools/discovery")}
-              className="wm-btn"
-            >
-              Open Guided Project
-            </button>
+              <button
+                type="button"
+                onClick={() => navigate("/app/projects")}
+                className="wm-btn"
+              >
+                Build Projects
+              </button>
+            </div>
 
-            <button
-              type="button"
-              onClick={() => navigate("/app/projects")}
-              className="wm-btn"
-            >
-              Build Projects
-            </button>
-          </div>
-
-          <div className="wm-hero-tools" aria-label="Quick tools">
-            <Link to="/app/tools/discovery" className="wm-chip">Guided Project</Link>
-            <Link to="/app/tools/templates" className="wm-chip">Architecture</Link>
-            <Link to="/app/tools/catalog" className="wm-chip">Products</Link>
-            <Link to="/app/tools/proposal" className="wm-chip">Proposal</Link>
-            <Link to="/app/tools/video-wall" className="wm-chip">Video Wall</Link>
-            <Link to="/app/tools/templates?market=corporate" className="wm-chip">Corporate</Link>
-            <Link to="/app/tools/templates?market=education" className="wm-chip">Education</Link>
-            <Link to="/app/tools/templates?market=hospitality" className="wm-chip">Hospitality</Link>
-            <Link to="/app/tools/templates?market=retail" className="wm-chip">Retail</Link>
-            <Link to="/app/about-wingman" className="wm-chip">About Wingman</Link>
+            <div className="wm-hero-tools wm-dashboard-page__hero-tools" aria-label="Quick tools">
+              <Link to="/app/tools/discovery" className="wm-chip wm-chip--tool-core">Guided Project</Link>
+              <Link to="/app/tools/templates" className="wm-chip wm-chip--tool-core">Architecture</Link>
+              <Link to="/app/tools/catalog" className="wm-chip wm-chip--tool-core">Products</Link>
+              <Link to="/app/tools/proposal" className="wm-chip wm-chip--tool-core">Proposal</Link>
+              <Link to="/app/tools/video-wall" className="wm-chip wm-chip--tool-core">Video Wall</Link>
+              <Link to="/app/tools/templates?market=corporate" className="wm-chip wm-chip--tool-market">Corporate</Link>
+              <Link to="/app/tools/templates?market=education" className="wm-chip wm-chip--tool-market">Education</Link>
+              <Link to="/app/tools/templates?market=hospitality" className="wm-chip wm-chip--tool-market">Hospitality</Link>
+              <Link to="/app/tools/templates?market=retail" className="wm-chip wm-chip--tool-market">Retail</Link>
+              <Link to="/app/about-wingman" className="wm-chip wm-chip--tool-info">About Wingman</Link>
+            </div>
           </div>
         </div>
       </section>
@@ -262,7 +266,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="wm-grid-cards">
+          <div className="wm-grid-cards wm-dashboard-page__workflow-grid">
             {workflowCards.map(({ eyebrow, title, description, to, Icon }) => (
               <Link key={title} to={to} className="wm-dashboard-card">
                 <div className="wm-dashboard-card__top">
@@ -274,7 +278,7 @@ export default function DashboardPage() {
 
                 <div className="wm-kicker">{eyebrow}</div>
                 <div className="wm-title-lg wm-dashboard-page__workflow-title">{title}</div>
-                <div className="wm-body">{description}</div>
+                <div className="wm-body wm-dashboard-page__workflow-body">{description}</div>
               </Link>
             ))}
           </div>

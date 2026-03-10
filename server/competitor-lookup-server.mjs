@@ -11,6 +11,31 @@ import {
   handleProductIntelligenceStatusPost,
   handleProductIntelligenceUpsertPost,
 } from "./product-intelligence-store.mjs";
+import {
+  handleWingmanAuditGet,
+  handleWingmanInvitationAcceptPost,
+  handleWingmanInvitationResolveGet,
+  handleWingmanAuthLoginPost,
+  handleWingmanAuthLogoutPost,
+  handleWingmanAuthSessionGet,
+  handleWingmanAuthSignupPost,
+  handleWingmanGovernanceGet,
+  handleWingmanHealthGet,
+  handleWingmanProjectAttachmentsPost,
+  handleWingmanProjectCommentsPost,
+  handleWingmanProjectMarkReadyPost,
+  handleWingmanProjectsGet,
+  handleWingmanProjectsSyncPost,
+  handleWingmanProjectSharesPost,
+  handleWingmanTelemetryGet,
+  handleWingmanTelemetryPost,
+  handleWingmanWorkspaceGet,
+  handleWingmanWorkspaceInvitationsGet,
+  handleWingmanWorkspaceInvitationsPost,
+  handleWingmanWorkspaceMemberRolePost,
+  handleWingmanWorkspaceMembersGet,
+  handleWingmanWorkspaceSettingsPost,
+} from "./wingman-app-store.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -120,7 +145,7 @@ function withCorsHeaders(base = {}) {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
     ...base,
   };
 }
@@ -1543,6 +1568,7 @@ function buildHealthPayload() {
     approvalsEndpoint: `http://${HOST}:${PORT}/api/competitor-approvals`,
     productIntelligenceEndpoint: `http://${HOST}:${PORT}/api/product-intelligence`,
     productIntelligenceHealthEndpoint: `http://${HOST}:${PORT}/api/product-intelligence/health`,
+    wingmanDeploymentEndpoint: `http://${HOST}:${PORT}/api/wingman`,
     retryAttempts: RETRY_ATTEMPTS,
     fetchTimeoutMs: FETCH_TIMEOUT_MS,
     liveEnrichmentEnabled: LOOKUP_ENABLE_LIVE_ENRICHMENT,
@@ -1575,6 +1601,129 @@ const server = http.createServer(async (req, res) => {
 
   if (method === "GET" && url.pathname === "/api/health") {
     sendJson(res, 200, buildHealthPayload());
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/wingman/health") {
+    await handleWingmanHealthGet(req, res, { sendJson });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/wingman/auth/signup") {
+    await handleWingmanAuthSignupPost(req, res, { sendJson, parseJsonBody });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/wingman/auth/login") {
+    await handleWingmanAuthLoginPost(req, res, { sendJson, parseJsonBody });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/wingman/auth/session") {
+    await handleWingmanAuthSessionGet(req, res, url, { sendJson });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/wingman/auth/logout") {
+    await handleWingmanAuthLogoutPost(req, res, url, { sendJson });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/wingman/workspace") {
+    await handleWingmanWorkspaceGet(req, res, url, { sendJson });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/wingman/workspace/members") {
+    await handleWingmanWorkspaceMembersGet(req, res, url, { sendJson });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/wingman/workspace/invitations") {
+    await handleWingmanWorkspaceInvitationsGet(req, res, url, { sendJson });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/wingman/workspace/invitations") {
+    await handleWingmanWorkspaceInvitationsPost(req, res, url, { sendJson, parseJsonBody });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/wingman/workspace/settings") {
+    await handleWingmanWorkspaceSettingsPost(req, res, url, { sendJson, parseJsonBody });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/wingman/projects") {
+    await handleWingmanProjectsGet(req, res, url, { sendJson });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/wingman/projects/sync") {
+    await handleWingmanProjectsSyncPost(req, res, url, { sendJson, parseJsonBody });
+    return;
+  }
+
+  const workspaceMemberRoleRoute = url.pathname.match(/^\/api\/wingman\/workspace\/members\/([^/]+)\/role$/);
+  if (workspaceMemberRoleRoute && method === "POST") {
+    const userId = decodeURIComponent(workspaceMemberRoleRoute[1] || "");
+    await handleWingmanWorkspaceMemberRolePost(req, res, url, userId, { sendJson, parseJsonBody });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/wingman/invitations/resolve") {
+    await handleWingmanInvitationResolveGet(req, res, url, { sendJson });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/wingman/invitations/accept") {
+    await handleWingmanInvitationAcceptPost(req, res, url, { sendJson, parseJsonBody });
+    return;
+  }
+
+  const wingmanProjectRoute = url.pathname.match(/^\/api\/wingman\/projects\/([^/]+)\/(comments|shares|attachments|mark-ready)$/);
+  if (wingmanProjectRoute) {
+    const projectId = decodeURIComponent(wingmanProjectRoute[1] || "");
+    const action = wingmanProjectRoute[2];
+
+    if (method === "POST" && action === "comments") {
+      await handleWingmanProjectCommentsPost(req, res, url, projectId, { sendJson, parseJsonBody });
+      return;
+    }
+
+    if (method === "POST" && action === "shares") {
+      await handleWingmanProjectSharesPost(req, res, url, projectId, { sendJson, parseJsonBody });
+      return;
+    }
+
+    if (method === "POST" && action === "attachments") {
+      await handleWingmanProjectAttachmentsPost(req, res, url, projectId, { sendJson, parseJsonBody });
+      return;
+    }
+
+    if (method === "POST" && action === "mark-ready") {
+      await handleWingmanProjectMarkReadyPost(req, res, url, projectId, { sendJson, parseJsonBody });
+      return;
+    }
+  }
+
+  if (method === "GET" && url.pathname === "/api/wingman/governance") {
+    await handleWingmanGovernanceGet(req, res, url, { sendJson });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/wingman/audit") {
+    await handleWingmanAuditGet(req, res, url, { sendJson });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/wingman/telemetry") {
+    await handleWingmanTelemetryGet(req, res, url, { sendJson });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/wingman/telemetry") {
+    await handleWingmanTelemetryPost(req, res, url, { sendJson, parseJsonBody });
     return;
   }
 

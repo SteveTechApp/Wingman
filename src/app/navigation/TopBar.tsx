@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
 import { useBoundActiveProjectName } from "@/core/wingman/storeBridge";
 import { brand } from "@/branding/brand";
@@ -26,7 +27,17 @@ function LogoMark() {
   );
 }
 
-export default function TopBar() {
+type TopBarProps = {
+  showMobileMenu?: boolean;
+  mobileNavOpen?: boolean;
+  onToggleMobileNav?: () => void;
+};
+
+export default function TopBar({
+  showMobileMenu = false,
+  mobileNavOpen = false,
+  onToggleMobileNav,
+}: TopBarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const activeProjectName = useBoundActiveProjectName();
@@ -39,14 +50,28 @@ export default function TopBar() {
 
   return (
     <header className="wm-topbar">
-      <button
-        type="button"
-        onClick={() => navigate(WM_ROUTES.dashboard)}
-        className="wm-topbar__brand-btn"
-        title="Go to Dashboard"
-      >
-        <LogoMark />
-      </button>
+      <div className="wm-topbar__brand-row">
+        {showMobileMenu ? (
+          <button
+            type="button"
+            onClick={onToggleMobileNav}
+            className="wm-topbar__menu-btn"
+            aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileNavOpen}
+          >
+            {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        ) : null}
+
+        <button
+          type="button"
+          onClick={() => navigate(WM_ROUTES.dashboard)}
+          className="wm-topbar__brand-btn"
+          title="Go to Dashboard"
+        >
+          <LogoMark />
+        </button>
+      </div>
 
       <div className="wm-input-shell wm-topbar__project-pill">
         <span className="wm-topbar__project-label">Active Project</span>
@@ -54,7 +79,7 @@ export default function TopBar() {
       </div>
 
       <div className="wm-topbar__actions">
-        {navItems.map((item) => {
+        {!showMobileMenu ? navItems.map((item) => {
           const active = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
           return (
             <button
@@ -66,7 +91,7 @@ export default function TopBar() {
               {item.label}
             </button>
           );
-        })}
+        }) : null}
 
         <button
           type="button"

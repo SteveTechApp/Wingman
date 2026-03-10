@@ -32,12 +32,12 @@ export default function PublicLandingPage() {
           </p>
 
           <div style={styles.ctaRow}>
-            <Link to="/app/projects/new" style={{ ...styles.button, ...styles.primaryButton }}>
-              Start New Project
+            <Link to="/signup" style={{ ...styles.button, ...styles.primaryButton }}>
+              Create Workspace
             </Link>
 
-            <Link to="/app/tools/discovery" style={{ ...styles.button, ...styles.secondaryButton }}>
-              Open Guided Project
+            <Link to="/login" style={{ ...styles.button, ...styles.secondaryButton }}>
+              Sign In
             </Link>
 
             <Link to="/app/dashboard" style={{ ...styles.button, ...styles.secondaryButton }}>
