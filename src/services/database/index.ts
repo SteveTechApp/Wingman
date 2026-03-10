@@ -107,7 +107,6 @@ class Database {
 
         const dataStr = JSON.stringify({ projects, templates, profile });
         const sizeInBytes = new Blob([dataStr]).size;
-        const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
 
         return {
             totalSize: sizeInBytes,

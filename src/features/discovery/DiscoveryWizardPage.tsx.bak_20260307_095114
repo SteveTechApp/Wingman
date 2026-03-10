@@ -1,0 +1,1116 @@
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
+
+type DiscoveryProductFamily =
+  | "Apollo"
+  | "HDBaseT"
+  | "AVoIP"
+  | "Matrix"
+  | "USB Extension"
+  | "Video Wall";
+
+type DiscoveryRecord = {
+  customer: string;
+  site: string;
+  roomName: string;
+  applicationType: string;
+  roomLengthM: string;
+  roomWidthM: string;
+  roomHeightM: string;
+  displayLocation: string;
+  sourceLocation: string;
+  rackLocation: string;
+  cableDistanceM: string;
+  displayCount: string;
+  sourceCount: string;
+  usbNeeds: string;
+  audioNeeds: string;
+  controlNeeds: string;
+  budgetBand: string;
+  urgency: string;
+  notes: string;
+  recommendedFamilies: DiscoveryProductFamily[];
+  recommendedNextTool: string;
+  createdAt: string;
+};
+
+const STORAGE_KEY = "wm_discovery_seed";
+
+const APPLICATION_OPTIONS = [
+  "Meeting Space",
+  "Boardroom",
+  "Huddle Space",
+  "Training Room",
+  "Classroom",
+  "Control Room",
+  "Reception",
+  "Retail",
+  "Custom",
+];
+
+const POSITION_OPTIONS = [
+  "Front wall",
+  "Rear wall",
+  "Side wall",
+  "Table",
+  "Lectern",
+  "Ceiling",
+  "Rack room",
+  "Under display",
+  "Other",
+];
+
+const USB_OPTIONS = [
+  "None",
+  "USB 2.0",
+  "USB 3.x",
+  "USB-C BYOD",
+  "Camera + audio peripherals",
+  "Mixed peripherals",
+];
+
+const AUDIO_OPTIONS = [
+  "None",
+  "Display audio only",
+  "Microphones + speakers",
+  "DSP / Dante ready",
+  "USB audio bridge",
+];
+
+const CONTROL_OPTIONS = [
+  "None",
+  "IR",
+  "RS-232",
+  "IP control",
+  "Simple room control",
+  "Matrix / multi-zone",
+];
+
+const BUDGET_OPTIONS = [
+  "Entry",
+  "Mid",
+  "Performance",
+  "Premium",
+  "Open",
+];
+
+const URGENCY_OPTIONS = [
+  "Immediate",
+  "This month",
+  "This quarter",
+  "Planning stage",
+];
+
+const STEP_DEFS = [
+  {
+    id: "context",
+    title: "Basic context",
+    subtitle: "Customer, site and room profile.",
+  },
+  {
+    id: "layout",
+    title: "Physical layout",
+    subtitle: "Room dimensions, cable path and equipment locations.",
+  },
+  {
+    id: "qualifiers",
+    title: "Technical qualifiers",
+    subtitle: "Commercial and technical signals that shape the design.",
+  },
+] as const;
+
+function emptyDiscoveryRecord(): DiscoveryRecord {
+  return {
+    customer: "",
+    site: "",
+    roomName: "",
+    applicationType: "",
+    roomLengthM: "",
+    roomWidthM: "",
+    roomHeightM: "",
+    displayLocation: "",
+    sourceLocation: "",
+    rackLocation: "",
+    cableDistanceM: "",
+    displayCount: "",
+    sourceCount: "",
+    usbNeeds: "",
+    audioNeeds: "",
+    controlNeeds: "",
+    budgetBand: "",
+    urgency: "",
+    notes: "",
+    recommendedFamilies: [],
+    recommendedNextTool: "Product Catalog",
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function readDiscovery(): DiscoveryRecord {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return emptyDiscoveryRecord();
+    const parsed = JSON.parse(raw) as Partial<DiscoveryRecord>;
+    return { ...emptyDiscoveryRecord(), ...parsed };
+  } catch {
+    return emptyDiscoveryRecord();
+  }
+}
+
+function writeDiscovery(record: DiscoveryRecord) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+  } catch {
+  }
+}
+
+function asNumber(value: string): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function pickTopFamilies(record: DiscoveryRecord): {
+  families: DiscoveryProductFamily[];
+  reasons: string[];
+  nextTool: string;
+} {
+  const families = new Set<DiscoveryProductFamily>();
+  const reasons: string[] = [];
+
+  const distance = asNumber(record.cableDistanceM);
+  const displays = asNumber(record.displayCount);
+  const sources = asNumber(record.sourceCount);
+
+  const usb = record.usbNeeds.toLowerCase();
+  const audio = record.audioNeeds.toLowerCase();
+  const control = record.controlNeeds.toLowerCase();
+  const app = record.applicationType.toLowerCase();
+
+  if (
+    usb.includes("usb-c") ||
+    usb.includes("camera") ||
+    usb.includes("peripheral") ||
+    app.includes("meeting") ||
+    app.includes("boardroom") ||
+    app.includes("huddle")
+  ) {
+    families.add("Apollo");
+    reasons.push("Collaboration and BYOD workflow likely");
+  }
+
+  if (distance > 15 || displays > 1 || sources > 2) {
+    families.add("HDBaseT");
+    reasons.push("Point-to-point extension or longer cable path");
+  }
+
+  if (distance > 70 || displays > 4 || sources > 4 || audio.includes("dante")) {
+    families.add("AVoIP");
+    reasons.push("Networked distribution is a better fit at this scale");
+  }
+
+  if (displays > 1 || app.includes("control room")) {
+    families.add("Video Wall");
+    reasons.push("Multiple displays suggest video wall or multiview needs");
+  }
+
+  if (control.includes("matrix") || control.includes("multi") || sources > 3) {
+    families.add("Matrix");
+    reasons.push("Source switching density points toward matrix logic");
+  }
+
+  if (
+    (usb.includes("usb 3") || usb.includes("camera") || usb.includes("peripheral")) &&
+    distance > 5
+  ) {
+    families.add("USB Extension");
+    reasons.push("USB transport likely needs dedicated extension");
+  }
+
+  if (families.size === 0) {
+    families.add("Apollo");
+    reasons.push("Safe starting point for a compact meeting-space design");
+  }
+
+  const familyOrder: DiscoveryProductFamily[] = [
+    "Apollo",
+    "HDBaseT",
+    "AVoIP",
+    "Matrix",
+    "USB Extension",
+    "Video Wall",
+  ];
+
+  const ordered = familyOrder.filter((item) => families.has(item));
+
+  let nextTool = "Product Catalog";
+  if (ordered.includes("Video Wall")) nextTool = "Video Wall Wizard";
+  else if (ordered.includes("Matrix")) nextTool = "Product Catalog";
+  else if (ordered.includes("Apollo")) nextTool = "Product Catalog";
+
+  return {
+    families: ordered.slice(0, 3),
+    reasons: reasons.slice(0, 4),
+    nextTool,
+  };
+}
+
+function show(value: string): string {
+  return value.trim() ? value : "-";
+}
+
+function showSize(record: DiscoveryRecord): string {
+  const l = show(record.roomLengthM);
+  const w = show(record.roomWidthM);
+  const h = show(record.roomHeightM);
+  if (l === "-" && w === "-" && h === "-") return "-";
+  return `${l} x ${w} x ${h} m`;
+}
+
+function countFilled(values: string[]): number {
+  return values.filter((value) => value.trim().length > 0).length;
+}
+
+function stepCompletion(record: DiscoveryRecord, index: number): { done: number; total: number } {
+  if (index === 0) {
+    return {
+      done: countFilled([
+        record.customer,
+        record.site,
+        record.roomName,
+        record.applicationType,
+      ]),
+      total: 4,
+    };
+  }
+
+  if (index === 1) {
+    return {
+      done: countFilled([
+        record.roomLengthM,
+        record.roomWidthM,
+        record.roomHeightM,
+        record.cableDistanceM,
+        record.displayLocation,
+        record.sourceLocation,
+        record.rackLocation,
+      ]),
+      total: 7,
+    };
+  }
+
+  return {
+    done: countFilled([
+      record.displayCount,
+      record.sourceCount,
+      record.usbNeeds,
+      record.audioNeeds,
+      record.controlNeeds,
+      record.budgetBand,
+      record.urgency,
+      record.notes,
+    ]),
+    total: 8,
+  };
+}
+
+function SummaryRow(props: { label: string; value: string }) {
+  return (
+    <div className="wm-dw3__summaryRow">
+      <span>{props.label}</span>
+      <strong>{props.value}</strong>
+    </div>
+  );
+}
+
+function TextField(props: {
+  label: string;
+  value: string;
+  placeholder?: string;
+  type?: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="wm-dw3__field">
+      <span>{props.label}</span>
+      <input
+        type={props.type ?? "text"}
+        value={props.value}
+        placeholder={props.placeholder}
+        onChange={(e) => props.onChange(e.target.value)}
+      />
+    </label>
+  );
+}
+
+function SelectField(props: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="wm-dw3__field">
+      <span>{props.label}</span>
+      <select value={props.value} onChange={(e) => props.onChange(e.target.value)}>
+        <option value="">Select an option</option>
+        {props.options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+const styles = `
+.wm-dw3{
+  --wm-text: #e8f1ff;
+  --wm-text-soft: rgba(232,241,255,0.72);
+  --wm-border: rgba(110,145,190,0.18);
+  --wm-border-soft: rgba(110,145,190,0.10);
+  --wm-surface: linear-gradient(180deg, rgba(14,24,40,0.94), rgba(8,14,24,0.94));
+  --wm-accent: #22c7b8;
+  --wm-accent-soft: rgba(34,199,184,0.18);
+  color: var(--wm-text);
+  padding: 12px 16px 16px;
+}
+
+.wm-dw3 *{
+  box-sizing: border-box;
+}
+
+.wm-dw3__header{
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  border: 1px solid var(--wm-border);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(25,83,173,0.18), transparent 36%),
+    radial-gradient(circle at left center, rgba(34,199,184,0.12), transparent 30%),
+    var(--wm-surface);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.16);
+}
+
+.wm-dw3__title h1{
+  margin: 0;
+  font-size: 1.65rem;
+  line-height: 1.05;
+  font-weight: 800;
+}
+
+.wm-dw3__title p{
+  margin: 6px 0 0;
+  color: var(--wm-text-soft);
+  font-size: 0.95rem;
+}
+
+.wm-dw3__meta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.wm-dw3__pill{
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid var(--wm-border);
+  background: rgba(255,255,255,0.05);
+  color: var(--wm-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.wm-dw3__actions{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.wm-dw3__btn{
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--wm-border);
+  background: rgba(255,255,255,0.05);
+  color: var(--wm-text);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.wm-dw3__btn:hover{
+  transform: translateY(-1px);
+  border-color: rgba(110,145,190,0.32);
+}
+
+.wm-dw3__btn--primary{
+  background: linear-gradient(180deg, rgba(34,199,184,0.28), rgba(23,140,130,0.28));
+  border-color: rgba(34,199,184,0.34);
+}
+
+.wm-dw3__btn--ghost{
+  background: rgba(255,255,255,0.03);
+}
+
+.wm-dw3__workspace{
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 340px;
+  gap: 14px;
+  align-items: start;
+}
+
+.wm-dw3__card{
+  border: 1px solid var(--wm-border);
+  border-radius: 18px;
+  padding: 12px;
+  background:
+    radial-gradient(circle at top right, rgba(25,83,173,0.10), transparent 34%),
+    var(--wm-surface);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.16);
+}
+
+.wm-dw3__stepTabs{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.wm-dw3__stepTab{
+  display: grid;
+  gap: 4px;
+  min-height: 74px;
+  padding: 10px 12px;
+  border: 1px solid var(--wm-border);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  color: var(--wm-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.wm-dw3__stepTab strong{
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.wm-dw3__stepTab span{
+  color: var(--wm-text-soft);
+  font-size: 0.8rem;
+}
+
+.wm-dw3__stepTab em{
+  color: rgba(34,199,184,0.92);
+  font-style: normal;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.wm-dw3__stepTab--active{
+  border-color: rgba(34,199,184,0.34);
+  background: linear-gradient(180deg, rgba(34,199,184,0.14), rgba(255,255,255,0.04));
+  box-shadow: inset 0 0 0 1px rgba(34,199,184,0.08);
+}
+
+.wm-dw3__stepHead{
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.wm-dw3__stepHead h2{
+  margin: 0;
+  font-size: 1.12rem;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.wm-dw3__stepHead p{
+  margin: 5px 0 0;
+  color: var(--wm-text-soft);
+  font-size: 0.9rem;
+}
+
+.wm-dw3__stepBadge{
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--wm-accent-soft);
+  border: 1px solid rgba(34,199,184,0.24);
+  color: #dffcf9;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.wm-dw3__grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 10px 12px;
+}
+
+.wm-dw3__field{
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.wm-dw3__field--full{
+  grid-column: 1 / -1;
+}
+
+.wm-dw3__field span{
+  color: rgba(232,241,255,0.76);
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wm-dw3__field input,
+.wm-dw3__field select,
+.wm-dw3__field textarea{
+  width: 100%;
+  border: 1px solid var(--wm-border-soft);
+  background: rgba(255,255,255,0.06);
+  color: var(--wm-text);
+  outline: none;
+  border-radius: 12px;
+  padding: 0 11px;
+  font: inherit;
+}
+
+.wm-dw3__field input,
+.wm-dw3__field select{
+  height: 40px;
+}
+
+.wm-dw3__field textarea{
+  min-height: 108px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  resize: vertical;
+}
+
+.wm-dw3__field input::placeholder,
+.wm-dw3__field textarea::placeholder{
+  color: rgba(232,241,255,0.38);
+}
+
+.wm-dw3__field input:focus,
+.wm-dw3__field select:focus,
+.wm-dw3__field textarea:focus{
+  border-color: rgba(34,199,184,0.38);
+  box-shadow: 0 0 0 3px rgba(34,199,184,0.10);
+}
+
+.wm-dw3__nav{
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.wm-dw3__navLeft,
+.wm-dw3__navRight{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.wm-dw3__muted{
+  color: var(--wm-text-soft);
+  font-size: 0.84rem;
+}
+
+.wm-dw3__rail{
+  display: grid;
+  gap: 12px;
+  position: sticky;
+  top: 12px;
+}
+
+.wm-dw3__summary{
+  display: grid;
+  gap: 4px;
+}
+
+.wm-dw3__summaryGroup{
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.wm-dw3__summaryGroup:last-child{
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.wm-dw3__summaryGroup h3{
+  margin: 0 0 6px;
+  color: rgba(232,241,255,0.82);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wm-dw3__summaryRow{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: baseline;
+  min-height: 24px;
+  padding: 2px 0;
+}
+
+.wm-dw3__summaryRow span{
+  color: rgba(232,241,255,0.66);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.wm-dw3__summaryRow strong{
+  color: var(--wm-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.wm-dw3__chipRow{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-dw3__chip{
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--wm-accent-soft);
+  border: 1px solid rgba(34,199,184,0.26);
+  color: #dffcf9;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.wm-dw3__reasonList{
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--wm-text-soft);
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 1180px){
+  .wm-dw3__workspace{
+    grid-template-columns: 1fr;
+  }
+
+  .wm-dw3__rail{
+    position: static;
+  }
+}
+
+@media (max-width: 860px){
+  .wm-dw3__header{
+    grid-template-columns: 1fr;
+  }
+
+  .wm-dw3__actions{
+    justify-content: flex-start;
+  }
+
+  .wm-dw3__stepTabs{
+    grid-template-columns: 1fr;
+  }
+
+  .wm-dw3__grid{
+    grid-template-columns: 1fr;
+  }
+
+  .wm-dw3__nav{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wm-dw3__navLeft,
+  .wm-dw3__navRight{
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+`;
+
+export default function DiscoveryWizardPage() {
+  const navigate = useNavigate();
+  const [record, setRecord] = React.useState<DiscoveryRecord>(() => readDiscovery());
+  const [savedAt, setSavedAt] = React.useState<string>("");
+  const [activeStep, setActiveStep] = React.useState<number>(0);
+
+  const recommendation = React.useMemo(() => pickTopFamilies(record), [record]);
+
+  const update = <K extends keyof DiscoveryRecord>(key: K, value: DiscoveryRecord[K]) => {
+    setRecord((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const saveNow = () => {
+    const payload: DiscoveryRecord = {
+      ...record,
+      recommendedFamilies: recommendation.families,
+      recommendedNextTool: recommendation.nextTool,
+    };
+    writeDiscovery(payload);
+    setSavedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+  };
+
+  const startBlank = () => {
+    const fresh = emptyDiscoveryRecord();
+    setRecord(fresh);
+    writeDiscovery(fresh);
+    setSavedAt("");
+    setActiveStep(0);
+  };
+
+  const goCatalog = () => {
+    saveNow();
+    navigate("/app/tools/catalog");
+  };
+
+  const currentStepMeta = STEP_DEFS[activeStep];
+  const currentProgress = stepCompletion(record, activeStep);
+  const totalComplete =
+    stepCompletion(record, 0).done +
+    stepCompletion(record, 1).done +
+    stepCompletion(record, 2).done;
+  const totalFields =
+    stepCompletion(record, 0).total +
+    stepCompletion(record, 1).total +
+    stepCompletion(record, 2).total;
+
+  function renderStep() {
+    if (activeStep === 0) {
+      return (
+        <div className="wm-dw3__grid">
+          <TextField
+            label="Customer"
+            value={record.customer}
+            placeholder="Sample customer"
+            onChange={(v) => update("customer", v)}
+          />
+          <TextField
+            label="Site"
+            value={record.site}
+            placeholder="Banbury HQ"
+            onChange={(v) => update("site", v)}
+          />
+          <TextField
+            label="Room name"
+            value={record.roomName}
+            placeholder="Boardroom"
+            onChange={(v) => update("roomName", v)}
+          />
+          <SelectField
+            label="Application type"
+            value={record.applicationType}
+            options={APPLICATION_OPTIONS}
+            onChange={(v) => update("applicationType", v)}
+          />
+        </div>
+      );
+    }
+
+    if (activeStep === 1) {
+      return (
+        <div className="wm-dw3__grid">
+          <TextField
+            label="Room length (m)"
+            type="number"
+            value={record.roomLengthM}
+            placeholder="10"
+            onChange={(v) => update("roomLengthM", v)}
+          />
+          <TextField
+            label="Room width (m)"
+            type="number"
+            value={record.roomWidthM}
+            placeholder="5"
+            onChange={(v) => update("roomWidthM", v)}
+          />
+          <TextField
+            label="Room height (m)"
+            type="number"
+            value={record.roomHeightM}
+            placeholder="2.8"
+            onChange={(v) => update("roomHeightM", v)}
+          />
+          <TextField
+            label="Expected longest route (m)"
+            type="number"
+            value={record.cableDistanceM}
+            placeholder="Installed route length"
+            onChange={(v) => update("cableDistanceM", v)}
+          />
+          <SelectField
+            label="Display location"
+            value={record.displayLocation}
+            options={POSITION_OPTIONS}
+            onChange={(v) => update("displayLocation", v)}
+          />
+          <SelectField
+            label="Source position"
+            value={record.sourceLocation}
+            options={POSITION_OPTIONS}
+            onChange={(v) => update("sourceLocation", v)}
+          />
+          <SelectField
+            label="Rack / comms location"
+            value={record.rackLocation}
+            options={POSITION_OPTIONS}
+            onChange={(v) => update("rackLocation", v)}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="wm-dw3__grid">
+        <TextField
+          label="Display count"
+          type="number"
+          value={record.displayCount}
+          placeholder="2"
+          onChange={(v) => update("displayCount", v)}
+        />
+        <TextField
+          label="Source count"
+          type="number"
+          value={record.sourceCount}
+          placeholder="4"
+          onChange={(v) => update("sourceCount", v)}
+        />
+        <SelectField
+          label="USB needs"
+          value={record.usbNeeds}
+          options={USB_OPTIONS}
+          onChange={(v) => update("usbNeeds", v)}
+        />
+        <SelectField
+          label="Audio needs"
+          value={record.audioNeeds}
+          options={AUDIO_OPTIONS}
+          onChange={(v) => update("audioNeeds", v)}
+        />
+        <SelectField
+          label="Control needs"
+          value={record.controlNeeds}
+          options={CONTROL_OPTIONS}
+          onChange={(v) => update("controlNeeds", v)}
+        />
+        <SelectField
+          label="Budget band"
+          value={record.budgetBand}
+          options={BUDGET_OPTIONS}
+          onChange={(v) => update("budgetBand", v)}
+        />
+        <SelectField
+          label="Urgency / timeline"
+          value={record.urgency}
+          options={URGENCY_OPTIONS}
+          onChange={(v) => update("urgency", v)}
+        />
+
+        <label className="wm-dw3__field wm-dw3__field--full">
+          <span>Call notes / constraints</span>
+          <textarea
+            value={record.notes}
+            placeholder="Known constraints, preferred platforms, cable routes, existing room tech, Teams / BYOD requirements, consultant preferences."
+            onChange={(e) => update("notes", e.target.value)}
+          />
+        </label>
+      </div>
+    );
+  }
+
+  return (
+    <div className="wm-dw3">
+      <style>{styles}</style>
+
+      <header className="wm-dw3__header">
+        <div className="wm-dw3__title">
+          <h1>Discovery Wizard</h1>
+          <p>Guide the user step by step, reduce clutter, and keep the whole workflow visible without relying on page scroll.</p>
+
+          <div className="wm-dw3__meta">
+            <span className="wm-dw3__pill">Project: {show(record.roomName || record.customer || "Untitled")}</span>
+            <span className="wm-dw3__pill">Progress: {totalComplete}/{totalFields}</span>
+            <span className="wm-dw3__pill">Next: {recommendation.nextTool}</span>
+          </div>
+        </div>
+
+        <div className="wm-dw3__actions">
+          <button className="wm-dw3__btn wm-dw3__btn--ghost" onClick={startBlank}>
+            Start blank
+          </button>
+          <button className="wm-dw3__btn" onClick={() => navigate("/app/tools")}>
+            Back to Tool Hub
+          </button>
+          <button className="wm-dw3__btn wm-dw3__btn--primary" onClick={saveNow}>
+            Save discovery
+          </button>
+          <button className="wm-dw3__btn wm-dw3__btn--primary" onClick={goCatalog}>
+            Open Catalog
+          </button>
+        </div>
+      </header>
+
+      <div className="wm-dw3__workspace">
+        <section className="wm-dw3__card">
+          <div className="wm-dw3__stepTabs">
+            {STEP_DEFS.map((step, index) => {
+              const progress = stepCompletion(record, index);
+              const active = index === activeStep;
+
+              return (
+                <button
+                  key={step.id}
+                  type="button"
+                  className={`wm-dw3__stepTab${active ? " wm-dw3__stepTab--active" : ""}`}
+                  onClick={() => setActiveStep(index)}
+                >
+                  <strong>Step {index + 1} - {step.title}</strong>
+                  <span>{step.subtitle}</span>
+                  <em>{progress.done}/{progress.total} complete</em>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="wm-dw3__stepHead">
+            <div>
+              <h2>Step {activeStep + 1} - {currentStepMeta.title}</h2>
+              <p>{currentStepMeta.subtitle}</p>
+            </div>
+            <div className="wm-dw3__stepBadge">
+              {currentProgress.done}/{currentProgress.total} complete
+            </div>
+          </div>
+
+          {renderStep()}
+
+          <div className="wm-dw3__nav">
+            <div className="wm-dw3__navLeft">
+              <span className="wm-dw3__muted">
+                {savedAt ? `Last saved at ${savedAt}` : "Not saved yet"}
+              </span>
+            </div>
+
+            <div className="wm-dw3__navRight">
+              <button
+                className="wm-dw3__btn"
+                onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))}
+                disabled={activeStep === 0}
+              >
+                Previous
+              </button>
+
+              {activeStep < STEP_DEFS.length - 1 ? (
+                <button
+                  className="wm-dw3__btn wm-dw3__btn--primary"
+                  onClick={() => setActiveStep((prev) => Math.min(STEP_DEFS.length - 1, prev + 1))}
+                >
+                  Next
+                </button>
+              ) : (
+                <button className="wm-dw3__btn wm-dw3__btn--primary" onClick={saveNow}>
+                  Save discovery
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <aside className="wm-dw3__rail">
+          <section className="wm-dw3__card">
+            <div className="wm-dw3__summary">
+              <div className="wm-dw3__summaryGroup">
+                <h3>Project summary</h3>
+                <SummaryRow label="Customer" value={show(record.customer)} />
+                <SummaryRow label="Site" value={show(record.site)} />
+                <SummaryRow label="Room" value={show(record.roomName)} />
+                <SummaryRow label="Application" value={show(record.applicationType)} />
+              </div>
+
+              <div className="wm-dw3__summaryGroup">
+                <h3>Layout</h3>
+                <SummaryRow label="Room size" value={showSize(record)} />
+                <SummaryRow label="Cable route" value={record.cableDistanceM ? `${record.cableDistanceM} m` : "-"} />
+                <SummaryRow label="Display" value={show(record.displayLocation)} />
+                <SummaryRow label="Source" value={show(record.sourceLocation)} />
+                <SummaryRow label="Rack" value={show(record.rackLocation)} />
+              </div>
+
+              <div className="wm-dw3__summaryGroup">
+                <h3>Qualifiers</h3>
+                <SummaryRow label="Displays / sources" value={`${record.displayCount || "-"} / ${record.sourceCount || "-"}`} />
+                <SummaryRow label="USB" value={show(record.usbNeeds)} />
+                <SummaryRow label="Audio" value={show(record.audioNeeds)} />
+                <SummaryRow label="Control" value={show(record.controlNeeds)} />
+                <SummaryRow label="Budget" value={show(record.budgetBand)} />
+                <SummaryRow label="Urgency" value={show(record.urgency)} />
+              </div>
+            </div>
+          </section>
+
+          <section className="wm-dw3__card">
+            <h2 style={{ margin: 0, fontSize: "1.02rem", lineHeight: 1.1 }}>Recommended product families</h2>
+            <p style={{ margin: "6px 0 10px", color: "rgba(232,241,255,0.72)", fontSize: "0.9rem" }}>
+              Keep the recommendation visible while the user completes the wizard.
+            </p>
+
+            <div className="wm-dw3__chipRow">
+              {recommendation.families.map((family) => (
+                <span key={family} className="wm-dw3__chip">{family}</span>
+              ))}
+            </div>
+
+            <ul className="wm-dw3__reasonList">
+              {recommendation.reasons.map((reason) => (
+                <li key={reason}>{reason}</li>
+              ))}
+            </ul>
+
+            <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+              <span className="wm-dw3__muted">Next tool: {recommendation.nextTool}</span>
+              <button className="wm-dw3__btn wm-dw3__btn--primary" onClick={goCatalog}>
+                Open Catalog
+              </button>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  );
+}

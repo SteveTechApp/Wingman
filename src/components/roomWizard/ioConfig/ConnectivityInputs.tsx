@@ -17,17 +17,17 @@ const ConnectivityInputs: React.FC<ConnectivityInputsProps> = ({ point, onUpdate
   const { userProfile } = useUserContext();
   const isImperial = userProfile.unitSystem === 'imperial';
 
-  const toDisplay = (meters: number) => (isImperial ? (meters * METER_TO_FEET).toFixed(1) : String(meters));
-  const fromDisplay = (value: string) => {
+  const toDisplay = React.useCallback((meters: number) => (isImperial ? (meters * METER_TO_FEET).toFixed(1) : String(meters)), [isImperial]);
+  const fromDisplay = React.useCallback((value: string) => {
     const num = parseFloat(value) || 0;
     return isImperial ? num / METER_TO_FEET : num;
-  };
+  }, [isImperial]);
 
   const [localDistance, setLocalDistance] = React.useState(() => toDisplay(point.distance));
 
   React.useEffect(() => {
     setLocalDistance(toDisplay(point.distance));
-  }, [point.distance, isImperial]);
+  }, [point.distance, toDisplay]);
 
   const handleBlur = (value: string) => {
     onUpdate({ distance: fromDisplay(value) });

@@ -1,21 +1,21 @@
-// src/AppRoutes.tsx
 import * as React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import AppShell from "@/app/shell/AppShell";
 
-// Public (keep minimal)
+// Public
 const PublicLandingPage = React.lazy(() => import("@/pages/PublicLandingPage"));
 const LoginPage = React.lazy(() => import("@/pages/LoginPage"));
 const SignupPage = React.lazy(() => import("@/pages/SignupPage"));
 
-// App (core)
+// Core app
 const DashboardPage = React.lazy(() => import("@/features/dashboard/DashboardPage"));
 const ProjectsPage = React.lazy(() => import("@/features/projects/ProjectsPage"));
+const ProjectNewPage = React.lazy(() => import("@/features/projects/ProjectNewPage"));
 const ToolHubPage = React.lazy(() => import("@/features/tools/ToolHubPage"));
 const ExportSnapshotPage = React.lazy(() => import("@/features/export/ExportSnapshotPage"));
 
-// App (tools/workflows ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â canonical wiring)
+// Tools / workflows
 const DiscoveryWizardPage = React.lazy(() => import("@/features/discovery/DiscoveryWizardPage"));
 const CatalogPage = React.lazy(() => import("@/features/catalog/CatalogPage"));
 const CompetitorComparePage = React.lazy(() => import("@/features/compare/CompetitorComparePage"));
@@ -24,18 +24,19 @@ const ProposalBuilderPage = React.lazy(() => import("@/features/proposals/Propos
 const ImportIntakePage = React.lazy(() => import("@/features/import/ImportIntakePage"));
 const TrainingHubPage = React.lazy(() => import("@/features/misc/TrainingHubPage"));
 const VideoWallPlannerPage = React.lazy(() => import("@/features/misc/VideoWallPlannerPage"));
+const GuruPage = React.lazy(() => import("@/features/guru/GuruPage"));
+const BlockDiagramPage = React.lazy(() => import("@/features/diagram/BlockDiagramPage"));
+const ProjectDesignReviewPage = React.lazy(() => import("@/features/review/ProjectDesignReviewPage"));
+const CableSchedulePage = React.lazy(() => import("@/features/cables/CableSchedulePage"));
+const VideoWallBuilderPage = React.lazy(() => import("@/features/videowall/VideoWallBuilderPage"));
+const TemplatesPage = React.lazy(() => import("@/features/templates/TemplatesPage"));
+const RuntimeDiagnosticsPage = React.lazy(() => import("@/features/support/RuntimeDiagnosticsPage"));
 
-// App (pages)
+// Pages
 const QuickQuestionPage = React.lazy(() => import("@/pages/QuickQuestionPage"));
 const ComparisonPage = React.lazy(() => import("@/pages/ComparisonPage"));
 const ProjectOverviewPage = React.lazy(() => import("@/pages/ProjectOverviewPage"));
 const GuidedProjectWizard = React.lazy(() => import("@/pages/GuidedProjectWizard"));
-
-// Optional orphans you likely want soon (uncomment if/when you need them)
-// // const TemplateBrowserScreen = React.lazy(() => import("@/pages/TemplateBrowserScreen"));
-// const WorkspaceHomePage = React.lazy(() => import("@/pages/WorkspaceHomePage"));
-// const AnalyticsPage = React.lazy(() => import("@/pages/AnalyticsPage"));
-// const GuruPage = React.lazy(() => import("@/features/guru/GuruPage"));
 
 // System
 const NotFoundPage = React.lazy(() => import("@/app/system/NotFoundPage"));
@@ -43,7 +44,7 @@ const NotFoundPage = React.lazy(() => import("@/app/system/NotFoundPage"));
 function Loading() {
   return (
     <div style={{ padding: 18, color: "rgba(255,255,255,0.75)" }}>
-      LoadingÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦
+      Loading...
     </div>
   );
 }
@@ -57,7 +58,7 @@ export default function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
 
-        {/* App */}
+        {/* App shell */}
         <Route path="/app" element={<AppShell />}>
           <Route index element={<Navigate to="/app/dashboard" replace />} />
 
@@ -66,22 +67,34 @@ export default function AppRoutes() {
 
           {/* Projects */}
           <Route path="projects" element={<ProjectsPage />} />
+          <Route path="projects/new" element={<ProjectNewPage />} />
+          <Route path="projects/:id" element={<ProjectOverviewPage />} />
           <Route path="project-overview" element={<ProjectOverviewPage />} />
 
           {/* Primary hub */}
           <Route path="tools" element={<ToolHubPage />} />
 
+          {/* Tool routes */}
           <Route path="tools/import" element={<ImportIntakePage />} />
-          <Route path="tools/proposal" element={<ProposalBuilderPage />} />
-          {/* Tool routes (AV workflow aligned) */}
+          <Route path="tools/import-intake" element={<ImportIntakePage />} />
           <Route path="tools/discovery" element={<DiscoveryWizardPage />} />
           <Route path="tools/catalog" element={<CatalogPage />} />
           <Route path="tools/compare" element={<CompetitorComparePage />} />
           <Route path="tools/room-wizard" element={<RoomWizardPage />} />
+          <Route path="tools/proposal" element={<ProposalBuilderPage />} />
           <Route path="tools/proposal-builder" element={<ProposalBuilderPage />} />
-          <Route path="tools/import-intake" element={<ImportIntakePage />} />
           <Route path="tools/training" element={<TrainingHubPage />} />
           <Route path="tools/video-wall" element={<VideoWallPlannerPage />} />
+          <Route path="tools/templates" element={<TemplatesPage />} />
+          <Route path="tools/video-wall-builder" element={<VideoWallBuilderPage />} />
+          <Route path="tools/cable-schedule" element={<CableSchedulePage />} />
+          <Route path="tools/block-diagram" element={<BlockDiagramPage />} />
+          <Route path="tools/design-review" element={<ProjectDesignReviewPage />} />
+          <Route path="tools/guru" element={<GuruPage />} />
+          <Route path="tools/runtime-diagnostics" element={<RuntimeDiagnosticsPage />} />
+
+          {/* Support */}
+          <Route path="support/runtime-diagnostics" element={<RuntimeDiagnosticsPage />} />
 
           {/* Utility pages */}
           <Route path="quick-question" element={<QuickQuestionPage />} />
@@ -91,18 +104,29 @@ export default function AppRoutes() {
           {/* Export */}
           <Route path="export" element={<ExportSnapshotPage />} />
 
-          {/* Optional (wire when ready) */}
-          {/* <Route path="tools/survey-import" element={<SurveyImportPage />} /> */}
-          {/* <Route path="tools/templates" element={<TemplateBrowserScreen />} /> */}
-          {/* <Route path="workspace" element={<WorkspaceHomePage />} /> */}
-          {/* <Route path="analytics" element={<AnalyticsPage />} /> */}
-          {/* <Route path="tools/guru" element={<GuruPage />} /> */}
+          {/* Legacy aliases */}
+          <Route path="toolhub" element={<Navigate to="/app/tools" replace />} />
+          <Route path="toolhub/*" element={<Navigate to="/app/tools" replace />} />
+          <Route path="templates" element={<Navigate to="/app/tools/templates" replace />} />
+          <Route path="catalogue" element={<Navigate to="/app/tools/catalog" replace />} />
+          <Route path="guru" element={<Navigate to="/app/tools/guru" replace />} />
+          <Route path="training" element={<Navigate to="/app/tools/training" replace />} />
+          <Route path="survey-import" element={<Navigate to="/app/tools/import-intake" replace />} />
+          <Route path="tools/competitor" element={<Navigate to="/app/tools/compare" replace />} />
+          <Route path="tools/competitor-compare" element={<Navigate to="/app/tools/compare" replace />} />
+          <Route path="tools/competitors" element={<Navigate to="/app/tools/compare" replace />} />
+          <Route path="tools/room" element={<Navigate to="/app/tools/room-wizard" replace />} />
+          <Route path="tools/roomwizard" element={<Navigate to="/app/tools/room-wizard" replace />} />
+          <Route path="tools/room-designer" element={<Navigate to="/app/tools/room-wizard" replace />} />
+          <Route path="tools/proposals" element={<Navigate to="/app/tools/proposal" replace />} />
+          <Route path="tools/videowall" element={<Navigate to="/app/tools/video-wall" replace />} />
+          <Route path="tools/video-wall-designer" element={<Navigate to="/app/tools/video-wall" replace />} />
 
           {/* App 404 */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
-        {/* Catch-all */}
+        {/* Global 404 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </React.Suspense>

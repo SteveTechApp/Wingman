@@ -32,7 +32,7 @@ export class UserProfileStore extends DatabaseService {
             request.onsuccess = () => {
                 const result = request.result;
                 if (result) {
-                    const { id, ...profile } = result;
+                    const { id: _id, ...profile } = result;
                     resolve(profile);
                 } else {
                     resolve(null);

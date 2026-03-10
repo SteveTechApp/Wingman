@@ -1,0 +1,779 @@
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  getActiveProjectContext,
+  updateActiveProjectBrief,
+  updateProjectStatus,
+} from "@/features/projects/projectDraftStore";
+import { buildProposalPositioningBlock, type CompareHandoff } from "./proposalPositioning";
+import {
+  buildProposalExportText,
+  copyProposalExportText,
+  downloadProposalExportText,
+} from "./proposalRender";
+import {
+  buildProposalDocxBridgePayload,
+  downloadProposalBridgeJson,
+} from "./proposalDocxBridge";
+import { downloadProposalExport } from "./proposalExportFacade";
+import { downloadProposalDocx } from "./proposalDocxFacade";
+import { readDesignBundle, summariseDesignBundle, buildProposalSeedFromBundle } from "@/features/systemDesign/designBundleStore";
+import {
+  buildAssumptionsTemplate,
+  buildCommercialNotesTemplate,
+  buildExecutiveSummaryTemplate,
+  buildExclusionsTemplate,
+  buildNextStepsTemplate,
+  buildSolutionOverviewTemplate,
+} from "./proposalTemplates";
+
+function Area({
+  label,
+  value,
+  onChange,
+  rows = 4,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (next: string) => void;
+  rows?: number;
+  placeholder?: string;
+}) {
+  return (
+    <label style={{ display: "grid", gap: 6 }}>
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 800,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.62)",
+        }}
+      >
+        {label}
+      </div>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        rows={rows}
+        placeholder={placeholder}
+        style={{
+          borderRadius: 12,
+          border: "1px solid rgba(255,255,255,0.12)",
+          background: "rgba(255,255,255,0.04)",
+          color: "rgba(255,255,255,0.94)",
+          padding: 12,
+          outline: "none",
+          resize: "vertical",
+          font: "inherit",
+        }}
+      />
+    </label>
+  );
+}
+
+function Input({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (next: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <label style={{ display: "grid", gap: 6 }}>
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 800,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.62)",
+        }}
+      >
+        {label}
+      </div>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{
+          height: 42,
+          borderRadius: 12,
+          border: "1px solid rgba(255,255,255,0.12)",
+          background: "rgba(255,255,255,0.04)",
+          color: "rgba(255,255,255,0.94)",
+          padding: "0 12px",
+          outline: "none",
+          font: "inherit",
+        }}
+      />
+    </label>
+  );
+}
+
+function compareSummary(handoff: CompareHandoff): string {
+  const wy = [handoff.wyrestormSku, handoff.wyrestormName].filter(Boolean).join(" - ");
+  const cp = [handoff.competitorBrand, handoff.competitorSku, handoff.competitorName]
+    .filter(Boolean)
+    .join(" - ");
+
+  return [
+    wy ? `WyreStorm reference: ${wy}` : "",
+    cp ? `Competitive context: ${cp}` : "",
+    handoff.family ? `Family: ${handoff.family}` : "",
+    handoff.category ? `Category: ${handoff.category}` : "",
+  ]
+    .filter(Boolean)
+    .join(" | ");
+}
+
+function compareCommercialSeed(handoff: CompareHandoff): string {
+  const wy = [handoff.wyrestormSku, handoff.wyrestormName].filter(Boolean).join(" - ");
+  const cp = [handoff.competitorBrand, handoff.competitorSku, handoff.competitorName]
+    .filter(Boolean)
+    .join(" - ");
+
+  return [
+    "Commercial positioning generated from competitor compare workflow.",
+    wy ? `Recommended WyreStorm option: ${wy}.` : "",
+    cp ? `Alternative considered: ${cp}.` : "",
+    handoff.family ? `Position the solution around ${handoff.family} workflow fit.` : "",
+    handoff.category ? `Emphasise suitability for ${handoff.category} application requirements.` : "",
+    "Focus on AV workflow fit, control capability, extension method, and commercial clarity.",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function safeFileName(value: string): string {
+  const v = String(value || "").trim();
+  return (v || "proposal").replace(/[^a-z0-9_\-]+/gi, "_");
+}
+
+const pageStyles = `
+.wm-proposal{
+  padding: 12px 16px 16px;
+}
+
+.wm-proposal__stack{
+  display: grid;
+  gap: 12px;
+}
+
+.wm-proposal__hero{
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 14px 16px;
+  border: 1px solid rgba(110,145,190,0.16);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(25,83,173,0.16), transparent 36%),
+    radial-gradient(circle at left center, rgba(34,199,184,0.10), transparent 30%),
+    linear-gradient(180deg, rgba(13,22,37,0.96), rgba(7,13,24,0.96));
+  box-shadow: 0 12px 30px rgba(0,0,0,0.16);
+}
+
+.wm-proposal__eyebrow{
+  margin: 0 0 4px;
+  color: #66eadb;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.wm-proposal__title{
+  margin: 0;
+  font-size: 1.7rem;
+  line-height: 1.02;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.wm-proposal__subtitle{
+  margin: 6px 0 0;
+  max-width: 82ch;
+  color: rgba(232,241,255,0.72);
+  font-size: 0.92rem;
+  line-height: 1.32;
+}
+
+.wm-proposal__heroActions{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.wm-proposal__card{
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(110,145,190,0.16);
+  background:
+    radial-gradient(circle at top right, rgba(25,83,173,0.10), transparent 34%),
+    linear-gradient(180deg, rgba(13,22,37,0.94), rgba(7,13,24,0.94));
+  box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+}
+
+.wm-proposal__sectionTitle{
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.wm-proposal__sectionText{
+  margin: 6px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.8);
+}
+
+.wm-proposal__grid{
+  display: grid;
+  gap: 14px;
+}
+
+.wm-proposal__grid--2{
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+}
+
+.wm-proposal__actions{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.wm-proposal__chips{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wm-proposal__chip{
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(110,145,190,0.16);
+  color: rgba(255,255,255,0.88);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.wm-proposal__preview{
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.88);
+  max-height: 560px;
+  overflow: auto;
+}
+
+.wm-proposal__muted{
+  font-size: 12px;
+  color: rgba(255,255,255,0.72);
+  font-weight: 700;
+}
+
+@media (max-width: 980px){
+  .wm-proposal__hero{
+    grid-template-columns: 1fr;
+  }
+
+  .wm-proposal__heroActions{
+    justify-content: flex-start;
+  }
+
+  .wm-proposal__grid--2{
+    grid-template-columns: 1fr;
+  }
+}
+`;
+
+export default function ProposalBuilderPage() {
+  const nav = useNavigate();
+  const ctx = React.useMemo(() => getActiveProjectContext(), []);
+  const [saved, setSaved] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+  const [docxState, setDocxState] = React.useState("");
+  const [handoff, setHandoff] = React.useState<CompareHandoff | null>(null);
+
+  const [customerName, setCustomerName] = React.useState("");
+  const [companyName, setCompanyName] = React.useState("");
+  const [executiveSummary, setExecutiveSummary] = React.useState("");
+  const [solutionOverview, setSolutionOverview] = React.useState("");
+  const [assumptions, setAssumptions] = React.useState("");
+  const [exclusions, setExclusions] = React.useState("");
+  const [commercialNotes, setCommercialNotes] = React.useState("");
+  const [positioningBlock, setPositioningBlock] = React.useState("");
+  const [nextSteps, setNextSteps] = React.useState("");
+  const [equipmentBlock, setEquipmentBlock] = React.useState("");
+  const [currency, setCurrency] = React.useState("GBP");
+  const [equipmentSubtotal, setEquipmentSubtotal] = React.useState("");
+  const [installationAllowance, setInstallationAllowance] = React.useState("");
+  const [programmingAllowance, setProgrammingAllowance] = React.useState("");
+  const [totalBudgetNote, setTotalBudgetNote] = React.useState("");
+  const [designSummary, setDesignSummary] = React.useState("");
+  const [cableScheduleSummary, setCableScheduleSummary] = React.useState("");
+  const [diagramSummary, setDiagramSummary] = React.useState("");
+  const [usedDevicesSummary, setUsedDevicesSummary] = React.useState("");
+
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem("wm_compare_handoff");
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as CompareHandoff;
+      setHandoff(parsed);
+    } catch {}
+  }, []);
+
+  React.useEffect(() => {
+    if (!ctx) return;
+
+    const compare = handoff ? compareSummary(handoff) : "";
+
+    setExecutiveSummary(
+      ctx.brief.proposal.executiveSummary ||
+        buildExecutiveSummaryTemplate({
+          projectName: ctx.projectName,
+          verticalMarket: ctx.verticalMarket.name,
+          roomType: ctx.roomType.name,
+          tier: ctx.tier.label,
+          compareSummary: compare,
+        }),
+    );
+
+    setSolutionOverview(
+      ctx.brief.proposal.solutionOverview ||
+        buildSolutionOverviewTemplate({
+          projectName: ctx.projectName,
+          verticalMarket: ctx.verticalMarket.name,
+          roomType: ctx.roomType.name,
+          tier: ctx.tier.label,
+          compareSummary: compare,
+        }),
+    );
+
+    setAssumptions(
+      ctx.brief.proposal.assumptions ||
+        buildAssumptionsTemplate({
+          projectName: ctx.projectName,
+          verticalMarket: ctx.verticalMarket.name,
+          roomType: ctx.roomType.name,
+          tier: ctx.tier.label,
+        }),
+    );
+
+    setExclusions(
+      ctx.brief.proposal.exclusions ||
+        buildExclusionsTemplate({
+          projectName: ctx.projectName,
+          verticalMarket: ctx.verticalMarket.name,
+          roomType: ctx.roomType.name,
+          tier: ctx.tier.label,
+        }),
+    );
+
+    const seededCommercial = buildCommercialNotesTemplate({
+      projectName: ctx.projectName,
+      verticalMarket: ctx.verticalMarket.name,
+      roomType: ctx.roomType.name,
+      tier: ctx.tier.label,
+      compareSummary: compare,
+    });
+
+    const compareCommercial = handoff ? compareCommercialSeed(handoff) : "";
+    const existingCommercial = ctx.brief.proposal?.commercialNotes || ctx.tier.commercialNote || "";
+
+    const design = readDesignBundle();
+    const designSummaries = design ? summariseDesignBundle(design) : null;
+
+    const mergedCommercial = [existingCommercial, seededCommercial, compareCommercial, designSummaries?.proposalSummary]
+      .filter(Boolean)
+      .join("\n\n");
+
+    setCommercialNotes(mergedCommercial);
+
+    if (handoff) {
+      setPositioningBlock(buildProposalPositioningBlock(handoff));
+    } else {
+      setPositioningBlock("");
+    }
+
+    setNextSteps(
+      buildNextStepsTemplate({
+        projectName: ctx.projectName,
+        verticalMarket: ctx.verticalMarket.name,
+        roomType: ctx.roomType.name,
+        tier: ctx.tier.label,
+      }),
+    );
+  }, [ctx, handoff]);
+
+  function clearHandoff() {
+    try {
+      localStorage.removeItem("wm_compare_handoff");
+    } catch {}
+    setHandoff(null);
+    setPositioningBlock("");
+  }
+
+  function saveProposalDraft() {
+    if (!ctx) return;
+
+    updateActiveProjectBrief({
+      proposal: {
+        executiveSummary,
+        solutionOverview,
+        assumptions,
+        exclusions,
+        commercialNotes,
+        positioningBlock,
+        nextSteps,
+      } as any,
+    });
+
+    updateProjectStatus(ctx.projectId, "In Progress");
+    setSaved(true);
+    window.setTimeout(() => setSaved(false), 1600);
+  }
+
+  const parsedEquipment = React.useMemo(() => {
+    return equipmentBlock
+      .split(/\r?\n/)
+      .map((x) => x.trim())
+      .filter(Boolean)
+      .map((line) => ({
+        name: line,
+        qty: 1,
+      }));
+  }, [equipmentBlock]);
+
+  const compare = handoff ? compareSummary(handoff) : "";
+
+  const exportInput = React.useMemo(
+    () => ({
+      projectName: ctx?.projectName,
+      customerName,
+      companyName,
+      verticalMarket: ctx?.verticalMarket?.name,
+      roomType: ctx?.roomType?.name,
+      tier: ctx?.tier?.label,
+      executiveSummary,
+      solutionOverview,
+      assumptions,
+      exclusions,
+      commercialNotes,
+      positioningBlock,
+      compareSummary: compare,
+      nextSteps,
+      equipment: parsedEquipment,
+      pricing: {
+        currency,
+        equipmentSubtotal,
+        installationAllowance,
+        programmingAllowance,
+        totalBudgetNote,
+      },
+    }),
+    [
+      ctx,
+      customerName,
+      companyName,
+      executiveSummary,
+      solutionOverview,
+      assumptions,
+      exclusions,
+      commercialNotes,
+      positioningBlock,
+      compare,
+      nextSteps,
+      parsedEquipment,
+      currency,
+      equipmentSubtotal,
+      installationAllowance,
+      programmingAllowance,
+      totalBudgetNote,
+    ],
+  );
+
+  const exportText = React.useMemo(() => {
+    return buildProposalExportText(exportInput);
+  }, [exportInput]);
+
+  async function copyOutput() {
+    const ok = await copyProposalExportText(exportText);
+    if (!ok) return;
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1400);
+  }
+
+  function downloadOutput() {
+    const fileName = `${safeFileName(ctx?.projectName || "proposal")}_proposal.txt`;
+    downloadProposalExportText(fileName, exportText);
+  }
+
+  function downloadBridgePayload() {
+    const payload = buildProposalDocxBridgePayload(exportInput);
+    downloadProposalBridgeJson(payload);
+  }
+
+  async function downloadDocx() {
+    const result = await downloadProposalDocx(exportInput);
+    if (!result.ok) {
+      setDocxState("DOCX export failed");
+      return;
+    }
+    if (result.mode === "rendered-docx") {
+      setDocxState("DOCX downloaded");
+    } else if (result.mode === "fallback-docx") {
+      setDocxState("DOCX fallback downloaded");
+    } else {
+      setDocxState("DOCX bridge JSON downloaded");
+    }
+    window.setTimeout(() => setDocxState(""), 1600);
+  }
+
+  return (
+    <div className="wm-proposal">
+      <style>{pageStyles}</style>
+
+      <div className="wm-proposal__stack">
+        <section className="wm-proposal__hero">
+          <div>
+            <div className="wm-proposal__eyebrow">Proposal Builder</div>
+            <h1 className="wm-proposal__title">Proposal workspace</h1>
+            <div className="wm-proposal__subtitle">
+              Draft customer-facing proposal sections, structure your commercial messaging, and export the output in multiple formats.
+            </div>
+          </div>
+
+          <div className="wm-proposal__heroActions">
+            <button
+              type="button"
+              className="wm-btn"
+              style={{ height: 40, padding: "0 16px" }}
+              onClick={() => nav("/app/projects")}
+            >
+              Projects
+            </button>
+            <button
+              type="button"
+              className="wm-btn wm-btn-primary"
+              style={{ height: 40, padding: "0 16px" }}
+              onClick={saveProposalDraft}
+              disabled={!ctx}
+            >
+              Save draft
+            </button>
+          </div>
+        </section>
+
+        {!ctx ? (
+          <section className="wm-proposal__card">
+            <div className="wm-proposal__sectionTitle">No active project</div>
+            <div className="wm-proposal__sectionText">Select a project first.</div>
+            <div style={{ marginTop: 14 }}>
+              <button
+                type="button"
+                className="wm-btn wm-btn-primary"
+                style={{ height: 40, padding: "0 16px" }}
+                onClick={() => nav("/app/projects")}
+              >
+                Open Projects
+              </button>
+            </div>
+          </section>
+        ) : (
+          <>
+            <section className="wm-proposal__card">
+              <div className="wm-proposal__chips">
+                <span className="wm-proposal__chip">{ctx.projectName}</span>
+                <span className="wm-proposal__chip">{ctx.verticalMarket.name}</span>
+                <span className="wm-proposal__chip">{ctx.roomType.name}</span>
+                <span className="wm-proposal__chip">{ctx.tier.label}</span>
+                {saved ? <span className="wm-proposal__chip">Saved</span> : null}
+              </div>
+
+              {handoff ? (
+                <div style={{ marginTop: 12 }}>
+                  <div className="wm-proposal__sectionTitle">Compare handoff</div>
+                  <div className="wm-proposal__sectionText" style={{ marginTop: 8 }}>
+                    {compareSummary(handoff)}
+                  </div>
+                  <div style={{ marginTop: 12 }}>
+                    <button
+                      type="button"
+                      className="wm-btn"
+                      style={{ height: 38, padding: "0 14px" }}
+                      onClick={clearHandoff}
+                    >
+                      Clear compare handoff
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </section>
+
+            <section className="wm-proposal__card">
+              <div className="wm-proposal__sectionTitle">Proposal content</div>
+              <div className="wm-proposal__sectionText">
+                The core sections are split into two columns to reduce scrolling and improve editing speed.
+              </div>
+
+              <div className="wm-proposal__grid wm-proposal__grid--2" style={{ marginTop: 14 }}>
+                <div className="wm-proposal__grid">
+                  <Input label="Customer name" value={customerName} onChange={setCustomerName} placeholder="Customer name" />
+                  <Input label="Company name" value={companyName} onChange={setCompanyName} placeholder="Company name" />
+                  <Area label="Executive summary" value={executiveSummary} onChange={setExecutiveSummary} rows={5} />
+                  <Area label="Solution overview" value={solutionOverview} onChange={setSolutionOverview} rows={5} />
+                  <Area label="Positioning block" value={positioningBlock} onChange={setPositioningBlock} rows={6} />
+                </div>
+
+                <div className="wm-proposal__grid">
+                  <Area label="Assumptions" value={assumptions} onChange={setAssumptions} rows={4} />
+                  <Area label="Exclusions" value={exclusions} onChange={setExclusions} rows={4} />
+                  <Area label="Commercial notes" value={commercialNotes} onChange={setCommercialNotes} rows={6} />
+                  <Area label="Next steps" value={nextSteps} onChange={setNextSteps} rows={4} />
+                </div>
+              </div>
+
+              <div className="wm-proposal__actions" style={{ marginTop: 14 }}>
+                <button
+                  type="button"
+                  className="wm-btn wm-btn-primary"
+                  style={{ height: 40, padding: "0 16px" }}
+                  onClick={saveProposalDraft}
+                >
+                  Save proposal draft
+                </button>
+
+                <button
+                  type="button"
+                  className="wm-btn"
+                  style={{ height: 40, padding: "0 16px" }}
+                  onClick={() => nav("/app/projects")}
+                >
+                  Back to Projects
+                </button>
+
+                {saved ? <span className="wm-proposal__muted">Saved to active project</span> : null}
+              </div>
+            </section>
+
+            <section className="wm-proposal__card">
+              <div className="wm-proposal__sectionTitle">Equipment and pricing</div>
+              <div className="wm-proposal__sectionText">
+                Keep the commercial inputs together so the export preview reflects them clearly.
+              </div>
+
+              <div className="wm-proposal__grid wm-proposal__grid--2" style={{ marginTop: 14 }}>
+                <div className="wm-proposal__grid">
+                  <Area
+                    label="Equipment items (one per line)"
+                    value={equipmentBlock}
+                    onChange={setEquipmentBlock}
+                    rows={7}
+                    placeholder="SW-640L-TX-W\nRX-HDBT-AMP\nCAB-USBC-3M"
+                  />
+                </div>
+
+                <div className="wm-proposal__grid">
+                  <Input label="Currency" value={currency} onChange={setCurrency} placeholder="GBP" />
+                  <Input label="Equipment subtotal" value={equipmentSubtotal} onChange={setEquipmentSubtotal} />
+                  <Input label="Installation allowance" value={installationAllowance} onChange={setInstallationAllowance} />
+                  <Input label="Programming allowance" value={programmingAllowance} onChange={setProgrammingAllowance} />
+                  <Input label="Total budget note" value={totalBudgetNote} onChange={setTotalBudgetNote} />
+                </div>
+              </div>
+            </section>
+
+            <section className="wm-proposal__card">
+              <div className="wm-proposal__sectionTitle">Proposal output preview</div>
+              <div className="wm-proposal__sectionText">
+                Preview the generated text before exporting.
+              </div>
+
+              <div className="wm-proposal__preview">{exportText}</div>
+
+              <div className="wm-proposal__actions" style={{ marginTop: 12 }}>
+                <button
+                  type="button"
+                  className="wm-btn"
+                  style={{ height: 40, padding: "0 16px" }}
+                  onClick={copyOutput}
+                >
+                  Copy output text
+                </button>
+
+                <button
+                  type="button"
+                  className="wm-btn"
+                  style={{ height: 40, padding: "0 16px" }}
+                  onClick={downloadOutput}
+                >
+                  Download .txt
+                </button>
+
+                <button
+                  type="button"
+                  className="wm-btn"
+                  style={{ height: 40, padding: "0 16px" }}
+                  onClick={downloadBridgePayload}
+                >
+                  Download export payload
+                </button>
+
+                <button
+                  type="button"
+                  className="wm-btn"
+                  style={{ height: 40, padding: "0 16px" }}
+                  onClick={() => downloadProposalExport(exportInput, "md")}
+                >
+                  Download .md
+                </button>
+
+                <button
+                  type="button"
+                  className="wm-btn"
+                  style={{ height: 40, padding: "0 16px" }}
+                  onClick={() => downloadProposalExport(exportInput, "json")}
+                >
+                  Download canonical JSON
+                </button>
+
+                <button
+                  type="button"
+                  className="wm-btn"
+                  style={{ height: 40, padding: "0 16px" }}
+                  onClick={downloadDocx}
+                >
+                  Download DOCX
+                </button>
+
+                {copied ? <span className="wm-proposal__muted">Copied</span> : null}
+                {docxState ? <span className="wm-proposal__muted">{docxState}</span> : null}
+              </div>
+            </section>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

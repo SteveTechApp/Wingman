@@ -1,0 +1,48 @@
+/* HOTFIX: make topbar logo visibly larger */
+.wm-topbar,
+.wm-shell__topbar,
+header[class*="topbar"],
+header[class*="TopBar"]{
+  min-height: 76px !important;
+}
+
+.wm-topbar img,
+.wm-shell__topbar img,
+header[class*="topbar"] img,
+header[class*="TopBar"] img{
+  transform: scale(1.25) !important;
+  transform-origin: left center !important;
+  max-height: 64px !important;
+  width: auto !important;
+}
+
+.wm-topbar a,
+.wm-shell__topbar a,
+header[class*="topbar"] a,
+header[class*="TopBar"] a{
+  overflow: visible !important;
+}
+
+/* ToolHub feature section polish */
+.wm-feature-hotfix__section{
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(110,145,190,0.16);
+  background:
+    radial-gradient(circle at top right, rgba(25,83,173,0.10), transparent 34%),
+    linear-gradient(180deg, rgba(13,22,37,0.94), rgba(7,13,24,0.94));
+  box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+}
+
+.wm-feature-hotfix__grid{
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+@media (max-width: 900px){
+  .wm-feature-hotfix__grid{
+    grid-template-columns: 1fr;
+  }
+}

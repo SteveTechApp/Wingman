@@ -151,7 +151,7 @@
 }
 
 .wm-landing-hero__logo{
-  height: 140px; /* â€œmake biggerâ€ */
+  height: 140px; /* Ã¢â‚¬Å“make biggerÃ¢â‚¬Â */
   width: auto;
   display: block;
   margin: 0 auto 22px;
@@ -193,21 +193,8 @@
 
 
 /* Backdrop depth */
-html, body{ background: var(--wm-bg); }
-body{
-  background-image:
-    radial-gradient(900px 520px at 22% -8%, rgba(34,193,184,0.15), transparent 60%),
-    radial-gradient(760px 520px at 92% 10%, rgba(109,134,255,0.10), transparent 55%),
-    radial-gradient(900px 720px at 62% 92%, rgba(255,255,255,0.05), transparent 60%);
-}
-
-/* Surfaces / cards */
-.wm-surface,
-.wm-surface-2{
-  background: linear-gradient(180deg, rgba(255,255,255,0.070), rgba(255,255,255,0.045));
-  border: 1px solid var(--wm-border);
-  box-shadow: var(--wm-shadow);
-}
+/* LEGACY GLOBAL DISABLED
+/* REMOVED: legacy html, body global block */
 .wm-surface:hover,
 .wm-surface-2:hover{ border-color: var(--wm-border-2); }
 
@@ -474,10 +461,9 @@ h1,h2,h3{ letter-spacing: 0.01em; }
  color:#22c1b8;
 }
 
-html,body{
- background:var(--wm-bg);
- -webkit-font-smoothing:antialiased;
-}
+/* LEGACY GLOBAL DISABLED
+/* REMOVED: legacy html, body global block */
+*/
  .wm-tile{
  border-radius:16px;
  padding:16px;
@@ -524,10 +510,9 @@ html,body{
  color:#22c1b8;
 }
 
-html,body{
- background:var(--wm-bg);
- -webkit-font-smoothing:antialiased;
-}
+/* LEGACY GLOBAL DISABLED
+/* REMOVED: legacy html, body global block */
+*/
 
 /* ===== LANDING CENTER + READABILITY FIX ===== */
 
@@ -562,9 +547,11 @@ html,body{
 }
 
 /* Remove accidental dark text inheritance */
+/* LEGACY PAGE GLOBAL DISABLED
 body, main, .wm-page{
   color:#e8f3ff;
 }
+*/
 
 /* CTA button readability */
 .wm-btn--primary,
@@ -622,9 +609,11 @@ h1,h2,h3{
 }
 
 /* Remove accidental dark text inheritance */
+/* LEGACY PAGE GLOBAL DISABLED
 body, main, .wm-page{
   color:#e8f3ff;
 }
+*/
 
 /* CTA button readability */
 .wm-btn--primary,
@@ -687,9 +676,11 @@ h1,h2,h3{
  }
 
  /* Prevent inherited dark text */
- body, main, .wm-page{
+ /* LEGACY PAGE GLOBAL DISABLED
+body, main, .wm-page{
    color:#eaf6ff !important;
  }
+*/
 
  /* CTA button clarity */
  .wm-btn,
@@ -762,9 +753,11 @@ h1,h2,h3{
  }
 
  /* Prevent inherited dark text */
- body, main, .wm-page{
+ /* LEGACY PAGE GLOBAL DISABLED
+body, main, .wm-page{
    color:#eaf6ff !important;
  }
+*/
 
  /* CTA button clarity */
  .wm-btn,
@@ -820,12 +813,9 @@ body::after{
 /* ==== Wingman Layout Center Fix ==== */
 
 /* Prevent browser edge overflow */
-html,body,#root{
-  margin:0;
-  padding:0;
-  width:100%;
-  min-height:100%;
-}
+/* LEGACY GLOBAL DISABLED
+
+*/
 
 /* Core container alignment */
 /* Centering should apply to PUBLIC pages only (not the app shell) */
@@ -866,9 +856,7 @@ footer,
 }
 
 /* Prevent stray horizontal scroll */
-body{
-  overflow-x:hidden;
-}
+
 
 /* Improve readability on dark background */
 .wm-h1,
@@ -907,7 +895,7 @@ h1,h2,h3{
   text-align: center;
   gap: 14px;
 
-  /* Make it feel less â€œflatâ€ */
+  /* Make it feel less Ã¢â‚¬Å“flatÃ¢â‚¬Â */
   padding: 54px 36px;
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,0.10);
@@ -979,7 +967,7 @@ h1,h2,h3{
   transform: translateY(-1px);
 }
 
-/* Footer shouldnâ€™t â€œfloatâ€ full width; keep it aligned */
+/* Footer shouldnÃ¢â‚¬â„¢t Ã¢â‚¬Å“floatÃ¢â‚¬Â full width; keep it aligned */
 .wm-footer, footer{
   max-width: 1400px;
   margin: 0 auto;
@@ -989,7 +977,7 @@ h1,h2,h3{
 }
 
 /* __WM_TOOLHUB_TILES_V1__ */
-/* Gives â€œcardsâ€ more presence without touching TSX */
+/* Gives Ã¢â‚¬Å“cardsÃ¢â‚¬Â more presence without touching TSX */
 
 .wm-page .wm-surface{
   border-color: rgba(255,255,255,0.10);
@@ -1087,11 +1075,9 @@ main,
 }
 
 /* Prevent artificial page height inflation */
-html, body{
-  height:100%;
-  margin:0;
-  overflow-x:hidden;
-}
+/* LEGACY GLOBAL DISABLED
+/* REMOVED: legacy html, body global block */
+*/
 
 /* Ensure main content fits viewport */
 .wm-shell main{
@@ -1121,9 +1107,9 @@ footer a,
 /* __WM_LAYOUT_FINALISE__ */
 
 /* STOP horizontal scroll */
-html, body{
-    overflow-x:hidden !important;
-}
+/* LEGACY GLOBAL DISABLED
+/* REMOVED: legacy html, body global block */
+*/
 
 /* Ensure main wrapper fits viewport cleanly */
 .wm-shell main,
@@ -1170,20 +1156,14 @@ footer a,
 }
 
 /* Prevent phantom bottom spacing */
-body{
-    margin-bottom:0;
-    
-    
-}
+
 
 /* __WM_LANDING_FOOTER_FIX_V1__ */
 
 /* Prevent accidental horizontal scroll */
-html, body {
-  width: 100%;
-  margin: 0;
-  overflow-x: hidden;
-}
+/* LEGACY GLOBAL DISABLED
+/* REMOVED: legacy html, body global block */
+*/
 
 /* -------- Landing page: full-height, no extra padding that forces scroll -------- */
 .wm-public{
@@ -1311,11 +1291,9 @@ footer a,
 }
 
 /* __WM_LANDING_FOOTER_LAYOUT_V2__ */
-:root{
-  /* Tunable heights used to eliminate accidental page scroll */
-  --wm-topbar-h: 72px;
-  --wm-footer-h: 56px;
-}
+/* LEGACY ROOT DISABLED
+
+*/
 
 /* ---------------- Footer: fixed, slim, links right ---------------- */
 /* DISABLED_BY_CANONICALISER */ .wm-footer{
@@ -1395,7 +1373,7 @@ footer a,
   margin: 0 auto;
 }
 
-/* Ensure any accidental margins don’t create a scroll */
+/* Ensure any accidental margins donâ€™t create a scroll */
 .wm-landing-hero__logo,
 .wm-landing-hero__title,
 .wm-landing-hero__sub,
@@ -1412,10 +1390,9 @@ footer a,
 /* __WM_LANDING_FINAL_LAYOUT_FIX_V3__ */
 
 /* Prevent global page scroll */
-html, body, #root {
-  height: 100%;
-  overflow: hidden;
-}
+/* LEGACY GLOBAL DISABLED
+
+*/
 
 /* Landing page container */
 .wm-public {
@@ -1470,12 +1447,9 @@ html, body, #root {
 /* Removes vertical scroll + fixes footer alignment cleanly */
 
 /* Reset global overflow correctly */
-html, body, #root{
-  height:100%;
-  margin:0;
-  overflow-x:hidden;
-  overflow-y:auto;
-}
+/* LEGACY GLOBAL DISABLED
+
+*/
 
 /* Landing wrapper should fit viewport */
 .wm-public{
@@ -1494,7 +1468,7 @@ html, body, #root{
   overflow:visible;
 }
 
-/* Footer — compact, right aligned */
+/* Footer â€” compact, right aligned */
 /* DISABLED_BY_CANONICALISER */ .wm-footer{
   position:relative !important;
   height:auto !important;
@@ -1526,12 +1500,9 @@ main{
 /* Removes vertical scroll + fixes footer alignment cleanly */
 
 /* Reset global overflow correctly */
-html, body, #root{
-  height:100%;
-  margin:0;
-  overflow-x:hidden;
-  overflow-y:auto;
-}
+/* LEGACY GLOBAL DISABLED
+
+*/
 
 /* Landing wrapper should fit viewport */
 .wm-public{
@@ -1550,7 +1521,7 @@ html, body, #root{
   overflow:visible;
 }
 
-/* Footer — compact, right aligned */
+/* Footer â€” compact, right aligned */
 /* DISABLED_BY_CANONICALISER */ .wm-footer{
   position:relative !important;
   height:auto !important;

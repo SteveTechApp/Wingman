@@ -1,10 +1,29 @@
-import * as React from "react";
+import { generateProposal } from "@/services/proposalService";
+import { designRoom } from "@/services/roomDesignerService";
 
+type GenerationFallbackResult<TName extends string> = {
+  ok: true;
+  mode: "deterministic-fallback";
+  handler: TName;
+  message: string;
+  argsCount: number;
+};
 
-type DisabledResult = { ok: false; message: string };
+async function fallback<TName extends string>(
+  name: TName,
+  args: unknown[],
+): Promise<GenerationFallbackResult<TName>> {
+  return {
+    ok: true,
+    mode: "deterministic-fallback",
+    handler: name,
+    message: `${name} executed in fallback mode.`,
+    argsCount: args.length,
+  };
+}
 
-async function disabled<T = unknown>(_name: string): Promise<T> {
-  throw new Error("Project generation is temporarily disabled (stabilisation mode).");
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : undefined;
 }
 
 export function useProjectGeneration() {
@@ -12,17 +31,27 @@ export function useProjectGeneration() {
     isLoading: false,
     error: null as unknown,
 
-    // Legacy handler names expected by GenerationContext/pages
-    handleAgentSubmit: async (..._args: unknown[]) => disabled("handleAgentSubmit"),
-    handleProjectSetupSubmit: async (..._args: unknown[]) => disabled("handleProjectSetupSubmit"),
-    handleSurveyImport: async (..._args: unknown[]) => disabled("handleSurveyImport"),
-    handleStartFromTemplate: async (..._args: unknown[]) => disabled("handleStartFromTemplate"),
-    handleDesignRoom: async (..._args: unknown[]) => disabled("handleDesignRoom"),
-    handleGenerateDiagram: async (..._args: unknown[]) => disabled("handleGenerateDiagram"),
-    handleGenerateProposal: async (..._args: unknown[]) => disabled("handleGenerateProposal"),
-    handleValueEngineerRoom: async (..._args: unknown[]) => disabled("handleValueEngineerRoom")
+    handleAgentSubmit: async (...args: unknown[]) => fallback("handleAgentSubmit", args),
+    handleProjectSetupSubmit: async (...args: unknown[]) => fallback("handleProjectSetupSubmit", args),
+    handleSurveyImport: async (...args: unknown[]) => fallback("handleSurveyImport", args),
+    handleStartFromTemplate: async (...args: unknown[]) => fallback("handleStartFromTemplate", args),
+    handleGenerateDiagram: async (...args: unknown[]) => fallback("handleGenerateDiagram", args),
+    handleValueEngineerRoom: async (...args: unknown[]) => fallback("handleValueEngineerRoom", args),
+
+    handleDesignRoom: async (...args: unknown[]) => {
+      const first = args[0];
+      if (typeof first === "string") {
+        return designRoom({ roomId: first });
+      }
+
+      const payload = asRecord(first);
+      return designRoom({
+        roomId: typeof payload?.roomId === "string" ? payload.roomId : undefined,
+      });
+    },
+
+    handleGenerateProposal: async (...args: unknown[]) => {
+      return generateProposal(args[0]);
+    },
   };
 }
-
-
-

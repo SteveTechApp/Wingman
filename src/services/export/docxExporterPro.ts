@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { Document, Packer, Paragraph, TextRun, Table, TableCell, TableRow, WidthType, AlignmentType, BorderStyle, HeadingLevel } from 'docx';
+import { Document, Packer, Paragraph, TextRun, Table, TableCell, TableRow, WidthType, AlignmentType, HeadingLevel } from 'docx';
 import { Proposal, ProjectData } from './types';
 import { format } from 'date-fns';
 

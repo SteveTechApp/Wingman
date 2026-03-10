@@ -1,0 +1,69 @@
+/* Shell repair pass */
+
+/* Keep the top bar clear for the brand overlay */
+.wm-topbar,
+header,
+[class*="topbar"] {
+  position: relative;
+  z-index: 50;
+}
+
+/* Footer must span full width */
+footer,
+[class*="footer"] {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  left: 0 !important;
+  right: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Prevent footer text from being clipped */
+footer *,
+[class*="footer"] * {
+  white-space: nowrap;
+}
+
+/* Make sure the page content does not disappear behind the fixed footer */
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  padding-bottom: 30px;
+}
+
+/* Guru must remain a floating compact FAB, never a panel */
+[class*="guru"],
+[class*="guru-fab"],
+[class*="guruFab"] {
+  position: relative !important;
+  inset: auto !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  overflow: visible !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* Usual clickable Guru element */
+[class*="guru"] button,
+button[class*="guru"],
+[class*="guru-fab"] button,
+[class*="guruFab"] button {
+  height: 42px !important;
+  min-height: 42px !important;
+  width: auto !important;
+  min-width: 86px !important;
+  max-width: 140px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  white-space: nowrap !important;
+}

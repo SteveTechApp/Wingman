@@ -475,7 +475,7 @@ export default function CompletionChecklistPage() {
               type="button"
               className="wm-btn"
               style={{ height: 40, padding: "0 16px" }}
-              onClick={() => nav("/app/tools/room")}
+              onClick={() => nav("/app/tools/room-wizard")}
             >
               Open Room Wizard
             </button>

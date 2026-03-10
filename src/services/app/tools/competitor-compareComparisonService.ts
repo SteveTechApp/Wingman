@@ -1,5 +1,2 @@
-import * as React from "react";
-
-export function compareCompetitor(){
-  return { matches:[] };
-}
+export * from "@/services/competitorComparisonService";
+export { default } from "@/services/competitorComparisonService";

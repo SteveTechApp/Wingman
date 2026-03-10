@@ -1,5 +1,5 @@
 import * as React from "react";
-import { RoomWizardAnswers, DesignTier } from '../../../utils/types';
+import { RoomWizardAnswers } from '../../../utils/types';
 import { DESIGN_TIER_OPTIONS } from '../../../data/constants';
 import TierTooltip from '../../TierTooltip';
 import TierInfoModal from '../../TierInfoModal';

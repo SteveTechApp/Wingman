@@ -33,12 +33,12 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     id: "Tools",
     label: "Tools",
     items: [
-      { path: "/app/toolhub", label: "Tool Hub", description: "All tools in one place" },
-      { path: "/app/guru", label: "Wingman Guru", description: "Design + sales assistant" },
+      { path: "/app/tools", label: "Tool Hub", description: "All tools in one place" },
+      { path: "/app/tools/guru", label: "Wingman Guru", description: "Design + sales assistant" },
       { path: "/app/tools/catalog", label: "Product Catalog", description: "Browse and filter products" },
-      { path: "/app/tools/roomwizard", label: "RoomWizard", description: "Capture requirements and suggest BOM" },
+      { path: "/app/tools/room-wizard", label: "RoomWizard", description: "Capture requirements and suggest BOM" },
       { path: "/app/tools/proposal", label: "Proposal Builder", description: "Build BOM and export proposal" },
-      { path: "/app/tools/competitor", label: "Competitor Compare", description: "Map competitor SKUs", internal: true },
+      { path: "/app/tools/compare", label: "Competitor Compare", description: "Map competitor SKUs", internal: true },
     ],
   },
   {

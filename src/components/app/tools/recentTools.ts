@@ -54,7 +54,7 @@ export function bumpUsage(href: string) {
 
 /** --- hooks expected by src/components/tools/ToolGrid.tsx --- */
 export function useRecentTools(limit = 6): RecentTool[] {
-  const [tick, setTick] = React.useState(0);
+  const [, setTick] = React.useState(0);
 
   React.useEffect(() => {
     const unsub = subscribeRecentTools(() => setTick(t => t + 1));
@@ -67,11 +67,11 @@ export function useRecentTools(limit = 6): RecentTool[] {
     return () => { unsub(); window.removeEventListener("storage", onStorage); };
   }, []);
 
-  return React.useMemo(() => getRecentTools(limit), [tick, limit]);
+  return getRecentTools(limit);
 }
 
 export function useUsageCounts(): UsageCounts {
-  const [tick, setTick] = React.useState(0);
+  const [, setTick] = React.useState(0);
 
   React.useEffect(() => {
     const unsub = subscribeRecentTools(() => setTick(t => t + 1));
@@ -82,7 +82,7 @@ export function useUsageCounts(): UsageCounts {
     return () => { unsub(); window.removeEventListener("storage", onStorage); };
   }, []);
 
-  return React.useMemo(() => getUsageCounts(), [tick]);
+  return getUsageCounts();
 }
 
 export default {
@@ -93,3 +93,4 @@ export default {
   useRecentTools,
   useUsageCounts
 };
+

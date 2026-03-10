@@ -67,7 +67,7 @@ const StepAudio: React.FC<StepAudioProps> = ({ answers, updateAnswers }) => {
                                     type="checkbox"
                                     id={`use-case-${opt.value}`}
                                     checked={answers.audioSystemDetails.useCases.includes(opt.value as any)}
-                                    onChange={(e) => handleUseCaseChange(opt.value)}
+                                    onChange={() => handleUseCaseChange(opt.value)}
                                     className="h-4\ w-4\ rounded\ border-gray-300\ text-accent\ focus:ring-accent"
                                 />
                                 <label htmlFor={`use-case-${opt.value}`} className="ml-2\ text-sm">{opt.label}</label>

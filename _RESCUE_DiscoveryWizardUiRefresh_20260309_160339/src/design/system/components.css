@@ -1,0 +1,269 @@
+
+/* ================================
+   Wingman Component System
+   ================================ */
+
+.wm-card{
+
+  background:var(--wm-surface-2);
+  border:1px solid var(--wm-border);
+
+  border-radius:var(--wm-radius);
+
+  padding:var(--wm-card-pad);
+
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* KPI cards */
+
+.wm-kpi-card{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.wm-kpi-value{
+  font-size:28px;
+  font-weight:600;
+}
+
+.wm-kpi-label{
+  font-size:12px;
+  color:var(--wm-text-dim);
+}
+
+/* Buttons */
+
+.wm-btn{
+
+  height:var(--wm-btn-h);
+  padding:0 14px;
+
+  border-radius:var(--wm-radius-sm);
+
+  border:1px solid var(--wm-border);
+
+  background:var(--wm-surface-1);
+
+  cursor:pointer;
+}
+
+.wm-btn-primary{
+
+  background:var(--wm-accent);
+  color:#052424;
+  border:none;
+}
+
+/* Input */
+
+.wm-input{
+
+  height:var(--wm-input-h);
+
+  padding:0 12px;
+
+  border-radius:var(--wm-radius-sm);
+
+  border:1px solid var(--wm-border);
+
+  background:var(--wm-surface-1);
+}
+
+/* Tables */
+
+.wm-table{
+
+  width:100%;
+  border-collapse:collapse;
+}
+
+.wm-table td,
+.wm-table th{
+
+  padding:10px 12px;
+  border-bottom:1px solid var(--wm-border);
+}
+
+/* Footer */
+
+.wm-footer{
+
+  height:var(--wm-footer-h);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-top:1px solid var(--wm-border);
+
+  font-size:12px;
+  color:var(--wm-text-dim);
+}
+
+.wm-mc-project-facts{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 8px;
+  color: rgba(236,244,255,0.58);
+  font-size: 12px;
+}
+
+.wm-mc-summary-value{
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.wm-mc-summary-value.is-capitalised{
+  text-transform: capitalize;
+}
+
+.wm-discovery-bridge-status{
+  font-size: 13px;
+  color: rgba(236,244,255,0.82);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(40,205,210,0.10);
+  border: 1px solid rgba(40,205,210,0.18);
+}
+
+.wm-mc-confidence{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.wm-mc-confidence.is-low{
+  color: #ffeab6;
+  background: rgba(255,187,68,0.12);
+  border: 1px solid rgba(255,187,68,0.22);
+}
+
+.wm-mc-confidence.is-medium{
+  color: #d2ecff;
+  background: rgba(75,141,255,0.12);
+  border: 1px solid rgba(75,141,255,0.22);
+}
+
+.wm-mc-confidence.is-high{
+  color: #d4ffe7;
+  background: rgba(62,220,133,0.12);
+  border: 1px solid rgba(62,220,133,0.22);
+}
+
+.wm-mc-solution .wm-badge{
+  background: rgba(75,141,255,0.10);
+  border: 1px solid rgba(75,141,255,0.18);
+}
+
+.wm-mc-realbom .wm-badge{
+  background: rgba(40,205,210,0.10);
+  border: 1px solid rgba(40,205,210,0.18);
+}
+
+.wm-landing-workflow-strip .wm-badge{
+  background: rgba(40,205,210,0.10);
+  border: 1px solid rgba(40,205,210,0.18);
+}
+
+.wm-mc-stage-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+  background: rgba(75,141,255,0.12);
+  border: 1px solid rgba(75,141,255,0.20);
+  color: #d2ecff;
+}
+
+/* ===== Wingman landing scale fix components ===== */
+
+.wm-landing-page .wm-badge{
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wm-landing-page .wm-btn{
+  min-width: 150px;
+  height: 40px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+ /* ================================
+    Wingman Form Controls
+    ================================ */
+
+.wm-ui__field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.wm-ui__label{
+  font-size:12px;
+  font-weight:600;
+  color:rgba(236,244,255,0.75);
+}
+
+.wm-ui__input,
+.wm-ui__select,
+.wm-ui__textarea{
+
+  background:var(--wm-surface-1);
+  border:1px solid var(--wm-border);
+
+  border-radius:var(--wm-radius-sm);
+
+  padding:8px 10px;
+
+  font-size:14px;
+  color:var(--wm-text);
+
+  outline:none;
+}
+
+.wm-ui__input:focus,
+.wm-ui__select:focus,
+.wm-ui__textarea:focus{
+  border-color:var(--wm-accent);
+  box-shadow:0 0 0 1px rgba(40,205,210,0.4);
+}
+
+.wm-ui__textarea{
+  min-height:80px;
+  resize:vertical;
+}
+
+.wm-ui__grid{
+  display:grid;
+  gap:14px;
+}
+
+.wm-ui__grid--2{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+@media (max-width:900px){
+  .wm-ui__grid--2{
+    grid-template-columns:1fr;
+  }
+}

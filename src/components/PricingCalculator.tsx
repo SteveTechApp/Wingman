@@ -4,7 +4,6 @@ import {
   getPricingBySku, 
   calculateEquipmentTotal, 
   formatCurrency,
-  PRODUCT_PRICING 
 } from '../data/pricing';
 
 interface PricingCalculatorProps {
@@ -46,6 +45,10 @@ const PricingCalculator: React.FC<PricingCalculatorProps> = ({ equipment, onPric
   const savingsPercentage = ((savingsFromMsrp / totals.msrp) * 100).toFixed(0);
 
   const itemsWithoutPricing = equipmentWithPricing.filter(e => !e.pricing).length;
+
+  React.useEffect(() => {
+    onPricingUpdate?.(selectedTotal, selectedTier);
+  }, [onPricingUpdate, selectedTier, selectedTotal]);
 
   return (
     <div className="bg-background-secondary\ border\ border-border-color\ rounded-xl\ p-6\ space-y-6">
@@ -137,7 +140,7 @@ const PricingCalculator: React.FC<PricingCalculatorProps> = ({ equipment, onPric
       {itemsWithoutPricing > 0 && (
         <div className="bg-yellow-50\ dark:bg-yellow-900/20\ border\ border-yellow-200\ dark:border-yellow-700\ rounded-lg\ p-3">
           <p className="text-sm\ text-yellow-800\ dark:text-yellow-200">
-            âš ï¸ {itemsWithoutPricing} item{itemsWithoutPricing > 1 ? 's' : ''} without pricing data. 
+            Warning: {itemsWithoutPricing} item{itemsWithoutPricing > 1 ? 's' : ''} without pricing data. 
             Total may be incomplete.
           </p>
         </div>

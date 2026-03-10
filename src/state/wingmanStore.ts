@@ -1,6 +1,6 @@
 import * as React from "react";
-import { DEFAULT_WINGMAN_STATE, DEFAULT_STAGE_DONE, DEFAULT_USER_PROFILE } from "./defaults";
-import type { WingmanState, Product, ProjectData, WingmanProjectSummary, LoadingContext, Stage } from "./types";
+import { DEFAULT_WINGMAN_STATE } from "./defaults";
+import type { WingmanState, Product } from "./types";
 /** Tiny store (no external dependency) */
 let STATE: WingmanState = DEFAULT_WINGMAN_STATE;
 const LISTENERS = new Set<() => void>();
@@ -141,4 +141,5 @@ export function useWingman<T>(selector?: (s: WingmanState) => T){
 export const subscribe = subscribeWingman;
 
 // Alias for hook compatibility
+
 

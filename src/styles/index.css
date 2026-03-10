@@ -1,3 +1,4 @@
+@import "./styles/font-overrides.css";
 /* Wingman global style entry */
 
 @import "./tokens.css";

@@ -1,540 +1,338 @@
-import * as React from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  getActiveProjectContext,
-  updateActiveProjectBrief,
-  updateProjectStatus,
-} from "@/features/projects/projectDraftStore";
-import { buildProposalPositioningBlock, type CompareHandoff } from "./proposalPositioning";
-import {
-  buildProposalExportText,
-  copyProposalExportText,
-  downloadProposalExportText,
-} from "./proposalRender";
-import {
-  buildProposalDocxBridgePayload,
-  downloadProposalBridgeJson,
-} from "./proposalDocxBridge";
-import { downloadProposalExport } from "./proposalExportFacade";
-import { downloadProposalDocx } from "./proposalDocxFacade";
-import {
-  buildAssumptionsTemplate,
-  buildCommercialNotesTemplate,
-  buildExecutiveSummaryTemplate,
-  buildExclusionsTemplate,
-  buildNextStepsTemplate,
-  buildSolutionOverviewTemplate,
-} from "./proposalTemplates";
+import React from "react";
 
-function Area({
-  label,
-  value,
-  onChange,
-  rows = 4,
-}: {
+import ProposalHandoffPanel from "@/features/proposals/ProposalHandoffPanel";
+import {
+  getActiveProject,
+  subscribeProjects,
+  updateProject,
+} from "@/features/projects/projectStore";
+import { evaluateCommercialReadiness } from "@/features/readiness/commercialReadiness";
+import { computeTotals } from "@/proposal/bom/pricing";
+import { useProposalStore } from "@/proposal/bom/store";
+
+type ProposalDraft = {
+  executiveSummary: string;
+  customerRequirements: string;
+  systemOverview: string;
+  billOfMaterials: string;
+  commercialNotes: string;
+  assumptions: string;
+  exclusions: string;
+  nextStep: string;
+};
+
+type ProposalField = {
+  id: keyof ProposalDraft;
   label: string;
-  value: string;
-  onChange: (next: string) => void;
-  rows?: number;
-}) {
-  return (
-    <label style={{ display: "grid", gap: 6 }}>
-      <div
-        style={{
-          fontSize: 11,
-          fontWeight: 800,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: "rgba(255,255,255,0.62)",
-        }}
-      >
-        {label}
-      </div>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={rows}
-        style={{
-          borderRadius: 12,
-          border: "1px solid rgba(255,255,255,0.12)",
-          background: "rgba(255,255,255,0.04)",
-          color: "rgba(255,255,255,0.94)",
-          padding: 12,
-          outline: "none",
-          resize: "vertical",
-        }}
-      />
-    </label>
-  );
+  placeholder: string;
+  rows: number;
+};
+
+const FIELDS: ProposalField[] = [
+  {
+    id: "executiveSummary",
+    label: "Executive summary",
+    placeholder: "What outcome are we delivering and why this direction?",
+    rows: 4,
+  },
+  {
+    id: "customerRequirements",
+    label: "Customer requirements",
+    placeholder: "Capture customer goals, use cases, and constraints in plain language.",
+    rows: 4,
+  },
+  {
+    id: "systemOverview",
+    label: "System overview",
+    placeholder: "Describe the proposed architecture and user workflow.",
+    rows: 4,
+  },
+  {
+    id: "billOfMaterials",
+    label: "Bill of materials notes",
+    placeholder: "Add BOM notes, pricing conditions, and dependencies.",
+    rows: 4,
+  },
+  {
+    id: "commercialNotes",
+    label: "Commercial notes",
+    placeholder: "Commercial highlights, differentiators, and stakeholder guidance.",
+    rows: 4,
+  },
+  {
+    id: "assumptions",
+    label: "Assumptions",
+    placeholder: "List project assumptions that influence scope and pricing.",
+    rows: 3,
+  },
+  {
+    id: "exclusions",
+    label: "Exclusions",
+    placeholder: "List what is out of scope for this proposal draft.",
+    rows: 3,
+  },
+];
+
+const EMPTY_DRAFT: ProposalDraft = {
+  executiveSummary: "",
+  customerRequirements: "",
+  systemOverview: "",
+  billOfMaterials: "",
+  commercialNotes: "",
+  assumptions: "",
+  exclusions: "",
+  nextStep: "Send to internal pricing review",
+};
+
+function hasText(value: string | undefined | null): boolean {
+  return typeof value === "string" && value.trim().length > 0;
 }
 
-function compareSummary(handoff: CompareHandoff): string {
-  const wy = [handoff.wyrestormSku, handoff.wyrestormName].filter(Boolean).join(" - ");
-  const cp = [handoff.competitorBrand, handoff.competitorSku, handoff.competitorName]
-    .filter(Boolean)
-    .join(" - ");
-
-  return [
-    wy ? `WyreStorm reference: ${wy}` : "",
-    cp ? `Competitive context: ${cp}` : "",
-    handoff.family ? `Family: ${handoff.family}` : "",
-    handoff.category ? `Category: ${handoff.category}` : "",
-  ]
-    .filter(Boolean)
-    .join(" | ");
+function proposalStorageKey(projectId: string): string {
+  return `wm_proposal_builder_v2:${projectId}`;
 }
 
-function compareCommercialSeed(handoff: CompareHandoff): string {
-  const wy = [handoff.wyrestormSku, handoff.wyrestormName].filter(Boolean).join(" - ");
-  const cp = [handoff.competitorBrand, handoff.competitorSku, handoff.competitorName]
-    .filter(Boolean)
-    .join(" - ");
-
-  return [
-    "Commercial positioning generated from competitor compare workflow.",
-    wy ? `Recommended WyreStorm option: ${wy}.` : "",
-    cp ? `Alternative considered: ${cp}.` : "",
-    handoff.family ? `Position the solution around ${handoff.family} workflow fit.` : "",
-    handoff.category ? `Emphasise suitability for ${handoff.category} application requirements.` : "",
-    "Focus on AV workflow fit, control capability, extension method, and commercial clarity."
-  ]
-    .filter(Boolean)
-    .join(" ");
+function readDraft(projectId: string): ProposalDraft {
+  try {
+    const raw = window.localStorage.getItem(proposalStorageKey(projectId));
+    if (!raw) return EMPTY_DRAFT;
+    const parsed = JSON.parse(raw) as Partial<ProposalDraft>;
+    return {
+      ...EMPTY_DRAFT,
+      ...parsed,
+    };
+  } catch {
+    return EMPTY_DRAFT;
+  }
 }
 
-function safeFileName(value: string): string {
-  const v = String(value || "").trim();
-  return (v || "proposal").replace(/[^a-z0-9_\-]+/gi, "_");
+function writeDraft(projectId: string, draft: ProposalDraft): void {
+  try {
+    window.localStorage.setItem(proposalStorageKey(projectId), JSON.stringify(draft));
+  } catch {
+  }
+}
+
+function formatCurrency(currency: string, amount: number): string {
+  if (!Number.isFinite(amount)) return "0.00";
+  if (currency === "GBP" || currency === "EUR" || currency === "USD") {
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  }
+  return `${amount.toFixed(2)} ${currency}`;
+}
+
+function createProjectNotes(draft: ProposalDraft): string {
+  const blocks = [
+    hasText(draft.executiveSummary) ? `Executive summary:\n${draft.executiveSummary.trim()}` : "",
+    hasText(draft.customerRequirements) ? `Customer requirements:\n${draft.customerRequirements.trim()}` : "",
+    hasText(draft.systemOverview) ? `System overview:\n${draft.systemOverview.trim()}` : "",
+    hasText(draft.billOfMaterials) ? `BOM notes:\n${draft.billOfMaterials.trim()}` : "",
+    hasText(draft.commercialNotes) ? `Commercial notes:\n${draft.commercialNotes.trim()}` : "",
+    hasText(draft.assumptions) ? `Assumptions:\n${draft.assumptions.trim()}` : "",
+    hasText(draft.exclusions) ? `Exclusions:\n${draft.exclusions.trim()}` : "",
+    hasText(draft.nextStep) ? `Next step:\n${draft.nextStep.trim()}` : "",
+  ].filter(Boolean);
+
+  return blocks.join("\n\n");
 }
 
 export default function ProposalBuilderPage() {
-  const nav = useNavigate();
-  const ctx = React.useMemo(() => getActiveProjectContext(), []);
-  const [saved, setSaved] = React.useState(false);
-  const [copied, setCopied] = React.useState(false);
-  const [docxState, setDocxState] = React.useState("");
-  const [handoff, setHandoff] = React.useState<CompareHandoff | null>(null);
+  const activeProject = React.useSyncExternalStore(
+    subscribeProjects,
+    getActiveProject,
+    getActiveProject
+  );
 
-  const [customerName, setCustomerName] = React.useState("");
-  const [companyName, setCompanyName] = React.useState("");
-  const [executiveSummary, setExecutiveSummary] = React.useState("");
-  const [solutionOverview, setSolutionOverview] = React.useState("");
-  const [assumptions, setAssumptions] = React.useState("");
-  const [exclusions, setExclusions] = React.useState("");
-  const [commercialNotes, setCommercialNotes] = React.useState("");
-  const [positioningBlock, setPositioningBlock] = React.useState("");
-  const [nextSteps, setNextSteps] = React.useState("");
-  const [equipmentBlock, setEquipmentBlock] = React.useState("");
-  const [currency, setCurrency] = React.useState("GBP");
-  const [equipmentSubtotal, setEquipmentSubtotal] = React.useState("");
-  const [installationAllowance, setInstallationAllowance] = React.useState("");
-  const [programmingAllowance, setProgrammingAllowance] = React.useState("");
-  const [totalBudgetNote, setTotalBudgetNote] = React.useState("");
+  const projectId = activeProject?.id ?? "default";
+  const [proposalState] = useProposalStore();
+  const [draft, setDraft] = React.useState<ProposalDraft>(() => readDraft(projectId));
+  const [savedAt, setSavedAt] = React.useState("");
 
   React.useEffect(() => {
-    try {
-      const raw = localStorage.getItem("wm_compare_handoff");
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as CompareHandoff;
-      setHandoff(parsed);
-    } catch {}
-  }, []);
+    setDraft(readDraft(projectId));
+    setSavedAt("");
+  }, [projectId]);
 
   React.useEffect(() => {
-    if (!ctx) return;
+    writeDraft(projectId, draft);
+  }, [projectId, draft]);
 
-    const compare = handoff ? compareSummary(handoff) : "";
+  const totals = React.useMemo(
+    () => computeTotals(proposalState.meta.currency, proposalState.lines),
+    [proposalState]
+  );
 
-    setExecutiveSummary(
-      ctx.brief.proposal.executiveSummary ||
-      buildExecutiveSummaryTemplate({
-        projectName: ctx.projectName,
-        verticalMarket: ctx.verticalMarket.name,
-        roomType: ctx.roomType.name,
-        tier: ctx.tier.label,
-        compareSummary: compare,
-      })
-    );
+  const hasNarrative =
+    hasText(draft.executiveSummary) &&
+    hasText(draft.customerRequirements) &&
+    hasText(draft.systemOverview);
 
-    setSolutionOverview(
-      ctx.brief.proposal.solutionOverview ||
-      buildSolutionOverviewTemplate({
-        projectName: ctx.projectName,
-        verticalMarket: ctx.verticalMarket.name,
-        roomType: ctx.roomType.name,
-        tier: ctx.tier.label,
-        compareSummary: compare,
-      })
-    );
+  const readiness = React.useMemo(
+    () =>
+      evaluateCommercialReadiness(activeProject, {
+        hasNarrative,
+        hasAssumptions: hasText(draft.assumptions),
+        hasExclusions: hasText(draft.exclusions),
+        bomLineCount: proposalState.lines.length,
+      }),
+    [
+      activeProject,
+      draft.assumptions,
+      draft.exclusions,
+      hasNarrative,
+      proposalState.lines.length,
+    ]
+  );
 
-    setAssumptions(
-      ctx.brief.proposal.assumptions ||
-      buildAssumptionsTemplate({
-        projectName: ctx.projectName,
-        verticalMarket: ctx.verticalMarket.name,
-        roomType: ctx.roomType.name,
-        tier: ctx.tier.label,
-      })
-    );
+  const updateField = (id: keyof ProposalDraft, value: string) => {
+    setDraft((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
 
-    setExclusions(
-      ctx.brief.proposal.exclusions ||
-      buildExclusionsTemplate({
-        projectName: ctx.projectName,
-        verticalMarket: ctx.verticalMarket.name,
-        roomType: ctx.roomType.name,
-        tier: ctx.tier.label,
-      })
-    );
+  const saveDraftToProject = () => {
+    if (!activeProject) return;
 
-    const seededCommercial = buildCommercialNotesTemplate({
-      projectName: ctx.projectName,
-      verticalMarket: ctx.verticalMarket.name,
-      roomType: ctx.roomType.name,
-      tier: ctx.tier.label,
-      compareSummary: compare,
-    });
-
-    const compareCommercial = handoff ? compareCommercialSeed(handoff) : "";
-    const existingCommercial =
-      ctx.brief.proposal?.commercialNotes || ctx.tier.commercialNote || "";
-
-    const mergedCommercial = [existingCommercial, seededCommercial, compareCommercial]
-      .filter(Boolean)
-      .join("\n\n");
-
-    setCommercialNotes(mergedCommercial);
-
-    if (handoff) {
-      setPositioningBlock(buildProposalPositioningBlock(handoff));
-    } else {
-      setPositioningBlock("");
-    }
-
-    setNextSteps(
-      buildNextStepsTemplate({
-        projectName: ctx.projectName,
-        verticalMarket: ctx.verticalMarket.name,
-        roomType: ctx.roomType.name,
-        tier: ctx.tier.label,
-      })
-    );
-  }, [ctx, handoff]);
-
-  function clearHandoff() {
-    try {
-      localStorage.removeItem("wm_compare_handoff");
-    } catch {}
-    setHandoff(null);
-    setPositioningBlock("");
-  }
-
-  function saveProposalDraft() {
-    if (!ctx) return;
-
-    updateActiveProjectBrief({
+    updateProject(activeProject.id, {
+      stage: "Proposal",
+      status: readiness.status,
       proposal: {
-        executiveSummary,
-        solutionOverview,
-        assumptions,
-        exclusions,
-        commercialNotes,
-        positioningBlock,
-        nextSteps,
-      } as any,
+        ...(activeProject.proposal ?? {}),
+        title:
+          draft.executiveSummary.trim().slice(0, 120) ||
+          activeProject.proposal?.title ||
+          `${activeProject.name} proposal draft`,
+        notes: createProjectNotes(draft),
+      },
+      notes: createProjectNotes(draft),
     });
 
-    updateProjectStatus(ctx.projectId, "In Progress");
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 1600);
-  }
-
-  const parsedEquipment = React.useMemo(() => {
-    return equipmentBlock
-      .split(/\r?\n/)
-      .map((x) => x.trim())
-      .filter(Boolean)
-      .map((line) => ({
-        name: line,
-        qty: 1,
-      }));
-  }, [equipmentBlock]);
-
-  const compare = handoff ? compareSummary(handoff) : "";
-
-  const exportInput = React.useMemo(() => ({
-    projectName: ctx?.projectName,
-    customerName,
-    companyName,
-    verticalMarket: ctx?.verticalMarket?.name,
-    roomType: ctx?.roomType?.name,
-    tier: ctx?.tier?.label,
-    executiveSummary,
-    solutionOverview,
-    assumptions,
-    exclusions,
-    commercialNotes,
-    positioningBlock,
-    compareSummary: compare,
-    nextSteps,
-    equipment: parsedEquipment,
-    pricing: {
-      currency,
-      equipmentSubtotal,
-      installationAllowance,
-      programmingAllowance,
-      totalBudgetNote,
-    },
-  }), [
-    ctx,
-    customerName,
-    companyName,
-    executiveSummary,
-    solutionOverview,
-    assumptions,
-    exclusions,
-    commercialNotes,
-    positioningBlock,
-    compare,
-    nextSteps,
-    parsedEquipment,
-    currency,
-    equipmentSubtotal,
-    installationAllowance,
-    programmingAllowance,
-    totalBudgetNote,
-  ]);
-
-  const exportText = React.useMemo(() => {
-    return buildProposalExportText(exportInput);
-  }, [exportInput]);
-
-  async function copyOutput() {
-    const ok = await copyProposalExportText(exportText);
-    if (!ok) return;
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1400);
-  }
-
-  function downloadOutput() {
-    const fileName = `${safeFileName(ctx?.projectName || "proposal")}_proposal.txt`;
-    downloadProposalExportText(fileName, exportText);
-  }
-
-  function downloadBridgePayload() {
-    const payload = buildProposalDocxBridgePayload(exportInput);
-    downloadProposalBridgeJson(payload);
-  }
-
-  async function downloadDocx() {
-    const result = await downloadProposalDocx(exportInput);
-    if (!result.ok) {
-      setDocxState("DOCX export failed");
-      return;
-    }
-    if (result.mode === "rendered-docx") {
-      setDocxState("DOCX downloaded");
-    } else if (result.mode === "fallback-docx") {
-      setDocxState("DOCX fallback downloaded");
-    } else {
-      setDocxState("DOCX bridge JSON downloaded");
-    }
-    window.setTimeout(() => setDocxState(""), 1600);
-  }
+    setSavedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+  };
 
   return (
-    <div className="wm-page wm-animate-in" style={{ width: "100%", maxWidth: "none", margin: 0, minWidth: 0 }}>
-      <div style={{ display: "grid", gap: 14 }}>
-        <div>
-          <div className="wm-page-eyebrow">TOOL</div>
-          <h1 className="wm-page-title" style={{ marginBottom: 8 }}>Proposal Builder</h1>
-          <div style={{ maxWidth: 980, fontSize: 14, color: "rgba(255,255,255,0.86)", lineHeight: 1.5 }}>
-            Draft customer-facing proposal sections and save them into the active project.
+    <div className="wm-page">
+      <section className="wm-hero">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center" }}>
+          <div>
+            <div className="wm-title-xl">Proposal Builder</div>
+            <div className="wm-body-sm" style={{ marginTop: 2 }}>
+              Convert project requirements and selected products into a structured customer-ready output.
+            </div>
+            <div className="wm-body-sm" style={{ marginTop: 6, opacity: 0.78 }}>
+              Active project: {activeProject?.name ?? "No active project selected"}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button type="button" className="wm-btn" onClick={saveDraftToProject} disabled={!activeProject}>
+              Save Proposal Draft
+            </button>
+            <button
+              type="button"
+              className="wm-btn wm-btn-primary"
+              onClick={saveDraftToProject}
+              disabled={!activeProject}
+            >
+              Generate Proposal Pack
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: 10 }}>
+        <div className="wm-panel" style={{ padding: 12 }}>
+          <div className="wm-section-title">Proposal content</div>
+
+          <div className="wm-grid" style={{ marginTop: 8 }}>
+            {FIELDS.map((field) => (
+              <label key={field.id} className="wm-grid" style={{ gap: 4 }}>
+                <span className="wm-body-sm">{field.label}</span>
+                <textarea
+                  className="wm-panel-soft"
+                  style={{
+                    width: "100%",
+                    minHeight: field.rows * 21,
+                    padding: 10,
+                    color: "var(--wm-text)",
+                    background: "rgba(10,22,36,0.55)",
+                    border: "1px solid var(--wm-border-soft)",
+                    resize: "vertical",
+                    outline: "none",
+                  }}
+                  value={draft[field.id]}
+                  placeholder={field.placeholder}
+                  onChange={(event) => updateField(field.id, event.target.value)}
+                />
+              </label>
+            ))}
+
+            <label className="wm-grid" style={{ gap: 4 }}>
+              <span className="wm-body-sm">Next customer-safe step</span>
+              <input
+                className="wm-panel-soft"
+                value={draft.nextStep}
+                onChange={(event) => updateField("nextStep", event.target.value)}
+                style={{
+                  width: "100%",
+                  padding: 10,
+                  color: "var(--wm-text)",
+                  background: "rgba(10,22,36,0.55)",
+                  border: "1px solid var(--wm-border-soft)",
+                  outline: "none",
+                }}
+              />
+            </label>
           </div>
         </div>
 
-        {!ctx ? (
-          <section className="wm-card" style={{ padding: 18, borderRadius: 18 }}>
-            <div style={{ fontWeight: 900, fontSize: 18 }}>No active project</div>
-            <div style={{ marginTop: 8, fontSize: 14, color: "rgba(255,255,255,0.82)", lineHeight: 1.5 }}>
-              Select a project first.
+        <div className="wm-grid" style={{ gap: 8 }}>
+          <div className="wm-panel" style={{ padding: 12 }}>
+            <div className="wm-title-lg">Output summary</div>
+            <div className="wm-body" style={{ marginTop: 6 }}>
+              Proposal Builder should be the final workflow step after Discovery, Templates or Room Designer.
             </div>
-            <div style={{ marginTop: 14 }}>
-              <button
-                type="button"
-                className="wm-btn wm-btn-primary"
-                style={{ height: 40, padding: "0 16px" }}
-                onClick={() => nav("/app/projects")}
-              >
-                Open Projects
-              </button>
+
+            <div className="wm-grid" style={{ marginTop: 10, gap: 6 }}>
+              <div className="wm-body-sm">BOM lines: {proposalState.lines.length}</div>
+              <div className="wm-body-sm">
+                Total sell: {formatCurrency(totals.currency, totals.totalSell)}
+              </div>
+              <div className="wm-body-sm">
+                Total cost: {formatCurrency(totals.currency, totals.totalCost)}
+              </div>
+              <div className="wm-body-sm">
+                Margin: {totals.grossMarginPct.toFixed(1)}%
+              </div>
             </div>
-          </section>
-        ) : (
-          <>
-            <section className="wm-card" style={{ padding: 18, borderRadius: 18 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.62)" }}>
-                Active project
-              </div>
-              <div style={{ marginTop: 8, fontWeight: 900, fontSize: 22 }}>{ctx.projectName}</div>
-              <div style={{ marginTop: 8, fontSize: 13, color: "rgba(255,255,255,0.84)", lineHeight: 1.45 }}>
-                {ctx.verticalMarket.name} / {ctx.roomType.name} / {ctx.tier.label}
-              </div>
-            </section>
+          </div>
 
-            {handoff ? (
-              <section className="wm-card" style={{ padding: 18, borderRadius: 18 }}>
-                <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.62)" }}>
-                  Compare handoff
-                </div>
-                <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
-                  {compareSummary(handoff)}
-                </div>
-                <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  <button
-                    type="button"
-                    className="wm-btn"
-                    style={{ height: 40, padding: "0 16px" }}
-                    onClick={clearHandoff}
-                  >
-                    Clear compare handoff
-                  </button>
-                </div>
-              </section>
-            ) : null}
+          <div className="wm-panel" style={{ padding: 12 }}>
+            <div className="wm-title-lg">Readiness status</div>
+            <div className="wm-body" style={{ marginTop: 6 }}>
+              {readiness.status} ({readiness.score}%)
+            </div>
+            <div className="wm-body-sm" style={{ marginTop: 6, opacity: 0.78 }}>
+              {readiness.nextStep}
+            </div>
+            <div className="wm-body-sm" style={{ marginTop: 8, opacity: 0.72 }}>
+              {savedAt ? `Saved at ${savedAt}` : "Draft auto-saves locally as you type."}
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <section className="wm-card" style={{ padding: 18, borderRadius: 18, display: "grid", gap: 14 }}>
-              <Area label="Customer name" value={customerName} onChange={setCustomerName} rows={2} />
-              <Area label="Company name" value={companyName} onChange={setCompanyName} rows={2} />
-              <Area label="Executive summary" value={executiveSummary} onChange={setExecutiveSummary} rows={4} />
-              <Area label="Solution overview" value={solutionOverview} onChange={setSolutionOverview} rows={4} />
-              <Area label="Assumptions" value={assumptions} onChange={setAssumptions} rows={4} />
-              <Area label="Exclusions" value={exclusions} onChange={setExclusions} rows={4} />
-              <Area label="Commercial notes" value={commercialNotes} onChange={setCommercialNotes} rows={5} />
-              <Area label="Positioning block" value={positioningBlock} onChange={setPositioningBlock} rows={6} />
-              <Area label="Next steps" value={nextSteps} onChange={setNextSteps} rows={4} />
-              <Area label="Equipment items (one per line)" value={equipmentBlock} onChange={setEquipmentBlock} rows={5} />
-              <Area label="Equipment subtotal" value={equipmentSubtotal} onChange={setEquipmentSubtotal} rows={2} />
-              <Area label="Installation allowance" value={installationAllowance} onChange={setInstallationAllowance} rows={2} />
-              <Area label="Programming allowance" value={programmingAllowance} onChange={setProgrammingAllowance} rows={2} />
-              <Area label="Total budget note" value={totalBudgetNote} onChange={setTotalBudgetNote} rows={2} />
-
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-                <button
-                  type="button"
-                  className="wm-btn wm-btn-primary"
-                  style={{ height: 40, padding: "0 16px" }}
-                  onClick={saveProposalDraft}
-                >
-                  Save proposal draft
-                </button>
-
-                <button
-                  type="button"
-                  className="wm-btn"
-                  style={{ height: 40, padding: "0 16px" }}
-                  onClick={() => nav("/app/projects")}
-                >
-                  Back to Projects
-                </button>
-
-                {saved ? (
-                  <span style={{ fontSize: 12, color: "rgba(134,239,172,0.95)", fontWeight: 700 }}>
-                    Saved to active project
-                  </span>
-                ) : null}
-              </div>
-            </section>
-
-            <section className="wm-card" style={{ padding: 18, borderRadius: 18 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.62)" }}>
-                Proposal output preview
-              </div>
-
-              <pre
-                style={{
-                  marginTop: 10,
-                  whiteSpace: "pre-wrap",
-                  fontFamily: "inherit",
-                  fontSize: 14,
-                  lineHeight: 1.55,
-                  color: "rgba(255,255,255,0.88)",
-                }}
-              >
-                {exportText}
-              </pre>
-
-              <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-                <button
-                  type="button"
-                  className="wm-btn"
-                  style={{ height: 40, padding: "0 16px" }}
-                  onClick={copyOutput}
-                >
-                  Copy output text
-                </button>
-
-                <button
-                  type="button"
-                  className="wm-btn"
-                  style={{ height: 40, padding: "0 16px" }}
-                  onClick={downloadOutput}
-                >
-                  Download .txt
-                </button>
-
-                <button
-                  type="button"
-                  className="wm-btn"
-                  style={{ height: 40, padding: "0 16px" }}
-                  onClick={downloadBridgePayload}
-                >
-                  Download export payload
-                </button>
-
-                <button
-                  type="button"
-                  className="wm-btn"
-                  style={{ height: 40, padding: "0 16px" }}
-                  onClick={() => downloadProposalExport(exportInput, "md")}
-                >
-                  Download .md
-                </button>
-
-                <button
-                  type="button"
-                  className="wm-btn"
-                  style={{ height: 40, padding: "0 16px" }}
-                  onClick={() => downloadProposalExport(exportInput, "json")}
-                >
-                  Download canonical JSON
-                </button>
-
-                <button
-                  type="button"
-                  className="wm-btn"
-                  style={{ height: 40, padding: "0 16px" }}
-                  onClick={downloadDocx}
-                >
-                  Download DOCX
-                </button>
-
-                {copied ? (
-                  <span style={{ fontSize: 12, color: "rgba(134,239,172,0.95)", fontWeight: 700 }}>
-                    Copied
-                  </span>
-                ) : null}
-
-                {docxState ? (
-                  <span style={{ fontSize: 12, color: "rgba(134,239,172,0.95)", fontWeight: 700 }}>
-                    {docxState}
-                  </span>
-                ) : null}
-              </div>
-            </section>
-          </>
-        )}
-      </div>
+      <ProposalHandoffPanel
+        status={readiness.status}
+        score={readiness.score}
+        checks={readiness.checks}
+        nextStep={readiness.nextStep}
+      />
     </div>
   );
 }

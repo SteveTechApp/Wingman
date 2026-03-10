@@ -15,7 +15,6 @@ export const useTheme = () => {
 
     if (theme === 'auto') {
       // Let CSS media query handle it
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       // We don't set data-theme, so CSS uses @media query
     } else {
       // Explicitly set theme

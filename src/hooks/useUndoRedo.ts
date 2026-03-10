@@ -152,10 +152,11 @@ export const createArrayCommand = <T, Item>(
         case 'remove':
           newArray = [...array.slice(0, index), item, ...array.slice(index!)];
           break;
-        case 'update':
+        case 'update': {
           const originalItem = array[index!];
           newArray = array.map((el, i) => (i === index ? originalItem : el));
           break;
+        }
         default:
           newArray = array;
       }

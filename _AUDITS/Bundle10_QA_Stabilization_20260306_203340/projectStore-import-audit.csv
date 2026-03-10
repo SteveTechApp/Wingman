@@ -1,0 +1,81 @@
+"File","ImportedName","Exported"
+"src\features\compare\CompetitorComparePage.tsx","CompareConfidence","False"
+"src\features\compare\CompetitorComparePage.tsx","createProject","True"
+"src\features\compare\CompetitorComparePage.tsx","DiscoveryProductFamily","False"
+"src\features\compare\CompetitorComparePage.tsx","ensureActiveProject","True"
+"src\features\compare\CompetitorComparePage.tsx","getActiveProject","True"
+"src\features\compare\CompetitorComparePage.tsx","ProjectCompareRecord","False"
+"src\features\compare\CompetitorComparePage.tsx","setActiveProjectId","True"
+"src\features\compare\CompetitorComparePage.tsx","useNavigate } from ""react-router-dom"";
+import compareSeed from ""@/data/catalog/competitor-compare.seed.json"";
+import {
+  applyCompareToProject","False"
+"src\features\dashboard\DashboardPage.tsx","deleteProject","True"
+"src\features\dashboard\DashboardPage.tsx","loadProjects","True"
+"src\features\dashboard\DashboardPage.tsx","setActiveProjectId","True"
+"src\features\dashboard\DashboardPage.tsx","StoredProject","False"
+"src\features\dashboard\DashboardPage.tsx","subscribeProjects","True"
+"src\features\dashboard\DashboardPage.tsx","useNavigate } from ""react-router-dom"";
+import {
+  createProject","False"
+"src\features\discovery\DiscoveryWizardPage.tsx","ArrowRight","False"
+"src\features\discovery\DiscoveryWizardPage.tsx","ChevronDown } from ""lucide-react"";
+import {
+  ensureActiveProject","False"
+"src\features\discovery\DiscoveryWizardPage.tsx","getActiveProject","True"
+"src\features\discovery\DiscoveryWizardPage.tsx","getActiveProjectId","True"
+"src\features\discovery\DiscoveryWizardPage.tsx","getProjectById","True"
+"src\features\discovery\DiscoveryWizardPage.tsx","updateProjectDiscovery","True"
+"src\features\discovery\DiscoveryWizardPage.tsx","useNavigate } from ""react-router-dom"";
+import { LayoutGrid","False"
+"src\features\guru\GuruPanel.tsx","StoredProject","False"
+"src\features\guru\GuruPanel.tsx","useLocation","False"
+"src\features\guru\GuruPanel.tsx","useNavigate } from ""react-router-dom"";
+import { getActiveProject","False"
+"src\features\misc\VideoWallPlannerPage.tsx","createProject","True"
+"src\features\misc\VideoWallPlannerPage.tsx","ensureActiveProject","True"
+"src\features\misc\VideoWallPlannerPage.tsx","getActiveProject","True"
+"src\features\misc\VideoWallPlannerPage.tsx","ProjectVideoWall","False"
+"src\features\misc\VideoWallPlannerPage.tsx","setActiveProjectId","True"
+"src\features\misc\VideoWallPlannerPage.tsx","useNavigate } from ""react-router-dom"";
+import {
+  applyVideoWallToProject","False"
+"src\features\misc\VideoWallPlannerPage.tsx","VideoWallTechnology","False"
+"src\features\projects\ProjectNewPage.tsx","useNavigate } from ""react-router-dom"";
+import { createProject","False"
+"src\features\projects\ProjectsPage.tsx","deleteProject","True"
+"src\features\projects\ProjectsPage.tsx","getActiveProjectId","True"
+"src\features\projects\ProjectsPage.tsx","loadProjects","True"
+"src\features\projects\ProjectsPage.tsx","setActiveProjectId","True"
+"src\features\projects\ProjectsPage.tsx","StoredProject","False"
+"src\features\projects\ProjectsPage.tsx","subscribeProjects","True"
+"src\features\projects\ProjectsPage.tsx","updateProjectFields","True"
+"src\features\projects\ProjectsPage.tsx","useNavigate","False"
+"src\features\projects\ProjectsPage.tsx","useSearchParams } from ""react-router-dom"";
+import {
+  createProject","False"
+"src\features\tools\TemplatesPage.tsx","createProject","True"
+"src\features\tools\TemplatesPage.tsx","DiscoveryProductFamily","False"
+"src\features\tools\TemplatesPage.tsx","ensureActiveProject","True"
+"src\features\tools\TemplatesPage.tsx","getActiveProject","True"
+"src\features\tools\TemplatesPage.tsx","ProjectTemplateTier","False"
+"src\features\tools\TemplatesPage.tsx","setActiveProjectId","True"
+"src\features\tools\TemplatesPage.tsx","useNavigate } from ""react-router-dom"";
+import {
+  applyProjectTemplate","False"
+"src\features\tools\ToolHubPage.tsx","} from ""lucide-react"";
+import { getActiveProject","False"
+"src\features\tools\ToolHubPage.tsx","ArrowRight","False"
+"src\features\tools\ToolHubPage.tsx","Boxes","False"
+"src\features\tools\ToolHubPage.tsx","ClipboardList","False"
+"src\features\tools\ToolHubPage.tsx","FileText","False"
+"src\features\tools\ToolHubPage.tsx","FolderPlus","False"
+"src\features\tools\ToolHubPage.tsx","getProjectsTick","True"
+"src\features\tools\ToolHubPage.tsx","GraduationCap","False"
+"src\features\tools\ToolHubPage.tsx","Link","False"
+"src\features\tools\ToolHubPage.tsx","Shuffle","False"
+"src\features\tools\ToolHubPage.tsx","useNavigate } from ""react-router-dom"";
+import {
+  LayoutGrid","False"
+"src\features\tools\ToolHubPage.tsx","Video","False"
+"src\features\tools\ToolHubPage.tsx","Wand2","False"

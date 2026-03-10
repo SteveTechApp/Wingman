@@ -85,7 +85,7 @@ const TemplateBrowserScreen: React.FC = () => {
                                     onClick={() => setSelectedRoomType(null)}
                                     className="flex\ items-center\ gap-2\ text-sm\ font-medium\ text-accent\ hover:underline\ transition-colors"
                                 >
-                                    Ã¢â€ Â Back to All Room Types
+                                    &larr; Back to All Room Types
                                 </button>
                             </div>
 

@@ -1,0 +1,50 @@
+/* Wingman Production Theme Tokens (Classic) */
+
+/* LEGACY ROOT DISABLED
+:root{
+  /* Brand (WyreStorm-ish emerald baseline; tweak later if needed) */
+  --wm-brand: #10b981;
+  --wm-brand-2: #22c55e;
+  --wm-danger: #ef4444;
+  --wm-warn: #f59e0b;
+
+  /* App surfaces */
+  --wm-bg: #0b1220;          /* app background */
+  --wm-surface: #0f172a;     /* header/sidebar surface */
+  --wm-panel: #111c33;       /* subtle panel */
+  --wm-card: #0f1a2f;        /* card background */
+  --wm-card-2: #0c1527;      /* card alt */
+
+  /* Borders + shadows */
+  --wm-border: rgba(255,255,255,.08);
+  --wm-border-2: rgba(255,255,255,.12);
+  --wm-shadow: 0 18px 50px rgba(0,0,0,.45);
+  --wm-shadow-soft: 0 10px 24px rgba(0,0,0,.30);
+
+  /* Text */
+  --wm-text: rgba(255,255,255,.92);
+  --wm-text-2: rgba(255,255,255,.68);
+  --wm-text-3: rgba(255,255,255,.52);
+
+  /* Layout */
+  --wm-container: 1200px;
+  --wm-container-wide: 1360px;
+
+  /* Radius (bridged by app.css density knob if present) */
+  --wm-r-1: 10px;
+  --wm-r-2: 14px;
+  --wm-r-3: 18px;
+
+  /* Controls */
+  --wm-control-bg: rgba(0,0,0,.22);
+  --wm-control-bg-2: rgba(0,0,0,.32);
+  --wm-control-border: rgba(255,255,255,.10);
+  --wm-focus: 0 0 0 3px rgba(16,185,129,.25);
+
+  /* Typography */
+  --wm-h1: 22px;
+  --wm-h2: 16px;
+  --wm-body: 14px;
+  --wm-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+*/

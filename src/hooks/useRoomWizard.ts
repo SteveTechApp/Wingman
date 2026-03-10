@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { RoomData, RoomWizardAnswers } from '../utils/types';
+import { RoomData } from '../utils/types';
 import { useWizardState } from './useWizardState';
 import { useWizardStepsAndValidation } from './useWizardStepsAndValidation';
 import toast from 'react-hot-toast';
@@ -25,7 +25,7 @@ export const useRoomWizard = (
         updateAnswers(createInitialAnswers(initialData));
         setErrors({});
         setCurrentStep(0);
-    }, [initialData]);
+    }, [initialData, createInitialAnswers, setCurrentStep, setErrors, updateAnswers]);
 
     const handleSave = (): boolean => {
         const finalRoomData: RoomData = {

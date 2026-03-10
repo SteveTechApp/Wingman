@@ -1,0 +1,22 @@
+Wingman Bundle 10 QA / Stabilization Sweep
+Generated: 2026-03-06 20:33:48
+
+Route imports checked: 24
+Missing route targets: 0
+
+projectStore imports checked: 61
+Missing projectStore exports: 34
+
+Logo reference hits: 6
+Stale reference hits: 6
+Duplicate basenames: 32
+
+Key files missing: 0
+
+Typecheck: PASS
+Build: PASS
+
+Overall result: ISSUES FOUND
+
+Issues:
+- projectStore missing exported symbols

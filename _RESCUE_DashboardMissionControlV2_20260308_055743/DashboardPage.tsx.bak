@@ -1,0 +1,314 @@
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Boxes,
+  ClipboardList,
+  FileText,
+  FolderOpen,
+  Package,
+  Plus,
+  Search,
+  Sparkles,
+} from "lucide-react";
+import type { WmIcon } from "@/ui2/primitives/workspacePrimitives";
+import {
+  WmButton,
+  WmCard,
+  WmHeroCard,
+  WmHeroGrid,
+  WmHeroHeader,
+  WmInset,
+  WmMetaPill,
+  WmPage,
+  WmSectionHeader,
+  WmStatCard,
+  WmTextLinkButton,
+  WmTile,
+  useWindowWidth,
+} from "@/ui2/primitives/workspacePrimitives";
+
+type ActiveProject = {
+  name: string;
+  status: string;
+  skuCount: number;
+  proposalState: string;
+  updatedAt: string;
+};
+
+type QuickAction = {
+  title: string;
+  desc: string;
+  to: string;
+  Icon: WmIcon;
+  tone?: "primary" | "design" | "product" | "sales";
+};
+
+function readActiveProject(): ActiveProject {
+  const fallback: ActiveProject = {
+    name: "No active project",
+    status: "Draft",
+    skuCount: 0,
+    proposalState: "None",
+    updatedAt: new Date().toLocaleString(),
+  };
+
+  try {
+    const raw =
+      localStorage.getItem("wm_active_project") ||
+      localStorage.getItem("wm_project_active") ||
+      localStorage.getItem("wm_current_project");
+
+    if (!raw) return fallback;
+
+    const parsed = JSON.parse(raw);
+
+    return {
+      name: parsed?.name || parsed?.projectName || parsed?.title || fallback.name,
+      status: parsed?.status || fallback.status,
+      skuCount:
+        typeof parsed?.skuCount === "number"
+          ? parsed.skuCount
+          : Array.isArray(parsed?.skus)
+            ? parsed.skus.length
+            : Array.isArray(parsed?.items)
+              ? parsed.items.length
+              : 0,
+      proposalState:
+        parsed?.proposalState ||
+        parsed?.proposalStatus ||
+        parsed?.proposal ||
+        fallback.proposalState,
+      updatedAt:
+        parsed?.updatedAt ||
+        parsed?.modifiedAt ||
+        parsed?.lastUpdated ||
+        fallback.updatedAt,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+export default function DashboardPage() {
+  const navigate = useNavigate();
+  const activeProject = React.useMemo(() => readActiveProject(), []);
+  const width = useWindowWidth();
+
+  const quickActions = React.useMemo<QuickAction[]>(
+    () => [
+      {
+        title: "Discovery",
+        desc: "Capture customer requirements before choosing products.",
+        to: "/app/tools/discovery",
+        Icon: Search,
+        tone: "primary",
+      },
+      {
+        title: "Product Catalog",
+        desc: "Browse WyreStorm products and suitable SKU options.",
+        to: "/app/tools/catalog",
+        Icon: Package,
+        tone: "product",
+      },
+      {
+        title: "Competitor Compare",
+        desc: "Position WyreStorm against alternatives.",
+        to: "/app/tools/competitor-compare",
+        Icon: Boxes,
+        tone: "product",
+      },
+      {
+        title: "Proposal Builder",
+        desc: "Create BOM and customer-facing proposal outputs.",
+        to: "/app/tools/proposal-builder",
+        Icon: FileText,
+        tone: "sales",
+      },
+      {
+        title: "Templates",
+        desc: "Start from repeatable room and market baselines.",
+        to: "/app/tools/templates",
+        Icon: ClipboardList,
+        tone: "design",
+      },
+      {
+        title: "Projects",
+        desc: "Open and manage saved workspaces.",
+        to: "/app/projects",
+        Icon: FolderOpen,
+      },
+    ],
+    []
+  );
+
+  const startBlankProject = React.useCallback(() => {
+    try {
+      const blankProject = {
+        name: `New Project ${Math.floor(Math.random() * 900 + 100)}`,
+        status: "Draft",
+        skuCount: 0,
+        proposalState: "None",
+        updatedAt: new Date().toLocaleString(),
+        createdAt: new Date().toISOString(),
+        items: [],
+        skus: [],
+      };
+      localStorage.setItem("wm_active_project", JSON.stringify(blankProject));
+    } catch {
+      // continue regardless
+    }
+    navigate("/app/projects");
+  }, [navigate]);
+
+  const go = React.useCallback((to: string) => navigate(to), [navigate]);
+
+  const compact = width < 1400;
+  const actionCols = width < 860 ? 1 : 3;
+  const quickCols =
+    width < 900 ? "repeat(1, minmax(0, 1fr))" :
+    width < 1200 ? "repeat(2, minmax(0, 1fr))" :
+    width < 1600 ? "repeat(4, minmax(0, 1fr))" :
+    "repeat(6, minmax(0, 1fr))";
+
+  return (
+    <WmPage>
+      <WmHeroGrid
+        left={
+          <WmHeroCard compact>
+            <WmHeroHeader
+              title="Dashboard"
+              subtitle="Resume work quickly, launch the next tool, or start a fresh opportunity."
+              compact
+              actions={
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <WmButton
+                    label="Projects"
+                    onClick={() => go("/app/projects")}
+                    Icon={FolderOpen}
+                    compact
+                  />
+                  <WmButton
+                    label="Start New Project"
+                    onClick={startBlankProject}
+                    Icon={Plus}
+                    primary
+                    compact
+                  />
+                </div>
+              }
+            />
+
+            <WmInset compact>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 10,
+                  flexWrap: "wrap",
+                }}
+              >
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  <WmMetaPill compact>Project: {activeProject.name}</WmMetaPill>
+                  <WmMetaPill compact>Status: {activeProject.status}</WmMetaPill>
+                  <WmMetaPill compact>SKUs: {activeProject.skuCount}</WmMetaPill>
+                  <WmMetaPill compact>Proposal: {activeProject.proposalState}</WmMetaPill>
+                  <WmMetaPill compact>Updated: {String(activeProject.updatedAt)}</WmMetaPill>
+                </div>
+
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "rgba(214,226,240,0.68)",
+                  }}
+                >
+                  Active workspace
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: `repeat(${actionCols}, minmax(0, 1fr))`,
+                  gap: 10,
+                }}
+              >
+                <WmButton
+                  label="Open Discovery"
+                  onClick={() => go("/app/tools/discovery")}
+                  Icon={Sparkles}
+                  primary
+                  full
+                  compact={compact}
+                />
+                <WmButton
+                  label="Open Catalog"
+                  onClick={() => go("/app/tools/catalog")}
+                  Icon={Package}
+                  full
+                  compact={compact}
+                />
+                <WmButton
+                  label="Open Proposal"
+                  onClick={() => go("/app/tools/proposal-builder")}
+                  Icon={FileText}
+                  full
+                  compact={compact}
+                />
+              </div>
+            </WmInset>
+          </WmHeroCard>
+        }
+        right={
+          <div style={{ display: "grid", gap: 14 }}>
+            <WmStatCard
+              label="Active Project"
+              value={activeProject.name === "No active project" ? "None" : "1"}
+              hint="Current workspace ready to continue."
+            />
+            <WmStatCard
+              label="Current SKUs"
+              value={activeProject.skuCount}
+              hint="Products recorded in the active project."
+            />
+            <WmStatCard
+              label="Proposal State"
+              value={activeProject.proposalState}
+              hint="Useful for tracking sales readiness."
+            />
+          </div>
+        }
+      />
+
+      <WmCard padding={16}>
+        <WmSectionHeader
+          title="Quick Actions"
+          subtitle="Common next steps for sales and pre-sales workflow."
+          action={<WmTextLinkButton label="Open ToolHub" onClick={() => go("/app/tools")} />}
+        />
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: quickCols,
+            gap: 12,
+          }}
+        >
+          {quickActions.map((item) => (
+            <WmTile
+              key={item.title}
+              title={item.title}
+              desc={item.desc}
+              tone={item.tone ?? "default"}
+              Icon={item.Icon}
+              onOpen={() => go(item.to)}
+              compact
+              minHeight={108}
+            />
+          ))}
+        </div>
+      </WmCard>
+    </WmPage>
+  );
+}

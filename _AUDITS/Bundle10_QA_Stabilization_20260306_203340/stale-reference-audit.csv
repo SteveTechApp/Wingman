@@ -1,0 +1,7 @@
+"File","Pattern"
+"src\app\shell\PublicShell.tsx","PublicShell"
+"src\features\guru\GuruFab.tsx","GuruFab"
+"src\features\guru\GuruMount.tsx","GuruFab"
+"src\pages\public\PublicAboutPage.tsx","src/pages/"
+"src\pages\WorkspaceHomePage.tsx","WelcomeScreen"
+"src\services\videoService.ts","VideoGeneratorPage"

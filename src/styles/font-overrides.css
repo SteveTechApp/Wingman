@@ -1,0 +1,79 @@
+
+
+/* General app text */
+[class*="wm-"],
+[class^="wm-"],
+nav,
+aside,
+main,
+section,
+article,
+header,
+footer,
+label,
+p,
+span,
+small,
+li,
+td,
+th {
+  font-family: var(--wm-font-sans);
+}
+
+/* Reduce excessive heaviness globally */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--wm-font-sans);
+  font-weight: var(--wm-font-weight-heading) !important;
+  letter-spacing: var(--wm-letter-tight);
+}
+
+strong, b {
+  font-weight: var(--wm-font-weight-strong);
+}
+
+button,
+[role="button"],
+a.button,
+input[type="button"],
+input[type="submit"] {
+  font-weight: var(--wm-font-weight-ui) !important;
+  letter-spacing: var(--wm-letter-normal);
+}
+
+/* Common dashboard/card/title patterns */
+[class*="title"],
+[class*="heading"],
+[class*="label"],
+[class*="metric"],
+[class*="card"] h1,
+[class*="card"] h2,
+[class*="card"] h3,
+[class*="panel"] h1,
+[class*="panel"] h2,
+[class*="panel"] h3 {
+  letter-spacing: var(--wm-letter-tight);
+}
+
+/* Tone down very bold inline-styled text slightly where possible */
+[style*="font-weight: 800"],
+[style*="font-weight:800"] {
+  font-weight: 700 !important;
+}
+
+[style*="font-weight: 850"],
+[style*="font-weight:850"],
+[style*="font-weight: 900"],
+[style*="font-weight:900"] {
+  font-weight: 700 !important;
+}
+
+/* Optional subtle tightening for a narrower overall feel */
+.wm-app,
+.wm-shell,
+.wm-page,
+.wm-card,
+.wm-panel,
+.wm-topbar,
+.wm-sidebar {
+  letter-spacing: var(--wm-letter-normal);
+}

@@ -4,14 +4,9 @@ import { LanguageCode, DesignTier } from '../utils/types';
 import { 
     BuildingIcon, 
     EducationIcon,
-    GovernmentIcon,
     HospitalityIcon,
     RetailIcon,
-    ResidentialIcon,
-    TransportationIcon,
     LargeVenueIcon,
-    IndustrialIcon,
-    GamingIcon,
     HouseOfWorshipIcon,
     CommandCenterIcon,
     SwitcherIcon,
@@ -23,7 +18,7 @@ import {
     ControlIcon,
     GenericDeviceIcon,
 } from '../components/icons/AppIcons';
-import { SparklesIcon, GridIcon } from '../components/icons/UIIcons';
+import { SparklesIcon } from '../components/icons/UIIcons';
 import { 
     HdmiIcon, 
     UsbCIcon, 
@@ -111,6 +106,7 @@ export const ROOM_TYPE_ICONS: Record<string, React.FC<{ className?: string }>> =
     'Large Venue': LargeVenueIcon,
     'Other': SparklesIcon,
 };
+
 
 
 

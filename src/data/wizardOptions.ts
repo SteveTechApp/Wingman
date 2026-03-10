@@ -1,6 +1,5 @@
 
 import * as React from "react";
-import { DesignTier } from '../utils/types';
 import {
     DisplayIcon, DualDisplayIcon, ProjectorIcon, VideoWallIcon, InteractiveDisplayIcon
 } from '../components/icons/AppIcons';

@@ -139,12 +139,13 @@ export function recommendFamilies(input: {
 
   let nextTool = "/app/tools/catalog";
   if (unique.includes("Video Wall")) {
-    nextTool = "/app/tools/videowall";
+    nextTool = "/app/tools/video-wall";
   } else if (unique.includes("Matrix") || unique.includes("AVoIP")) {
     nextTool = "/app/tools/proposal";
   } else if (unique.includes("Apollo")) {
-    nextTool = "/app/tools/room";
+    nextTool = "/app/tools/room-wizard";
   }
 
   return { families: unique, nextTool };
 }
+

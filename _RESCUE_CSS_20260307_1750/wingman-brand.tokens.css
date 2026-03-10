@@ -1,0 +1,34 @@
+:root{
+  /* WyreStorm/Wingman brand tokens */
+  --wm-bg: #0b1220;
+  --wm-surface: rgba(255,255,255,0.06);
+  --wm-surface-2: rgba(255,255,255,0.10);
+  --wm-surface-3: rgba(255,255,255,0.14);
+  --wm-border: rgba(255,255,255,0.12);
+  --wm-border-2: rgba(255,255,255,0.18);
+
+  --wm-text: rgba(255,255,255,0.92);
+  --wm-text-muted: rgba(255,255,255,0.70);
+
+  /* Accent (teal/emerald) */
+  --wm-accent: #22c1b8;
+  --wm-accent-2: #19a89f;
+  --wm-accent-soft: rgba(34,193,184,0.22);
+
+  /* Radii + shadows */
+  --wm-radius: 14px;
+  --wm-radius-sm: 10px;
+  --wm-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --wm-shadow-2: 0 16px 44px rgba(0,0,0,0.45);
+  --wm-glow: 0 0 0 1px rgba(34,193,184,0.10), 0 10px 34px rgba(34,193,184,0.12);
+
+  /* Spacing */
+  --wm-pad: 16px;
+  --wm-gap: 12px;
+
+  /* Buttons */
+  --wm-btn-bg: rgba(255,255,255,0.08);
+  --wm-btn-bg-hover: rgba(255,255,255,0.12);
+  --wm-btn-border: rgba(255,255,255,0.14);
+  --wm-btn-text: rgba(255,255,255,0.92);
+}

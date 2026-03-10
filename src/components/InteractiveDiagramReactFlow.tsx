@@ -93,7 +93,7 @@ const createNodesFromEquipment = (equipment: ManuallyAddedEquipment[]): Node[] =
     }
   });
 
-  let yOffset = 50;
+  const yOffset = 50;
   const xSpacing = 250;
 
   // Position sources on the left
@@ -258,14 +258,14 @@ const createEdgesFromEquipment = (equipment: ManuallyAddedEquipment[]): Edge[] =
 };
 
 const InteractiveDiagram: React.FC<InteractiveDiagramProps> = ({ 
-  diagram, 
+  diagram: _diagram,
   equipment,
   onEquipmentClick 
 }) => {
   const initialNodes = React.useMemo(() => createNodesFromEquipment(equipment), [equipment]);
   const initialEdges = React.useMemo(() => createEdgesFromEquipment(equipment), [equipment]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = React.useCallback(

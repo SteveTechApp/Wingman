@@ -1,0 +1,80 @@
+[
+  {
+    "brand": "Crestron",
+    "competitorSku": "DM-NVX-360",
+    "category": "AV over IP encoder/decoder",
+    "summary": "1Gb AV over IP endpoint for enterprise distribution and switching.",
+    "features": ["1Gb AV over IP", "USB/KVM support", "Enterprise AV routing", "Control integration"],
+    "wyrestormSku": "NetworkHD 100/200 Series direction",
+    "wyrestormCategory": "AVoIP",
+    "confidence": "High",
+    "rationale": "Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing.",
+    "recommendedFamilies": ["AVoIP"],
+    "notes": ["Validate USB expectations", "Confirm decoder/encoder quantity", "Check control system integration needs"]
+  },
+  {
+    "brand": "Extron",
+    "competitorSku": "DTP T USW 233",
+    "category": "HDBaseT switcher/transmitter",
+    "summary": "Wall/furniture mounted switcher transmitter with HDMI / VGA / USB-C style presentation input approach.",
+    "features": ["HDBaseT transport", "Presentation switching", "Table / lectern connectivity"],
+    "wyrestormSku": "Apollo or HDBaseT presentation switching direction",
+    "wyrestormCategory": "HDBaseT / Apollo",
+    "confidence": "Medium",
+    "rationale": "Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs.",
+    "recommendedFamilies": ["Apollo", "HDBaseT"],
+    "notes": ["Check input mix", "Confirm USB-C behavior", "Assess room UC requirements"]
+  },
+  {
+    "brand": "Atlona",
+    "competitorSku": "AT-OME-MS42",
+    "category": "Presentation switcher",
+    "summary": "Meeting space switcher with mixed-source inputs for small collaboration rooms.",
+    "features": ["Presentation switching", "Mixed inputs", "BYOD meeting support"],
+    "wyrestormSku": "Apollo presentation switcher direction",
+    "wyrestormCategory": "Apollo",
+    "confidence": "High",
+    "rationale": "Apollo is the strongest Wingman family for this meeting-space switching use case.",
+    "recommendedFamilies": ["Apollo"],
+    "notes": ["Confirm room UC type", "Check expected number of inputs", "Review USB peripheral needs"]
+  },
+  {
+    "brand": "Lightware",
+    "competitorSku": "TPX-TX107",
+    "category": "HDBaseT transmitter",
+    "summary": "Signal extension transmitter for professional AV transport workflows.",
+    "features": ["HDBaseT transport", "Point-to-point extension", "Professional AV integration"],
+    "wyrestormSku": "WyreStorm HDBaseT extender direction",
+    "wyrestormCategory": "HDBaseT",
+    "confidence": "High",
+    "rationale": "Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension.",
+    "recommendedFamilies": ["HDBaseT"],
+    "notes": ["Check distance", "Confirm USB or control pass-through", "Validate power requirements"]
+  },
+  {
+    "brand": "BluStream",
+    "competitorSku": "IP200UHD-TX",
+    "category": "AV over IP encoder",
+    "summary": "AV over IP transmitter for distributed video workflows.",
+    "features": ["AV over IP", "Distributed video", "Scalable routing"],
+    "wyrestormSku": "NetworkHD encoder direction",
+    "wyrestormCategory": "AVoIP",
+    "confidence": "High",
+    "rationale": "Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture.",
+    "recommendedFamilies": ["AVoIP"],
+    "notes": ["Check multicast / network readiness", "Confirm USB requirements", "Assess endpoint count"]
+  },
+  {
+    "brand": "Kramer",
+    "competitorSku": "VS-88H2A",
+    "category": "Matrix switcher",
+    "summary": "HDMI matrix switching for multi-source, multi-display signal management.",
+    "features": ["Matrix switching", "Multi-source routing", "Fixed AV infrastructure"],
+    "wyrestormSku": "Matrix switcher direction",
+    "wyrestormCategory": "Matrix",
+    "confidence": "High",
+    "rationale": "Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level.",
+    "recommendedFamilies": ["Matrix"],
+    "notes": ["Check exact I/O count", "Confirm audio de-embedding needs", "Review EDID / scaling expectations"]
+  }
+]

@@ -1,6 +1,5 @@
 
-import * as React from "react";
-import type { ExtractedRequirements } from "@/app/import/extractRequirements";
+import type { ExtractedRequirements } from "@/import/extractRequirements";
 import catalog from "@/data/wyrestormSkuCatalog.2026";
 
 type CatalogItem = { sku: string; description?: string; tier?: unknown };
@@ -164,6 +163,7 @@ export function recommendWyrestorm(req: ExtractedRequirements, rawText: string):
     cautions: commonCautions,
   };
 }
+
 
 
 

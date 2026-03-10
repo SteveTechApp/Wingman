@@ -1,0 +1,251 @@
+/* LEGACY ROOT DISABLED
+:root{
+  --wm-radius:12px;
+  --wm-border:rgba(255,255,255,0.08);
+}
+*/
+
+.wm-page{padding:24px;}
+.wm-hero-title{font-size:22px;font-weight:600;}
+.wm-card{border:1px solid var(--wm-border);border-radius:var(--wm-radius);}
+
+/* --- Guru Drawer (global) --- */
+.wm-guru-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 9998;
+}
+
+.wm-guru-panel{
+  position: fixed;
+  top: 72px;
+  right: 16px;
+  width: min(520px, calc(100vw - 32px));
+  height: min(720px, calc(100vh - 96px));
+  background: rgba(20,20,20,0.96);
+  border: 1px solid var(--wm-border);
+  border-radius: 16px;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+  z-index: 9999;
+  transform: translateX(calc(100% + 24px));
+  transition: transform 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.wm-guru-panel.is-open{
+  transform: translateX(0);
+}
+
+.wm-guru-header{
+  padding: 12px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--wm-border);
+}
+
+.wm-guru-title{
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.wm-guru-actions{
+  display: flex;
+  gap: 8px;
+}
+
+.wm-guru-body { background: var(--wm-bg); }
+
+.wm-guru-log{
+  padding: 10px;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.wm-guru-msg{
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.wm-guru-msg.user{
+  background: rgba(31,224,163,0.08);
+}
+
+.wm-guru-msg-role{
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.wm-guru-msg-text{
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.wm-guru-compose{
+  padding: 10px;
+  border-top: 1px solid var(--wm-border);
+  background: rgba(0,0,0,0.12);
+}
+
+.wm-guru-compose-actions{
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* WINGMAN_NAV_COLLAPSE_V1 */
+
+/* Wrap controls the actual width so menu fully collapses */
+.wm-sidenav-wrap{
+  width: 240px;
+  transition: width 0.22s ease;
+  flex: 0 0 auto;
+  position: relative;
+}
+.wm-sidenav-wrap.is-collapsed{
+  width: 64px;
+}
+
+/* SideNav base */
+.wm-sidenav{
+  height: 100%;
+  background: rgba(255,255,255,0.02);
+  border-right: 1px solid var(--wm-border);
+  padding: 14px 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Links/sections */
+.wm-nav-section{ margin-bottom: 14px; }
+.wm-nav-section-title{ font-size: 12px; opacity: 0.65; margin: 6px 8px; }
+.wm-nav-section-body { background: var(--wm-bg); }
+
+.wm-sidenav-link{
+  display: block;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: var(--wm-text);
+  text-decoration: none;
+}
+.wm-sidenav-link:hover{ background: rgba(31,224,163,0.12); }
+.wm-sidenav-link.is-active{ background: rgba(31,224,163,0.16); border-color: rgba(31,224,163,0.22); }
+
+/* Collapse behaviour: hide labels when collapsed */
+.wm-shell[data-nav-collapsed="1"] .wm-nav-label{
+  opacity: 0;
+  pointer-events: none;
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+}
+
+/* Double-arrow toggle button (shows open/close direction) */
+.wm-sidenav-toggle{
+  position: absolute;
+  top: 12px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--wm-border);
+  background: rgba(0,0,0,0.18);
+  color: var(--wm-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wm-sidenav-toggle:hover{
+  background: rgba(31,224,163,0.12);
+}
+.wm-doublechev{
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* --- Guru Drawer (global) --- */
+.wm-guru-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 9998;
+}
+.wm-guru-panel{
+  position: fixed;
+  top: 72px;
+  right: 16px;
+  width: min(520px, calc(100vw - 32px));
+  height: min(720px, calc(100vh - 96px));
+  background: rgba(20,20,20,0.96);
+  border: 1px solid var(--wm-border);
+  border-radius: 16px;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+  z-index: 9999;
+  transform: translateX(calc(100% + 24px));
+  transition: transform 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.wm-guru-panel.is-open{ transform: translateX(0); }
+.wm-guru-header{
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--wm-border);
+}
+.wm-guru-title{ font-weight: 700; }
+.wm-guru-actions{ display: flex; gap: 8px; }
+.wm-guru-body { background: var(--wm-bg); }
+.wm-guru-log{ padding: 10px; overflow: auto; flex: 1; min-height: 0; }
+.wm-guru-msg{
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.wm-guru-msg.user{ background: rgba(31,224,163,0.08); }
+.wm-guru-msg-role{ font-size: 12px; opacity: 0.7; margin-bottom: 4px; }
+.wm-guru-msg-text{ white-space: pre-wrap; word-break: break-word; }
+.wm-guru-compose{
+  padding: 10px;
+  border-top: 1px solid var(--wm-border);
+  background: rgba(0,0,0,0.12);
+}
+.wm-guru-compose-actions{
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+/* WINGMAN_GURU_FAB_V1 */
+.wm-guru-fab{
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9997; /* below Guru overlay/panel, above app */
+  padding: 12px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--wm-border);
+  background: rgba(31,224,163,0.18);
+  color: var(--wm-text);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+}
+.wm-guru-fab:hover{ background: rgba(31,224,163,0.26); }

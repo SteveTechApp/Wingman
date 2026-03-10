@@ -1,0 +1,42 @@
+:root{
+  --wm-bg: #07111d;
+  --wm-bg-elev: #0b1726;
+  --wm-panel: #0e1c2d;
+  --wm-panel-2: #102236;
+  --wm-border: rgba(119,166,230,0.14);
+  --wm-border-strong: rgba(119,166,230,0.22);
+  --wm-text: #ecf4ff;
+  --wm-text-soft: rgba(236,244,255,0.76);
+  --wm-text-dim: rgba(236,244,255,0.56);
+  --wm-accent: #28cdd2;
+  --wm-accent-2: #4b8dff;
+  --wm-orange: #f28c28;
+
+  --wm-topbar-h: 64px;
+  --wm-sidebar-w: 248px;
+  --wm-sidebar-collapsed-w: 78px;
+  --wm-page-pad: 20px;
+  --wm-page-gap: 18px;
+  --wm-card-pad: 16px;
+  --wm-radius: 16px;
+  --wm-radius-sm: 10px;
+  --wm-btn-h: 38px;
+  --wm-input-h: 40px;
+
+  --wm-font-sans: Inter, Segoe UI, Arial, sans-serif;
+  --wm-shadow-none: none;
+}
+
+html, body, #root {
+  height: 100%;
+  min-height: 100%;
+}
+
+body{
+  margin:0;
+  font-family: var(--wm-font-sans);
+  background:
+    radial-gradient(circle at top right, rgba(41,99,182,0.14), transparent 24%),
+    linear-gradient(180deg, #07111d 0%, #07131f 100%);
+  color: var(--wm-text);
+}

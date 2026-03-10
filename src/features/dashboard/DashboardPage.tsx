@@ -1,254 +1,389 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  createProject,
-  deleteProject,
-  loadProjects,
-  subscribeProjects,
-  type StoredProject,
-} from "@/features/projects/projectStore";
+  ArrowRight,
+  ClipboardList,
+  LayoutTemplate,
+  Boxes,
+  FileText,
+  MonitorSmartphone,
+  Building2,
+  GraduationCap,
+  Hotel,
+  Store,
+  FolderOpen,
+  PlusCircle,
+  History,
+} from "lucide-react";
 
-function formatRelativeDay(iso: string): string {
-  const target = new Date(iso);
-  const now = new Date();
+type RecentProject = {
+  id: string;
+  name: string;
+  subtitle?: string;
+  updatedAt?: string;
+  href?: string;
+};
 
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const startOfTarget = new Date(target.getFullYear(), target.getMonth(), target.getDate()).getTime();
-  const diffDays = Math.round((startOfToday - startOfTarget) / 86400000);
+type WorkflowCard = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  to: string;
+  Icon: React.ComponentType<{ className?: string }>;
+};
 
-  if (diffDays <= 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  return target.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+type UtilityCard = {
+  title: string;
+  description: string;
+  to: string;
+  Icon: React.ComponentType<{ className?: string }>;
+};
+
+const workflowCards: WorkflowCard[] = [
+  {
+    eyebrow: "Discovery",
+    title: "Capture requirements",
+    description:
+      "Structure room conditions, displays, source counts, cable distance, USB, control, and audio needs before product selection begins.",
+    to: "/app/tools/discovery",
+    Icon: ClipboardList,
+  },
+  {
+    eyebrow: "Architecture",
+    title: "Choose the right signal path",
+    description:
+      "Guide users toward HDBaseT, AVoIP, matrix switching, USB extension, or video wall workflows based on the application.",
+    to: "/app/tools/templates",
+    Icon: LayoutTemplate,
+  },
+  {
+    eyebrow: "Products",
+    title: "Build the solution",
+    description:
+      "Turn the selected architecture into recommended WyreStorm platforms, building blocks, and a starter BOM direction.",
+    to: "/app/tools/catalog",
+    Icon: Boxes,
+  },
+  {
+    eyebrow: "Proposal",
+    title: "Move toward output",
+    description:
+      "Keep commercial logic, documentation, and proposal readiness aligned to the real project workflow.",
+    to: "/app/tools/proposals",
+    Icon: FileText,
+  },
+];
+
+const utilityCards: UtilityCard[] = [
+  {
+    title: "Video Wall",
+    description: "Plan LCD and LED wall workflows, processing, and sizing.",
+    to: "/app/tools/video-wall",
+    Icon: MonitorSmartphone,
+  },
+  {
+    title: "Corporate",
+    description: "Open business meeting room and boardroom starting points.",
+    to: "/app/tools/templates?market=corporate",
+    Icon: Building2,
+  },
+  {
+    title: "Education",
+    description: "Open classroom, lecture, and campus AV design starters.",
+    to: "/app/tools/templates?market=education",
+    Icon: GraduationCap,
+  },
+  {
+    title: "Hospitality",
+    description: "Open hospitality and venue-led room design starters.",
+    to: "/app/tools/templates?market=hospitality",
+    Icon: Hotel,
+  },
+  {
+    title: "Retail",
+    description: "Open signage, display, and customer-facing AV starters.",
+    to: "/app/tools/templates?market=retail",
+    Icon: Store,
+  },
+];
+
+function safeReadRecentProjects(): RecentProject[] {
+  if (typeof window === "undefined") return [];
+
+  const candidateKeys = [
+    "wm_recent_projects",
+    "wm_projects_recent",
+    "wm_projects",
+    "wingman_projects",
+  ];
+
+  for (const key of candidateKeys) {
+    try {
+      const raw = window.localStorage.getItem(key);
+      if (!raw) continue;
+
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) continue;
+
+      const projects = parsed
+        .map((item: any, index: number) => ({
+          id: String(item?.id ?? item?.projectId ?? index + 1),
+          name: String(
+            item?.name ??
+              item?.projectName ??
+              item?.title ??
+              "Untitled project"
+          ),
+          subtitle: item?.customer
+            ? String(item.customer)
+            : item?.site
+              ? String(item.site)
+              : item?.roomName
+                ? String(item.roomName)
+                : undefined,
+          updatedAt: item?.updatedAt
+            ? String(item.updatedAt)
+            : item?.modifiedAt
+              ? String(item.modifiedAt)
+              : item?.createdAt
+                ? String(item.createdAt)
+                : undefined,
+          href: item?.href
+            ? String(item.href)
+            : item?.id || item?.projectId
+              ? "/app/projects"
+              : "/app/projects",
+        }))
+        .filter((p: RecentProject) => !!p.name)
+        .slice(0, 4);
+
+      if (projects.length > 0) return projects;
+    } catch {
+      // Ignore malformed localStorage data
+    }
+  }
+
+  return [];
 }
 
-function StageRow(props: {
-  index: number;
-  title: string;
-  desc: string;
-  state: "Current" | "Pending";
-}) {
-  const { index, title, desc, state } = props;
-  return (
-    <div className="wm-stage-row">
-      <div className="wm-stage-row__dot" />
-      <div className="wm-stage-row__body">
-        <div className="wm-stage-row__title">
-          {index}. {title}
-        </div>
-        <div className="wm-stage-row__desc">{desc}</div>
-      </div>
-      <div className={state === "Current" ? "wm-stage-row__state is-current" : "wm-stage-row__state"}>
-        {state}
-      </div>
-    </div>
-  );
+function formatUpdatedAt(value?: string): string {
+  if (!value) return "Recently updated";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  try {
+    return new Intl.DateTimeFormat(undefined, {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  } catch {
+    return date.toLocaleString();
+  }
 }
 
 export default function DashboardPage() {
-  const nav = useNavigate();
-  const [projects, setProjects] = React.useState<StoredProject[]>(() => loadProjects());
+  const navigate = useNavigate();
+  const [recentProjects, setRecentProjects] = React.useState<RecentProject[]>([]);
 
   React.useEffect(() => {
-    const refresh = () => setProjects(loadProjects());
-    const unsubscribe = subscribeProjects(refresh);
-    refresh();
-    return unsubscribe;
+    setRecentProjects(safeReadRecentProjects());
   }, []);
 
-  const recentProjects = React.useMemo(
-    () => [...projects].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 5),
-    [projects]
-  );
-
-  const activeProject = recentProjects[0] ?? null;
-
-  const handleOpenProject = (projectId: string) => {
-    nav(`/app/projects?projectId=${encodeURIComponent(projectId)}`);
-  };
-
-  const handleCreateProject = () => {
-    const created = createProject({
-      name: `New Project ${projects.length + 1}`,
-      customer: "Sample customer",
-      stage: "Discovery",
-      status: "Draft",
-      notes: "New blank project created from the dashboard.",
-    });
-    nav(`/app/projects?projectId=${encodeURIComponent(created.id)}`);
-  };
-
-  const handleDeleteProject = (projectId: string, projectName: string) => {
-    const ok = window.confirm(`Delete project "${projectName}"?`);
-    if (!ok) return;
-    deleteProject(projectId);
-  };
-
   return (
-    <div className="wm-dashboard">
-      <section className="wm-dashboard__hero">
-        <div>
-          <div className="wm-dashboard__eyebrow">Mission Control</div>
-          <h1 className="wm-dashboard__title">Keep the opportunity moving</h1>
-          <p className="wm-dashboard__subtitle">
-            Start with discovery, move into design and specification, then finish with a clear exportable proposal.
-          </p>
+    <div className="min-h-full bg-[radial-gradient(circle_at_top,rgba(24,168,196,0.14),transparent_34%),linear-gradient(180deg,#06111f_0%,#081626_55%,#0a1828_100%)] text-slate-100">
+      <div className="mx-auto w-full max-w-[1440px] px-6 py-8 md:px-8 lg:px-10">
+        <section className="overflow-hidden rounded-[28px] border border-cyan-500/15 bg-slate-950/45 px-6 py-8 shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur md:px-10 md:py-12">
+          <div className="max-w-4xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200">
+              WyreStorm Sales Assistant
+            </div>
 
-          <div className="wm-dashboard__meta">
-            <span className="wm-chip">Stage: {activeProject?.stage ?? "Discovery"}</span>
-            <span className="wm-chip">Status: {activeProject?.status ?? "Draft"}</span>
-            <span className="wm-chip">
-              Updated: {activeProject ? new Date(activeProject.updatedAt).toLocaleDateString() : "Mar 06, 2026"}
-            </span>
+            <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-tight tracking-tight text-white md:text-6xl">
+              Turn AV requirements into proposal-ready system designs.
+            </h1>
+
+            <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">
+              Wingman helps sales and pre-sales teams capture room requirements,
+              select the right WyreStorm architecture, structure a BOM, and move
+              projects through a consistent workflow.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <button
+                type="button"
+                onClick={() => navigate("/app/tools/discovery")}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:translate-y-[-1px] hover:bg-cyan-300"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Start New Project
+              </button>
+
+              <Link
+                to="/app/tools/discovery"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-cyan-300/35 hover:bg-white/10"
+              >
+                Run Discovery Wizard
+              </Link>
+
+              <Link
+                to="/app/dashboard"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:border-cyan-300/35 hover:bg-white/10"
+              >
+                Open Mission Control
+              </Link>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className="wm-dashboard__heroactions">
-          <button type="button" className="wm-btn wm-btn--ghost" onClick={() => nav("/app/projects")}>
-            Projects
-          </button>
-          <button type="button" className="wm-btn wm-btn--ghost" onClick={() => nav("/app/tools")}>
-            Tool Hub
-          </button>
-          <button type="button" className="wm-btn wm-btn--primary" onClick={handleCreateProject}>
-            Start New Project
-          </button>
-        </div>
-      </section>
-
-      <section className="wm-dashboard__grid">
-        <div className="wm-card">
-          <div className="wm-card__title">Recommended next action</div>
-          <div className="wm-card__subtitle">
-            Begin by capturing the discovery information so every later tool has the right project context.
-          </div>
-
-          <div className="wm-nextstep">
-            <div className="wm-nextstep__project">
-              <div className="wm-nextstep__label">Active Project</div>
-              <h3>{activeProject ? activeProject.name : "No active project"}</h3>
-              <p>
-                {activeProject
-                  ? `Current customer: ${activeProject.customer}. Continue building the project from the shared project workspace.`
-                  : "Create a project first or jump straight into discovery to capture the first set of requirements."}
-              </p>
-
-              <div className="wm-inline-actions">
-                <button
-                  type="button"
-                  className="wm-btn wm-btn--primary"
-                  onClick={() => {
-                    if (activeProject) {
-                      handleOpenProject(activeProject.id);
-                    } else {
-                      nav("/app/tools/discovery");
-                    }
-                  }}
-                >
-                  {activeProject ? "Open Active Project" : "Capture Discovery"}
-                </button>
-                <button
-                  type="button"
-                  className="wm-btn wm-btn--secondary"
-                  onClick={handleCreateProject}
-                >
-                  Start Blank Project
-                </button>
+        <section className="mt-8 grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+          <div className="rounded-[24px] border border-white/8 bg-slate-950/35 p-6 shadow-[0_16px_50px_rgba(0,0,0,0.22)]">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                  What Wingman helps you do
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">
+                  Core workflow tools for AV sales and design
+                </h2>
               </div>
             </div>
 
-            <div className="wm-nextstep__stages">
-              <StageRow
-                index={1}
-                title="Discovery"
-                desc="Capture application, rooms, distances, displays, sources and constraints."
-                state="Current"
-              />
-              <StageRow
-                index={2}
-                title="Design"
-                desc="Map the signal path, USB needs, audio handling and control approach."
-                state="Pending"
-              />
-              <StageRow
-                index={3}
-                title="Specify"
-                desc="Select WyreStorm products, alternates and accessories."
-                state="Pending"
-              />
-              <StageRow
-                index={4}
-                title="Quote"
-                desc="Export the proposal snapshot and prepare customer-facing output."
-                state="Pending"
-              />
+            <div className="grid gap-4 lg:grid-cols-2">
+              {workflowCards.map(({ eyebrow, title, description, to, Icon }) => (
+                <Link
+                  key={title}
+                  to={to}
+                  className="group rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(15,23,42,0.82),rgba(8,18,32,0.92))] p-5 transition hover:-translate-y-1 hover:border-cyan-300/25 hover:shadow-[0_16px_40px_rgba(0,0,0,0.28)]"
+                >
+                  <div className="mb-4 flex items-start justify-between gap-4">
+                    <div className="rounded-xl border border-cyan-400/15 bg-cyan-400/10 p-3 text-cyan-200">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-slate-500 transition group-hover:text-cyan-200" />
+                  </div>
+
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+                    {eyebrow}
+                  </p>
+                  <h3 className="mt-2 text-2xl font-semibold tracking-tight text-white">
+                    {title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">
+                    {description}
+                  </p>
+                </Link>
+              ))}
             </div>
           </div>
-        </div>
 
-        <div className="wm-card">
-          <div className="wm-card__title">Recent projects</div>
-          <div className="wm-card__subtitle">
-            Re-open a live opportunity or start a new working draft.
-          </div>
-
-          <div className="wm-project-list">
-            {recentProjects.length === 0 ? (
-              <div className="wm-project-row">
-                <div className="wm-project-row__main">
-                  <div className="wm-project-row__name">No projects yet</div>
-                  <div className="wm-project-row__customer">Create your first project to populate this list.</div>
+          <div className="space-y-6">
+            <section className="rounded-[24px] border border-white/8 bg-slate-950/35 p-6 shadow-[0_16px_50px_rgba(0,0,0,0.22)]">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="rounded-xl border border-cyan-400/15 bg-cyan-400/10 p-3 text-cyan-200">
+                  <History className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                    Continue working
+                  </p>
+                  <h2 className="text-xl font-semibold tracking-tight text-white">
+                    Recent projects
+                  </h2>
                 </div>
               </div>
-            ) : (
-              recentProjects.map((project) => (
-                <div className="wm-project-row" key={project.id}>
-                  <div className="wm-project-row__main">
-                    <div className="wm-project-row__name">{project.name}</div>
-                    <div className="wm-project-row__customer">{project.customer}</div>
-                  </div>
-                  <div className="wm-project-row__stage">{project.stage}</div>
-                  <div className="wm-project-row__updated">{formatRelativeDay(project.updatedAt)}</div>
-                  <div className="wm-project-row__actions">
-                    <button
-                      type="button"
-                      className="wm-btn wm-btn--small wm-btn--ghost"
-                      onClick={() => handleOpenProject(project.id)}
-                    >
-                      Open
-                    </button>
-                    <button
-                      type="button"
-                      className="wm-icon-btn"
-                      onClick={() => handleDeleteProject(project.id, project.name)}
-                      title="Delete project"
-                      aria-label={`Delete ${project.name}`}
-                    >
-                      🗑
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
 
-          <div className="wm-inline-actions">
-            <button
-              type="button"
-              className="wm-btn wm-btn--ghost"
-              onClick={() => nav("/app/projects")}
-            >
-              Open Projects
-            </button>
-            <button
-              type="button"
-              className="wm-btn wm-btn--primary"
-              onClick={handleCreateProject}
-            >
-              Start New Project
-            </button>
+              {recentProjects.length > 0 ? (
+                <div className="space-y-3">
+                  {recentProjects.map((project) => (
+                    <Link
+                      key={project.id}
+                      to={project.href ?? "/app/projects"}
+                      className="block rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-cyan-300/25 hover:bg-white/[0.05]"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-semibold text-white">
+                            {project.name}
+                          </div>
+                          <div className="mt-1 truncate text-sm text-slate-400">
+                            {project.subtitle ?? "Wingman project"}
+                          </div>
+                          <div className="mt-2 text-xs text-slate-500">
+                            {formatUpdatedAt(project.updatedAt)}
+                          </div>
+                        </div>
+                        <FolderOpen className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                      </div>
+                    </Link>
+                  ))}
+
+                  <Link
+                    to="/app/projects"
+                    className="inline-flex items-center gap-2 pt-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+                  >
+                    Open all projects
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-5">
+                  <div className="text-sm font-semibold text-white">
+                    No recent projects yet
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    Start with a discovery-led workflow and Wingman can guide the
+                    project toward architecture, products, and proposal output.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/app/tools/discovery")}
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                    Start first project
+                  </button>
+                </div>
+              )}
+            </section>
+
+            <section className="rounded-[24px] border border-white/8 bg-slate-950/35 p-6 shadow-[0_16px_50px_rgba(0,0,0,0.22)]">
+              <div className="mb-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                  Quick access
+                </p>
+                <h2 className="mt-2 text-xl font-semibold tracking-tight text-white">
+                  Design starters and specialist tools
+                </h2>
+              </div>
+
+              <div className="grid gap-3">
+                {utilityCards.map(({ title, description, to, Icon }) => (
+                  <Link
+                    key={title}
+                    to={to}
+                    className="group flex items-start gap-4 rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-cyan-300/25 hover:bg-white/[0.05]"
+                  >
+                    <div className="rounded-xl border border-cyan-400/15 bg-cyan-400/10 p-2.5 text-cyan-200">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-semibold text-white">{title}</div>
+                      <div className="mt-1 text-sm leading-6 text-slate-400">
+                        {description}
+                      </div>
+                    </div>
+                    <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-500 transition group-hover:text-cyan-200" />
+                  </Link>
+                ))}
+              </div>
+            </section>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

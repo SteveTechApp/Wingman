@@ -1,0 +1,179 @@
+
+/* ================================
+   Wingman Layout System
+   ================================ */
+
+.wm-shell-root{
+  height:100vh;
+  display:grid;
+  grid-template-rows:
+      var(--wm-topbar-h)
+      1fr
+      var(--wm-footer-h);
+}
+
+/* Main shell grid */
+
+.wm-shell-body{
+  display:grid;
+  grid-template-columns:
+      var(--wm-sidebar-w)
+      1fr;
+
+  min-height:0;
+  overflow:hidden;
+}
+
+/* Sidebar */
+
+.wm-shell-nav{
+  width:var(--wm-sidebar-w);
+  background:var(--wm-surface-1);
+  border-right:1px solid var(--wm-border);
+  overflow:hidden;
+}
+
+/* Collapsed sidebar */
+
+.wm-shell-nav.is-collapsed{
+  width:var(--wm-sidebar-collapsed);
+}
+
+/* Main workspace */
+
+.wm-shell-main{
+  min-width:0;
+  overflow:auto;
+  padding:var(--wm-page-pad);
+}
+
+/* Page layout */
+
+.wm-page{
+  width:100%;
+  max-width:1800px;
+  margin:0 auto;
+
+  display:flex;
+  flex-direction:column;
+  gap:var(--wm-gap);
+}
+
+/* Page headers */
+
+.wm-page-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.wm-page-title{
+  font-size:var(--wm-fs-section);
+  font-weight:var(--wm-fw-strong);
+}
+
+/* Dashboard grid */
+
+.wm-dashboard-grid{
+  display:grid;
+  gap:var(--wm-gap);
+
+  grid-template-columns:
+    repeat(auto-fit,minmax(300px,1fr));
+}
+
+/* Tool grid */
+
+.wm-tool-grid{
+  display:grid;
+  gap:var(--wm-gap);
+
+  grid-template-columns:
+    repeat(auto-fit,minmax(280px,1fr));
+}
+
+/* ===== Wingman Mission Control workspace phase 4 ===== */
+
+.wm-mc-workspace{
+  display:grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
+  gap: 18px;
+  align-items:start;
+}
+
+.wm-mc-main-column,
+.wm-mc-side-column{
+  display:flex;
+  flex-direction:column;
+  gap: 18px;
+  min-width:0;
+}
+
+.wm-mc-summary,
+.wm-mc-readiness{
+  padding: 18px;
+  display:flex;
+  flex-direction:column;
+  gap: 14px;
+}
+
+.wm-mc-summary-head,
+.wm-mc-readiness-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+}
+
+.wm-mc-summary-title{
+  margin: 6px 0 0;
+}
+
+.wm-mc-summary-copy,
+.wm-mc-readiness-copy{
+  margin: 0;
+}
+
+.wm-mc-summary-grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wm-mc-tech-strip{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 10px;
+}
+
+.wm-mc-readiness-score{
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.wm-mc-readiness-bar{
+  width:100%;
+  height:10px;
+  border-radius:999px;
+  overflow:hidden;
+  background: rgba(255,255,255,0.06);
+}
+
+.wm-mc-readiness-fill{
+  height:100%;
+  border-radius:999px;
+  background: linear-gradient(90deg, rgba(40,205,210,0.9), rgba(75,141,255,0.9));
+}
+
+@media (max-width: 1180px){
+  .wm-mc-workspace{
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px){
+  .wm-mc-summary-grid{
+    grid-template-columns: 1fr;
+  }
+}

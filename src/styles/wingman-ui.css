@@ -1,42 +1,14 @@
 
 
 /* __WM_GLOBAL_DARK_THEME_TOKENS_V1__ */
-:root {
-  --wm-bg: #07111d;
-  --wm-bg-elev: #0b1726;
-  --wm-bg-soft: rgba(255,255,255,0.04);
+/* LEGACY ROOT DISABLED
 
-  --wm-surface-1: rgba(255,255,255,0.04);
-  --wm-surface-2: rgba(255,255,255,0.055);
-  --wm-surface-3: rgba(255,255,255,0.07);
+*/
 
-  --wm-border-subtle: rgba(255,255,255,0.08);
-  --wm-border: rgba(255,255,255,0.12);
-  --wm-border-strong: rgba(255,255,255,0.16);
+/* LEGACY GLOBAL DISABLED
 
-  --wm-text: rgba(255,255,255,0.94);
-  --wm-text-2: rgba(255,255,255,0.84);
-  --wm-text-3: rgba(255,255,255,0.70);
-  --wm-text-muted: rgba(255,255,255,0.60);
+*/
 
-  --wm-accent: #4db7ff;
-  --wm-accent-soft: rgba(77,183,255,0.14);
-  --wm-accent-border: rgba(77,183,255,0.28);
-
-  --wm-shadow-soft: 0 10px 26px rgba(0,0,0,0.22);
-  --wm-shadow-card: 0 12px 30px rgba(0,0,0,0.24);
-}
-
-html,
-body,
-#root {
-  background: linear-gradient(180deg, #09172a 0%, #07111d 46%, #060e19 100%);
-  color: var(--wm-text);
-}
-
-body {
-  color: var(--wm-text);
-}
 
 .wm-page,
 .wm-shell,
@@ -152,9 +124,9 @@ textarea::placeholder {
 /* __WM_GLOBAL_DARK_THEME_TOKENS_V1_END__ */
 
 /* __WM_UI_SCALE_AND_COLLAPSIBLE_V1__ */
-:root{
-  --wm-ui-scale: 1;
-}
+/* LEGACY ROOT DISABLED
+
+*/
 
 /* Dynamic scale (Chromium/Edge) */
 .wm-shell{
@@ -281,20 +253,9 @@ textarea::placeholder {
 /* __WM_HEADER_SIZE_TUNE_V1_END__ */
 
 /* __WM_CONTRAST_PASS_V2__ */
-:root {
-  --wm-text: rgba(255,255,255,0.98);
-  --wm-text-2: rgba(255,255,255,0.92);
-  --wm-text-3: rgba(255,255,255,0.82);
-  --wm-text-muted: rgba(255,255,255,0.72);
+/* LEGACY ROOT DISABLED
 
-  --wm-border-subtle: rgba(255,255,255,0.11);
-  --wm-border: rgba(255,255,255,0.16);
-  --wm-border-strong: rgba(255,255,255,0.22);
-
-  --wm-surface-1: rgba(255,255,255,0.06);
-  --wm-surface-2: rgba(255,255,255,0.08);
-  --wm-surface-3: rgba(255,255,255,0.10);
-}
+*/
 
 body,
 #root,
@@ -764,3 +725,4 @@ button.wm-btn-primary:hover{
     0 8px 18px rgba(77,183,255,0.14) !important;
 }
 /* __WM_APP_WIDE_COLOR_HIERARCHY_V1_END__ */
+

@@ -37,7 +37,7 @@ export const useWizardState = (initialData: RoomData | null) => {
                 updateAnswers({ displayType: newType, displayCount: newCount });
             }
         }
-    }, [answers.videoWallConfig, answers.displayType, answers.displayCount, updateAnswers]);
+    }, [answers, answers.videoWallConfig, answers.displayType, answers.displayCount, updateAnswers]);
 
     return { answers, updateAnswers, createInitialAnswers };
 };

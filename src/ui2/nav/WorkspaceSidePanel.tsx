@@ -40,12 +40,12 @@ export default function WorkspaceSidePanel(props: Props) {
     const label =
       p.startsWith("/app/tools/room") ? "Room Wizard" :
       p.startsWith("/app/tools/proposal") ? "Proposal Builder" :
-      p.startsWith("/app/tools/competitor") ? "Competitor Compare" :
+      (p.startsWith("/app/tools/compare") || p.startsWith("/app/tools/competitor")) ? "Competitor Compare" :
       p.startsWith("/app/tools/catalog") ? "Product Catalog" :
-      p.startsWith("/app/tools/videowall") ? "Video Wall Planner" :
+      p.startsWith("/app/tools/video-wall") ? "Video Wall Planner" :
       p.startsWith("/app/tools/training") ? "Training Hub" :
       p.startsWith("/app/tools/guru") ? "Guru" :
-      p.startsWith("/app/survey-import") ? "Survey Import" :
+      p.startsWith("/app/tools/import-intake") ? "Survey Import" :
       p.startsWith("/app/projects") ? "Projects" :
       p.startsWith("/app/dashboard") ? "Dashboard" :
       "";
@@ -73,7 +73,7 @@ export default function WorkspaceSidePanel(props: Props) {
           <Link className={loc.pathname.startsWith("/app/projects") ? "wm-navitem is-active" : "wm-navitem"} to="/app/projects">
             Projects
           </Link>
-          <Link className={loc.pathname.startsWith("/app/survey-import") ? "wm-navitem is-active" : "wm-navitem"} to="/app/survey-import">
+          <Link className={loc.pathname.startsWith("/app/tools/import-intake") ? "wm-navitem is-active" : "wm-navitem"} to="/app/tools/import-intake">
             Survey Import
           </Link>
         </nav>
@@ -132,3 +132,4 @@ export default function WorkspaceSidePanel(props: Props) {
     </aside>
   );
 }
+

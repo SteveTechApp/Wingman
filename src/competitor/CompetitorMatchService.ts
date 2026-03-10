@@ -6,7 +6,7 @@ import { WYRESTORM_PRODUCTS } from "./competitorDataset";
 export function normaliseSku(s: string): string {
   return (s || "")
     .toUpperCase()
-    .replace(/[\s\-_\/\\]+/g, "")
+    .replace(/[\s\-_/\\]+/g, "")
     .replace(/[^\w]/g, "");
 }
 

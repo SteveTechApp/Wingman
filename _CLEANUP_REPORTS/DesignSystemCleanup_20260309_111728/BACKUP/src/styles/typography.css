@@ -1,0 +1,133 @@
+:root {
+  --wm-font-sans: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+
+  --wm-fs-page: 32px;
+  --wm-fs-section: 20px;
+  --wm-fs-card: 16px;
+  --wm-fs-body: 14px;
+  --wm-fs-label: 12px;
+
+  --wm-fw-body: 400;
+  --wm-fw-ui: 500;
+  --wm-fw-strong: 600;
+
+  --wm-ls-tight: -0.02em;
+  --wm-ls-normal: -0.01em;
+}
+
+html,
+body,
+#root {
+  font-family: var(--wm-font-sans);
+  font-size: var(--wm-fs-body);
+  font-weight: var(--wm-fw-body);
+  letter-spacing: var(--wm-ls-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--wm-font-sans);
+  font-size: var(--wm-fs-body);
+  font-weight: var(--wm-fw-body);
+  letter-spacing: var(--wm-ls-normal);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family: var(--wm-font-sans);
+  font-weight: var(--wm-fw-strong);
+  letter-spacing: var(--wm-ls-tight);
+}
+
+h1 {
+  font-size: var(--wm-fs-page);
+  line-height: 1.05;
+}
+
+h2 {
+  font-size: var(--wm-fs-section);
+  line-height: 1.15;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--wm-fs-card);
+  line-height: 1.2;
+}
+
+p,
+li,
+span,
+div,
+td,
+th,
+label,
+input,
+select,
+textarea {
+  font-size: var(--wm-fs-body);
+}
+
+small,
+caption,
+[role="note"] {
+  font-size: var(--wm-fs-label);
+}
+
+label,
+small,
+th,
+button,
+[role="button"] {
+  font-weight: var(--wm-fw-ui);
+}
+
+strong,
+b {
+  font-weight: var(--wm-fw-strong);
+}
+
+[style*="font-weight: 700"],
+[style*="font-weight:700"],
+[style*="font-weight: 800"],
+[style*="font-weight:800"],
+[style*="font-weight: 850"],
+[style*="font-weight:850"],
+[style*="font-weight: 900"],
+[style*="font-weight:900"] {
+  font-weight: 600 !important;
+}
+
+[style*="font-size: 42px"],
+[style*="font-size:42px"] {
+  font-size: 32px !important;
+  line-height: 1.05 !important;
+}
+
+[style*="font-size: 36px"],
+[style*="font-size:36px"] {
+  font-size: 24px !important;
+  line-height: 1.1 !important;
+}
+
+[style*="font-size: 27px"],
+[style*="font-size:27px"],
+[style*="font-size: 24px"],
+[style*="font-size:24px"],
+[style*="font-size: 21px"],
+[style*="font-size:21px"] {
+  font-size: 18px !important;
+  line-height: 1.15 !important;
+}

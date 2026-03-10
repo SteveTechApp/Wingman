@@ -1,54 +1,150 @@
 import * as React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { brand } from "@/branding/brand";
 
-import { useNavigate } from "react-router-dom";
-import heroLogo from "../assets/branding/wyrestorm-wingman-logo.png";
-import { useAuth } from "@/context";
+const capabilityPills = [
+  "Discovery",
+  "Architecture",
+  "Products",
+  "Proposal",
+  "Video Wall",
+  "USB",
+  "Control",
+];
+
+const featureCards = [
+  {
+    eyebrow: "Discovery",
+    title: "Capture requirements",
+    body: "Structure room conditions, displays, source counts, cable distance, USB, control, and audio needs before product selection begins.",
+  },
+  {
+    eyebrow: "Architecture",
+    title: "Choose the right signal path",
+    body: "Guide users toward HDBaseT, AVoIP, matrix switching, USB extension, or video wall workflows based on the application.",
+  },
+  {
+    eyebrow: "Products",
+    title: "Build the solution",
+    body: "Turn the selected architecture into recommended WyreStorm platforms, building blocks, and a starter BOM direction.",
+  },
+  {
+    eyebrow: "Proposal",
+    title: "Move toward output",
+    body: "Keep commercial logic, documentation, and proposal readiness aligned to the actual project workflow.",
+  },
+];
+
+const workflowSteps = [
+  "Discovery",
+  "Architecture",
+  "Products",
+  "Proposal",
+];
 
 export default function PublicLandingPage() {
-  const nav = useNavigate();
-  const { signInDemo } = useAuth();
+  const navigate = useNavigate();
 
-  function enterWorkspace() {
-    signInDemo();
-    nav("/app/dashboard");
-  }
+  const startNewProject = () => {
+    try {
+      localStorage.setItem("wm_force_create_project", "1");
+    } catch {}
+    navigate("/app/dashboard");
+  };
 
   return (
-    <div className="wm-page" style={{ display: "grid", placeItems: "center" }}>
-      <section
-        className="wm-card"
-        style={{
-          width: "min(980px, 100%)",
-          textAlign: "center",
-          padding: "16px",
-        }}
-      >
-        <div style={{ padding: "14px 10px 16px" }}>
-          <img
-            src={heroLogo}
-            alt="WyreStorm Wingman"
-            style={{
-              width: "min(520px, 88%)",
-              height: "auto",
-              objectFit: "contain",
-              margin: "0 auto 10px",
-              filter: "drop-shadow(0 12px 28px rgba(0,0,0,.38))",
-            }}
-          />
+    <div className="wm-landing-page">
+      <section className="wm-landing-hero">
+        <div className="wm-landing-hero-inner">
+          <div className="wm-landing-hero-panel">
+            <div className="wm-landing-brand">
+              <img
+                src={brand.logo}
+                alt={brand.fullName}
+                className="wm-landing-logo"
+              />
 
-          <div className="wm-h1" style={{ marginTop: 2, fontSize: 42, fontWeight: 800 }}>
-            AV sales. Simplified.
+              <div className="wm-landing-brand-copy">
+                <div className="wm-landing-kicker">WyreStorm Sales Assistant</div>
+                <h1 className="wm-landing-title">
+                  Turn AV requirements into proposal-ready system designs.
+                </h1>
+                <p className="wm-landing-subtitle">
+                  Wingman helps sales and pre-sales teams capture room requirements,
+                  choose the right WyreStorm architecture, structure a BOM, and move
+                  opportunities through a consistent workflow.
+                </p>
+              </div>
+            </div>
+
+            <div className="wm-landing-actions">
+              <button type="button" className="wm-btn wm-btn-primary" onClick={startNewProject}>
+                Start New Project
+              </button>
+              <Link to="/app/tools/discovery" className="wm-btn wm-btn-secondary">
+                Run Discovery Wizard
+              </Link>
+              <Link to="/app/dashboard" className="wm-btn wm-btn-secondary">
+                Open Mission Control
+              </Link>
+            </div>
+
+            <div className="wm-landing-pill-row">
+              {capabilityPills.map((pill) => (
+                <span key={pill} className="wm-badge">
+                  {pill}
+                </span>
+              ))}
+            </div>
           </div>
+        </div>
+      </section>
 
-          <p className="wm-p" style={{ margin: "12px auto 0", maxWidth: 700, fontSize: 18 }}>
-            Design systems, select the right WyreStorm products, and generate consistent proposal-ready outputs.
+      <section className="wm-landing-section">
+        <div className="wm-landing-workflow-strip wm-card">
+          <div className="wm-landing-section-kicker">How Wingman works</div>
+          <div className="wm-landing-workflow-row">
+            {workflowSteps.map((step, index) => (
+              <React.Fragment key={step}>
+                <div className="wm-landing-workflow-step">
+                  <span className="wm-landing-workflow-index">0{index + 1}</span>
+                  <span>{step}</span>
+                </div>
+                {index < workflowSteps.length - 1 ? (
+                  <div className="wm-landing-workflow-arrow">→</div>
+                ) : null}
+              </React.Fragment>
+            ))}
+          </div>
+          <p className="wm-muted wm-landing-workflow-copy">
+            Start with the application, move into architecture, then product selection,
+            and only then build the commercial output.
           </p>
+        </div>
+      </section>
 
-          <div className="wm-row" style={{ justifyContent: "center", marginTop: 20 }}>
-            <button className="wm-btn wm-btn-primary" onClick={enterWorkspace} style={{ minWidth: 220, fontWeight: 700 }}>
-              Enter Workspace
-            </button>
+      <section className="wm-landing-section">
+        <div className="wm-landing-section-head">
+          <div>
+            <div className="wm-landing-section-kicker">What Wingman helps you do</div>
+            <h2 className="wm-subtitle wm-landing-section-title">
+              Core workflow tools for AV sales and design
+            </h2>
           </div>
+          <p className="wm-muted wm-landing-section-copy">
+            Built to guide less technical sales users while still supporting structured
+            system design, solution logic, and proposal consistency.
+          </p>
+        </div>
+
+        <div className="wm-landing-feature-grid">
+          {featureCards.map((card) => (
+            <article key={card.title} className="wm-card wm-landing-feature-card">
+              <div className="wm-landing-card-kicker">{card.eyebrow}</div>
+              <h3 className="wm-landing-card-title">{card.title}</h3>
+              <p className="wm-muted wm-landing-card-copy">{card.body}</p>
+            </article>
+          ))}
         </div>
       </section>
     </div>

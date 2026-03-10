@@ -56,16 +56,6 @@ export default function AdvancedSignalPathPanel({ record, setRecord }: Props) {
     setRecord((prev: any) => normalizeDiscoveryAdvanced({ ...prev, ...patch }));
   }
 
-  function updateConnection(id: string, patch: Record<string, any>) {
-    setRecord((prev: any) => {
-      const current = normalizeDiscoveryAdvanced(prev);
-      return {
-        ...current,
-        connections: current.connections.map((c) => (c.id === id ? { ...c, ...patch } : c)),
-      };
-    });
-  }
-
   function addConnection() {
     setRecord((prev: any) => {
       const current = normalizeDiscoveryAdvanced(prev);

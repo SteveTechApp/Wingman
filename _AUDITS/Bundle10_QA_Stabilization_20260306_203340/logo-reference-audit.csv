@@ -1,0 +1,7 @@
+"File","LineNumber","Line"
+"src\app\navigation\TopBar.tsx","3","import heroLogo from ""../../assets/branding/wyrestorm-wingman-logo.png"";"
+"src\app\pages\PublicLandingPage.tsx","30","src=""/assets/branding/hero-logo.png"""
+"src\pages\public\PublicAboutPage.tsx","197","<img src=""/heroLogo.png"" alt=""WyreStorm Wingman"" style={{ width: 150, height: ""auto"", opacity: 0.92 }} />"
+"src\pages\PublicLandingPage.tsx","4","import heroLogo from ""../assets/branding/wyrestorm-wingman-logo.png"";"
+"src\pages\WorkspaceHomePage.tsx","5","import heroLogo from ""@/assets/branding/hero-logo.png"";"
+"src\ui2\branding\WingmanLogo.tsx","15","src=""/hero-logo.png"""

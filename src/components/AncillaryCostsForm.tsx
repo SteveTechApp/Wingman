@@ -23,7 +23,6 @@ const COST_CATEGORIES = [
 ] as const;
 
 const AncillaryCostsForm: React.FC<AncillaryCostsFormProps> = ({ costs, onUpdate }) => {
-    const [editingId, setEditingId] = React.useState<string | null>(null);
     const [isAdding, setIsAdding] = React.useState(false);
     const [newCost, setNewCost] = React.useState<Omit<AncillaryCost, 'id'>>({
         category: 'materials',
@@ -47,12 +46,6 @@ const AncillaryCostsForm: React.FC<AncillaryCostsFormProps> = ({ costs, onUpdate
             notes: '',
         });
         setIsAdding(false);
-    };
-
-    const updateCost = (id: string, updates: Partial<AncillaryCost>) => {
-        onUpdate(costs.map(cost => 
-            cost.id === id ? { ...cost, ...updates } : cost
-        ));
     };
 
     const removeCost = (id: string) => {
@@ -265,4 +258,5 @@ const AncillaryCostsForm: React.FC<AncillaryCostsFormProps> = ({ costs, onUpdate
 };
 
 export default AncillaryCostsForm;
+
 

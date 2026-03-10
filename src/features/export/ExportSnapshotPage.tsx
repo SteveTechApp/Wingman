@@ -1,67 +1,151 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  getActiveProject,
+  subscribeProjects,
+  type StoredProject,
+} from "@/features/projects/projectStore";
+import skuCatalog from "@/data/wyrestormSkuCatalog.2026";
 
-type ActiveProjectLite = {
-  id?: string;
-  name?: string;
-  customer?: string;
-  site?: string;
-  status?: string;
+type SkuItem = {
+  sku: string;
+  description?: string;
 };
 
-function readActiveProject(): ActiveProjectLite {
-  // Safe, best-effort: supports multiple possible keys / shapes without breaking.
-  const keys = ["wm_active_project", "wm_activeProject", "wm_project_active", "wm_current_project", "wm_currentProject"];
-  for (const k of keys) {
-    try {
-      const raw = window.localStorage.getItem(k);
-      if (!raw) continue;
-      const obj = JSON.parse(raw);
+type SelectedProductRow = {
+  sku: string;
+  description: string;
+  quantity: number;
+};
 
-      const id =
-        obj?.id ?? obj?.projectId ?? obj?.project?.id ?? obj?.activeProjectId ?? obj?.currentProjectId;
+function formatDate(value: Date): string {
+  return value.toLocaleDateString();
+}
 
-      const customer =
-        obj?.customer ?? obj?.project?.customer ?? obj?.meta?.customer ?? obj?.details?.customer;
+function normalizeText(value: unknown, fallback = "-"): string {
+  const text = String(value ?? "").trim();
+  return text.length > 0 ? text : fallback;
+}
 
-      const site =
-        obj?.site ?? obj?.project?.site ?? obj?.meta?.site ?? obj?.details?.site;
+function readCatalogItems(): SkuItem[] {
+  const anyCatalog = skuCatalog as any;
+  const items =
+    (anyCatalog?.items as SkuItem[] | undefined) ??
+    (anyCatalog?.default?.items as SkuItem[] | undefined) ??
+    (anyCatalog?.default?.default?.items as SkuItem[] | undefined) ??
+    [];
 
-      const status =
-        obj?.status ?? obj?.project?.status ?? obj?.meta?.status ?? obj?.details?.status;
+  return Array.isArray(items) ? items : [];
+}
 
-      const name =
-        obj?.name ?? obj?.project?.name ?? obj?.title ?? obj?.projectName;
-
-      return { id, customer, site, status, name };
-    } catch {}
+function buildSkuDescriptionMap(): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const item of readCatalogItems()) {
+    const sku = String(item.sku ?? "").trim();
+    if (!sku) continue;
+    if (!map.has(sku)) {
+      map.set(sku, normalizeText(item.description, "Description unavailable"));
+    }
   }
-  return {};
+  return map;
+}
+
+const SKU_DESCRIPTION_MAP = buildSkuDescriptionMap();
+
+function buildSelectedProductRows(project: StoredProject | null): SelectedProductRow[] {
+  if (!project) return [];
+  const skus = Array.isArray(project.catalog?.skus) ? project.catalog?.skus : [];
+  if (!skus || skus.length === 0) return [];
+
+  const counts = new Map<string, number>();
+
+  for (const value of skus) {
+    const sku = String(value ?? "").trim();
+    if (!sku) continue;
+    counts.set(sku, (counts.get(sku) ?? 0) + 1);
+  }
+
+  return Array.from(counts.entries())
+    .map(([sku, quantity]) => ({
+      sku,
+      quantity,
+      description: SKU_DESCRIPTION_MAP.get(sku) ?? "Description unavailable",
+    }))
+    .sort((a, b) => a.sku.localeCompare(b.sku));
+}
+
+function getDiscoverySummary(project: StoredProject | null) {
+  if (!project) {
+    return {
+      application: "-",
+      displays: "-",
+      sources: "-",
+      distance: "-",
+      usbNeeds: "-",
+      controlNeeds: "-",
+    };
+  }
+
+  const displays =
+    normalizeText(project.discovery?.displayCount, "") ||
+    (project.videowall ? String(project.videowall.rows * project.videowall.cols) : "") ||
+    "-";
+
+  const distanceRaw = normalizeText(project.discovery?.cableDistanceM, "");
+  const distance = distanceRaw !== "" ? `${distanceRaw} m` : "-";
+
+  return {
+    application: normalizeText(project.discovery?.applicationType ?? project.template?.application, "-"),
+    displays,
+    sources: normalizeText(project.discovery?.sourceCount, "-"),
+    distance,
+    usbNeeds: normalizeText(project.discovery?.usbNeeds, "-"),
+    controlNeeds: normalizeText(project.discovery?.controlNeeds, "-"),
+  };
 }
 
 export default function ExportSnapshotPage() {
   const nav = useNavigate();
 
+  const project = React.useSyncExternalStore(
+    subscribeProjects,
+    () => getActiveProject() ?? null,
+    () => null
+  );
+
   React.useEffect(() => {
     document.body.classList.add("wm-export-mode");
-    try { window.scrollTo({ top: 0, left: 0, behavior: "instant" as any }); } catch { window.scrollTo(0, 0); }
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" as never });
+    } catch {
+      window.scrollTo(0, 0);
+    }
+
     return () => document.body.classList.remove("wm-export-mode");
   }, []);
 
   const today = React.useMemo(() => new Date(), []);
-  const proj = React.useMemo(() => readActiveProject(), []);
+  const discovery = React.useMemo(() => getDiscoverySummary(project), [project]);
+  const productRows = React.useMemo(() => buildSelectedProductRows(project), [project]);
 
-  const customer = proj.customer || "â€”";
-  const site = proj.site || "â€”";
-  const status = proj.status || "Draft";
+  const customer = normalizeText(project?.customer, "-");
+  const site = normalizeText(project?.site, "-");
+  const status = normalizeText(project?.status, "Draft");
+  const projectName = normalizeText(project?.name, "Project Snapshot");
+
+  const recommendedFamilies = Array.isArray(project?.discovery?.recommendedFamilies)
+    ? project?.discovery?.recommendedFamilies
+    : [];
 
   function handlePrint() {
     window.print();
   }
 
   function openProject() {
-    if (!proj.id) return;
-    // Common route pattern; adjust later if your app uses a different one
+    if (project?.id) {
+      nav(`/app/projects/${project.id}`);
+      return;
+    }
     nav("/app/projects");
   }
 
@@ -71,23 +155,20 @@ export default function ExportSnapshotPage() {
         <button className="wm-btn wm-btn--primary" onClick={handlePrint}>
           Print / Save PDF
         </button>
-        <div className="wm-export-hint">Tip: choose â€œSave as PDFâ€ in the print dialog.</div>
+        <div className="wm-export-hint">Tip: choose "Save as PDF" in the print dialog.</div>
       </div>
 
       <div className="wm-export-container">
         <div className="wm-export-sheet wm-export-sheet--preview">
-          {/* In-sheet Wingman header (navigation) */}
           <div className="wm-docbar no-print">
             <div className="wm-docbar__brand">
-  <div className="wm-docbar__mark">WYRESTORM</div>
-  <div className="wm-docbar__sub">Wingman â€¢ Snapshot</div>
-</div>
+              <div className="wm-docbar__mark">WYRESTORM</div>
+              <div className="wm-docbar__sub">Wingman | Snapshot</div>
+            </div>
             <div className="wm-docbar__actions">
-              {proj.id ? (
-                <button className="wm-docbtn" type="button" onClick={openProject} title="Open active project">
-                  Open Project
-                </button>
-              ) : null}
+              <button className="wm-docbtn" type="button" onClick={openProject} title="Open active project">
+                Open Project
+              </button>
               <button className="wm-docbtn" type="button" onClick={() => nav("/app/dashboard")}>
                 Home
               </button>
@@ -97,18 +178,17 @@ export default function ExportSnapshotPage() {
             </div>
           </div>
 
-          {/* Document header */}
           <header className="wm-export-header">
             <div>
-              <h1>Project Snapshot</h1>
-              <div className="wm-export-sub">WyreStorm Wingman â€¢ Internal snapshot</div>
+              <h1>{projectName}</h1>
+              <div className="wm-export-sub">WyreStorm Wingman | Internal snapshot</div>
             </div>
 
             <div className="wm-export-meta">
               <div><strong>Status:</strong> {status}</div>
               <div><strong>Customer:</strong> {customer}</div>
               <div><strong>Site:</strong> {site}</div>
-              <div><strong>Date:</strong> {today.toLocaleDateString()}</div>
+              <div><strong>Date:</strong> {formatDate(today)}</div>
             </div>
           </header>
 
@@ -116,11 +196,20 @@ export default function ExportSnapshotPage() {
             <h2>Discovery Summary</h2>
             <table className="wm-export-table">
               <tbody>
-                <tr><td>Application</td><td>â€”</td></tr>
-                <tr><td>Displays</td><td>â€”</td></tr>
-                <tr><td>Sources</td><td>â€”</td></tr>
+                <tr><td>Application</td><td>{discovery.application}</td></tr>
+                <tr><td>Displays</td><td>{discovery.displays}</td></tr>
+                <tr><td>Sources</td><td>{discovery.sources}</td></tr>
+                <tr><td>Distance</td><td>{discovery.distance}</td></tr>
+                <tr><td>USB needs</td><td>{discovery.usbNeeds}</td></tr>
+                <tr><td>Control needs</td><td>{discovery.controlNeeds}</td></tr>
               </tbody>
             </table>
+
+            {recommendedFamilies.length > 0 ? (
+              <div style={{ marginTop: 10, fontSize: 12 }}>
+                <strong>Recommended families:</strong> {recommendedFamilies.join(", ")}
+              </div>
+            ) : null}
           </section>
 
           <section className="wm-export-section">
@@ -134,16 +223,25 @@ export default function ExportSnapshotPage() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>â€”</td>
-                  <td>â€”</td>
-                  <td style={{ textAlign: "right" }}>â€”</td>
-                </tr>
+                {productRows.length > 0 ? (
+                  productRows.map((row) => (
+                    <tr key={row.sku}>
+                      <td>{row.sku}</td>
+                      <td>{row.description}</td>
+                      <td style={{ textAlign: "right" }}>{row.quantity}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td>-</td>
+                    <td>No selected SKUs on this project yet.</td>
+                    <td style={{ textAlign: "right" }}>-</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </section>
 
-          {/* In-sheet footer (nav + timestamp on screen) */}
           <footer className="wm-docfooter">
             <div className="wm-docfooter__left">
               <span className="wm-docfooter__tag">Internal use</span>
@@ -156,9 +254,8 @@ export default function ExportSnapshotPage() {
             </div>
           </footer>
 
-          {/* Print-only fixed footer with page numbering */}
           <div className="wm-print-footer">
-            <span>WyreStorm Wingman â€¢ Project Snapshot</span>
+            <span>WyreStorm Wingman | Project Snapshot</span>
             <span className="wm-print-footer__page">Page </span>
           </div>
         </div>
