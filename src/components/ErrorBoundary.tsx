@@ -1,5 +1,6 @@
 import * as React from "react";
 import ErrorDisplay from "./ErrorDisplay";
+import { postDeploymentTelemetry } from "@/app/api/wingmanDeploymentClient";
 import { useProjectContext } from "@/context";
 
 interface ErrorBoundaryInternalProps {
@@ -30,6 +31,15 @@ class ErrorBoundaryInternal extends React.Component<ErrorBoundaryInternalProps, 
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     const { projectId, roomId } = this.props;
+    void postDeploymentTelemetry({
+      kind: "error",
+      message: error.message,
+      stack: `${error.stack ?? ""}\n${errorInfo.componentStack ?? ""}`.trim(),
+      timestamp: new Date().toISOString(),
+      projectId: projectId || undefined,
+      route: typeof window !== "undefined" ? window.location.pathname : undefined,
+      handled: true,
+    });
     console.error("Uncaught error:", {
       message: error.message,
       stack: errorInfo.componentStack,

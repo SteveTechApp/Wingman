@@ -1,6 +1,7 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
+  addProjectAttachment,
   ensureActiveProject,
   updateProject,
 } from "@/features/projects/projectStore";
@@ -179,6 +180,7 @@ function buildAnalysisNotesBlock(analysis: IntakeAnalysis): string {
 
 export default function ImportIntakePage() {
   const nav = useNavigate();
+  const [searchParams] = useSearchParams();
   const [projectName, setProjectName] = React.useState("");
   const [customer, setCustomer] = React.useState("");
   const [site, setSite] = React.useState("");
@@ -236,7 +238,7 @@ export default function ImportIntakePage() {
 
   const upsertProjectFromIntake = (navigateTo: string) => {
     const name = projectName.trim() || "New Opportunity";
-    const customerName = customer.trim() || "Sample customer";
+    const customerName = customer.trim();
     const siteName = site.trim();
     const intakeNotes = notes.trim();
     const qualificationSummary = buildQualificationSummary(checklist);
@@ -322,6 +324,18 @@ export default function ImportIntakePage() {
         createdAt: active.discovery?.createdAt ?? new Date().toISOString(),
       },
     });
+
+    const intakeMode = searchParams.get("mode");
+    if (intakeMode === "document" || intakeMode === "diagram") {
+      void addProjectAttachment(active.id, {
+        name: intakeMode === "diagram" ? `${name} imported diagram brief` : `${name} imported customer brief`,
+        kind: intakeMode === "diagram" ? "diagram" : "document",
+        source: "Import Intake",
+        summary: generatedAnalysis || intakeNotes || "Imported through the intake workflow.",
+        contentType: "text/plain",
+        sizeBytes: briefText.length || undefined,
+      }).catch(() => {});
+    }
 
     nav(navigateTo);
   };

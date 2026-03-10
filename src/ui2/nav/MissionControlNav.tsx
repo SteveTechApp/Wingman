@@ -12,6 +12,7 @@ type MissionControlNavProps = {
 
 type NavItem = {
   section: string;
+  tone: "mission" | "workflow" | "tools";
   title: string;
   desc: string;
   short: string;
@@ -19,19 +20,20 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { section: "Mission Control", title: "Mission Control", desc: "Pipeline and project flow", short: "MC", to: "/app/dashboard" },
-  { section: "Mission Control", title: "Projects", desc: "All active opportunities", short: "PR", to: "/app/projects" },
-  { section: "Mission Control", title: "Active Project Workflow", desc: "Discovery and solution logic", short: "AW", to: "/app/dashboard" },
+  { section: "Mission Control", tone: "mission", title: "Dashboard", desc: "Overview", short: "MC", to: "/app/dashboard" },
+  { section: "Mission Control", tone: "mission", title: "Projects", desc: "Active work", short: "PR", to: "/app/projects" },
+  { section: "Mission Control", tone: "mission", title: "Workspace", desc: "Roles", short: "WS", to: "/app/settings/workspace" },
+  { section: "Mission Control", tone: "mission", title: "Project Flow", desc: "Stages", short: "AW", to: "/app/dashboard" },
 
-  { section: "Workflow", title: "Guided Project", desc: "Capture needs and room dynamics", short: "GP", to: "/app/tools/discovery" },
-  { section: "Workflow", title: "Architecture", desc: "Advance to solution logic", short: "A", to: "/app/dashboard" },
-  { section: "Workflow", title: "Products", desc: "Select core products", short: "P", to: "/app/tools/catalog" },
-  { section: "Workflow", title: "Proposal", desc: "Build customer output", short: "PB", to: "/app/tools/proposal" },
+  { section: "Workflow", tone: "workflow", title: "Guided Project", desc: "Capture needs", short: "GP", to: "/app/tools/discovery" },
+  { section: "Workflow", tone: "workflow", title: "Architecture", desc: "Signal path", short: "A", to: "/app/dashboard" },
+  { section: "Workflow", tone: "workflow", title: "Products", desc: "Core devices", short: "P", to: "/app/tools/catalog" },
+  { section: "Workflow", tone: "workflow", title: "Proposal", desc: "Commercial output", short: "PB", to: "/app/tools/proposal" },
 
-  { section: "Tools & Reference", title: "Tool Hub", desc: "Browse all tools", short: "TH", to: "/app/tools" },
-  { section: "Tools & Reference", title: "Product Catalogue", desc: "Reference products", short: "PC", to: "/app/tools/catalog" },
-  { section: "Tools & Reference", title: "Competitor Comparison", desc: "Position WyreStorm", short: "CC", to: "/app/tools/compare" },
-  { section: "Tools & Reference", title: "Video Wall Designer", desc: "Display planning", short: "VW", to: "/app/tools/video-wall" },
+  { section: "Tools & Reference", tone: "tools", title: "Tool Hub", desc: "Browse all", short: "TH", to: "/app/tools" },
+  { section: "Tools & Reference", tone: "tools", title: "Catalogue", desc: "Product ref", short: "PC", to: "/app/tools/catalog" },
+  { section: "Tools & Reference", tone: "tools", title: "Competitors", desc: "Positioning", short: "CC", to: "/app/tools/compare" },
+  { section: "Tools & Reference", tone: "tools", title: "Video Wall", desc: "Displays", short: "VW", to: "/app/tools/video-wall" },
 ];
 
 function groupedItems(items: NavItem[]): Array<{ section: string; items: NavItem[] }> {
@@ -103,14 +105,16 @@ export default function MissionControlNav({ collapsed = false, onToggleCollapse 
                   key={`${section.section}-${item.title}`}
                   to={item.to}
                   className={({ isActive }) =>
-                    `wm-nav__item${isActive ? " is-active" : ""}${collapsed ? " is-collapsed" : ""}`
+                    `wm-nav__item wm-nav__item--${item.tone}${isActive ? " is-active" : ""}${collapsed ? " is-collapsed" : ""}`
                   }
                   title={collapsed ? item.title : undefined}
                 >
                   <span className="wm-nav__item-badge">{item.short}</span>
                   {!collapsed ? (
                     <span className="wm-nav__item-copy">
-                      <span className="wm-nav__item-title">{item.title}</span>
+                      <span className="wm-nav__item-line">
+                        <span className="wm-nav__item-title">{item.title}</span>
+                      </span>
                       <span className="wm-nav__item-desc">{item.desc}</span>
                     </span>
                   ) : null}

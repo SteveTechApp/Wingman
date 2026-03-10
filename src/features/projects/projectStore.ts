@@ -1,3 +1,22 @@
+import {
+  createDeploymentProjectAttachment,
+  createDeploymentProjectComment,
+  createDeploymentProjectShare,
+  fetchDeploymentProjects,
+  markDeploymentProjectCommercialReady,
+  syncDeploymentProjects,
+  type DeploymentSession,
+  type ProjectAttachmentInput,
+  type ProjectAuditEntry,
+  type ProjectCommentInput,
+  type ProjectShareInput,
+} from "@/app/api/wingmanDeploymentClient";
+import type { ProjectRecommendationGovernance } from "@/features/governance/recommendationGovernance";
+import {
+  buildCustomerSafeSummary,
+  type CustomerSummarySnapshot,
+} from "@/features/projects/customerSummary";
+
 export type DiscoveryProductFamily =
   | "Apollo"
   | "HDBaseT"
@@ -85,6 +104,7 @@ export type ProjectDiscovery = {
   roomLengthM?: string;
   roomWidthM?: string;
   roomHeightM?: string;
+  installationPath?: string;
   displayLocation?: string;
   sourceLocation?: string;
   rackLocation?: string;
@@ -94,7 +114,12 @@ export type ProjectDiscovery = {
   sourceTypes?: string;
   sourcePlacement?: string;
   sourceConnectionPath?: string;
+  sourceConnectionType?: string;
+  sourceCableType?: string;
   displayConnectionPath?: string;
+  displayConnectionType?: string;
+  displayCableType?: string;
+  networkEnvironment?: string;
   usbNeeds?: string;
   audioNeeds?: string;
   controlNeeds?: string;
@@ -118,8 +143,44 @@ export type ProjectProposal = {
   notes?: string;
 };
 
+export type ProjectComment = {
+  id: string;
+  body: string;
+  audience: "internal" | "customer";
+  authorName: string;
+  authorEmail?: string;
+  createdAt: string;
+};
+
+export type ProjectShare = {
+  id: string;
+  title: string;
+  message?: string;
+  audience: "internal" | "customer";
+  status?: string;
+  shareUrl?: string;
+  accessCode?: string;
+  summaryHeadline?: string;
+  createdAt: string;
+  createdBy?: string;
+};
+
+export type ProjectAttachment = {
+  id: string;
+  name: string;
+  kind: "document" | "diagram" | "brief" | "other";
+  source: string;
+  summary?: string;
+  contentType?: string;
+  sizeBytes?: number;
+  uploadedAt: string;
+  uploadedBy?: string;
+};
+
 export type StoredProject = {
   id: string;
+  workspaceId?: string;
+  ownerId?: string;
   name: string;
   customer: string;
   site: string;
@@ -135,18 +196,29 @@ export type StoredProject = {
   template?: ProjectTemplateContext;
   videowall?: ProjectVideoWall;
   compare?: ProjectCompareRecord;
+  attachments?: ProjectAttachment[];
+  comments?: ProjectComment[];
+  shares?: ProjectShare[];
+  auditTrail?: ProjectAuditEntry[];
+  recommendationGovernance?: ProjectRecommendationGovernance;
+  customerSummary?: CustomerSummarySnapshot;
 };
 
-const STORAGE_KEY = "wm_projects_v1";
-const SEEDED_KEY = "wm_projects_seeded_v1";
-const ACTIVE_PROJECT_ID_KEY = "wm_active_project_id_v1";
-const PROJECTS_TICK_KEY = "wm_projects_tick";
+const STORAGE_KEY_BASE = "wm_projects_v2";
+const SEEDED_KEY_BASE = "wm_projects_seeded_v2";
+const ACTIVE_PROJECT_ID_KEY_BASE = "wm_active_project_id_v2";
+const PROJECTS_TICK_KEY_BASE = "wm_projects_tick_v2";
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
 let projectsCache: StoredProject[] = [];
 let projectsCacheRaw: string | null | undefined;
 let projectsCacheSeeded: string | null | undefined;
+let deploymentSession: DeploymentSession | null = null;
+let remoteHydrationPromise: Promise<void> | null = null;
+let remoteSyncTimer: number | null = null;
+let remoteSyncRunning = false;
+let remoteSnapshotApplying = false;
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -165,6 +237,67 @@ function allowedFamilies(): DiscoveryProductFamily[] {
   return ["Apollo", "HDBaseT", "AVoIP", "Matrix", "USB Extension", "Video Wall"];
 }
 
+function storageScope(): string {
+  return deploymentSession?.workspace.id || "local";
+}
+
+function storageKey(base: string): string {
+  return `${base}:${storageScope()}`;
+}
+
+function storageProjectKey(): string {
+  return storageKey(STORAGE_KEY_BASE);
+}
+
+function storageSeededKey(): string {
+  return storageKey(SEEDED_KEY_BASE);
+}
+
+function storageActiveKey(): string {
+  return storageKey(ACTIVE_PROJECT_ID_KEY_BASE);
+}
+
+function storageTickKey(): string {
+  return storageKey(PROJECTS_TICK_KEY_BASE);
+}
+
+function resetCaches(): void {
+  projectsCache = [];
+  projectsCacheRaw = undefined;
+  projectsCacheSeeded = undefined;
+}
+
+function shouldSeedProjects(): boolean {
+  return !deploymentSession || deploymentSession.mode === "demo";
+}
+
+function currentActorName(): string {
+  return deploymentSession?.user.name || deploymentSession?.user.email || "Wingman";
+}
+
+function currentActorEmail(): string {
+  return deploymentSession?.user.email || "";
+}
+
+function canUseBackendPermission(permission: keyof NonNullable<DeploymentSession["permissions"]>): boolean {
+  if (!deploymentSession || deploymentSession.mode !== "backend") return true;
+  return Boolean(deploymentSession.permissions?.[permission]);
+}
+
+function makeAuditEntry(action: string, detail: string, projectId?: string, severity: ProjectAuditEntry["severity"] = "info"): ProjectAuditEntry {
+  return {
+    id: makeId(),
+    scope: "projects",
+    action,
+    detail,
+    actorName: currentActorName(),
+    actorEmail: currentActorEmail(),
+    severity,
+    createdAt: nowIso(),
+    projectId,
+  };
+}
+
 function normalizeRecommendedFamilies(value: unknown): DiscoveryProductFamily[] | undefined {
   if (!Array.isArray(value)) return undefined;
   const allowed = allowedFamilies();
@@ -181,10 +314,16 @@ function normalizeDiscovery(discovery?: ProjectDiscovery): ProjectDiscovery | un
     site: discovery.site ?? "",
     roomName: discovery.roomName ?? "",
     notes: discovery.notes ?? "",
+    installationPath: discovery.installationPath ?? "",
     sourceTypes: discovery.sourceTypes ?? "",
     sourcePlacement: discovery.sourcePlacement ?? "",
     sourceConnectionPath: discovery.sourceConnectionPath ?? "",
+    sourceConnectionType: discovery.sourceConnectionType ?? "",
+    sourceCableType: discovery.sourceCableType ?? "",
     displayConnectionPath: discovery.displayConnectionPath ?? "",
+    displayConnectionType: discovery.displayConnectionType ?? "",
+    displayCableType: discovery.displayCableType ?? "",
+    networkEnvironment: discovery.networkEnvironment ?? "",
     recommendedFamilies: normalizeRecommendedFamilies(discovery.recommendedFamilies),
   };
 }
@@ -259,6 +398,68 @@ function normalizeCompare(compare?: ProjectCompareRecord): ProjectCompareRecord 
   };
 }
 
+function normalizeComments(comments?: ProjectComment[]): ProjectComment[] {
+  if (!Array.isArray(comments)) return [];
+  return comments
+    .map((comment) => ({
+      id: String(comment?.id ?? makeId()),
+      body: String(comment?.body ?? "").trim(),
+      audience: (comment?.audience === "customer" ? "customer" : "internal") as "customer" | "internal",
+      authorName: String(comment?.authorName ?? "Wingman user").trim(),
+      authorEmail: typeof comment?.authorEmail === "string" ? comment.authorEmail.trim() : undefined,
+      createdAt: typeof comment?.createdAt === "string" ? comment.createdAt : nowIso(),
+    }))
+    .filter((comment) => comment.body);
+}
+
+function normalizeShares(shares?: ProjectShare[]): ProjectShare[] {
+  if (!Array.isArray(shares)) return [];
+  return shares.map((share) => ({
+    id: String(share?.id ?? makeId()),
+    title: String(share?.title ?? "Customer share pack").trim(),
+    message: typeof share?.message === "string" ? share.message.trim() : undefined,
+    audience: share?.audience === "internal" ? "internal" : "customer",
+    status: typeof share?.status === "string" ? share.status.trim() : undefined,
+    shareUrl: typeof share?.shareUrl === "string" ? share.shareUrl.trim() : undefined,
+    accessCode: typeof share?.accessCode === "string" ? share.accessCode.trim() : undefined,
+    summaryHeadline: typeof share?.summaryHeadline === "string" ? share.summaryHeadline.trim() : undefined,
+    createdAt: typeof share?.createdAt === "string" ? share.createdAt : nowIso(),
+    createdBy: typeof share?.createdBy === "string" ? share.createdBy.trim() : undefined,
+  }));
+}
+
+function normalizeAttachments(attachments?: ProjectAttachment[]): ProjectAttachment[] {
+  if (!Array.isArray(attachments)) return [];
+  return attachments.map((attachment) => ({
+    id: String(attachment?.id ?? makeId()),
+    name: String(attachment?.name ?? "Imported asset").trim(),
+    kind: attachment?.kind === "document" || attachment?.kind === "diagram" || attachment?.kind === "brief"
+      ? attachment.kind
+      : "other",
+    source: String(attachment?.source ?? "Wingman").trim(),
+    summary: typeof attachment?.summary === "string" ? attachment.summary.trim() : undefined,
+    contentType: typeof attachment?.contentType === "string" ? attachment.contentType.trim() : undefined,
+    sizeBytes: attachment?.sizeBytes != null ? Number(attachment.sizeBytes) || undefined : undefined,
+    uploadedAt: typeof attachment?.uploadedAt === "string" ? attachment.uploadedAt : nowIso(),
+    uploadedBy: typeof attachment?.uploadedBy === "string" ? attachment.uploadedBy.trim() : undefined,
+  }));
+}
+
+function normalizeAuditTrail(entries?: ProjectAuditEntry[]): ProjectAuditEntry[] {
+  if (!Array.isArray(entries)) return [];
+  return entries.map((entry) => ({
+    id: String(entry?.id ?? makeId()),
+    scope: String(entry?.scope ?? "projects").trim(),
+    action: String(entry?.action ?? "updated").trim(),
+    detail: String(entry?.detail ?? "Project activity captured.").trim(),
+    actorName: String(entry?.actorName ?? "Wingman").trim(),
+    actorEmail: String(entry?.actorEmail ?? "").trim(),
+    severity: entry?.severity === "error" || entry?.severity === "warn" ? entry.severity : "info",
+    createdAt: typeof entry?.createdAt === "string" ? entry.createdAt : nowIso(),
+    projectId: typeof entry?.projectId === "string" ? entry.projectId.trim() : undefined,
+  }));
+}
+
 function defaultSeed(): StoredProject[] {
   const now = nowIso();
   return [
@@ -284,6 +485,10 @@ function defaultSeed(): StoredProject[] {
       },
       catalog: { skus: [], selectedBrand: "WyreStorm" },
       proposal: { selectedTier: "None" },
+      comments: [],
+      shares: [],
+      attachments: [],
+      auditTrail: [],
     },
     {
       id: "p2",
@@ -307,6 +512,10 @@ function defaultSeed(): StoredProject[] {
       },
       catalog: { skus: [], selectedBrand: "WyreStorm" },
       proposal: { selectedTier: "None" },
+      comments: [],
+      shares: [],
+      attachments: [],
+      auditTrail: [],
     },
   ];
 }
@@ -320,7 +529,7 @@ function emit(): void {
 function touchProjectsTick(): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(PROJECTS_TICK_KEY, nowIso());
+    window.localStorage.setItem(storageTickKey(), nowIso());
   } catch {}
 }
 
@@ -351,30 +560,124 @@ function normalizeProject(project: StoredProject): StoredProject {
     compare,
     catalog: project.catalog ?? { skus: [] },
     proposal: project.proposal,
+    attachments: normalizeAttachments(project.attachments),
+    comments: normalizeComments(project.comments),
+    shares: normalizeShares(project.shares),
+    auditTrail: normalizeAuditTrail(project.auditTrail),
+    recommendationGovernance: project.recommendationGovernance,
+    customerSummary: project.customerSummary,
   };
 }
 
 function setActiveProjectIdInternal(id: string | null): void {
   if (typeof window === "undefined") return;
   try {
-    if (id) window.localStorage.setItem(ACTIVE_PROJECT_ID_KEY, id);
-    else window.localStorage.removeItem(ACTIVE_PROJECT_ID_KEY);
+    if (id) window.localStorage.setItem(storageActiveKey(), id);
+    else window.localStorage.removeItem(storageActiveKey());
   } catch {}
 }
 
 export function getProjectsTick(): string {
   if (typeof window === "undefined") return "server";
   try {
-    return window.localStorage.getItem(PROJECTS_TICK_KEY) ?? "0";
+    return window.localStorage.getItem(storageTickKey()) ?? "0";
   } catch {
     return "0";
   }
 }
 
+function applyRemoteSnapshot(projects: StoredProject[], activeProjectId: string | null): void {
+  if (typeof window === "undefined") return;
+  remoteSnapshotApplying = true;
+  try {
+    const normalized = [...projects]
+      .map(normalizeProject)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    const raw = JSON.stringify(normalized);
+    window.localStorage.setItem(storageProjectKey(), raw);
+    window.localStorage.setItem(storageSeededKey(), "1");
+    if (activeProjectId) {
+      window.localStorage.setItem(storageActiveKey(), activeProjectId);
+    } else {
+      window.localStorage.removeItem(storageActiveKey());
+    }
+    projectsCache = normalized;
+    projectsCacheRaw = raw;
+    projectsCacheSeeded = "1";
+    touchProjectsTick();
+  } catch {
+  } finally {
+    remoteSnapshotApplying = false;
+  }
+}
+
+async function hydrateFromDeployment(): Promise<void> {
+  if (typeof window === "undefined" || !deploymentSession || deploymentSession.mode !== "backend" || remoteHydrationPromise) {
+    return remoteHydrationPromise ?? Promise.resolve();
+  }
+
+  remoteHydrationPromise = (async () => {
+    try {
+      const response = await fetchDeploymentProjects(deploymentSession);
+      if (Array.isArray(response.projects)) {
+        applyRemoteSnapshot(response.projects, response.activeProjectId ?? null);
+        emit();
+      }
+    } catch {
+    } finally {
+      remoteHydrationPromise = null;
+    }
+  })();
+
+  return remoteHydrationPromise;
+}
+
+function scheduleRemoteSync(): void {
+  if (
+    typeof window === "undefined" ||
+    !deploymentSession ||
+    deploymentSession.mode !== "backend" ||
+    remoteSnapshotApplying
+  ) {
+    return;
+  }
+
+  if (remoteSyncTimer != null) {
+    window.clearTimeout(remoteSyncTimer);
+  }
+
+  remoteSyncTimer = window.setTimeout(async () => {
+    if (!deploymentSession || deploymentSession.mode !== "backend" || remoteSyncRunning) return;
+    remoteSyncRunning = true;
+    try {
+      const response = await syncDeploymentProjects(deploymentSession, {
+        projects: loadProjects(),
+        activeProjectId: getActiveProjectId(),
+      });
+      if (Array.isArray(response.projects)) {
+        applyRemoteSnapshot(response.projects, response.activeProjectId ?? null);
+      }
+    } catch {
+    } finally {
+      remoteSyncRunning = false;
+      remoteSyncTimer = null;
+      emit();
+    }
+  }, 120);
+}
+
+export function configureProjectStoreSession(session: DeploymentSession | null): void {
+  deploymentSession = session;
+  resetCaches();
+  if (typeof window === "undefined") return;
+  void hydrateFromDeployment();
+  emit();
+}
+
 export function loadProjects(): StoredProject[] {
   if (typeof window === "undefined") return [];
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  const seeded = window.localStorage.getItem(SEEDED_KEY);
+  const raw = window.localStorage.getItem(storageProjectKey());
+  const seeded = window.localStorage.getItem(storageSeededKey());
 
   if (raw === projectsCacheRaw && seeded === projectsCacheSeeded) {
     return projectsCache;
@@ -392,11 +695,11 @@ export function loadProjects(): StoredProject[] {
     return sorted;
   }
 
-  if (seeded !== "1") {
+  if (seeded !== "1" && shouldSeedProjects()) {
     const seed = defaultSeed();
     const rawSeed = JSON.stringify(seed);
-    window.localStorage.setItem(STORAGE_KEY, rawSeed);
-    window.localStorage.setItem(SEEDED_KEY, "1");
+    window.localStorage.setItem(storageProjectKey(), rawSeed);
+    window.localStorage.setItem(storageSeededKey(), "1");
     if (seed[0]) setActiveProjectIdInternal(seed[0].id);
     touchProjectsTick();
     projectsCache = [...seed].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
@@ -419,10 +722,11 @@ export function saveProjects(projects: StoredProject[]): void {
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
   const raw = JSON.stringify(normalized);
-  window.localStorage.setItem(STORAGE_KEY, raw);
+  window.localStorage.setItem(storageProjectKey(), raw);
   projectsCache = normalized;
   projectsCacheRaw = raw;
-  projectsCacheSeeded = window.localStorage.getItem(SEEDED_KEY);
+  window.localStorage.setItem(storageSeededKey(), "1");
+  projectsCacheSeeded = window.localStorage.getItem(storageSeededKey());
 
   const activeId = getActiveProjectId();
   if (activeId && !normalized.some((p) => p.id === activeId)) {
@@ -433,6 +737,7 @@ export function saveProjects(projects: StoredProject[]): void {
 
   touchProjectsTick();
   emit();
+  scheduleRemoteSync();
 }
 
 export function subscribeProjects(listener: Listener): () => void {
@@ -440,9 +745,9 @@ export function subscribeProjects(listener: Listener): () => void {
 
   const onStorage = (event: StorageEvent) => {
     if (
-      event.key === STORAGE_KEY ||
-      event.key === ACTIVE_PROJECT_ID_KEY ||
-      event.key === PROJECTS_TICK_KEY
+      event.key === storageProjectKey() ||
+      event.key === storageActiveKey() ||
+      event.key === storageTickKey()
     ) {
       listener();
     }
@@ -469,8 +774,10 @@ export function createProject(partial?: Partial<StoredProject>): StoredProject {
 
   const project: StoredProject = normalizeProject({
     id: partial?.id ?? makeId(),
+    workspaceId: partial?.workspaceId ?? deploymentSession?.workspace.id,
+    ownerId: partial?.ownerId ?? deploymentSession?.user.id,
     name: partial?.name ?? "New Project",
-    customer: partial?.customer ?? discovery?.customer ?? "Sample customer",
+    customer: partial?.customer ?? discovery?.customer ?? "",
     site: partial?.site ?? discovery?.site ?? "",
     roomName: partial?.roomName ?? discovery?.roomName ?? "",
     stage: partial?.stage ?? "Discovery",
@@ -484,6 +791,15 @@ export function createProject(partial?: Partial<StoredProject>): StoredProject {
     compare,
     catalog: partial?.catalog ?? { skus: [] },
     proposal: partial?.proposal,
+    attachments: partial?.attachments ?? [],
+    comments: partial?.comments ?? [],
+    shares: partial?.shares ?? [],
+    auditTrail: [
+      ...(partial?.auditTrail ?? []),
+      makeAuditEntry("create", "Project was created.", partial?.id),
+    ],
+    recommendationGovernance: partial?.recommendationGovernance,
+    customerSummary: partial?.customerSummary,
   });
 
   const projects = loadProjects();
@@ -512,6 +828,15 @@ export function updateProject(id: string, patch: Partial<StoredProject>): Stored
       compare: patch.compare ? normalizeCompare(patch.compare) : project.compare,
       catalog: patch.catalog ?? project.catalog,
       proposal: patch.proposal ?? project.proposal,
+      attachments: patch.attachments ? normalizeAttachments(patch.attachments) : project.attachments,
+      comments: patch.comments ? normalizeComments(patch.comments) : project.comments,
+      shares: patch.shares ? normalizeShares(patch.shares) : project.shares,
+      auditTrail: [
+        makeAuditEntry("update", "Project details were updated.", id),
+        ...normalizeAuditTrail(patch.auditTrail ?? project.auditTrail),
+      ].slice(0, 20),
+      recommendationGovernance: patch.recommendationGovernance ?? project.recommendationGovernance,
+      customerSummary: patch.customerSummary ?? project.customerSummary,
     });
     return updated;
   });
@@ -542,7 +867,7 @@ export function applyCompareToProject(
   const mergedNotes = notesParts.join("\n\n");
 
   const nextDiscovery: ProjectDiscovery = {
-    customer: project.customer || "Sample customer",
+    customer: project.customer || "",
     site: project.site || "",
     roomName: project.roomName || "Replacement Opportunity",
     applicationType: normalized.category,
@@ -572,12 +897,12 @@ export function getProjectById(id: string): StoredProject | undefined {
 export function getActiveProjectId(): string | null {
   if (typeof window === "undefined") return null;
   try {
-    const saved = window.localStorage.getItem(ACTIVE_PROJECT_ID_KEY);
+    const saved = window.localStorage.getItem(storageActiveKey());
     if (saved) return saved;
 
-    const projects = safeParse(window.localStorage.getItem(STORAGE_KEY));
+    const projects = safeParse(window.localStorage.getItem(storageProjectKey()));
     const fallback = projects[0]?.id ?? null;
-    if (fallback) window.localStorage.setItem(ACTIVE_PROJECT_ID_KEY, fallback);
+    if (fallback) window.localStorage.setItem(storageActiveKey(), fallback);
     return fallback;
   } catch {
     return null;
@@ -616,7 +941,7 @@ export function ensureActiveProject(partial?: Partial<StoredProject>): StoredPro
 
   const created = createProject({
     name: partial?.name ?? "New Project",
-    customer: partial?.customer ?? "Sample customer",
+    customer: partial?.customer ?? "",
     site: partial?.site ?? "",
     roomName: partial?.roomName ?? "",
     stage: partial?.stage ?? "Discovery",
@@ -717,7 +1042,7 @@ export function applyProjectTemplate(
   ].filter(Boolean).join("\n\n");
 
   const nextDiscovery = {
-    customer: project.customer || "Sample customer",
+    customer: project.customer || "",
     site: project.site || "",
     roomName: project.roomName || template.application || "",
     applicationType: template.application,
@@ -768,7 +1093,7 @@ export function applyVideoWallToProject(
   const mergedNotes = notesParts.join("\n\n");
 
   const nextDiscovery = {
-    customer: project.customer || "Sample customer",
+    customer: project.customer || "",
     site: project.site || "",
     roomName: project.roomName || "Video Wall",
     applicationType: videowall.technology === "LED" ? "LED Video Wall" : "LCD Video Wall",
@@ -785,5 +1110,158 @@ export function applyVideoWallToProject(
       createdAt: videowall.createdAt ?? new Date().toISOString(),
     } as any,
     discovery: nextDiscovery,
+  });
+}
+
+function replaceProject(project: StoredProject): StoredProject | undefined {
+  const current = loadProjects();
+  const next = [normalizeProject(project), ...current.filter((item) => item.id !== project.id)];
+  saveProjects(next);
+  return getProjectById(project.id);
+}
+
+export async function addProjectComment(
+  projectId: string,
+  input: ProjectCommentInput
+): Promise<StoredProject | undefined> {
+  const project = getProjectById(projectId);
+  if (!project) return undefined;
+
+  if (
+    deploymentSession?.mode === "backend" &&
+    (
+      (input.audience === "internal" && !canUseBackendPermission("canCreateInternalComments")) ||
+      (input.audience === "customer" && !canUseBackendPermission("canCreateCustomerComments"))
+    )
+  ) {
+    throw new Error("Your workspace role cannot add that kind of comment.");
+  }
+
+  if (deploymentSession?.mode === "backend") {
+    const response = await createDeploymentProjectComment(deploymentSession, projectId, input);
+    return replaceProject(response.project);
+  }
+
+  const comment: ProjectComment = {
+    id: makeId(),
+    body: input.body.trim(),
+    audience: input.audience,
+    authorName: currentActorName(),
+    authorEmail: currentActorEmail() || undefined,
+    createdAt: nowIso(),
+  };
+
+  const updated = updateProject(projectId, {
+    comments: [comment, ...(project.comments ?? [])],
+    auditTrail: [
+      makeAuditEntry("comment", `A ${input.audience} comment was added.`, projectId),
+      ...(project.auditTrail ?? []),
+    ],
+  });
+
+  return updated;
+}
+
+export async function createProjectShare(
+  projectId: string,
+  input: ProjectShareInput
+): Promise<StoredProject | undefined> {
+  const project = getProjectById(projectId);
+  if (!project) return undefined;
+
+  if (deploymentSession?.mode === "backend" && !canUseBackendPermission("canPrepareShares")) {
+    throw new Error("Your workspace role cannot prepare customer share packs.");
+  }
+
+  if (deploymentSession?.mode === "backend") {
+    const response = await createDeploymentProjectShare(deploymentSession, projectId, input);
+    return replaceProject(response.project);
+  }
+
+  const share: ProjectShare = {
+    id: makeId(),
+    title: input.title.trim(),
+    message: input.message?.trim(),
+    audience: input.audience,
+    summaryHeadline: input.summaryHeadline?.trim(),
+    status: "draft",
+    createdAt: nowIso(),
+    createdBy: deploymentSession?.user.id,
+  };
+
+  const updated = updateProject(projectId, {
+    shares: [share, ...(project.shares ?? [])],
+    customerSummary: project.customerSummary ?? buildCustomerSafeSummary(project),
+    auditTrail: [
+      makeAuditEntry("share", `A ${input.audience} share pack was prepared.`, projectId),
+      ...(project.auditTrail ?? []),
+    ],
+  });
+
+  return updated;
+}
+
+export async function addProjectAttachment(
+  projectId: string,
+  input: ProjectAttachmentInput
+): Promise<StoredProject | undefined> {
+  const project = getProjectById(projectId);
+  if (!project) return undefined;
+
+  if (deploymentSession?.mode === "backend" && !canUseBackendPermission("canRegisterAttachments")) {
+    throw new Error("Your workspace role cannot register attachments.");
+  }
+
+  if (deploymentSession?.mode === "backend") {
+    const response = await createDeploymentProjectAttachment(deploymentSession, projectId, input);
+    return replaceProject(response.project);
+  }
+
+  const attachment: ProjectAttachment = {
+    id: makeId(),
+    name: input.name.trim(),
+    kind: input.kind,
+    source: input.source.trim(),
+    summary: input.summary?.trim(),
+    contentType: input.contentType?.trim(),
+    sizeBytes: input.sizeBytes,
+    uploadedAt: nowIso(),
+    uploadedBy: deploymentSession?.user.id,
+  };
+
+  const updated = updateProject(projectId, {
+    attachments: [attachment, ...(project.attachments ?? [])],
+    auditTrail: [
+      makeAuditEntry("attachment", `${input.kind} attachment "${input.name}" was registered.`, projectId),
+      ...(project.auditTrail ?? []),
+    ],
+  });
+
+  return updated;
+}
+
+export async function markProjectCommercialReady(
+  projectId: string,
+  completionNote: string,
+): Promise<StoredProject | undefined> {
+  const project = getProjectById(projectId);
+  if (!project) return undefined;
+
+  if (deploymentSession?.mode === "backend") {
+    if (!canUseBackendPermission("canMarkCommercialReady")) {
+      throw new Error("Your workspace role cannot complete the commercial readiness gate.");
+    }
+    const response = await markDeploymentProjectCommercialReady(deploymentSession, projectId, { completionNote });
+    return replaceProject(response.project);
+  }
+
+  return updateProject(projectId, {
+    stage: project.stage || "Proposal",
+    status: "Commercial Ready",
+    notes: [project.notes, completionNote].filter(Boolean).join("\n\n"),
+    proposal: {
+      ...(project.proposal ?? {}),
+      notes: [project.proposal?.notes, completionNote].filter(Boolean).join("\n\n"),
+    },
   });
 }

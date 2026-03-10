@@ -8,12 +8,16 @@
     "dev:lookup-api": "node server/competitor-lookup-server.mjs",
     "build": "vite build",
     "preview": "vite preview",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
     "verify": "npm run typecheck && npm run lint && npm run check:routes && npm run build",
     "gate": "npm run typecheck && npm run lint && npm run check:routes && npm run build",
+    "ci": "npm run verify && npm run test:unit && npm run test:e2e",
     "check:routes": "node tools/verify-routes.mjs",
+    "migrate:wingman:tables": "node tools/migrate-wingman-state-to-tables.mjs",
     "audit:css": "node tools/audit-css-coverage.mjs",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix"
@@ -63,7 +67,8 @@
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.0",
-    "vite": "^7.2.6"
+    "vite": "^7.2.6",
+    "vitest": "^3.2.4"
   },
   "overrides": {
     "three-mesh-bvh": "0.8.0",

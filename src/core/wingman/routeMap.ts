@@ -14,5 +14,5 @@ export const WM_ROUTES = {
   competitorCompare: "/app/tools/compare",
   runtimeDiagnostics: "/app/tools/runtime-diagnostics",
   training: "/app/tools/training",
-  settings: "/app/dashboard",
+  settings: "/app/settings/workspace",
 } as const;

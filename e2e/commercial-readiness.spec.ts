@@ -3,16 +3,27 @@ import { expect, test } from "playwright/test";
 const projectName = "E2E Boardroom Upgrade";
 const customerName = "Acme Ltd";
 const siteName = "London HQ";
+const accountEmail = `e2e-${Date.now()}@wingman.test`;
+const accountPassword = "WingmanTest123!";
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => {
+  await page.goto("/");
+  await page.evaluate(() => {
     window.localStorage.clear();
     window.sessionStorage.clear();
   });
 });
 
 test("covers project intake through proposal completion", async ({ page }) => {
-  await page.goto("/app/projects/new");
+  await page.goto("/signup");
+
+  await page.getByRole("textbox", { name: /^Name$/ }).fill("E2E User");
+  await page.getByRole("textbox", { name: /^Company$/ }).fill("E2E Systems");
+  await page.getByRole("textbox", { name: /^Email$/ }).fill(accountEmail);
+  await page.getByLabel(/^Password$/).fill(accountPassword);
+  await page.getByRole("button", { name: "Create workspace" }).click();
+
+  await expect(page).toHaveURL(/\/app\/projects\/new$/);
 
   await page.getByRole("textbox", { name: /^Project name$/ }).fill(projectName);
   await page.getByRole("textbox", { name: /^Customer$/ }).fill(customerName);

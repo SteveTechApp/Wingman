@@ -21,7 +21,9 @@
   --wm-topbar-h: 56px;
   --wm-sidebar-w: 220px;
   --wm-sidebar-collapsed: 64px;
-  --wm-footer-h: 40px;
+  --wm-footer-h: 56px;
+  --wm-shell-topbar-h: var(--wm-topbar-h);
+  --wm-shell-footer-h: var(--wm-topbar-h);
 
   --wm-page-pad: 20px;
   --wm-gap: 18px;
