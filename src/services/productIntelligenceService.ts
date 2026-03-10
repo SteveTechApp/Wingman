@@ -423,7 +423,7 @@ function mapBackendRecord(raw: Record<string, unknown>): ProductIntelligenceReco
       const label = tidy(entry.label);
       const value = tidy(entry.value);
       if (!label || !value) return null;
-      return {
+      const mapped: ProductEvidenceEntry = {
         id: tidy(entry.id) || `ev_${Math.random().toString(36).slice(2, 10)}`,
         type,
         label,
@@ -433,6 +433,7 @@ function mapBackendRecord(raw: Record<string, unknown>): ProductIntelligenceReco
         confidence: clampConfidence(entry.confidence, 0.65),
         notes: tidy(entry.notes) || undefined,
       };
+      return mapped;
     })
     .filter((entry): entry is ProductEvidenceEntry => entry != null);
 

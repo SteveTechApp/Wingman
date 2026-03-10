@@ -227,24 +227,25 @@
 }
 
 .wm-footer {
+  height: auto;
   min-height: 46px;
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
   display: block;
-  padding: 0 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  background: linear-gradient(180deg, rgba(6, 12, 21, 0.97), rgba(5, 11, 19, 0.98));
-  color: rgba(225, 234, 244, 0.76);
+  padding: 8px 14px;
+  border-top: 1px solid rgba(115, 231, 255, 0.14) !important;
+  background: linear-gradient(180deg, rgba(6, 12, 21, 0.98), rgba(4, 10, 18, 0.99)) !important;
+  color: rgba(225, 234, 244, 0.82) !important;
   font-size: 11px;
 }
 
 .wm-footer__row {
-  min-height: 46px;
+  min-height: 34px;
   width: 100%;
   min-width: 0;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(180px, 0.9fr) minmax(0, 1.9fr) minmax(180px, auto);
   align-items: center;
   gap: 14px;
 }
@@ -258,7 +259,7 @@
 .wm-footer__brand {
   min-width: 0;
   font-weight: 800;
-  color: rgba(240, 247, 255, 0.95);
+  color: rgba(240, 247, 255, 0.96) !important;
   letter-spacing: 0.01em;
   white-space: nowrap;
   overflow: hidden;
@@ -266,10 +267,9 @@
 }
 
 .wm-footer__meta {
-  color: rgba(183, 201, 225, 0.66);
+  color: rgba(183, 201, 225, 0.72) !important;
   font-size: 10px;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -278,30 +278,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
   overflow: visible;
 }
 
 .wm-footer .wm-footer__link,
 .wm-footer__text {
-  color: rgba(211, 224, 241, 0.8);
+  color: rgba(218, 230, 245, 0.88) !important;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
 }
 
 .wm-footer .wm-footer__link:hover {
-  color: rgba(236, 245, 255, 0.96);
+  color: rgba(236, 245, 255, 0.98) !important;
 }
 
 .wm-footer__copy {
   min-width: 0;
   text-align: right;
   font-size: 11px;
-  color: rgba(213, 227, 245, 0.84);
+  color: rgba(213, 227, 245, 0.88) !important;
   white-space: nowrap;
 }
 

@@ -115,10 +115,25 @@ export type VideoWallSeed = {
   columns: number;
   sourceCount: number;
   processorPreference: string;
+  processorInputMode?: "single-source" | "multiview";
+  qualityProfile?: "cost" | "balanced" | "premium";
   pixelPitch?: string;
   bezelMm?: string;
   targetWidthM?: string;
   targetHeightM?: string;
+  cabinetRows?: number;
+  cabinetColumns?: number;
+  cabinetWidthPx?: number;
+  cabinetHeightPx?: number;
+  cabinetWidthMm?: number;
+  cabinetHeightMm?: number;
+  canvasWidthPx?: number;
+  canvasHeightPx?: number;
+  outputRows?: number;
+  outputColumns?: number;
+  lcdDriveMode?: "decoder-per-screen" | "tile-loop-multiview" | "dedicated-processor";
+  contentAspectRatio?: string;
+  warnings?: string[];
   assumptions?: string;
 };
 

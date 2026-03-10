@@ -167,7 +167,16 @@ export default function ProjectOverviewPage() {
           <div className="wm-summary-list">
             <div className="wm-summary-row"><span>Template</span><strong>{project.template?.application || "-"}</strong></div>
             <div className="wm-summary-row"><span>Competitor SKU</span><strong>{project.compare?.competitorSku || "-"}</strong></div>
-            <div className="wm-summary-row"><span>Video wall</span><strong>{project.videowall ? `${project.videowall.rows}x${project.videowall.cols} ${project.videowall.technology}` : "-"}</strong></div>
+            <div className="wm-summary-row">
+              <span>Video wall</span>
+              <strong>
+                {project.videowall
+                  ? project.videowall.technology === "LED"
+                    ? `LED output ${project.videowall.outputCols ?? project.videowall.cols}x${project.videowall.outputRows ?? project.videowall.rows}, physical ${project.videowall.cabinetCols ?? "?"}x${project.videowall.cabinetRows ?? "?"}`
+                    : `${project.videowall.cols}x${project.videowall.rows} LCD`
+                  : "-"}
+              </strong>
+            </div>
             <div className="wm-summary-row"><span>Proposal title</span><strong>{project.proposal?.title || "-"}</strong></div>
           </div>
         </section>

@@ -42,7 +42,13 @@ function shortPatch(): number {
 
 function makeDevices(discovery: DiscoverySeed, template?: TemplateSeed | null, videoWall?: VideoWallSeed | null) {
   const sourceCount = Math.max(1, n(discovery.sourceCount, template ? template.starterDevices.filter(x => x.role === "source").length : 1));
-  const displayCount = Math.max(1, n(discovery.displayCount, template ? template.starterDevices.filter(x => x.role === "display").length : 1));
+  const templateDisplayCount = template ? template.starterDevices.filter((x) => x.role === "display").length : 1;
+  const videoWallDisplayCount = videoWall
+    ? videoWall.displayType === "LED"
+      ? 1
+      : Math.max(1, videoWall.rows * videoWall.columns)
+    : 1;
+  const displayCount = Math.max(1, n(discovery.displayCount, templateDisplayCount || videoWallDisplayCount));
   const families = inferFamilies(discovery, template);
   const devices: ProjectDevice[] = [];
 
@@ -91,10 +97,10 @@ function makeDevices(discovery: DiscoverySeed, template?: TemplateSeed | null, v
     });
   }
 
-  if (videoWall && videoWall.rows * videoWall.columns > 1) {
+  if (videoWall && (videoWall.displayType === "LED" || videoWall.rows * videoWall.columns > 1)) {
     devices.push({
       id: "vw-1",
-      name: "Video Wall Processor",
+      name: videoWall.displayType === "LED" ? "LED Wall Processor" : "Video Wall Processor",
       role: "processor",
       manufacturer: "WyreStorm / 3rd Party",
       family: "Video Wall",
@@ -387,7 +393,16 @@ export function buildDesignBundle(
   assumptions.push(`Source count: ${sourceCount}`);
 
   if (template) assumptions.push(`Template applied: ${template.name}`);
-  if (videoWall) assumptions.push(`Video wall mode: ${videoWall.displayType} ${videoWall.rows}x${videoWall.columns}`);
+  if (videoWall) {
+    const outputRows = Math.max(1, videoWall.outputRows ?? videoWall.rows);
+    const outputColumns = Math.max(1, videoWall.outputColumns ?? videoWall.columns);
+    const physicalRows = Math.max(1, videoWall.displayType === "LED" ? (videoWall.cabinetRows ?? videoWall.rows) : videoWall.rows);
+    const physicalColumns = Math.max(1, videoWall.displayType === "LED" ? (videoWall.cabinetColumns ?? videoWall.columns) : videoWall.columns);
+    assumptions.push(`Video wall mode: ${videoWall.displayType} output ${outputRows}x${outputColumns}, physical layout ${physicalRows}x${physicalColumns}`);
+    if (videoWall.displayType === "LED" && videoWall.canvasWidthPx && videoWall.canvasHeightPx) {
+      assumptions.push(`LED canvas target: ${videoWall.canvasWidthPx}x${videoWall.canvasHeightPx} px`);
+    }
+  }
   if ((discovery.usbNeeds ?? "").trim()) assumptions.push(`USB need: ${discovery.usbNeeds}`);
   if ((discovery.audioNeeds ?? "").trim()) assumptions.push(`Audio need: ${discovery.audioNeeds}`);
   if ((discovery.controlNeeds ?? "").trim()) assumptions.push(`Control need: ${discovery.controlNeeds}`);

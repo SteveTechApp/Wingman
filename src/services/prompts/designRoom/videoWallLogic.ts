@@ -5,33 +5,38 @@ export const getVideoWallLogic = () => `
   **Video Wall Design Logic (CRITICAL):**
   Your approach MUST differ based on whether the wall is LCD or LED.
 
-  **1. If the wall type is 'lcd_video_wall':**
-  You have three primary methods to choose from based on flexibility and cost:
+  **1. If the wall type is 'led_video_wall':**
+  - Treat LED as a **single output canvas** from Wingman: output mapping is always **1x1**.
+  - The physical wall size is modular (cabinet count / panel count), but the signal feed is one canvas with total resolution **X by Y pixels** (derived from pixel pitch, cabinet pixels, and cabinet count).
+  - Assume a dedicated LED processor (for example NovaStar-class) receives one or more source feeds and handles layer/window behavior.
+  - WyreStorm feed selection rules:
+    - **Single-source feed**: prefer **NHD-500-RX** (handles non-standard VESA/ultra-wide use cases). Use **NHD-600-TRX** for highest-quality premium designs.
+    - **Multiview feed (lower bandwidth, flexible windows/pinch-zoom)**: use **NHD-150-RX** (up to 9 windows/sources).
+    - **Multiview feed (higher quality, fixed-grid premium output)**: use **NHD-600-TRX**.
+  - For all-in-one LED (96" to 120") still model the feed as a single 1x1 output canvas.
 
-  - **Method A: Dedicated Processor (Simple & Cost-Effective)**
-    - For simple, single-source video walls, use a dedicated matrix switcher with a '-VW' SKU, like 'SW-0204-VW'. This is a robust, straightforward option.
+  **2. If the wall type is 'lcd_video_wall':**
+  - Standard layouts are usually 2x2, 3x3, 4x4 with commercial display panels.
+  - Preferred methods:
+    - **Decoder-per-screen (recommended for flexibility and non-standard walls)**:
+      - One decoder per panel.
+      - Best for grouped content zones and avoiding stretch artifacts.
+      - Prefer NHD-500/NHD-600 families for bezel-aware designs and lower-compression output quality.
+    - **Tile-loop from a multiview receiver (cost-balanced)**:
+      - Single composite feed into first panel, then panel loop/tile mode.
+      - Use NHD-150-RX for low-bandwidth multiview; NHD-600-TRX for premium quality.
+    - **Dedicated processor path**:
+      - SW-0204-VW / SW-0206-VW for straightforward single-source wall control.
+  - **Critical non-standard rule**:
+    - For **4x2** walls (or any strong aspect mismatch), do NOT assume a single 16:10 source stretched across the whole wall.
+    - Prefer decoder-per-screen or grouped zones unless content is authored specifically for wall resolution/aspect.
+  - Avoid NHD-120 in bezel-critical LCD wall recommendations; NHD-500 and NHD-600 are preferred capability tiers.
 
-  - **Method B: AVoIP - Decoder-per-Display (Maximum Flexibility & Quality)**
-    - This is the most flexible and highest quality approach. Use one AVoIP decoder for each panel in the wall (e.g., a 2x2 wall needs 4 decoders).
-    - **Benefit**: This allows for creative layouts (e.g., a 2x2 video wall in the center of a 4x2 wall with side panels for ads), drives more individual pixels, and reduces scaling artifacts or tearing.
-    - **Cost**: Acknowledge this is a more expensive solution.
-    - **Product Selection**: Choose the AVoIP series based on the Design Tier (120 for Bronze, 500 for Silver, 600 for Gold).
-
-  - **Method C: AVoIP - Single Input with Tile Mode (Balanced Cost/Performance)**
-    - This method uses a single, powerful multiview decoder to create a composite image, which is then fed to the first display. The displays themselves use their built-in 'tile mode' or 'loop-through' feature to create the wall.
-    - This is a good compromise for multi-source walls when budget is a concern. Select the decoder based on the number of sources and required quality:
-      - **Bronze/Low-Cost**: 'NHD-0401-MV' (up to 4 sources).
-      - **Silver/More Sources**: 'NHD-150-RX' (up to 9 sources). Note that this uses H.264 compression, so while it handles many sources, it is not ideal for high-detail content as a single 4K stream is spread across the wall.
-      - **Gold/Best Quality**: 'NHD-600-TRX' (up to 16 sources). This is the best option, offering zero latency and uncompressed quality for multiview content.
-
-  **2. If the wall type is 'led_video_wall':**
-  - **Core Principle**: LED walls are seamless and almost always have their own processor that requires a single HDMI input. Your job is to select the best WyreStorm product to *feed that single input*.
-  - **If Multiview is Required**: Select a single decoder to create the multiview image. The choice presents a clear cost/performance trade-off:
-    - **Bronze/Basic**: Use 'NHD-0401-MV' for up to 4 simultaneous sources.
-    - **Silver/More Sources**: Use 'NHD-150-RX' for up to 9 sources. Be aware of the quality trade-off: it uses high compression (H.264) and is not ideal for high-detail content as a single 4K stream is spread across the wall.
-    - **Gold/High-Detail**: You **MUST** use 'NHD-600-TRX'. It provides the best video handling with zero latency and can show up to 16 uncompressed sources, ideal for high-detail content where a 4K image is spread across the entire wall.
-  - **If Single Source (No Multiview)**: Select a single, high-quality decoder. 'NHD-600-TRX' provides the absolute best quality. A 'NHD-500-RX' is an excellent Silver-tier choice. A 'NHD-120-RX' is a budget-friendly Bronze option but uses high compression.
+  **3. Response requirements for every video wall design:**
+  - State physical wall layout and signal output layout separately.
+  - For LED, explicitly report output as 1x1 and provide the total canvas resolution.
+  - Include recommended WyreStorm SKU(s), quantity, and a short rationale.
+  - Include warnings for aspect-ratio risk, non-standard layouts, and quality trade-offs.
 `;
-
 
 

@@ -24,6 +24,13 @@ type LookupUiState = {
   warnings: string[];
 };
 
+type SimpleComparisonSummary = {
+  answer: string;
+  matchPercent: number;
+  positives: string[];
+  negatives: string[];
+};
+
 function confidenceClass(value: CompareConfidence): string {
   if (value === "High") return "wm-compare-confidence is-high";
   if (value === "Medium") return "wm-compare-confidence is-medium";
@@ -36,6 +43,58 @@ function recordId(item: CompetitorComparisonRecord): string {
 
 function lookupStateClass(status: LookupUiState["status"]): string {
   return `wm-compare-lookup-state is-${status}`;
+}
+
+function fallbackMatchFromConfidence(confidence: CompareConfidence): number {
+  if (confidence === "High") return 82;
+  if (confidence === "Medium") return 62;
+  return 38;
+}
+
+function buildSimpleComparisonSummary(record: CompetitorComparisonRecord): SimpleComparisonSummary {
+  const matchPercent = Math.max(
+    0,
+    Math.min(
+      100,
+      typeof record.matchScore === "number"
+        ? record.matchScore
+        : typeof record.intelligence?.score === "number"
+          ? record.intelligence.score
+          : fallbackMatchFromConfidence(record.confidence),
+    ),
+  );
+
+  const positives = Array.from(
+    new Set(
+      [
+        `Recommended WyreStorm answer: ${record.wyrestormSku} (${record.wyrestormCategory}).`,
+        record.ioComparison ? `I/O comparison: ${record.ioComparison}.` : "",
+        record.rationale,
+        record.features.length > 0 ? `Relevant capabilities: ${record.features.slice(0, 3).join(", ")}.` : "",
+      ].filter(Boolean),
+    ),
+  ).slice(0, 5);
+
+  const negatives = Array.from(
+    new Set(
+      [
+        ...record.notes,
+        ...(record.intelligence?.warnings ?? []),
+        ...(record.intelligence?.escalationReasons ?? []),
+      ].filter(Boolean),
+    ),
+  ).slice(0, 6);
+
+  if (negatives.length === 0) {
+    negatives.push("No major gaps flagged in deterministic comparison. Confirm against latest datasheets before final quote.");
+  }
+
+  return {
+    answer: `${record.wyrestormSku} (${record.wyrestormCategory})`,
+    matchPercent,
+    positives,
+    negatives,
+  };
 }
 
 export default function CompetitorComparePage() {
@@ -66,8 +125,16 @@ export default function CompetitorComparePage() {
     () => findComparisonRecordById(filtered, selectedId) ?? filtered[0] ?? null,
     [filtered, selectedId],
   );
+  const simpleSummary = React.useMemo(
+    () => (selected ? buildSimpleComparisonSummary(selected) : null),
+    [selected],
+  );
 
   const enrichedCount = Math.max(0, records.length - curatedCount);
+  const lowConfidenceCount = React.useMemo(
+    () => records.filter((item) => item.intelligence?.escalationRequired || item.confidence === "Low").length,
+    [records],
+  );
 
   const applyToActiveProject = () => {
     if (!selected) return;
@@ -166,12 +233,13 @@ export default function CompetitorComparePage() {
           <div className="wm-dashboard__eyebrow">Competitor Compare</div>
           <h1 className="wm-dashboard__title">Competitor SKU comparison tool</h1>
           <p className="wm-dashboard__subtitle">
-            Search competitor SKUs, run live enrichment lookup, review the closest WyreStorm direction, and save the replacement logic into the active project.
+            Search competitor SKUs, run live enrichment lookup, and get a clear replacement answer with match percentage plus positive and negative comparison points.
           </p>
 
           <div className="wm-dashboard__meta">
             <span className="wm-chip">Curated records: {curatedCount}</span>
             <span className="wm-chip">Lookup records: {enrichedCount}</span>
+            <span className={`wm-chip${lowConfidenceCount > 0 ? " wm-chip--warn" : ""}`}>Escalations: {lowConfidenceCount}</span>
             <span className="wm-chip">Active project: {activeProject?.name || "None"}</span>
           </div>
         </div>
@@ -265,24 +333,19 @@ export default function CompetitorComparePage() {
           {selected ? (
             <>
               <div className="wm-card">
-                <div className="wm-card__title">{selected.brand} {selected.competitorSku}</div>
-                <div className="wm-card__subtitle">{selected.summary}</div>
+                <div className="wm-card__title">Comparison answer</div>
+                <div className="wm-card__subtitle">{selected.brand} {selected.competitorSku}</div>
 
                 <div className="wm-summary-list">
-                  <div className="wm-summary-row"><span>Brand</span><strong>{selected.brand}</strong></div>
-                  <div className="wm-summary-row"><span>Competitor SKU</span><strong>{selected.competitorSku}</strong></div>
-                  {selected.competitorName ? (
-                    <div className="wm-summary-row"><span>Competitor model name</span><strong>{selected.competitorName}</strong></div>
-                  ) : null}
-                  <div className="wm-summary-row"><span>Category</span><strong>{selected.category}</strong></div>
-                  <div className="wm-summary-row"><span>WyreStorm direction</span><strong>{selected.wyrestormSku}</strong></div>
-                  <div className="wm-summary-row"><span>Category match</span><strong>{selected.wyrestormCategory}</strong></div>
+                  <div className="wm-summary-row"><span>Recommended answer</span><strong>{simpleSummary?.answer || selected.wyrestormSku}</strong></div>
+                  <div className="wm-summary-row"><span>Match</span><strong>{simpleSummary?.matchPercent ?? fallbackMatchFromConfidence(selected.confidence)}%</strong></div>
                   <div className="wm-summary-row"><span>Confidence</span><strong>{selected.confidence}</strong></div>
-                  {typeof selected.matchScore === "number" ? (
-                    <div className="wm-summary-row"><span>Match score</span><strong>{selected.matchScore}/100</strong></div>
-                  ) : null}
+                  <div className="wm-summary-row"><span>Competitor category</span><strong>{selected.category}</strong></div>
                   {selected.ioComparison ? (
                     <div className="wm-summary-row"><span>I/O alignment</span><strong>{selected.ioComparison}</strong></div>
+                  ) : null}
+                  {selected.competitorName ? (
+                    <div className="wm-summary-row"><span>Competitor model</span><strong>{selected.competitorName}</strong></div>
                   ) : null}
                   {selected.provenance ? (
                     <div className="wm-summary-row">
@@ -304,47 +367,128 @@ export default function CompetitorComparePage() {
 
               <div className="wm-page-grid-2">
                 <div className="wm-card">
-                  <div className="wm-card__title">Feature view</div>
-                  <div className="wm-card__subtitle">Useful comparison points to discuss during replacement positioning.</div>
+                  <div className="wm-card__title">Positive comparison</div>
+                  <div className="wm-card__subtitle">Strengths and fit signals to use in customer-facing positioning.</div>
 
                   <div className="wm-summary-list">
-                    {selected.features.length > 0 ? (
-                      selected.features.map((feature) => (
-                        <div className="wm-summary-row" key={feature}>
-                          <span>Feature</span>
-                          <strong>{feature}</strong>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="wm-summary-row">
-                        <span>Feature</span>
-                        <strong>No feature detail captured.</strong>
+                    {(simpleSummary?.positives ?? []).map((item) => (
+                      <div className="wm-summary-row" key={item}>
+                        <span>Positive</span>
+                        <strong>{item}</strong>
                       </div>
-                    )}
+                    ))}
                   </div>
                 </div>
 
                 <div className="wm-card">
-                  <div className="wm-card__title">Replacement rationale</div>
-                  <div className="wm-card__subtitle">{selected.rationale}</div>
+                  <div className="wm-card__title">Negative comparison</div>
+                  <div className="wm-card__subtitle">Gaps, risks, or checks to review before committing replacement advice.</div>
 
                   <div className="wm-summary-list">
-                    {selected.notes.length > 0 ? (
-                      selected.notes.map((note) => (
-                        <div className="wm-summary-row" key={note}>
-                          <span>Check</span>
-                          <strong>{note}</strong>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="wm-summary-row">
-                        <span>Check</span>
-                        <strong>No additional checks captured.</strong>
+                    {(simpleSummary?.negatives ?? []).map((item) => (
+                      <div className="wm-summary-row" key={item}>
+                        <span>Negative</span>
+                        <strong>{item}</strong>
                       </div>
-                    )}
+                    ))}
                   </div>
                 </div>
               </div>
+
+              <div className="wm-card">
+                <div className="wm-card__title">Reference details</div>
+                <div className="wm-card__subtitle">{selected.summary}</div>
+
+                <div className="wm-summary-list">
+                  {selected.features.length > 0 ? (
+                    selected.features.slice(0, 8).map((feature) => (
+                      <div className="wm-summary-row" key={feature}>
+                        <span>Feature</span>
+                        <strong>{feature}</strong>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="wm-summary-row">
+                      <span>Feature</span>
+                      <strong>No feature detail captured.</strong>
+                    </div>
+                  )}
+                  {selected.intelligence?.competitorStatus ? (
+                    <div className="wm-summary-row">
+                      <span>Competitor status</span>
+                      <strong>{selected.intelligence.competitorStatus}</strong>
+                    </div>
+                  ) : null}
+                  {selected.intelligence?.wyrestormStatus ? (
+                    <div className="wm-summary-row">
+                      <span>WyreStorm status</span>
+                      <strong>{selected.intelligence.wyrestormStatus}</strong>
+                    </div>
+                  ) : null}
+                  {selected.intelligence ? (
+                    <div className="wm-summary-row">
+                      <span>Intelligence score</span>
+                      <strong>{selected.intelligence.score}/100 ({selected.intelligence.confidence})</strong>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="wm-card">
+                <div className="wm-card__title">Replacement rationale</div>
+                <div className="wm-card__subtitle">{selected.rationale}</div>
+
+                <div className="wm-summary-list">
+                  {selected.notes.length > 0 ? (
+                    selected.notes.slice(0, 8).map((note) => (
+                      <div className="wm-summary-row" key={note}>
+                        <span>Check</span>
+                        <strong>{note}</strong>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="wm-summary-row">
+                      <span>Check</span>
+                      <strong>No additional checks captured.</strong>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {selected.intelligence?.escalationRequired ? (
+                <div className="wm-card">
+                  <div className="wm-card__title">Support escalation required</div>
+                  <div className="wm-card__subtitle">{selected.intelligence.summary}</div>
+
+                  <div className="wm-summary-list">
+                    {selected.intelligence.escalationReasons.map((reason) => (
+                      <div className="wm-summary-row" key={reason}>
+                        <span>Reason</span>
+                        <strong>{reason}</strong>
+                      </div>
+                    ))}
+                    {selected.intelligence.recommendations.map((recommendation) => (
+                      <div className="wm-summary-row" key={recommendation}>
+                        <span>Action</span>
+                        <strong>{recommendation}</strong>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="wm-inline-actions">
+                    {selected.intelligence.supportActions.map((action) => (
+                      <button
+                        key={action.to}
+                        type="button"
+                        className="wm-btn wm-btn--ghost"
+                        onClick={() => nav(action.to)}
+                      >
+                        {action.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
 
               <div className="wm-card">
                 <div className="wm-card__title">Project target</div>

@@ -159,7 +159,15 @@ function inferFamilies(
     families.push("Apollo", "USB Extension");
   }
 
-  if (app.includes("video wall") || (videoWall && videoWall.rows * videoWall.columns > 1)) {
+  const hasVideoWallSeed = Boolean(
+    videoWall && (
+      videoWall.displayType === "LED" ||
+      videoWall.rows * videoWall.columns > 1 ||
+      (videoWall.outputRows ?? 1) * (videoWall.outputColumns ?? 1) > 1
+    )
+  );
+
+  if (app.includes("video wall") || hasVideoWallSeed) {
     families.push("Video Wall");
   }
 
