@@ -32,7 +32,6 @@ const CableSchedulePage = React.lazy(() => import("@/features/cables/CableSchedu
 const VideoWallBuilderPage = React.lazy(() => import("@/features/videowall/VideoWallBuilderPage"));
 const TemplatesPage = React.lazy(() => import("@/features/templates/TemplatesPage"));
 const RuntimeDiagnosticsPage = React.lazy(() => import("@/features/support/RuntimeDiagnosticsPage"));
-const CompetitorLookupDiagnosticsPage = React.lazy(() => import("@/features/support/CompetitorLookupDiagnosticsPage"));
 
 // Pages
 const QuickQuestionPage = React.lazy(() => import("@/pages/QuickQuestionPage"));
@@ -45,7 +44,7 @@ const NotFoundPage = React.lazy(() => import("@/app/system/NotFoundPage"));
 
 function Loading() {
   return (
-    <div className="wm-route-loading">
+    <div style={{ padding: 18, color: "rgba(255,255,255,0.75)" }}>
       Loading...
     </div>
   );
@@ -66,7 +65,6 @@ export default function AppRoutes() {
 
           {/* Mission Control */}
           <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="about-wingman" element={<AboutWingmanPage />} />
 
           {/* Projects */}
           <Route path="projects" element={<ProjectsPage />} />
@@ -95,11 +93,9 @@ export default function AppRoutes() {
           <Route path="tools/design-review" element={<ProjectDesignReviewPage />} />
           <Route path="tools/guru" element={<GuruPage />} />
           <Route path="tools/runtime-diagnostics" element={<RuntimeDiagnosticsPage />} />
-          <Route path="tools/competitor-lookup-diagnostics" element={<CompetitorLookupDiagnosticsPage />} />
 
           {/* Support */}
           <Route path="support/runtime-diagnostics" element={<RuntimeDiagnosticsPage />} />
-          <Route path="support/competitor-lookup-diagnostics" element={<CompetitorLookupDiagnosticsPage />} />
 
           {/* Utility pages */}
           <Route path="quick-question" element={<QuickQuestionPage />} />

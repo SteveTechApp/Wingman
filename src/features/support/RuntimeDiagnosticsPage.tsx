@@ -65,19 +65,22 @@ export default function RuntimeDiagnosticsPage() {
   const latest = entries[0];
 
   return (
-    <div className="wm-page" style={{ display: "grid", gap: 10 }}>
+    <div className="wm-page wm-runtime-page">
       <section className="wm-hero">
-        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center" }}>
-          <div>
+        <div className="wm-page-hero-row">
+          <div className="wm-grid">
             <div className="wm-title-xl">Runtime Diagnostics</div>
-            <div className="wm-body-sm" style={{ marginTop: 2 }}>
+            <div className="wm-body-sm wm-page-subtitle">
               Support view for recent uncaught runtime errors captured in this browser session.
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div className="wm-actions-row">
             <button type="button" className="wm-btn" onClick={() => nav("/app/tools")}>
               Tool Hub
+            </button>
+            <button type="button" className="wm-btn" onClick={() => nav("/app/tools/competitor-lookup-diagnostics")}>
+              Lookup Diagnostics
             </button>
             <button type="button" className="wm-btn" onClick={refresh}>
               Refresh
@@ -92,60 +95,64 @@ export default function RuntimeDiagnosticsPage() {
         </div>
       </section>
 
-      <section className="wm-grid-cards" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
-        <div className="wm-card" style={{ padding: 12 }}>
+      <section className="wm-grid-cards wm-runtime-page__stats">
+        <article className="wm-work-card">
           <div className="wm-section-title">Captured errors</div>
           <div className="wm-title-lg">{entries.length}</div>
-        </div>
-        <div className="wm-card" style={{ padding: 12 }}>
+        </article>
+        <article className="wm-work-card">
           <div className="wm-section-title">Latest timestamp</div>
-          <div className="wm-title-lg" style={{ fontSize: 14 }}>
+          <div className="wm-title-lg wm-runtime-page__meta">
             {latest ? formatTimestamp(latest.timestamp) : "-"}
           </div>
-        </div>
-        <div className="wm-card" style={{ padding: 12 }}>
+        </article>
+        <article className="wm-work-card">
           <div className="wm-section-title">Latest kind</div>
           <div className="wm-title-lg">{latest?.kind ?? "-"}</div>
-        </div>
-        <div className="wm-card" style={{ padding: 12 }}>
+        </article>
+        <article className="wm-work-card">
           <div className="wm-section-title">Clipboard</div>
-          <div className="wm-title-lg" style={{ fontSize: 14 }}>
+          <div className="wm-title-lg wm-runtime-page__meta">
             {copyState === "idle" ? "Ready" : copyState === "copied" ? "Copied" : "Copy failed"}
           </div>
-        </div>
+        </article>
       </section>
 
-      <section className="wm-card" style={{ padding: 12 }}>
-        <div className="wm-section-title">Recent runtime errors</div>
+      <section className="wm-section">
+        <div className="wm-section__head">
+          <div className="wm-section__titles">
+            <h2>Recent runtime errors</h2>
+            <p>Session-level runtime failures captured by Wingman error reporting.</p>
+          </div>
+        </div>
 
         {entries.length === 0 ? (
-          <div className="wm-body" style={{ marginTop: 8 }}>No runtime errors captured for this session.</div>
+          <div className="wm-body">No runtime errors captured for this session.</div>
         ) : (
-          <div style={{ display: "grid", gap: 10, marginTop: 8 }}>
+          <div className="wm-runtime-page__list">
             {entries.map((entry, index) => (
               <article
                 key={entry.id}
                 className="wm-panel"
-                style={{ padding: 10, border: "1px solid rgba(255,255,255,0.12)" }}
               >
-                <div style={{ display: "grid", gap: 4 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                <div className="wm-runtime-page__entry">
+                  <div className="wm-runtime-page__entry-head">
                     <strong>#{index + 1} {entry.kind}</strong>
-                    <span style={{ opacity: 0.75, fontSize: 12 }}>{formatTimestamp(entry.timestamp)}</span>
+                    <span className="wm-runtime-page__entry-time">{formatTimestamp(entry.timestamp)}</span>
                   </div>
 
-                  <div style={{ fontSize: 13, lineHeight: 1.45 }}>{entry.message}</div>
+                  <div className="wm-runtime-page__entry-message">{entry.message}</div>
 
                   {entry.source ? (
-                    <div style={{ fontSize: 12, opacity: 0.78 }}>
+                    <div className="wm-runtime-page__entry-source">
                       Source: {entry.source}{entry.line != null ? `:${entry.line}` : ""}{entry.column != null ? `:${entry.column}` : ""}
                     </div>
                   ) : null}
 
                   {entry.stack ? (
                     <details>
-                      <summary style={{ cursor: "pointer", fontSize: 12, opacity: 0.86 }}>Stack trace</summary>
-                      <pre style={{ marginTop: 8, whiteSpace: "pre-wrap", fontSize: 12, opacity: 0.86 }}>{entry.stack}</pre>
+                      <summary className="wm-runtime-page__stack-summary">Stack trace</summary>
+                      <pre className="wm-runtime-page__stack">{entry.stack}</pre>
                     </details>
                   ) : null}
                 </div>

@@ -28,80 +28,98 @@ export default function CatalogPage() {
   }, [q, family, category, feature]);
 
   return (
-    <div className="wm-page" style={{ padding: 16 }}>
-      <div className="wm-card wm-card-pad">
-        <div className="wm-h1">WyreStorm Catalog</div>
-        <p className="wm-p" style={{ marginTop: 8 }}>
-          Phase 3 enriched catalog with normalized filtering.
-        </p>
+    <div className="wm-page wm-catalog-page">
+      <section className="wm-hero">
+        <div className="wm-page-hero-row">
+          <div className="wm-grid">
+            <div className="wm-kicker">Products</div>
+            <div className="wm-title-xl">WyreStorm Catalog</div>
+            <div className="wm-body-sm wm-page-subtitle-muted">
+              Filter by family, category, and features to move quickly from solution direction to candidate SKUs.
+            </div>
+          </div>
 
-        <div
-          style={{
-            display: "grid",
-            gap: 10,
-            gridTemplateColumns: "2fr 1fr 1fr 1fr",
-            marginTop: 14,
-          }}
-        >
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search SKU, family, category, feature"
-            style={{ padding: 10, borderRadius: 10 }}
-          />
-          <select value={family} onChange={(e) => setFamily(e.target.value)} style={{ padding: 10, borderRadius: 10 }}>
-            {families.map((x) => <option key={x} value={x}>{x}</option>)}
-          </select>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ padding: 10, borderRadius: 10 }}>
-            {categories.map((x) => <option key={x} value={x}>{x}</option>)}
-          </select>
-          <select value={feature} onChange={(e) => setFeature(e.target.value)} style={{ padding: 10, borderRadius: 10 }}>
-            {features.map((x) => <option key={x} value={x}>{x}</option>)}
-          </select>
+          <div className="wm-save-pill">{items.length} product(s)</div>
+        </div>
+      </section>
+
+      <section className="wm-section">
+        <div className="wm-section__head">
+          <div className="wm-section__titles">
+            <h2>Filters</h2>
+            <p>Narrow the catalog to shortlist project-fit options.</p>
+          </div>
         </div>
 
-        <div style={{ marginTop: 14, opacity: 0.8 }}>
-          {items.length} product(s)
+        <div className="wm-catalog-page__filters">
+          <label className="wm-form-field wm-catalog-page__search">
+            <span className="wm-form-label">Search</span>
+            <input
+              className="wm-form-input"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search SKU, family, category, feature"
+            />
+          </label>
+
+          <label className="wm-form-field">
+            <span className="wm-form-label">Family</span>
+            <select className="wm-form-input" value={family} onChange={(e) => setFamily(e.target.value)}>
+              {families.map((x) => <option key={x} value={x}>{x}</option>)}
+            </select>
+          </label>
+
+          <label className="wm-form-field">
+            <span className="wm-form-label">Category</span>
+            <select className="wm-form-input" value={category} onChange={(e) => setCategory(e.target.value)}>
+              {categories.map((x) => <option key={x} value={x}>{x}</option>)}
+            </select>
+          </label>
+
+          <label className="wm-form-field">
+            <span className="wm-form-label">Feature</span>
+            <select className="wm-form-input" value={feature} onChange={(e) => setFeature(e.target.value)}>
+              {features.map((x) => <option key={x} value={x}>{x}</option>)}
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section className="wm-section">
+        <div className="wm-section__head">
+          <div className="wm-section__titles">
+            <h2>Catalog results</h2>
+            <p>Shortlist platform options for the active project workflow.</p>
+          </div>
         </div>
 
-        <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+        <div className="wm-grid-cards">
           {items.map((p) => (
-            <div key={p.sku} className="wm-card" style={{ padding: 12 }}>
-              <div style={{ fontWeight: 800 }}>
+            <article key={p.sku} className="wm-work-card">
+              <div className="wm-title-lg">
                 {p.sku} - {p.name}
               </div>
 
-              <div style={{ marginTop: 6, opacity: 0.85 }}>
+              <div className="wm-body-sm">
                 {p.family} / {p.category} / {p.transport}
               </div>
 
-              <div style={{ marginTop: 6, fontSize: 14 }}>
-                {p.summary}
+              <div className="wm-body">{p.summary}</div>
+
+              <div className="wm-catalog-page__meta-list">
+                <div className="wm-body-sm">{p.ioSummary}</div>
+                <div className="wm-body-sm">Control: {p.controlSummary}</div>
+                <div className="wm-body-sm">Video: {p.video?.maxResolution || "Not set"}</div>
+                <div className="wm-body-sm">Distance: {p.distance?.meters ?? 0}m</div>
               </div>
 
-              <div style={{ marginTop: 6, fontSize: 13, opacity: 0.82 }}>
-                {p.ioSummary}
-              </div>
-
-              <div style={{ marginTop: 4, fontSize: 13, opacity: 0.82 }}>
-                Control: {p.controlSummary}
-              </div>
-
-              <div style={{ marginTop: 4, fontSize: 13, opacity: 0.82 }}>
-                Video: {p.video?.maxResolution || "Not set"}
-              </div>
-
-              <div style={{ marginTop: 4, fontSize: 13, opacity: 0.82 }}>
-                Distance: {p.distance?.meters ?? 0}m
-              </div>
-
-              <div style={{ marginTop: 8, fontSize: 13, opacity: 0.8 }}>
+              <div className="wm-body-sm">
                 Tags: {(p.normalizedTags || []).join(", ") || "None"}
               </div>
-            </div>
+            </article>
           ))}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

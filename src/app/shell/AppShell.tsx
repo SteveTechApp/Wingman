@@ -32,8 +32,8 @@ export default function AppShell() {
           />
         </aside>
 
-        <main className="wm-shell-main">
-          <div className="wm-page">
+        <main className="wm-shell-main wm-scrollbar-thin">
+          <div className="wm-shell-content">
             <Outlet />
           </div>
         </main>

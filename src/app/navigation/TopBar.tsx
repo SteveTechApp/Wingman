@@ -9,13 +9,9 @@ function LogoMark() {
 
   if (failed) {
     return (
-      <div style={{ display: "grid", gap: 1, lineHeight: 1 }}>
-        <div style={{ fontSize: 20, fontWeight: 900, color: "#73e7ff", letterSpacing: -0.4 }}>
-          WyreStorm
-        </div>
-        <div style={{ fontSize: 10, fontWeight: 800, color: "#eef6ff", opacity: 0.9 }}>
-          Wingman
-        </div>
+      <div className="wm-topbar__wordmark">
+        <div className="wm-topbar__wordmark-main">WyreStorm</div>
+        <div className="wm-topbar__wordmark-sub">Wingman</div>
       </div>
     );
   }
@@ -25,7 +21,7 @@ function LogoMark() {
       src="/wyrestorm-logo.png"
       alt={brand.fullName}
       onError={() => setFailed(true)}
-      style={{ display: "block", width: "auto", height: 30, objectFit: "contain" }}
+      className="wm-topbar__logo"
     />
   );
 }
@@ -42,48 +38,22 @@ export default function TopBar() {
   ];
 
   return (
-    <header
-      style={{
-        height: "var(--wm-topbar-h)",
-        minHeight: "var(--wm-topbar-h)",
-        display: "grid",
-        gridTemplateColumns: "122px minmax(260px, 1fr) auto",
-        alignItems: "center",
-        gap: 12,
-        padding: "0 14px",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
-        background: "linear-gradient(180deg, rgba(7,14,24,0.98), rgba(8,16,27,0.96))",
-        backdropFilter: "blur(10px)",
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-      }}
-    >
+    <header className="wm-topbar">
       <button
         type="button"
         onClick={() => navigate(WM_ROUTES.dashboard)}
-        style={{
-          appearance: "none",
-          border: "none",
-          background: "transparent",
-          padding: 0,
-          margin: 0,
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          minWidth: 0,
-        }}
+        className="wm-topbar__brand-btn"
         title="Go to Dashboard"
       >
         <LogoMark />
       </button>
 
-      <div className="wm-input-shell">
-        Active Project - {activeProjectName}
+      <div className="wm-input-shell wm-topbar__project-pill">
+        <span className="wm-topbar__project-label">Active Project</span>
+        <strong>{activeProjectName}</strong>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div className="wm-topbar__actions">
         {navItems.map((item) => {
           const active = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
           return (
@@ -101,11 +71,7 @@ export default function TopBar() {
         <button
           type="button"
           onClick={() => navigate(WM_ROUTES.newProject)}
-          className="wm-btn-nav"
-          style={{
-            border: "1px solid rgba(115,231,255,0.22)",
-            background: "linear-gradient(90deg, rgba(23,57,93,0.96), rgba(14,37,61,0.96))",
-          }}
+          className="wm-btn-nav wm-btn-nav--primary"
         >
           + New Project
         </button>

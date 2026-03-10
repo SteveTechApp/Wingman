@@ -152,7 +152,7 @@ export default function ExportSnapshotPage() {
   return (
     <div className="wm-export-page">
       <div className="wm-export-toolbar no-print">
-        <button className="wm-btn wm-btn--primary" onClick={handlePrint}>
+        <button className="wm-btn wm-btn-primary" onClick={handlePrint}>
           Print / Save PDF
         </button>
         <div className="wm-export-hint">Tip: choose "Save as PDF" in the print dialog.</div>
@@ -206,7 +206,7 @@ export default function ExportSnapshotPage() {
             </table>
 
             {recommendedFamilies.length > 0 ? (
-              <div style={{ marginTop: 10, fontSize: 12 }}>
+              <div className="wm-export-recommended">
                 <strong>Recommended families:</strong> {recommendedFamilies.join(", ")}
               </div>
             ) : null}
@@ -217,9 +217,9 @@ export default function ExportSnapshotPage() {
             <table className="wm-export-table">
               <thead>
                 <tr>
-                  <th style={{ width: "22%" }}>SKU</th>
+                  <th className="wm-export-col-sku">SKU</th>
                   <th>Description</th>
-                  <th style={{ width: "10%", textAlign: "right" }}>Qty</th>
+                  <th className="wm-export-col-qty">Qty</th>
                 </tr>
               </thead>
               <tbody>
@@ -228,14 +228,14 @@ export default function ExportSnapshotPage() {
                     <tr key={row.sku}>
                       <td>{row.sku}</td>
                       <td>{row.description}</td>
-                      <td style={{ textAlign: "right" }}>{row.quantity}</td>
+                      <td className="wm-export-align-right">{row.quantity}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td>-</td>
                     <td>No selected SKUs on this project yet.</td>
-                    <td style={{ textAlign: "right" }}>-</td>
+                    <td className="wm-export-align-right">-</td>
                   </tr>
                 )}
               </tbody>

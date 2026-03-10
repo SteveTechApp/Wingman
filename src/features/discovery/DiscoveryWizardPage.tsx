@@ -588,117 +588,6 @@ function SelectField(props: {
   );
 }
 
-const pageStyles = `
-.wm-dw6{
-  padding: 12px 16px 16px;
-}
-
-.wm-dw6__hero{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:12px;
-  align-items:start;
-}
-
-.wm-dw6__heroActions{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-  gap:8px;
-}
-
-.wm-dw6__content{
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-}
-
-.wm-dw6__sectionTop{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  align-items:start;
-  margin-bottom:12px;
-  flex-wrap:wrap;
-}
-
-.wm-dw6__stepBadge{
-  display:inline-flex;
-  align-items:center;
-  min-height:32px;
-  padding:0 12px;
-  border-radius:999px;
-  background:rgba(34,199,184,0.12);
-  border:1px solid rgba(34,199,184,0.18);
-  color:#dffcf9;
-  font-size:0.84rem;
-  font-weight:650;
-}
-
-.wm-dw6__wizardShell{
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-}
-
-.wm-dw6__formWrap{
-  max-width:920px;
-}
-
-.wm-dw6__nav{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:center;
-  margin-top:4px;
-}
-
-.wm-dw6__navLeft,
-.wm-dw6__navRight{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  align-items:center;
-}
-
-.wm-dw6__insights{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-
-.wm-dw6__insightStack{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-
-@media (max-width: 980px){
-  .wm-dw6__hero{
-    grid-template-columns:1fr;
-  }
-
-  .wm-dw6__heroActions{
-    justify-content:flex-start;
-  }
-
-  .wm-dw6__nav{
-    flex-direction:column;
-    align-items:stretch;
-  }
-
-  .wm-dw6__navLeft,
-  .wm-dw6__navRight{
-    width:100%;
-    justify-content:space-between;
-  }
-
-  .wm-dw6__formWrap{
-    max-width:none;
-  }
-}
-`;
-
 export default function DiscoveryWizardPage() {
   const navigate = useNavigate();
   const [record, setRecord] = React.useState<DiscoveryRecord>(() => readDiscovery());
@@ -786,7 +675,7 @@ export default function DiscoveryWizardPage() {
         <SelectField label="Budget band" value={record.budgetBand} options={BUDGET_OPTIONS} onChange={(v) => update("budgetBand", v)} />
         <SelectField label="Urgency / timeline" value={record.urgency} options={URGENCY_OPTIONS} onChange={(v) => update("urgency", v)} />
 
-        <label className="wm-ui__field" style={{ gridColumn: "1 / -1" }}>
+        <label className="wm-ui__field wm-dw6__field--full">
           <span className="wm-ui__label">Call notes / constraints</span>
           <textarea
             className="wm-ui__textarea wm-ui__textarea--sm"
@@ -800,12 +689,10 @@ export default function DiscoveryWizardPage() {
   }
 
   return (
-    <div className="wm-dw6 wm-ui">
-      <style>{pageStyles}</style>
-
+    <div className="wm-page wm-dw6 wm-ui">
       <div className="wm-ui__stack">
-        <section className="wm-ui__card wm-ui__card--hero">
-          <div className="wm-dw6__hero">
+        <section className="wm-hero">
+          <div className="wm-page-hero-row wm-dw6__hero">
             <div>
               <p className="wm-ui__eyebrow">Discovery</p>
               <h1 className="wm-ui__title">Discovery Wizard</h1>
@@ -814,14 +701,14 @@ export default function DiscoveryWizardPage() {
               </p>
             </div>
 
-            <div className="wm-dw6__heroActions">
+            <div className="wm-actions-row wm-dw6__heroActions">
               <button className="wm-ui__btn wm-ui__btn--ghost" onClick={startBlank}>Start blank</button>
               <button className="wm-ui__btn" onClick={() => navigate("/app/tools")}>Tool Hub</button>
             </div>
           </div>
         </section>
 
-        <section className="wm-ui__card">
+        <section className="wm-section">
           <div className="wm-wizard-progress">
             {STEP_DEFS.map((step, index) => {
               const progress = stepCompletion(record, index);
@@ -859,7 +746,7 @@ export default function DiscoveryWizardPage() {
 
               <div className="wm-dw6__nav">
                 <div className="wm-dw6__navLeft">
-                  <span className="wm-ui__helper" style={{ marginTop: 0 }}>
+                  <span className="wm-ui__helper wm-dw6__save-meta">
                     {savedAt ? `Last saved at ${savedAt}` : `Progress ${totalComplete}/${totalFields}`}
                   </span>
                 </div>
@@ -888,7 +775,7 @@ export default function DiscoveryWizardPage() {
           </div>
         </section>
 
-        <section className="wm-ui__card">
+        <section className="wm-section">
           <div className="wm-dw6__insights">
             <div>
               <h3 className="wm-ui__sectionTitle">Recommended product families</h3>
@@ -931,7 +818,7 @@ export default function DiscoveryWizardPage() {
 
         {activeStep === 2 ? (
           <>
-            <section className="wm-ui__card">
+            <section className="wm-section">
               <div className="wm-dw6__insights">
                 <div className="wm-dw6__architectureHead">
                   <div>
@@ -983,7 +870,7 @@ export default function DiscoveryWizardPage() {
               </div>
             </section>
 
-            <section className="wm-ui__card">
+            <section className="wm-section">
               <div className="wm-dw6__insights">
                 <div>
                   <h3 className="wm-ui__sectionTitle">Recommended WyreStorm product family</h3>

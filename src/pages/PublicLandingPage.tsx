@@ -1,46 +1,5 @@
-import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { brand } from "@/branding/brand";
-
-const capabilityPills = [
-  "Discovery",
-  "Architecture",
-  "Products",
-  "Proposal",
-  "Video Wall",
-  "USB",
-  "Control",
-];
-
-const featureCards = [
-  {
-    eyebrow: "Discovery",
-    title: "Capture requirements",
-    body: "Structure room conditions, displays, source counts, cable distance, USB, control, and audio needs before product selection begins.",
-  },
-  {
-    eyebrow: "Architecture",
-    title: "Choose the right signal path",
-    body: "Guide users toward HDBaseT, AVoIP, matrix switching, USB extension, or video wall workflows based on the application.",
-  },
-  {
-    eyebrow: "Products",
-    title: "Build the solution",
-    body: "Turn the selected architecture into recommended WyreStorm platforms, building blocks, and a starter BOM direction.",
-  },
-  {
-    eyebrow: "Proposal",
-    title: "Move toward output",
-    body: "Keep commercial logic, documentation, and proposal readiness aligned to the actual project workflow.",
-  },
-];
-
-const workflowSteps = [
-  "Discovery",
-  "Architecture",
-  "Products",
-  "Proposal",
-];
 
 export default function PublicLandingPage() {
   const navigate = useNavigate();
@@ -88,63 +47,7 @@ export default function PublicLandingPage() {
                 Open Mission Control
               </Link>
             </div>
-
-            <div className="wm-landing-pill-row">
-              {capabilityPills.map((pill) => (
-                <span key={pill} className="wm-badge">
-                  {pill}
-                </span>
-              ))}
-            </div>
           </div>
-        </div>
-      </section>
-
-      <section className="wm-landing-section">
-        <div className="wm-landing-workflow-strip wm-card">
-          <div className="wm-landing-section-kicker">How Wingman works</div>
-          <div className="wm-landing-workflow-row">
-            {workflowSteps.map((step, index) => (
-              <React.Fragment key={step}>
-                <div className="wm-landing-workflow-step">
-                  <span className="wm-landing-workflow-index">0{index + 1}</span>
-                  <span>{step}</span>
-                </div>
-                {index < workflowSteps.length - 1 ? (
-                  <div className="wm-landing-workflow-arrow">→</div>
-                ) : null}
-              </React.Fragment>
-            ))}
-          </div>
-          <p className="wm-muted wm-landing-workflow-copy">
-            Start with the application, move into architecture, then product selection,
-            and only then build the commercial output.
-          </p>
-        </div>
-      </section>
-
-      <section className="wm-landing-section">
-        <div className="wm-landing-section-head">
-          <div>
-            <div className="wm-landing-section-kicker">What Wingman helps you do</div>
-            <h2 className="wm-subtitle wm-landing-section-title">
-              Core workflow tools for AV sales and design
-            </h2>
-          </div>
-          <p className="wm-muted wm-landing-section-copy">
-            Built to guide less technical sales users while still supporting structured
-            system design, solution logic, and proposal consistency.
-          </p>
-        </div>
-
-        <div className="wm-landing-feature-grid">
-          {featureCards.map((card) => (
-            <article key={card.title} className="wm-card wm-landing-feature-card">
-              <div className="wm-landing-card-kicker">{card.eyebrow}</div>
-              <h3 className="wm-landing-card-title">{card.title}</h3>
-              <p className="wm-muted wm-landing-card-copy">{card.body}</p>
-            </article>
-          ))}
         </div>
       </section>
     </div>
