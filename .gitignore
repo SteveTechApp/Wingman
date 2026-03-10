@@ -12,19 +12,24 @@ coverage/
 
 # local tooling outputs
 _RESCUE/
+_RESCUE*/
 _ARCHIVE/
+_ARCHIVE*/
 _AUDIT/
-_RESCUE/**
-
-# wingman workflow folders
-_RESCUE/
-_ARCHIVE/
-_AUDIT/
+_AUDITS/
+_CLEANUP_REPORTS/
+_RECOVERY_REPORTS/
+*_BACKUP/
+*.bak
+*.bak_*
+*.orig
+*.rej
+~$*
 tools/_generated/
 
 # logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*.vite-temp/
+pnpm-debug.log*
 .vite-temp/
