@@ -218,18 +218,18 @@ export default function ProposalBuilderPage() {
   return (
     <div className="wm-page">
       <section className="wm-hero">
-        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center" }}>
+        <div className="wm-page-hero-row">
           <div>
             <div className="wm-title-xl">Proposal Builder</div>
-            <div className="wm-body-sm" style={{ marginTop: 2 }}>
+            <div className="wm-body-sm wm-page-subtitle">
               Convert project requirements and selected products into a structured customer-ready output.
             </div>
-            <div className="wm-body-sm" style={{ marginTop: 6, opacity: 0.78 }}>
+            <div className="wm-body-sm wm-page-subtitle-muted">
               Active project: {activeProject?.name ?? "No active project selected"}
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div className="wm-actions-row">
             <button type="button" className="wm-btn" onClick={saveDraftToProject} disabled={!activeProject}>
               Save Proposal Draft
             </button>
@@ -245,26 +245,22 @@ export default function ProposalBuilderPage() {
         </div>
       </section>
 
-      <section style={{ display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: 10 }}>
-        <div className="wm-panel" style={{ padding: 12 }}>
-          <div className="wm-section-title">Proposal content</div>
+      <div className="wm-split-columns">
+        <section className="wm-section">
+          <div className="wm-section__head">
+            <div className="wm-section__titles">
+              <h2>Proposal content</h2>
+              <p>Capture customer-safe narrative and commercial notes before handoff.</p>
+            </div>
+          </div>
 
-          <div className="wm-grid" style={{ marginTop: 8 }}>
+          <div className="wm-form-grid">
             {FIELDS.map((field) => (
-              <label key={field.id} className="wm-grid" style={{ gap: 4 }}>
-                <span className="wm-body-sm">{field.label}</span>
+              <label key={field.id} className="wm-form-field wm-form-field--full">
+                <span className="wm-form-label">{field.label}</span>
                 <textarea
-                  className="wm-panel-soft"
-                  style={{
-                    width: "100%",
-                    minHeight: field.rows * 21,
-                    padding: 10,
-                    color: "var(--wm-text)",
-                    background: "rgba(10,22,36,0.55)",
-                    border: "1px solid var(--wm-border-soft)",
-                    resize: "vertical",
-                    outline: "none",
-                  }}
+                  className="wm-form-textarea"
+                  rows={field.rows}
                   value={draft[field.id]}
                   placeholder={field.placeholder}
                   onChange={(event) => updateField(field.id, event.target.value)}
@@ -272,60 +268,49 @@ export default function ProposalBuilderPage() {
               </label>
             ))}
 
-            <label className="wm-grid" style={{ gap: 4 }}>
-              <span className="wm-body-sm">Next customer-safe step</span>
+            <label className="wm-form-field wm-form-field--full">
+              <span className="wm-form-label">Next customer-safe step</span>
               <input
-                className="wm-panel-soft"
+                className="wm-form-input"
                 value={draft.nextStep}
                 onChange={(event) => updateField("nextStep", event.target.value)}
-                style={{
-                  width: "100%",
-                  padding: 10,
-                  color: "var(--wm-text)",
-                  background: "rgba(10,22,36,0.55)",
-                  border: "1px solid var(--wm-border-soft)",
-                  outline: "none",
-                }}
               />
             </label>
           </div>
-        </div>
+        </section>
 
-        <div className="wm-grid" style={{ gap: 8 }}>
-          <div className="wm-panel" style={{ padding: 12 }}>
-            <div className="wm-title-lg">Output summary</div>
-            <div className="wm-body" style={{ marginTop: 6 }}>
-              Proposal Builder should be the final workflow step after Discovery, Templates or Room Designer.
+        <div className="wm-grid">
+          <section className="wm-section">
+            <div className="wm-section__head">
+              <div className="wm-section__titles">
+                <h2>Output summary</h2>
+                <p>Check commercial baseline before generating final documents.</p>
+              </div>
             </div>
 
-            <div className="wm-grid" style={{ marginTop: 10, gap: 6 }}>
+            <div className="wm-grid wm-proposal-builder-page__summary">
               <div className="wm-body-sm">BOM lines: {proposalState.lines.length}</div>
-              <div className="wm-body-sm">
-                Total sell: {formatCurrency(totals.currency, totals.totalSell)}
-              </div>
-              <div className="wm-body-sm">
-                Total cost: {formatCurrency(totals.currency, totals.totalCost)}
-              </div>
-              <div className="wm-body-sm">
-                Margin: {totals.grossMarginPct.toFixed(1)}%
-              </div>
+              <div className="wm-body-sm">Total sell: {formatCurrency(totals.currency, totals.totalSell)}</div>
+              <div className="wm-body-sm">Total cost: {formatCurrency(totals.currency, totals.totalCost)}</div>
+              <div className="wm-body-sm">Margin: {totals.grossMarginPct.toFixed(1)}%</div>
             </div>
-          </div>
+          </section>
 
-          <div className="wm-panel" style={{ padding: 12 }}>
-            <div className="wm-title-lg">Readiness status</div>
-            <div className="wm-body" style={{ marginTop: 6 }}>
-              {readiness.status} ({readiness.score}%)
+          <section className="wm-section">
+            <div className="wm-section__head">
+              <div className="wm-section__titles">
+                <h2>Readiness status</h2>
+                <p>{readiness.status} ({readiness.score}%)</p>
+              </div>
             </div>
-            <div className="wm-body-sm" style={{ marginTop: 6, opacity: 0.78 }}>
-              {readiness.nextStep}
-            </div>
-            <div className="wm-body-sm" style={{ marginTop: 8, opacity: 0.72 }}>
+
+            <div className="wm-body-sm">{readiness.nextStep}</div>
+            <div className="wm-body-sm wm-proposal-builder-page__autosave">
               {savedAt ? `Saved at ${savedAt}` : "Draft auto-saves locally as you type."}
             </div>
-          </div>
+          </section>
         </div>
-      </section>
+      </div>
 
       <ProposalHandoffPanel
         status={readiness.status}

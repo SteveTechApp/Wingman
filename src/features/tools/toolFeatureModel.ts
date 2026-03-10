@@ -56,6 +56,15 @@ export const WINGMAN_TOOLS: WingmanItem[] = [
     tag: "Support",
     highlight: "Inspect recent runtime errors",
   },
+  {
+    id: "competitor-lookup-diagnostics",
+    title: "Lookup Diagnostics",
+    description: "Inspect competitor lookup cache/provenance entries and verify backend contract health.",
+    kind: "tool",
+    to: "/app/tools/competitor-lookup-diagnostics",
+    tag: "Support",
+    highlight: "Inspect lookup pipeline",
+  },
 ];
 
 export const WINGMAN_FEATURES: WingmanItem[] = [

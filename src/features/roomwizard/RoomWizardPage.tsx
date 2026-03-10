@@ -19,31 +19,13 @@ function Field({
   placeholder?: string;
 }) {
   return (
-    <label style={{ display: "grid", gap: 6 }}>
-      <div
-        style={{
-          fontSize: 11,
-          fontWeight: 800,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: "rgba(255,255,255,0.62)",
-        }}
-      >
-        {label}
-      </div>
+    <label className="wm-form-field">
+      <span className="wm-form-label">{label}</span>
       <input
+        className="wm-form-input"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        style={{
-          height: 42,
-          borderRadius: 12,
-          border: "1px solid rgba(255,255,255,0.12)",
-          background: "rgba(255,255,255,0.04)",
-          color: "rgba(255,255,255,0.94)",
-          padding: "0 12px",
-          outline: "none",
-        }}
       />
     </label>
   );
@@ -61,37 +43,18 @@ function Area({
   placeholder?: string;
 }) {
   return (
-    <label style={{ display: "grid", gap: 6 }}>
-      <div
-        style={{
-          fontSize: 11,
-          fontWeight: 800,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: "rgba(255,255,255,0.62)",
-        }}
-      >
-        {label}
-      </div>
+    <label className="wm-form-field wm-form-field--full">
+      <span className="wm-form-label">{label}</span>
       <textarea
+        className="wm-form-textarea"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={5}
-        style={{
-          borderRadius: 12,
-          border: "1px solid rgba(255,255,255,0.12)",
-          background: "rgba(255,255,255,0.04)",
-          color: "rgba(255,255,255,0.94)",
-          padding: 12,
-          outline: "none",
-          resize: "vertical",
-        }}
       />
     </label>
   );
 }
-
 
 export default function RoomWizardPage() {
   const nav = useNavigate();
@@ -132,189 +95,124 @@ export default function RoomWizardPage() {
   }
 
   return (
-    <div
-      className="wm-page wm-animate-in wm-room wm-ui"
-      style={{ width: "100%", maxWidth: "none", margin: 0, minWidth: 0 }}
-    >
-      <div style={{ display: "grid", gap: 14 }}>
-        <div>
-          <div className="wm-page-eyebrow">TOOL</div>
-          <h1 className="wm-page-title" style={{ marginBottom: 8 }}>
-            Room Wizard
-          </h1>
-          <div
-            style={{
-              maxWidth: 760,
-              fontSize: 14,
-              color: "rgba(255,255,255,0.86)",
-              lineHeight: 1.45,
-            }}
-          >
-            Capture the core room requirements first, then save them back into the active project.
+    <div className="wm-page">
+      <section className="wm-hero">
+        <div className="wm-page-hero-row">
+          <div>
+            <div className="wm-kicker">Tool</div>
+            <div className="wm-title-xl">Room Wizard</div>
+            <div className="wm-body wm-room-wizard-page__intro">
+              Capture the core room requirements first, then save them back into the active project.
+            </div>
           </div>
         </div>
+      </section>
 
-        {!ctx ? (
-          <section className="wm-card wm-ui__card" style={{ padding: 18, borderRadius: 18 }}>
-            <div style={{ fontWeight: 900, fontSize: 18 }}>No active project</div>
-            <div
-              style={{
-                marginTop: 8,
-                fontSize: 14,
-                color: "rgba(255,255,255,0.82)",
-                lineHeight: 1.45,
-              }}
-            >
-              Create or select a project first.
+      {!ctx ? (
+        <section className="wm-section">
+          <div className="wm-section__head">
+            <div className="wm-section__titles">
+              <h2>No active project</h2>
+              <p>Create or select a project first.</p>
             </div>
-            <div style={{ marginTop: 14 }}>
-              <button
-                type="button"
-                className="wm-btn wm-btn-primary wm-ui__btn"
-                style={{ height: 40, padding: "0 16px" }}
-                onClick={() => nav("/app/projects")}
-              >
-                Open Projects
-              </button>
+          </div>
+
+          <div className="wm-actions-row">
+            <button
+              type="button"
+              className="wm-btn wm-btn-primary"
+              onClick={() => nav("/app/projects")}
+            >
+              Open Projects
+            </button>
+          </div>
+        </section>
+      ) : (
+        <>
+          <section className="wm-section">
+            <div className="wm-section__head">
+              <div className="wm-section__titles">
+                <h2>Active project</h2>
+                <p>{ctx.projectName}</p>
+              </div>
+            </div>
+            <div className="wm-body-sm">
+              {ctx.verticalMarket.name} / {ctx.roomType.name} / {ctx.tier.label}
             </div>
           </section>
-        ) : (
-          <>
-            <section className="wm-card wm-ui__card" style={{ padding: 18, borderRadius: 18 }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.62)",
-                }}
+
+          <section className="wm-section">
+            <div className="wm-section__head">
+              <div className="wm-section__titles">
+                <h2>Room requirements</h2>
+                <p>Capture the main design constraints before moving into detailed solution work.</p>
+              </div>
+            </div>
+
+            <div className="wm-form-grid">
+              <Field
+                label="Display count"
+                value={displayCount}
+                onChange={setDisplayCount}
+                placeholder="e.g. 1 main display + 1 confidence"
+              />
+              <Field
+                label="Transport family"
+                value={transport}
+                onChange={setTransport}
+                placeholder="e.g. HDBaseT, AVoIP, matrix, direct HDMI"
+              />
+              <Field
+                label="USB needs"
+                value={usbNeeds}
+                onChange={setUsbNeeds}
+                placeholder="e.g. BYOD camera/audio, host switching"
+              />
+              <Field
+                label="Control level"
+                value={controlLevel}
+                onChange={setControlLevel}
+                placeholder="e.g. front-panel, API, touch panel"
+              />
+              <Area
+                label="Engineering notes"
+                value={notes}
+                onChange={setNotes}
+                placeholder="Add room constraints, signal priorities, cable considerations, user expectations, etc."
+              />
+            </div>
+
+            <div className="wm-actions-row">
+              <button
+                type="button"
+                className="wm-btn wm-btn-primary"
+                onClick={saveRoomRequirements}
               >
-                Active project
-              </div>
-              <div style={{ marginTop: 8, fontWeight: 900, fontSize: 22 }}>
-                {ctx.projectName}
-              </div>
-              <div
-                style={{
-                  marginTop: 8,
-                  fontSize: 13,
-                  color: "rgba(255,255,255,0.84)",
-                  lineHeight: 1.45,
-                }}
+                Save room requirements
+              </button>
+
+              {saved ? <span className="wm-save-pill">Saved to active project</span> : null}
+            </div>
+          </section>
+
+          <CollapsibleCard
+            id="room_wizard_next_steps"
+            title="Next step"
+            subtitle="Move into proposal building after the room requirements are saved."
+            defaultCollapsed
+          >
+            <div className="wm-actions-row">
+              <button
+                type="button"
+                className="wm-btn"
+                onClick={() => nav("/app/tools/proposal")}
               >
-                {ctx.verticalMarket.name} / {ctx.roomType.name} / {ctx.tier.label}
-              </div>
-            </section>
-
-            <section className="wm-card wm-ui__card" style={{ padding: 18, borderRadius: 18 }}>
-              <div style={{ fontWeight: 900, fontSize: 16 }}>Room requirements</div>
-              <div
-                style={{
-                  marginTop: 6,
-                  fontSize: 12,
-                  color: "rgba(255,255,255,0.80)",
-                  lineHeight: 1.45,
-                }}
-              >
-                Capture the main design constraints before moving into detailed solution work.
-              </div>
-
-              <div
-                style={{
-                  marginTop: 14,
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                  gap: 14,
-                }}
-              >
-                <Field
-                  label="Display count"
-                  value={displayCount}
-                  onChange={setDisplayCount}
-                  placeholder="e.g. 1 main display + 1 confidence"
-                />
-                <Field
-                  label="Transport family"
-                  value={transport}
-                  onChange={setTransport}
-                  placeholder="e.g. HDBaseT, AVoIP, matrix, direct HDMI"
-                />
-                <Field
-                  label="USB needs"
-                  value={usbNeeds}
-                  onChange={setUsbNeeds}
-                  placeholder="e.g. BYOD camera/audio, host switching"
-                />
-                <Field
-                  label="Control level"
-                  value={controlLevel}
-                  onChange={setControlLevel}
-                  placeholder="e.g. front-panel, API, touch panel"
-                />
-              </div>
-
-              <div style={{ marginTop: 14 }}>
-                <Area
-                  label="Engineering notes"
-                  value={notes}
-                  onChange={setNotes}
-                  placeholder="Add room constraints, signal priorities, cable considerations, user expectations, etc."
-                />
-              </div>
-
-              <div
-                style={{
-                  marginTop: 14,
-                  display: "flex",
-                  gap: 10,
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                }}
-              >
-                <button
-                  type="button"
-                  className="wm-btn wm-btn-primary wm-ui__btn"
-                  style={{ height: 40, padding: "0 16px" }}
-                  onClick={saveRoomRequirements}
-                >
-                  Save room requirements
-                </button>
-
-                {saved ? (
-                  <span
-                    style={{
-                      fontSize: 12,
-                      color: "rgba(134,239,172,0.95)",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Saved to active project
-                  </span>
-                ) : null}
-              </div>
-            </section>
-
-            <CollapsibleCard
-              id="room_wizard_next_steps"
-              title="Next step"
-              subtitle="Move into proposal building after the room requirements are saved."
-              defaultCollapsed
-            >
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <button
-                  type="button"
-                  className="wm-btn wm-ui__btn"
-                  style={{ height: 40, padding: "0 16px" }}
-                  onClick={() => nav("/app/tools/proposal")}
-                >
-                  Open Proposal Builder
-                </button>
-              </div>
-            </CollapsibleCard>
-          </>
-        )}
-      </div>
+                Open Proposal Builder
+              </button>
+            </div>
+          </CollapsibleCard>
+        </>
+      )}
     </div>
   );
 }

@@ -11,6 +11,7 @@ import "@/styles/wingman-global.css";
 import "@/design/system/tokens.css";
 import "@/design/system/layout.css";
 import "@/design/system/components.css";
+import "@/styles/wm-consistency-pass.css";
 
 import * as React from "react";
 import ReactDOM from "react-dom/client";

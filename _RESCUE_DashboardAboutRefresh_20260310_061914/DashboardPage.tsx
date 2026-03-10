@@ -200,14 +200,14 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="wm-page wm-dashboard-page">
+    <div className="wm-page">
       <section className="wm-hero">
-        <div className="wm-grid wm-hero__content wm-dashboard-page__hero-content">
-          <div className="wm-title-xl wm-dashboard-page__hero-title">
+        <div className="wm-grid wm-hero__content" style={{ gap: 12 }}>
+          <div className="wm-title-xl" style={{ maxWidth: 880, marginInline: "auto", textAlign: "center" }}>
             Turn AV requirements into proposal-ready system designs.
           </div>
 
-          <div className="wm-body wm-dashboard-page__hero-body">
+          <div className="wm-body" style={{ maxWidth: 900, marginInline: "auto", textAlign: "center" }}>
             Wingman helps sales and pre-sales teams use guided sales tools, capture room requirements, build projects, select the right WyreStorm architecture, and move opportunities toward proposal-ready output.
           </div>
 
@@ -273,7 +273,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="wm-kicker">{eyebrow}</div>
-                <div className="wm-title-lg wm-dashboard-page__workflow-title">{title}</div>
+                <div className="wm-title-lg" style={{ fontSize: 18 }}>{title}</div>
                 <div className="wm-body">{description}</div>
               </Link>
             ))}
@@ -290,11 +290,11 @@ export default function DashboardPage() {
             </div>
 
             {recentProjects.length > 0 ? (
-              <div className="wm-grid wm-dashboard-page__stack-tight">
+              <div className="wm-grid" style={{ gap: 8 }}>
                 {recentProjects.map((project) => (
                   <Link key={project.id} to={project.href ?? "/app/projects"} className="wm-dashboard-item">
                     <div className="wm-dashboard-item__head">
-                      <div className="wm-title-md wm-dashboard-page__item-title">{project.name}</div>
+                      <div className="wm-title-md" style={{ fontSize: 13 }}>{project.name}</div>
                       <FolderOpen className="h-4 w-4" />
                     </div>
                     <div className="wm-body-sm">{project.subtitle ?? "Wingman project"}</div>
@@ -304,8 +304,9 @@ export default function DashboardPage() {
 
                 <button
                   type="button"
-                  className="wm-btn wm-dashboard-page__open-all"
+                  className="wm-btn"
                   onClick={() => navigate("/app/projects")}
+                  style={{ justifySelf: "start" }}
                 >
                   Open all projects
                 </button>
@@ -327,7 +328,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="wm-grid wm-dashboard-page__stack-tight">
+            <div className="wm-grid" style={{ gap: 8 }}>
               {utilityCards.map(({ title, description, to, Icon }) => (
                 <Link key={title} to={to} className="wm-dashboard-item">
                   <div className="wm-dashboard-item__head">
@@ -336,7 +337,7 @@ export default function DashboardPage() {
                     </div>
                     <ArrowRight className="h-4 w-4" />
                   </div>
-                  <div className="wm-title-md wm-dashboard-page__item-title">{title}</div>
+                  <div className="wm-title-md" style={{ fontSize: 13 }}>{title}</div>
                   <div className="wm-body-sm">{description}</div>
                 </Link>
               ))}

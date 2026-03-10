@@ -1,19 +1,18 @@
 
 import * as React from "react";
-import PageShell from "@/app/layout/PageShell";
+
 export default function ComparisonPage() {
   return (
-    <PageShell>
-      <div className="wm-page" style={{ padding: 24 }}>
-      <h1 style={{ fontSize: 20, fontWeight: 700 }}>Comparison</h1>
-      <p style={{ opacity: 0.8, marginTop: 8 }}>
-        Placeholder page restored to satisfy routing/build. Replace with real implementation.
-      </p>
+    <div className="wm-page">
+      <section className="wm-hero">
+        <div className="wm-grid">
+          <div className="wm-kicker">Compare</div>
+          <div className="wm-title-xl">Comparison</div>
+          <div className="wm-body-sm wm-page-subtitle">
+            Placeholder page restored to satisfy routing/build. Replace with the production comparison workflow.
+          </div>
+        </div>
+      </section>
     </div>
-    </PageShell>
   );
 }
-
-
-
-
