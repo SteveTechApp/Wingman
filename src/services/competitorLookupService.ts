@@ -60,6 +60,54 @@ export type CompetitorLookupCacheEntrySummary = {
   sourceUrl?: string;
 };
 
+export type CompetitorLookupRuntimeTrace = {
+  attempt: number;
+  status: number;
+  ok: boolean;
+  url: string;
+  error?: string;
+  cacheHit?: boolean;
+  rateLimited?: boolean;
+  retryAfterMs?: number;
+};
+
+export type CompetitorLookupRuntimeEvent = {
+  id: string;
+  timestamp: string;
+  scope: string;
+  severity: string;
+  mode: string;
+  message: string;
+  query?: string;
+  brand?: string;
+  sku?: string;
+  warnings: string[];
+  trace: CompetitorLookupRuntimeTrace[];
+};
+
+export type CompetitorLookupRuntimeDiagnostics = {
+  ok: true;
+  available: boolean;
+  endpoint: string | null;
+  fetchedAt: string;
+  mode: string;
+  memoryCount: number;
+  count: number;
+  maxEvents: number;
+  warnings: string[];
+  events: CompetitorLookupRuntimeEvent[];
+  health: Record<string, unknown> | null;
+};
+
+export type CompetitorLookupRuntimeMaintenanceResult = {
+  ok: true;
+  available: boolean;
+  endpoint: string | null;
+  mode: string;
+  warnings: string[];
+  message: string;
+};
+
 type LookupCacheEntry = {
   record: CompetitorLookupRecord;
   source: Exclude<CompetitorLookupSource, "cache">;
@@ -75,6 +123,23 @@ type BackendLookupAttempt = {
 const CACHE_KEY = "wm_competitor_lookup_cache_v1";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const ENDPOINT = String(import.meta.env.VITE_COMPETITOR_LOOKUP_ENDPOINT ?? "").trim();
+const DIAGNOSTICS_ENDPOINT = (() => {
+  if (!ENDPOINT) return "";
+  try {
+    const parsed = new URL(ENDPOINT);
+    const cleanPath = parsed.pathname.replace(/\/$/, "");
+    if (cleanPath.endsWith("/api/competitor-lookup")) {
+      parsed.pathname = cleanPath.replace(/\/api\/competitor-lookup$/, "/api/competitor-lookup/diagnostics");
+    } else {
+      parsed.pathname = `${cleanPath}/diagnostics`;
+    }
+    return parsed.toString();
+  } catch {
+    return "";
+  }
+})();
+const DIAGNOSTICS_CLEAR_ENDPOINT = DIAGNOSTICS_ENDPOINT ? `${DIAGNOSTICS_ENDPOINT.replace(/\/$/, "")}/clear` : "";
+const DIAGNOSTICS_PRUNE_ENDPOINT = DIAGNOSTICS_ENDPOINT ? `${DIAGNOSTICS_ENDPOINT.replace(/\/$/, "")}/prune` : "";
 
 const backendPortSchema = z.object({
   type: z.string().min(1),
@@ -105,6 +170,58 @@ const backendRecordSchema = z.object({
   distanceM: z.coerce.number().optional(),
   sourceUrl: z.string().optional(),
   url: z.string().optional(),
+}).passthrough();
+
+const backendTraceSchema = z.object({
+  attempt: z.coerce.number().optional(),
+  status: z.coerce.number().optional(),
+  ok: z.boolean().optional(),
+  url: z.string().optional(),
+  error: z.string().optional(),
+  cacheHit: z.boolean().optional(),
+  rateLimited: z.boolean().optional(),
+  retryAfterMs: z.coerce.number().optional(),
+}).passthrough();
+
+const backendRuntimeEventSchema = z.object({
+  id: z.string().optional(),
+  timestamp: z.string().optional(),
+  scope: z.string().optional(),
+  severity: z.string().optional(),
+  mode: z.string().optional(),
+  message: z.string().optional(),
+  query: z.string().optional(),
+  brand: z.string().optional(),
+  sku: z.string().optional(),
+  warnings: z.array(z.string()).optional(),
+  trace: z.array(backendTraceSchema).optional(),
+}).passthrough();
+
+const backendRuntimeDiagnosticsSchema = z.object({
+  mode: z.string().optional(),
+  memoryCount: z.coerce.number().optional(),
+  count: z.coerce.number().optional(),
+  maxEvents: z.coerce.number().optional(),
+  warnings: z.array(z.string()).optional(),
+  events: z.array(backendRuntimeEventSchema).optional(),
+  health: z.record(z.unknown()).optional(),
+}).passthrough();
+
+const backendRuntimeMaintenanceSchema = z.object({
+  ok: z.boolean().optional(),
+  mode: z.string().optional(),
+  warnings: z.array(z.string()).optional(),
+  memoryRemoved: z.coerce.number().optional(),
+  days: z.coerce.number().optional(),
+  memory: z.object({
+    removed: z.coerce.number().optional(),
+    days: z.coerce.number().optional(),
+  }).optional(),
+  remoteRemoved: z.coerce.number().optional(),
+  remote: z.object({
+    removed: z.coerce.number().optional(),
+    days: z.coerce.number().optional(),
+  }).optional(),
 }).passthrough();
 
 function nowIso(): string {
@@ -447,6 +564,10 @@ export function getCompetitorLookupEndpoint(): string | null {
   return ENDPOINT || null;
 }
 
+export function getCompetitorLookupDiagnosticsEndpoint(): string | null {
+  return DIAGNOSTICS_ENDPOINT || null;
+}
+
 export function getCompetitorLookupContractSummary(): string {
   return "POST JSON body: { query, brand?, sku? }. Response: { record } or { records[] } or direct record including sku and optional specs.";
 }
@@ -596,6 +717,215 @@ export async function lookupCompetitorProduct(query: string): Promise<Competitor
     provenance: provenance("synthetic", { sourceUrl: syntheticRecord.sourceUrl }),
     warnings,
   };
+}
+
+function toRuntimeTrace(trace: z.infer<typeof backendTraceSchema>): CompetitorLookupRuntimeTrace {
+  return {
+    attempt: Math.max(0, Number(trace.attempt ?? 0)),
+    status: Math.max(0, Number(trace.status ?? 0)),
+    ok: Boolean(trace.ok),
+    url: tidy(trace.url),
+    error: tidy(trace.error) || undefined,
+    cacheHit: trace.cacheHit,
+    rateLimited: trace.rateLimited,
+    retryAfterMs: typeof trace.retryAfterMs === "number" ? Math.max(0, Number(trace.retryAfterMs)) : undefined,
+  };
+}
+
+function toRuntimeEvent(event: z.infer<typeof backendRuntimeEventSchema>): CompetitorLookupRuntimeEvent {
+  return {
+    id: tidy(event.id) || `diag_${Math.random().toString(36).slice(2, 10)}`,
+    timestamp: tidy(event.timestamp) || nowIso(),
+    scope: tidy(event.scope) || "lookup",
+    severity: tidy(event.severity) || "info",
+    mode: tidy(event.mode) || "unknown",
+    message: tidy(event.message) || "Runtime diagnostic event.",
+    query: tidy(event.query) || undefined,
+    brand: tidy(event.brand) || undefined,
+    sku: normalizeSku(event.sku) || undefined,
+    warnings: Array.isArray(event.warnings) ? event.warnings.map((item) => tidy(item)).filter(Boolean) : [],
+    trace: Array.isArray(event.trace) ? event.trace.map((item) => toRuntimeTrace(item)) : [],
+  };
+}
+
+export async function fetchCompetitorLookupRuntimeDiagnostics(): Promise<CompetitorLookupRuntimeDiagnostics> {
+  if (!DIAGNOSTICS_ENDPOINT || typeof fetch !== "function") {
+    return {
+      ok: true,
+      available: false,
+      endpoint: DIAGNOSTICS_ENDPOINT || null,
+      fetchedAt: nowIso(),
+      mode: "client-disabled",
+      memoryCount: 0,
+      count: 0,
+      maxEvents: 0,
+      warnings: ["Lookup diagnostics endpoint is not configured."],
+      events: [],
+      health: null,
+    };
+  }
+
+  const controller = typeof AbortController === "function" ? new AbortController() : null;
+  const timeout = controller ? setTimeout(() => controller.abort(), 5500) : null;
+
+  try {
+    const response = await fetch(DIAGNOSTICS_ENDPOINT, {
+      method: "GET",
+      signal: controller?.signal,
+    });
+
+    if (!response.ok) {
+      return {
+        ok: true,
+        available: false,
+        endpoint: DIAGNOSTICS_ENDPOINT,
+        fetchedAt: nowIso(),
+        mode: "endpoint-unavailable",
+        memoryCount: 0,
+        count: 0,
+        maxEvents: 0,
+        warnings: [`Lookup diagnostics endpoint returned HTTP ${response.status}.`],
+        events: [],
+        health: null,
+      };
+    }
+
+    const payload = await response.json();
+    const parsed = backendRuntimeDiagnosticsSchema.safeParse(payload);
+    if (!parsed.success) {
+      return {
+        ok: true,
+        available: false,
+        endpoint: DIAGNOSTICS_ENDPOINT,
+        fetchedAt: nowIso(),
+        mode: "contract-mismatch",
+        memoryCount: 0,
+        count: 0,
+        maxEvents: 0,
+        warnings: ["Lookup diagnostics payload did not match expected format."],
+        events: [],
+        health: null,
+      };
+    }
+
+    const events = Array.isArray(parsed.data.events) ? parsed.data.events.map((item) => toRuntimeEvent(item)) : [];
+    return {
+      ok: true,
+      available: true,
+      endpoint: DIAGNOSTICS_ENDPOINT,
+      fetchedAt: nowIso(),
+      mode: tidy(parsed.data.mode) || "unknown",
+      memoryCount: typeof parsed.data.memoryCount === "number" ? parsed.data.memoryCount : 0,
+      count: typeof parsed.data.count === "number" ? parsed.data.count : events.length,
+      maxEvents: typeof parsed.data.maxEvents === "number" ? parsed.data.maxEvents : events.length,
+      warnings: Array.isArray(parsed.data.warnings) ? parsed.data.warnings.map((item) => tidy(item)).filter(Boolean) : [],
+      events,
+      health: parsed.data.health ?? null,
+    };
+  } catch {
+    return {
+      ok: true,
+      available: false,
+      endpoint: DIAGNOSTICS_ENDPOINT,
+      fetchedAt: nowIso(),
+      mode: "request-failed",
+      memoryCount: 0,
+      count: 0,
+      maxEvents: 0,
+      warnings: ["Lookup diagnostics request failed."],
+      events: [],
+      health: null,
+    };
+  } finally {
+    if (timeout != null) clearTimeout(timeout);
+  }
+}
+
+async function postDiagnosticsMaintenance(
+  endpoint: string,
+  payload?: Record<string, unknown>,
+): Promise<CompetitorLookupRuntimeMaintenanceResult> {
+  if (!endpoint || typeof fetch !== "function") {
+    return {
+      ok: true,
+      available: false,
+      endpoint: endpoint || null,
+      mode: "client-disabled",
+      warnings: ["Lookup diagnostics maintenance endpoint is not configured."],
+      message: "Diagnostics maintenance endpoint is unavailable.",
+    };
+  }
+
+  const controller = typeof AbortController === "function" ? new AbortController() : null;
+  const timeout = controller ? setTimeout(() => controller.abort(), 5500) : null;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload ?? {}),
+      signal: controller?.signal,
+    });
+
+    if (!response.ok) {
+      return {
+        ok: true,
+        available: false,
+        endpoint,
+        mode: "endpoint-unavailable",
+        warnings: [`Diagnostics maintenance endpoint returned HTTP ${response.status}.`],
+        message: "Diagnostics maintenance request failed.",
+      };
+    }
+
+    const raw = await response.json();
+    const parsed = backendRuntimeMaintenanceSchema.safeParse(raw);
+    if (!parsed.success) {
+      return {
+        ok: true,
+        available: false,
+        endpoint,
+        mode: "contract-mismatch",
+        warnings: ["Diagnostics maintenance response did not match expected format."],
+        message: "Diagnostics maintenance response could not be parsed.",
+      };
+    }
+
+    const mode = tidy(parsed.data.mode) || "unknown";
+    const warnings = Array.isArray(parsed.data.warnings) ? parsed.data.warnings.map((item) => tidy(item)).filter(Boolean) : [];
+    const removedMemory = Number(parsed.data.memoryRemoved ?? parsed.data.memory?.removed ?? 0);
+    const removedRemote = Number(parsed.data.remoteRemoved ?? parsed.data.remote?.removed ?? 0);
+    const days = Number(parsed.data.days ?? parsed.data.memory?.days ?? parsed.data.remote?.days ?? 0);
+    const descriptor = days > 0 ? `${removedMemory} memory and ${removedRemote} remote entries (>${days}d)` : `${removedMemory} memory and ${removedRemote} remote entries`;
+
+    return {
+      ok: true,
+      available: true,
+      endpoint,
+      mode,
+      warnings,
+      message: `Diagnostics maintenance completed (${descriptor}).`,
+    };
+  } catch {
+    return {
+      ok: true,
+      available: false,
+      endpoint,
+      mode: "request-failed",
+      warnings: ["Diagnostics maintenance request failed."],
+      message: "Diagnostics maintenance request failed.",
+    };
+  } finally {
+    if (timeout != null) clearTimeout(timeout);
+  }
+}
+
+export async function clearCompetitorLookupRuntimeDiagnosticsFeed(): Promise<CompetitorLookupRuntimeMaintenanceResult> {
+  return postDiagnosticsMaintenance(DIAGNOSTICS_CLEAR_ENDPOINT);
+}
+
+export async function pruneCompetitorLookupRuntimeDiagnosticsFeed(days: number): Promise<CompetitorLookupRuntimeMaintenanceResult> {
+  return postDiagnosticsMaintenance(DIAGNOSTICS_PRUNE_ENDPOINT, { days });
 }
 
 export function clearCompetitorLookupCache(): void {

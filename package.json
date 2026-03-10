@@ -12,6 +12,7 @@
     "verify": "npm run typecheck && npm run lint && npm run check:routes && npm run build",
     "gate": "npm run typecheck && npm run lint && npm run check:routes && npm run build",
     "check:routes": "node tools/verify-routes.mjs",
+    "audit:css": "node tools/audit-css-coverage.mjs",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix"
   },

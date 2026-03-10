@@ -1,14 +1,2 @@
-[
-  {
-    "cacheKey": "demo-key",
-    "brand": "Crestron",
-    "sku": "DM-NVX-360",
-    "name": "DM NVX",
-    "source": "backend",
-    "approvedBy": "smoke-test",
-    "id": "crestron::DM-NVX-360",
-    "approvedAt": "2026-03-10T07:38:13.561Z",
-    "updatedAt": "2026-03-10T07:38:13.561Z",
-    "createdAt": "2026-03-10T07:38:13.561Z"
-  }
-]
+[]
+

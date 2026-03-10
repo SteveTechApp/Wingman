@@ -2,6 +2,15 @@ import http from "node:http";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createClient } from "@supabase/supabase-js";
+import {
+  handleProductIntelligenceEvidencePost,
+  handleProductIntelligenceGet,
+  handleProductIntelligenceHealthGet,
+  handleProductIntelligenceRefreshPost,
+  handleProductIntelligenceStatusPost,
+  handleProductIntelligenceUpsertPost,
+} from "./product-intelligence-store.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,33 +22,63 @@ const PORT = Number(process.env.PORT || 8787);
 const HOST = process.env.HOST || "127.0.0.1";
 const RETRY_ATTEMPTS = Number(process.env.LOOKUP_RETRY_ATTEMPTS || 3);
 const FETCH_TIMEOUT_MS = Number(process.env.LOOKUP_TIMEOUT_MS || 4500);
+const LOOKUP_ENABLE_LIVE_ENRICHMENT = !["0", "false", "off", "no"].includes(String(process.env.LOOKUP_ENABLE_LIVE_ENRICHMENT ?? "true").trim().toLowerCase());
+const LOOKUP_CACHE_TTL_MS = Math.max(10_000, Number(process.env.LOOKUP_CACHE_TTL_MS || 30 * 60 * 1000));
+const LOOKUP_CACHE_MAX_ENTRIES = Math.max(10, Number(process.env.LOOKUP_CACHE_MAX_ENTRIES || 500));
+const LOOKUP_RATE_LIMIT_WINDOW_MS = Math.max(5_000, Number(process.env.LOOKUP_RATE_LIMIT_WINDOW_MS || 60_000));
+const LOOKUP_RATE_LIMIT_MAX_REQUESTS = Math.max(1, Number(process.env.LOOKUP_RATE_LIMIT_MAX_REQUESTS || 12));
+const LOOKUP_RUNTIME_EVENT_MAX = Math.max(20, Number(process.env.LOOKUP_RUNTIME_EVENT_MAX || 120));
+const LOOKUP_RUNTIME_EVENT_RETENTION_DAYS = Math.max(1, Number(process.env.LOOKUP_RUNTIME_EVENT_RETENTION_DAYS || 30));
+const SUPABASE_URL = String(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "").trim();
+const SUPABASE_SERVICE_ROLE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+const SUPABASE_APPROVALS_TABLE = String(process.env.SUPABASE_COMPETITOR_APPROVALS_TABLE || "competitor_approvals").trim();
+const SUPABASE_APPROVALS_ENABLED = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
+const LOOKUP_PERSIST_RUNTIME_EVENTS = !["0", "false", "off", "no"].includes(String(process.env.LOOKUP_PERSIST_RUNTIME_EVENTS ?? "true").trim().toLowerCase());
+const SUPABASE_RUNTIME_EVENTS_TABLE = String(process.env.SUPABASE_LOOKUP_DIAGNOSTICS_TABLE || "competitor_lookup_runtime_events").trim();
+const SUPABASE_RUNTIME_EVENTS_ENABLED = Boolean(SUPABASE_APPROVALS_ENABLED && LOOKUP_PERSIST_RUNTIME_EVENTS);
 
 const BRAND_ADAPTERS = {
-  crestron: (sku) => [
-    `https://www.crestron.com/search-results?query=${encodeURIComponent(sku)}`,
-  ],
-  extron: (sku) => [
-    `https://www.extron.com/search?searchterm=${encodeURIComponent(sku)}`,
-  ],
-  atlona: (sku) => [
-    `https://atlona.com/?s=${encodeURIComponent(sku)}`,
-  ],
-  lightware: (sku) => [
-    `https://lightware.com/search?q=${encodeURIComponent(sku)}`,
-  ],
-  blustream: (sku) => [
-    `https://www.blustream-us.com/search?q=${encodeURIComponent(sku)}`,
-    `https://www.blustream.co.uk/search?q=${encodeURIComponent(sku)}`,
-  ],
-  kramer: (sku) => [
-    `https://www.kramerav.com/search?term=${encodeURIComponent(sku)}`,
-  ],
-  zeevee: (sku) => [
-    `https://www.zeevee.com/?s=${encodeURIComponent(sku)}`,
-  ],
+  crestron: {
+    hosts: ["crestron.com", "www.crestron.com"],
+    urls: (sku) => [`https://www.crestron.com/search-results?query=${encodeURIComponent(sku)}`],
+  },
+  extron: {
+    hosts: ["extron.com", "www.extron.com"],
+    urls: (sku) => [`https://www.extron.com/search?searchterm=${encodeURIComponent(sku)}`],
+  },
+  atlona: {
+    hosts: ["atlona.com", "www.atlona.com"],
+    urls: (sku) => [`https://atlona.com/?s=${encodeURIComponent(sku)}`],
+  },
+  lightware: {
+    hosts: ["lightware.com", "www.lightware.com"],
+    urls: (sku) => [`https://lightware.com/search?q=${encodeURIComponent(sku)}`],
+  },
+  blustream: {
+    hosts: ["blustream-us.com", "www.blustream-us.com", "blustream.co.uk", "www.blustream.co.uk"],
+    urls: (sku) => [
+      `https://www.blustream-us.com/search?q=${encodeURIComponent(sku)}`,
+      `https://www.blustream.co.uk/search?q=${encodeURIComponent(sku)}`,
+    ],
+  },
+  kramer: {
+    hosts: ["kramerav.com", "www.kramerav.com"],
+    urls: (sku) => [`https://www.kramerav.com/search?term=${encodeURIComponent(sku)}`],
+  },
+  zeevee: {
+    hosts: ["zeevee.com", "www.zeevee.com"],
+    urls: (sku) => [`https://www.zeevee.com/?s=${encodeURIComponent(sku)}`],
+  },
 };
 
 let catalogCache = null;
+let supabaseClient = null;
+const liveLookupCache = new Map();
+const liveLookupRateBuckets = new Map();
+const runtimeDiagnosticsEvents = [];
+let runtimeEventsPersistedCount = 0;
+let runtimeEventsPersistFailures = 0;
+let runtimeEventsPersistLastError = "";
 
 function nowIso() {
   return new Date().toISOString();
@@ -133,6 +172,557 @@ async function getCompetitorCatalog() {
   return catalogCache;
 }
 
+function getSupabaseClient() {
+  if (!SUPABASE_APPROVALS_ENABLED) return null;
+  if (supabaseClient) return supabaseClient;
+
+  try {
+    supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    return supabaseClient;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeLookupUrl(rawUrl) {
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol !== "https:") return null;
+    parsed.hash = "";
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
+function adapterConfigForBrand(brand) {
+  const key = normalizeId(brand);
+  if (!key || !BRAND_ADAPTERS[key]) return { adapterKey: "", adapter: null };
+  return { adapterKey: key, adapter: BRAND_ADAPTERS[key] };
+}
+
+function isAllowedAdapterUrl(adapterKey, rawUrl) {
+  const adapter = BRAND_ADAPTERS[adapterKey];
+  if (!adapter || !Array.isArray(adapter.hosts) || adapter.hosts.length === 0) return false;
+  try {
+    const host = new URL(rawUrl).hostname.toLowerCase();
+    return adapter.hosts.some((allowed) => {
+      const normalizedAllowed = tidy(allowed).toLowerCase();
+      return host === normalizedAllowed || host.endsWith(`.${normalizedAllowed}`);
+    });
+  } catch {
+    return false;
+  }
+}
+
+function pruneLookupCache(nowMs = Date.now()) {
+  for (const [key, value] of liveLookupCache.entries()) {
+    if (!value || typeof value.expiresAt !== "number" || value.expiresAt <= nowMs) {
+      liveLookupCache.delete(key);
+    }
+  }
+}
+
+function readLookupCache(cacheKey) {
+  pruneLookupCache();
+  if (!liveLookupCache.has(cacheKey)) return null;
+  const entry = liveLookupCache.get(cacheKey);
+  if (!entry || typeof entry.expiresAt !== "number" || entry.expiresAt <= Date.now()) {
+    liveLookupCache.delete(cacheKey);
+    return null;
+  }
+  return entry.payload || null;
+}
+
+function writeLookupCache(cacheKey, payload) {
+  pruneLookupCache();
+  const expiresAt = Date.now() + LOOKUP_CACHE_TTL_MS;
+  if (liveLookupCache.has(cacheKey)) {
+    liveLookupCache.delete(cacheKey);
+  }
+  liveLookupCache.set(cacheKey, { expiresAt, payload });
+  while (liveLookupCache.size > LOOKUP_CACHE_MAX_ENTRIES) {
+    const oldestKey = liveLookupCache.keys().next().value;
+    if (!oldestKey) break;
+    liveLookupCache.delete(oldestKey);
+  }
+}
+
+function takeRateLimitToken(bucketKey) {
+  const key = tidy(bucketKey) || "global";
+  const nowMs = Date.now();
+  const current = liveLookupRateBuckets.get(key);
+
+  if (!current || nowMs - current.windowStart >= LOOKUP_RATE_LIMIT_WINDOW_MS) {
+    liveLookupRateBuckets.set(key, {
+      windowStart: nowMs,
+      count: 1,
+    });
+    return {
+      ok: true,
+      remaining: Math.max(0, LOOKUP_RATE_LIMIT_MAX_REQUESTS - 1),
+      retryAfterMs: 0,
+    };
+  }
+
+  if (current.count >= LOOKUP_RATE_LIMIT_MAX_REQUESTS) {
+    return {
+      ok: false,
+      remaining: 0,
+      retryAfterMs: Math.max(0, (current.windowStart + LOOKUP_RATE_LIMIT_WINDOW_MS) - nowMs),
+    };
+  }
+
+  current.count += 1;
+  liveLookupRateBuckets.set(key, current);
+  return {
+    ok: true,
+    remaining: Math.max(0, LOOKUP_RATE_LIMIT_MAX_REQUESTS - current.count),
+    retryAfterMs: 0,
+  };
+}
+
+function truncateText(value, maxLength = 240) {
+  const text = tidy(value);
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, Math.max(0, maxLength - 3))}...`;
+}
+
+function normalizeTraceEntries(trace) {
+  if (!Array.isArray(trace)) return [];
+  return trace.slice(-8).map((entry) => ({
+    attempt: safeInt(entry?.attempt),
+    status: safeInt(entry?.status),
+    ok: Boolean(entry?.ok),
+    url: truncateText(entry?.url, 280),
+    error: truncateText(entry?.error, 220) || undefined,
+    cacheHit: Boolean(entry?.cacheHit),
+    rateLimited: Boolean(entry?.rateLimited),
+    retryAfterMs: safeInt(entry?.retryAfterMs),
+  }));
+}
+
+function safeInt(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.round(parsed) : 0;
+}
+
+function asStringArray(value, limit = 8) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => tidy(item))
+    .filter(Boolean)
+    .slice(0, Math.max(1, limit));
+}
+
+function eventTimestampValue(event) {
+  const parsed = Date.parse(String(event?.timestamp || ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function sortEventsByTimestampDesc(events) {
+  return [...events].sort((a, b) => eventTimestampValue(b) - eventTimestampValue(a));
+}
+
+function parseRetentionDays(value, fallback = LOOKUP_RUNTIME_EVENT_RETENTION_DAYS) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(3650, Math.max(1, Math.round(parsed)));
+}
+
+function thresholdIsoFromDays(days) {
+  return new Date(Date.now() - (parseRetentionDays(days) * 24 * 60 * 60 * 1000)).toISOString();
+}
+
+function pruneRuntimeDiagnosticsEventsInMemory(days) {
+  const thresholdMs = Date.parse(thresholdIsoFromDays(days));
+  const before = runtimeDiagnosticsEvents.length;
+  const kept = runtimeDiagnosticsEvents.filter((entry) => eventTimestampValue(entry) >= thresholdMs);
+  runtimeDiagnosticsEvents.length = 0;
+  runtimeDiagnosticsEvents.push(...sortEventsByTimestampDesc(kept).slice(0, LOOKUP_RUNTIME_EVENT_MAX));
+  return {
+    before,
+    after: runtimeDiagnosticsEvents.length,
+    removed: Math.max(0, before - runtimeDiagnosticsEvents.length),
+    days: parseRetentionDays(days),
+  };
+}
+
+function mergeRuntimeEvents(...lists) {
+  const merged = new Map();
+  for (const list of lists) {
+    if (!Array.isArray(list)) continue;
+    for (const entry of list) {
+      if (!entry || typeof entry !== "object") continue;
+      const id = tidy(entry.id);
+      if (!id) continue;
+      if (!merged.has(id)) {
+        merged.set(id, entry);
+      }
+    }
+  }
+  return sortEventsByTimestampDesc(Array.from(merged.values()));
+}
+
+function toSupabaseRuntimeEventRow(entry) {
+  return {
+    id: entry.id,
+    event_ts: entry.timestamp,
+    scope: entry.scope,
+    severity: entry.severity,
+    mode: entry.mode,
+    message: entry.message,
+    query: entry.query || null,
+    brand: entry.brand || null,
+    sku: entry.sku || null,
+    warnings: Array.isArray(entry.warnings) ? entry.warnings : [],
+    trace: Array.isArray(entry.trace) ? entry.trace : [],
+  };
+}
+
+function fromSupabaseRuntimeEventRow(row) {
+  if (!row || typeof row !== "object") return null;
+  const timestamp = tidy(row.event_ts || row.timestamp || row.created_at) || nowIso();
+  return {
+    id: tidy(row.id) || `diag_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+    timestamp,
+    scope: tidy(row.scope) || "lookup",
+    severity: tidy(row.severity) || "info",
+    mode: tidy(row.mode) || "unknown",
+    message: truncateText(row.message, 260) || "Runtime diagnostic event",
+    query: truncateText(row.query, 160) || undefined,
+    brand: truncateText(row.brand, 80) || undefined,
+    sku: truncateText(row.sku, 80) || undefined,
+    warnings: asStringArray(row.warnings, 6),
+    trace: normalizeTraceEntries(row.trace),
+  };
+}
+
+async function persistRuntimeDiagnosticsEventToSupabase(entry) {
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      ok: false,
+      reason: SUPABASE_RUNTIME_EVENTS_ENABLED ? "Supabase diagnostics client could not be created." : "",
+    };
+  }
+
+  try {
+    const row = toSupabaseRuntimeEventRow(entry);
+    const { error } = await client
+      .from(SUPABASE_RUNTIME_EVENTS_TABLE)
+      .upsert(row, { onConflict: "id" });
+
+    if (error) {
+      return {
+        ok: false,
+        reason: error.message || "Supabase diagnostics event upsert failed.",
+      };
+    }
+
+    return {
+      ok: true,
+      reason: "",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : "Supabase diagnostics event upsert failed.",
+    };
+  }
+}
+
+function queueRuntimeDiagnosticsPersistence(entry) {
+  if (!SUPABASE_RUNTIME_EVENTS_ENABLED) return;
+  void persistRuntimeDiagnosticsEventToSupabase(entry)
+    .then((result) => {
+      if (result.ok) {
+        runtimeEventsPersistedCount += 1;
+        return;
+      }
+
+      if (result.reason) {
+        runtimeEventsPersistFailures += 1;
+        runtimeEventsPersistLastError = truncateText(result.reason, 220);
+      }
+    })
+    .catch((error) => {
+      runtimeEventsPersistFailures += 1;
+      runtimeEventsPersistLastError = truncateText(error instanceof Error ? error.message : "Unknown diagnostics persistence failure.", 220);
+    });
+}
+
+async function readRuntimeDiagnosticsEventsFromSupabase(limit) {
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      ok: false,
+      reason: SUPABASE_RUNTIME_EVENTS_ENABLED ? "Supabase diagnostics client could not be created." : "",
+      events: [],
+    };
+  }
+
+  const cappedLimit = Math.max(1, Math.min(1000, Number(limit) || LOOKUP_RUNTIME_EVENT_MAX));
+
+  try {
+    let query = await client
+      .from(SUPABASE_RUNTIME_EVENTS_TABLE)
+      .select("*")
+      .order("event_ts", { ascending: false })
+      .limit(cappedLimit);
+
+    if (query.error) {
+      query = await client
+        .from(SUPABASE_RUNTIME_EVENTS_TABLE)
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(cappedLimit);
+    }
+
+    if (query.error) {
+      return {
+        ok: false,
+        reason: query.error.message || "Supabase diagnostics event query failed.",
+        events: [],
+      };
+    }
+
+    const parsed = Array.isArray(query.data)
+      ? query.data.map((row) => fromSupabaseRuntimeEventRow(row)).filter(Boolean)
+      : [];
+
+    return {
+      ok: true,
+      reason: "",
+      events: sortEventsByTimestampDesc(parsed).slice(0, cappedLimit),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : "Supabase diagnostics event query failed.",
+      events: [],
+    };
+  }
+}
+
+async function countRuntimeDiagnosticsEventsInSupabase() {
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      ok: false,
+      reason: SUPABASE_RUNTIME_EVENTS_ENABLED ? "Supabase diagnostics client could not be created." : "",
+      count: 0,
+    };
+  }
+
+  try {
+    const { count, error } = await client
+      .from(SUPABASE_RUNTIME_EVENTS_TABLE)
+      .select("id", { count: "exact", head: true });
+
+    if (error) {
+      return {
+        ok: false,
+        reason: error.message || "Supabase diagnostics event count failed.",
+        count: 0,
+      };
+    }
+
+    return {
+      ok: true,
+      reason: "",
+      count: typeof count === "number" ? count : 0,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : "Supabase diagnostics event count failed.",
+      count: 0,
+    };
+  }
+}
+
+async function clearRuntimeDiagnosticsEventsInSupabase() {
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      ok: false,
+      reason: SUPABASE_RUNTIME_EVENTS_ENABLED ? "Supabase diagnostics client could not be created." : "",
+      before: 0,
+      after: 0,
+      removed: 0,
+    };
+  }
+
+  const beforeCount = await countRuntimeDiagnosticsEventsInSupabase();
+  if (!beforeCount.ok) {
+    return {
+      ok: false,
+      reason: beforeCount.reason,
+      before: 0,
+      after: 0,
+      removed: 0,
+    };
+  }
+
+  try {
+    const { error } = await client
+      .from(SUPABASE_RUNTIME_EVENTS_TABLE)
+      .delete()
+      .neq("id", "");
+
+    if (error) {
+      return {
+        ok: false,
+        reason: error.message || "Supabase diagnostics clear failed.",
+        before: beforeCount.count,
+        after: beforeCount.count,
+        removed: 0,
+      };
+    }
+
+    const afterCount = await countRuntimeDiagnosticsEventsInSupabase();
+    if (!afterCount.ok) {
+      return {
+        ok: false,
+        reason: afterCount.reason,
+        before: beforeCount.count,
+        after: beforeCount.count,
+        removed: 0,
+      };
+    }
+
+    return {
+      ok: true,
+      reason: "",
+      before: beforeCount.count,
+      after: afterCount.count,
+      removed: Math.max(0, beforeCount.count - afterCount.count),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : "Supabase diagnostics clear failed.",
+      before: beforeCount.count,
+      after: beforeCount.count,
+      removed: 0,
+    };
+  }
+}
+
+async function pruneRuntimeDiagnosticsEventsInSupabase(days) {
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      ok: false,
+      reason: SUPABASE_RUNTIME_EVENTS_ENABLED ? "Supabase diagnostics client could not be created." : "",
+      before: 0,
+      after: 0,
+      removed: 0,
+      days: parseRetentionDays(days),
+    };
+  }
+
+  const beforeCount = await countRuntimeDiagnosticsEventsInSupabase();
+  if (!beforeCount.ok) {
+    return {
+      ok: false,
+      reason: beforeCount.reason,
+      before: 0,
+      after: 0,
+      removed: 0,
+      days: parseRetentionDays(days),
+    };
+  }
+
+  const retentionDays = parseRetentionDays(days);
+  const thresholdIso = thresholdIsoFromDays(retentionDays);
+
+  try {
+    let deletion = await client
+      .from(SUPABASE_RUNTIME_EVENTS_TABLE)
+      .delete()
+      .lt("event_ts", thresholdIso);
+
+    if (deletion.error) {
+      deletion = await client
+        .from(SUPABASE_RUNTIME_EVENTS_TABLE)
+        .delete()
+        .lt("created_at", thresholdIso);
+    }
+
+    if (deletion.error) {
+      return {
+        ok: false,
+        reason: deletion.error.message || "Supabase diagnostics prune failed.",
+        before: beforeCount.count,
+        after: beforeCount.count,
+        removed: 0,
+        days: retentionDays,
+      };
+    }
+
+    const afterCount = await countRuntimeDiagnosticsEventsInSupabase();
+    if (!afterCount.ok) {
+      return {
+        ok: false,
+        reason: afterCount.reason,
+        before: beforeCount.count,
+        after: beforeCount.count,
+        removed: 0,
+        days: retentionDays,
+      };
+    }
+
+    return {
+      ok: true,
+      reason: "",
+      before: beforeCount.count,
+      after: afterCount.count,
+      removed: Math.max(0, beforeCount.count - afterCount.count),
+      days: retentionDays,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : "Supabase diagnostics prune failed.",
+      before: beforeCount.count,
+      after: beforeCount.count,
+      removed: 0,
+      days: retentionDays,
+    };
+  }
+}
+
+function pushRuntimeDiagnosticsEvent(event) {
+  pruneRuntimeDiagnosticsEventsInMemory(LOOKUP_RUNTIME_EVENT_RETENTION_DAYS);
+
+  const entry = {
+    id: `diag_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+    timestamp: nowIso(),
+    scope: tidy(event.scope) || "lookup",
+    severity: tidy(event.severity) || "info",
+    mode: tidy(event.mode) || "unknown",
+    message: truncateText(event.message, 260) || "Runtime diagnostic event",
+    query: truncateText(event.query, 160) || undefined,
+    brand: truncateText(event.brand, 80) || undefined,
+    sku: truncateText(event.sku, 80) || undefined,
+    warnings: Array.isArray(event.warnings)
+      ? event.warnings.map((item) => truncateText(item, 220)).filter(Boolean).slice(0, 6)
+      : [],
+    trace: normalizeTraceEntries(event.trace),
+  };
+
+  runtimeDiagnosticsEvents.unshift(entry);
+  if (runtimeDiagnosticsEvents.length > LOOKUP_RUNTIME_EVENT_MAX) {
+    runtimeDiagnosticsEvents.length = LOOKUP_RUNTIME_EVENT_MAX;
+  }
+
+  queueRuntimeDiagnosticsPersistence(entry);
+}
+
 function pickMeta(html, regex) {
   const match = regex.exec(html);
   return match ? tidy(match[1]).replace(/\s+/g, " ") : "";
@@ -216,14 +806,31 @@ async function fetchTextWithRetries(url, options = {}) {
 }
 
 function adapterUrlsFor(brand, skuOrQuery) {
-  const key = normalizeId(brand);
-  if (!key || !BRAND_ADAPTERS[key]) return [];
-  return BRAND_ADAPTERS[key](skuOrQuery).filter(Boolean);
+  const { adapterKey, adapter } = adapterConfigForBrand(brand);
+  if (!adapter) {
+    return { adapterKey: "", urls: [] };
+  }
+
+  const rawUrls = adapter.urls(skuOrQuery);
+  const urls = rawUrls
+    .map((value) => normalizeLookupUrl(value))
+    .filter(Boolean)
+    .filter((value) => isAllowedAdapterUrl(adapterKey, value));
+
+  return { adapterKey, urls };
 }
 
 async function lookupManufacturerMetadata({ brand, sku, query }) {
+  if (!LOOKUP_ENABLE_LIVE_ENRICHMENT) {
+    return {
+      record: null,
+      warnings: ["Live enrichment is disabled by server configuration."],
+      traces: [],
+    };
+  }
+
   const searchTerm = sku || query;
-  const urls = adapterUrlsFor(brand, searchTerm);
+  const { adapterKey, urls } = adapterUrlsFor(brand, searchTerm);
   const warnings = [];
   const traces = [];
 
@@ -233,11 +840,47 @@ async function lookupManufacturerMetadata({ brand, sku, query }) {
   }
 
   for (const sourceUrl of urls) {
+    const cacheKey = `${adapterKey}|${normalizeSku(searchTerm)}|${sourceUrl}`;
+    const cached = readLookupCache(cacheKey);
+    if (cached) {
+      traces.push({
+        attempt: 0,
+        status: 200,
+        ok: true,
+        url: sourceUrl,
+        cacheHit: true,
+      });
+      return {
+        record: cached,
+        warnings,
+        traces,
+      };
+    }
+
+    const token = takeRateLimitToken(adapterKey);
+    if (!token.ok) {
+      warnings.push(`Live enrichment rate limit reached for ${brand || adapterKey}. Retry in ${Math.ceil(token.retryAfterMs / 1000)}s.`);
+      traces.push({
+        attempt: 0,
+        status: 429,
+        ok: false,
+        url: sourceUrl,
+        rateLimited: true,
+        retryAfterMs: token.retryAfterMs,
+      });
+      break;
+    }
+
     const fetched = await fetchTextWithRetries(sourceUrl);
     traces.push(...fetched.trace);
 
     if (!fetched.ok) {
       warnings.push(`Lookup attempt failed for ${sourceUrl}.`);
+      continue;
+    }
+
+    if (!isAllowedAdapterUrl(adapterKey, fetched.finalUrl)) {
+      warnings.push(`Lookup redirect blocked due to host policy: ${fetched.finalUrl}.`);
       continue;
     }
 
@@ -247,17 +890,20 @@ async function lookupManufacturerMetadata({ brand, sku, query }) {
       continue;
     }
 
+    const record = {
+      brand: brand || "Unknown",
+      sku: normalizeSku(sku || query),
+      name: metadata.title || normalizeSku(sku || query),
+      family: "Unknown",
+      category: "Uncategorized",
+      summary: metadata.description || "Metadata captured from manufacturer website.",
+      features: [],
+      sourceUrl: fetched.finalUrl,
+    };
+    writeLookupCache(cacheKey, record);
+
     return {
-      record: {
-        brand: brand || "Unknown",
-        sku: normalizeSku(sku || query),
-        name: metadata.title || normalizeSku(sku || query),
-        family: "Unknown",
-        category: "Uncategorized",
-        summary: metadata.description || "Metadata captured from manufacturer website.",
-        features: [],
-        sourceUrl: fetched.finalUrl,
-      },
+      record,
       warnings,
       traces,
     };
@@ -298,7 +944,7 @@ function matchCatalogRecord(catalog, { brand, sku, query }) {
 }
 
 function toLookupRecordFromCatalog(item, query) {
-  const urls = adapterUrlsFor(item.brand, item.sku || query);
+  const { urls } = adapterUrlsFor(item.brand, item.sku || query);
   return {
     brand: tidy(item.brand) || "Unknown",
     sku: normalizeSku(item.sku || query),
@@ -337,6 +983,12 @@ async function handleLookupRequest(req, res) {
   try {
     body = await parseJsonBody(req);
   } catch {
+    pushRuntimeDiagnosticsEvent({
+      scope: "lookup",
+      severity: "warn",
+      mode: "invalid-request",
+      message: "Invalid JSON body for competitor lookup request.",
+    });
     sendJson(res, 400, {
       ok: false,
       error: "Invalid JSON body.",
@@ -346,6 +998,12 @@ async function handleLookupRequest(req, res) {
 
   const query = tidy(body.query);
   if (!query) {
+    pushRuntimeDiagnosticsEvent({
+      scope: "lookup",
+      severity: "warn",
+      mode: "invalid-request",
+      message: "Lookup request rejected because query is empty.",
+    });
     sendJson(res, 400, {
       ok: false,
       error: "Request body must include a non-empty query.",
@@ -361,6 +1019,17 @@ async function handleLookupRequest(req, res) {
   const manufacturer = await lookupManufacturerMetadata({ brand, sku, query });
   warnings.push(...manufacturer.warnings);
   if (manufacturer.record) {
+    pushRuntimeDiagnosticsEvent({
+      scope: "lookup",
+      severity: warnings.length > 0 ? "warn" : "info",
+      mode: "manufacturer-lookup",
+      message: `Lookup resolved via manufacturer metadata for ${manufacturer.record.brand} ${manufacturer.record.sku}.`,
+      query,
+      brand: manufacturer.record.brand,
+      sku: manufacturer.record.sku,
+      warnings,
+      trace: manufacturer.traces,
+    });
     sendJson(res, 200, {
       ok: true,
       mode: "manufacturer-lookup",
@@ -380,11 +1049,23 @@ async function handleLookupRequest(req, res) {
   const catalog = await getCompetitorCatalog();
   const catalogMatch = matchCatalogRecord(catalog, { brand, sku, query });
   if (catalogMatch) {
+    const catalogRecord = toLookupRecordFromCatalog(catalogMatch, query);
+    pushRuntimeDiagnosticsEvent({
+      scope: "lookup",
+      severity: warnings.length > 0 ? "warn" : "info",
+      mode: "catalog-fallback",
+      message: `Lookup resolved from curated catalog for ${catalogRecord.brand} ${catalogRecord.sku}.`,
+      query,
+      brand: catalogRecord.brand,
+      sku: catalogRecord.sku,
+      warnings,
+      trace: manufacturer.traces,
+    });
     sendJson(res, 200, {
       ok: true,
       mode: "catalog-fallback",
       query,
-      record: toLookupRecordFromCatalog(catalogMatch, query),
+      record: catalogRecord,
       warnings,
       fetchedAt: nowIso(),
     });
@@ -392,6 +1073,17 @@ async function handleLookupRequest(req, res) {
   }
 
   const synthetic = syntheticLookupRecord({ brand, sku, query });
+  pushRuntimeDiagnosticsEvent({
+    scope: "lookup",
+    severity: "warn",
+    mode: "synthetic-fallback",
+    message: `Lookup resolved with synthetic fallback for ${brand || "Unknown"} ${normalizeSku(sku || query)}.`,
+    query,
+    brand: brand || "Unknown",
+    sku: normalizeSku(sku || query),
+    warnings: warnings.length > 0 ? warnings : ["No manufacturer metadata or catalog fallback matched."],
+    trace: manufacturer.traces,
+  });
   sendJson(res, 200, {
     ok: true,
     mode: "synthetic-fallback",
@@ -415,34 +1107,15 @@ function normalizeApprovalPayload(payload) {
   };
 }
 
-async function readApprovals() {
+async function readApprovalsFromFile() {
   const rows = await readJsonFile(APPROVAL_DB_FILE, []);
   return Array.isArray(rows) ? rows : [];
 }
 
-async function saveApprovalRecord(input) {
-  const approvals = await readApprovals();
-  const normalized = normalizeApprovalPayload(input);
-
-  if (!normalized.brand || !normalized.sku) {
-    return {
-      ok: false,
-      error: "Approval payload must include brand and sku.",
-      record: null,
-      count: approvals.length,
-    };
-  }
-
-  const id = `${normalizeId(normalized.brand)}::${normalizeSku(normalized.sku)}`;
+async function saveApprovalRecordToFile(nextRecord) {
+  const approvals = await readApprovalsFromFile();
+  const existingIndex = approvals.findIndex((item) => item.id === nextRecord.id);
   const now = nowIso();
-  const nextRecord = {
-    ...normalized,
-    id,
-    approvedAt: now,
-    updatedAt: now,
-  };
-
-  const existingIndex = approvals.findIndex((item) => item.id === id);
   if (existingIndex >= 0) {
     approvals[existingIndex] = {
       ...approvals[existingIndex],
@@ -458,26 +1131,360 @@ async function saveApprovalRecord(input) {
 
   approvals.sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
   await writeJsonFile(APPROVAL_DB_FILE, approvals);
+  const stored = approvals.find((item) => item.id === nextRecord.id) || null;
+  return {
+    record: stored,
+    count: approvals.length,
+  };
+}
+
+function toSupabaseRow(record) {
+  const now = nowIso();
+  return {
+    id: record.id,
+    cache_key: record.cacheKey || null,
+    brand: record.brand,
+    sku: record.sku,
+    name: record.name || record.sku,
+    source: record.source || "unknown",
+    source_url: record.sourceUrl || null,
+    approved_by: record.approvedBy || "wingman-user",
+    notes: record.notes || null,
+    approved_at: record.approvedAt || now,
+    updated_at: now,
+  };
+}
+
+function fromSupabaseRow(row) {
+  if (!row || typeof row !== "object") return null;
+  return {
+    id: tidy(row.id),
+    cacheKey: tidy(row.cache_key),
+    brand: tidy(row.brand),
+    sku: normalizeSku(row.sku),
+    name: tidy(row.name),
+    source: tidy(row.source),
+    sourceUrl: tidy(row.source_url) || undefined,
+    approvedBy: tidy(row.approved_by) || "wingman-user",
+    notes: tidy(row.notes) || undefined,
+    approvedAt: tidy(row.approved_at) || nowIso(),
+    updatedAt: tidy(row.updated_at) || nowIso(),
+    createdAt: tidy(row.created_at) || undefined,
+  };
+}
+
+async function readApprovalsFromSupabase() {
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      ok: false,
+      reason: SUPABASE_APPROVALS_ENABLED ? "Supabase approval DB client could not be created." : "",
+      records: [],
+    };
+  }
+
+  try {
+    const { data, error } = await client
+      .from(SUPABASE_APPROVALS_TABLE)
+      .select("*")
+      .limit(500);
+
+    if (error) {
+      return {
+        ok: false,
+        reason: error.message || "Supabase approval DB query failed.",
+        records: [],
+      };
+    }
+
+    const rows = Array.isArray(data) ? data.map((row) => fromSupabaseRow(row)).filter(Boolean) : [];
+    rows.sort((a, b) => String(b.updatedAt || b.approvedAt || "").localeCompare(String(a.updatedAt || a.approvedAt || "")));
+    return {
+      ok: true,
+      reason: "",
+      records: rows,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : "Supabase approval DB query failed.",
+      records: [],
+    };
+  }
+}
+
+async function saveApprovalToSupabase(record) {
+  const client = getSupabaseClient();
+  if (!client) {
+    return {
+      ok: false,
+      reason: SUPABASE_APPROVALS_ENABLED ? "Supabase approval DB client could not be created." : "",
+      record: null,
+      count: 0,
+    };
+  }
+
+  try {
+    const row = toSupabaseRow(record);
+    const { data, error } = await client
+      .from(SUPABASE_APPROVALS_TABLE)
+      .upsert(row, { onConflict: "id" })
+      .select("*")
+      .maybeSingle();
+
+    if (error) {
+      return {
+        ok: false,
+        reason: error.message || "Supabase approval DB upsert failed.",
+        record: null,
+        count: 0,
+      };
+    }
+
+    const { count } = await client
+      .from(SUPABASE_APPROVALS_TABLE)
+      .select("id", { count: "exact", head: true });
+
+    return {
+      ok: true,
+      reason: "",
+      record: fromSupabaseRow(data) || record,
+      count: typeof count === "number" ? count : 0,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error instanceof Error ? error.message : "Supabase approval DB upsert failed.",
+      record: null,
+      count: 0,
+    };
+  }
+}
+
+async function readApprovals() {
+  const warnings = [];
+  const remote = await readApprovalsFromSupabase();
+  if (remote.ok) {
+    return {
+      mode: "supabase-db",
+      records: remote.records,
+      count: remote.records.length,
+      warnings,
+    };
+  }
+
+  if (remote.reason) warnings.push(`Supabase fallback: ${remote.reason}`);
+  const local = await readApprovalsFromFile();
+  return {
+    mode: remote.reason ? "file-db-fallback" : "file-db",
+    records: local,
+    count: local.length,
+    warnings,
+  };
+}
+
+async function saveApprovalRecord(input) {
+  const localApprovals = await readApprovalsFromFile();
+  const normalized = normalizeApprovalPayload(input);
+
+  if (!normalized.brand || !normalized.sku) {
+    return {
+      ok: false,
+      error: "Approval payload must include brand and sku.",
+      record: null,
+      count: localApprovals.length,
+      mode: "validation-error",
+      warnings: [],
+    };
+  }
+
+  const id = `${normalizeId(normalized.brand)}::${normalizeSku(normalized.sku)}`;
+  const now = nowIso();
+  const nextRecord = {
+    ...normalized,
+    id,
+    approvedAt: now,
+    updatedAt: now,
+  };
+
+  const warnings = [];
+  const remote = await saveApprovalToSupabase(nextRecord);
+  if (remote.ok) {
+    return {
+      ok: true,
+      error: null,
+      record: remote.record || nextRecord,
+      count: remote.count,
+      mode: "supabase-db",
+      warnings,
+    };
+  }
+
+  if (remote.reason) warnings.push(`Supabase fallback: ${remote.reason}`);
+  const local = await saveApprovalRecordToFile(nextRecord);
 
   return {
     ok: true,
     error: null,
-    record: approvals.find((item) => item.id === id) || null,
-    count: approvals.length,
+    record: local.record,
+    count: local.count,
+    mode: remote.reason ? "file-db-fallback" : "file-db",
+    warnings,
   };
 }
 
 async function handleApprovalsGet(_req, res) {
   const approvals = await readApprovals();
+  if (approvals.warnings.length > 0) {
+    pushRuntimeDiagnosticsEvent({
+      scope: "approval",
+      severity: "warn",
+      mode: approvals.mode,
+      message: "Approval list read with fallback warnings.",
+      warnings: approvals.warnings,
+    });
+  }
   sendJson(res, 200, {
     ok: true,
-    count: approvals.length,
-    records: approvals,
+    mode: approvals.mode,
+    count: approvals.count,
+    records: approvals.records,
     file: APPROVAL_DB_FILE,
+    table: SUPABASE_APPROVALS_TABLE,
+    warnings: approvals.warnings,
   });
 }
 
 async function handleApprovalsPost(req, res) {
+  let body = {};
+  try {
+    body = await parseJsonBody(req);
+  } catch {
+    pushRuntimeDiagnosticsEvent({
+      scope: "approval",
+      severity: "warn",
+      mode: "invalid-request",
+      message: "Invalid JSON body for competitor approvals POST.",
+    });
+    sendJson(res, 400, {
+      ok: false,
+      error: "Invalid JSON body.",
+    });
+    return;
+  }
+
+  const saved = await saveApprovalRecord(body);
+  if (!saved.ok) {
+    pushRuntimeDiagnosticsEvent({
+      scope: "approval",
+      severity: "warn",
+      mode: saved.mode,
+      message: saved.error || "Approval payload failed validation.",
+      warnings: saved.warnings,
+      brand: body?.brand,
+      sku: body?.sku,
+    });
+    sendJson(res, 400, {
+      ok: false,
+      error: saved.error,
+      count: saved.count,
+    });
+    return;
+  }
+
+  pushRuntimeDiagnosticsEvent({
+    scope: "approval",
+    severity: saved.warnings.length > 0 || saved.mode === "file-db-fallback" ? "warn" : "info",
+    mode: saved.mode,
+    message: `Approval saved for ${saved.record?.brand || "Unknown"} ${saved.record?.sku || ""}.`,
+    warnings: saved.warnings,
+    brand: saved.record?.brand,
+    sku: saved.record?.sku,
+  });
+
+  sendJson(res, 200, {
+    ok: true,
+    mode: saved.mode,
+    count: saved.count,
+    record: saved.record,
+    file: APPROVAL_DB_FILE,
+    table: SUPABASE_APPROVALS_TABLE,
+    warnings: saved.warnings,
+  });
+}
+
+async function handleLookupRuntimeDiagnosticsGet(_req, res) {
+  pruneRuntimeDiagnosticsEventsInMemory(LOOKUP_RUNTIME_EVENT_RETENTION_DAYS);
+
+  const memoryEvents = runtimeDiagnosticsEvents.slice(0, LOOKUP_RUNTIME_EVENT_MAX);
+  const warnings = [];
+  let mode = "memory";
+  let events = memoryEvents;
+
+  if (SUPABASE_RUNTIME_EVENTS_ENABLED) {
+    const remote = await readRuntimeDiagnosticsEventsFromSupabase(LOOKUP_RUNTIME_EVENT_MAX);
+    if (remote.ok) {
+      events = mergeRuntimeEvents(memoryEvents, remote.events).slice(0, LOOKUP_RUNTIME_EVENT_MAX);
+      mode = "supabase-db";
+    } else if (remote.reason) {
+      warnings.push(`Supabase fallback: ${remote.reason}`);
+      mode = "memory-fallback";
+    }
+  }
+
+  sendJson(res, 200, {
+    ok: true,
+    mode,
+    now: nowIso(),
+    count: events.length,
+    maxEvents: LOOKUP_RUNTIME_EVENT_MAX,
+    memoryCount: memoryEvents.length,
+    events,
+    warnings,
+    health: buildHealthPayload(),
+  });
+}
+
+async function handleLookupRuntimeDiagnosticsClear(_req, res) {
+  const warnings = [];
+  const memoryBefore = runtimeDiagnosticsEvents.length;
+  runtimeDiagnosticsEvents.length = 0;
+  let mode = "memory";
+
+  let remote = {
+    ok: false,
+    before: 0,
+    after: 0,
+    removed: 0,
+    reason: "",
+  };
+
+  if (SUPABASE_RUNTIME_EVENTS_ENABLED) {
+    remote = await clearRuntimeDiagnosticsEventsInSupabase();
+    if (remote.ok) {
+      mode = "supabase-db";
+    } else if (remote.reason) {
+      warnings.push(`Supabase fallback: ${remote.reason}`);
+      mode = "memory-fallback";
+      runtimeEventsPersistFailures += 1;
+      runtimeEventsPersistLastError = truncateText(remote.reason, 220);
+    }
+  }
+
+  sendJson(res, 200, {
+    ok: true,
+    mode,
+    warnings,
+    memoryBefore,
+    memoryAfter: runtimeDiagnosticsEvents.length,
+    memoryRemoved: memoryBefore,
+    remoteBefore: remote.before,
+    remoteAfter: remote.after,
+    remoteRemoved: remote.removed,
+  });
+}
+
+async function handleLookupRuntimeDiagnosticsPrune(req, res) {
   let body = {};
   try {
     body = await parseJsonBody(req);
@@ -489,34 +1496,70 @@ async function handleApprovalsPost(req, res) {
     return;
   }
 
-  const saved = await saveApprovalRecord(body);
-  if (!saved.ok) {
-    sendJson(res, 400, {
-      ok: false,
-      error: saved.error,
-      count: saved.count,
-    });
-    return;
+  const days = parseRetentionDays(body?.days, LOOKUP_RUNTIME_EVENT_RETENTION_DAYS);
+  const warnings = [];
+  const memory = pruneRuntimeDiagnosticsEventsInMemory(days);
+  let mode = "memory";
+
+  let remote = {
+    ok: false,
+    before: 0,
+    after: 0,
+    removed: 0,
+    days,
+    reason: "",
+  };
+
+  if (SUPABASE_RUNTIME_EVENTS_ENABLED) {
+    remote = await pruneRuntimeDiagnosticsEventsInSupabase(days);
+    if (remote.ok) {
+      mode = "supabase-db";
+    } else if (remote.reason) {
+      warnings.push(`Supabase fallback: ${remote.reason}`);
+      mode = "memory-fallback";
+      runtimeEventsPersistFailures += 1;
+      runtimeEventsPersistLastError = truncateText(remote.reason, 220);
+    }
   }
 
   sendJson(res, 200, {
     ok: true,
-    mode: "file-db",
-    count: saved.count,
-    record: saved.record,
-    file: APPROVAL_DB_FILE,
+    mode,
+    warnings,
+    days,
+    memory,
+    remote,
   });
 }
 
 function buildHealthPayload() {
+  pruneLookupCache();
+  pruneRuntimeDiagnosticsEventsInMemory(LOOKUP_RUNTIME_EVENT_RETENTION_DAYS);
   return {
     ok: true,
     service: "wingman-competitor-lookup-server",
     now: nowIso(),
     lookupEndpoint: `http://${HOST}:${PORT}/api/competitor-lookup`,
     approvalsEndpoint: `http://${HOST}:${PORT}/api/competitor-approvals`,
+    productIntelligenceEndpoint: `http://${HOST}:${PORT}/api/product-intelligence`,
+    productIntelligenceHealthEndpoint: `http://${HOST}:${PORT}/api/product-intelligence/health`,
     retryAttempts: RETRY_ATTEMPTS,
     fetchTimeoutMs: FETCH_TIMEOUT_MS,
+    liveEnrichmentEnabled: LOOKUP_ENABLE_LIVE_ENRICHMENT,
+    liveLookupCacheTtlMs: LOOKUP_CACHE_TTL_MS,
+    liveLookupCacheEntries: liveLookupCache.size,
+    liveLookupRateWindowMs: LOOKUP_RATE_LIMIT_WINDOW_MS,
+    liveLookupRateLimit: LOOKUP_RATE_LIMIT_MAX_REQUESTS,
+    liveRuntimeEventMax: LOOKUP_RUNTIME_EVENT_MAX,
+    liveRuntimeEventRetentionDays: LOOKUP_RUNTIME_EVENT_RETENTION_DAYS,
+    runtimeEventsBuffered: runtimeDiagnosticsEvents.length,
+    runtimeEventsPersistenceEnabled: SUPABASE_RUNTIME_EVENTS_ENABLED,
+    runtimeEventsPersistenceTable: SUPABASE_RUNTIME_EVENTS_TABLE,
+    runtimeEventsPersistedCount,
+    runtimeEventsPersistFailures,
+    runtimeEventsPersistLastError: runtimeEventsPersistLastError || undefined,
+    supabaseApprovalsEnabled: SUPABASE_APPROVALS_ENABLED,
+    supabaseApprovalsTable: SUPABASE_APPROVALS_TABLE,
   };
 }
 
@@ -540,6 +1583,21 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (method === "GET" && url.pathname === "/api/competitor-lookup/diagnostics") {
+    await handleLookupRuntimeDiagnosticsGet(req, res);
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/competitor-lookup/diagnostics/clear") {
+    await handleLookupRuntimeDiagnosticsClear(req, res);
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/competitor-lookup/diagnostics/prune") {
+    await handleLookupRuntimeDiagnosticsPrune(req, res);
+    return;
+  }
+
   if (method === "GET" && url.pathname === "/api/competitor-approvals") {
     await handleApprovalsGet(req, res);
     return;
@@ -547,6 +1605,36 @@ const server = http.createServer(async (req, res) => {
 
   if (method === "POST" && url.pathname === "/api/competitor-approvals") {
     await handleApprovalsPost(req, res);
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/product-intelligence/health") {
+    await handleProductIntelligenceHealthGet(req, res, { sendJson });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/product-intelligence") {
+    await handleProductIntelligenceGet(req, res, url, { sendJson });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/product-intelligence/refresh") {
+    await handleProductIntelligenceRefreshPost(req, res, { sendJson, parseJsonBody });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/product-intelligence/upsert") {
+    await handleProductIntelligenceUpsertPost(req, res, { sendJson, parseJsonBody });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/product-intelligence/evidence") {
+    await handleProductIntelligenceEvidencePost(req, res, { sendJson, parseJsonBody });
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/product-intelligence/status") {
+    await handleProductIntelligenceStatusPost(req, res, { sendJson, parseJsonBody });
     return;
   }
 
@@ -562,4 +1650,3 @@ server.listen(PORT, HOST, () => {
   console.log(`[wingman-api] listening on http://${HOST}:${PORT}`);
   console.log(`[wingman-api] health: ${health.lookupEndpoint.replace("/api/competitor-lookup", "/api/health")}`);
 });
-
