@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
 import { useBoundActiveProjectName } from "@/core/wingman/storeBridge";
 import { brand } from "@/branding/brand";
@@ -31,12 +31,14 @@ type TopBarProps = {
   showMobileMenu?: boolean;
   mobileNavOpen?: boolean;
   onToggleMobileNav?: () => void;
+  onOpenCommandPalette?: () => void;
 };
 
 export default function TopBar({
   showMobileMenu = false,
   mobileNavOpen = false,
   onToggleMobileNav,
+  onOpenCommandPalette,
 }: TopBarProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -79,6 +81,17 @@ export default function TopBar({
       </div>
 
       <div className="wm-topbar__actions">
+        <button
+          type="button"
+          onClick={onOpenCommandPalette}
+          className="wm-btn-nav wm-topbar__command-btn"
+          aria-label="Open command palette"
+        >
+          <Search size={14} />
+          <span>Quick Find</span>
+          {!showMobileMenu ? <kbd className="wm-topbar__command-kbd">Ctrl+K</kbd> : null}
+        </button>
+
         {!showMobileMenu ? navItems.map((item) => {
           const active = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
           return (

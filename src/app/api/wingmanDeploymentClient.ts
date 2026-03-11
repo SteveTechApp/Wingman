@@ -152,7 +152,7 @@ function buildApiBase(): string {
     }
   }
 
-  return "http://127.0.0.1:8787/api/wingman";
+  return "";
 }
 
 const API_BASE = buildApiBase();
@@ -232,7 +232,23 @@ export function createDemoDeploymentSession(email?: string): DeploymentSession {
 }
 
 export async function fetchDeploymentHealth(): Promise<Record<string, unknown>> {
-  return requestJson<Record<string, unknown>>("/health");
+  if (!API_BASE) {
+    return {
+      ok: false,
+      offline: true,
+      reason: "No deployment API configured",
+    };
+  }
+
+  try {
+    return await requestJson<Record<string, unknown>>("/health");
+  } catch (error) {
+    return {
+      ok: false,
+      offline: true,
+      reason: error instanceof Error ? error.message : "Health check failed",
+    };
+  }
 }
 
 export async function signUpWithDeploymentApi(input: {

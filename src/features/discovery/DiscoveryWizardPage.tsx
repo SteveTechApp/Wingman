@@ -1,11 +1,16 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 
+import RecentTextInput from "@/components/RecentTextInput";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
 import {
   buildRecommendationGovernanceSnapshot,
   getRecommendationGovernanceRulebook,
 } from "@/features/governance/recommendationGovernance";
+import {
+  RECENT_TEXT_HISTORY_KEYS,
+  rememberRecentTextEntry,
+} from "@/features/inputs/recentTextEntries";
 import {
   buildBranchHighlights,
   buildGuidedProjectAdvice,
@@ -17,6 +22,8 @@ import {
   getVisibleQuestionsForStep,
   GUIDED_PROJECT_STEPS,
   hasText,
+  parseGuidedProjectSelections,
+  toggleGuidedProjectSelection,
   type GuidedProjectQuestionState,
   type GuidedProjectRecord,
   type GuidedProjectStep,
@@ -68,18 +75,22 @@ function mergeProject(
     roomHeightM: mergeFirst(record.roomHeightM, discovery?.roomHeightM),
     installationPath: mergeFirst(record.installationPath, discovery?.installationPath),
     cableDistanceM: mergeFirst(record.cableDistanceM, discovery?.cableDistanceM),
+    transportDistanceBand: mergeFirst(record.transportDistanceBand, discovery?.transportDistanceBand),
     displayCount: mergeFirst(record.displayCount, discovery?.displayCount),
     sourceCount: mergeFirst(record.sourceCount, discovery?.sourceCount),
     sourceTypes: mergeFirst(record.sourceTypes, discovery?.sourceTypes),
     sourcePlacement: mergeFirst(record.sourcePlacement, discovery?.sourcePlacement),
     sourceConnectionPath: mergeFirst(record.sourceConnectionPath, discovery?.sourceConnectionPath),
     sourceConnectionType: mergeFirst(record.sourceConnectionType, discovery?.sourceConnectionType),
+    signalFormats: mergeFirst(record.signalFormats, discovery?.signalFormats),
+    signalHdr: mergeFirst(record.signalHdr, discovery?.signalHdr),
     sourceCableType: mergeFirst(record.sourceCableType, discovery?.sourceCableType),
     displayConnectionPath: mergeFirst(record.displayConnectionPath, discovery?.displayConnectionPath),
     displayConnectionType: mergeFirst(record.displayConnectionType, discovery?.displayConnectionType),
     displayCableType: mergeFirst(record.displayCableType, discovery?.displayCableType),
     networkEnvironment: mergeFirst(record.networkEnvironment, discovery?.networkEnvironment),
     usbNeeds: mergeFirst(record.usbNeeds, discovery?.usbNeeds),
+    usbStandards: mergeFirst(record.usbStandards, discovery?.usbStandards),
     audioNeeds: mergeFirst(record.audioNeeds, discovery?.audioNeeds),
     controlNeeds: mergeFirst(record.controlNeeds, discovery?.controlNeeds),
     budgetBand: mergeFirst(record.budgetBand, discovery?.budgetBand),
@@ -93,6 +104,30 @@ function renderField(
   value: string,
   onChange: (value: string) => void,
 ) {
+  if (question.input === "multiSelect") {
+    const selected = parseGuidedProjectSelections(value);
+    return (
+      <div className="wm-gp__checkboxGroup" role="group" aria-label={question.label}>
+        {question.options?.map((option) => {
+          const checked = selected.includes(option);
+          return (
+            <label
+              key={option}
+              className={`wm-gp__checkboxItem${checked ? " is-selected" : ""}`}
+            >
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={() => onChange(toggleGuidedProjectSelection(value, option))}
+              />
+              <span>{option}</span>
+            </label>
+          );
+        })}
+      </div>
+    );
+  }
+
   if (question.input === "select") {
     return (
       <select
@@ -116,6 +151,30 @@ function renderField(
       <textarea
         className="wm-ui__textarea wm-ui__textarea--sm"
         aria-label={question.label}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={question.placeholder}
+      />
+    );
+  }
+
+  if (
+    question.id === "customer" ||
+    question.id === "site" ||
+    question.id === "roomName"
+  ) {
+    const historyKey =
+      question.id === "customer"
+        ? RECENT_TEXT_HISTORY_KEYS.customer
+        : question.id === "site"
+          ? RECENT_TEXT_HISTORY_KEYS.site
+          : RECENT_TEXT_HISTORY_KEYS.roomName;
+
+    return (
+      <RecentTextInput
+        className="wm-ui__input"
+        aria-label={question.label}
+        historyKey={historyKey}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={question.placeholder}
@@ -182,6 +241,8 @@ export default function DiscoveryWizardPage() {
       recommendedFamilies: advice.families,
       recommendedNextTool: advice.nextToolPath,
     };
+
+    rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.customer, payload.customer);
     writeRecord(payload);
 
     if (activeProject?.id) {
@@ -195,18 +256,22 @@ export default function DiscoveryWizardPage() {
         roomHeightM: payload.roomHeightM,
         installationPath: payload.installationPath,
         cableDistanceM: payload.cableDistanceM,
+        transportDistanceBand: payload.transportDistanceBand,
         displayCount: payload.displayCount,
         sourceCount: payload.sourceCount,
         sourceTypes: payload.sourceTypes,
         sourcePlacement: payload.sourcePlacement,
         sourceConnectionPath: payload.sourceConnectionPath,
         sourceConnectionType: payload.sourceConnectionType,
+        signalFormats: payload.signalFormats,
+        signalHdr: payload.signalHdr,
         sourceCableType: payload.sourceCableType,
         displayConnectionPath: payload.displayConnectionPath,
         displayConnectionType: payload.displayConnectionType,
         displayCableType: payload.displayCableType,
         networkEnvironment: payload.networkEnvironment,
         usbNeeds: payload.usbNeeds,
+        usbStandards: payload.usbStandards,
         audioNeeds: payload.audioNeeds,
         controlNeeds: payload.controlNeeds,
         budgetBand: payload.budgetBand,
@@ -323,7 +388,7 @@ export default function DiscoveryWizardPage() {
                       {question.branchReasonText ? (
                         <div className="wm-gp__questionReason">{question.branchReasonText}</div>
                       ) : null}
-                      <label className="wm-ui__field">
+                      <div className="wm-ui__field">
                         <span className="wm-ui__label">{question.label}</span>
                         {renderField(
                           question,
@@ -331,7 +396,7 @@ export default function DiscoveryWizardPage() {
                           (value) => updateField(question.id, value),
                         )}
                         <span className="wm-gp__field-help">{question.helper}</span>
-                      </label>
+                      </div>
                     </section>
                   ))}
                 </div>

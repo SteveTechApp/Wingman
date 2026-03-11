@@ -8,8 +8,21 @@ import {
   ScanSearch,
 } from "lucide-react";
 
+import RecentTextInput from "@/components/RecentTextInput";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
-import { createProject } from "@/features/projects/projectStore";
+import {
+  RECENT_TEXT_HISTORY_KEYS,
+  getRecentTextEntries,
+} from "@/features/inputs/recentTextEntries";
+import {
+  createProject,
+  duplicateProject,
+  loadProjects,
+  setActiveProjectId,
+  subscribeProjects,
+  type StoredProject,
+} from "@/features/projects/projectStore";
+import { getProjectResumeAction } from "@/features/projects/projectProductivity";
 
 type StartMethod = {
   id: string;
@@ -60,6 +73,14 @@ export default function ProjectNewPage() {
   const [name, setName] = React.useState("");
   const [customer, setCustomer] = React.useState("");
   const [site, setSite] = React.useState("");
+  const recentProjects = React.useSyncExternalStore(
+    subscribeProjects,
+    () => loadProjects().slice(0, 3),
+    () => [],
+  );
+  const recentCustomers = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.customer).slice(0, 3);
+  const recentSites = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.site).slice(0, 3);
+  const recentRooms = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.roomName).slice(0, 3);
 
   function createShell(methodTitle: string) {
     return createProject({
@@ -80,6 +101,22 @@ export default function ProjectNewPage() {
   function createBlankWorkspace() {
     const project = createShell("New");
     nav(`/app/projects/${encodeURIComponent(project.id)}`);
+  }
+
+  function applyProjectContext(project: StoredProject) {
+    setName(project.roomName || project.name || "");
+    setCustomer(project.customer || "");
+    setSite(project.site || "");
+  }
+
+  function duplicateFromProject(project: StoredProject) {
+    const duplicate = duplicateProject(project.id, {
+      name: `${project.name} Copy`,
+      status: "Draft",
+    });
+    if (duplicate) {
+      nav(`/app/projects/${encodeURIComponent(duplicate.id)}`);
+    }
   }
 
   return (
@@ -107,8 +144,9 @@ export default function ProjectNewPage() {
         <div className="wm-project-new-page__form">
           <label className="wm-form-field">
             <span className="wm-form-label">Project name</span>
-            <input
+            <RecentTextInput
               className="wm-form-input"
+              historyKey={RECENT_TEXT_HISTORY_KEYS.roomName}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Boardroom Upgrade"
@@ -117,8 +155,9 @@ export default function ProjectNewPage() {
 
           <label className="wm-form-field">
             <span className="wm-form-label">Customer</span>
-            <input
+            <RecentTextInput
               className="wm-form-input"
+              historyKey={RECENT_TEXT_HISTORY_KEYS.customer}
               value={customer}
               onChange={(e) => setCustomer(e.target.value)}
               placeholder="e.g. Acme Ltd"
@@ -127,15 +166,96 @@ export default function ProjectNewPage() {
 
           <label className="wm-form-field">
             <span className="wm-form-label">Site</span>
-            <input
+            <RecentTextInput
               className="wm-form-input"
+              historyKey={RECENT_TEXT_HISTORY_KEYS.site}
               value={site}
               onChange={(e) => setSite(e.target.value)}
               placeholder="e.g. London HQ"
             />
           </label>
         </div>
+
+        {recentCustomers.length > 0 || recentSites.length > 0 || recentRooms.length > 0 ? (
+          <div style={{ marginTop: 16, display: "grid", gap: 10 }}>
+            <div className="wm-body-sm" style={{ opacity: 0.78 }}>
+              Quick carry-forward
+            </div>
+
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {recentCustomers.map((value) => (
+                <button key={`customer-${value}`} type="button" className="wm-chip" onClick={() => setCustomer(value)}>
+                  Customer: {value}
+                </button>
+              ))}
+              {recentSites.map((value) => (
+                <button key={`site-${value}`} type="button" className="wm-chip" onClick={() => setSite(value)}>
+                  Site: {value}
+                </button>
+              ))}
+              {recentRooms.map((value) => (
+                <button key={`room-${value}`} type="button" className="wm-chip" onClick={() => setName(value)}>
+                  Room: {value}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </section>
+
+      {recentProjects.length > 0 ? (
+        <section className="wm-section">
+          <div className="wm-section__head">
+            <div className="wm-section__titles">
+              <h2>Reuse recent project context</h2>
+              <p>Pull forward the commercial context or duplicate a similar room so repeat work starts faster.</p>
+            </div>
+          </div>
+
+          <div className="wm-grid-cards">
+            {recentProjects.map((project) => {
+              const resumeAction = getProjectResumeAction(project);
+
+              return (
+                <article key={project.id} className="wm-work-card" style={{ display: "grid", gap: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+                    <div>
+                      <div className="wm-title-lg">{project.name}</div>
+                      <div className="wm-body-sm" style={{ opacity: 0.76 }}>
+                        {[project.customer || "Customer not set", project.site || "Site not set", project.roomName || "Room not set"].join(" · ")}
+                      </div>
+                    </div>
+                    <span className="wm-chip">{resumeAction.shortLabel}</span>
+                  </div>
+
+                  <div className="wm-body-sm" style={{ opacity: 0.76 }}>
+                    Last updated {new Date(project.updatedAt).toLocaleString()}
+                  </div>
+
+                  <div className="wm-actions-row">
+                    <button type="button" className="wm-btn" onClick={() => applyProjectContext(project)}>
+                      Use details
+                    </button>
+                    <button type="button" className="wm-btn" onClick={() => duplicateFromProject(project)}>
+                      Duplicate project
+                    </button>
+                    <button
+                      type="button"
+                      className="wm-btn"
+                      onClick={() => {
+                        setActiveProjectId(project.id);
+                        nav(resumeAction.to);
+                      }}
+                    >
+                      {resumeAction.label}
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
       <section className="wm-section">
         <div className="wm-section__head">

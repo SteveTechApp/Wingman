@@ -1,8 +1,10 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
+import RecentTextInput from "@/components/RecentTextInput";
 import PageFrame from "@/app/layout/PageFrame";
 import PageSection from "@/app/layout/PageSection";
 import LiveProjectStrip from "@/app/widgets/LiveProjectStrip";
+import { RECENT_TEXT_HISTORY_KEYS } from "@/features/inputs/recentTextEntries";
 import { getAvGuideSeed, saveAvGuideSeed } from "./avGuideSeed";
 import { buildAvGuideIntelligence } from "./avGuideIntelligence";
 
@@ -109,8 +111,9 @@ export default function DiscoveryPage() {
           <div className="wm-formGrid">
             <div className="wm-field">
               <label>Customer</label>
-              <input
+              <RecentTextInput
                 className="wm-input"
+                historyKey={RECENT_TEXT_HISTORY_KEYS.customer}
                 value={state.customer ?? ""}
                 onChange={(e) => updateField("customer", e.target.value)}
               />
@@ -118,8 +121,9 @@ export default function DiscoveryPage() {
 
             <div className="wm-field">
               <label>Room Type</label>
-              <input
+              <RecentTextInput
                 className="wm-input"
+                historyKey={RECENT_TEXT_HISTORY_KEYS.roomType}
                 value={state.roomType ?? ""}
                 onChange={(e) => updateField("roomType", e.target.value)}
               />
@@ -127,8 +131,9 @@ export default function DiscoveryPage() {
 
             <div className="wm-field">
               <label>Application</label>
-              <input
+              <RecentTextInput
                 className="wm-input"
+                historyKey={RECENT_TEXT_HISTORY_KEYS.application}
                 value={state.application ?? ""}
                 onChange={(e) => updateField("application", e.target.value)}
               />

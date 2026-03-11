@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import RecentTextInput from "@/components/RecentTextInput";
 import {
   addProjectAttachment,
   ensureActiveProject,
@@ -29,6 +30,9 @@ import {
   textareaStyle,
   Field,
 } from "@/ui2/page/PageChrome";
+import {
+  RECENT_TEXT_HISTORY_KEYS,
+} from "@/features/inputs/recentTextEntries";
 
 type IntakeQuestion = {
   id: string;
@@ -390,15 +394,30 @@ export default function ImportIntakePage() {
             }}
           >
             <Field label="Project name">
-              <input value={projectName} onChange={(e) => setProjectName(e.target.value)} style={inputStyle()} />
+              <RecentTextInput
+                historyKey={RECENT_TEXT_HISTORY_KEYS.roomName}
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                style={inputStyle()}
+              />
             </Field>
 
             <Field label="Customer">
-              <input value={customer} onChange={(e) => setCustomer(e.target.value)} style={inputStyle()} />
+              <RecentTextInput
+                historyKey={RECENT_TEXT_HISTORY_KEYS.customer}
+                value={customer}
+                onChange={(e) => setCustomer(e.target.value)}
+                style={inputStyle()}
+              />
             </Field>
 
             <Field label="Site">
-              <input value={site} onChange={(e) => setSite(e.target.value)} style={inputStyle()} />
+              <RecentTextInput
+                historyKey={RECENT_TEXT_HISTORY_KEYS.site}
+                value={site}
+                onChange={(e) => setSite(e.target.value)}
+                style={inputStyle()}
+              />
             </Field>
 
             <div />

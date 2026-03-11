@@ -15,14 +15,13 @@ import {
   PlusCircle,
   History,
 } from "lucide-react";
-
-type RecentProject = {
-  id: string;
-  name: string;
-  subtitle?: string;
-  updatedAt?: string;
-  href?: string;
-};
+import {
+  getActiveProject,
+  loadProjects,
+  setActiveProjectId,
+  subscribeProjects,
+} from "@/features/projects/projectStore";
+import { getProjectResumeAction } from "@/features/projects/projectProductivity";
 
 type WorkflowCard = {
   eyebrow: string;
@@ -77,7 +76,8 @@ const workflowCards: WorkflowCard[] = [
 const utilityCards: UtilityCard[] = [
   {
     title: "About Wingman",
-    description: "Learn how Wingman supports sales tools, project building, and guided solution workflows.",
+    description:
+      "Learn how Wingman supports sales tools, project building, and guided solution workflows.",
     to: "/app/about-wingman",
     Icon: FolderOpen,
   },
@@ -113,65 +113,6 @@ const utilityCards: UtilityCard[] = [
   },
 ];
 
-function safeReadRecentProjects(): RecentProject[] {
-  if (typeof window === "undefined") return [];
-
-  const candidateKeys = [
-    "wm_recent_projects",
-    "wm_projects_recent",
-    "wm_projects",
-    "wingman_projects",
-  ];
-
-  for (const key of candidateKeys) {
-    try {
-      const raw = window.localStorage.getItem(key);
-      if (!raw) continue;
-
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) continue;
-
-      const projects = parsed
-        .map((item: any, index: number) => ({
-          id: String(item?.id ?? item?.projectId ?? index + 1),
-          name: String(
-            item?.name ??
-              item?.projectName ??
-              item?.title ??
-              "Untitled project"
-          ),
-          subtitle: item?.customer
-            ? String(item.customer)
-            : item?.site
-              ? String(item.site)
-              : item?.roomName
-                ? String(item.roomName)
-                : undefined,
-          updatedAt: item?.updatedAt
-            ? String(item.updatedAt)
-            : item?.modifiedAt
-              ? String(item.modifiedAt)
-              : item?.createdAt
-                ? String(item.createdAt)
-                : undefined,
-          href: item?.href
-            ? String(item.href)
-            : item?.id || item?.projectId
-              ? "/app/projects"
-              : "/app/projects",
-        }))
-        .filter((project: RecentProject) => !!project.name)
-        .slice(0, 4);
-
-      if (projects.length > 0) return projects;
-    } catch {
-      // Ignore malformed localStorage payloads.
-    }
-  }
-
-  return [];
-}
-
 function formatUpdatedAt(value?: string): string {
   if (!value) return "Recently updated";
 
@@ -193,11 +134,28 @@ function formatUpdatedAt(value?: string): string {
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const [recentProjects, setRecentProjects] = React.useState<RecentProject[]>([]);
 
-  React.useEffect(() => {
-    setRecentProjects(safeReadRecentProjects());
-  }, []);
+  // Stable primitive snapshot only.
+  const projectsVersion = React.useSyncExternalStore(
+    subscribeProjects,
+    () => "projects-version",
+    () => "projects-version",
+  );
+
+  const recentProjects = React.useMemo(() => {
+    void projectsVersion;
+    return loadProjects().slice(0, 4);
+  }, [projectsVersion]);
+
+  const activeProject = React.useMemo(() => {
+    void projectsVersion;
+    return getActiveProject() ?? null;
+  }, [projectsVersion]);
+
+  const activeResumeAction = React.useMemo(
+    () => (activeProject ? getProjectResumeAction(activeProject) : null),
+    [activeProject],
+  );
 
   return (
     <div className="wm-page wm-dashboard-page">
@@ -209,7 +167,10 @@ export default function DashboardPage() {
             </div>
 
             <div className="wm-body wm-dashboard-page__hero-body">
-              Wingman helps sales and pre-sales teams capture room requirements, understand the physical dynamics of the space, select the right WyreStorm architecture, and move opportunities toward proposal-ready output.
+              Wingman helps sales and pre-sales teams capture room requirements,
+              understand the physical dynamics of the space, select the right
+              WyreStorm architecture, and move opportunities toward
+              proposal-ready output.
             </div>
           </div>
 
@@ -223,6 +184,19 @@ export default function DashboardPage() {
                 <PlusCircle className="h-4 w-4" />
                 Start New Project
               </button>
+
+              {activeProject && activeResumeAction ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveProjectId(activeProject.id);
+                    navigate(activeResumeAction.to);
+                  }}
+                  className="wm-btn"
+                >
+                  Resume {activeResumeAction.shortLabel}
+                </button>
+              ) : null}
 
               <button
                 type="button"
@@ -241,17 +215,52 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <div className="wm-hero-tools wm-dashboard-page__hero-tools" aria-label="Quick tools">
-              <Link to="/app/tools/discovery" className="wm-chip wm-chip--tool-core">Guided Project</Link>
-              <Link to="/app/tools/templates" className="wm-chip wm-chip--tool-core">Architecture</Link>
-              <Link to="/app/tools/catalog" className="wm-chip wm-chip--tool-core">Products</Link>
-              <Link to="/app/tools/proposal" className="wm-chip wm-chip--tool-core">Proposal</Link>
-              <Link to="/app/tools/video-wall" className="wm-chip wm-chip--tool-core">Video Wall</Link>
-              <Link to="/app/tools/templates?market=corporate" className="wm-chip wm-chip--tool-market">Corporate</Link>
-              <Link to="/app/tools/templates?market=education" className="wm-chip wm-chip--tool-market">Education</Link>
-              <Link to="/app/tools/templates?market=hospitality" className="wm-chip wm-chip--tool-market">Hospitality</Link>
-              <Link to="/app/tools/templates?market=retail" className="wm-chip wm-chip--tool-market">Retail</Link>
-              <Link to="/app/about-wingman" className="wm-chip wm-chip--tool-info">About Wingman</Link>
+            <div
+              className="wm-hero-tools wm-dashboard-page__hero-tools"
+              aria-label="Quick tools"
+            >
+              <Link to="/app/tools/discovery" className="wm-chip wm-chip--tool-core">
+                Guided Project
+              </Link>
+              <Link to="/app/tools/templates" className="wm-chip wm-chip--tool-core">
+                Architecture
+              </Link>
+              <Link to="/app/tools/catalog" className="wm-chip wm-chip--tool-core">
+                Products
+              </Link>
+              <Link to="/app/tools/proposal" className="wm-chip wm-chip--tool-core">
+                Proposal
+              </Link>
+              <Link to="/app/tools/video-wall" className="wm-chip wm-chip--tool-core">
+                Video Wall
+              </Link>
+              <Link
+                to="/app/tools/templates?market=corporate"
+                className="wm-chip wm-chip--tool-market"
+              >
+                Corporate
+              </Link>
+              <Link
+                to="/app/tools/templates?market=education"
+                className="wm-chip wm-chip--tool-market"
+              >
+                Education
+              </Link>
+              <Link
+                to="/app/tools/templates?market=hospitality"
+                className="wm-chip wm-chip--tool-market"
+              >
+                Hospitality
+              </Link>
+              <Link
+                to="/app/tools/templates?market=retail"
+                className="wm-chip wm-chip--tool-market"
+              >
+                Retail
+              </Link>
+              <Link to="/app/about-wingman" className="wm-chip wm-chip--tool-info">
+                About Wingman
+              </Link>
             </div>
           </div>
         </div>
@@ -262,7 +271,10 @@ export default function DashboardPage() {
           <div className="wm-section__head">
             <div className="wm-section__titles">
               <h2>Core sales tools and project-building workflow</h2>
-              <p>Use these tools to support sales activity, build projects, and move from Guided Project through to proposal-ready output.</p>
+              <p>
+                Use these tools to support sales activity, build projects, and
+                move from Guided Project through to proposal-ready output.
+              </p>
             </div>
           </div>
 
@@ -277,8 +289,12 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="wm-kicker">{eyebrow}</div>
-                <div className="wm-title-lg wm-dashboard-page__workflow-title">{title}</div>
-                <div className="wm-body wm-dashboard-page__workflow-body">{description}</div>
+                <div className="wm-title-lg wm-dashboard-page__workflow-title">
+                  {title}
+                </div>
+                <div className="wm-body wm-dashboard-page__workflow-body">
+                  {description}
+                </div>
               </Link>
             ))}
           </div>
@@ -296,13 +312,27 @@ export default function DashboardPage() {
             {recentProjects.length > 0 ? (
               <div className="wm-grid wm-dashboard-page__stack-tight">
                 {recentProjects.map((project) => (
-                  <Link key={project.id} to={project.href ?? "/app/projects"} className="wm-dashboard-item">
+                  <Link
+                    key={project.id}
+                    to={`/app/projects/${encodeURIComponent(project.id)}`}
+                    className="wm-dashboard-item"
+                    onClick={() => setActiveProjectId(project.id)}
+                  >
                     <div className="wm-dashboard-item__head">
-                      <div className="wm-title-md wm-dashboard-page__item-title">{project.name}</div>
+                      <div className="wm-title-md wm-dashboard-page__item-title">
+                        {project.name}
+                      </div>
                       <FolderOpen className="h-4 w-4" />
                     </div>
-                    <div className="wm-body-sm">{project.subtitle ?? "Wingman project"}</div>
+                    <div className="wm-body-sm">
+                      {[project.customer || "Wingman project", project.site || project.roomName || ""]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </div>
                     <div className="wm-body-sm">{formatUpdatedAt(project.updatedAt)}</div>
+                    <div className="wm-body-sm" style={{ opacity: 0.8 }}>
+                      {getProjectResumeAction(project).label}
+                    </div>
                   </Link>
                 ))}
 
@@ -318,7 +348,13 @@ export default function DashboardPage() {
               <div className="wm-dashboard-empty">
                 <History className="h-4 w-4" />
                 <div className="wm-body">No recent projects yet.</div>
-                <button type="button" className="wm-btn wm-btn-primary" onClick={() => navigate("/app/projects/new")}>Create first project</button>
+                <button
+                  type="button"
+                  className="wm-btn wm-btn-primary"
+                  onClick={() => navigate("/app/projects/new")}
+                >
+                  Create first project
+                </button>
               </div>
             )}
           </section>
@@ -340,7 +376,9 @@ export default function DashboardPage() {
                     </div>
                     <ArrowRight className="h-4 w-4" />
                   </div>
-                  <div className="wm-title-md wm-dashboard-page__item-title">{title}</div>
+                  <div className="wm-title-md wm-dashboard-page__item-title">
+                    {title}
+                  </div>
                   <div className="wm-body-sm">{description}</div>
                 </Link>
               ))}

@@ -201,6 +201,9 @@ export default function ProjectOverviewPage() {
             <div className="wm-summary-row"><span>Display count</span><strong>{project.discovery?.displayCount || "-"}</strong></div>
             <div className="wm-summary-row"><span>Source count</span><strong>{project.discovery?.sourceCount || "-"}</strong></div>
             <div className="wm-summary-row"><span>Distance</span><strong>{project.discovery?.cableDistanceM || "-"}</strong></div>
+            <div className="wm-summary-row"><span>Reach band</span><strong>{project.discovery?.transportDistanceBand || "-"}</strong></div>
+            <div className="wm-summary-row"><span>Signal formats</span><strong>{project.discovery?.signalFormats || "-"}</strong></div>
+            <div className="wm-summary-row"><span>HDR</span><strong>{project.discovery?.signalHdr || "-"}</strong></div>
             <div className="wm-summary-row"><span>Source placement</span><strong>{project.discovery?.sourcePlacement || "-"}</strong></div>
             <div className="wm-summary-row"><span>Source ingress</span><strong>{project.discovery?.sourceConnectionPath || "-"}</strong></div>
             <div className="wm-summary-row"><span>Source transport</span><strong>{project.discovery?.sourceConnectionType || "-"}</strong></div>
@@ -210,6 +213,8 @@ export default function ProjectOverviewPage() {
             <div className="wm-summary-row"><span>Display cable</span><strong>{project.discovery?.displayCableType || "-"}</strong></div>
             <div className="wm-summary-row"><span>Installed route</span><strong>{project.discovery?.installationPath || "-"}</strong></div>
             <div className="wm-summary-row"><span>Network environment</span><strong>{project.discovery?.networkEnvironment || "-"}</strong></div>
+            <div className="wm-summary-row"><span>USB workflow</span><strong>{project.discovery?.usbNeeds || "-"}</strong></div>
+            <div className="wm-summary-row"><span>USB bandwidth</span><strong>{project.discovery?.usbStandards || "-"}</strong></div>
           </div>
         </section>
       </div>
