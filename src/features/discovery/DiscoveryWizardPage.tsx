@@ -222,6 +222,9 @@ export default function DiscoveryWizardPage() {
   const totalDone = progress.reduce((sum, item) => sum + item.complete, 0);
   const totalFields = progress.reduce((sum, item) => sum + item.total, 0);
   const governance = React.useMemo(() => getRecommendationGovernanceRulebook(), []);
+  const leadReasons = advice.reasons.slice(0, 2);
+  const priorityNextActions = advice.nextActions.slice(0, 3);
+  const activeLenses = lenses.filter((lens) => lens.state !== "watch");
 
   React.useEffect(() => {
     if (!activeProject) return;
@@ -320,9 +323,8 @@ export default function DiscoveryWizardPage() {
               <p className="wm-ui__eyebrow">GUIDED PROJECT</p>
               <h1 className="wm-ui__title">Guided Project</h1>
               <p className="wm-ui__subtitle">
-                Keep the questions simple, but make the physical dynamics explicit. Wingman should
-                understand source origin, transport boundaries, installed routes, and endpoint
-                delivery before it recommends technology.
+                Keep the conversation simple. Wingman will ask only the questions needed to understand
+                the room, the signal path, and the physical delivery of the system.
               </p>
             </div>
             <div className="wm-actions-row wm-dw6__heroActions">
@@ -356,7 +358,7 @@ export default function DiscoveryWizardPage() {
             ))}
           </div>
 
-          <div className="wm-gp__layout">
+          <div className="wm-guided-project-page__canvas">
             <div className="wm-dw6__content">
               <div className="wm-dw6__sectionTop">
                 <div>
@@ -370,16 +372,42 @@ export default function DiscoveryWizardPage() {
                 </div>
               </div>
 
+              <section className="wm-guided-project-page__readout">
+                <div className="wm-guided-project-page__readout-top">
+                  <div>
+                    <div className="wm-gp__summaryEyebrow">Wingman readout</div>
+                    <div className="wm-gp__summaryTitle">{advice.primary} is the current lead fit</div>
+                  </div>
+                  <div className="wm-gp__confidence">Confidence: {advice.confidence}</div>
+                </div>
+
+                <p className="wm-gp__summaryCopy">{advice.summary}</p>
+
+                <div className="wm-guided-project-page__readout-meta">
+                  <span>{activeProject?.name || record.roomName || "Current guided project"}</span>
+                  <span>{savedAt ? `Saved ${savedAt}` : `Progress ${totalDone}/${totalFields}`}</span>
+                  <span>Next tool: {getNextToolLabel(advice.nextToolPath)}</span>
+                </div>
+
+                <div className="wm-ui__chips">
+                  {advice.families.map((family) => (
+                    <span key={family} className="wm-ui__chip wm-ui__chip--active">
+                      {family}
+                    </span>
+                  ))}
+                </div>
+              </section>
+
               <div className="wm-dw6__wizardShell">
                 <div className="wm-gp__engineBanner">
-                  <div className="wm-gp__engineTitle">Rule-driven questioning</div>
+                  <div className="wm-gp__engineTitle">Question only what matters now</div>
                   <div className="wm-gp__engineCopy">
-                    Wingman opens follow-up questions only when room shape, transport distance,
-                    rack hops, or decoder-led paths make them important.
+                    Follow-up questions appear only when the room shape, reach, cable media, USB path,
+                    or network assumptions make them commercially important.
                   </div>
                 </div>
 
-                <div className="wm-gp__questionGrid">
+                <div className="wm-guided-project-page__questionStack">
                   {activeQuestions.map((question) => (
                     <section
                       key={question.id}
@@ -426,110 +454,96 @@ export default function DiscoveryWizardPage() {
                   </div>
                 </div>
               </div>
+
+              <div className="wm-guided-project-page__drawers">
+                <details className="wm-guided-project-page__drawer wm-guided-project-page__drawer--signal" open>
+                  <summary>Why Wingman is asking this</summary>
+                  <div className="wm-guided-project-page__drawer-body">
+                    <div className="wm-guided-project-page__drawer-grid">
+                      <article className="wm-gp__summaryCard">
+                        <div className="wm-gp__summaryEyebrow">Lead signals</div>
+                        <ul className="wm-gp__list">
+                          {leadReasons.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </article>
+                      <article className="wm-gp__summaryCard">
+                        <div className="wm-gp__summaryEyebrow">Physical dynamics</div>
+                        <ul className="wm-gp__list">
+                          {advice.cues.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </article>
+                    </div>
+                  </div>
+                </details>
+
+                <details className="wm-guided-project-page__drawer wm-guided-project-page__drawer--clarify">
+                  <summary>What still needs clarification</summary>
+                  <div className="wm-guided-project-page__drawer-body">
+                    <div className="wm-guided-project-page__drawer-grid">
+                      <article className="wm-gp__summaryCard">
+                        <div className="wm-gp__summaryEyebrow">Rule triggers</div>
+                        <ul className="wm-gp__list">
+                          {branchHighlights.length > 0 ? (
+                            branchHighlights.map((item) => <li key={item}>{item}</li>)
+                          ) : (
+                            <li>Wingman is waiting for more physical cues before opening deeper follow-up questions.</li>
+                          )}
+                        </ul>
+                      </article>
+                      <article className="wm-gp__summaryCard">
+                        <div className="wm-gp__summaryEyebrow">Next actions</div>
+                        <ul className="wm-gp__list">
+                          {priorityNextActions.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </article>
+                    </div>
+                  </div>
+                </details>
+
+                <details className="wm-guided-project-page__drawer wm-guided-project-page__drawer--governance">
+                  <summary>Recommendation logic and governance</summary>
+                  <div className="wm-guided-project-page__drawer-body">
+                    <div className="wm-guided-project-page__drawer-grid">
+                      <article className="wm-gp__summaryCard">
+                        <div className="wm-gp__summaryEyebrow">Live reasoning lenses</div>
+                        <div className="wm-guided-project-page__lens-stack">
+                          {(activeLenses.length > 0 ? activeLenses : lenses).map((lens) => (
+                            <article key={lens.id} className="wm-gp__decisionCard">
+                              <div className="wm-gp__decisionTop">
+                                <div className="wm-gp__summaryEyebrow">{lens.title}</div>
+                                <span className={`wm-gp__state wm-gp__state--${lens.state}`}>
+                                  {stateLabel(lens.state)}
+                                </span>
+                              </div>
+                              <div className="wm-gp__summaryCopy">{lens.summary}</div>
+                            </article>
+                          ))}
+                        </div>
+                      </article>
+
+                      <article className="wm-gp__summaryCard">
+                        <div className="wm-gp__summaryEyebrow">Governance</div>
+                        <div className="wm-gp__summaryTitle">Rule set {governance.recommendationRules.version}</div>
+                        <div className="wm-gp__summaryCopy">
+                          Catalog baseline: {governance.recommendationRules.catalogVersion}
+                        </div>
+                        <ul className="wm-gp__list">
+                          {governance.recommendationRules.explainability.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </article>
+                    </div>
+                  </div>
+                </details>
+              </div>
             </div>
-
-            <aside className="wm-gp__sidebar">
-              <section className="wm-gp__summaryCard">
-                <div className="wm-gp__summaryEyebrow">Active project</div>
-                <div className="wm-gp__summaryTitle">
-                  {activeProject?.name || record.roomName || "Current guided project"}
-                </div>
-                <div className="wm-gp__summaryCopy">
-                  {activeProject
-                    ? `${activeProject.customer || "Customer not set"} · ${activeProject.stage || "Discovery"}`
-                    : "Save this input into an active project as you go."}
-                </div>
-              </section>
-
-              <section className="wm-gp__summaryCard">
-                <div className="wm-gp__summaryEyebrow">Wingman is hearing</div>
-                <div className="wm-gp__summaryTitle">{advice.primary} is the current lead fit</div>
-                <div className="wm-gp__confidence">Confidence: {advice.confidence}</div>
-                <p className="wm-gp__summaryCopy">{advice.summary}</p>
-                <div className="wm-ui__chips">
-                  {advice.families.map((family) => (
-                    <span key={family} className="wm-ui__chip wm-ui__chip--active">
-                      {family}
-                    </span>
-                  ))}
-                </div>
-                <ul className="wm-gp__list">
-                  {advice.reasons.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </section>
-
-              <section className="wm-gp__summaryCard">
-                <div className="wm-gp__summaryEyebrow">Rule engine activations</div>
-                <ul className="wm-gp__list">
-                  {branchHighlights.length > 0 ? (
-                    branchHighlights.map((item) => <li key={item}>{item}</li>)
-                  ) : (
-                    <li>Wingman is waiting for more physical cues before opening deeper follow-up questions.</li>
-                  )}
-                </ul>
-              </section>
-
-              <section className="wm-gp__summaryCard">
-                <div className="wm-gp__summaryEyebrow">Physical dynamics</div>
-                <ul className="wm-gp__list">
-                  {advice.cues.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </section>
-
-              <section className="wm-gp__summaryCard">
-                <div className="wm-gp__summaryEyebrow">Next actions</div>
-                <ul className="wm-gp__list">
-                  {advice.nextActions.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </section>
-
-              <section className="wm-gp__summaryCard">
-                <div className="wm-gp__summaryEyebrow">Governance</div>
-                <div className="wm-gp__summaryTitle">Rule set {governance.recommendationRules.version}</div>
-                <div className="wm-gp__summaryCopy">
-                  Catalog baseline: {governance.recommendationRules.catalogVersion}
-                </div>
-                <ul className="wm-gp__list">
-                  {governance.recommendationRules.explainability.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </section>
-            </aside>
-          </div>
-        </section>
-
-        <section className="wm-section">
-          <div className="wm-section__head">
-            <div className="wm-section__titles">
-              <h2>Live reasoning engine</h2>
-              <p>The decision cards are now driven by the current answers rather than static guidance.</p>
-            </div>
-          </div>
-
-          <div className="wm-gp__decisionTree">
-            {lenses.map((lens) => (
-              <article key={lens.id} className="wm-gp__decisionCard">
-                <div className="wm-gp__decisionTop">
-                  <div className="wm-gp__summaryEyebrow">{lens.title}</div>
-                  <span className={`wm-gp__state wm-gp__state--${lens.state}`}>
-                    {stateLabel(lens.state)}
-                  </span>
-                </div>
-                <div className="wm-gp__summaryCopy">{lens.summary}</div>
-                <ul className="wm-gp__list">
-                  {lens.prompts.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
           </div>
         </section>
       </div>

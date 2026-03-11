@@ -1,5 +1,5 @@
 import React from "react";
-import { APP_BUILD_CHANNEL, APP_VERSION_LABEL, CORPORATE_LINKS } from "@/app/layout/footerConfig";
+import { APP_VERSION_LABEL, CORPORATE_LINKS } from "@/app/layout/footerConfig";
 
 export default function AppFooter() {
   const year = new Date().getFullYear();
@@ -7,9 +7,9 @@ export default function AppFooter() {
   return (
     <footer className="wm-footer wm-footer--corporate">
       <div className="wm-footer__row">
-        <div className="wm-footer__brandblock">
-          <div className="wm-footer__brand">WyreStorm Wingman</div>
-          <div className="wm-footer__meta">Sales engineering workspace · {APP_VERSION_LABEL} · {APP_BUILD_CHANNEL}</div>
+        <div className="wm-footer__left">
+          <span className="wm-footer__brand">Wingman</span>
+          <span className="wm-footer__meta">{APP_VERSION_LABEL}</span>
         </div>
 
         <nav className="wm-footer__links" aria-label="Footer links">

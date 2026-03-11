@@ -41,7 +41,7 @@
   min-height: 0;
   overflow: auto;
   overflow-x: hidden;
-  padding: 12px 14px 14px;
+  padding: 8px 10px 10px;
 }
 
 .wm-shell-backdrop {
@@ -64,11 +64,11 @@
 
 .wm-topbar {
   display: grid;
-  grid-template-columns: 252px minmax(260px, 1fr) auto;
+  grid-template-columns: 176px minmax(220px, 1fr) auto;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   min-height: var(--wm-topbar-h);
-  padding: 0 16px;
+  padding: 0 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(180deg, rgba(7, 14, 24, 0.98), rgba(8, 16, 27, 0.96));
   backdrop-filter: blur(10px);
@@ -84,7 +84,7 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .wm-topbar__brand-btn {
@@ -98,7 +98,7 @@
   align-items: center;
   justify-content: flex-start;
   min-width: 0;
-  min-height: 46px;
+  min-height: 36px;
 }
 
 .wm-topbar__menu-btn {
@@ -119,8 +119,8 @@
 .wm-topbar__logo {
   display: block;
   width: auto;
-  max-width: 246px;
-  height: 42px;
+  max-width: 170px;
+  height: 30px;
   object-fit: contain;
   filter: drop-shadow(0 1px 6px rgba(49, 125, 209, 0.26));
 }
@@ -147,12 +147,14 @@
 }
 
 .wm-topbar__project-pill {
-  gap: 8px;
+  gap: 6px;
   justify-content: flex-start;
+  min-height: 34px;
+  padding: 0 12px;
 }
 
 .wm-topbar__project-label {
-  font-size: 10px;
+  font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 800;
@@ -160,7 +162,7 @@
 }
 
 .wm-topbar__project-pill strong {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   color: #edf6ff;
   overflow: hidden;
@@ -171,7 +173,7 @@
 .wm-topbar__actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -184,8 +186,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 20px;
-  padding: 0 7px;
+  min-height: 18px;
+  padding: 0 6px;
   border-radius: 999px;
   border: 1px solid rgba(119, 166, 230, 0.16);
   background: rgba(255, 255, 255, 0.04);
@@ -516,11 +518,11 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 10px;
   border-top: 1px solid rgba(115, 231, 255, 0.14) !important;
   background: linear-gradient(180deg, rgba(6, 12, 21, 0.98), rgba(4, 10, 18, 0.99)) !important;
   color: rgba(225, 234, 244, 0.82) !important;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .wm-footer__row {
@@ -528,19 +530,20 @@
   height: 100%;
   width: 100%;
   min-width: 0;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px;
 }
 
-.wm-footer__brandblock {
+.wm-footer__left {
   min-width: 0;
-  display: grid;
-  gap: 1px;
-  align-content: center;
-  max-width: 360px;
-  white-space: normal;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 
 .wm-footer__brand {
@@ -549,30 +552,26 @@
   color: rgba(240, 247, 255, 0.96) !important;
   letter-spacing: 0.01em;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .wm-footer__meta {
   color: rgba(183, 201, 225, 0.72) !important;
   font-size: 10px;
-  letter-spacing: 0.04em;
-  line-height: 1.15;
+  letter-spacing: 0.02em;
+  line-height: 1;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .wm-footer__links {
   min-width: 0;
   display: flex;
-  flex-wrap: wrap;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
-  align-content: center;
-  gap: 2px 18px;
-  overflow: visible;
-  scrollbar-width: none;
+  gap: 10px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .wm-footer__links::-webkit-scrollbar {
@@ -582,9 +581,9 @@
 .wm-footer .wm-footer__link,
 .wm-footer__text {
   color: rgba(218, 230, 245, 0.88) !important;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -596,12 +595,11 @@
 .wm-footer__copy {
   min-width: 0;
   text-align: right;
-  font-size: 11px;
+  font-size: 10px;
   color: rgba(213, 227, 245, 0.88) !important;
-  line-height: 1.15;
+  line-height: 1;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 0 0 auto;
 }
 
 .wm-btn {
@@ -1484,29 +1482,29 @@
   .wm-footer {
     height: auto;
     min-height: var(--wm-topbar-h);
-    padding: 8px 10px;
+    padding: 6px 8px;
   }
 
   .wm-footer__row {
     min-height: auto;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 8px 12px;
+    flex-wrap: wrap;
+    gap: 6px 10px;
   }
 
   .wm-footer__links {
-    grid-column: 1 / -1;
+    order: 3;
+    flex: 1 1 100%;
     justify-content: flex-start;
-    gap: 4px 14px;
+    flex-wrap: wrap;
+    gap: 4px 12px;
   }
 
   .wm-footer__copy {
     text-align: left;
   }
 
-  .wm-footer__brandblock {
-    display: grid;
-    gap: 2px;
-    white-space: normal;
+  .wm-footer__left {
+    gap: 6px;
   }
 
   .wm-page {
@@ -1531,13 +1529,13 @@
   }
 
   .wm-topbar {
-    padding: 8px;
+    padding: 4px 6px;
     gap: 6px;
   }
 
   .wm-topbar__logo {
-    max-width: 156px;
-    height: 28px;
+    max-width: 138px;
+    height: 24px;
   }
 
   .wm-commandPalette__backdrop {
@@ -1609,16 +1607,17 @@
 
   .wm-footer {
     height: auto;
-    padding: 8px;
+    min-height: 0;
+    padding: 6px;
   }
 
   .wm-footer__row {
-    grid-template-columns: 1fr;
+    flex-wrap: wrap;
     gap: 6px;
   }
 
-  .wm-footer__brandblock {
-    gap: 0;
+  .wm-footer__left {
+    gap: 4px;
   }
 
   .wm-footer__meta,
@@ -1627,7 +1626,10 @@
   }
 
   .wm-footer__links {
-    grid-column: auto;
+    order: 2;
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
     gap: 4px;
   }
 }
@@ -2966,5 +2968,586 @@ section{
   .wm-product-intel-page__record-actions{
     justify-content: stretch;
   }
+}
+
+/* Dashboard redesign */
+.wm-dashboard-page__mission-strip{
+  gap: 16px;
+}
+
+.wm-dashboard-page__mission-head{
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.wm-dashboard-page__mission-copy{
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wm-dashboard-page__mission-title{
+  margin: 0;
+  font-size: clamp(28px, 2.6vw, 38px);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: #f5f9ff;
+}
+
+.wm-dashboard-page__mission-body{
+  margin: 0;
+  max-width: 760px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(220, 232, 246, 0.82);
+}
+
+.wm-dashboard-page__mission-actions{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.wm-dashboard-page__active-card{
+  border-radius: 16px;
+  border: 1px solid rgba(115, 231, 255, 0.22);
+  background:
+    radial-gradient(circle at top right, rgba(34, 199, 184, 0.14), transparent 30%),
+    linear-gradient(135deg, rgba(10, 31, 56, 0.86), rgba(6, 18, 31, 0.94));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.wm-dashboard-page__active-top{
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+  flex-wrap: wrap;
+}
+
+.wm-dashboard-page__active-meta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  color: rgba(214, 228, 246, 0.8);
+  font-size: 12px;
+}
+
+.wm-dashboard-page__active-next{
+  color: rgba(115, 231, 255, 0.96);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wm-dashboard-page__empty-banner{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 166, 230, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(218, 231, 246, 0.82);
+  font-size: 12px;
+}
+
+.wm-dashboard-page__main-grid{
+  display: grid;
+  grid-template-columns: minmax(0, 1.32fr) minmax(300px, 0.68fr);
+  gap: 10px;
+}
+
+.wm-dashboard-page__path-grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wm-dashboard-page__path-card{
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.024);
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  color: inherit;
+  text-decoration: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.wm-dashboard-page__path-card:hover{
+  transform: translateY(-1px);
+}
+
+.wm-dashboard-page__path-card--launch{
+  border-color: rgba(87, 231, 233, 0.26);
+  background:
+    linear-gradient(135deg, rgba(12, 72, 93, 0.28), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.024);
+}
+
+.wm-dashboard-page__path-card--launch:hover{
+  border-color: rgba(87, 231, 233, 0.4);
+  box-shadow: 0 14px 28px rgba(8, 63, 74, 0.24);
+}
+
+.wm-dashboard-page__path-card--import{
+  border-color: rgba(255, 172, 87, 0.24);
+  background:
+    linear-gradient(135deg, rgba(110, 66, 20, 0.3), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.024);
+}
+
+.wm-dashboard-page__path-card--import:hover{
+  border-color: rgba(255, 188, 118, 0.38);
+  box-shadow: 0 14px 28px rgba(84, 45, 12, 0.22);
+}
+
+.wm-dashboard-page__path-card--template{
+  border-color: rgba(131, 151, 255, 0.24);
+  background:
+    linear-gradient(135deg, rgba(41, 55, 111, 0.34), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.024);
+}
+
+.wm-dashboard-page__path-card--template:hover{
+  border-color: rgba(160, 177, 255, 0.4);
+  box-shadow: 0 14px 28px rgba(26, 34, 86, 0.24);
+}
+
+.wm-dashboard-page__path-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wm-dashboard-page__path-link{
+  color: rgba(115, 231, 255, 0.94);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.wm-dashboard-page__right-rail{
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.wm-dashboard-page__resume-list,
+.wm-project-overview-page__comment-list{
+  display: grid;
+  gap: 8px;
+}
+
+.wm-dashboard-page__resume-card{
+  border-radius: 14px;
+  border: 1px solid rgba(87, 231, 233, 0.14);
+  background:
+    linear-gradient(135deg, rgba(11, 31, 56, 0.56), rgba(7, 18, 31, 0.88)),
+    rgba(255, 255, 255, 0.022);
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.wm-dashboard-page__resume-card:hover{
+  border-color: rgba(115, 231, 255, 0.24);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.wm-dashboard-page__resume-head,
+.wm-guided-project-page__readout-top{
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: start;
+}
+
+.wm-dashboard-page__resume-meta,
+.wm-guided-project-page__readout-meta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  color: rgba(190, 208, 229, 0.76);
+  font-size: 12px;
+}
+
+.wm-dashboard-page__tool-cloud{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-dashboard-page__workflow-strip{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.wm-dashboard-page__workflow-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 166, 230, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(238, 245, 255, 0.96);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wm-dashboard-page__workflow-pill:nth-child(1){
+  border-color: rgba(87, 231, 233, 0.22);
+  background: linear-gradient(135deg, rgba(13, 85, 92, 0.24), rgba(255, 255, 255, 0.02));
+}
+
+.wm-dashboard-page__workflow-pill:nth-child(2){
+  border-color: rgba(131, 151, 255, 0.22);
+  background: linear-gradient(135deg, rgba(43, 58, 122, 0.26), rgba(255, 255, 255, 0.02));
+}
+
+.wm-dashboard-page__workflow-pill:nth-child(3){
+  border-color: rgba(255, 172, 87, 0.22);
+  background: linear-gradient(135deg, rgba(92, 58, 18, 0.24), rgba(255, 255, 255, 0.02));
+}
+
+.wm-dashboard-page__workflow-pill:nth-child(4){
+  border-color: rgba(104, 214, 147, 0.22);
+  background: linear-gradient(135deg, rgba(22, 82, 54, 0.22), rgba(255, 255, 255, 0.02));
+}
+
+/* Guided Project redesign */
+.wm-guided-project-page__canvas{
+  max-width: 980px;
+}
+
+.wm-guided-project-page__readout{
+  border-radius: 16px;
+  border: 1px solid rgba(111, 232, 237, 0.18);
+  background: linear-gradient(135deg, rgba(7, 26, 46, 0.92), rgba(11, 55, 63, 0.42));
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.wm-guided-project-page__questionStack{
+  display: grid;
+  gap: 10px;
+}
+
+.wm-guided-project-page__drawers{
+  display: grid;
+  gap: 10px;
+}
+
+.wm-guided-project-page__drawer{
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.022);
+  overflow: hidden;
+}
+
+.wm-guided-project-page__drawer--signal{
+  border-color: rgba(87, 231, 233, 0.18);
+  background: linear-gradient(135deg, rgba(12, 63, 72, 0.16), rgba(255, 255, 255, 0.02));
+}
+
+.wm-guided-project-page__drawer--clarify{
+  border-color: rgba(255, 172, 87, 0.18);
+  background: linear-gradient(135deg, rgba(92, 58, 18, 0.14), rgba(255, 255, 255, 0.02));
+}
+
+.wm-guided-project-page__drawer--governance{
+  border-color: rgba(131, 151, 255, 0.18);
+  background: linear-gradient(135deg, rgba(43, 58, 122, 0.16), rgba(255, 255, 255, 0.02));
+}
+
+.wm-guided-project-page__drawer summary{
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #eef6ff;
+}
+
+.wm-guided-project-page__drawer summary::-webkit-details-marker{
+  display: none;
+}
+
+.wm-guided-project-page__drawer[open] summary{
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.wm-guided-project-page__drawer-body{
+  padding: 12px;
+}
+
+.wm-guided-project-page__drawer-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wm-guided-project-page__lens-stack,
+.wm-project-overview-page__focus-stack{
+  display: grid;
+  gap: 10px;
+}
+
+/* Project overview redesign */
+.wm-project-overview-page__hero{
+  align-items: end;
+}
+
+.wm-project-overview-page__hero-next{
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(115, 231, 255, 0.94);
+}
+
+.wm-project-overview-page__tabs-shell{
+  padding: 8px 10px;
+}
+
+.wm-project-overview-page__tabs{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-project-overview-page__tab{
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 166, 230, 0.14);
+  background: rgba(255, 255, 255, 0.028);
+  color: rgba(221, 233, 248, 0.86);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wm-project-overview-page__tab.is-active{
+  border-color: rgba(115, 231, 255, 0.24);
+  background: linear-gradient(90deg, rgba(19, 59, 103, 0.9), rgba(14, 39, 66, 0.94));
+  color: #f4fbff;
+}
+
+.wm-project-overview-page__tab-body{
+  display: grid;
+  gap: 12px;
+}
+
+.wm-project-overview-page__focus-pill{
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(34, 199, 184, 0.12);
+  border: 1px solid rgba(34, 199, 184, 0.18);
+  color: #ecffff;
+  font-weight: 800;
+  max-width: fit-content;
+}
+
+/* Shared section tones */
+.wm-section--tone-cyan{
+  border-color: rgba(87, 231, 233, 0.2);
+  background:
+    radial-gradient(circle at top right, rgba(87, 231, 233, 0.08), transparent 26%),
+    linear-gradient(180deg, rgba(10, 28, 44, 0.94), rgba(9, 20, 34, 0.96));
+}
+
+.wm-section--tone-amber{
+  border-color: rgba(255, 172, 87, 0.2);
+  background:
+    radial-gradient(circle at top right, rgba(255, 172, 87, 0.08), transparent 26%),
+    linear-gradient(180deg, rgba(22, 22, 33, 0.94), rgba(16, 16, 26, 0.96));
+}
+
+.wm-section--tone-indigo{
+  border-color: rgba(131, 151, 255, 0.2);
+  background:
+    radial-gradient(circle at top right, rgba(131, 151, 255, 0.08), transparent 26%),
+    linear-gradient(180deg, rgba(15, 22, 43, 0.94), rgba(11, 17, 33, 0.96));
+}
+
+.wm-section--tone-emerald{
+  border-color: rgba(104, 214, 147, 0.2);
+  background:
+    radial-gradient(circle at top right, rgba(104, 214, 147, 0.08), transparent 26%),
+    linear-gradient(180deg, rgba(11, 28, 27, 0.94), rgba(8, 20, 20, 0.96));
+}
+
+.wm-section--tone-cyan .wm-section__titles h2,
+.wm-section--tone-amber .wm-section__titles h2,
+.wm-section--tone-indigo .wm-section__titles h2,
+.wm-section--tone-emerald .wm-section__titles h2{
+  color: #f6fbff;
+}
+
+@media (max-width: 1180px){
+  .wm-dashboard-page__mission-head,
+  .wm-dashboard-page__main-grid,
+  .wm-guided-project-page__drawer-grid{
+    grid-template-columns: 1fr;
+  }
+
+  .wm-dashboard-page__path-grid{
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px){
+  .wm-dashboard-page__mission-actions,
+  .wm-guided-project-page__readout-top{
+    justify-content: flex-start;
+  }
+
+  .wm-dashboard-page__mission-title{
+    font-size: clamp(24px, 7vw, 32px);
+  }
+
+  .wm-project-overview-page__tabs{
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+  }
+}
+
+/* Mission Control rail colour overhaul */
+.wm-nav__brand{
+  padding: 10px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(10, 32, 58, 0.56), rgba(7, 18, 31, 0.12));
+  border: 1px solid rgba(103, 194, 220, 0.12);
+}
+
+.wm-nav__brand-mark{
+  box-shadow: 0 10px 22px rgba(6, 41, 73, 0.28);
+}
+
+.wm-nav__collapse{
+  border: 1px solid rgba(119, 166, 230, 0.14);
+  background: linear-gradient(180deg, rgba(11, 24, 39, 0.92), rgba(7, 17, 28, 0.96));
+  color: rgba(236, 245, 255, 0.94);
+}
+
+.wm-nav__active-card{
+  border: 1px solid rgba(87, 231, 233, 0.14);
+  background:
+    radial-gradient(circle at top right, rgba(87, 231, 233, 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(10, 29, 48, 0.92), rgba(8, 20, 32, 0.96));
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.16);
+}
+
+.wm-nav__section{
+  position: relative;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.wm-nav__section--mission{
+  background: linear-gradient(180deg, rgba(22, 77, 89, 0.14), rgba(255, 255, 255, 0.01));
+  border-color: rgba(87, 231, 233, 0.1);
+}
+
+.wm-nav__section--workflow{
+  background: linear-gradient(180deg, rgba(24, 72, 63, 0.16), rgba(255, 255, 255, 0.01));
+  border-color: rgba(104, 214, 147, 0.1);
+}
+
+.wm-nav__section--tools{
+  background: linear-gradient(180deg, rgba(68, 52, 20, 0.16), rgba(255, 255, 255, 0.01));
+  border-color: rgba(255, 172, 87, 0.1);
+}
+
+.wm-nav__section-title{
+  padding: 2px 4px 4px;
+}
+
+.wm-nav__section--mission .wm-nav__section-title{
+  color: rgba(127, 239, 241, 0.88);
+}
+
+.wm-nav__section--workflow .wm-nav__section-title{
+  color: rgba(151, 229, 178, 0.88);
+}
+
+.wm-nav__section--tools .wm-nav__section-title{
+  color: rgba(255, 205, 148, 0.88);
+}
+
+.wm-nav__item{
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.wm-nav__item--mission:not(.is-active){
+  border-color: rgba(87, 231, 233, 0.12);
+  background: linear-gradient(135deg, rgba(18, 76, 88, 0.26), rgba(255, 255, 255, 0.02));
+}
+
+.wm-nav__item--mission:not(.is-active):hover{
+  border-color: rgba(87, 231, 233, 0.24);
+  background: linear-gradient(135deg, rgba(22, 88, 102, 0.34), rgba(255, 255, 255, 0.03));
+}
+
+.wm-nav__item--mission:not(.is-active) .wm-nav__item-badge{
+  background: linear-gradient(180deg, rgba(87, 231, 233, 0.24), rgba(18, 97, 111, 0.16));
+  border-color: rgba(87, 231, 233, 0.24);
+}
+
+.wm-nav__item--workflow:not(.is-active){
+  border-color: rgba(104, 214, 147, 0.14);
+  background: linear-gradient(135deg, rgba(24, 88, 66, 0.26), rgba(255, 255, 255, 0.02));
+}
+
+.wm-nav__item--workflow:not(.is-active):hover{
+  border-color: rgba(104, 214, 147, 0.26);
+  background: linear-gradient(135deg, rgba(28, 102, 76, 0.34), rgba(255, 255, 255, 0.03));
+}
+
+.wm-nav__item--workflow:not(.is-active) .wm-nav__item-badge{
+  background: linear-gradient(180deg, rgba(104, 214, 147, 0.22), rgba(23, 86, 60, 0.18));
+  border-color: rgba(104, 214, 147, 0.24);
+}
+
+.wm-nav__item--tools:not(.is-active){
+  border-color: rgba(255, 172, 87, 0.14);
+  background: linear-gradient(135deg, rgba(93, 60, 18, 0.28), rgba(255, 255, 255, 0.02));
+}
+
+.wm-nav__item--tools:not(.is-active):hover{
+  border-color: rgba(255, 172, 87, 0.26);
+  background: linear-gradient(135deg, rgba(109, 70, 20, 0.36), rgba(255, 255, 255, 0.03));
+}
+
+.wm-nav__item--tools:not(.is-active) .wm-nav__item-badge{
+  background: linear-gradient(180deg, rgba(255, 172, 87, 0.24), rgba(120, 72, 17, 0.18));
+  border-color: rgba(255, 188, 118, 0.24);
+}
+
+.wm-nav__item.is-active{
+  border-color: rgba(236, 246, 255, 0.18);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.18);
 }
 
