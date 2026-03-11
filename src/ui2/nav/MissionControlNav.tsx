@@ -35,14 +35,18 @@ const NAV_ITEMS: NavItem[] = [
   { section: "Tools & Reference", tone: "tools", title: "Video Wall", short: "VW", to: "/app/tools/video-wall" },
 ];
 
-function groupedItems(items: NavItem[]): Array<{ section: string; items: NavItem[] }> {
+function groupedItems(items: NavItem[]): Array<{ section: string; tone: NavItem["tone"]; items: NavItem[] }> {
   const map = new Map<string, NavItem[]>();
   for (const item of items) {
     const current = map.get(item.section) ?? [];
     current.push(item);
     map.set(item.section, current);
   }
-  return Array.from(map.entries()).map(([section, sectionItems]) => ({ section, items: sectionItems }));
+  return Array.from(map.entries()).map(([section, sectionItems]) => ({
+    section,
+    tone: sectionItems[0]?.tone ?? "mission",
+    items: sectionItems,
+  }));
 }
 
 export default function MissionControlNav({ collapsed = false, onToggleCollapse }: MissionControlNavProps) {
@@ -93,7 +97,7 @@ export default function MissionControlNav({ collapsed = false, onToggleCollapse 
 
       <div className="wm-nav__sections">
         {sections.map((section) => (
-          <section key={section.section} className="wm-nav__section">
+          <section key={section.section} className={`wm-nav__section wm-nav__section--${section.tone}`}>
             {!collapsed ? (
               <div className="wm-nav__section-title">{section.section}</div>
             ) : null}

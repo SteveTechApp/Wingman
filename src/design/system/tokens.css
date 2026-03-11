@@ -18,10 +18,10 @@
   --wm-orange: #f28c28;
   --wm-danger: #e46b78;
 
-  --wm-topbar-h: 56px;
+  --wm-topbar-h: 46px;
   --wm-sidebar-w: 220px;
   --wm-sidebar-collapsed: 64px;
-  --wm-footer-h: 56px;
+  --wm-footer-h: 46px;
   --wm-shell-topbar-h: var(--wm-topbar-h);
   --wm-shell-footer-h: var(--wm-topbar-h);
 
