@@ -1,5 +1,6 @@
 import competitorCatalog from "@/data/catalog/competitor-catalog.phase4.json";
 import { buildWyrestormSeedCatalogProducts } from "@/catalog/seedCatalog";
+import { classifyProductType } from "@/catalog/classification";
 
 export type ProductVendorType = "wyrestorm" | "competitor";
 export type ProductApprovalStatus = "draft" | "approved" | "expired";
@@ -268,6 +269,18 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
   const now = nowIso();
   const summary = tidy(row.summary) || `${sku} reference record.`;
   const features = dedupeStrings(asArray<string>(row.features), 24);
+  const classification = classifyProductType({
+    sku,
+    family: tidy(row.family),
+    name: tidy(row.name),
+    category: tidy(row.category),
+    subcategory: tidy(row.subcategory),
+    summary,
+    transport: tidy(row.transport),
+    features,
+    audio: dedupeStrings(asArray<string>(row.audio), 16),
+    control: dedupeStrings(asArray<string>(row.control), 16),
+  });
 
   const evidence: ProductEvidenceEntry[] = [];
   if (summary) {
@@ -302,7 +315,7 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
     sku,
     name: tidy(row.name) || sku,
     family: tidy(row.family) || "Unknown",
-    category: tidy(row.category) || tidy(row.family) || "Uncategorized",
+    category: classification.category || tidy(row.category) || tidy(row.family) || "Uncategorized",
     summary,
     features,
     transport: tidy(row.transport) || undefined,
@@ -316,7 +329,15 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
     confidence,
     sourceType: "catalog",
     sourceUrls: sourceUrl ? [sourceUrl] : [],
-    tags: dedupeStrings([tidy(row.family), tidy(row.category), tidy(row.transport), ...features], 20),
+    tags: dedupeStrings([
+      tidy(row.family),
+      tidy(row.category),
+      tidy(row.subcategory),
+      classification.label,
+      tidy(row.transport),
+      ...classification.tags,
+      ...features,
+    ], 24),
     notes: tidy(row.notes) || undefined,
     createdAt: now,
     updatedAt: now,
@@ -395,6 +416,7 @@ function applyFilters(records: ProductIntelligenceRecord[], query: ProductIntell
       record.category,
       record.summary,
       ...record.features,
+      ...record.tags,
     ].join(" ").toLowerCase();
     return blob.includes(text);
   });
@@ -412,6 +434,18 @@ function mapBackendRecord(raw: Record<string, unknown>): ProductIntelligenceReco
   const sourceTypeValue = normalizeId(raw.sourceType);
   const sourceType: ProductSourceType =
     sourceTypeValue === "catalog" || sourceTypeValue === "live" || sourceTypeValue === "import" ? sourceTypeValue : "manual";
+  const classification = classifyProductType({
+    sku,
+    family: tidy(raw.family),
+    name: tidy(raw.name),
+    category: tidy(raw.category),
+    subcategory: tidy(raw.subcategory),
+    summary: tidy(raw.summary),
+    transport: tidy(raw.transport),
+    features: dedupeStrings(asArray<string>(raw.features), 24),
+    audio: dedupeStrings(asArray<string>(raw.audio), 16),
+    control: dedupeStrings(asArray<string>(raw.control), 16),
+  });
 
   const evidence = asArray<Record<string, unknown>>(raw.evidence)
     .map((entry) => {
@@ -444,7 +478,7 @@ function mapBackendRecord(raw: Record<string, unknown>): ProductIntelligenceReco
     sku,
     name: tidy(raw.name) || sku,
     family: tidy(raw.family) || "Unknown",
-    category: tidy(raw.category) || tidy(raw.family) || "Uncategorized",
+    category: classification.category || tidy(raw.category) || tidy(raw.family) || "Uncategorized",
     summary: tidy(raw.summary) || `${sku} reference record.`,
     features: dedupeStrings(asArray<string>(raw.features), 24),
     transport: tidy(raw.transport) || undefined,
@@ -458,7 +492,7 @@ function mapBackendRecord(raw: Record<string, unknown>): ProductIntelligenceReco
     confidence: clampConfidence(raw.confidence, vendorType === "wyrestorm" ? 0.85 : 0.7),
     sourceType,
     sourceUrls: dedupeStrings(asArray<string>(raw.sourceUrls), 8).map((entry) => normalizeUrl(entry)).filter(Boolean),
-    tags: dedupeStrings(asArray<string>(raw.tags), 20),
+    tags: dedupeStrings([classification.label, ...classification.tags, ...asArray<string>(raw.tags)], 24),
     notes: tidy(raw.notes) || undefined,
     createdAt: tidy(raw.createdAt) || nowIso(),
     updatedAt: tidy(raw.updatedAt) || nowIso(),

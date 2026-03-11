@@ -1,3 +1,4 @@
+import { classifyProductType } from "@/catalog/classification";
 import { enrichCatalogProduct } from "@/catalog/enrich";
 import { normalizeCatalogProduct } from "@/catalog/normalize";
 import type { CatalogProduct } from "@/catalog/types";
@@ -37,7 +38,18 @@ const EMPTY_SUMMARY: ProductIntelligenceSummary = {
   highConfidence: 0,
 };
 
+const EMPTY_STATUS: LiveProductDataStatus = {
+  endpoint: getProductIntelligenceEndpoint(),
+  available: false,
+  mode: "seed",
+  fetchedAt: "",
+  total: 0,
+  warnings: [],
+  summary: EMPTY_SUMMARY,
+};
+
 let cachedSnapshot: LiveProductDataSnapshot | null = null;
+let cachedStatus: LiveProductDataStatus | null = null;
 let refreshPromise: Promise<LiveProductDataSnapshot | null> | null = null;
 const listeners = new Set<() => void>();
 
@@ -156,9 +168,22 @@ function emitChange(): void {
   for (const listener of listeners) listener();
 }
 
+function toStatus(snapshot: LiveProductDataSnapshot): LiveProductDataStatus {
+  return {
+    endpoint: snapshot.endpoint,
+    available: snapshot.available,
+    mode: snapshot.mode,
+    fetchedAt: snapshot.fetchedAt,
+    total: snapshot.total,
+    warnings: snapshot.warnings,
+    summary: snapshot.summary,
+  };
+}
+
 function setSnapshot(snapshot: LiveProductDataSnapshot): LiveProductDataSnapshot {
   const sanitized = sanitizeSnapshot(snapshot);
   cachedSnapshot = sanitized;
+  cachedStatus = toStatus(sanitized);
 
   if (typeof window !== "undefined") {
     try {
@@ -174,6 +199,7 @@ function setSnapshot(snapshot: LiveProductDataSnapshot): LiveProductDataSnapshot
 function getSnapshot(): LiveProductDataSnapshot | null {
   if (cachedSnapshot) return cachedSnapshot;
   cachedSnapshot = readSnapshotFromStorage();
+  cachedStatus = cachedSnapshot ? toStatus(cachedSnapshot) : null;
   return cachedSnapshot;
 }
 
@@ -259,25 +285,10 @@ export function subscribeLiveProductData(listener: () => void): () => void {
 
 export function getLiveProductDataStatus(): LiveProductDataStatus {
   const snapshot = getSnapshot();
-  return snapshot
-    ? {
-        endpoint: snapshot.endpoint,
-        available: snapshot.available,
-        mode: snapshot.mode,
-        fetchedAt: snapshot.fetchedAt,
-        total: snapshot.total,
-        warnings: snapshot.warnings,
-        summary: snapshot.summary,
-      }
-    : {
-        endpoint: getProductIntelligenceEndpoint(),
-        available: false,
-        mode: "seed",
-        fetchedAt: "",
-        total: 0,
-        warnings: [],
-        summary: EMPTY_SUMMARY,
-      };
+  if (!snapshot) return EMPTY_STATUS;
+  if (cachedStatus) return cachedStatus;
+  cachedStatus = toStatus(snapshot);
+  return cachedStatus;
 }
 
 export function getLiveProductDataToken(): string {
@@ -295,12 +306,24 @@ export function getLiveProductDataRecords(
 }
 
 export function mapProductIntelligenceRecordToCatalogProduct(record: ProductIntelligenceRecord): CatalogProduct {
+  const classification = classifyProductType({
+    sku: record.sku,
+    family: record.family,
+    name: record.name,
+    category: record.category,
+    summary: record.summary,
+    transport: record.transport,
+    features: record.features,
+    audio: record.audio,
+    control: record.control,
+  });
+
   return enrichCatalogProduct(normalizeCatalogProduct({
     sku: normalizeSku(record.sku),
     name: tidy(record.name) || normalizeSku(record.sku),
     family: tidy(record.family) || "Unknown",
-    category: tidy(record.category) || "Uncategorized",
-    subcategory: record.vendorType === "competitor" ? tidy(record.brand) || undefined : undefined,
+    category: classification.category || tidy(record.category) || "Uncategorized",
+    subcategory: classification.label,
     status: record.status === "expired" ? "legacy" : record.status === "approved" ? "active" : "draft",
     summary: tidy(record.summary) || `${normalizeSku(record.sku)} reference record.`,
     inputs: Array.isArray(record.inputs) ? record.inputs : [],
@@ -353,6 +376,17 @@ function toLookupIntelligenceRecord(record: CompetitorLookupRecord): ProductInte
   const now = nowIso();
   const summary = tidy(record.summary) || `${normalizeSku(record.sku)} lookup result.`;
   const sourceUrl = tidy(record.sourceUrl);
+  const classification = classifyProductType({
+    sku: record.sku,
+    family: record.family,
+    name: record.name,
+    category: record.category,
+    summary,
+    transport: record.transport,
+    features: record.features,
+    audio: record.audio,
+    control: record.control,
+  });
 
   return sanitizeRecord({
     id,
@@ -361,7 +395,7 @@ function toLookupIntelligenceRecord(record: CompetitorLookupRecord): ProductInte
     sku: normalizeSku(record.sku),
     name: tidy(record.name) || normalizeSku(record.sku),
     family: tidy(record.family) || "Unknown",
-    category: tidy(record.category) || "Uncategorized",
+    category: classification.category || tidy(record.category) || "Uncategorized",
     summary,
     features: dedupeStrings(record.features || [], 24),
     transport: tidy(record.transport) || undefined,
@@ -381,6 +415,8 @@ function toLookupIntelligenceRecord(record: CompetitorLookupRecord): ProductInte
         record.family,
         record.category,
         record.transport,
+        classification.label,
+        ...classification.tags,
         ...(record.features || []),
       ],
       20,

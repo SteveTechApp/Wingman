@@ -1,5 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  ClipboardList,
+  FileText,
+  Layers3,
+  ShieldCheck,
+  Sparkles,
+  Target,
+} from "lucide-react";
 
 import { WM_ROUTES } from "@/core/wingman/routeMap";
 import ProposalHandoffPanel from "@/features/proposals/ProposalHandoffPanel";
@@ -36,6 +44,14 @@ type ProposalField = {
   label: string;
   placeholder: string;
   rows: number;
+};
+
+type ProposalFieldGroup = {
+  id: string;
+  title: string;
+  description: string;
+  tone: "cyan" | "amber";
+  fieldIds: Array<Exclude<keyof ProposalDraft, "nextStep">>;
 };
 
 const FIELDS: ProposalField[] = [
@@ -83,6 +99,23 @@ const FIELDS: ProposalField[] = [
   },
 ];
 
+const FIELD_GROUPS: ProposalFieldGroup[] = [
+  {
+    id: "story",
+    title: "Customer story",
+    description: "Lead with the business outcome, user needs, and solution direction.",
+    tone: "cyan",
+    fieldIds: ["executiveSummary", "customerRequirements", "systemOverview"],
+  },
+  {
+    id: "commercial",
+    title: "Offer framing",
+    description: "Shape the BOM message, stakeholder positioning, and scope boundaries.",
+    tone: "amber",
+    fieldIds: ["billOfMaterials", "commercialNotes", "assumptions", "exclusions"],
+  },
+];
+
 const EMPTY_DRAFT: ProposalDraft = {
   executiveSummary: "",
   customerRequirements: "",
@@ -94,37 +127,16 @@ const EMPTY_DRAFT: ProposalDraft = {
   nextStep: "Confirm offer tier and issue proposal pack",
 };
 
-const TIER_OPTIONS: Array<{ value: CommercialTier; label: string }> = [
-  { value: "Bronze", label: "Bronze - Low cost" },
-  { value: "Silver", label: "Silver - Medium cost" },
-  { value: "Gold", label: "Gold - High cost" },
+const TIER_OPTIONS: Array<{ value: CommercialTier; label: string; strapline: string }> = [
+  { value: "Bronze", label: "Low cost", strapline: "Lean essentials" },
+  { value: "Silver", label: "Medium cost", strapline: "Balanced default" },
+  { value: "Gold", label: "High cost", strapline: "Enhanced experience" },
 ];
 
 const COVERAGE_ORDER: Record<BomLineCoverage["disposition"], number> = {
   included: 0,
   optional: 1,
   held: 2,
-};
-
-const COVERAGE_STYLES: Record<
-  BomLineCoverage["disposition"],
-  { background: string; borderColor: string; color: string }
-> = {
-  included: {
-    background: "rgba(58, 122, 86, 0.12)",
-    borderColor: "rgba(58, 122, 86, 0.22)",
-    color: "#2f6a46",
-  },
-  optional: {
-    background: "rgba(194, 147, 45, 0.14)",
-    borderColor: "rgba(194, 147, 45, 0.22)",
-    color: "#8d6413",
-  },
-  held: {
-    background: "rgba(115, 126, 144, 0.12)",
-    borderColor: "rgba(115, 126, 144, 0.2)",
-    color: "#556273",
-  },
 };
 
 function hasText(value: string | undefined | null): boolean {
@@ -181,6 +193,32 @@ function deriveSuggestedPriceTier(project: StoredProject | null | undefined): Co
 function joinCategories(categories: readonly string[]): string {
   return categories.length > 0 ? categories.join(", ") : "None";
 }
+
+function getDraftProgress(draft: ProposalDraft): { completed: number; total: number; pct: number } {
+  const values = [...FIELDS.map((field) => draft[field.id]), draft.nextStep];
+  const completed = values.filter((value) => hasText(value)).length;
+  const total = values.length;
+  return {
+    completed,
+    total,
+    pct: total > 0 ? Math.round((completed / total) * 100) : 0,
+  };
+}
+
+function getReadinessTone(status: string): "ready" | "review" | "attention" {
+  if (status === "Commercial Ready") return "ready";
+  if (status === "Engineering Review Required") return "attention";
+  return "review";
+}
+
+function getCoverageTone(disposition: BomLineCoverage["disposition"]): "included" | "optional" | "held" {
+  return disposition;
+}
+
+const FIELD_BY_ID = Object.fromEntries(FIELDS.map((field) => [field.id, field])) as Record<
+  ProposalField["id"],
+  ProposalField
+>;
 
 export default function ProposalBuilderPage() {
   const navigate = useNavigate();
@@ -283,6 +321,9 @@ export default function ProposalBuilderPage() {
     ]
   );
 
+  const draftProgress = React.useMemo(() => getDraftProgress(draft), [draft]);
+  const readinessTone = getReadinessTone(readiness.status);
+
   const updateField = (id: keyof ProposalDraft, value: string) => {
     setDraft((prev) => ({
       ...prev,
@@ -345,70 +386,165 @@ export default function ProposalBuilderPage() {
   };
 
   return (
-    <div className="wm-page">
-      <section className="wm-hero">
-        <div className="wm-page-hero-row">
-          <div>
+    <div className="wm-page wm-proposal-builder-page">
+      <section className="wm-hero wm-proposal-builder-page__hero">
+        <div className="wm-proposal-builder-page__hero-grid">
+          <div className="wm-proposal-builder-page__hero-copy">
+            <div className="wm-kicker">Proposal Studio</div>
             <div className="wm-title-xl">Proposal Builder</div>
-            <div className="wm-body-sm wm-page-subtitle">
-              Turn the current BOM into a customer-ready proposal with low, medium, and high offer paths.
-            </div>
             <div className="wm-body-sm wm-page-subtitle-muted">
-              Active project: {activeProject?.name ?? "No active project selected"}
+              Turn the current BOM into a customer-ready proposal with clearer Bronze, Silver, and Gold offer paths.
+            </div>
+
+            <div className="wm-proposal-builder-page__hero-chips">
+              <div className="wm-proposal-builder-page__hero-chip wm-proposal-builder-page__hero-chip--cyan">
+                <FileText size={15} />
+                <span>{activeProject?.name ?? "No active project selected"}</span>
+              </div>
+              <div className="wm-proposal-builder-page__hero-chip wm-proposal-builder-page__hero-chip--amber">
+                <Layers3 size={15} />
+                <span>{activePriceTier} offer</span>
+              </div>
+              <div className="wm-proposal-builder-page__hero-chip wm-proposal-builder-page__hero-chip--indigo">
+                <ClipboardList size={15} />
+                <span>{proposalState.lines.length} BOM lines</span>
+              </div>
+              <div className="wm-proposal-builder-page__hero-chip wm-proposal-builder-page__hero-chip--emerald">
+                <ShieldCheck size={15} />
+                <span>{readiness.status}</span>
+              </div>
             </div>
           </div>
 
-          <div className="wm-actions-row">
-            <button type="button" className="wm-btn" onClick={saveDraftToProject} disabled={!activeProject}>
-              Save Proposal Draft
-            </button>
-            <button
-              type="button"
-              className="wm-btn"
-              onClick={openCompletionWorkflow}
-              disabled={!activeProject}
-            >
-              Open Completion Workflow
-            </button>
-            <button
-              type="button"
-              className="wm-btn wm-btn-primary"
-              onClick={saveDraftToProject}
-              disabled={!activeProject}
-            >
-              Generate Proposal Pack
-            </button>
+          <div className="wm-proposal-builder-page__hero-panel">
+            <div className="wm-proposal-builder-page__hero-panel-head">
+              <div className="wm-proposal-builder-page__panel-kicker">
+                <Sparkles size={15} />
+                <span>Proposal momentum</span>
+              </div>
+              <div className="wm-proposal-builder-page__autosave">
+                {savedAt ? `Saved at ${savedAt}` : "Draft auto-saves locally."}
+              </div>
+            </div>
+
+            <div className="wm-proposal-builder-page__hero-stat-grid">
+              <article className="wm-proposal-builder-page__hero-stat wm-proposal-builder-page__hero-stat--cyan">
+                <span className="wm-proposal-builder-page__hero-stat-label">Draft completion</span>
+                <strong className="wm-proposal-builder-page__hero-stat-value">{draftProgress.pct}%</strong>
+                <span className="wm-proposal-builder-page__hero-stat-copy">
+                  {draftProgress.completed} of {draftProgress.total} content blocks ready
+                </span>
+              </article>
+
+              <article className={`wm-proposal-builder-page__hero-stat wm-proposal-builder-page__hero-stat--${readinessTone}`}>
+                <span className="wm-proposal-builder-page__hero-stat-label">Readiness score</span>
+                <strong className="wm-proposal-builder-page__hero-stat-value">{readiness.score}%</strong>
+                <span className="wm-proposal-builder-page__hero-stat-copy">{readiness.status}</span>
+              </article>
+
+              <article className="wm-proposal-builder-page__hero-stat wm-proposal-builder-page__hero-stat--amber">
+                <span className="wm-proposal-builder-page__hero-stat-label">Offer posture</span>
+                <strong className="wm-proposal-builder-page__hero-stat-value">{coverageSummary.costBand}</strong>
+                <span className="wm-proposal-builder-page__hero-stat-copy">{tierProfile.scopeLabel}</span>
+              </article>
+            </div>
+
+            <div className="wm-actions-row wm-proposal-builder-page__hero-actions">
+              <button type="button" className="wm-btn" onClick={saveDraftToProject} disabled={!activeProject}>
+                Save draft
+              </button>
+              <button
+                type="button"
+                className="wm-btn"
+                onClick={openCompletionWorkflow}
+                disabled={!activeProject}
+              >
+                Completion workflow
+              </button>
+              <button
+                type="button"
+                className="wm-btn wm-btn-primary"
+                onClick={saveDraftToProject}
+                disabled={!activeProject}
+              >
+                Generate pack
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
-      <div className="wm-split-columns">
-        <section className="wm-section">
+      <div className="wm-split-columns wm-proposal-builder-page__split">
+        <section className="wm-section wm-section--tone-cyan">
           <div className="wm-section__head">
             <div className="wm-section__titles">
-              <h2>Proposal content</h2>
-              <p>Capture the narrative and customer-safe framing before handoff.</p>
+              <h2>Proposal narrative</h2>
+              <p>Build the customer-safe story before the proposal leaves Wingman.</p>
             </div>
           </div>
 
-          <div className="wm-form-grid">
-            {FIELDS.map((field) => (
-              <label key={field.id} className="wm-form-field wm-form-field--full">
-                <span className="wm-form-label">{field.label}</span>
-                <textarea
-                  className="wm-form-textarea"
-                  rows={field.rows}
-                  value={draft[field.id]}
-                  placeholder={field.placeholder}
-                  onChange={(event) => updateField(field.id, event.target.value)}
-                />
-              </label>
+          <div className="wm-proposal-builder-page__progress-strip">
+            <div className="wm-proposal-builder-page__progress-copy">
+              <Target size={15} />
+              <span>Keep the story concise, commercial, and safe for customer review.</span>
+            </div>
+            <div className="wm-proposal-builder-page__progress-track">
+              <div
+                className="wm-proposal-builder-page__progress-fill"
+                style={{ width: `${draftProgress.pct}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="wm-proposal-builder-page__field-groups">
+            {FIELD_GROUPS.map((group) => (
+              <article
+                key={group.id}
+                className={`wm-proposal-builder-page__field-group wm-proposal-builder-page__field-group--${group.tone}`}
+              >
+                <div className="wm-proposal-builder-page__field-group-head">
+                  <div>
+                    <div className="wm-proposal-builder-page__field-group-title">{group.title}</div>
+                    <div className="wm-proposal-builder-page__field-group-copy">{group.description}</div>
+                  </div>
+                </div>
+
+                <div className="wm-proposal-builder-page__field-grid">
+                  {group.fieldIds.map((fieldId) => {
+                    const field = FIELD_BY_ID[fieldId];
+                    const complete = hasText(draft[field.id]);
+
+                    return (
+                      <label key={field.id} className="wm-form-field wm-proposal-builder-page__field-card">
+                        <span className="wm-proposal-builder-page__field-labelrow">
+                          <span className="wm-form-label">{field.label}</span>
+                          <span className={`wm-proposal-builder-page__field-state${complete ? " is-complete" : ""}`}>
+                            {complete ? "Ready" : "Drafting"}
+                          </span>
+                        </span>
+                        <textarea
+                          className="wm-form-textarea wm-proposal-builder-page__textarea"
+                          rows={field.rows}
+                          value={draft[field.id]}
+                          placeholder={field.placeholder}
+                          onChange={(event) => updateField(field.id, event.target.value)}
+                        />
+                      </label>
+                    );
+                  })}
+                </div>
+              </article>
             ))}
 
-            <label className="wm-form-field wm-form-field--full">
-              <span className="wm-form-label">Next customer-safe step</span>
+            <label className="wm-form-field wm-proposal-builder-page__next-step-card">
+              <span className="wm-proposal-builder-page__field-labelrow">
+                <span className="wm-form-label">Next customer-safe step</span>
+                <span className={`wm-proposal-builder-page__field-state${hasText(draft.nextStep) ? " is-complete" : ""}`}>
+                  {hasText(draft.nextStep) ? "Ready" : "Drafting"}
+                </span>
+              </span>
               <input
-                className="wm-form-input"
+                className="wm-form-input wm-proposal-builder-page__next-step-input"
                 value={draft.nextStep}
                 onChange={(event) => updateField("nextStep", event.target.value)}
               />
@@ -416,108 +552,93 @@ export default function ProposalBuilderPage() {
           </div>
         </section>
 
-        <div className="wm-grid">
-          <section className="wm-section">
+        <div className="wm-grid wm-proposal-builder-page__rail">
+          <section className="wm-section wm-section--tone-amber">
             <div className="wm-section__head">
               <div className="wm-section__titles">
                 <h2>Offer tiering</h2>
-                <p>Wingman does not hold pricing data, so tiers shape lean, balanced, and enhanced BOM options by default.</p>
+                <p>Wingman uses low, medium, and high offer logic rather than stored pricing data.</p>
               </div>
             </div>
 
-            <div className="wm-form-grid">
-              <label className="wm-form-field">
-                <span className="wm-form-label">Offer tier</span>
-                <select
-                  className="wm-form-input"
-                  value={activePriceTier}
-                  onChange={(event) => updatePricingTier(event.target.value as CommercialTier)}
-                >
-                  {TIER_OPTIONS.map((tier) => (
-                    <option key={tier.value} value={tier.value}>
-                      {tier.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+            <div className="wm-proposal-builder-page__tier-picker">
+              {TIER_OPTIONS.map((tier) => {
+                const profile = getCommercialTierProfile(tier.value);
+                const isActive = tier.value === activePriceTier;
+
+                return (
+                  <button
+                    key={tier.value}
+                    type="button"
+                    className={`wm-proposal-builder-page__tier-card wm-proposal-builder-page__tier-card--${tier.value.toLowerCase()}${isActive ? " is-active" : ""}`}
+                    onClick={() => updatePricingTier(tier.value)}
+                  >
+                    <span className="wm-proposal-builder-page__tier-card-kicker">{tier.label}</span>
+                    <strong className="wm-proposal-builder-page__tier-card-title">{tier.value}</strong>
+                    <span className="wm-proposal-builder-page__tier-card-strapline">{tier.strapline}</span>
+                    <span className="wm-proposal-builder-page__tier-card-copy">{profile.scopeLabel}</span>
+                  </button>
+                );
+              })}
             </div>
 
-            <div
-              className="wm-work-card"
-              style={{
-                marginTop: 12,
-                display: "grid",
-                gap: 10,
-                background: "linear-gradient(135deg, rgba(247,250,252,0.96), rgba(237,244,249,0.92))",
-              }}
-            >
-              <div className="wm-title-lg">{tierProfile.scopeLabel}</div>
-              <div className="wm-body-sm">{tierProfile.description}</div>
-              <div className="wm-body-sm">
-                Suggested from project: {suggestedPriceTier}
+            <div className="wm-proposal-builder-page__tier-focus">
+              <div className="wm-proposal-builder-page__tier-focus-head">
+                <strong>{tierProfile.scopeLabel}</strong>
+                <span className="wm-proposal-builder-page__tier-focus-pill">
+                  Suggested from project: {suggestedPriceTier}
+                </span>
               </div>
-              <div className="wm-body-sm">
-                Included by default: {joinCategories(tierProfile.includedCategories)}
-              </div>
-              <div className="wm-body-sm">
-                Optional add-ons: {joinCategories(tierProfile.optionalCategories)}
+              <div className="wm-proposal-builder-page__tier-focus-copy">{tierProfile.description}</div>
+              <div className="wm-proposal-builder-page__tier-focus-list">
+                <div>Included by default: {joinCategories(tierProfile.includedCategories)}</div>
+                <div>Optional add-ons: {joinCategories(tierProfile.optionalCategories)}</div>
               </div>
             </div>
           </section>
 
-          <section className="wm-section">
+          <section className="wm-section wm-section--tone-indigo">
             <div className="wm-section__head">
               <div className="wm-section__titles">
                 <h2>Offer summary</h2>
-                <p>See how much of the current BOM this tier carries by default.</p>
+                <p>See how much of the active BOM this offer level carries.</p>
               </div>
             </div>
 
-            <div
-              className="wm-grid wm-proposal-builder-page__summary"
-              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}
-            >
-              <article className="wm-work-card">
-                <div className="wm-body-sm" style={{ opacity: 0.72 }}>Cost posture</div>
-                <div className="wm-title-lg" style={{ marginTop: 4 }}>{coverageSummary.costBand}</div>
-                <div className="wm-body-sm" style={{ marginTop: 4 }}>{activePriceTier}</div>
+            <div className="wm-proposal-builder-page__summary-grid">
+              <article className="wm-work-card wm-proposal-builder-page__summary-card wm-proposal-builder-page__summary-card--indigo">
+                <div className="wm-proposal-builder-page__summary-label">Cost posture</div>
+                <div className="wm-title-lg">{coverageSummary.costBand}</div>
+                <div className="wm-body-sm">{activePriceTier}</div>
               </article>
 
-              <article className="wm-work-card">
-                <div className="wm-body-sm" style={{ opacity: 0.72 }}>Included now</div>
-                <div className="wm-title-lg" style={{ marginTop: 4 }}>{coverageSummary.includedLines}</div>
-                <div className="wm-body-sm" style={{ marginTop: 4 }}>
-                  {coverageSummary.includedCoveragePct}% of lines
-                </div>
+              <article className="wm-work-card wm-proposal-builder-page__summary-card wm-proposal-builder-page__summary-card--emerald">
+                <div className="wm-proposal-builder-page__summary-label">Included now</div>
+                <div className="wm-title-lg">{coverageSummary.includedLines}</div>
+                <div className="wm-body-sm">{coverageSummary.includedCoveragePct}% of lines</div>
               </article>
 
-              <article className="wm-work-card">
-                <div className="wm-body-sm" style={{ opacity: 0.72 }}>Optional</div>
-                <div className="wm-title-lg" style={{ marginTop: 4 }}>{coverageSummary.optionalLines}</div>
-                <div className="wm-body-sm" style={{ marginTop: 4 }}>
-                  {coverageSummary.optionalQty} total units
-                </div>
+              <article className="wm-work-card wm-proposal-builder-page__summary-card wm-proposal-builder-page__summary-card--amber">
+                <div className="wm-proposal-builder-page__summary-label">Optional</div>
+                <div className="wm-title-lg">{coverageSummary.optionalLines}</div>
+                <div className="wm-body-sm">{coverageSummary.optionalQty} total units</div>
               </article>
 
-              <article className="wm-work-card">
-                <div className="wm-body-sm" style={{ opacity: 0.72 }}>Held back</div>
-                <div className="wm-title-lg" style={{ marginTop: 4 }}>{coverageSummary.heldBackLines}</div>
-                <div className="wm-body-sm" style={{ marginTop: 4 }}>
-                  {coverageSummary.heldBackQty} total units
-                </div>
+              <article className="wm-work-card wm-proposal-builder-page__summary-card wm-proposal-builder-page__summary-card--slate">
+                <div className="wm-proposal-builder-page__summary-label">Held back</div>
+                <div className="wm-title-lg">{coverageSummary.heldBackLines}</div>
+                <div className="wm-body-sm">{coverageSummary.heldBackQty} total units</div>
               </article>
 
-              <article className="wm-work-card">
-                <div className="wm-body-sm" style={{ opacity: 0.72 }}>Current BOM</div>
-                <div className="wm-title-lg" style={{ marginTop: 4 }}>{coverageSummary.totalLines}</div>
-                <div className="wm-body-sm" style={{ marginTop: 4 }}>
-                  {coverageSummary.totalQty} total units
-                </div>
+              <article className="wm-work-card wm-proposal-builder-page__summary-card wm-proposal-builder-page__summary-card--cyan">
+                <div className="wm-proposal-builder-page__summary-label">Current BOM</div>
+                <div className="wm-title-lg">{coverageSummary.totalLines}</div>
+                <div className="wm-body-sm">{coverageSummary.totalQty} total units</div>
               </article>
             </div>
           </section>
 
-          <section className="wm-section">
+          <section className="wm-section wm-section--tone-emerald">
             <div className="wm-section__head">
               <div className="wm-section__titles">
                 <h2>Readiness status</h2>
@@ -525,70 +646,54 @@ export default function ProposalBuilderPage() {
               </div>
             </div>
 
-            <div className="wm-body-sm">{readiness.nextStep}</div>
-            <div className="wm-body-sm wm-proposal-builder-page__autosave">
-              {savedAt ? `Saved at ${savedAt}` : "Draft auto-saves locally as you type."}
+            <div className={`wm-proposal-builder-page__readiness-card wm-proposal-builder-page__readiness-card--${readinessTone}`}>
+              <div className="wm-proposal-builder-page__readiness-track">
+                <div
+                  className="wm-proposal-builder-page__readiness-fill"
+                  style={{ width: `${readiness.score}%` }}
+                />
+              </div>
+              <div className="wm-proposal-builder-page__readiness-copy">{readiness.nextStep}</div>
             </div>
           </section>
         </div>
       </div>
 
-      <section className="wm-section">
+      <section className="wm-section wm-section--tone-indigo">
         <div className="wm-section__head">
           <div className="wm-section__titles">
             <h2>Tiered BOM review</h2>
-            <p>Check which lines are in, optional, or held back for the selected offer level.</p>
+            <p>Check what is included, optional, or held back at the selected offer level.</p>
           </div>
         </div>
 
         {tieredLines.length > 0 ? (
-          <div className="wm-grid" style={{ gap: 12 }}>
+          <div className="wm-proposal-builder-page__bom-list">
             {tieredLines.map(({ line, coverage }) => {
-              const coverageStyle = COVERAGE_STYLES[coverage.disposition];
               const quantity = line.qty || 1;
+              const coverageTone = getCoverageTone(coverage.disposition);
 
               return (
-                <article key={line.id} className="wm-work-card" style={{ display: "grid", gap: 12 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: 12,
-                      alignItems: "flex-start",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <div>
-                      <div className="wm-title-lg">{line.description || line.sku}</div>
-                      <div className="wm-body-sm" style={{ opacity: 0.74 }}>
-                        {line.sku}
-                      </div>
+                <article
+                  key={line.id}
+                  className={`wm-work-card wm-proposal-builder-page__bom-card wm-proposal-builder-page__bom-card--${coverageTone}`}
+                >
+                  <div className="wm-proposal-builder-page__bom-head">
+                    <div className="wm-proposal-builder-page__bom-copy">
+                      <div className="wm-proposal-builder-page__bom-title">{line.description || line.sku}</div>
+                      <div className="wm-proposal-builder-page__bom-sku">{line.sku}</div>
                     </div>
 
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <span className="wm-chip">{coverage.category}</span>
-                      <span
-                        className="wm-chip"
-                        style={{
-                          background: coverageStyle.background,
-                          borderColor: coverageStyle.borderColor,
-                          color: coverageStyle.color,
-                        }}
-                      >
+                    <div className="wm-proposal-builder-page__bom-chips">
+                      <span className="wm-proposal-builder-page__bom-chip">{coverage.category}</span>
+                      <span className={`wm-proposal-builder-page__bom-chip wm-proposal-builder-page__bom-chip--${coverageTone}`}>
                         {coverage.label}
                       </span>
                     </div>
                   </div>
 
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-                      gap: 10,
-                      alignItems: "end",
-                    }}
-                  >
-                    <label className="wm-form-field" style={{ marginBottom: 0 }}>
+                  <div className="wm-proposal-builder-page__bom-metrics">
+                    <label className="wm-form-field wm-proposal-builder-page__bom-metric">
                       <span className="wm-form-label">Qty</span>
                       <input
                         className="wm-form-input"
@@ -600,42 +705,38 @@ export default function ProposalBuilderPage() {
                       />
                     </label>
 
-                    <div className="wm-body-sm">
-                      Offer status
-                      <div className="wm-title-lg" style={{ marginTop: 4 }}>
-                        {coverage.label}
-                      </div>
+                    <div className="wm-proposal-builder-page__bom-metric">
+                      <span className="wm-proposal-builder-page__bom-metric-label">Offer status</span>
+                      <strong className="wm-proposal-builder-page__bom-metric-value">{coverage.label}</strong>
                     </div>
 
-                    <div className="wm-body-sm" style={{ gridColumn: "span 2" }}>
-                      Tier note
-                      <div style={{ marginTop: 4, opacity: 0.84 }}>
-                        {coverage.reason}
-                      </div>
+                    <div className="wm-proposal-builder-page__bom-metric wm-proposal-builder-page__bom-metric--wide">
+                      <span className="wm-proposal-builder-page__bom-metric-label">Tier note</span>
+                      <strong className="wm-proposal-builder-page__bom-metric-value">{coverage.reason}</strong>
                     </div>
+                  </div>
 
+                  {hasText(line.notes) ? (
+                    <div className="wm-proposal-builder-page__bom-note">{line.notes}</div>
+                  ) : null}
+
+                  <div className="wm-proposal-builder-page__bom-actions">
                     <button
                       type="button"
                       className="wm-btn"
                       onClick={() => removeLine(line.id)}
                     >
-                      Remove
+                      Remove line
                     </button>
                   </div>
-
-                  {hasText(line.notes) ? (
-                    <div className="wm-body-sm" style={{ opacity: 0.76 }}>
-                      {line.notes}
-                    </div>
-                  ) : null}
                 </article>
               );
             })}
           </div>
         ) : (
-          <div className="wm-work-card">
+          <div className="wm-work-card wm-proposal-builder-page__empty-state">
             <div className="wm-title-lg">No BOM lines yet</div>
-            <div className="wm-body" style={{ marginTop: 6 }}>
+            <div className="wm-body">
               Add SKUs from Guru or the catalogue to start shaping Bronze, Silver, and Gold offer levels.
             </div>
           </div>

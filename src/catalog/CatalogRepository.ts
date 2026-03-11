@@ -13,11 +13,14 @@ function mapCategory(value: string): ProductCategory | string {
   const normalized = String(value || "").trim().toLowerCase();
   if (normalized.includes("matrix")) return "Matrix";
   if (normalized.includes("switch")) return "Switcher";
+  if (normalized.includes("distribution") || normalized.includes("splitter")) return "Distribution";
   if (normalized.includes("extender")) return "Extender";
   if (normalized.includes("video")) return "VideoWall";
   if (normalized.includes("kvm") || normalized.includes("usb")) return "KVM";
   if (normalized.includes("control") || normalized.includes("touch")) return "Control";
-  if (normalized.includes("audio") || normalized.includes("camera") || normalized.includes("amplifier")) return "Audio";
+  if (normalized.includes("camera") || normalized.includes("webcam") || normalized.includes("ptz")) return "Camera";
+  if (normalized.includes("uc") || normalized.includes("soundbar") || normalized.includes("video bar")) return "UC";
+  if (normalized.includes("audio") || normalized.includes("microphone") || normalized.includes("amplifier")) return "Audio";
   if (normalized.includes("accessor") || normalized.includes("cabling")) return "Accessories";
   if (normalized.includes("avoip") || normalized.includes("networkhd")) return "AVoIP";
   return value || "Other";
