@@ -1,46 +1,46 @@
-import * as React from "react";
+import React from "react";
 
 export default function Footer() {
   return (
     <footer
       className="wm-footer"
-      role="contentinfo"
       style={{
+        minHeight: 72,
+        padding: "10px 16px",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
-        justifyContent: "space-between",
-        gap: 16,
-        padding: "14px 18px",
-        flexWrap: "nowrap",
+        justifyContent: "center",
+        gap: 6
       }}
     >
       <div
-        className="wm-footer-left"
-        style={{ display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", minWidth: 0 }}
-      >
-        <div style={{ fontWeight: 650 }}>WyreStorm Wingman</div>
-        <div style={{ opacity: 0.8 }}>Build 2026.02</div>
-      </div>
-
-      <nav
-        className="wm-footer-right"
-        aria-label="Corporate links"
+        className="wm-footer__links"
         style={{
           display: "flex",
+          flexWrap: "wrap",
           alignItems: "center",
-          gap: 14,
-          marginLeft: "auto",
-          whiteSpace: "nowrap",
+          justifyContent: "center",
+          gap: "6px 16px",
+          fontSize: 13
         }}
       >
-        <span style={{ opacity: 0.35 }}> </span>
-        <a href="https://www.wyrestorm.com" target="_blank" rel="noreferrer">
-          WyreStorm Corporate
-        </a>
-        <a href="https://support.wyrestorm.com" target="_blank" rel="noreferrer">
-          Support
-        </a>
-      </nav>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Support</a>
+        <a href="#">Documentation</a>
+        <a href="#">About Wingman</a>
+      </div>
+
+      <div
+        className="wm-footer__meta"
+        style={{
+          fontSize: 12,
+          opacity: 0.65
+        }}
+      >
+        Wingman · WyreStorm Technologies
+      </div>
     </footer>
   );
 }

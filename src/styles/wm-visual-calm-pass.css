@@ -210,8 +210,7 @@ main > div > section:last-child [style*="font-size:24px"] {
 /* =========================================================
    10. Footer lower contrast
    ========================================================= */
-footer,
-[class*="footer"] {
+footer {
   background: rgba(5,12,22,0.96) !important;
   border-top: 1px solid rgba(255,255,255,0.04) !important;
 }

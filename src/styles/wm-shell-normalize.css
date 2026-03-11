@@ -10,8 +10,7 @@
 }
 
 /* Footer */
-footer,
-[class*="footer"] {
+footer {
   min-height: var(--wm-shell-footer-h) !important;
   width: 100% !important;
   box-sizing: border-box !important;

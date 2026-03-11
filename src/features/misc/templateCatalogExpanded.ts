@@ -311,6 +311,7 @@ export const MARKETS: MarketTemplate[] = [
       room("corporate-huddle", "Huddle Room", "Small collaboration room for quick meetings and content sharing.", ["Small team meetings", "BYOD spaces", "Fast presentation rooms"], "bronze", meetingTiers, ["huddle", "small room", "byod", "meeting", "usb-c"], "collaboration", "cost", ["Apollo", "HDBaseT"], "/app/tools/room-wizard"),
       room("corporate-boardroom", "Boardroom", "Premium multi-source room with stronger switching and presentation demands.", ["Leadership meetings", "Client presentations", "Executive use"], "silver", meetingTiers, ["boardroom", "executive", "presentation", "multi-source"], "meeting", "balanced", ["Apollo", "Matrix", "HDBaseT"], "/app/tools/proposal"),
       room("corporate-training", "Training Room", "Instructor-led corporate room with repeatable delivery workflow.", ["Staff training", "Sales enablement", "Instructor-led sessions"], "silver", trainingTiers, ["training", "instructor", "learning", "presentation"], "training", "balanced", ["Matrix", "Apollo"], "/app/tools/room-wizard"),
+      room("corporate-townhall", "Town Hall / All Hands", "Larger briefing and broadcast-style room for company updates and stakeholder sessions.", ["All-hands meetings", "Quarterly updates", "Leadership broadcasts"], "gold", trainingTiers, ["town hall", "all hands", "briefing", "broadcast"], "meeting", "premium", ["AVoIP", "Matrix", "Apollo"], "/app/tools/proposal"),
     ],
   },
   {
@@ -323,6 +324,7 @@ export const MARKETS: MarketTemplate[] = [
       room("education-classroom", "Classroom", "Daily teaching room with repeatable, practical AV workflow.", ["Daily teaching", "Front-of-room presentation", "Hybrid-ready teaching"], "bronze", trainingTiers, ["classroom", "teaching", "teacher", "student"], "training", "cost", ["HDBaseT", "Apollo"], "/app/tools/room-wizard"),
       room("education-training", "Training Lab", "Instructor-led practical room with stronger source and display needs.", ["Hands-on training", "Lecturer-led delivery", "Mixed device use"], "silver", trainingTiers, ["lab", "training", "mixed devices", "hands-on"], "training", "balanced", ["Matrix", "HDBaseT"], "/app/tools/room-wizard"),
       room("education-lecture", "Lecture Space", "Larger teaching space with stronger presentation confidence requirements.", ["Lecture delivery", "Campus presentations", "Formal instruction"], "silver", meetingTiers, ["lecture", "hall", "presentation", "audience"], "meeting", "balanced", ["Matrix", "AVoIP"], "/app/tools/proposal"),
+      room("education-seminar", "Seminar Room", "Discussion-led teaching space for smaller cohorts needing balanced presentation and collaboration.", ["Seminars", "Tutor-led sessions", "Discussion rooms"], "silver", meetingTiers, ["seminar", "discussion", "small cohort"], "collaboration", "balanced", ["Apollo", "HDBaseT"], "/app/tools/room-wizard"),
     ],
   },
   {
@@ -335,6 +337,7 @@ export const MARKETS: MarketTemplate[] = [
       room("hospitality-suite", "VIP Suite / Lounge", "Premium guest-facing room with polished presentation or entertainment needs.", ["VIP viewing", "Private hospitality", "Flexible guest entertainment"], "silver", meetingTiers, ["suite", "vip", "lounge", "guest"], "entertainment", "premium", ["Apollo", "Matrix"], "/app/tools/proposal"),
       room("hospitality-bar", "Sports Bar / Multi-Screen Zone", "Multi-display space requiring reliable routing and strong content distribution.", ["Sports viewing", "Live feed distribution", "Guest engagement"], "bronze", signageTiers, ["sports bar", "multi-screen", "distribution", "tv wall"], "signage", "balanced", ["AVoIP", "Matrix"], "/app/tools/video-wall"),
       room("hospitality-event", "Event Lounge", "Flexible guest event space with changing source and display requirements.", ["Events", "Private hire", "Flexible entertainment"], "silver", signageTiers, ["event", "lounge", "hire", "flexible"], "entertainment", "balanced", ["AVoIP", "Matrix"], "/app/tools/proposal"),
+      room("hospitality-ballroom", "Ballroom / Banqueting Suite", "Divisible hospitality event room with staging, presentation, and changing layout demands.", ["Banqueting", "Weddings", "Conference events"], "gold", trainingTiers, ["ballroom", "banqueting", "divisible", "conference"], "training", "premium", ["AVoIP", "Matrix"], "/app/tools/proposal"),
     ],
   },
   {
@@ -347,6 +350,7 @@ export const MARKETS: MarketTemplate[] = [
       room("retail-showroom", "Showroom Display Zone", "Customer-facing display environment built around product or content presentation.", ["Brand storytelling", "Product showcase", "Display-led engagement"], "bronze", signageTiers, ["showroom", "display", "engagement", "brand"], "signage", "balanced", ["AVoIP", "HDBaseT"], "/app/tools/catalog"),
       room("retail-consultation", "Demo / Consultation Zone", "Smaller customer interaction space with focused product presentation needs.", ["Product demos", "Assisted selling", "Small-format consultation"], "silver", meetingTiers, ["demo", "consultation", "assisted selling"], "meeting", "balanced", ["Apollo", "HDBaseT"], "/app/tools/room-wizard"),
       room("retail-window-signage", "Window / Signage Zone", "Display-led customer attraction space with repeatable playback needs.", ["Digital signage", "Promotional content", "Retail attraction"], "bronze", signageTiers, ["window", "signage", "promo", "attraction"], "signage", "cost", ["AVoIP", "Matrix"], "/app/tools/catalog"),
+      room("retail-experience", "Experience Centre", "Immersive retail room combining storytelling, demos, and premium customer interaction.", ["Immersive demo", "Brand launch", "High-touch consultation"], "gold", meetingTiers, ["experience centre", "immersive", "flagship"], "entertainment", "premium", ["AVoIP", "Apollo", "Matrix"], "/app/tools/proposal"),
     ],
   },
   {
@@ -359,6 +363,7 @@ export const MARKETS: MarketTemplate[] = [
       room("healthcare-consultation", "Consultation Room", "Private patient-facing room with simple presentation and display needs.", ["Patient consultation", "Clinical review", "Private discussion"], "bronze", meetingTiers, ["consultation", "clinical", "private"], "meeting", "cost", ["HDBaseT", "Apollo"], "/app/tools/room-wizard"),
       room("healthcare-training", "Clinical Training Room", "Staff learning space with structured content delivery and instructor workflow.", ["Clinical training", "Internal learning", "Workshop delivery"], "silver", trainingTiers, ["training", "clinical", "staff"], "training", "balanced", ["Matrix", "Apollo"], "/app/tools/room-wizard"),
       room("healthcare-waiting", "Waiting Area Display Zone", "Customer-facing display area for information and engagement content.", ["Information display", "Queue communications", "Patient messaging"], "bronze", signageTiers, ["waiting area", "messaging", "display"], "signage", "cost", ["AVoIP", "HDBaseT"], "/app/tools/catalog"),
+      room("healthcare-operations", "Operations / MDT Room", "Decision-making room for multidisciplinary review, planning, and secure collaboration.", ["MDT reviews", "Operations planning", "Clinical coordination"], "gold", meetingTiers, ["operations", "mdt", "review", "coordination"], "meeting", "premium", ["Matrix", "AVoIP", "Apollo"], "/app/tools/proposal"),
     ],
   },
   {
@@ -371,6 +376,7 @@ export const MARKETS: MarketTemplate[] = [
       room("government-meeting", "Meeting Room", "Standard public-sector collaboration room with clear day-to-day workflow needs.", ["Department meetings", "Routine presentations", "Internal collaboration"], "bronze", meetingTiers, ["government", "meeting", "department"], "meeting", "cost", ["HDBaseT", "Apollo"], "/app/tools/room-wizard"),
       room("government-briefing", "Briefing Room", "Formal room with stronger presenter confidence and structured delivery.", ["Briefings", "Leadership updates", "Structured presentations"], "silver", meetingTiers, ["briefing", "formal", "presentation"], "meeting", "balanced", ["Matrix", "Apollo"], "/app/tools/proposal"),
       room("government-chamber", "Council Chamber", "Formal civic environment where room confidence and workflow polish matter.", ["Council meetings", "Public proceedings", "Formal presentations"], "silver", meetingTiers, ["council", "chamber", "public"], "meeting", "premium", ["Matrix", "AVoIP"], "/app/tools/proposal"),
+      room("government-eoc", "Emergency Operations Room", "Critical-response coordination room with resilient briefing and decision support expectations.", ["Emergency response", "Crisis coordination", "Command briefings"], "gold", trainingTiers, ["eoc", "operations", "command", "response"], "meeting", "premium", ["AVoIP", "Matrix"], "/app/tools/proposal"),
     ],
   },
   {
@@ -383,6 +389,7 @@ export const MARKETS: MarketTemplate[] = [
       room("leisure-studio", "Gym / Studio", "Instructor-led or content-led room with dependable playback and presentation needs.", ["Fitness sessions", "Studio classes", "Instructional playback"], "bronze", signageTiers, ["gym", "studio", "fitness", "playback"], "entertainment", "cost", ["HDBaseT", "AVoIP"], "/app/tools/catalog"),
       room("leisure-lounge", "Member Lounge", "Relaxed customer-facing space with mixed display and presentation requirements.", ["Member viewing", "Casual entertainment", "Hospitality crossover"], "silver", signageTiers, ["member lounge", "casual", "viewing"], "entertainment", "balanced", ["AVoIP", "Apollo"], "/app/tools/proposal"),
       room("leisure-event", "Venue Event Space", "Flexible event room requiring stronger routing and changing source behaviour.", ["Events", "Private hire", "Mixed-use venue operation"], "silver", trainingTiers, ["venue", "event", "mixed-use"], "entertainment", "balanced", ["AVoIP", "Matrix"], "/app/tools/proposal"),
+      room("leisure-reception", "Reception / Arrival Zone", "Front-of-house welcome space with signage, messaging, and brand-impact requirements.", ["Arrival messaging", "Membership promotions", "Wayfinding"], "bronze", signageTiers, ["reception", "arrival", "wayfinding"], "signage", "cost", ["HDBaseT", "AVoIP"], "/app/tools/catalog"),
     ],
   },
   {
@@ -395,6 +402,7 @@ export const MARKETS: MarketTemplate[] = [
       room("residential-cinema", "Cinema Room", "Dedicated entertainment environment where performance and experience matter.", ["Movie viewing", "Premium entertainment", "Lifestyle AV"], "silver", meetingTiers, ["cinema", "home theater", "entertainment"], "entertainment", "premium", ["Matrix", "HDBaseT"], "/app/tools/proposal"),
       room("residential-lounge", "Smart Lounge", "Daily-use home living space with simple premium AV expectations.", ["Daily TV", "Casual entertainment", "Lifestyle control"], "bronze", meetingTiers, ["lounge", "smart home", "tv"], "entertainment", "balanced", ["Apollo", "HDBaseT"], "/app/tools/room-wizard"),
       room("residential-multiroom", "Multiroom Media Zone", "Flexible zone requiring dependable distribution and simple operation.", ["Distributed media", "Whole-home zones", "Shared content use"], "silver", signageTiers, ["multiroom", "distributed media", "zones"], "signage", "premium", ["AVoIP", "Matrix"], "/app/tools/catalog"),
+      room("residential-outdoor", "Outdoor Entertainment Zone", "Garden or terrace space needing credible AV distribution with practical system scope.", ["Outdoor viewing", "Entertaining", "Lifestyle extension"], "bronze", signageTiers, ["outdoor", "garden", "terrace"], "entertainment", "balanced", ["HDBaseT", "AVoIP"], "/app/tools/proposal"),
     ],
   },
 ];

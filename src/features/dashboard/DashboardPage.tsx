@@ -1,305 +1,436 @@
 import * as React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  ArrowRight,
-  ClipboardList,
-  FileText,
-  FolderOpen,
-  History,
-  Import,
-  LayoutTemplate,
-  MonitorSmartphone,
-  PlusCircle,
-} from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
+import { ArrowRight, ClipboardList, FolderOpen, LayoutTemplate, PlusCircle } from "lucide-react";
 import {
   getActiveProject,
-  loadProjects,
-  setActiveProjectId,
   subscribeProjects,
 } from "@/features/projects/projectStore";
-import { getProjectResumeAction } from "@/features/projects/projectProductivity";
 
-type PrimaryPath = {
+type IconType = React.ComponentType<{ size?: string | number; className?: string }>;
+
+type ActionCard = {
   title: string;
+  description: string;
   to: string;
-  tone: "launch" | "import" | "template";
-  Icon: React.ComponentType<{ className?: string }>;
+  Icon: IconType;
 };
 
-type SpecialistTool = {
-  title: string;
-  to: string;
-};
-
-const primaryPaths: PrimaryPath[] = [
+const startCards: ActionCard[] = [
   {
     title: "Start a new project",
+    description: "Create a new Wingman project and begin requirements capture.",
     to: "/app/projects/new",
-    tone: "launch",
     Icon: PlusCircle,
   },
   {
     title: "Import a brief",
+    description: "Bring in customer notes or scope information and structure it.",
     to: "/app/tools/import-intake",
-    tone: "import",
-    Icon: Import,
+    Icon: ClipboardList,
   },
   {
     title: "Browse architecture starters",
+    description: "Use templates and proven solution patterns as a starting point.",
     to: "/app/tools/templates",
-    tone: "template",
     Icon: LayoutTemplate,
   },
 ];
 
-const specialistTools: SpecialistTool[] = [
-  { title: "Guided Project", to: "/app/tools/discovery" },
-  { title: "Proposal", to: "/app/tools/proposal" },
-  { title: "Products", to: "/app/tools/catalog" },
-  { title: "Video Wall", to: "/app/tools/video-wall" },
-  { title: "Competitor Compare", to: "/app/tools/compare" },
-  { title: "About Wingman", to: "/app/about-wingman" },
-];
+function CompactActionCard({
+  title,
+  description,
+  to,
+  Icon,
+  onOpen,
+}: ActionCard & { onOpen: (to: string) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(to)}
+      className="wm-card wm-dashboard-page__action-card"
+      style={{
+        display: "grid",
+        gridTemplateRows: "auto 1fr auto",
+        gap: 10,
+        minHeight: 95,
+        padding: 10,
+        textAlign: "left",
+        borderRadius: 16,
+        cursor: "pointer",
+        color: "var(--wm-text)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 10,
+        }}
+      >
+        <span
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 999,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "1px solid rgba(255,255,255,0.16)",
+          }}
+        >
+          <Icon size={16} />
+        </span>
 
-function formatUpdatedAt(value?: string): string {
-  if (!value) return "Recently updated";
+        <ArrowRight size={18} />
+      </div>
 
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
+      <div>
+        <div
+          style={{
+            fontSize: 18,
+            fontWeight: 700,
+            lineHeight: 1.15,
+            marginBottom: 6,
+          }}
+        >
+          {title}
+        </div>
+        <div
+          style={{
+            fontSize: 13,
+            opacity: 0.78,
+            lineHeight: 1.35,
+          }}
+        >
+          {description}
+        </div>
+      </div>
 
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
-  } catch {
-    return date.toLocaleString();
-  }
+      <div
+        style={{
+          fontSize: 12,
+          fontWeight: 700,
+          opacity: 0.86,
+        }}
+      >
+        Open
+      </div>
+    </button>
+  );
+}
+
+function RailLink({
+  title,
+  subtitle,
+  onClick,
+}: {
+  title: string;
+  subtitle: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="wm-card wm-dashboard-page__rail-link"
+      style={{
+        display: "grid",
+        gap: 6,
+        padding: 12,
+        minHeight: 84,
+        textAlign: "left",
+        borderRadius: 14,
+        cursor: "pointer",
+        color: "var(--wm-text)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+        }}
+      >
+        <span style={{ fontSize: 15, fontWeight: 700 }}>{title}</span>
+        <FolderOpen size={17} />
+      </div>
+      <span style={{ fontSize: 12, opacity: 0.72, lineHeight: 1.35 }}>{subtitle}</span>
+    </button>
+  );
 }
 
 export default function DashboardPage() {
   const navigate = useNavigate();
 
-  const projectsVersion = React.useSyncExternalStore(
+  const activeProject = React.useSyncExternalStore(
     subscribeProjects,
-    () => "projects-version",
-    () => "projects-version",
+    () => getActiveProject() ?? null,
+    () => null,
   );
 
-  const recentProjects = React.useMemo(() => {
-    void projectsVersion;
-    return loadProjects().slice(0, 5);
-  }, [projectsVersion]);
+  const activeProjectName = activeProject?.name ?? "No active project";
 
-  const activeProject = React.useMemo(() => {
-    void projectsVersion;
-    return getActiveProject() ?? null;
-  }, [projectsVersion]);
+  const activeProjectSubtitle = activeProject?.customer
+    ? activeProject.customer
+    : "Open an existing project or create a new one to continue.";
 
-  const activeResumeAction = React.useMemo(
-    () => (activeProject ? getProjectResumeAction(activeProject) : null),
-    [activeProject],
-  );
+  const pickUpWork = React.useMemo(() => {
+    if (!activeProject) {
+      return [];
+    }
+
+    return [
+      {
+        title: activeProject.name ?? "Active project",
+        subtitle: activeProject.customer || "Continue working on this project.",
+        to: "/app/projects",
+      },
+    ];
+  }, [activeProject]);
 
   return (
-    <div className="wm-page wm-dashboard-page">
-      <section className="wm-section wm-dashboard-page__mission-strip">
-        <div className="wm-dashboard-page__mission-head">
-          <div className="wm-dashboard-page__mission-copy">
-            <div className="wm-kicker">Mission Control</div>
-            <h1 className="wm-dashboard-page__mission-title">What do you want to move forward today?</h1>
+    <div
+      className="wm-dashboard-page"
+      style={{
+        display: "grid",
+        gap: 10,
+      }}
+    >
+      <section
+        className="wm-card wm-dashboard-page__hero"
+        style={{
+          padding: 12,
+          borderRadius: 18,
+          display: "grid",
+          gap: 8,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 8,
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                opacity: 0.72,
+                marginBottom: 4,
+              }}
+            >
+              Mission Control
+            </div>
+            <h1
+              style={{
+                margin: 0,
+                fontSize: 28,
+                lineHeight: 1.06,
+                fontWeight: 800,
+              }}
+            >
+              What do you want to move forward today?
+            </h1>
           </div>
 
-          <div className="wm-dashboard-page__mission-actions">
-            {activeProject && activeResumeAction ? (
-              <button
-                type="button"
-                className="wm-btn wm-btn-primary"
-                onClick={() => {
-                  setActiveProjectId(activeProject.id);
-                  navigate(activeResumeAction.to);
-                }}
-              >
-                Resume {activeResumeAction.shortLabel}
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="wm-btn wm-btn-primary"
-                onClick={() => navigate("/app/projects/new")}
-              >
-                Start New Project
-              </button>
-            )}
-
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              flexWrap: "wrap",
+            }}
+          >
             <button
               type="button"
-              className="wm-btn"
+              className="wm-btn-nav wm-btn-nav--primary"
+              onClick={() => navigate("/app/tools/discovery")}
+              style={{ minHeight: 38, padding: "0 14px", borderRadius: 12 }}
+            >
+              Resume Guided Project
+            </button>
+            <button
+              type="button"
+              className="wm-btn-nav"
               onClick={() => navigate("/app/tools/import-intake")}
+              style={{ minHeight: 38, padding: "0 14px", borderRadius: 12 }}
             >
               Import Customer Brief
             </button>
-
             <button
               type="button"
-              className="wm-btn"
+              className="wm-btn-nav"
               onClick={() => navigate("/app/projects")}
+              style={{ minHeight: 38, padding: "0 14px", borderRadius: 12 }}
             >
               Open Projects
             </button>
           </div>
         </div>
 
-        {activeProject ? (
-          <article className="wm-dashboard-page__active-card">
-            <div className="wm-dashboard-page__active-top">
-              <div>
-                <div className="wm-kicker">Active Project</div>
-                <div className="wm-title-lg">{activeProject.name}</div>
-              </div>
-              <Link
-                to={`/app/projects/${encodeURIComponent(activeProject.id)}`}
-                className="wm-btn"
-                onClick={() => setActiveProjectId(activeProject.id)}
-              >
-                Open workspace
-              </Link>
-            </div>
-
-            <div className="wm-dashboard-page__active-meta">
-              <span>{activeProject.customer || "Customer not set"}</span>
-              <span>{activeProject.site || activeProject.roomName || "Site not set"}</span>
-              <span>{formatUpdatedAt(activeProject.updatedAt)}</span>
-            </div>
-
-            {activeResumeAction ? (
-              <div className="wm-dashboard-page__active-next">
-                Next best move: {activeResumeAction.label}
-              </div>
-            ) : null}
-          </article>
-        ) : (
-          <div className="wm-dashboard-page__empty-banner">
-            <History className="h-4 w-4" />
-            <span>No active project selected. Use the launcher or pick up a recent opportunity below.</span>
+        <div
+          className="wm-card wm-dashboard-page__active-project"
+          style={{
+            padding: 10,
+            borderRadius: 16,
+            minHeight: "unset",
+            display: "grid",
+            gap: 8,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              opacity: 0.72,
+            }}
+          >
+            Active Project
           </div>
-        )}
+
+          <div
+            style={{
+              fontSize: 24,
+              fontWeight: 800,
+              lineHeight: 1.05,
+            }}
+          >
+            {activeProjectName}
+          </div>
+
+          <div
+            style={{
+              fontSize: 13,
+              opacity: 0.76,
+              lineHeight: 1.35,
+            }}
+          >
+            {activeProjectSubtitle}
+          </div>
+
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+            }}
+          >
+            Next best move:{" "}
+            <button
+              type="button"
+              onClick={() => navigate("/app/tools/discovery")}
+              style={{
+                background: "transparent",
+                border: "none",
+                padding: 0,
+                margin: 0,
+                cursor: "pointer",
+                font: "inherit",
+                fontWeight: 800,
+                color: "var(--wm-text)",
+              }}
+            >
+              Resume Guided Project
+            </button>
+          </div>
+        </div>
       </section>
 
-      <div className="wm-dashboard-page__main-grid">
-        <section className="wm-section">
-          <div className="wm-section__head">
-            <div className="wm-section__titles">
-              <h2>Start paths</h2>
-            </div>
+      <section
+        className="wm-dashboard-page__main-grid"
+        style={{
+          display: "grid",
+          gap: 10,
+          alignItems: "start",
+        }}
+      >
+        <div
+          className="wm-card wm-dashboard-page__start-panel"
+          style={{
+            padding: 12,
+            borderRadius: 18,
+            display: "grid",
+            gap: 8,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 800,
+              lineHeight: 1.1,
+            }}
+          >
+            Start a Project
           </div>
 
-          <div className="wm-dashboard-page__path-grid">
-            {primaryPaths.map(({ title, to, tone, Icon }) => (
-              <Link key={title} to={to} className={`wm-dashboard-page__path-card wm-dashboard-page__path-card--${tone}`}>
-                <div className="wm-dashboard-page__path-top">
-                  <div className="wm-dashboard-card__icon">
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <ArrowRight className="h-4 w-4" />
-                </div>
-                <div className="wm-title-md">{title}</div>
-              </Link>
+          <div
+            className="wm-dashboard__start-grid wm-dashboard-page__start-grid"
+            style={{
+              display: "grid",
+              gap: 10,
+            }}
+          >
+            {startCards.map((card) => (
+              <CompactActionCard
+                key={card.title}
+                {...card}
+                onOpen={(to) => navigate(to)}
+              />
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <aside className="wm-dashboard-page__right-rail">
-          <section className="wm-section wm-section--tone-cyan">
-            <div className="wm-section__head">
-              <div className="wm-section__titles">
-                <h2>Pick up work</h2>
-              </div>
-            </div>
+      <section
+        className="wm-card wm-dashboard-page__panel"
+        style={{
+          padding: 12,
+          borderRadius: 18,
+          display: "grid",
+          gap: 10,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 18,
+            fontWeight: 800,
+            lineHeight: 1.1,
+          }}
+        >
+          Pick up work
+        </div>
 
-            {recentProjects.length > 0 ? (
-              <div className="wm-dashboard-page__resume-list">
-                {recentProjects.map((project) => {
-                  const resumeAction = getProjectResumeAction(project);
-                  return (
-                    <Link
-                      key={project.id}
-                      to={`/app/projects/${encodeURIComponent(project.id)}`}
-                      className="wm-dashboard-page__resume-card"
-                      onClick={() => setActiveProjectId(project.id)}
-                    >
-                      <div className="wm-dashboard-page__resume-head">
-                        <div className="wm-title-md">{project.name}</div>
-                        <FolderOpen className="h-4 w-4" />
-                      </div>
-                      <div className="wm-body-sm">
-                        {[project.customer || "Wingman project", project.site || project.roomName || ""]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </div>
-                      <div className="wm-dashboard-page__resume-meta">
-                        <span>{resumeAction.shortLabel}</span>
-                        <span>{formatUpdatedAt(project.updatedAt)}</span>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="wm-dashboard-empty">
-                <History className="h-4 w-4" />
-                <div className="wm-body">No recent projects yet.</div>
-              </div>
-            )}
-          </section>
-
-          <section className="wm-section wm-section--tone-amber">
-            <div className="wm-section__head">
-              <div className="wm-section__titles">
-                <h2>Specialist tools</h2>
-              </div>
-            </div>
-
-            <div className="wm-dashboard-page__tool-cloud">
-              {specialistTools.map((tool) => (
-                <Link key={tool.title} to={tool.to} className="wm-chip wm-chip--tool-core">
-                  {tool.title}
-                </Link>
-              ))}
-            </div>
-          </section>
-        </aside>
-      </div>
-
-      <section className="wm-section wm-section--tone-indigo">
-        <div className="wm-section__head">
-          <div className="wm-section__titles">
-            <h2>Core workflow</h2>
+        {pickUpWork.length ? (
+          pickUpWork.map((item) => (
+            <RailLink
+              key={item.title}
+              title={item.title}
+              subtitle={item.subtitle}
+              onClick={() => navigate(item.to)}
+            />
+          ))
+        ) : (
+          <div
+            className="wm-card"
+            style={{
+              padding: 12,
+              borderRadius: 14,
+              fontSize: 13,
+              opacity: 0.78,
+              lineHeight: 1.4,
+            }}
+          >
+            No active work yet. Start a new project or import a brief.
           </div>
-        </div>
-
-        <div className="wm-dashboard-page__workflow-strip">
-          <Link to="/app/tools/discovery" className="wm-dashboard-page__workflow-pill">
-            <ClipboardList className="h-4 w-4" />
-            <span>Guided Project</span>
-          </Link>
-          <Link to="/app/tools/templates" className="wm-dashboard-page__workflow-pill">
-            <LayoutTemplate className="h-4 w-4" />
-            <span>Architecture</span>
-          </Link>
-          <Link to="/app/tools/catalog" className="wm-dashboard-page__workflow-pill">
-            <MonitorSmartphone className="h-4 w-4" />
-            <span>Products</span>
-          </Link>
-          <Link to="/app/tools/proposal" className="wm-dashboard-page__workflow-pill">
-            <FileText className="h-4 w-4" />
-            <span>Proposal</span>
-          </Link>
-        </div>
+        )}
       </section>
     </div>
   );

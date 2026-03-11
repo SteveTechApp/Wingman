@@ -1,29 +1,32 @@
 :root {
   --wm-bg: #07111d;
-  --wm-surface-1: #0b1625;
-  --wm-surface-2: #0f1b2d;
-  --wm-panel: #0e1c2d;
-  --wm-panel-2: #102236;
+  --wm-surface: #16273c;
+  --wm-surface-1: #102034;
+  --wm-surface-2: #182b42;
+  --wm-panel: #14263b;
+  --wm-panel-2: #1a3148;
 
   --wm-border: rgba(119,166,230,0.14);
   --wm-border-strong: rgba(119,166,230,0.22);
   --wm-border-soft: rgba(255,255,255,0.06);
 
-  --wm-text: #eef4ff;
-  --wm-text-soft: rgba(226,236,255,0.72);
-  --wm-text-dim: rgba(226,236,255,0.56);
+  --wm-text: #f3f8ff;
+  --wm-text-2: rgba(232, 240, 251, 0.9);
+  --wm-text-3: rgba(215, 227, 243, 0.86);
+  --wm-text-soft: rgba(226,236,255,0.8);
+  --wm-text-dim: rgba(226,236,255,0.68);
 
   --wm-accent: #3bd4d0;
   --wm-accent-blue: #4b8dff;
   --wm-orange: #f28c28;
   --wm-danger: #e46b78;
 
-  --wm-topbar-h: 46px;
+  --wm-topbar-h: 56px;
   --wm-sidebar-w: 220px;
   --wm-sidebar-collapsed: 64px;
-  --wm-footer-h: 46px;
+  --wm-footer-h: 64px;
   --wm-shell-topbar-h: var(--wm-topbar-h);
-  --wm-shell-footer-h: var(--wm-topbar-h);
+  --wm-shell-footer-h: var(--wm-footer-h);
 
   --wm-page-pad: 20px;
   --wm-gap: 18px;
@@ -31,6 +34,7 @@
   --wm-card-pad: 16px;
 
   --wm-radius: 14px;
+  --wm-radius-md: 14px;
   --wm-radius-sm: 10px;
   --wm-radius-lg: 18px;
 
@@ -50,6 +54,9 @@
 
   --wm-ls-tight: -0.02em;
   --wm-ls-normal: -0.01em;
+  --wm-shadow-sm: 0 12px 28px rgba(3, 12, 22, 0.2);
+  --wm-shadow: 0 22px 48px rgba(3, 12, 22, 0.24);
+  --wm-shadow-card: 0 16px 36px rgba(3, 12, 22, 0.22);
 }
 
 *,

@@ -13,17 +13,28 @@ import {
   type UseCaseGroup,
 } from "./templateCatalogExpanded";
 
+const TEMPLATE_SEED_KEY = "wm_template_seed";
+
+const TOOL_LABELS: Record<string, string> = {
+  "/app/tools/room-wizard": "Room Wizard",
+  "/app/tools/proposal": "Proposal Builder",
+  "/app/tools/catalog": "Product Catalogue",
+  "/app/tools/video-wall": "Video Wall Planner",
+};
+
 function SelectCard({
   title,
   text,
   active,
   accentRgb,
+  meta,
   onClick,
 }: {
   title: string;
   text: string;
   active?: boolean;
   accentRgb: string;
+  meta?: string;
   onClick: () => void;
 }) {
   return (
@@ -58,6 +69,19 @@ function SelectCard({
       >
         {text}
       </div>
+      {meta ? (
+        <div
+          style={{
+            marginTop: 10,
+            fontSize: 11,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.66)",
+          }}
+        >
+          {meta}
+        </div>
+      ) : null}
     </button>
   );
 }
@@ -137,6 +161,187 @@ function BulletList({
   );
 }
 
+function getToolLabel(path: string): string {
+  return TOOL_LABELS[path] ?? path.replace("/app/tools/", "").replace(/-/g, " ");
+}
+
+function roomAssumptions(room: RoomTemplate): string[] {
+  if (room.id.includes("boardroom")) {
+    return [
+      "Assumes 10-16 participants, dual-display expectation, and both table and in-room PC sources.",
+      "Assumes customer-facing presentations matter, so switching confidence and polished source changes are important.",
+      "Assumes installed signal paths and managed USB workflow are more important than ad hoc cabling.",
+      "Assumes the room should feel premium even if the first phase is value engineered.",
+    ];
+  }
+
+  if (room.id.includes("sports-bar") || room.id.includes("video-wall")) {
+    return [
+      "Assumes multiple displays need repeatable synchronised content delivery across the space.",
+      "Assumes the operator needs a simple daily workflow rather than a fragile one-off engineering setup.",
+      "Assumes visual impact is commercially important, so image routing credibility matters more than cosmetic extras.",
+      "Assumes the design may grow into more zones, sources, or layouts over time.",
+    ];
+  }
+
+  switch (room.useCaseGroup) {
+    case "collaboration":
+      return [
+        "Assumes a fast-start room where users expect laptop-first presentation with minimal training.",
+        "Assumes one primary display and a simple shared-content workflow are the baseline requirements.",
+        "Assumes users will arrive with mixed devices, so a dependable wired path must always remain available.",
+        "Assumes the room should stay easy to support even when trimmed for value.",
+      ];
+    case "training":
+      return [
+        "Assumes an instructor-led workflow with one clear presenter path and predictable display behaviour.",
+        "Assumes the room needs repeatability for different presenters, not just a one-user custom setup.",
+        "Assumes sightlines, source handoff, and straightforward room control are more important than gimmicks.",
+        "Assumes the system must remain credible for daily use even when budget pressure is high.",
+      ];
+    case "signage":
+      return [
+        "Assumes the display system runs for long periods and must stay operationally simple.",
+        "Assumes content reliability, basic control, and serviceable topology matter more than niche features.",
+        "Assumes the customer may standardise this pattern across additional spaces or screens.",
+        "Assumes the solution should support clean upgrades if the client later wants more zones or layouts.",
+      ];
+    case "entertainment":
+      return [
+        "Assumes guest or audience experience is visible, so source switching and display confidence must feel intentional.",
+        "Assumes the room may shift between casual playback and higher-impact event moments.",
+        "Assumes simple operator workflow is essential because specialist AV staff may not always be present.",
+        "Assumes value engineering must preserve the core experience, not just reduce line count.",
+      ];
+    case "meeting":
+    default:
+      return [
+        "Assumes a professional meeting workflow with reliable presentation and minimal friction for common source types.",
+        "Assumes the room must remain intuitive for infrequent users as well as daily hosts.",
+        "Assumes the baseline solution needs to be commercially credible before optional enhancements are added.",
+        "Assumes future improvements should slot in cleanly without redesigning the whole room.",
+      ];
+  }
+}
+
+function roomCredibility(room: RoomTemplate): string[] {
+  switch (room.useCaseGroup) {
+    case "collaboration":
+      return [
+        "Retain one dependable wired presentation path at all times.",
+        "Keep source switching obvious enough that a first-time user can succeed quickly.",
+        "Preserve display wake, handoff, and basic room control credibility.",
+      ];
+    case "training":
+      return [
+        "Preserve a stable instructor source path and a clear front-of-room workflow.",
+        "Keep room control and display routing simple enough for repeated presenters.",
+        "Ensure any cost reduction still leaves a room that works every day without operator workarounds.",
+      ];
+    case "signage":
+      return [
+        "Protect dependable content delivery to every required display or zone.",
+        "Keep control topology supportable and straightforward for site teams.",
+        "Do not compromise uptime or basic routing integrity for cosmetic savings.",
+      ];
+    case "entertainment":
+      return [
+        "Maintain fast content switching and a room feel that still satisfies guests or members.",
+        "Protect the visible impact of the space even when simplifying hardware.",
+        "Keep the operating workflow usable by non-specialist venue staff.",
+      ];
+    case "meeting":
+    default:
+      return [
+        "Retain a dependable presentation baseline with clean source handoff.",
+        "Keep the room intuitive enough for mixed users and visiting presenters.",
+        "Protect the core experience before adding premium enhancements.",
+      ];
+  }
+}
+
+function valueEngineeredMoves(room: RoomTemplate, tier: TierKey): string[] {
+  const tierLabel = TIER_ACCENTS[tier].label;
+  const shared = [
+    "Standardise on the core switching and transport path before adding premium room polish.",
+    "Keep one credible control workflow and remove nice-to-have complexity first.",
+    `If budget tightens, hold the ${tierLabel} functional baseline and defer expandable extras into phase two.`,
+  ];
+
+  switch (room.useCaseGroup) {
+    case "collaboration":
+      return [
+        "Keep single-display collaboration and wired BYOD as the protected baseline.",
+        "Defer premium wireless collaboration extras and non-essential UX refinements.",
+        ...shared,
+      ];
+    case "training":
+      return [
+        "Prioritise the presenter path, display distribution, and simple instructor control first.",
+        "Defer secondary zones, advanced room presets, or higher-end expansion until later.",
+        ...shared,
+      ];
+    case "signage":
+      return [
+        "Protect core display count and dependable content routing before adding advanced control layers.",
+        "Use a simpler distribution topology now, while leaving a clean migration path for more zones later.",
+        ...shared,
+      ];
+    case "entertainment":
+      return [
+        "Preserve the visible guest experience and dependable program switching first.",
+        "Trim premium flexibility or non-essential control embellishments before touching the core viewing path.",
+        ...shared,
+      ];
+    case "meeting":
+    default:
+      return [
+        "Protect everyday presentation reliability before enhancing flexibility.",
+        "Hold the room to one commercially credible workflow and defer convenience upgrades where needed.",
+        ...shared,
+      ];
+  }
+}
+
+function performanceUpgradeMoves(room: RoomTemplate, tier: TierKey): string[] {
+  const higherTier =
+    tier === "bronze" ? "Silver" : tier === "silver" ? "Gold" : "future expansion";
+
+  switch (room.useCaseGroup) {
+    case "collaboration":
+      return [
+        `Move toward ${higherTier} by improving USB workflow, source flexibility, and user confidence.`,
+        "Upgrade to stronger collaboration switching, better device support, and cleaner room behaviour.",
+        "Add higher-end room polish only after the presentation baseline is already reliable.",
+      ];
+    case "training":
+      return [
+        `Move toward ${higherTier} by improving presenter handoff, room flexibility, and trainer confidence.`,
+        "Add better source routing, clearer control, and stronger support for repeat multi-user sessions.",
+        "Upgrade in a way that improves teaching consistency, not just product count.",
+      ];
+    case "signage":
+      return [
+        `Move toward ${higherTier} by improving routing flexibility, control, and scale-readiness.`,
+        "Add stronger zone management, better content agility, and cleaner operator workflow.",
+        "Prioritise upgrades that make expansion or standardisation easier across the estate.",
+      ];
+    case "entertainment":
+      return [
+        `Move toward ${higherTier} by improving visible quality, routing confidence, and operational polish.`,
+        "Add higher-end distribution, more flexible event handling, and stronger customer-facing experience.",
+        "Focus premium spend where guests will actually notice the improvement.",
+      ];
+    case "meeting":
+    default:
+      return [
+        `Move toward ${higherTier} by improving presentation confidence, room flexibility, and premium finish.`,
+        "Add better switching options, cleaner source integration, and more polished control behaviour.",
+        "Use upgrades to reduce user friction as much as to raise technical headroom.",
+      ];
+  }
+}
+
 export default function TemplatesPage() {
   const nav = useNavigate();
 
@@ -147,6 +352,10 @@ export default function TemplatesPage() {
   const [marketId, setMarketId] = React.useState<string>(MARKETS[0].id);
   const [roomId, setRoomId] = React.useState<string>(MARKETS[0].roomTypes[0].id);
   const [tier, setTier] = React.useState<TierKey>(MARKETS[0].roomTypes[0].defaultTier);
+  const totalRoomProfiles = React.useMemo(
+    () => MARKETS.reduce((sum, market) => sum + market.roomTypes.length, 0),
+    [],
+  );
 
   const finderMatches = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -243,6 +452,10 @@ export default function TemplatesPage() {
 
   const tierProfile = room.tiers[tier];
   const tierAccent = TIER_ACCENTS[tier];
+  const assumptions = React.useMemo(() => roomAssumptions(room), [room]);
+  const credibility = React.useMemo(() => roomCredibility(room), [room]);
+  const valueMoves = React.useMemo(() => valueEngineeredMoves(room, tier), [room, tier]);
+  const upgradeMoves = React.useMemo(() => performanceUpgradeMoves(room, tier), [room, tier]);
 
   function selectMarket(nextMarketId: string) {
     const nextMarket = MARKETS.find((m) => m.id === nextMarketId) || MARKETS[0];
@@ -290,15 +503,13 @@ export default function TemplatesPage() {
         commercialNote: tierProfile.commercialNote,
       },
       includedSystems: tierProfile.includedSystems,
-      uplift: tierProfile.uplift,
+      uplift: [...tierProfile.uplift, ...upgradeMoves],
       projectName: market.name + " - " + room.name + " (" + tierProfile.label + ")",
-      recommendedFamilies: room.recommendedFamilies,
-      nextTool: room.nextTool,
       createdAt: new Date().toISOString(),
     };
 
     try {
-      sessionStorage.setItem("wm_template_seed", JSON.stringify(payload, null, 2));
+      sessionStorage.setItem(TEMPLATE_SEED_KEY, JSON.stringify(payload, null, 2));
     } catch {}
 
     nav("/app/projects");
@@ -327,7 +538,9 @@ export default function TemplatesPage() {
               lineHeight: 1.45,
             }}
           >
-            Use the template finder to narrow the options, then choose the application, room type, and capability tier.
+            Cover common room types fast, but keep the design commercially credible. Every template path includes
+            Bronze, Silver, and Gold positioning, with room assumptions, value-engineered moves, and performance
+            upgrades so we can right-size the answer without losing the function.
           </div>
         </div>
 
@@ -341,21 +554,21 @@ export default function TemplatesPage() {
               lineHeight: 1.45,
             }}
           >
-            Filter the catalog before you step through the selection flow.
+            Filter by application, budget posture, and room language before stepping through the scenario selection.
           </div>
 
           <div
             style={{
               marginTop: 14,
               display: "grid",
-              gridTemplateColumns: "minmax(0, 1.2fr) repeat(2, minmax(180px, 0.4fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
               gap: 12,
             }}
           >
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by room, use case, keyword, or product family"
+              placeholder="Search by room, market, keyword, family, or use case"
               style={{
                 height: 40,
                 borderRadius: 12,
@@ -407,12 +620,33 @@ export default function TemplatesPage() {
 
           <div
             style={{
-              marginTop: 10,
-              fontSize: 12,
-              color: "rgba(255,255,255,0.76)",
+              marginTop: 14,
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: 10,
             }}
           >
-            {finderMatches.length} matching room profile{finderMatches.length === 1 ? "" : "s"}
+            {[
+              `${MARKETS.length} vertical markets`,
+              `${totalRoomProfiles} room scenarios`,
+              `${totalRoomProfiles * TIER_ORDER.length} tiered pathways`,
+              `${finderMatches.length} current matches`,
+            ].map((item) => (
+              <div
+                key={item}
+                style={{
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: "rgba(255,255,255,0.03)",
+                  padding: "10px 12px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "rgba(255,255,255,0.88)",
+                }}
+              >
+                {item}
+              </div>
+            ))}
           </div>
         </section>
 
@@ -438,7 +672,7 @@ export default function TemplatesPage() {
               lineHeight: 1.45,
             }}
           >
-            Pick the vertical market first so the room choices stay relevant.
+            Start with the customer environment so the room templates stay grounded in how the space will actually be used.
           </div>
 
           <div
@@ -454,6 +688,7 @@ export default function TemplatesPage() {
                 key={item.id}
                 title={item.name}
                 text={item.summary}
+                meta={`${item.roomTypes.length} scenarios`}
                 active={item.id === market.id}
                 accentRgb={item.accentRgb}
                 onClick={() => selectMarket(item.id)}
@@ -484,7 +719,7 @@ export default function TemplatesPage() {
               lineHeight: 1.45,
             }}
           >
-            These room profiles are filtered to suit the selected market and current finder filters.
+            These are practical room patterns rather than abstract labels, so the tier guidance stays anchored to a believable use case.
           </div>
 
           <div
@@ -500,6 +735,7 @@ export default function TemplatesPage() {
                 key={item.id}
                 title={item.name}
                 text={item.short}
+                meta={`${item.useCases.length} typical use patterns`}
                 active={item.id === room.id}
                 accentRgb={market.accentRgb}
                 onClick={() => selectRoom(item.id)}
@@ -530,7 +766,7 @@ export default function TemplatesPage() {
               lineHeight: 1.45,
             }}
           >
-            Every tier remains functional. Each step up improves capability, flexibility, or user experience.
+            Bronze protects the function, Silver is the default sweet spot, and Gold expands experience, resilience, and commercial polish.
           </div>
 
           <div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -556,71 +792,140 @@ export default function TemplatesPage() {
               background: `linear-gradient(180deg, rgba(${tierAccent.rgb},0.12) 0%, rgba(${tierAccent.rgb},0.05) 100%)`,
               padding: 14,
               display: "grid",
-              gap: 10,
+              gap: 14,
             }}
           >
             <div
               style={{
-                fontSize: 11,
-                letterSpacing: "0.14em",
-                color: "rgba(255,255,255,0.72)",
-                textTransform: "uppercase",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: 14,
               }}
             >
-              Selected path
-            </div>
+              <div style={{ display: "grid", gap: 10 }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    letterSpacing: "0.14em",
+                    color: "rgba(255,255,255,0.72)",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Selected path
+                </div>
 
-            <div style={{ fontWeight: 900, fontSize: 18 }}>
-              {market.name} â†’ {room.name} â†’ {tierProfile.label}
-            </div>
+                <div style={{ fontWeight: 900, fontSize: 18 }}>
+                  {market.name} / {room.name} / {tierProfile.label}
+                </div>
 
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.88)", lineHeight: 1.5 }}>
-              {tierProfile.summary}
-            </div>
+                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.90)", lineHeight: 1.5 }}>
+                  {tierProfile.summary}
+                </div>
 
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.82)", lineHeight: 1.45 }}>
-              <strong>Performance:</strong> {tierProfile.performance}
-            </div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
+                  <strong>Positioning:</strong> {tierProfile.positioning}
+                </div>
 
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.82)", lineHeight: 1.45 }}>
-              <strong>Commercial note:</strong> {tierProfile.commercialNote}
-            </div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
+                  <strong>Performance:</strong> {tierProfile.performance}
+                </div>
 
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.86)", lineHeight: 1.45 }}>
-              <strong>Recommended families:</strong> {room.recommendedFamilies.join(", ")}
-            </div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
+                  <strong>Commercial note:</strong> {tierProfile.commercialNote}
+                </div>
 
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.86)", lineHeight: 1.45 }}>
-              <strong>Recommended next tool:</strong> {room.nextTool}
-            </div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
+                  <strong>Recommended families:</strong> {room.recommendedFamilies.join(", ")}
+                </div>
 
-            <div style={{ marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button
-                type="button"
-                className="wm-btn wm-btn-primary"
-                style={{ height: 40, padding: "0 16px" }}
-                onClick={seedTemplateIntoProject}
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
+                  <strong>Recommended next tool:</strong> {getToolLabel(room.nextTool)}
+                </div>
+
+                <div style={{ marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    className="wm-btn wm-btn-primary"
+                    style={{ height: 40, padding: "0 16px" }}
+                    onClick={seedTemplateIntoProject}
+                  >
+                    Create project from this template
+                  </button>
+
+                  <button
+                    type="button"
+                    className="wm-btn"
+                    style={{ height: 40, padding: "0 16px" }}
+                    onClick={goToRecommendedTool}
+                  >
+                    Continue to {getToolLabel(room.nextTool)}
+                  </button>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: "rgba(255,255,255,0.03)",
+                  padding: 12,
+                  display: "grid",
+                  gap: 12,
+                }}
               >
-                Create project from this template
-              </button>
+                <div style={{ fontWeight: 800, fontSize: 13 }}>Room assumptions</div>
+                <BulletList items={assumptions} accentRgb={tierAccent.rgb} />
+              </div>
+            </div>
 
-              <button
-                type="button"
-                className="wm-btn"
-                style={{ height: 40, padding: "0 16px" }}
-                onClick={goToRecommendedTool}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: 12,
+              }}
+            >
+              <div
+                style={{
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: "rgba(255,255,255,0.03)",
+                  padding: 12,
+                  display: "grid",
+                  gap: 10,
+                }}
               >
-                Continue to recommended tool
-              </button>
+                <div style={{ fontWeight: 800, fontSize: 13 }}>Core credibility</div>
+                <BulletList items={credibility} accentRgb={market.accentRgb} />
+              </div>
 
-              <button
-                type="button"
-                className="wm-btn"
-                style={{ height: 40, padding: "0 16px" }}
-                onClick={() => nav("/app/projects")}
+              <div
+                style={{
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: "rgba(255,255,255,0.03)",
+                  padding: 12,
+                  display: "grid",
+                  gap: 10,
+                }}
               >
-                Open Projects
-              </button>
+                <div style={{ fontWeight: 800, fontSize: 13 }}>Value-engineered option</div>
+                <BulletList items={valueMoves} accentRgb={TIER_ACCENTS.bronze.rgb} />
+              </div>
+
+              <div
+                style={{
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: "rgba(255,255,255,0.03)",
+                  padding: 12,
+                  display: "grid",
+                  gap: 10,
+                }}
+              >
+                <div style={{ fontWeight: 800, fontSize: 13 }}>Performance / technical upgrades</div>
+                <BulletList items={upgradeMoves} accentRgb={TIER_ACCENTS.gold.rgb} />
+              </div>
             </div>
           </div>
         </section>
@@ -628,7 +933,7 @@ export default function TemplatesPage() {
         <CollapsibleCard
           id="templates_more_detail"
           title="More detail"
-          subtitle="Additional context for the selected market, room, and tier."
+          subtitle="Commercial context, typical use, and included system behaviours for the selected path."
           defaultCollapsed
         >
           <div style={{ display: "grid", gap: 14 }}>
@@ -704,28 +1009,26 @@ export default function TemplatesPage() {
               </div>
             </div>
 
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 10 }}>
-                Included system behaviours
-              </div>
-              <BulletList items={tierProfile.includedSystems} accentRgb={tierAccent.rgb} />
-            </div>
-
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 10 }}>
-                Why this tier is stronger
-              </div>
-              <BulletList items={tierProfile.uplift} accentRgb={market.accentRgb} />
-            </div>
-
             <div
               style={{
-                fontSize: 13,
-                color: "rgba(255,255,255,0.86)",
-                lineHeight: 1.5,
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: 14,
               }}
             >
-              <strong>Positioning:</strong> {tierProfile.positioning}
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 10 }}>
+                  Included system behaviours
+                </div>
+                <BulletList items={tierProfile.includedSystems} accentRgb={tierAccent.rgb} />
+              </div>
+
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 10 }}>
+                  Why this tier is stronger
+                </div>
+                <BulletList items={tierProfile.uplift} accentRgb={market.accentRgb} />
+              </div>
             </div>
           </div>
         </CollapsibleCard>

@@ -136,7 +136,7 @@ export default function WorkspaceAdminPage() {
 
   if (mode !== "backend") {
     return (
-      <div className="wm-page">
+      <div className="wm-page wm-workspace-admin-page">
         <section className="wm-hero">
           <div className="wm-title-xl">Workspace Settings</div>
           <div className="wm-body-sm wm-page-subtitle">
@@ -149,7 +149,7 @@ export default function WorkspaceAdminPage() {
 
   if (!permissions.canManageWorkspace) {
     return (
-      <div className="wm-page">
+      <div className="wm-page wm-workspace-admin-page">
         <section className="wm-hero">
           <div className="wm-title-xl">Workspace Settings</div>
           <div className="wm-body-sm wm-page-subtitle">
@@ -161,7 +161,7 @@ export default function WorkspaceAdminPage() {
   }
 
   return (
-    <div className="wm-page">
+    <div className="wm-page wm-workspace-admin-page">
       <section className="wm-hero">
         <div className="wm-page-hero-row">
           <div>
