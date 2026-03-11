@@ -51,8 +51,19 @@ export default function TopBar({
   ];
 
   return (
-    <header className="wm-topbar">
-      <div className="wm-topbar__brand-row">
+    <header
+      className="wm-topbar"
+      
+    >
+      <div
+        className="wm-topbar__brand-row"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          minWidth: 0,
+        }}
+      >
         {showMobileMenu ? (
           <button
             type="button"
@@ -60,6 +71,7 @@ export default function TopBar({
             className="wm-topbar__menu-btn"
             aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={mobileNavOpen}
+            
           >
             {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -70,46 +82,76 @@ export default function TopBar({
           onClick={() => navigate(WM_ROUTES.dashboard)}
           className="wm-topbar__brand-btn"
           title="Go to Dashboard"
+          
         >
           <LogoMark />
         </button>
       </div>
 
-      <div className="wm-input-shell wm-topbar__project-pill">
-        <span className="wm-topbar__project-label">Active Project</span>
-        <strong>{activeProjectName}</strong>
+      <div
+        className="wm-input-shell wm-topbar__project-pill"
+        title={`Active project: ${activeProjectName}`}
+        aria-label={`Active project: ${activeProjectName}`}
+        
+      >
+        <strong
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            display: "block",
+            width: "100%",
+          }}
+        >
+          {activeProjectName}
+        </strong>
       </div>
 
-      <div className="wm-topbar__actions">
+      <div
+        className="wm-topbar__actions"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          gap: 8,
+          minWidth: 0,
+          flexWrap: "nowrap",
+        }}
+      >
         <button
           type="button"
           onClick={onOpenCommandPalette}
           className="wm-btn-nav wm-topbar__command-btn"
           aria-label="Open command palette"
+          
         >
           <Search size={14} />
           <span>Quick Find</span>
           {!showMobileMenu ? <kbd className="wm-topbar__command-kbd">Ctrl+K</kbd> : null}
         </button>
 
-        {!showMobileMenu ? navItems.map((item) => {
-          const active = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
-          return (
-            <button
-              key={item.to}
-              type="button"
-              onClick={() => navigate(item.to)}
-              className={`wm-btn-nav${active ? " is-active" : ""}`}
-            >
-              {item.label}
-            </button>
-          );
-        }) : null}
+        {!showMobileMenu
+          ? navItems.map((item) => {
+              const active = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
+              return (
+                <button
+                  key={item.to}
+                  type="button"
+                  onClick={() => navigate(item.to)}
+                  className={`wm-btn-nav${active ? " is-active" : ""}`}
+                  
+                >
+                  {item.label}
+                </button>
+              );
+            })
+          : null}
 
         <button
           type="button"
           onClick={() => navigate(WM_ROUTES.newProject)}
           className="wm-btn-nav wm-btn-nav--primary"
+          
         >
           + New Project
         </button>

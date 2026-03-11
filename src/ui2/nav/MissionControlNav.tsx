@@ -22,15 +22,15 @@ const NAV_ITEMS: NavItem[] = [
   { section: "Mission Control", tone: "mission", title: "Dashboard", short: "MC", to: "/app/dashboard" },
   { section: "Mission Control", tone: "mission", title: "Projects", short: "PR", to: "/app/projects" },
   { section: "Mission Control", tone: "mission", title: "Workspace", short: "WS", to: "/app/settings/workspace" },
-  { section: "Mission Control", tone: "mission", title: "Project Flow", short: "AW", to: "/app/dashboard" },
+  { section: "Mission Control", tone: "mission", title: "Project Flow", short: "PF", to: "/app/dashboard" },
 
   { section: "Workflow", tone: "workflow", title: "Guided Project", short: "GP", to: "/app/tools/discovery" },
-  { section: "Workflow", tone: "workflow", title: "Architecture", short: "A", to: "/app/dashboard" },
-  { section: "Workflow", tone: "workflow", title: "Products", short: "P", to: "/app/tools/catalog" },
+  { section: "Workflow", tone: "workflow", title: "Architecture", short: "AR", to: "/app/dashboard" },
+  { section: "Workflow", tone: "workflow", title: "Products", short: "PD", to: "/app/tools/catalog" },
   { section: "Workflow", tone: "workflow", title: "Proposal", short: "PB", to: "/app/tools/proposal" },
 
   { section: "Tools & Reference", tone: "tools", title: "Tool Hub", short: "TH", to: "/app/tools" },
-  { section: "Tools & Reference", tone: "tools", title: "Catalogue", short: "PC", to: "/app/tools/catalog" },
+  { section: "Tools & Reference", tone: "tools", title: "Catalogue", short: "CT", to: "/app/tools/catalog" },
   { section: "Tools & Reference", tone: "tools", title: "Competitors", short: "CC", to: "/app/tools/compare" },
   { section: "Tools & Reference", tone: "tools", title: "Video Wall", short: "VW", to: "/app/tools/video-wall" },
 ];
@@ -55,54 +55,112 @@ export default function MissionControlNav({ collapsed = false, onToggleCollapse 
     () => getActiveProject() ?? null,
     () => null,
   );
+
   const sections = React.useMemo(() => groupedItems(NAV_ITEMS), []);
 
   return (
-    <aside className={`wm-nav${collapsed ? " is-collapsed" : ""}`}>
-      <div className="wm-nav__top">
-        <div className="wm-nav__brand">
-          <div className="wm-nav__brand-mark">WM</div>
-          {!collapsed ? (
-            <div className="wm-nav__brand-copy">
-              <div className="wm-nav__brand-title">Wingman</div>
-              <div className="wm-nav__brand-subtitle">Guided project workspace</div>
-            </div>
-          ) : null}
-        </div>
-
+    <aside
+      className={`wm-nav${collapsed ? " is-collapsed" : ""}`}
+      style={{
+        display: "grid",
+        gridTemplateRows: "auto auto 1fr",
+        gap: 10,
+        padding: collapsed ? "8px 6px" : "10px 8px",
+      }}
+    >
+      <div
+        className="wm-nav__top"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: collapsed ? "center" : "flex-end",
+          gap: 8,
+        }}
+      >
         <button
           type="button"
           className="wm-nav__collapse"
           onClick={onToggleCollapse}
           aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
           title={collapsed ? "Expand navigation" : "Collapse navigation"}
+          style={{
+            minHeight: 28,
+            height: 28,
+            minWidth: 28,
+            width: 28,
+            borderRadius: 8,
+            padding: 0,
+          }}
         >
           {collapsed ? ">>" : "<<"}
         </button>
       </div>
 
-      <div className="wm-nav__active-card">
-        <div className="wm-nav__active-label">Active Project</div>
-        <div className="wm-nav__active-name">
+      <div
+        className="wm-nav__active-card"
+        style={{
+          padding: collapsed ? "8px 6px" : "8px 10px",
+          borderRadius: 12,
+        }}
+      >
+        {!collapsed ? <div className="wm-nav__active-label">Active Project</div> : null}
+        <div
+          className="wm-nav__active-name"
+          style={{
+            fontSize: collapsed ? 11 : 13,
+            lineHeight: 1.2,
+            fontWeight: 700,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
           {collapsed ? (activeProject?.name?.slice(0, 2) ?? "--") : (activeProject?.name ?? "No active project")}
         </div>
-        {!collapsed ? (
-          <div className="wm-nav__active-copy">
-            {activeProject
-              ? `${activeProject.customer || "Customer not set"} | ${activeProject.stage || "Discovery"}`
-              : "Create or select a project from Mission Control"}
-          </div>
-        ) : null}
       </div>
 
-      <div className="wm-nav__sections">
+      <div
+        className="wm-nav__sections"
+        style={{
+          display: "grid",
+          gap: 10,
+          alignContent: "start",
+        }}
+      >
         {sections.map((section) => (
-          <section key={section.section} className={`wm-nav__section wm-nav__section--${section.tone}`}>
+          <section
+            key={section.section}
+            className={`wm-nav__section wm-nav__section--${section.tone}`}
+            style={{
+              display: "grid",
+              gap: 4,
+              padding: 0,
+              margin: 0,
+            }}
+          >
             {!collapsed ? (
-              <div className="wm-nav__section-title">{section.section}</div>
+              <div
+                className="wm-nav__section-title"
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  padding: "0 2px",
+                  margin: 0,
+                }}
+              >
+                {section.section}
+              </div>
             ) : null}
 
-            <div className="wm-nav__list">
+            <div
+              className="wm-nav__list"
+              style={{
+                display: "grid",
+                gap: 4,
+              }}
+            >
               {section.items.map((item) => (
                 <NavLink
                   key={`${section.section}-${item.title}`}
@@ -111,12 +169,57 @@ export default function MissionControlNav({ collapsed = false, onToggleCollapse 
                     `wm-nav__item wm-nav__item--${item.tone}${isActive ? " is-active" : ""}${collapsed ? " is-collapsed" : ""}`
                   }
                   title={collapsed ? item.title : undefined}
+                  style={{
+                    minHeight: collapsed ? 34 : 38,
+                    height: collapsed ? 34 : 38,
+                    display: "grid",
+                    gridTemplateColumns: collapsed ? "1fr" : "28px 1fr",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: collapsed ? "0" : "0 10px",
+                    borderRadius: 10,
+                    textDecoration: "none",
+                  }}
                 >
-                  <span className="wm-nav__item-badge">{item.short}</span>
+                  <span
+                    className="wm-nav__item-badge"
+                    style={{
+                      width: 20,
+                      height: 20,
+                      minWidth: 20,
+                      borderRadius: 999,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 9,
+                      fontWeight: 700,
+                      justifySelf: collapsed ? "center" : "start",
+                    }}
+                  >
+                    {item.short}
+                  </span>
+
                   {!collapsed ? (
-                    <span className="wm-nav__item-copy">
-                      <span className="wm-nav__item-line">
-                        <span className="wm-nav__item-title">{item.title}</span>
+                    <span
+                      className="wm-nav__item-copy"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        minWidth: 0,
+                      }}
+                    >
+                      <span
+                        className="wm-nav__item-title"
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          fontSize: 13,
+                          fontWeight: 600,
+                          lineHeight: 1,
+                        }}
+                      >
+                        {item.title}
                       </span>
                     </span>
                   ) : null}
