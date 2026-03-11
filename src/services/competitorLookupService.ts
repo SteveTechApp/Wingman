@@ -2,6 +2,7 @@ import { z } from "zod";
 import compareSeed from "@/data/catalog/competitor-compare.seed.json";
 import { getCompetitorProducts, type CompetitorProduct } from "@/competitor/repository";
 import type { CatalogPortCount, CatalogVideo } from "@/catalog/types";
+import { captureCompetitorLookupRecord } from "@/services/liveProductDataStore";
 
 export type CompetitorLookupSource = "cache" | "backend" | "catalog" | "seed" | "synthetic";
 
@@ -640,6 +641,8 @@ export async function lookupCompetitorProduct(query: string): Promise<Competitor
   const backendAttempt = await lookupFromBackend(cleanQuery);
   warnings.push(...backendAttempt.warnings);
   if (backendAttempt.record) {
+    void captureCompetitorLookupRecord(backendAttempt.record).catch(() => undefined);
+
     writeCacheEntry(cacheKey, {
       record: backendAttempt.record,
       source: "backend",

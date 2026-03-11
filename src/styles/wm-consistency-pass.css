@@ -88,11 +88,11 @@
 
 .wm-topbar {
   display: grid;
-  grid-template-columns: 176px minmax(220px, 1fr) auto;
+  grid-template-columns: 332px minmax(220px, 1fr) auto;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-height: var(--wm-topbar-h);
-  padding: 0 10px;
+  padding: 0 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(180deg, rgba(12, 24, 39, 0.98), rgba(10, 21, 34, 0.97));
   backdrop-filter: blur(10px);
@@ -108,7 +108,7 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .wm-topbar__brand-btn {
@@ -122,7 +122,7 @@
   align-items: center;
   justify-content: flex-start;
   min-width: 0;
-  min-height: 36px;
+  min-height: 64px;
 }
 
 .wm-topbar__menu-btn {
@@ -143,8 +143,8 @@
 .wm-topbar__logo {
   display: block;
   width: auto;
-  max-width: 170px;
-  height: 32px;
+  max-width: 340px;
+  height: 64px;
   object-fit: contain;
   filter: drop-shadow(0 1px 6px rgba(49, 125, 209, 0.26));
 }
@@ -157,14 +157,14 @@
 }
 
 .wm-topbar__wordmark-main {
-  font-size: 20px;
+  font-size: 30px;
   font-weight: 900;
   color: #73e7ff;
   letter-spacing: -0.03em;
 }
 
 .wm-topbar__wordmark-sub {
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 800;
   color: #eef6ff;
   opacity: 0.9;
@@ -178,7 +178,7 @@
 }
 
 .wm-topbar__project-pill strong {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   color: #edf6ff;
   overflow: hidden;
@@ -1500,8 +1500,8 @@
   }
 
   .wm-topbar__logo {
-    max-width: 190px;
-    height: 32px;
+    max-width: 240px;
+    height: 44px;
   }
 
   .wm-topbar__menu-btn {
@@ -1672,8 +1672,8 @@
   }
 
   .wm-topbar__logo {
-    max-width: 138px;
-    height: 24px;
+    max-width: 200px;
+    height: 36px;
   }
 
   .wm-commandPalette__backdrop {
@@ -2830,10 +2830,12 @@ section{
 }
 
 .wm-compare-simple__search-input{
+  flex: 1 1 auto;
   border: 0;
   background: transparent;
   box-shadow: none;
   min-height: 62px;
+  min-width: 0;
   padding-left: 0;
   padding-right: 0;
   font-size: 18px;
@@ -2850,6 +2852,31 @@ section{
   background: transparent;
   box-shadow: none;
   color: rgba(248, 251, 255, 1);
+}
+
+.wm-compare-simple__clear-button{
+  flex: 0 0 auto;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(243, 248, 255, 0.92);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, transform 120ms ease;
+}
+
+.wm-compare-simple__clear-button:hover{
+  border-color: rgba(104, 184, 255, 0.32);
+  background: rgba(104, 184, 255, 0.14);
+  transform: translateY(-1px);
 }
 
 .wm-compare-simple__compare-button{
@@ -3834,18 +3861,204 @@ section{
   max-width: 980px;
 }
 
+.wm-guided-project-page__stepRail{
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.wm-guided-project-page__stepChip{
+  flex: 0 0 auto;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(222, 233, 248, 0.86);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.wm-guided-project-page__stepChip:hover{
+  border-color: rgba(115, 231, 255, 0.24);
+  transform: translateY(-1px);
+}
+
+.wm-guided-project-page__stepChip.is-active{
+  border-color: rgba(115, 231, 255, 0.28);
+  background: linear-gradient(90deg, rgba(17, 60, 102, 0.94), rgba(8, 35, 64, 0.94));
+  color: #f7fbff;
+}
+
+.wm-guided-project-page__stepChipIndex{
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.wm-guided-project-page__stepChip.is-active .wm-guided-project-page__stepChipIndex{
+  background: rgba(115, 231, 255, 0.16);
+}
+
+.wm-guided-project-page__stepChipLabel{
+  white-space: nowrap;
+}
+
+.wm-guided-project-page__stepChipMeta{
+  font-size: 11px;
+  color: rgba(188, 205, 227, 0.78);
+}
+
+.wm-guided-project-page__quickbar{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.wm-guided-project-page__quickPill,
+.wm-guided-project-page__quickMeta{
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(223, 234, 247, 0.84);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wm-guided-project-page__quickPill{
+  border-color: rgba(87, 231, 233, 0.18);
+  background: linear-gradient(135deg, rgba(7, 44, 56, 0.42), rgba(7, 23, 42, 0.72));
+  color: #eaffff;
+}
+
+.wm-guided-project-page__sectionTop{
+  margin-bottom: 0;
+}
+
 .wm-guided-project-page__readout{
   border-radius: 16px;
   border: 1px solid rgba(111, 232, 237, 0.18);
   background: linear-gradient(135deg, rgba(7, 26, 46, 0.92), rgba(11, 55, 63, 0.42));
-  padding: 14px;
+  padding: 12px 14px;
   display: grid;
-  gap: 10px;
+  gap: 8px;
+}
+
+.wm-guided-project-page__readout--compact{
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.12);
+}
+
+.wm-guided-project-page__readoutAside{
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
+.wm-guided-project-page__nextTool{
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(214, 238, 255, 0.82);
 }
 
 .wm-guided-project-page__questionStack{
   display: grid;
+  gap: 8px;
+}
+
+.wm-guided-project-page__questionStack--secondary .wm-gp__questionCard{
+  background: rgba(255, 255, 255, 0.018);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.wm-guided-project-page__wizardShell{
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: linear-gradient(180deg, rgba(8, 20, 35, 0.94), rgba(7, 16, 29, 0.98));
+  padding: 14px;
+}
+
+.wm-guided-project-page__callout{
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(115, 231, 255, 0.16);
+  background: linear-gradient(135deg, rgba(10, 38, 63, 0.72), rgba(8, 19, 37, 0.94));
+}
+
+.wm-guided-project-page__calloutTitle{
+  font-size: 13px;
+  font-weight: 800;
+  color: #f1fbff;
+}
+
+.wm-guided-project-page__calloutCopy{
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(214, 230, 246, 0.78);
+}
+
+.wm-gp__questionCard{
+  padding: 10px 12px;
+  gap: 6px;
+}
+
+.wm-gp__questionCard.is-focus{
+  border-color: rgba(115, 231, 255, 0.32);
+  background: linear-gradient(180deg, rgba(14, 48, 73, 0.56), rgba(7, 18, 33, 0.92));
+  box-shadow: 0 0 0 1px rgba(115, 231, 255, 0.08) inset;
+}
+
+.wm-guided-project-page__followupShell{
+  display: grid;
   gap: 10px;
+  padding-top: 2px;
+}
+
+.wm-guided-project-page__followupToggle{
+  justify-self: start;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.028);
+  color: rgba(228, 238, 249, 0.88);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wm-guided-project-page__followupToggle:hover{
+  border-color: rgba(255, 172, 87, 0.22);
+  background: rgba(255, 172, 87, 0.08);
+}
+
+.wm-guided-project-page__followupIntro{
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(192, 208, 226, 0.72);
+}
+
+.wm-guided-project-page__nav{
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 12px;
 }
 
 .wm-guided-project-page__drawers{
@@ -3860,19 +4073,9 @@ section{
   overflow: hidden;
 }
 
-.wm-guided-project-page__drawer--signal{
-  border-color: rgba(87, 231, 233, 0.18);
-  background: linear-gradient(135deg, rgba(12, 63, 72, 0.16), rgba(255, 255, 255, 0.02));
-}
-
-.wm-guided-project-page__drawer--clarify{
-  border-color: rgba(255, 172, 87, 0.18);
-  background: linear-gradient(135deg, rgba(92, 58, 18, 0.14), rgba(255, 255, 255, 0.02));
-}
-
-.wm-guided-project-page__drawer--governance{
+.wm-guided-project-page__drawer--coach{
   border-color: rgba(131, 151, 255, 0.18);
-  background: linear-gradient(135deg, rgba(43, 58, 122, 0.16), rgba(255, 255, 255, 0.02));
+  background: linear-gradient(135deg, rgba(28, 42, 88, 0.16), rgba(255, 255, 255, 0.02));
 }
 
 .wm-guided-project-page__drawer summary{
@@ -3902,10 +4105,20 @@ section{
   gap: 10px;
 }
 
+.wm-guided-project-page__drawer-grid--coach{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .wm-guided-project-page__lens-stack,
 .wm-project-overview-page__focus-stack{
   display: grid;
-  gap: 10px;
+  gap: 8px;
+}
+
+.wm-guided-project-page__governanceNote{
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(190, 206, 229, 0.72);
 }
 
 /* Project overview redesign */
@@ -4004,7 +4217,8 @@ section{
 @media (max-width: 1180px){
   .wm-dashboard-page__mission-head,
   .wm-dashboard-page__main-grid,
-  .wm-guided-project-page__drawer-grid{
+  .wm-guided-project-page__drawer-grid,
+  .wm-guided-project-page__drawer-grid--coach{
     grid-template-columns: 1fr;
   }
 
@@ -4017,6 +4231,14 @@ section{
   .wm-dashboard-page__mission-actions,
   .wm-guided-project-page__readout-top{
     justify-content: flex-start;
+  }
+
+  .wm-guided-project-page__readoutAside{
+    justify-items: start;
+  }
+
+  .wm-guided-project-page__wizardShell{
+    padding: 12px;
   }
 
   .wm-dashboard-page__mission-title{
@@ -4247,7 +4469,7 @@ header[class*="wm-"] {
 .wm-topbar img,
 .wm-header img,
 header[class*="wm-"] img {
-  max-height: 34px !important;
+  max-height: 72px !important;
   width: auto !important;
 }
 

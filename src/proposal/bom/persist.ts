@@ -1,4 +1,3 @@
-import * as React from "react";
 import { getActiveProjectId } from "@/features/projects/projectStore";
 import type { Proposal, BomLine } from "./types";
 import { applyPricingModel, inferBomLineCategory, money } from "./pricing";
