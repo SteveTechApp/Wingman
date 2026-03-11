@@ -6,10 +6,18 @@ import ProposalHandoffPanel from "@/features/proposals/ProposalHandoffPanel";
 import {
   getActiveProject,
   subscribeProjects,
+  type StoredProject,
   updateProject,
 } from "@/features/projects/projectStore";
 import { evaluateCommercialReadiness } from "@/features/readiness/commercialReadiness";
-import { computeTotals } from "@/proposal/bom/pricing";
+import {
+  getBomLineCoverage,
+  getCommercialTierProfile,
+  getTierCoverageSummary,
+  normalizePriceTier,
+  type BomLineCoverage,
+  type CommercialTier,
+} from "@/proposal/bom/pricing";
 import { useProposalStore } from "@/proposal/bom/store";
 
 type ProposalDraft = {
@@ -52,19 +60,19 @@ const FIELDS: ProposalField[] = [
   {
     id: "billOfMaterials",
     label: "Bill of materials notes",
-    placeholder: "Add BOM notes, pricing conditions, and dependencies.",
+    placeholder: "Add BOM notes, tier assumptions, and delivery dependencies.",
     rows: 4,
   },
   {
     id: "commercialNotes",
     label: "Commercial notes",
-    placeholder: "Commercial highlights, differentiators, and stakeholder guidance.",
+    placeholder: "Capture offer positioning, differentiators, and stakeholder guidance.",
     rows: 4,
   },
   {
     id: "assumptions",
     label: "Assumptions",
-    placeholder: "List project assumptions that influence scope and pricing.",
+    placeholder: "List project assumptions that influence scope and offer level.",
     rows: 3,
   },
   {
@@ -83,7 +91,40 @@ const EMPTY_DRAFT: ProposalDraft = {
   commercialNotes: "",
   assumptions: "",
   exclusions: "",
-  nextStep: "Send to internal pricing review",
+  nextStep: "Confirm offer tier and issue proposal pack",
+};
+
+const TIER_OPTIONS: Array<{ value: CommercialTier; label: string }> = [
+  { value: "Bronze", label: "Bronze - Low cost" },
+  { value: "Silver", label: "Silver - Medium cost" },
+  { value: "Gold", label: "Gold - High cost" },
+];
+
+const COVERAGE_ORDER: Record<BomLineCoverage["disposition"], number> = {
+  included: 0,
+  optional: 1,
+  held: 2,
+};
+
+const COVERAGE_STYLES: Record<
+  BomLineCoverage["disposition"],
+  { background: string; borderColor: string; color: string }
+> = {
+  included: {
+    background: "rgba(58, 122, 86, 0.12)",
+    borderColor: "rgba(58, 122, 86, 0.22)",
+    color: "#2f6a46",
+  },
+  optional: {
+    background: "rgba(194, 147, 45, 0.14)",
+    borderColor: "rgba(194, 147, 45, 0.22)",
+    color: "#8d6413",
+  },
+  held: {
+    background: "rgba(115, 126, 144, 0.12)",
+    borderColor: "rgba(115, 126, 144, 0.2)",
+    color: "#556273",
+  },
 };
 
 function hasText(value: string | undefined | null): boolean {
@@ -115,18 +156,6 @@ function writeDraft(projectId: string, draft: ProposalDraft): void {
   }
 }
 
-function formatCurrency(currency: string, amount: number): string {
-  if (!Number.isFinite(amount)) return "0.00";
-  if (currency === "GBP" || currency === "EUR" || currency === "USD") {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  }
-  return `${amount.toFixed(2)} ${currency}`;
-}
-
 function createProjectNotes(draft: ProposalDraft): string {
   const blocks = [
     hasText(draft.executiveSummary) ? `Executive summary:\n${draft.executiveSummary.trim()}` : "",
@@ -142,6 +171,17 @@ function createProjectNotes(draft: ProposalDraft): string {
   return blocks.join("\n\n");
 }
 
+function deriveSuggestedPriceTier(project: StoredProject | null | undefined): CommercialTier {
+  const tier = project?.proposal?.selectedTier ?? project?.template?.tier;
+  return normalizePriceTier(
+    tier === "Bronze" || tier === "Silver" || tier === "Gold" ? tier : undefined,
+  );
+}
+
+function joinCategories(categories: readonly string[]): string {
+  return categories.length > 0 ? categories.join(", ") : "None";
+}
+
 export default function ProposalBuilderPage() {
   const navigate = useNavigate();
   const activeProject = React.useSyncExternalStore(
@@ -151,9 +191,13 @@ export default function ProposalBuilderPage() {
   );
 
   const projectId = activeProject?.id ?? "default";
-  const [proposalState] = useProposalStore();
+  const [proposalState, proposalDispatch] = useProposalStore(projectId);
   const [draft, setDraft] = React.useState<ProposalDraft>(() => readDraft(projectId));
   const [savedAt, setSavedAt] = React.useState("");
+  const suggestedPriceTier = React.useMemo(
+    () => deriveSuggestedPriceTier(activeProject),
+    [activeProject],
+  );
 
   React.useEffect(() => {
     setDraft(readDraft(projectId));
@@ -164,9 +208,57 @@ export default function ProposalBuilderPage() {
     writeDraft(projectId, draft);
   }, [projectId, draft]);
 
-  const totals = React.useMemo(
-    () => computeTotals(proposalState.meta.currency, proposalState.lines),
-    [proposalState]
+  React.useEffect(() => {
+    const metaPatch: {
+      projectName?: string;
+      priceTier?: CommercialTier;
+    } = {};
+
+    if (activeProject?.name && proposalState.meta.projectName !== activeProject.name) {
+      metaPatch.projectName = activeProject.name;
+    }
+
+    if (!proposalState.meta.priceTier) {
+      metaPatch.priceTier = suggestedPriceTier;
+    }
+
+    if (Object.keys(metaPatch).length > 0) {
+      proposalDispatch({ type: "SET_META", patch: metaPatch });
+    }
+  }, [
+    activeProject?.name,
+    proposalDispatch,
+    proposalState.meta.priceTier,
+    proposalState.meta.projectName,
+    suggestedPriceTier,
+  ]);
+
+  const activePriceTier = normalizePriceTier(proposalState.meta.priceTier);
+  const tierProfile = React.useMemo(
+    () => getCommercialTierProfile(activePriceTier),
+    [activePriceTier],
+  );
+  const coverageSummary = React.useMemo(
+    () => getTierCoverageSummary(proposalState.lines, activePriceTier),
+    [proposalState.lines, activePriceTier],
+  );
+  const tieredLines = React.useMemo(
+    () =>
+      proposalState.lines
+        .map((line) => ({
+          line,
+          coverage: getBomLineCoverage(line, activePriceTier),
+        }))
+        .sort((left, right) => {
+          const byDisposition =
+            COVERAGE_ORDER[left.coverage.disposition] - COVERAGE_ORDER[right.coverage.disposition];
+
+          if (byDisposition !== 0) return byDisposition;
+          return (left.line.description || left.line.sku).localeCompare(
+            right.line.description || right.line.sku,
+          );
+        }),
+    [proposalState.lines, activePriceTier],
   );
 
   const hasNarrative =
@@ -198,6 +290,31 @@ export default function ProposalBuilderPage() {
     }));
   };
 
+  const updatePricingTier = (value: CommercialTier) => {
+    proposalDispatch({
+      type: "SET_META",
+      patch: {
+        priceTier: value,
+      },
+    });
+  };
+
+  const updateLineQty = (lineId: string, value: string) => {
+    const qty = Math.max(1, Number(value) || 1);
+    proposalDispatch({
+      type: "UPDATE_LINE",
+      id: lineId,
+      patch: { qty },
+    });
+  };
+
+  const removeLine = (lineId: string) => {
+    proposalDispatch({
+      type: "REMOVE_LINE",
+      id: lineId,
+    });
+  };
+
   const openCompletionWorkflow = () => {
     if (!activeProject?.id) {
       navigate(WM_ROUTES.completion);
@@ -214,6 +331,7 @@ export default function ProposalBuilderPage() {
       status: readiness.status,
       proposal: {
         ...(activeProject.proposal ?? {}),
+        selectedTier: activePriceTier,
         title:
           draft.executiveSummary.trim().slice(0, 120) ||
           activeProject.proposal?.title ||
@@ -233,7 +351,7 @@ export default function ProposalBuilderPage() {
           <div>
             <div className="wm-title-xl">Proposal Builder</div>
             <div className="wm-body-sm wm-page-subtitle">
-              Convert project requirements and selected products into a structured customer-ready output.
+              Turn the current BOM into a customer-ready proposal with low, medium, and high offer paths.
             </div>
             <div className="wm-body-sm wm-page-subtitle-muted">
               Active project: {activeProject?.name ?? "No active project selected"}
@@ -269,7 +387,7 @@ export default function ProposalBuilderPage() {
           <div className="wm-section__head">
             <div className="wm-section__titles">
               <h2>Proposal content</h2>
-              <p>Capture customer-safe narrative and commercial notes before handoff.</p>
+              <p>Capture the narrative and customer-safe framing before handoff.</p>
             </div>
           </div>
 
@@ -302,16 +420,100 @@ export default function ProposalBuilderPage() {
           <section className="wm-section">
             <div className="wm-section__head">
               <div className="wm-section__titles">
-                <h2>Output summary</h2>
-                <p>Check commercial baseline before generating final documents.</p>
+                <h2>Offer tiering</h2>
+                <p>Wingman does not hold pricing data, so tiers shape lean, balanced, and enhanced BOM options by default.</p>
               </div>
             </div>
 
-            <div className="wm-grid wm-proposal-builder-page__summary">
-              <div className="wm-body-sm">BOM lines: {proposalState.lines.length}</div>
-              <div className="wm-body-sm">Total sell: {formatCurrency(totals.currency, totals.totalSell)}</div>
-              <div className="wm-body-sm">Total cost: {formatCurrency(totals.currency, totals.totalCost)}</div>
-              <div className="wm-body-sm">Margin: {totals.grossMarginPct.toFixed(1)}%</div>
+            <div className="wm-form-grid">
+              <label className="wm-form-field">
+                <span className="wm-form-label">Offer tier</span>
+                <select
+                  className="wm-form-input"
+                  value={activePriceTier}
+                  onChange={(event) => updatePricingTier(event.target.value as CommercialTier)}
+                >
+                  {TIER_OPTIONS.map((tier) => (
+                    <option key={tier.value} value={tier.value}>
+                      {tier.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div
+              className="wm-work-card"
+              style={{
+                marginTop: 12,
+                display: "grid",
+                gap: 10,
+                background: "linear-gradient(135deg, rgba(247,250,252,0.96), rgba(237,244,249,0.92))",
+              }}
+            >
+              <div className="wm-title-lg">{tierProfile.scopeLabel}</div>
+              <div className="wm-body-sm">{tierProfile.description}</div>
+              <div className="wm-body-sm">
+                Suggested from project: {suggestedPriceTier}
+              </div>
+              <div className="wm-body-sm">
+                Included by default: {joinCategories(tierProfile.includedCategories)}
+              </div>
+              <div className="wm-body-sm">
+                Optional add-ons: {joinCategories(tierProfile.optionalCategories)}
+              </div>
+            </div>
+          </section>
+
+          <section className="wm-section">
+            <div className="wm-section__head">
+              <div className="wm-section__titles">
+                <h2>Offer summary</h2>
+                <p>See how much of the current BOM this tier carries by default.</p>
+              </div>
+            </div>
+
+            <div
+              className="wm-grid wm-proposal-builder-page__summary"
+              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}
+            >
+              <article className="wm-work-card">
+                <div className="wm-body-sm" style={{ opacity: 0.72 }}>Cost posture</div>
+                <div className="wm-title-lg" style={{ marginTop: 4 }}>{coverageSummary.costBand}</div>
+                <div className="wm-body-sm" style={{ marginTop: 4 }}>{activePriceTier}</div>
+              </article>
+
+              <article className="wm-work-card">
+                <div className="wm-body-sm" style={{ opacity: 0.72 }}>Included now</div>
+                <div className="wm-title-lg" style={{ marginTop: 4 }}>{coverageSummary.includedLines}</div>
+                <div className="wm-body-sm" style={{ marginTop: 4 }}>
+                  {coverageSummary.includedCoveragePct}% of lines
+                </div>
+              </article>
+
+              <article className="wm-work-card">
+                <div className="wm-body-sm" style={{ opacity: 0.72 }}>Optional</div>
+                <div className="wm-title-lg" style={{ marginTop: 4 }}>{coverageSummary.optionalLines}</div>
+                <div className="wm-body-sm" style={{ marginTop: 4 }}>
+                  {coverageSummary.optionalQty} total units
+                </div>
+              </article>
+
+              <article className="wm-work-card">
+                <div className="wm-body-sm" style={{ opacity: 0.72 }}>Held back</div>
+                <div className="wm-title-lg" style={{ marginTop: 4 }}>{coverageSummary.heldBackLines}</div>
+                <div className="wm-body-sm" style={{ marginTop: 4 }}>
+                  {coverageSummary.heldBackQty} total units
+                </div>
+              </article>
+
+              <article className="wm-work-card">
+                <div className="wm-body-sm" style={{ opacity: 0.72 }}>Current BOM</div>
+                <div className="wm-title-lg" style={{ marginTop: 4 }}>{coverageSummary.totalLines}</div>
+                <div className="wm-body-sm" style={{ marginTop: 4 }}>
+                  {coverageSummary.totalQty} total units
+                </div>
+              </article>
             </div>
           </section>
 
@@ -330,6 +532,115 @@ export default function ProposalBuilderPage() {
           </section>
         </div>
       </div>
+
+      <section className="wm-section">
+        <div className="wm-section__head">
+          <div className="wm-section__titles">
+            <h2>Tiered BOM review</h2>
+            <p>Check which lines are in, optional, or held back for the selected offer level.</p>
+          </div>
+        </div>
+
+        {tieredLines.length > 0 ? (
+          <div className="wm-grid" style={{ gap: 12 }}>
+            {tieredLines.map(({ line, coverage }) => {
+              const coverageStyle = COVERAGE_STYLES[coverage.disposition];
+              const quantity = line.qty || 1;
+
+              return (
+                <article key={line.id} className="wm-work-card" style={{ display: "grid", gap: 12 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      alignItems: "flex-start",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <div>
+                      <div className="wm-title-lg">{line.description || line.sku}</div>
+                      <div className="wm-body-sm" style={{ opacity: 0.74 }}>
+                        {line.sku}
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      <span className="wm-chip">{coverage.category}</span>
+                      <span
+                        className="wm-chip"
+                        style={{
+                          background: coverageStyle.background,
+                          borderColor: coverageStyle.borderColor,
+                          color: coverageStyle.color,
+                        }}
+                      >
+                        {coverage.label}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+                      gap: 10,
+                      alignItems: "end",
+                    }}
+                  >
+                    <label className="wm-form-field" style={{ marginBottom: 0 }}>
+                      <span className="wm-form-label">Qty</span>
+                      <input
+                        className="wm-form-input"
+                        type="number"
+                        min={1}
+                        step={1}
+                        value={quantity}
+                        onChange={(event) => updateLineQty(line.id, event.target.value)}
+                      />
+                    </label>
+
+                    <div className="wm-body-sm">
+                      Offer status
+                      <div className="wm-title-lg" style={{ marginTop: 4 }}>
+                        {coverage.label}
+                      </div>
+                    </div>
+
+                    <div className="wm-body-sm" style={{ gridColumn: "span 2" }}>
+                      Tier note
+                      <div style={{ marginTop: 4, opacity: 0.84 }}>
+                        {coverage.reason}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="wm-btn"
+                      onClick={() => removeLine(line.id)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+
+                  {hasText(line.notes) ? (
+                    <div className="wm-body-sm" style={{ opacity: 0.76 }}>
+                      {line.notes}
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="wm-work-card">
+            <div className="wm-title-lg">No BOM lines yet</div>
+            <div className="wm-body" style={{ marginTop: 6 }}>
+              Add SKUs from Guru or the catalogue to start shaping Bronze, Silver, and Gold offer levels.
+            </div>
+          </div>
+        )}
+      </section>
 
       <ProposalHandoffPanel
         status={readiness.status}

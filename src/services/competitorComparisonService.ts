@@ -1,6 +1,7 @@
 import compareSeed from "@/data/catalog/competitor-compare.seed.json";
 import {
   enrichCatalogProduct,
+  findCatalogProductBySku,
   getCatalogProducts,
   normalizeCatalogProduct,
   type CatalogPortCount,
@@ -56,7 +57,9 @@ export type CompetitorComparisonRecord = {
   features: string[];
   ioComparison?: string;
   wyrestormSku: string;
+  wyrestormName?: string;
   wyrestormCategory: string;
+  wyrestormVerified?: boolean;
   confidence: CompareConfidence;
   matchScore?: number;
   rationale: string;
@@ -105,6 +108,45 @@ function normalizeId(value: unknown): string {
 
 function normalizeSku(value: unknown): string {
   return tidy(value).toUpperCase();
+}
+
+function formatWyrestormCategory(product: CatalogProduct): string {
+  return `${product.family}${product.category ? ` / ${product.category}` : ""}`;
+}
+
+function resolveWyrestormReference(input?: {
+  sku?: string;
+  category?: string;
+}): {
+  sku: string;
+  name?: string;
+  category: string;
+  verified: boolean;
+  notes: string[];
+} {
+  const sku = normalizeSku(input?.sku);
+  const catalogProduct = sku ? findCatalogProductBySku(sku) : undefined;
+
+  if (catalogProduct) {
+    return {
+      sku: catalogProduct.sku,
+      name: tidy(catalogProduct.name) || undefined,
+      category: formatWyrestormCategory(catalogProduct),
+      verified: true,
+      notes: [],
+    };
+  }
+
+  const hintedReference = tidy(input?.sku) || tidy(input?.category);
+  return {
+    sku: "Manual review required",
+    name: undefined,
+    category: "Unverified / manual review",
+    verified: false,
+    notes: hintedReference
+      ? [`Stored comparison reference "${hintedReference}" is not a verified WyreStorm catalog SKU.`]
+      : ["No verified WyreStorm catalog SKU is currently confirmed for this comparison."],
+  };
 }
 
 function toRecordId(brand: string, sku: string): string {
@@ -341,6 +383,11 @@ function fallbackSeedRecord(product: CompetitorProduct): CompetitorComparisonRec
 
   if (!match) return null;
 
+  const resolvedWyrestorm = resolveWyrestormReference({
+    sku: match.wyrestormSku,
+    category: match.wyrestormCategory,
+  });
+
   return {
     brand: tidy(match.brand) || tidy(product.brand) || "Unknown",
     competitorSku: normalizeSku(match.competitorSku || product.sku),
@@ -348,12 +395,21 @@ function fallbackSeedRecord(product: CompetitorProduct): CompetitorComparisonRec
     category: tidy(match.category) || tidy(product.category) || "Uncategorized",
     summary: tidy(match.summary) || tidy(product.summary) || "Seed comparison record.",
     features: Array.isArray(match.features) ? match.features.map((item) => tidy(item)).filter(Boolean) : [],
-    wyrestormSku: tidy(match.wyrestormSku) || "Needs review",
-    wyrestormCategory: tidy(match.wyrestormCategory) || "Needs review",
-    confidence: match.confidence || "Low",
-    rationale: tidy(match.rationale) || "Seed fallback used because deterministic candidate scoring returned no result.",
+    wyrestormSku: resolvedWyrestorm.sku,
+    wyrestormName: resolvedWyrestorm.name,
+    wyrestormCategory: resolvedWyrestorm.category,
+    wyrestormVerified: resolvedWyrestorm.verified,
+    confidence: resolvedWyrestorm.verified ? match.confidence || "Low" : "Low",
+    rationale: resolvedWyrestorm.verified
+      ? tidy(match.rationale) || "Seed fallback used because deterministic candidate scoring returned no result."
+      : "Seed comparison captured this competitor, but it does not yet point to a verified WyreStorm catalog SKU. Manual mapping is required before sharing a replacement.",
     recommendedFamilies: Array.isArray(match.recommendedFamilies) ? match.recommendedFamilies : ["Apollo"],
-    notes: Array.isArray(match.notes) ? match.notes.map((item) => tidy(item)).filter(Boolean) : [],
+    notes: Array.from(
+      new Set([
+        ...resolvedWyrestorm.notes,
+        ...(Array.isArray(match.notes) ? match.notes.map((item) => tidy(item)).filter(Boolean) : []),
+      ]),
+    ),
     provenance: toComparisonProvenance("curated", {
       source: "seed",
       label: "Seed comparison dataset",
@@ -380,10 +436,12 @@ function toComparisonRecord(
     features: Array.isArray(competitor.features) ? competitor.features.map((item) => tidy(item)).filter(Boolean) : [],
     ioComparison: candidate.ioSummary,
     wyrestormSku: candidate.product.sku,
-    wyrestormCategory: `${candidate.product.family}${candidate.product.category ? ` / ${candidate.product.category}` : ""}`,
+    wyrestormName: tidy(candidate.product.name) || undefined,
+    wyrestormCategory: formatWyrestormCategory(candidate.product),
+    wyrestormVerified: true,
     confidence: scoreToConfidence(candidate.score),
     matchScore: candidate.score,
-    rationale: `Closest WyreStorm fit: ${candidate.product.sku} (${candidate.product.name}). ${matchSummary}`,
+    rationale: `Closest verified WyreStorm fit: ${candidate.product.sku} (${candidate.product.name}). ${matchSummary}`,
     recommendedFamilies: inferRecommendedFamilies(candidate.product),
     notes: [
       ...candidate.notes,
@@ -420,7 +478,7 @@ async function withIntelligenceAssessment(
     const assessment = await assessComparisonIntelligence({
       competitorBrand: record.brand,
       competitorSku: record.competitorSku,
-      wyrestormSku: record.wyrestormSku,
+      wyrestormSku: record.wyrestormVerified === false ? undefined : record.wyrestormSku,
       query: input.query,
       baselineScore: input.baselineScore,
     });
@@ -504,18 +562,32 @@ function buildCuratedRecords(): CompetitorComparisonRecord[] {
     const id = toRecordId(brand, sku);
     if (records.some((item) => toRecordId(item.brand, item.competitorSku) === id)) continue;
 
+    const resolvedWyrestorm = resolveWyrestormReference({
+      sku: row.wyrestormSku,
+      category: row.wyrestormCategory,
+    });
+
     records.push({
       brand,
       competitorSku: sku,
       category: tidy(row.category) || "Uncategorized",
       summary: tidy(row.summary) || "Seed comparison record.",
       features: Array.isArray(row.features) ? row.features.map((item) => tidy(item)).filter(Boolean) : [],
-      wyrestormSku: tidy(row.wyrestormSku) || "Needs review",
-      wyrestormCategory: tidy(row.wyrestormCategory) || "Needs review",
-      confidence: row.confidence || "Low",
-      rationale: tidy(row.rationale) || "Imported from comparison seed.",
+      wyrestormSku: resolvedWyrestorm.sku,
+      wyrestormName: resolvedWyrestorm.name,
+      wyrestormCategory: resolvedWyrestorm.category,
+      wyrestormVerified: resolvedWyrestorm.verified,
+      confidence: resolvedWyrestorm.verified ? row.confidence || "Low" : "Low",
+      rationale: resolvedWyrestorm.verified
+        ? tidy(row.rationale) || "Imported from comparison seed."
+        : "Imported seed record does not yet point to a verified WyreStorm catalog SKU. Manual review is required before sharing a replacement.",
       recommendedFamilies: Array.isArray(row.recommendedFamilies) ? row.recommendedFamilies : ["Apollo"],
-      notes: Array.isArray(row.notes) ? row.notes.map((item) => tidy(item)).filter(Boolean) : [],
+      notes: Array.from(
+        new Set([
+          ...resolvedWyrestorm.notes,
+          ...(Array.isArray(row.notes) ? row.notes.map((item) => tidy(item)).filter(Boolean) : []),
+        ]),
+      ),
       provenance: toComparisonProvenance("curated", {
         source: "seed",
         label: "Seed comparison dataset",
@@ -537,6 +609,7 @@ function toSearchString(item: CompetitorComparisonRecord): string {
     item.category,
     item.summary,
     item.wyrestormSku,
+    item.wyrestormName,
     item.wyrestormCategory,
     item.rationale,
     item.provenance?.label,
@@ -619,12 +692,13 @@ export async function lookupAndCompare(query: string): Promise<LookupAndCompareR
       category: tidy(competitor.category) || "Uncategorized",
       summary: tidy(competitor.summary) || "Lookup completed but no deterministic WyreStorm candidate was found.",
       features: Array.isArray(competitor.features) ? competitor.features.map((item) => tidy(item)).filter(Boolean) : [],
-      wyrestormSku: "Needs manual mapping",
-      wyrestormCategory: "Manual review",
+      wyrestormSku: "Manual review required",
+      wyrestormCategory: "Unverified / manual review",
+      wyrestormVerified: false,
       confidence: "Low",
-      rationale: "Lookup record was captured, but automatic mapping did not find a confident candidate.",
+      rationale: "Lookup record was captured, but no verified WyreStorm catalog SKU could be confirmed automatically.",
       recommendedFamilies: ["Apollo"],
-      notes: ["Review competitor specs and map manually in catalog workflow."],
+      notes: ["Review competitor specs and map to a verified WyreStorm catalog SKU before sharing the recommendation."],
       provenance: toComparisonProvenance("lookup", lookup.provenance),
     };
     const assessedFallback = await withIntelligenceAssessment(fallback, {
@@ -664,7 +738,9 @@ export function toProjectCompareRecord(item: CompetitorComparisonRecord): Projec
     summary: item.summary,
     features: item.features,
     wyrestormSku: item.wyrestormSku,
+    wyrestormName: item.wyrestormName,
     wyrestormCategory: item.wyrestormCategory,
+    wyrestormVerified: item.wyrestormVerified,
     confidence: item.confidence,
     rationale: item.rationale,
     recommendedFamilies: item.recommendedFamilies,

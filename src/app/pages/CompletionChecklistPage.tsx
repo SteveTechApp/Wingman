@@ -201,7 +201,8 @@ function InfoCard({
 export default function CompletionChecklistPage() {
   const nav = useNavigate();
   const { id } = useParams<{ id?: string }>();
-  const [proposalState] = useProposalStore();
+  const proposalStateProjectId = id ?? getActiveProject()?.id ?? "draft";
+  const [proposalState] = useProposalStore(proposalStateProjectId);
   const { permissions } = useAuth();
 
   const templateSeed = React.useMemo(

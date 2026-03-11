@@ -92,7 +92,9 @@ export type ProjectCompareRecord = {
   summary?: string;
   features?: string[];
   wyrestormSku: string;
+  wyrestormName?: string;
   wyrestormCategory?: string;
+  wyrestormVerified?: boolean;
   confidence: CompareConfidence;
   rationale?: string;
   recommendedFamilies?: DiscoveryProductFamily[];
@@ -415,6 +417,8 @@ function normalizeCompare(compare?: ProjectCompareRecord): ProjectCompareRecord 
     competitorSku: compare.competitorSku ?? "",
     category: compare.category ?? "",
     wyrestormSku: compare.wyrestormSku ?? "",
+    wyrestormName: typeof compare.wyrestormName === "string" ? compare.wyrestormName : undefined,
+    wyrestormVerified: typeof compare.wyrestormVerified === "boolean" ? compare.wyrestormVerified : undefined,
     confidence: compare.confidence ?? "Medium",
     features: Array.isArray(compare.features) ? compare.features.filter((x): x is string => typeof x === "string") : [],
     notes: Array.isArray(compare.notes) ? compare.notes.filter((x): x is string => typeof x === "string") : [],
@@ -927,7 +931,9 @@ export function applyCompareToProject(
     normalized.rationale ? `Rationale: ${normalized.rationale}` : "",
     normalized.notes?.length ? `Compare notes: ${normalized.notes.join("; ")}` : "",
     `Competitor SKU: ${normalized.brand} ${normalized.competitorSku}`,
-    `WyreStorm direction: ${normalized.wyrestormSku}`,
+    normalized.wyrestormVerified === false
+      ? "WyreStorm mapping: Manual review required (no verified catalog SKU confirmed)."
+      : `WyreStorm SKU: ${normalized.wyrestormSku}${normalized.wyrestormName ? ` (${normalized.wyrestormName})` : ""}`,
   ].filter(Boolean);
 
   const mergedNotes = notesParts.join("\n\n");

@@ -8,6 +8,11 @@ import {
   ScanSearch,
 } from "lucide-react";
 
+import {
+  clearTemplateSeed,
+  readTemplateSeed,
+  type TemplateSeed as WorkbenchTemplateSeed,
+} from "@/app/schema/templateSeed";
 import RecentTextInput from "@/components/RecentTextInput";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
 import {
@@ -20,6 +25,7 @@ import {
   loadProjects,
   setActiveProjectId,
   subscribeProjects,
+  type DiscoveryProductFamily,
   type StoredProject,
 } from "@/features/projects/projectStore";
 import { getProjectResumeAction } from "@/features/projects/projectProductivity";
@@ -68,11 +74,59 @@ const START_METHODS: StartMethod[] = [
   },
 ];
 
+const RECOMMENDED_FAMILIES: DiscoveryProductFamily[] = [
+  "Apollo",
+  "HDBaseT",
+  "AVoIP",
+  "Matrix",
+  "USB Extension",
+  "Video Wall",
+];
+
+function normalizeRecommendedFamilies(
+  values?: string[],
+): DiscoveryProductFamily[] | undefined {
+  if (!Array.isArray(values)) return undefined;
+  return values.filter((value): value is DiscoveryProductFamily =>
+    RECOMMENDED_FAMILIES.includes(value as DiscoveryProductFamily)
+  );
+}
+
+function getToolLabel(path?: string): string {
+  if (path === WM_ROUTES.roomDesigner) return "Room Wizard";
+  if (path === WM_ROUTES.proposals) return "Proposal Builder";
+  if (path === WM_ROUTES.catalogue) return "Product Catalogue";
+  if (path === WM_ROUTES.videowall) return "Video Wall Planner";
+  if (!path) return "Guided Project";
+  return path.replace("/app/tools/", "").replace(/-/g, " ");
+}
+
+function buildTemplateNotes(seed: WorkbenchTemplateSeed): string {
+  const blocks = [
+    `${seed.verticalMarket.name} / ${seed.roomType.name} / ${seed.tier.label}`,
+    seed.tier.summary,
+    seed.includedSystems.length
+      ? `Included systems: ${seed.includedSystems.join("; ")}`
+      : "",
+    seed.assumptions?.length
+      ? `Assumptions: ${seed.assumptions.join("; ")}`
+      : "",
+    seed.uplift.length
+      ? `Commercial uplift: ${seed.uplift.join("; ")}`
+      : "",
+  ].filter(Boolean);
+
+  return blocks.join("\n\n");
+}
+
 export default function ProjectNewPage() {
   const nav = useNavigate();
   const [name, setName] = React.useState("");
   const [customer, setCustomer] = React.useState("");
   const [site, setSite] = React.useState("");
+  const [templateSeed, setTemplateSeed] = React.useState<WorkbenchTemplateSeed | null>(() =>
+    readTemplateSeed()
+  );
   const recentProjects = React.useSyncExternalStore(
     subscribeProjects,
     () => loadProjects().slice(0, 3),
@@ -82,15 +136,57 @@ export default function ProjectNewPage() {
   const recentSites = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.site).slice(0, 3);
   const recentRooms = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.roomName).slice(0, 3);
 
+  React.useEffect(() => {
+    if (!templateSeed) return;
+    setName((current) => current.trim() ? current : templateSeed.projectName);
+  }, [templateSeed]);
+
   function createShell(methodTitle: string) {
-    return createProject({
-      name: name.trim() || `${methodTitle} Project`,
+    const recommendedFamilies = normalizeRecommendedFamilies(templateSeed?.recommendedFamilies);
+    const project = createProject({
+      name: name.trim() || templateSeed?.projectName || `${methodTitle} Project`,
       customer: customer.trim(),
       site: site.trim(),
-      roomName: name.trim() || "",
+      roomName: name.trim() || templateSeed?.roomType.name || "",
       stage: "Discovery",
       status: "Draft",
+      notes: templateSeed ? buildTemplateNotes(templateSeed) : "",
+      discovery: templateSeed
+        ? {
+            customer: customer.trim(),
+            site: site.trim(),
+            roomName: name.trim() || templateSeed.roomType.name,
+            applicationType: templateSeed.roomType.name,
+            notes: buildTemplateNotes(templateSeed),
+            recommendedFamilies,
+            recommendedNextTool: templateSeed.recommendedTool,
+            createdAt: templateSeed.createdAt,
+          }
+        : undefined,
+      template: templateSeed
+        ? {
+            market: templateSeed.verticalMarket.name,
+            application: templateSeed.roomType.name,
+            tier: templateSeed.tier.label as "Bronze" | "Silver" | "Gold",
+            summary: templateSeed.tier.summary,
+            recommendedFamilies,
+            assumptions: templateSeed.assumptions,
+            createdAt: templateSeed.createdAt,
+          }
+        : undefined,
+      proposal: templateSeed
+        ? {
+            selectedTier: templateSeed.tier.label,
+          }
+        : undefined,
     });
+
+    if (templateSeed) {
+      clearTemplateSeed();
+      setTemplateSeed(null);
+    }
+
+    return project;
   }
 
   function startWith(method: StartMethod) {
@@ -101,6 +197,16 @@ export default function ProjectNewPage() {
   function createBlankWorkspace() {
     const project = createShell("New");
     nav(`/app/projects/${encodeURIComponent(project.id)}`);
+  }
+
+  function startFromSelectedTemplate() {
+    createShell("Template");
+    nav(templateSeed?.recommendedTool || WM_ROUTES.discovery);
+  }
+
+  function discardSelectedTemplate() {
+    clearTemplateSeed();
+    setTemplateSeed(null);
   }
 
   function applyProjectContext(project: StoredProject) {
@@ -132,6 +238,52 @@ export default function ProjectNewPage() {
           </div>
         </div>
       </section>
+
+      {templateSeed ? (
+        <section className="wm-section">
+          <div className="wm-section__head">
+            <div className="wm-section__titles">
+              <h2>Template starter loaded</h2>
+              <p>
+                {templateSeed.verticalMarket.name} / {templateSeed.roomType.name} / {templateSeed.tier.label}
+              </p>
+            </div>
+          </div>
+
+          <article className="wm-work-card" style={{ display: "grid", gap: 14 }}>
+            <div className="wm-body">
+              {templateSeed.tier.summary}
+            </div>
+
+            <div className="wm-body-sm" style={{ opacity: 0.78 }}>
+              Recommended next step: {getToolLabel(templateSeed.recommendedTool)}
+            </div>
+
+            {templateSeed.recommendedFamilies?.length ? (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {templateSeed.recommendedFamilies.map((item) => (
+                  <span key={item} className="wm-chip">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+
+            <div className="wm-actions-row">
+              <button
+                type="button"
+                className="wm-btn wm-btn-primary"
+                onClick={startFromSelectedTemplate}
+              >
+                Create shell and open {getToolLabel(templateSeed.recommendedTool)}
+              </button>
+              <button type="button" className="wm-btn" onClick={discardSelectedTemplate}>
+                Discard template starter
+              </button>
+            </div>
+          </article>
+        </section>
+      ) : null}
 
       <section className="wm-section">
         <div className="wm-section__head">

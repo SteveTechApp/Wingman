@@ -96,7 +96,8 @@ export function addToCart(item: QuoteCartItem) {
     sku: line.sku,
     name: line.name,
     qty: line.qty,
-    source: line.source
+    source: line.source,
+    category: line.category as QuoteCartItem["category"]
   });
 }
 

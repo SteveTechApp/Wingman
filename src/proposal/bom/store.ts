@@ -1,9 +1,10 @@
 import * as React from "react";
 import type { BomLine, Proposal } from "./types";
-import { money } from "./pricing";
+import { applyPricingModel, inferBomLineCategory, money } from "./pricing";
 import { loadProposal, saveProposal, addLineToSavedProposal } from "./persist";
 
 type Action =
+  | { type: "LOAD"; proposal: Proposal }
   | { type: "SET_META"; patch: Partial<Proposal["meta"]> }
   | { type: "ADD_LINE"; line?: Partial<BomLine> }
   | { type: "UPDATE_LINE"; id: string; patch: Partial<BomLine> }
@@ -15,42 +16,54 @@ function uid() {
 }
 
 const fallback: Proposal = {
-  meta: { projectName: "New Proposal", currency: "GBP", marginTargetPct: 35 },
+  meta: { projectName: "New Proposal", currency: "USD", priceTier: "Silver" },
   lines: []
 };
 
-function init(): Proposal {
+function init(projectId?: string): Proposal {
   if (typeof window === "undefined") return fallback;
-  return loadProposal() ?? fallback;
+  return loadProposal(projectId) ?? fallback;
 }
 
 function reducer(state: Proposal, action: Action): Proposal {
   switch (action.type) {
+    case "LOAD":
+      return applyPricingModel(action.proposal);
+
     case "SET_META":
-      return { ...state, meta: { ...state.meta, ...action.patch } };
+      return applyPricingModel({ ...state, meta: { ...state.meta, ...action.patch } });
 
     case "ADD_LINE": {
       const id = uid();
       const currency = state.meta.currency;
+      const category = inferBomLineCategory({
+        category: action.line?.category,
+        sku: action.line?.sku ?? "",
+        description: action.line?.description ?? "",
+        notes: action.line?.notes ?? "",
+      });
       const line: BomLine = {
         id,
         sku: action.line?.sku ?? "",
         description: action.line?.description ?? "",
         qty: action.line?.qty ?? 1,
-        category: action.line?.category ?? "Core",
+        category,
         unitCost: action.line?.unitCost ?? money(currency, 0),
         unitSell: action.line?.unitSell ?? money(currency, 0),
-        tier: action.line?.tier ?? "Dealer",
+        tier: action.line?.tier ?? state.meta.priceTier ?? "Silver",
         notes: action.line?.notes ?? ""
       };
-      return { ...state, lines: [line, ...state.lines] };
+      return applyPricingModel({ ...state, lines: [line, ...state.lines] });
     }
 
     case "UPDATE_LINE":
-      return { ...state, lines: state.lines.map(l => (l.id === action.id ? { ...l, ...action.patch } : l)) };
+      return applyPricingModel({
+        ...state,
+        lines: state.lines.map((line) => (line.id === action.id ? { ...line, ...action.patch } : line)),
+      });
 
     case "REMOVE_LINE":
-      return { ...state, lines: state.lines.filter(l => l.id !== action.id) };
+      return applyPricingModel({ ...state, lines: state.lines.filter((line) => line.id !== action.id) });
 
     case "RESET":
       return fallback;
@@ -60,13 +73,21 @@ function reducer(state: Proposal, action: Action): Proposal {
   }
 }
 
-export function useProposalStore() {
-  const [state, dispatch] = React.useReducer(reducer, undefined as unknown as Proposal, init);
+export function useProposalStore(projectId?: string) {
+  const [state, dispatch] = React.useReducer(
+    reducer,
+    projectId,
+    (id) => init(id),
+  );
+
+  React.useEffect(() => {
+    dispatch({ type: "LOAD", proposal: init(projectId) });
+  }, [projectId]);
 
   React.useEffect(() => {
     if (typeof window === "undefined") return;
-    saveProposal(state);
-  }, [state]);
+    saveProposal(state, projectId);
+  }, [projectId, state]);
 
   return [state, dispatch] as const;
 }

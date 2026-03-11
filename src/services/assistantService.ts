@@ -59,7 +59,7 @@ function suggestReply(prompt: string, userProfile?: UserProfileLike): string {
   }
 
   if (hasAny(text, ["competitor", "replacement", "alternative", "vs ", "versus"])) {
-    return `${prefix}use Competitor Comparison to map competitor SKU context to WyreStorm direction, then save it into the active project for proposal positioning.`;
+    return `${prefix}use Competitor Comparison to map competitor SKU context to a verified WyreStorm SKU, then save it into the active project for proposal positioning.`;
   }
 
   if (hasAny(text, ["usb-c", "byod", "teams", "zoom", "meeting room"])) {

@@ -6,11 +6,13 @@ export function addProductToProposal(product: {
   name: string;
   qty?: number;
   source?: string;
+  category?: string;
 }) {
   addLineToSavedProposal({
     sku: product.sku,
     name: product.name,
     qty: product.qty ?? 1,
-    source: product.source ?? "catalog"
+    source: product.source ?? "catalog",
+    category: product.category,
   });
 }
