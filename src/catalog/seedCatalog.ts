@@ -1,6 +1,7 @@
 import rawCatalog from "@/data/catalog/wyrestorm-catalog.phase1.json";
 import skuCatalog from "@/data/wyrestormSkuCatalog.2026.json";
 
+import { classifyProductType } from "./classification";
 import { enrichCatalogProduct } from "./enrich";
 import { normalizeCatalogProduct } from "./normalize";
 import type { CatalogPortCount, CatalogProduct, CatalogTransport, CatalogVideo } from "./types";
@@ -155,56 +156,6 @@ function pickTransport(familyCode: string, text: string): CatalogTransport {
   return "Unknown";
 }
 
-function pickCategory(familyCode: string, text: string): string {
-  const normalizedFamily = normalizeKey(familyCode);
-  const normalizedText = text.toLowerCase();
-
-  if (normalizedFamily === "CAB" || /\bcable\b|\bmount\b|\bkit\b|\badapter\b|\bdock\b|\bdongle\b/.test(normalizedText)) {
-    return "Accessories";
-  }
-  if (normalizedText.includes("matrix") || normalizedFamily.startsWith("MX")) return "Matrix";
-  if (normalizedText.includes("switcher") || normalizedFamily === "SW" || normalizedFamily === "APO") return "Switcher";
-  if (
-    normalizedText.includes("encoder") ||
-    normalizedText.includes("decoder") ||
-    normalizedText.includes("receiver") ||
-    normalizedText.includes("transmitter") ||
-    normalizedText.includes("extender") ||
-    normalizedText.includes("hdbaset")
-  ) {
-    return normalizedText.includes("networkhd") ? "AVoIP" : "Extender";
-  }
-  if (
-    normalizedFamily.startsWith("NHD") ||
-    normalizedFamily === "SYN" ||
-    normalizedText.includes("video wall") ||
-    normalizedText.includes("multiview")
-  ) {
-    return normalizedText.includes("video wall") ? "VideoWall" : "AVoIP";
-  }
-  if (
-    normalizedFamily === "CAM" ||
-    normalizedFamily === "AMP" ||
-    normalizedFamily === "HALO" ||
-    normalizedFamily === "SP" ||
-    /\bcamera\b|\bmic\b|\bspeaker\b|\bamplifier\b|\baudio\b/.test(normalizedText)
-  ) {
-    return "Audio";
-  }
-  if (
-    normalizedFamily === "COM" ||
-    normalizedFamily === "TS" ||
-    normalizedFamily === "NETWORKHD TOUCH" ||
-    /\bcontrol\b|\btouch\b/.test(normalizedText)
-  ) {
-    return "Control";
-  }
-  if (normalizedFamily === "USB" || normalizedFamily === "EXP" || normalizedText.includes("usb")) {
-    return "KVM";
-  }
-  return "Other";
-}
-
 function pickFamilyLabel(familyCode: string): string {
   const key = normalizeKey(familyCode);
   return FAMILY_LABELS[key] || cleanText(familyCode) || "Unknown";
@@ -232,13 +183,19 @@ function toDerivedCatalogProduct(row: MasterSkuRow): CatalogProduct | null {
   const segments = splitDescription(description);
   const summary = segments[0] || `${sku} catalog reference.`;
   const ports = pickPorts(description);
+  const classification = classifyProductType({
+    sku,
+    family: familyCode,
+    name: summary,
+    description,
+  });
 
   return {
     sku,
     name: summary,
     family: pickFamilyLabel(familyCode),
-    category: pickCategory(familyCode, description),
-    subcategory: familyCode || undefined,
+    category: classification.category,
+    subcategory: classification.label,
     status: "active",
     summary,
     inputs: ports.inputs,

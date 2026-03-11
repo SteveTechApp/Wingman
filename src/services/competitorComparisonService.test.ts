@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { areProductTypesCompatible, classifyCatalogProduct } from "@/catalog/classification";
 import compareSeed from "@/data/catalog/competitor-compare.seed.json";
 import { findCatalogProductBySku } from "@/catalog";
+import { getCompetitorProducts } from "@/competitor/repository";
 import { getComparisonRecords } from "@/services/competitorComparisonService";
 
 type SeedRow = {
@@ -42,6 +44,27 @@ describe("competitor comparison service", () => {
       expect(record?.wyrestormVerified).toBe(false);
       expect(record?.wyrestormSku).toBe("Manual review required");
       expect(record?.notes.some((note) => note.toLowerCase().includes("verified wyrestorm catalog sku"))).toBe(true);
+    }
+  });
+
+  it("only returns verified matches that satisfy the same normalized product type", () => {
+    const competitors = getCompetitorProducts();
+    const records = getComparisonRecords().filter((record) => record.wyrestormVerified !== false);
+
+    for (const record of records) {
+      const competitor = competitors.find(
+        (item) => normalize(item.brand) === normalize(record.brand) && normalize(item.sku) === normalize(record.competitorSku),
+      );
+      const wyrestorm = findCatalogProductBySku(record.wyrestormSku);
+
+      expect(competitor).toBeTruthy();
+      expect(wyrestorm).toBeTruthy();
+      expect(
+        areProductTypesCompatible(
+          classifyCatalogProduct(competitor!),
+          classifyCatalogProduct(wyrestorm!),
+        ),
+      ).toBe(true);
     }
   });
 });

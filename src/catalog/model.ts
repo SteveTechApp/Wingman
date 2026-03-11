@@ -6,11 +6,14 @@ export type ProductCategory =
   | "AVoIP"
   | "Matrix"
   | "Switcher"
+  | "Distribution"
   | "Extender"
   | "VideoWall"
   | "KVM"
   | "Control"
   | "Audio"
+  | "Camera"
+  | "UC"
   | "Accessories"
   | "Other";
 

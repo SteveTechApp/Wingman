@@ -331,6 +331,7 @@ export default function ToolHubPage() {
       </section>
 
       <div
+        className="wm-tool-hub__split"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
@@ -343,13 +344,14 @@ export default function ToolHubPage() {
             copy="Once the opportunity is moving, these workflow features turn the direction into design, BOM, and handoff output."
           />
 
-          <div style={{ display: "grid", gap: 10 }}>
+          <div className="wm-tool-hub__stack" style={{ display: "grid", gap: 10 }}>
             {buildFeatures.map((item) => (
               <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
             ))}
 
             {enablementFeatures.length > 0 ? (
               <div
+                className="wm-tool-hub__stack"
                 style={{
                   marginTop: 6,
                   paddingTop: 10,
@@ -375,7 +377,7 @@ export default function ToolHubPage() {
             copy="Use these when you need help, comparison, validation, or product reference during the workflow."
           />
 
-          <div style={{ display: "grid", gap: 10 }}>
+          <div className="wm-tool-hub__stack" style={{ display: "grid", gap: 10 }}>
             {tools.map((item) => (
               <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
             ))}

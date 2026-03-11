@@ -1,3 +1,4 @@
+import { classifyCatalogProduct } from "./classification";
 import type { CatalogPortCount, CatalogProduct } from "./types";
 
 function tidy(value: unknown): string {
@@ -13,6 +14,7 @@ function summarizePorts(ports?: CatalogPortCount[]): string {
 
 function buildTags(input: CatalogProduct): string[] {
   const tags = new Set<string>();
+  const classification = classifyCatalogProduct(input);
 
   [
     input.family,
@@ -29,6 +31,8 @@ function buildTags(input: CatalogProduct): string[] {
     .map((x) => tidy(x).toLowerCase())
     .filter(Boolean)
     .forEach((x) => tags.add(x));
+
+  classification.tags.forEach((tag) => tags.add(tag));
 
   if ((input.distance?.meters || 0) >= 70) tags.add("long-distance");
   if ((input.distance?.meters || 0) >= 100) tags.add("extended-distance");

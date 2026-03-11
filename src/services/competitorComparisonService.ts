@@ -1,5 +1,7 @@
 import compareSeed from "@/data/catalog/competitor-compare.seed.json";
 import {
+  areProductTypesCompatible,
+  classifyCatalogProduct,
   enrichCatalogProduct,
   findCatalogProductBySku,
   getCatalogProducts,
@@ -113,7 +115,10 @@ function normalizeSku(value: unknown): string {
 }
 
 function formatWyrestormCategory(product: CatalogProduct): string {
-  return `${product.family}${product.category ? ` / ${product.category}` : ""}`;
+  return [product.family, product.category, product.subcategory]
+    .map((value) => tidy(value))
+    .filter(Boolean)
+    .join(" / ");
 }
 
 function resolveWyrestormReference(input?: {
@@ -266,6 +271,13 @@ function inferRecommendedFamilies(product: CatalogProduct): DiscoveryProductFami
   return deduped.length > 0 ? deduped : ["Apollo"];
 }
 
+function formatCompetitorCategory(product: CatalogProduct): string {
+  return [product.category, product.subcategory]
+    .map((value) => tidy(value))
+    .filter(Boolean)
+    .join(" / ") || "Uncategorized";
+}
+
 function scoreToConfidence(score: number): CompareConfidence {
   if (score >= 70) return "High";
   if (score >= 45) return "Medium";
@@ -276,6 +288,21 @@ function computeCandidateScore(competitor: CatalogProduct, wyrestorm: CatalogPro
   const reasons: string[] = [];
   const notes: string[] = [];
   let score = 0;
+  const competitorType = classifyCatalogProduct(competitor);
+  const wyrestormType = classifyCatalogProduct(wyrestorm);
+
+  if (areProductTypesCompatible(competitorType, wyrestormType)) {
+    score += 24;
+    reasons.push(`Type alignment (${wyrestormType.label}).`);
+  } else {
+    return {
+      product: wyrestorm,
+      score: 0,
+      reasons: ["Type mismatch"],
+      notes: [`Rejected because ${wyrestorm.sku} is ${wyrestormType.label}, not ${competitorType.label}.`],
+      ioSummary: "I/O coverage 0%",
+    };
+  }
 
   if (normalizeId(competitor.family) === normalizeId(wyrestorm.family) && tidy(competitor.family)) {
     score += 20;
@@ -356,8 +383,11 @@ function computeCandidateScore(competitor: CatalogProduct, wyrestorm: CatalogPro
 
 function rankWyrestormCandidates(competitor: CatalogProduct): RankedCandidate[] {
   const catalog = getCatalogProducts();
+  const competitorType = classifyCatalogProduct(competitor);
   return catalog
+    .filter((product) => areProductTypesCompatible(competitorType, classifyCatalogProduct(product)))
     .map((product) => computeCandidateScore(competitor, product))
+    .filter((candidate) => candidate.score > 0)
     .sort((a, b) => b.score - a.score || a.product.sku.localeCompare(b.product.sku));
 }
 
@@ -431,7 +461,7 @@ function toComparisonRecord(
     brand: tidy(competitor.brand) || "Unknown",
     competitorSku: normalizeSku(competitor.sku),
     competitorName: tidy(competitor.name) || undefined,
-    category: tidy(competitor.category) || tidy(competitor.family) || "Uncategorized",
+    category: formatCompetitorCategory(competitor),
     summary:
       tidy(competitor.summary) ||
       `${tidy(competitor.name) || normalizeSku(competitor.sku)} competitor reference for deterministic match scoring.`,
@@ -502,11 +532,23 @@ async function withIntelligenceAssessment(
 }
 
 function toLookupProduct(record: CompetitorLookupRecord): CompetitorProduct {
+  const classification = classifyCatalogProduct({
+    sku: record.sku,
+    family: record.family,
+    name: record.name,
+    category: record.category,
+    summary: record.summary,
+    transport: record.transport as CatalogProduct["transport"],
+    features: record.features,
+    audio: record.audio,
+    control: record.control,
+  });
   const product: CatalogProduct = {
     sku: normalizeSku(record.sku),
     name: tidy(record.name) || normalizeSku(record.sku),
     family: tidy(record.family) || "Unknown",
-    category: tidy(record.category) || tidy(record.family) || "Uncategorized",
+    category: classification.category || tidy(record.category) || tidy(record.family) || "Uncategorized",
+    subcategory: classification.label,
     status: "active",
     summary: tidy(record.summary),
     inputs: Array.isArray(record.inputs) ? record.inputs : [],
