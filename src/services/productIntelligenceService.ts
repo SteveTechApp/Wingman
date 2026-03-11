@@ -1,5 +1,5 @@
-import wyrestormCatalog from "@/data/catalog/wyrestorm-catalog.phase1.json";
 import competitorCatalog from "@/data/catalog/competitor-catalog.phase4.json";
+import { buildWyrestormSeedCatalogProducts } from "@/catalog/seedCatalog";
 
 export type ProductVendorType = "wyrestorm" | "competitor";
 export type ProductApprovalStatus = "draft" | "approved" | "expired";
@@ -329,8 +329,8 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
 
 function buildLocalFallbackRecords(): ProductIntelligenceRecord[] {
   const out: ProductIntelligenceRecord[] = [];
-  for (const row of asArray<Record<string, unknown>>(wyrestormCatalog)) {
-    const mapped = makeCatalogRecord(row, "wyrestorm");
+  for (const row of buildWyrestormSeedCatalogProducts()) {
+    const mapped = makeCatalogRecord(row as unknown as Record<string, unknown>, "wyrestorm");
     if (mapped) out.push(mapped);
   }
   for (const row of asArray<Record<string, unknown>>(competitorCatalog)) {

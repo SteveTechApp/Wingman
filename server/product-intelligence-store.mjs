@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, "..");
 
 const PRODUCT_INTELLIGENCE_DB_FILE = path.join(ROOT, "data", "product-intelligence-db.json");
 const WYRESTORM_CATALOG_FILE = path.join(ROOT, "src", "data", "catalog", "wyrestorm-catalog.phase1.json");
+const WYRESTORM_SKU_MASTER_FILE = path.join(ROOT, "src", "data", "wyrestormSkuCatalog.2026.json");
 const COMPETITOR_CATALOG_FILE = path.join(ROOT, "src", "data", "catalog", "competitor-catalog.phase4.json");
 const PRODUCT_INTELLIGENCE_MAX_RECORDS = Math.max(100, Number(process.env.PRODUCT_INTELLIGENCE_MAX_RECORDS || 4000));
 
@@ -27,6 +28,40 @@ const BRAND_SOURCE_URLS = {
   zeevee: "https://www.zeevee.com/",
 };
 
+const SKU_MASTER_FAMILY_LABELS = {
+  AMP: "Amplifier",
+  APO: "Apollo",
+  CAB: "Cabling",
+  CAM: "Camera",
+  COM: "Control",
+  EX: "HDBaseT",
+  EX3: "HDBaseT",
+  EXA: "HDBaseT",
+  EXF: "Fiber",
+  EXP: "USB Extension",
+  HALO: "HALO",
+  "HALO 60": "HALO",
+  "HALO 80": "HALO",
+  IDB: "Interactive Display",
+  MX: "Matrix",
+  MXV: "Matrix",
+  NHD: "NetworkHD",
+  "NHD-120": "NetworkHD",
+  "NHD-500": "NetworkHD",
+  "NHD-600": "NetworkHD",
+  "NETWORKHD TOUCH": "NetworkHD Touch",
+  RX: "HDBaseT",
+  RX3: "HDBaseT",
+  RXF: "Fiber",
+  RXV: "HDBaseT",
+  SP: "Audio",
+  SW: "Switcher",
+  SYN: "Video Wall",
+  TS: "Touch Panel",
+  TX: "HDBaseT",
+  USB: "USB Extension",
+};
+
 function nowIso() {
   return new Date().toISOString();
 }
@@ -35,12 +70,26 @@ function tidy(value) {
   return String(value ?? "").trim();
 }
 
+function cleanText(value) {
+  return tidy(value)
+    .replace(/â„¢/g, "")
+    .replace(/Â/g, " ")
+    .replace(/â€“|–|—/g, "-")
+    .replace(/ï¼Œ/g, ", ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function normalizeSku(value) {
   return tidy(value).toUpperCase();
 }
 
 function normalizeId(value) {
   return tidy(value).toLowerCase().replace(/[\s_\-/]+/g, "");
+}
+
+function normalizeFamilyKey(value) {
+  return cleanText(value).toUpperCase().replace(/\s+/g, " ");
 }
 
 function asArray(value) {
@@ -83,6 +132,132 @@ function dedupeStrings(values, limit = 24) {
     if (out.length >= limit) break;
   }
   return out;
+}
+
+function splitSkuDescription(description) {
+  return cleanText(description)
+    .split("|")
+    .map((item) => cleanText(item))
+    .filter(Boolean);
+}
+
+function skuMasterFamilyLabel(familyCode) {
+  const key = normalizeFamilyKey(familyCode);
+  return SKU_MASTER_FAMILY_LABELS[key] || cleanText(familyCode) || "Unknown";
+}
+
+function skuMasterCategory(familyCode, description) {
+  const key = normalizeFamilyKey(familyCode);
+  const text = cleanText(description).toLowerCase();
+
+  if (key === "CAB" || /\bcable\b|\bmount\b|\bkit\b|\badapter\b|\bdock\b|\bdongle\b/.test(text)) return "Accessories";
+  if (text.includes("matrix") || key.startsWith("MX")) return "Matrix";
+  if (text.includes("switcher") || key === "SW" || key === "APO") return "Switcher";
+  if (key.startsWith("NHD") || text.includes("networkhd") || text.includes("multiview")) return "AVoIP";
+  if (text.includes("video wall") || key === "SYN") return "VideoWall";
+  if (text.includes("encoder") || text.includes("decoder") || text.includes("receiver") || text.includes("transmitter") || text.includes("extender") || text.includes("hdbaset")) return "Extender";
+  if (key === "USB" || key === "EXP" || text.includes("usb")) return "KVM";
+  if (key === "COM" || key === "TS" || key === "NETWORKHD TOUCH" || /\bcontrol\b|\btouch\b/.test(text)) return "Control";
+  if (key === "CAM" || key === "AMP" || key === "HALO" || key === "SP" || /\bcamera\b|\bmic\b|\bspeaker\b|\bamplifier\b|\baudio\b/.test(text)) return "Audio";
+  return "Other";
+}
+
+function skuMasterTransport(familyCode, description) {
+  const key = normalizeFamilyKey(familyCode);
+  const text = cleanText(description).toLowerCase();
+
+  if (text.includes("hdbaset") || /^EX|^TX|^RX/.test(key)) return "HDBaseT";
+  if (text.includes("networkhd") || text.includes("avoip") || text.includes("multiview") || text.includes("dante")) return "AVoIP";
+  if (text.includes("usb")) return "USB Extension";
+  if (text.includes("switcher") || text.includes("matrix") || text.includes("dock") || text.includes("dongle")) return "Local";
+  return "";
+}
+
+function skuMasterVideo(description) {
+  const text = cleanText(description).toLowerCase();
+  const maxResolution = text.includes("8k")
+    ? "8K"
+    : text.includes("4k60")
+      ? (text.includes("444") ? "4K60 4:4:4" : "4K60")
+      : text.includes("4k30")
+        ? "4K30"
+        : text.includes("4k")
+          ? "4K"
+          : text.includes("1080p")
+            ? "1080p"
+            : "";
+  const hdr = /\bhdr\b|dolby vision/i.test(description);
+
+  if (!maxResolution && !hdr) return undefined;
+  return {
+    maxResolution: maxResolution || undefined,
+    hdr: hdr || undefined,
+  };
+}
+
+function skuMasterDistanceMeters(description) {
+  const matches = Array.from(cleanText(description).matchAll(/(\d+(?:\.\d+)?)\s*m(?:\/|\b)/gi))
+    .map((match) => Number(match[1]))
+    .filter((value) => Number.isFinite(value) && value > 0 && value <= 1000);
+  if (matches.length === 0) return undefined;
+  return Math.max(...matches);
+}
+
+function normalizePortType(value) {
+  const text = cleanText(value).toLowerCase().replace(/\s+/g, "");
+  if (text === "dp") return "DisplayPort";
+  if (text === "usbc") return "USB-C";
+  if (text === "rj45" || text === "lan" || text === "ethernet") return "RJ45";
+  if (text === "mic" || text === "mics") return "Mic";
+  return cleanText(value).toUpperCase() === "HDMI" ? "HDMI" : cleanText(value);
+}
+
+function skuMasterPorts(description) {
+  const inputs = [];
+  const outputs = [];
+  const pattern = /(\d+)\s*(?:x)?\s*(hdmi|usb-c|usb|displayport|dp|rj45|lan|ethernet|mic|mics|audio)\s*(input|inputs|output|outputs)\b/gi;
+
+  for (const match of cleanText(description).matchAll(pattern)) {
+    const entry = {
+      type: normalizePortType(match[2]),
+      count: Math.max(0, Number(match[1]) || 0),
+    };
+    if (String(match[3]).toLowerCase().startsWith("input")) {
+      inputs.push(entry);
+    } else {
+      outputs.push(entry);
+    }
+  }
+
+  return { inputs, outputs };
+}
+
+function mapWyrestormSkuMasterRow(raw) {
+  const sku = normalizeSku(raw?.sku);
+  if (!sku) return null;
+
+  const description = cleanText(raw?.description);
+  const familyCode = cleanText(raw?.family);
+  const segments = splitSkuDescription(description);
+  const summary = segments[0] || `${sku} reference record.`;
+  const ports = skuMasterPorts(description);
+
+  return {
+    sku,
+    name: summary,
+    family: skuMasterFamilyLabel(familyCode),
+    category: skuMasterCategory(familyCode, description),
+    summary,
+    features: segments.slice(1, 7),
+    transport: skuMasterTransport(familyCode, description) || undefined,
+    inputs: ports.inputs,
+    outputs: ports.outputs,
+    control: /\bcec\b|\brs-?232\b|\bir\b|\bweb ui\b/i.test(description) ? ["Control"] : [],
+    audio: /\baudio\b|\bspeaker\b|\bmic\b|\bdsp\b|\bdante\b/i.test(description) ? ["Audio"] : [],
+    video: skuMasterVideo(description),
+    distanceMeters: skuMasterDistanceMeters(description),
+    notes: "Expanded from WyreStorm SKU master.",
+  };
 }
 
 function coercePortArray(value) {
@@ -387,12 +562,25 @@ function mergeRecord(seedRecord, existingRecord) {
 async function buildSeedRecords(existingRecords = []) {
   const capturedAt = nowIso();
   const wyrestormRows = asArray(await readJsonFile(WYRESTORM_CATALOG_FILE, []));
+  const wyrestormSkuMaster = await readJsonFile(WYRESTORM_SKU_MASTER_FILE, { items: [] });
   const competitorRows = asArray(await readJsonFile(COMPETITOR_CATALOG_FILE, []));
 
   const seed = [];
+  const seededIds = new Set();
   for (const row of wyrestormRows) {
     const record = mapCatalogRecord(row, "wyrestorm", capturedAt);
-    if (record) seed.push(record);
+    if (record) {
+      seed.push(record);
+      seededIds.add(record.id);
+    }
+  }
+  for (const row of asArray(wyrestormSkuMaster?.items)) {
+    const expanded = mapWyrestormSkuMasterRow(row);
+    if (!expanded) continue;
+    const record = mapCatalogRecord(expanded, "wyrestorm", capturedAt);
+    if (!record || seededIds.has(record.id)) continue;
+    seed.push(record);
+    seededIds.add(record.id);
   }
   for (const row of competitorRows) {
     const record = mapCatalogRecord(row, "competitor", capturedAt);

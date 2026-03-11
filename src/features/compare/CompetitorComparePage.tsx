@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, Scale, Search } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, Scale, Search, X } from "lucide-react";
 
 import {
   applyCompareToProject,
@@ -380,6 +380,10 @@ export default function CompetitorComparePage() {
     );
   };
 
+  const clearLookup = () => {
+    resetSelection("");
+  };
+
   const selectRecord = (item: CompetitorComparisonRecord, message = "Showing saved comparison record.") => {
     setQuery(`${item.brand} ${item.competitorSku}`);
     setSelectedId(recordId(item));
@@ -511,6 +515,11 @@ export default function CompetitorComparePage() {
                   value={query}
                   onChange={(e) => resetSelection(e.target.value)}
                   onKeyDown={(e) => {
+                    if (e.key === "Escape" && query.trim()) {
+                      e.preventDefault();
+                      clearLookup();
+                      return;
+                    }
                     if (e.key === "Enter") {
                       e.preventDefault();
                       void runLookup();
@@ -518,6 +527,17 @@ export default function CompetitorComparePage() {
                   }}
                   placeholder="e.g. AT-OME-MS42, DM-NVX-360, Extron DTP"
                 />
+                {hasQuery ? (
+                  <button
+                    type="button"
+                    className="wm-compare-simple__clear-button"
+                    onClick={clearLookup}
+                    aria-label="Clear text"
+                  >
+                    <X size={14} />
+                    <span>Clear text</span>
+                  </button>
+                ) : null}
               </div>
             </label>
 

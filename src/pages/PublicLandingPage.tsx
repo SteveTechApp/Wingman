@@ -111,10 +111,10 @@ export default function PublicLandingPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
-    minHeight: "100vh",
+    minHeight: "100dvh",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     background:
       "radial-gradient(circle at top, rgba(17, 73, 122, 0.26) 0%, rgba(4, 16, 36, 0.98) 42%, #020814 100%)",
     color: "#eaf2ff",
@@ -122,16 +122,16 @@ const styles: Record<string, React.CSSProperties> = {
   },
 
   heroSection: {
-    minHeight: "64vh",
+    minHeight: "50vh",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "24px 20px 6px",
+    padding: "18px 20px 2px",
   },
 
   heroShell: {
     width: "100%",
-    maxWidth: "980px",
+    maxWidth: "940px",
     margin: "0 auto",
     display: "flex",
     flexDirection: "column",
@@ -144,51 +144,51 @@ const styles: Record<string, React.CSSProperties> = {
   logoWrap: {
     display: "flex",
     justifyContent: "center",
-    marginBottom: "14px",
+    marginBottom: "8px",
   },
 
   logo: {
-    width: "min(420px, 68vw)",
+    width: "min(340px, 56vw)",
     height: "auto",
     display: "block",
   },
 
   title: {
     margin: "0 auto",
-    maxWidth: "980px",
-    fontSize: "clamp(2.5rem, 5vw, 5rem)",
-    lineHeight: 0.98,
+    maxWidth: "900px",
+    fontSize: "clamp(2.1rem, 4vw, 4.2rem)",
+    lineHeight: 0.94,
     letterSpacing: "-0.04em",
     fontWeight: 800,
     color: "#f3f7ff",
   },
 
   subtitle: {
-    margin: "20px auto 0",
-    maxWidth: "860px",
-    fontSize: "clamp(1rem, 1.5vw, 1.3rem)",
-    lineHeight: 1.55,
+    margin: "14px auto 0",
+    maxWidth: "760px",
+    fontSize: "clamp(0.96rem, 1.1vw, 1.12rem)",
+    lineHeight: 1.45,
     color: "rgba(224, 234, 248, 0.9)",
   },
 
   ctaRow: {
-    marginTop: "28px",
+    marginTop: "20px",
     display: "flex",
     flexWrap: "wrap",
-    gap: "12px",
+    gap: "10px",
     alignItems: "center",
     justifyContent: "center",
   },
 
   button: {
-    minHeight: "46px",
-    padding: "0 18px",
+    minHeight: "42px",
+    padding: "0 16px",
     borderRadius: "12px",
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
     textDecoration: "none",
-    fontSize: "15px",
+    fontSize: "14px",
     fontWeight: 700,
     transition: "all 160ms ease",
   },
@@ -207,19 +207,19 @@ const styles: Record<string, React.CSSProperties> = {
   },
 
   featuresSection: {
-    padding: "6px 20px 34px",
+    padding: "0 20px 22px",
   },
 
   featuresHeader: {
     width: "100%",
     maxWidth: "1180px",
-    margin: "0 auto 12px",
+    margin: "0 auto 10px",
     textAlign: "left",
   },
 
   featuresTitle: {
     margin: 0,
-    fontSize: "1.25rem",
+    fontSize: "1.08rem",
     fontWeight: 800,
     letterSpacing: "-0.01em",
     color: "#f4f8ff",
@@ -227,8 +227,8 @@ const styles: Record<string, React.CSSProperties> = {
 
   featuresSubtitle: {
     marginTop: "4px",
-    fontSize: "0.92rem",
-    lineHeight: 1.45,
+    fontSize: "0.84rem",
+    lineHeight: 1.4,
     color: "rgba(220, 233, 246, 0.8)",
   },
 
@@ -237,26 +237,26 @@ const styles: Record<string, React.CSSProperties> = {
     maxWidth: "1180px",
     margin: "0 auto",
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-    gap: "14px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "12px",
   },
 
   card: {
-    borderRadius: "20px",
-    padding: "18px 18px",
+    borderRadius: "18px",
+    padding: "14px 15px",
     background: "linear-gradient(180deg, rgba(12, 24, 46, 0.94) 0%, rgba(7, 16, 32, 0.98) 100%)",
     border: "1px solid rgba(109, 160, 214, 0.16)",
     boxShadow: "0 18px 50px rgba(0, 0, 0, 0.22)",
   },
 
   cardIconWrap: {
-    width: "38px",
-    height: "38px",
-    borderRadius: "12px",
+    width: "34px",
+    height: "34px",
+    borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: "12px",
+    marginBottom: "10px",
     background: "rgba(67, 222, 236, 0.12)",
     border: "1px solid rgba(67, 222, 236, 0.16)",
     color: "#6ce8f3",
@@ -268,12 +268,12 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: "0.12em",
     textTransform: "uppercase",
     color: "#74dfea",
-    marginBottom: "8px",
+    marginBottom: "6px",
   },
 
   cardTitle: {
-    margin: "0 0 10px",
-    fontSize: "1.08rem",
+    margin: "0 0 8px",
+    fontSize: "1rem",
     lineHeight: 1.2,
     fontWeight: 700,
     color: "#f4f8ff",
@@ -281,8 +281,8 @@ const styles: Record<string, React.CSSProperties> = {
 
   cardText: {
     margin: 0,
-    fontSize: "0.9rem",
-    lineHeight: 1.5,
+    fontSize: "0.84rem",
+    lineHeight: 1.42,
     color: "rgba(219, 230, 244, 0.86)",
   },
 };

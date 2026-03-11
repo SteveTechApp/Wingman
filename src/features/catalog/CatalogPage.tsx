@@ -5,27 +5,54 @@ import {
   getCatalogFeatures,
   queryCatalogProducts
 } from "@/catalog";
+import {
+  getLiveProductDataStatus,
+  refreshLiveProductData,
+  subscribeLiveProductData,
+} from "@/services/liveProductDataStore";
+
+function formatTimestamp(value: string): string {
+  if (!value) return "Not synced yet";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toLocaleString();
+}
 
 export default function CatalogPage() {
   const [q, setQ] = React.useState("");
   const [family, setFamily] = React.useState("All");
   const [category, setCategory] = React.useState("All");
   const [feature, setFeature] = React.useState("All");
+  const [refreshing, setRefreshing] = React.useState(false);
 
-  const families = React.useMemo(() => ["All", ...getCatalogFamilies()], []);
-  const categories = React.useMemo(() => ["All", ...getCatalogCategories()], []);
-  const features = React.useMemo(() => ["All", ...getCatalogFeatures()], []);
+  const liveStatus = React.useSyncExternalStore(
+    subscribeLiveProductData,
+    getLiveProductDataStatus,
+    getLiveProductDataStatus,
+  );
 
-  const items = React.useMemo(() => {
-    return queryCatalogProducts({
-      q,
-      family,
-      category,
-      feature,
-      transport: "All",
-      status: "All",
-    });
-  }, [q, family, category, feature]);
+  React.useEffect(() => {
+    void refreshLiveProductData({ minIntervalMs: 5 * 60 * 1000 });
+  }, []);
+
+  const families = ["All", ...getCatalogFamilies()];
+  const categories = ["All", ...getCatalogCategories()];
+  const features = ["All", ...getCatalogFeatures()];
+
+  const items = queryCatalogProducts({
+    q,
+    family,
+    category,
+    feature,
+    transport: "All",
+    status: "All",
+  });
+
+  const refreshCatalog = React.useCallback(async () => {
+    setRefreshing(true);
+    await refreshLiveProductData({ force: true, minIntervalMs: 0 });
+    setRefreshing(false);
+  }, []);
 
   return (
     <div className="wm-page wm-catalog-page">
@@ -39,7 +66,41 @@ export default function CatalogPage() {
             </div>
           </div>
 
-          <div className="wm-save-pill">{items.length} product(s)</div>
+          <div className="wm-actions-row">
+            <div className="wm-save-pill">{items.length} product(s)</div>
+            <button type="button" className="wm-btn" onClick={() => void refreshCatalog()} disabled={refreshing}>
+              {refreshing ? "Refreshing..." : "Refresh data"}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="wm-section">
+        <div className="wm-section__head">
+          <div className="wm-section__titles">
+            <h2>Data status</h2>
+            <p>
+              {liveStatus.available ? "Live product intelligence is feeding this catalog." : "Catalog is running from the latest cached or seeded product data."}
+            </p>
+          </div>
+        </div>
+
+        <div className="wm-grid-cards">
+          <article className="wm-work-card">
+            <div className="wm-section-title">Mode</div>
+            <div className="wm-title-lg">{liveStatus.available ? "Live" : "Fallback"}</div>
+            <div className="wm-body-sm">{liveStatus.mode}</div>
+          </article>
+          <article className="wm-work-card">
+            <div className="wm-section-title">Visible records</div>
+            <div className="wm-title-lg">{liveStatus.summary.byVendorType.wyrestorm || items.length}</div>
+            <div className="wm-body-sm">WyreStorm catalog records</div>
+          </article>
+          <article className="wm-work-card">
+            <div className="wm-section-title">Last sync</div>
+            <div className="wm-title-lg">{formatTimestamp(liveStatus.fetchedAt)}</div>
+            <div className="wm-body-sm">{liveStatus.endpoint ?? "No endpoint configured"}</div>
+          </article>
         </div>
       </section>
 
@@ -57,29 +118,29 @@ export default function CatalogPage() {
             <input
               className="wm-form-input"
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(event) => setQ(event.target.value)}
               placeholder="Search SKU, family, category, feature"
             />
           </label>
 
           <label className="wm-form-field">
             <span className="wm-form-label">Family</span>
-            <select className="wm-form-input" value={family} onChange={(e) => setFamily(e.target.value)}>
-              {families.map((x) => <option key={x} value={x}>{x}</option>)}
+            <select className="wm-form-input" value={family} onChange={(event) => setFamily(event.target.value)}>
+              {families.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </label>
 
           <label className="wm-form-field">
             <span className="wm-form-label">Category</span>
-            <select className="wm-form-input" value={category} onChange={(e) => setCategory(e.target.value)}>
-              {categories.map((x) => <option key={x} value={x}>{x}</option>)}
+            <select className="wm-form-input" value={category} onChange={(event) => setCategory(event.target.value)}>
+              {categories.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </label>
 
           <label className="wm-form-field">
             <span className="wm-form-label">Feature</span>
-            <select className="wm-form-input" value={feature} onChange={(e) => setFeature(e.target.value)}>
-              {features.map((x) => <option key={x} value={x}>{x}</option>)}
+            <select className="wm-form-input" value={feature} onChange={(event) => setFeature(event.target.value)}>
+              {features.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </label>
         </div>
@@ -94,27 +155,27 @@ export default function CatalogPage() {
         </div>
 
         <div className="wm-grid-cards">
-          {items.map((p) => (
-            <article key={p.sku} className="wm-work-card">
+          {items.map((product) => (
+            <article key={product.sku} className="wm-work-card">
               <div className="wm-title-lg">
-                {p.sku} - {p.name}
+                {product.sku} - {product.name}
               </div>
 
               <div className="wm-body-sm">
-                {p.family} / {p.category} / {p.transport}
+                {product.family} / {product.category} / {product.transport}
               </div>
 
-              <div className="wm-body">{p.summary}</div>
+              <div className="wm-body">{product.summary}</div>
 
               <div className="wm-catalog-page__meta-list">
-                <div className="wm-body-sm">{p.ioSummary}</div>
-                <div className="wm-body-sm">Control: {p.controlSummary}</div>
-                <div className="wm-body-sm">Video: {p.video?.maxResolution || "Not set"}</div>
-                <div className="wm-body-sm">Distance: {p.distance?.meters ?? 0}m</div>
+                <div className="wm-body-sm">{product.ioSummary}</div>
+                <div className="wm-body-sm">Control: {product.controlSummary}</div>
+                <div className="wm-body-sm">Video: {product.video?.maxResolution || "Not set"}</div>
+                <div className="wm-body-sm">Distance: {product.distance?.meters ?? 0}m</div>
               </div>
 
               <div className="wm-body-sm">
-                Tags: {(p.normalizedTags || []).join(", ") || "None"}
+                Tags: {(product.normalizedTags || []).join(", ") || "None"}
               </div>
             </article>
           ))}

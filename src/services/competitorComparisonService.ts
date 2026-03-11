@@ -19,6 +19,7 @@ import {
   type CompetitorLookupRecord,
   type CompetitorLookupResult,
 } from "@/services/competitorLookupService";
+import { getLiveProductDataToken } from "@/services/liveProductDataStore";
 import {
   assessComparisonIntelligence,
   type ComparisonIntelligenceAssessment,
@@ -97,6 +98,7 @@ type SeedRecord = {
 };
 
 let cachedCuratedRecords: CompetitorComparisonRecord[] | null = null;
+let cachedCuratedRecordsToken = "";
 
 function tidy(value: unknown): string {
   return String(value ?? "").trim();
@@ -641,8 +643,10 @@ export function mergeComparisonRecords(
 }
 
 export function getComparisonRecords(): CompetitorComparisonRecord[] {
-  if (!cachedCuratedRecords) {
+  const token = getLiveProductDataToken();
+  if (!cachedCuratedRecords || cachedCuratedRecordsToken !== token) {
     cachedCuratedRecords = buildCuratedRecords();
+    cachedCuratedRecordsToken = token;
   }
   return [...cachedCuratedRecords];
 }

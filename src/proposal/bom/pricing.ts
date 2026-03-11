@@ -34,6 +34,13 @@ export type TierCoverageSummary = CommercialTierProfile & {
   includedCoveragePct: number;
 };
 
+type BomLineCategorySource = {
+  category?: BomLine["category"] | string | null;
+  sku?: string;
+  description?: string;
+  notes?: string;
+};
+
 export const DEFAULT_COMMERCIAL_TIER: CommercialTier = "Silver";
 
 const ALL_CATEGORIES = [
@@ -250,7 +257,7 @@ export function getCommercialTierProfile(tier?: PriceTier | null): CommercialTie
   return COMMERCIAL_TIER_PROFILES[normalizePriceTier(tier)];
 }
 
-export function inferBomLineCategory(line: Pick<BomLine, "category" | "sku" | "description" | "notes">): BomCategory {
+export function inferBomLineCategory(line: BomLineCategorySource): BomCategory {
   const explicitCategory = normalizeCategory(line.category);
   const inferredCategory = inferCategoryFromText([line.sku, line.description, line.notes].filter(Boolean).join(" "));
 

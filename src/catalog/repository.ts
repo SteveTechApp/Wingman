@@ -1,7 +1,8 @@
-import rawCatalog from "@/data/catalog/wyrestorm-catalog.phase1.json";
-import { enrichCatalogProduct } from "./enrich";
+import { getLiveProductDataRecords, getLiveProductDataToken, mapProductIntelligenceRecordToCatalogProduct } from "@/services/liveProductDataStore";
+
+import { buildWyrestormSeedCatalogProducts } from "./seedCatalog";
 import { rankCatalogMatches } from "./match";
-import { filterCatalog, normalizeCatalogProduct } from "./normalize";
+import { filterCatalog } from "./normalize";
 import type {
   CatalogFilters,
   CatalogMatchRequest,
@@ -9,42 +10,67 @@ import type {
   CatalogProduct
 } from "./types";
 
-const CATALOG: CatalogProduct[] = (Array.isArray(rawCatalog) ? rawCatalog : [])
-  .map((x) => normalizeCatalogProduct(x as CatalogProduct))
-  .map((x) => enrichCatalogProduct(x));
+const SEEDED_CATALOG: CatalogProduct[] = buildWyrestormSeedCatalogProducts();
+
+let resolvedCatalogToken = "";
+let resolvedCatalogCache: CatalogProduct[] = SEEDED_CATALOG;
+
+function mergeCatalogProducts(seed: CatalogProduct[], live: CatalogProduct[]): CatalogProduct[] {
+  const merged = new Map<string, CatalogProduct>();
+
+  for (const product of seed) {
+    merged.set(product.sku, product);
+  }
+
+  for (const product of live) {
+    merged.set(product.sku, product);
+  }
+
+  return Array.from(merged.values()).sort((left, right) => left.sku.localeCompare(right.sku));
+}
+
+function getResolvedCatalog(): CatalogProduct[] {
+  const token = getLiveProductDataToken();
+  if (token === resolvedCatalogToken) return resolvedCatalogCache;
+
+  resolvedCatalogToken = token;
+  const liveCatalog = getLiveProductDataRecords("wyrestorm").map(mapProductIntelligenceRecordToCatalogProduct);
+  resolvedCatalogCache = mergeCatalogProducts(SEEDED_CATALOG, liveCatalog);
+  return resolvedCatalogCache;
+}
 
 export function getCatalogProducts(): CatalogProduct[] {
-  return [...CATALOG];
+  return [...getResolvedCatalog()];
 }
 
 export function findCatalogProductBySku(sku: string): CatalogProduct | undefined {
   const key = String(sku || "").trim().toUpperCase();
-  return CATALOG.find((p) => p.sku === key);
+  return getResolvedCatalog().find((product) => product.sku === key);
 }
 
 export function queryCatalogProducts(filters?: CatalogFilters): CatalogProduct[] {
-  let rows = filterCatalog(CATALOG, filters);
+  let rows = filterCatalog(getResolvedCatalog(), filters);
 
   if (filters?.feature && filters.feature !== "All") {
     const feature = String(filters.feature).trim().toLowerCase();
-    rows = rows.filter((p) => (p.normalizedTags || []).includes(feature));
+    rows = rows.filter((product) => (product.normalizedTags || []).includes(feature));
   }
 
   return rows;
 }
 
 export function getCatalogFamilies(): string[] {
-  return [...new Set(CATALOG.map((p) => p.family).filter(Boolean))].sort();
+  return [...new Set(getResolvedCatalog().map((product) => product.family).filter(Boolean))].sort();
 }
 
 export function getCatalogCategories(): string[] {
-  return [...new Set(CATALOG.map((p) => p.category).filter(Boolean))].sort();
+  return [...new Set(getResolvedCatalog().map((product) => product.category).filter(Boolean))].sort();
 }
 
 export function getCatalogFeatures(): string[] {
-  return [...new Set(CATALOG.flatMap((p) => p.normalizedTags || []).filter(Boolean))].sort();
+  return [...new Set(getResolvedCatalog().flatMap((product) => product.normalizedTags || []).filter(Boolean))].sort();
 }
 
 export function matchCatalogProducts(request?: CatalogMatchRequest): CatalogMatchResult[] {
-  return rankCatalogMatches(CATALOG, request);
+  return rankCatalogMatches(getResolvedCatalog(), request);
 }
