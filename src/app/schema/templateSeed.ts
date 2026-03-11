@@ -25,6 +25,9 @@ export type TemplateSeed = {
   };
   includedSystems: string[];
   uplift: string[];
+  assumptions?: string[];
+  recommendedFamilies?: string[];
+  recommendedTool?: string;
   projectName: string;
   createdAt: string;
 };
@@ -71,6 +74,9 @@ export function isTemplateSeed(value: unknown): value is TemplateSeed {
     isString(tier.commercialNote) &&
     isStringArray(x.includedSystems) &&
     isStringArray(x.uplift) &&
+    (x.assumptions === undefined || isStringArray(x.assumptions)) &&
+    (x.recommendedFamilies === undefined || isStringArray(x.recommendedFamilies)) &&
+    (x.recommendedTool === undefined || isString(x.recommendedTool)) &&
     isString(x.projectName) &&
     isString(x.createdAt)
   );

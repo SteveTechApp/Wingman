@@ -97,7 +97,9 @@ function coreSourcesForQuestion(question: string): NonNullable<GuruAnswer["sourc
 
 function compareResponseText(record: CompetitorComparisonRecord): string {
   const lines = [
-    `Closest WyreStorm direction: ${record.wyrestormSku} (${record.wyrestormCategory}).`,
+    record.wyrestormVerified === false
+      ? "No verified WyreStorm catalog SKU is currently confirmed. Manual review is required."
+      : `Closest verified WyreStorm SKU: ${record.wyrestormSku}${record.wyrestormName ? ` (${record.wyrestormName})` : ""} (${record.wyrestormCategory}).`,
     `Confidence: ${record.confidence}${typeof record.matchScore === "number" ? ` (${record.matchScore}/100)` : ""}.`,
     record.rationale,
   ];
@@ -194,13 +196,16 @@ export async function askGuru(question: string, ctx: GuruContext): Promise<GuruA
         ? toGuruConfidence(selected.intelligence.confidence)
         : toGuruConfidence(selected.confidence),
       sources: dedupeSources([...baseSources, ...supportSources]),
-      suggestedSkus: mergeSuggestedSkus([
-        {
-          sku: selected.wyrestormSku,
-          name: selected.wyrestormCategory,
-          reason: `Closest replacement for ${selected.brand} ${selected.competitorSku}.`,
-        },
-      ]),
+      suggestedSkus:
+        selected.wyrestormVerified === false
+          ? []
+          : mergeSuggestedSkus([
+              {
+                sku: selected.wyrestormSku,
+                name: selected.wyrestormName || selected.wyrestormCategory,
+                reason: `Closest verified replacement for ${selected.brand} ${selected.competitorSku}.`,
+              },
+            ]),
     };
   }
 

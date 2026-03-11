@@ -1,3 +1,18 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  Boxes,
+  Briefcase,
+  ClipboardCheck,
+  ClipboardList,
+  FileText,
+  FolderPlus,
+  GraduationCap,
+  LayoutTemplate,
+  MonitorSmartphone,
+  Scale,
+  Shield,
+} from "lucide-react";
+
 export type WingmanItemKind = "tool" | "feature";
 
 export type WingmanItem = {
@@ -8,6 +23,8 @@ export type WingmanItem = {
   to: string;
   tag?: string;
   highlight?: string;
+  accentRgb: string;
+  Icon: LucideIcon;
 };
 
 export const WINGMAN_TOOLS: WingmanItem[] = [
@@ -19,6 +36,8 @@ export const WINGMAN_TOOLS: WingmanItem[] = [
     to: "/app/tools/guru",
     tag: "Advisor",
     highlight: "Ask Wingman anything",
+    accentRgb: "94,234,212",
+    Icon: Briefcase,
   },
   {
     id: "catalogue",
@@ -28,6 +47,8 @@ export const WINGMAN_TOOLS: WingmanItem[] = [
     to: "/app/tools/catalog",
     tag: "Reference",
     highlight: "Browse products",
+    accentRgb: "125,211,252",
+    Icon: Boxes,
   },
   {
     id: "videowall",
@@ -37,6 +58,8 @@ export const WINGMAN_TOOLS: WingmanItem[] = [
     to: "/app/tools/video-wall",
     tag: "Design Utility",
     highlight: "Size and configure walls",
+    accentRgb: "251,191,36",
+    Icon: MonitorSmartphone,
   },
   {
     id: "competitor-compare",
@@ -46,6 +69,8 @@ export const WINGMAN_TOOLS: WingmanItem[] = [
     to: "/app/tools/compare",
     tag: "Sales Utility",
     highlight: "Position against competitors",
+    accentRgb: "244,114,182",
+    Icon: Scale,
   },
   {
     id: "runtime-diagnostics",
@@ -55,6 +80,8 @@ export const WINGMAN_TOOLS: WingmanItem[] = [
     to: "/app/tools/runtime-diagnostics",
     tag: "Support",
     highlight: "Inspect recent runtime errors",
+    accentRgb: "192,132,252",
+    Icon: Shield,
   },
   {
     id: "competitor-lookup-diagnostics",
@@ -64,6 +91,8 @@ export const WINGMAN_TOOLS: WingmanItem[] = [
     to: "/app/tools/competitor-lookup-diagnostics",
     tag: "Support",
     highlight: "Inspect lookup pipeline",
+    accentRgb: "192,132,252",
+    Icon: ClipboardList,
   },
   {
     id: "product-intelligence",
@@ -73,6 +102,8 @@ export const WINGMAN_TOOLS: WingmanItem[] = [
     to: "/app/tools/product-intelligence",
     tag: "Support",
     highlight: "Approve trusted product data",
+    accentRgb: "74,222,128",
+    Icon: Boxes,
   },
 ];
 
@@ -85,6 +116,8 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
     to: "/app/projects/new",
     tag: "Primary",
     highlight: "Best place to start",
+    accentRgb: "96,165,250",
+    Icon: FolderPlus,
   },
   {
     id: "discovery",
@@ -94,6 +127,8 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
     to: "/app/tools/discovery",
     tag: "Workflow",
     highlight: "Guide the opportunity",
+    accentRgb: "94,234,212",
+    Icon: ClipboardList,
   },
   {
     id: "templates",
@@ -103,6 +138,8 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
     to: "/app/tools/templates",
     tag: "Workflow",
     highlight: "Use a proven starting point",
+    accentRgb: "251,191,36",
+    Icon: LayoutTemplate,
   },
   {
     id: "room-designer",
@@ -112,6 +149,8 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
     to: "/app/tools/room-wizard",
     tag: "Workflow",
     highlight: "Create a custom design",
+    accentRgb: "244,114,182",
+    Icon: MonitorSmartphone,
   },
   {
     id: "proposal-builder",
@@ -121,6 +160,8 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
     to: "/app/tools/proposal",
     tag: "Output",
     highlight: "Generate deliverables",
+    accentRgb: "129,140,248",
+    Icon: FileText,
   },
   {
     id: "completion-workflow",
@@ -130,6 +171,8 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
     to: "/app/workflow/completion",
     tag: "Output",
     highlight: "Final readiness gate",
+    accentRgb: "248,196,113",
+    Icon: ClipboardCheck,
   },
   {
     id: "training",
@@ -139,5 +182,7 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
     to: "/app/tools/training",
     tag: "Enablement",
     highlight: "Learn as you go",
+    accentRgb: "167,139,250",
+    Icon: GraduationCap,
   },
 ];

@@ -140,7 +140,7 @@ function buildLocalResponse(question: string): GuruResponse {
   const first = matches[0];
 
   const productStartingPoint = first
-    ? `Start with ${first.sku} (${first.name}) as the first WyreStorm direction for this requirement. ${first.summary}`
+    ? `Start with ${first.sku} (${first.name}) as the first WyreStorm SKU suggestion for this requirement. ${first.summary}`
     : "Start with a workflow-led path: use Templates for known room types, Room Wizard for constraint-led design, then move into Proposal Builder once the core requirement is qualified.";
 
   return {

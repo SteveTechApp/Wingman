@@ -2,7 +2,7 @@ import * as React from "react";
 
 export type Money = { currency: "GBP" | "EUR" | "USD" | "OTHER"; value: number };
 
-export type PriceTier = "MSRP" | "Dealer" | "Distributor";
+export type PriceTier = "MSRP" | "Bronze" | "Silver" | "Gold" | "Dealer" | "Distributor";
 
 export type BomLine = {
   id: string;
@@ -23,6 +23,7 @@ export type ProposalMeta = {
   customer?: string;
   currency: Money["currency"];
   marginTargetPct?: number;
+  priceTier?: PriceTier;
 };
 
 export type Proposal = {

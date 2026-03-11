@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import CollapsibleCard from "@/ui2/components/CollapsibleCard";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
 import {
   BUDGET_BIASES,
   MARKETS,
@@ -504,6 +505,9 @@ export default function TemplatesPage() {
       },
       includedSystems: tierProfile.includedSystems,
       uplift: [...tierProfile.uplift, ...upgradeMoves],
+      assumptions,
+      recommendedFamilies: room.recommendedFamilies,
+      recommendedTool: room.nextTool,
       projectName: market.name + " - " + room.name + " (" + tierProfile.label + ")",
       createdAt: new Date().toISOString(),
     };
@@ -512,7 +516,7 @@ export default function TemplatesPage() {
       sessionStorage.setItem(TEMPLATE_SEED_KEY, JSON.stringify(payload, null, 2));
     } catch {}
 
-    nav("/app/projects");
+    nav(WM_ROUTES.newProject);
   }
 
   function goToRecommendedTool() {
@@ -849,7 +853,7 @@ export default function TemplatesPage() {
                     style={{ height: 40, padding: "0 16px" }}
                     onClick={seedTemplateIntoProject}
                   >
-                    Create project from this template
+                    Start a project from this template
                   </button>
 
                   <button
