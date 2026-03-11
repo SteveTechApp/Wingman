@@ -64,9 +64,9 @@
 
 .wm-topbar {
   display: grid;
-  grid-template-columns: 236px minmax(280px, 1fr) auto;
+  grid-template-columns: 252px minmax(260px, 1fr) auto;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   min-height: var(--wm-topbar-h);
   padding: 0 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -98,7 +98,7 @@
   align-items: center;
   justify-content: flex-start;
   min-width: 0;
-  min-height: 42px;
+  min-height: 46px;
 }
 
 .wm-topbar__menu-btn {
@@ -119,8 +119,8 @@
 .wm-topbar__logo {
   display: block;
   width: auto;
-  max-width: 220px;
-  height: 38px;
+  max-width: 246px;
+  height: 42px;
   object-fit: contain;
   filter: drop-shadow(0 1px 6px rgba(49, 125, 209, 0.26));
 }
@@ -176,6 +176,183 @@
   justify-content: flex-end;
 }
 
+.wm-topbar__command-btn {
+  gap: 7px;
+}
+
+.wm-topbar__command-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 166, 230, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(224, 235, 249, 0.82);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.wm-commandPalette__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: start center;
+  padding: 82px 16px 20px;
+  background: rgba(3, 8, 16, 0.62);
+  backdrop-filter: blur(6px);
+}
+
+.wm-commandPalette {
+  width: min(820px, 100%);
+  max-height: min(72vh, 680px);
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(119, 166, 230, 0.18);
+  background:
+    linear-gradient(180deg, rgba(8, 16, 28, 0.98), rgba(6, 12, 21, 0.98));
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.38);
+}
+
+.wm-commandPalette__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wm-commandPalette__searchShell {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(119, 166, 230, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(234, 243, 255, 0.92);
+}
+
+.wm-commandPalette__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: rgba(240, 247, 255, 0.96);
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.wm-commandPalette__input::placeholder {
+  color: rgba(188, 204, 227, 0.6);
+}
+
+.wm-commandPalette__close {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid rgba(119, 166, 230, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(232, 242, 255, 0.88);
+  cursor: pointer;
+}
+
+.wm-commandPalette__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(198, 214, 236, 0.76);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.wm-commandPalette__list {
+  display: grid;
+  gap: 8px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.wm-commandPalette__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(119, 166, 230, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(240, 247, 255, 0.96);
+  text-align: left;
+  cursor: pointer;
+}
+
+.wm-commandPalette__item.is-active,
+.wm-commandPalette__item:hover {
+  border-color: rgba(59, 212, 208, 0.22);
+  background: linear-gradient(135deg, rgba(26, 79, 111, 0.34), rgba(12, 67, 72, 0.22));
+}
+
+.wm-commandPalette__itemCopy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.wm-commandPalette__itemTitle {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.wm-commandPalette__itemDesc {
+  color: rgba(195, 210, 232, 0.74);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.wm-commandPalette__itemMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.wm-commandPalette__itemTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 166, 230, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(221, 234, 251, 0.88);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wm-commandPalette__empty {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px dashed rgba(119, 166, 230, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(195, 210, 232, 0.72);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 /* Shell nav readability pass */
 .wm-nav {
   gap: 10px;
@@ -183,27 +360,38 @@
 }
 
 .wm-nav__top {
+  align-items: center;
   gap: 10px;
 }
 
 .wm-nav__brand {
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .wm-nav__brand-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 14px;
   border: 1px solid rgba(103, 194, 220, 0.22);
   background: linear-gradient(135deg, rgba(8, 34, 70, 0.98), rgba(11, 92, 105, 0.90));
   color: #f4fdff;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 900;
   letter-spacing: 0.08em;
+}
+
+.wm-nav__brand-title {
+  font-size: 17px;
+  line-height: 1.05;
+}
+
+.wm-nav__brand-subtitle {
+  font-size: 12px;
+  line-height: 1.2;
 }
 
 .wm-nav__active-card {
@@ -239,8 +427,12 @@
 }
 
 .wm-nav__item {
-  gap: 6px;
-  padding: 7px 9px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 10px;
   border-radius: 10px;
   min-width: 0;
 }
@@ -259,33 +451,56 @@
 }
 
 .wm-nav__item-line {
-  width: 100%;
+  width: auto;
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 4px;
+  flex: 1 1 auto;
 }
 
 .wm-nav__item-title {
-  flex: 0 1 auto;
+  display: block;
+  width: 100%;
   min-width: 0;
   font-size: 13px;
-  line-height: 1.1;
+  line-height: 1.15;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .wm-nav__item-desc {
-  display: inline-block;
-  flex: 1 1 auto;
-  min-width: 0;
-  font-size: 10.5px;
-  line-height: 1.1;
-  opacity: 0.64;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: none;
+}
+
+.wm-nav__item--workflow:not(.is-active) {
+  border-color: rgba(59, 212, 208, 0.14);
+  background: linear-gradient(135deg, rgba(17, 82, 88, 0.26), rgba(255, 255, 255, 0.02));
+}
+
+.wm-nav__item--workflow:not(.is-active):hover {
+  border-color: rgba(59, 212, 208, 0.24);
+  background: linear-gradient(135deg, rgba(20, 92, 98, 0.34), rgba(255, 255, 255, 0.03));
+}
+
+.wm-nav__item--workflow:not(.is-active) .wm-nav__item-badge {
+  background: linear-gradient(180deg, rgba(59, 212, 208, 0.22), rgba(18, 102, 108, 0.18));
+  border-color: rgba(59, 212, 208, 0.24);
+}
+
+.wm-nav__item--tools:not(.is-active) {
+  border-color: rgba(104, 154, 255, 0.18);
+  background: linear-gradient(135deg, rgba(33, 71, 129, 0.32), rgba(101, 58, 18, 0.16));
+}
+
+.wm-nav__item--tools:not(.is-active):hover {
+  border-color: rgba(127, 176, 255, 0.28);
+  background: linear-gradient(135deg, rgba(36, 82, 146, 0.4), rgba(117, 68, 22, 0.22));
+}
+
+.wm-nav__item--tools:not(.is-active) .wm-nav__item-badge {
+  background: linear-gradient(180deg, rgba(75, 141, 255, 0.26), rgba(242, 140, 40, 0.18));
+  border-color: rgba(127, 176, 255, 0.26);
 }
 
 .wm-btn-nav--primary {
@@ -294,13 +509,14 @@
 }
 
 .wm-footer {
-  height: auto;
-  min-height: 46px;
+  height: var(--wm-topbar-h);
+  min-height: var(--wm-topbar-h);
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  display: block;
-  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
   border-top: 1px solid rgba(115, 231, 255, 0.14) !important;
   background: linear-gradient(180deg, rgba(6, 12, 21, 0.98), rgba(4, 10, 18, 0.99)) !important;
   color: rgba(225, 234, 244, 0.82) !important;
@@ -308,21 +524,23 @@
 }
 
 .wm-footer__row {
-  min-height: 34px;
+  min-height: 100%;
+  height: 100%;
   width: 100%;
   min-width: 0;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
 }
 
 .wm-footer__brandblock {
   min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  white-space: nowrap;
+  display: grid;
+  gap: 1px;
+  align-content: center;
+  max-width: 360px;
+  white-space: normal;
 }
 
 .wm-footer__brand {
@@ -339,18 +557,21 @@
   color: rgba(183, 201, 225, 0.72) !important;
   font-size: 10px;
   letter-spacing: 0.04em;
+  line-height: 1.15;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .wm-footer__links {
   min-width: 0;
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 14px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
+  align-items: center;
+  align-content: center;
+  gap: 2px 18px;
+  overflow: visible;
   scrollbar-width: none;
 }
 
@@ -377,7 +598,10 @@
   text-align: right;
   font-size: 11px;
   color: rgba(213, 227, 245, 0.88) !important;
+  line-height: 1.15;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .wm-btn {
@@ -1182,6 +1406,18 @@
     justify-content: flex-end;
   }
 
+  .wm-topbar__command-btn span,
+  .wm-topbar__command-kbd {
+    display: none;
+  }
+
+  .wm-topbar__command-btn {
+    width: 38px;
+    min-width: 38px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   .wm-shell-body {
     grid-template-columns: 1fr;
     position: relative;
@@ -1246,6 +1482,8 @@
   }
 
   .wm-footer {
+    height: auto;
+    min-height: var(--wm-topbar-h);
     padding: 8px 10px;
   }
 
@@ -1258,7 +1496,7 @@
   .wm-footer__links {
     grid-column: 1 / -1;
     justify-content: flex-start;
-    gap: 14px;
+    gap: 4px 14px;
   }
 
   .wm-footer__copy {
@@ -1300,6 +1538,23 @@
   .wm-topbar__logo {
     max-width: 156px;
     height: 28px;
+  }
+
+  .wm-commandPalette__backdrop {
+    padding: 70px 10px 12px;
+  }
+
+  .wm-commandPalette {
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .wm-commandPalette__item {
+    padding: 11px 12px;
+  }
+
+  .wm-commandPalette__itemMeta {
+    gap: 6px;
   }
 
   .wm-topbar__project-pill {
@@ -1353,6 +1608,7 @@
   }
 
   .wm-footer {
+    height: auto;
     padding: 8px;
   }
 
@@ -1372,7 +1628,7 @@
 
   .wm-footer__links {
     grid-column: auto;
-    gap: 12px;
+    gap: 4px;
   }
 }
 
@@ -1391,7 +1647,7 @@
   }
 
   .wm-nav__item-desc {
-    max-width: 34vw;
+    max-width: none;
   }
 }
 
@@ -1720,6 +1976,42 @@ section{
   color: rgba(123, 238, 240, 0.96);
 }
 
+.wm-gp__checkboxGroup{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 8px;
+}
+
+.wm-gp__checkboxItem{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(4, 16, 38, 0.72);
+  color: rgba(232, 241, 250, 0.9);
+  font-size: 13px;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.wm-gp__checkboxItem.is-selected{
+  border-color: rgba(87, 231, 233, 0.42);
+  background: linear-gradient(180deg, rgba(31, 113, 128, 0.38), rgba(7, 30, 58, 0.86));
+  box-shadow: 0 0 0 1px rgba(87, 231, 233, 0.14) inset;
+}
+
+.wm-gp__checkboxItem input{
+  margin: 0;
+  accent-color: #35d6d8;
+}
+
+.wm-gp__checkboxItem span{
+  flex: 1;
+}
+
 .wm-gp__summaryCard,
 .wm-gp__decisionCard{
   border-radius: 14px;
@@ -1938,6 +2230,23 @@ section{
   flex: 0 0 auto;
   min-height: 30px !important;
   padding: 6px 9px !important;
+}
+
+.wm-dashboard-page__hero-tools .wm-chip--tool-core{
+  border-color: rgba(96, 213, 255, 0.26);
+  background: linear-gradient(135deg, rgba(27, 72, 134, 0.44), rgba(12, 97, 104, 0.28));
+  color: rgba(239, 251, 255, 0.98);
+}
+
+.wm-dashboard-page__hero-tools .wm-chip--tool-market{
+  border-color: rgba(242, 140, 40, 0.24);
+  background: linear-gradient(135deg, rgba(104, 72, 28, 0.42), rgba(96, 52, 22, 0.22));
+  color: rgba(255, 234, 209, 0.98);
+}
+
+.wm-dashboard-page__hero-tools .wm-chip--tool-info{
+  border-color: rgba(188, 206, 229, 0.18);
+  background: linear-gradient(135deg, rgba(36, 51, 72, 0.44), rgba(20, 28, 40, 0.24));
 }
 
 .wm-dashboard-page .wm-section{

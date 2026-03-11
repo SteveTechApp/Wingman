@@ -14,26 +14,25 @@ type NavItem = {
   section: string;
   tone: "mission" | "workflow" | "tools";
   title: string;
-  desc: string;
   short: string;
   to: string;
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { section: "Mission Control", tone: "mission", title: "Dashboard", desc: "Overview", short: "MC", to: "/app/dashboard" },
-  { section: "Mission Control", tone: "mission", title: "Projects", desc: "Active work", short: "PR", to: "/app/projects" },
-  { section: "Mission Control", tone: "mission", title: "Workspace", desc: "Roles", short: "WS", to: "/app/settings/workspace" },
-  { section: "Mission Control", tone: "mission", title: "Project Flow", desc: "Stages", short: "AW", to: "/app/dashboard" },
+  { section: "Mission Control", tone: "mission", title: "Dashboard", short: "MC", to: "/app/dashboard" },
+  { section: "Mission Control", tone: "mission", title: "Projects", short: "PR", to: "/app/projects" },
+  { section: "Mission Control", tone: "mission", title: "Workspace", short: "WS", to: "/app/settings/workspace" },
+  { section: "Mission Control", tone: "mission", title: "Project Flow", short: "AW", to: "/app/dashboard" },
 
-  { section: "Workflow", tone: "workflow", title: "Guided Project", desc: "Capture needs", short: "GP", to: "/app/tools/discovery" },
-  { section: "Workflow", tone: "workflow", title: "Architecture", desc: "Signal path", short: "A", to: "/app/dashboard" },
-  { section: "Workflow", tone: "workflow", title: "Products", desc: "Core devices", short: "P", to: "/app/tools/catalog" },
-  { section: "Workflow", tone: "workflow", title: "Proposal", desc: "Commercial output", short: "PB", to: "/app/tools/proposal" },
+  { section: "Workflow", tone: "workflow", title: "Guided Project", short: "GP", to: "/app/tools/discovery" },
+  { section: "Workflow", tone: "workflow", title: "Architecture", short: "A", to: "/app/dashboard" },
+  { section: "Workflow", tone: "workflow", title: "Products", short: "P", to: "/app/tools/catalog" },
+  { section: "Workflow", tone: "workflow", title: "Proposal", short: "PB", to: "/app/tools/proposal" },
 
-  { section: "Tools & Reference", tone: "tools", title: "Tool Hub", desc: "Browse all", short: "TH", to: "/app/tools" },
-  { section: "Tools & Reference", tone: "tools", title: "Catalogue", desc: "Product ref", short: "PC", to: "/app/tools/catalog" },
-  { section: "Tools & Reference", tone: "tools", title: "Competitors", desc: "Positioning", short: "CC", to: "/app/tools/compare" },
-  { section: "Tools & Reference", tone: "tools", title: "Video Wall", desc: "Displays", short: "VW", to: "/app/tools/video-wall" },
+  { section: "Tools & Reference", tone: "tools", title: "Tool Hub", short: "TH", to: "/app/tools" },
+  { section: "Tools & Reference", tone: "tools", title: "Catalogue", short: "PC", to: "/app/tools/catalog" },
+  { section: "Tools & Reference", tone: "tools", title: "Competitors", short: "CC", to: "/app/tools/compare" },
+  { section: "Tools & Reference", tone: "tools", title: "Video Wall", short: "VW", to: "/app/tools/video-wall" },
 ];
 
 function groupedItems(items: NavItem[]): Array<{ section: string; items: NavItem[] }> {
@@ -115,7 +114,6 @@ export default function MissionControlNav({ collapsed = false, onToggleCollapse 
                       <span className="wm-nav__item-line">
                         <span className="wm-nav__item-title">{item.title}</span>
                       </span>
-                      <span className="wm-nav__item-desc">{item.desc}</span>
                     </span>
                   ) : null}
                 </NavLink>

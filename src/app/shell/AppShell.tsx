@@ -2,6 +2,7 @@ import * as React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
 import TopBar from "@/app/navigation/TopBar";
+import WingmanCommandPalette from "@/app/navigation/WingmanCommandPalette";
 import MissionControlNav from "@/ui2/nav/MissionControlNav";
 import AppFooter from "@/app/layout/AppFooter";
 
@@ -16,6 +17,7 @@ export default function AppShell() {
   });
   const [isMobileViewport, setIsMobileViewport] = React.useState(false);
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
@@ -50,7 +52,25 @@ export default function AppShell() {
     if (isMobileViewport) {
       setMobileNavOpen(false);
     }
+    setCommandPaletteOpen(false);
   }, [isMobileViewport, location.pathname]);
+
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setCommandPaletteOpen((value) => !value);
+        return;
+      }
+
+      if (event.key === "Escape") {
+        setCommandPaletteOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const navCollapsed = isMobileViewport ? false : collapsed;
 
@@ -60,6 +80,7 @@ export default function AppShell() {
         showMobileMenu={isMobileViewport}
         mobileNavOpen={mobileNavOpen}
         onToggleMobileNav={() => setMobileNavOpen((value) => !value)}
+        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
       />
 
       <div className={`wm-shell-body${mobileNavOpen ? " is-mobile-nav-open" : ""}`}>
@@ -93,6 +114,10 @@ export default function AppShell() {
       </div>
 
       <AppFooter />
+      <WingmanCommandPalette
+        open={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+      />
     </div>
   );
 }

@@ -3,11 +3,6 @@ import { APP_BUILD_CHANNEL, APP_VERSION_LABEL, CORPORATE_LINKS } from "@/app/lay
 
 export default function AppFooter() {
   const year = new Date().getFullYear();
-  const splitIndex = Math.ceil(CORPORATE_LINKS.length / 2);
-  const linkRows = [
-    CORPORATE_LINKS.slice(0, splitIndex),
-    CORPORATE_LINKS.slice(splitIndex),
-  ].filter((row) => row.length > 0);
 
   return (
     <footer className="wm-footer wm-footer--corporate">
@@ -18,20 +13,16 @@ export default function AppFooter() {
         </div>
 
         <nav className="wm-footer__links" aria-label="Footer links">
-          {linkRows.map((row, rowIndex) => (
-            <div key={`footer-row-${rowIndex}`} className="wm-footer__links-row">
-              {row.map((item) => (
-                <a
-                  key={item.href}
-                  className="wm-footer__link"
-                  href={item.href}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {item.label}
-                </a>
-              ))}
-            </div>
+          {CORPORATE_LINKS.map((item) => (
+            <a
+              key={item.href}
+              className="wm-footer__link"
+              href={item.href}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {item.label}
+            </a>
           ))}
         </nav>
 

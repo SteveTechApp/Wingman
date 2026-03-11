@@ -10,7 +10,7 @@ export type GuidedProjectFamily =
 
 export type GuidedProjectConfidence = "Low" | "Medium" | "High";
 export type GuidedProjectStep = 0 | 1 | 2 | 3;
-export type GuidedProjectInput = "text" | "number" | "select" | "textarea";
+export type GuidedProjectInput = "text" | "number" | "select" | "textarea" | "multiSelect";
 
 export type GuidedProjectRecord = {
   customer: string;
@@ -22,18 +22,22 @@ export type GuidedProjectRecord = {
   roomHeightM: string;
   installationPath: string;
   cableDistanceM: string;
+  transportDistanceBand: string;
   displayCount: string;
   sourceCount: string;
   sourceTypes: string;
   sourcePlacement: string;
   sourceConnectionPath: string;
   sourceConnectionType: string;
+  signalFormats: string;
+  signalHdr: string;
   sourceCableType: string;
   displayConnectionPath: string;
   displayConnectionType: string;
   displayCableType: string;
   networkEnvironment: string;
   usbNeeds: string;
+  usbStandards: string;
   audioNeeds: string;
   controlNeeds: string;
   budgetBand: string;
@@ -117,6 +121,15 @@ const INSTALL_PATHS = [
   "Not sure yet",
 ] as const;
 
+const TRANSPORT_DISTANCE_BANDS = [
+  "<5m",
+  "<40m",
+  "<70m",
+  "100m",
+  "Over 100m",
+  "Not sure yet",
+] as const;
+
 const SOURCE_PLACEMENT = [
   "Mostly BYOD at the table",
   "Fixed devices in the room",
@@ -146,12 +159,31 @@ const SOURCE_CONNECTION_TYPES = [
   "Not sure yet",
 ] as const;
 
+const SIGNAL_FORMATS = [
+  "1080p",
+  "4K 30",
+  "4K 60",
+  "5K",
+  "8K",
+  "Custom",
+] as const;
+
+const HDR_OPTIONS = [
+  "No HDR / SDR only",
+  "HDR10 or HLG",
+  "Dolby Vision or advanced HDR",
+  "Mixed or customer-defined HDR",
+  "Not sure yet",
+] as const;
+
 const CABLE_TYPES = [
-  "Short local patch",
-  "Passive copper",
-  "Active copper",
-  "Cat6 or Cat6A",
+  "Direct local patch under 5m",
+  "Cat5e",
+  "Cat6",
+  "Cat6A",
+  "Cat7",
   "Fiber",
+  "Existing installed cable - grade unknown",
   "Mixed media",
   "Not sure yet",
 ] as const;
@@ -186,10 +218,17 @@ const NETWORK_ENVIRONMENTS = [
 
 const USB = [
   "None",
-  "Basic USB only",
-  "USB-C BYOD",
-  "Camera plus audio peripherals",
+  "HID control only",
+  "USB-C BYOD docking",
+  "Webcam, microphone, or UC soundbar",
   "Mixed peripherals",
+] as const;
+
+const USB_STANDARDS = [
+  "Legacy USB / HID",
+  "USB 2.0",
+  "USB 3.0",
+  "Mixed USB speeds",
 ] as const;
 
 const AUDIO = [
@@ -233,8 +272,112 @@ function uniq(items: string[]): string[] {
   return Array.from(new Set(items.filter((item) => item.trim())));
 }
 
+export function parseGuidedProjectSelections(value: string | undefined): string[] {
+  return String(value ?? "")
+    .split("|")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+export function toggleGuidedProjectSelection(current: string | undefined, option: string): string {
+  const selected = parseGuidedProjectSelections(current);
+  return selected.includes(option)
+    ? selected.filter((item) => item !== option).join(" | ")
+    : [...selected, option].join(" | ");
+}
+
+function hasSelections(value: string | undefined): boolean {
+  return parseGuidedProjectSelections(value).length > 0;
+}
+
+function formatSelections(value: string | undefined, fallback = "Not confirmed"): string {
+  const selected = parseGuidedProjectSelections(value);
+  return selected.length > 0 ? selected.join(", ") : fallback;
+}
+
+function distanceBandLimit(value: string | undefined): number {
+  switch (lower(value)) {
+    case "<5m":
+      return 5;
+    case "<40m":
+      return 40;
+    case "<70m":
+      return 70;
+    case "100m":
+      return 100;
+    case "over 100m":
+      return 120;
+    default:
+      return 0;
+  }
+}
+
+function deriveDistanceBand(distanceM: number): string {
+  if (distanceM <= 0) return "";
+  if (distanceM < 5) return "<5m";
+  if (distanceM < 40) return "<40m";
+  if (distanceM < 70) return "<70m";
+  if (distanceM <= 100) return "100m";
+  return "Over 100m";
+}
+
+function getTransportBand(record: GuidedProjectRecord): string {
+  return hasText(record.transportDistanceBand)
+    ? record.transportDistanceBand
+    : deriveDistanceBand(num(record.cableDistanceM));
+}
+
+function getTransportReachM(record: GuidedProjectRecord): number {
+  return Math.max(num(record.cableDistanceM), distanceBandLimit(getTransportBand(record)));
+}
+
+function getSignalDemand(value: string | undefined): number {
+  const selected = parseGuidedProjectSelections(value).map((item) => item.toLowerCase());
+  if (selected.some((item) => item.includes("8k"))) return 5;
+  if (selected.some((item) => item.includes("custom"))) return 4;
+  if (selected.some((item) => item.includes("5k"))) return 4;
+  if (selected.some((item) => item.includes("4k 60"))) return 3;
+  if (selected.some((item) => item.includes("4k 30"))) return 2;
+  if (selected.some((item) => item.includes("1080"))) return 1;
+  return 0;
+}
+
+function getHdrDemand(value: string | undefined): number {
+  if (includesAny(value, ["dolby", "advanced"])) return 2;
+  if (includesAny(value, ["hdr"])) return 1;
+  return 0;
+}
+
+function getUsbDemand(value: string | undefined): number {
+  const selected = parseGuidedProjectSelections(value).map((item) => item.toLowerCase());
+  if (selected.some((item) => item.includes("3.0"))) return 3;
+  if (selected.some((item) => item.includes("2.0"))) return 2;
+  if (selected.some((item) => item.includes("legacy") || item.includes("hid"))) return 1;
+  return 0;
+}
+
+function getCableRank(value: string | undefined): number {
+  if (includesAny(value, ["fiber"])) return 6;
+  if (includesAny(value, ["cat7"])) return 5;
+  if (includesAny(value, ["cat6a"])) return 4;
+  if (includesAny(value, ["cat6"])) return 3;
+  if (includesAny(value, ["cat5e"])) return 2;
+  if (includesAny(value, ["direct local patch"])) return 1;
+  return 0;
+}
+
+function needsCapabilityEnvelope(record: GuidedProjectRecord): boolean {
+  return (
+    hasText(record.sourceConnectionType) ||
+    hasText(record.displayConnectionType) ||
+    hasText(record.sourceConnectionPath) ||
+    hasText(record.displayConnectionPath) ||
+    getTransportReachM(record) >= 5
+  );
+}
+
 export function shouldAskInstallationPath(record: GuidedProjectRecord): boolean {
-  return num(record.cableDistanceM) >= 10 || num(record.roomLengthM) >= 8 || num(record.displayCount) >= 2;
+  return getTransportReachM(record) >= 10 || num(record.roomLengthM) >= 8 || num(record.displayCount) >= 2;
 }
 
 export function needsNetworkDetail(record: GuidedProjectRecord): boolean {
@@ -243,8 +386,9 @@ export function needsNetworkDetail(record: GuidedProjectRecord): boolean {
     includesAny(record.sourceConnectionType, ["network", "avoip"]) ||
     includesAny(record.displayConnectionPath, ["decoder"]) ||
     includesAny(record.displayConnectionType, ["decoder", "avoip"]) ||
-    num(record.cableDistanceM) >= 60 ||
-    num(record.displayCount) >= 3
+    getTransportReachM(record) >= 70 ||
+    num(record.displayCount) >= 3 ||
+    (getSignalDemand(record.signalFormats) >= 4 && getTransportReachM(record) >= 40)
   );
 }
 
@@ -260,7 +404,17 @@ function needsDisplayCableDetail(record: GuidedProjectRecord): boolean {
   return (
     hasText(record.displayConnectionType) ||
     includesAny(record.displayConnectionPath, ["receiver", "decoder", "switcher", "processor"]) ||
-    num(record.cableDistanceM) >= 10
+    getTransportReachM(record) >= 10
+  );
+}
+
+function needsUsbStandardDetail(record: GuidedProjectRecord): boolean {
+  return (
+    !includesAny(record.usbNeeds, ["none"]) &&
+    (
+      hasText(record.usbNeeds) ||
+      includesAny(record.sourceTypes, ["camera", "microphone", "soundbar", "byod"])
+    )
   );
 }
 
@@ -274,6 +428,16 @@ const QUESTION_DEFS: GuidedProjectQuestion[] = [
   { id: "roomHeightM", step: 1, label: "Room height (m)", helper: "Helpful for cameras, ceiling equipment, and coverage.", input: "number", placeholder: "2.8" },
   { id: "displayCount", step: 1, label: "Display count", helper: "How many primary displays need feeding?", input: "number", placeholder: "1" },
   { id: "cableDistanceM", step: 1, label: "Longest likely installed route (m)", helper: "Think installed route, not just line-of-sight distance.", input: "number", placeholder: "15" },
+  {
+    id: "transportDistanceBand",
+    step: 1,
+    label: "Primary transport reach band",
+    helper: "Use the nearest reach band if the exact install length is still unknown.",
+    input: "select",
+    options: TRANSPORT_DISTANCE_BANDS,
+    shouldAsk: (record) => num(record.displayCount) > 0 || num(record.sourceCount) > 0 || num(record.cableDistanceM) > 0,
+    branchReason: () => "Reach bands help Wingman compare HDBaseT and extension limits against the real signal envelope.",
+  },
   {
     id: "installationPath",
     step: 1,
@@ -311,14 +475,35 @@ const QUESTION_DEFS: GuidedProjectQuestion[] = [
         : "The first hop is known, so Wingman should lock down the transport type next.",
   },
   {
+    id: "signalFormats",
+    step: 2,
+    label: "Signal formats to support",
+    helper: "Tick the actual formats the customer may need, not just the lowest common denominator.",
+    input: "multiSelect",
+    options: SIGNAL_FORMATS,
+    fullWidth: true,
+    shouldAsk: needsCapabilityEnvelope,
+    branchReason: () => "Resolution and frame-rate targets materially change what a 40m or 70m extension path can support.",
+  },
+  {
+    id: "signalHdr",
+    step: 2,
+    label: "HDR requirement",
+    helper: "HDR pushes the transport harder, so capture it explicitly if it matters.",
+    input: "select",
+    options: HDR_OPTIONS,
+    shouldAsk: (record) => hasSelections(record.signalFormats),
+    branchReason: () => "HDR can turn a borderline transport into a real risk, especially on structured cabling.",
+  },
+  {
     id: "sourceCableType",
     step: 2,
-    label: "Likely source cable medium",
-    helper: "Capture the likely cable media between the source and the next device.",
+    label: "Source-side cable medium or category",
+    helper: "Capture the likely cable grade between the source and the next device.",
     input: "select",
     options: CABLE_TYPES,
     shouldAsk: needsSourceCableDetail,
-    branchReason: () => "Terminations, rack hops, or longer runs change what cable media is realistic.",
+    branchReason: () => "Cable grade matters once resolution, HDR, and USB bandwidth enter the discussion.",
   },
   {
     id: "displayConnectionPath",
@@ -343,12 +528,12 @@ const QUESTION_DEFS: GuidedProjectQuestion[] = [
   {
     id: "displayCableType",
     step: 2,
-    label: "Likely display cable medium",
-    helper: "Capture the likely medium on the last leg to the display.",
+    label: "Display-side cable medium or category",
+    helper: "Capture the likely medium and cable grade on the last leg to the display.",
     input: "select",
     options: CABLE_TYPES,
     shouldAsk: needsDisplayCableDetail,
-    branchReason: () => "The last leg often exposes media limits and extension risk.",
+    branchReason: () => "The last leg often exposes cable-grade limits before the design is committed.",
   },
   {
     id: "networkEnvironment",
@@ -360,7 +545,18 @@ const QUESTION_DEFS: GuidedProjectQuestion[] = [
     shouldAsk: needsNetworkDetail,
     branchReason: () => "The transport path suggests a network backbone may matter, so Wingman needs LAN readiness.",
   },
-  { id: "usbNeeds", step: 3, label: "USB needs", helper: "Only ask what the user workflow really demands.", input: "select", options: USB },
+  { id: "usbNeeds", step: 3, label: "USB workflow", helper: "Capture the user workflow first, then the actual USB bandwidth if it matters.", input: "select", options: USB },
+  {
+    id: "usbStandards",
+    step: 3,
+    label: "USB bandwidth to support",
+    helper: "Tick the USB class required by webcams, microphones, touch, or BYOD peripherals.",
+    input: "multiSelect",
+    options: USB_STANDARDS,
+    fullWidth: true,
+    shouldAsk: needsUsbStandardDetail,
+    branchReason: () => "USB bandwidth changes which extender and transport combinations remain viable.",
+  },
   { id: "audioNeeds", step: 3, label: "Audio needs", helper: "Enough to decide whether audio transport changes the design.", input: "select", options: AUDIO },
   { id: "controlNeeds", step: 3, label: "Control needs", helper: "Simple control versus automation materially changes the path.", input: "select", options: CONTROL },
   { id: "budgetBand", step: 3, label: "Budget band", helper: "Useful for early tiering, not just pricing.", input: "select", options: BUDGET },
@@ -387,18 +583,22 @@ export function createEmptyGuidedProjectRecord(): GuidedProjectRecord {
     roomHeightM: "",
     installationPath: "",
     cableDistanceM: "",
+    transportDistanceBand: "",
     displayCount: "",
     sourceCount: "",
     sourceTypes: "",
     sourcePlacement: "",
     sourceConnectionPath: "",
     sourceConnectionType: "",
+    signalFormats: "",
+    signalHdr: "",
     sourceCableType: "",
     displayConnectionPath: "",
     displayConnectionType: "",
     displayCableType: "",
     networkEnvironment: "",
     usbNeeds: "",
+    usbStandards: "",
     audioNeeds: "",
     controlNeeds: "",
     budgetBand: "",
@@ -443,11 +643,19 @@ export function buildBranchHighlights(record: GuidedProjectRecord): string[] {
 }
 
 export function buildGuidedProjectLenses(record: GuidedProjectRecord): GuidedProjectLens[] {
+  const transportBand = getTransportBand(record);
   const sourceResolved = hasText(record.sourceTypes) && hasText(record.sourcePlacement);
   const firstHopResolved = hasText(record.sourceConnectionPath) && hasText(record.sourceConnectionType);
+  const capabilityResolved =
+    hasText(transportBand) &&
+    hasSelections(record.signalFormats) &&
+    hasText(record.signalHdr) &&
+    (!needsUsbStandardDetail(record) || hasSelections(record.usbStandards));
   const backboneResolved =
     hasText(record.cableDistanceM) &&
     (!shouldAskInstallationPath(record) || hasText(record.installationPath)) &&
+    (!needsSourceCableDetail(record) || hasText(record.sourceCableType)) &&
+    (!needsDisplayCableDetail(record) || hasText(record.displayCableType)) &&
     (!needsNetworkDetail(record) || hasText(record.networkEnvironment));
   const endpointResolved = hasText(record.displayConnectionPath) && hasText(record.displayConnectionType);
 
@@ -477,21 +685,43 @@ export function buildGuidedProjectLenses(record: GuidedProjectRecord): GuidedPro
       ]).slice(0, 2),
     },
     {
+      id: "signal-envelope",
+      title: "Signal envelope",
+      state: capabilityResolved ? "resolved" : (hasText(transportBand) || hasSelections(record.signalFormats) || hasText(record.signalHdr) || hasSelections(record.usbStandards) ? "active" : "watch"),
+      summary: capabilityResolved
+        ? `Wingman has a working envelope of ${transportBand.toLowerCase()} with ${formatSelections(record.signalFormats, "signal formats").toLowerCase()} and ${record.signalHdr.toLowerCase()}.`
+        : "Wingman still needs the real signal envelope before it can judge whether HDBaseT remains viable.",
+      prompts: uniq([
+        hasText(transportBand) ? `Reach band: ${transportBand}.` : "Capture the practical reach band, not just a generic short or long label.",
+        hasSelections(record.signalFormats) ? `Video formats: ${formatSelections(record.signalFormats)}.` : "Tick the real formats: 1080p, 4K30, 4K60, 5K, 8K, or custom.",
+        hasText(record.signalHdr) ? `HDR: ${record.signalHdr}.` : "Confirm whether HDR matters because it changes transport tolerance.",
+        needsUsbStandardDetail(record)
+          ? (hasSelections(record.usbStandards) ? `USB bandwidth: ${formatSelections(record.usbStandards)}.` : "Tick the real USB class if cameras, soundbars, or BYOD peripherals are in play.")
+          : "",
+      ]).slice(0, 4),
+    },
+    {
       id: "backbone",
       title: "Backbone",
-      state: backboneResolved ? "resolved" : (hasText(record.cableDistanceM) || hasText(record.installationPath) || hasText(record.networkEnvironment) ? "active" : "watch"),
+      state: backboneResolved ? "resolved" : (hasText(record.cableDistanceM) || hasText(record.installationPath) || hasText(record.sourceCableType) || hasText(record.displayCableType) || hasText(record.networkEnvironment) ? "active" : "watch"),
       summary: backboneResolved
-        ? "Wingman has enough route detail to reason about extension, switching, and network transport."
-        : "Wingman still needs route, media, or network detail before it can trust the transport recommendation.",
+        ? "Wingman has enough route, cable, and network detail to reason about extension, switching, and distributed transport."
+        : "Wingman still needs route, cable grade, or network detail before it can trust the transport recommendation.",
       prompts: uniq([
         hasText(record.cableDistanceM) ? `Installed route: ${record.cableDistanceM} m.` : "Capture the longest installed route, not just room size.",
         shouldAskInstallationPath(record)
           ? (hasText(record.installationPath) ? `Route style: ${record.installationPath}.` : "Confirm whether the run crosses floor boxes, walls, racks, or corridors.")
           : "",
+        needsSourceCableDetail(record)
+          ? (hasText(record.sourceCableType) ? `Source-side cable: ${record.sourceCableType}.` : "Confirm the cable category on the source side.")
+          : "",
+        needsDisplayCableDetail(record)
+          ? (hasText(record.displayCableType) ? `Display-side cable: ${record.displayCableType}.` : "Confirm the cable category on the display side.")
+          : "",
         needsNetworkDetail(record)
           ? (hasText(record.networkEnvironment) ? `Network: ${record.networkEnvironment}.` : "Confirm whether there is a managed LAN or dedicated AV VLAN available.")
           : "",
-      ]).slice(0, 3),
+      ]).slice(0, 4),
     },
     {
       id: "endpoint-delivery",
@@ -514,96 +744,183 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
   const sourcePlacement = lower(record.sourcePlacement);
   const sourcePath = lower(record.sourceConnectionPath);
   const sourceConnectionType = lower(record.sourceConnectionType);
-  const sourceCableType = lower(record.sourceCableType);
   const displayPath = lower(record.displayConnectionPath);
   const displayConnectionType = lower(record.displayConnectionType);
-  const displayCableType = lower(record.displayCableType);
   const networkEnvironment = lower(record.networkEnvironment);
   const usb = lower(record.usbNeeds);
   const audio = lower(record.audioNeeds);
   const control = lower(record.controlNeeds);
   const distance = num(record.cableDistanceM);
+  const transportBand = getTransportBand(record);
+  const transportReachM = getTransportReachM(record);
+  const signalDemand = getSignalDemand(record.signalFormats);
+  const hdrDemand = getHdrDemand(record.signalHdr);
+  const usbDemand = getUsbDemand(record.usbStandards);
   const displays = num(record.displayCount);
   const sources = num(record.sourceCount);
 
   const families = new Set<GuidedProjectFamily>();
+  const familyScores: Record<GuidedProjectFamily, number> = {
+    Apollo: 0,
+    HDBaseT: 0,
+    AVoIP: 0,
+    Matrix: 0,
+    "USB Extension": 0,
+    "Video Wall": 0,
+  };
   const cues: string[] = [];
   const reasons: string[] = [];
   const nextActions: string[] = [];
 
+  const cableRanks = [getCableRank(record.sourceCableType), getCableRank(record.displayCableType)];
+  const strongestCableRank = Math.max(...cableRanks, 0);
+  const lowerGradeCable =
+    includesAny(record.sourceCableType, ["cat5e"]) ||
+    includesAny(record.displayCableType, ["cat5e"]);
+  const structuredCableKnown =
+    includesAny(record.sourceCableType, ["cat5e", "cat6", "cat6a", "cat7", "fiber"]) ||
+    includesAny(record.displayCableType, ["cat5e", "cat6", "cat6a", "cat7", "fiber"]);
+  const premiumCable = strongestCableRank >= 4;
+  const cableUnknown =
+    (!hasText(record.sourceCableType) && !hasText(record.displayCableType)) ||
+    includesAny(record.sourceCableType, ["unknown", "not sure"]) ||
+    includesAny(record.displayCableType, ["unknown", "not sure"]);
+  const premiumEnvelope = signalDemand >= 4 || hdrDemand >= 2 || usbDemand >= 3;
   const collaborationRoom =
     includesAny(app, ["boardroom", "meeting", "huddle", "training", "flexible"]) ||
     includesAny(usb, ["usb-c", "byod"]);
-
-  if (collaborationRoom) {
-    families.add("Apollo");
-    reasons.push("The room workflow looks collaboration-led, so user experience matters as much as transport.");
-  }
-
-  if (
-    distance >= 15 ||
+  const structuredExtension =
+    transportReachM >= 10 ||
     includesAny(sourcePath, ["floor box", "wall plate", "central rack", "local rack"]) ||
     includesAny(displayPath, ["receiver"]) ||
     includesAny(sourceConnectionType, ["hdbaset"]) ||
     includesAny(displayConnectionType, ["hdbaset"]) ||
-    includesAny(sourceCableType, ["cat6"]) ||
-    includesAny(displayCableType, ["cat6"])
-  ) {
-    families.add("HDBaseT");
-    reasons.push("Structured extension cues are present, so HDBaseT is a credible transport candidate.");
-  }
-
-  if (
-    distance >= 60 ||
+    structuredCableKnown;
+  const networkLed =
     includesAny(sourcePath, ["network"]) ||
     includesAny(displayPath, ["decoder"]) ||
     includesAny(sourceConnectionType, ["network", "avoip"]) ||
-    includesAny(displayConnectionType, ["decoder", "avoip"]) ||
-    includesAny(networkEnvironment, ["managed", "vlan", "shared"]) ||
-    (sources >= 4 && displays >= 3)
-  ) {
-    families.add("AVoIP");
-    reasons.push("Distributed endpoints or network-led transport cues suggest an AVoIP backbone may be cleaner.");
+    includesAny(displayConnectionType, ["decoder", "avoip"]);
+  const networkReady = includesAny(networkEnvironment, ["managed", "vlan", "shared"]);
+
+  function registerFamily(family: GuidedProjectFamily, score: number, reason: string) {
+    families.add(family);
+    familyScores[family] = Math.max(familyScores[family], score);
+    reasons.push(reason);
   }
 
-  if (
-    sources >= 3 ||
-    displays >= 2 ||
-    includesAny(control, ["matrix"]) ||
-    includesAny(sourcePlacement, ["central rack", "mixed", "local rack"]) ||
-    includesAny(sourcePath, ["central rack", "local rack", "mixed"])
-  ) {
-    families.add("Matrix");
-    reasons.push("The I/O density and routing pattern suggest that switching flexibility matters.");
+  if (collaborationRoom) {
+    registerFamily(
+      "Apollo",
+      3 + (usb.includes("byod") ? 1 : 0),
+      "The room workflow looks collaboration-led, so user experience and BYOD simplicity still matter."
+    );
   }
 
-  if (
-    (includesAny(usb, ["camera", "peripheral"]) || includesAny(sourceTypes, ["camera"])) &&
-    (distance >= 5 || includesAny(sourcePlacement, ["rack", "fixed"]))
-  ) {
-    families.add("USB Extension");
-    reasons.push("USB peripherals and room cameras introduce a separate USB transport decision.");
+  let hdbasetScore = 0;
+  if (structuredExtension) hdbasetScore += 2;
+  if (transportReachM > 0 && transportReachM <= 100) hdbasetScore += 2;
+  if (transportReachM > 100) hdbasetScore -= 3;
+  if (structuredCableKnown) hdbasetScore += 2;
+  if (premiumCable) hdbasetScore += 1;
+  if (lowerGradeCable) hdbasetScore -= 1;
+  if (cableUnknown) hdbasetScore -= 1;
+  if (signalDemand <= 2) hdbasetScore += 1;
+  else if (signalDemand === 3 && !lowerGradeCable) hdbasetScore += 1;
+  else if (signalDemand >= 4) hdbasetScore -= 2;
+  if (hdrDemand >= 1 && lowerGradeCable) hdbasetScore -= 1;
+  if (usbDemand <= 1) hdbasetScore += 1;
+  if (usbDemand >= 3) hdbasetScore -= 2;
+  if (transportReachM >= 70 && premiumEnvelope) hdbasetScore -= 1;
+  if (includesAny(sourceConnectionType, ["hdbaset"]) || includesAny(displayConnectionType, ["hdbaset"])) hdbasetScore += 1;
+
+  if (hdbasetScore >= 3) {
+    registerFamily(
+      "HDBaseT",
+      hdbasetScore,
+      `Structured extension cues fit HDBaseT, especially around ${transportBand || `${transportReachM}m`} with ${formatSelections(record.signalFormats).toLowerCase()} and ${record.signalHdr || "unknown HDR"}.`
+    );
   }
 
-  if (
-    includesAny(app, ["control room", "reception", "retail"]) ||
-    displays >= 4 ||
-    includesAny(displayPath, ["video wall processor"]) ||
-    includesAny(displayConnectionType, ["processor"])
-  ) {
-    families.add("Video Wall");
-    reasons.push("The display model looks processor-led or multi-endpoint, not just a simple room display.");
+  let avoipScore = 0;
+  if (transportReachM >= 70) avoipScore += 1;
+  if (transportReachM > 100) avoipScore += 2;
+  if (networkLed) avoipScore += 2;
+  if (networkReady) avoipScore += 2;
+  if (sources >= 4 && displays >= 3) avoipScore += 2;
+  if (premiumEnvelope && transportReachM >= 40) avoipScore += 1;
+  if (signalDemand >= 4) avoipScore += 1;
+  if (usbDemand >= 3) avoipScore += 1;
+
+  if (avoipScore >= 3) {
+    registerFamily(
+      "AVoIP",
+      avoipScore,
+      "Distributed endpoints, higher capability transport, or longer structured runs suggest a network-led AVoIP backbone may be cleaner."
+    );
+  }
+
+  let matrixScore = 0;
+  if (sources >= 3) matrixScore += 2;
+  if (displays >= 2) matrixScore += 1;
+  if (includesAny(control, ["matrix"])) matrixScore += 2;
+  if (includesAny(sourcePlacement, ["central rack", "mixed", "local rack"])) matrixScore += 1;
+  if (includesAny(sourcePath, ["central rack", "local rack", "mixed"])) matrixScore += 1;
+
+  if (matrixScore >= 2) {
+    registerFamily(
+      "Matrix",
+      matrixScore,
+      "The I/O density and routing pattern suggest that switching flexibility matters."
+    );
+  }
+
+  let usbExtensionScore = 0;
+  if (!includesAny(record.usbNeeds, ["none"])) usbExtensionScore += 1;
+  if (usbDemand >= 2) usbExtensionScore += 2;
+  if (includesAny(sourceTypes, ["camera", "soundbar", "microphone"])) usbExtensionScore += 1;
+  if (transportReachM >= 5 || includesAny(sourcePlacement, ["rack", "fixed"])) usbExtensionScore += 1;
+
+  if (usbExtensionScore >= 3) {
+    registerFamily(
+      "USB Extension",
+      usbExtensionScore,
+      "USB peripherals and room cameras introduce a separate USB transport decision that should not be assumed."
+    );
+  }
+
+  let videoWallScore = 0;
+  if (includesAny(app, ["control room", "reception", "retail"])) videoWallScore += 1;
+  if (displays >= 4) videoWallScore += 2;
+  if (includesAny(displayPath, ["video wall processor"])) videoWallScore += 2;
+  if (includesAny(displayConnectionType, ["processor"])) videoWallScore += 2;
+
+  if (videoWallScore >= 2) {
+    registerFamily(
+      "Video Wall",
+      videoWallScore,
+      "The display model looks processor-led or multi-endpoint, not just a simple room display."
+    );
   }
 
   if (families.size === 0) {
-    families.add("Apollo");
-    reasons.push("With limited detail, a collaboration-led baseline is the safest starting point.");
+    registerFamily(
+      "Apollo",
+      1,
+      "With limited detail, a collaboration-led baseline is the safest starting point."
+    );
   }
 
   cues.push(hasText(record.sourcePlacement) ? `Sources are expected to live ${record.sourcePlacement.toLowerCase()}.` : "Source placement is still unclear.");
   cues.push(hasText(record.sourceConnectionPath) ? `Sources likely join the system ${record.sourceConnectionPath.toLowerCase()}.` : "The first hop into the system is still unclear.");
   cues.push(hasText(record.sourceConnectionType) ? `The source-side transport is currently ${record.sourceConnectionType.toLowerCase()}.` : "The source-side transport is still unclear.");
   cues.push(hasText(record.displayConnectionType) ? `Displays are likely fed using ${record.displayConnectionType.toLowerCase()}.` : "The display-side transport is still unclear.");
+  if (hasText(transportBand)) cues.push(`The primary transport reach band is ${transportBand}.`);
+  if (hasSelections(record.signalFormats)) cues.push(`Expected signal formats include ${formatSelections(record.signalFormats)}.`);
+  if (hasText(record.signalHdr)) cues.push(`HDR expectation: ${record.signalHdr}.`);
+  if (hasSelections(record.usbStandards)) cues.push(`USB bandwidth needs include ${formatSelections(record.usbStandards)}.`);
+  if (hasText(record.sourceCableType)) cues.push(`Source-side cable is currently assumed to be ${record.sourceCableType.toLowerCase()}.`);
+  if (hasText(record.displayCableType)) cues.push(`Display-side cable is currently assumed to be ${record.displayCableType.toLowerCase()}.`);
   if (hasText(record.installationPath)) cues.push(`The installed route currently looks like ${record.installationPath.toLowerCase()}.`);
   if (hasText(record.networkEnvironment)) cues.push(`The network environment is currently ${record.networkEnvironment.toLowerCase()}.`);
   if (distance > 0) cues.push(`The longest likely installed route is about ${distance} m.`);
@@ -612,16 +929,26 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
   if (!hasText(record.sourcePlacement)) nextActions.push("Confirm where sources physically live: table, local rack, central rack, or fixed around the room.");
   if (!hasText(record.sourceConnectionPath) || !hasText(record.displayConnectionPath)) nextActions.push("Map the first hop and the final hop before finalising the technology choice.");
   if (!hasText(record.sourceConnectionType) || !hasText(record.displayConnectionType)) nextActions.push("Lock down the transport type on both the source side and display side.");
-  if ((needsSourceCableDetail(record) && !hasText(record.sourceCableType)) || (needsDisplayCableDetail(record) && !hasText(record.displayCableType))) nextActions.push("Confirm the likely cable media because route length and terminations make the medium a real design decision.");
+  if (structuredExtension && !hasText(transportBand)) nextActions.push("Choose the practical reach band so Wingman can compare real extension limits, not just generic distance.");
+  if (needsCapabilityEnvelope(record) && !hasSelections(record.signalFormats)) nextActions.push("Tick the actual signal formats required, because 1080p and 4K60 do not behave the same on structured cabling.");
+  if (hasSelections(record.signalFormats) && !hasText(record.signalHdr)) nextActions.push("Confirm whether HDR matters before committing to an HDBaseT path.");
+  if ((needsSourceCableDetail(record) && !hasText(record.sourceCableType)) || (needsDisplayCableDetail(record) && !hasText(record.displayCableType))) nextActions.push("Confirm the actual cable category because Cat5e, Cat6, Cat6A, and fiber imply very different transport options.");
+  if (needsUsbStandardDetail(record) && !hasSelections(record.usbStandards)) nextActions.push("Tick the required USB class so Wingman can separate simple HID control from USB 2.0 or USB 3.0 transport.");
   if (shouldAskInstallationPath(record) && !hasText(record.installationPath)) nextActions.push("Confirm whether the installed route crosses floor boxes, wall plates, racks, or building fabric.");
   if (needsNetworkDetail(record) && !hasText(record.networkEnvironment)) nextActions.push("Validate switch, VLAN, and control of the network before committing to any decoder-led or AVoIP path.");
   if (!hasText(record.usbNeeds) || !hasText(record.controlNeeds)) nextActions.push("Confirm USB and control expectations so the user experience is not under-scoped.");
+  if (families.has("HDBaseT") && lowerGradeCable && premiumEnvelope) nextActions.push("Validate whether Cat5e is realistic for the demanded format, HDR, and USB mix before offering HDBaseT as the lead path.");
+  if (transportReachM > 100) nextActions.push("Anything beyond 100m should be treated as a distributed or fiber-led conversation, not a routine extender run.");
   if (includesAny(audio, ["dsp", "dante"])) nextActions.push("Validate the audio network and DSP boundary early because it changes transport choices.");
 
   const order: GuidedProjectFamily[] = ["Apollo", "HDBaseT", "AVoIP", "Matrix", "USB Extension", "Video Wall"];
   const ordered = order.filter((family) => families.has(family));
-  const primaryOrder: GuidedProjectFamily[] = ["Video Wall", "AVoIP", "Matrix", "Apollo", "HDBaseT", "USB Extension"];
-  const primary = primaryOrder.find((family) => ordered.includes(family)) ?? "Apollo";
+  const primaryOrder: GuidedProjectFamily[] = ["Video Wall", "AVoIP", "Matrix", "HDBaseT", "Apollo", "USB Extension"];
+  const primary =
+    [...ordered].sort((left, right) => {
+      const scoreDiff = familyScores[right] - familyScores[left];
+      return scoreDiff !== 0 ? scoreDiff : primaryOrder.indexOf(left) - primaryOrder.indexOf(right);
+    })[0] ?? "Apollo";
 
   const knownSignals = [
     record.applicationType,
@@ -630,14 +957,20 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
     record.sourcePlacement,
     record.sourceConnectionPath,
     record.sourceConnectionType,
+    record.signalFormats,
+    record.signalHdr,
     record.displayConnectionPath,
     record.displayConnectionType,
     record.cableDistanceM,
-    record.installationPath,
+    transportBand,
+    record.sourceCableType,
+    record.displayCableType,
+    needsUsbStandardDetail(record) ? record.usbStandards : "not-needed",
+    shouldAskInstallationPath(record) ? record.installationPath : "not-needed",
     needsNetworkDetail(record) ? record.networkEnvironment : "not-needed",
   ].filter((value) => hasText(value) || value === "not-needed").length;
 
-  const confidence: GuidedProjectConfidence = knownSignals >= 9 ? "High" : knownSignals >= 6 ? "Medium" : "Low";
+  const confidence: GuidedProjectConfidence = knownSignals >= 12 ? "High" : knownSignals >= 8 ? "Medium" : "Low";
   const nextToolPath =
     primary === "Video Wall"
       ? WM_ROUTES.videowall
@@ -647,7 +980,7 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
 
   const summary =
     primary === "AVoIP"
-      ? "Wingman currently sees a distributed transport problem, so a managed network backbone is the leading fit."
+      ? "Wingman currently sees a distributed transport problem where capability and reach are starting to push beyond simple extension."
       : primary === "Matrix"
         ? "Wingman currently sees a switching and routing problem, so central matrix logic is the leading fit."
         : primary === "Video Wall"
@@ -656,16 +989,16 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
             ? "Wingman currently sees a collaboration-led room where BYOD and user workflow should steer the technology."
             : primary === "USB Extension"
               ? "Wingman currently sees a USB transport risk that should be solved explicitly."
-              : "Wingman currently sees a structured extension problem where HDBaseT is the leading fit.";
+              : "Wingman currently sees a structured extension problem where HDBaseT is still a credible lead fit once the capability envelope is confirmed.";
 
   return {
     primary,
     confidence,
     families: ordered,
     summary,
-    cues: uniq(cues).slice(0, 5),
-    reasons: uniq(reasons).slice(0, 5),
-    nextActions: uniq(nextActions).slice(0, 5),
+    cues: uniq(cues).slice(0, 7),
+    reasons: uniq(reasons).slice(0, 6),
+    nextActions: uniq(nextActions).slice(0, 6),
     nextToolPath,
   };
 }
@@ -675,6 +1008,12 @@ export function buildGuidedProjectNotes(record: GuidedProjectRecord, advice: Gui
     record.notes.trim(),
     "Guided Project summary:",
     `Primary fit: ${advice.primary} (${advice.confidence})`,
+    `Transport reach band: ${getTransportBand(record) || "Not confirmed"}`,
+    `Installed route: ${record.cableDistanceM || "Not confirmed"} m`,
+    `Signal formats: ${formatSelections(record.signalFormats)}`,
+    `HDR requirement: ${record.signalHdr || "Not confirmed"}`,
+    `USB workflow: ${record.usbNeeds || "Not confirmed"}`,
+    `USB bandwidth: ${formatSelections(record.usbStandards)}`,
     `Source placement: ${record.sourcePlacement || "Not confirmed"}`,
     `Source ingress: ${record.sourceConnectionPath || "Not confirmed"}`,
     `Source transport: ${record.sourceConnectionType || "Not confirmed"}`,
@@ -682,7 +1021,7 @@ export function buildGuidedProjectNotes(record: GuidedProjectRecord, advice: Gui
     `Display path: ${record.displayConnectionPath || "Not confirmed"}`,
     `Display transport: ${record.displayConnectionType || "Not confirmed"}`,
     `Display cable medium: ${record.displayCableType || "Not confirmed"}`,
-    `Installed route: ${record.installationPath || "Not confirmed"}`,
+    `Installed route detail: ${record.installationPath || "Not confirmed"}`,
     `Network environment: ${record.networkEnvironment || "Not confirmed"}`,
     `Source types: ${record.sourceTypes || "Not confirmed"}`,
   ].filter(Boolean).join("\n");

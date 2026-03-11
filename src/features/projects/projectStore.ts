@@ -16,6 +16,10 @@ import {
   buildCustomerSafeSummary,
   type CustomerSummarySnapshot,
 } from "@/features/projects/customerSummary";
+import {
+  RECENT_TEXT_HISTORY_KEYS,
+  rememberRecentTextEntry,
+} from "@/features/inputs/recentTextEntries";
 
 export type DiscoveryProductFamily =
   | "Apollo"
@@ -109,18 +113,22 @@ export type ProjectDiscovery = {
   sourceLocation?: string;
   rackLocation?: string;
   cableDistanceM?: string;
+  transportDistanceBand?: string;
   displayCount?: string;
   sourceCount?: string;
   sourceTypes?: string;
   sourcePlacement?: string;
   sourceConnectionPath?: string;
   sourceConnectionType?: string;
+  signalFormats?: string;
+  signalHdr?: string;
   sourceCableType?: string;
   displayConnectionPath?: string;
   displayConnectionType?: string;
   displayCableType?: string;
   networkEnvironment?: string;
   usbNeeds?: string;
+  usbStandards?: string;
   audioNeeds?: string;
   controlNeeds?: string;
   budgetBand?: string;
@@ -279,6 +287,18 @@ function currentActorEmail(): string {
   return deploymentSession?.user.email || "";
 }
 
+function rememberProjectTextEntries(projectLike: {
+  customer?: string;
+  site?: string;
+  roomName?: string;
+  discovery?: Partial<ProjectDiscovery>;
+}): void {
+  rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.customer, projectLike.customer ?? projectLike.discovery?.customer ?? "");
+  rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.site, projectLike.site ?? projectLike.discovery?.site ?? "");
+  rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.roomName, projectLike.roomName ?? projectLike.discovery?.roomName ?? "");
+  rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.application, projectLike.discovery?.applicationType ?? "");
+}
+
 function canUseBackendPermission(permission: keyof NonNullable<DeploymentSession["permissions"]>): boolean {
   if (!deploymentSession || deploymentSession.mode !== "backend") return true;
   return Boolean(deploymentSession.permissions?.[permission]);
@@ -315,15 +335,19 @@ function normalizeDiscovery(discovery?: ProjectDiscovery): ProjectDiscovery | un
     roomName: discovery.roomName ?? "",
     notes: discovery.notes ?? "",
     installationPath: discovery.installationPath ?? "",
+    transportDistanceBand: discovery.transportDistanceBand ?? "",
     sourceTypes: discovery.sourceTypes ?? "",
     sourcePlacement: discovery.sourcePlacement ?? "",
     sourceConnectionPath: discovery.sourceConnectionPath ?? "",
     sourceConnectionType: discovery.sourceConnectionType ?? "",
+    signalFormats: discovery.signalFormats ?? "",
+    signalHdr: discovery.signalHdr ?? "",
     sourceCableType: discovery.sourceCableType ?? "",
     displayConnectionPath: discovery.displayConnectionPath ?? "",
     displayConnectionType: discovery.displayConnectionType ?? "",
     displayCableType: discovery.displayCableType ?? "",
     networkEnvironment: discovery.networkEnvironment ?? "",
+    usbStandards: discovery.usbStandards ?? "",
     recommendedFamilies: normalizeRecommendedFamilies(discovery.recommendedFamilies),
   };
 }
@@ -804,6 +828,7 @@ export function createProject(partial?: Partial<StoredProject>): StoredProject {
 
   const projects = loadProjects();
   saveProjects([project, ...projects.filter((item) => item.id !== project.id)]);
+  rememberProjectTextEntries(project);
   setActiveProjectIdInternal(project.id);
   touchProjectsTick();
   emit();
@@ -842,7 +867,48 @@ export function updateProject(id: string, patch: Partial<StoredProject>): Stored
   });
 
   saveProjects(next);
+  if (updated) {
+    rememberProjectTextEntries(updated);
+  }
   return updated;
+}
+
+export function duplicateProject(
+  id: string,
+  overrides?: Partial<StoredProject>,
+): StoredProject | undefined {
+  const source = getProjectById(id);
+  if (!source) return undefined;
+
+  const duplicateName = overrides?.name?.trim()
+    ? overrides.name
+    : `${source.name} Copy`;
+
+  return createProject({
+    workspaceId: overrides?.workspaceId ?? source.workspaceId,
+    ownerId: overrides?.ownerId ?? source.ownerId,
+    name: duplicateName,
+    customer: overrides?.customer ?? source.customer,
+    site: overrides?.site ?? source.site,
+    roomName: overrides?.roomName ?? source.roomName,
+    stage: overrides?.stage ?? source.stage ?? "Discovery",
+    status: overrides?.status ?? "Draft",
+    notes: overrides?.notes ?? source.notes,
+    discovery: overrides?.discovery ?? source.discovery,
+    catalog: overrides?.catalog ?? source.catalog,
+    proposal: overrides?.proposal ?? source.proposal,
+    template: overrides?.template ?? source.template,
+    videowall: overrides?.videowall ?? source.videowall,
+    compare: overrides?.compare ?? source.compare,
+    attachments: overrides?.attachments ?? [],
+    comments: overrides?.comments ?? [],
+    shares: overrides?.shares ?? [],
+    recommendationGovernance: overrides?.recommendationGovernance ?? source.recommendationGovernance,
+    customerSummary: overrides?.customerSummary ?? source.customerSummary,
+    auditTrail: [
+      makeAuditEntry("duplicate", `Project duplicated from "${source.name}".`, source.id),
+    ],
+  });
 }
 
 export function applyCompareToProject(
