@@ -1,8 +1,31 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import { fetchProductIntelligenceRecords } from "@/services/productIntelligenceService";
+import {
+  fetchProductIntelligenceRecords,
+  flagProductIntelligenceRecord,
+  setProductIntelligenceRecordArchived,
+  upsertProductIntelligenceRecord,
+} from "@/services/productIntelligenceService";
 
 describe("product intelligence service", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it("preserves explicit WyreStorm category and subcategory labels from the source catalog", async () => {
+    const result = await fetchProductIntelligenceRecords({
+      vendorType: "wyrestorm",
+      sku: "RX-35-POH",
+      limit: 10,
+    });
+
+    const record = result.records[0];
+    expect(record).toBeTruthy();
+    expect(record.category).toBe("Receiver");
+    expect(record.subcategory).toBe("HDBaseT Receiver");
+    expect(record.group).toBe("extender");
+  });
+
   it("uses the expanded fallback seed when no live endpoint is configured", async () => {
     const result = await fetchProductIntelligenceRecords({
       vendorType: "wyrestorm",
@@ -45,5 +68,65 @@ describe("product intelligence service", () => {
     expect(zeevee).toBeTruthy();
     expect(zeevee?.latency).toContain("zero");
     expect(zeevee?.sourceUrls[0]).toContain("zeevee.com");
+  });
+
+  it("applies local admin overrides, review flags, and archive state to the fetched records", async () => {
+    window.localStorage.clear();
+
+    await upsertProductIntelligenceRecord({
+      vendorType: "wyrestorm",
+      brand: "WyreStorm",
+      sku: "RX-35-POH",
+      family: "HDBaseT",
+      name: "35m 4K HDBaseT Receiver",
+      group: "extender",
+      category: "Receiver",
+      subcategory: "HDBaseT Receiver",
+      summary: "Updated locally for admin review.",
+      classificationSource: "manual",
+    });
+
+    await flagProductIntelligenceRecord({
+      vendorType: "wyrestorm",
+      brand: "WyreStorm",
+      sku: "RX-35-POH",
+      message: "Category should stay under receiver hardware.",
+      source: "test",
+      createdBy: "vitest",
+    });
+
+    let result = await fetchProductIntelligenceRecords({
+      vendorType: "wyrestorm",
+      sku: "RX-35-POH",
+      includeArchived: true,
+      limit: 10,
+    });
+
+    expect(result.records[0]?.classificationSource).toBe("manual");
+    expect(result.records[0]?.reviewFlags.some((flag) => flag.message.includes("receiver hardware"))).toBe(true);
+
+    await setProductIntelligenceRecordArchived({
+      vendorType: "wyrestorm",
+      brand: "WyreStorm",
+      sku: "RX-35-POH",
+      archived: true,
+      note: "Archived in test",
+      reviewedBy: "vitest",
+    });
+
+    result = await fetchProductIntelligenceRecords({
+      vendorType: "wyrestorm",
+      sku: "RX-35-POH",
+      limit: 10,
+    });
+    expect(result.records).toHaveLength(0);
+
+    result = await fetchProductIntelligenceRecords({
+      vendorType: "wyrestorm",
+      sku: "RX-35-POH",
+      includeArchived: true,
+      limit: 10,
+    });
+    expect(result.records[0]?.archived).toBe(true);
   });
 });

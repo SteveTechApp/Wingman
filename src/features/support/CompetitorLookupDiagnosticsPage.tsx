@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import CollapsibleCard from "@/ui2/components/CollapsibleCard";
 import {
   clearCompetitorLookupRuntimeDiagnosticsFeed,
   clearCompetitorLookupCache,
@@ -32,6 +34,7 @@ function entryActionId(entry: CompetitorLookupCacheEntrySummary): string {
 }
 
 type RuntimeSeverityFilter = "all" | "warn-error" | "warn" | "error" | "info";
+type AdminView = "overview" | "runtime" | "cache";
 
 function severityRank(value: string): number {
   const severity = String(value ?? "").trim().toLowerCase();
@@ -53,6 +56,13 @@ function matchesSeverityFilter(value: string, filter: RuntimeSeverityFilter): bo
 
 export default function CompetitorLookupDiagnosticsPage() {
   const nav = useNavigate();
+  const auth = useAuth();
+  const canAdmin = Boolean(
+    auth.permissions.canManageWorkspace ||
+    auth.workspaceRole === "admin" ||
+    auth.workspaceRole === "owner" ||
+    auth.user?.role === "admin",
+  );
   const [entries, setEntries] = React.useState<CompetitorLookupCacheEntrySummary[]>(() => getCompetitorLookupCacheEntries());
   const [copyState, setCopyState] = React.useState<"idle" | "copied" | "failed">("idle");
   const [actionMessage, setActionMessage] = React.useState<string>("");
@@ -68,6 +78,7 @@ export default function CompetitorLookupDiagnosticsPage() {
   const [runtimeScopeFilter, setRuntimeScopeFilter] = React.useState<string>("all");
   const [runtimeSearchFilter, setRuntimeSearchFilter] = React.useState<string>("");
   const [runtimePruneDays, setRuntimePruneDays] = React.useState<string>("30");
+  const [activeView, setActiveView] = React.useState<AdminView>("overview");
 
   const lookupEndpoint = getCompetitorLookupEndpoint();
   const diagnosticsEndpoint = getCompetitorLookupDiagnosticsEndpoint();
@@ -107,13 +118,15 @@ export default function CompetitorLookupDiagnosticsPage() {
   }, []);
 
   const refresh = React.useCallback(() => {
+    if (!canAdmin) return;
     refreshLocal();
     void refreshRuntimeFeed();
-  }, [refreshLocal, refreshRuntimeFeed]);
+  }, [canAdmin, refreshLocal, refreshRuntimeFeed]);
 
   React.useEffect(() => {
+    if (!canAdmin) return;
     refresh();
-  }, [refresh]);
+  }, [canAdmin, refresh]);
 
   const clearLookupCache = React.useCallback(() => {
     clearCompetitorLookupCache();
@@ -244,6 +257,29 @@ export default function CompetitorLookupDiagnosticsPage() {
     });
   }, [runtimeEvents, runtimeSeverityFilter, runtimeScopeFilter, runtimeSearchFilter]);
 
+  if (!canAdmin) {
+    return (
+      <div className="wm-page">
+        <section className="wm-hero">
+          <div className="wm-grid" style={{ gap: 10 }}>
+            <div className="wm-title-xl">Competitor Lookup Diagnostics</div>
+            <div className="wm-body-sm wm-page-subtitle">
+              This is an administrator-only support console and is not available to standard users.
+            </div>
+            <div className="wm-actions-row">
+              <button type="button" className="wm-btn wm-btn-primary" onClick={() => nav("/app/tools")}>
+                Back to Tool Hub
+              </button>
+              <button type="button" className="wm-btn" onClick={() => nav("/app/tools/guru")}>
+                Open Guru
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="wm-page wm-lookup-page">
       <section className="wm-hero">
@@ -251,16 +287,14 @@ export default function CompetitorLookupDiagnosticsPage() {
           <div className="wm-grid">
             <div className="wm-title-xl">Competitor Lookup Diagnostics</div>
             <div className="wm-body-sm wm-page-subtitle">
-              Support view for lookup contract health, cache/provenance entries, and competitor DB approval actions.
+              Administrator maintenance view for lookup health, cache governance, and competitor approval actions.
             </div>
+            <div className="wm-chip">Admin only</div>
           </div>
 
           <div className="wm-actions-row">
             <button type="button" className="wm-btn" onClick={() => nav("/app/tools")}>
               Tool Hub
-            </button>
-            <button type="button" className="wm-btn" onClick={() => nav("/app/tools/runtime-diagnostics")}>
-              Runtime Diagnostics
             </button>
             <button type="button" className="wm-btn" onClick={() => nav("/app/tools/product-intelligence")}>
               Product Intelligence
@@ -268,6 +302,45 @@ export default function CompetitorLookupDiagnosticsPage() {
             <button type="button" className="wm-btn" onClick={refresh}>
               Refresh
             </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="wm-section">
+        <div className="wm-actions-row">
+          <button
+            type="button"
+            className={activeView === "overview" ? "wm-btn wm-btn-primary" : "wm-btn"}
+            onClick={() => setActiveView("overview")}
+          >
+            Overview
+          </button>
+          <button
+            type="button"
+            className={activeView === "runtime" ? "wm-btn wm-btn-primary" : "wm-btn"}
+            onClick={() => setActiveView("runtime")}
+          >
+            Runtime Feed
+          </button>
+          <button
+            type="button"
+            className={activeView === "cache" ? "wm-btn wm-btn-primary" : "wm-btn"}
+            onClick={() => setActiveView("cache")}
+          >
+            Cache & Approval Queue
+          </button>
+        </div>
+      </section>
+
+      <section className="wm-section">
+        <CollapsibleCard
+          id="competitor-diagnostics-admin-actions"
+          title="Admin actions"
+          subtitle="Maintenance and cache controls."
+          right={<span className="wm-chip">Queue {queueCount}</span>}
+          defaultCollapsed
+        >
+          <div className="wm-actions-row">
             <button type="button" className="wm-btn" onClick={pruneExpired}>
               Prune Expired
             </button>
@@ -289,67 +362,72 @@ export default function CompetitorLookupDiagnosticsPage() {
               Clear Lookup Cache
             </button>
           </div>
-        </div>
+        </CollapsibleCard>
       </section>
 
-      <section className="wm-grid-cards wm-lookup-page__stats">
-        <article className="wm-work-card">
-          <div className="wm-section-title">Cache entries</div>
-          <div className="wm-title-lg">{entries.length}</div>
-        </article>
-        <article className="wm-work-card">
-          <div className="wm-section-title">Lookup endpoint</div>
-          <div className="wm-title-lg wm-lookup-page__meta">{lookupEndpoint ?? "Not configured"}</div>
-        </article>
-        <article className="wm-work-card">
-          <div className="wm-section-title">Approval endpoint</div>
-          <div className="wm-title-lg wm-lookup-page__meta">{approvalEndpoint ?? "Not configured"}</div>
-        </article>
-        <article className="wm-work-card">
-          <div className="wm-section-title">Approval queue</div>
-          <div className="wm-title-lg wm-lookup-page__meta">{queueCount}</div>
-        </article>
-        <article className="wm-work-card">
-          <div className="wm-section-title">Diagnostics endpoint</div>
-          <div className="wm-title-lg wm-lookup-page__meta">{diagnosticsEndpoint ?? "Not configured"}</div>
-        </article>
-        <article className="wm-work-card">
-          <div className="wm-section-title">Runtime feed</div>
-          <div className="wm-title-lg wm-lookup-page__meta">{runtimeFeedAvailable ? "Online" : "Offline"}</div>
-        </article>
-        <article className="wm-work-card">
-          <div className="wm-section-title">Recent events</div>
-          <div className="wm-title-lg wm-lookup-page__meta">
-            {filteredRuntimeEvents.length} visible
-            {runtimeEvents.length !== filteredRuntimeEvents.length ? ` (${runtimeEvents.length} total)` : ""}
-            {runtimeFeedMaxEvents ? ` / ${runtimeFeedMaxEvents}` : ""}
-          </div>
-        </article>
-        <article className="wm-work-card">
-          <div className="wm-section-title">Feed refreshed</div>
-          <div className="wm-title-lg wm-lookup-page__meta">{runtimeFeedFetchedAt ? formatTimestamp(runtimeFeedFetchedAt) : "-"}</div>
-        </article>
-        <article className="wm-work-card">
-          <div className="wm-section-title">Source mix</div>
-          <div className="wm-title-lg wm-lookup-page__meta">{sources}</div>
-        </article>
-        <article className="wm-work-card">
-          <div className="wm-section-title">Clipboard</div>
-          <div className="wm-title-lg wm-lookup-page__meta">
-            {copyState === "idle" ? "Ready" : copyState === "copied" ? "Copied" : "Copy failed"}
-          </div>
-        </article>
-      </section>
+      {activeView === "overview" ? (
+        <>
+          <section className="wm-grid-cards wm-lookup-page__stats">
+            <article className="wm-work-card">
+              <div className="wm-section-title">Cache entries</div>
+              <div className="wm-title-lg">{entries.length}</div>
+            </article>
+            <article className="wm-work-card">
+              <div className="wm-section-title">Lookup endpoint</div>
+              <div className="wm-title-lg wm-lookup-page__meta">{lookupEndpoint ?? "Not configured"}</div>
+            </article>
+            <article className="wm-work-card">
+              <div className="wm-section-title">Approval endpoint</div>
+              <div className="wm-title-lg wm-lookup-page__meta">{approvalEndpoint ?? "Not configured"}</div>
+            </article>
+            <article className="wm-work-card">
+              <div className="wm-section-title">Approval queue</div>
+              <div className="wm-title-lg wm-lookup-page__meta">{queueCount}</div>
+            </article>
+            <article className="wm-work-card">
+              <div className="wm-section-title">Diagnostics endpoint</div>
+              <div className="wm-title-lg wm-lookup-page__meta">{diagnosticsEndpoint ?? "Not configured"}</div>
+            </article>
+            <article className="wm-work-card">
+              <div className="wm-section-title">Runtime feed</div>
+              <div className="wm-title-lg wm-lookup-page__meta">{runtimeFeedAvailable ? "Online" : "Offline"}</div>
+            </article>
+            <article className="wm-work-card">
+              <div className="wm-section-title">Recent events</div>
+              <div className="wm-title-lg wm-lookup-page__meta">
+                {filteredRuntimeEvents.length} visible
+                {runtimeEvents.length !== filteredRuntimeEvents.length ? ` (${runtimeEvents.length} total)` : ""}
+                {runtimeFeedMaxEvents ? ` / ${runtimeFeedMaxEvents}` : ""}
+              </div>
+            </article>
+            <article className="wm-work-card">
+              <div className="wm-section-title">Feed refreshed</div>
+              <div className="wm-title-lg wm-lookup-page__meta">{runtimeFeedFetchedAt ? formatTimestamp(runtimeFeedFetchedAt) : "-"}</div>
+            </article>
+            <article className="wm-work-card">
+              <div className="wm-section-title">Source mix</div>
+              <div className="wm-title-lg wm-lookup-page__meta">{sources}</div>
+            </article>
+            <article className="wm-work-card">
+              <div className="wm-section-title">Clipboard</div>
+              <div className="wm-title-lg wm-lookup-page__meta">
+                {copyState === "idle" ? "Ready" : copyState === "copied" ? "Copied" : "Copy failed"}
+              </div>
+            </article>
+          </section>
 
-      <section className="wm-section">
-        <div className="wm-section__head">
-          <div className="wm-section__titles">
-            <h2>Backend contract summary</h2>
-            <p>{contractSummary}</p>
-          </div>
-        </div>
-      </section>
+          <section className="wm-section">
+            <div className="wm-section__head">
+              <div className="wm-section__titles">
+                <h2>Backend contract summary</h2>
+                <p>{contractSummary}</p>
+              </div>
+            </div>
+          </section>
+        </>
+      ) : null}
 
+      {activeView === "runtime" ? (
       <section className="wm-section">
         <div className="wm-section__head">
           <div className="wm-section__titles">
@@ -484,7 +562,9 @@ export default function CompetitorLookupDiagnosticsPage() {
           </div>
         )}
       </section>
+      ) : null}
 
+      {activeView === "cache" ? (
       <section className="wm-section">
         <div className="wm-section__head">
           <div className="wm-section__titles">
@@ -549,6 +629,7 @@ export default function CompetitorLookupDiagnosticsPage() {
           </div>
         )}
       </section>
+      ) : null}
     </div>
   );
 }

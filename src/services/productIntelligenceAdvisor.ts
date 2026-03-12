@@ -70,7 +70,6 @@ const lookupCache = new Map<string, CachedLookup>();
 const DEFAULT_SUPPORT_ACTIONS: IntelligenceSupportAction[] = [
   { label: "Open Product Intelligence", to: "/app/tools/product-intelligence" },
   { label: "Open Lookup Diagnostics", to: "/app/tools/competitor-lookup-diagnostics" },
-  { label: "Open Runtime Diagnostics", to: "/app/tools/runtime-diagnostics" },
 ];
 
 function tidy(value: unknown): string {

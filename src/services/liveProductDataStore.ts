@@ -113,7 +113,10 @@ function sanitizeRecord(record: ProductIntelligenceRecord): ProductIntelligenceR
     sku: normalizeSku(record.sku),
     name: tidy(record.name) || normalizeSku(record.sku),
     family: tidy(record.family) || "Unknown",
+    group: tidy(record.group) as ProductIntelligenceRecord["group"],
     category: tidy(record.category) || "Uncategorized",
+    subcategory: tidy(record.subcategory) || undefined,
+    classificationSource: tidy(record.classificationSource) as ProductIntelligenceRecord["classificationSource"] || "inferred",
     summary: tidy(record.summary) || `${normalizeSku(record.sku)} reference record.`,
     features: dedupeStrings(record.features || [], 24),
     transport: tidy(record.transport) || undefined,
@@ -131,6 +134,8 @@ function sanitizeRecord(record: ProductIntelligenceRecord): ProductIntelligenceR
     lastReviewedAt: tidy(record.lastReviewedAt) || undefined,
     reviewedBy: tidy(record.reviewedBy) || undefined,
     evidence: Array.isArray(record.evidence) ? record.evidence : [],
+    reviewFlags: Array.isArray(record.reviewFlags) ? record.reviewFlags : [],
+    archived: Boolean(record.archived),
   };
 }
 
@@ -303,7 +308,7 @@ export function getLiveProductDataRecords(
 ): ProductIntelligenceRecord[] {
   const snapshot = getSnapshot();
   if (!snapshot) return [];
-  return snapshot.records.filter((record) => !vendorType || record.vendorType === vendorType);
+  return snapshot.records.filter((record) => !record.archived && (!vendorType || record.vendorType === vendorType));
 }
 
 export function mapProductIntelligenceRecordToCatalogProduct(record: ProductIntelligenceRecord): CatalogProduct {
@@ -323,8 +328,8 @@ export function mapProductIntelligenceRecordToCatalogProduct(record: ProductInte
     sku: normalizeSku(record.sku),
     name: tidy(record.name) || normalizeSku(record.sku),
     family: tidy(record.family) || "Unknown",
-    category: classification.category || tidy(record.category) || "Uncategorized",
-    subcategory: classification.label,
+    category: tidy(record.category) || classification.category || "Uncategorized",
+    subcategory: tidy(record.subcategory) || classification.label,
     status: record.status === "expired" ? "legacy" : record.status === "approved" ? "active" : "draft",
     summary: tidy(record.summary) || `${normalizeSku(record.sku)} reference record.`,
     sourceUrl: record.sourceUrls[0],
@@ -398,7 +403,10 @@ function toLookupIntelligenceRecord(record: CompetitorLookupRecord): ProductInte
     sku: normalizeSku(record.sku),
     name: tidy(record.name) || normalizeSku(record.sku),
     family: tidy(record.family) || "Unknown",
+    group: classification.group,
     category: classification.category || tidy(record.category) || "Uncategorized",
+    subcategory: classification.label,
+    classificationSource: "inferred",
     summary,
     features: dedupeStrings(record.features || [], 24),
     transport: tidy(record.transport) || undefined,
@@ -445,6 +453,8 @@ function toLookupIntelligenceRecord(record: CompetitorLookupRecord): ProductInte
         notes: "Captured from live competitor lookup workflow.",
       },
     ],
+    reviewFlags: [],
+    archived: false,
   });
 }
 
@@ -463,6 +473,9 @@ export async function captureCompetitorLookupRecord(record: CompetitorLookupReco
     name: normalized.name,
     family: normalized.family,
     category: normalized.category,
+    subcategory: normalized.subcategory,
+    group: normalized.group,
+    classificationSource: normalized.classificationSource,
     summary: normalized.summary,
     features: normalized.features,
     transport: normalized.transport,

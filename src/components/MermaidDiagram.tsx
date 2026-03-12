@@ -8,6 +8,17 @@ interface MermaidDiagramProps {
 
 const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, onNodeClick }) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      if (!onNodeClick) return;
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      const node = target.closest(".node") as HTMLElement | null;
+      const nodeId = node?.id || target.getAttribute("id");
+      if (nodeId) onNodeClick(nodeId);
+    },
+    [onNodeClick]
+  );
 
   React.useEffect(() => {
     if (containerRef.current && definition) {
@@ -46,8 +57,8 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, onNodeClick
         if (containerRef.current) {
             const fallbackHtml = `
               <div class="p-4 text-center">
-                <p class="text-yellow-600 mb-4">?? Diagram rendering temporarily unavailable</p>
-                <p class="text-sm text-text-secondary">Equipment list shows all connected devices</p>
+                <p class="text-yellow-600 mb-4">Diagram preview unavailable in this view.</p>
+                <p class="text-sm text-text-secondary">Use the equipment list to review connected devices.</p>
               </div>
             `;
             containerRef.current.innerHTML = fallbackHtml;
@@ -59,7 +70,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ definition, onNodeClick
   return (
     <div 
         className="p-4\ bg-background\ border\ border-border-color\ rounded-md\ flex\ justify-center\ items-center\ w-full\ h-full"
-        onClick={() => onNodeClick && onNodeClick('mock-node-id')}
+        onClick={handleClick}
         style={{ cursor: onNodeClick ? 'pointer' : 'default' }}
     >
       <div ref={containerRef} className="w-full\ h-full\ flex\ justify-center\ items-center" />

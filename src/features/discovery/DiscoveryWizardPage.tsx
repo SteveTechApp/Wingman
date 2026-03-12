@@ -304,6 +304,7 @@ export default function DiscoveryWizardPage() {
   const [followUpVisibility, setFollowUpVisibility] = React.useState<Partial<Record<GuidedProjectStep, boolean>>>({});
   const deferredRecord = React.useDeferredValue(record);
   const didMountRef = React.useRef(false);
+  const stepTopRef = React.useRef<HTMLDivElement | null>(null);
 
   const advice = React.useMemo(() => buildGuidedProjectAdvice(deferredRecord), [deferredRecord]);
   const progress = React.useMemo(() => getGuidedProjectProgress(record), [record]);
@@ -360,6 +361,19 @@ export default function DiscoveryWizardPage() {
       window.clearTimeout(timer);
     };
   }, [record]);
+
+  React.useEffect(() => {
+    if (activeStep === 0 || typeof window === "undefined") return;
+    if (!stepTopRef.current) return;
+
+    const rect = stepTopRef.current.getBoundingClientRect();
+    const topPadding = 92;
+    const bottomPadding = 20;
+    const fullyVisible = rect.top >= topPadding && rect.bottom <= window.innerHeight - bottomPadding;
+    if (fullyVisible) return;
+
+    stepTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [activeStep]);
 
   function updateField(field: keyof GuidedProjectRecord, value: string) {
     setRecord((previous) => ({ ...previous, [field]: value }));
@@ -516,7 +530,10 @@ export default function DiscoveryWizardPage() {
           <div className="wm-guided-project-page__canvas">
             <div className="wm-dw6__content wm-guided-project-page__layout">
               <div className="wm-guided-project-page__main">
-                <div className="wm-dw6__sectionTop wm-guided-project-page__sectionTop wm-guided-project-page__sectionTop--compact">
+                <div
+                  ref={stepTopRef}
+                  className="wm-dw6__sectionTop wm-guided-project-page__sectionTop wm-guided-project-page__sectionTop--compact"
+                >
                   <div>
                     <h2 className="wm-ui__sectionTitle">Step {activeStep + 1}: {GUIDED_PROJECT_STEPS[activeStep][0]}</h2>
                     <p className="wm-ui__sectionText">{GUIDED_PROJECT_STEPS[activeStep][1]}</p>

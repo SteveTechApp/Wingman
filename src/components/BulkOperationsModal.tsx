@@ -18,7 +18,6 @@ const BulkOperationsModal: React.FC<BulkOperationsModalProps> = ({
   onApplyChanges,
 }) => {
   const [selectedRooms, setSelectedRooms] = React.useState<Set<string>>(new Set());
-  const [operation, setOperation] = React.useState<'tier' | 'equipment' | 'feature'>('tier');
   const [newTier, setNewTier] = React.useState<DesignTier>('Silver');
 
   const toggleRoom = (roomId: string) => {
@@ -47,14 +46,9 @@ const BulkOperationsModal: React.FC<BulkOperationsModalProps> = ({
       return;
     }
 
-    const changes: Partial<RoomData> = {};
-
-    switch (operation) {
-      case 'tier':
-        changes.designTier = newTier;
-        break;
-      // Add more operations here
-    }
+    const changes: Partial<RoomData> = {
+      designTier: newTier,
+    };
 
     onApplyChanges(Array.from(selectedRooms), changes);
     toast.success(`Applied changes to ${selectedRooms.size} room(s)`);
@@ -120,76 +114,18 @@ const BulkOperationsModal: React.FC<BulkOperationsModalProps> = ({
           </div>
         </div>
 
-        {/* Operation Selection */}
         <div>
-          <h3 className="text-lg font-bold mb-3">Select Operation</h3>
-          <div className="space-y-3">
-            <label className="flex items-center gap-3 p-3 rounded-md border border-border-color hover:bg-background-secondary cursor-pointer">
-              <input
-                type="radio"
-                name="operation"
-                value="tier"
-                checked={operation === 'tier'}
-                onChange={(e) => setOperation(e.target.value as any)}
-                className="h-4 w-4"
-              />
-              <div className="flex-1">
-                <p className="font-semibold">Change Design Tier</p>
-                <p className="text-sm text-text-secondary">
-                  Update the quality/budget tier for selected rooms
-                </p>
-              </div>
-            </label>
-
-            <label className="flex items-center gap-3 p-3 rounded-md border border-border-color hover:bg-background-secondary cursor-pointer opacity-50">
-              <input
-                type="radio"
-                name="operation"
-                value="equipment"
-                disabled
-                className="h-4 w-4"
-              />
-              <div className="flex-1">
-                <p className="font-semibold">Add Equipment</p>
-                <p className="text-sm text-text-secondary">
-                  Add the same equipment to multiple rooms (Coming soon)
-                </p>
-              </div>
-            </label>
-
-            <label className="flex items-center gap-3 p-3 rounded-md border border-border-color hover:bg-background-secondary cursor-pointer opacity-50">
-              <input
-                type="radio"
-                name="operation"
-                value="feature"
-                disabled
-                className="h-4 w-4"
-              />
-              <div className="flex-1">
-                <p className="font-semibold">Toggle Features</p>
-                <p className="text-sm text-text-secondary">
-                  Enable/disable features across rooms (Coming soon)
-                </p>
-              </div>
-            </label>
-          </div>
+          <h3 className="text-lg font-bold mb-3">Design Tier</h3>
+          <select
+            value={newTier}
+            onChange={(e) => setNewTier(e.target.value as DesignTier)}
+            className="w-full p-3 border border-border-color rounded-lg bg-input-bg"
+          >
+            <option value="Bronze">Bronze - Budget-friendly</option>
+            <option value="Silver">Silver - Mid-range quality</option>
+            <option value="Gold">Gold - Premium solution</option>
+          </select>
         </div>
-
-        {/* Operation Parameters */}
-        {operation === 'tier' && (
-          <div>
-            <h3 className="text-lg font-bold mb-3">New Design Tier</h3>
-            <select
-              value={newTier}
-              onChange={(e) => setNewTier(e.target.value as DesignTier)}
-              className="w-full p-3 border border-border-color rounded-lg bg-input-bg"
-            >
-              <option value="Bronze">Bronze - Budget-friendly</option>
-              <option value="Silver">Silver - Mid-range quality</option>
-              <option value="Gold">Gold - Premium solution</option>
-            </select>
-          </div>
-        )}
 
         {/* Preview */}
         {selectedRooms.size > 0 && (
@@ -207,4 +143,3 @@ const BulkOperationsModal: React.FC<BulkOperationsModalProps> = ({
 };
 
 export default BulkOperationsModal;
-

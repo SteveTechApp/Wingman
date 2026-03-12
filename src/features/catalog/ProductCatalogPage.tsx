@@ -38,7 +38,7 @@ export default function ProductCatalogPage() {
           <div>
             <div className="wm-title-xl">Product Catalogue</div>
             <div className="wm-body-sm" style={{ marginTop: 2 }}>
-              Live catalogue binding is now connected to the 2026 WyreStorm SKU source with a CatalogService fallback.
+              Browse WyreStorm SKUs by family and quickly locate product notes before opening detailed references.
             </div>
           </div>
 

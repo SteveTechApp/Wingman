@@ -3,6 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, Scale, Search, X } from "lucide-react";
 
 import {
+  findCatalogProductBySku,
+  getCatalogProducts,
+  type CatalogPortCount,
+  type CatalogProduct,
+} from "@/catalog";
+import { getCompetitorProducts, type CompetitorProduct } from "@/competitor/repository";
+import {
   applyCompareToProject,
   createProject,
   ensureActiveProject,
@@ -19,6 +26,7 @@ import {
   searchComparisonRecords,
   toProjectCompareRecord,
 } from "@/services/competitorComparisonService";
+import CollapsibleCard from "@/ui2/components/CollapsibleCard";
 
 type LookupUiState = {
   status: "idle" | "loading" | "ready" | "empty" | "failed";
@@ -32,6 +40,215 @@ type SimpleComparisonSummary = {
   positives: string[];
   negatives: string[];
 };
+
+type MatrixTone = "good" | "warn" | "neutral";
+
+type FeatureMatrixRow = {
+  label: string;
+  competitor: string;
+  wyrestorm: string;
+  tone: MatrixTone;
+};
+
+type CloseWyrestormMatch = {
+  sku: string;
+  name: string;
+  category: string;
+  matchPercent: number;
+  isPrimary: boolean;
+};
+
+function normalizeId(value: string): string {
+  return value.trim().toLowerCase().replace(/[\s_\-/]+/g, "");
+}
+
+function normalizeSku(value: string): string {
+  return value.trim().toUpperCase();
+}
+
+function toTokens(value: string): string[] {
+  return value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/g)
+    .map((item) => item.trim())
+    .filter((item) => item.length > 2);
+}
+
+function hasTokenOverlap(left: string, right: string): boolean {
+  const leftTokens = new Set(toTokens(left));
+  if (leftTokens.size === 0) return false;
+  for (const token of toTokens(right)) {
+    if (leftTokens.has(token)) return true;
+  }
+  return false;
+}
+
+function listOrDash(items?: string[]): string {
+  const values = (items ?? []).map((item) => item.trim()).filter(Boolean);
+  return values.length > 0 ? values.slice(0, 5).join(", ") : "-";
+}
+
+function formatPorts(ports?: CatalogPortCount[]): string {
+  const values = (ports ?? [])
+    .map((port) => {
+      const type = String(port.type ?? "").trim();
+      const count = Number(port.count ?? 0);
+      if (!type) return "";
+      return `${type}${count > 0 ? ` x${count}` : ""}`;
+    })
+    .filter(Boolean);
+
+  return values.length > 0 ? values.join(", ") : "-";
+}
+
+function formatVideo(video?: CatalogProduct["video"]): string {
+  if (!video) return "-";
+  const parts = [
+    video.maxResolution,
+    video.hdmi ? `HDMI ${video.hdmi}` : "",
+    typeof video.bandwidthGbps === "number" ? `${video.bandwidthGbps} Gbps` : "",
+    video.hdr ? "HDR" : "",
+  ].filter(Boolean);
+  return parts.length > 0 ? parts.join(" • ") : "-";
+}
+
+function resolveMatrixTone(competitor: string, wyrestorm: string): MatrixTone {
+  if (competitor === "-" || wyrestorm === "-") return "neutral";
+  if (normalizeId(competitor) === normalizeId(wyrestorm)) return "good";
+  if (hasTokenOverlap(competitor, wyrestorm)) return "good";
+  return "warn";
+}
+
+function buildFeatureMatrixRows(
+  selected: CompetitorComparisonRecord,
+  competitor: CompetitorProduct | null,
+  wyrestorm: CatalogProduct | undefined,
+): FeatureMatrixRow[] {
+  const competitorCategory = competitor
+    ? [competitor.family, competitor.category, competitor.subcategory].filter(Boolean).join(" / ")
+    : selected.category || "-";
+  const wyrestormCategory = wyrestorm
+    ? [wyrestorm.family, wyrestorm.category, wyrestorm.subcategory].filter(Boolean).join(" / ")
+    : selected.wyrestormCategory || "-";
+
+  const rows: FeatureMatrixRow[] = [
+    {
+      label: "Category",
+      competitor: competitorCategory || "-",
+      wyrestorm: wyrestormCategory || "-",
+      tone: resolveMatrixTone(competitorCategory, wyrestormCategory),
+    },
+    {
+      label: "Transport",
+      competitor: competitor?.transport || "-",
+      wyrestorm: wyrestorm?.transport || "-",
+      tone: resolveMatrixTone(competitor?.transport || "-", wyrestorm?.transport || "-"),
+    },
+    {
+      label: "Video capability",
+      competitor: formatVideo(competitor?.video),
+      wyrestorm: formatVideo(wyrestorm?.video),
+      tone: resolveMatrixTone(formatVideo(competitor?.video), formatVideo(wyrestorm?.video)),
+    },
+    {
+      label: "Inputs",
+      competitor: formatPorts(competitor?.inputs),
+      wyrestorm: formatPorts(wyrestorm?.inputs),
+      tone: resolveMatrixTone(formatPorts(competitor?.inputs), formatPorts(wyrestorm?.inputs)),
+    },
+    {
+      label: "Outputs",
+      competitor: formatPorts(competitor?.outputs),
+      wyrestorm: formatPorts(wyrestorm?.outputs),
+      tone: resolveMatrixTone(formatPorts(competitor?.outputs), formatPorts(wyrestorm?.outputs)),
+    },
+    {
+      label: "Control",
+      competitor: listOrDash(competitor?.control),
+      wyrestorm: listOrDash(wyrestorm?.control),
+      tone: resolveMatrixTone(listOrDash(competitor?.control), listOrDash(wyrestorm?.control)),
+    },
+    {
+      label: "Key features",
+      competitor: listOrDash(competitor?.features?.length ? competitor.features : selected.features),
+      wyrestorm: listOrDash(wyrestorm?.features),
+      tone: resolveMatrixTone(
+        listOrDash(competitor?.features?.length ? competitor.features : selected.features),
+        listOrDash(wyrestorm?.features),
+      ),
+    },
+  ];
+
+  return rows;
+}
+
+function scoreCloseMatchCandidate(
+  candidate: CatalogProduct,
+  selected: CompetitorComparisonRecord,
+  competitor: CompetitorProduct | null,
+): number {
+  let score = 0;
+  const candidateCategory = `${candidate.family} ${candidate.category} ${candidate.subcategory || ""}`;
+
+  if (normalizeSku(candidate.sku) === normalizeSku(selected.wyrestormSku)) score += 45;
+  if (hasTokenOverlap(selected.category, candidateCategory)) score += 22;
+  if (competitor && hasTokenOverlap(`${competitor.family} ${competitor.category}`, candidateCategory)) score += 18;
+  if (competitor?.transport && candidate.transport && normalizeId(competitor.transport) === normalizeId(candidate.transport)) score += 10;
+
+  const candidateTags = new Set([
+    ...toTokens(candidateCategory),
+    ...toTokens(candidate.summary || ""),
+    ...toTokens((candidate.features ?? []).join(" ")),
+    ...toTokens((candidate.control ?? []).join(" ")),
+    ...toTokens((candidate.audio ?? []).join(" ")),
+  ]);
+
+  const competitorTerms = [
+    ...toTokens(selected.summary),
+    ...toTokens(selected.category),
+    ...toTokens(selected.features.join(" ")),
+    ...toTokens(competitor?.summary || ""),
+  ];
+
+  let overlap = 0;
+  for (const token of competitorTerms) {
+    if (candidateTags.has(token)) overlap += 1;
+  }
+
+  score += Math.min(28, overlap * 3);
+  if (candidate.status === "active") score += 5;
+
+  return Math.max(0, Math.min(100, score));
+}
+
+function buildCloseWyrestormMatches(
+  selected: CompetitorComparisonRecord,
+  competitor: CompetitorProduct | null,
+  limit = 4,
+): CloseWyrestormMatch[] {
+  const catalog = getCatalogProducts();
+  const ranked = catalog
+    .map((product) => ({
+      product,
+      score: scoreCloseMatchCandidate(product, selected, competitor),
+    }))
+    .filter((item) => item.score > 18)
+    .sort((a, b) => b.score - a.score || a.product.sku.localeCompare(b.product.sku))
+    .slice(0, limit);
+
+  if (ranked.length === 0) return [];
+
+  return ranked.map(({ product, score }) => ({
+    sku: product.sku,
+    name: product.name,
+    category: [product.family, product.category, product.subcategory].filter(Boolean).join(" / "),
+    matchPercent:
+      normalizeSku(product.sku) === normalizeSku(selected.wyrestormSku) && typeof selected.matchScore === "number"
+        ? Math.max(0, Math.min(100, selected.matchScore))
+        : Math.max(20, Math.min(96, score)),
+    isPrimary: normalizeSku(product.sku) === normalizeSku(selected.wyrestormSku),
+  }));
+}
 
 function recordId(item: CompetitorComparisonRecord): string {
   return `${item.brand}::${item.competitorSku}`.toLowerCase();
@@ -354,6 +571,30 @@ export default function CompetitorComparePage() {
     () => (selected ? buildSimpleComparisonSummary(selected) : null),
     [selected],
   );
+  const competitorReference = React.useMemo(() => {
+    if (!selected) return null;
+    const selectedBrand = normalizeId(selected.brand);
+    const selectedSku = normalizeSku(selected.competitorSku);
+    return (
+      getCompetitorProducts().find(
+        (item) =>
+          normalizeSku(item.sku) === selectedSku &&
+          (!selectedBrand || normalizeId(String(item.brand || "")) === selectedBrand),
+      ) ?? null
+    );
+  }, [selected]);
+  const primaryWyrestormProduct = React.useMemo(() => {
+    if (!selected || selected.wyrestormVerified === false) return undefined;
+    return findCatalogProductBySku(selected.wyrestormSku);
+  }, [selected]);
+  const closeWyrestormMatches = React.useMemo(
+    () => (selected ? buildCloseWyrestormMatches(selected, competitorReference) : []),
+    [competitorReference, selected],
+  );
+  const featureMatrixRows = React.useMemo(
+    () => (selected ? buildFeatureMatrixRows(selected, competitorReference, primaryWyrestormProduct) : []),
+    [competitorReference, primaryWyrestormProduct, selected],
+  );
 
   const compareFactors = React.useMemo(() => {
     if (!selected) return [];
@@ -567,34 +808,41 @@ export default function CompetitorComparePage() {
         ) : null}
 
         {!selected ? (
-          <div className="wm-compare-simple__assist-row">
-            <div className="wm-compare-simple__assist-group">
-              <span className="wm-compare-simple__assist-label">Try</span>
-              {quickExamples.map((item) => (
-                <QuickChoiceButton
-                  key={recordId(item)}
-                  item={item}
-                  active={selected ? recordId(selected) === recordId(item) : false}
-                  onSelect={(choice) => selectRecord(choice, "Showing a saved comparison example.")}
-                />
-              ))}
-            </div>
-
-            {hasQuery && savedMatches.length > 0 ? (
+          <CollapsibleCard
+            id="competitor-compare-assist"
+            title="Lookup helpers"
+            subtitle="Saved examples and close matches to speed up comparison."
+            defaultCollapsed
+          >
+            <div className="wm-compare-simple__assist-row">
               <div className="wm-compare-simple__assist-group">
-                <span className="wm-compare-simple__assist-label">Similar</span>
-                {savedMatches.map((item) => (
+                <span className="wm-compare-simple__assist-label">Try</span>
+                {quickExamples.map((item) => (
                   <QuickChoiceButton
                     key={recordId(item)}
                     item={item}
-                    detail={`${buildSimpleComparisonSummary(item).matchPercent}%`}
-                    active={false}
-                    onSelect={(choice) => selectRecord(choice)}
+                    active={selected ? recordId(selected) === recordId(item) : false}
+                    onSelect={(choice) => selectRecord(choice, "Showing a saved comparison example.")}
                   />
                 ))}
               </div>
-            ) : null}
-          </div>
+
+              {hasQuery && savedMatches.length > 0 ? (
+                <div className="wm-compare-simple__assist-group">
+                  <span className="wm-compare-simple__assist-label">Similar</span>
+                  {savedMatches.map((item) => (
+                    <QuickChoiceButton
+                      key={recordId(item)}
+                      item={item}
+                      detail={`${buildSimpleComparisonSummary(item).matchPercent}%`}
+                      active={false}
+                      onSelect={(choice) => selectRecord(choice)}
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </CollapsibleCard>
         ) : null}
       </section>
 
@@ -604,8 +852,7 @@ export default function CompetitorComparePage() {
             <div className="wm-section__titles">
               <h2>Result</h2>
               <p>
-                The fit score is calculated from available product data, not a manual sales
-                preference.
+                SKU fit, competitor context, and close WyreStorm alternatives based on available product data.
               </p>
             </div>
           </div>
@@ -691,6 +938,77 @@ export default function CompetitorComparePage() {
           </article>
 
           <div className="wm-compare-simple__detail-stack">
+            <CollapsibleSection
+              title="Feature matrix"
+              subtitle="Competitor capability summary and closest WyreStorm options."
+              meta={`${featureMatrixRows.length} rows`}
+              defaultOpen
+            >
+              <div className="wm-compare-simple__matrix-layout">
+                <div className="wm-compare-simple__matrix-panel">
+                  <table className="wm-compare-simple__matrix-table">
+                    <thead>
+                      <tr>
+                        <th>Feature</th>
+                        <th>Competitor</th>
+                        <th>WyreStorm</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {featureMatrixRows.map((row) => (
+                        <tr key={row.label} className={`wm-compare-simple__matrix-row is-${row.tone}`}>
+                          <td>{row.label}</td>
+                          <td>{row.competitor}</td>
+                          <td>{row.wyrestorm}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="wm-compare-simple__matrix-panel">
+                  <div className="wm-compare-simple__subhead">Close WyreStorm matches</div>
+                  <div className="wm-compare-simple__match-list">
+                    {closeWyrestormMatches.length > 0 ? (
+                      closeWyrestormMatches.map((match) => {
+                        const tone = matchTone(match.matchPercent);
+                        return (
+                          <article
+                            key={match.sku}
+                            className={`wm-compare-simple__match-item${match.isPrimary ? " is-primary" : ""}`}
+                          >
+                            <div className="wm-compare-simple__match-head">
+                              <div className="wm-card__title">{match.sku}</div>
+                              <span
+                                className="wm-compare-simple__match-percent"
+                                style={{
+                                  borderColor: tone.labelBorder,
+                                  background: tone.labelBackground,
+                                  color: tone.accent,
+                                }}
+                              >
+                                {match.matchPercent}%
+                              </span>
+                            </div>
+                            <div className="wm-card__subtitle">{match.name}</div>
+                            <div className="wm-compare-simple__result-caption">{match.category || "-"}</div>
+                          </article>
+                        );
+                      })
+                    ) : (
+                      <div className="wm-compare-simple__result-caption">
+                        No close catalog matches were detected from the current lookup record.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="wm-compare-simple__result-caption">
+                {competitorReference?.summary || selected.summary}
+              </div>
+            </CollapsibleSection>
+
             <CollapsibleSection
               title="Comparison notes"
               subtitle="Key fit signals and trade-offs."

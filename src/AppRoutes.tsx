@@ -35,7 +35,6 @@ const CableSchedulePage = React.lazy(() => import("@/features/cables/CableSchedu
 const VideoWallBuilderPage = React.lazy(() => import("@/features/videowall/VideoWallBuilderPage"));
 const TemplatesPage = React.lazy(() => import("@/features/templates/TemplatesPage"));
 const WorkspaceAdminPage = React.lazy(() => import("@/features/workspace/WorkspaceAdminPage"));
-const RuntimeDiagnosticsPage = React.lazy(() => import("@/features/support/RuntimeDiagnosticsPage"));
 const CompetitorLookupDiagnosticsPage = React.lazy(() => import("@/features/support/CompetitorLookupDiagnosticsPage"));
 const ProductIntelligencePage = React.lazy(() => import("@/features/support/ProductIntelligencePage"));
 
@@ -104,12 +103,12 @@ export default function AppRoutes() {
           <Route path="tools/block-diagram" element={<BlockDiagramPage />} />
           <Route path="tools/design-review" element={<ProjectDesignReviewPage />} />
           <Route path="tools/guru" element={<GuruPage />} />
-          <Route path="tools/runtime-diagnostics" element={<RuntimeDiagnosticsPage />} />
+          <Route path="tools/runtime-diagnostics" element={<Navigate to="/app/tools" replace />} />
           <Route path="tools/competitor-lookup-diagnostics" element={<CompetitorLookupDiagnosticsPage />} />
           <Route path="tools/product-intelligence" element={<ProductIntelligencePage />} />
 
           {/* Support */}
-          <Route path="support/runtime-diagnostics" element={<RuntimeDiagnosticsPage />} />
+          <Route path="support/runtime-diagnostics" element={<Navigate to="/app/tools" replace />} />
           <Route path="support/competitor-lookup-diagnostics" element={<CompetitorLookupDiagnosticsPage />} />
           <Route path="support/product-intelligence" element={<ProductIntelligencePage />} />
 

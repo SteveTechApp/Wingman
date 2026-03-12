@@ -181,7 +181,7 @@ export default function ExportSnapshotPage() {
           <header className="wm-export-header">
             <div>
               <h1>{projectName}</h1>
-              <div className="wm-export-sub">WyreStorm Wingman | Internal snapshot</div>
+              <div className="wm-export-sub">WyreStorm Wingman | Project snapshot</div>
             </div>
 
             <div className="wm-export-meta">
@@ -244,7 +244,7 @@ export default function ExportSnapshotPage() {
 
           <footer className="wm-docfooter">
             <div className="wm-docfooter__left">
-              <span className="wm-docfooter__tag">Internal use</span>
+              <span className="wm-docfooter__tag">Project record</span>
               <span className="wm-docfooter__muted">Generated {today.toLocaleString()}</span>
             </div>
             <div className="wm-docfooter__right no-print">
