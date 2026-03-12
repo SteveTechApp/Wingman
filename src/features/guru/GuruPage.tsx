@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
+import { Bot } from "lucide-react";
 import { askGuru, type GuruAnswer, type GuruMode as ApiGuruMode } from "@/features/ai/guru/guruApi";
 import { getActiveProject, updateProject } from "@/features/projects/projectStore";
 import { addLineToSavedProposal } from "@/proposal/bom/store";
@@ -22,6 +24,13 @@ type GuruPanelLayout = {
   height: number;
 };
 
+type GuruPanelPosition = {
+  left: number;
+  top: number;
+};
+
+type GuruResizeCorner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+
 type GuruModeDef = {
   id: GuruMode;
   label: string;
@@ -33,7 +42,11 @@ type GuruModeDef = {
 
 const STORAGE_KEY = "wm_guru_workspace_v3";
 const PANEL_LAYOUT_KEY = "wm_guru_panel_layout_v1";
+const PANEL_POSITION_KEY = "wm_guru_panel_position_v1";
 const DEFAULT_PANEL_LAYOUT: GuruPanelLayout = { width: 520, height: 680 };
+const PANEL_MIN_WIDTH = 360;
+const PANEL_MIN_HEIGHT = 420;
+const PANEL_VIEWPORT_MARGIN = 6;
 
 const MODE_DEFS: Record<GuruMode, GuruModeDef> = {
   general: {
@@ -187,8 +200,8 @@ function readPanelLayout(): GuruPanelLayout {
     const width = Number(parsed.width);
     const height = Number(parsed.height);
     return {
-      width: Number.isFinite(width) && width >= 360 ? width : DEFAULT_PANEL_LAYOUT.width,
-      height: Number.isFinite(height) && height >= 420 ? height : DEFAULT_PANEL_LAYOUT.height,
+      width: Number.isFinite(width) && width >= PANEL_MIN_WIDTH ? width : DEFAULT_PANEL_LAYOUT.width,
+      height: Number.isFinite(height) && height >= PANEL_MIN_HEIGHT ? height : DEFAULT_PANEL_LAYOUT.height,
     };
   } catch {
     return DEFAULT_PANEL_LAYOUT;
@@ -202,36 +215,93 @@ function writePanelLayout(layout: GuruPanelLayout) {
   }
 }
 
+function defaultPanelPosition(layout: GuruPanelLayout): GuruPanelPosition {
+  if (typeof window === "undefined") {
+    return { left: 16, top: 84 };
+  }
+
+  return {
+    left: window.innerWidth - layout.width - 16,
+    top: window.innerHeight - layout.height - 84,
+  };
+}
+
+function readPanelPosition(layout: GuruPanelLayout): GuruPanelPosition {
+  try {
+    const fallback = defaultPanelPosition(layout);
+    const raw = localStorage.getItem(PANEL_POSITION_KEY);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw) as Partial<GuruPanelPosition>;
+    const left = Number(parsed.left);
+    const top = Number(parsed.top);
+    return {
+      left: Number.isFinite(left) ? left : fallback.left,
+      top: Number.isFinite(top) ? top : fallback.top,
+    };
+  } catch {
+    return defaultPanelPosition(layout);
+  }
+}
+
+function writePanelPosition(position: GuruPanelPosition) {
+  try {
+    localStorage.setItem(PANEL_POSITION_KEY, JSON.stringify(position));
+  } catch {
+  }
+}
+
 const pageStyles = `
 .wm-guru-float-page{
   position: relative;
   min-height: 0;
   padding: 0;
   overflow: visible;
+  pointer-events: none;
 }
 
 .wm-guru-float-launcher{
   position: fixed;
   right: 16px;
   bottom: 16px;
-  z-index: 120;
-  min-height: 46px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(125, 189, 255, 0.42);
-  background: linear-gradient(135deg, rgba(58, 121, 212, 0.92), rgba(33, 161, 117, 0.92));
-  color: rgba(247, 252, 255, 0.98);
-  font-size: 13px;
-  font-weight: 800;
+  z-index: 6002;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 196, 124, 0.62);
+  background: linear-gradient(135deg, rgba(239, 133, 42, 0.96), rgba(208, 88, 25, 0.96));
+  color: rgba(255, 247, 234, 0.98);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  box-shadow: 0 20px 38px rgba(4, 12, 24, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(255, 191, 118, 0.28) inset,
+    0 0 30px rgba(236, 123, 39, 0.44),
+    0 16px 36px rgba(4, 12, 24, 0.45);
+  pointer-events: auto;
+}
+
+.wm-guru-float-launcher.is-open{
+  border-color: rgba(255, 220, 162, 0.76);
+  background: linear-gradient(135deg, rgba(248, 146, 49, 0.98), rgba(219, 96, 28, 0.98));
+  box-shadow:
+    0 0 0 1px rgba(255, 212, 151, 0.36) inset,
+    0 0 36px rgba(244, 136, 46, 0.58),
+    0 18px 40px rgba(4, 12, 24, 0.48);
+}
+
+.wm-guru-float-launcher__icon{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 8px rgba(255, 230, 195, 0.44));
 }
 
 .wm-guru-float-panel{
   position: fixed;
   right: 16px;
-  bottom: 16px;
-  z-index: 121;
+  bottom: 84px;
+  z-index: 6001;
   width: min(520px, calc(100vw - 24px));
   height: min(680px, calc(100vh - 96px));
   min-width: 360px;
@@ -247,8 +317,8 @@ const pageStyles = `
   box-sizing: border-box;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  resize: both;
   overflow: hidden;
+  pointer-events: auto;
 }
 
 .wm-guru-float-panel__head{
@@ -258,6 +328,14 @@ const pageStyles = `
   gap: 12px;
   padding: 14px 14px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wm-guru-float-panel__dragzone{
+  display: grid;
+  gap: 4px;
+  cursor: move;
+  user-select: none;
+  touch-action: none;
 }
 
 .wm-guru-float-panel__head-actions{
@@ -391,6 +469,67 @@ const pageStyles = `
   line-height: 1.45;
 }
 
+.wm-guru-float-panel__corner{
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  z-index: 2;
+}
+
+.wm-guru-float-panel__corner::after{
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-color: rgba(158, 207, 255, 0.74);
+}
+
+.wm-guru-float-panel__corner--tl{
+  top: 0;
+  left: 0;
+  cursor: nwse-resize;
+}
+
+.wm-guru-float-panel__corner--tl::after{
+  border-top: 1px solid rgba(158, 207, 255, 0.74);
+  border-left: 1px solid rgba(158, 207, 255, 0.74);
+}
+
+.wm-guru-float-panel__corner--tr{
+  top: 0;
+  right: 0;
+  cursor: nesw-resize;
+}
+
+.wm-guru-float-panel__corner--tr::after{
+  border-top: 1px solid rgba(158, 207, 255, 0.74);
+  border-right: 1px solid rgba(158, 207, 255, 0.74);
+}
+
+.wm-guru-float-panel__corner--bl{
+  bottom: 0;
+  left: 0;
+  cursor: nesw-resize;
+}
+
+.wm-guru-float-panel__corner--bl::after{
+  border-bottom: 1px solid rgba(158, 207, 255, 0.74);
+  border-left: 1px solid rgba(158, 207, 255, 0.74);
+}
+
+.wm-guru-float-panel__corner--br{
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+}
+
+.wm-guru-float-panel__corner--br::after{
+  border-bottom: 1px solid rgba(158, 207, 255, 0.74);
+  border-right: 1px solid rgba(158, 207, 255, 0.74);
+}
+
 @media (max-width: 720px){
   .wm-guru-float-page{
     padding: 0;
@@ -405,7 +544,14 @@ const pageStyles = `
     min-height: 360px;
     max-width: none;
     bottom: 10px;
-    resize: none;
+  }
+
+  .wm-guru-float-panel__dragzone{
+    cursor: default;
+  }
+
+  .wm-guru-float-panel__corner{
+    display: none;
   }
 
   .wm-guru-float-launcher{
@@ -418,7 +564,112 @@ const pageStyles = `
 export default function GuruPage() {
   const navigate = useNavigate();
 
+  const clampLayoutToViewport = React.useCallback((layout: GuruPanelLayout): GuruPanelLayout => {
+    if (typeof window === "undefined") return layout;
+    const maxWidth = Math.max(PANEL_MIN_WIDTH, window.innerWidth - 24);
+    const maxHeight = Math.max(PANEL_MIN_HEIGHT, window.innerHeight - 24);
+    return {
+      width: Math.min(maxWidth, Math.max(PANEL_MIN_WIDTH, layout.width)),
+      height: Math.min(maxHeight, Math.max(PANEL_MIN_HEIGHT, layout.height)),
+    };
+  }, []);
+
+  const clampPositionToViewport = React.useCallback(
+    (position: GuruPanelPosition, layout: GuruPanelLayout): GuruPanelPosition => {
+      if (typeof window === "undefined") return position;
+      const maxLeft = Math.max(PANEL_VIEWPORT_MARGIN, window.innerWidth - layout.width - PANEL_VIEWPORT_MARGIN);
+      const maxTop = Math.max(PANEL_VIEWPORT_MARGIN, window.innerHeight - layout.height - PANEL_VIEWPORT_MARGIN);
+      return {
+        left: Math.min(maxLeft, Math.max(PANEL_VIEWPORT_MARGIN, position.left)),
+        top: Math.min(maxTop, Math.max(PANEL_VIEWPORT_MARGIN, position.top)),
+      };
+    },
+    [],
+  );
+
+  const calculateResizeGeometry = React.useCallback(
+    (
+      state: {
+        corner: GuruResizeCorner;
+        startX: number;
+        startY: number;
+        startLeft: number;
+        startTop: number;
+        startWidth: number;
+        startHeight: number;
+      },
+      clientX: number,
+      clientY: number,
+    ): { layout: GuruPanelLayout; position: GuruPanelPosition } => {
+      if (typeof window === "undefined") {
+        return {
+          layout: { width: state.startWidth, height: state.startHeight },
+          position: { left: state.startLeft, top: state.startTop },
+        };
+      }
+
+      const safeClamp = (value: number, minValue: number, maxValue: number) => {
+        const upper = Math.max(minValue, maxValue);
+        return Math.min(upper, Math.max(minValue, value));
+      };
+
+      const dx = clientX - state.startX;
+      const dy = clientY - state.startY;
+      const startRight = state.startLeft + state.startWidth;
+      const startBottom = state.startTop + state.startHeight;
+      const maxRight = window.innerWidth - PANEL_VIEWPORT_MARGIN;
+      const maxBottom = window.innerHeight - PANEL_VIEWPORT_MARGIN;
+
+      let left = state.startLeft;
+      let top = state.startTop;
+      let width = state.startWidth;
+      let height = state.startHeight;
+
+      if (state.corner === "bottom-right") {
+        const movingRight = safeClamp(startRight + dx, state.startLeft + PANEL_MIN_WIDTH, maxRight);
+        const movingBottom = safeClamp(startBottom + dy, state.startTop + PANEL_MIN_HEIGHT, maxBottom);
+        width = movingRight - state.startLeft;
+        height = movingBottom - state.startTop;
+      } else if (state.corner === "top-left") {
+        const movingLeft = safeClamp(state.startLeft + dx, PANEL_VIEWPORT_MARGIN, startRight - PANEL_MIN_WIDTH);
+        const movingTop = safeClamp(state.startTop + dy, PANEL_VIEWPORT_MARGIN, startBottom - PANEL_MIN_HEIGHT);
+        left = movingLeft;
+        top = movingTop;
+        width = startRight - movingLeft;
+        height = startBottom - movingTop;
+      } else if (state.corner === "top-right") {
+        const movingRight = safeClamp(startRight + dx, state.startLeft + PANEL_MIN_WIDTH, maxRight);
+        const movingTop = safeClamp(state.startTop + dy, PANEL_VIEWPORT_MARGIN, startBottom - PANEL_MIN_HEIGHT);
+        top = movingTop;
+        width = movingRight - state.startLeft;
+        height = startBottom - movingTop;
+      } else {
+        const movingLeft = safeClamp(state.startLeft + dx, PANEL_VIEWPORT_MARGIN, startRight - PANEL_MIN_WIDTH);
+        const movingBottom = safeClamp(startBottom + dy, state.startTop + PANEL_MIN_HEIGHT, maxBottom);
+        left = movingLeft;
+        width = startRight - movingLeft;
+        height = movingBottom - state.startTop;
+      }
+
+      return {
+        layout: {
+          width: Math.round(width),
+          height: Math.round(height),
+        },
+        position: {
+          left: Math.round(left),
+          top: Math.round(top),
+        },
+      };
+    },
+    [],
+  );
+
   const initial = React.useMemo(() => readState(), []);
+  const initialPanelLayout = React.useMemo(
+    () => clampLayoutToViewport(readPanelLayout()),
+    [clampLayoutToViewport],
+  );
   const [mode, setMode] = React.useState<GuruMode>(initial.mode);
   const [question, setQuestion] = React.useState(initial.question);
   const [context, setContext] = React.useState(initial.context);
@@ -430,8 +681,28 @@ export default function GuruPage() {
   const [transferMessage, setTransferMessage] = React.useState("");
   const [panelOpen, setPanelOpen] = React.useState(false);
   const [contextOpen, setContextOpen] = React.useState(false);
-  const [panelLayout, setPanelLayout] = React.useState<GuruPanelLayout>(() => readPanelLayout());
-  const panelRef = React.useRef<HTMLElement | null>(null);
+  const [panelLayout, setPanelLayout] = React.useState<GuruPanelLayout>(initialPanelLayout);
+  const [panelPosition, setPanelPosition] = React.useState<GuruPanelPosition>(() =>
+    clampPositionToViewport(readPanelPosition(initialPanelLayout), initialPanelLayout),
+  );
+  const [isCompactViewport, setIsCompactViewport] = React.useState(() =>
+    typeof window !== "undefined" ? window.innerWidth <= 720 : false,
+  );
+  const dragRef = React.useRef<null | {
+    startX: number;
+    startY: number;
+    startLeft: number;
+    startTop: number;
+  }>(null);
+  const resizeRef = React.useRef<null | {
+    corner: GuruResizeCorner;
+    startX: number;
+    startY: number;
+    startLeft: number;
+    startTop: number;
+    startWidth: number;
+    startHeight: number;
+  }>(null);
 
   React.useEffect(() => {
     writeState({ mode, question, context });
@@ -442,27 +713,109 @@ export default function GuruPage() {
   }, [panelLayout]);
 
   React.useEffect(() => {
-    if (!panelOpen || !panelRef.current || typeof ResizeObserver === "undefined") {
-      return undefined;
-    }
+    writePanelPosition(panelPosition);
+  }, [panelPosition]);
 
-    const node = panelRef.current;
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (!entry) return;
-      const next = {
-        width: Math.round(entry.contentRect.width),
-        height: Math.round(entry.contentRect.height),
+  React.useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const handleResize = () => {
+      const compact = window.innerWidth <= 720;
+      setIsCompactViewport(compact);
+      setPanelLayout((currentLayout) => {
+        const nextLayout = clampLayoutToViewport(currentLayout);
+        setPanelPosition((currentPosition) => clampPositionToViewport(currentPosition, nextLayout));
+        return nextLayout;
+      });
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [clampLayoutToViewport, clampPositionToViewport]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (isCompactViewport) return;
+
+      if (dragRef.current) {
+        const dx = event.clientX - dragRef.current.startX;
+        const dy = event.clientY - dragRef.current.startY;
+        const next = clampPositionToViewport(
+          {
+            left: dragRef.current.startLeft + dx,
+            top: dragRef.current.startTop + dy,
+          },
+          panelLayout,
+        );
+        setPanelPosition((current) =>
+          current.left === next.left && current.top === next.top ? current : next,
+        );
+        return;
+      }
+
+      if (resizeRef.current) {
+        const next = calculateResizeGeometry(resizeRef.current, event.clientX, event.clientY);
+        setPanelLayout((current) =>
+          current.width === next.layout.width && current.height === next.layout.height
+            ? current
+            : next.layout,
+        );
+        setPanelPosition((current) =>
+          current.left === next.position.left && current.top === next.position.top
+            ? current
+            : next.position,
+        );
+      }
+    };
+
+    const stopInteractions = () => {
+      dragRef.current = null;
+      resizeRef.current = null;
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", stopInteractions);
+    window.addEventListener("pointercancel", stopInteractions);
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", stopInteractions);
+      window.removeEventListener("pointercancel", stopInteractions);
+    };
+  }, [calculateResizeGeometry, clampPositionToViewport, isCompactViewport, panelLayout]);
+
+  const startPanelDrag = React.useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (isCompactViewport || event.button !== 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      dragRef.current = {
+        startX: event.clientX,
+        startY: event.clientY,
+        startLeft: panelPosition.left,
+        startTop: panelPosition.top,
       };
+    },
+    [isCompactViewport, panelPosition.left, panelPosition.top],
+  );
 
-      setPanelLayout((current) =>
-        current.width === next.width && current.height === next.height ? current : next
-      );
-    });
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [panelOpen]);
+  const startPanelResize = React.useCallback(
+    (corner: GuruResizeCorner) => (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (isCompactViewport || event.button !== 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      resizeRef.current = {
+        corner,
+        startX: event.clientX,
+        startY: event.clientY,
+        startLeft: panelPosition.left,
+        startTop: panelPosition.top,
+        startWidth: panelLayout.width,
+        startHeight: panelLayout.height,
+      };
+    },
+    [isCompactViewport, panelLayout.height, panelLayout.width, panelPosition.left, panelPosition.top],
+  );
 
   const def = MODE_DEFS[mode];
   const promptPreview = React.useMemo(() => buildPrompt(mode, question, context), [mode, question, context]);
@@ -584,41 +937,51 @@ export default function GuruPage() {
   };
 
   const resetPanelSize = React.useCallback(() => {
-    setPanelLayout(DEFAULT_PANEL_LAYOUT);
-  }, []);
+    const nextLayout = clampLayoutToViewport(DEFAULT_PANEL_LAYOUT);
+    setPanelLayout(nextLayout);
+    setPanelPosition((current) => clampPositionToViewport(current, nextLayout));
+  }, [clampLayoutToViewport, clampPositionToViewport]);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div className="wm-guru-float-page">
       <style>{pageStyles}</style>
 
-      <div className="wm-guru-float-page__hint">
-        Guru is a floating helper. Open it when needed, then resize from the lower-right corner.
-      </div>
-
-      {!panelOpen ? (
-        <button
-          type="button"
-          className="wm-guru-float-launcher"
-          onClick={() => setPanelOpen(true)}
-        >
-          Open Guru Helper
-        </button>
-      ) : null}
+      <button
+        type="button"
+        className={`wm-guru-float-launcher ${panelOpen ? "is-open" : ""}`}
+        onClick={() => setPanelOpen((value) => !value)}
+        aria-label={panelOpen ? "Close Guru" : "Open Guru"}
+        aria-expanded={panelOpen}
+        title={panelOpen ? "Close Guru" : "Open Guru"}
+      >
+        <span className="wm-guru-float-launcher__icon">
+          <Bot size={20} />
+        </span>
+      </button>
 
       {panelOpen ? (
         <aside
-          ref={panelRef}
           className="wm-guru-float-panel"
           role="dialog"
           aria-label="Guru helper"
           aria-modal="false"
-          style={{
-            width: panelLayout.width,
-            height: panelLayout.height,
-          }}
+          style={
+            isCompactViewport
+              ? undefined
+              : {
+                  left: panelPosition.left,
+                  top: panelPosition.top,
+                  right: "auto",
+                  bottom: "auto",
+                  width: panelLayout.width,
+                  height: panelLayout.height,
+                }
+          }
         >
           <div className="wm-guru-float-panel__head">
-            <div>
+            <div className="wm-guru-float-panel__dragzone" onPointerDown={startPanelDrag}>
               <h2 className="wm-guru-float-panel__title">Guru Assistant</h2>
               <p className="wm-guru-float-panel__sub">{def.label} · {def.subtitle}</p>
             </div>
@@ -627,14 +990,14 @@ export default function GuruPage() {
                 Reset size
               </button>
               <button className="wm-btn" type="button" onClick={() => setPanelOpen(false)}>
-                Minimise
+                Close
               </button>
             </div>
           </div>
 
           <div className="wm-guru-float-panel__body">
             <div className="wm-guru-float-resize-note">
-              Tip: drag the lower-right corner to resize this helper window.
+              Tip: drag this header to move Guru and resize from any corner.
             </div>
 
             <div className="wm-guru-float-modes">
@@ -662,7 +1025,6 @@ export default function GuruPage() {
             </div>
 
             <div className="wm-guru-float-actions">
-              <button className="wm-btn" type="button" onClick={() => navigate("/app/tools")}>Tool Hub</button>
               <button className="wm-btn wm-btn-primary" type="button" onClick={askLiveGuru} disabled={!hasContent || answerBusy}>
                 {answerBusy ? "Thinking..." : "Ask Guru"}
               </button>
@@ -765,8 +1127,37 @@ export default function GuruPage() {
 
             {transferMessage ? <div className="wm-guru-float-muted">{transferMessage}</div> : null}
           </div>
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label="Resize from top left"
+            className="wm-guru-float-panel__corner wm-guru-float-panel__corner--tl"
+            onPointerDown={startPanelResize("top-left")}
+          />
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label="Resize from top right"
+            className="wm-guru-float-panel__corner wm-guru-float-panel__corner--tr"
+            onPointerDown={startPanelResize("top-right")}
+          />
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label="Resize from bottom left"
+            className="wm-guru-float-panel__corner wm-guru-float-panel__corner--bl"
+            onPointerDown={startPanelResize("bottom-left")}
+          />
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label="Resize from bottom right"
+            className="wm-guru-float-panel__corner wm-guru-float-panel__corner--br"
+            onPointerDown={startPanelResize("bottom-right")}
+          />
         </aside>
       ) : null}
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -1,14 +1,10 @@
 import * as React from "react";
 import {
-  Database,
   ExternalLink,
-  Layers3,
-  RadioTower,
   RefreshCw,
   Search,
   SlidersHorizontal,
   Sparkles,
-  Tags,
 } from "lucide-react";
 
 import {
@@ -426,25 +422,6 @@ export default function CatalogPage() {
               Search by SKU, family, or feature to get a high-level product overview, then jump to the WyreStorm
               product page for the full specification and supporting detail.
             </div>
-
-            <div className="wm-catalog-page__hero-chips">
-              <div className="wm-catalog-page__hero-chip wm-catalog-page__hero-chip--cyan">
-                <RadioTower size={15} />
-                <span>{liveStatus.available ? "Live feed" : "Cached snapshot"}</span>
-              </div>
-              <div className="wm-catalog-page__hero-chip wm-catalog-page__hero-chip--indigo">
-                <Database size={15} />
-                <span>{totalCatalogRecords} records</span>
-              </div>
-              <div className="wm-catalog-page__hero-chip wm-catalog-page__hero-chip--emerald">
-                <Layers3 size={15} />
-                <span>{families.length - 1} families</span>
-              </div>
-              <div className="wm-catalog-page__hero-chip wm-catalog-page__hero-chip--amber">
-                <Tags size={15} />
-                <span>{items.length} matches</span>
-              </div>
-            </div>
           </div>
 
           <div className="wm-catalog-page__search-panel">
@@ -553,13 +530,12 @@ export default function CatalogPage() {
             >
               <div className="wm-catalog-page__result-head">
                 <div className="wm-catalog-page__result-copy">
-                  <div className="wm-catalog-page__result-pills">
-                    <span className="wm-catalog-page__sku-pill">{selectedProduct.sku}</span>
-                    <span className="wm-catalog-page__meta-pill">{selectedProduct.family}</span>
-                    <span className="wm-catalog-page__meta-pill">{selectedProduct.category}</span>
-                    {selectedProduct.status !== "active" ? (
-                      <span className="wm-catalog-page__meta-pill">{formatStatus(selectedProduct.status)}</span>
-                    ) : null}
+                  <div className="wm-catalog-page__result-meta">
+                    <strong>{selectedProduct.sku}</strong>
+                    <span>
+                      {selectedProduct.family} · {selectedProduct.category}
+                      {selectedProduct.status !== "active" ? ` · ${formatStatus(selectedProduct.status)}` : ""}
+                    </span>
                   </div>
                   <div className="wm-catalog-page__result-title">{selectedProduct.name}</div>
                 </div>
@@ -619,25 +595,11 @@ export default function CatalogPage() {
                   ) : null}
                 </div>
 
-                <div className="wm-catalog-page__schematic-selection">
-                  <span className="wm-catalog-page__schematic-chip wm-catalog-page__schematic-chip--primary">
-                    Primary: {selectedProduct.sku}
-                  </span>
-                  {diagramExtras.map((sku) => (
-                    <button
-                      key={`diagram_${sku}`}
-                      type="button"
-                      className="wm-catalog-page__schematic-chip"
-                      onClick={() => toggleDiagramExtra(sku)}
-                    >
-                      <span>{sku}</span>
-                      <span aria-hidden="true">×</span>
-                    </button>
-                  ))}
-                </div>
-
                 <div className="wm-body-sm">
-                  Add up to three extra shortlisted products to see how they sit alongside the active SKU in a typical signal path.
+                  Primary SKU: {selectedProduct.sku}
+                  {diagramExtras.length > 0
+                    ? ` · Also in view: ${diagramExtras.join(", ")}`
+                    : " · Add up to three extra shortlisted products to see how they sit in the same signal path."}
                 </div>
 
                 <CatalogReferenceSchematic products={diagramProducts} />
@@ -767,7 +729,6 @@ export default function CatalogPage() {
           subtitle={hasActiveFilters
             ? "Pivot quickly by family without resetting the full search."
             : "Optional family overviews when the exact SKU is not known yet."}
-          right={<span className="wm-chip">{familyReferenceCards.length} families</span>}
           defaultCollapsed
         >
           <div className="wm-catalog-page__family-grid">
@@ -780,11 +741,14 @@ export default function CatalogPage() {
                       {card.count} {card.count === 1 ? "product" : "products"}
                     </div>
                   </div>
-                  <span className="wm-catalog-page__meta-pill">{card.transport}</span>
                 </div>
 
                 <div className="wm-catalog-page__family-copy">
                   Typical categories: {card.categories.join(" · ") || "Mixed"}.
+                </div>
+
+                <div className="wm-catalog-page__family-copy">
+                  Primary transport: {card.transport}
                 </div>
 
                 <div className="wm-catalog-page__tag-row">
@@ -817,20 +781,11 @@ export default function CatalogPage() {
           subtitle={liveStatus.available
             ? "Live product intelligence is feeding this lookup tool."
             : "You are browsing the latest cached or seeded catalog snapshot."}
-          right={<span className="wm-chip">{liveStatus.available ? "Live" : "Fallback"}</span>}
           defaultCollapsed
         >
           <div className="wm-catalog-page__status-head">
-            <div className="wm-catalog-page__active-filters">
-              {activeFilters.length > 0 ? (
-                activeFilters.map((activeFilter) => (
-                  <span key={activeFilter} className="wm-catalog-page__active-filter">
-                    {activeFilter}
-                  </span>
-                ))
-              ) : (
-                <span className="wm-catalog-page__active-filter wm-catalog-page__active-filter--all">All products in view</span>
-              )}
+            <div className="wm-body-sm">
+              {activeFilters.length > 0 ? activeFilters.join(" · ") : "All products in view"}
             </div>
           </div>
 

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, Scale, Search, X } from "lucide-react";
 
 import {
+  areProductTypesCompatible,
+  classifyCatalogProduct,
   findCatalogProductBySku,
   getCatalogProducts,
   type CatalogPortCount,
@@ -26,6 +28,13 @@ import {
   searchComparisonRecords,
   toProjectCompareRecord,
 } from "@/services/competitorComparisonService";
+import { buildAvSignalProfile, evaluateAvCompatibility } from "@/services/avLogicEngine";
+import {
+  buildProductEvidenceDigest,
+  fetchLiveProductEvidence,
+  getProductPageEvidenceEndpoint,
+  type ProductEvidenceDigest,
+} from "@/services/liveProductEvidenceService";
 import CollapsibleCard from "@/ui2/components/CollapsibleCard";
 
 type LookupUiState = {
@@ -56,6 +65,12 @@ type CloseWyrestormMatch = {
   category: string;
   matchPercent: number;
   isPrimary: boolean;
+};
+
+type ComparisonEvidenceState = {
+  competitor: ProductEvidenceDigest | null;
+  wyrestorm: ProductEvidenceDigest | null;
+  warnings: string[];
 };
 
 function normalizeId(value: string): string {
@@ -187,8 +202,38 @@ function scoreCloseMatchCandidate(
   selected: CompetitorComparisonRecord,
   competitor: CompetitorProduct | null,
 ): number {
+  const requestedType = classifyCatalogProduct(
+    competitor ?? {
+      sku: selected.competitorSku,
+      name: selected.competitorName,
+      category: selected.category,
+      summary: selected.summary,
+      transport: selected.category.toLowerCase().includes("avoip") ? "AVoIP" : undefined,
+      features: selected.features,
+    },
+  );
+  const candidateType = classifyCatalogProduct(candidate);
+  if (!areProductTypesCompatible(requestedType, candidateType)) return 0;
+
+  const avAssessment = evaluateAvCompatibility(
+    buildAvSignalProfile(
+      competitor ?? {
+        sku: selected.competitorSku,
+        name: selected.competitorName,
+        category: selected.category,
+        summary: selected.summary,
+        transport: selected.category.toLowerCase().includes("avoip") ? "AVoIP" : undefined,
+        features: selected.features,
+      },
+    ),
+    buildAvSignalProfile(candidate),
+  );
+
+  if (!avAssessment.compatible) return 0;
+
   let score = 0;
   const candidateCategory = `${candidate.family} ${candidate.category} ${candidate.subcategory || ""}`;
+  score += avAssessment.scoreDelta;
 
   if (normalizeSku(candidate.sku) === normalizeSku(selected.wyrestormSku)) score += 45;
   if (hasTokenOverlap(selected.category, candidateCategory)) score += 22;
@@ -250,6 +295,70 @@ function buildCloseWyrestormMatches(
   }));
 }
 
+function buildCompetitorEvidenceFromSelection(
+  selected: CompetitorComparisonRecord,
+  competitor: CompetitorProduct | null,
+): ProductEvidenceDigest {
+  if (competitor) {
+    return buildProductEvidenceDigest({
+      vendorType: "competitor",
+      brand: competitor.brand,
+      sku: competitor.sku,
+      name: competitor.name,
+      summary: competitor.summary,
+      sourceUrl: competitor.sourceUrl,
+      inputs: competitor.inputs,
+      outputs: competitor.outputs,
+      control: competitor.control,
+      features: competitor.features,
+      transport: competitor.transport,
+      audio: competitor.audio,
+      video: competitor.video,
+    });
+  }
+
+  return buildProductEvidenceDigest({
+    vendorType: "competitor",
+    brand: selected.brand,
+    sku: selected.competitorSku,
+    name: selected.competitorName || selected.competitorSku,
+    summary: selected.summary,
+    features: selected.features,
+    sourceUrl: selected.provenance?.sourceUrl,
+  });
+}
+
+function buildWyrestormEvidenceFromSelection(
+  selected: CompetitorComparisonRecord,
+  wyrestorm: CatalogProduct | undefined,
+): ProductEvidenceDigest {
+  if (wyrestorm) {
+    return buildProductEvidenceDigest({
+      vendorType: "wyrestorm",
+      brand: "WyreStorm",
+      sku: wyrestorm.sku,
+      name: wyrestorm.name,
+      summary: wyrestorm.summary,
+      sourceUrl: wyrestorm.sourceUrl,
+      inputs: wyrestorm.inputs,
+      outputs: wyrestorm.outputs,
+      control: wyrestorm.control,
+      features: wyrestorm.features,
+      transport: wyrestorm.transport,
+      audio: wyrestorm.audio,
+      video: wyrestorm.video,
+    });
+  }
+
+  return buildProductEvidenceDigest({
+    vendorType: "wyrestorm",
+    brand: "WyreStorm",
+    sku: selected.wyrestormSku,
+    name: selected.wyrestormName || selected.wyrestormSku,
+    summary: selected.rationale,
+  });
+}
+
 function recordId(item: CompetitorComparisonRecord): string {
   return `${item.brand}::${item.competitorSku}`.toLowerCase();
 }
@@ -270,6 +379,20 @@ function fallbackMatchFromConfidence(confidence: CompareConfidence): number {
   if (confidence === "High") return 82;
   if (confidence === "Medium") return 62;
   return 38;
+}
+
+function confidenceFromMatchScore(score: number): CompareConfidence {
+  if (score >= 70) return "High";
+  if (score >= 45) return "Medium";
+  return "Low";
+}
+
+function formatWyrestormCategory(product?: CatalogProduct): string {
+  if (!product) return "-";
+  return [product.family, product.category, product.subcategory]
+    .map((value) => String(value ?? "").trim())
+    .filter(Boolean)
+    .join(" / ");
 }
 
 function buildSimpleComparisonSummary(record: CompetitorComparisonRecord): SimpleComparisonSummary {
@@ -555,7 +678,16 @@ export default function CompetitorComparePage() {
   const [records, setRecords] = React.useState<CompetitorComparisonRecord[]>(curatedRecords);
   const [query, setQuery] = React.useState("");
   const [selectedId, setSelectedId] = React.useState("");
+  const [selectedWyrestormSku, setSelectedWyrestormSku] = React.useState("");
   const [lookupState, setLookupState] = React.useState<LookupUiState>(() => createIdleLookupState());
+  const [liveEvidence, setLiveEvidence] = React.useState<ComparisonEvidenceState>({
+    competitor: null,
+    wyrestorm: null,
+    warnings: [],
+  });
+  const [liveEvidenceBusy, setLiveEvidenceBusy] = React.useState(false);
+  const [liveEvidenceError, setLiveEvidenceError] = React.useState("");
+  const liveEvidenceEndpoint = React.useMemo(() => getProductPageEvidenceEndpoint(), []);
 
   const hasQuery = query.trim().length > 0;
   const savedMatches = React.useMemo(
@@ -567,7 +699,7 @@ export default function CompetitorComparePage() {
     () => (selectedId ? findComparisonRecordById(records, selectedId) : null),
     [records, selectedId],
   );
-  const simpleSummary = React.useMemo(
+  const baseSummary = React.useMemo(
     () => (selected ? buildSimpleComparisonSummary(selected) : null),
     [selected],
   );
@@ -583,37 +715,150 @@ export default function CompetitorComparePage() {
       ) ?? null
     );
   }, [selected]);
-  const primaryWyrestormProduct = React.useMemo(() => {
-    if (!selected || selected.wyrestormVerified === false) return undefined;
-    return findCatalogProductBySku(selected.wyrestormSku);
-  }, [selected]);
   const closeWyrestormMatches = React.useMemo(
     () => (selected ? buildCloseWyrestormMatches(selected, competitorReference) : []),
     [competitorReference, selected],
   );
+
+  React.useEffect(() => {
+    if (!selected) {
+      setSelectedWyrestormSku("");
+      return;
+    }
+
+    if (closeWyrestormMatches.length > 0) {
+      setSelectedWyrestormSku((current) => {
+        const normalizedCurrent = normalizeSku(current);
+        const existing = closeWyrestormMatches.find((item) => normalizeSku(item.sku) === normalizedCurrent);
+        return existing ? existing.sku : closeWyrestormMatches[0].sku;
+      });
+      return;
+    }
+
+    setSelectedWyrestormSku(selected.wyrestormSku);
+  }, [closeWyrestormMatches, selected]);
+
+  const activeWyrestormMatch = React.useMemo(() => {
+    if (!selected) return null;
+
+    if (closeWyrestormMatches.length > 0) {
+      const normalizedSelectedSku = normalizeSku(selectedWyrestormSku);
+      return (
+        closeWyrestormMatches.find((item) => normalizeSku(item.sku) === normalizedSelectedSku) ??
+        closeWyrestormMatches[0]
+      );
+    }
+
+    return {
+      sku: selected.wyrestormSku,
+      name: selected.wyrestormName || selected.wyrestormSku,
+      category: selected.wyrestormCategory,
+      matchPercent:
+        baseSummary?.matchPercent ??
+        fallbackMatchFromConfidence(selected.confidence),
+      isPrimary: true,
+    } satisfies CloseWyrestormMatch;
+  }, [baseSummary?.matchPercent, closeWyrestormMatches, selected, selectedWyrestormSku]);
+
+  const activeWyrestormProduct = React.useMemo(() => {
+    if (!activeWyrestormMatch) return undefined;
+    return findCatalogProductBySku(activeWyrestormMatch.sku);
+  }, [activeWyrestormMatch]);
+
+  const activeComparisonRecord = React.useMemo(() => {
+    if (!selected || !activeWyrestormMatch) return null;
+
+    const isSameSku =
+      normalizeSku(activeWyrestormMatch.sku) === normalizeSku(selected.wyrestormSku);
+    if (isSameSku) {
+      return {
+        ...selected,
+        matchScore: activeWyrestormMatch.matchPercent,
+      };
+    }
+
+    const product = activeWyrestormProduct;
+    if (!product) {
+      return {
+        ...selected,
+        wyrestormSku: activeWyrestormMatch.sku,
+        wyrestormName: activeWyrestormMatch.name || selected.wyrestormName,
+        wyrestormCategory: activeWyrestormMatch.category || selected.wyrestormCategory,
+        wyrestormVerified: false,
+        matchScore: activeWyrestormMatch.matchPercent,
+        confidence: confidenceFromMatchScore(activeWyrestormMatch.matchPercent),
+        rationale: `Alternative match selected: ${activeWyrestormMatch.sku}.`,
+      };
+    }
+
+    return {
+      ...selected,
+      wyrestormSku: product.sku,
+      wyrestormName: product.name,
+      wyrestormCategory: formatWyrestormCategory(product),
+      wyrestormVerified: true,
+      matchScore: activeWyrestormMatch.matchPercent,
+      confidence: confidenceFromMatchScore(activeWyrestormMatch.matchPercent),
+      rationale: `Alternative match selected: ${product.sku} (${activeWyrestormMatch.matchPercent}% fit).`,
+      notes: Array.from(
+        new Set([
+          ...selected.notes,
+          `Alternative match selected: ${product.sku} (${activeWyrestormMatch.matchPercent}% fit).`,
+        ]),
+      ).slice(0, 10),
+    };
+  }, [activeWyrestormMatch, activeWyrestormProduct, selected]);
+
+  const simpleSummary = React.useMemo(
+    () => (activeComparisonRecord ? buildSimpleComparisonSummary(activeComparisonRecord) : null),
+    [activeComparisonRecord],
+  );
+
   const featureMatrixRows = React.useMemo(
-    () => (selected ? buildFeatureMatrixRows(selected, competitorReference, primaryWyrestormProduct) : []),
-    [competitorReference, primaryWyrestormProduct, selected],
+    () => (activeComparisonRecord ? buildFeatureMatrixRows(activeComparisonRecord, competitorReference, activeWyrestormProduct) : []),
+    [activeComparisonRecord, activeWyrestormProduct, competitorReference],
   );
 
   const compareFactors = React.useMemo(() => {
-    if (!selected) return [];
+    if (!activeComparisonRecord) return [];
 
     return [
-      `Category mapped as ${selected.category}.`,
-      selected.ioComparison || "I/O alignment scored from published inputs and outputs.",
-      selected.features.length > 0
-        ? `Feature overlap based on ${selected.features.slice(0, 4).join(", ")}.`
+      `Category mapped as ${activeComparisonRecord.category}.`,
+      activeComparisonRecord.ioComparison || "I/O alignment scored from published inputs and outputs.",
+      activeComparisonRecord.features.length > 0
+        ? `Feature overlap based on ${activeComparisonRecord.features.slice(0, 4).join(", ")}.`
         : "Feature overlap based on the available catalog record.",
-      selected.provenance
-        ? `Source: ${selected.provenance.label}${selected.provenance.cacheHit ? " (cached)" : ""}.`
+      activeComparisonRecord.provenance
+        ? `Source: ${activeComparisonRecord.provenance.label}${activeComparisonRecord.provenance.cacheHit ? " (cached)" : ""}.`
         : "Source: curated comparison catalog.",
     ];
-  }, [selected]);
+  }, [activeComparisonRecord]);
+
+  React.useEffect(() => {
+    if (!selected) {
+      setLiveEvidence({ competitor: null, wyrestorm: null, warnings: [] });
+      setLiveEvidenceError("");
+      return;
+    }
+
+    const competitorDigest = buildCompetitorEvidenceFromSelection(selected, competitorReference);
+    const wyrestormDigest = buildWyrestormEvidenceFromSelection(
+      activeComparisonRecord ?? selected,
+      activeWyrestormProduct,
+    );
+
+    setLiveEvidence({
+      competitor: competitorDigest,
+      wyrestorm: wyrestormDigest,
+      warnings: [...competitorDigest.warnings, ...wyrestormDigest.warnings].filter(Boolean),
+    });
+    setLiveEvidenceError("");
+  }, [activeComparisonRecord, activeWyrestormProduct, competitorReference, selected]);
 
   const resetSelection = (value: string) => {
     setQuery(value);
     setSelectedId("");
+    setSelectedWyrestormSku("");
     setLookupState(
       value.trim()
         ? createIdleLookupState("Press Compare to run a fresh lookup, or choose a saved match below.")
@@ -628,6 +873,7 @@ export default function CompetitorComparePage() {
   const selectRecord = (item: CompetitorComparisonRecord, message = "Showing saved comparison record.") => {
     setQuery(`${item.brand} ${item.competitorSku}`);
     setSelectedId(recordId(item));
+    setSelectedWyrestormSku("");
     setLookupState({
       status: "ready",
       message,
@@ -636,7 +882,7 @@ export default function CompetitorComparePage() {
   };
 
   const applyToActiveProject = () => {
-    if (!selected) return;
+    if (!activeComparisonRecord) return;
 
     const active = ensureActiveProject({
       customer: activeProject?.customer || "Sample customer",
@@ -646,37 +892,94 @@ export default function CompetitorComparePage() {
       status: activeProject?.status || "Draft",
     });
 
-    applyCompareToProject(active.id, toProjectCompareRecord(selected));
+    applyCompareToProject(active.id, toProjectCompareRecord(activeComparisonRecord));
     setActiveProjectId(active.id);
     nav(`/app/projects/${encodeURIComponent(active.id)}`);
   };
 
   const createReplacementProject = () => {
-    if (!selected) return;
+    if (!activeComparisonRecord) return;
 
-    const payload = toProjectCompareRecord(selected);
+    const payload = toProjectCompareRecord(activeComparisonRecord);
     const created = createProject({
-      name: `${selected.brand} ${selected.competitorSku} replacement`,
+      name: `${activeComparisonRecord.brand} ${activeComparisonRecord.competitorSku} replacement`,
       customer: activeProject?.customer || "Sample customer",
       site: activeProject?.site || "",
       roomName: "Replacement Opportunity",
       stage: "Specify",
       status: "Draft",
-      notes: `${selected.summary}\n\nRationale: ${selected.rationale}`,
+      notes: `${activeComparisonRecord.summary}\n\nRationale: ${activeComparisonRecord.rationale}`,
       compare: payload,
       discovery: {
         customer: activeProject?.customer || "Sample customer",
         site: activeProject?.site || "",
         roomName: "Replacement Opportunity",
-        applicationType: selected.category,
-        notes: `${selected.summary}\n\nRationale: ${selected.rationale}`,
-        recommendedFamilies: selected.recommendedFamilies,
+        applicationType: activeComparisonRecord.category,
+        notes: `${activeComparisonRecord.summary}\n\nRationale: ${activeComparisonRecord.rationale}`,
+        recommendedFamilies: activeComparisonRecord.recommendedFamilies,
         createdAt: new Date().toISOString(),
       },
     });
 
     setActiveProjectId(created.id);
     nav(`/app/projects/${encodeURIComponent(created.id)}`);
+  };
+
+  const refreshLiveEvidence = async () => {
+    if (!selected) return;
+
+    const competitorBase = buildCompetitorEvidenceFromSelection(selected, competitorReference);
+    const wyrestormBase = buildWyrestormEvidenceFromSelection(
+      activeComparisonRecord ?? selected,
+      activeWyrestormProduct,
+    );
+
+    setLiveEvidenceBusy(true);
+    setLiveEvidenceError("");
+    try {
+      const [competitorLive, wyrestormLive] = await Promise.all([
+        fetchLiveProductEvidence({
+          vendorType: "competitor",
+          brand: competitorBase.brand,
+          sku: competitorBase.sku,
+          name: competitorBase.name,
+          summary: competitorBase.summary,
+          sourceUrl: competitorBase.sourceUrl,
+          inputs: competitorReference?.inputs,
+          outputs: competitorReference?.outputs,
+          control: competitorReference?.control,
+          features: competitorReference?.features ?? selected.features,
+          transport: competitorReference?.transport,
+          audio: competitorReference?.audio,
+          video: competitorReference?.video,
+        }),
+        fetchLiveProductEvidence({
+          vendorType: "wyrestorm",
+          brand: "WyreStorm",
+          sku: wyrestormBase.sku,
+          name: wyrestormBase.name,
+          summary: wyrestormBase.summary,
+          sourceUrl: wyrestormBase.sourceUrl,
+          inputs: activeWyrestormProduct?.inputs,
+          outputs: activeWyrestormProduct?.outputs,
+          control: activeWyrestormProduct?.control,
+          features: activeWyrestormProduct?.features,
+          transport: activeWyrestormProduct?.transport,
+          audio: activeWyrestormProduct?.audio,
+          video: activeWyrestormProduct?.video,
+        }),
+      ]);
+
+      setLiveEvidence({
+        competitor: competitorLive,
+        wyrestorm: wyrestormLive,
+        warnings: [...competitorLive.warnings, ...wyrestormLive.warnings].filter(Boolean),
+      });
+    } catch {
+      setLiveEvidenceError("Unable to refresh live evidence right now.");
+    } finally {
+      setLiveEvidenceBusy(false);
+    }
   };
 
   const runLookup = async () => {
@@ -876,11 +1179,14 @@ export default function CompetitorComparePage() {
 
                 <div className="wm-compare-simple__result-endpoint">
                   <div className="wm-card__title">WyreStorm</div>
-                  <div className="wm-title-lg">{selected.wyrestormSku}</div>
+                  <div className="wm-title-lg">{activeComparisonRecord?.wyrestormSku || selected.wyrestormSku}</div>
                   <div className="wm-card__subtitle">
-                    {selected.wyrestormVerified === false
+                    {(activeComparisonRecord?.wyrestormVerified ?? selected.wyrestormVerified) === false
                       ? "Manual review required"
-                      : [selected.wyrestormName, selected.wyrestormCategory].filter(Boolean).join(" • ")}
+                      : [
+                        activeComparisonRecord?.wyrestormName || selected.wyrestormName,
+                        activeComparisonRecord?.wyrestormCategory || selected.wyrestormCategory,
+                      ].filter(Boolean).join(" • ")}
                   </div>
                 </div>
               </div>
@@ -921,19 +1227,21 @@ export default function CompetitorComparePage() {
                 </div>
 
                 <div className="wm-compare-simple__score-tags">
-                  <span className={selected.wyrestormVerified === false ? "wm-chip wm-chip--warn" : "wm-chip"}>
-                    {selected.wyrestormVerified === false ? "Catalog SKU not verified" : "Verified catalog SKU"}
+                  <span className={(activeComparisonRecord?.wyrestormVerified ?? selected.wyrestormVerified) === false ? "wm-chip wm-chip--warn" : "wm-chip"}>
+                    {(activeComparisonRecord?.wyrestormVerified ?? selected.wyrestormVerified) === false
+                      ? "Catalog SKU not verified"
+                      : "Verified catalog SKU"}
                   </span>
-                  <span className="wm-compare-confidence" style={confidenceTone(selected.confidence)}>
-                    Confidence: {selected.confidence}
+                  <span className="wm-compare-confidence" style={confidenceTone(activeComparisonRecord?.confidence || selected.confidence)}>
+                    Confidence: {activeComparisonRecord?.confidence || selected.confidence}
                   </span>
-                  {selected.ioComparison ? <span className="wm-chip">{selected.ioComparison}</span> : null}
+                  {activeComparisonRecord?.ioComparison ? <span className="wm-chip">{activeComparisonRecord.ioComparison}</span> : null}
                 </div>
               </div>
             </div>
 
             <div className="wm-compare-simple__result-summary">
-              <div className="wm-body-sm">{selected.rationale}</div>
+              <div className="wm-body-sm">{activeComparisonRecord?.rationale || selected.rationale}</div>
             </div>
           </article>
 
@@ -968,14 +1276,34 @@ export default function CompetitorComparePage() {
 
                 <div className="wm-compare-simple__matrix-panel">
                   <div className="wm-compare-simple__subhead">Close WyreStorm matches</div>
+                  {closeWyrestormMatches.length > 1 ? (
+                    <label className="wm-compare-simple__match-select-wrap">
+                      <span className="wm-label">Active match</span>
+                      <select
+                        className="wm-field wm-compare-simple__match-select"
+                        value={activeWyrestormMatch?.sku || ""}
+                        onChange={(event) => setSelectedWyrestormSku(event.target.value)}
+                      >
+                        {closeWyrestormMatches.map((match) => (
+                          <option key={match.sku} value={match.sku}>
+                            {`${match.sku} (${match.matchPercent}%)`}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : null}
                   <div className="wm-compare-simple__match-list">
                     {closeWyrestormMatches.length > 0 ? (
                       closeWyrestormMatches.map((match) => {
                         const tone = matchTone(match.matchPercent);
+                        const isActive = normalizeSku(match.sku) === normalizeSku(activeWyrestormMatch?.sku || "");
                         return (
-                          <article
+                          <button
+                            type="button"
                             key={match.sku}
-                            className={`wm-compare-simple__match-item${match.isPrimary ? " is-primary" : ""}`}
+                            className={`wm-compare-simple__match-item${match.isPrimary ? " is-primary" : ""}${isActive ? " is-active" : ""}`}
+                            onClick={() => setSelectedWyrestormSku(match.sku)}
+                            aria-pressed={isActive}
                           >
                             <div className="wm-compare-simple__match-head">
                               <div className="wm-card__title">{match.sku}</div>
@@ -992,7 +1320,7 @@ export default function CompetitorComparePage() {
                             </div>
                             <div className="wm-card__subtitle">{match.name}</div>
                             <div className="wm-compare-simple__result-caption">{match.category || "-"}</div>
-                          </article>
+                          </button>
                         );
                       })
                     ) : (
@@ -1005,7 +1333,7 @@ export default function CompetitorComparePage() {
               </div>
 
               <div className="wm-compare-simple__result-caption">
-                {competitorReference?.summary || selected.summary}
+                {competitorReference?.summary || activeComparisonRecord?.summary || selected.summary}
               </div>
             </CollapsibleSection>
 
@@ -1035,7 +1363,7 @@ export default function CompetitorComparePage() {
               <div className="wm-compare-simple__detail-grid">
                 <div className="wm-compare-simple__signal-group">
                   <div className="wm-compare-simple__subhead">Scoring inputs</div>
-                  <div className="wm-compare-simple__result-caption">{selected.summary}</div>
+                  <div className="wm-compare-simple__result-caption">{activeComparisonRecord?.summary || selected.summary}</div>
                   <div className="wm-compare-simple__factor-list">
                     {compareFactors.map((item) => (
                       <div key={item} className="wm-compare-simple__factor-row">
@@ -1046,7 +1374,7 @@ export default function CompetitorComparePage() {
                   </div>
 
                   <div className="wm-inline-actions">
-                    {selected.recommendedFamilies.map((family) => (
+                    {(activeComparisonRecord?.recommendedFamilies || selected.recommendedFamilies).map((family) => (
                       <span key={family} className="wm-chip">
                         {family}
                       </span>

@@ -5,6 +5,7 @@ import TopBar from "@/app/navigation/TopBar";
 import WingmanCommandPalette from "@/app/navigation/WingmanCommandPalette";
 import MissionControlNav from "@/ui2/nav/MissionControlNav";
 import AppFooter from "@/app/layout/AppFooter";
+import GuruFloatingHelper from "@/features/guru/GuruPage";
 
 export default function AppShell() {
   const location = useLocation();
@@ -114,6 +115,7 @@ export default function AppShell() {
       </div>
 
       <AppFooter />
+      <GuruFloatingHelper />
       <WingmanCommandPalette
         open={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}

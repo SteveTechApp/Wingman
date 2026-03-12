@@ -19,6 +19,7 @@ export type ComparisonIntelligenceAssessment = {
   supportActions: IntelligenceSupportAction[];
   warnings: string[];
   summary: string;
+  evidenceContext: string[];
   fetchedAt: string;
   competitorRecord: ProductIntelligenceRecord | null;
   wyrestormRecord: ProductIntelligenceRecord | null;
@@ -237,6 +238,7 @@ export async function assessComparisonIntelligence(input: {
   wyrestormSku?: string;
   query?: string;
   baselineScore?: number;
+  evidenceContext?: string[];
 }): Promise<ComparisonIntelligenceAssessment> {
   const [competitorLookup, wyrestormLookup] = await Promise.all([
     lookupRecord({
@@ -273,7 +275,14 @@ export async function assessComparisonIntelligence(input: {
     pairQuality = (competitorQuality.score + wyrestormQuality.score) / 2;
   }
 
+  const evidenceContext = Array.isArray(input.evidenceContext)
+    ? input.evidenceContext.map((item) => tidy(item)).filter(Boolean)
+    : [];
+
   let combined = baseline * 0.64 + pairQuality * 0.36;
+  if (evidenceContext.length > 0) {
+    combined += Math.min(0.04, evidenceContext.length * 0.0075);
+  }
   if (!competitorLookup.record) combined = Math.min(combined, 0.49);
   if (input.wyrestormSku && !wyrestormLookup.record) combined = Math.min(combined, 0.54);
   if (competitorLookup.record?.status === "expired" || wyrestormLookup.record?.status === "expired") {
@@ -309,6 +318,9 @@ export async function assessComparisonIntelligence(input: {
       ];
 
   const warnings = [...competitorLookup.warnings, ...wyrestormLookup.warnings];
+  if (evidenceContext.length === 0) {
+    warnings.push("No structured live evidence context provided for this comparison.");
+  }
 
   return {
     score,
@@ -319,6 +331,7 @@ export async function assessComparisonIntelligence(input: {
     supportActions: DEFAULT_SUPPORT_ACTIONS,
     warnings,
     summary: summaryForAssessment(confidence, score, escalationRequired, escalationReasons),
+    evidenceContext,
     fetchedAt: new Date().toISOString(),
     competitorRecord: competitorLookup.record,
     wyrestormRecord: input.wyrestormSku ? wyrestormLookup.record : null,

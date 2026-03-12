@@ -115,7 +115,9 @@ export function classifyProductType(input: ProductTypeInput): ProductTypeClassif
     has(text, /\bnetworkhd\b|\bav over ip\b|\bavoip\b|\bsdvoe\b|\bdante av-a\b/);
   const encoder = has(text, /\bencoder\b|\btx\b|\btransmitter\b/);
   const decoder = has(text, /\bdecoder\b|\brx\b|\breceiver\b/);
-  const controller = has(text, /\bcontroller\b|\bcontrol(?:ler)?\b/);
+  const controller =
+    family.includes("CTL") ||
+    has(text, /\bcontroller\b|\bcontrol processor\b|\bcontrol gateway\b|\bmanagement controller\b|\bav controller\b/);
   const matrix =
     family.startsWith("MX") ||
     has(text, /\bmatrix(?: switch| switcher| kit| chassis)\b/) ||
@@ -259,17 +261,6 @@ export function classifyProductType(input: ProductTypeInput): ProductTypeClassif
     });
   }
 
-  if (avoipLike && controller) {
-    return buildClassification({
-      group: "avoip",
-      primaryType: "avoip-controller",
-      category: "Control",
-      label: "AVoIP Controller",
-      tags: ["avoip"],
-      requiredTags: ["avoip-controller"],
-    });
-  }
-
   if (avoipLike && encoder && decoder) {
     return buildClassification({
       group: "avoip",
@@ -300,6 +291,17 @@ export function classifyProductType(input: ProductTypeInput): ProductTypeClassif
       label: "AVoIP Decoder",
       tags: ["avoip", "avoip-endpoint"],
       requiredTags: ["avoip-decoder"],
+    });
+  }
+
+  if (avoipLike && controller) {
+    return buildClassification({
+      group: "avoip",
+      primaryType: "avoip-controller",
+      category: "Control",
+      label: "AVoIP Controller",
+      tags: ["avoip"],
+      requiredTags: ["avoip-controller"],
     });
   }
 

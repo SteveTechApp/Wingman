@@ -216,8 +216,9 @@ function mergeCatalogProducts(base: CatalogProduct, incoming: CatalogProduct): C
     sku: incoming.sku || base.sku,
     name: incoming.name || base.name,
     family: incoming.family || base.family,
-    category: incoming.category || base.category,
-    subcategory: incoming.subcategory || base.subcategory,
+    // Keep curated phase1 classification labels when present.
+    category: base.category || incoming.category,
+    subcategory: base.subcategory || incoming.subcategory,
     status: incoming.status || base.status,
     summary: incoming.summary || base.summary,
     inputs: incoming.inputs && incoming.inputs.length > 0 ? incoming.inputs : base.inputs,
