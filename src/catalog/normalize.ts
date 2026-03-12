@@ -43,6 +43,8 @@ export function normalizeCatalogProduct(input: CatalogProduct): CatalogProduct {
     category: normalizeCategory(input.category),
     subcategory: tidy(input.subcategory),
     summary: tidy(input.summary),
+    sourceUrl: tidy(input.sourceUrl),
+    latency: tidy(input.latency),
     transport: normalizeTransport(input.transport),
 
     features: Array.isArray(input.features)

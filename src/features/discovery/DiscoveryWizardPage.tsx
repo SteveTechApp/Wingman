@@ -66,6 +66,9 @@ function mergeProject(
   const discovery = project.discovery;
   return {
     ...record,
+    workflowTrack: mergeFirst(record.workflowTrack, discovery?.workflowTrack),
+    projectScope: mergeFirst(record.projectScope, discovery?.projectScope),
+    customerOutcome: mergeFirst(record.customerOutcome, discovery?.customerOutcome),
     customer: mergeFirst(record.customer, discovery?.customer, project.customer),
     site: mergeFirst(record.site, discovery?.site, project.site),
     roomName: mergeFirst(record.roomName, discovery?.roomName, project.roomName, project.name),
@@ -78,6 +81,7 @@ function mergeProject(
     transportDistanceBand: mergeFirst(record.transportDistanceBand, discovery?.transportDistanceBand),
     displayCount: mergeFirst(record.displayCount, discovery?.displayCount),
     sourceCount: mergeFirst(record.sourceCount, discovery?.sourceCount),
+    outputBehaviour: mergeFirst(record.outputBehaviour, discovery?.outputBehaviour),
     sourceTypes: mergeFirst(record.sourceTypes, discovery?.sourceTypes),
     sourcePlacement: mergeFirst(record.sourcePlacement, discovery?.sourcePlacement),
     sourceConnectionPath: mergeFirst(record.sourceConnectionPath, discovery?.sourceConnectionPath),
@@ -92,7 +96,10 @@ function mergeProject(
     usbNeeds: mergeFirst(record.usbNeeds, discovery?.usbNeeds),
     usbStandards: mergeFirst(record.usbStandards, discovery?.usbStandards),
     audioNeeds: mergeFirst(record.audioNeeds, discovery?.audioNeeds),
+    audioBreakout: mergeFirst(record.audioBreakout, discovery?.audioBreakout),
     controlNeeds: mergeFirst(record.controlNeeds, discovery?.controlNeeds),
+    powerPreference: mergeFirst(record.powerPreference, discovery?.powerPreference),
+    passthroughNeeds: mergeFirst(record.passthroughNeeds, discovery?.passthroughNeeds),
     budgetBand: mergeFirst(record.budgetBand, discovery?.budgetBand),
     urgency: mergeFirst(record.urgency, discovery?.urgency),
     notes: mergeFirst(record.notes, discovery?.notes),
@@ -104,6 +111,43 @@ function renderField(
   value: string,
   onChange: (value: string) => void,
 ) {
+  if (question.input === "cards") {
+    const details =
+      question.optionDetails ??
+      question.options?.map((option) => ({
+        value: option,
+        summary: option,
+      })) ??
+      [];
+
+    return (
+      <div className="wm-gp__cardGrid" role="listbox" aria-label={question.label}>
+        {details.map((detail) => {
+          const selected = value === detail.value;
+          return (
+            <button
+              key={detail.value}
+              type="button"
+              className={`wm-gp__cardOption${selected ? " is-selected" : ""}`}
+              aria-pressed={selected}
+              onClick={() => onChange(detail.value)}
+            >
+              <span className="wm-gp__cardEyebrow">{detail.eyebrow ?? "Direction"}</span>
+              <span className="wm-gp__cardTitle">{detail.title ?? detail.value}</span>
+              <span className="wm-gp__cardSummary">{detail.summary}</span>
+              {detail.outcome ? (
+                <span className="wm-gp__cardOutcome">Leads toward: {detail.outcome}</span>
+              ) : null}
+              {detail.tags?.length ? (
+                <span className="wm-gp__cardTags">{detail.tags.join(" • ")}</span>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
   if (question.input === "multiSelect") {
     const selected = parseGuidedProjectSelections(value);
     return (
@@ -201,17 +245,17 @@ function stateLabel(state: "watch" | "active" | "resolved") {
 }
 
 const STEP_SHORT_LABELS: Record<GuidedProjectStep, string> = {
-  0: "Brief",
-  1: "Space",
-  2: "Signal",
-  3: "Use",
+  0: "Start",
+  1: "Scope",
+  2: "Path",
+  3: "Checks",
 };
 
 const CORE_FIELDS_BY_STEP: Record<GuidedProjectStep, ReadonlyArray<keyof GuidedProjectRecord>> = {
-  0: ["customer", "site", "roomName", "applicationType"],
-  1: ["roomLengthM", "roomWidthM", "displayCount", "cableDistanceM"],
-  2: ["sourceCount", "sourceTypes", "sourcePlacement", "sourceConnectionType", "displayConnectionType"],
-  3: ["usbNeeds", "audioNeeds", "controlNeeds", "budgetBand", "urgency"],
+  0: ["workflowTrack", "projectScope", "customerOutcome", "applicationType"],
+  1: ["sourceCount", "displayCount", "outputBehaviour", "cableDistanceM", "transportDistanceBand"],
+  2: ["sourcePlacement", "sourceConnectionType", "signalFormats", "displayConnectionType", "networkEnvironment"],
+  3: ["usbNeeds", "usbStandards", "audioNeeds", "powerPreference", "passthroughNeeds"],
 };
 
 function splitQuestionsForLiveCall(
@@ -279,15 +323,14 @@ export default function DiscoveryWizardPage() {
   const leadReasons = advice.reasons.slice(0, 2);
   const priorityNextActions = advice.nextActions.slice(0, 3);
   const activeLenses = lenses.filter((lens) => lens.state !== "watch");
+  const displayedLenses = (activeLenses.length > 0 ? activeLenses : lenses).slice(0, 3);
   const primaryDone = countAnsweredFields(record, primaryQuestions);
   const followUpDone = countAnsweredFields(record, followUpQuestions);
-  const stepHasAnsweredFollowUps = followUpQuestions.some((question) =>
-    hasText(String(record[question.id] ?? "")),
-  );
-  const showFollowUps = followUpVisibility[activeStep] ?? stepHasAnsweredFollowUps;
+  const showFollowUps = followUpVisibility[activeStep] ?? false;
   const nextPrimaryQuestion = findNextQuestion(record, primaryQuestions);
   const nextFollowUpQuestion = findNextQuestion(record, followUpQuestions);
   const nextQuestion = nextPrimaryQuestion ?? nextFollowUpQuestion;
+  const secondaryFamilies = advice.families.filter((family) => family !== advice.primary).slice(0, 2);
   const saveStatus = projectSavedAt
     ? `Project saved ${projectSavedAt}`
     : draftSavedAt
@@ -336,6 +379,9 @@ export default function DiscoveryWizardPage() {
 
     if (activeProject?.id) {
       updateProjectDiscovery(activeProject.id, {
+        workflowTrack: payload.workflowTrack,
+        projectScope: payload.projectScope,
+        customerOutcome: payload.customerOutcome,
         customer: payload.customer || activeProject.customer,
         site: payload.site || activeProject.site,
         roomName: payload.roomName || activeProject.roomName || activeProject.name,
@@ -348,6 +394,7 @@ export default function DiscoveryWizardPage() {
         transportDistanceBand: payload.transportDistanceBand,
         displayCount: payload.displayCount,
         sourceCount: payload.sourceCount,
+        outputBehaviour: payload.outputBehaviour,
         sourceTypes: payload.sourceTypes,
         sourcePlacement: payload.sourcePlacement,
         sourceConnectionPath: payload.sourceConnectionPath,
@@ -362,7 +409,10 @@ export default function DiscoveryWizardPage() {
         usbNeeds: payload.usbNeeds,
         usbStandards: payload.usbStandards,
         audioNeeds: payload.audioNeeds,
+        audioBreakout: payload.audioBreakout,
         controlNeeds: payload.controlNeeds,
+        powerPreference: payload.powerPreference,
+        passthroughNeeds: payload.passthroughNeeds,
         budgetBand: payload.budgetBand,
         urgency: payload.urgency,
         notes: buildGuidedProjectNotes(payload, computedAdvice),
@@ -409,12 +459,15 @@ export default function DiscoveryWizardPage() {
     <div className="wm-page wm-dw6 wm-ui wm-guided-project-page">
       <div className="wm-ui__stack">
         <section className="wm-hero">
-          <div className="wm-page-hero-row wm-dw6__hero">
-            <div>
+          <div className="wm-page-hero-row wm-dw6__hero wm-guided-project-page__heroCompact">
+            <div className="wm-guided-project-page__heroCopy">
               <p className="wm-ui__eyebrow">GUIDED PROJECT</p>
-              <h1 className="wm-ui__title">Guided Project</h1>
+              <div className="wm-guided-project-page__heroTitleRow">
+                <h1 className="wm-ui__title">Guided Project</h1>
+                <span className="wm-guided-project-page__heroPill">Outcome-first</span>
+              </div>
               <p className="wm-ui__subtitle">
-                Capture just enough detail to steer the design while you are still live with the customer.
+                Start with the customer outcome, then let Wingman narrow the WyreStorm category before it assumes a full system.
               </p>
             </div>
             <div className="wm-actions-row wm-dw6__heroActions">
@@ -429,239 +482,259 @@ export default function DiscoveryWizardPage() {
         </section>
 
         <section className="wm-section">
-          <div className="wm-guided-project-page__stepRail">
-            {GUIDED_PROJECT_STEPS.map(([title], index) => (
-              <button
-                key={title}
-                type="button"
-                aria-current={index === activeStep ? "step" : undefined}
-                className={`wm-guided-project-page__stepChip${index === activeStep ? " is-active" : ""}`}
-                onClick={() => setActiveStep(index as GuidedProjectStep)}
-              >
-                <span className="wm-guided-project-page__stepChipIndex">{index + 1}</span>
-                <span className="wm-guided-project-page__stepChipLabel">
-                  {STEP_SHORT_LABELS[index as GuidedProjectStep]}
+          <div className="wm-guided-project-page__workflowBar">
+            <div className="wm-guided-project-page__stepRail">
+              {GUIDED_PROJECT_STEPS.map(([title], index) => (
+                <button
+                  key={title}
+                  type="button"
+                  aria-current={index === activeStep ? "step" : undefined}
+                  className={`wm-guided-project-page__stepChip${index === activeStep ? " is-active" : ""}`}
+                  onClick={() => setActiveStep(index as GuidedProjectStep)}
+                >
+                  <span className="wm-guided-project-page__stepChipIndex">{index + 1}</span>
+                  <span className="wm-guided-project-page__stepChipLabel">
+                    {STEP_SHORT_LABELS[index as GuidedProjectStep]}
+                  </span>
+                  <span className="wm-guided-project-page__stepChipMeta">
+                    {progress[index].complete}/{progress[index].total}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="wm-guided-project-page__workflowMeta">
+              <span className="wm-guided-project-page__quickPill">Step {activeStep + 1} of {GUIDED_PROJECT_STEPS.length}</span>
+              <span className="wm-guided-project-page__quickMeta">Ask now: {primaryQuestions.length}</span>
+              {followUpQuestions.length > 0 ? (
+                <span className="wm-guided-project-page__quickMeta">
+                  Follow-up: {followUpQuestions.length}
                 </span>
-                <span className="wm-guided-project-page__stepChipMeta">
-                  {progress[index].complete}/{progress[index].total}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          <div className="wm-guided-project-page__quickbar">
-            <span className="wm-guided-project-page__quickPill">Live call mode</span>
-            <span className="wm-guided-project-page__quickMeta">
-              Step {activeStep + 1} of {GUIDED_PROJECT_STEPS.length}
-            </span>
-            <span className="wm-guided-project-page__quickMeta">
-              Ask now: {primaryQuestions.length}
-            </span>
-            {followUpQuestions.length > 0 ? (
-              <span className="wm-guided-project-page__quickMeta">
-                Follow-up: {followUpQuestions.length}
-              </span>
-            ) : null}
+              ) : null}
+            </div>
           </div>
 
           <div className="wm-guided-project-page__canvas">
-            <div className="wm-dw6__content">
-              <div className="wm-dw6__sectionTop wm-guided-project-page__sectionTop">
-                <div>
-                  <h2 className="wm-ui__sectionTitle">Step {activeStep + 1}: {GUIDED_PROJECT_STEPS[activeStep][0]}</h2>
-                  <p className="wm-ui__sectionText">{GUIDED_PROJECT_STEPS[activeStep][1]}</p>
-                </div>
-                <div className="wm-dw6__stepBadge">
-                  {primaryDone}/{primaryQuestions.length || progress[activeStep].total} live prompts captured
-                </div>
-              </div>
-
-              <section className="wm-guided-project-page__readout wm-guided-project-page__readout--compact">
-                <div className="wm-guided-project-page__readout-top">
+            <div className="wm-dw6__content wm-guided-project-page__layout">
+              <div className="wm-guided-project-page__main">
+                <div className="wm-dw6__sectionTop wm-guided-project-page__sectionTop wm-guided-project-page__sectionTop--compact">
                   <div>
-                    <div className="wm-gp__summaryEyebrow">Live recommendation</div>
-                    <div className="wm-gp__summaryTitle">{advice.primary} is the lead fit right now</div>
+                    <h2 className="wm-ui__sectionTitle">Step {activeStep + 1}: {GUIDED_PROJECT_STEPS[activeStep][0]}</h2>
+                    <p className="wm-ui__sectionText">{GUIDED_PROJECT_STEPS[activeStep][1]}</p>
                   </div>
-                  <div className="wm-guided-project-page__readoutAside">
-                    <div className="wm-gp__confidence">{advice.confidence} confidence</div>
-                    <div className="wm-guided-project-page__nextTool">
-                      Next: {getNextToolLabel(advice.nextToolPath)}
-                    </div>
+                  <div className="wm-guided-project-page__sectionBadge">
+                    {primaryDone}/{primaryQuestions.length || progress[activeStep].total} core prompts
                   </div>
                 </div>
 
-                <p className="wm-gp__summaryCopy">{advice.summary}</p>
-
-                <div className="wm-guided-project-page__readout-meta">
-                  <span>{activeProject?.name || record.roomName || "Current guided project"}</span>
-                  <span>{saveStatus}</span>
-                  <span>
+                <div className="wm-guided-project-page__sessionStrip">
+                  <span className="wm-guided-project-page__quickMeta">{saveStatus}</span>
+                  <span className="wm-guided-project-page__quickMeta">
                     {nextQuestion ? `Ask next: ${nextQuestion.label}` : "Core step capture is complete"}
                   </span>
                 </div>
 
-                <div className="wm-ui__chips">
-                  {advice.families.slice(0, 3).map((family) => (
-                    <span key={family} className="wm-ui__chip wm-ui__chip--active">
-                      {family}
-                    </span>
-                  ))}
-                  {advice.families.length > 3 ? (
-                    <span className="wm-ui__chip">+{advice.families.length - 3} more</span>
-                  ) : null}
-                </div>
-              </section>
-
-              <div className="wm-dw6__wizardShell wm-guided-project-page__wizardShell">
-                <div className="wm-guided-project-page__callout">
-                  <div className="wm-guided-project-page__calloutTitle">Ask the essentials first</div>
-                  <div className="wm-guided-project-page__calloutCopy">
-                    Wingman keeps the core prompts on screen and tucks extra technical detail away until you need it.
-                  </div>
-                </div>
-
-                <div className="wm-guided-project-page__questionStack">
-                  {primaryQuestions.map((question) => (
-                    <section
-                      key={question.id}
-                      className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextPrimaryQuestion?.id === question.id ? " is-focus" : ""}`}
-                    >
-                      {question.branchReasonText ? (
-                        <div className="wm-gp__questionReason">{question.branchReasonText}</div>
-                      ) : null}
-                      <div className="wm-ui__field">
-                        <span className="wm-ui__label">{question.label}</span>
-                        {renderField(
-                          question,
-                          String(record[question.id] ?? ""),
-                          (value) => updateField(question.id, value),
-                        )}
-                        <span className="wm-gp__field-help">{question.helper}</span>
-                      </div>
-                    </section>
-                  ))}
-                </div>
-
-                {followUpQuestions.length > 0 ? (
-                  <section className="wm-guided-project-page__followupShell">
-                    <button
-                      type="button"
-                      className="wm-guided-project-page__followupToggle"
-                      onClick={() =>
-                        setFollowUpVisibility((previous) => ({
-                          ...previous,
-                          [activeStep]: !showFollowUps,
-                        }))
-                      }
-                    >
-                      {showFollowUps
-                        ? "Hide follow-up detail"
-                        : `Show ${followUpQuestions.length} follow-up prompt${followUpQuestions.length === 1 ? "" : "s"}${followUpDone > 0 ? ` (${followUpDone} answered)` : ""}`}
-                    </button>
-
-                    {showFollowUps ? (
-                      <>
-                        <div className="wm-guided-project-page__followupIntro">
-                          Use these only when the customer can go deeper or the design still carries risk.
-                        </div>
-                        <div className="wm-guided-project-page__questionStack wm-guided-project-page__questionStack--secondary">
-                          {followUpQuestions.map((question) => (
-                            <section
-                              key={question.id}
-                              className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}`}
-                            >
-                              {question.branchReasonText ? (
-                                <div className="wm-gp__questionReason">{question.branchReasonText}</div>
-                              ) : null}
-                              <div className="wm-ui__field">
-                                <span className="wm-ui__label">{question.label}</span>
-                                {renderField(
-                                  question,
-                                  String(record[question.id] ?? ""),
-                                  (value) => updateField(question.id, value),
-                                )}
-                                <span className="wm-gp__field-help">{question.helper}</span>
-                              </div>
-                            </section>
-                          ))}
-                        </div>
-                      </>
-                    ) : null}
-                  </section>
-                ) : null}
-
-                <div className="wm-dw6__nav wm-guided-project-page__nav">
-                  <div className="wm-dw6__navLeft">
-                    <span className="wm-ui__helper wm-dw6__save-meta">
-                      {saveStatus}
-                    </span>
-                  </div>
-                  <div className="wm-dw6__navRight">
-                    <button
-                      className="wm-ui__btn wm-ui__btn--ghost"
-                      onClick={() => setActiveStep((value) => Math.max(0, value - 1) as GuidedProjectStep)}
-                      disabled={activeStep === 0}
-                    >
-                      Previous
-                    </button>
-                    <button className="wm-ui__btn" onClick={save}>
-                      Save to project
-                    </button>
-                    <button className="wm-ui__btn wm-ui__btn--primary" onClick={next}>
-                      {activeStep < GUIDED_PROJECT_STEPS.length - 1
-                        ? "Next step"
-                        : `Save and Open ${getNextToolLabel(advice.nextToolPath)}`}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="wm-guided-project-page__drawers">
-                <details className="wm-guided-project-page__drawer wm-guided-project-page__drawer--coach">
-                  <summary>Coach notes and recommendation logic</summary>
-                  <div className="wm-guided-project-page__drawer-body">
-                    <div className="wm-guided-project-page__drawer-grid wm-guided-project-page__drawer-grid--coach">
-                      <article className="wm-gp__summaryCard">
-                        <div className="wm-gp__summaryEyebrow">Why this fit is leading</div>
-                        <ul className="wm-gp__list">
-                          {leadReasons.map((item) => (
-                            <li key={item}>{item}</li>
-                          ))}
-                        </ul>
-                      </article>
-
-                      <article className="wm-gp__summaryCard">
-                        <div className="wm-gp__summaryEyebrow">Still worth clarifying</div>
-                        <ul className="wm-gp__list">
-                          {branchHighlights.length > 0
-                            ? branchHighlights.slice(0, 3).map((item) => <li key={item}>{item}</li>)
-                            : priorityNextActions.map((item) => <li key={item}>{item}</li>)}
-                        </ul>
-                      </article>
-
-                      <article className="wm-gp__summaryCard">
-                        <div className="wm-gp__summaryEyebrow">Recommendation state</div>
-                        <div className="wm-guided-project-page__lens-stack">
-                          {(activeLenses.length > 0 ? activeLenses : lenses).slice(0, 3).map((lens) => (
-                            <article key={lens.id} className="wm-gp__decisionCard">
-                              <div className="wm-gp__decisionTop">
-                                <div className="wm-gp__summaryEyebrow">{lens.title}</div>
-                                <span className={`wm-gp__state wm-gp__state--${lens.state}`}>
-                                  {stateLabel(lens.state)}
-                                </span>
-                              </div>
-                              <div className="wm-gp__summaryCopy">{lens.summary}</div>
-                            </article>
-                          ))}
-                        </div>
-                        <div className="wm-guided-project-page__governanceNote">
-                          Rule set {governance.recommendationRules.version} using catalog {governance.recommendationRules.catalogVersion}
-                        </div>
-                      </article>
+                <div className="wm-dw6__wizardShell wm-guided-project-page__wizardShell">
+                  <div className="wm-guided-project-page__callout">
+                    <div className="wm-guided-project-page__calloutTitle">Start narrow, then qualify</div>
+                    <div className="wm-guided-project-page__calloutCopy">
+                      Each path asks only the details that reduce the WyreStorm shortlist.
                     </div>
                   </div>
-                </details>
+                  <div className="wm-guided-project-page__questionStack">
+                    {primaryQuestions.map((question) => (
+                      <section
+                        key={question.id}
+                        className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextPrimaryQuestion?.id === question.id ? " is-focus" : ""}`}
+                      >
+                        {question.branchReasonText ? (
+                          <div className="wm-gp__questionReason">{question.branchReasonText}</div>
+                        ) : null}
+                        <div className="wm-ui__field">
+                          <span className="wm-ui__label">{question.label}</span>
+                          {renderField(
+                            question,
+                            String(record[question.id] ?? ""),
+                            (value) => updateField(question.id, value),
+                          )}
+                          <span className="wm-gp__field-help">{question.helper}</span>
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+
+                  {followUpQuestions.length > 0 ? (
+                    <section className="wm-guided-project-page__followupShell">
+                      <button
+                        type="button"
+                        className="wm-guided-project-page__followupToggle"
+                        onClick={() =>
+                          setFollowUpVisibility((previous) => ({
+                            ...previous,
+                            [activeStep]: !showFollowUps,
+                          }))
+                        }
+                      >
+                        {showFollowUps
+                          ? "Hide follow-up detail"
+                          : `Show ${followUpQuestions.length} follow-up prompt${followUpQuestions.length === 1 ? "" : "s"}${followUpDone > 0 ? ` (${followUpDone} answered)` : ""}`}
+                      </button>
+
+                      {showFollowUps ? (
+                        <>
+                          <div className="wm-guided-project-page__followupIntro">
+                            Use these only when the customer can go deeper or when you need the last details to separate similar SKUs.
+                          </div>
+                          <div className="wm-guided-project-page__questionStack wm-guided-project-page__questionStack--secondary">
+                            {followUpQuestions.map((question) => (
+                              <section
+                                key={question.id}
+                                className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}`}
+                              >
+                                {question.branchReasonText ? (
+                                  <div className="wm-gp__questionReason">{question.branchReasonText}</div>
+                                ) : null}
+                                <div className="wm-ui__field">
+                                  <span className="wm-ui__label">{question.label}</span>
+                                  {renderField(
+                                    question,
+                                    String(record[question.id] ?? ""),
+                                    (value) => updateField(question.id, value),
+                                  )}
+                                  <span className="wm-gp__field-help">{question.helper}</span>
+                                </div>
+                              </section>
+                            ))}
+                          </div>
+                        </>
+                      ) : null}
+                    </section>
+                  ) : null}
+
+                  <div className="wm-dw6__nav wm-guided-project-page__nav">
+                    <div className="wm-dw6__navLeft">
+                      <span className="wm-ui__helper wm-dw6__save-meta">
+                        {record.workflowTrack || "Choose a direction to begin"}
+                      </span>
+                    </div>
+                    <div className="wm-dw6__navRight">
+                      <button
+                        className="wm-ui__btn wm-ui__btn--ghost"
+                        onClick={() => setActiveStep((value) => Math.max(0, value - 1) as GuidedProjectStep)}
+                        disabled={activeStep === 0}
+                      >
+                        Previous
+                      </button>
+                      <button className="wm-ui__btn" onClick={save}>
+                        Save to project
+                      </button>
+                      <button className="wm-ui__btn wm-ui__btn--primary" onClick={next}>
+                        {activeStep < GUIDED_PROJECT_STEPS.length - 1
+                          ? "Next step"
+                          : `Save and Open ${getNextToolLabel(advice.nextToolPath)}`}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              <aside className="wm-guided-project-page__sidebar">
+                <section className="wm-guided-project-page__readout wm-guided-project-page__readout--compact">
+                  <div className="wm-guided-project-page__readout-top">
+                    <div>
+                      <div className="wm-gp__summaryEyebrow">Likely category</div>
+                      <div className="wm-gp__summaryTitle">{advice.focusCategory}</div>
+                    </div>
+                    <div className="wm-guided-project-page__readoutAside">
+                      <div className="wm-gp__confidence">{advice.confidence} confidence</div>
+                      <div className="wm-guided-project-page__nextTool">
+                        Next: {getNextToolLabel(advice.nextToolPath)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="wm-gp__summaryCopy">{advice.workflowSummary}</p>
+
+                  <div className="wm-ui__chips">
+                    <span className="wm-ui__chip wm-ui__chip--active">
+                      {advice.primary} family
+                    </span>
+                    {secondaryFamilies.map((family) => (
+                      <span key={family} className="wm-ui__chip">
+                        {family}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="wm-guided-project-page__summaryPanel">
+                  <div className="wm-guided-project-page__summaryLabel">Live snapshot</div>
+                  <div className="wm-guided-project-page__summaryList">
+                    <div className="wm-guided-project-page__summaryItem">
+                      <span>Direction</span>
+                      <strong>{record.workflowTrack || "Not confirmed yet"}</strong>
+                    </div>
+                    <div className="wm-guided-project-page__summaryItem">
+                      <span>Project</span>
+                      <strong>{activeProject?.name || record.roomName || "Current guided project"}</strong>
+                    </div>
+                    <div className="wm-guided-project-page__summaryItem">
+                      <span>Save state</span>
+                      <strong>{saveStatus}</strong>
+                    </div>
+                    <div className="wm-guided-project-page__summaryItem">
+                      <span>Ask next</span>
+                      <strong>{nextQuestion?.label || "Core step capture is complete"}</strong>
+                    </div>
+                  </div>
+                </section>
+
+                <div className="wm-guided-project-page__drawers">
+                  <details className="wm-guided-project-page__drawer wm-guided-project-page__drawer--coach">
+                    <summary>Coach notes and recommendation logic</summary>
+                    <div className="wm-guided-project-page__drawer-body">
+                      <div className="wm-guided-project-page__drawer-grid">
+                        <article className="wm-gp__summaryCard">
+                          <div className="wm-gp__summaryEyebrow">Why this fit is leading</div>
+                          <ul className="wm-gp__list">
+                            {leadReasons.map((item) => (
+                              <li key={item}>{item}</li>
+                            ))}
+                          </ul>
+                        </article>
+
+                        <article className="wm-gp__summaryCard">
+                          <div className="wm-gp__summaryEyebrow">Still worth clarifying</div>
+                          <ul className="wm-gp__list">
+                            {branchHighlights.length > 0
+                              ? branchHighlights.slice(0, 3).map((item) => <li key={item}>{item}</li>)
+                              : priorityNextActions.map((item) => <li key={item}>{item}</li>)}
+                          </ul>
+                        </article>
+
+                        <article className="wm-gp__summaryCard">
+                          <div className="wm-gp__summaryEyebrow">Recommendation state</div>
+                          <div className="wm-guided-project-page__lens-stack">
+                            {displayedLenses.map((lens) => (
+                              <article key={lens.id} className="wm-gp__decisionCard">
+                                <div className="wm-gp__decisionTop">
+                                  <div className="wm-gp__summaryEyebrow">{lens.title}</div>
+                                  <span className={`wm-gp__state wm-gp__state--${lens.state}`}>
+                                    {stateLabel(lens.state)}
+                                  </span>
+                                </div>
+                                <div className="wm-gp__summaryCopy">{lens.summary}</div>
+                              </article>
+                            ))}
+                          </div>
+                          <div className="wm-guided-project-page__governanceNote">
+                            Rule set {governance.recommendationRules.version} using catalog {governance.recommendationRules.catalogVersion}
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </details>
+                </div>
+              </aside>
             </div>
           </div>
         </section>

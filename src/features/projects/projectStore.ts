@@ -106,6 +106,9 @@ export type ProjectDiscovery = {
   customer: string;
   site: string;
   roomName: string;
+  workflowTrack?: string;
+  projectScope?: string;
+  customerOutcome?: string;
   applicationType?: string;
   roomLengthM?: string;
   roomWidthM?: string;
@@ -118,6 +121,7 @@ export type ProjectDiscovery = {
   transportDistanceBand?: string;
   displayCount?: string;
   sourceCount?: string;
+  outputBehaviour?: string;
   sourceTypes?: string;
   sourcePlacement?: string;
   sourceConnectionPath?: string;
@@ -132,7 +136,10 @@ export type ProjectDiscovery = {
   usbNeeds?: string;
   usbStandards?: string;
   audioNeeds?: string;
+  audioBreakout?: string;
   controlNeeds?: string;
+  powerPreference?: string;
+  passthroughNeeds?: string;
   budgetBand?: string;
   urgency?: string;
   notes?: string;
@@ -335,9 +342,13 @@ function normalizeDiscovery(discovery?: ProjectDiscovery): ProjectDiscovery | un
     customer: discovery.customer ?? "",
     site: discovery.site ?? "",
     roomName: discovery.roomName ?? "",
+    workflowTrack: discovery.workflowTrack ?? "",
+    projectScope: discovery.projectScope ?? "",
+    customerOutcome: discovery.customerOutcome ?? "",
     notes: discovery.notes ?? "",
     installationPath: discovery.installationPath ?? "",
     transportDistanceBand: discovery.transportDistanceBand ?? "",
+    outputBehaviour: discovery.outputBehaviour ?? "",
     sourceTypes: discovery.sourceTypes ?? "",
     sourcePlacement: discovery.sourcePlacement ?? "",
     sourceConnectionPath: discovery.sourceConnectionPath ?? "",
@@ -349,6 +360,9 @@ function normalizeDiscovery(discovery?: ProjectDiscovery): ProjectDiscovery | un
     displayConnectionType: discovery.displayConnectionType ?? "",
     displayCableType: discovery.displayCableType ?? "",
     networkEnvironment: discovery.networkEnvironment ?? "",
+    audioBreakout: discovery.audioBreakout ?? "",
+    powerPreference: discovery.powerPreference ?? "",
+    passthroughNeeds: discovery.passthroughNeeds ?? "",
     usbStandards: discovery.usbStandards ?? "",
     recommendedFamilies: normalizeRecommendedFamilies(discovery.recommendedFamilies),
   };

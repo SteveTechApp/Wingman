@@ -6274,3 +6274,327 @@ footer[class*="wm-"] {
   }
 }
 /* ===== end Wingman footer redesign ===== */
+
+.wm-gp__cardGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  gap:12px;
+}
+
+.wm-gp__cardOption{
+  appearance:none;
+  width:100%;
+  border:1px solid rgba(103, 154, 213, 0.18);
+  border-radius:18px;
+  background:
+    linear-gradient(180deg, rgba(13, 33, 57, 0.96), rgba(8, 22, 39, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 12px 32px rgba(0,0,0,0.2);
+  padding:16px 16px 14px;
+  display:grid;
+  gap:8px;
+  text-align:left;
+  color:#eef6ff;
+  cursor:pointer;
+  transition:transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.wm-gp__cardOption:hover{
+  transform:translateY(-1px);
+  border-color:rgba(114, 191, 255, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 16px 36px rgba(0,0,0,0.24);
+}
+
+.wm-gp__cardOption.is-selected{
+  border-color:rgba(72, 208, 178, 0.48);
+  background:
+    radial-gradient(circle at top right, rgba(61, 193, 181, 0.18), transparent 34%),
+    linear-gradient(180deg, rgba(16, 46, 68, 0.98), rgba(8, 24, 40, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 0 0 1px rgba(72, 208, 178, 0.16),
+    0 16px 40px rgba(0,0,0,0.28);
+}
+
+.wm-gp__cardEyebrow{
+  color:#7fd3ff;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+
+.wm-gp__cardTitle{
+  color:#f4f8ff;
+  font-size:18px;
+  line-height:1.25;
+  font-weight:800;
+}
+
+.wm-gp__cardSummary{
+  color:rgba(224, 234, 246, 0.76);
+  font-size:14px;
+  line-height:1.5;
+}
+
+.wm-gp__cardOutcome{
+  color:#c9f3e3;
+  font-size:13px;
+  line-height:1.4;
+  font-weight:700;
+}
+
+.wm-gp__cardTags{
+  color:rgba(196, 216, 234, 0.76);
+  font-size:12px;
+  line-height:1.4;
+}
+
+.wm-guided-project-page__heroCompact{
+  align-items:center;
+  gap:18px;
+  padding-top:8px;
+  padding-bottom:4px;
+}
+
+.wm-guided-project-page__heroCopy{
+  display:grid;
+  gap:8px;
+}
+
+.wm-guided-project-page__heroTitleRow{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.wm-guided-project-page__heroCompact .wm-ui__title{
+  margin:0;
+  font-size:clamp(32px, 4.4vw, 54px);
+}
+
+.wm-guided-project-page__heroCompact .wm-ui__subtitle{
+  margin:0;
+  max-width:760px;
+}
+
+.wm-guided-project-page__heroPill{
+  min-height:28px;
+  display:inline-flex;
+  align-items:center;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid rgba(115, 231, 255, 0.18);
+  background:linear-gradient(135deg, rgba(8, 39, 61, 0.64), rgba(9, 22, 40, 0.92));
+  color:#effbff;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+}
+
+.wm-guided-project-page__workflowBar{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.wm-guided-project-page__workflowMeta{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.wm-guided-project-page__canvas{
+  max-width:1240px;
+}
+
+.wm-guided-project-page__layout{
+  display:grid;
+  grid-template-columns:minmax(0, 1.38fr) minmax(300px, 0.72fr);
+  gap:14px;
+  align-items:start;
+}
+
+.wm-guided-project-page__main,
+.wm-guided-project-page__sidebar{
+  display:grid;
+  gap:12px;
+  align-content:start;
+}
+
+.wm-guided-project-page__sidebar{
+  position:sticky;
+  top:92px;
+}
+
+.wm-guided-project-page__sectionTop--compact{
+  gap:12px;
+}
+
+.wm-guided-project-page__sectionBadge{
+  min-height:32px;
+  display:inline-flex;
+  align-items:center;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid rgba(87, 231, 233, 0.16);
+  background:linear-gradient(135deg, rgba(7, 48, 65, 0.46), rgba(7, 24, 40, 0.82));
+  color:#e6feff;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.wm-guided-project-page__sessionStrip{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.wm-guided-project-page__readout{
+  padding:12px 13px;
+}
+
+.wm-guided-project-page__summaryPanel{
+  border-radius:16px;
+  border:1px solid rgba(255, 255, 255, 0.08);
+  background:rgba(255, 255, 255, 0.024);
+  padding:12px 13px;
+  display:grid;
+  gap:10px;
+}
+
+.wm-guided-project-page__summaryLabel{
+  color:rgba(171, 201, 232, 0.82);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+
+.wm-guided-project-page__summaryList{
+  display:grid;
+  gap:8px;
+}
+
+.wm-guided-project-page__summaryItem{
+  display:grid;
+  gap:3px;
+  padding-bottom:8px;
+  border-bottom:1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wm-guided-project-page__summaryItem:last-child{
+  padding-bottom:0;
+  border-bottom:none;
+}
+
+.wm-guided-project-page__summaryItem span{
+  color:rgba(176, 198, 224, 0.76);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.03em;
+  text-transform:uppercase;
+}
+
+.wm-guided-project-page__summaryItem strong{
+  color:#f2f7ff;
+  font-size:13px;
+  line-height:1.4;
+  font-weight:700;
+}
+
+.wm-guided-project-page__questionStack{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:10px;
+}
+
+.wm-guided-project-page__questionStack .wm-gp__questionCard.is-full{
+  grid-column:1 / -1;
+}
+
+.wm-guided-project-page__callout{
+  gap:2px;
+  padding:8px 10px;
+}
+
+.wm-guided-project-page__calloutCopy{
+  max-width:56ch;
+}
+
+.wm-guided-project-page__drawers{
+  gap:8px;
+}
+
+.wm-guided-project-page__drawer-body{
+  padding:10px;
+}
+
+.wm-guided-project-page__drawer-grid{
+  grid-template-columns:1fr;
+}
+
+.wm-gp__cardGrid{
+  grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+  gap:10px;
+}
+
+.wm-gp__cardOption{
+  padding:12px 12px 11px;
+  gap:6px;
+  border-radius:16px;
+}
+
+.wm-gp__cardTitle{
+  font-size:16px;
+}
+
+.wm-gp__cardSummary{
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  font-size:13px;
+  line-height:1.45;
+}
+
+.wm-gp__cardOutcome{
+  font-size:12px;
+}
+
+.wm-gp__cardTags{
+  font-size:11px;
+}
+
+@media (max-width: 1180px){
+  .wm-guided-project-page__layout{
+    grid-template-columns:1fr;
+  }
+
+  .wm-guided-project-page__sidebar{
+    position:static;
+  }
+}
+
+@media (max-width: 860px){
+  .wm-guided-project-page__questionStack{
+    grid-template-columns:1fr;
+  }
+
+  .wm-guided-project-page__workflowMeta{
+    justify-content:flex-start;
+  }
+
+  .wm-guided-project-page__heroCompact{
+    align-items:flex-start;
+  }
+}

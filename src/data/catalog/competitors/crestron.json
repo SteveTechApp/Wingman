@@ -1,0 +1,246 @@
+[
+  {
+    "sku": "AM-3200-WF-I",
+    "name": "AirMedia Series 3 AM-3200-WF-I",
+    "brand": "Crestron",
+    "family": "AirMedia",
+    "category": "Switcher",
+    "subcategory": "Wireless Presentation",
+    "status": "active",
+    "summary": "Secure wireless presentation and conferencing system with native AirPlay and Miracast, digital signage, cloud management, and support for presenting multiple 4K sources onscreen.",
+    "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Presentation-Systems/AM-3200-WF-I",
+    "inputs": [
+      { "type": "LAN", "count": 1 },
+      { "type": "Wi-Fi", "count": 1 },
+      { "type": "Wireless Presentation", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "USB-A", "count": 2 }
+    ],
+    "control": [ "TCP/IP", "Cloud Management", "Web UI" ],
+    "audio": [ "HDMI Audio", "USB Audio" ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "standard",
+    "transport": "Local",
+    "features": [ "Wireless presentation", "Wireless conferencing", "AirPlay", "Miracast", "Digital signage", "Cloud deployment", "Multi-source presentation" ],
+    "notes": "Official Crestron AirMedia Series 3 page."
+  },
+  {
+    "sku": "AM-TX3-100",
+    "name": "AirMedia Connect Adaptor AM-TX3-100",
+    "brand": "Crestron",
+    "family": "AirMedia",
+    "category": "Accessories",
+    "subcategory": "USB Casting Dongle",
+    "status": "active",
+    "summary": "USB-C wireless presentation dongle for one-touch AirMedia room sharing and guest collaboration workflows.",
+    "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Wireless-Conferencing/AM-TX3-100",
+    "inputs": [
+      { "type": "USB-C", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "Wireless Presentation", "count": 1 }
+    ],
+    "control": [ "Pairing" ],
+    "audio": [ "Embedded Audio" ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false
+    },
+    "transport": "Unknown",
+    "features": [ "Wireless presentation", "USB-C dongle", "One-touch sharing", "Guest collaboration" ],
+    "notes": "Official Crestron AirMedia Connect Adaptor page."
+  },
+  {
+    "sku": "DM-NVX-360",
+    "name": "DM NVX 360 AV-over-IP Encoder/Decoder",
+    "brand": "Crestron",
+    "family": "DM NVX",
+    "category": "AVoIP",
+    "subcategory": "Encoder/Decoder",
+    "status": "active",
+    "summary": "4K60 4:4:4 AV-over-IP endpoint over 1GbE with HDMI and analog audio I/O, USB 2.0 extension, PoE+, and secure enterprise-network features.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-360",
+    "inputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "Analog Audio", "count": 1 },
+      { "type": "LAN", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "Analog Audio", "count": 1 },
+      { "type": "LAN", "count": 1 },
+      { "type": "USB 2.0", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "IR", "802.1X" ],
+    "audio": [ "Embedded Audio", "Analog Audio", "DM NAX Audio Return" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "1GbE network dependent."
+    },
+    "features": [ "AVoIP endpoint", "USB 2.0 extension", "PoE+", "802.1X", "AES encryption", "Video wall", "Matrix switching" ],
+    "notes": "Official Crestron DM NVX 360 page."
+  },
+  {
+    "sku": "DM-NVX-E30",
+    "name": "DM NVX E30",
+    "brand": "Crestron",
+    "family": "DM NVX",
+    "category": "AVoIP",
+    "subcategory": "Encoder/Decoder",
+    "status": "active",
+    "summary": "Compact 4K60 4:4:4 AV-over-IP endpoint for enterprise distribution, switching, and USB extension workflows over 1GbE.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-E30",
+    "inputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "LAN", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "LAN", "count": 1 },
+      { "type": "USB 2.0", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "IR" ],
+    "audio": [ "Embedded Audio" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "1GbE network dependent."
+    },
+    "features": [ "AVoIP endpoint", "USB extension", "PoE", "Video wall", "Matrix switching" ],
+    "notes": "Official Crestron DM NVX E30 page."
+  },
+  {
+    "sku": "DM-NVX-DIR2",
+    "name": "DM NVX Director Virtual Switching Appliance",
+    "brand": "Crestron",
+    "family": "DM NVX",
+    "category": "Control",
+    "subcategory": "AVoIP Controller",
+    "status": "active",
+    "summary": "AV over IP management appliance for DM NVX systems that provides browser-based virtual matrix switching, endpoint monitoring, bulk configuration, and diagnostics.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Management/DM-NVX-DIR-ENT",
+    "inputs": [
+      { "type": "LAN", "count": 2 }
+    ],
+    "outputs": [],
+    "control": [ "TCP/IP", "HTTPS", "Web UI", "REST API" ],
+    "audio": [],
+    "transport": "AVoIP",
+    "features": [ "AVoIP controller", "Virtual matrix switching", "Endpoint monitoring", "Bulk configuration", "Browser-based management", "Diagnostics" ],
+    "notes": "Official Crestron DM NVX Director page."
+  },
+  {
+    "sku": "HD-PS622",
+    "name": "HD-PS622 8x2 4K Presentation System",
+    "brand": "Crestron",
+    "family": "HD",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "8x2 presentation switcher with six HDMI inputs, two DM inputs, two HDMI outputs, built-in 4K scalers, audio mixing, and enterprise management support.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/Presentation-Systems/HD-PS622",
+    "inputs": [
+      { "type": "HDMI", "count": 6 },
+      { "type": "DM", "count": 2 },
+      { "type": "Analog Audio", "count": 2 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 2 },
+      { "type": "DM", "count": 2 },
+      { "type": "Analog Audio", "count": 2 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "Web UI", "XiO Cloud" ],
+    "audio": [ "Embedded Audio", "Audio Mixing", "Analog Audio" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "distance": {
+      "meters": 40,
+      "notes": "DM inputs extend farther depending on cable and format."
+    },
+    "features": [ "Presentation switcher", "Multi format presentation switcher", "4K scalers", "Audio mixing", "XiO Cloud", "Automatic switching", "HDR10", "Dolby Vision" ],
+    "notes": "Official Crestron HD-PS622 page."
+  },
+  {
+    "sku": "HD-MD4X2-4KZ-E",
+    "name": "HD-MD4X2-4KZ-E 4x2 HDMI Matrix Switcher",
+    "brand": "Crestron",
+    "family": "HD",
+    "category": "Matrix",
+    "subcategory": "Matrix Switch",
+    "status": "active",
+    "summary": "4x2 HDMI matrix switcher for 4K60 4:4:4 and HDR distribution with audio breakaway, EDID management, and XiO Cloud compatibility.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/Switchers/HD-MD4X2-4KZ-E",
+    "inputs": [
+      { "type": "HDMI", "count": 4 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 2 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "Web UI", "XiO Cloud" ],
+    "audio": [ "Embedded Audio", "Audio Breakaway" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [ "Matrix switcher", "Audio breakaway", "EDID management", "HDR", "XiO Cloud", "HDCP 2.3" ],
+    "notes": "Official Crestron HD-MD4X2-4KZ-E page."
+  },
+  {
+    "sku": "HD-DA2-4KZ-E",
+    "name": "HD-DA2-4KZ-E 1x2 HDMI Distribution Amplifier",
+    "brand": "Crestron",
+    "family": "HD",
+    "category": "Distribution",
+    "subcategory": "Splitter",
+    "status": "active",
+    "summary": "1x2 HDMI distribution amplifier for 4K60 4:4:4 and HDR with EDID management, high-bitrate audio support, and HDCP 2.2 compliance.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/Distribution-Amplifiers/HD-DA2-4KZ-E",
+    "inputs": [
+      { "type": "HDMI", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 2 }
+    ],
+    "control": [ "EDID" ],
+    "audio": [ "Embedded Audio", "7.1 Audio" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [ "Splitter", "Distribution amplifier", "EDID management", "HDR", "HDCP 2.2", "Compact form factor" ],
+    "notes": "Official Crestron HD-DA2-4KZ-E page."
+  }
+]

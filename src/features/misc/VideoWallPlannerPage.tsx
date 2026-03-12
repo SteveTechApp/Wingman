@@ -793,7 +793,7 @@ export default function VideoWallPlannerPage() {
   };
 
   return (
-    <div className="wm-dashboard">
+    <div className="wm-dashboard wm-video-wall-page" data-page="video-wall">
       <section className="wm-dashboard__hero">
         <div>
           <div className="wm-dashboard__eyebrow">Video Wall Wizard</div>
@@ -1008,7 +1008,7 @@ export default function VideoWallPlannerPage() {
             )}
           </div>
 
-          <div className="wm-inline-actions">
+          <div className="wm-inline-actions action-row">
             <button type="button" className="wm-btn wm-btn--primary" onClick={applyToActiveProject}>
               Apply To Active Project
             </button>

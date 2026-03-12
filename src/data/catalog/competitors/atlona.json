@@ -1,0 +1,201 @@
+[
+  {
+    "sku": "AT-OME-CS31-SA",
+    "name": "Omega CS31-SA",
+    "brand": "Atlona",
+    "family": "Omega",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "Collaboration switcher with USB-C and HDMI inputs, local HDMI plus HDBaseT outputs, USB routing, and BYOD-friendly room integration.",
+    "sourceUrl": "https://atlona.com/product/at-ome-cs31-sa/",
+    "inputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "USB-C", "count": 1 },
+      { "type": "USB Host", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "HDBaseT", "count": 1 },
+      { "type": "USB Device", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "USB", "Web UI" ],
+    "audio": [ "Embedded Audio", "De-Embedded Audio", "USB Audio" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [ "Multi format presentation switcher", "USB-C", "USB routing", "BYOD", "Collaboration", "HDBaseT output", "USB host switching" ],
+    "notes": "Official Atlona Omega collaboration-switcher page."
+  },
+  {
+    "sku": "AT-OME-MS42",
+    "name": "Omega MS42",
+    "brand": "Atlona",
+    "family": "Omega",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "Four-input presentation switcher with wireless presentation, USB-C connectivity, dual HDMI outputs, and integrated USB hub support for small meeting spaces.",
+    "sourceUrl": "https://atlona.com/product/at-ome-ms42/",
+    "inputs": [
+      { "type": "HDMI", "count": 2 },
+      { "type": "USB-C", "count": 1 },
+      { "type": "Wireless Presentation", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 2 },
+      { "type": "USB Device", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "USB", "Web UI" ],
+    "audio": [ "Embedded Audio", "De-Embedded Audio", "USB Audio" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [ "Wireless presentation", "USB-C", "Dual HDMI outputs", "USB hub", "BYOD", "Auto switching" ],
+    "notes": "Official Atlona Omega presentation-switcher page."
+  },
+  {
+    "sku": "AT-OME-MS52W",
+    "name": "Omega 5x2 Matrix Switcher",
+    "brand": "Atlona",
+    "family": "Omega",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "Five-input presentation switcher with two HDMI outputs, mirrored HDBaseT output, USB-C, wireless presentation, and USB host integration.",
+    "sourceUrl": "https://atlona.com/product/at-ome-ms52w/",
+    "inputs": [
+      { "type": "HDMI", "count": 2 },
+      { "type": "USB-C", "count": 1 },
+      { "type": "Wireless Presentation", "count": 1 },
+      { "type": "USB Host", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 2 },
+      { "type": "HDBaseT", "count": 1 },
+      { "type": "USB Device", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "USB", "Web UI" ],
+    "audio": [ "Embedded Audio", "De-Embedded Audio", "USB Audio" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "distance": {
+      "meters": 100,
+      "notes": "HDBaseT output reach depends on cabling and endpoint."
+    },
+    "features": [ "Wireless presentation", "USB-C", "Auto switching", "BYOD", "Dual HDMI outputs", "HDBaseT mirrored output", "USB host switching" ],
+    "notes": "Official Atlona Omega matrix-switcher page."
+  },
+  {
+    "sku": "AT-UHD-EX-100CE-KIT",
+    "name": "UHD-EX 100CE Extender Kit",
+    "brand": "Atlona",
+    "family": "UHD-EX",
+    "category": "Extender",
+    "subcategory": "Extender Kit",
+    "status": "active",
+    "summary": "HDBaseT extender kit for HDMI with HDCP 2.2 support, receiver-powered operation, and point-to-point extension over category cable.",
+    "sourceUrl": "https://atlona.com/product/at-uhd-ex-100ce-kit/",
+    "inputs": [
+      { "type": "HDMI", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDBaseT", "count": 1 },
+      { "type": "HDMI", "count": 1 }
+    ],
+    "control": [ "RS-232", "CEC" ],
+    "audio": [ "Embedded Audio" ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": false,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "HDBaseT",
+    "distance": {
+      "meters": 100,
+      "notes": "Official kit distance is cabling dependent."
+    },
+    "features": [ "Extender kit", "Receiver powered by transmitter", "HDCP 2.2", "Point-to-point extension", "CEC pass-through" ],
+    "notes": "Official Atlona extender-kit page."
+  },
+  {
+    "sku": "AT-OMNI-112",
+    "name": "OmniStream Dual-Channel Networked AV Encoder",
+    "brand": "Atlona",
+    "family": "OmniStream",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
+    "status": "active",
+    "summary": "Dual-channel AV over IP encoder for two HDMI sources up to 4K60 4:4:4 and HDR with embedded audio and RS-232 or IR pass-through over Gigabit Ethernet.",
+    "sourceUrl": "https://atlona.com/product/at-omni-112/",
+    "inputs": [
+      { "type": "HDMI", "count": 2 }
+    ],
+    "outputs": [
+      { "type": "LAN", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "IR", "Web GUI" ],
+    "audio": [ "Embedded Audio" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "subframe",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "Gigabit Ethernet dependent."
+    },
+    "features": [ "AVoIP encoder", "Dual-channel encoding", "VCx codec", "Ultra-low latency", "Fast switching", "HDR", "IR pass-through", "RS-232 pass-through" ],
+    "notes": "Official Atlona OmniStream dual-channel encoder page."
+  },
+  {
+    "sku": "AT-OMNI-121",
+    "name": "OmniStream Networked AV Decoder",
+    "brand": "Atlona",
+    "family": "OmniStream",
+    "category": "AVoIP",
+    "subcategory": "Decoder",
+    "status": "active",
+    "summary": "AV over IP decoder for HDMI output up to 4K60 4:4:4 and HDR with ultra-fast switching, video wall processing, multiview support, and PoE operation.",
+    "sourceUrl": "https://atlona.com/product/at-omni-121/",
+    "inputs": [
+      { "type": "LAN", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "IR", "Web GUI" ],
+    "audio": [ "Embedded Audio" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "subframe",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "Gigabit Ethernet dependent."
+    },
+    "features": [ "AVoIP decoder", "Ultra-fast switching", "Video wall", "Multiview", "Thumbnail preview", "PoE", "IEEE 802.1X" ],
+    "notes": "Official Atlona OmniStream decoder page."
+  }
+]
