@@ -26,11 +26,17 @@ describe("competitor comparison service", () => {
   });
 
   it("converts unverified seed references into manual-review results", () => {
+    const competitors = getCompetitorProducts();
     const records = getComparisonRecords();
     const invalidSeedRows = ((Array.isArray(compareSeed) ? compareSeed : []) as SeedRow[]).filter((row) => {
       const competitorSku = normalize(row.competitorSku);
       if (!competitorSku) return false;
-      return !findCatalogProductBySku(normalize(row.wyrestormSku));
+      if (findCatalogProductBySku(normalize(row.wyrestormSku))) return false;
+      return !competitors.some(
+        (item) =>
+          normalize(item.brand) === normalize(row.brand) &&
+          normalize(item.sku) === competitorSku,
+      );
     });
 
     for (const row of invalidSeedRows) {
@@ -66,5 +72,12 @@ describe("competitor comparison service", () => {
         ),
       ).toBe(true);
     }
+  });
+
+  it("preserves source-backed provenance for curated catalog comparisons", () => {
+    const records = getComparisonRecords().filter((record) => record.provenance?.source === "catalog");
+
+    expect(records.length).toBeGreaterThan(0);
+    expect(records.every((record) => typeof record.provenance?.sourceUrl === "string" && record.provenance.sourceUrl.length > 0)).toBe(true);
   });
 });

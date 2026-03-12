@@ -20,6 +20,7 @@ export type CompetitorLookupRecord = {
   control?: string[];
   audio?: string[];
   video?: CatalogVideo;
+  latency?: string;
   distanceMeters?: number;
   sourceUrl?: string;
 };
@@ -150,6 +151,8 @@ const backendPortSchema = z.object({
 const backendVideoSchema = z.object({
   maxResolution: z.string().optional(),
   hdr: z.boolean().optional(),
+  hdmi: z.string().optional(),
+  bandwidthGbps: z.coerce.number().optional(),
 }).passthrough();
 
 const backendRecordSchema = z.object({
@@ -166,6 +169,7 @@ const backendRecordSchema = z.object({
   control: z.array(z.string()).optional(),
   audio: z.array(z.string()).optional(),
   video: backendVideoSchema.optional(),
+  latency: z.string().optional(),
   distanceMeters: z.coerce.number().optional(),
   distance_meters: z.coerce.number().optional(),
   distanceM: z.coerce.number().optional(),
@@ -333,7 +337,9 @@ function toLookupRecord(product: CompetitorProduct): CompetitorLookupRecord {
     control: Array.isArray(product.control) ? product.control.map((item) => tidy(item)).filter(Boolean) : [],
     audio: Array.isArray(product.audio) ? product.audio.map((item) => tidy(item)).filter(Boolean) : [],
     video: product.video,
+    latency: tidy(product.latency) || undefined,
     distanceMeters: typeof product.distance?.meters === "number" ? product.distance.meters : undefined,
+    sourceUrl: product.sourceUrl,
   };
 }
 
@@ -466,8 +472,11 @@ function extractBackendRecord(payload: unknown): { record: CompetitorLookupRecor
         ? {
             maxResolution: tidy(rawRecord.video.maxResolution) || undefined,
             hdr: rawRecord.video.hdr,
+            hdmi: tidy(rawRecord.video.hdmi) || undefined,
+            bandwidthGbps: Number(rawRecord.video.bandwidthGbps) || undefined,
           }
         : undefined,
+      latency: tidy(rawRecord.latency) || undefined,
       distanceMeters: asDistance(rawRecord),
       sourceUrl: tidy(rawRecord.sourceUrl || rawRecord.url) || undefined,
     },

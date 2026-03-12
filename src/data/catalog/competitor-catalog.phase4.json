@@ -1,179 +1,2591 @@
 [
   {
-    "sku": "DM-NVX-E30",
-    "name": "AV-over-IP Encoder/Decoder",
-    "brand": "Crestron",
-    "family": "AVoIP",
-    "category": "AVoIP",
-    "subcategory": "Encoder/Decoder",
+    "sku": "AT-OME-CS31-SA",
+    "name": "Omega CS31-SA",
+    "brand": "Atlona",
+    "family": "Omega",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
     "status": "active",
-    "summary": "AV-over-IP endpoint for network-based switching and distribution.",
+    "summary": "Collaboration switcher with USB-C and HDMI inputs, local HDMI plus HDBaseT outputs, USB routing, and BYOD-friendly room integration.",
+    "sourceUrl": "https://atlona.com/product/at-ome-cs31-sa/",
     "inputs": [
-      { "type": "HDMI", "count": 1 },
-      { "type": "LAN", "count": 1 }
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      },
+      {
+        "type": "USB Host",
+        "count": 1
+      }
     ],
     "outputs": [
-      { "type": "HDMI", "count": 1 },
-      { "type": "LAN", "count": 1 }
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "HDBaseT",
+        "count": 1
+      },
+      {
+        "type": "USB Device",
+        "count": 1
+      }
     ],
-    "control": [ "TCP/IP", "RS-232", "IR" ],
-    "audio": [ "Embedded Audio" ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "USB",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio",
+      "USB Audio"
+    ],
     "video": {
-      "maxResolution": "4K60",
-      "hdr": true
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
     },
+    "transport": "Local",
+    "features": [
+      "Multi format presentation switcher",
+      "USB-C",
+      "USB routing",
+      "BYOD",
+      "Collaboration",
+      "HDBaseT output",
+      "USB host switching"
+    ],
+    "notes": "Official Atlona Omega collaboration-switcher page."
+  },
+  {
+    "sku": "AT-OME-MS42",
+    "name": "Omega MS42",
+    "brand": "Atlona",
+    "family": "Omega",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "Four-input presentation switcher with wireless presentation, USB-C connectivity, dual HDMI outputs, and integrated USB hub support for small meeting spaces.",
+    "sourceUrl": "https://atlona.com/product/at-ome-ms42/",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      },
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB Device",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "USB",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio",
+      "USB Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [
+      "Wireless presentation",
+      "USB-C",
+      "Dual HDMI outputs",
+      "USB hub",
+      "BYOD",
+      "Auto switching"
+    ],
+    "notes": "Official Atlona Omega presentation-switcher page."
+  },
+  {
+    "sku": "AT-OME-MS52W",
+    "name": "Omega 5x2 Matrix Switcher",
+    "brand": "Atlona",
+    "family": "Omega",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "Five-input presentation switcher with two HDMI outputs, mirrored HDBaseT output, USB-C, wireless presentation, and USB host integration.",
+    "sourceUrl": "https://atlona.com/product/at-ome-ms52w/",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      },
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      },
+      {
+        "type": "USB Host",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "HDBaseT",
+        "count": 1
+      },
+      {
+        "type": "USB Device",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "USB",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio",
+      "USB Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "distance": {
+      "meters": 100,
+      "notes": "HDBaseT output reach depends on cabling and endpoint."
+    },
+    "features": [
+      "Wireless presentation",
+      "USB-C",
+      "Auto switching",
+      "BYOD",
+      "Dual HDMI outputs",
+      "HDBaseT mirrored output",
+      "USB host switching"
+    ],
+    "notes": "Official Atlona Omega matrix-switcher page."
+  },
+  {
+    "sku": "AT-OMNI-112",
+    "name": "OmniStream Dual-Channel Networked AV Encoder",
+    "brand": "Atlona",
+    "family": "OmniStream",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
+    "status": "active",
+    "summary": "Dual-channel AV over IP encoder for two HDMI sources up to 4K60 4:4:4 and HDR with embedded audio and RS-232 or IR pass-through over Gigabit Ethernet.",
+    "sourceUrl": "https://atlona.com/product/at-omni-112/",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "Web GUI"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "subframe",
     "transport": "AVoIP",
     "distance": {
       "meters": 100,
-      "notes": "Network dependent"
+      "notes": "Gigabit Ethernet dependent."
     },
-    "features": [ "AVoIP", "Matrix Switching", "Video Wall", "PoE" ],
-    "notes": "Starter competitor record for compare workflow."
+    "features": [
+      "AVoIP encoder",
+      "Dual-channel encoding",
+      "VCx codec",
+      "Ultra-low latency",
+      "Fast switching",
+      "HDR",
+      "IR pass-through",
+      "RS-232 pass-through"
+    ],
+    "notes": "Official Atlona OmniStream dual-channel encoder page."
   },
   {
-    "sku": "DTP3-TX-201",
-    "name": "DTP3 Transmitter",
-    "brand": "Extron",
-    "family": "HDBaseT",
-    "category": "Transmitter",
-    "subcategory": "Extender Transmitter",
+    "sku": "AT-OMNI-121",
+    "name": "OmniStream Networked AV Decoder",
+    "brand": "Atlona",
+    "family": "OmniStream",
+    "category": "AVoIP",
+    "subcategory": "Decoder",
     "status": "active",
-    "summary": "Signal extension transmitter for long-distance AV transport.",
+    "summary": "AV over IP decoder for HDMI output up to 4K60 4:4:4 and HDR with ultra-fast switching, video wall processing, multiview support, and PoE operation.",
+    "sourceUrl": "https://atlona.com/product/at-omni-121/",
     "inputs": [
-      { "type": "HDMI", "count": 1 }
+      {
+        "type": "LAN",
+        "count": 1
+      }
     ],
     "outputs": [
-      { "type": "HDBaseT", "count": 1 }
+      {
+        "type": "HDMI",
+        "count": 1
+      }
     ],
-    "control": [ "RS-232", "IR" ],
-    "audio": [ "Embedded Audio" ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "Web GUI"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "subframe",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "Gigabit Ethernet dependent."
+    },
+    "features": [
+      "AVoIP decoder",
+      "Ultra-fast switching",
+      "Video wall",
+      "Multiview",
+      "Thumbnail preview",
+      "PoE",
+      "IEEE 802.1X"
+    ],
+    "notes": "Official Atlona OmniStream decoder page."
+  },
+  {
+    "sku": "AT-UHD-EX-100CE-KIT",
+    "name": "UHD-EX 100CE Extender Kit",
+    "brand": "Atlona",
+    "family": "UHD-EX",
+    "category": "Extender",
+    "subcategory": "Extender Kit",
+    "status": "active",
+    "summary": "HDBaseT extender kit for HDMI with HDCP 2.2 support, receiver-powered operation, and point-to-point extension over category cable.",
+    "sourceUrl": "https://atlona.com/product/at-uhd-ex-100ce-kit/",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT",
+        "count": 1
+      },
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "CEC"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
     "video": {
       "maxResolution": "4K60",
-      "hdr": false
+      "hdr": false,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
     },
     "transport": "HDBaseT",
     "distance": {
       "meters": 100,
-      "notes": "Classified as long-distance extension class"
+      "notes": "Official kit distance is cabling dependent."
     },
-    "features": [ "Long Distance", "Signal Extension", "Remote Endpoint" ],
-    "notes": "Starter competitor record for compare workflow."
+    "features": [
+      "Extender kit",
+      "Receiver powered by transmitter",
+      "HDCP 2.2",
+      "Point-to-point extension",
+      "CEC pass-through"
+    ],
+    "notes": "Official Atlona extender-kit page."
   },
   {
-    "sku": "OME-MS52W",
-    "name": "Presentation Switcher",
-    "brand": "Atlona",
-    "family": "Presentation",
+    "sku": "CLICKSHARE-BAR-PRO",
+    "name": "ClickShare Bar Pro",
+    "brand": "Barco",
+    "family": "ClickShare",
+    "category": "UC",
+    "subcategory": "UC Soundbar",
+    "status": "active",
+    "summary": "All-in-one video bar for wireless conferencing with integrated camera, speakers, microphones, and ClickShare room sharing workflows.",
+    "sourceUrl": "https://www.barco.com/en/product/clickshare-video-bar-pro",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      },
+      {
+        "type": "Wi-Fi",
+        "count": 1
+      },
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      },
+      {
+        "type": "USB-A",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "XMS Cloud",
+      "Web UI"
+    ],
+    "audio": [
+      "Beamforming Microphones",
+      "Stereo Speakers",
+      "USB Audio"
+    ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [
+      "Video bar",
+      "Wireless conferencing",
+      "Wireless presentation",
+      "BYOM",
+      "Integrated camera",
+      "AI framing"
+    ],
+    "notes": "Official Barco ClickShare Bar Pro product page."
+  },
+  {
+    "sku": "CLICKSHARE-BUTTON-5TH-GEN",
+    "name": "ClickShare Button 5th Generation",
+    "brand": "Barco",
+    "family": "ClickShare",
+    "category": "Accessories",
+    "subcategory": "USB Casting Dongle",
+    "status": "active",
+    "summary": "USB-C wireless presentation dongle and meeting trigger button for one-click ClickShare room sharing.",
+    "sourceUrl": "https://www.barco.com/en/support/clickshare-button",
+    "inputs": [
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
+    ],
+    "control": [
+      "App Pairing"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false
+    },
+    "transport": "Unknown",
+    "features": [
+      "Wireless presentation",
+      "USB-C dongle",
+      "One-click sharing",
+      "Low-friction guest sharing"
+    ],
+    "notes": "Official Barco ClickShare Button support page."
+  },
+  {
+    "sku": "CLICKSHARE-C-10",
+    "name": "ClickShare C-10",
+    "brand": "Barco",
+    "family": "ClickShare",
     "category": "Switcher",
-    "subcategory": "Presentation Switcher",
+    "subcategory": "Wireless Presentation",
     "status": "active",
-    "summary": "Multi-input presentation switcher with collaboration-oriented features.",
+    "summary": "Wireless presentation hub for huddle spaces with app or button sharing, 4K output, and native casting support.",
+    "sourceUrl": "https://www.barco.com/en/product/clickshare-c-10",
     "inputs": [
-      { "type": "HDMI", "count": 2 },
-      { "type": "USB-C", "count": 1 }
+      {
+        "type": "LAN",
+        "count": 1
+      },
+      {
+        "type": "Wi-Fi",
+        "count": 1
+      },
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
     ],
     "outputs": [
-      { "type": "HDMI", "count": 2 }
+      {
+        "type": "HDMI",
+        "count": 1
+      }
     ],
-    "control": [ "TCP/IP", "USB", "RS-232" ],
-    "audio": [ "Embedded Audio", "De-Embedded Audio" ],
+    "control": [
+      "TCP/IP",
+      "XMS Cloud",
+      "Web UI"
+    ],
+    "audio": [
+      "HDMI Audio"
+    ],
     "video": {
       "maxResolution": "4K",
-      "hdr": false
+      "hdr": false,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
     },
     "transport": "Local",
-    "distance": {
-      "meters": 0,
-      "notes": "Local switcher"
-    },
-    "features": [ "Presentation", "USB-C", "Auto Switching", "Collaboration" ],
-    "notes": "Starter competitor record for compare workflow."
+    "latency": "standard",
+    "features": [
+      "Wireless presentation",
+      "AirPlay",
+      "Google Cast",
+      "Miracast",
+      "Button support",
+      "App sharing"
+    ],
+    "notes": "Official Barco ClickShare C-10 product page."
   },
   {
-    "sku": "DA2-HDMI",
-    "name": "HDMI Distribution Amplifier",
-    "brand": "Lightware",
-    "family": "Distribution",
-    "category": "Distribution Amplifier",
-    "subcategory": "HDMI DA",
+    "sku": "CLICKSHARE-CX-20",
+    "name": "ClickShare CX-20",
+    "brand": "Barco",
+    "family": "ClickShare",
+    "category": "Switcher",
+    "subcategory": "Wireless Presentation",
     "status": "active",
-    "summary": "Compact HDMI distribution amplifier.",
+    "summary": "Wireless conferencing and presentation hub for small meeting spaces with USB peripheral sharing and app or button workflows.",
+    "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-20",
     "inputs": [
-      { "type": "HDMI", "count": 1 }
+      {
+        "type": "LAN",
+        "count": 1
+      },
+      {
+        "type": "Wi-Fi",
+        "count": 1
+      },
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
     ],
     "outputs": [
-      { "type": "HDMI", "count": 2 }
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      },
+      {
+        "type": "USB-A",
+        "count": 2
+      }
     ],
-    "control": [ "EDID" ],
-    "audio": [ "Embedded Audio" ],
+    "control": [
+      "TCP/IP",
+      "XMS Cloud",
+      "Web UI"
+    ],
+    "audio": [
+      "USB Audio",
+      "HDMI Audio"
+    ],
     "video": {
       "maxResolution": "4K",
-      "hdr": false
+      "hdr": false,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
     },
     "transport": "Local",
-    "distance": {
-      "meters": 0,
-      "notes": "Local distribution"
+    "latency": "standard",
+    "features": [
+      "Wireless conferencing",
+      "Wireless presentation",
+      "BYOM",
+      "AirPlay",
+      "Google Cast",
+      "Miracast",
+      "USB peripheral sharing"
+    ],
+    "notes": "Official Barco ClickShare CX-20 product page."
+  },
+  {
+    "sku": "CLICKSHARE-CX-30",
+    "name": "ClickShare CX-30",
+    "brand": "Barco",
+    "family": "ClickShare",
+    "category": "Switcher",
+    "subcategory": "Wireless Presentation",
+    "status": "active",
+    "summary": "Wireless conferencing and presentation hub with HDMI output, USB peripherals, AirPlay, Google Cast, and Miracast support for medium meeting rooms.",
+    "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-30",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      },
+      {
+        "type": "Wi-Fi",
+        "count": 1
+      },
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      },
+      {
+        "type": "USB-A",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "XMS Cloud",
+      "Web UI"
+    ],
+    "audio": [
+      "USB Audio",
+      "HDMI Audio"
+    ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
     },
-    "features": [ "Distribution", "EDID", "Compact" ],
-    "notes": "Starter competitor record for compare workflow."
+    "transport": "Local",
+    "latency": "standard",
+    "features": [
+      "Wireless conferencing",
+      "Wireless presentation",
+      "AirPlay",
+      "Google Cast",
+      "Miracast",
+      "BYOM",
+      "USB peripheral sharing"
+    ],
+    "notes": "Official Barco ClickShare CX-30 page."
+  },
+  {
+    "sku": "IP300UHD-RX",
+    "name": "IP300UHD Decoder",
+    "brand": "Blustream",
+    "family": "IP300",
+    "category": "AVoIP",
+    "subcategory": "Decoder",
+    "status": "active",
+    "summary": "4K HDCP 2.2 HDMI-over-IP multicast decoder with HDMI output, USB and control extension, and one-gigabit AV transport.",
+    "sourceUrl": "https://www.blustream-us.com/ip300uhd-rx",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0",
+        "count": 1
+      },
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "One-gigabit multicast network dependent."
+    },
+    "features": [
+      "AVoIP decoder",
+      "Multicast",
+      "USB/KVM extension",
+      "PoE",
+      "Video wall",
+      "Matrix switching"
+    ],
+    "notes": "Official Blustream IP300UHD-RX page."
   },
   {
     "sku": "IP300UHD-TX",
-    "name": "AVoIP Encoder",
+    "name": "IP300UHD Encoder",
     "brand": "Blustream",
-    "family": "AVoIP",
+    "family": "IP300",
     "category": "AVoIP",
     "subcategory": "Encoder",
     "status": "active",
-    "summary": "Network-based AV encoder for matrix and video-wall workflows.",
+    "summary": "4K HDCP 2.2 HDMI-over-IP multicast encoder with HDMI input, USB and control extension, and one-gigabit AV transport.",
+    "sourceUrl": "https://www.blustream-us.com/ip300uhd-tx",
     "inputs": [
-      { "type": "HDMI", "count": 1 }
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0",
+        "count": 1
+      }
     ],
     "outputs": [
-      { "type": "LAN", "count": 1 }
+      {
+        "type": "LAN",
+        "count": 1
+      }
     ],
-    "control": [ "TCP/IP", "RS-232", "IR" ],
-    "audio": [ "Embedded Audio" ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio"
+    ],
     "video": {
       "maxResolution": "4K60",
-      "hdr": true
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
     },
+    "latency": "low",
     "transport": "AVoIP",
     "distance": {
       "meters": 100,
-      "notes": "Network dependent"
+      "notes": "One-gigabit multicast network dependent."
     },
-    "features": [ "AVoIP", "Video Wall", "PoE", "Matrix Switching" ],
-    "notes": "Starter competitor record for compare workflow."
+    "features": [
+      "AVoIP encoder",
+      "Multicast",
+      "USB/KVM extension",
+      "PoE",
+      "Video wall",
+      "Matrix switching"
+    ],
+    "notes": "Official Blustream IP300UHD-TX page."
   },
   {
-    "sku": "ZVPRO-810",
-    "name": "HDMI Encoder Modulator",
-    "brand": "ZeeVee",
-    "family": "AVoIP",
-    "category": "Encoder",
-    "subcategory": "IP Encoder",
+    "sku": "IP350UHD-TX",
+    "name": "IP350UHD-TX Dante AV over IP Encoder",
+    "brand": "Blustream",
+    "family": "IP350",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
     "status": "active",
-    "summary": "Enterprise AV distribution encoder for IP-based workflows.",
+    "summary": "4K HDMI-over-IP encoder with Dante and AES67 audio support, copper or fiber network uplinks, and bidirectional IR, RS-232, and USB-KVM extension.",
+    "sourceUrl": "https://www.blustream-us.com/video-over-ip-extenders-ip350uhd-tx",
     "inputs": [
-      { "type": "HDMI", "count": 1 }
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0",
+        "count": 1
+      }
     ],
     "outputs": [
-      { "type": "LAN", "count": 1 }
+      {
+        "type": "LAN",
+        "count": 2
+      },
+      {
+        "type": "SFP",
+        "count": 1
+      }
     ],
-    "control": [ "TCP/IP" ],
-    "audio": [ "Embedded Audio" ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Dante",
+      "AES67"
+    ],
     "video": {
-      "maxResolution": "1080p",
-      "hdr": false
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
     },
+    "latency": "low",
     "transport": "AVoIP",
     "distance": {
       "meters": 100,
-      "notes": "Network dependent"
+      "notes": "Copper reach is Gigabit Ethernet dependent; fiber SFP extends farther by module choice."
     },
-    "features": [ "IP Distribution", "Enterprise AV", "Centralized Delivery" ],
-    "notes": "Starter competitor record for compare workflow."
+    "features": [
+      "AVoIP encoder",
+      "Dante audio",
+      "AES67",
+      "Copper or fiber uplink",
+      "USB/KVM extension",
+      "PoE",
+      "Video wall",
+      "Matrix switching"
+    ],
+    "notes": "Official Blustream IP350UHD-TX page."
+  },
+  {
+    "sku": "SW41AB-V2",
+    "name": "SW41AB-V2 Multiformat Presentation Switch",
+    "brand": "Blustream",
+    "family": "SW",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "Four-input multiformat presentation switcher with HDMI and USB-C connectivity, 18 Gbps output, audio embedding and de-embedding, and web GUI control.",
+    "sourceUrl": "https://www.blustream-us.com/sw41ab-v2",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 3
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "Analog Audio",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "Web GUI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio",
+      "Audio Embedding"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [
+      "Multi format presentation switcher",
+      "USB-C",
+      "Audio embedding",
+      "Audio de-embedding",
+      "Web GUI",
+      "18 Gbps",
+      "HDCP 2.2"
+    ],
+    "notes": "Official Blustream SW41AB-V2 page."
+  },
+  {
+    "sku": "UEX3C-KIT",
+    "name": "UEX3C-KIT USB 3.2 Extender Kit",
+    "brand": "Blustream",
+    "family": "UEX",
+    "category": "Extender",
+    "subcategory": "Extender Kit",
+    "status": "active",
+    "summary": "USB 3.2 Gen 1 extender kit supporting host-to-device extension up to 100 meters with power over cable and compatibility with conferencing cameras, audio devices, and storage.",
+    "sourceUrl": "https://www.blustream-us.com/uex3c-kit",
+    "inputs": [
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "USB-A",
+        "count": 2
+      },
+      {
+        "type": "USB Extension",
+        "count": 1
+      }
+    ],
+    "control": [
+      "Link Status"
+    ],
+    "audio": [
+      "USB Audio"
+    ],
+    "transport": "USB Extension",
+    "distance": {
+      "meters": 100,
+      "notes": "Official maximum extension over category cable."
+    },
+    "features": [
+      "Extender kit",
+      "USB 3.2 Gen 1",
+      "5 Gbps",
+      "Power over cable",
+      "Conference camera support",
+      "Backward compatible with USB 2.0 and 1.1"
+    ],
+    "notes": "Official Blustream UEX3C-KIT page."
+  },
+  {
+    "sku": "WMF-USBC-D",
+    "name": "WMF-USBC-D USB-C Wireless Presentation Dongle",
+    "brand": "Blustream",
+    "family": "WMF",
+    "category": "Accessories",
+    "subcategory": "USB Casting Dongle",
+    "status": "active",
+    "summary": "USB-C wireless presentation dongle for instant screen sharing into Blustream WMF rooms without drivers or local software installation.",
+    "sourceUrl": "https://www.blustream-us.com/wmf-usbc-d",
+    "inputs": [
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
+    ],
+    "control": [
+      "Pairing"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false
+    },
+    "transport": "Unknown",
+    "features": [
+      "USB-C dongle",
+      "Wireless presentation",
+      "One-click sharing",
+      "Guest collaboration"
+    ],
+    "notes": "Official Blustream WMF-USBC-D page."
+  },
+  {
+    "sku": "WMF72",
+    "name": "WMF72 Wireless Presentation Switcher",
+    "brand": "Blustream",
+    "family": "WMF",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "4K multiformat presentation switcher with wired HDMI and USB-C inputs, AirPlay, Miracast, and Chromecast sharing, dual HDMI outputs, and wireless USB device support.",
+    "sourceUrl": "https://www.blustream-us.com/introducing-the-new-wmf72-from-blustream-2",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      },
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB Device",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "Web GUI"
+    ],
+    "audio": [
+      "HDMI Audio",
+      "USB Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "standard",
+    "transport": "Local",
+    "features": [
+      "Wireless presentation",
+      "Multi format presentation switcher",
+      "AirPlay",
+      "Miracast",
+      "Chromecast",
+      "Dual HDMI outputs",
+      "Wireless USB camera and microphone",
+      "USB touch-back"
+    ],
+    "notes": "Official Blustream WMF72 launch page."
+  },
+  {
+    "sku": "AM-3200-WF-I",
+    "name": "AirMedia Series 3 AM-3200-WF-I",
+    "brand": "Crestron",
+    "family": "AirMedia",
+    "category": "Switcher",
+    "subcategory": "Wireless Presentation",
+    "status": "active",
+    "summary": "Secure wireless presentation and conferencing system with native AirPlay and Miracast, digital signage, cloud management, and support for presenting multiple 4K sources onscreen.",
+    "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Presentation-Systems/AM-3200-WF-I",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      },
+      {
+        "type": "Wi-Fi",
+        "count": 1
+      },
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-A",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Cloud Management",
+      "Web UI"
+    ],
+    "audio": [
+      "HDMI Audio",
+      "USB Audio"
+    ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "standard",
+    "transport": "Local",
+    "features": [
+      "Wireless presentation",
+      "Wireless conferencing",
+      "AirPlay",
+      "Miracast",
+      "Digital signage",
+      "Cloud deployment",
+      "Multi-source presentation"
+    ],
+    "notes": "Official Crestron AirMedia Series 3 page."
+  },
+  {
+    "sku": "AM-TX3-100",
+    "name": "AirMedia Connect Adaptor AM-TX3-100",
+    "brand": "Crestron",
+    "family": "AirMedia",
+    "category": "Accessories",
+    "subcategory": "USB Casting Dongle",
+    "status": "active",
+    "summary": "USB-C wireless presentation dongle for one-touch AirMedia room sharing and guest collaboration workflows.",
+    "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Wireless-Conferencing/AM-TX3-100",
+    "inputs": [
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
+    ],
+    "control": [
+      "Pairing"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false
+    },
+    "transport": "Unknown",
+    "features": [
+      "Wireless presentation",
+      "USB-C dongle",
+      "One-touch sharing",
+      "Guest collaboration"
+    ],
+    "notes": "Official Crestron AirMedia Connect Adaptor page."
+  },
+  {
+    "sku": "DM-NVX-360",
+    "name": "DM NVX 360 AV-over-IP Encoder/Decoder",
+    "brand": "Crestron",
+    "family": "DM NVX",
+    "category": "AVoIP",
+    "subcategory": "Encoder/Decoder",
+    "status": "active",
+    "summary": "4K60 4:4:4 AV-over-IP endpoint over 1GbE with HDMI and analog audio I/O, USB 2.0 extension, PoE+, and secure enterprise-network features.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-360",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "Analog Audio",
+        "count": 1
+      },
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "Analog Audio",
+        "count": 1
+      },
+      {
+        "type": "LAN",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "802.1X"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio",
+      "DM NAX Audio Return"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "1GbE network dependent."
+    },
+    "features": [
+      "AVoIP endpoint",
+      "USB 2.0 extension",
+      "PoE+",
+      "802.1X",
+      "AES encryption",
+      "Video wall",
+      "Matrix switching"
+    ],
+    "notes": "Official Crestron DM NVX 360 page."
+  },
+  {
+    "sku": "DM-NVX-DIR2",
+    "name": "DM NVX Director Virtual Switching Appliance",
+    "brand": "Crestron",
+    "family": "DM NVX",
+    "category": "Control",
+    "subcategory": "AVoIP Controller",
+    "status": "active",
+    "summary": "AV over IP management appliance for DM NVX systems that provides browser-based virtual matrix switching, endpoint monitoring, bulk configuration, and diagnostics.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Management/DM-NVX-DIR-ENT",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 2
+      }
+    ],
+    "outputs": [],
+    "control": [
+      "TCP/IP",
+      "HTTPS",
+      "Web UI",
+      "REST API"
+    ],
+    "audio": [],
+    "transport": "AVoIP",
+    "features": [
+      "AVoIP controller",
+      "Virtual matrix switching",
+      "Endpoint monitoring",
+      "Bulk configuration",
+      "Browser-based management",
+      "Diagnostics"
+    ],
+    "notes": "Official Crestron DM NVX Director page."
+  },
+  {
+    "sku": "DM-NVX-E30",
+    "name": "DM NVX E30",
+    "brand": "Crestron",
+    "family": "DM NVX",
+    "category": "AVoIP",
+    "subcategory": "Encoder/Decoder",
+    "status": "active",
+    "summary": "Compact 4K60 4:4:4 AV-over-IP endpoint for enterprise distribution, switching, and USB extension workflows over 1GbE.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-E30",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "LAN",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "1GbE network dependent."
+    },
+    "features": [
+      "AVoIP endpoint",
+      "USB extension",
+      "PoE",
+      "Video wall",
+      "Matrix switching"
+    ],
+    "notes": "Official Crestron DM NVX E30 page."
+  },
+  {
+    "sku": "HD-DA2-4KZ-E",
+    "name": "HD-DA2-4KZ-E 1x2 HDMI Distribution Amplifier",
+    "brand": "Crestron",
+    "family": "HD",
+    "category": "Distribution",
+    "subcategory": "Splitter",
+    "status": "active",
+    "summary": "1x2 HDMI distribution amplifier for 4K60 4:4:4 and HDR with EDID management, high-bitrate audio support, and HDCP 2.2 compliance.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/Distribution-Amplifiers/HD-DA2-4KZ-E",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "control": [
+      "EDID"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "7.1 Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [
+      "Splitter",
+      "Distribution amplifier",
+      "EDID management",
+      "HDR",
+      "HDCP 2.2",
+      "Compact form factor"
+    ],
+    "notes": "Official Crestron HD-DA2-4KZ-E page."
+  },
+  {
+    "sku": "HD-MD4X2-4KZ-E",
+    "name": "HD-MD4X2-4KZ-E 4x2 HDMI Matrix Switcher",
+    "brand": "Crestron",
+    "family": "HD",
+    "category": "Matrix",
+    "subcategory": "Matrix Switch",
+    "status": "active",
+    "summary": "4x2 HDMI matrix switcher for 4K60 4:4:4 and HDR distribution with audio breakaway, EDID management, and XiO Cloud compatibility.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/Switchers/HD-MD4X2-4KZ-E",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "Web UI",
+      "XiO Cloud"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Audio Breakaway"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [
+      "Matrix switcher",
+      "Audio breakaway",
+      "EDID management",
+      "HDR",
+      "XiO Cloud",
+      "HDCP 2.3"
+    ],
+    "notes": "Official Crestron HD-MD4X2-4KZ-E page."
+  },
+  {
+    "sku": "HD-PS622",
+    "name": "HD-PS622 8x2 4K Presentation System",
+    "brand": "Crestron",
+    "family": "HD",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "8x2 presentation switcher with six HDMI inputs, two DM inputs, two HDMI outputs, built-in 4K scalers, audio mixing, and enterprise management support.",
+    "sourceUrl": "https://www.crestron.com/Products/Video/Presentation-Systems/HD-PS622",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 6
+      },
+      {
+        "type": "DM",
+        "count": 2
+      },
+      {
+        "type": "Analog Audio",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "DM",
+        "count": 2
+      },
+      {
+        "type": "Analog Audio",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "Web UI",
+      "XiO Cloud"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Audio Mixing",
+      "Analog Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "distance": {
+      "meters": 40,
+      "notes": "DM inputs extend farther depending on cable and format."
+    },
+    "features": [
+      "Presentation switcher",
+      "Multi format presentation switcher",
+      "4K scalers",
+      "Audio mixing",
+      "XiO Cloud",
+      "Automatic switching",
+      "HDR10",
+      "Dolby Vision"
+    ],
+    "notes": "Official Crestron HD-PS622 page."
+  },
+  {
+    "sku": "DTP3-R-201",
+    "name": "DTP3 R 201",
+    "brand": "Extron",
+    "family": "DTP3",
+    "category": "Extender",
+    "subcategory": "Extender Receiver",
+    "status": "active",
+    "summary": "Long-distance DTP3 receiver for HDMI and audio output with RS-232 pass-through and support for 4K60 4:4:4 signals over shielded twisted pair.",
+    "sourceUrl": "https://www.extron.com/product/dtp3r201",
+    "inputs": [
+      {
+        "type": "HDBaseT",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "Analog Audio",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0b",
+      "bandwidthGbps": 18
+    },
+    "transport": "HDBaseT",
+    "distance": {
+      "meters": 100,
+      "notes": "Official DTP3 extension reach on shielded twisted pair."
+    },
+    "features": [
+      "Extender receiver",
+      "De-embedded stereo audio",
+      "RS-232 pass-through",
+      "HDR",
+      "HDCP 2.3"
+    ],
+    "notes": "Official Extron DTP3 R 201 page."
+  },
+  {
+    "sku": "DTP3-T-203",
+    "name": "DTP3 T 203",
+    "brand": "Extron",
+    "family": "DTP3",
+    "category": "Extender",
+    "subcategory": "Extender Transmitter",
+    "status": "active",
+    "summary": "Three-input long-distance presentation transmitter with two HDMI inputs, one USB-C input, local HDMI output, twisted-pair output, and USB-C charging.",
+    "sourceUrl": "https://www.extron.com/product/dtp3t203",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "HDBaseT",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "CEC"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Audio Embedding"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0b",
+      "bandwidthGbps": 18
+    },
+    "transport": "HDBaseT",
+    "distance": {
+      "meters": 100,
+      "notes": "Official long-distance twisted-pair extension."
+    },
+    "features": [
+      "Presentation switcher",
+      "Extender transmitter",
+      "USB-C 60W charging",
+      "Ethernet control",
+      "HDR",
+      "Auto switching",
+      "Tally output"
+    ],
+    "notes": "Official Extron DTP3 T 203 page."
+  },
+  {
+    "sku": "NAV-E-121",
+    "name": "NAV E 121",
+    "brand": "Extron",
+    "family": "NAV",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
+    "status": "active",
+    "summary": "One-gigabit HDMI encoder with HDMI loop-through, USB 2.0 over IP, AES67 audio support, and secure NAV AV over IP transport.",
+    "sourceUrl": "https://www.extron.com/product/nave121",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "AES67"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0b",
+      "bandwidthGbps": 18
+    },
+    "latency": "subframe",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "One-gigabit NAV network dependent."
+    },
+    "features": [
+      "AVoIP encoder",
+      "HDMI loop-through",
+      "USB 2.0 over IP",
+      "AES67 audio",
+      "PURE3 codec",
+      "Ultra-low latency",
+      "Secure transport"
+    ],
+    "notes": "Official Extron NAV E 121 page."
+  },
+  {
+    "sku": "NAV-SD-121",
+    "name": "NAV SD 121",
+    "brand": "Extron",
+    "family": "NAV",
+    "category": "AVoIP",
+    "subcategory": "Decoder",
+    "status": "active",
+    "summary": "One-gigabit scaling decoder with HDMI output, AES67 audio support, HDMI preview output, and advanced scaling for NAV AV over IP systems.",
+    "sourceUrl": "https://www.extron.com/product/navsd121",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "AES67"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0b",
+      "bandwidthGbps": 18
+    },
+    "latency": "subframe",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "One-gigabit NAV network dependent."
+    },
+    "features": [
+      "AVoIP decoder",
+      "Scaling decoder",
+      "Confidence preview",
+      "AES67 audio",
+      "Vector 4K scaling",
+      "Ultra-low latency"
+    ],
+    "notes": "Official Extron NAV SD 121 page."
+  },
+  {
+    "sku": "NAVIGATOR",
+    "name": "NAVigator System Manager",
+    "brand": "Extron",
+    "family": "NAV",
+    "category": "Control",
+    "subcategory": "AVoIP Controller",
+    "status": "active",
+    "summary": "AV over IP system manager that configures, controls, and monitors NAV encoders and decoders from an embedded web interface.",
+    "sourceUrl": "https://www.extron.com/product/navigator",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 2
+      }
+    ],
+    "outputs": [],
+    "control": [
+      "TCP/IP",
+      "HTTPS",
+      "SSH",
+      "Web UI",
+      "Active Directory"
+    ],
+    "audio": [],
+    "transport": "AVoIP",
+    "features": [
+      "AVoIP controller",
+      "Embedded web interface",
+      "Device monitoring",
+      "Bulk configuration",
+      "System diagnostics",
+      "Dual LAN"
+    ],
+    "notes": "Official Extron NAVigator page."
+  },
+  {
+    "sku": "SHARELINK-PRO-1100",
+    "name": "ShareLink Pro 1100",
+    "brand": "Extron",
+    "family": "ShareLink",
+    "category": "Switcher",
+    "subcategory": "Wireless Presentation",
+    "status": "active",
+    "summary": "Wireless and wired presentation gateway with support for simultaneous display of up to four devices, HDMI input, dual Ethernet ports, and collaboration workflows.",
+    "sourceUrl": "https://www.extron.com/product/sharelinkpro1100",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "LAN",
+        "count": 2
+      },
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI"
+    ],
+    "audio": [
+      "HDMI Audio"
+    ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false
+    },
+    "latency": "standard",
+    "transport": "Local",
+    "features": [
+      "Wireless presentation",
+      "Quad view",
+      "ConferenceShare",
+      "HDMI input",
+      "Digital signage",
+      "WebShare"
+    ],
+    "notes": "Official Extron ShareLink Pro 1100 page."
+  },
+  {
+    "sku": "KDS-DEC7",
+    "name": "KDS-DEC7",
+    "brand": "Kramer",
+    "family": "KDS",
+    "category": "AVoIP",
+    "subcategory": "Decoder",
+    "status": "active",
+    "summary": "High-performance AVoIP decoder for 4K60 4:2:0 HDR10 distribution over a 1G network with HDMI output, dual Ethernet, USB, analog audio, IR, RS-232, and CEC over IP.",
+    "sourceUrl": "https://www1.kramerav.com/us/product/kds-dec7",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0",
+        "count": 1
+      },
+      {
+        "type": "Balanced Audio",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "CEC"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Balanced Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:2:0",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 10.2
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "KDS-7 AVoIP network dependent."
+    },
+    "features": [
+      "AVoIP decoder",
+      "USB extension",
+      "HDR10",
+      "PoE",
+      "Secure transport",
+      "KDS-7 platform"
+    ],
+    "notes": "Official Kramer KDS-DEC7 page."
+  },
+  {
+    "sku": "KDS-EN7",
+    "name": "KDS-EN7",
+    "brand": "Kramer",
+    "family": "KDS",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
+    "status": "active",
+    "summary": "High-performance AVoIP encoder for streaming 4K60 4:2:0 HDR10 video over a 1G network with HDMI loop-through, dual Ethernet, audio, USB, IR, RS-232, and CEC over IP.",
+    "sourceUrl": "https://www1.kramerav.com/us/product/kds-en7",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0",
+        "count": 1
+      },
+      {
+        "type": "Balanced Audio",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "LAN",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "CEC"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Balanced Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:2:0",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 10.2
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "KDS-7 AVoIP network dependent."
+    },
+    "features": [
+      "AVoIP encoder",
+      "HDMI loop-through",
+      "USB extension",
+      "HDR10",
+      "PoE",
+      "Secure transport",
+      "KDS-7 platform"
+    ],
+    "notes": "Official Kramer KDS-EN7 page."
+  },
+  {
+    "sku": "KDS-USB2",
+    "name": "KDS-USB2",
+    "brand": "Kramer",
+    "family": "KDS",
+    "category": "Extender",
+    "subcategory": "Extender Kit",
+    "status": "active",
+    "summary": "USB 2.0 extension solution for one-to-many and many-to-many host and device routing over IP with support for conferencing cameras, touch devices, and HID peripherals.",
+    "sourceUrl": "https://www1.kramerav.com/us/product/kds-usb2",
+    "inputs": [
+      {
+        "type": "USB Host",
+        "count": 1
+      },
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "USB-A",
+        "count": 4
+      },
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI",
+      "Cloud Management"
+    ],
+    "audio": [
+      "USB Audio"
+    ],
+    "transport": "USB Extension",
+    "distance": {
+      "meters": 100,
+      "notes": "USB extension reach depends on network topology."
+    },
+    "features": [
+      "Extender kit",
+      "USB 2.0 extension",
+      "One-to-many routing",
+      "Many-to-many routing",
+      "SwitchableUSB",
+      "Camera support",
+      "HID support"
+    ],
+    "notes": "Official Kramer KDS-USB2 page."
+  },
+  {
+    "sku": "TP-580T",
+    "name": "TP-580T",
+    "brand": "Kramer",
+    "family": "TP",
+    "category": "Extender",
+    "subcategory": "Extender Transmitter",
+    "status": "active",
+    "summary": "HDBaseT transmitter for 4K60 4:2:0 HDMI, bidirectional RS-232 and IR, and long-reach twisted-pair extension over category cable.",
+    "sourceUrl": "https://www1.kramerav.com/us/product/tp-580t",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR",
+      "EDID"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:2:0",
+      "hdr": false,
+      "hdmi": "2.0",
+      "bandwidthGbps": 10.2
+    },
+    "transport": "HDBaseT",
+    "distance": {
+      "meters": 70,
+      "notes": "Official long-reach extension distance depends on cable and format."
+    },
+    "features": [
+      "Extender transmitter",
+      "Long-reach HDBaseT",
+      "Bidirectional IR",
+      "Bidirectional RS-232",
+      "EDID support",
+      "HDCP 2.2"
+    ],
+    "notes": "Official Kramer TP-580T page."
+  },
+  {
+    "sku": "VIA-GO2",
+    "name": "VIA GO2",
+    "brand": "Kramer",
+    "family": "VIA",
+    "category": "Switcher",
+    "subcategory": "Wireless Presentation",
+    "status": "active",
+    "summary": "Super-compact wireless presentation hub with integrated Wi-Fi, LAN connectivity, AirPlay, Miracast, and Chromebook support for secure collaboration in huddle spaces.",
+    "sourceUrl": "https://www1.kramerav.com/us/product/via%20go2",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      },
+      {
+        "type": "Wi-Fi",
+        "count": 1
+      },
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-A",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI",
+      "Cloud Management"
+    ],
+    "audio": [
+      "HDMI Audio",
+      "USB Audio"
+    ],
+    "video": {
+      "maxResolution": "4K30",
+      "hdr": false
+    },
+    "latency": "standard",
+    "transport": "Local",
+    "features": [
+      "Wireless presentation",
+      "AirPlay",
+      "Miracast",
+      "Chromebook mirroring",
+      "Secure login",
+      "Two simultaneous presenters"
+    ],
+    "notes": "Official Kramer VIA GO2 page."
+  },
+  {
+    "sku": "VS-88H2A",
+    "name": "VS-88H2A 8x8 Matrix Switcher",
+    "brand": "Kramer",
+    "family": "VS",
+    "category": "Matrix",
+    "subcategory": "Matrix Switch",
+    "status": "active",
+    "summary": "8x8 4K HDR HDMI matrix switcher with independent audio routes, EDID handling, web pages, and Kramer Aware cloud support.",
+    "sourceUrl": "https://www1.kramerav.com/us/product/vs-88h2a",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      },
+      {
+        "type": "S/PDIF",
+        "count": 8
+      },
+      {
+        "type": "Balanced Stereo",
+        "count": 8
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "USB",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio",
+      "S/PDIF",
+      "Balanced Stereo"
+    ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [
+      "Matrix switcher",
+      "Independent audio routes",
+      "EDID management",
+      "Kramer Aware",
+      "Web pages",
+      "HDCP 2.2",
+      "HDR"
+    ],
+    "notes": "Official Kramer VS-88H2A page."
+  },
+  {
+    "sku": "DA2-HDMI",
+    "name": "DA2-HDMI Distribution Amplifier",
+    "brand": "Lightware",
+    "family": "DA",
+    "category": "Distribution",
+    "subcategory": "Splitter",
+    "status": "active",
+    "summary": "Compact HDMI distribution amplifier for one HDMI source feeding two local HDMI displays with EDID handling.",
+    "sourceUrl": "https://lightware.com/products/da2-hdmi",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "control": [
+      "EDID"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false
+    },
+    "transport": "Local",
+    "features": [
+      "Splitter",
+      "Distribution amplifier",
+      "EDID management",
+      "Compact form factor"
+    ],
+    "notes": "Official Lightware DA2-HDMI product page."
+  },
+  {
+    "sku": "UCX-2X1-HC30",
+    "name": "Taurus UCX-2x1-HC30",
+    "brand": "Lightware",
+    "family": "Taurus UCX",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "2x1 switcher with USB-C, HDMI 2.0, USB 3.1, and Ethernet control for collaboration spaces with host switching and room automation support.",
+    "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-A",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI",
+      "CEC"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "USB Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [
+      "Presentation switcher",
+      "USB-C",
+      "USB 3.1",
+      "Host switching",
+      "Room automation",
+      "HDMI 2.0",
+      "Ethernet control"
+    ],
+    "notes": "Official Lightware Taurus UCX family page."
+  },
+  {
+    "sku": "UCX-4X2-HC60D",
+    "name": "Taurus UCX-4x2-HC60D",
+    "brand": "Lightware",
+    "family": "Taurus UCX",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "4x2 switcher with two HDMI inputs, two USB-C inputs, dual HDMI outputs, USB 3.1 host switching, Dante and AES67 audio, and automation for large collaboration rooms.",
+    "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB-C",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB-A",
+        "count": 4
+      },
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI",
+      "CEC"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "USB Audio",
+      "Dante",
+      "AES67"
+    ],
+    "video": {
+      "maxResolution": "5K21:9",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [
+      "Multi format presentation switcher",
+      "USB-C 100W charging",
+      "USB 3.1 host switching",
+      "Dante audio",
+      "AES67",
+      "Room automation",
+      "Large-room collaboration"
+    ],
+    "notes": "Official Lightware Taurus UCX family page and A&E specification."
+  },
+  {
+    "sku": "UCX-4X3-HCM40",
+    "name": "Taurus UCX-4x3-HCM40",
+    "brand": "Lightware",
+    "family": "Taurus UCX",
+    "category": "Matrix",
+    "subcategory": "Matrix Switch",
+    "status": "active",
+    "summary": "4x3 universal matrix switcher with dual-screen extended desktop support, two HDMI inputs, one USB-C input, three HDMI outputs, and host switching for hybrid meeting rooms.",
+    "sourceUrl": "https://www.lightware.com/en/products/ucx-4x3-hcm40-dual-screen",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 3
+      },
+      {
+        "type": "USB-A",
+        "count": 4
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI",
+      "CEC"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "USB Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [
+      "Matrix switcher",
+      "Dual-screen extended desktop",
+      "USB-C 100W charging",
+      "Host switching",
+      "Room automation",
+      "Collaboration"
+    ],
+    "notes": "Official Lightware UCX-4x3-HCM40 product page."
+  },
+  {
+    "sku": "Z4KMP48",
+    "name": "ZyPer Management Platform Z4KMP48",
+    "brand": "ZeeVee",
+    "family": "ZyPer Management Platform",
+    "category": "Control",
+    "subcategory": "AVoIP Controller",
+    "status": "active",
+    "summary": "AV over IP management platform for ZyPer systems with browser-based setup, drag-and-drop routing, monitoring, and system management for encoders and decoders.",
+    "sourceUrl": "https://www.zeevee.com/z4kmp48-data-sheet/",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 2
+      }
+    ],
+    "outputs": [],
+    "control": [
+      "TCP/IP",
+      "HTTPS",
+      "Web UI",
+      "API"
+    ],
+    "audio": [],
+    "transport": "AVoIP",
+    "features": [
+      "AVoIP controller",
+      "Browser-based management",
+      "Drag-and-drop routing",
+      "System monitoring",
+      "Centralized configuration"
+    ],
+    "notes": "Official ZeeVee ZyPer Management Platform product page."
+  },
+  {
+    "sku": "ZY-4K-DEC",
+    "name": "ZyPer4K Decoder",
+    "brand": "ZeeVee",
+    "family": "ZyPer4K",
+    "category": "AVoIP",
+    "subcategory": "Decoder",
+    "status": "active",
+    "summary": "Zero-frame-latency one-gigabit HDMI-over-IP decoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
+    "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "zero frame",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "Managed one-gigabit network dependent."
+    },
+    "features": [
+      "AVoIP decoder",
+      "Zero-frame latency",
+      "PoE+",
+      "Video wall",
+      "USB extension",
+      "Managed-network multicast"
+    ],
+    "notes": "Official ZeeVee ZyPer4K family page."
+  },
+  {
+    "sku": "ZY-4K-ENC",
+    "name": "ZyPer4K Encoder",
+    "brand": "ZeeVee",
+    "family": "ZyPer4K",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
+    "status": "active",
+    "summary": "Zero-frame-latency one-gigabit HDMI-over-IP encoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
+    "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "zero frame",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "Managed one-gigabit network dependent."
+    },
+    "features": [
+      "AVoIP encoder",
+      "Zero-frame latency",
+      "PoE+",
+      "Video wall",
+      "USB extension",
+      "Managed-network multicast"
+    ],
+    "notes": "Official ZeeVee ZyPer4K family page."
+  },
+  {
+    "sku": "ZUHD60-2EMP",
+    "name": "ZyPerUHD60 2EMP Encoder",
+    "brand": "ZeeVee",
+    "family": "ZyPerUHD60",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
+    "status": "active",
+    "summary": "Compressed 1GbE AV-over-IP encoder with three video inputs, an integrated management platform, KVM support, and support for HDMI, USB-C, and DisplayPort sources.",
+    "sourceUrl": "https://www.zeevee.com/product/zuhd60-2emp/",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      },
+      {
+        "type": "DisplayPort",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "LAN",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "1GbE Ethernet dependent."
+    },
+    "features": [
+      "AVoIP encoder",
+      "Triple-input encoder",
+      "Integrated management platform",
+      "KVM support",
+      "1GbE transport",
+      "PoE+"
+    ],
+    "notes": "Official ZeeVee ZUHD60-2EMP product page."
   }
 ]

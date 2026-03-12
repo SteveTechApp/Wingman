@@ -15,6 +15,8 @@ export type ProductPortCount = {
 export type ProductVideoProfile = {
   maxResolution?: string;
   hdr?: boolean;
+  hdmi?: string;
+  bandwidthGbps?: number;
 };
 
 export type ProductEvidenceEntry = {
@@ -44,6 +46,7 @@ export type ProductIntelligenceRecord = {
   control: string[];
   audio: string[];
   video?: ProductVideoProfile;
+  latency?: string;
   distanceMeters?: number;
   status: ProductApprovalStatus;
   confidence: number;
@@ -145,6 +148,7 @@ const LOOKUP_ENDPOINT = String(import.meta.env.VITE_COMPETITOR_LOOKUP_ENDPOINT ?
 
 const BRAND_SOURCE_URLS: Record<string, string> = {
   wyrestorm: "https://www.wyrestorm.com/",
+  barco: "https://www.barco.com/",
   crestron: "https://www.crestron.com/",
   extron: "https://www.extron.com/",
   atlona: "https://atlona.com/",
@@ -250,12 +254,29 @@ function mapVideo(value: unknown): ProductVideoProfile | undefined {
   if (!value || typeof value !== "object") return undefined;
   const maxResolution = tidy((value as { maxResolution?: unknown }).maxResolution);
   const hdrValue = (value as { hdr?: unknown }).hdr;
+  const hdmi = tidy((value as { hdmi?: unknown }).hdmi);
+  const bandwidthGbpsValue = Number((value as { bandwidthGbps?: unknown }).bandwidthGbps);
   const hdr = typeof hdrValue === "boolean" ? hdrValue : undefined;
-  if (!maxResolution && hdr == null) return undefined;
+  if (!maxResolution && hdr == null && !hdmi && !Number.isFinite(bandwidthGbpsValue)) return undefined;
   return {
     maxResolution: maxResolution || undefined,
     hdr,
+    hdmi: hdmi || undefined,
+    bandwidthGbps: Number.isFinite(bandwidthGbpsValue) ? bandwidthGbpsValue : undefined,
   };
+}
+
+function normalizeLatency(value: unknown): string | undefined {
+  const latency = tidy(value);
+  return latency || undefined;
+}
+
+function summarizePorts(value: ProductPortCount[]): string {
+  if (!Array.isArray(value) || value.length === 0) return "";
+  return value
+    .map((entry) => `${Math.max(0, Number(entry.count) || 0)}x ${tidy(entry.type)}`)
+    .filter(Boolean)
+    .join(", ");
 }
 
 function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVendorType): ProductIntelligenceRecord | null {
@@ -263,12 +284,19 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
   const sku = normalizeSku(row.sku);
   if (!sku) return null;
 
-  const sourceUrl = sourceUrlForBrand(vendorType, brand);
+  const explicitSourceUrl = normalizeUrl(row.sourceUrl);
+  const sourceUrl = explicitSourceUrl || sourceUrlForBrand(vendorType, brand);
   const status: ProductApprovalStatus = vendorType === "wyrestorm" ? "approved" : "draft";
   const confidence = vendorType === "wyrestorm" ? 0.87 : 0.72;
   const now = nowIso();
   const summary = tidy(row.summary) || `${sku} reference record.`;
   const features = dedupeStrings(asArray<string>(row.features), 24);
+  const inputs = mapPortArray(row.inputs);
+  const outputs = mapPortArray(row.outputs);
+  const control = dedupeStrings(asArray<string>(row.control), 16);
+  const audio = dedupeStrings(asArray<string>(row.audio), 16);
+  const video = mapVideo(row.video);
+  const latency = normalizeLatency(row.latency);
   const classification = classifyProductType({
     sku,
     family: tidy(row.family),
@@ -278,8 +306,8 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
     summary,
     transport: tidy(row.transport),
     features,
-    audio: dedupeStrings(asArray<string>(row.audio), 16),
-    control: dedupeStrings(asArray<string>(row.control), 16),
+    audio,
+    control,
   });
 
   const evidence: ProductEvidenceEntry[] = [];
@@ -295,10 +323,74 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
       notes: "Derived from catalog summary field.",
     });
   }
+  if (inputs.length > 0 || outputs.length > 0) {
+    const inputSummary = summarizePorts(inputs);
+    const outputSummary = summarizePorts(outputs);
+    evidence.push({
+      id: `${normalizeId(sku)}-io`,
+      type: "io",
+      label: "Catalog I/O Profile",
+      value: [inputSummary ? `Inputs: ${inputSummary}` : "", outputSummary ? `Outputs: ${outputSummary}` : ""]
+        .filter(Boolean)
+        .join(" | "),
+      sourceUrl: sourceUrl || undefined,
+      capturedAt: now,
+      confidence,
+      notes: "Derived from catalog port counts.",
+    });
+  }
+  if (control.length > 0 || audio.length > 0) {
+    evidence.push({
+      id: `${normalizeId(sku)}-control-audio`,
+      type: control.length > 0 ? "compatibility" : "spec",
+      label: "Catalog Control and Audio",
+      value: [
+        control.length > 0 ? `Control: ${control.join(", ")}` : "",
+        audio.length > 0 ? `Audio: ${audio.join(", ")}` : "",
+      ]
+        .filter(Boolean)
+        .join(" | "),
+      sourceUrl: sourceUrl || undefined,
+      capturedAt: now,
+      confidence,
+      notes: "Derived from catalog control and audio fields.",
+    });
+  }
+  if (video?.maxResolution || video?.hdr != null) {
+    evidence.push({
+      id: `${normalizeId(sku)}-video`,
+      type: "spec",
+      label: "Catalog Video Profile",
+      value: [
+        video.maxResolution ? `Resolution: ${video.maxResolution}` : "",
+        video.hdr == null ? "" : `HDR: ${video.hdr ? "Yes" : "No"}`,
+        video.hdmi ? `HDMI: ${video.hdmi}` : "",
+        Number.isFinite(video.bandwidthGbps) ? `Bandwidth: ${video.bandwidthGbps} Gbps` : "",
+      ]
+        .filter(Boolean)
+        .join(" | "),
+      sourceUrl: sourceUrl || undefined,
+      capturedAt: now,
+      confidence,
+      notes: "Derived from catalog video metadata.",
+    });
+  }
+  if (latency) {
+    evidence.push({
+      id: `${normalizeId(sku)}-latency`,
+      type: "spec",
+      label: "Catalog Latency Class",
+      value: latency,
+      sourceUrl: sourceUrl || undefined,
+      capturedAt: now,
+      confidence,
+      notes: "Derived from catalog latency field.",
+    });
+  }
   if (features.length > 0) {
     evidence.push({
       id: `${normalizeId(sku)}-features`,
-      type: "io",
+      type: "spec",
       label: "Catalog Features",
       value: features.join("; "),
       sourceUrl: sourceUrl || undefined,
@@ -319,11 +411,12 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
     summary,
     features,
     transport: tidy(row.transport) || undefined,
-    inputs: mapPortArray(row.inputs),
-    outputs: mapPortArray(row.outputs),
-    control: dedupeStrings(asArray<string>(row.control), 16),
-    audio: dedupeStrings(asArray<string>(row.audio), 16),
-    video: mapVideo(row.video),
+    inputs,
+    outputs,
+    control,
+    audio,
+    video,
+    latency,
     distanceMeters: Number((row as { distance?: { meters?: unknown } }).distance?.meters ?? row.distanceMeters) || undefined,
     status,
     confidence,
@@ -335,6 +428,15 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
       tidy(row.subcategory),
       classification.label,
       tidy(row.transport),
+      ...inputs.map((entry) => entry.type),
+      ...outputs.map((entry) => entry.type),
+      ...control,
+      ...audio,
+      video?.maxResolution,
+      video?.hdmi,
+      Number.isFinite(video?.bandwidthGbps) ? `${video?.bandwidthGbps}Gbps` : "",
+      video?.hdr ? "HDR" : "",
+      latency,
       ...classification.tags,
       ...features,
     ], 24),
@@ -487,6 +589,7 @@ function mapBackendRecord(raw: Record<string, unknown>): ProductIntelligenceReco
     control: dedupeStrings(asArray<string>(raw.control), 16),
     audio: dedupeStrings(asArray<string>(raw.audio), 16),
     video: mapVideo(raw.video),
+    latency: normalizeLatency(raw.latency),
     distanceMeters: Number(raw.distanceMeters) || undefined,
     status,
     confidence: clampConfidence(raw.confidence, vendorType === "wyrestorm" ? 0.85 : 0.7),

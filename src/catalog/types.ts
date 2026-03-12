@@ -15,6 +15,8 @@ export type CatalogPortCount = {
 export type CatalogVideo = {
   maxResolution?: string;
   hdr?: boolean;
+  hdmi?: string;
+  bandwidthGbps?: number;
 };
 
 export type CatalogDistance = {
@@ -30,11 +32,13 @@ export type CatalogProduct = {
   subcategory?: string;
   status: CatalogStatus;
   summary?: string;
+  sourceUrl?: string;
   inputs?: CatalogPortCount[];
   outputs?: CatalogPortCount[];
   control?: string[];
   audio?: string[];
   video?: CatalogVideo;
+  latency?: string;
   transport?: CatalogTransport;
   distance?: CatalogDistance;
   features?: string[];

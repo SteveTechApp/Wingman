@@ -221,6 +221,30 @@ function parseResolutionRank(value?: string): number {
   return 0;
 }
 
+function parseBandwidth(value?: number): number {
+  return Number.isFinite(value) ? Number(value) : 0;
+}
+
+function parseHdmiRank(value?: string): number {
+  const normalized = tidy(value).toLowerCase();
+  if (!normalized) return 0;
+  if (normalized.startsWith("2.1")) return 4;
+  if (normalized.startsWith("2.0b")) return 3;
+  if (normalized.startsWith("2.0")) return 2;
+  if (normalized.startsWith("1.4")) return 1;
+  return 0;
+}
+
+function parseLatencyRank(value?: string): number {
+  const normalized = tidy(value).toLowerCase();
+  if (!normalized) return 0;
+  if (normalized.includes("zero")) return 4;
+  if (normalized.includes("subframe") || normalized.includes("sub-frame")) return 3;
+  if (normalized.includes("low")) return 2;
+  if (normalized.includes("standard")) return 1;
+  return 0;
+}
+
 function tagsFor(product: CatalogProduct): Set<string> {
   const tags = new Set<string>();
   const values = [
@@ -230,6 +254,9 @@ function tagsFor(product: CatalogProduct): Set<string> {
     product.transport,
     product.summary,
     product.video?.maxResolution,
+    product.video?.hdmi,
+    Number.isFinite(product.video?.bandwidthGbps) ? `${product.video?.bandwidthGbps}gbps` : "",
+    product.latency,
     ...(product.features ?? []),
     ...(product.control ?? []),
     ...(product.audio ?? []),
@@ -371,6 +398,39 @@ function computeCandidateScore(competitor: CatalogProduct, wyrestorm: CatalogPro
     notes.push("Competitor lists HDR but candidate does not.");
   }
 
+  const compBandwidth = parseBandwidth(competitor.video?.bandwidthGbps);
+  const wrBandwidth = parseBandwidth(wyrestorm.video?.bandwidthGbps);
+  if (compBandwidth > 0 && wrBandwidth > 0) {
+    if (wrBandwidth >= compBandwidth) {
+      score += 6;
+      reasons.push(`Bandwidth class aligns (${wrBandwidth} Gbps).`);
+    } else {
+      notes.push(`Bandwidth below competitor baseline (${wrBandwidth} vs ${compBandwidth} Gbps).`);
+    }
+  }
+
+  const compHdmi = parseHdmiRank(competitor.video?.hdmi);
+  const wrHdmi = parseHdmiRank(wyrestorm.video?.hdmi);
+  if (compHdmi > 0 && wrHdmi > 0) {
+    if (wrHdmi >= compHdmi) {
+      score += 4;
+      reasons.push(`HDMI generation aligns (${wyrestorm.video?.hdmi || "N/A"}).`);
+    } else {
+      notes.push(`HDMI generation below competitor baseline (${wyrestorm.video?.hdmi || "N/A"}).`);
+    }
+  }
+
+  const compLatency = parseLatencyRank(competitor.latency);
+  const wrLatency = parseLatencyRank(wyrestorm.latency);
+  if (compLatency > 0 && wrLatency > 0) {
+    if (wrLatency >= compLatency) {
+      score += 4;
+      reasons.push(`Latency class aligns (${wyrestorm.latency}).`);
+    } else {
+      notes.push(`Latency class trails competitor baseline (${wyrestorm.latency || "N/A"}).`);
+    }
+  }
+
   const bounded = Math.max(0, Math.min(100, score));
   return {
     product: wyrestorm,
@@ -445,7 +505,7 @@ function fallbackSeedRecord(product: CompetitorProduct): CompetitorComparisonRec
     provenance: toComparisonProvenance("curated", {
       source: "seed",
       label: "Seed comparison dataset",
-      sourceUrl: undefined,
+      sourceUrl: product.sourceUrl,
     }),
   };
 }
@@ -587,6 +647,7 @@ function buildCuratedRecords(): CompetitorComparisonRecord[] {
             source: "catalog",
             label: "Curated competitor catalog",
             fetchedAt: new Date().toISOString(),
+            sourceUrl: competitor.sourceUrl,
           }),
         ),
       );

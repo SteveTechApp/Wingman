@@ -1,0 +1,126 @@
+[
+  {
+    "sku": "ZY-4K-ENC",
+    "name": "ZyPer4K Encoder",
+    "brand": "ZeeVee",
+    "family": "ZyPer4K",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
+    "status": "active",
+    "summary": "Zero-frame-latency one-gigabit HDMI-over-IP encoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
+    "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+    "inputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "USB 2.0", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "LAN", "count": 1 }
+    ],
+    "control": [ "TCP/IP" ],
+    "audio": [ "Embedded Audio", "Analog Audio" ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "zero frame",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "Managed one-gigabit network dependent."
+    },
+    "features": [ "AVoIP encoder", "Zero-frame latency", "PoE+", "Video wall", "USB extension", "Managed-network multicast" ],
+    "notes": "Official ZeeVee ZyPer4K family page."
+  },
+  {
+    "sku": "ZY-4K-DEC",
+    "name": "ZyPer4K Decoder",
+    "brand": "ZeeVee",
+    "family": "ZyPer4K",
+    "category": "AVoIP",
+    "subcategory": "Decoder",
+    "status": "active",
+    "summary": "Zero-frame-latency one-gigabit HDMI-over-IP decoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
+    "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+    "inputs": [
+      { "type": "LAN", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "USB 2.0", "count": 1 }
+    ],
+    "control": [ "TCP/IP" ],
+    "audio": [ "Embedded Audio", "Analog Audio" ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "zero frame",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "Managed one-gigabit network dependent."
+    },
+    "features": [ "AVoIP decoder", "Zero-frame latency", "PoE+", "Video wall", "USB extension", "Managed-network multicast" ],
+    "notes": "Official ZeeVee ZyPer4K family page."
+  },
+  {
+    "sku": "ZUHD60-2EMP",
+    "name": "ZyPerUHD60 2EMP Encoder",
+    "brand": "ZeeVee",
+    "family": "ZyPerUHD60",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
+    "status": "active",
+    "summary": "Compressed 1GbE AV-over-IP encoder with three video inputs, an integrated management platform, KVM support, and support for HDMI, USB-C, and DisplayPort sources.",
+    "sourceUrl": "https://www.zeevee.com/product/zuhd60-2emp/",
+    "inputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "USB-C", "count": 1 },
+      { "type": "DisplayPort", "count": 1 },
+      { "type": "USB 2.0", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "LAN", "count": 2 }
+    ],
+    "control": [ "TCP/IP", "Web UI" ],
+    "audio": [ "Embedded Audio", "Analog Audio" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "1GbE Ethernet dependent."
+    },
+    "features": [ "AVoIP encoder", "Triple-input encoder", "Integrated management platform", "KVM support", "1GbE transport", "PoE+" ],
+    "notes": "Official ZeeVee ZUHD60-2EMP product page."
+  },
+  {
+    "sku": "Z4KMP48",
+    "name": "ZyPer Management Platform Z4KMP48",
+    "brand": "ZeeVee",
+    "family": "ZyPer Management Platform",
+    "category": "Control",
+    "subcategory": "AVoIP Controller",
+    "status": "active",
+    "summary": "AV over IP management platform for ZyPer systems with browser-based setup, drag-and-drop routing, monitoring, and system management for encoders and decoders.",
+    "sourceUrl": "https://www.zeevee.com/z4kmp48-data-sheet/",
+    "inputs": [
+      { "type": "LAN", "count": 2 }
+    ],
+    "outputs": [],
+    "control": [ "TCP/IP", "HTTPS", "Web UI", "API" ],
+    "audio": [],
+    "transport": "AVoIP",
+    "features": [ "AVoIP controller", "Browser-based management", "Drag-and-drop routing", "System monitoring", "Centralized configuration" ],
+    "notes": "Official ZeeVee ZyPer Management Platform product page."
+  }
+]

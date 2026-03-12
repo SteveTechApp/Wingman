@@ -1,0 +1,221 @@
+[
+  {
+    "sku": "IP300UHD-RX",
+    "name": "IP300UHD Decoder",
+    "brand": "Blustream",
+    "family": "IP300",
+    "category": "AVoIP",
+    "subcategory": "Decoder",
+    "status": "active",
+    "summary": "4K HDCP 2.2 HDMI-over-IP multicast decoder with HDMI output, USB and control extension, and one-gigabit AV transport.",
+    "sourceUrl": "https://www.blustream-us.com/ip300uhd-rx",
+    "inputs": [
+      { "type": "LAN", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "USB 2.0", "count": 1 },
+      { "type": "LAN", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "IR" ],
+    "audio": [ "Embedded Audio", "Analog Audio" ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "One-gigabit multicast network dependent."
+    },
+    "features": [ "AVoIP decoder", "Multicast", "USB/KVM extension", "PoE", "Video wall", "Matrix switching" ],
+    "notes": "Official Blustream IP300UHD-RX page."
+  },
+  {
+    "sku": "IP300UHD-TX",
+    "name": "IP300UHD Encoder",
+    "brand": "Blustream",
+    "family": "IP300",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
+    "status": "active",
+    "summary": "4K HDCP 2.2 HDMI-over-IP multicast encoder with HDMI input, USB and control extension, and one-gigabit AV transport.",
+    "sourceUrl": "https://www.blustream-us.com/ip300uhd-tx",
+    "inputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "USB 2.0", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "LAN", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "IR" ],
+    "audio": [ "Embedded Audio", "Analog Audio" ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "One-gigabit multicast network dependent."
+    },
+    "features": [ "AVoIP encoder", "Multicast", "USB/KVM extension", "PoE", "Video wall", "Matrix switching" ],
+    "notes": "Official Blustream IP300UHD-TX page."
+  },
+  {
+    "sku": "IP350UHD-TX",
+    "name": "IP350UHD-TX Dante AV over IP Encoder",
+    "brand": "Blustream",
+    "family": "IP350",
+    "category": "AVoIP",
+    "subcategory": "Encoder",
+    "status": "active",
+    "summary": "4K HDMI-over-IP encoder with Dante and AES67 audio support, copper or fiber network uplinks, and bidirectional IR, RS-232, and USB-KVM extension.",
+    "sourceUrl": "https://www.blustream-us.com/video-over-ip-extenders-ip350uhd-tx",
+    "inputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "USB 2.0", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "LAN", "count": 2 },
+      { "type": "SFP", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "IR" ],
+    "audio": [ "Embedded Audio", "Dante", "AES67" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "low",
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100,
+      "notes": "Copper reach is Gigabit Ethernet dependent; fiber SFP extends farther by module choice."
+    },
+    "features": [ "AVoIP encoder", "Dante audio", "AES67", "Copper or fiber uplink", "USB/KVM extension", "PoE", "Video wall", "Matrix switching" ],
+    "notes": "Official Blustream IP350UHD-TX page."
+  },
+  {
+    "sku": "SW41AB-V2",
+    "name": "SW41AB-V2 Multiformat Presentation Switch",
+    "brand": "Blustream",
+    "family": "SW",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "Four-input multiformat presentation switcher with HDMI and USB-C connectivity, 18 Gbps output, audio embedding and de-embedding, and web GUI control.",
+    "sourceUrl": "https://www.blustream-us.com/sw41ab-v2",
+    "inputs": [
+      { "type": "HDMI", "count": 3 },
+      { "type": "USB-C", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 1 },
+      { "type": "Analog Audio", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "Web GUI" ],
+    "audio": [ "Embedded Audio", "De-Embedded Audio", "Audio Embedding" ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "transport": "Local",
+    "features": [ "Multi format presentation switcher", "USB-C", "Audio embedding", "Audio de-embedding", "Web GUI", "18 Gbps", "HDCP 2.2" ],
+    "notes": "Official Blustream SW41AB-V2 page."
+  },
+  {
+    "sku": "WMF72",
+    "name": "WMF72 Wireless Presentation Switcher",
+    "brand": "Blustream",
+    "family": "WMF",
+    "category": "Switcher",
+    "subcategory": "Presentation Switcher",
+    "status": "active",
+    "summary": "4K multiformat presentation switcher with wired HDMI and USB-C inputs, AirPlay, Miracast, and Chromecast sharing, dual HDMI outputs, and wireless USB device support.",
+    "sourceUrl": "https://www.blustream-us.com/introducing-the-new-wmf72-from-blustream-2",
+    "inputs": [
+      { "type": "HDMI", "count": 2 },
+      { "type": "USB-C", "count": 1 },
+      { "type": "Wireless Presentation", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "HDMI", "count": 2 },
+      { "type": "USB Device", "count": 1 }
+    ],
+    "control": [ "TCP/IP", "RS-232", "Web GUI" ],
+    "audio": [ "HDMI Audio", "USB Audio" ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdr": true,
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
+    "latency": "standard",
+    "transport": "Local",
+    "features": [ "Wireless presentation", "Multi format presentation switcher", "AirPlay", "Miracast", "Chromecast", "Dual HDMI outputs", "Wireless USB camera and microphone", "USB touch-back" ],
+    "notes": "Official Blustream WMF72 launch page."
+  },
+  {
+    "sku": "WMF-USBC-D",
+    "name": "WMF-USBC-D USB-C Wireless Presentation Dongle",
+    "brand": "Blustream",
+    "family": "WMF",
+    "category": "Accessories",
+    "subcategory": "USB Casting Dongle",
+    "status": "active",
+    "summary": "USB-C wireless presentation dongle for instant screen sharing into Blustream WMF rooms without drivers or local software installation.",
+    "sourceUrl": "https://www.blustream-us.com/wmf-usbc-d",
+    "inputs": [
+      { "type": "USB-C", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "Wireless Presentation", "count": 1 }
+    ],
+    "control": [ "Pairing" ],
+    "audio": [ "Embedded Audio" ],
+    "video": {
+      "maxResolution": "4K",
+      "hdr": false
+    },
+    "transport": "Unknown",
+    "features": [ "USB-C dongle", "Wireless presentation", "One-click sharing", "Guest collaboration" ],
+    "notes": "Official Blustream WMF-USBC-D page."
+  },
+  {
+    "sku": "UEX3C-KIT",
+    "name": "UEX3C-KIT USB 3.2 Extender Kit",
+    "brand": "Blustream",
+    "family": "UEX",
+    "category": "Extender",
+    "subcategory": "Extender Kit",
+    "status": "active",
+    "summary": "USB 3.2 Gen 1 extender kit supporting host-to-device extension up to 100 meters with power over cable and compatibility with conferencing cameras, audio devices, and storage.",
+    "sourceUrl": "https://www.blustream-us.com/uex3c-kit",
+    "inputs": [
+      { "type": "USB-C", "count": 1 }
+    ],
+    "outputs": [
+      { "type": "USB-A", "count": 2 },
+      { "type": "USB Extension", "count": 1 }
+    ],
+    "control": [ "Link Status" ],
+    "audio": [ "USB Audio" ],
+    "transport": "USB Extension",
+    "distance": {
+      "meters": 100,
+      "notes": "Official maximum extension over category cable."
+    },
+    "features": [ "Extender kit", "USB 3.2 Gen 1", "5 Gbps", "Power over cable", "Conference camera support", "Backward compatible with USB 2.0 and 1.1" ],
+    "notes": "Official Blustream UEX3C-KIT page."
+  }
+]
