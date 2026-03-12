@@ -309,11 +309,13 @@ const pageStyles = `
   max-width: calc(100vw - 12px);
   max-height: calc(100vh - 12px);
   border-radius: 18px;
-  border: 1px solid rgba(124, 173, 224, 0.26);
-  background:
-    linear-gradient(180deg, rgba(12, 24, 38, 0.97), rgba(8, 18, 29, 0.97)),
-    linear-gradient(120deg, rgba(68, 138, 222, 0.12), rgba(61, 210, 145, 0.08));
-  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.48);
+  border: 1px solid rgba(255, 183, 118, 0.56);
+  background: linear-gradient(180deg, rgb(30, 21, 15), rgb(16, 20, 28));
+  opacity: 1;
+  box-shadow:
+    0 0 0 1px rgba(255, 177, 107, 0.18) inset,
+    0 0 34px rgba(238, 128, 43, 0.28),
+    0 28px 56px rgba(0, 0, 0, 0.52);
   box-sizing: border-box;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -327,7 +329,8 @@ const pageStyles = `
   justify-content: space-between;
   gap: 12px;
   padding: 14px 14px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 194, 136, 0.2);
+  background: linear-gradient(180deg, rgb(44, 26, 14), rgb(29, 26, 25));
 }
 
 .wm-guru-float-panel__dragzone{
@@ -366,6 +369,7 @@ const pageStyles = `
   padding: 12px 14px 14px;
   display: grid;
   gap: 12px;
+  background: linear-gradient(180deg, rgb(21, 24, 32), rgb(14, 18, 25));
 }
 
 .wm-guru-float-modes{

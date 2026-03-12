@@ -78,6 +78,11 @@ export type ProjectVideoWall = {
   hardWarnings?: string[];
   recommendedSku?: string;
   recommendedSkuQty?: number;
+  recommendedItems?: Array<{
+    sku: string;
+    quantity: number;
+    role?: string;
+  }>;
   processorRecommendation?: string;
   mountingNotes?: string[];
   warnings?: string[];
@@ -382,6 +387,16 @@ function normalizeTemplate(template?: ProjectTemplateContext): ProjectTemplateCo
 
 function normalizeVideoWall(videowall?: ProjectVideoWall): ProjectVideoWall | undefined {
   if (!videowall) return undefined;
+  const normalizedRecommendedItems = Array.isArray(videowall.recommendedItems)
+    ? videowall.recommendedItems
+        .map((item) => ({
+          sku: String(item?.sku ?? "").trim().toUpperCase(),
+          quantity: Math.max(1, Number(item?.quantity) || 1),
+          role: typeof item?.role === "string" ? item.role.trim() : undefined,
+        }))
+        .filter((item) => item.sku.length > 0)
+    : [];
+
   return {
     ...videowall,
     technology: videowall.technology ?? "LCD",
@@ -418,6 +433,7 @@ function normalizeVideoWall(videowall?: ProjectVideoWall): ProjectVideoWall | un
     hardWarnings: Array.isArray(videowall.hardWarnings) ? videowall.hardWarnings.filter((x): x is string => typeof x === "string") : [],
     recommendedSku: typeof videowall.recommendedSku === "string" ? videowall.recommendedSku : undefined,
     recommendedSkuQty: videowall.recommendedSkuQty != null ? Number(videowall.recommendedSkuQty) : undefined,
+    recommendedItems: normalizedRecommendedItems,
     mountingNotes: Array.isArray(videowall.mountingNotes) ? videowall.mountingNotes.filter((x): x is string => typeof x === "string") : [],
     warnings: Array.isArray(videowall.warnings) ? videowall.warnings.filter((x): x is string => typeof x === "string") : [],
   };
@@ -1164,6 +1180,35 @@ export function applyVideoWallToProject(
 ): StoredProject | undefined {
   const project = getProjectById(id);
   if (!project) return undefined;
+  const recommendedItems = Array.isArray(videowall.recommendedItems)
+    ? videowall.recommendedItems
+        .map((item) => ({
+          sku: String(item?.sku ?? "").trim().toUpperCase(),
+          quantity: Math.max(1, Number(item?.quantity) || 1),
+          role: typeof item?.role === "string" ? item.role.trim() : undefined,
+        }))
+        .filter((item) => item.sku.length > 0)
+    : [];
+  const fallbackSku = String(videowall.recommendedSku ?? "").trim().toUpperCase();
+  const fallbackQty = Math.max(1, Number(videowall.recommendedSkuQty) || 1);
+  if (recommendedItems.length === 0 && fallbackSku) {
+    recommendedItems.push({
+      sku: fallbackSku,
+      quantity: fallbackQty,
+      role: "Primary recommendation",
+    });
+  }
+  const mergedCatalogSkus = Array.from(new Set([
+    ...((project.catalog?.skus ?? []).map((item) => String(item).trim().toUpperCase()).filter(Boolean)),
+    ...recommendedItems.map((item) => item.sku),
+  ]));
+  const displayCount = videowall.panelCount ?? (
+    videowall.technology === "LED"
+      ? Math.max(1, (videowall.cabinetRows ?? videowall.rows ?? 1) * (videowall.cabinetCols ?? videowall.cols ?? 1))
+      : Math.max(1, (videowall.rows ?? 1) * (videowall.cols ?? 1))
+  );
+  const outputRows = videowall.outputRows ?? videowall.rows ?? 1;
+  const outputCols = videowall.outputCols ?? videowall.cols ?? 1;
 
   const notesParts = [
     project.notes?.trim(),
@@ -1183,6 +1228,9 @@ export function applyVideoWallToProject(
     site: project.site || "",
     roomName: project.roomName || "Video Wall",
     applicationType: videowall.technology === "LED" ? "LED Video Wall" : "LCD Video Wall",
+    displayCount: String(displayCount),
+    sourceCount: videowall.sourceCount != null ? String(videowall.sourceCount) : project.discovery?.sourceCount ?? "",
+    outputBehaviour: `Signal output map ${outputCols} x ${outputRows}`,
     notes: mergedNotes,
     recommendedFamilies: ["Video Wall"] as DiscoveryProductFamily[],
     createdAt: project.discovery?.createdAt ?? project.createdAt,
@@ -1193,9 +1241,15 @@ export function applyVideoWallToProject(
     notes: mergedNotes,
     videowall: {
       ...videowall,
+      recommendedItems,
       createdAt: videowall.createdAt ?? new Date().toISOString(),
     } as any,
     discovery: nextDiscovery,
+    catalog: {
+      ...(project.catalog ?? {}),
+      selectedBrand: project.catalog?.selectedBrand ?? "WyreStorm",
+      skus: mergedCatalogSkus,
+    },
   });
 }
 

@@ -270,7 +270,7 @@ export default function CatalogPage() {
     deferredQuery,
   );
 
-  const shortlistItems = items.slice(0, 18);
+  const shortlistItems = items.slice(0, 12);
   const activeSku = items.some((product) => product.sku === selectedSku) ? selectedSku : items[0]?.sku ?? "";
   const selectedProduct = items.find((product) => product.sku === activeSku) ?? null;
   const itemSkuSignature = React.useMemo(() => items.map((product) => product.sku).join("|"), [items]);
@@ -363,7 +363,7 @@ export default function CatalogPage() {
   }, []);
 
   const selectedProductMetrics = selectedProduct ? getProductMetrics(selectedProduct) : [];
-  const selectedProductTags = selectedProduct ? getVisibleReferenceTags(selectedProduct) : [];
+  const selectedProductTags = selectedProduct ? getVisibleReferenceTags(selectedProduct, 4) : [];
   const selectedProductTone = selectedProduct ? toneForProduct(selectedProduct) : "cyan";
   const selectedProductLink = selectedProduct ? getProductReferenceLink(selectedProduct) : null;
   const diagramProducts = React.useMemo(() => {
