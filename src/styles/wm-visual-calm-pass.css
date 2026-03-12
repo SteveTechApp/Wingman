@@ -19,82 +19,82 @@
 /* =========================================================
    2. Sidebar softer
    ========================================================= */
-aside,
-[class*="sidebar"],
-[class*="sidenav"] {
+.wm-shell-root aside,
+.wm-shell-root [class*="sidebar"],
+.wm-shell-root [class*="sidenav"] {
   background: linear-gradient(180deg, rgba(6,17,31,0.90), rgba(5,14,27,0.88)) !important;
 }
 
-aside [style*="background"],
-[class*="sidebar"] [style*="background"] {
+.wm-shell-root aside [style*="background"],
+.wm-shell-root [class*="sidebar"] [style*="background"] {
   background-image: none !important;
 }
 
-aside h1,
-aside h2,
-aside h3,
-[class*="sidebar"] h1,
-[class*="sidebar"] h2,
-[class*="sidebar"] h3 {
+.wm-shell-root aside h1,
+.wm-shell-root aside h2,
+.wm-shell-root aside h3,
+.wm-shell-root [class*="sidebar"] h1,
+.wm-shell-root [class*="sidebar"] h2,
+.wm-shell-root [class*="sidebar"] h3 {
   color: #eef5ff !important;
 }
 
-aside p,
-aside small,
-aside span,
-[class*="sidebar"] p,
-[class*="sidebar"] small,
-[class*="sidebar"] span {
+.wm-shell-root aside p,
+.wm-shell-root aside small,
+.wm-shell-root aside span,
+.wm-shell-root [class*="sidebar"] p,
+.wm-shell-root [class*="sidebar"] small,
+.wm-shell-root [class*="sidebar"] span {
   color: var(--wm-calm-text-dim) !important;
 }
 
-aside button,
-aside a,
-[class*="sidebar"] button,
-[class*="sidebar"] a {
+.wm-shell-root aside button,
+.wm-shell-root aside a,
+.wm-shell-root [class*="sidebar"] button,
+.wm-shell-root [class*="sidebar"] a {
   box-shadow: none !important;
 }
 
-aside [style*="linear-gradient"],
-[class*="sidebar"] [style*="linear-gradient"] {
+.wm-shell-root aside [style*="linear-gradient"],
+.wm-shell-root [class*="sidebar"] [style*="linear-gradient"] {
   background-image: none !important;
   background-color: rgba(255,255,255,0.03) !important;
 }
 
-aside [style*="active"],
-[class*="sidebar"] [style*="active"] {
+.wm-shell-root aside [style*="active"],
+.wm-shell-root [class*="sidebar"] [style*="active"] {
   box-shadow: none !important;
 }
 
 /* =========================================================
    3. Topbar cleaner
    ========================================================= */
-.wm-topbar {
+.wm-shell-root .wm-topbar {
   background: rgba(7,16,30,0.70) !important;
   border-bottom: 1px solid rgba(255,255,255,0.05) !important;
 }
 
-.wm-topbar img {
+.wm-shell-root .wm-topbar img {
   opacity: 0.96;
 }
 
-.wm-topbar button {
+.wm-shell-root .wm-topbar button {
   box-shadow: none !important;
 }
 
-.wm-topbar [style*="background: rgba(255,255,255,0.03)"] {
+.wm-shell-root .wm-topbar [style*="background: rgba(255,255,255,0.03)"] {
   background: rgba(255,255,255,0.02) !important;
 }
 
 /* =========================================================
    4. Main content hierarchy
    ========================================================= */
-main {
+.wm-shell-root main {
   background: transparent !important;
 }
 
-main h1,
-main h2 {
+.wm-shell-root main h1,
+.wm-shell-root main h2 {
   letter-spacing: -0.02em !important;
 }
 
@@ -116,8 +116,8 @@ main h2 {
 /* =========================================================
    5. Make main dashboard panel strongest
    ========================================================= */
-main section:first-of-type,
-main article:first-of-type {
+.wm-shell-root main section:first-of-type,
+.wm-shell-root main article:first-of-type {
   background: linear-gradient(180deg, rgba(8,24,48,0.78), rgba(6,17,33,0.82)) !important;
   border-color: rgba(79,150,255,0.10) !important;
 }
@@ -132,16 +132,16 @@ main article:first-of-type {
   box-shadow: none !important;
 }
 
-main > div > section:last-child > div,
-main > div > aside > div,
-main > div > section:last-child [style*="linear-gradient"],
-main > div > section:last-child [style*="rgba(7,23,48"] {
+.wm-shell-root main > div > section:last-child > div,
+.wm-shell-root main > div > aside > div,
+.wm-shell-root main > div > section:last-child [style*="linear-gradient"],
+.wm-shell-root main > div > section:last-child [style*="rgba(7,23,48"] {
   background: linear-gradient(180deg, rgba(8,21,40,0.55), rgba(6,16,30,0.62)) !important;
   border-color: rgba(255,255,255,0.05) !important;
 }
 
-main > div > section:last-child [style*="font-size: 24px"],
-main > div > section:last-child [style*="font-size:24px"] {
+.wm-shell-root main > div > section:last-child [style*="font-size: 24px"],
+.wm-shell-root main > div > section:last-child [style*="font-size:24px"] {
   font-size: 20px !important;
 }
 
@@ -210,14 +210,14 @@ main > div > section:last-child [style*="font-size:24px"] {
 /* =========================================================
    10. Footer lower contrast
    ========================================================= */
-footer {
+.wm-shell-root footer {
   background: rgba(5,12,22,0.96) !important;
   border-top: 1px solid rgba(255,255,255,0.04) !important;
 }
 
-footer a,
-footer span,
-footer div {
+.wm-shell-root footer a,
+.wm-shell-root footer span,
+.wm-shell-root footer div {
   color: rgba(220,232,255,0.72) !important;
 }
 

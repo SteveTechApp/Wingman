@@ -55,15 +55,15 @@ export default function LoginForm({
   const content = (
     <form
       onSubmit={handleSubmit}
-      className={isModern ? "grid gap-5" : undefined}
+      className={isModern ? "wm-login-form" : undefined}
       style={isModern ? undefined : { display: "grid", gap: 12 }}
     >
       {!!title && (
-        <div className={isModern ? "space-y-2" : undefined}>
-          <div className={isModern ? "text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200/78" : undefined}>
+        <div className={isModern ? "wm-login-form__title-group" : undefined}>
+          <div className={isModern ? "wm-login-form__eyebrow" : undefined}>
             Workspace access
           </div>
-          <div className={isModern ? "text-3xl font-black tracking-[-0.04em] text-white sm:text-[2.15rem]" : "wm-h2"}>
+          <div className={isModern ? "wm-login-form__title" : "wm-h2"}>
             {title}
           </div>
         </div>
@@ -71,21 +71,21 @@ export default function LoginForm({
 
       {!!subtitle && (
         <div
-          className={isModern ? "text-sm leading-6 text-slate-300" : "wm-p"}
+          className={isModern ? "wm-login-form__subtitle" : "wm-p"}
           style={isModern ? undefined : { marginTop: title ? 2 : 0 }}
         >
           {subtitle}
         </div>
       )}
 
-      <label className={isModern ? "grid gap-2" : "wm-form-field"}>
-        <span className={isModern ? "text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300" : "wm-form-label"}>
+      <label className={isModern ? "wm-login-form__field" : "wm-form-field"}>
+        <span className={isModern ? "wm-login-form__label" : "wm-form-label"}>
           Email
         </span>
         <input
           className={
             isModern
-              ? "min-h-12 rounded-2xl border border-white/12 bg-slate-950/55 px-4 text-[15px] text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/45 focus:bg-slate-950/70 focus:ring-4 focus:ring-cyan-400/10"
+              ? "wm-login-form__input"
               : "wm-form-input"
           }
           type="email"
@@ -98,14 +98,14 @@ export default function LoginForm({
         />
       </label>
 
-      <label className={isModern ? "grid gap-2" : "wm-form-field"}>
-        <span className={isModern ? "text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300" : "wm-form-label"}>
+      <label className={isModern ? "wm-login-form__field" : "wm-form-field"}>
+        <span className={isModern ? "wm-login-form__label" : "wm-form-label"}>
           Password
         </span>
         <input
           className={
             isModern
-              ? "min-h-12 rounded-2xl border border-white/12 bg-slate-950/55 px-4 text-[15px] text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/45 focus:bg-slate-950/70 focus:ring-4 focus:ring-cyan-400/10"
+              ? "wm-login-form__input"
               : "wm-form-input"
           }
           type="password"
@@ -119,7 +119,7 @@ export default function LoginForm({
 
       {error ? (
         isModern ? (
-          <div className="rounded-2xl border border-rose-300/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+          <div className="wm-login-form__error">
             {error}
           </div>
         ) : (
@@ -132,7 +132,7 @@ export default function LoginForm({
       <button
         className={
           isModern
-            ? "inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#63ece7_0%,#2ec8dc_58%,#4f9cff_100%)] px-5 text-sm font-bold text-slate-950 shadow-[0_18px_44px_rgba(37,174,214,0.28)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_52px_rgba(37,174,214,0.32)] disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-65"
+            ? "wm-login-form__btn wm-login-form__btn--primary"
             : "wm-btn wm-btn-primary"
         }
         style={isModern ? undefined : { width: "100%" }}
@@ -145,7 +145,7 @@ export default function LoginForm({
       <button
         className={
           isModern
-            ? "inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-white/12 bg-white/[0.04] px-5 text-sm font-semibold text-white/86 transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-65"
+            ? "wm-login-form__btn wm-login-form__btn--secondary"
             : "wm-btn"
         }
         type="button"
@@ -156,9 +156,9 @@ export default function LoginForm({
       </button>
 
       {isModern ? (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-300">
-          <div className="font-semibold text-white/92">Workspace services</div>
-          <div className="mt-1 leading-6">
+        <div className="wm-login-form__status-card">
+          <div className="wm-login-form__status-title">Workspace services</div>
+          <div className="wm-login-form__status-copy">
             {backendHealthy
               ? "Backend workspace services are available and ready for live sign-in."
               : "Backend workspace services look unavailable right now. Demo mode will still let you explore the app."}
@@ -172,9 +172,9 @@ export default function LoginForm({
         </div>
       )}
 
-      <div className={isModern ? "text-sm text-slate-300" : "wm-body-sm"} style={isModern ? undefined : { opacity: 0.76 }}>
+      <div className={isModern ? "wm-login-form__footer" : "wm-body-sm"} style={isModern ? undefined : { opacity: 0.76 }}>
         Need an account?{" "}
-        <Link className={isModern ? "font-semibold text-cyan-200 transition hover:text-white" : undefined} to="/signup">
+        <Link className={isModern ? "wm-login-form__footer-link" : undefined} to="/signup">
           Create workspace
         </Link>
       </div>
@@ -187,9 +187,9 @@ export default function LoginForm({
 
   if (isModern) {
     return (
-      <div className="relative overflow-hidden rounded-[30px] border border-white/12 bg-[linear-gradient(180deg,rgba(17,26,46,0.96),rgba(6,12,24,0.96))] p-6 shadow-[0_32px_110px_rgba(2,8,20,0.48)] sm:p-7">
-        <div className="pointer-events-none absolute inset-x-6 top-0 h-28 rounded-full bg-[radial-gradient(circle_at_top,rgba(99,236,231,0.22),transparent_72%)] blur-2xl" />
-        <div className="relative">{content}</div>
+      <div className="wm-login-form-shell">
+        <div className="wm-login-form-shell__glow" />
+        <div className="wm-login-form-shell__body">{content}</div>
       </div>
     );
   }
