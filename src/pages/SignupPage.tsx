@@ -28,9 +28,9 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-md p-6 pt-10">
-        <form onSubmit={onSubmit} className="wm-card wm-card-pad" style={{ display: "grid", gap: 12 }}>
+    <div className="wm-signup-page">
+      <div className="wm-signup-page__inner">
+        <form onSubmit={onSubmit} className="wm-card wm-card-pad wm-signup-page__form" style={{ display: "grid", gap: 12 }}>
           <div className="wm-h2">Create workspace</div>
           <div className="wm-p">
             Start a real Wingman workspace with isolated projects, audit history, and customer-ready collaboration.
