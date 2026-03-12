@@ -1,5 +1,17 @@
 import * as React from "react";
-import { ArrowRight, Copy, FolderOpen, Search, Sparkles, X } from "lucide-react";
+import {
+  ArrowRight,
+  Copy,
+  FileUp,
+  FolderOpen,
+  FolderPlus,
+  LayoutTemplate,
+  Route,
+  ScanSearch,
+  Search,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { WM_ROUTES } from "@/core/wingman/routeMap";
@@ -18,24 +30,58 @@ type WingmanCommandPaletteProps = {
   onClose: () => void;
 };
 
+type CommandGroup = "Continue" | "Start" | "Workflow" | "Workspace" | "Admin";
+type CommandKind =
+  | "project"
+  | "resume"
+  | "duplicate"
+  | "create"
+  | "import"
+  | "template"
+  | "workflow"
+  | "workspace"
+  | "admin";
+
 type CommandAction = {
   id: string;
   label: string;
   description: string;
-  category: string;
+  group: CommandGroup;
+  kind: CommandKind;
+  badge: string;
   keywords: string[];
   run: () => void;
 };
+
+type ProjectActionBundle = {
+  project: StoredProject;
+  summary: string;
+  resumeTag: string;
+  open: CommandAction;
+  resume: CommandAction;
+  duplicate: CommandAction;
+};
+
+const GROUP_ORDER: CommandGroup[] = ["Continue", "Start", "Workflow", "Workspace", "Admin"];
 
 function buildSearchText(action: CommandAction): string {
   return [
     action.label,
     action.description,
-    action.category,
+    action.group,
+    action.badge,
     ...action.keywords,
   ]
     .join(" ")
     .toLowerCase();
+}
+
+function unique(items: string[]): string[] {
+  return Array.from(new Set(items.filter(Boolean)));
+}
+
+function previewFacts(action: CommandAction): string[] {
+  return unique([action.badge, ...action.keywords]).slice(0, 4);
 }
 
 function filterActions(actions: CommandAction[], query: string): CommandAction[] {
@@ -51,11 +97,14 @@ function filterActions(actions: CommandAction[], query: string): CommandAction[]
       if (!matchesAll) return null;
 
       let score = 0;
-      if (action.label.toLowerCase().startsWith(needle)) score += 5;
-      if (action.category.toLowerCase().startsWith(needle)) score += 2;
+      if (action.label.toLowerCase().startsWith(needle)) score += 6;
+      if (action.badge.toLowerCase().startsWith(needle)) score += 3;
+      if (action.group.toLowerCase().startsWith(needle)) score += 2;
+
       for (const token of tokens) {
-        if (action.label.toLowerCase().includes(token)) score += 2;
-        if (action.description.toLowerCase().includes(token)) score += 1;
+        if (action.label.toLowerCase().includes(token)) score += 3;
+        if (action.description.toLowerCase().includes(token)) score += 2;
+        if (action.keywords.some((keyword) => keyword.toLowerCase().includes(token))) score += 1;
       }
 
       return { action, score };
@@ -66,21 +115,60 @@ function filterActions(actions: CommandAction[], query: string): CommandAction[]
     .slice(0, 16);
 }
 
-function buildProjectActions(
+function groupActions(actions: CommandAction[]): Array<{ group: CommandGroup; actions: CommandAction[] }> {
+  return GROUP_ORDER
+    .map((group) => ({
+      group,
+      actions: actions.filter((action) => action.group === group),
+    }))
+    .filter((group) => group.actions.length > 0);
+}
+
+function commandIcon(action: CommandAction, size = 18) {
+  if (action.kind === "project" || action.kind === "workspace") {
+    return <FolderOpen size={size} />;
+  }
+  if (action.kind === "resume" || action.kind === "workflow") {
+    return <Route size={size} />;
+  }
+  if (action.kind === "duplicate") {
+    return <Copy size={size} />;
+  }
+  if (action.kind === "create") {
+    return <FolderPlus size={size} />;
+  }
+  if (action.kind === "import") {
+    return <FileUp size={size} />;
+  }
+  if (action.kind === "template") {
+    return <LayoutTemplate size={size} />;
+  }
+  if (action.kind === "admin") {
+    return <ScanSearch size={size} />;
+  }
+  return <Sparkles size={size} />;
+}
+
+function buildProjectActionBundle(
   project: StoredProject,
   navigate: ReturnType<typeof useNavigate>,
   onClose: () => void,
-): CommandAction[] {
+): ProjectActionBundle {
   const resumeAction = getProjectResumeAction(project);
   const summaryBits = [project.customer, project.site, project.roomName].filter(Boolean);
   const summary = summaryBits.length > 0 ? summaryBits.join(" · ") : "Project workspace";
 
-  return [
-    {
+  return {
+    project,
+    summary,
+    resumeTag: resumeAction.shortLabel,
+    open: {
       id: `project-open-${project.id}`,
       label: `Open ${project.name}`,
       description: summary,
-      category: "Project",
+      group: "Continue",
+      kind: "project",
+      badge: "Project",
       keywords: [project.customer, project.site, project.roomName, project.stage, project.status].filter(Boolean) as string[],
       run: () => {
         setActiveProjectId(project.id);
@@ -88,11 +176,13 @@ function buildProjectActions(
         navigate(`/app/projects/${encodeURIComponent(project.id)}`);
       },
     },
-    {
+    resume: {
       id: `project-resume-${project.id}`,
       label: `${resumeAction.label} · ${project.name}`,
       description: `${summary} · ${project.stage || "Discovery"}`,
-      category: "Resume",
+      group: "Continue",
+      kind: "resume",
+      badge: resumeAction.shortLabel,
       keywords: [resumeAction.shortLabel, project.customer, project.site, project.roomName].filter(Boolean) as string[],
       run: () => {
         setActiveProjectId(project.id);
@@ -100,11 +190,13 @@ function buildProjectActions(
         navigate(resumeAction.to);
       },
     },
-    {
+    duplicate: {
       id: `project-duplicate-${project.id}`,
       label: `Duplicate ${project.name}`,
-      description: "Create a new project prefilled from this baseline.",
-      category: "Duplicate",
+      description: "Create a fresh opportunity using this project as the baseline.",
+      group: "Start",
+      kind: "duplicate",
+      badge: "Duplicate",
       keywords: [project.customer, project.site, project.roomName, "copy", "clone"].filter(Boolean) as string[],
       run: () => {
         const duplicate = duplicateProject(project.id, {
@@ -117,7 +209,48 @@ function buildProjectActions(
         }
       },
     },
-  ];
+  };
+}
+
+function PreviewPanel({
+  action,
+}: {
+  action: CommandAction | null;
+}) {
+  if (!action) return null;
+
+  const facts = previewFacts(action);
+
+  return (
+    <aside className="wm-commandPalette__preview">
+      <div className="wm-commandPalette__previewEyebrow">
+        <span className="wm-commandPalette__previewIcon">{commandIcon(action, 16)}</span>
+        <span>{action.group}</span>
+        <span className="wm-commandPalette__previewDivider" />
+        <span>{action.badge}</span>
+      </div>
+
+      <div className="wm-commandPalette__previewTitle">{action.label}</div>
+      <div className="wm-commandPalette__previewBody">{action.description}</div>
+
+      <div className="wm-commandPalette__previewFacts">
+        {facts.map((fact) => (
+          <span key={fact} className="wm-commandPalette__previewFact">
+            {fact}
+          </span>
+        ))}
+      </div>
+
+      <div className="wm-commandPalette__previewHint">
+        Search by customer, room, workflow, or tool. Press `Enter` to open the currently highlighted action.
+      </div>
+
+      <button type="button" className="wm-commandPalette__previewButton" onClick={action.run}>
+        Open This Action
+        <ArrowRight size={15} />
+      </button>
+    </aside>
+  );
 }
 
 export default function WingmanCommandPalette({
@@ -128,6 +261,7 @@ export default function WingmanCommandPalette({
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [query, setQuery] = React.useState("");
   const [activeIndex, setActiveIndex] = React.useState(0);
+  const [previewActionId, setPreviewActionId] = React.useState<string | null>(null);
   const projectsVersion = React.useSyncExternalStore(
     subscribeProjects,
     () => "projects-version",
@@ -139,10 +273,13 @@ export default function WingmanCommandPalette({
     return getActiveProject() ?? null;
   }, [projectsVersion]);
 
-  const projects = React.useMemo(() => {
+  const recentProjects = React.useMemo(() => {
     void projectsVersion;
-    return loadProjects().slice(0, 5);
-  }, [projectsVersion]);
+    const allProjects = loadProjects();
+    return allProjects
+      .filter((project) => project.id !== activeProject?.id)
+      .slice(0, 4);
+  }, [activeProject?.id, projectsVersion]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -152,126 +289,178 @@ export default function WingmanCommandPalette({
     return () => window.clearTimeout(timer);
   }, [open]);
 
-  const actions = React.useMemo(() => {
-    const core: CommandAction[] = [
-      {
-        id: "new-project",
-        label: "Start New Project",
-        description: "Open the launcher with guided, template, and import starting methods.",
-        category: "Create",
-        keywords: ["launcher", "project", "guided", "template", "import"],
-        run: () => {
-          onClose();
-          navigate(WM_ROUTES.newProject);
-        },
+  const coreActions = React.useMemo<CommandAction[]>(() => [
+    {
+      id: "new-project",
+      label: "Start New Project",
+      description: "Open the project launcher with guided, template, and import starting methods.",
+      group: "Start",
+      kind: "create",
+      badge: "Launcher",
+      keywords: ["launcher", "project", "guided", "template", "import"],
+      run: () => {
+        onClose();
+        navigate(WM_ROUTES.newProject);
       },
-      {
-        id: "guided-project",
-        label: "Open Guided Project",
-        description: "Capture room, source, and signal-path detail.",
-        category: "Workflow",
-        keywords: ["discovery", "requirements", "room", "wizard"],
-        run: () => {
-          onClose();
-          navigate(WM_ROUTES.discovery);
-        },
+    },
+    {
+      id: "import-intake",
+      label: "Import Tender, RFQ, or Email",
+      description: "Bring in formal documents, interrogate email threads, or structure a new enquiry from scratch.",
+      group: "Start",
+      kind: "import",
+      badge: "Import",
+      keywords: ["import", "brief", "diagram", "document", "tender", "rfq", "email"],
+      run: () => {
+        onClose();
+        navigate("/app/tools/import-intake");
       },
-      {
-        id: "projects-workspace",
-        label: "Open Projects Workspace",
-        description: "Browse all active work and continue the right opportunity.",
-        category: "Navigation",
-        keywords: ["projects", "workspace", "opportunities"],
-        run: () => {
-          onClose();
-          navigate(WM_ROUTES.projects);
-        },
+    },
+    {
+      id: "templates",
+      label: "Open Templates",
+      description: "Start from a proven room archetype and tailor it to the opportunity.",
+      group: "Start",
+      kind: "template",
+      badge: "Template",
+      keywords: ["template", "archetype", "room type", "starting point"],
+      run: () => {
+        onClose();
+        navigate(WM_ROUTES.templates);
       },
-      {
-        id: "tool-hub",
-        label: "Open Tool Hub",
-        description: "Jump to all Wingman tools and specialist workflows.",
-        category: "Navigation",
-        keywords: ["tool hub", "tools", "reference"],
-        run: () => {
-          onClose();
-          navigate(WM_ROUTES.tools);
-        },
+    },
+    {
+      id: "guided-project",
+      label: "Open Guided Project",
+      description: "Capture room, source, and signal-path detail for a live opportunity.",
+      group: "Workflow",
+      kind: "workflow",
+      badge: "Discovery",
+      keywords: ["discovery", "requirements", "room", "wizard"],
+      run: () => {
+        onClose();
+        navigate(WM_ROUTES.discovery);
       },
-      {
-        id: "proposal",
-        label: "Open Proposal Builder",
-        description: "Move the active project toward customer-ready output.",
-        category: "Workflow",
-        keywords: ["proposal", "commercial", "output"],
-        run: () => {
-          onClose();
-          navigate(WM_ROUTES.proposals);
-        },
+    },
+    {
+      id: "proposal",
+      label: "Open Proposal Builder",
+      description: "Move the active project toward customer-ready commercial output.",
+      group: "Workflow",
+      kind: "workflow",
+      badge: "Proposal",
+      keywords: ["proposal", "commercial", "output"],
+      run: () => {
+        onClose();
+        navigate(WM_ROUTES.proposals);
       },
-      {
-        id: "import-intake",
-        label: "Import Brief or Diagram",
-        description: "Capture a customer brief, email thread, or existing system note.",
-        category: "Workflow",
-        keywords: ["import", "brief", "diagram", "document"],
-        run: () => {
-          onClose();
-          navigate("/app/tools/import-intake");
-        },
+    },
+    {
+      id: "projects-workspace",
+      label: "Open Projects Workspace",
+      description: "Browse all active work and continue the right opportunity.",
+      group: "Workspace",
+      kind: "workspace",
+      badge: "Projects",
+      keywords: ["projects", "workspace", "opportunities"],
+      run: () => {
+        onClose();
+        navigate(WM_ROUTES.projects);
       },
-      {
-        id: "workspace-settings",
-        label: "Open Workspace Settings",
-        description: "Manage members, roles, and invites.",
-        category: "Admin",
-        keywords: ["workspace", "settings", "invites", "roles"],
-        run: () => {
-          onClose();
-          navigate(WM_ROUTES.settings);
-        },
+    },
+    {
+      id: "tool-hub",
+      label: "Open Tool Hub",
+      description: "Jump to all Wingman tools and specialist workflows.",
+      group: "Workspace",
+      kind: "workspace",
+      badge: "Tools",
+      keywords: ["tool hub", "tools", "reference"],
+      run: () => {
+        onClose();
+        navigate(WM_ROUTES.tools);
       },
+    },
+    {
+      id: "workspace-settings",
+      label: "Open Workspace Settings",
+      description: "Manage members, roles, and invites for the workspace.",
+      group: "Admin",
+      kind: "admin",
+      badge: "Admin",
+      keywords: ["workspace", "settings", "invites", "roles"],
+      run: () => {
+        onClose();
+        navigate(WM_ROUTES.settings);
+      },
+    },
+  ], [navigate, onClose]);
+
+  const activeBundle = React.useMemo(
+    () => activeProject ? buildProjectActionBundle(activeProject, navigate, onClose) : null,
+    [activeProject, navigate, onClose],
+  );
+
+  const recentBundles = React.useMemo(
+    () => recentProjects.map((project) => buildProjectActionBundle(project, navigate, onClose)),
+    [navigate, onClose, recentProjects],
+  );
+
+  const actionMap = React.useMemo(() => {
+    const searchActions = [
+      ...(activeBundle ? [activeBundle.open, activeBundle.resume] : []),
+      ...coreActions,
+      ...recentBundles.flatMap((bundle) => [bundle.open, bundle.resume, bundle.duplicate]),
     ];
 
-    const dynamic: CommandAction[] = [];
+    return new Map(searchActions.map((action) => [action.id, action]));
+  }, [activeBundle, coreActions, recentBundles]);
 
-    if (activeProject) {
-      const resumeAction = getProjectResumeAction(activeProject);
-      dynamic.push({
-        id: "active-project",
-        label: `Open Active Project · ${activeProject.name}`,
-        description: [activeProject.customer, activeProject.site].filter(Boolean).join(" · ") || "Project overview",
-        category: "Active",
-        keywords: [activeProject.name, activeProject.customer, activeProject.site, activeProject.roomName].filter(Boolean) as string[],
-        run: () => {
-          setActiveProjectId(activeProject.id);
-          onClose();
-          navigate(`/app/projects/${encodeURIComponent(activeProject.id)}`);
-        },
-      });
-      dynamic.push({
-        id: "active-resume",
-        label: `${resumeAction.label} · Active project`,
-        description: activeProject.name,
-        category: "Active",
-        keywords: [resumeAction.shortLabel, activeProject.name, activeProject.customer].filter(Boolean) as string[],
-        run: () => {
-          setActiveProjectId(activeProject.id);
-          onClose();
-          navigate(resumeAction.to);
-        },
-      });
-    }
-
-    const recentProjectActions = projects.flatMap((project) => buildProjectActions(project, navigate, onClose));
-
-    return [...dynamic, ...core, ...recentProjectActions];
-  }, [activeProject, navigate, onClose, projects]);
+  const searchActions = React.useMemo(
+    () => Array.from(actionMap.values()),
+    [actionMap],
+  );
 
   const filteredActions = React.useMemo(
-    () => filterActions(actions, query),
-    [actions, query],
+    () => filterActions(searchActions, query),
+    [query, searchActions],
   );
+
+  const groupedResults = React.useMemo(
+    () => groupActions(filteredActions),
+    [filteredActions],
+  );
+
+  const indexedResults = React.useMemo(
+    () => new Map(filteredActions.map((action, index) => [action.id, index])),
+    [filteredActions],
+  );
+
+  const primaryAction = activeBundle?.resume ?? actionMap.get("new-project") ?? null;
+  const launchActions = [
+    actionMap.get("new-project"),
+    actionMap.get("import-intake"),
+    actionMap.get("templates"),
+  ].filter((action): action is CommandAction => Boolean(action));
+  const quickRouteActions = [
+    activeBundle?.open ?? null,
+    actionMap.get("guided-project") ?? null,
+    actionMap.get("proposal") ?? null,
+    actionMap.get("projects-workspace") ?? null,
+    actionMap.get("tool-hub") ?? null,
+    actionMap.get("workspace-settings") ?? null,
+  ].filter((action): action is CommandAction => Boolean(action));
+
+  const defaultPreviewAction = primaryAction ?? launchActions[0] ?? filteredActions[0] ?? null;
+  const hasQuery = query.trim().length > 0;
+  const previewAction = hasQuery
+    ? filteredActions[activeIndex] ?? defaultPreviewAction
+    : (previewActionId ? actionMap.get(previewActionId) ?? defaultPreviewAction : defaultPreviewAction);
+
+  React.useEffect(() => {
+    if (!open) return;
+    setPreviewActionId(defaultPreviewAction?.id ?? null);
+  }, [defaultPreviewAction?.id, open]);
 
   React.useEffect(() => {
     if (activeIndex > filteredActions.length - 1) {
@@ -290,6 +479,29 @@ export default function WingmanCommandPalette({
         aria-label="Wingman command palette"
         onClick={(event) => event.stopPropagation()}
       >
+        <div className="wm-commandPalette__topline">
+          <div>
+            <div className="wm-commandPalette__eyebrow">Workspace Launcher</div>
+            <div className="wm-commandPalette__title">Find the right next move</div>
+          </div>
+
+          <div className="wm-commandPalette__topActions">
+            <span className="wm-commandPalette__keycap">Ctrl+K</span>
+            <button
+              type="button"
+              className="wm-commandPalette__close"
+              onClick={onClose}
+              aria-label="Close command palette"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+
+        <div className="wm-commandPalette__subhead">
+          Continue the active opportunity, start from a tender pack, or jump straight into the right workflow without digging through the navigation.
+        </div>
+
         <div className="wm-commandPalette__head">
           <div className="wm-commandPalette__searchShell">
             <Search size={18} />
@@ -297,7 +509,10 @@ export default function WingmanCommandPalette({
               ref={inputRef}
               className="wm-commandPalette__input"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setActiveIndex(0);
+              }}
               onKeyDown={(event) => {
                 if (event.key === "ArrowDown") {
                   event.preventDefault();
@@ -309,55 +524,240 @@ export default function WingmanCommandPalette({
                   setActiveIndex((value) => Math.max(0, value - 1));
                 } else if (event.key === "Enter") {
                   event.preventDefault();
-                  filteredActions[activeIndex]?.run();
+                  (hasQuery ? filteredActions[activeIndex] : previewAction)?.run();
                 } else if (event.key === "Escape") {
                   event.preventDefault();
                   onClose();
                 }
               }}
-              placeholder="Search tools, projects, and next actions"
+              placeholder="Search customers, tools, workflows, and project names"
             />
           </div>
 
-          <button type="button" className="wm-commandPalette__close" onClick={onClose} aria-label="Close command palette">
-            <X size={18} />
-          </button>
+          <div className="wm-commandPalette__searchMeta">
+            <span className="wm-commandPalette__metaPill">
+              <Sparkles size={13} />
+              {hasQuery ? `${filteredActions.length} matching actions` : "Search or pick from the launcher"}
+            </span>
+            <span className="wm-commandPalette__metaPill">Enter opens selection</span>
+          </div>
         </div>
 
-        <div className="wm-commandPalette__hint">
-          <Sparkles size={14} />
-          <span>Jump to tools, resume active work, or duplicate a recent project from anywhere.</span>
-        </div>
+        {!hasQuery ? (
+          <div className="wm-commandPalette__launcher">
+            <div className="wm-commandPalette__hero">
+              {primaryAction ? (
+                <button
+                  type="button"
+                  className="wm-commandPalette__spotlight"
+                  onMouseEnter={() => setPreviewActionId(primaryAction.id)}
+                  onFocus={() => setPreviewActionId(primaryAction.id)}
+                  onClick={primaryAction.run}
+                >
+                  <div className="wm-commandPalette__spotlightEyebrow">
+                    {activeBundle ? "Continue active opportunity" : "Start a fresh opportunity"}
+                  </div>
+                  <div className="wm-commandPalette__spotlightTitle">{primaryAction.label}</div>
+                  <div className="wm-commandPalette__spotlightBody">
+                    {activeBundle
+                      ? `${activeBundle.project.name} • ${activeBundle.summary}`
+                      : primaryAction.description}
+                  </div>
+                  <div className="wm-commandPalette__spotlightFacts">
+                    {(activeBundle
+                      ? unique([
+                          activeBundle.resumeTag,
+                          activeBundle.project.stage || "Discovery",
+                          activeBundle.project.status || "Draft",
+                          activeBundle.project.customer,
+                          activeBundle.project.site,
+                        ]).slice(0, 4)
+                      : previewFacts(primaryAction)
+                    ).map((fact) => (
+                      <span key={fact} className="wm-commandPalette__spotlightFact">
+                        {fact}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="wm-commandPalette__spotlightFooter">
+                    <span>{primaryAction.badge}</span>
+                    <ArrowRight size={16} />
+                  </div>
+                </button>
+              ) : null}
 
-        <div className="wm-commandPalette__list">
-          {filteredActions.length === 0 ? (
-            <div className="wm-commandPalette__empty">
-              No matching actions yet. Try a project name, customer, tool, or workflow.
+              <PreviewPanel action={previewAction} />
             </div>
-          ) : (
-            filteredActions.map((action, index) => (
-              <button
-                key={action.id}
-                type="button"
-                className={`wm-commandPalette__item${index === activeIndex ? " is-active" : ""}`}
-                onMouseEnter={() => setActiveIndex(index)}
-                onClick={action.run}
-              >
-                <div className="wm-commandPalette__itemCopy">
-                  <div className="wm-commandPalette__itemTitle">{action.label}</div>
-                  <div className="wm-commandPalette__itemDesc">{action.description}</div>
+
+            <div className="wm-commandPalette__cardGrid">
+              {launchActions.map((action) => (
+                <button
+                  key={action.id}
+                  type="button"
+                  className={`wm-commandPalette__card wm-commandPalette__card--${action.kind}`}
+                  onMouseEnter={() => setPreviewActionId(action.id)}
+                  onFocus={() => setPreviewActionId(action.id)}
+                  onClick={action.run}
+                >
+                  <div className="wm-commandPalette__cardIcon">{commandIcon(action, 18)}</div>
+                  <div className="wm-commandPalette__cardTitle">{action.label}</div>
+                  <div className="wm-commandPalette__cardDesc">{action.description}</div>
+                  <div className="wm-commandPalette__cardBadge">
+                    <span>{action.badge}</span>
+                    <ArrowRight size={14} />
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="wm-commandPalette__sectionGrid">
+              <section className="wm-commandPalette__section">
+                <div className="wm-commandPalette__sectionHead">
+                  <div>
+                    <div className="wm-commandPalette__sectionTitle">Recent opportunities</div>
+                    <div className="wm-commandPalette__sectionNote">
+                      Resume, open, or duplicate recent work without filling the launcher with repeated rows.
+                    </div>
+                  </div>
                 </div>
-                <div className="wm-commandPalette__itemMeta">
-                  <span className="wm-commandPalette__itemTag">
-                    {action.category === "Duplicate" ? <Copy size={12} /> : action.category === "Project" || action.category === "Active" ? <FolderOpen size={12} /> : <ArrowRight size={12} />}
-                    {action.category}
-                  </span>
-                  {index === activeIndex ? <ArrowRight size={14} /> : null}
+
+                {recentBundles.length === 0 ? (
+                  <div className="wm-commandPalette__empty">
+                    No recent projects yet. Start with a new project or import a tender, email, or RFQ to seed the workspace.
+                  </div>
+                ) : (
+                  <div className="wm-commandPalette__projectList">
+                    {recentBundles.map((bundle) => (
+                      <article
+                        key={bundle.project.id}
+                        className="wm-commandPalette__projectCard"
+                      >
+                        <div className="wm-commandPalette__projectHead">
+                          <div>
+                            <div className="wm-commandPalette__projectName">{bundle.project.name}</div>
+                            <div className="wm-commandPalette__projectMeta">{bundle.summary}</div>
+                          </div>
+                          <span className="wm-commandPalette__projectPill">
+                            {bundle.project.stage || "Discovery"}
+                          </span>
+                        </div>
+
+                        <div className="wm-commandPalette__projectActions">
+                          <button
+                            type="button"
+                            className="wm-commandPalette__miniAction is-primary"
+                            onMouseEnter={() => setPreviewActionId(bundle.resume.id)}
+                            onFocus={() => setPreviewActionId(bundle.resume.id)}
+                            onClick={bundle.resume.run}
+                          >
+                            Resume {bundle.resumeTag}
+                          </button>
+                          <button
+                            type="button"
+                            className="wm-commandPalette__miniAction"
+                            onMouseEnter={() => setPreviewActionId(bundle.open.id)}
+                            onFocus={() => setPreviewActionId(bundle.open.id)}
+                            onClick={bundle.open.run}
+                          >
+                            Open project
+                          </button>
+                          <button
+                            type="button"
+                            className="wm-commandPalette__miniAction"
+                            onMouseEnter={() => setPreviewActionId(bundle.duplicate.id)}
+                            onFocus={() => setPreviewActionId(bundle.duplicate.id)}
+                            onClick={bundle.duplicate.run}
+                          >
+                            Duplicate
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <section className="wm-commandPalette__section">
+                <div className="wm-commandPalette__sectionHead">
+                  <div>
+                    <div className="wm-commandPalette__sectionTitle">Jump straight in</div>
+                    <div className="wm-commandPalette__sectionNote">
+                      Use these when you know the destination and do not need the launcher path cards.
+                    </div>
+                  </div>
                 </div>
-              </button>
-            ))
-          )}
-        </div>
+
+                <div className="wm-commandPalette__quickList">
+                  {quickRouteActions.map((action) => (
+                    <button
+                      key={action.id}
+                      type="button"
+                      className="wm-commandPalette__quickAction"
+                      onMouseEnter={() => setPreviewActionId(action.id)}
+                      onFocus={() => setPreviewActionId(action.id)}
+                      onClick={action.run}
+                    >
+                      <span className="wm-commandPalette__quickIcon">{commandIcon(action, 16)}</span>
+                      <span className="wm-commandPalette__quickCopy">
+                        <strong>{action.label}</strong>
+                        <span>{action.description}</span>
+                      </span>
+                      <span className="wm-commandPalette__quickBadge">{action.badge}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            </div>
+          </div>
+        ) : (
+          <div className="wm-commandPalette__resultsShell">
+            <div className="wm-commandPalette__resultsGroups">
+              {groupedResults.length === 0 ? (
+                <div className="wm-commandPalette__empty">
+                  No matching actions yet. Try a customer name, project, room type, tool, or workflow.
+                </div>
+              ) : (
+                groupedResults.map((group) => (
+                  <section key={group.group} className="wm-commandPalette__group">
+                    <div className="wm-commandPalette__groupTitle">{group.group}</div>
+                    <div className="wm-commandPalette__list">
+                      {group.actions.map((action) => {
+                        const resultIndex = indexedResults.get(action.id) ?? 0;
+
+                        return (
+                          <button
+                            key={action.id}
+                            type="button"
+                            className={`wm-commandPalette__item${resultIndex === activeIndex ? " is-active" : ""}`}
+                            onMouseEnter={() => {
+                              setActiveIndex(resultIndex);
+                            }}
+                            onFocus={() => {
+                              setActiveIndex(resultIndex);
+                            }}
+                            onClick={action.run}
+                          >
+                            <span className="wm-commandPalette__itemIcon">{commandIcon(action, 16)}</span>
+                            <div className="wm-commandPalette__itemCopy">
+                              <div className="wm-commandPalette__itemTitle">{action.label}</div>
+                              <div className="wm-commandPalette__itemDesc">{action.description}</div>
+                            </div>
+                            <div className="wm-commandPalette__itemMeta">
+                              <span className="wm-commandPalette__itemTag">{action.badge}</span>
+                              {resultIndex === activeIndex ? <ArrowRight size={14} /> : null}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                ))
+              )}
+            </div>
+
+            <PreviewPanel action={previewAction} />
+          </div>
+        )}
       </div>
     </div>
   );

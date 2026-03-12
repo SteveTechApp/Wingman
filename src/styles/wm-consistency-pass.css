@@ -219,42 +219,96 @@
   z-index: 80;
   display: grid;
   place-items: start center;
-  padding: 82px 16px 20px;
-  background: rgba(3, 8, 16, 0.62);
-  backdrop-filter: blur(6px);
+  padding: 72px 18px 24px;
+  background:
+    radial-gradient(circle at top, rgba(26, 58, 94, 0.22), transparent 34%),
+    rgba(2, 7, 15, 0.76);
+  backdrop-filter: blur(14px);
 }
 
 .wm-commandPalette {
-  width: min(820px, 100%);
-  max-height: min(72vh, 680px);
+  width: min(1180px, 100%);
+  max-height: min(86vh, 920px);
   display: grid;
-  gap: 12px;
-  padding: 14px;
-  border-radius: 20px;
-  border: 1px solid rgba(119, 166, 230, 0.18);
+  gap: 16px;
+  padding: 20px;
+  border-radius: 28px;
+  border: 1px solid rgba(119, 166, 230, 0.16);
   background:
-    linear-gradient(180deg, rgba(8, 16, 28, 0.98), rgba(6, 12, 21, 0.98));
-  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.38);
+    linear-gradient(180deg, rgba(8, 16, 28, 0.985), rgba(5, 10, 19, 0.985));
+  box-shadow: 0 36px 120px rgba(0, 0, 0, 0.46);
+  overflow: hidden;
+}
+
+.wm-commandPalette__topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.wm-commandPalette__eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(125, 225, 207, 0.84);
+}
+
+.wm-commandPalette__title {
+  margin-top: 8px;
+  font-size: clamp(28px, 3vw, 38px);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.05em;
+  color: rgba(244, 249, 255, 0.98);
+}
+
+.wm-commandPalette__topActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wm-commandPalette__keycap {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 166, 230, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(223, 235, 252, 0.78);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.wm-commandPalette__subhead {
+  max-width: 860px;
+  color: rgba(197, 212, 234, 0.78);
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .wm-commandPalette__head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: grid;
+  gap: 12px;
 }
 
 .wm-commandPalette__searchShell {
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 48px;
+  min-height: 58px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 14px;
-  border-radius: 16px;
-  border: 1px solid rgba(119, 166, 230, 0.16);
-  background: rgba(255, 255, 255, 0.03);
+  gap: 12px;
+  padding: 0 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(119, 166, 230, 0.14);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.035), rgba(74, 123, 179, 0.05));
   color: rgba(234, 243, 255, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .wm-commandPalette__input {
@@ -264,51 +318,473 @@
   outline: 0;
   background: transparent;
   color: rgba(240, 247, 255, 0.96);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.2;
 }
 
 .wm-commandPalette__input::placeholder {
-  color: rgba(188, 204, 227, 0.6);
+  color: rgba(188, 204, 227, 0.52);
 }
 
 .wm-commandPalette__close {
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 1px solid rgba(119, 166, 230, 0.14);
   background: rgba(255, 255, 255, 0.03);
   color: rgba(232, 242, 255, 0.88);
   cursor: pointer;
 }
 
-.wm-commandPalette__hint {
+.wm-commandPalette__searchMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-commandPalette__metaPill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: rgba(198, 214, 236, 0.76);
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 166, 230, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(198, 214, 236, 0.78);
   font-size: 12px;
-  line-height: 1.35;
+  font-weight: 700;
+}
+
+.wm-commandPalette__launcher {
+  display: grid;
+  gap: 18px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.wm-commandPalette__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.95fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.wm-commandPalette__spotlight {
+  width: 100%;
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid rgba(74, 182, 215, 0.2);
+  background:
+    radial-gradient(circle at top right, rgba(28, 126, 142, 0.18), transparent 40%),
+    linear-gradient(135deg, rgba(13, 44, 70, 0.9), rgba(7, 22, 40, 0.94));
+  color: rgba(245, 249, 255, 0.98);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.wm-commandPalette__spotlightEyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(137, 232, 210, 0.9);
+}
+
+.wm-commandPalette__spotlightTitle {
+  font-size: clamp(24px, 2.5vw, 34px);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.05em;
+}
+
+.wm-commandPalette__spotlightBody {
+  max-width: 760px;
+  color: rgba(211, 225, 244, 0.82);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.wm-commandPalette__spotlightFacts,
+.wm-commandPalette__previewFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-commandPalette__spotlightFact,
+.wm-commandPalette__previewFact {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 225, 207, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(235, 245, 255, 0.88);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wm-commandPalette__spotlightFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  color: rgba(232, 242, 255, 0.92);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wm-commandPalette__preview {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(119, 166, 230, 0.14);
+  background:
+    linear-gradient(180deg, rgba(10, 18, 31, 0.98), rgba(6, 11, 21, 0.98));
+}
+
+.wm-commandPalette__previewEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(195, 211, 235, 0.76);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wm-commandPalette__previewIcon {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(236, 244, 255, 0.92);
+}
+
+.wm-commandPalette__previewDivider {
+  width: 16px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.wm-commandPalette__previewTitle {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: rgba(245, 249, 255, 0.98);
+}
+
+.wm-commandPalette__previewBody {
+  color: rgba(198, 214, 236, 0.76);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.wm-commandPalette__previewHint {
+  color: rgba(182, 200, 224, 0.72);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.wm-commandPalette__previewButton {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(125, 225, 207, 0.22);
+  background: linear-gradient(135deg, rgba(27, 112, 95, 0.95), rgba(18, 67, 76, 0.95));
+  color: rgba(244, 250, 255, 0.98);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wm-commandPalette__cardGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wm-commandPalette__card {
+  width: 100%;
+  min-height: 190px;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(119, 166, 230, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(240, 247, 255, 0.96);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.wm-commandPalette__card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(125, 225, 207, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.wm-commandPalette__card--create {
+  background:
+    radial-gradient(circle at top right, rgba(43, 152, 121, 0.14), transparent 42%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.wm-commandPalette__card--import {
+  background:
+    radial-gradient(circle at top right, rgba(63, 137, 223, 0.14), transparent 42%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.wm-commandPalette__card--template {
+  background:
+    radial-gradient(circle at top right, rgba(202, 152, 55, 0.14), transparent 42%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.wm-commandPalette__cardIcon {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.wm-commandPalette__cardTitle {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.wm-commandPalette__cardDesc {
+  color: rgba(195, 210, 232, 0.76);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.wm-commandPalette__cardBadge {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: rgba(230, 239, 252, 0.9);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wm-commandPalette__sectionGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.wm-commandPalette__section,
+.wm-commandPalette__group {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(119, 166, 230, 0.12);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.wm-commandPalette__sectionHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wm-commandPalette__sectionTitle,
+.wm-commandPalette__groupTitle {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(226, 238, 252, 0.92);
+}
+
+.wm-commandPalette__sectionNote {
+  margin-top: 6px;
+  color: rgba(186, 203, 226, 0.68);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.wm-commandPalette__projectList,
+.wm-commandPalette__quickList,
+.wm-commandPalette__resultsGroups {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-commandPalette__projectCard {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(119, 166, 230, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wm-commandPalette__projectHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wm-commandPalette__projectName {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: rgba(244, 249, 255, 0.96);
+}
+
+.wm-commandPalette__projectMeta {
+  margin-top: 4px;
+  color: rgba(190, 206, 228, 0.7);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.wm-commandPalette__projectPill,
+.wm-commandPalette__quickBadge,
+.wm-commandPalette__itemTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 166, 230, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(221, 234, 251, 0.88);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.wm-commandPalette__projectActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-commandPalette__miniAction {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(119, 166, 230, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(235, 243, 255, 0.88);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wm-commandPalette__miniAction.is-primary {
+  border-color: rgba(125, 225, 207, 0.2);
+  background: rgba(36, 124, 104, 0.16);
+  color: rgba(239, 248, 255, 0.96);
+}
+
+.wm-commandPalette__quickAction {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(119, 166, 230, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(242, 248, 255, 0.94);
+  text-align: left;
+  cursor: pointer;
+}
+
+.wm-commandPalette__quickIcon,
+.wm-commandPalette__itemIcon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(240, 247, 255, 0.9);
+}
+
+.wm-commandPalette__quickCopy {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.wm-commandPalette__quickCopy strong {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.wm-commandPalette__quickCopy span {
+  color: rgba(195, 210, 232, 0.72);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.wm-commandPalette__resultsShell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.95fr);
+  gap: 16px;
+  overflow: hidden;
+}
+
+.wm-commandPalette__resultsGroups {
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .wm-commandPalette__list {
   display: grid;
   gap: 8px;
-  overflow: auto;
-  padding-right: 2px;
 }
 
 .wm-commandPalette__item {
   width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 14px;
-  padding: 12px 14px;
-  border-radius: 16px;
+  padding: 13px 14px;
+  border-radius: 18px;
   border: 1px solid rgba(119, 166, 230, 0.12);
   background: rgba(255, 255, 255, 0.03);
   color: rgba(240, 247, 255, 0.96);
@@ -319,7 +795,7 @@
 .wm-commandPalette__item.is-active,
 .wm-commandPalette__item:hover {
   border-color: rgba(59, 212, 208, 0.22);
-  background: linear-gradient(135deg, rgba(26, 79, 111, 0.34), rgba(12, 67, 72, 0.22));
+  background: linear-gradient(135deg, rgba(26, 79, 111, 0.28), rgba(12, 67, 72, 0.16));
 }
 
 .wm-commandPalette__itemCopy {
@@ -330,14 +806,14 @@
 
 .wm-commandPalette__itemTitle {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.2;
 }
 
 .wm-commandPalette__itemDesc {
   color: rgba(195, 210, 232, 0.74);
   font-size: 12px;
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
 .wm-commandPalette__itemMeta {
@@ -347,23 +823,9 @@
   flex: 0 0 auto;
 }
 
-.wm-commandPalette__itemTag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 24px;
-  padding: 0 9px;
-  border-radius: 999px;
-  border: 1px solid rgba(119, 166, 230, 0.16);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(221, 234, 251, 0.88);
-  font-size: 11px;
-  font-weight: 700;
-}
-
 .wm-commandPalette__empty {
-  padding: 16px;
-  border-radius: 16px;
+  padding: 18px;
+  border-radius: 18px;
   border: 1px dashed rgba(119, 166, 230, 0.16);
   background: rgba(255, 255, 255, 0.03);
   color: rgba(195, 210, 232, 0.72);
@@ -1677,20 +2139,79 @@
   }
 
   .wm-commandPalette__backdrop {
-    padding: 70px 10px 12px;
+    padding: 62px 10px 12px;
   }
 
   .wm-commandPalette {
-    padding: 10px;
-    border-radius: 16px;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 20px;
+  }
+
+  .wm-commandPalette__title {
+    font-size: 28px;
+  }
+
+  .wm-commandPalette__hero,
+  .wm-commandPalette__resultsShell,
+  .wm-commandPalette__sectionGrid,
+  .wm-commandPalette__cardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-commandPalette__spotlight,
+  .wm-commandPalette__preview,
+  .wm-commandPalette__section,
+  .wm-commandPalette__group {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .wm-commandPalette__quickAction,
+  .wm-commandPalette__item {
+    padding: 12px;
+  }
+
+  .wm-commandPalette__quickAction,
+  .wm-commandPalette__item {
+    grid-template-columns: auto minmax(0, 1fr);
   }
 
   .wm-commandPalette__item {
-    padding: 11px 12px;
+    align-items: start;
   }
 
   .wm-commandPalette__itemMeta {
     gap: 6px;
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .wm-commandPalette__quickBadge {
+    display: none;
+  }
+
+  .wm-commandPalette__searchMeta,
+  .wm-commandPalette__topActions,
+  .wm-commandPalette__projectActions {
+    flex-wrap: wrap;
+  }
+
+  .wm-commandPalette__topline,
+  .wm-commandPalette__sectionHead,
+  .wm-commandPalette__projectHead {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-commandPalette__topline,
+  .wm-commandPalette__sectionHead,
+  .wm-commandPalette__projectHead {
+    display: grid;
+    gap: 10px;
+  }
+
+  .wm-commandPalette__previewButton {
+    width: 100%;
   }
 
   .wm-topbar__project-pill {
@@ -5752,7 +6273,120 @@ section{
   color: #f6fbff;
 }
 
+.wm-tool-hub__hero{
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.wm-tool-hub__hero-copy{
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.wm-tool-hub__eyebrow{
+  color: rgba(127, 217, 255, 0.9);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.wm-tool-hub__hero-panel{
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(116, 170, 233, 0.14);
+  background:
+    radial-gradient(circle at top right, rgba(104, 214, 147, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(11, 22, 36, 0.92), rgba(8, 15, 25, 0.96));
+}
+
+.wm-tool-hub__hero-panel-title{
+  color: #f5fbff;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.wm-tool-hub__hero-panel-list{
+  display: grid;
+  gap: 10px;
+}
+
+.wm-tool-hub__hero-panel-item{
+  display: grid;
+  gap: 4px;
+  padding: 12px 13px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wm-tool-hub__hero-panel-item strong{
+  color: #f3f8ff;
+  font-size: 13px;
+}
+
+.wm-tool-hub__hero-panel-item span{
+  color: rgba(216, 228, 243, 0.76);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.wm-tool-hub__signal-grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wm-tool-hub__signal-card{
+  min-height: 132px;
+  align-content: start;
+  padding: 14px;
+  border-color: rgba(114, 168, 230, 0.14);
+  background:
+    radial-gradient(circle at top right, rgba(125, 211, 252, 0.08), transparent 28%),
+    linear-gradient(180deg, rgba(15, 27, 43, 0.9), rgba(10, 18, 29, 0.96));
+}
+
+.wm-tool-hub__signal-label{
+  color: rgba(140, 212, 255, 0.88);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wm-tool-hub__signal-value{
+  color: #f4f8ff;
+  font-size: 24px;
+  line-height: 1.05;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+}
+
+.wm-tool-hub__section-count{
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(120, 166, 229, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(237, 244, 255, 0.88);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .wm-tool-hub__split{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
   align-items: start;
 }
 
@@ -5766,6 +6400,12 @@ section{
 }
 
 @media (max-width: 1180px){
+  .wm-tool-hub__hero,
+  .wm-tool-hub__signal-grid,
+  .wm-tool-hub__split{
+    grid-template-columns: 1fr;
+  }
+
   .wm-dashboard-page__mission-head,
   .wm-dashboard-page__main-grid,
   .wm-guided-project-page__drawer-grid,
@@ -5790,6 +6430,10 @@ section{
 
   .wm-guided-project-page__wizardShell{
     padding: 12px;
+  }
+
+  .wm-tool-hub__hero-panel{
+    padding: 14px;
   }
 
   .wm-dashboard-page__mission-title{
