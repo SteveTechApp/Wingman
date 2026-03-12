@@ -10,7 +10,6 @@ import {
   LayoutTemplate,
   MonitorSmartphone,
   Scale,
-  Shield,
 } from "lucide-react";
 
 export type WingmanItemKind = "tool" | "feature";
@@ -71,17 +70,6 @@ export const WINGMAN_TOOLS: WingmanItem[] = [
     highlight: "Position against competitors",
     accentRgb: "244,114,182",
     Icon: Scale,
-  },
-  {
-    id: "runtime-diagnostics",
-    title: "Runtime Diagnostics",
-    description: "Review recent runtime errors and clear diagnostics data during support workflows.",
-    kind: "tool",
-    to: "/app/tools/runtime-diagnostics",
-    tag: "Support",
-    highlight: "Inspect recent runtime errors",
-    accentRgb: "192,132,252",
-    Icon: Shield,
   },
   {
     id: "competitor-lookup-diagnostics",

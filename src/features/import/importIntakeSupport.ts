@@ -37,12 +37,10 @@ export type IntakeBriefInput = {
   customer: string;
   site: string;
   documentNotes: string;
-  emailSubject: string;
-  emailThread: string;
-  prompt: string;
+  sourceText: string;
+  guidancePrompts: string[];
   workingNotes: string;
   documentFiles: IntakeImportedFile[];
-  emailFiles: IntakeImportedFile[];
 };
 
 export const CHECKLIST_KEY = "wm_intake_checklist_v1";
@@ -229,13 +227,10 @@ export function buildCombinedBrief(input: IntakeBriefInput): string {
       const body = file.extractedText || file.excerpt || file.statusMessage;
       return `Uploaded source file (${file.name}):\n${clipText(body, 3000)}`;
     }),
-    input.emailSubject.trim() ? `Email subject: ${clipText(input.emailSubject, 220)}` : "",
-    input.emailThread.trim() ? `Email thread:\n${clipText(input.emailThread, 5000)}` : "",
-    ...input.emailFiles.map((file) => {
-      const body = file.extractedText || file.excerpt || file.statusMessage;
-      return `Uploaded email file (${file.name}):\n${clipText(body, 3000)}`;
-    }),
-    input.prompt.trim() ? `Prompt from scratch:\n${clipText(input.prompt, 4000)}` : "",
+    input.sourceText.trim() ? `Customer request text:\n${clipText(input.sourceText, 6000)}` : "",
+    input.guidancePrompts.length
+      ? `Guidance priorities:\n${input.guidancePrompts.map((item) => `- ${clipText(item, 140)}`).join("\n")}`
+      : "",
     input.workingNotes.trim() ? `Working notes:\n${clipText(input.workingNotes, 2200)}` : "",
   ].filter(Boolean);
 
@@ -247,10 +242,10 @@ export function buildStoredSourceNotes(input: IntakeBriefInput): string {
     `Workflow target: ${input.destination === "sales-enquiry" ? "Sales enquiry qualification" : "New project start"}`,
     formatUploadedSourceList("Uploaded intake files", input.documentFiles),
     input.documentNotes.trim() ? `Tender / RFQ notes:\n${clipText(input.documentNotes, 900)}` : "",
-    formatUploadedSourceList("Uploaded email files", input.emailFiles),
-    input.emailSubject.trim() ? `Email subject: ${clipText(input.emailSubject, 200)}` : "",
-    input.emailThread.trim() ? `Email interrogation:\n${clipText(input.emailThread, 1200)}` : "",
-    input.prompt.trim() ? `Prompt from scratch:\n${clipText(input.prompt, 1200)}` : "",
+    input.sourceText.trim() ? `Customer request text:\n${clipText(input.sourceText, 2000)}` : "",
+    input.guidancePrompts.length
+      ? `Guidance priorities:\n${input.guidancePrompts.map((item) => `- ${clipText(item, 120)}`).join("\n")}`
+      : "",
     input.workingNotes.trim() ? `Working notes:\n${clipText(input.workingNotes, 900)}` : "",
   ].filter(Boolean);
 
@@ -261,8 +256,8 @@ export function buildSourceCoverageSummary(input: IntakeBriefInput): string {
   const lines = [
     input.documentFiles.length > 0 ? `${input.documentFiles.length} uploaded source file(s)` : "",
     input.documentNotes.trim() ? "Formal tender / RFQ notes added" : "",
-    input.emailThread.trim() || input.emailFiles.length > 0 ? "Email interrogation source present" : "",
-    input.prompt.trim() ? "Blank prompt / scratch start present" : "",
+    input.sourceText.trim() ? "Customer request text captured" : "",
+    input.guidancePrompts.length > 0 ? "Guidance priorities selected" : "",
   ].filter(Boolean);
 
   return lines.length > 0 ? lines.join(" • ") : "No source material added yet.";
@@ -273,9 +268,14 @@ export function resolveWorkflowTrack(destination: IntakeDestination): string {
 }
 
 export function deriveOpportunityName(input: IntakeBriefInput): string {
+  const sourceHeading = input.sourceText
+    .split("\n")
+    .map((line) => line.trim())
+    .find(Boolean);
+
   return (
     input.projectName.trim() ||
-    input.emailSubject.trim() ||
+    (sourceHeading ? clipText(sourceHeading, 90) : "") ||
     input.documentFiles[0]?.name.replace(/\.[^.]+$/, "") ||
     (input.destination === "sales-enquiry" ? "New Sales Enquiry" : "New Opportunity")
   );

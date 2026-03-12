@@ -3581,6 +3581,403 @@ section{
   color: rgba(223, 234, 247, 0.86);
 }
 
+.wm-catalog-page__reference-layout{
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
+  gap: 12px;
+}
+
+.wm-catalog-page__reference-card{
+  padding: 18px;
+}
+
+.wm-catalog-page__reference-overview{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wm-catalog-page__reference-overview-card{
+  display: grid;
+  gap: 6px;
+  padding: 12px 13px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.wm-catalog-page__reference-overview-label{
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(192, 208, 226, 0.66);
+}
+
+.wm-catalog-page__reference-overview-value{
+  color: rgba(245, 249, 255, 0.94);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.wm-catalog-page__reference-actions{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wm-catalog-page__flag-form{
+  display: grid;
+  gap: 8px;
+}
+
+.wm-catalog-page__schematic-section{
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(126, 185, 255, 0.16);
+  background:
+    radial-gradient(circle at top right, rgba(126, 185, 255, 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(11, 24, 42, 0.88), rgba(7, 17, 30, 0.92));
+}
+
+.wm-catalog-page__schematic-section-head{
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.wm-catalog-page__schematic-section-title{
+  margin-top: 4px;
+  color: #f4fbff;
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 800;
+}
+
+.wm-catalog-page__schematic-selection{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wm-catalog-page__schematic-chip{
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(244, 251, 255, 0.92);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.wm-catalog-page__schematic-chip--primary{
+  border-color: rgba(115, 231, 255, 0.22);
+  background: rgba(115, 231, 255, 0.12);
+}
+
+.wm-catalog-page__schematic{
+  display: grid;
+  gap: 12px;
+}
+
+.wm-catalog-page__schematic-flow{
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.wm-catalog-page__schematic-node{
+  flex: 0 0 240px;
+  min-width: 240px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wm-catalog-page__schematic-node--source{
+  background:
+    radial-gradient(circle at top right, rgba(87, 231, 233, 0.12), transparent 34%),
+    rgba(255, 255, 255, 0.035);
+}
+
+.wm-catalog-page__schematic-node--context{
+  background:
+    radial-gradient(circle at top right, rgba(131, 151, 255, 0.12), transparent 34%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.wm-catalog-page__schematic-node--product{
+  background:
+    radial-gradient(circle at top right, rgba(255, 172, 87, 0.12), transparent 34%),
+    rgba(255, 255, 255, 0.04);
+}
+
+.wm-catalog-page__schematic-node--output{
+  background:
+    radial-gradient(circle at top right, rgba(104, 214, 147, 0.12), transparent 34%),
+    rgba(255, 255, 255, 0.035);
+}
+
+.wm-catalog-page__schematic-node-head{
+  display: grid;
+  gap: 4px;
+}
+
+.wm-catalog-page__schematic-node-title{
+  color: #f4fbff;
+  font-size: 15px;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.wm-catalog-page__schematic-node-subtitle{
+  color: rgba(214, 227, 243, 0.74);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.wm-catalog-page__schematic-list{
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  color: rgba(231, 239, 249, 0.86);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.wm-catalog-page__schematic-product-list{
+  display: grid;
+  gap: 8px;
+}
+
+.wm-catalog-page__schematic-product{
+  display: grid;
+  gap: 5px;
+  padding: 10px 11px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.wm-catalog-page__schematic-product-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wm-catalog-page__schematic-product-name{
+  color: #f4fbff;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.wm-catalog-page__schematic-product-copy{
+  color: rgba(219, 232, 246, 0.82);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.wm-catalog-page__schematic-connector{
+  flex: 0 0 92px;
+  min-width: 92px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 8px;
+  color: rgba(210, 224, 242, 0.84);
+}
+
+.wm-catalog-page__schematic-connector-label{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.wm-catalog-page__schematic-connector-arrow{
+  font-size: 28px;
+  line-height: 1;
+  color: rgba(115, 231, 255, 0.78);
+}
+
+.wm-catalog-page__schematic-foot{
+  color: rgba(214, 227, 243, 0.74);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.wm-catalog-page__external-link{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.wm-catalog-page__shortlist-card{
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(130, 178, 242, 0.14);
+  background:
+    radial-gradient(circle at top right, rgba(131, 151, 255, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(12, 22, 40, 0.96), rgba(8, 15, 28, 0.98));
+}
+
+.wm-catalog-page__shortlist-head{
+  display: grid;
+  gap: 4px;
+}
+
+.wm-catalog-page__shortlist{
+  display: grid;
+  gap: 8px;
+  max-height: 780px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.wm-catalog-page__shortlist-item{
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  padding: 12px 13px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.wm-catalog-page__shortlist-item:hover{
+  transform: translateY(-1px);
+  border-color: rgba(115, 231, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.14);
+}
+
+.wm-catalog-page__shortlist-item.is-active{
+  border-color: rgba(115, 231, 255, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(115, 231, 255, 0.12), transparent 32%),
+    rgba(255, 255, 255, 0.06);
+}
+
+.wm-catalog-page__shortlist-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wm-catalog-page__shortlist-title{
+  color: #f4fbff;
+  font-size: 15px;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.wm-catalog-page__shortlist-copy{
+  color: rgba(218, 229, 243, 0.78);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.wm-catalog-page__shortlist-actions{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.wm-catalog-page__shortlist-action-btn{
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(244, 251, 255, 0.9);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wm-catalog-page__shortlist-action-btn.is-active{
+  border-color: rgba(104, 214, 147, 0.18);
+  background: rgba(104, 214, 147, 0.14);
+}
+
+.wm-catalog-page__shortlist-action-btn:disabled{
+  cursor: default;
+  opacity: 0.62;
+}
+
+.wm-catalog-page__family-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.wm-catalog-page__family-card{
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.wm-catalog-page__family-head{
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wm-catalog-page__family-title{
+  color: #f4fbff;
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.wm-catalog-page__family-count{
+  margin-top: 5px;
+  color: rgba(214, 227, 243, 0.72);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.wm-catalog-page__family-copy{
+  color: rgba(220, 231, 245, 0.84);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
 /* Runtime diagnostics */
 .wm-runtime-page__hero{
   padding: 0;
@@ -4669,6 +5066,10 @@ section{
     grid-template-columns: 1fr;
   }
 
+  .wm-catalog-page__reference-layout{
+    grid-template-columns: 1fr;
+  }
+
   .wm-catalog-page__status-head{
     align-items: start;
   }
@@ -4684,6 +5085,11 @@ section{
 
   .wm-catalog-page__filters{
     grid-template-columns: 1fr 1fr;
+  }
+
+  .wm-catalog-page__schematic-node{
+    flex-basis: 220px;
+    min-width: 220px;
   }
 }
 
@@ -4713,7 +5119,9 @@ section{
 
   .wm-catalog-page__status-grid,
   .wm-catalog-page__metric-grid,
-  .wm-catalog-page__results{
+  .wm-catalog-page__results,
+  .wm-catalog-page__reference-overview,
+  .wm-catalog-page__family-grid{
     grid-template-columns: 1fr;
   }
 
@@ -4721,8 +5129,29 @@ section{
     flex-direction: column;
   }
 
+  .wm-catalog-page__shortlist-row,
+  .wm-catalog-page__family-head{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .wm-catalog-page__transport-pill{
     justify-self: start;
+  }
+
+  .wm-catalog-page__schematic-section-head{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wm-catalog-page__schematic-node{
+    flex-basis: min(84vw, 220px);
+    min-width: min(84vw, 220px);
+  }
+
+  .wm-catalog-page__schematic-connector{
+    min-width: 72px;
+    flex-basis: 72px;
   }
 }
 
@@ -5128,6 +5557,99 @@ section{
   gap: 12px;
 }
 
+.wm-compare-simple__matrix-layout{
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 12px;
+}
+
+.wm-compare-simple__matrix-panel{
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wm-compare-simple__matrix-table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.wm-compare-simple__matrix-table th,
+.wm-compare-simple__matrix-table td{
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.45;
+}
+
+.wm-compare-simple__matrix-table th{
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(208, 223, 239, 0.74);
+}
+
+.wm-compare-simple__matrix-row td:first-child{
+  width: 22%;
+  color: rgba(238, 246, 255, 0.9);
+  font-weight: 700;
+}
+
+.wm-compare-simple__matrix-row.is-good td{
+  background: rgba(38, 142, 89, 0.08);
+}
+
+.wm-compare-simple__matrix-row.is-warn td{
+  background: rgba(185, 110, 41, 0.1);
+}
+
+.wm-compare-simple__matrix-row.is-neutral td{
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.wm-compare-simple__match-list{
+  display: grid;
+  gap: 9px;
+}
+
+.wm-compare-simple__match-item{
+  display: grid;
+  gap: 6px;
+  padding: 10px 11px;
+  border-radius: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wm-compare-simple__match-item.is-primary{
+  border-color: rgba(94, 190, 255, 0.3);
+  background: linear-gradient(90deg, rgba(54, 120, 203, 0.16), rgba(255, 255, 255, 0.03));
+}
+
+.wm-compare-simple__match-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wm-compare-simple__match-percent{
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
 .wm-compare-simple__signal-groups{
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5268,6 +5790,7 @@ section{
 
 @media (max-width: 980px){
   .wm-compare-simple__result-main,
+  .wm-compare-simple__matrix-layout,
   .wm-compare-simple__signal-groups,
   .wm-compare-simple__detail-grid{
     grid-template-columns: 1fr;
@@ -5526,6 +6049,10 @@ section{
   grid-column: span 1;
 }
 
+.wm-product-intel-page__filters--wide{
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .wm-product-intel-page__evidence{
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -5569,6 +6096,42 @@ section{
   font-size: 11px;
   line-height: 1.45;
   color: rgba(255, 214, 173, 0.94);
+}
+
+.wm-product-intel-page__flag-queue,
+.wm-product-intel-page__record-flags{
+  display: grid;
+  gap: 8px;
+}
+
+.wm-product-intel-page__flag-card,
+.wm-product-intel-page__record-flag{
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wm-product-intel-page__editor{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.wm-product-intel-page__filter--span-2{
+  grid-column: span 2;
+}
+
+.wm-product-intel-page__filter--full{
+  grid-column: 1 / -1;
+}
+
+.wm-product-intel-page__editor-actions{
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .wm-product-intel-page__records{
@@ -5615,6 +6178,19 @@ section{
   color: rgba(216, 232, 246, 0.9);
 }
 
+.wm-product-intel-page__flag-entry{
+  display: grid;
+  gap: 4px;
+}
+
+.wm-product-intel-page__flag-entry span{
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
 .wm-product-intel-page__record-actions{
   display: flex;
   gap: 8px;
@@ -5630,10 +6206,17 @@ section{
     grid-template-columns: 1fr;
   }
 
+  .wm-product-intel-page__editor{
+    grid-template-columns: 1fr;
+  }
+
   .wm-product-intel-page__evidence{
     grid-template-columns: 1fr;
   }
 
+  .wm-product-intel-page__filter--span-2,
+  .wm-product-intel-page__filter--full,
+  .wm-product-intel-page__editor-actions,
   .wm-product-intel-page__evidence-wide,
   .wm-product-intel-page__evidence-actions{
     grid-column: span 1;
@@ -5941,18 +6524,21 @@ section{
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  opacity: 0.72;
   transition: border-color 120ms ease, background 120ms ease, color 120ms ease, transform 120ms ease;
 }
 
 .wm-guided-project-page__stepChip:hover{
-  border-color: rgba(115, 231, 255, 0.24);
+  border-color: rgba(128, 222, 163, 0.24);
   transform: translateY(-1px);
+  opacity: 0.9;
 }
 
 .wm-guided-project-page__stepChip.is-active{
-  border-color: rgba(115, 231, 255, 0.28);
-  background: linear-gradient(90deg, rgba(17, 60, 102, 0.94), rgba(8, 35, 64, 0.94));
-  color: #f7fbff;
+  border-color: rgba(96, 194, 132, 0.34);
+  background: linear-gradient(90deg, rgba(16, 58, 38, 0.94), rgba(8, 33, 23, 0.94));
+  color: rgba(239, 255, 245, 0.98);
+  opacity: 1;
 }
 
 .wm-guided-project-page__stepChipIndex{
@@ -5968,7 +6554,7 @@ section{
 }
 
 .wm-guided-project-page__stepChip.is-active .wm-guided-project-page__stepChipIndex{
-  background: rgba(115, 231, 255, 0.16);
+  background: rgba(96, 194, 132, 0.2);
 }
 
 .wm-guided-project-page__stepChipLabel{
@@ -7240,5 +7826,33 @@ footer[class*="wm-"] {
 
   .wm-guided-project-page__heroCompact{
     align-items:flex-start;
+  }
+}
+.wm-import-intake-page__hero-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wm-import-intake-page__layout {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.92fr);
+  align-items: start;
+}
+
+.wm-import-intake-page__rail {
+  position: sticky;
+  top: 18px;
+}
+
+@media (max-width: 1100px) {
+  .wm-import-intake-page__hero-grid,
+  .wm-import-intake-page__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-import-intake-page__rail {
+    position: static;
   }
 }

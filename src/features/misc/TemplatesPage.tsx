@@ -345,10 +345,16 @@ function performanceUpgradeMoves(room: RoomTemplate, tier: TierKey): string[] {
 
 export default function TemplatesPage() {
   const nav = useNavigate();
+  const FLOW_ACTIVE_RGB = "96,194,132";
 
   const [query, setQuery] = React.useState("");
   const [useCaseGroup, setUseCaseGroup] = React.useState<"all" | UseCaseGroup>("all");
   const [budgetBias, setBudgetBias] = React.useState<"all" | BudgetBias>("all");
+  const [activeStep, setActiveStep] = React.useState<1 | 2 | 3 | 4>(1);
+  const step1Ref = React.useRef<HTMLElement | null>(null);
+  const step2Ref = React.useRef<HTMLElement | null>(null);
+  const step3Ref = React.useRef<HTMLElement | null>(null);
+  const step4Ref = React.useRef<HTMLElement | null>(null);
 
   const [marketId, setMarketId] = React.useState<string>(MARKETS[0].id);
   const [roomId, setRoomId] = React.useState<string>(MARKETS[0].roomTypes[0].id);
@@ -458,6 +464,56 @@ export default function TemplatesPage() {
   const valueMoves = React.useMemo(() => valueEngineeredMoves(room, tier), [room, tier]);
   const upgradeMoves = React.useMemo(() => performanceUpgradeMoves(room, tier), [room, tier]);
 
+  function workflowSectionStyle(step: 1 | 2 | 3 | 4): React.CSSProperties {
+    const isActive = activeStep === step;
+
+    return {
+      padding: 16,
+      borderRadius: 18,
+      border: isActive
+        ? `1px solid rgba(${FLOW_ACTIVE_RGB},0.36)`
+        : "1px solid rgba(255,255,255,0.10)",
+      background: isActive
+        ? `linear-gradient(180deg, rgba(${FLOW_ACTIVE_RGB},0.12) 0%, rgba(${FLOW_ACTIVE_RGB},0.05) 100%)`
+        : "linear-gradient(180deg, rgba(9,20,33,0.78) 0%, rgba(7,16,28,0.62) 100%)",
+      boxShadow: isActive
+        ? `0 0 0 1px rgba(${FLOW_ACTIVE_RGB},0.12), 0 14px 30px rgba(${FLOW_ACTIVE_RGB},0.07)`
+        : "none",
+      opacity: isActive ? 1 : 0.64,
+      transition: "border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, opacity 180ms ease",
+    };
+  }
+
+  function workflowStepLabelStyle(step: 1 | 2 | 3 | 4): React.CSSProperties {
+    const isActive = activeStep === step;
+
+    return {
+      fontSize: 11,
+      letterSpacing: "0.14em",
+      color: isActive ? `rgba(${FLOW_ACTIVE_RGB},0.94)` : "rgba(255,255,255,0.72)",
+      textTransform: "uppercase",
+    };
+  }
+
+  React.useEffect(() => {
+    if (activeStep === 1 || typeof window === "undefined") return;
+
+    const target =
+      activeStep === 2 ? step2Ref.current :
+      activeStep === 3 ? step3Ref.current :
+      step4Ref.current;
+
+    if (!target) return;
+
+    const rect = target.getBoundingClientRect();
+    const topPadding = 92;
+    const bottomPadding = 20;
+    const fullyVisible = rect.top >= topPadding && rect.bottom <= window.innerHeight - bottomPadding;
+    if (fullyVisible) return;
+
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [activeStep]);
+
   function selectMarket(nextMarketId: string) {
     const nextMarket = MARKETS.find((m) => m.id === nextMarketId) || MARKETS[0];
     const nextVisibleIds = new Set(
@@ -473,12 +529,14 @@ export default function TemplatesPage() {
     setMarketId(nextMarket.id);
     setRoomId(nextRoom.id);
     setTier(nextRoom.defaultTier);
+    setActiveStep(2);
   }
 
   function selectRoom(nextRoomId: string) {
     const nextRoom = visibleRooms.find((r) => r.id === nextRoomId) || visibleRooms[0];
     setRoomId(nextRoom.id);
     setTier(nextRoom.defaultTier);
+    setActiveStep(3);
   }
 
   function seedTemplateIntoProject() {
@@ -548,22 +606,14 @@ export default function TemplatesPage() {
           </div>
         </div>
 
-        <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
-          <div style={{ fontWeight: 900, fontSize: 16 }}>Find a template quickly</div>
+        <CollapsibleCard
+          id="templates-quick-filters"
+          title="Quick filters"
+          subtitle="Optional filters for narrowing templates before selection."
+          defaultCollapsed
+        >
           <div
             style={{
-              marginTop: 6,
-              fontSize: 12,
-              color: "rgba(255,255,255,0.80)",
-              lineHeight: 1.45,
-            }}
-          >
-            Filter by application, budget posture, and room language before stepping through the scenario selection.
-          </div>
-
-          <div
-            style={{
-              marginTop: 14,
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
               gap: 12,
@@ -652,18 +702,13 @@ export default function TemplatesPage() {
               </div>
             ))}
           </div>
-        </section>
+        </CollapsibleCard>
 
-        <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
+        <section ref={step1Ref} className="wm-card" style={workflowSectionStyle(1)}>
           <div
-            style={{
-              fontSize: 11,
-              letterSpacing: "0.14em",
-              color: "rgba(255,255,255,0.72)",
-              textTransform: "uppercase",
-            }}
+            style={workflowStepLabelStyle(1)}
           >
-            Step 1
+            Step 1{activeStep === 1 ? " / Current position" : ""}
           </div>
           <div style={{ marginTop: 6, fontWeight: 900, fontSize: 18 }}>
             Choose the application
@@ -701,16 +746,11 @@ export default function TemplatesPage() {
           </div>
         </section>
 
-        <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
+        <section ref={step2Ref} className="wm-card" style={workflowSectionStyle(2)}>
           <div
-            style={{
-              fontSize: 11,
-              letterSpacing: "0.14em",
-              color: "rgba(255,255,255,0.72)",
-              textTransform: "uppercase",
-            }}
+            style={workflowStepLabelStyle(2)}
           >
-            Step 2
+            Step 2{activeStep === 2 ? " / Current position" : ""}
           </div>
           <div style={{ marginTop: 6, fontWeight: 900, fontSize: 18 }}>
             Choose a room type
@@ -748,16 +788,11 @@ export default function TemplatesPage() {
           </div>
         </section>
 
-        <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
+        <section ref={step3Ref} className="wm-card" style={workflowSectionStyle(3)}>
           <div
-            style={{
-              fontSize: 11,
-              letterSpacing: "0.14em",
-              color: "rgba(255,255,255,0.72)",
-              textTransform: "uppercase",
-            }}
+            style={workflowStepLabelStyle(3)}
           >
-            Step 3
+            Step 3{activeStep === 3 ? " / Current position" : ""}
           </div>
           <div style={{ marginTop: 6, fontWeight: 900, fontSize: 18 }}>
             Choose capability tier
@@ -779,13 +814,17 @@ export default function TemplatesPage() {
                 key={item}
                 tier={item}
                 active={item === tier}
-                onClick={() => setTier(item)}
+                onClick={() => {
+                  setTier(item);
+                  setActiveStep(4);
+                }}
               />
             ))}
           </div>
         </section>
 
-        <section className="wm-card" style={{ padding: 16, borderRadius: 18 }}>
+        <section ref={step4Ref} className="wm-card" style={workflowSectionStyle(4)}>
+          <div style={workflowStepLabelStyle(4)}>Step 4{activeStep === 4 ? " / Current position" : ""}</div>
           <div style={{ fontWeight: 900, fontSize: 18 }}>Selected template</div>
 
           <div

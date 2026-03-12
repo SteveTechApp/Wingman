@@ -102,9 +102,9 @@ export default function TemplatesPage() {
           </div>
         </div>
         <div className="wm-panel" style={{ padding: 12 }}>
-          <div className="wm-title-lg">Next enhancement</div>
+          <div className="wm-title-lg">How to use templates</div>
           <div className="wm-body" style={{ marginTop: 6 }}>
-            Replace the sample cards with your real template catalog so vertical market and room-type logic drive the page.
+            Select a template, adjust for room context, then continue to Product Catalog or Proposal Builder for refinement.
           </div>
         </div>
       </section>

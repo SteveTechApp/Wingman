@@ -17,6 +17,11 @@ type GuruWorkspaceState = {
   context: string;
 };
 
+type GuruPanelLayout = {
+  width: number;
+  height: number;
+};
+
 type GuruModeDef = {
   id: GuruMode;
   label: string;
@@ -27,6 +32,8 @@ type GuruModeDef = {
 };
 
 const STORAGE_KEY = "wm_guru_workspace_v3";
+const PANEL_LAYOUT_KEY = "wm_guru_panel_layout_v1";
+const DEFAULT_PANEL_LAYOUT: GuruPanelLayout = { width: 520, height: 680 };
 
 const MODE_DEFS: Record<GuruMode, GuruModeDef> = {
   general: {
@@ -172,45 +179,238 @@ function normalizeSuggestedSkus(answer: GuruAnswer | null): Array<{ sku: string;
   return out;
 }
 
+function readPanelLayout(): GuruPanelLayout {
+  try {
+    const raw = localStorage.getItem(PANEL_LAYOUT_KEY);
+    if (!raw) return DEFAULT_PANEL_LAYOUT;
+    const parsed = JSON.parse(raw) as Partial<GuruPanelLayout>;
+    const width = Number(parsed.width);
+    const height = Number(parsed.height);
+    return {
+      width: Number.isFinite(width) && width >= 360 ? width : DEFAULT_PANEL_LAYOUT.width,
+      height: Number.isFinite(height) && height >= 420 ? height : DEFAULT_PANEL_LAYOUT.height,
+    };
+  } catch {
+    return DEFAULT_PANEL_LAYOUT;
+  }
+}
+
+function writePanelLayout(layout: GuruPanelLayout) {
+  try {
+    localStorage.setItem(PANEL_LAYOUT_KEY, JSON.stringify(layout));
+  } catch {
+  }
+}
+
 const pageStyles = `
-.wm-guru-page{
-  padding: 14px 16px 18px;
+.wm-guru-float-page{
+  position: relative;
+  min-height: 0;
+  padding: 0;
+  overflow: visible;
 }
 
-.wm-guru-page__hero{
+.wm-guru-float-launcher{
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 120;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 189, 255, 0.42);
+  background: linear-gradient(135deg, rgba(58, 121, 212, 0.92), rgba(33, 161, 117, 0.92));
+  color: rgba(247, 252, 255, 0.98);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 20px 38px rgba(4, 12, 24, 0.45);
+}
+
+.wm-guru-float-panel{
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 121;
+  width: min(520px, calc(100vw - 24px));
+  height: min(680px, calc(100vh - 96px));
+  min-width: 360px;
+  min-height: 420px;
+  max-width: calc(100vw - 12px);
+  max-height: calc(100vh - 12px);
+  border-radius: 18px;
+  border: 1px solid rgba(124, 173, 224, 0.26);
+  background:
+    linear-gradient(180deg, rgba(12, 24, 38, 0.97), rgba(8, 18, 29, 0.97)),
+    linear-gradient(120deg, rgba(68, 138, 222, 0.12), rgba(61, 210, 145, 0.08));
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.48);
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: minmax(0,1fr) auto;
-  gap: 12px;
-  align-items: start;
+  grid-template-rows: auto minmax(0, 1fr);
+  resize: both;
+  overflow: hidden;
 }
 
-.wm-guru-page__heroActions{
+.wm-guru-float-panel__head{
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wm-guru-float-panel__head-actions{
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
 }
 
-.wm-guru-page__eyebrow{
-  margin: 0 0 4px;
-  color: #66eadb;
-  font-size: 0.78rem;
+.wm-guru-float-panel__title{
+  margin: 0;
+  font-size: 18px;
+  color: rgba(247, 251, 255, 0.98);
+}
+
+.wm-guru-float-panel__sub{
+  margin: 4px 0 0;
+  color: rgba(201, 217, 236, 0.78);
+  font-size: 12px;
+}
+
+.wm-guru-float-resize-note{
+  color: rgba(190, 212, 237, 0.72);
+  font-size: 11px;
+}
+
+.wm-guru-float-panel__body{
+  overflow: auto;
+  padding: 12px 14px 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.wm-guru-float-modes{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-guru-float-mode{
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(228, 239, 251, 0.88);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  cursor: pointer;
 }
 
-.wm-guru-page__modes{
-  margin-top: 12px;
+.wm-guru-float-mode.is-active{
+  border-color: rgba(120, 210, 186, 0.46);
+  background: linear-gradient(90deg, rgba(38, 142, 89, 0.22), rgba(45, 108, 184, 0.2));
+  color: rgba(236, 255, 248, 0.97);
 }
 
-@media (max-width: 900px){
-  .wm-guru-page__hero{
-    grid-template-columns: 1fr;
+.wm-guru-float-field{
+  display: grid;
+  gap: 6px;
+}
+
+.wm-guru-float-field label{
+  color: rgba(218, 231, 246, 0.9);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wm-guru-float-input{
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(7, 16, 27, 0.7);
+  color: rgba(244, 249, 255, 0.96);
+  padding: 10px 11px;
+  outline: none;
+  resize: vertical;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.wm-guru-float-input:focus{
+  border-color: rgba(126, 198, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(98, 167, 245, 0.18);
+}
+
+.wm-guru-float-quickasks{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.wm-guru-float-chip{
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(220, 232, 246, 0.88);
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.wm-guru-float-actions{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-guru-float-actions .wm-btn{
+  min-height: 34px;
+}
+
+.wm-guru-float-answer{
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 11px;
+  color: rgba(233, 242, 252, 0.92);
+  white-space: pre-wrap;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.wm-guru-float-muted{
+  color: rgba(195, 214, 232, 0.76);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+@media (max-width: 720px){
+  .wm-guru-float-page{
+    padding: 0;
   }
 
-  .wm-guru-page__heroActions{
-    justify-content: flex-start;
+  .wm-guru-float-panel{
+    left: 10px;
+    right: 10px;
+    width: auto;
+    height: min(74vh, 640px);
+    min-width: 0;
+    min-height: 360px;
+    max-width: none;
+    bottom: 10px;
+    resize: none;
+  }
+
+  .wm-guru-float-launcher{
+    right: 10px;
+    bottom: 10px;
   }
 }
 `;
@@ -228,10 +428,41 @@ export default function GuruPage() {
   const [answer, setAnswer] = React.useState<GuruAnswer | null>(null);
   const [answeredAt, setAnsweredAt] = React.useState("");
   const [transferMessage, setTransferMessage] = React.useState("");
+  const [panelOpen, setPanelOpen] = React.useState(false);
+  const [contextOpen, setContextOpen] = React.useState(false);
+  const [panelLayout, setPanelLayout] = React.useState<GuruPanelLayout>(() => readPanelLayout());
+  const panelRef = React.useRef<HTMLElement | null>(null);
 
   React.useEffect(() => {
     writeState({ mode, question, context });
   }, [mode, question, context]);
+
+  React.useEffect(() => {
+    writePanelLayout(panelLayout);
+  }, [panelLayout]);
+
+  React.useEffect(() => {
+    if (!panelOpen || !panelRef.current || typeof ResizeObserver === "undefined") {
+      return undefined;
+    }
+
+    const node = panelRef.current;
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const next = {
+        width: Math.round(entry.contentRect.width),
+        height: Math.round(entry.contentRect.height),
+      };
+
+      setPanelLayout((current) =>
+        current.width === next.width && current.height === next.height ? current : next
+      );
+    });
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [panelOpen]);
 
   const def = MODE_DEFS[mode];
   const promptPreview = React.useMemo(() => buildPrompt(mode, question, context), [mode, question, context]);
@@ -257,6 +488,7 @@ export default function GuruPage() {
   };
 
   const insertContextTemplate = () => {
+    setContextOpen(true);
     setContext((prev) => {
       if (prev.trim()) return prev;
       return [
@@ -283,9 +515,11 @@ export default function GuruPage() {
     if (!combined.trim()) {
       setAnswerError("Add a question or context before asking Guru.");
       setAnswer(null);
+      setPanelOpen(true);
       return;
     }
 
+    setPanelOpen(true);
     setAnswerBusy(true);
     setAnswerError("");
     setTransferMessage("");
@@ -349,228 +583,190 @@ export default function GuruPage() {
     setTransferMessage(`Added ${suggestedSkus.length} SKU(s) to Proposal BOM draft.`);
   };
 
+  const resetPanelSize = React.useCallback(() => {
+    setPanelLayout(DEFAULT_PANEL_LAYOUT);
+  }, []);
+
   return (
-    <div className="wm-guru-page wm-ui">
+    <div className="wm-guru-float-page">
       <style>{pageStyles}</style>
 
-      <div className="wm-ui__stack">
-        <section className="wm-ui__card wm-ui__card--hero">
-          <div className="wm-guru-page__hero">
+      <div className="wm-guru-float-page__hint">
+        Guru is a floating helper. Open it when needed, then resize from the lower-right corner.
+      </div>
+
+      {!panelOpen ? (
+        <button
+          type="button"
+          className="wm-guru-float-launcher"
+          onClick={() => setPanelOpen(true)}
+        >
+          Open Guru Helper
+        </button>
+      ) : null}
+
+      {panelOpen ? (
+        <aside
+          ref={panelRef}
+          className="wm-guru-float-panel"
+          role="dialog"
+          aria-label="Guru helper"
+          aria-modal="false"
+          style={{
+            width: panelLayout.width,
+            height: panelLayout.height,
+          }}
+        >
+          <div className="wm-guru-float-panel__head">
             <div>
-              <p className="wm-guru-page__eyebrow">Guru</p>
-              <h1 className="wm-ui__title">AV knowledge workspace</h1>
-              <p className="wm-ui__subtitle">
-                Standalone AI assistant for WyreStorm expertise and general AV guidance. Use it for answers first, then optionally push suggested SKUs into project or proposal workflows.
-              </p>
+              <h2 className="wm-guru-float-panel__title">Guru Assistant</h2>
+              <p className="wm-guru-float-panel__sub">{def.label} · {def.subtitle}</p>
+            </div>
+            <div className="wm-guru-float-panel__head-actions">
+              <button className="wm-btn" type="button" onClick={resetPanelSize}>
+                Reset size
+              </button>
+              <button className="wm-btn" type="button" onClick={() => setPanelOpen(false)}>
+                Minimise
+              </button>
+            </div>
+          </div>
+
+          <div className="wm-guru-float-panel__body">
+            <div className="wm-guru-float-resize-note">
+              Tip: drag the lower-right corner to resize this helper window.
             </div>
 
-            <div className="wm-guru-page__heroActions">
-              <button className="wm-ui__btn wm-ui__btn--ghost" onClick={() => navigate("/app/tools")}>
-                Tool Hub
-              </button>
-              <button className="wm-ui__btn wm-ui__btn--ghost" onClick={() => navigate("/app/tools/product-intelligence")}>
-                Product Intelligence
-              </button>
-              <button className="wm-ui__btn" onClick={askLiveGuru} disabled={!hasContent || answerBusy}>
+            <div className="wm-guru-float-modes">
+              {(Object.values(MODE_DEFS) as GuruModeDef[]).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`wm-guru-float-mode ${item.id === mode ? "is-active" : ""}`}
+                  onClick={() => setMode(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="wm-guru-float-field">
+              <label>Main question</label>
+              <textarea
+                className="wm-guru-float-input"
+                value={question}
+                rows={4}
+                onChange={(event) => setQuestion(event.target.value)}
+                placeholder={def.placeholder}
+              />
+            </div>
+
+            <div className="wm-guru-float-actions">
+              <button className="wm-btn" type="button" onClick={() => navigate("/app/tools")}>Tool Hub</button>
+              <button className="wm-btn wm-btn-primary" type="button" onClick={askLiveGuru} disabled={!hasContent || answerBusy}>
                 {answerBusy ? "Thinking..." : "Ask Guru"}
               </button>
-              <button className="wm-ui__btn wm-ui__btn--primary" onClick={copyPrompt} disabled={!hasContent}>
-                Copy prompt
-              </button>
+              <button className="wm-btn" type="button" onClick={copyPrompt} disabled={!hasContent}>Copy prompt</button>
+              <button className="wm-btn" type="button" onClick={insertContextTemplate}>Context template</button>
+              <button className="wm-btn" type="button" onClick={clearAll}>Clear</button>
             </div>
-          </div>
-        </section>
 
-        <section className="wm-ui__card">
-          <h2 className="wm-ui__sectionTitle">Mode</h2>
-          <p className="wm-ui__sectionText">Select how Guru should respond before you ask the question.</p>
+            <div className="wm-guru-float-quickasks">
+              {def.quickAsks.map((ask) => (
+                <button key={ask} type="button" className="wm-guru-float-chip" onClick={() => setQuestion(ask)}>
+                  {ask}
+                </button>
+              ))}
+            </div>
 
-          <div className="wm-ui__grid wm-ui__grid--auto wm-guru-page__modes">
-            {(Object.values(MODE_DEFS) as GuruModeDef[]).map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`wm-ui__chip ${item.id === mode ? "wm-ui__chip--active" : ""}`}
-                onClick={() => setMode(item.id)}
-                style={{ justifyContent: "flex-start", minHeight: "auto", padding: "12px 14px", borderRadius: "14px", display: "block", textAlign: "left" }}
-              >
-                <strong style={{ display: "block", marginBottom: "4px", fontSize: "0.96rem", fontWeight: 650 }}>{item.label}</strong>
-                <span style={{ display: "block", color: "rgba(232,241,255,0.72)", fontSize: "0.82rem", lineHeight: 1.28 }}>{item.subtitle}</span>
+            <div className="wm-guru-float-actions">
+              <button className="wm-guru-float-chip" type="button" onClick={() => setContextOpen((value) => !value)}>
+                {contextOpen ? "Hide context" : "Add context"}
               </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="wm-ui__card">
-          <h2 className="wm-ui__sectionTitle">{def.label}</h2>
-          <p className="wm-ui__sectionText">{def.subtitle}</p>
-
-          <label className="wm-ui__field" style={{ marginTop: "12px" }}>
-            <span className="wm-ui__label">Main question</span>
-            <textarea
-              className="wm-ui__textarea wm-ui__textarea--lg"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder={def.placeholder}
-            />
-          </label>
-
-          <div className="wm-ui__helper">
-            Put the actual question first. Add room notes, customer details or system constraints only if they help.
-          </div>
-
-          <label className="wm-ui__field">
-            <span className="wm-ui__label">Optional context</span>
-            <textarea
-              className="wm-ui__textarea wm-ui__textarea--sm"
-              value={context}
-              onChange={(e) => setContext(e.target.value)}
-              placeholder="Paste room notes, customer requirements, design constraints, existing kit, or any other useful context."
-            />
-          </label>
-
-          <div className="wm-ui__chips">
-            {def.quickAsks.map((ask) => (
-              <button
-                key={ask}
-                type="button"
-                className="wm-ui__chip"
-                onClick={() => setQuestion(ask)}
-              >
-                {ask}
-              </button>
-            ))}
-          </div>
-
-          <div className="wm-ui__actions">
-            <button className="wm-ui__btn wm-ui__btn--primary" onClick={askLiveGuru} disabled={!hasContent || answerBusy}>
-              {answerBusy ? "Thinking..." : "Ask Guru"}
-            </button>
-            <button className="wm-ui__btn" onClick={insertContextTemplate}>
-              Insert context template
-            </button>
-            <button className="wm-ui__btn" onClick={clearAll}>
-              Clear
-            </button>
-            <button className="wm-ui__btn wm-ui__btn--primary" onClick={copyPrompt} disabled={!hasContent}>
-              Copy prompt
-            </button>
-          </div>
-        </section>
-
-        <section className="wm-ui__card">
-          <h3 className="wm-ui__sectionTitle">Prompt preview</h3>
-          <div className="wm-ui__preview">
-            {hasContent ? promptPreview : "Your prompt preview will appear here as soon as you type a question or add context."}
-          </div>
-          <div className="wm-ui__helper">
-            {copiedAt ? `Copied at ${copiedAt}` : "Use Copy prompt when the wording looks right."}
-          </div>
-        </section>
-
-        <section className="wm-ui__card">
-          <h3 className="wm-ui__sectionTitle">Live answer</h3>
-          {answerError ? (
-            <div className="wm-ui__helper">{answerError}</div>
-          ) : answer ? (
-            <>
-              <div className="wm-ui__preview">{answer.text}</div>
-              <div className="wm-ui__helper">
-                Confidence: {confidenceLabel(answer.confidence)}
-                {answeredAt ? ` · Updated at ${answeredAt}` : ""}
+              <div className="wm-guru-float-muted">
+                {copiedAt ? `Prompt copied at ${copiedAt}.` : "Ask directly first, then add context if needed."}
               </div>
-              {answer.sources && answer.sources.length > 0 ? (
-                <div className="wm-ui__chips">
-                  {answer.sources.map((source) => (
-                    source.to ? (
-                      <button
-                        key={`${source.title}_${source.to}`}
-                        type="button"
-                        className="wm-ui__chip"
-                        onClick={() => navigate(source.to || "/app/tools")}
-                      >
-                        {source.title}
-                      </button>
-                    ) : source.url ? (
-                      <a
-                        key={`${source.title}_${source.url}`}
-                        className="wm-ui__chip"
-                        href={source.url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {source.title}
-                      </a>
-                    ) : null
-                  ))}
-                </div>
-              ) : null}
-              {suggestedSkus.length > 0 ? (
+            </div>
+
+            {contextOpen ? (
+              <div className="wm-guru-float-field">
+                <label>Optional context</label>
+                <textarea
+                  className="wm-guru-float-input"
+                  value={context}
+                  rows={5}
+                  onChange={(event) => setContext(event.target.value)}
+                  placeholder="Paste room notes, customer requirements, constraints, existing kit, or other context."
+                />
+              </div>
+            ) : null}
+
+            <div className="wm-guru-float-answer">
+              {answerError ? (
+                <div>{answerError}</div>
+              ) : answer ? (
                 <>
-                  <div className="wm-ui__helper" style={{ marginTop: 10 }}>
-                    WyreStorm products detected in this answer:
-                  </div>
-                  <div className="wm-ui__chips">
-                    {suggestedSkus.map((item) => (
-                      <span key={item.sku} className="wm-ui__chip">
-                        {item.sku}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="wm-ui__actions" style={{ marginTop: 10 }}>
-                    <button
-                      type="button"
-                      className="wm-ui__btn wm-ui__btn--primary"
-                      onClick={sendSuggestedSkusToProject}
-                    >
-                      Send To Active Project
-                    </button>
-                    <button
-                      type="button"
-                      className="wm-ui__btn"
-                      onClick={sendSuggestedSkusToProposal}
-                    >
-                      Send To Proposal BOM
-                    </button>
-                    <button
-                      type="button"
-                      className="wm-ui__btn"
-                      onClick={() => navigate("/app/tools/catalog")}
-                    >
-                      Open Product Catalogue
-                    </button>
+                  <div>{answer.text}</div>
+                  <div className="wm-guru-float-muted" style={{ marginTop: 8 }}>
+                    Confidence: {confidenceLabel(answer.confidence)}
+                    {answeredAt ? ` · Updated at ${answeredAt}` : ""}
                   </div>
                 </>
-              ) : null}
-              {transferMessage ? (
-                <div className="wm-ui__helper" style={{ marginTop: 8 }}>
-                  {transferMessage}
-                </div>
-              ) : null}
-            </>
-          ) : (
-            <div className="wm-ui__helper">Run Ask Guru to generate an answer with confidence and support links.</div>
-          )}
-        </section>
+              ) : (
+                "Ask Guru to generate an answer. It will appear here."
+              )}
+            </div>
 
-        <section className="wm-ui__card">
-          <h3 className="wm-ui__sectionTitle">How to use Guru</h3>
-          <div className="wm-ui__miniGrid" style={{ marginTop: "12px" }}>
-            <div className="wm-ui__miniItem">
-              <strong>1. Pick a mode</strong>
-              <span>Choose the kind of help you want before writing the question.</span>
-            </div>
-            <div className="wm-ui__miniItem">
-              <strong>2. Ask plainly</strong>
-              <span>Write the real AV question first. Keep it direct and specific.</span>
-            </div>
-            <div className="wm-ui__miniItem">
-              <strong>3. Add context only when useful</strong>
-              <span>Paste notes only if they improve the answer. Guru should work without project data.</span>
-            </div>
+            {answer?.sources && answer.sources.length > 0 ? (
+              <div className="wm-guru-float-quickasks">
+                {answer.sources.map((source) => (
+                  source.to ? (
+                    <button
+                      key={`${source.title}_${source.to}`}
+                      type="button"
+                      className="wm-guru-float-chip"
+                      onClick={() => navigate(source.to || "/app/tools")}
+                    >
+                      {source.title}
+                    </button>
+                  ) : source.url ? (
+                    <a
+                      key={`${source.title}_${source.url}`}
+                      className="wm-guru-float-chip"
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {source.title}
+                    </a>
+                  ) : null
+                ))}
+              </div>
+            ) : null}
+
+            {suggestedSkus.length > 0 ? (
+              <>
+                <div className="wm-guru-float-muted">Detected WyreStorm SKUs:</div>
+                <div className="wm-guru-float-quickasks">
+                  {suggestedSkus.map((item) => (
+                    <span key={item.sku} className="wm-guru-float-chip">{item.sku}</span>
+                  ))}
+                </div>
+                <div className="wm-guru-float-actions">
+                  <button type="button" className="wm-btn wm-btn-primary" onClick={sendSuggestedSkusToProject}>
+                    Send to active project
+                  </button>
+                  <button type="button" className="wm-btn" onClick={sendSuggestedSkusToProposal}>
+                    Send to proposal BOM
+                  </button>
+                </div>
+              </>
+            ) : null}
+
+            {transferMessage ? <div className="wm-guru-float-muted">{transferMessage}</div> : null}
           </div>
-        </section>
-      </div>
+        </aside>
+      ) : null}
     </div>
   );
 }

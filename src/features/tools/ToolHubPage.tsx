@@ -2,11 +2,13 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getWingmanFeatures, getWingmanTools } from "@/core/wingman/wingmanData";
+import { useAuth } from "@/context/AuthContext";
 import type { WingmanItem } from "@/features/tools/toolFeatureModel";
+import CollapsibleCard from "@/ui2/components/CollapsibleCard";
 
 const SALES_TOOL_IDS = ["guru", "competitor-compare", "videowall"];
 const REFERENCE_TOOL_IDS = ["catalogue", "product-intelligence"];
-const SUPPORT_TOOL_IDS = ["runtime-diagnostics", "competitor-lookup-diagnostics"];
+const SUPPORT_TOOL_IDS = ["competitor-lookup-diagnostics"];
 const ENABLEMENT_FEATURE_IDS = ["training"];
 
 type ItemCopyOverride = Partial<Pick<WingmanItem, "title" | "description" | "tag" | "highlight">>;
@@ -31,11 +33,6 @@ const TOOL_COPY_OVERRIDES: Record<string, ItemCopyOverride> = {
     description: "Compare WyreStorm against other brands to support positioning, objection handling, and trade-offs.",
     tag: "Sales Utility",
     highlight: "Position against competitors",
-  },
-  "runtime-diagnostics": {
-    description: "Review recent runtime errors and clear diagnostics data when field feedback needs quick validation.",
-    tag: "Diagnostics",
-    highlight: "Inspect recent runtime errors",
   },
   "competitor-lookup-diagnostics": {
     description: "Inspect competitor lookup cache and provenance records to verify the comparison pipeline is healthy.",
@@ -225,6 +222,13 @@ function selectItemsInOrder(
 
 export default function ToolHubPage() {
   const navigate = useNavigate();
+  const auth = useAuth();
+  const canAdmin = Boolean(
+    auth.permissions.canManageWorkspace ||
+    auth.workspaceRole === "admin" ||
+    auth.workspaceRole === "owner" ||
+    auth.user?.role === "admin",
+  );
   const tools = getWingmanTools();
   const features = getWingmanFeatures();
 
@@ -237,8 +241,8 @@ export default function ToolHubPage() {
     [tools],
   );
   const supportTools = React.useMemo(
-    () => selectItemsInOrder(tools, SUPPORT_TOOL_IDS, TOOL_COPY_OVERRIDES),
-    [tools],
+    () => (canAdmin ? selectItemsInOrder(tools, SUPPORT_TOOL_IDS, TOOL_COPY_OVERRIDES) : []),
+    [canAdmin, tools],
   );
   const enablementTools = React.useMemo(
     () => selectItemsInOrder(features, ENABLEMENT_FEATURE_IDS, FEATURE_COPY_OVERRIDES),
@@ -252,53 +256,38 @@ export default function ToolHubPage() {
       <section className="wm-hero wm-tool-hub__hero">
         <div className="wm-tool-hub__hero-copy">
           <div className="wm-tool-hub__eyebrow">Toolbox</div>
-          <div className="wm-title-xl">Independent sales tools, all in one place.</div>
-          <div className="wm-body-sm wm-page-subtitle" style={{ maxWidth: 760 }}>
-            Open any tool directly for research, positioning, sizing, troubleshooting, or training. This page is a
-            standalone toolbox, so every item here should be useful on its own.
-          </div>
-        </div>
-
-        <div className="wm-tool-hub__hero-panel">
-          <div className="wm-tool-hub__hero-panel-title">Use it however the conversation needs</div>
-
-          <div className="wm-tool-hub__hero-panel-list">
-            <div className="wm-tool-hub__hero-panel-item">
-              <strong>Research fast</strong>
-              <span>Open Guru, catalogue, or trusted product data without setting up extra context first.</span>
-            </div>
-
-            <div className="wm-tool-hub__hero-panel-item">
-              <strong>Position and size</strong>
-              <span>Compare brands, shape an answer, or run a quick video wall design pass on demand.</span>
-            </div>
-
-            <div className="wm-tool-hub__hero-panel-item">
-              <strong>Train and troubleshoot</strong>
-              <span>Use diagnostics and enablement tools when you need clarity, not a workflow gate.</span>
-            </div>
-          </div>
+          <div className="wm-title-xl">Open any tool directly.</div>
         </div>
       </section>
 
-      <section className="wm-tool-hub__signal-grid">
-        <article className="wm-work-card wm-tool-hub__signal-card">
-          <div className="wm-tool-hub__signal-label">Independent access</div>
-          <div className="wm-tool-hub__signal-value">{totalTools}</div>
-          <div className="wm-body-sm">Every tool launches directly from here without staged workflow steps.</div>
-        </article>
+      <section className="wm-section">
+        <CollapsibleCard
+          id="tool-hub-guidance"
+          title="Toolbox guidance"
+          subtitle="Optional supporting notes for new users."
+          right={<span className="wm-chip">{totalTools} tools</span>}
+          defaultCollapsed
+        >
+          <div className="wm-grid-cards wm-tool-hub__signal-grid">
+            <article className="wm-work-card wm-tool-hub__signal-card">
+              <div className="wm-tool-hub__signal-label">Independent access</div>
+              <div className="wm-tool-hub__signal-value">{totalTools}</div>
+              <div className="wm-body-sm">Every tool launches directly from here without staged workflow steps.</div>
+            </article>
 
-        <article className="wm-work-card wm-tool-hub__signal-card">
-          <div className="wm-tool-hub__signal-label">Sales coverage</div>
-          <div className="wm-tool-hub__signal-value">Research to support</div>
-          <div className="wm-body-sm">Reference, comparison, design utility, diagnostics, and enablement are grouped separately.</div>
-        </article>
+            <article className="wm-work-card wm-tool-hub__signal-card">
+              <div className="wm-tool-hub__signal-label">Sales coverage</div>
+              <div className="wm-tool-hub__signal-value">Research to support</div>
+              <div className="wm-body-sm">Reference, comparison, design utility, diagnostics, and enablement are grouped separately.</div>
+            </article>
 
-        <article className="wm-work-card wm-tool-hub__signal-card">
-          <div className="wm-tool-hub__signal-label">Best used for</div>
-          <div className="wm-tool-hub__signal-value">Fast answers</div>
-          <div className="wm-body-sm">Use this page when you need a useful tool first and context can come later.</div>
-        </article>
+            <article className="wm-work-card wm-tool-hub__signal-card">
+              <div className="wm-tool-hub__signal-label">Best used for</div>
+              <div className="wm-tool-hub__signal-value">Fast answers</div>
+              <div className="wm-body-sm">Start with the tool you need first. Add project context only when required.</div>
+            </article>
+          </div>
+        </CollapsibleCard>
       </section>
 
       <div className="wm-tool-hub__split">
@@ -330,19 +319,21 @@ export default function ToolHubPage() {
           </div>
         </section>
 
-        <section className="wm-section wm-section--tone-indigo">
-          <SectionLead
-            title="Diagnostics & Support"
-            copy="Checks for live issues, data quality, and backend confidence when something feels off."
-            count={supportTools.length}
-          />
+        {canAdmin ? (
+          <section className="wm-section wm-section--tone-indigo">
+            <SectionLead
+              title="Diagnostics & Support"
+              copy="Checks for live issues, data quality, and backend confidence when something feels off."
+              count={supportTools.length}
+            />
 
-          <div className="wm-tool-hub__stack" style={{ display: "grid", gap: 10 }}>
-            {supportTools.map((item) => (
-              <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
-            ))}
-          </div>
-        </section>
+            <div className="wm-tool-hub__stack" style={{ display: "grid", gap: 10 }}>
+              {supportTools.map((item) => (
+                <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="wm-section wm-section--tone-amber">
           <SectionLead

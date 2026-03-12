@@ -12,7 +12,6 @@ export const WM_ROUTES = {
   catalogue: "/app/tools/catalog",
   videowall: "/app/tools/video-wall",
   competitorCompare: "/app/tools/compare",
-  runtimeDiagnostics: "/app/tools/runtime-diagnostics",
   training: "/app/tools/training",
   settings: "/app/settings/workspace",
 } as const;

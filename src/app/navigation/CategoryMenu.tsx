@@ -2,20 +2,13 @@ import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { TOOL_CATEGORIES, type ToolCategory } from "@/data/toolCategories";
 
-const INTERNAL_FLAG_KEY = "wingman_enable_internal_tools_v1";
-
 function isActivePath(currentPath: string, target: string) {
   if (target === "/") return currentPath === "/";
   return currentPath === target || currentPath.startsWith(target + "/");
 }
 
-function getInternalEnabled(): boolean {
-  return (localStorage.getItem(INTERNAL_FLAG_KEY) || "").toLowerCase() === "true";
-}
-
 export default function CategoryMenu() {
   const [open, setOpen] = React.useState(false);
-  const [showInternal, setShowInternal] = React.useState<boolean>(() => getInternalEnabled());
   const loc = useLocation();
 
   const active = React.useMemo(() => {
@@ -27,16 +20,6 @@ export default function CategoryMenu() {
     }
     return null;
   }, [loc.pathname]);
-
-  const toggleInternal = (v: boolean) => {
-    setShowInternal(v);
-    localStorage.setItem(INTERNAL_FLAG_KEY, v ? "true" : "false");
-    try {
-      window.dispatchEvent(new StorageEvent("storage", { key: INTERNAL_FLAG_KEY }));
-    } catch {
-      // ignore
-    }
-  };
 
   return (
     <div className="relative">
@@ -66,16 +49,6 @@ export default function CategoryMenu() {
               >
                 Open Tools Hub
               </Link>
-
-              <label className="inline-flex\ items-center\ gap-2\ text-xs\ text-emerald-100/60">
-                <input
-                  type="checkbox"
-                  checked={showInternal}
-                  onChange={(e) => toggleInternal(e.target.checked)}
-                  className="h-3\.5\ w-3\.5"
-                />
-                Internal
-              </label>
             </div>
           </div>
 
@@ -88,7 +61,7 @@ export default function CategoryMenu() {
 
                 <div className="pb-2">
                   {c.items
-                    .filter((it) => showInternal || !it.internal)
+                    .filter((it) => !it.internal)
                     .map((it) => (
                       <Link
                         key={it.path}
@@ -99,11 +72,6 @@ export default function CategoryMenu() {
                       >
                         <div className="flex\ items-center\ justify-between\ gap-3">
                           <div className="text-sm\ font-semibold\ text-white">{it.label}</div>
-                          {it.internal ? (
-                            <span className="text-\[10px]\ font-bold\ uppercase\ tracking-widest\ text-emerald-100/50">
-                              Internal
-                            </span>
-                          ) : null}
                         </div>
                         {it.description ? (
                           <div className="mt-0\.5\ text-xs\ text-emerald-100/60">{it.description}</div>
@@ -129,4 +97,3 @@ export default function CategoryMenu() {
     </div>
   );
 }
-

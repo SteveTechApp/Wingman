@@ -33,7 +33,7 @@ export default function VideoWallDesignerPage() {
           sku: "WALL-DESIGN",
           desc: wallType + " wall concept " + layout,
           qty: 1,
-          role: "Design placeholder",
+          role: "Video wall concept",
         },
       ],
     });
@@ -47,7 +47,7 @@ export default function VideoWallDesignerPage() {
       subtitle="Plan LCD and LED wall concepts, array layouts, processor thinking, and supporting signal flow."
       actions={
         <button type="button" className="wm-btn-primary" onClick={addBomItems}>
-          Add Design Placeholder
+          Add Wall Concept
         </button>
       }
     >
@@ -119,7 +119,7 @@ export default function VideoWallDesignerPage() {
 
         <PageSection
           title="Current Saved Design State"
-          subtitle="This is the information currently carried into the active project."
+          subtitle="Current design details carried into the active project."
           compact
         >
           <div className="wm-summaryCard">
