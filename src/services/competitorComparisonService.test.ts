@@ -80,4 +80,15 @@ describe("competitor comparison service", () => {
     expect(records.length).toBeGreaterThan(0);
     expect(records.every((record) => typeof record.provenance?.sourceUrl === "string" && record.provenance.sourceUrl.length > 0)).toBe(true);
   });
+
+  it("prefers decoder-compatible NetworkHD matches for IP300UHD-RX", () => {
+    const record = getComparisonRecords().find(
+      (item) => normalize(item.brand) === "BLUSTREAM" && normalize(item.competitorSku) === "IP300UHD-RX",
+    );
+
+    expect(record).toBeTruthy();
+    expect(record?.wyrestormSku.endsWith("RX")).toBe(true);
+    expect(record?.wyrestormSku.endsWith("TX")).toBe(false);
+    expect(["NHD-500-RX", "NHD-500-E-RX"]).toContain(record?.wyrestormSku);
+  });
 });

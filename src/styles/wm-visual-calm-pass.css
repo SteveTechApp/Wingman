@@ -224,16 +224,12 @@ footer div {
 /* =========================================================
    11. Guru less loud
    ========================================================= */
-[class*="guru"],
-[class*="guruFab"],
-[class*="guru-fab"] {
+.wm-guru-fab,
+.wm-guru-float-launcher {
   box-shadow: 0 10px 22px rgba(0,0,0,0.22) !important;
 }
 
-[class*="guru"] button,
-button[class*="guru"],
-[class*="guruFab"] button,
-[class*="guru-fab"] button {
+.wm-guru-fab {
   width: 52px !important;
   height: 52px !important;
   min-width: 52px !important;

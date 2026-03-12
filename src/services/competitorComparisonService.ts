@@ -27,6 +27,15 @@ import {
   type ComparisonIntelligenceAssessment,
   type IntelligenceSupportAction,
 } from "@/services/productIntelligenceAdvisor";
+import {
+  buildAvSignalProfile,
+  evaluateAvCompatibility,
+} from "@/services/avLogicEngine";
+import {
+  buildEvidenceContextLines,
+  buildProductEvidenceDigest,
+  type ProductEvidenceDigest,
+} from "@/services/liveProductEvidenceService";
 
 export type ComparisonProvenance = {
   mode: "curated" | "lookup";
@@ -46,6 +55,9 @@ export type ComparisonIntelligence = {
   supportActions: IntelligenceSupportAction[];
   warnings: string[];
   summary: string;
+  evidenceContext: string[];
+  competitorEvidence?: ProductEvidenceDigest;
+  wyrestormEvidence?: ProductEvidenceDigest;
   fetchedAt: string;
   competitorStatus?: string;
   wyrestormStatus?: string;
@@ -331,6 +343,25 @@ function computeCandidateScore(competitor: CatalogProduct, wyrestorm: CatalogPro
     };
   }
 
+  const avAssessment = evaluateAvCompatibility(
+    buildAvSignalProfile(competitor),
+    buildAvSignalProfile(wyrestorm),
+  );
+
+  if (!avAssessment.compatible) {
+    return {
+      product: wyrestorm,
+      score: 0,
+      reasons: ["AV rule mismatch"],
+      notes: avAssessment.blockers,
+      ioSummary: "I/O coverage 0%",
+    };
+  }
+
+  score += avAssessment.scoreDelta;
+  reasons.push(...avAssessment.reasons);
+  notes.push(...avAssessment.warnings);
+
   if (normalizeId(competitor.family) === normalizeId(wyrestorm.family) && tidy(competitor.family)) {
     score += 20;
     reasons.push(`Family alignment (${wyrestorm.family}).`);
@@ -553,6 +584,7 @@ function toIntelligence(assessment: ComparisonIntelligenceAssessment): Compariso
     supportActions: assessment.supportActions,
     warnings: assessment.warnings,
     summary: assessment.summary,
+    evidenceContext: assessment.evidenceContext,
     fetchedAt: assessment.fetchedAt,
     competitorStatus: assessment.competitorRecord?.status,
     wyrestormStatus: assessment.wyrestormRecord?.status,
@@ -564,6 +596,9 @@ async function withIntelligenceAssessment(
   input: {
     query: string;
     baselineScore: number;
+    evidenceContext?: string[];
+    competitorEvidence?: ProductEvidenceDigest;
+    wyrestormEvidence?: ProductEvidenceDigest;
   },
 ): Promise<CompetitorComparisonRecord> {
   try {
@@ -573,6 +608,7 @@ async function withIntelligenceAssessment(
       wyrestormSku: record.wyrestormVerified === false ? undefined : record.wyrestormSku,
       query: input.query,
       baselineScore: input.baselineScore,
+      evidenceContext: input.evidenceContext,
     });
 
     const intelligence = toIntelligence(assessment);
@@ -581,7 +617,11 @@ async function withIntelligenceAssessment(
       confidence: assessment.confidence,
       matchScore: assessment.score,
       notes: Array.from(new Set([...record.notes, intelligence.summary, ...intelligence.escalationReasons])).slice(0, 10),
-      intelligence,
+      intelligence: {
+        ...intelligence,
+        competitorEvidence: input.competitorEvidence,
+        wyrestormEvidence: input.wyrestormEvidence,
+      },
     };
   } catch {
     return {
@@ -792,6 +832,23 @@ export async function lookupAndCompare(query: string): Promise<LookupAndCompareR
   const best = candidates[0];
 
   if (!best) {
+    const competitorEvidence = buildProductEvidenceDigest({
+      vendorType: "competitor",
+      brand: competitor.brand,
+      sku: competitor.sku,
+      name: competitor.name,
+      sourceUrl: competitor.sourceUrl,
+      summary: competitor.summary,
+      inputs: competitor.inputs,
+      outputs: competitor.outputs,
+      features: competitor.features,
+      control: competitor.control,
+      transport: competitor.transport,
+      audio: competitor.audio,
+      video: competitor.video,
+    });
+    const evidenceContext = buildEvidenceContextLines(competitorEvidence, null);
+
     const fallback: CompetitorComparisonRecord = {
       brand: tidy(competitor.brand) || "Unknown",
       competitorSku: normalizeSku(competitor.sku),
@@ -811,6 +868,8 @@ export async function lookupAndCompare(query: string): Promise<LookupAndCompareR
     const assessedFallback = await withIntelligenceAssessment(fallback, {
       query,
       baselineScore: 24,
+      evidenceContext,
+      competitorEvidence,
     });
     const fallbackWithWarnings =
       lookup.warnings.length > 0
@@ -823,9 +882,44 @@ export async function lookupAndCompare(query: string): Promise<LookupAndCompareR
   }
 
   const record = toComparisonRecord(competitor, best, toComparisonProvenance("lookup", lookup.provenance));
+  const competitorEvidence = buildProductEvidenceDigest({
+    vendorType: "competitor",
+    brand: competitor.brand,
+    sku: competitor.sku,
+    name: competitor.name,
+    sourceUrl: competitor.sourceUrl,
+    summary: competitor.summary,
+    inputs: competitor.inputs,
+    outputs: competitor.outputs,
+    features: competitor.features,
+    control: competitor.control,
+    transport: competitor.transport,
+    audio: competitor.audio,
+    video: competitor.video,
+  });
+  const wyrestormEvidence = buildProductEvidenceDigest({
+    vendorType: "wyrestorm",
+    brand: "WyreStorm",
+    sku: best.product.sku,
+    name: best.product.name,
+    sourceUrl: best.product.sourceUrl,
+    summary: best.product.summary,
+    inputs: best.product.inputs,
+    outputs: best.product.outputs,
+    features: best.product.features,
+    control: best.product.control,
+    transport: best.product.transport,
+    audio: best.product.audio,
+    video: best.product.video,
+  });
+  const evidenceContext = buildEvidenceContextLines(competitorEvidence, wyrestormEvidence);
+
   const assessed = await withIntelligenceAssessment(record, {
     query,
     baselineScore: best.score,
+    evidenceContext,
+    competitorEvidence,
+    wyrestormEvidence,
   });
   const recordWithWarnings =
     lookup.warnings.length > 0

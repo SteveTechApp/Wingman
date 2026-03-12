@@ -60,7 +60,7 @@ export default function TopBar({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 10,
+          gap: 8,
           minWidth: 0,
         }}
       >
@@ -113,7 +113,7 @@ export default function TopBar({
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-end",
-          gap: 8,
+          gap: 6,
           minWidth: 0,
           flexWrap: "nowrap",
         }}

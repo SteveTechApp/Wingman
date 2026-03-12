@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   fetchProductIntelligenceRecords,
@@ -7,9 +7,43 @@ import {
   upsertProductIntelligenceRecord,
 } from "@/services/productIntelligenceService";
 
+function createMemoryStorage(): Storage {
+  const state = new Map<string, string>();
+  return {
+    get length() {
+      return state.size;
+    },
+    clear() {
+      state.clear();
+    },
+    getItem(key: string) {
+      return state.has(key) ? state.get(key)! : null;
+    },
+    key(index: number) {
+      return Array.from(state.keys())[index] ?? null;
+    },
+    removeItem(key: string) {
+      state.delete(key);
+    },
+    setItem(key: string, value: string) {
+      state.set(String(key), String(value));
+    },
+  };
+}
+
 describe("product intelligence service", () => {
+  const localStorage = createMemoryStorage();
+
+  beforeAll(() => {
+    vi.stubGlobal("window", { localStorage });
+  });
+
+  afterAll(() => {
+    vi.unstubAllGlobals();
+  });
+
   beforeEach(() => {
-    window.localStorage.clear();
+    localStorage.clear();
   });
 
   it("preserves explicit WyreStorm category and subcategory labels from the source catalog", async () => {
@@ -23,6 +57,7 @@ describe("product intelligence service", () => {
     expect(record).toBeTruthy();
     expect(record.category).toBe("Receiver");
     expect(record.subcategory).toBe("HDBaseT Receiver");
+    expect(record.classificationSource).toBe("source");
     expect(record.group).toBe("extender");
   });
 
@@ -71,7 +106,7 @@ describe("product intelligence service", () => {
   });
 
   it("applies local admin overrides, review flags, and archive state to the fetched records", async () => {
-    window.localStorage.clear();
+    localStorage.clear();
 
     await upsertProductIntelligenceRecord({
       vendorType: "wyrestorm",

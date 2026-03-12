@@ -472,7 +472,7 @@ export default function DiscoveryWizardPage() {
   return (
     <div className="wm-page wm-dw6 wm-ui wm-guided-project-page">
       <div className="wm-ui__stack">
-        <section className="wm-hero">
+        <section className="wm-hero wm-guided-project-page__heroBar">
           <div className="wm-page-hero-row wm-dw6__hero wm-guided-project-page__heroCompact">
             <div className="wm-guided-project-page__heroCopy">
               <p className="wm-ui__eyebrow">GUIDED PROJECT</p>
@@ -481,7 +481,7 @@ export default function DiscoveryWizardPage() {
                 <span className="wm-guided-project-page__heroPill">Outcome-first</span>
               </div>
               <p className="wm-ui__subtitle">
-                Start with the customer outcome, then let Wingman narrow the WyreStorm category before it assumes a full system.
+                Capture the brief, then progress step-by-step.
               </p>
             </div>
             <div className="wm-actions-row wm-dw6__heroActions">
@@ -557,12 +557,12 @@ export default function DiscoveryWizardPage() {
                       Each path asks only the details that reduce the WyreStorm shortlist.
                     </div>
                   </div>
-                  <div className="wm-guided-project-page__questionStack">
-                    {primaryQuestions.map((question) => (
-                      <section
-                        key={question.id}
-                        className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextPrimaryQuestion?.id === question.id ? " is-focus" : ""}`}
-                      >
+                <div className="wm-guided-project-page__questionStack">
+                  {primaryQuestions.map((question) => (
+                    <section
+                      key={question.id}
+                      className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextQuestion?.id === question.id ? " is-focus is-active-flow" : ""}${nextQuestion && nextQuestion.id !== question.id ? " is-dimmed-flow" : ""}`}
+                    >
                         {question.branchReasonText ? (
                           <div className="wm-gp__questionReason">{question.branchReasonText}</div>
                         ) : null}
@@ -580,7 +580,7 @@ export default function DiscoveryWizardPage() {
                   </div>
 
                   {followUpQuestions.length > 0 ? (
-                    <section className="wm-guided-project-page__followupShell">
+                    <section className={`wm-guided-project-page__followupShell${nextPrimaryQuestion ? " is-dimmed-flow" : ""}`}>
                       <button
                         type="button"
                         className="wm-guided-project-page__followupToggle"
@@ -605,7 +605,7 @@ export default function DiscoveryWizardPage() {
                             {followUpQuestions.map((question) => (
                               <section
                                 key={question.id}
-                                className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}`}
+                                className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextQuestion?.id === question.id ? " is-focus is-active-flow" : ""}${nextQuestion && nextQuestion.id !== question.id ? " is-dimmed-flow" : ""}`}
                               >
                                 {question.branchReasonText ? (
                                   <div className="wm-gp__questionReason">{question.branchReasonText}</div>
@@ -627,7 +627,7 @@ export default function DiscoveryWizardPage() {
                     </section>
                   ) : null}
 
-                  <div className="wm-dw6__nav wm-guided-project-page__nav">
+                  <div className={`wm-dw6__nav wm-guided-project-page__nav${nextQuestion ? " is-dimmed-flow" : " is-active-flow"}`}>
                     <div className="wm-dw6__navLeft">
                       <span className="wm-ui__helper wm-dw6__save-meta">
                         {record.workflowTrack || "Choose a direction to begin"}
@@ -655,7 +655,7 @@ export default function DiscoveryWizardPage() {
               </div>
 
               <aside className="wm-guided-project-page__sidebar">
-                <section className="wm-guided-project-page__readout wm-guided-project-page__readout--compact">
+                <section className={`wm-guided-project-page__readout wm-guided-project-page__readout--compact${nextQuestion ? " is-dimmed-flow" : " is-active-flow"}`}>
                   <div className="wm-guided-project-page__readout-top">
                     <div>
                       <div className="wm-gp__summaryEyebrow">Likely category</div>
@@ -683,7 +683,7 @@ export default function DiscoveryWizardPage() {
                   </div>
                 </section>
 
-                <section className="wm-guided-project-page__summaryPanel">
+                <section className={`wm-guided-project-page__summaryPanel${nextQuestion ? " is-dimmed-flow" : " is-active-flow"}`}>
                   <div className="wm-guided-project-page__summaryLabel">Live snapshot</div>
                   <div className="wm-guided-project-page__summaryList">
                     <div className="wm-guided-project-page__summaryItem">
@@ -705,7 +705,7 @@ export default function DiscoveryWizardPage() {
                   </div>
                 </section>
 
-                <div className="wm-guided-project-page__drawers">
+                <div className={`wm-guided-project-page__drawers${nextQuestion ? " is-dimmed-flow" : ""}`}>
                   <details className="wm-guided-project-page__drawer wm-guided-project-page__drawer--coach">
                     <summary>Coach notes and recommendation logic</summary>
                     <div className="wm-guided-project-page__drawer-body">

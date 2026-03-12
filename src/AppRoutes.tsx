@@ -28,7 +28,6 @@ const ProposalBuilderPage = React.lazy(() => import("@/features/proposals/Propos
 const ImportIntakePage = React.lazy(() => import("@/features/import/ImportIntakePage"));
 const TrainingHubPage = React.lazy(() => import("@/features/misc/TrainingHubPage"));
 const VideoWallPlannerPage = React.lazy(() => import("@/features/misc/VideoWallPlannerPage"));
-const GuruPage = React.lazy(() => import("@/features/guru/GuruPage"));
 const BlockDiagramPage = React.lazy(() => import("@/features/diagram/BlockDiagramPage"));
 const ProjectDesignReviewPage = React.lazy(() => import("@/features/review/ProjectDesignReviewPage"));
 const CableSchedulePage = React.lazy(() => import("@/features/cables/CableSchedulePage"));
@@ -102,7 +101,7 @@ export default function AppRoutes() {
           <Route path="tools/cable-schedule" element={<CableSchedulePage />} />
           <Route path="tools/block-diagram" element={<BlockDiagramPage />} />
           <Route path="tools/design-review" element={<ProjectDesignReviewPage />} />
-          <Route path="tools/guru" element={<GuruPage />} />
+          <Route path="tools/guru" element={<Navigate to="/app/tools" replace />} />
           <Route path="tools/runtime-diagnostics" element={<Navigate to="/app/tools" replace />} />
           <Route path="tools/competitor-lookup-diagnostics" element={<CompetitorLookupDiagnosticsPage />} />
           <Route path="tools/product-intelligence" element={<ProductIntelligencePage />} />

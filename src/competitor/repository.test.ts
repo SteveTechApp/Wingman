@@ -41,6 +41,7 @@ describe("competitor repository", () => {
     const controller = findCompetitorBySku("NAVIGATOR");
     const splitter = findCompetitorBySku("HD-DA2-4KZ-E");
     const soundbar = findCompetitorBySku("CLICKSHARE-BAR-PRO");
+    const avoipDecoder = findCompetitorBySku("IP300UHD-RX");
 
     expect(matrix?.outputs?.some((port) => port.type === "HDMI" && port.count === 8)).toBe(true);
     expect(matrix?.sourceUrl).toContain("kramerav.com");
@@ -50,5 +51,6 @@ describe("competitor repository", () => {
     expect(classifyCatalogProduct(controller || {}).label).toBe("AVoIP Controller");
     expect(classifyCatalogProduct(splitter || {}).label).toBe("Splitter");
     expect(classifyCatalogProduct(soundbar || {}).label).toBe("UC Soundbar");
+    expect(classifyCatalogProduct(avoipDecoder || {}).label).toBe("AVoIP Decoder");
   });
 });

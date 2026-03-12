@@ -88,11 +88,11 @@
 
 .wm-topbar {
   display: grid;
-  grid-template-columns: 332px minmax(220px, 1fr) auto;
+  grid-template-columns: 280px minmax(220px, 1fr) auto;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-height: var(--wm-topbar-h);
-  padding: 0 14px;
+  padding: 0 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(180deg, rgba(12, 24, 39, 0.98), rgba(10, 21, 34, 0.97));
   backdrop-filter: blur(10px);
@@ -122,15 +122,15 @@
   align-items: center;
   justify-content: flex-start;
   min-width: 0;
-  min-height: 64px;
+  min-height: 48px;
 }
 
 .wm-topbar__menu-btn {
   display: none;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border-radius: 12px;
   border: 1px solid rgba(119, 166, 230, 0.16);
@@ -143,8 +143,8 @@
 .wm-topbar__logo {
   display: block;
   width: auto;
-  max-width: 340px;
-  height: 64px;
+  max-width: 260px;
+  height: 46px;
   object-fit: contain;
   filter: drop-shadow(0 1px 6px rgba(49, 125, 209, 0.26));
 }
@@ -157,14 +157,14 @@
 }
 
 .wm-topbar__wordmark-main {
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 900;
   color: #73e7ff;
   letter-spacing: -0.03em;
 }
 
 .wm-topbar__wordmark-sub {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 800;
   color: #eef6ff;
   opacity: 0.9;
@@ -173,12 +173,12 @@
 .wm-topbar__project-pill {
   gap: 4px;
   justify-content: flex-start;
-  min-height: 30px;
-  padding: 0 10px;
+  min-height: 28px;
+  padding: 0 9px;
 }
 
 .wm-topbar__project-pill strong {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   color: #edf6ff;
   overflow: hidden;
@@ -189,26 +189,40 @@
 .wm-topbar__actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
 
 .wm-topbar__command-btn {
-  gap: 7px;
+  gap: 6px;
+}
+
+.wm-topbar .wm-btn-nav {
+  min-height: 32px;
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+
+.wm-topbar .wm-input-shell {
+  height: 32px;
+  min-height: 32px;
+  border-radius: 10px;
 }
 
 .wm-topbar__command-kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 18px;
-  padding: 0 6px;
+  min-height: 16px;
+  padding: 0 5px;
   border-radius: 999px;
   border: 1px solid rgba(119, 166, 230, 0.16);
   background: rgba(255, 255, 255, 0.04);
   color: rgba(224, 235, 249, 0.82);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.03em;
 }
@@ -1956,14 +1970,14 @@
 
   .wm-topbar {
     grid-template-columns: minmax(0, 1fr) auto;
-    padding: 8px 10px;
+    padding: 6px 8px;
     gap: 8px;
-    align-items: start;
+    align-items: center;
   }
 
   .wm-topbar__logo {
-    max-width: 240px;
-    height: 44px;
+    max-width: 210px;
+    height: 36px;
   }
 
   .wm-topbar__menu-btn {
@@ -1972,9 +1986,9 @@
 
   .wm-topbar__project-pill {
     grid-column: 1 / -1;
-    height: 36px;
-    min-height: 36px;
-    padding: 0 12px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0 10px;
   }
 
   .wm-topbar__actions {
@@ -1987,8 +2001,8 @@
   }
 
   .wm-topbar__command-btn {
-    width: 38px;
-    min-width: 38px;
+    width: 34px;
+    min-width: 34px;
     padding-left: 0;
     padding-right: 0;
   }
@@ -2129,13 +2143,13 @@
   }
 
   .wm-topbar {
-    padding: 4px 6px;
-    gap: 6px;
+    padding: 3px 5px;
+    gap: 5px;
   }
 
   .wm-topbar__logo {
-    max-width: 200px;
-    height: 36px;
+    max-width: 180px;
+    height: 32px;
   }
 
   .wm-commandPalette__backdrop {
@@ -2215,10 +2229,10 @@
   }
 
   .wm-topbar__project-pill {
-    height: 34px;
-    min-height: 34px;
-    padding: 0 10px;
-    font-size: 12px;
+    height: 30px;
+    min-height: 30px;
+    padding: 0 8px;
+    font-size: 11px;
   }
 
   .wm-topbar__project-pill strong {
@@ -2333,8 +2347,8 @@
 /* Outer hero spacing */
 .wm-hero,
 .hero{
-  padding-top: 40px !important;
-  padding-bottom: 28px !important;
+  padding-top: 14px !important;
+  padding-bottom: 12px !important;
 }
 
 /* Hide tiny duplicate/eyebrow label if it appears above heading */
@@ -2346,22 +2360,23 @@
 /* Headline block */
 .wm-hero h1,
 .hero h1{
-  max-width: var(--wm-hero-copy-max);
-  margin-left: auto !important;
-  margin-right: auto !important;
-  margin-bottom: 18px !important;
-  text-align: center !important;
-  line-height: 0.96 !important;
+  max-width: min(100%, 920px);
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-bottom: 8px !important;
+  text-align: left !important;
+  font-size: clamp(24px, 2.8vw, 36px) !important;
+  line-height: 1.08 !important;
   letter-spacing: -0.03em !important;
 }
 
 /* Supporting copy */
 .wm-hero p,
 .hero p{
-  max-width: 860px;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  text-align: center !important;
+  max-width: 72ch;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  text-align: left !important;
 }
 
 /* Main CTA row */
@@ -2456,13 +2471,13 @@ section{
 @media (max-width: 900px){
   .wm-hero,
   .hero{
-    padding-top: 28px !important;
-    padding-bottom: 20px !important;
+    padding-top: 12px !important;
+    padding-bottom: 10px !important;
   }
 
   .wm-hero h1,
   .hero h1{
-    font-size: clamp(2rem, 7vw, 3.4rem) !important;
+    font-size: clamp(22px, 6vw, 30px) !important;
   }
 
   .wm-hero-tools,
@@ -2631,6 +2646,7 @@ section{
   padding: 12px;
   display: grid;
   gap: 8px;
+  transition: border-color 140ms ease, background 140ms ease, opacity 140ms ease, transform 140ms ease, box-shadow 140ms ease;
 }
 
 .wm-gp__questionCard.is-full{
@@ -5617,18 +5633,42 @@ section{
   gap: 9px;
 }
 
+.wm-compare-simple__match-select-wrap{
+  display: grid;
+  gap: 6px;
+}
+
+.wm-compare-simple__match-select{
+  min-height: 36px;
+}
+
 .wm-compare-simple__match-item{
+  width: 100%;
+  text-align: left;
   display: grid;
   gap: 6px;
   padding: 10px 11px;
   border-radius: 11px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, transform 120ms ease;
+}
+
+.wm-compare-simple__match-item:hover{
+  border-color: rgba(94, 190, 255, 0.26);
+  background: rgba(94, 190, 255, 0.1);
+  transform: translateY(-1px);
 }
 
 .wm-compare-simple__match-item.is-primary{
   border-color: rgba(94, 190, 255, 0.3);
   background: linear-gradient(90deg, rgba(54, 120, 203, 0.16), rgba(255, 255, 255, 0.03));
+}
+
+.wm-compare-simple__match-item.is-active{
+  border-color: rgba(61, 210, 145, 0.36);
+  background: linear-gradient(90deg, rgba(26, 115, 84, 0.24), rgba(45, 108, 184, 0.16));
 }
 
 .wm-compare-simple__match-head{
@@ -6671,6 +6711,43 @@ section{
   box-shadow: 0 0 0 1px rgba(115, 231, 255, 0.08) inset;
 }
 
+.wm-gp__questionCard.is-active-flow{
+  border-color: rgba(96, 194, 132, 0.4);
+  background: linear-gradient(180deg, rgba(17, 62, 45, 0.72), rgba(8, 25, 20, 0.96));
+  box-shadow:
+    0 0 0 1px rgba(96, 194, 132, 0.12) inset,
+    0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+.wm-gp__questionCard.is-dimmed-flow{
+  opacity: 0.56;
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.016);
+}
+
+.wm-guided-project-page__readout,
+.wm-guided-project-page__summaryPanel,
+.wm-guided-project-page__drawers,
+.wm-guided-project-page__followupShell,
+.wm-guided-project-page__nav{
+  transition: opacity 140ms ease, border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.wm-guided-project-page__readout.is-active-flow,
+.wm-guided-project-page__summaryPanel.is-active-flow,
+.wm-guided-project-page__nav.is-active-flow{
+  border-color: rgba(96, 194, 132, 0.24);
+  box-shadow: 0 0 0 1px rgba(96, 194, 132, 0.08) inset;
+}
+
+.wm-guided-project-page__readout.is-dimmed-flow,
+.wm-guided-project-page__summaryPanel.is-dimmed-flow,
+.wm-guided-project-page__drawers.is-dimmed-flow,
+.wm-guided-project-page__followupShell.is-dimmed-flow,
+.wm-guided-project-page__nav.is-dimmed-flow{
+  opacity: 0.6;
+}
+
 .wm-guided-project-page__followupShell{
   display: grid;
   gap: 10px;
@@ -7250,7 +7327,7 @@ header[class*="wm-"] {
 .wm-topbar img,
 .wm-header img,
 header[class*="wm-"] img {
-  max-height: 72px !important;
+  max-height: 52px !important;
   width: auto !important;
 }
 
@@ -7584,44 +7661,51 @@ footer[class*="wm-"] {
 }
 
 .wm-guided-project-page__heroCompact{
-  align-items:center;
-  gap:18px;
-  padding-top:8px;
-  padding-bottom:4px;
+  align-items:flex-start;
+  gap:10px;
+  padding-top:2px;
+  padding-bottom:0;
+}
+
+.wm-guided-project-page__heroBar{
+  padding: 10px 12px !important;
+  border-radius: 14px;
 }
 
 .wm-guided-project-page__heroCopy{
   display:grid;
-  gap:8px;
+  gap:5px;
 }
 
 .wm-guided-project-page__heroTitleRow{
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:8px;
   flex-wrap:wrap;
 }
 
 .wm-guided-project-page__heroCompact .wm-ui__title{
   margin:0;
-  font-size:clamp(32px, 4.4vw, 54px);
+  font-size:clamp(24px, 2.6vw, 34px);
 }
 
 .wm-guided-project-page__heroCompact .wm-ui__subtitle{
   margin:0;
-  max-width:760px;
+  max-width:740px;
+  font-size:13px;
+  line-height:1.45;
 }
 
 .wm-guided-project-page__heroPill{
-  min-height:28px;
+  min-height:24px;
   display:inline-flex;
   align-items:center;
-  padding:0 12px;
+  padding:0 10px;
   border-radius:999px;
   border:1px solid rgba(115, 231, 255, 0.18);
   background:linear-gradient(135deg, rgba(8, 39, 61, 0.64), rgba(9, 22, 40, 0.92));
   color:#effbff;
-  font-size:12px;
+  font-size:11px;
   font-weight:800;
   letter-spacing:0.05em;
   text-transform:uppercase;
