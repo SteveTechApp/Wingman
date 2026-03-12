@@ -18,10 +18,10 @@ export function stackStyle(gap = 14): React.CSSProperties {
 
 export function cardStyle(): React.CSSProperties {
   return {
-    border: "1px solid rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.10)",
     borderRadius: 18,
-    background: "linear-gradient(180deg, rgba(9,16,28,0.94), rgba(6,11,20,0.92))",
-    boxShadow: "0 18px 48px rgba(0,0,0,0.22)",
+    background: "linear-gradient(180deg, rgba(18,32,49,0.86), rgba(13,24,39,0.9))",
+    boxShadow: "0 14px 36px rgba(0,0,0,0.2)",
     padding: 18,
   };
 }
@@ -49,8 +49,8 @@ export function inputStyle(): React.CSSProperties {
     width: "100%",
     minHeight: 42,
     borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.10)",
-    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.14)",
+    background: "rgba(255,255,255,0.07)",
     color: "rgba(255,255,255,0.94)",
     padding: "10px 12px",
     outline: "none",
@@ -63,8 +63,8 @@ export function textareaStyle(rows?: number): React.CSSProperties {
     width: "100%",
     minHeight: Math.max(110, (rows || 4) * 24),
     borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.10)",
-    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.14)",
+    background: "rgba(255,255,255,0.07)",
     color: "rgba(255,255,255,0.94)",
     padding: "10px 12px",
     outline: "none",
@@ -100,7 +100,7 @@ export function PageHeader({
       style={{
         ...cardStyle(),
         background:
-          "linear-gradient(135deg, rgba(7,31,49,0.98) 0%, rgba(4,17,31,0.98) 56%, rgba(8,62,54,0.92) 100%)",
+          "linear-gradient(132deg, rgba(var(--wm-page-accent-rgb, 108,196,255),0.2) 0%, rgba(15,30,47,0.9) 38%, rgba(var(--wm-page-accent-rgb, 108,196,255),0.12) 100%)",
       }}
     >
       <div
@@ -129,7 +129,7 @@ export function PageHeader({
           <h1
             style={{
               margin: "10px 0 0",
-              fontSize: 34,
+              fontSize: 30,
               lineHeight: 1.04,
               letterSpacing: "-0.04em",
               fontWeight: 900,

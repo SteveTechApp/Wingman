@@ -12,6 +12,7 @@ import {
   type RoomTemplate,
   type TierKey,
   type UseCaseGroup,
+  type TierProfile,
 } from "./templateCatalogExpanded";
 
 const TEMPLATE_SEED_KEY = "wm_template_seed";
@@ -164,6 +165,36 @@ function BulletList({
 
 function getToolLabel(path: string): string {
   return TOOL_LABELS[path] ?? path.replace("/app/tools/", "").replace(/-/g, " ");
+}
+
+function summarizeTierChange(
+  currentTier: TierKey,
+  currentProfile: TierProfile,
+  targetTier: TierKey,
+  targetProfile: TierProfile,
+): string[] {
+  const currentIndex = TIER_ORDER.indexOf(currentTier);
+  const targetIndex = TIER_ORDER.indexOf(targetTier);
+  const isDowngrade = targetIndex < currentIndex;
+  const added = targetProfile.includedSystems.filter((item) => !currentProfile.includedSystems.includes(item));
+  const removed = currentProfile.includedSystems.filter((item) => !targetProfile.includedSystems.includes(item));
+
+  const lines: string[] = [
+    isDowngrade
+      ? "Lower cost and simpler scope, with fewer advanced capabilities."
+      : "Higher capability and flexibility, with broader future headroom.",
+  ];
+
+  if (added.length > 0) {
+    lines.push(`Adds: ${added.slice(0, 2).join(" • ")}.`);
+  }
+
+  if (removed.length > 0) {
+    lines.push(`Reduces: ${removed.slice(0, 2).join(" • ")}.`);
+  }
+
+  lines.push(`Commercial impact: ${targetProfile.commercialNote}`);
+  return lines;
 }
 
 function roomAssumptions(room: RoomTemplate): string[] {
@@ -461,8 +492,19 @@ export default function TemplatesPage() {
   const tierAccent = TIER_ACCENTS[tier];
   const assumptions = React.useMemo(() => roomAssumptions(room), [room]);
   const credibility = React.useMemo(() => roomCredibility(room), [room]);
-  const valueMoves = React.useMemo(() => valueEngineeredMoves(room, tier), [room, tier]);
   const upgradeMoves = React.useMemo(() => performanceUpgradeMoves(room, tier), [room, tier]);
+  const alternativeTiers = React.useMemo(
+    () =>
+      TIER_ORDER
+        .filter((item) => item !== tier)
+        .map((item) => ({
+          tierKey: item,
+          accent: TIER_ACCENTS[item],
+          profile: room.tiers[item],
+          summaryLines: summarizeTierChange(tier, tierProfile, item, room.tiers[item]),
+        })),
+    [room, tier, tierProfile],
+  );
 
   function workflowSectionStyle(step: 1 | 2 | 3 | 4): React.CSSProperties {
     const isActive = activeStep === step;
@@ -838,14 +880,14 @@ export default function TemplatesPage() {
               gap: 14,
             }}
           >
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                gap: 14,
-              }}
-            >
-              <div style={{ display: "grid", gap: 10 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                  gap: 14,
+                }}
+              >
+                <div style={{ display: "grid", gap: 10 }}>
                 <div
                   style={{
                     fontSize: 11,
@@ -857,29 +899,17 @@ export default function TemplatesPage() {
                   Selected path
                 </div>
 
-                <div style={{ fontWeight: 900, fontSize: 18 }}>
-                  {market.name} / {room.name} / {tierProfile.label}
-                </div>
+                  <div style={{ fontWeight: 900, fontSize: 18 }}>
+                    {market.name} / {room.name} / {tierProfile.label}
+                  </div>
 
-                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.90)", lineHeight: 1.5 }}>
-                  {tierProfile.summary}
-                </div>
+                  <div style={{ fontSize: 14, color: "rgba(255,255,255,0.92)", lineHeight: 1.5 }}>
+                    {tierProfile.summary}
+                  </div>
 
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
-                  <strong>Positioning:</strong> {tierProfile.positioning}
-                </div>
-
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
-                  <strong>Performance:</strong> {tierProfile.performance}
-                </div>
-
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
-                  <strong>Commercial note:</strong> {tierProfile.commercialNote}
-                </div>
-
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
-                  <strong>Recommended families:</strong> {room.recommendedFamilies.join(", ")}
-                </div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
+                    <strong>Recommended families:</strong> {room.recommendedFamilies.join(", ")}
+                  </div>
 
                 <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
                   <strong>Recommended next tool:</strong> {getToolLabel(room.nextTool)}
@@ -913,18 +943,28 @@ export default function TemplatesPage() {
                   background: "rgba(255,255,255,0.03)",
                   padding: 12,
                   display: "grid",
-                  gap: 12,
+                  gap: 10,
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: 13 }}>Room assumptions</div>
-                <BulletList items={assumptions} accentRgb={tierAccent.rgb} />
+                <div style={{ fontWeight: 800, fontSize: 13 }}>Clear summary</div>
+                <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
+                  <strong>Positioning:</strong> {tierProfile.positioning}
+                </div>
+                <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
+                  <strong>Performance:</strong> {tierProfile.performance}
+                </div>
+                <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
+                  <strong>Commercial:</strong> {tierProfile.commercialNote}
+                </div>
+                <div style={{ fontWeight: 800, fontSize: 12, marginTop: 2 }}>What you get in this tier</div>
+                <BulletList items={tierProfile.includedSystems.slice(0, 3)} accentRgb={tierAccent.rgb} />
               </div>
             </div>
 
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
                 gap: 12,
               }}
             >
@@ -952,22 +992,54 @@ export default function TemplatesPage() {
                   gap: 10,
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: 13 }}>Value-engineered option</div>
-                <BulletList items={valueMoves} accentRgb={TIER_ACCENTS.bronze.rgb} />
+                <div style={{ fontWeight: 800, fontSize: 13 }}>Room assumptions</div>
+                <BulletList items={assumptions.slice(0, 3)} accentRgb={tierAccent.rgb} />
+              </div>
+            </div>
+
+            <div
+              style={{
+                borderRadius: 14,
+                border: "1px solid rgba(255,255,255,0.10)",
+                background: "rgba(255,255,255,0.03)",
+                padding: 12,
+                display: "grid",
+                gap: 10,
+              }}
+            >
+              <div style={{ fontWeight: 900, fontSize: 14 }}>Alternative tiers</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.80)", lineHeight: 1.45 }}>
+                If you switch tier, this is what changes in plain English.
               </div>
 
               <div
                 style={{
-                  borderRadius: 14,
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(255,255,255,0.03)",
-                  padding: 12,
                   display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                   gap: 10,
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: 13 }}>Performance / technical upgrades</div>
-                <BulletList items={upgradeMoves} accentRgb={TIER_ACCENTS.gold.rgb} />
+                {alternativeTiers.map((option) => (
+                  <div
+                    key={option.tierKey}
+                    style={{
+                      borderRadius: 12,
+                      border: `1px solid rgba(${option.accent.rgb},0.24)`,
+                      background: `linear-gradient(180deg, rgba(${option.accent.rgb},0.11) 0%, rgba(${option.accent.rgb},0.04) 100%)`,
+                      padding: 12,
+                      display: "grid",
+                      gap: 8,
+                    }}
+                  >
+                    <div style={{ fontWeight: 800, fontSize: 13 }}>
+                      {option.accent.label} option
+                    </div>
+                    <div style={{ fontSize: 13, color: "rgba(255,255,255,0.90)", lineHeight: 1.45 }}>
+                      {option.profile.summary}
+                    </div>
+                    <BulletList items={option.summaryLines} accentRgb={option.accent.rgb} />
+                  </div>
+                ))}
               </div>
             </div>
           </div>

@@ -4,12 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { getWingmanFeatures, getWingmanTools } from "@/core/wingman/wingmanData";
 import { useAuth } from "@/context/AuthContext";
 import type { WingmanItem } from "@/features/tools/toolFeatureModel";
-import CollapsibleCard from "@/ui2/components/CollapsibleCard";
 
-const SALES_TOOL_IDS = ["guru", "competitor-compare", "videowall"];
-const REFERENCE_TOOL_IDS = ["catalogue", "product-intelligence"];
-const SUPPORT_TOOL_IDS = ["competitor-lookup-diagnostics"];
+const CORE_TOOL_IDS = ["guru", "catalogue", "competitor-compare", "videowall", "product-intelligence"];
+const ADMIN_TOOL_IDS = ["competitor-lookup-diagnostics"];
 const ENABLEMENT_FEATURE_IDS = ["training"];
+const GRID_SLOTS = 9;
 
 type ItemCopyOverride = Partial<Pick<WingmanItem, "title" | "description" | "tag" | "highlight">>;
 
@@ -65,29 +64,6 @@ function itemTone(accentRgb: string) {
   };
 }
 
-function SectionLead({
-  title,
-  copy,
-  count,
-}: {
-  title: string;
-  copy: string;
-  count: number;
-}) {
-  return (
-    <div className="wm-section__head">
-      <div className="wm-section__titles">
-        <h2>{title}</h2>
-        <p>{copy}</p>
-      </div>
-
-      <div className="wm-tool-hub__section-count">
-        {count} {count === 1 ? "tool" : "tools"}
-      </div>
-    </div>
-  );
-}
-
 function CompactRow({
   item,
   onOpen,
@@ -100,61 +76,41 @@ function CompactRow({
 
   return (
     <article
-      className="wm-work-card"
+      className="wm-work-card wm-tool-hub__tool-card"
       style={{
-        display: "grid",
-        gridTemplateColumns: "44px minmax(0, 1fr) auto",
-        gap: 12,
-        alignItems: "center",
-        padding: 14,
         border: tone.border,
         background: "rgba(8,14,24,0.78)",
         boxShadow: "none",
       }}
     >
-      <span
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 12,
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: tone.icon,
-          border: `1px solid ${tone.iconBorder}`,
-        }}
-      >
-        <Icon size={18} />
-      </span>
-
-      <div style={{ minWidth: 0 }}>
-        <div
+      <div className="wm-tool-hub__tool-head">
+        <span
+          className="wm-tool-hub__tool-icon"
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            flexWrap: "wrap",
+            background: tone.icon,
+            border: `1px solid ${tone.iconBorder}`,
           }}
         >
-          <div className="wm-title-lg" style={{ fontSize: 17 }}>
-            {item.title}
-          </div>
-          {item.tag ? (
-            <span
-              className="wm-tag"
-              style={{
-                background: tone.panel,
-                borderColor: tone.iconBorder,
-                color: tone.text,
-              }}
-            >
-              {item.tag}
-            </span>
-          ) : null}
-        </div>
+          <Icon size={18} />
+        </span>
+        {item.tag ? (
+          <span
+            className="wm-tag"
+            style={{
+              background: tone.panel,
+              borderColor: tone.iconBorder,
+              color: tone.text,
+            }}
+          >
+            {item.tag}
+          </span>
+        ) : null}
+      </div>
 
+      <div className="wm-tool-hub__tool-copy">
+        <div className="wm-title-lg wm-tool-hub__tool-title">{item.title}</div>
         <div
-          className="wm-body-sm"
+          className="wm-body-sm wm-tool-hub__tool-desc"
           style={{
             marginTop: 4,
             color: tone.muted,
@@ -166,6 +122,7 @@ function CompactRow({
 
         {item.highlight ? (
           <div
+            className="wm-tool-hub__tool-highlight"
             style={{
               marginTop: 8,
               display: "inline-flex",
@@ -186,13 +143,9 @@ function CompactRow({
 
       <button
         type="button"
-        className="wm-btn"
-        onClick={() => onOpen(item.to)}
-        style={{
-          minHeight: 38,
-          paddingInline: 14,
-          whiteSpace: "nowrap",
-        }}
+          className="wm-btn wm-tool-hub__tool-open"
+          onClick={() => onOpen(item.to)}
+        style={{ whiteSpace: "nowrap" }}
       >
         Open
       </button>
@@ -232,123 +185,57 @@ export default function ToolHubPage() {
   const tools = getWingmanTools();
   const features = getWingmanFeatures();
 
-  const salesTools = React.useMemo(
-    () => selectItemsInOrder(tools, SALES_TOOL_IDS, TOOL_COPY_OVERRIDES),
+  const coreTools = React.useMemo(
+    () => selectItemsInOrder(tools, CORE_TOOL_IDS, TOOL_COPY_OVERRIDES),
     [tools],
   );
-  const referenceTools = React.useMemo(
-    () => selectItemsInOrder(tools, REFERENCE_TOOL_IDS, TOOL_COPY_OVERRIDES),
-    [tools],
-  );
-  const supportTools = React.useMemo(
-    () => (canAdmin ? selectItemsInOrder(tools, SUPPORT_TOOL_IDS, TOOL_COPY_OVERRIDES) : []),
+  const adminTools = React.useMemo(
+    () => (canAdmin ? selectItemsInOrder(tools, ADMIN_TOOL_IDS, TOOL_COPY_OVERRIDES) : []),
     [canAdmin, tools],
   );
   const enablementTools = React.useMemo(
     () => selectItemsInOrder(features, ENABLEMENT_FEATURE_IDS, FEATURE_COPY_OVERRIDES),
     [features],
   );
+  const boardTools = React.useMemo(
+    () => [...coreTools, ...adminTools, ...enablementTools],
+    [adminTools, coreTools, enablementTools],
+  );
 
-  const totalTools = salesTools.length + referenceTools.length + supportTools.length + enablementTools.length;
+  const reservedSlots = Math.max(0, GRID_SLOTS - boardTools.length);
 
   return (
-    <div className="wm-page">
+    <div className="wm-page wm-tool-hub-page">
       <section className="wm-hero wm-tool-hub__hero">
         <div className="wm-tool-hub__hero-copy">
           <div className="wm-tool-hub__eyebrow">Toolbox</div>
           <div className="wm-title-xl">Open any tool directly.</div>
+          <div className="wm-body-sm wm-page-subtitle-muted">
+            Fixed 3x3 board for fast access. Active tools stay in place, with reserved slots ready for future upgrades.
+          </div>
         </div>
       </section>
 
-      <section className="wm-section">
-        <CollapsibleCard
-          id="tool-hub-guidance"
-          title="Toolbox guidance"
-          subtitle="Optional supporting notes for new users."
-          right={<span className="wm-chip">{totalTools} tools</span>}
-          defaultCollapsed
-        >
-          <div className="wm-grid-cards wm-tool-hub__signal-grid">
-            <article className="wm-work-card wm-tool-hub__signal-card">
-              <div className="wm-tool-hub__signal-label">Independent access</div>
-              <div className="wm-tool-hub__signal-value">{totalTools}</div>
-              <div className="wm-body-sm">Every tool launches directly from here without staged workflow steps.</div>
-            </article>
+      <section className="wm-section wm-section--tone-cyan">
+        <div className="wm-tool-hub__grid">
+          {boardTools.map((item) => (
+            <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
+          ))}
 
-            <article className="wm-work-card wm-tool-hub__signal-card">
-              <div className="wm-tool-hub__signal-label">Sales coverage</div>
-              <div className="wm-tool-hub__signal-value">Research to support</div>
-              <div className="wm-body-sm">Reference, comparison, design utility, diagnostics, and enablement are grouped separately.</div>
+          {Array.from({ length: reservedSlots }).map((_, index) => (
+            <article key={`future-slot-${index + 1}`} className="wm-work-card wm-tool-hub__tool-card wm-tool-hub__tool-card--future">
+              <div className="wm-tool-hub__future-label">Future upgrade</div>
+              <div className="wm-tool-hub__future-title">Reserved slot {index + 1}</div>
+              <div className="wm-body-sm wm-tool-hub__future-copy">
+                Space held for upcoming tools.
+              </div>
+              <button type="button" className="wm-btn wm-tool-hub__tool-open" disabled>
+                Coming soon
+              </button>
             </article>
-
-            <article className="wm-work-card wm-tool-hub__signal-card">
-              <div className="wm-tool-hub__signal-label">Best used for</div>
-              <div className="wm-tool-hub__signal-value">Fast answers</div>
-              <div className="wm-body-sm">Start with the tool you need first. Add project context only when required.</div>
-            </article>
-          </div>
-        </CollapsibleCard>
+          ))}
+        </div>
       </section>
-
-      <div className="wm-tool-hub__split">
-        <section className="wm-section wm-section--tone-cyan">
-          <SectionLead
-            title="Sales Utilities"
-            copy="Commercial tools for fast answers, positioning, and early sizing work."
-            count={salesTools.length}
-          />
-
-          <div className="wm-tool-hub__stack" style={{ display: "grid", gap: 10 }}>
-            {salesTools.map((item) => (
-              <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
-            ))}
-          </div>
-        </section>
-
-        <section className="wm-section wm-section--tone-emerald">
-          <SectionLead
-            title="Product & Reference"
-            copy="Trusted product lookup and reference sources you can open at any point."
-            count={referenceTools.length}
-          />
-
-          <div className="wm-tool-hub__stack" style={{ display: "grid", gap: 10 }}>
-            {referenceTools.map((item) => (
-              <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
-            ))}
-          </div>
-        </section>
-
-        {canAdmin ? (
-          <section className="wm-section wm-section--tone-indigo">
-            <SectionLead
-              title="Diagnostics & Support"
-              copy="Checks for live issues, data quality, and backend confidence when something feels off."
-              count={supportTools.length}
-            />
-
-            <div className="wm-tool-hub__stack" style={{ display: "grid", gap: 10 }}>
-              {supportTools.map((item) => (
-                <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        <section className="wm-section wm-section--tone-amber">
-          <SectionLead
-            title="Enablement"
-            copy="Learning support for product knowledge, positioning, and solution confidence."
-            count={enablementTools.length}
-          />
-
-          <div className="wm-tool-hub__stack" style={{ display: "grid", gap: 10 }}>
-            {enablementTools.map((item) => (
-              <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
-            ))}
-          </div>
-        </section>
-      </div>
     </div>
   );
 }
