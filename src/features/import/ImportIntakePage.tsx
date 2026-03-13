@@ -144,13 +144,15 @@ function drawerBackdropStyle(): React.CSSProperties {
     display: "flex",
     justifyContent: "flex-end",
     padding: 12,
+    overflow: "auto",
   };
 }
 
 function drawerPanelStyle(): React.CSSProperties {
   return {
     width: "min(760px, calc(100vw - 24px))",
-    height: "calc(100vh - 24px)",
+    height: "min(960px, calc(100dvh - 24px))",
+    maxHeight: "calc(100dvh - 24px)",
     borderRadius: 24,
     border: "1px solid rgba(120,208,189,0.18)",
     background: "linear-gradient(180deg, rgba(6,16,26,0.98), rgba(10,24,38,0.98))",
@@ -158,6 +160,7 @@ function drawerPanelStyle(): React.CSSProperties {
     display: "grid",
     gridTemplateRows: "auto minmax(0, 1fr)",
     overflow: "hidden",
+    minHeight: 0,
   };
 }
 

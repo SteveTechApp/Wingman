@@ -1,15 +1,38 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Trash2 } from "lucide-react";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
 import { useBoundProjects } from "@/core/wingman/storeBridge";
-import { setActiveProjectId } from "@/features/projects/projectStore";
+import { deleteProject, setActiveProjectId } from "@/features/projects/projectStore";
+
+function toCompactSummary(summary: string): string {
+  const normalized = String(summary ?? "").replace(/\s+/g, " ").trim();
+  if (!normalized) return "Project workspace ready.";
+
+  const sentence = normalized.split(/(?<=[.!?])\s+/)[0] || normalized;
+  if (sentence.length <= 140) return sentence;
+  return `${sentence.slice(0, 137).trimEnd()}...`;
+}
 
 export default function ProjectsPage() {
   const navigate = useNavigate();
   const projects = useBoundProjects();
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+
+  const handleDelete = React.useCallback((projectId: string, projectTitle: string) => {
+    const confirmed = window.confirm(`Delete project "${projectTitle}"?\n\nThis action cannot be undone.`);
+    if (!confirmed) return;
+
+    setDeletingId(projectId);
+    try {
+      deleteProject(projectId);
+    } finally {
+      setDeletingId((current) => (current === projectId ? null : current));
+    }
+  }, []);
 
   return (
-    <div className="wm-page">
+    <div className="wm-page wm-projects-page">
       <section className="wm-hero">
         <div className="wm-page-hero-row">
           <div>
@@ -43,12 +66,26 @@ export default function ProjectsPage() {
           {projects.map((project) => (
             <article key={project.id} className="wm-work-card">
               <div className="wm-work-card__head">
-                <div className="wm-title-lg">{project.title}</div>
-                <span className="wm-tag">{project.stage}</span>
+                <div className="wm-title-lg wm-projects-page__title">{project.title}</div>
+                <div className="wm-projects-page__head-actions">
+                  <span className="wm-tag">{project.stage}</span>
+                  <button
+                    type="button"
+                    className="wm-projects-page__delete-btn"
+                    onClick={() => handleDelete(project.id, project.title)}
+                    aria-label={`Delete ${project.title}`}
+                    title="Delete project"
+                    disabled={deletingId === project.id}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </div>
 
-              <div className="wm-body"><strong>{project.customer}</strong></div>
-              <div className="wm-body">{project.summary}</div>
+              <div className="wm-body wm-projects-page__customer"><strong>{project.customer}</strong></div>
+              <div className="wm-body wm-projects-page__summary" title={project.summary}>
+                {toCompactSummary(project.summary)}
+              </div>
 
               <div className="wm-actions-row">
                 <button

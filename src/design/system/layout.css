@@ -5,6 +5,7 @@
 
 .wm-shell-root{
   height:100vh;
+  height:100dvh;
   display:grid;
   grid-template-rows:
       var(--wm-topbar-h)

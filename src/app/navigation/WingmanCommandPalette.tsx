@@ -76,14 +76,6 @@ function buildSearchText(action: CommandAction): string {
     .toLowerCase();
 }
 
-function unique(items: string[]): string[] {
-  return Array.from(new Set(items.filter(Boolean)));
-}
-
-function previewFacts(action: CommandAction): string[] {
-  return unique([action.badge, ...action.keywords]).slice(0, 4);
-}
-
 function filterActions(actions: CommandAction[], query: string): CommandAction[] {
   const needle = query.trim().toLowerCase();
   if (!needle) return actions.slice(0, 12);
@@ -219,31 +211,10 @@ function PreviewPanel({
 }) {
   if (!action) return null;
 
-  const facts = previewFacts(action);
-
   return (
     <aside className="wm-commandPalette__preview">
-      <div className="wm-commandPalette__previewEyebrow">
-        <span className="wm-commandPalette__previewIcon">{commandIcon(action, 16)}</span>
-        <span>{action.group}</span>
-        <span className="wm-commandPalette__previewDivider" />
-        <span>{action.badge}</span>
-      </div>
-
       <div className="wm-commandPalette__previewTitle">{action.label}</div>
       <div className="wm-commandPalette__previewBody">{action.description}</div>
-
-      <div className="wm-commandPalette__previewFacts">
-        {facts.map((fact) => (
-          <span key={fact} className="wm-commandPalette__previewFact">
-            {fact}
-          </span>
-        ))}
-      </div>
-
-      <div className="wm-commandPalette__previewHint">
-        Search by customer, room, workflow, or tool. Press `Enter` to open the currently highlighted action.
-      </div>
 
       <button type="button" className="wm-commandPalette__previewButton" onClick={action.run}>
         Open This Action
@@ -534,13 +505,6 @@ export default function WingmanCommandPalette({
             />
           </div>
 
-          <div className="wm-commandPalette__searchMeta">
-            <span className="wm-commandPalette__metaPill">
-              <Sparkles size={13} />
-              {hasQuery ? `${filteredActions.length} matching actions` : "Search or pick from the launcher"}
-            </span>
-            <span className="wm-commandPalette__metaPill">Enter opens selection</span>
-          </div>
         </div>
 
         {!hasQuery ? (
@@ -554,33 +518,13 @@ export default function WingmanCommandPalette({
                   onFocus={() => setPreviewActionId(primaryAction.id)}
                   onClick={primaryAction.run}
                 >
-                  <div className="wm-commandPalette__spotlightEyebrow">
-                    {activeBundle ? "Continue active opportunity" : "Start a fresh opportunity"}
-                  </div>
                   <div className="wm-commandPalette__spotlightTitle">{primaryAction.label}</div>
                   <div className="wm-commandPalette__spotlightBody">
                     {activeBundle
                       ? `${activeBundle.project.name} • ${activeBundle.summary}`
                       : primaryAction.description}
                   </div>
-                  <div className="wm-commandPalette__spotlightFacts">
-                    {(activeBundle
-                      ? unique([
-                          activeBundle.resumeTag,
-                          activeBundle.project.stage || "Discovery",
-                          activeBundle.project.status || "Draft",
-                          activeBundle.project.customer,
-                          activeBundle.project.site,
-                        ]).slice(0, 4)
-                      : previewFacts(primaryAction)
-                    ).map((fact) => (
-                      <span key={fact} className="wm-commandPalette__spotlightFact">
-                        {fact}
-                      </span>
-                    ))}
-                  </div>
                   <div className="wm-commandPalette__spotlightFooter">
-                    <span>{primaryAction.badge}</span>
                     <ArrowRight size={16} />
                   </div>
                 </button>
@@ -603,7 +547,6 @@ export default function WingmanCommandPalette({
                   <div className="wm-commandPalette__cardTitle">{action.label}</div>
                   <div className="wm-commandPalette__cardDesc">{action.description}</div>
                   <div className="wm-commandPalette__cardBadge">
-                    <span>{action.badge}</span>
                     <ArrowRight size={14} />
                   </div>
                 </button>
@@ -637,9 +580,6 @@ export default function WingmanCommandPalette({
                             <div className="wm-commandPalette__projectName">{bundle.project.name}</div>
                             <div className="wm-commandPalette__projectMeta">{bundle.summary}</div>
                           </div>
-                          <span className="wm-commandPalette__projectPill">
-                            {bundle.project.stage || "Discovery"}
-                          </span>
                         </div>
 
                         <div className="wm-commandPalette__projectActions">
@@ -702,7 +642,6 @@ export default function WingmanCommandPalette({
                         <strong>{action.label}</strong>
                         <span>{action.description}</span>
                       </span>
-                      <span className="wm-commandPalette__quickBadge">{action.badge}</span>
                     </button>
                   ))}
                 </div>
@@ -742,10 +681,11 @@ export default function WingmanCommandPalette({
                               <div className="wm-commandPalette__itemTitle">{action.label}</div>
                               <div className="wm-commandPalette__itemDesc">{action.description}</div>
                             </div>
-                            <div className="wm-commandPalette__itemMeta">
-                              <span className="wm-commandPalette__itemTag">{action.badge}</span>
-                              {resultIndex === activeIndex ? <ArrowRight size={14} /> : null}
-                            </div>
+                            {resultIndex === activeIndex ? (
+                              <div className="wm-commandPalette__itemMeta">
+                                <ArrowRight size={14} />
+                              </div>
+                            ) : null}
                           </button>
                         );
                       })}

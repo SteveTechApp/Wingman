@@ -52,7 +52,7 @@ function CompactActionCard({
         display: "grid",
         gridTemplateRows: "auto 1fr auto",
         gap: 10,
-        minHeight: 95,
+        minHeight: 0,
         padding: 10,
         textAlign: "left",
         borderRadius: 16,
@@ -138,7 +138,7 @@ function RailLink({
         display: "grid",
         gap: 6,
         padding: 12,
-        minHeight: 84,
+        minHeight: 0,
         textAlign: "left",
         borderRadius: 14,
         cursor: "pointer",
@@ -195,16 +195,16 @@ export default function DashboardPage() {
       className="wm-dashboard-page"
       style={{
         display: "grid",
-        gap: 10,
+        gap: 8,
       }}
     >
       <section
         className="wm-card wm-dashboard-page__hero"
         style={{
-          padding: 12,
+          padding: 10,
           borderRadius: 18,
           display: "grid",
-          gap: 8,
+          gap: 6,
         }}
       >
         <div
@@ -232,7 +232,7 @@ export default function DashboardPage() {
             <h1
               style={{
                 margin: 0,
-                fontSize: 28,
+                fontSize: 26,
                 lineHeight: 1.06,
                 fontWeight: 800,
               }}
@@ -252,7 +252,7 @@ export default function DashboardPage() {
               type="button"
               className="wm-btn-nav wm-btn-nav--primary"
               onClick={() => navigate("/app/tools/discovery")}
-              style={{ minHeight: 38, padding: "0 14px", borderRadius: 12 }}
+              style={{ minHeight: 36, padding: "0 13px", borderRadius: 12 }}
             >
               Resume Guided Project
             </button>
@@ -260,7 +260,7 @@ export default function DashboardPage() {
               type="button"
               className="wm-btn-nav"
               onClick={() => navigate("/app/tools/import-intake")}
-              style={{ minHeight: 38, padding: "0 14px", borderRadius: 12 }}
+              style={{ minHeight: 36, padding: "0 13px", borderRadius: 12 }}
             >
               Import Customer Brief
             </button>
@@ -268,7 +268,7 @@ export default function DashboardPage() {
               type="button"
               className="wm-btn-nav"
               onClick={() => navigate("/app/projects")}
-              style={{ minHeight: 38, padding: "0 14px", borderRadius: 12 }}
+              style={{ minHeight: 36, padding: "0 13px", borderRadius: 12 }}
             >
               Open Projects
             </button>
@@ -282,7 +282,7 @@ export default function DashboardPage() {
             borderRadius: 16,
             minHeight: "unset",
             display: "grid",
-            gap: 8,
+            gap: 6,
           }}
         >
           <div
@@ -300,8 +300,8 @@ export default function DashboardPage() {
           <div
             style={{
               fontSize: 24,
+              lineHeight: 1.02,
               fontWeight: 800,
-              lineHeight: 1.05,
             }}
           >
             {activeProjectName}
@@ -348,17 +348,17 @@ export default function DashboardPage() {
         className="wm-dashboard-page__main-grid"
         style={{
           display: "grid",
-          gap: 10,
+          gap: 8,
           alignItems: "start",
         }}
       >
         <div
           className="wm-card wm-dashboard-page__start-panel"
           style={{
-            padding: 12,
+            padding: 10,
             borderRadius: 18,
             display: "grid",
-            gap: 8,
+            gap: 6,
           }}
         >
           <div
@@ -375,7 +375,7 @@ export default function DashboardPage() {
             className="wm-dashboard__start-grid wm-dashboard-page__start-grid"
             style={{
               display: "grid",
-              gap: 10,
+              gap: 8,
             }}
           >
             {startCards.map((card) => (
@@ -387,50 +387,50 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
-      </section>
 
-      <section
-        className="wm-card wm-dashboard-page__panel"
-        style={{
-          padding: 12,
-          borderRadius: 18,
-          display: "grid",
-          gap: 10,
-        }}
-      >
-        <div
+        <section
+          className="wm-card wm-dashboard-page__panel"
           style={{
-            fontSize: 18,
-            fontWeight: 800,
-            lineHeight: 1.1,
+            padding: 10,
+            borderRadius: 18,
+            display: "grid",
+            gap: 8,
           }}
         >
-          Pick up work
-        </div>
-
-        {pickUpWork.length ? (
-          pickUpWork.map((item) => (
-            <RailLink
-              key={item.title}
-              title={item.title}
-              subtitle={item.subtitle}
-              onClick={() => navigate(item.to)}
-            />
-          ))
-        ) : (
           <div
-            className="wm-card"
             style={{
-              padding: 12,
-              borderRadius: 14,
-              fontSize: 13,
-              opacity: 0.78,
-              lineHeight: 1.4,
+              fontSize: 18,
+              fontWeight: 800,
+              lineHeight: 1.1,
             }}
           >
-            No active work yet. Start a new project or import a brief.
+            Pick up work
           </div>
-        )}
+
+          {pickUpWork.length ? (
+            pickUpWork.map((item) => (
+              <RailLink
+                key={item.title}
+                title={item.title}
+                subtitle={item.subtitle}
+                onClick={() => navigate(item.to)}
+              />
+            ))
+          ) : (
+            <div
+              className="wm-card"
+              style={{
+                padding: 12,
+                borderRadius: 14,
+                fontSize: 13,
+                opacity: 0.78,
+                lineHeight: 1.4,
+              }}
+            >
+              No active work yet. Start a new project or import a brief.
+            </div>
+          )}
+        </section>
       </section>
     </div>
   );

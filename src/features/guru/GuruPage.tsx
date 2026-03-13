@@ -29,6 +29,11 @@ type GuruPanelPosition = {
   top: number;
 };
 
+type GuruLauncherPosition = {
+  left: number;
+  top: number;
+};
+
 type GuruResizeCorner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
 type GuruModeDef = {
@@ -43,10 +48,13 @@ type GuruModeDef = {
 const STORAGE_KEY = "wm_guru_workspace_v3";
 const PANEL_LAYOUT_KEY = "wm_guru_panel_layout_v1";
 const PANEL_POSITION_KEY = "wm_guru_panel_position_v1";
+const LAUNCHER_POSITION_KEY = "wm_guru_launcher_position_v1";
 const DEFAULT_PANEL_LAYOUT: GuruPanelLayout = { width: 520, height: 680 };
 const PANEL_MIN_WIDTH = 360;
 const PANEL_MIN_HEIGHT = 420;
 const PANEL_VIEWPORT_MARGIN = 6;
+const LAUNCHER_SIZE = 54;
+const LAUNCHER_VIEWPORT_MARGIN = 8;
 
 const MODE_DEFS: Record<GuruMode, GuruModeDef> = {
   general: {
@@ -250,6 +258,51 @@ function writePanelPosition(position: GuruPanelPosition) {
   }
 }
 
+function defaultLauncherPosition(): GuruLauncherPosition {
+  if (typeof window === "undefined") {
+    return { left: 16, top: 16 };
+  }
+
+  return {
+    left: window.innerWidth - LAUNCHER_SIZE - 16,
+    top: window.innerHeight - LAUNCHER_SIZE - 16,
+  };
+}
+
+function clampLauncherPosition(position: GuruLauncherPosition): GuruLauncherPosition {
+  if (typeof window === "undefined") return position;
+  const maxLeft = Math.max(LAUNCHER_VIEWPORT_MARGIN, window.innerWidth - LAUNCHER_SIZE - LAUNCHER_VIEWPORT_MARGIN);
+  const maxTop = Math.max(LAUNCHER_VIEWPORT_MARGIN, window.innerHeight - LAUNCHER_SIZE - LAUNCHER_VIEWPORT_MARGIN);
+  return {
+    left: Math.min(maxLeft, Math.max(LAUNCHER_VIEWPORT_MARGIN, position.left)),
+    top: Math.min(maxTop, Math.max(LAUNCHER_VIEWPORT_MARGIN, position.top)),
+  };
+}
+
+function readLauncherPosition(): GuruLauncherPosition {
+  try {
+    const fallback = defaultLauncherPosition();
+    const raw = localStorage.getItem(LAUNCHER_POSITION_KEY);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw) as Partial<GuruLauncherPosition>;
+    const left = Number(parsed.left);
+    const top = Number(parsed.top);
+    return clampLauncherPosition({
+      left: Number.isFinite(left) ? left : fallback.left,
+      top: Number.isFinite(top) ? top : fallback.top,
+    });
+  } catch {
+    return defaultLauncherPosition();
+  }
+}
+
+function writeLauncherPosition(position: GuruLauncherPosition) {
+  try {
+    localStorage.setItem(LAUNCHER_POSITION_KEY, JSON.stringify(position));
+  } catch {
+  }
+}
+
 const pageStyles = `
 .wm-guru-float-page{
   position: relative;
@@ -279,6 +332,7 @@ const pageStyles = `
     0 0 30px rgba(236, 123, 39, 0.44),
     0 16px 36px rgba(4, 12, 24, 0.45);
   pointer-events: auto;
+  touch-action: none;
 }
 
 .wm-guru-float-launcher.is-open{
@@ -303,11 +357,11 @@ const pageStyles = `
   bottom: 84px;
   z-index: 6001;
   width: min(520px, calc(100vw - 24px));
-  height: min(680px, calc(100vh - 96px));
-  min-width: 360px;
-  min-height: 420px;
+  height: min(680px, calc(100dvh - 96px));
+  min-width: min(360px, calc(100vw - 24px));
+  min-height: min(420px, calc(100dvh - 24px));
   max-width: calc(100vw - 12px);
-  max-height: calc(100vh - 12px);
+  max-height: calc(100dvh - 12px);
   border-radius: 18px;
   border: 1px solid rgba(255, 183, 118, 0.56);
   background: linear-gradient(180deg, rgb(30, 21, 15), rgb(16, 20, 28));
@@ -570,11 +624,13 @@ export default function GuruPage() {
 
   const clampLayoutToViewport = React.useCallback((layout: GuruPanelLayout): GuruPanelLayout => {
     if (typeof window === "undefined") return layout;
-    const maxWidth = Math.max(PANEL_MIN_WIDTH, window.innerWidth - 24);
-    const maxHeight = Math.max(PANEL_MIN_HEIGHT, window.innerHeight - 24);
+    const maxWidth = Math.max(280, window.innerWidth - 24);
+    const maxHeight = Math.max(320, window.innerHeight - 24);
+    const minWidth = Math.min(PANEL_MIN_WIDTH, maxWidth);
+    const minHeight = Math.min(PANEL_MIN_HEIGHT, maxHeight);
     return {
-      width: Math.min(maxWidth, Math.max(PANEL_MIN_WIDTH, layout.width)),
-      height: Math.min(maxHeight, Math.max(PANEL_MIN_HEIGHT, layout.height)),
+      width: Math.min(maxWidth, Math.max(minWidth, layout.width)),
+      height: Math.min(maxHeight, Math.max(minHeight, layout.height)),
     };
   }, []);
 
@@ -623,6 +679,8 @@ export default function GuruPage() {
       const startBottom = state.startTop + state.startHeight;
       const maxRight = window.innerWidth - PANEL_VIEWPORT_MARGIN;
       const maxBottom = window.innerHeight - PANEL_VIEWPORT_MARGIN;
+      const minWidth = Math.min(PANEL_MIN_WIDTH, Math.max(280, window.innerWidth - PANEL_VIEWPORT_MARGIN * 2));
+      const minHeight = Math.min(PANEL_MIN_HEIGHT, Math.max(320, window.innerHeight - PANEL_VIEWPORT_MARGIN * 2));
 
       let left = state.startLeft;
       let top = state.startTop;
@@ -630,26 +688,26 @@ export default function GuruPage() {
       let height = state.startHeight;
 
       if (state.corner === "bottom-right") {
-        const movingRight = safeClamp(startRight + dx, state.startLeft + PANEL_MIN_WIDTH, maxRight);
-        const movingBottom = safeClamp(startBottom + dy, state.startTop + PANEL_MIN_HEIGHT, maxBottom);
+        const movingRight = safeClamp(startRight + dx, state.startLeft + minWidth, maxRight);
+        const movingBottom = safeClamp(startBottom + dy, state.startTop + minHeight, maxBottom);
         width = movingRight - state.startLeft;
         height = movingBottom - state.startTop;
       } else if (state.corner === "top-left") {
-        const movingLeft = safeClamp(state.startLeft + dx, PANEL_VIEWPORT_MARGIN, startRight - PANEL_MIN_WIDTH);
-        const movingTop = safeClamp(state.startTop + dy, PANEL_VIEWPORT_MARGIN, startBottom - PANEL_MIN_HEIGHT);
+        const movingLeft = safeClamp(state.startLeft + dx, PANEL_VIEWPORT_MARGIN, startRight - minWidth);
+        const movingTop = safeClamp(state.startTop + dy, PANEL_VIEWPORT_MARGIN, startBottom - minHeight);
         left = movingLeft;
         top = movingTop;
         width = startRight - movingLeft;
         height = startBottom - movingTop;
       } else if (state.corner === "top-right") {
-        const movingRight = safeClamp(startRight + dx, state.startLeft + PANEL_MIN_WIDTH, maxRight);
-        const movingTop = safeClamp(state.startTop + dy, PANEL_VIEWPORT_MARGIN, startBottom - PANEL_MIN_HEIGHT);
+        const movingRight = safeClamp(startRight + dx, state.startLeft + minWidth, maxRight);
+        const movingTop = safeClamp(state.startTop + dy, PANEL_VIEWPORT_MARGIN, startBottom - minHeight);
         top = movingTop;
         width = movingRight - state.startLeft;
         height = startBottom - movingTop;
       } else {
-        const movingLeft = safeClamp(state.startLeft + dx, PANEL_VIEWPORT_MARGIN, startRight - PANEL_MIN_WIDTH);
-        const movingBottom = safeClamp(startBottom + dy, state.startTop + PANEL_MIN_HEIGHT, maxBottom);
+        const movingLeft = safeClamp(state.startLeft + dx, PANEL_VIEWPORT_MARGIN, startRight - minWidth);
+        const movingBottom = safeClamp(startBottom + dy, state.startTop + minHeight, maxBottom);
         left = movingLeft;
         width = startRight - movingLeft;
         height = movingBottom - state.startTop;
@@ -689,6 +747,9 @@ export default function GuruPage() {
   const [panelPosition, setPanelPosition] = React.useState<GuruPanelPosition>(() =>
     clampPositionToViewport(readPanelPosition(initialPanelLayout), initialPanelLayout),
   );
+  const [launcherPosition, setLauncherPosition] = React.useState<GuruLauncherPosition>(() =>
+    readLauncherPosition(),
+  );
   const [isCompactViewport, setIsCompactViewport] = React.useState(() =>
     typeof window !== "undefined" ? window.innerWidth <= 720 : false,
   );
@@ -707,6 +768,14 @@ export default function GuruPage() {
     startWidth: number;
     startHeight: number;
   }>(null);
+  const launcherDragRef = React.useRef<null | {
+    startX: number;
+    startY: number;
+    startLeft: number;
+    startTop: number;
+    moved: boolean;
+  }>(null);
+  const suppressLauncherToggleRef = React.useRef(false);
 
   React.useEffect(() => {
     writeState({ mode, question, context });
@@ -721,6 +790,10 @@ export default function GuruPage() {
   }, [panelPosition]);
 
   React.useEffect(() => {
+    writeLauncherPosition(launcherPosition);
+  }, [launcherPosition]);
+
+  React.useEffect(() => {
     if (typeof window === "undefined") return undefined;
     const handleResize = () => {
       const compact = window.innerWidth <= 720;
@@ -730,6 +803,7 @@ export default function GuruPage() {
         setPanelPosition((currentPosition) => clampPositionToViewport(currentPosition, nextLayout));
         return nextLayout;
       });
+      setLauncherPosition((currentPosition) => clampLauncherPosition(currentPosition));
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -740,6 +814,22 @@ export default function GuruPage() {
     if (typeof window === "undefined") return undefined;
 
     const onPointerMove = (event: PointerEvent) => {
+      if (!isCompactViewport && launcherDragRef.current) {
+        const dx = event.clientX - launcherDragRef.current.startX;
+        const dy = event.clientY - launcherDragRef.current.startY;
+        if (!launcherDragRef.current.moved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+          launcherDragRef.current.moved = true;
+        }
+        const next = clampLauncherPosition({
+          left: launcherDragRef.current.startLeft + dx,
+          top: launcherDragRef.current.startTop + dy,
+        });
+        setLauncherPosition((current) =>
+          current.left === next.left && current.top === next.top ? current : next,
+        );
+        return;
+      }
+
       if (isCompactViewport) return;
 
       if (dragRef.current) {
@@ -774,6 +864,10 @@ export default function GuruPage() {
     };
 
     const stopInteractions = () => {
+      if (launcherDragRef.current?.moved) {
+        suppressLauncherToggleRef.current = true;
+      }
+      launcherDragRef.current = null;
       dragRef.current = null;
       resizeRef.current = null;
     };
@@ -787,6 +881,22 @@ export default function GuruPage() {
       window.removeEventListener("pointercancel", stopInteractions);
     };
   }, [calculateResizeGeometry, clampPositionToViewport, isCompactViewport, panelLayout]);
+
+  const startLauncherDrag = React.useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (isCompactViewport || event.button !== 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      launcherDragRef.current = {
+        startX: event.clientX,
+        startY: event.clientY,
+        startLeft: launcherPosition.left,
+        startTop: launcherPosition.top,
+        moved: false,
+      };
+    },
+    [isCompactViewport, launcherPosition.left, launcherPosition.top],
+  );
 
   const startPanelDrag = React.useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
@@ -955,10 +1065,27 @@ export default function GuruPage() {
       <button
         type="button"
         className={`wm-guru-float-launcher ${panelOpen ? "is-open" : ""}`}
-        onClick={() => setPanelOpen((value) => !value)}
+        onPointerDown={startLauncherDrag}
+        onClick={() => {
+          if (suppressLauncherToggleRef.current) {
+            suppressLauncherToggleRef.current = false;
+            return;
+          }
+          setPanelOpen((value) => !value);
+        }}
         aria-label={panelOpen ? "Close Guru" : "Open Guru"}
         aria-expanded={panelOpen}
-        title={panelOpen ? "Close Guru" : "Open Guru"}
+        title={panelOpen ? "Close Guru (drag to move)" : "Open Guru (drag to move)"}
+        style={
+          isCompactViewport
+            ? undefined
+            : {
+                left: launcherPosition.left,
+                top: launcherPosition.top,
+                right: "auto",
+                bottom: "auto",
+              }
+        }
       >
         <span className="wm-guru-float-launcher__icon">
           <Bot size={20} />
@@ -1029,7 +1156,7 @@ export default function GuruPage() {
             </div>
 
             <div className="wm-guru-float-actions">
-              <button className="wm-btn wm-btn-primary" type="button" onClick={askLiveGuru} disabled={!hasContent || answerBusy}>
+              <button className="wm-btn wm-btn-primary wm-guru-submit" type="button" onClick={askLiveGuru} disabled={!hasContent || answerBusy}>
                 {answerBusy ? "Thinking..." : "Ask Guru"}
               </button>
               <button className="wm-btn" type="button" onClick={copyPrompt} disabled={!hasContent}>Copy prompt</button>

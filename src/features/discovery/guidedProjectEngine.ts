@@ -22,6 +22,7 @@ export type GuidedProjectRecord = {
   workflowTrack: string;
   projectScope: string;
   customerOutcome: string;
+  featureRequirements: string;
   customer: string;
   site: string;
   roomName: string;
@@ -118,7 +119,7 @@ export type GuidedProjectLens = {
 export const GUIDED_PROJECT_STEPS: ReadonlyArray<readonly [string, string]> = [
   [
     "Starting Point",
-    "Lead with the customer outcome, then decide whether this is a single-device ask or a wider room conversation.",
+    "Lead with the outcome type and keep the shortlist focused on the product path.",
   ],
   [
     "Core Fit",
@@ -170,74 +171,6 @@ const WORKFLOW_TRACK_DETAILS: ReadonlyArray<GuidedProjectQuestionOptionDetail> =
     outcome: "Video wall processor",
     tags: ["Display canvas", "Processing"],
   },
-  {
-    value: "Add USB or BYOD",
-    eyebrow: "Directional start",
-    summary: "Solve the USB-C, conferencing, or room peripheral problem explicitly.",
-    outcome: "USB extension or presentation switcher",
-    tags: ["BYOD", "USB"],
-  },
-  {
-    value: "Not sure yet",
-    eyebrow: "Directional start",
-    summary: "Use a guided discovery path when the customer has described a problem but not the product type.",
-    outcome: "Needs guided narrowing",
-    tags: ["Discovery", "Triage"],
-  },
-] as const;
-
-const PROJECT_SCOPE_DETAILS: ReadonlyArray<GuidedProjectQuestionOptionDetail> = [
-  {
-    value: "Single device or signal path",
-    eyebrow: "Scope",
-    summary: "Focus on a specific AV outcome rather than a whole-room bill of materials.",
-    outcome: "Product shortlist first",
-    tags: ["Fast path"],
-  },
-  {
-    value: "Part of a wider room workflow",
-    eyebrow: "Scope",
-    summary: "Solve one AV problem while keeping sight of the room workflow around it.",
-    outcome: "Product with room context",
-    tags: ["Balanced"],
-  },
-  {
-    value: "Complete room or system",
-    eyebrow: "Scope",
-    summary: "Treat this as a broader architecture conversation spanning sources, displays, control, and user flow.",
-    outcome: "Architecture-led path",
-    tags: ["System design"],
-  },
-  {
-    value: "Refresh or replacement",
-    eyebrow: "Scope",
-    summary: "Replace or upgrade an existing device while checking compatibility with the installed environment.",
-    outcome: "Compatibility-led shortlist",
-    tags: ["Existing system"],
-  },
-  {
-    value: "Not sure yet",
-    eyebrow: "Scope",
-    summary: "Use discovery prompts to reveal whether this is a simple product ask or a broader design problem.",
-    outcome: "Clarify scope",
-    tags: ["Discovery"],
-  },
-] as const;
-
-const APPLICATIONS = [
-  "Meeting Space",
-  "Boardroom",
-  "Huddle Space",
-  "Training Room",
-  "Classroom",
-  "Lecture Space",
-  "Control Room",
-  "Reception",
-  "Retail",
-  "Digital Signage",
-  "Hospitality",
-  "Flexible Space",
-  "Custom",
 ] as const;
 
 const OUTPUT_BEHAVIOUR = [
@@ -245,6 +178,16 @@ const OUTPUT_BEHAVIOUR = [
   "Same content everywhere",
   "Independent switching per display",
   "Mixed or unsure",
+] as const;
+
+const FEATURE_REQUIREMENTS = [
+  "None",
+  "USB support",
+  "Audio breakout",
+  "Control ports / pass-through",
+  "PoH / remote power",
+  "Network-ready / AVoIP",
+  "Video wall processing",
 ] as const;
 
 const INSTALL_PATHS = [
@@ -318,15 +261,15 @@ const HDR_OPTIONS = [
 ] as const;
 
 const CABLE_TYPES = [
-  "Direct local patch under 5m",
+  "HDMI (Direct)",
+  "HDMI Optical (Direct)",
+  "USB-C (Direct)",
   "Cat5e",
   "Cat6",
   "Cat6A",
   "Cat7",
-  "Fiber",
-  "Existing installed cable - grade unknown",
-  "Mixed media",
-  "Not sure yet",
+  "Fibre (Direct)",
+  "IP (Network)",
 ] as const;
 
 const DISPLAY_PATH = [
@@ -463,6 +406,12 @@ function hasSelections(value: string | undefined): boolean {
   return parseGuidedProjectSelections(value).length > 0;
 }
 
+function featureRequested(record: GuidedProjectRecord, token: string): boolean {
+  return parseGuidedProjectSelections(record.featureRequirements)
+    .map((item) => item.toLowerCase())
+    .some((item) => item.includes(token));
+}
+
 function formatSelections(value: string | undefined, fallback = "Not confirmed"): string {
   const selected = parseGuidedProjectSelections(value);
   return selected.length > 0 ? selected.join(", ") : fallback;
@@ -532,12 +481,12 @@ function getUsbDemand(value: string | undefined): number {
 }
 
 function getCableRank(value: string | undefined): number {
-  if (includesAny(value, ["fiber"])) return 6;
+  if (includesAny(value, ["fibre", "fiber", "optical"])) return 6;
   if (includesAny(value, ["cat7"])) return 5;
   if (includesAny(value, ["cat6a"])) return 4;
   if (includesAny(value, ["cat6"])) return 3;
   if (includesAny(value, ["cat5e"])) return 2;
-  if (includesAny(value, ["direct local patch"])) return 1;
+  if (includesAny(value, ["hdmi (direct)", "usb-c (direct)", "ip (network)"])) return 1;
   return 0;
 }
 
@@ -567,7 +516,7 @@ function getWorkflowTrack(record: GuidedProjectRecord): string {
   if (getTransportReachM(record) > 0 || hasText(record.sourceConnectionType) || hasText(record.displayConnectionType)) {
     return "Extend a signal";
   }
-  return "Not sure yet";
+  return "Extend a signal";
 }
 
 function isTrack(record: GuidedProjectRecord, token: string): boolean {
@@ -575,7 +524,7 @@ function isTrack(record: GuidedProjectRecord, token: string): boolean {
 }
 
 function isSingleDeviceScope(record: GuidedProjectRecord): boolean {
-  return includesAny(record.projectScope, ["single device", "refresh or replacement"]);
+  return !hasText(record.projectScope) || includesAny(record.projectScope, ["single device", "refresh or replacement"]);
 }
 
 function isRoomScope(record: GuidedProjectRecord): boolean {
@@ -638,18 +587,25 @@ function needsDisplayCableDetail(record: GuidedProjectRecord): boolean {
 function needsUsbStandardDetail(record: GuidedProjectRecord): boolean {
   return (
     !includesAny(record.usbNeeds, ["none"]) &&
-    (hasText(record.usbNeeds) || includesAny(record.sourceTypes, ["camera", "microphone", "soundbar", "byod"]))
+    (hasText(record.usbNeeds) ||
+      includesAny(record.sourceTypes, ["camera", "microphone", "soundbar", "byod"]) ||
+      featureRequested(record, "usb"))
   );
 }
 
 function needsAudioBreakout(record: GuidedProjectRecord): boolean {
-  return !includesAny(record.audioNeeds, ["none", "display audio only"]) && hasText(record.audioNeeds);
+  return (
+    featureRequested(record, "audio breakout") ||
+    (!includesAny(record.audioNeeds, ["none", "display audio only"]) && hasText(record.audioNeeds))
+  );
 }
 
 function needsPassthroughDetail(record: GuidedProjectRecord): boolean {
   return (
     includesAny(getWorkflowTrack(record), ["extend", "duplicate", "switch", "distribute"]) ||
-    includesAny(record.controlNeeds, ["ip control", "automation", "matrix"])
+    includesAny(record.controlNeeds, ["ip control", "automation", "matrix"]) ||
+    featureRequested(record, "control ports") ||
+    featureRequested(record, "pass-through")
   );
 }
 
@@ -657,7 +613,9 @@ function needsPowerPreference(record: GuidedProjectRecord): boolean {
   return (
     includesAny(getWorkflowTrack(record), ["extend", "duplicate"]) ||
     includesAny(record.sourceConnectionType, ["hdbaset"]) ||
-    includesAny(record.displayConnectionType, ["hdbaset"])
+    includesAny(record.displayConnectionType, ["hdbaset"]) ||
+    featureRequested(record, "poh") ||
+    featureRequested(record, "remote power")
   );
 }
 
@@ -671,33 +629,6 @@ const QUESTION_DEFS: GuidedProjectQuestion[] = [
     options: WORKFLOW_TRACK_DETAILS.map((item) => item.value),
     optionDetails: WORKFLOW_TRACK_DETAILS,
     fullWidth: true,
-  },
-  {
-    id: "projectScope",
-    step: 0,
-    label: "How wide is this conversation?",
-    helper: "This keeps the workflow focused on a product shortlist when the customer only needs one device.",
-    input: "cards",
-    options: PROJECT_SCOPE_DETAILS.map((item) => item.value),
-    optionDetails: PROJECT_SCOPE_DETAILS,
-    fullWidth: true,
-  },
-  {
-    id: "customerOutcome",
-    step: 0,
-    label: "Customer outcome in plain English",
-    helper: "Write the actual ask, for example: send a laptop 35m to a display with USB camera support.",
-    input: "textarea",
-    fullWidth: true,
-    placeholder: "Describe the outcome the customer is trying to achieve.",
-  },
-  {
-    id: "applicationType",
-    step: 0,
-    label: "Application",
-    helper: "Capture the environment, but only after the product direction is clear.",
-    input: "select",
-    options: APPLICATIONS,
   },
   {
     id: "sourceCount",
@@ -727,6 +658,17 @@ const QUESTION_DEFS: GuidedProjectQuestion[] = [
       num(record.sourceCount) > 0 ||
       !isTrack(record, "not sure yet"),
     branchReason: () => "Output behaviour is the fastest way to avoid recommending a matrix for a simple splitter job.",
+  },
+  {
+    id: "featureRequirements",
+    step: 1,
+    label: "Feature requirements",
+    helper: "Tick the specific device capabilities the customer already knows they need.",
+    input: "multiSelect",
+    options: FEATURE_REQUIREMENTS,
+    fullWidth: true,
+    shouldAsk: (record) => hasText(record.workflowTrack),
+    branchReason: () => "Known must-have features help narrow the shortlist before transport detail gets too deep.",
   },
   {
     id: "cableDistanceM",
@@ -1003,8 +945,9 @@ const QUESTION_DEFS: GuidedProjectQuestion[] = [
 export function createEmptyGuidedProjectRecord(): GuidedProjectRecord {
   return {
     workflowTrack: "",
-    projectScope: "",
+    projectScope: "Single device or signal path",
     customerOutcome: "",
+    featureRequirements: "",
     customer: "",
     site: "",
     roomName: "",
@@ -1077,10 +1020,10 @@ export function buildBranchHighlights(record: GuidedProjectRecord): string[] {
     items.push("Choose the direction card that best matches the customer outcome before talking about room scope.");
   }
   if (!hasText(record.projectScope)) {
-    items.push("Confirm whether this is a single-device need, part of a room workflow, or a complete system.");
+    items.push("Keep the shortlist focused on a single device or signal path unless the brief expands.");
   }
-  if (!hasText(record.customerOutcome)) {
-    items.push("Capture the customer ask in one plain-English sentence so the workflow stays outcome-led.");
+  if (!hasSelections(record.featureRequirements)) {
+    items.push("Tick any must-have features such as USB support, audio breakout, or control ports.");
   }
   if (!hasText(record.sourceCount)) {
     items.push("Confirm how many source devices need support.");
@@ -1163,15 +1106,14 @@ export function buildGuidedProjectLenses(record: GuidedProjectRecord): GuidedPro
     {
       id: "customer-outcome",
       title: "Customer outcome",
-      state: lensState(trackConfirmed && scopeConfirmed && hasText(record.customerOutcome), trackConfirmed || scopeConfirmed),
+      state: lensState(trackConfirmed && scopeConfirmed, trackConfirmed || scopeConfirmed),
       summary:
         trackConfirmed && scopeConfirmed
           ? `${workflowTrack} is the active path for a ${record.projectScope.toLowerCase()} conversation.`
-          : "Wingman still needs the directional outcome and the true project scope before it should assume a system design.",
+          : "Wingman is keeping this on a narrow product-shortlist path unless the brief expands into room design.",
       prompts: uniq([
         trackConfirmed ? `Direction chosen: ${record.workflowTrack}.` : "Choose the direction card that best matches the customer ask.",
-        scopeConfirmed ? `Scope: ${record.projectScope}.` : "Confirm whether this is a single-device need or a broader room/system conversation.",
-        hasText(record.customerOutcome) ? `Outcome: ${record.customerOutcome}.` : "Capture the customer outcome in one plain-English sentence.",
+        scopeConfirmed ? `Scope: ${record.projectScope}.` : "Keep the conversation focused on a single device or signal path.",
       ]).slice(0, 3),
     },
     {
@@ -1186,6 +1128,9 @@ export function buildGuidedProjectLenses(record: GuidedProjectRecord): GuidedPro
         hasText(record.sourceCount) ? `Sources: ${record.sourceCount}.` : "Confirm the number of source devices.",
         hasText(record.displayCount) ? `Destinations: ${record.displayCount}.` : "Confirm the number of displays or endpoints.",
         hasText(record.outputBehaviour) ? `Output behaviour: ${record.outputBehaviour}.` : "Confirm whether outputs are mirrored or independently switched.",
+        hasSelections(record.featureRequirements)
+          ? `Required features: ${formatSelections(record.featureRequirements)}.`
+          : "Tick any must-have device features before moving into transport detail.",
         hasText(transportBand) ? `Reach band: ${transportBand}.` : "Capture the practical reach band or installed distance.",
       ]).slice(0, 4),
     },
@@ -1252,14 +1197,15 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
   const signalDemand = getSignalDemand(record.signalFormats);
   const hdrDemand = getHdrDemand(record.signalHdr);
   const usbDemand = getUsbDemand(record.usbStandards);
+  const featureRequirements = parseGuidedProjectSelections(record.featureRequirements);
   const sources = num(record.sourceCount);
   const displays = num(record.displayCount);
   const sameContent = includesAny(outputBehaviour, ["same content"]);
   const independentSwitching = includesAny(outputBehaviour, ["independent"]);
   const passthroughSelections = parseGuidedProjectSelections(record.passthroughNeeds);
   const structuredCableKnown =
-    includesAny(record.sourceCableType, ["cat5e", "cat6", "cat6a", "cat7", "fiber"]) ||
-    includesAny(record.displayCableType, ["cat5e", "cat6", "cat6a", "cat7", "fiber"]);
+    includesAny(record.sourceCableType, ["cat5e", "cat6", "cat6a", "cat7", "fibre", "fiber", "optical"]) ||
+    includesAny(record.displayCableType, ["cat5e", "cat6", "cat6a", "cat7", "fibre", "fiber", "optical"]);
   const premiumCable = Math.max(getCableRank(record.sourceCableType), getCableRank(record.displayCableType)) >= 4;
   const networkLed =
     includesAny(sourcePath, ["network"]) ||
@@ -1386,6 +1332,26 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
   if (structuredCableKnown && premiumCable && track !== "distribute over network") {
     addScore("HDBaseT", 1, "Known structured cabling supports a credible HDBaseT shortlist.");
   }
+  if (featureRequested(record, "usb")) {
+    addScore("USB Extension", 2, "USB support is already a declared must-have feature, so USB-capable products stay high in the shortlist.");
+    addScore("Apollo", 1, "USB support often signals collaboration-led workflows.");
+  }
+  if (featureRequested(record, "audio breakout")) {
+    addScore("HDBaseT", 1, "Audio breakout is a declared requirement, which favours products with stronger I/O utility.");
+    addScore("Matrix", 1, "Audio breakout can also keep switchers and matrix-style products in play.");
+  }
+  if (featureRequested(record, "control ports") || featureRequested(record, "pass-through")) {
+    addScore("HDBaseT", 1, "Control ports or pass-through are known requirements, which helps separate utility-rich products from simple transport-only devices.");
+  }
+  if (featureRequested(record, "poh") || featureRequested(record, "remote power")) {
+    addScore("HDBaseT", 2, "PoH or remote power keeps powered extension products high on the shortlist.");
+  }
+  if (featureRequested(record, "network") || featureRequested(record, "avoip")) {
+    addScore("AVoIP", 3, "A network-ready requirement pushes the shortlist toward distributed AV options.");
+  }
+  if (featureRequested(record, "video wall")) {
+    addScore("Video Wall", 3, "Video wall processing is already identified as a must-have capability.");
+  }
   if (audioNeeds.includes("dsp") || audioNeeds.includes("dante")) {
     addScore("AVoIP", 1, "A network-aware audio path often pairs naturally with distributed AV conversations.");
   }
@@ -1403,13 +1369,13 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
     nextActions.push("Choose the top-line direction card that best matches the customer outcome.");
   }
   if (!hasText(record.projectScope)) {
-    nextActions.push("Confirm whether this is a single-device ask, part of a room workflow, or a full-system design.");
-  }
-  if (!hasText(record.customerOutcome)) {
-    nextActions.push("Write the customer ask in one plain-English sentence.");
+    nextActions.push("Keep the shortlist focused on a single device or signal path unless the customer expands the brief.");
   }
   if (!hasText(record.sourceCount)) {
     nextActions.push("Confirm the number of source devices.");
+  }
+  if (!hasSelections(record.featureRequirements)) {
+    nextActions.push("Tick any must-have features such as USB support, audio breakout, or control ports.");
   }
   if (!hasText(record.displayCount)) {
     nextActions.push("Confirm the number of displays or destinations.");
@@ -1451,6 +1417,7 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
   cues.push(`Current direction: ${workflowTrack}.`);
   if (hasText(record.projectScope)) cues.push(`Scope: ${record.projectScope}.`);
   if (hasText(record.customerOutcome)) cues.push(`Outcome: ${record.customerOutcome}.`);
+  if (featureRequirements.length > 0) cues.push(`Required features: ${featureRequirements.join(", ")}.`);
   if (hasText(record.outputBehaviour)) cues.push(`Output behaviour: ${record.outputBehaviour}.`);
   if (sources > 0) cues.push(`Sources: ${sources}.`);
   if (displays > 0) cues.push(`Destinations: ${displays}.`);
@@ -1505,8 +1472,7 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
   const coreSignals = [
     hasText(record.workflowTrack) ? "track" : "",
     hasText(record.projectScope) ? "scope" : "",
-    hasText(record.customerOutcome) ? "outcome" : "",
-    hasText(record.applicationType) ? "application" : "",
+    hasSelections(record.featureRequirements) ? "features" : "",
     hasText(record.sourceCount) ? "sources" : "",
     hasText(record.displayCount) ? "displays" : "",
     hasText(record.outputBehaviour) ? "output" : "",
@@ -1550,7 +1516,8 @@ export function buildGuidedProjectNotes(record: GuidedProjectRecord, advice: Gui
     `Scope: ${record.projectScope || "Not confirmed"}`,
     `Likely category: ${advice.focusCategory}`,
     `Primary family: ${advice.primary} (${advice.confidence})`,
-    `Customer outcome: ${record.customerOutcome || "Not confirmed"}`,
+    `Customer outcome: ${record.customerOutcome || record.workflowTrack || "Not confirmed"}`,
+    `Required features: ${formatSelections(record.featureRequirements)}`,
     `Application: ${record.applicationType || "Not confirmed"}`,
     `Sources: ${record.sourceCount || "Not confirmed"}`,
     `Destinations: ${record.displayCount || "Not confirmed"}`,

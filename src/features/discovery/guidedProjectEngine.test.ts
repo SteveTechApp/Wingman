@@ -101,4 +101,26 @@ describe("guidedProjectEngine", () => {
     expect(coreFitQuestions.some((question) => question.id === "roomWidthM")).toBe(false);
     expect(coreFitQuestions.some((question) => question.id === "roomHeightM")).toBe(false);
   });
+
+  it("shows feature checkboxes during core fit", () => {
+    const record = {
+      ...createEmptyGuidedProjectRecord(),
+      workflowTrack: "Extend a signal",
+    };
+
+    const coreFitQuestions = getVisibleQuestionsForStep(record, 1);
+    expect(coreFitQuestions.some((question) => question.id === "featureRequirements")).toBe(true);
+  });
+
+  it("uses core-fit features to unlock later detail questions", () => {
+    const record = {
+      ...createEmptyGuidedProjectRecord(),
+      workflowTrack: "Extend a signal",
+      featureRequirements: "USB support | Audio breakout",
+    };
+
+    const criticalChecksQuestions = getVisibleQuestionsForStep(record, 3);
+    expect(criticalChecksQuestions.some((question) => question.id === "usbStandards")).toBe(true);
+    expect(criticalChecksQuestions.some((question) => question.id === "audioBreakout")).toBe(true);
+  });
 });

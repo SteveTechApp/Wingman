@@ -114,6 +114,7 @@ export type ProjectDiscovery = {
   workflowTrack?: string;
   projectScope?: string;
   customerOutcome?: string;
+  featureRequirements?: string;
   applicationType?: string;
   roomLengthM?: string;
   roomWidthM?: string;
@@ -350,6 +351,7 @@ function normalizeDiscovery(discovery?: ProjectDiscovery): ProjectDiscovery | un
     workflowTrack: discovery.workflowTrack ?? "",
     projectScope: discovery.projectScope ?? "",
     customerOutcome: discovery.customerOutcome ?? "",
+    featureRequirements: discovery.featureRequirements ?? "",
     notes: discovery.notes ?? "",
     installationPath: discovery.installationPath ?? "",
     transportDistanceBand: discovery.transportDistanceBand ?? "",

@@ -954,6 +954,16 @@
   transform:translateY(-1px);
 }
 
+.wm-guru-submit{
+  background: linear-gradient(135deg, #ef852a, #d05819) !important;
+  color: #fff7ea !important;
+  box-shadow: 0 10px 24px rgba(236,123,39,0.24) !important;
+}
+
+.wm-guru-submit:hover{
+  background: linear-gradient(135deg, #f89231, #db601c) !important;
+}
+
 @media (max-width: 1100px){
   .wm-topbar{
     grid-template-columns:1fr;

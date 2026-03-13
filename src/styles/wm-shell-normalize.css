@@ -18,7 +18,7 @@ footer {
 
 /* Main content breathing room */
 main {
-  padding-bottom: calc(var(--wm-shell-footer-h) + 12px) !important;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
 }
 
 /* Common content wrappers */
