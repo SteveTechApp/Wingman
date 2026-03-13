@@ -36,13 +36,74 @@ import {
 } from "@/features/projects/projectStore";
 
 const STORAGE_KEY = "wm_discovery_seed";
+const SNAPSHOT_POSITION_KEY = "wm_discovery_snapshot_position_v1";
+const SNAPSHOT_FLOAT_WIDTH = 350;
+const SNAPSHOT_FLOAT_MARGIN = 8;
+const SNAPSHOT_FLOAT_TOP_MIN = 66;
+const SNAPSHOT_FLOAT_COMPACT_BREAKPOINT = 1100;
+
+type SnapshotFloatPosition = {
+  left: number;
+  top: number;
+};
+
+function clampSnapshotPosition(position: SnapshotFloatPosition): SnapshotFloatPosition {
+  if (typeof window === "undefined") return position;
+  const maxLeft = Math.max(
+    SNAPSHOT_FLOAT_MARGIN,
+    window.innerWidth - SNAPSHOT_FLOAT_WIDTH - SNAPSHOT_FLOAT_MARGIN,
+  );
+  const maxTop = Math.max(SNAPSHOT_FLOAT_TOP_MIN, window.innerHeight - 120);
+  return {
+    left: Math.min(maxLeft, Math.max(SNAPSHOT_FLOAT_MARGIN, position.left)),
+    top: Math.min(maxTop, Math.max(SNAPSHOT_FLOAT_TOP_MIN, position.top)),
+  };
+}
+
+function defaultSnapshotPosition(): SnapshotFloatPosition {
+  if (typeof window === "undefined") {
+    return { left: 18, top: 126 };
+  }
+
+  return clampSnapshotPosition({
+    left: window.innerWidth - SNAPSHOT_FLOAT_WIDTH - 18,
+    top: 126,
+  });
+}
+
+function readSnapshotPosition(): SnapshotFloatPosition {
+  try {
+    const fallback = defaultSnapshotPosition();
+    const raw = localStorage.getItem(SNAPSHOT_POSITION_KEY);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw) as Partial<SnapshotFloatPosition>;
+    const left = Number(parsed.left);
+    const top = Number(parsed.top);
+    return clampSnapshotPosition({
+      left: Number.isFinite(left) ? left : fallback.left,
+      top: Number.isFinite(top) ? top : fallback.top,
+    });
+  } catch {
+    return defaultSnapshotPosition();
+  }
+}
+
+function writeSnapshotPosition(position: SnapshotFloatPosition) {
+  try {
+    localStorage.setItem(SNAPSHOT_POSITION_KEY, JSON.stringify(position));
+  } catch {}
+}
 
 function readRecord(): GuidedProjectRecord {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw
-      ? { ...createEmptyGuidedProjectRecord(), ...(JSON.parse(raw) as Partial<GuidedProjectRecord>) }
-      : createEmptyGuidedProjectRecord();
+    if (!raw) return createEmptyGuidedProjectRecord();
+    const parsed = JSON.parse(raw) as Partial<GuidedProjectRecord>;
+    return {
+      ...createEmptyGuidedProjectRecord(),
+      ...parsed,
+      projectScope: mergeFirst(parsed.projectScope, "Single device or signal path"),
+    };
   } catch {
     return createEmptyGuidedProjectRecord();
   }
@@ -67,8 +128,9 @@ function mergeProject(
   return {
     ...record,
     workflowTrack: mergeFirst(record.workflowTrack, discovery?.workflowTrack),
-    projectScope: mergeFirst(record.projectScope, discovery?.projectScope),
+    projectScope: mergeFirst(record.projectScope, discovery?.projectScope, "Single device or signal path"),
     customerOutcome: mergeFirst(record.customerOutcome, discovery?.customerOutcome),
+    featureRequirements: mergeFirst(record.featureRequirements, discovery?.featureRequirements),
     customer: mergeFirst(record.customer, discovery?.customer, project.customer),
     site: mergeFirst(record.site, discovery?.site, project.site),
     roomName: mergeFirst(record.roomName, discovery?.roomName, project.roomName, project.name),
@@ -246,14 +308,21 @@ function stateLabel(state: "watch" | "active" | "resolved") {
 
 const STEP_SHORT_LABELS: Record<GuidedProjectStep, string> = {
   0: "Start",
-  1: "Scope",
+  1: "Fit",
   2: "Path",
   3: "Checks",
 };
 
+const STEP_COMPACT_SUBTITLES: Record<GuidedProjectStep, string> = {
+  0: "Choose the outcome type.",
+  1: "Confirm counts and distance.",
+  2: "Lock transport and signal path.",
+  3: "Final checks before shortlist.",
+};
+
 const CORE_FIELDS_BY_STEP: Record<GuidedProjectStep, ReadonlyArray<keyof GuidedProjectRecord>> = {
-  0: ["workflowTrack", "projectScope", "customerOutcome", "applicationType"],
-  1: ["sourceCount", "displayCount", "outputBehaviour", "cableDistanceM", "transportDistanceBand"],
+  0: ["workflowTrack"],
+  1: ["sourceCount", "displayCount", "outputBehaviour", "featureRequirements", "cableDistanceM", "transportDistanceBand"],
   2: ["sourcePlacement", "sourceConnectionType", "signalFormats", "displayConnectionType", "networkEnvironment"],
   3: ["usbNeeds", "usbStandards", "audioNeeds", "powerPreference", "passthroughNeeds"],
 };
@@ -302,9 +371,22 @@ export default function DiscoveryWizardPage() {
   const [projectSavedAt, setProjectSavedAt] = React.useState("");
   const [activeStep, setActiveStep] = React.useState<GuidedProjectStep>(0);
   const [followUpVisibility, setFollowUpVisibility] = React.useState<Partial<Record<GuidedProjectStep, boolean>>>({});
+  const [snapshotCollapsed, setSnapshotCollapsed] = React.useState(false);
+  const [snapshotPosition, setSnapshotPosition] = React.useState<SnapshotFloatPosition>(() =>
+    readSnapshotPosition(),
+  );
+  const [isCompactSnapshotViewport, setIsCompactSnapshotViewport] = React.useState(() =>
+    typeof window !== "undefined" ? window.innerWidth <= SNAPSHOT_FLOAT_COMPACT_BREAKPOINT : false,
+  );
   const deferredRecord = React.useDeferredValue(record);
   const didMountRef = React.useRef(false);
   const stepTopRef = React.useRef<HTMLDivElement | null>(null);
+  const snapshotDragRef = React.useRef<null | {
+    startX: number;
+    startY: number;
+    startLeft: number;
+    startTop: number;
+  }>(null);
 
   const advice = React.useMemo(() => buildGuidedProjectAdvice(deferredRecord), [deferredRecord]);
   const progress = React.useMemo(() => getGuidedProjectProgress(record), [record]);
@@ -330,8 +412,22 @@ export default function DiscoveryWizardPage() {
   const showFollowUps = followUpVisibility[activeStep] ?? false;
   const nextPrimaryQuestion = findNextQuestion(record, primaryQuestions);
   const nextFollowUpQuestion = findNextQuestion(record, followUpQuestions);
-  const nextQuestion = nextPrimaryQuestion ?? nextFollowUpQuestion;
-  const secondaryFamilies = advice.families.filter((family) => family !== advice.primary).slice(0, 2);
+  const nextQuestion = nextPrimaryQuestion ?? (showFollowUps ? nextFollowUpQuestion : null);
+  const nextQueuedQuestion = nextPrimaryQuestion ?? nextFollowUpQuestion;
+  const firstPendingPrimaryIndex = primaryQuestions.findIndex(
+    (question) => !hasText(String(record[question.id] ?? "")),
+  );
+  const visiblePrimaryQuestions = primaryQuestions.filter((_, index) =>
+    firstPendingPrimaryIndex === -1 ? true : index <= firstPendingPrimaryIndex,
+  );
+  const firstPendingFollowUpIndex = followUpQuestions.findIndex(
+    (question) => !hasText(String(record[question.id] ?? "")),
+  );
+  const visibleFollowUpQuestions = showFollowUps
+    ? followUpQuestions.filter((_, index) =>
+        firstPendingFollowUpIndex === -1 ? true : index <= firstPendingFollowUpIndex,
+      )
+    : [];
   const saveStatus = projectSavedAt
     ? `Project saved ${projectSavedAt}`
     : draftSavedAt
@@ -375,8 +471,88 @@ export default function DiscoveryWizardPage() {
     stepTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [activeStep]);
 
+  React.useEffect(() => {
+    writeSnapshotPosition(snapshotPosition);
+  }, [snapshotPosition]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const handleResize = () => {
+      setIsCompactSnapshotViewport(window.innerWidth <= SNAPSHOT_FLOAT_COMPACT_BREAKPOINT);
+      setSnapshotPosition((current) => clampSnapshotPosition(current));
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const onPointerMove = (event: PointerEvent) => {
+      if (!snapshotDragRef.current || isCompactSnapshotViewport) return;
+      const dx = event.clientX - snapshotDragRef.current.startX;
+      const dy = event.clientY - snapshotDragRef.current.startY;
+      const next = clampSnapshotPosition({
+        left: snapshotDragRef.current.startLeft + dx,
+        top: snapshotDragRef.current.startTop + dy,
+      });
+      setSnapshotPosition((current) =>
+        current.left === next.left && current.top === next.top ? current : next,
+      );
+    };
+    const stopDragging = () => {
+      snapshotDragRef.current = null;
+    };
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", stopDragging);
+    window.addEventListener("pointercancel", stopDragging);
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", stopDragging);
+      window.removeEventListener("pointercancel", stopDragging);
+    };
+  }, [isCompactSnapshotViewport]);
+
+  const startSnapshotDrag = React.useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      if (isCompactSnapshotViewport || event.button !== 0) return;
+      if (
+        event.target instanceof Element &&
+        event.target.closest(".wm-guided-project-page__snapshotToggle")
+      ) {
+        return;
+      }
+      event.preventDefault();
+      snapshotDragRef.current = {
+        startX: event.clientX,
+        startY: event.clientY,
+        startLeft: snapshotPosition.left,
+        startTop: snapshotPosition.top,
+      };
+    },
+    [isCompactSnapshotViewport, snapshotPosition.left, snapshotPosition.top],
+  );
+
   function updateField(field: keyof GuidedProjectRecord, value: string) {
-    setRecord((previous) => ({ ...previous, [field]: value }));
+    const shouldAdvanceFromOutcome =
+      field === "workflowTrack" &&
+      activeStep === 0 &&
+      !hasText(record.workflowTrack) &&
+      hasText(value);
+    setRecord((previous) => {
+      if (field === "workflowTrack") {
+        const shouldSeedOutcome = !hasText(previous.customerOutcome) || previous.customerOutcome === previous.workflowTrack;
+        return {
+          ...previous,
+          [field]: value,
+          customerOutcome: shouldSeedOutcome ? value : previous.customerOutcome,
+        };
+      }
+      return { ...previous, [field]: value };
+    });
+    if (shouldAdvanceFromOutcome) {
+      setActiveStep(1);
+    }
   }
 
   function save() {
@@ -396,6 +572,7 @@ export default function DiscoveryWizardPage() {
         workflowTrack: payload.workflowTrack,
         projectScope: payload.projectScope,
         customerOutcome: payload.customerOutcome,
+        featureRequirements: payload.featureRequirements,
         customer: payload.customer || activeProject.customer,
         site: payload.site || activeProject.site,
         roomName: payload.roomName || activeProject.roomName || activeProject.name,
@@ -470,7 +647,7 @@ export default function DiscoveryWizardPage() {
   }
 
   return (
-    <div className="wm-page wm-dw6 wm-ui wm-guided-project-page">
+    <div className="wm-page wm-dw6 wm-ui wm-guided-project-page" data-active-step={activeStep}>
       <div className="wm-ui__stack">
         <section className="wm-hero wm-guided-project-page__heroBar">
           <div className="wm-page-hero-row wm-dw6__hero wm-guided-project-page__heroCompact">
@@ -481,7 +658,7 @@ export default function DiscoveryWizardPage() {
                 <span className="wm-guided-project-page__heroPill">Outcome-first</span>
               </div>
               <p className="wm-ui__subtitle">
-                Capture the brief, then progress step-by-step.
+                Short, guided SKU narrowing.
               </p>
             </div>
             <div className="wm-actions-row wm-dw6__heroActions">
@@ -518,12 +695,6 @@ export default function DiscoveryWizardPage() {
             </div>
             <div className="wm-guided-project-page__workflowMeta">
               <span className="wm-guided-project-page__quickPill">Step {activeStep + 1} of {GUIDED_PROJECT_STEPS.length}</span>
-              <span className="wm-guided-project-page__quickMeta">Ask now: {primaryQuestions.length}</span>
-              {followUpQuestions.length > 0 ? (
-                <span className="wm-guided-project-page__quickMeta">
-                  Follow-up: {followUpQuestions.length}
-                </span>
-              ) : null}
             </div>
           </div>
 
@@ -536,36 +707,20 @@ export default function DiscoveryWizardPage() {
                 >
                   <div>
                     <h2 className="wm-ui__sectionTitle">Step {activeStep + 1}: {GUIDED_PROJECT_STEPS[activeStep][0]}</h2>
-                    <p className="wm-ui__sectionText">{GUIDED_PROJECT_STEPS[activeStep][1]}</p>
+                    <p className="wm-ui__sectionText">{STEP_COMPACT_SUBTITLES[activeStep]}</p>
                   </div>
                   <div className="wm-guided-project-page__sectionBadge">
                     {primaryDone}/{primaryQuestions.length || progress[activeStep].total} core prompts
                   </div>
                 </div>
 
-                <div className="wm-guided-project-page__sessionStrip">
-                  <span className="wm-guided-project-page__quickMeta">{saveStatus}</span>
-                  <span className="wm-guided-project-page__quickMeta">
-                    {nextQuestion ? `Ask next: ${nextQuestion.label}` : "Core step capture is complete"}
-                  </span>
-                </div>
-
                 <div className="wm-dw6__wizardShell wm-guided-project-page__wizardShell">
-                  <div className="wm-guided-project-page__callout">
-                    <div className="wm-guided-project-page__calloutTitle">Start narrow, then qualify</div>
-                    <div className="wm-guided-project-page__calloutCopy">
-                      Each path asks only the details that reduce the WyreStorm shortlist.
-                    </div>
-                  </div>
                 <div className="wm-guided-project-page__questionStack">
-                  {primaryQuestions.map((question) => (
+                  {visiblePrimaryQuestions.map((question) => (
                     <section
                       key={question.id}
                       className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextQuestion?.id === question.id ? " is-focus is-active-flow" : ""}${nextQuestion && nextQuestion.id !== question.id ? " is-dimmed-flow" : ""}`}
                     >
-                        {question.branchReasonText ? (
-                          <div className="wm-gp__questionReason">{question.branchReasonText}</div>
-                        ) : null}
                         <div className="wm-ui__field">
                           <span className="wm-ui__label">{question.label}</span>
                           {renderField(
@@ -573,7 +728,9 @@ export default function DiscoveryWizardPage() {
                             String(record[question.id] ?? ""),
                             (value) => updateField(question.id, value),
                           )}
-                          <span className="wm-gp__field-help">{question.helper}</span>
+                          {nextQuestion?.id === question.id ? (
+                            <span className="wm-gp__field-help">{question.helper}</span>
+                          ) : null}
                         </div>
                       </section>
                     ))}
@@ -602,14 +759,11 @@ export default function DiscoveryWizardPage() {
                             Use these only when the customer can go deeper or when you need the last details to separate similar SKUs.
                           </div>
                           <div className="wm-guided-project-page__questionStack wm-guided-project-page__questionStack--secondary">
-                            {followUpQuestions.map((question) => (
+                            {visibleFollowUpQuestions.map((question) => (
                               <section
                                 key={question.id}
                                 className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextQuestion?.id === question.id ? " is-focus is-active-flow" : ""}${nextQuestion && nextQuestion.id !== question.id ? " is-dimmed-flow" : ""}`}
                               >
-                                {question.branchReasonText ? (
-                                  <div className="wm-gp__questionReason">{question.branchReasonText}</div>
-                                ) : null}
                                 <div className="wm-ui__field">
                                   <span className="wm-ui__label">{question.label}</span>
                                   {renderField(
@@ -617,7 +771,9 @@ export default function DiscoveryWizardPage() {
                                     String(record[question.id] ?? ""),
                                     (value) => updateField(question.id, value),
                                   )}
-                                  <span className="wm-gp__field-help">{question.helper}</span>
+                                  {nextQuestion?.id === question.id ? (
+                                    <span className="wm-gp__field-help">{question.helper}</span>
+                                  ) : null}
                                 </div>
                               </section>
                             ))}
@@ -655,56 +811,6 @@ export default function DiscoveryWizardPage() {
               </div>
 
               <aside className="wm-guided-project-page__sidebar">
-                <section className={`wm-guided-project-page__readout wm-guided-project-page__readout--compact${nextQuestion ? " is-dimmed-flow" : " is-active-flow"}`}>
-                  <div className="wm-guided-project-page__readout-top">
-                    <div>
-                      <div className="wm-gp__summaryEyebrow">Likely category</div>
-                      <div className="wm-gp__summaryTitle">{advice.focusCategory}</div>
-                    </div>
-                    <div className="wm-guided-project-page__readoutAside">
-                      <div className="wm-gp__confidence">{advice.confidence} confidence</div>
-                      <div className="wm-guided-project-page__nextTool">
-                        Next: {getNextToolLabel(advice.nextToolPath)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="wm-gp__summaryCopy">{advice.workflowSummary}</p>
-
-                  <div className="wm-ui__chips">
-                    <span className="wm-ui__chip wm-ui__chip--active">
-                      {advice.primary} family
-                    </span>
-                    {secondaryFamilies.map((family) => (
-                      <span key={family} className="wm-ui__chip">
-                        {family}
-                      </span>
-                    ))}
-                  </div>
-                </section>
-
-                <section className={`wm-guided-project-page__summaryPanel${nextQuestion ? " is-dimmed-flow" : " is-active-flow"}`}>
-                  <div className="wm-guided-project-page__summaryLabel">Live snapshot</div>
-                  <div className="wm-guided-project-page__summaryList">
-                    <div className="wm-guided-project-page__summaryItem">
-                      <span>Direction</span>
-                      <strong>{record.workflowTrack || "Not confirmed yet"}</strong>
-                    </div>
-                    <div className="wm-guided-project-page__summaryItem">
-                      <span>Project</span>
-                      <strong>{activeProject?.name || record.roomName || "Current guided project"}</strong>
-                    </div>
-                    <div className="wm-guided-project-page__summaryItem">
-                      <span>Save state</span>
-                      <strong>{saveStatus}</strong>
-                    </div>
-                    <div className="wm-guided-project-page__summaryItem">
-                      <span>Ask next</span>
-                      <strong>{nextQuestion?.label || "Core step capture is complete"}</strong>
-                    </div>
-                  </div>
-                </section>
-
                 <div className={`wm-guided-project-page__drawers${nextQuestion ? " is-dimmed-flow" : ""}`}>
                   <details className="wm-guided-project-page__drawer wm-guided-project-page__drawer--coach">
                     <summary>Coach notes and recommendation logic</summary>
@@ -754,6 +860,60 @@ export default function DiscoveryWizardPage() {
               </aside>
             </div>
           </div>
+        </section>
+
+        <section
+          className={`wm-guided-project-page__snapshotFloat${nextQuestion ? " is-dimmed-flow" : " is-active-flow"}${snapshotCollapsed ? " is-collapsed" : ""}`}
+          aria-label="Live snapshot"
+          style={
+            isCompactSnapshotViewport
+              ? undefined
+              : {
+                  left: snapshotPosition.left,
+                  top: snapshotPosition.top,
+                  right: "auto",
+                }
+          }
+        >
+          <header className="wm-guided-project-page__snapshotHead" onPointerDown={startSnapshotDrag}>
+            <div>
+              <div className="wm-guided-project-page__summaryLabel">Live snapshot</div>
+              <div className="wm-guided-project-page__snapshotSubhead">Conversation outcome</div>
+            </div>
+            <button
+              type="button"
+              className="wm-guided-project-page__snapshotToggle"
+              onClick={() => setSnapshotCollapsed((value) => !value)}
+              aria-expanded={!snapshotCollapsed}
+            >
+              {snapshotCollapsed ? "Expand" : "Minimise"}
+            </button>
+          </header>
+          {!snapshotCollapsed ? (
+            <div className="wm-guided-project-page__summaryList">
+              <div className="wm-guided-project-page__summaryItem">
+                <span>Direction</span>
+                <strong>{record.workflowTrack || "Not confirmed yet"}</strong>
+              </div>
+              <div className="wm-guided-project-page__summaryItem">
+                <span>Project</span>
+                <strong>{activeProject?.name || record.roomName || "Current guided project"}</strong>
+              </div>
+              <div className="wm-guided-project-page__summaryItem">
+                <span>Save state</span>
+                <strong>{saveStatus}</strong>
+              </div>
+              <div className="wm-guided-project-page__summaryItem">
+                <span>Ask next</span>
+                <strong>
+                  {nextQuestion?.label ||
+                    (nextQueuedQuestion
+                      ? "Open follow-up detail for additional narrowing"
+                      : "Core step capture is complete")}
+                </strong>
+              </div>
+            </div>
+          ) : null}
         </section>
       </div>
     </div>

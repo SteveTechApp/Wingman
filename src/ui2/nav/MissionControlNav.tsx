@@ -22,7 +22,6 @@ const NAV_ITEMS: NavItem[] = [
   { section: "Mission Control", tone: "mission", title: "Dashboard", short: "MC", to: "/app/dashboard" },
   { section: "Mission Control", tone: "mission", title: "Projects", short: "PR", to: "/app/projects" },
   { section: "Mission Control", tone: "mission", title: "Workspace", short: "WS", to: "/app/settings/workspace" },
-  { section: "Mission Control", tone: "mission", title: "Project Flow", short: "PF", to: "/app/dashboard" },
 
   { section: "Workflow", tone: "workflow", title: "Guided Project", short: "GP", to: "/app/tools/discovery" },
   { section: "Workflow", tone: "workflow", title: "Architecture", short: "AR", to: "/app/dashboard" },

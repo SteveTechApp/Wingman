@@ -794,28 +794,36 @@ export default function VideoWallPlannerPage() {
 
   return (
     <div className="wm-dashboard wm-video-wall-page" data-page="video-wall">
-      <section className="wm-dashboard__hero">
+      <section className="wm-dashboard__hero wm-video-wall-page__hero">
         <div>
           <div className="wm-dashboard__eyebrow">Video Wall Wizard</div>
           <h1 className="wm-dashboard__title">LED / LCD video wall planner</h1>
-          <p className="wm-dashboard__subtitle">
-            LED mode models a single 1x1 signal output canvas into an LED processor (with Hisense technology presets), while LCD mode supports panel-by-panel, tile-loop, and processor paths.
+          <p className="wm-dashboard__subtitle wm-video-wall-page__hero-copy">
+            Plan wall size, output mapping, and processor fit in one pass.
           </p>
 
-          <div className="wm-dashboard__meta">
-            <span className="wm-chip">Technology: {draft.technology}</span>
-            <span className="wm-chip">Signal output: {outputCols}x{outputRows}</span>
-            <span className="wm-chip">Physical layout: {physicalCols}x{physicalRows}</span>
+          <div className="wm-dashboard__meta wm-video-wall-page__hero-meta">
+            <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--tech">Mode: {draft.technology}</span>
+            <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--signal">Output: {outputCols}x{outputRows}</span>
+            <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--layout">Layout: {physicalCols}x{physicalRows}</span>
             {draft.technology === "LED" ? (
-              <span className="wm-chip">Profile: {selectedLedTechnologyProfile.label}</span>
+              <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--profile">
+                Preset: {selectedLedTechnologyProfile.manufacturer} {draft.ledScreenClass === "modular" ? "modular" : "AIO"}
+              </span>
             ) : null}
             {computed.canvasWidthPx && computed.canvasHeightPx ? (
-              <span className="wm-chip">Canvas: {computed.canvasWidthPx}x{computed.canvasHeightPx}px</span>
+              <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--canvas">
+                Canvas: {computed.canvasWidthPx}x{computed.canvasHeightPx}px
+              </span>
             ) : null}
             {computed.distortionRiskLevel ? (
-              <span className="wm-chip">Distortion risk: {computed.distortionRiskLevel}</span>
+              <span className={`wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--risk is-${computed.distortionRiskLevel.toLowerCase()}`}>
+                Risk: {computed.distortionRiskLevel}
+              </span>
             ) : null}
-            <span className="wm-chip">Approx size: {computed.widthM.toFixed(2)}m x {computed.heightM.toFixed(2)}m</span>
+            <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--size">
+              Size: {computed.widthM.toFixed(2)}m x {computed.heightM.toFixed(2)}m
+            </span>
           </div>
         </div>
 
@@ -833,9 +841,9 @@ export default function VideoWallPlannerPage() {
       </section>
 
       <section className="wm-page-grid-sidebar">
-        <div className="wm-card">
+        <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--inputs">
           <div className="wm-card__title">Wall inputs</div>
-          <div className="wm-card__subtitle">Choose LCD or LED and define the key planning parameters.</div>
+          <div className="wm-card__subtitle">Set the wall, sources, and signal path.</div>
 
           <div className="wm-field-wrap" style={{ marginTop: 12 }}>
             <span className="wm-label">Technology</span>
@@ -1019,9 +1027,9 @@ export default function VideoWallPlannerPage() {
         </div>
 
         <div className="wm-section-stack">
-          <div className="wm-card">
+          <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--summary">
             <div className="wm-card__title">Wall summary</div>
-            <div className="wm-card__subtitle">{computed.summary}</div>
+            <div className="wm-card__subtitle">Live geometry and signal readout.</div>
 
             <div className="wm-summary-list">
               <div className="wm-summary-row"><span>Technology</span><strong>{draft.technology}</strong></div>
@@ -1050,9 +1058,9 @@ export default function VideoWallPlannerPage() {
           </div>
 
           <div className="wm-page-grid-2">
-            <div className="wm-card">
+            <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--recommendation">
               <div className="wm-card__title">Processor recommendation</div>
-              <div className="wm-card__subtitle">{computed.recommendation.title}</div>
+              <div className="wm-card__subtitle">Recommended path and hardware.</div>
 
               <div className="wm-summary-list">
                 <div className="wm-summary-row"><span>Design summary</span><strong>{computed.recommendation.summary}</strong></div>
@@ -1083,9 +1091,9 @@ export default function VideoWallPlannerPage() {
               </div>
             </div>
 
-            <div className="wm-card">
+            <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--notes">
               <div className="wm-card__title">Mounting notes</div>
-              <div className="wm-card__subtitle">These notes are written into the project when you apply the design.</div>
+              <div className="wm-card__subtitle">Saved into the project record.</div>
 
               <div className="wm-summary-list">
                 {notes.map((item) => (
@@ -1099,9 +1107,9 @@ export default function VideoWallPlannerPage() {
           </div>
 
           {computed.warnings.length > 0 ? (
-            <div className="wm-card">
+            <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--warnings">
               <div className="wm-card__title">Design warnings</div>
-              <div className="wm-card__subtitle">Review before proposal sign-off.</div>
+              <div className="wm-card__subtitle">Check before proposal handoff.</div>
 
               <div className="wm-summary-list">
                 {computed.warnings.map((warning) => (
@@ -1115,9 +1123,9 @@ export default function VideoWallPlannerPage() {
           ) : null}
 
           {computed.hardWarnings.length > 0 ? (
-            <div className="wm-card">
+            <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--critical">
               <div className="wm-card__title">Hard warnings</div>
-              <div className="wm-card__subtitle">Resolve these issues before customer-facing recommendation.</div>
+              <div className="wm-card__subtitle">Resolve before customer handoff.</div>
 
               <div className="wm-summary-list">
                 {computed.hardWarnings.map((warning) => (
@@ -1130,12 +1138,12 @@ export default function VideoWallPlannerPage() {
             </div>
           ) : null}
 
-          <div className="wm-card">
+          <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--target">
             <div className="wm-card__title">Project target</div>
             <div className="wm-card__subtitle">
               {activeProject
-                ? `Current active project: ${activeProject.name}`
-                : "No active project selected. Applying will use or create a live project record."}
+                ? `Active project: ${activeProject.name}`
+                : "No active project selected yet."}
             </div>
 
             <div className="wm-summary-list">

@@ -205,7 +205,7 @@ export default function GuruWidget() {
                     onChange={(e) => setQ(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
                   />
-                  <button className={cls("wm-btn", "wm-btn-primary")} onClick={submit} disabled={busy}>
+                  <button className={cls("wm-btn", "wm-btn-primary", "wm-guru-submit")} onClick={submit} disabled={busy}>
                     {busy ? "ThinkingÃ¢â‚¬Â¦" : "Ask"}
                   </button>
                 </div>
