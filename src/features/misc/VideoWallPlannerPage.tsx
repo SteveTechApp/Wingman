@@ -1,5 +1,8 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { findCatalogProductBySku } from "@/catalog/repository";
+import type { CatalogProduct } from "@/catalog/types";
+import { deriveVideoWallPreview } from "@/features/videowall/videoWallPreview";
 import {
   applyVideoWallToProject,
   createProject,
@@ -39,6 +42,7 @@ type RecommendationItem = {
   sku: string;
   quantity: number;
   role: string;
+  catalogSku?: string;
 };
 
 type DistortionRiskLevel = "Low" | "Medium" | "High";
@@ -344,6 +348,52 @@ function findLedProcessorProfile(id: string | undefined): LedProcessorProfile {
   return LED_PROCESSOR_PROFILES.find((item) => item.id === id) ?? LED_PROCESSOR_PROFILES[0];
 }
 
+function pushUnique(list: string[], message: string): void {
+  if (!list.includes(message)) list.push(message);
+}
+
+function addAvoipNetworkWarnings(list: string[], qualityProfile: DraftState["qualityProfile"]): void {
+  pushUnique(
+    list,
+    "NetworkHD requires a managed switch. Use a dedicated AV switch or a customer switch with a properly planned AV VLAN."
+  );
+  pushUnique(
+    list,
+    "If you plan to use the customer's existing network, engage the IT department early to confirm VLAN, multicast, IGMP, QoS, and security policy requirements."
+  );
+
+  if (qualityProfile === "premium") {
+    pushUnique(
+      list,
+      "Premium 600-series designs require 10GbE switching and endpoint links. Validate optics, cabling, and switching capacity before committing."
+    );
+  }
+}
+
+function addLatencyGuidance(list: string[], qualityProfile: DraftState["qualityProfile"], mode: DraftState["processorInputMode"]): void {
+  if (qualityProfile === "cost") {
+    pushUnique(
+      list,
+      "Low-bandwidth AVoIP paths are best for signage, TV, and non-interactive display use. They are less suitable when lip-sync, live microphones, or control responsiveness are critical."
+    );
+  }
+  if (mode === "multiview") {
+    pushUnique(
+      list,
+      "Multiview composition adds processing overhead. Check live-audio sync and operator responsiveness before choosing a low-bandwidth path."
+    );
+  }
+}
+
+function addUsbBandwidthGuidance(list: string[], qualityProfile: DraftState["qualityProfile"]): void {
+  if (qualityProfile !== "cost") {
+    pushUnique(
+      list,
+      "If USB routing or KVM is required, confirm the endpoint model supports it and budget additional network bandwidth for video plus USB traffic."
+    );
+  }
+}
+
 function recommendLcdWall(args: {
   rows: number;
   cols: number;
@@ -357,6 +407,11 @@ function recommendLcdWall(args: {
   const aspectMismatch = Math.abs(args.contentAspect.ratio - wallAspect) / wallAspect;
   const warnings: string[] = [];
   const is4x2 = args.rows === 2 && args.cols === 4;
+  const avoipSwitchItem: RecommendationItem = {
+    sku: "Project-specific",
+    quantity: 1,
+    role: "Managed AV network switch / VLAN fabric",
+  };
 
   if (isNonStandardLcdLayout(args.rows, args.cols) && args.driveStrategy !== "decoder-per-screen") {
     warnings.push("Non-standard LCD layouts are safer with decoder-per-screen driving.");
@@ -369,42 +424,110 @@ function recommendLcdWall(args: {
   }
 
   if (args.driveStrategy === "decoder-per-screen") {
-    const decoderSku = args.qualityProfile === "premium" ? "NHD-600-TRX" : "NHD-500-RX";
-    const encoderSku = args.qualityProfile === "premium" ? "NHD-600-TRX" : "NHD-500-TX";
+    let decoderSku = "NHD-500-RX";
+    let encoderSku = "NHD-500-TX";
+    if (args.qualityProfile === "cost") {
+      decoderSku = "NHD-120-RX";
+      encoderSku = "NHD-120-TX";
+    } else if (args.qualityProfile === "premium") {
+      decoderSku = "NHD-600-TRX";
+      encoderSku = "NHD-600-TRX";
+    }
+    addAvoipNetworkWarnings(warnings, args.qualityProfile);
+    addLatencyGuidance(warnings, args.qualityProfile, "single-source");
+    addUsbBandwidthGuidance(warnings, args.qualityProfile);
     return {
       title: "Decoder-per-screen (recommended)",
-      summary: "Best fit for flexible zones, 4x2/non-standard walls, and bezel-conscious installs.",
+      summary: "Best fit for flexible zones, 4x2 or non-standard walls, and bezel-conscious installs where each panel needs its own mapped endpoint.",
       outputTopology: `${args.cols}x${args.rows} independent panel mapping`,
       warnings,
       items: [
         { sku: decoderSku, quantity: panelCount, role: "One decoder per panel" },
         { sku: encoderSku, quantity: Math.max(1, args.sourceCount), role: "Source ingest" },
         { sku: "NHD-CTL-PRO", quantity: 1, role: "NetworkHD controller" },
+        avoipSwitchItem,
       ],
     };
   }
 
   if (args.driveStrategy === "tile-loop-multiview") {
-    const multiviewSku = args.qualityProfile === "premium" ? "NHD-600-TRX" : "NHD-150-RX";
+    if (args.qualityProfile === "premium") {
+      addAvoipNetworkWarnings(warnings, args.qualityProfile);
+      addLatencyGuidance(warnings, args.qualityProfile, "multiview");
+      addUsbBandwidthGuidance(warnings, args.qualityProfile);
+      pushUnique(
+        warnings,
+        "NHD-600 multiview depends on secondary streams. Shared sources across multiple multiview decoders need matching layout expectations."
+      );
+      return {
+        title: "600-series multiview into display tile loop",
+        summary: "Premium AVoIP composition path for a single composite feed into a display-side tile wall.",
+        outputTopology: "Single composite wall feed to first panel / display tile loop",
+        warnings,
+        items: [
+          { sku: "NHD-600-TRX", quantity: Math.max(1, args.sourceCount), role: "Source-side transceivers" },
+          { sku: "NHD-600-TRX", quantity: 1, role: "Composite wall-feed transceiver" },
+          { sku: "NHD-CTL-PRO", quantity: 1, role: "NetworkHD controller" },
+          avoipSwitchItem,
+        ],
+      };
+    }
+
+    if (args.qualityProfile === "balanced" && args.sourceCount <= 4) {
+      addAvoipNetworkWarnings(warnings, args.qualityProfile);
+      addLatencyGuidance(warnings, args.qualityProfile, "multiview");
+      addUsbBandwidthGuidance(warnings, args.qualityProfile);
+      return {
+        title: "500-series multiview into display tile loop",
+        summary: "Higher-quality single composite feed built with NetworkHD and a dedicated multiview processor.",
+        outputTopology: "Single composite wall feed to first panel / display tile loop",
+        warnings,
+        items: [
+          { sku: "NHD-500-TX", quantity: Math.max(1, args.sourceCount), role: "Source ingest" },
+          { sku: "NHD-0401-MV", quantity: 1, role: "4-input multiview compositor" },
+          { sku: "NHD-CTL-PRO", quantity: 1, role: "NetworkHD controller" },
+          avoipSwitchItem,
+        ],
+      };
+    }
+
+    addAvoipNetworkWarnings(warnings, args.qualityProfile);
+    addLatencyGuidance(warnings, args.qualityProfile, "multiview");
+    pushUnique(
+      warnings,
+      "NHD-150-RX is a 100-series multiview receiver, not a per-panel wall decoder. Use this path only when the display chain itself handles the tile layout."
+    );
+    if (args.sourceCount > 9) {
+      pushUnique(warnings, "NHD-150-RX supports up to 9 multiview tiles. Larger source counts require a different composition path.");
+    }
     return {
-      title: "Tile-loop multiview",
-      summary: "Single composite feed into tile-mode display chain.",
+      title: "100-series multiview into display tile loop",
+      summary: "Budget composite-feed path for signage-style walls using the display's own tile mode.",
       outputTopology: "Single wall feed to display tile loop",
       warnings,
       items: [
-        {
-          sku: multiviewSku,
-          quantity: 1,
-          role: multiviewSku === "NHD-150-RX" ? "Up to 9-window low-bandwidth multiview" : "Premium high-quality multiview",
-        },
+        { sku: "NHD-120-TX", quantity: Math.max(1, args.sourceCount), role: "Source ingest" },
+        { sku: "NHD-150-RX", quantity: 1, role: "Up to 9-window multiview output" },
+        { sku: "NHD-CTL-PRO", quantity: 1, role: "NetworkHD controller" },
+        avoipSwitchItem,
       ],
     };
   }
 
   const processorSku = panelCount <= 4 ? "SW-0204-VW" : "SW-0206-VW";
+  if (args.sourceCount > 2) {
+    pushUnique(
+      warnings,
+      "Dedicated wall processors are fixed-I/O devices. If you need more than a small number of live sources, plan an upstream switching layer."
+    );
+  }
+  pushUnique(
+    warnings,
+    "Dedicated processor paths are less modular than AVoIP and do not provide the same networked USB-routing flexibility."
+  );
   return {
     title: "Dedicated processor",
-    summary: "Simple fixed-layout video wall processor path.",
+    summary: "Simple fixed-layout processor path when a traditional, fixed-I/O wall design is preferred over a modular AVoIP workflow.",
     outputTopology: "Processor-managed LCD wall map",
     warnings,
     items: [
@@ -425,6 +548,11 @@ function recommendLedWall(args: {
   canvasHeightPx: number;
 }): PlannerRecommendation {
   const warnings: string[] = [];
+  const avoipSwitchItem: RecommendationItem = {
+    sku: "Project-specific",
+    quantity: 1,
+    role: "Managed AV network switch / VLAN fabric",
+  };
   if (args.mode === "multiview" && args.sourceCount > 9 && args.qualityProfile !== "premium") {
     warnings.push("More than 9 windows usually requires a premium multiview path.");
   }
@@ -433,31 +561,119 @@ function recommendLedWall(args: {
   }
 
   if (args.mode === "single-source") {
-    const sku = args.qualityProfile === "premium" ? "NHD-600-TRX" : "NHD-500-RX";
+    if (args.qualityProfile === "cost") {
+      addAvoipNetworkWarnings(warnings, args.qualityProfile);
+      addLatencyGuidance(warnings, args.qualityProfile, args.mode);
+      return {
+        title: "100-series single-canvas LED feed",
+        summary: "Budget AVoIP handoff for signage-style LED designs where latency sensitivity is low.",
+        outputTopology: "1x1 signal output to LED processor",
+        warnings,
+        items: [
+          { sku: "NHD-120-TX", quantity: 1, role: "Source ingest" },
+          { sku: "NHD-120-RX", quantity: 1, role: "LED-processor-side decode" },
+          { sku: "NHD-CTL-PRO", quantity: 1, role: "NetworkHD controller" },
+          avoipSwitchItem,
+        ],
+      };
+    }
+
+    if (args.qualityProfile === "premium") {
+      addAvoipNetworkWarnings(warnings, args.qualityProfile);
+      addLatencyGuidance(warnings, args.qualityProfile, args.mode);
+      addUsbBandwidthGuidance(warnings, args.qualityProfile);
+      return {
+        title: "600-series single-canvas LED feed",
+        summary: "Premium zero-latency style handoff for LED processor inputs where quality and responsiveness are critical.",
+        outputTopology: "1x1 signal output to LED processor",
+        warnings,
+        items: [
+          { sku: "NHD-600-TRX", quantity: 1, role: "Source-side transceiver" },
+          { sku: "NHD-600-TRX", quantity: 1, role: "LED-processor-side transceiver" },
+          { sku: "NHD-CTL-PRO", quantity: 1, role: "NetworkHD controller" },
+          avoipSwitchItem,
+        ],
+      };
+    }
+
+    addAvoipNetworkWarnings(warnings, args.qualityProfile);
+    addLatencyGuidance(warnings, args.qualityProfile, args.mode);
+    addUsbBandwidthGuidance(warnings, args.qualityProfile);
     return {
-      title: "Single-canvas LED feed",
-      summary: "LED walls are fed as one 1x1 output into the LED processor.",
+      title: "500-series single-canvas LED feed",
+      summary: "Balanced-quality AVoIP handoff into the LED processor for most corporate and commercial LED walls.",
       outputTopology: "1x1 signal output to LED processor",
       warnings,
-      items: [{ sku, quantity: 1, role: "Single source to LED processor input" }],
+      items: [
+        { sku: "NHD-500-TX", quantity: 1, role: "Source ingest" },
+        { sku: "NHD-500-RX", quantity: 1, role: "LED-processor-side decode" },
+        { sku: "NHD-CTL-PRO", quantity: 1, role: "NetworkHD controller" },
+        avoipSwitchItem,
+      ],
     };
   }
 
-  const sku = args.qualityProfile === "premium" || args.sourceCount > 9 ? "NHD-600-TRX" : "NHD-150-RX";
+  if (args.qualityProfile === "premium" || args.sourceCount > 4) {
+    addAvoipNetworkWarnings(warnings, "premium");
+    addLatencyGuidance(warnings, "premium", args.mode);
+    addUsbBandwidthGuidance(warnings, "premium");
+    pushUnique(
+      warnings,
+      "600-series multiview uses secondary streams. Verify layout behavior if the same sources must feed more than one multiview destination."
+    );
+    return {
+      title: "600-series multiview LED feed",
+      summary: "Premium composed canvas for LED walls that need higher quality or more complex live-window layouts.",
+      outputTopology: "1x1 signal output to LED processor",
+      warnings: [
+        ...warnings,
+        `Target canvas ${args.canvasWidthPx}x${args.canvasHeightPx}px is delivered as one output.`,
+      ],
+      items: [
+        { sku: "NHD-600-TRX", quantity: Math.max(1, args.sourceCount), role: "Source-side transceivers" },
+        { sku: "NHD-600-TRX", quantity: 1, role: "Composed LED-processor feed" },
+        { sku: "NHD-CTL-PRO", quantity: 1, role: "NetworkHD controller" },
+        avoipSwitchItem,
+      ],
+    };
+  }
+
+  if (args.qualityProfile === "balanced" && args.sourceCount <= 4) {
+    addAvoipNetworkWarnings(warnings, args.qualityProfile);
+    addLatencyGuidance(warnings, args.qualityProfile, args.mode);
+    addUsbBandwidthGuidance(warnings, args.qualityProfile);
+    return {
+      title: "500-series multiview LED feed",
+      summary: "Higher-quality composed canvas using NetworkHD encoders and a dedicated multiview processor before the LED processor.",
+      outputTopology: "1x1 signal output to LED processor",
+      warnings: [
+        ...warnings,
+        `Target canvas ${args.canvasWidthPx}x${args.canvasHeightPx}px is delivered as one output.`,
+      ],
+      items: [
+        { sku: "NHD-500-TX", quantity: Math.max(1, args.sourceCount), role: "Source ingest" },
+        { sku: "NHD-0401-MV", quantity: 1, role: "4-input multiview compositor" },
+        { sku: "NHD-CTL-PRO", quantity: 1, role: "NetworkHD controller" },
+        avoipSwitchItem,
+      ],
+    };
+  }
+
+  addAvoipNetworkWarnings(warnings, args.qualityProfile);
+  addLatencyGuidance(warnings, "cost", args.mode);
   return {
-    title: "Multiview LED feed",
-    summary: "Create a single composite canvas feed before the LED processor.",
+    title: "100-series multiview LED feed",
+    summary: "Budget multiview composition path before the LED processor when cost matters more than latency or absolute image quality.",
     outputTopology: "1x1 signal output to LED processor",
     warnings: [
       ...warnings,
       `Target canvas ${args.canvasWidthPx}x${args.canvasHeightPx}px is delivered as one output.`,
     ],
     items: [
-      {
-        sku,
-        quantity: 1,
-        role: sku === "NHD-150-RX" ? "Low-bandwidth pinch/zoom multiview" : "Premium fixed-grid/high-fidelity multiview",
-      },
+      { sku: "NHD-120-TX", quantity: Math.max(1, args.sourceCount), role: "Source ingest" },
+      { sku: "NHD-150-RX", quantity: 1, role: "Up to 9-window multiview output" },
+      { sku: "NHD-CTL-PRO", quantity: 1, role: "NetworkHD controller" },
+      avoipSwitchItem,
     ],
   };
 }
@@ -484,6 +700,10 @@ function buildMountingNotes(technology: VideoWallTechnology, rows: number, cols:
 export default function VideoWallPlannerPage() {
   const nav = useNavigate();
   const activeProject = getActiveProject();
+  const [isNotesOpen, setIsNotesOpen] = React.useState(true);
+  const [isAdvisoriesOpen, setIsAdvisoriesOpen] = React.useState(true);
+  const [openProductSkus, setOpenProductSkus] = React.useState<string[]>([]);
+  const [collapsedProductSkus, setCollapsedProductSkus] = React.useState<Record<string, boolean>>({});
 
   const [draft, setDraft] = React.useState<DraftState>({
     technology: "LCD",
@@ -657,6 +877,145 @@ export default function VideoWallPlannerPage() {
     [draft.technology, outputCols, outputRows, physicalCols, physicalRows]
   );
 
+  const livePlanItems = React.useMemo(() => {
+    const items = [
+      { label: "Output", value: `${outputCols} x ${outputRows}` },
+      { label: "Layout", value: `${physicalCols} x ${physicalRows}` },
+      { label: "Footprint", value: `${computed.widthM.toFixed(2)}m x ${computed.heightM.toFixed(2)}m` },
+      { label: "Count", value: `${displays} ${draft.technology === "LED" ? "cabinets" : "displays"}` },
+    ];
+
+    if (computed.canvasWidthPx && computed.canvasHeightPx) {
+      items.push({ label: "Canvas", value: `${computed.canvasWidthPx} x ${computed.canvasHeightPx}px` });
+    } else if (computed.contentAspectLabel) {
+      items.push({ label: "Content", value: computed.contentAspectLabel });
+    }
+
+    if (computed.distortionRiskLevel) {
+      items.push({ label: "Risk", value: `${computed.distortionRiskLevel} (${computed.distortionRiskScore}/100)` });
+    }
+
+    return items;
+  }, [
+    computed.canvasHeightPx,
+    computed.canvasWidthPx,
+    computed.contentAspectLabel,
+    computed.distortionRiskLevel,
+    computed.distortionRiskScore,
+    computed.heightM,
+    computed.widthM,
+    displays,
+    draft.technology,
+    outputCols,
+    outputRows,
+    physicalCols,
+    physicalRows,
+  ]);
+
+  const advisoryItems = React.useMemo(
+    () => [
+      ...computed.hardWarnings.map((message) => ({ tone: "critical" as const, label: "Critical", message })),
+      ...computed.warnings.map((message) => ({ tone: "warning" as const, label: "Warning", message })),
+    ],
+    [computed.hardWarnings, computed.warnings]
+  );
+
+  const preview = React.useMemo(
+    () =>
+      deriveVideoWallPreview({
+        displayType: draft.technology,
+        rows: physicalRows,
+        columns: physicalCols,
+        sourceCount,
+        processorPreference: computed.recommendation.title,
+        processorInputMode: draft.processorInputMode,
+        qualityProfile: draft.qualityProfile,
+        pixelPitch: draft.ledPixelPitchMm,
+        bezelMm: draft.lcdBezelMm,
+        targetWidthM: computed.widthM.toFixed(2),
+        targetHeightM: computed.heightM.toFixed(2),
+        cabinetRows: draft.technology === "LED" ? physicalRows : undefined,
+        cabinetColumns: draft.technology === "LED" ? physicalCols : undefined,
+        cabinetWidthPx: draft.technology === "LED" ? toNumber(draft.ledCabinetWidthPx, selectedLedTechnologyProfile.cabinetWidthPx) : undefined,
+        cabinetHeightPx: draft.technology === "LED" ? toNumber(draft.ledCabinetHeightPx, selectedLedTechnologyProfile.cabinetHeightPx) : undefined,
+        cabinetWidthMm: draft.technology === "LED" ? toNumber(draft.ledCabinetWidthMm, selectedLedTechnologyProfile.cabinetWidthMm) : undefined,
+        cabinetHeightMm: draft.technology === "LED" ? toNumber(draft.ledCabinetHeightMm, selectedLedTechnologyProfile.cabinetHeightMm) : undefined,
+        canvasWidthPx: computed.canvasWidthPx,
+        canvasHeightPx: computed.canvasHeightPx,
+        outputRows,
+        outputColumns: outputCols,
+        lcdDriveMode: draft.lcdDriveStrategy,
+        contentAspectRatio: computed.contentAspectLabel || "16:9",
+      }),
+    [
+      computed.canvasHeightPx,
+      computed.canvasWidthPx,
+      computed.contentAspectLabel,
+      computed.heightM,
+      computed.recommendation.title,
+      computed.widthM,
+      draft.lcdBezelMm,
+      draft.lcdDriveStrategy,
+      draft.ledCabinetHeightMm,
+      draft.ledCabinetHeightPx,
+      draft.ledCabinetWidthMm,
+      draft.ledCabinetWidthPx,
+      draft.ledPixelPitchMm,
+      draft.processorInputMode,
+      draft.qualityProfile,
+      draft.technology,
+      outputCols,
+      outputRows,
+      physicalCols,
+      physicalRows,
+      selectedLedTechnologyProfile.cabinetHeightMm,
+      selectedLedTechnologyProfile.cabinetHeightPx,
+      selectedLedTechnologyProfile.cabinetWidthMm,
+      selectedLedTechnologyProfile.cabinetWidthPx,
+      sourceCount,
+    ]
+  );
+
+  const isLcdDecoderPerScreen = draft.technology === "LCD" && draft.lcdDriveStrategy === "decoder-per-screen";
+  const isLcdTileLoopMultiview = draft.technology === "LCD" && draft.lcdDriveStrategy === "tile-loop-multiview";
+  const previewWindows = React.useMemo(
+    () => Array.from({ length: 6 }, (_, index) => `Window ${index + 1}`),
+    []
+  );
+  const productPreviewRecords = React.useMemo(
+    () =>
+      openProductSkus
+        .map((sku) => ({ sku, product: findCatalogProductBySku(sku) }))
+        .filter((item): item is { sku: string; product: CatalogProduct } => Boolean(item.product)),
+    [openProductSkus]
+  );
+
+  const openProductPreview = React.useCallback((sku: string) => {
+    const normalized = String(sku || "").trim().toUpperCase();
+    if (!normalized) return;
+
+    setOpenProductSkus((current) => (current.includes(normalized) ? current : [...current, normalized]));
+    setCollapsedProductSkus((current) => ({ ...current, [normalized]: false }));
+  }, []);
+
+  const closeProductPreview = React.useCallback((sku: string) => {
+    setOpenProductSkus((current) => current.filter((item) => item !== sku));
+    setCollapsedProductSkus((current) => {
+      const next = { ...current };
+      delete next[sku];
+      return next;
+    });
+  }, []);
+
+  const toggleProductPreview = React.useCallback((sku: string) => {
+    setCollapsedProductSkus((current) => ({ ...current, [sku]: !current[sku] }));
+  }, []);
+
+  const getCatalogHref = React.useCallback(
+    (sku: string) => `/app/tools/catalog?sku=${encodeURIComponent(sku)}&q=${encodeURIComponent(sku)}`,
+    []
+  );
+
   const applyLedTechnologyProfile = React.useCallback((profileId: string) => {
     const profile = findLedTechnologyProfile(profileId);
     setDraft((prev) => ({
@@ -686,7 +1045,7 @@ export default function VideoWallPlannerPage() {
         cols: 1,
         outputRows: 1,
         outputCols: 1,
-        panelCount: 1,
+        panelCount: displays,
         cabinetRows: physicalRows,
         cabinetCols: physicalCols,
         widthM: Number(computed.widthM.toFixed(2)),
@@ -708,6 +1067,7 @@ export default function VideoWallPlannerPage() {
         ledScreenClass: draft.ledScreenClass,
         recommendedSku: leadItem?.sku,
         recommendedSkuQty: leadItem?.quantity,
+        recommendedItems: computed.recommendation.items,
         processorRecommendation: `${computed.recommendation.title}: ${computed.recommendation.summary}`,
         mountingNotes: notes,
         warnings: computed.warnings,
@@ -737,6 +1097,7 @@ export default function VideoWallPlannerPage() {
       distortionRiskLevel: computed.distortionRiskLevel,
       recommendedSku: leadItem?.sku,
       recommendedSkuQty: leadItem?.quantity,
+      recommendedItems: computed.recommendation.items,
       processorRecommendation: `${computed.recommendation.title}: ${computed.recommendation.summary}`,
       mountingNotes: notes,
       warnings: computed.warnings,
@@ -798,33 +1159,6 @@ export default function VideoWallPlannerPage() {
         <div>
           <div className="wm-dashboard__eyebrow">Video Wall Wizard</div>
           <h1 className="wm-dashboard__title">LED / LCD video wall planner</h1>
-          <p className="wm-dashboard__subtitle wm-video-wall-page__hero-copy">
-            Plan wall size, output mapping, and processor fit in one pass.
-          </p>
-
-          <div className="wm-dashboard__meta wm-video-wall-page__hero-meta">
-            <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--tech">Mode: {draft.technology}</span>
-            <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--signal">Output: {outputCols}x{outputRows}</span>
-            <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--layout">Layout: {physicalCols}x{physicalRows}</span>
-            {draft.technology === "LED" ? (
-              <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--profile">
-                Preset: {selectedLedTechnologyProfile.manufacturer} {draft.ledScreenClass === "modular" ? "modular" : "AIO"}
-              </span>
-            ) : null}
-            {computed.canvasWidthPx && computed.canvasHeightPx ? (
-              <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--canvas">
-                Canvas: {computed.canvasWidthPx}x{computed.canvasHeightPx}px
-              </span>
-            ) : null}
-            {computed.distortionRiskLevel ? (
-              <span className={`wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--risk is-${computed.distortionRiskLevel.toLowerCase()}`}>
-                Risk: {computed.distortionRiskLevel}
-              </span>
-            ) : null}
-            <span className="wm-chip wm-video-wall-page__chip wm-video-wall-page__chip--size">
-              Size: {computed.widthM.toFixed(2)}m x {computed.heightM.toFixed(2)}m
-            </span>
-          </div>
         </div>
 
         <div className="wm-dashboard__heroactions">
@@ -845,23 +1179,34 @@ export default function VideoWallPlannerPage() {
           <div className="wm-card__title">Wall inputs</div>
           <div className="wm-card__subtitle">Set the wall, sources, and signal path.</div>
 
-          <div className="wm-field-wrap" style={{ marginTop: 12 }}>
-            <span className="wm-label">Technology</span>
-            <div className="wm-tier-picker">
-              {(["LCD", "LED"] as VideoWallTechnology[]).map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  className={draft.technology === item ? "wm-tier-btn is-active" : "wm-tier-btn"}
-                  onClick={() => update("technology", item)}
-                >
-                  {item}
-                </button>
+          <div className="wm-video-wall-page__planner-toprow" style={{ marginTop: 12 }}>
+            <div className="wm-field-wrap wm-video-wall-page__technology-group">
+              <span className="wm-label">Technology</span>
+              <div className="wm-tier-picker">
+                {(["LCD", "LED"] as VideoWallTechnology[]).map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={draft.technology === item ? "wm-tier-btn is-active" : "wm-tier-btn"}
+                    onClick={() => update("technology", item)}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="wm-video-wall-page__intel-strip">
+              {livePlanItems.map((item) => (
+                <div className="wm-video-wall-page__intel-item" key={item.label}>
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                </div>
               ))}
             </div>
           </div>
 
-          <div className="wm-form-grid" style={{ marginTop: 12 }}>
+          <div className="wm-form-grid wm-video-wall-page__planner-grid" style={{ marginTop: 12 }}>
             <label className="wm-field-wrap">
               <span className="wm-label">Source count</span>
               <input className="wm-field" value={draft.sourceCount} onChange={(e) => update("sourceCount", e.target.value)} />
@@ -903,7 +1248,7 @@ export default function VideoWallPlannerPage() {
                   <input className="wm-field" value={draft.lcdBezelMm} onChange={(e) => update("lcdBezelMm", e.target.value)} />
                 </label>
 
-                <label className="wm-field-wrap">
+                <label className="wm-field-wrap wm-video-wall-page__field--span-2">
                   <span className="wm-label">LCD drive strategy</span>
                   <select className="wm-field" value={draft.lcdDriveStrategy} onChange={(e) => update("lcdDriveStrategy", e.target.value as DraftState["lcdDriveStrategy"])}>
                     <option value="decoder-per-screen">Decoder per screen</option>
@@ -924,7 +1269,7 @@ export default function VideoWallPlannerPage() {
                 </label>
 
                 {draft.contentAspect === "custom" ? (
-                  <label className="wm-field-wrap">
+                  <label className="wm-field-wrap wm-video-wall-page__field--span-2">
                     <span className="wm-label">Custom aspect ratio</span>
                     <input className="wm-field" value={draft.contentAspectCustom} onChange={(e) => update("contentAspectCustom", e.target.value)} placeholder="e.g. 48:9 or 3.5" />
                   </label>
@@ -932,7 +1277,7 @@ export default function VideoWallPlannerPage() {
               </>
             ) : (
               <>
-                <label className="wm-field-wrap">
+                <label className="wm-field-wrap wm-video-wall-page__field--span-2">
                   <span className="wm-label">Hisense LED profile</span>
                   <select
                     className="wm-field"
@@ -947,7 +1292,7 @@ export default function VideoWallPlannerPage() {
                   </select>
                 </label>
 
-                <label className="wm-field-wrap">
+                <label className="wm-field-wrap wm-video-wall-page__field--span-2">
                   <span className="wm-label">LED processor profile</span>
                   <select
                     className="wm-field"
@@ -970,7 +1315,7 @@ export default function VideoWallPlannerPage() {
                   </select>
                 </label>
 
-                <label className="wm-field-wrap">
+                <label className="wm-field-wrap wm-video-wall-page__field--span-2">
                   <span className="wm-label">Screen class</span>
                   <select className="wm-field" value={draft.ledScreenClass} onChange={(e) => update("ledScreenClass", e.target.value as DraftState["ledScreenClass"])}>
                     <option value="modular">Modular cabinets</option>
@@ -1024,77 +1369,230 @@ export default function VideoWallPlannerPage() {
               Create New Video Wall Project
             </button>
           </div>
+
+          {productPreviewRecords.length > 0 ? (
+            <div className="wm-video-wall-page__planner-workspace" aria-label="Open product previews">
+              <section className="wm-video-wall-page__product-layer wm-video-wall-page__product-layer--workspace">
+                {productPreviewRecords.map(({ sku, product }, index) => {
+                  const isCollapsed = Boolean(collapsedProductSkus[sku]);
+                  const column = index % 2;
+                  const row = Math.floor(index / 2);
+
+                  return (
+                    <div
+                      className={`wm-card wm-video-wall-page__card wm-video-wall-page__product-window${isCollapsed ? " is-collapsed" : ""}`}
+                      key={sku}
+                      style={{
+                        top: `${16 + row * 42 + column * 14}px`,
+                        left: `${20 + column * 262}px`,
+                        zIndex: 10 + index,
+                      }}
+                    >
+                      <div className="wm-video-wall-page__product-window-header">
+                        <div className="wm-video-wall-page__product-window-title">
+                          <span className="wm-video-wall-page__product-sku">{product.sku}</span>
+                          <strong>{product.name}</strong>
+                          <small>{product.family} · {product.category}</small>
+                        </div>
+
+                        <div className="wm-video-wall-page__product-window-actions">
+                          <Link className="wm-video-wall-page__product-window-link" to={getCatalogHref(product.sku)}>
+                            Open in catalog
+                          </Link>
+                          <button
+                            type="button"
+                            className="wm-video-wall-page__product-window-btn"
+                            onClick={() => toggleProductPreview(sku)}
+                            aria-expanded={!isCollapsed}
+                          >
+                            {isCollapsed ? "+" : "-"}
+                          </button>
+                          <button
+                            type="button"
+                            className="wm-video-wall-page__product-window-btn"
+                            onClick={() => closeProductPreview(sku)}
+                            aria-label={`Close ${product.sku} preview`}
+                          >
+                            x
+                          </button>
+                        </div>
+                      </div>
+
+                      {!isCollapsed ? (
+                        <div className="wm-video-wall-page__product-window-body">
+                          <p className="wm-video-wall-page__product-summary">
+                            {product.summary || product.notes || "Catalog reference preview."}
+                          </p>
+
+                          <div className="wm-video-wall-page__product-metrics">
+                            <div><span>Transport</span><strong>{product.transport || "Unknown"}</strong></div>
+                            <div><span>Video</span><strong>{product.video?.maxResolution || "Not set"}</strong></div>
+                            <div><span>I/O</span><strong>{product.ioSummary || "Mixed I/O"}</strong></div>
+                            <div><span>Reach</span><strong>{product.distance?.meters ? `${product.distance.meters}m` : product.distance?.notes || "Project-led"}</strong></div>
+                          </div>
+
+                          {(product.features || []).length > 0 ? (
+                            <div className="wm-video-wall-page__product-tags">
+                              {product.features?.slice(0, 4).map((feature) => (
+                                <span key={feature}>{feature}</span>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </section>
+            </div>
+          ) : null}
+
         </div>
 
         <div className="wm-section-stack">
-          <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--summary">
-            <div className="wm-card__title">Wall summary</div>
-            <div className="wm-card__subtitle">Live geometry and signal readout.</div>
+          <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--recommendation">
+            <div className="wm-card__title">Processor recommendation</div>
+            <div className="wm-card__subtitle">Recommended path and hardware.</div>
 
-            <div className="wm-summary-list">
-              <div className="wm-summary-row"><span>Technology</span><strong>{draft.technology}</strong></div>
-              <div className="wm-summary-row"><span>Signal output map</span><strong>{outputCols} x {outputRows}</strong></div>
-              <div className="wm-summary-row"><span>Physical layout</span><strong>{physicalCols} x {physicalRows}</strong></div>
-              <div className="wm-summary-row"><span>Approx wall width</span><strong>{computed.widthM.toFixed(2)}m</strong></div>
-              <div className="wm-summary-row"><span>Approx wall height</span><strong>{computed.heightM.toFixed(2)}m</strong></div>
-              <div className="wm-summary-row"><span>Approx diagonal</span><strong>{computed.diagonalIn.toFixed(1)}in</strong></div>
-              {computed.ledTechnologyProfile ? (
-                <div className="wm-summary-row"><span>LED technology profile</span><strong>{computed.ledTechnologyProfile.label}</strong></div>
+              <div className="wm-summary-list">
+              <div className="wm-summary-row"><span>Design summary</span><strong>{computed.recommendation.summary}</strong></div>
+              <div className="wm-summary-row"><span>Output topology</span><strong>{computed.recommendation.outputTopology}</strong></div>
+              {computed.recommendation.items.map((item) => (
+                <div className="wm-summary-row" key={`${item.role}-${item.sku}`}>
+                  <span>{item.role}</span>
+                  {findCatalogProductBySku(item.catalogSku || item.sku) ? (
+                    <strong className="wm-video-wall-page__sku-actions">
+                      <button
+                        type="button"
+                        className="wm-video-wall-page__sku-link"
+                        onClick={() => openProductPreview(item.catalogSku || item.sku)}
+                      >
+                        {item.sku}
+                      </button>
+                      <span>x{item.quantity}</span>
+                    </strong>
+                  ) : (
+                    <strong className="wm-video-wall-page__sku-actions">
+                      <span className="wm-video-wall-page__sku-static">{item.sku}</span>
+                      <span>x{item.quantity}</span>
+                    </strong>
+                  )}
+                </div>
+              ))}
+              {draft.technology === "LED" && computed.pixelPitchMm ? (
+                <div className="wm-summary-row"><span>Pixel pitch</span><strong>{computed.pixelPitchMm}mm</strong></div>
               ) : null}
               {computed.ledProcessorProfile ? (
-                <div className="wm-summary-row"><span>LED processor profile</span><strong>{computed.ledProcessorProfile.label}</strong></div>
+                <>
+                  <div className="wm-summary-row"><span>Processor max pixels</span><strong>{computed.ledProcessorProfile.maxPixels.toLocaleString()} px</strong></div>
+                  <div className="wm-summary-row"><span>Processor limits</span><strong>{computed.ledProcessorProfile.maxWidthPx}w x {computed.ledProcessorProfile.maxHeightPx}h</strong></div>
+                  <div className="wm-summary-row"><span>Processor windows</span><strong>{computed.ledProcessorProfile.maxWindows} max</strong></div>
+                </>
               ) : null}
-              {computed.canvasWidthPx && computed.canvasHeightPx ? (
-                <div className="wm-summary-row"><span>Canvas resolution</span><strong>{computed.canvasWidthPx} x {computed.canvasHeightPx}px</strong></div>
+              {draft.technology === "LCD" && computed.panelDiagonalIn ? (
+                <div className="wm-summary-row"><span>Panel diagonal</span><strong>{computed.panelDiagonalIn}in</strong></div>
               ) : null}
-              {computed.contentAspectLabel ? (
-                <div className="wm-summary-row"><span>Content aspect</span><strong>{computed.contentAspectLabel}</strong></div>
+              {draft.technology === "LCD" && computed.bezelMm != null ? (
+                <div className="wm-summary-row"><span>Bezel</span><strong>{computed.bezelMm}mm</strong></div>
               ) : null}
-              {computed.distortionRiskLevel ? (
-                <div className="wm-summary-row"><span>Distortion risk</span><strong>{computed.distortionRiskLevel} ({computed.distortionRiskScore}/100)</strong></div>
-              ) : null}
-              <div className="wm-summary-row"><span>Displays / cabinets context</span><strong>{displays}</strong></div>
+              <div className="wm-summary-row"><span>Viewing distance</span><strong>{viewingDistanceM || 0}m</strong></div>
             </div>
           </div>
 
-          <div className="wm-page-grid-2">
-            <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--recommendation">
-              <div className="wm-card__title">Processor recommendation</div>
-              <div className="wm-card__subtitle">Recommended path and hardware.</div>
+          <div className="wm-video-wall-page__visual-workspace">
+            <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--preview">
+              <div className="wm-card__title">Preview visualisation</div>
+              <div className="wm-card__subtitle">Live wall map showing physical surface, output grouping, and content fit.</div>
 
-              <div className="wm-summary-list">
-                <div className="wm-summary-row"><span>Design summary</span><strong>{computed.recommendation.summary}</strong></div>
-                <div className="wm-summary-row"><span>Output topology</span><strong>{computed.recommendation.outputTopology}</strong></div>
-                {computed.recommendation.items.map((item) => (
-                  <div className="wm-summary-row" key={`${item.sku}-${item.role}`}>
-                    <span>{item.role}</span>
-                    <strong>{item.sku} x{item.quantity}</strong>
+              <div className="wm-video-wall-preview">
+                <div className="wm-video-wall-preview__frame">
+                  <div
+                    className={`wm-video-wall-preview__content is-${preview.contentFit}`}
+                    style={{
+                      width: `${preview.contentWidthPercent}%`,
+                      height: `${preview.contentHeightPercent}%`,
+                    }}
+                  >
+                    <span>{preview.contentFit === "fill" ? "Content fills wall" : preview.contentFit === "letterbox" ? "Content letterboxed" : "Content pillarboxed"}</span>
                   </div>
-                ))}
-                {draft.technology === "LED" && computed.pixelPitchMm ? (
-                  <div className="wm-summary-row"><span>Pixel pitch</span><strong>{computed.pixelPitchMm}mm</strong></div>
-                ) : null}
-                {computed.ledProcessorProfile ? (
-                  <>
-                    <div className="wm-summary-row"><span>Processor max pixels</span><strong>{computed.ledProcessorProfile.maxPixels.toLocaleString()} px</strong></div>
-                    <div className="wm-summary-row"><span>Processor limits</span><strong>{computed.ledProcessorProfile.maxWidthPx}w x {computed.ledProcessorProfile.maxHeightPx}h</strong></div>
-                    <div className="wm-summary-row"><span>Processor windows</span><strong>{computed.ledProcessorProfile.maxWindows} max</strong></div>
-                  </>
-                ) : null}
-                {draft.technology === "LCD" && computed.panelDiagonalIn ? (
-                  <div className="wm-summary-row"><span>Panel diagonal</span><strong>{computed.panelDiagonalIn}in</strong></div>
-                ) : null}
-                {draft.technology === "LCD" && computed.bezelMm != null ? (
-                  <div className="wm-summary-row"><span>Bezel</span><strong>{computed.bezelMm}mm</strong></div>
-                ) : null}
-                <div className="wm-summary-row"><span>Viewing distance</span><strong>{viewingDistanceM || 0}m</strong></div>
+
+                  <div
+                    className="wm-video-wall-preview__surface"
+                    style={{
+                      gridTemplateColumns: `repeat(${preview.physicalColumns}, minmax(0, 1fr))`,
+                      gridTemplateRows: `repeat(${preview.physicalRows}, minmax(0, 1fr))`,
+                    }}
+                  >
+                    {isLcdTileLoopMultiview ? (
+                      <div className="wm-video-wall-preview__multiview" aria-hidden="true">
+                        {previewWindows.map((label) => (
+                          <span className="wm-video-wall-preview__window" key={label}>{label}</span>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {preview.cells.map((cell) => (
+                      <div className="wm-video-wall-preview__cell" key={cell.id}>
+                        <span className="wm-video-wall-preview__cell-label">{cell.label}</span>
+                        <div className="wm-video-wall-preview__cell-meta">
+                          {isLcdDecoderPerScreen ? (
+                            <span className="wm-video-wall-preview__device">RX</span>
+                          ) : null}
+                          <span className="wm-video-wall-preview__cell-output">{cell.outputLabel}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {isLcdTileLoopMultiview ? (
+                    <div className="wm-video-wall-preview__shared-device" aria-hidden="true">
+                      <span className="wm-video-wall-preview__device">RX</span>
+                      <strong>Shared multiview decoder</strong>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="wm-video-wall-preview__meta">
+                  <div className="wm-video-wall-preview__meta-item">
+                    <span>Surface</span>
+                    <strong>{preview.displayType} {preview.physicalColumns} x {preview.physicalRows}</strong>
+                  </div>
+                  <div className="wm-video-wall-preview__meta-item">
+                    <span>Signal map</span>
+                    <strong>{preview.signalColumns} x {preview.signalRows}</strong>
+                  </div>
+                  <div className="wm-video-wall-preview__meta-item">
+                    <span>Content fit</span>
+                    <strong>{preview.contentFit}</strong>
+                  </div>
+                  <div className="wm-video-wall-preview__meta-item">
+                    <span>Processor mode</span>
+                    <strong>{preview.processorMode}</strong>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--notes">
-              <div className="wm-card__title">Mounting notes</div>
-              <div className="wm-card__subtitle">Saved into the project record.</div>
+      <section className="wm-video-wall-page__bottom-drawers">
+        <div className="wm-card wm-video-wall-page__card wm-video-wall-page__drawer wm-video-wall-page__card--notes">
+          <button
+            type="button"
+            className="wm-video-wall-page__drawer-toggle"
+            onClick={() => setIsNotesOpen((value) => !value)}
+            aria-expanded={isNotesOpen}
+          >
+            <span className="wm-video-wall-page__drawer-heading">
+              <strong>Design notes</strong>
+              <small>Mounting and install guidance saved with the wall plan.</small>
+            </span>
+            <span className="wm-video-wall-page__drawer-icon" aria-hidden="true">{isNotesOpen ? "-" : "+"}</span>
+          </button>
 
+          {isNotesOpen ? (
+            <div className="wm-video-wall-page__drawer-body">
               <div className="wm-summary-list">
                 {notes.map((item) => (
                   <div className="wm-summary-row" key={item}>
@@ -1104,54 +1602,40 @@ export default function VideoWallPlannerPage() {
                 ))}
               </div>
             </div>
-          </div>
+          ) : null}
+        </div>
 
-          {computed.warnings.length > 0 ? (
-            <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--warnings">
-              <div className="wm-card__title">Design warnings</div>
-              <div className="wm-card__subtitle">Check before proposal handoff.</div>
+        <div className={`wm-card wm-video-wall-page__card wm-video-wall-page__drawer ${computed.hardWarnings.length > 0 ? "wm-video-wall-page__card--critical" : "wm-video-wall-page__card--warnings"}`}>
+          <button
+            type="button"
+            className="wm-video-wall-page__drawer-toggle"
+            onClick={() => setIsAdvisoriesOpen((value) => !value)}
+            aria-expanded={isAdvisoriesOpen}
+          >
+            <span className="wm-video-wall-page__drawer-heading">
+              <strong>Technical advisories</strong>
+              <small>Network, processor, and engineering checks before handoff.</small>
+            </span>
+            <span className="wm-video-wall-page__drawer-icon" aria-hidden="true">{isAdvisoriesOpen ? "-" : "+"}</span>
+          </button>
 
+          {isAdvisoriesOpen ? (
+            <div className="wm-video-wall-page__drawer-body">
               <div className="wm-summary-list">
-                {computed.warnings.map((warning) => (
-                  <div className="wm-summary-row" key={warning}>
-                    <span>Warning</span>
-                    <strong>{warning}</strong>
+                {advisoryItems.length > 0 ? advisoryItems.map((item) => (
+                  <div className="wm-summary-row" key={`${item.label}-${item.message}`}>
+                    <span>{item.label}</span>
+                    <strong>{item.message}</strong>
                   </div>
-                ))}
+                )) : (
+                  <div className="wm-summary-row">
+                    <span>Status</span>
+                    <strong>No current technical advisories for this wall.</strong>
+                  </div>
+                )}
               </div>
             </div>
           ) : null}
-
-          {computed.hardWarnings.length > 0 ? (
-            <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--critical">
-              <div className="wm-card__title">Hard warnings</div>
-              <div className="wm-card__subtitle">Resolve before customer handoff.</div>
-
-              <div className="wm-summary-list">
-                {computed.hardWarnings.map((warning) => (
-                  <div className="wm-summary-row" key={warning}>
-                    <span>Critical</span>
-                    <strong>{warning}</strong>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--target">
-            <div className="wm-card__title">Project target</div>
-            <div className="wm-card__subtitle">
-              {activeProject
-                ? `Active project: ${activeProject.name}`
-                : "No active project selected yet."}
-            </div>
-
-            <div className="wm-summary-list">
-              <div className="wm-summary-row"><span>Customer</span><strong>{activeProject?.customer || "Sample customer"}</strong></div>
-              <div className="wm-summary-row"><span>Site</span><strong>{activeProject?.site || "Not set"}</strong></div>
-              <div className="wm-summary-row"><span>Current stage</span><strong>{activeProject?.stage || "Discovery"}</strong></div>
-            </div>
-          </div>
         </div>
       </section>
     </div>

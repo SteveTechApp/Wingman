@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   ExternalLink,
   RefreshCw,
@@ -222,6 +223,7 @@ function buildFamilyReferenceCards(products: CatalogProduct[]): FamilyReferenceC
 }
 
 export default function CatalogPage() {
+  const [searchParams] = useSearchParams();
   const [q, setQ] = React.useState("");
   const [family, setFamily] = React.useState("All");
   const [category, setCategory] = React.useState("All");
@@ -245,6 +247,21 @@ export default function CatalogPage() {
   React.useEffect(() => {
     void refreshLiveProductData({ minIntervalMs: 5 * 60 * 1000 });
   }, []);
+
+  React.useEffect(() => {
+    const skuParam = searchParams.get("sku")?.trim().toUpperCase() ?? "";
+    const queryParam = searchParams.get("q")?.trim() ?? "";
+
+    if (skuParam) {
+      setQ(queryParam || skuParam);
+      setSelectedSku(skuParam);
+      return;
+    }
+
+    if (queryParam) {
+      setQ(queryParam);
+    }
+  }, [searchParams]);
 
   React.useEffect(() => {
     setFlagMessage("");
