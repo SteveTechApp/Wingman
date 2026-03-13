@@ -745,12 +745,12 @@ export default function ImportIntakePage() {
   const documentAccept = ".pdf,.docx,.txt,.md,.csv,.eml,.png,.jpg,.jpeg,.svg";
   const interrogationSummary = interrogation
     ? truncateText(interrogation.salesperson.summaryParagraph, 180)
-    : "Add source text or uploaded files to generate the interrogation brief.";
+    : "Project not started yet. Add source text or uploaded files to begin the interrogation brief.";
   const solutionSummary = analysis
     ? analysis.topSkus.length > 0
       ? `${analysis.topSkus[0].sku} currently leads the ranked SKU starting point.`
       : "Wingman has a family direction and next-tool route, but no strong SKU match yet."
-    : "The solution baseline will appear once the intake has enough signal.";
+    : "No current recommendation yet. Start the intake first, then Wingman will suggest a solution path.";
 
   return (
     <>
@@ -1052,7 +1052,7 @@ export default function ImportIntakePage() {
                   <div style={reviewCardStyle("rgba(99,160,224,0.18)")}>
                     <div style={smallLabelStyle()}>Interrogation brief</div>
                     <div style={{ fontSize: 18, fontWeight: 800 }}>
-                      {interrogation ? `${Math.round(interrogation.parsed.confidence * 100)}% confidence` : "Waiting for source signal"}
+                      {interrogation ? `${Math.round(interrogation.parsed.confidence * 100)}% confidence` : "0% confidence"}
                     </div>
                     <div style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(255,255,255,0.8)" }}>
                       {interrogationSummary}
@@ -1070,7 +1070,7 @@ export default function ImportIntakePage() {
                   <div style={reviewCardStyle("rgba(216,177,76,0.18)")}>
                     <div style={smallLabelStyle()}>Solution starting point</div>
                     <div style={{ fontSize: 18, fontWeight: 800 }}>
-                      {analysis ? analysis.nextToolLabel : "Awaiting recommendation"}
+                      {analysis ? analysis.nextToolLabel : "No current recommendation"}
                     </div>
                     <div style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(255,255,255,0.8)" }}>
                       {solutionSummary}
@@ -1239,13 +1239,13 @@ export default function ImportIntakePage() {
             subtitle={
               analysis
                 ? "Existing family recommendations and ranked SKUs, separated from the intake flow so you can inspect them on demand."
-                : "Add source material to generate family guidance and SKU ranking."
+                : "No current recommendation yet. Add source material to generate family guidance and SKU ranking."
             }
             onClose={() => setOpenPanel(null)}
           >
             {!analysis ? (
               <div style={{ fontSize: 12, opacity: 0.74 }}>
-                Add source material to generate family guidance and SKU ranking.
+                No current recommendation yet. Add source material to generate family guidance and SKU ranking.
               </div>
             ) : (
               <>
