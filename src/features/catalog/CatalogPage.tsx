@@ -37,6 +37,14 @@ type FamilyReferenceCard = {
   sampleSkus: string[];
 };
 
+type ShortlistSection = {
+  key: string;
+  title: string;
+  items: CatalogProduct[];
+};
+
+type DetailView = "overview" | "schematic" | "compare";
+
 function formatTimestamp(value: string): string {
   if (!value) return "Not synced yet";
   const parsed = new Date(value);
@@ -232,9 +240,9 @@ export default function CatalogPage() {
   const [refreshNotice, setRefreshNotice] = React.useState("");
   const [selectedSku, setSelectedSku] = React.useState("");
   const [diagramExtras, setDiagramExtras] = React.useState<string[]>([]);
-  const [flagNote, setFlagNote] = React.useState("");
   const [flagging, setFlagging] = React.useState(false);
   const [flagMessage, setFlagMessage] = React.useState("");
+  const [detailView, setDetailView] = React.useState<DetailView>("overview");
 
   const deferredQuery = React.useDeferredValue(q);
 
@@ -265,7 +273,10 @@ export default function CatalogPage() {
 
   React.useEffect(() => {
     setFlagMessage("");
-    setFlagNote("");
+  }, [selectedSku]);
+
+  React.useEffect(() => {
+    setDetailView("overview");
   }, [selectedSku]);
 
   const catalogProducts = getCatalogProducts();
@@ -291,6 +302,10 @@ export default function CatalogPage() {
   const activeSku = items.some((product) => product.sku === selectedSku) ? selectedSku : items[0]?.sku ?? "";
   const selectedProduct = items.find((product) => product.sku === activeSku) ?? null;
   const itemSkuSignature = React.useMemo(() => items.map((product) => product.sku).join("|"), [items]);
+  const shortlistGroupMode = React.useMemo<"family" | "transport">(() => {
+    const uniqueFamilies = new Set(shortlistItems.map((product) => product.family).filter(Boolean));
+    return uniqueFamilies.size > 1 ? "family" : "transport";
+  }, [shortlistItems]);
 
   React.useEffect(() => {
     setDiagramExtras((current) => {
@@ -305,6 +320,34 @@ export default function CatalogPage() {
   }, [activeSku, itemSkuSignature, items]);
 
   const familyReferenceCards = buildFamilyReferenceCards(hasActiveFilters ? items : catalogProducts);
+  const familyPivots = React.useMemo(
+    () => buildFamilyReferenceCards(items.length > 0 ? items : catalogProducts).slice(0, 4),
+    [catalogProducts, items],
+  );
+  const shortlistSections = React.useMemo<ShortlistSection[]>(() => {
+    const groups = new Map<string, CatalogProduct[]>();
+
+    shortlistItems.forEach((product) => {
+      const key = shortlistGroupMode === "family"
+        ? product.family || "Other"
+        : formatTransport(product.transport);
+      groups.set(key, [...(groups.get(key) || []), product]);
+    });
+
+    return Array.from(groups.entries())
+      .map(([key, sectionItems]) => ({
+        key,
+        title: key,
+        items: sectionItems,
+      }))
+      .sort((left, right) => {
+        const activeDelta = Number(right.items.some((product) => product.sku === activeSku)) - Number(left.items.some((product) => product.sku === activeSku));
+        if (activeDelta !== 0) return activeDelta;
+        const countDelta = right.items.length - left.items.length;
+        if (countDelta !== 0) return countDelta;
+        return left.title.localeCompare(right.title);
+      });
+  }, [activeSku, shortlistGroupMode, shortlistItems]);
 
   const clearFilters = React.useCallback(() => {
     setQ("");
@@ -380,6 +423,7 @@ export default function CatalogPage() {
   }, []);
 
   const selectedProductMetrics = selectedProduct ? getProductMetrics(selectedProduct) : [];
+  const primaryMetrics = selectedProductMetrics.slice(0, 4);
   const selectedProductTags = selectedProduct ? getVisibleReferenceTags(selectedProduct, 4) : [];
   const selectedProductTone = selectedProduct ? toneForProduct(selectedProduct) : "cyan";
   const selectedProductLink = selectedProduct ? getProductReferenceLink(selectedProduct) : null;
@@ -395,6 +439,15 @@ export default function CatalogPage() {
   const productIntelligenceRecord = selectedProduct
     ? getLiveProductDataRecords("wyrestorm").find((record) => record.sku === selectedProduct.sku) ?? null
     : null;
+  const heroChips = React.useMemo(
+    () => [
+      { label: "Matches", value: String(items.length), tone: "cyan" as const },
+      { label: "Catalog", value: String(totalCatalogRecords), tone: "indigo" as const },
+      { label: "Data", value: liveStatus.available ? "Live" : "Cached", tone: "emerald" as const },
+      { label: "Updated", value: formatTimestamp(liveStatus.fetchedAt), tone: "amber" as const },
+    ],
+    [items.length, liveStatus.available, liveStatus.fetchedAt, totalCatalogRecords],
+  );
 
   const flagCurrentProduct = React.useCallback(async () => {
     if (!selectedProduct) return;
@@ -405,7 +458,7 @@ export default function CatalogPage() {
       brand: "WyreStorm",
       sku: selectedProduct.sku,
       kind: "categorisation",
-      message: flagNote.trim() || `Review the family/category/group association for ${selectedProduct.sku}.`,
+      message: `Review the family/category/group association for ${selectedProduct.sku}.`,
       note: "Flag raised from the product reference lookup page.",
       source: "catalog-reference",
       createdBy: "catalog-user",
@@ -425,8 +478,7 @@ export default function CatalogPage() {
     });
     setFlagging(false);
     setFlagMessage(result.message);
-    setFlagNote("");
-  }, [flagNote, productIntelligenceRecord, selectedProduct]);
+  }, [productIntelligenceRecord, selectedProduct]);
 
   return (
     <div className="wm-page wm-catalog-page">
@@ -436,9 +488,24 @@ export default function CatalogPage() {
             <div className="wm-kicker">Reference lookup</div>
             <div className="wm-title-xl">WyreStorm product reference</div>
             <div className="wm-body-sm wm-page-subtitle-muted">
-              Search by SKU, family, or feature to get a high-level product overview, then jump to the WyreStorm
-              product page for the full specification and supporting detail.
+              Search by SKU, family, or feature, then jump to the right product page when you need full detail.
             </div>
+
+            <div className="wm-catalog-page__hero-chips">
+              {heroChips.map((chip) => (
+                <div key={chip.label} className={`wm-catalog-page__hero-chip wm-catalog-page__hero-chip--${chip.tone}`}>
+                  <span>{chip.label}</span>
+                  <strong>{chip.value}</strong>
+                </div>
+              ))}
+            </div>
+
+            {selectedProduct ? (
+              <div className="wm-catalog-page__hero-selected">
+                <span className="wm-catalog-page__reference-overview-label">Current focus</span>
+                <strong>{selectedProduct.sku} · {selectedProduct.name}</strong>
+              </div>
+            ) : null}
           </div>
 
           <div className="wm-catalog-page__search-panel">
@@ -519,26 +586,59 @@ export default function CatalogPage() {
                 <SlidersHorizontal size={15} />
                 <span>
                   {hasActiveFilters
-                    ? "Filters are narrowing the shortlist so you can inspect one product at a time."
-                    : "Use a SKU for the fastest answer, or browse by family when you only know the solution area."}
+                    ? "Filters are narrowing the shortlist."
+                    : "Use a SKU for the fastest answer, or pivot by family when you only know the solution area."}
                 </span>
               </div>
             </div>
+
+            {activeFilters.length > 0 ? (
+              <div className="wm-catalog-page__active-filters wm-catalog-page__active-filters--hero">
+                {activeFilters.map((item) => (
+                  <span key={item} className="wm-catalog-page__active-filter">{item}</span>
+                ))}
+              </div>
+            ) : null}
+
+            {familyPivots.length > 0 ? (
+              <div className="wm-catalog-page__pivot-strip">
+                <div className="wm-catalog-page__pivot-label">Quick pivots</div>
+                <div className="wm-catalog-page__pivot-actions">
+                  {familyPivots.map((card) => (
+                    <button
+                      key={card.family}
+                      type="button"
+                      className="wm-catalog-page__pivot-btn"
+                      onClick={() => focusFamily(card.family, card.sampleSkus[0])}
+                    >
+                      <span>{card.family}</span>
+                      <strong>{card.count}</strong>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {notices.length > 0 ? (
+              <div className="wm-catalog-page__warnings">
+                {notices.map((warning) => (
+                  <div key={warning} className="wm-catalog-page__warning-item">
+                    {warning}
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
 
       <section className="wm-section wm-section--tone-cyan">
-        <div className="wm-section__head">
-          <div className="wm-section__titles">
-            <h2>Reference result</h2>
-            <p>
-              {items.length === 0
-                ? "No products match the current filters."
-                : "Inspect the selected product overview on the left and use the shortlist to jump between matches."}
-            </p>
+          <div className="wm-section__head">
+            <div className="wm-section__titles">
+            <h2>{selectedProduct ? "Selected product" : "Reference result"}</h2>
+            <p>{items.length === 0 ? "No products match the current filters." : "Inspect one product, compare it in the schematic, and jump quickly through the shortlist."}</p>
+            </div>
           </div>
-        </div>
 
         {selectedProduct && selectedProductLink ? (
           <div className="wm-catalog-page__reference-layout">
@@ -566,99 +666,146 @@ export default function CatalogPage() {
                 {selectedProduct.summary || "High-level product summary not yet available for this record."}
               </div>
 
-              <div className="wm-catalog-page__reference-overview">
-                <div className="wm-catalog-page__reference-overview-card">
-                  <span className="wm-catalog-page__reference-overview-label">Use this when</span>
-                  <strong className="wm-catalog-page__reference-overview-value">{getReferenceUseCase(selectedProduct)}</strong>
-                </div>
-                <div className="wm-catalog-page__reference-overview-card">
-                  <span className="wm-catalog-page__reference-overview-label">Further information</span>
-                  <strong className="wm-catalog-page__reference-overview-value">{getReferenceConfidence(selectedProduct, selectedProductLink.isDirect)}</strong>
-                </div>
-              </div>
-
-              <div className="wm-catalog-page__metric-grid">
-                {selectedProductMetrics.map((metric) => (
-                  <div key={`${selectedProduct.sku}_${metric.label}`} className="wm-catalog-page__metric-card">
-                    <span className="wm-catalog-page__metric-label">{metric.label}</span>
-                    <strong className="wm-catalog-page__metric-value">{metric.value}</strong>
-                  </div>
-                ))}
-              </div>
-
-              {selectedProductTags.length > 0 ? (
-                <div className="wm-catalog-page__tag-row">
-                  {selectedProductTags.map((tag) => (
-                    <span key={`${selectedProduct.sku}_${tag}`} className="wm-catalog-page__tag">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-
-              <section className="wm-catalog-page__schematic-section">
-                <div className="wm-catalog-page__schematic-section-head">
-                  <div>
-                    <div className="wm-catalog-page__reference-overview-label">Reference schematic</div>
-                    <div className="wm-catalog-page__schematic-section-title">
-                      Visualise how the selected WyreStorm products fit between example sources and room outputs.
-                    </div>
-                  </div>
-
-                  {diagramExtras.length > 0 ? (
-                    <button type="button" className="wm-btn" onClick={clearDiagramExtras}>
-                      Clear extras
-                    </button>
-                  ) : null}
-                </div>
-
-                <div className="wm-body-sm">
-                  Primary SKU: {selectedProduct.sku}
-                  {diagramExtras.length > 0
-                    ? ` · Also in view: ${diagramExtras.join(", ")}`
-                    : " · Add up to three extra shortlisted products to see how they sit in the same signal path."}
-                </div>
-
-                <CatalogReferenceSchematic products={diagramProducts} />
-              </section>
-
-              <div className="wm-catalog-page__reference-actions">
-                <a
-                  className="wm-btn wm-catalog-page__external-link"
-                  href={selectedProductLink.href}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <ExternalLink size={15} />
-                  <span>Open product page</span>
-                </a>
+              <div className="wm-catalog-page__detail-tabs" role="tablist" aria-label="Selected product detail views">
                 <button
                   type="button"
-                  className="wm-btn"
-                  onClick={() => void flagCurrentProduct()}
-                  disabled={flagging}
+                  role="tab"
+                  aria-selected={detailView === "overview"}
+                  className={`wm-catalog-page__detail-tab${detailView === "overview" ? " is-active" : ""}`}
+                  onClick={() => setDetailView("overview")}
                 >
-                  {flagging ? "Flagging..." : "Flag categorisation"}
+                  Overview
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={detailView === "schematic"}
+                  className={`wm-catalog-page__detail-tab${detailView === "schematic" ? " is-active" : ""}`}
+                  onClick={() => setDetailView("schematic")}
+                >
+                  Schematic
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={detailView === "compare"}
+                  className={`wm-catalog-page__detail-tab${detailView === "compare" ? " is-active" : ""}`}
+                  onClick={() => setDetailView("compare")}
+                >
+                  Compare
                 </button>
               </div>
 
-              <div className="wm-catalog-page__flag-form">
-                <label className="wm-form-field">
-                  <span className="wm-form-label">Review note</span>
-                  <input
-                    className="wm-form-input"
-                    value={flagNote}
-                    onChange={(event) => setFlagNote(event.target.value)}
-                    placeholder="Optional note for the administrator"
-                  />
-                </label>
-                {flagMessage ? <div className="wm-body-sm">{flagMessage}</div> : null}
-              </div>
+              {detailView === "overview" ? (
+                <div className="wm-catalog-page__detail-panel">
+                  <div className="wm-catalog-page__metric-grid">
+                    {primaryMetrics.map((metric) => (
+                      <div key={`${selectedProduct.sku}_${metric.label}`} className="wm-catalog-page__metric-card">
+                        <span className="wm-catalog-page__metric-label">{metric.label}</span>
+                        <strong className="wm-catalog-page__metric-value">{metric.value}</strong>
+                      </div>
+                    ))}
+                  </div>
+
+                  {selectedProductTags.length > 0 ? (
+                    <div className="wm-catalog-page__tag-row">
+                      {selectedProductTags.map((tag) => (
+                        <span key={`${selectedProduct.sku}_${tag}`} className="wm-catalog-page__tag">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  <div className="wm-catalog-page__reference-actions">
+                    <a
+                      className="wm-btn wm-catalog-page__external-link"
+                      href={selectedProductLink.href}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <ExternalLink size={15} />
+                      <span>Open product page</span>
+                    </a>
+                    <button
+                      type="button"
+                      className="wm-btn"
+                      onClick={() => void flagCurrentProduct()}
+                      disabled={flagging}
+                    >
+                      {flagging ? "Flagging..." : "Flag categorisation"}
+                    </button>
+                  </div>
+                  {flagMessage ? <div className="wm-body-sm">{flagMessage}</div> : null}
+                </div>
+              ) : null}
+
+              {detailView === "schematic" ? (
+                <section className="wm-catalog-page__schematic-section">
+                  <div className="wm-catalog-page__schematic-section-head">
+                    <div>
+                      <div className="wm-catalog-page__reference-overview-label">Reference schematic</div>
+                      <div className="wm-catalog-page__schematic-section-title">
+                        Visualise how the selected WyreStorm products fit between example sources and room outputs.
+                      </div>
+                    </div>
+
+                    {diagramExtras.length > 0 ? (
+                      <button type="button" className="wm-btn" onClick={clearDiagramExtras}>
+                        Clear extras
+                      </button>
+                    ) : null}
+                  </div>
+
+                  <div className="wm-body-sm">
+                    Primary SKU: {selectedProduct.sku}
+                    {diagramExtras.length > 0
+                      ? ` · Also in view: ${diagramExtras.join(", ")}`
+                      : " · Add up to three extra shortlisted products to see how they sit in the same signal path."}
+                  </div>
+
+                  <CatalogReferenceSchematic products={diagramProducts} />
+                </section>
+              ) : null}
+
+              {detailView === "compare" ? (
+                <div className="wm-catalog-page__detail-panel">
+                  {diagramProducts.length <= 1 ? (
+                    <div className="wm-catalog-page__compare-empty">
+                      Add products from the shortlist to compare them against {selectedProduct.sku}.
+                    </div>
+                  ) : (
+                    <div className="wm-catalog-page__compare-grid">
+                      {diagramProducts.map((product) => (
+                        <article key={`compare_${product.sku}`} className="wm-catalog-page__compare-card">
+                          <div className="wm-catalog-page__compare-head">
+                            <span className="wm-catalog-page__sku-pill">{product.sku}</span>
+                            <strong>{product.name}</strong>
+                          </div>
+
+                          <div className="wm-catalog-page__compare-meta">
+                            {product.family} · {product.category}
+                          </div>
+
+                          <div className="wm-catalog-page__compare-metrics">
+                            {getProductMetrics(product).slice(0, 4).map((metric) => (
+                              <div key={`${product.sku}_${metric.label}`} className="wm-catalog-page__compare-metric">
+                                <span>{metric.label}</span>
+                                <strong>{metric.value}</strong>
+                              </div>
+                            ))}
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : null}
             </article>
 
             <aside className="wm-work-card wm-catalog-page__shortlist-card">
               <div className="wm-catalog-page__shortlist-head">
-                <div className="wm-title-lg">Shortlist</div>
+                <div className="wm-title-lg">Explore matches</div>
                 <div className="wm-body-sm">
                   {items.length > shortlistItems.length
                     ? `Showing the first ${shortlistItems.length} of ${items.length} matches. Refine the search for a tighter set.`
@@ -666,61 +813,100 @@ export default function CatalogPage() {
                 </div>
               </div>
 
-              <div className="wm-catalog-page__shortlist">
-                {shortlistItems.map((product) => {
-                  const tone = toneForProduct(product);
-                  const isActive = product.sku === activeSku;
-                  const isInSchematic = isActive || diagramExtras.includes(product.sku);
-                  const schematicFull = !isInSchematic && diagramExtras.length >= 3;
+              <div className="wm-catalog-page__shortlist-grouping">
+                Grouped by {shortlistGroupMode === "family" ? "family" : "transport"}
+              </div>
 
-                  return (
+              {familyPivots.length > 0 ? (
+                <div className="wm-catalog-page__shortlist-pivots">
+                  {familyPivots.map((card) => (
                     <button
-                      key={product.sku}
+                      key={`shortlist_${card.family}`}
                       type="button"
-                      className={`wm-catalog-page__shortlist-item${isActive ? " is-active" : ""}`}
-                      onClick={() => setSelectedSku(product.sku)}
+                      className="wm-catalog-page__shortlist-pivot"
+                      onClick={() => focusFamily(card.family, card.sampleSkus[0])}
                     >
-                      <div className="wm-catalog-page__shortlist-row">
-                        <span className="wm-catalog-page__sku-pill">{product.sku}</span>
-                        <span className={`wm-catalog-page__transport-pill wm-catalog-page__transport-pill--${tone}`}>
-                          {formatTransport(product.transport)}
-                        </span>
-                      </div>
-
-                      <div className="wm-catalog-page__shortlist-title">{product.name}</div>
-
-                      <div className="wm-catalog-page__shortlist-copy">
-                        {product.family} · {product.category}
-                      </div>
-
-                      <div className="wm-catalog-page__shortlist-copy">
-                        {product.summary || "Open to inspect the high-level reference overview."}
-                      </div>
-
-                      <div className="wm-catalog-page__shortlist-actions">
-                        <button
-                          type="button"
-                          className={`wm-catalog-page__shortlist-action-btn${isInSchematic ? " is-active" : ""}`}
-                          disabled={isActive || schematicFull}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            if (!isActive && !schematicFull) {
-                              toggleDiagramExtra(product.sku);
-                            }
-                          }}
-                        >
-                          {isActive
-                            ? "Primary in schematic"
-                            : isInSchematic
-                              ? "Remove from schematic"
-                              : schematicFull
-                                ? "Schematic full"
-                                : "Add to schematic"}
-                        </button>
-                      </div>
+                      {card.family}
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
+              ) : null}
+
+              <div className="wm-catalog-page__shortlist">
+                {shortlistSections.map((section) => (
+                  <section key={section.key} className="wm-catalog-page__shortlist-section">
+                    <div className="wm-catalog-page__shortlist-section-head">
+                      <strong>{section.title}</strong>
+                      <span>{section.items.length}</span>
+                    </div>
+
+                    <div className="wm-catalog-page__shortlist-lane">
+                      {section.items.map((product) => {
+                        const tone = toneForProduct(product);
+                        const isActive = product.sku === activeSku;
+                        const isInSchematic = isActive || diagramExtras.includes(product.sku);
+                        const schematicFull = !isInSchematic && diagramExtras.length >= 3;
+
+                        return (
+                          <div
+                            key={product.sku}
+                            role="button"
+                            tabIndex={0}
+                            className={`wm-catalog-page__shortlist-item${isActive ? " is-active" : ""}`}
+                            onClick={() => setSelectedSku(product.sku)}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                setSelectedSku(product.sku);
+                              }
+                            }}
+                          >
+                            <div className="wm-catalog-page__shortlist-row">
+                              <span className="wm-catalog-page__sku-pill">{product.sku}</span>
+                              <span className={`wm-catalog-page__transport-pill wm-catalog-page__transport-pill--${tone}`}>
+                                {formatTransport(product.transport)}
+                              </span>
+                            </div>
+
+                            <div className="wm-catalog-page__shortlist-title">{product.name}</div>
+
+                            <div className="wm-catalog-page__shortlist-copy">
+                              {product.family} · {product.category}
+                            </div>
+
+                            {product.status !== "active" ? (
+                              <div className="wm-catalog-page__shortlist-copy">
+                                {formatStatus(product.status)}
+                              </div>
+                            ) : null}
+
+                            <div className="wm-catalog-page__shortlist-actions">
+                              <button
+                                type="button"
+                                className={`wm-catalog-page__shortlist-action-btn${isInSchematic ? " is-active" : ""}`}
+                                disabled={isActive || schematicFull}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  if (!isActive && !schematicFull) {
+                                    toggleDiagramExtra(product.sku);
+                                  }
+                                }}
+                              >
+                                {isActive
+                                  ? "Primary in schematic"
+                                  : isInSchematic
+                                    ? "Remove from schematic"
+                                    : schematicFull
+                                      ? "Schematic full"
+                                      : "Add to schematic"}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                ))}
               </div>
             </aside>
           </div>
@@ -742,10 +928,10 @@ export default function CatalogPage() {
       <section className="wm-section wm-section--tone-emerald">
         <CollapsibleCard
           id="catalog-browse-families"
-          title={hasActiveFilters ? "Families in this view" : "Browse by family"}
+          title={hasActiveFilters ? "Family explorer" : "Browse by family"}
           subtitle={hasActiveFilters
-            ? "Pivot quickly by family without resetting the full search."
-            : "Optional family overviews when the exact SKU is not known yet."}
+            ? "Use this when you want to widen the search without losing the current context."
+            : "Use family-level overviews when you know the solution area but not the exact SKU."}
           defaultCollapsed
         >
           <div className="wm-catalog-page__family-grid">
@@ -762,10 +948,6 @@ export default function CatalogPage() {
 
                 <div className="wm-catalog-page__family-copy">
                   Typical categories: {card.categories.join(" · ") || "Mixed"}.
-                </div>
-
-                <div className="wm-catalog-page__family-copy">
-                  Primary transport: {card.transport}
                 </div>
 
                 <div className="wm-catalog-page__tag-row">
@@ -788,56 +970,6 @@ export default function CatalogPage() {
               </article>
             ))}
           </div>
-        </CollapsibleCard>
-      </section>
-
-      <section className="wm-section wm-section--tone-indigo wm-catalog-page__status-section">
-        <CollapsibleCard
-          id="catalog-reference-status"
-          title="Reference data status"
-          subtitle={liveStatus.available
-            ? "Live product intelligence is feeding this lookup tool."
-            : "You are browsing the latest cached or seeded catalog snapshot."}
-          defaultCollapsed
-        >
-          <div className="wm-catalog-page__status-head">
-            <div className="wm-body-sm">
-              {activeFilters.length > 0 ? activeFilters.join(" · ") : "All products in view"}
-            </div>
-          </div>
-
-          <div className="wm-catalog-page__status-grid">
-            <article className="wm-work-card wm-catalog-page__status-card wm-catalog-page__status-card--cyan">
-              <div className="wm-catalog-page__status-label">Source</div>
-              <div className="wm-title-lg">{liveStatus.available ? "Live" : "Fallback"}</div>
-              <div className="wm-body-sm">{liveStatus.mode}</div>
-            </article>
-            <article className="wm-work-card wm-catalog-page__status-card wm-catalog-page__status-card--indigo">
-              <div className="wm-catalog-page__status-label">Catalog</div>
-              <div className="wm-title-lg">{totalCatalogRecords}</div>
-              <div className="wm-body-sm">WyreStorm records ready for lookup</div>
-            </article>
-            <article className="wm-work-card wm-catalog-page__status-card wm-catalog-page__status-card--emerald">
-              <div className="wm-catalog-page__status-label">Matches</div>
-              <div className="wm-title-lg">{items.length}</div>
-              <div className="wm-body-sm">Products matching the current search</div>
-            </article>
-            <article className="wm-work-card wm-catalog-page__status-card wm-catalog-page__status-card--amber">
-              <div className="wm-catalog-page__status-label">Last sync</div>
-              <div className="wm-title-lg">{formatTimestamp(liveStatus.fetchedAt)}</div>
-              <div className="wm-body-sm">{liveStatus.endpoint ?? "No endpoint configured"}</div>
-            </article>
-          </div>
-
-          {notices.length > 0 ? (
-            <div className="wm-catalog-page__warnings">
-              {notices.map((warning) => (
-                <div key={warning} className="wm-catalog-page__warning-item">
-                  {warning}
-                </div>
-              ))}
-            </div>
-          ) : null}
         </CollapsibleCard>
       </section>
     </div>

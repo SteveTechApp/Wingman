@@ -880,14 +880,16 @@ export default function TemplatesPage() {
               gap: 14,
             }}
           >
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-                  gap: 14,
-                }}
-              >
-                <div style={{ display: "grid", gap: 10 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: 16,
+                flexWrap: "wrap",
+              }}
+            >
+              <div style={{ display: "grid", gap: 8, minWidth: "min(100%, 420px)", flex: "1 1 420px" }}>
                 <div
                   style={{
                     fontSize: 11,
@@ -899,42 +901,72 @@ export default function TemplatesPage() {
                   Selected path
                 </div>
 
-                  <div style={{ fontWeight: 900, fontSize: 18 }}>
-                    {market.name} / {room.name} / {tierProfile.label}
-                  </div>
+                <div style={{ fontWeight: 900, fontSize: 18 }}>
+                  {market.name} / {room.name} / {tierProfile.label}
+                </div>
 
-                  <div style={{ fontSize: 14, color: "rgba(255,255,255,0.92)", lineHeight: 1.5 }}>
-                    {tierProfile.summary}
-                  </div>
+                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.92)", lineHeight: 1.5 }}>
+                  {tierProfile.summary}
+                </div>
 
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
-                    <strong>Recommended families:</strong> {room.recommendedFamilies.join(", ")}
-                  </div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
+                  <strong>Recommended families:</strong> {room.recommendedFamilies.join(", ")}
+                </div>
 
                 <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
                   <strong>Recommended next tool:</strong> {getToolLabel(room.nextTool)}
                 </div>
-
-                <div style={{ marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  <button
-                    type="button"
-                    className="wm-btn wm-btn-primary"
-                    style={{ height: 40, padding: "0 16px" }}
-                    onClick={seedTemplateIntoProject}
-                  >
-                    Start a project from this template
-                  </button>
-
-                  <button
-                    type="button"
-                    className="wm-btn"
-                    style={{ height: 40, padding: "0 16px" }}
-                    onClick={goToRecommendedTool}
-                  >
-                    Continue to {getToolLabel(room.nextTool)}
-                  </button>
-                </div>
               </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  flexWrap: "wrap",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  marginLeft: "auto",
+                }}
+              >
+                <button
+                  type="button"
+                  className="wm-btn wm-btn-primary"
+                  style={{ height: 40, padding: "0 16px" }}
+                  onClick={seedTemplateIntoProject}
+                >
+                  Start a project from this template
+                </button>
+
+                <button
+                  type="button"
+                  className="wm-btn"
+                  style={{ height: 40, padding: "0 16px" }}
+                  onClick={goToRecommendedTool}
+                >
+                  Continue to {getToolLabel(room.nextTool)}
+                </button>
+              </div>
+            </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                  gap: 14,
+                }}
+              >
+                <div style={{ display: "grid", gap: 10 }}>
+                  <div style={{ fontWeight: 800, fontSize: 13 }}>Path at a glance</div>
+                  <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
+                    <strong>Recommended families:</strong> {room.recommendedFamilies.join(", ")}
+                  </div>
+                  <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
+                    <strong>Next tool:</strong> {getToolLabel(room.nextTool)}
+                  </div>
+                  <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
+                    <strong>Commercial focus:</strong> {tierProfile.commercialNote}
+                  </div>
+                </div>
 
               <div
                 style={{

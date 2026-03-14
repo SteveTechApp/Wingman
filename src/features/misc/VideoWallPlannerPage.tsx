@@ -88,6 +88,34 @@ type PlannerRecommendation = {
   items: RecommendationItem[];
 };
 
+type ProductWindowPlacement = {
+  x: number;
+  y: number;
+  z: number;
+};
+
+const QUALITY_TIER_OPTIONS: Array<{
+  value: DraftState["qualityProfile"];
+  label: string;
+  description: string;
+}> = [
+  {
+    value: "cost",
+    label: "Bronze",
+    description: "Cost-led path for simpler signage and budget-sensitive walls.",
+  },
+  {
+    value: "balanced",
+    label: "Silver",
+    description: "Balanced path for most corporate video wall projects.",
+  },
+  {
+    value: "premium",
+    label: "Gold",
+    description: "Higher-performance path for premium image quality and responsiveness.",
+  },
+];
+
 const LED_TECHNOLOGY_PROFILES: LedTechnologyProfile[] = [
   {
     id: "hisense-xim-aio-120-class",
@@ -424,7 +452,7 @@ function recommendLcdWall(args: {
   }
 
   if (args.driveStrategy === "decoder-per-screen") {
-    let decoderSku = "NHD-500-RX";
+    let decoderSku = "NHD-500-E-RX";
     let encoderSku = "NHD-500-TX";
     if (args.qualityProfile === "cost") {
       decoderSku = "NHD-120-RX";
@@ -606,7 +634,7 @@ function recommendLedWall(args: {
       warnings,
       items: [
         { sku: "NHD-500-TX", quantity: 1, role: "Source ingest" },
-        { sku: "NHD-500-RX", quantity: 1, role: "LED-processor-side decode" },
+        { sku: "NHD-500-E-RX", quantity: 1, role: "LED-processor-side decode" },
         { sku: "NHD-CTL-PRO", quantity: 1, role: "NetworkHD controller" },
         avoipSwitchItem,
       ],
@@ -704,6 +732,15 @@ export default function VideoWallPlannerPage() {
   const [isAdvisoriesOpen, setIsAdvisoriesOpen] = React.useState(true);
   const [openProductSkus, setOpenProductSkus] = React.useState<string[]>([]);
   const [collapsedProductSkus, setCollapsedProductSkus] = React.useState<Record<string, boolean>>({});
+  const [productWindowPlacements, setProductWindowPlacements] = React.useState<Record<string, ProductWindowPlacement>>({});
+  const dragStateRef = React.useRef<{
+    sku: string;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+  } | null>(null);
+  const highestProductWindowZ = React.useRef(40);
 
   const [draft, setDraft] = React.useState<DraftState>({
     technology: "LCD",
@@ -877,41 +914,6 @@ export default function VideoWallPlannerPage() {
     [draft.technology, outputCols, outputRows, physicalCols, physicalRows]
   );
 
-  const livePlanItems = React.useMemo(() => {
-    const items = [
-      { label: "Output", value: `${outputCols} x ${outputRows}` },
-      { label: "Layout", value: `${physicalCols} x ${physicalRows}` },
-      { label: "Footprint", value: `${computed.widthM.toFixed(2)}m x ${computed.heightM.toFixed(2)}m` },
-      { label: "Count", value: `${displays} ${draft.technology === "LED" ? "cabinets" : "displays"}` },
-    ];
-
-    if (computed.canvasWidthPx && computed.canvasHeightPx) {
-      items.push({ label: "Canvas", value: `${computed.canvasWidthPx} x ${computed.canvasHeightPx}px` });
-    } else if (computed.contentAspectLabel) {
-      items.push({ label: "Content", value: computed.contentAspectLabel });
-    }
-
-    if (computed.distortionRiskLevel) {
-      items.push({ label: "Risk", value: `${computed.distortionRiskLevel} (${computed.distortionRiskScore}/100)` });
-    }
-
-    return items;
-  }, [
-    computed.canvasHeightPx,
-    computed.canvasWidthPx,
-    computed.contentAspectLabel,
-    computed.distortionRiskLevel,
-    computed.distortionRiskScore,
-    computed.heightM,
-    computed.widthM,
-    displays,
-    draft.technology,
-    outputCols,
-    outputRows,
-    physicalCols,
-    physicalRows,
-  ]);
-
   const advisoryItems = React.useMemo(
     () => [
       ...computed.hardWarnings.map((message) => ({ tone: "critical" as const, label: "Critical", message })),
@@ -978,6 +980,8 @@ export default function VideoWallPlannerPage() {
 
   const isLcdDecoderPerScreen = draft.technology === "LCD" && draft.lcdDriveStrategy === "decoder-per-screen";
   const isLcdTileLoopMultiview = draft.technology === "LCD" && draft.lcdDriveStrategy === "tile-loop-multiview";
+  const activeQualityTier =
+    QUALITY_TIER_OPTIONS.find((item) => item.value === draft.qualityProfile) ?? QUALITY_TIER_OPTIONS[1];
   const previewWindows = React.useMemo(
     () => Array.from({ length: 6 }, (_, index) => `Window ${index + 1}`),
     []
@@ -990,13 +994,57 @@ export default function VideoWallPlannerPage() {
     [openProductSkus]
   );
 
+  const getCenteredProductWindowPlacement = React.useCallback((index: number): ProductWindowPlacement => {
+    const viewportWidth = typeof window === "undefined" ? 1360 : window.innerWidth;
+    const viewportHeight = typeof window === "undefined" ? 900 : window.innerHeight;
+    const width = 320;
+    const height = 380;
+    const offsetX = (index % 3) * 34;
+    const offsetY = Math.floor(index / 3) * 30;
+    const x = Math.max(20, Math.round((viewportWidth - width) / 2) - 120 + offsetX);
+    const y = Math.max(112, Math.round((viewportHeight - height) / 2) - 36 + offsetY);
+
+    highestProductWindowZ.current += 1;
+    return { x, y, z: highestProductWindowZ.current };
+  }, []);
+
+  const bringProductWindowToFront = React.useCallback((sku: string) => {
+    highestProductWindowZ.current += 1;
+    setProductWindowPlacements((current) => {
+      const placement = current[sku];
+      if (!placement) return current;
+      return {
+        ...current,
+        [sku]: {
+          ...placement,
+          z: highestProductWindowZ.current,
+        },
+      };
+    });
+  }, []);
+
   const openProductPreview = React.useCallback((sku: string) => {
     const normalized = String(sku || "").trim().toUpperCase();
     if (!normalized) return;
 
-    setOpenProductSkus((current) => (current.includes(normalized) ? current : [...current, normalized]));
+    setOpenProductSkus((current) => {
+      if (current.includes(normalized)) {
+        return current;
+      }
+      const next = [...current, normalized];
+      setProductWindowPlacements((placements) =>
+        placements[normalized]
+          ? placements
+          : {
+              ...placements,
+              [normalized]: getCenteredProductWindowPlacement(next.length - 1),
+            }
+      );
+      return next;
+    });
     setCollapsedProductSkus((current) => ({ ...current, [normalized]: false }));
-  }, []);
+    bringProductWindowToFront(normalized);
+  }, [bringProductWindowToFront, getCenteredProductWindowPlacement]);
 
   const closeProductPreview = React.useCallback((sku: string) => {
     setOpenProductSkus((current) => current.filter((item) => item !== sku));
@@ -1005,10 +1053,73 @@ export default function VideoWallPlannerPage() {
       delete next[sku];
       return next;
     });
+    setProductWindowPlacements((current) => {
+      const next = { ...current };
+      delete next[sku];
+      return next;
+    });
   }, []);
 
   const toggleProductPreview = React.useCallback((sku: string) => {
     setCollapsedProductSkus((current) => ({ ...current, [sku]: !current[sku] }));
+  }, []);
+
+  const startDraggingProductWindow = React.useCallback(
+    (sku: string, event: React.PointerEvent<HTMLDivElement>) => {
+      if (event.target instanceof HTMLElement && event.target.closest("a, button")) {
+        return;
+      }
+
+      const placement = productWindowPlacements[sku];
+      if (!placement) return;
+
+      event.preventDefault();
+      bringProductWindowToFront(sku);
+      dragStateRef.current = {
+        sku,
+        startX: event.clientX,
+        startY: event.clientY,
+        originX: placement.x,
+        originY: placement.y,
+      };
+    },
+    [bringProductWindowToFront, productWindowPlacements]
+  );
+
+  React.useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      const dragState = dragStateRef.current;
+      if (!dragState) return;
+
+      const maxX = Math.max(20, window.innerWidth - 340);
+      const maxY = Math.max(88, window.innerHeight - 120);
+      const nextX = Math.min(maxX, Math.max(20, dragState.originX + (event.clientX - dragState.startX)));
+      const nextY = Math.min(maxY, Math.max(88, dragState.originY + (event.clientY - dragState.startY)));
+
+      setProductWindowPlacements((current) => {
+        const placement = current[dragState.sku];
+        if (!placement) return current;
+        return {
+          ...current,
+          [dragState.sku]: {
+            ...placement,
+            x: nextX,
+            y: nextY,
+          },
+        };
+      });
+    };
+
+    const handlePointerUp = () => {
+      dragStateRef.current = null;
+    };
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
   }, []);
 
   const getCatalogHref = React.useCallback(
@@ -1156,9 +1267,26 @@ export default function VideoWallPlannerPage() {
   return (
     <div className="wm-dashboard wm-video-wall-page" data-page="video-wall">
       <section className="wm-dashboard__hero wm-video-wall-page__hero">
-        <div>
+        <div className="wm-video-wall-page__hero-copy">
           <div className="wm-dashboard__eyebrow">Video Wall Wizard</div>
-          <h1 className="wm-dashboard__title">LED / LCD video wall planner</h1>
+          <div className="wm-video-wall-page__hero-heading">
+            <h1 className="wm-dashboard__title">LED / LCD video wall planner</h1>
+          </div>
+        </div>
+
+        <div className="wm-video-wall-page__hero-center">
+          <div className="wm-tier-picker wm-video-wall-page__hero-tech-picker" aria-label="Video wall technology">
+            {(["LCD", "LED"] as VideoWallTechnology[]).map((item) => (
+              <button
+                key={item}
+                type="button"
+                className={draft.technology === item ? "wm-tier-btn is-active" : "wm-tier-btn"}
+                onClick={() => update("technology", item)}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="wm-dashboard__heroactions">
@@ -1168,293 +1296,220 @@ export default function VideoWallPlannerPage() {
           <button type="button" className="wm-btn wm-btn--ghost" onClick={() => nav("/app/projects")}>
             Projects
           </button>
-          <button type="button" className="wm-btn wm-btn--primary" onClick={createProjectFromWall}>
-            Create Project From Wall
-          </button>
         </div>
       </section>
 
       <section className="wm-page-grid-sidebar">
-        <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--inputs">
-          <div className="wm-card__title">Wall inputs</div>
-          <div className="wm-card__subtitle">Set the wall, sources, and signal path.</div>
+        <div className="wm-section-stack">
+          <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--inputs">
+          <div className="wm-card__title">Video wall data</div>
+          <div className="wm-card__subtitle">Set the main wall geometry on one side and the signal options on the other.</div>
 
-          <div className="wm-video-wall-page__planner-toprow" style={{ marginTop: 12 }}>
-            <div className="wm-field-wrap wm-video-wall-page__technology-group">
-              <span className="wm-label">Technology</span>
-              <div className="wm-tier-picker">
-                {(["LCD", "LED"] as VideoWallTechnology[]).map((item) => (
+          <div className="wm-video-wall-page__data-columns" style={{ marginTop: 12 }}>
+            <div className="wm-video-wall-page__data-section">
+              <div className="wm-video-wall-page__data-section-header">
+                <strong>Main video wall data</strong>
+                <span>Set the physical layout and display dimensions.</span>
+              </div>
+
+              <div className="wm-form-grid wm-video-wall-page__planner-grid wm-video-wall-page__planner-grid--main">
+                {draft.technology === "LCD" ? (
+                  <>
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Rows</span>
+                      <input className="wm-field" value={draft.lcdRows} onChange={(e) => update("lcdRows", e.target.value)} />
+                    </label>
+
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Columns</span>
+                      <input className="wm-field" value={draft.lcdCols} onChange={(e) => update("lcdCols", e.target.value)} />
+                    </label>
+
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Panel diagonal (in)</span>
+                      <input className="wm-field" value={draft.lcdPanelDiagonalIn} onChange={(e) => update("lcdPanelDiagonalIn", e.target.value)} />
+                    </label>
+
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Combined bezel (mm)</span>
+                      <input className="wm-field" value={draft.lcdBezelMm} onChange={(e) => update("lcdBezelMm", e.target.value)} />
+                    </label>
+                  </>
+                ) : (
+                  <>
+                    <label className="wm-field-wrap wm-video-wall-page__field--span-2">
+                      <span className="wm-label">Hisense LED profile</span>
+                      <select
+                        className="wm-field"
+                        value={draft.ledTechnologyProfileId}
+                        onChange={(e) => applyLedTechnologyProfile(e.target.value)}
+                      >
+                        {LED_TECHNOLOGY_PROFILES.map((profile) => (
+                          <option key={profile.id} value={profile.id}>
+                            {profile.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="wm-field-wrap wm-video-wall-page__field--span-2">
+                      <span className="wm-label">Screen class</span>
+                      <select className="wm-field" value={draft.ledScreenClass} onChange={(e) => update("ledScreenClass", e.target.value as DraftState["ledScreenClass"])}>
+                        <option value="modular">Modular cabinets</option>
+                        <option value="all-in-one-96-120">All-in-one (96-120in)</option>
+                      </select>
+                    </label>
+
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Cabinet rows</span>
+                      <input className="wm-field" value={draft.ledCabinetRows} onChange={(e) => update("ledCabinetRows", e.target.value)} />
+                    </label>
+
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Cabinet columns</span>
+                      <input className="wm-field" value={draft.ledCabinetCols} onChange={(e) => update("ledCabinetCols", e.target.value)} />
+                    </label>
+
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Cabinet width (px)</span>
+                      <input className="wm-field" value={draft.ledCabinetWidthPx} onChange={(e) => update("ledCabinetWidthPx", e.target.value)} />
+                    </label>
+
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Cabinet height (px)</span>
+                      <input className="wm-field" value={draft.ledCabinetHeightPx} onChange={(e) => update("ledCabinetHeightPx", e.target.value)} />
+                    </label>
+
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Cabinet width (mm)</span>
+                      <input className="wm-field" value={draft.ledCabinetWidthMm} onChange={(e) => update("ledCabinetWidthMm", e.target.value)} />
+                    </label>
+
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Cabinet height (mm)</span>
+                      <input className="wm-field" value={draft.ledCabinetHeightMm} onChange={(e) => update("ledCabinetHeightMm", e.target.value)} />
+                    </label>
+
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Pixel pitch (mm)</span>
+                      <input className="wm-field" value={draft.ledPixelPitchMm} onChange={(e) => update("ledPixelPitchMm", e.target.value)} />
+                    </label>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="wm-video-wall-page__data-section">
+              <div className="wm-video-wall-page__data-section-header">
+                <strong>Options</strong>
+                <span>Set source, processing, and wall behavior options.</span>
+              </div>
+
+              <div className="wm-form-grid wm-video-wall-page__planner-grid wm-video-wall-page__planner-grid--options">
+                <label className="wm-field-wrap">
+                  <span className="wm-label">Source count</span>
+                  <input className="wm-field" value={draft.sourceCount} onChange={(e) => update("sourceCount", e.target.value)} />
+                </label>
+
+                <label className="wm-field-wrap">
+                  <span className="wm-label">Viewing distance (m)</span>
+                  <input className="wm-field" value={draft.viewingDistanceM} onChange={(e) => update("viewingDistanceM", e.target.value)} />
+                </label>
+
+                {draft.technology === "LCD" ? (
+                  <>
+                    <label className="wm-field-wrap wm-video-wall-page__field--span-2">
+                      <span className="wm-label">LCD drive strategy</span>
+                      <select className="wm-field" value={draft.lcdDriveStrategy} onChange={(e) => update("lcdDriveStrategy", e.target.value as DraftState["lcdDriveStrategy"])}>
+                        <option value="decoder-per-screen">Decoder per screen</option>
+                        <option value="tile-loop-multiview">Tile-loop multiview</option>
+                        <option value="dedicated-processor">Dedicated processor</option>
+                      </select>
+                    </label>
+
+                    <label className="wm-field-wrap">
+                      <span className="wm-label">Primary source aspect</span>
+                      <select className="wm-field" value={draft.contentAspect} onChange={(e) => update("contentAspect", e.target.value as DraftState["contentAspect"])}>
+                        <option value="16:9">16:9</option>
+                        <option value="16:10">16:10</option>
+                        <option value="21:9">21:9</option>
+                        <option value="32:9">32:9</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                    </label>
+
+                    {draft.contentAspect === "custom" ? (
+                      <label className="wm-field-wrap wm-video-wall-page__field--span-2">
+                        <span className="wm-label">Custom aspect ratio</span>
+                        <input className="wm-field" value={draft.contentAspectCustom} onChange={(e) => update("contentAspectCustom", e.target.value)} placeholder="e.g. 48:9 or 3.5" />
+                      </label>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    <label className="wm-field-wrap wm-video-wall-page__field--span-2">
+                      <span className="wm-label">LED processor profile</span>
+                      <select
+                        className="wm-field"
+                        value={draft.ledProcessorProfileId}
+                        onChange={(e) => update("ledProcessorProfileId", e.target.value)}
+                      >
+                        {LED_PROCESSOR_PROFILES.map((profile) => (
+                          <option key={profile.id} value={profile.id}>
+                            {profile.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="wm-field-wrap wm-video-wall-page__field--span-2">
+                      <span className="wm-label">Processor input mode</span>
+                      <select className="wm-field" value={draft.processorInputMode} onChange={(e) => update("processorInputMode", e.target.value as DraftState["processorInputMode"])}>
+                        <option value="single-source">Single source</option>
+                        <option value="multiview">Multiview</option>
+                      </select>
+                    </label>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          </div>
+
+          <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--recommendation">
+            <div className="wm-video-wall-page__recommendation-header">
+              <div>
+                <div className="wm-card__title">Product recommendation</div>
+                <div className="wm-card__subtitle">Switch between Bronze, Silver, and Gold solution paths.</div>
+              </div>
+
+              <div className="wm-tier-picker wm-video-wall-page__recommendation-tier-picker" aria-label="Recommendation tier">
+                {QUALITY_TIER_OPTIONS.map((item) => (
                   <button
-                    key={item}
+                    key={item.value}
                     type="button"
-                    className={draft.technology === item ? "wm-tier-btn is-active" : "wm-tier-btn"}
-                    onClick={() => update("technology", item)}
+                    className={draft.qualityProfile === item.value ? "wm-tier-btn is-active" : "wm-tier-btn"}
+                    onClick={() => update("qualityProfile", item.value)}
                   >
-                    {item}
+                    {item.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="wm-video-wall-page__intel-strip">
-              {livePlanItems.map((item) => (
-                <div className="wm-video-wall-page__intel-item" key={item.label}>
-                  <span>{item.label}</span>
-                  <strong>{item.value}</strong>
-                </div>
-              ))}
+            <div className="wm-video-wall-page__recommendation-tier-note">
+              <span>{activeQualityTier.label} solution</span>
+              <strong>{activeQualityTier.description}</strong>
             </div>
-          </div>
 
-          <div className="wm-form-grid wm-video-wall-page__planner-grid" style={{ marginTop: 12 }}>
-            <label className="wm-field-wrap">
-              <span className="wm-label">Source count</span>
-              <input className="wm-field" value={draft.sourceCount} onChange={(e) => update("sourceCount", e.target.value)} />
-            </label>
+            {computed.recommendation.items.some((item) => item.sku === "NHD-500-E-RX") ? (
+              <div className="wm-video-wall-page__recommendation-callout">
+                For video wall endpoints, <strong>NHD-500-E-RX</strong> is preferred over <strong>NHD-500-RX</strong> because the extra receiver-side connections are not needed on this design.
+              </div>
+            ) : null}
 
-            <label className="wm-field-wrap">
-              <span className="wm-label">Viewing distance (m)</span>
-              <input className="wm-field" value={draft.viewingDistanceM} onChange={(e) => update("viewingDistanceM", e.target.value)} />
-            </label>
-
-            <label className="wm-field-wrap">
-              <span className="wm-label">Quality profile</span>
-              <select className="wm-field" value={draft.qualityProfile} onChange={(e) => update("qualityProfile", e.target.value as DraftState["qualityProfile"])}>
-                <option value="cost">Cost-aware</option>
-                <option value="balanced">Balanced</option>
-                <option value="premium">Premium</option>
-              </select>
-            </label>
-
-            {draft.technology === "LCD" ? (
-              <>
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Rows</span>
-                  <input className="wm-field" value={draft.lcdRows} onChange={(e) => update("lcdRows", e.target.value)} />
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Columns</span>
-                  <input className="wm-field" value={draft.lcdCols} onChange={(e) => update("lcdCols", e.target.value)} />
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Panel diagonal (in)</span>
-                  <input className="wm-field" value={draft.lcdPanelDiagonalIn} onChange={(e) => update("lcdPanelDiagonalIn", e.target.value)} />
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Combined bezel (mm)</span>
-                  <input className="wm-field" value={draft.lcdBezelMm} onChange={(e) => update("lcdBezelMm", e.target.value)} />
-                </label>
-
-                <label className="wm-field-wrap wm-video-wall-page__field--span-2">
-                  <span className="wm-label">LCD drive strategy</span>
-                  <select className="wm-field" value={draft.lcdDriveStrategy} onChange={(e) => update("lcdDriveStrategy", e.target.value as DraftState["lcdDriveStrategy"])}>
-                    <option value="decoder-per-screen">Decoder per screen</option>
-                    <option value="tile-loop-multiview">Tile-loop multiview</option>
-                    <option value="dedicated-processor">Dedicated processor</option>
-                  </select>
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Primary source aspect</span>
-                  <select className="wm-field" value={draft.contentAspect} onChange={(e) => update("contentAspect", e.target.value as DraftState["contentAspect"])}>
-                    <option value="16:9">16:9</option>
-                    <option value="16:10">16:10</option>
-                    <option value="21:9">21:9</option>
-                    <option value="32:9">32:9</option>
-                    <option value="custom">Custom</option>
-                  </select>
-                </label>
-
-                {draft.contentAspect === "custom" ? (
-                  <label className="wm-field-wrap wm-video-wall-page__field--span-2">
-                    <span className="wm-label">Custom aspect ratio</span>
-                    <input className="wm-field" value={draft.contentAspectCustom} onChange={(e) => update("contentAspectCustom", e.target.value)} placeholder="e.g. 48:9 or 3.5" />
-                  </label>
-                ) : null}
-              </>
-            ) : (
-              <>
-                <label className="wm-field-wrap wm-video-wall-page__field--span-2">
-                  <span className="wm-label">Hisense LED profile</span>
-                  <select
-                    className="wm-field"
-                    value={draft.ledTechnologyProfileId}
-                    onChange={(e) => applyLedTechnologyProfile(e.target.value)}
-                  >
-                    {LED_TECHNOLOGY_PROFILES.map((profile) => (
-                      <option key={profile.id} value={profile.id}>
-                        {profile.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="wm-field-wrap wm-video-wall-page__field--span-2">
-                  <span className="wm-label">LED processor profile</span>
-                  <select
-                    className="wm-field"
-                    value={draft.ledProcessorProfileId}
-                    onChange={(e) => update("ledProcessorProfileId", e.target.value)}
-                  >
-                    {LED_PROCESSOR_PROFILES.map((profile) => (
-                      <option key={profile.id} value={profile.id}>
-                        {profile.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Processor input mode</span>
-                  <select className="wm-field" value={draft.processorInputMode} onChange={(e) => update("processorInputMode", e.target.value as DraftState["processorInputMode"])}>
-                    <option value="single-source">Single source</option>
-                    <option value="multiview">Multiview</option>
-                  </select>
-                </label>
-
-                <label className="wm-field-wrap wm-video-wall-page__field--span-2">
-                  <span className="wm-label">Screen class</span>
-                  <select className="wm-field" value={draft.ledScreenClass} onChange={(e) => update("ledScreenClass", e.target.value as DraftState["ledScreenClass"])}>
-                    <option value="modular">Modular cabinets</option>
-                    <option value="all-in-one-96-120">All-in-one (96-120in)</option>
-                  </select>
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Cabinet rows</span>
-                  <input className="wm-field" value={draft.ledCabinetRows} onChange={(e) => update("ledCabinetRows", e.target.value)} />
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Cabinet columns</span>
-                  <input className="wm-field" value={draft.ledCabinetCols} onChange={(e) => update("ledCabinetCols", e.target.value)} />
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Cabinet width (px)</span>
-                  <input className="wm-field" value={draft.ledCabinetWidthPx} onChange={(e) => update("ledCabinetWidthPx", e.target.value)} />
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Cabinet height (px)</span>
-                  <input className="wm-field" value={draft.ledCabinetHeightPx} onChange={(e) => update("ledCabinetHeightPx", e.target.value)} />
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Cabinet width (mm)</span>
-                  <input className="wm-field" value={draft.ledCabinetWidthMm} onChange={(e) => update("ledCabinetWidthMm", e.target.value)} />
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Cabinet height (mm)</span>
-                  <input className="wm-field" value={draft.ledCabinetHeightMm} onChange={(e) => update("ledCabinetHeightMm", e.target.value)} />
-                </label>
-
-                <label className="wm-field-wrap">
-                  <span className="wm-label">Pixel pitch (mm)</span>
-                  <input className="wm-field" value={draft.ledPixelPitchMm} onChange={(e) => update("ledPixelPitchMm", e.target.value)} />
-                </label>
-              </>
-            )}
-          </div>
-
-          <div className="wm-inline-actions action-row">
-            <button type="button" className="wm-btn wm-btn--primary" onClick={applyToActiveProject}>
-              Apply To Active Project
-            </button>
-            <button type="button" className="wm-btn wm-btn--ghost" onClick={createProjectFromWall}>
-              Create New Video Wall Project
-            </button>
-          </div>
-
-          {productPreviewRecords.length > 0 ? (
-            <div className="wm-video-wall-page__planner-workspace" aria-label="Open product previews">
-              <section className="wm-video-wall-page__product-layer wm-video-wall-page__product-layer--workspace">
-                {productPreviewRecords.map(({ sku, product }, index) => {
-                  const isCollapsed = Boolean(collapsedProductSkus[sku]);
-                  const column = index % 2;
-                  const row = Math.floor(index / 2);
-
-                  return (
-                    <div
-                      className={`wm-card wm-video-wall-page__card wm-video-wall-page__product-window${isCollapsed ? " is-collapsed" : ""}`}
-                      key={sku}
-                      style={{
-                        top: `${16 + row * 42 + column * 14}px`,
-                        left: `${20 + column * 262}px`,
-                        zIndex: 10 + index,
-                      }}
-                    >
-                      <div className="wm-video-wall-page__product-window-header">
-                        <div className="wm-video-wall-page__product-window-title">
-                          <span className="wm-video-wall-page__product-sku">{product.sku}</span>
-                          <strong>{product.name}</strong>
-                          <small>{product.family} · {product.category}</small>
-                        </div>
-
-                        <div className="wm-video-wall-page__product-window-actions">
-                          <Link className="wm-video-wall-page__product-window-link" to={getCatalogHref(product.sku)}>
-                            Open in catalog
-                          </Link>
-                          <button
-                            type="button"
-                            className="wm-video-wall-page__product-window-btn"
-                            onClick={() => toggleProductPreview(sku)}
-                            aria-expanded={!isCollapsed}
-                          >
-                            {isCollapsed ? "+" : "-"}
-                          </button>
-                          <button
-                            type="button"
-                            className="wm-video-wall-page__product-window-btn"
-                            onClick={() => closeProductPreview(sku)}
-                            aria-label={`Close ${product.sku} preview`}
-                          >
-                            x
-                          </button>
-                        </div>
-                      </div>
-
-                      {!isCollapsed ? (
-                        <div className="wm-video-wall-page__product-window-body">
-                          <p className="wm-video-wall-page__product-summary">
-                            {product.summary || product.notes || "Catalog reference preview."}
-                          </p>
-
-                          <div className="wm-video-wall-page__product-metrics">
-                            <div><span>Transport</span><strong>{product.transport || "Unknown"}</strong></div>
-                            <div><span>Video</span><strong>{product.video?.maxResolution || "Not set"}</strong></div>
-                            <div><span>I/O</span><strong>{product.ioSummary || "Mixed I/O"}</strong></div>
-                            <div><span>Reach</span><strong>{product.distance?.meters ? `${product.distance.meters}m` : product.distance?.notes || "Project-led"}</strong></div>
-                          </div>
-
-                          {(product.features || []).length > 0 ? (
-                            <div className="wm-video-wall-page__product-tags">
-                              {product.features?.slice(0, 4).map((feature) => (
-                                <span key={feature}>{feature}</span>
-                              ))}
-                            </div>
-                          ) : null}
-                        </div>
-                      ) : null}
-                    </div>
-                  );
-                })}
-              </section>
-            </div>
-          ) : null}
-
-        </div>
-
-        <div className="wm-section-stack">
-          <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--recommendation">
-            <div className="wm-card__title">Processor recommendation</div>
-            <div className="wm-card__subtitle">Recommended path and hardware.</div>
-
-              <div className="wm-summary-list">
+            <div className="wm-summary-list">
               <div className="wm-summary-row"><span>Design summary</span><strong>{computed.recommendation.summary}</strong></div>
               <div className="wm-summary-row"><span>Output topology</span><strong>{computed.recommendation.outputTopology}</strong></div>
               {computed.recommendation.items.map((item) => (
@@ -1497,8 +1552,19 @@ export default function VideoWallPlannerPage() {
               ) : null}
               <div className="wm-summary-row"><span>Viewing distance</span><strong>{viewingDistanceM || 0}m</strong></div>
             </div>
-          </div>
 
+            <div className="wm-inline-actions action-row wm-video-wall-page__recommendation-actions">
+              <button type="button" className="wm-btn wm-btn--primary" onClick={applyToActiveProject}>
+                Apply To Active Project
+              </button>
+              <button type="button" className="wm-btn wm-btn--ghost" onClick={createProjectFromWall}>
+                Create New Video Wall Project
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="wm-section-stack">
           <div className="wm-video-wall-page__visual-workspace">
             <div className="wm-card wm-video-wall-page__card wm-video-wall-page__card--preview">
               <div className="wm-card__title">Preview visualisation</div>
@@ -1573,71 +1639,147 @@ export default function VideoWallPlannerPage() {
               </div>
             </div>
           </div>
+
+          <div className="wm-card wm-video-wall-page__card wm-video-wall-page__drawer wm-video-wall-page__card--notes">
+            <button
+              type="button"
+              className="wm-video-wall-page__drawer-toggle"
+              onClick={() => setIsNotesOpen((value) => !value)}
+              aria-expanded={isNotesOpen}
+            >
+              <span className="wm-video-wall-page__drawer-heading">
+                <strong>Design notes</strong>
+                <small>Mounting and install guidance saved with the wall plan.</small>
+              </span>
+              <span className="wm-video-wall-page__drawer-icon" aria-hidden="true">{isNotesOpen ? "-" : "+"}</span>
+            </button>
+
+            {isNotesOpen ? (
+              <div className="wm-video-wall-page__drawer-body">
+                <div className="wm-summary-list">
+                  {notes.map((item) => (
+                    <div className="wm-summary-row" key={item}>
+                      <span>Note</span>
+                      <strong>{item}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <div className={`wm-card wm-video-wall-page__card wm-video-wall-page__drawer ${computed.hardWarnings.length > 0 ? "wm-video-wall-page__card--critical" : "wm-video-wall-page__card--warnings"}`}>
+            <button
+              type="button"
+              className="wm-video-wall-page__drawer-toggle"
+              onClick={() => setIsAdvisoriesOpen((value) => !value)}
+              aria-expanded={isAdvisoriesOpen}
+            >
+              <span className="wm-video-wall-page__drawer-heading">
+                <strong>Technical advisories</strong>
+                <small>Network, processor, and engineering checks before handoff.</small>
+              </span>
+              <span className="wm-video-wall-page__drawer-icon" aria-hidden="true">{isAdvisoriesOpen ? "-" : "+"}</span>
+            </button>
+
+            {isAdvisoriesOpen ? (
+              <div className="wm-video-wall-page__drawer-body">
+                <div className="wm-summary-list">
+                  {advisoryItems.length > 0 ? advisoryItems.map((item) => (
+                    <div className="wm-summary-row" key={`${item.label}-${item.message}`}>
+                      <span>{item.label}</span>
+                      <strong>{item.message}</strong>
+                    </div>
+                  )) : (
+                    <div className="wm-summary-row">
+                      <span>Status</span>
+                      <strong>No current technical advisories for this wall.</strong>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
       </section>
 
-      <section className="wm-video-wall-page__bottom-drawers">
-        <div className="wm-card wm-video-wall-page__card wm-video-wall-page__drawer wm-video-wall-page__card--notes">
-          <button
-            type="button"
-            className="wm-video-wall-page__drawer-toggle"
-            onClick={() => setIsNotesOpen((value) => !value)}
-            aria-expanded={isNotesOpen}
-          >
-            <span className="wm-video-wall-page__drawer-heading">
-              <strong>Design notes</strong>
-              <small>Mounting and install guidance saved with the wall plan.</small>
-            </span>
-            <span className="wm-video-wall-page__drawer-icon" aria-hidden="true">{isNotesOpen ? "-" : "+"}</span>
-          </button>
+      {productPreviewRecords.length > 0 ? (
+        <section className="wm-video-wall-page__product-layer wm-video-wall-page__product-layer--floating" aria-label="Open product previews">
+          {productPreviewRecords.map(({ sku, product }, index) => {
+            const isCollapsed = Boolean(collapsedProductSkus[sku]);
+            const placement = productWindowPlacements[sku] || getCenteredProductWindowPlacement(index);
 
-          {isNotesOpen ? (
-            <div className="wm-video-wall-page__drawer-body">
-              <div className="wm-summary-list">
-                {notes.map((item) => (
-                  <div className="wm-summary-row" key={item}>
-                    <span>Note</span>
-                    <strong>{item}</strong>
+            return (
+              <div
+                className={`wm-card wm-video-wall-page__card wm-video-wall-page__product-window${isCollapsed ? " is-collapsed" : ""}`}
+                key={sku}
+                style={{
+                  top: `${placement.y}px`,
+                  left: `${placement.x}px`,
+                  zIndex: placement.z,
+                }}
+                onMouseDown={() => bringProductWindowToFront(sku)}
+              >
+                <div
+                  className="wm-video-wall-page__product-window-header"
+                  onPointerDown={(event) => startDraggingProductWindow(sku, event)}
+                >
+                  <div className="wm-video-wall-page__product-window-title">
+                    <span className="wm-video-wall-page__product-sku">{product.sku}</span>
+                    <strong>{product.name}</strong>
+                    <small>{product.family} · {product.category}</small>
                   </div>
-                ))}
+
+                  <div className="wm-video-wall-page__product-window-actions">
+                    <Link className="wm-video-wall-page__product-window-link" to={getCatalogHref(product.sku)}>
+                      Open in catalog
+                    </Link>
+                    <button
+                      type="button"
+                      className="wm-video-wall-page__product-window-btn"
+                      onClick={() => toggleProductPreview(sku)}
+                      aria-expanded={!isCollapsed}
+                    >
+                      {isCollapsed ? "+" : "-"}
+                    </button>
+                    <button
+                      type="button"
+                      className="wm-video-wall-page__product-window-btn"
+                      onClick={() => closeProductPreview(sku)}
+                      aria-label={`Close ${product.sku} preview`}
+                    >
+                      x
+                    </button>
+                  </div>
+                </div>
+
+                {!isCollapsed ? (
+                  <div className="wm-video-wall-page__product-window-body">
+                    <p className="wm-video-wall-page__product-summary">
+                      {product.summary || product.notes || "Catalog reference preview."}
+                    </p>
+
+                    <div className="wm-video-wall-page__product-metrics">
+                      <div><span>Transport</span><strong>{product.transport || "Unknown"}</strong></div>
+                      <div><span>Video</span><strong>{product.video?.maxResolution || "Not set"}</strong></div>
+                      <div><span>I/O</span><strong>{product.ioSummary || "Mixed I/O"}</strong></div>
+                      <div><span>Reach</span><strong>{product.distance?.meters ? `${product.distance.meters}m` : product.distance?.notes || "Project-led"}</strong></div>
+                    </div>
+
+                    {(product.features || []).length > 0 ? (
+                      <div className="wm-video-wall-page__product-tags">
+                        {product.features?.slice(0, 4).map((feature) => (
+                          <span key={feature}>{feature}</span>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
-            </div>
-          ) : null}
-        </div>
-
-        <div className={`wm-card wm-video-wall-page__card wm-video-wall-page__drawer ${computed.hardWarnings.length > 0 ? "wm-video-wall-page__card--critical" : "wm-video-wall-page__card--warnings"}`}>
-          <button
-            type="button"
-            className="wm-video-wall-page__drawer-toggle"
-            onClick={() => setIsAdvisoriesOpen((value) => !value)}
-            aria-expanded={isAdvisoriesOpen}
-          >
-            <span className="wm-video-wall-page__drawer-heading">
-              <strong>Technical advisories</strong>
-              <small>Network, processor, and engineering checks before handoff.</small>
-            </span>
-            <span className="wm-video-wall-page__drawer-icon" aria-hidden="true">{isAdvisoriesOpen ? "-" : "+"}</span>
-          </button>
-
-          {isAdvisoriesOpen ? (
-            <div className="wm-video-wall-page__drawer-body">
-              <div className="wm-summary-list">
-                {advisoryItems.length > 0 ? advisoryItems.map((item) => (
-                  <div className="wm-summary-row" key={`${item.label}-${item.message}`}>
-                    <span>{item.label}</span>
-                    <strong>{item.message}</strong>
-                  </div>
-                )) : (
-                  <div className="wm-summary-row">
-                    <span>Status</span>
-                    <strong>No current technical advisories for this wall.</strong>
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </section>
+            );
+          })}
+        </section>
+      ) : null}
     </div>
   );
 }
