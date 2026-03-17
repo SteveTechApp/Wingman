@@ -137,7 +137,7 @@ export type ValidationIssue = {
 
 export type DesignPackage = {
   designType: DesignType;
-  confidence: number; // 0â€“100
+  confidence: number; // 0�?,???o�?,?s�?f��??s�?.??o100
   topology: TopologyGraph;
   requirements: Requirement[];
   bom: BomLineItem[];

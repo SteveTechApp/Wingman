@@ -56,7 +56,7 @@ export default function RealBomPanel() {
                 <div className="wm-mc-realbom-sku">{item.sku}</div>
                 <div className="wm-mc-realbom-name">{item.name}</div>
                 <div className="wm-mc-realbom-meta">
-                  {item.family} · {item.category}
+                  {item.family} �f�?s· {item.category}
                 </div>
               </div>
 

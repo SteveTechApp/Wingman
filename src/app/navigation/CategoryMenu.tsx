@@ -32,7 +32,7 @@ export default function CategoryMenu() {
       >
         <span className="text-emerald-100/70">Menu</span>
         <span className="text-white">{active?.item?.label ?? "Tools"}</span>
-        <span className="text-emerald-100/60">Ã¢â€“Â¾</span>
+        <span className="text-emerald-100/60">?f��??s��?,??"?f��?,?s�?f��??s�?.??o�?,???o�</span>
       </button>
 
       {open && (

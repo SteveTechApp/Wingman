@@ -45,19 +45,15 @@ function intOrUndef(s: string) {
   return Number.isFinite(n) ? n : undefined;
 }
 
-function parseResolution(value: string): CompetitorItem["video"] extends infer V
-  ? V extends { maxResolution?: infer R }
-    ? R
-    : never
-  : never {
+function parseResolution(value: string): NonNullable<CompetitorItem["video"]>["maxResolution"] | undefined {
   const v = lower(value);
 
-  if (v.includes("8k")) return "8K" as any;
-  if (v.includes("4k60") || v.includes("4k 60")) return "4K60" as any;
-  if (v.includes("4k30") || v.includes("4k 30")) return "4K30" as any;
-  if (v.includes("1080")) return "1080p" as any;
+  if (v.includes("8k")) return "8K";
+  if (v.includes("4k60") || v.includes("4k 60")) return "4K60";
+  if (v.includes("4k30") || v.includes("4k 30")) return "4K30";
+  if (v.includes("1080")) return "1080p";
 
-  return undefined as any;
+  return undefined;
 }
 
 export function competitorCsvTemplate(): string {

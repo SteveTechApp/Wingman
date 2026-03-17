@@ -186,11 +186,11 @@ function summarizeTierChange(
   ];
 
   if (added.length > 0) {
-    lines.push(`Adds: ${added.slice(0, 2).join(" • ")}.`);
+    lines.push(`Adds: ${added.slice(0, 2).join(" Ã¢â‚¬â€œÃ¢â‚¬Å¡Ã‚¬â€“¢ ")}.`);
   }
 
   if (removed.length > 0) {
-    lines.push(`Reduces: ${removed.slice(0, 2).join(" • ")}.`);
+    lines.push(`Reduces: ${removed.slice(0, 2).join(" Ã¢â‚¬â€œÃ¢â‚¬Å¡Ã‚¬â€“¢ ")}.`);
   }
 
   lines.push(`Commercial impact: ${targetProfile.commercialNote}`);
@@ -883,7 +883,7 @@ export default function TemplatesPage() {
             <div
               style={{
                 display: "flex",
-                justifyContent: "space-between",
+                justifyContent: "flex-start",
                 alignItems: "flex-start",
                 gap: 16,
                 flexWrap: "wrap",
@@ -923,9 +923,9 @@ export default function TemplatesPage() {
                   display: "flex",
                   gap: 10,
                   flexWrap: "wrap",
-                  justifyContent: "flex-end",
+                  justifyContent: "flex-start",
                   alignItems: "center",
-                  marginLeft: "auto",
+                  
                 }}
               >
                 <button
@@ -937,36 +937,18 @@ export default function TemplatesPage() {
                   Start a project from this template
                 </button>
 
-                <button
-                  type="button"
-                  className="wm-btn"
-                  style={{ height: 40, padding: "0 16px" }}
-                  onClick={goToRecommendedTool}
-                >
-                  Continue to {getToolLabel(room.nextTool)}
-                </button>
+
               </div>
             </div>
 
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                  gridTemplateColumns: "minmax(0, 1fr)",
                   gap: 14,
                 }}
               >
-                <div style={{ display: "grid", gap: 10 }}>
-                  <div style={{ fontWeight: 800, fontSize: 13 }}>Path at a glance</div>
-                  <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
-                    <strong>Recommended families:</strong> {room.recommendedFamilies.join(", ")}
-                  </div>
-                  <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
-                    <strong>Next tool:</strong> {getToolLabel(room.nextTool)}
-                  </div>
-                  <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
-                    <strong>Commercial focus:</strong> {tierProfile.commercialNote}
-                  </div>
-                </div>
+
 
               <div
                 style={{

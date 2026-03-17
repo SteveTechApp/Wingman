@@ -22,7 +22,7 @@ export default function WelcomeScreen() {
 
             <p className="mt-3 text-white/70 max-w-2xl text-sm sm:text-base leading-6">
               Wingman helps you capture requirements, select the right WyreStorm solution, and produce proposal-ready
-              outputs â€” with guardrails to reduce mistakes and speed up quoting.
+              outputs �?,???o�?,?s�?f��??s�� with guardrails to reduce mistakes and speed up quoting.
             </p>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">

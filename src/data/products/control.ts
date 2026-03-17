@@ -24,12 +24,12 @@ export const CONTROL_SOLUTIONS: Product[] = [
         tags: ['Control', 'Touchscreen'],
     },
     {
-        sku: 'SYN-KEY10', name: 'Synergyâ„¢ 10-Button Keypad Controller', category: 'Control',
-        description: 'Synergyâ„¢ 10-Button Keypad Controller | Only comes with US back box.',
+        sku: 'SYN-KEY10', name: 'Synergy�?,???o�??s�?.�?f??s� 10-Button Keypad Controller', category: 'Control',
+        description: 'Synergy�?,???o�??s�?.�?f??s� 10-Button Keypad Controller | Only comes with US back box.',
         tags: ['Control', 'Keypad'],
     },
     {
-        sku: 'SYN-TOUCH10', name: 'Synergyâ„¢ 10.1â€ All-in-One Touchpad IP Controller', category: 'Control',
+        sku: 'SYN-TOUCH10', name: 'Synergy�?,???o�??s�?.�?f??s� 10.1�?,???o�?,?s�?f??s� All-in-One Touchpad IP Controller', category: 'Control',
         description: 'PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible)',
         tags: ['Control', 'Touchscreen', 'Synergy'],
         ethernet: true,

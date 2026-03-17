@@ -19,7 +19,7 @@ export const GAMING_TEMPLATES: UserTemplate[] = [
             features: [],
             functionalityStatement: 'A simple and reliable TV distribution system for a small bar. A central 8x8 HDBaseT matrix switcher sends satellite and media player feeds to 8 displays. Staff can change the source for each TV using a simple keypad controller. This is a robust, cost-effective solution for basic source routing.',
             manuallyAddedEquipment: [
-                { sku: 'MXV-0808-H2A-KIT', name: '4K60Hz 4.4.4 8x8 HDBaseTâ„¢ Matrix Kit', quantity: 1, category: 'Matrix Switcher', description: 'w/ 8 standard receivers & 2 Scaling receivers | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft)', tags: ['Matrix', 'HDBaseT', 'Kit', '8x8', 'Class B', '4K60', '4:4:4', 'HDR', 'Audio De-embed', 'CEC', 'RS232'] },
+                { sku: 'MXV-0808-H2A-KIT', name: '4K60Hz 4.4.4 8x8 HDBaseT�?,???o�??s�?.�?f??s� Matrix Kit', quantity: 1, category: 'Matrix Switcher', description: 'w/ 8 standard receivers & 2 Scaling receivers | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft)', tags: ['Matrix', 'HDBaseT', 'Kit', '8x8', 'Class B', '4K60', '4:4:4', 'HDR', 'Audio De-embed', 'CEC', 'RS232'] },
             ],
             constructionDetails: { wallConstruction: 'drywall', cableContainment: 'conduit', furnitureType: 'fixed' },
             audioSystemDetails: { speakerLayout: 'in_ceiling', systemType: 'high_impedance', useCases: ['program_audio'], microphoneType: 'none', ucCompatibility: false },

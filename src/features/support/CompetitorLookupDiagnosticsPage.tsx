@@ -14,7 +14,7 @@ import {
   pruneExpiredCompetitorLookupCache,
   type CompetitorLookupRuntimeEvent,
   type CompetitorLookupCacheEntrySummary,
-} from "@/services/competitorLookupService";
+} from "@/services/competitor/lookupService";
 import {
   clearApprovalQueue,
   flushApprovalQueue,
@@ -529,7 +529,7 @@ export default function CompetitorLookupDiagnosticsPage() {
               <article key={event.id} className="wm-panel">
                 <div className="wm-lookup-page__runtime-entry">
                   <div className="wm-lookup-page__runtime-head">
-                    <strong>{event.scope} · {event.mode}</strong>
+                    <strong>{event.scope} �f�?s· {event.mode}</strong>
                     <span className={`wm-chip${event.severity === "warn" || event.severity === "error" ? " wm-chip--warn" : ""}`}>
                       {event.severity}
                     </span>

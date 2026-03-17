@@ -71,7 +71,7 @@ export default function AboutWingmanPage() {
           <div className="wm-kicker">About Wingman</div>
 
           <div className="wm-title-xl wm-about-page__hero-title">
-            Wingman is WyreStorm’s guided sales and project-building workspace.
+            Wingman is WyreStorm�?,??"?s guided sales and project-building workspace.
           </div>
 
           <div className="wm-body wm-about-page__hero-body">

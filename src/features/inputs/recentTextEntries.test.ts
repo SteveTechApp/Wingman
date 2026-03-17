@@ -73,4 +73,13 @@ describe("recentTextEntries", () => {
       "acme ltd",
     ]);
   });
+
+  it("keeps histories isolated per active input section scope", () => {
+    rememberRecentTextEntry("customer", "Acme Discovery", { scope: "discovery-page" });
+    rememberRecentTextEntry("customer", "Acme Intake", { scope: "import-intake" });
+
+    expect(getRecentTextEntries("customer", { scope: "discovery-page" })).toEqual(["Acme Discovery"]);
+    expect(getRecentTextEntries("customer", { scope: "import-intake" })).toEqual(["Acme Intake"]);
+    expect(getRecentTextEntries("customer")).toEqual([]);
+  });
 });

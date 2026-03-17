@@ -19,7 +19,7 @@ const displayParts = [
   APP_BUILD_COMMIT && APP_BUILD_COMMIT !== "local" ? `sha ${APP_BUILD_COMMIT.slice(0, 8)}` : "",
 ].filter(Boolean);
 
-export const APP_VERSION_LABEL = displayParts.join(" · ");
+export const APP_VERSION_LABEL = displayParts.join(" | ");
 
 export const CORPORATE_LINKS: CorporateLink[] = [
   { label: "WyreStorm.com", href: "https://www.wyrestorm.com/" },
@@ -29,3 +29,5 @@ export const CORPORATE_LINKS: CorporateLink[] = [
   { label: "Privacy", href: "https://www.wyrestorm.com/privacy-policy/" },
   { label: "Terms", href: "https://www.wyrestorm.com/terms-conditions/" },
 ];
+
+export const APP_VERSION_TEXT = "v0.1.0 | sha 8d4db96d";

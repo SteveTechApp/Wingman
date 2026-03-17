@@ -1,14 +1,10 @@
 
 import type { ExtractedRequirements } from "@/import/extractRequirements";
-import catalog from "@/data/wyrestormSkuCatalog.2026";
-
-type CatalogItem = { sku: string; description?: string; tier?: unknown };
-const _catalogAny: any = catalog as any;
-const catalogItems: CatalogItem[] =
-  (_catalogAny?.items as CatalogItem[] | undefined) ??
-  (_catalogAny?.default?.items as CatalogItem[] | undefined) ??
-  (_catalogAny?.default as CatalogItem[] | undefined) ??
-  ([] as CatalogItem[]);
+import {
+  getRecommendationCatalogItems,
+  type RecommendationCatalogItem,
+  type RecommendationTier,
+} from "@/catalog/recommendationCatalog";
 
 export type RecommendedSku = { sku: string; description: string; score: number; tier: string; family: string };
 
@@ -48,9 +44,9 @@ function tokenScore(hay: string, tokens: string[], weight: number) {
   return score;
 }
 
-function scoreItem(req: ExtractedRequirements, rawText: string, sku: string, desc: string) {
+function scoreItem(req: ExtractedRequirements, rawText: string, item: RecommendationCatalogItem) {
   const text = norm(rawText);
-  const hay = sku + " " + desc;
+  const hay = item.searchText;
   let score = 0;
 
   // General signals
@@ -92,31 +88,43 @@ function scoreItem(req: ExtractedRequirements, rawText: string, sku: string, des
 
   // Penalise obviously irrelevant items
   score -= tokenScore(hay, ["spare", "replacement", "mount", "bracket"], 3);
+  if (item.accessoryLike) score -= 5;
+  if (item.tier === "Gold" && req.intent === "room" && (req.endpoints ?? 0) >= 8) score += 3;
+  if (item.tier === "Silver" && req.intent === "room") score += 1;
 
   return score;
 }
 
-function toSku(i: any, score: number): RecommendedSku {
-  return { sku: i.sku, description: i.description, score, tier: i.tier, family: i.family };
+function toSku(item: RecommendationCatalogItem, score: number): RecommendedSku {
+  return {
+    sku: item.sku,
+    description: item.description,
+    score,
+    tier: item.tier,
+    family: item.family,
+  };
 }
 
-function topByTier(req: ExtractedRequirements, rawText: string, tier: "Bronze" | "Silver" | "Gold", limit: number): RecommendedSku[] {
-  const items = catalogItems.filter((i: any) => (i.tier as any) === tier);
-  const scored = items.map((i: any) => toSku(i, scoreItem(req, rawText, i.sku, i.description)));
-  scored.sort((a: any, b: any) => (b.score - a.score) || a.sku.localeCompare(b.sku));
+function readRecommendationItems(): RecommendationCatalogItem[] {
+  return getRecommendationCatalogItems();
+}
+
+function topByTier(req: ExtractedRequirements, rawText: string, tier: RecommendationTier, limit: number): RecommendedSku[] {
+  const items = readRecommendationItems().filter((item) => item.tier === tier);
+  const scored = items.map((item) => toSku(item, scoreItem(req, rawText, item)));
+  scored.sort((a, b) => (b.score - a.score) || a.sku.localeCompare(b.sku));
   return scored.slice(0, limit);
 }
 
 function topFlat(req: ExtractedRequirements, rawText: string, limit: number): RecommendedSku[] {
-  const items = catalogItems;
-  const scored = items.map((i: any) => toSku(i, scoreItem(req, rawText, i.sku, i.description)));
+  const scored = readRecommendationItems().map((item) => toSku(item, scoreItem(req, rawText, item)));
 
   // In product mode, bias toward not-unclassified items slightly
   for (const s of scored) {
     if (s.tier && s.tier !== "Unclassified") s.score += 2;
   }
 
-  scored.sort((a: any, b: any) => (b.score - a.score) || a.sku.localeCompare(b.sku));
+  scored.sort((a, b) => (b.score - a.score) || a.sku.localeCompare(b.sku));
   return scored.slice(0, limit);
 }
 

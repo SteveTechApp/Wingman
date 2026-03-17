@@ -17,6 +17,7 @@ data/wingman-app-db.json
 # local tooling outputs
 _RESCUE/
 _RESCUE*/
+_RESCUE_*
 _ARCHIVE/
 _ARCHIVE*/
 _AUDIT/
@@ -26,10 +27,13 @@ _RECOVERY_REPORTS/
 *_BACKUP/
 *.bak
 *.bak_*
+*.bak.*
 *.orig
 *.rej
 ~$*
 tools/_generated/
+lint-report.json
+package.broken.*.json
 
 # logs
 npm-debug.log*

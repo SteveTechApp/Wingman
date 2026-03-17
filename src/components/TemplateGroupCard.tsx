@@ -21,7 +21,7 @@ const TemplateGroupCard: React.FC<TemplateGroupCardProps> = ({ verticalId, templ
     <div className="bg-background\ border\ border-border-color\ rounded-lg\ overflow-hidden\ flex\ flex-col">
       <div className="relative\ group">
                 <div className="bg-gradient-to-br\ from-blue-600\ via-blue-500\ to-blue-400\ rounded-lg\ p-8\ flex\ items-center\ justify-center">
-                  <div className="w-16\ h-16\ text-white/30">â—</div>
+                  <div className="w-16\ h-16\ text-white/30">�?,???o�??s��?,?�?f??s�</div>
                 </div>
         <div className="absolute\ inset-0\ bg-gradient-to-t\ from-gradient-from-black-80\ to-transparent" />
         <div className="absolute\ bottom-0\ left-0\ right-0\ p-4">

@@ -1,15 +1,10 @@
 import fs from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ROOT = path.resolve(__dirname, "..");
-
-const PRODUCT_INTELLIGENCE_DB_FILE = path.join(ROOT, "data", "product-intelligence-db.json");
-const WYRESTORM_CATALOG_FILE = path.join(ROOT, "src", "data", "catalog", "wyrestorm-catalog.phase1.json");
-const WYRESTORM_SKU_MASTER_FILE = path.join(ROOT, "src", "data", "wyrestormSkuCatalog.2026.json");
-const COMPETITOR_CATALOG_FILE = path.join(ROOT, "src", "data", "catalog", "competitor-catalog.phase4.json");
+import {
+  COMPETITOR_CATALOG_FILE,
+  PRODUCT_INTELLIGENCE_DB_FILE,
+  WYRESTORM_SEED_CATALOG_FILE,
+  WYRESTORM_SKU_MASTER_FILE,
+} from "./catalog/files.mjs";
 const PRODUCT_INTELLIGENCE_MAX_RECORDS = Math.max(100, Number(process.env.PRODUCT_INTELLIGENCE_MAX_RECORDS || 4000));
 
 const VALID_VENDOR_TYPES = new Set(["wyrestorm", "competitor"]);
@@ -561,7 +556,7 @@ function mergeRecord(seedRecord, existingRecord) {
 
 async function buildSeedRecords(existingRecords = []) {
   const capturedAt = nowIso();
-  const wyrestormRows = asArray(await readJsonFile(WYRESTORM_CATALOG_FILE, []));
+  const wyrestormRows = asArray(await readJsonFile(WYRESTORM_SEED_CATALOG_FILE, []));
   const wyrestormSkuMaster = await readJsonFile(WYRESTORM_SKU_MASTER_FILE, { items: [] });
   const competitorRows = asArray(await readJsonFile(COMPETITOR_CATALOG_FILE, []));
 

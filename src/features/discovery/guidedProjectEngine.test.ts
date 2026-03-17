@@ -102,7 +102,7 @@ describe("guidedProjectEngine", () => {
     expect(coreFitQuestions.some((question) => question.id === "roomHeightM")).toBe(false);
   });
 
-  it("shows feature checkboxes during core fit", () => {
+  it("shows feature checkboxes during ", () => {
     const record = {
       ...createEmptyGuidedProjectRecord(),
       workflowTrack: "Extend a signal",

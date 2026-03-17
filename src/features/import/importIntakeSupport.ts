@@ -260,7 +260,7 @@ export function buildSourceCoverageSummary(input: IntakeBriefInput): string {
     input.guidancePrompts.length > 0 ? "Guidance priorities selected" : "",
   ].filter(Boolean);
 
-  return lines.length > 0 ? lines.join(" • ") : "No source material added yet.";
+  return lines.length > 0 ? lines.join(" ?f��??s�� ") : "No source material added yet.";
 }
 
 export function resolveWorkflowTrack(destination: IntakeDestination): string {

@@ -37,12 +37,21 @@ const ALLOWED_FAMILIES: DiscoveryProductFamily[] = [
 ];
 
 function normalizeFamilies(value: string[]): DiscoveryProductFamily[] {
-  const deduped = Array.from(new Set(value));
-  return deduped.filter((item): item is DiscoveryProductFamily => {
+  const deduped = Array.from(new Set(value.map((item) => String(item || "").trim()).filter(Boolean)));
+
+  const filtered = deduped.filter((item): item is DiscoveryProductFamily => {
     return ALLOWED_FAMILIES.includes(item as DiscoveryProductFamily);
   });
-}
 
+  if (filtered.includes("AVoIP")) {
+    return [
+      "AVoIP",
+      ...filtered.filter((item) => item !== "AVoIP"),
+    ];
+  }
+
+  return filtered;
+}
 function inferFamilies(template: UserTemplate): DiscoveryProductFamily[] {
   const room = template.roomData;
   const recommended = recommendFamilies({
@@ -255,6 +264,32 @@ function summarizeProposalSections(sections: { heading: string; content: string 
     .join("\n");
 }
 
+
+function buildSuggestionTopology(args: {
+  displays?: number | null;
+  endpoints?: number | null;
+  distanceHint?: string | null;
+  switchingNeeded?: boolean | null;
+  byodUsbC?: boolean | null;
+  prompt?: string | null;
+}) {
+  const transport =
+    args.prompt && /avoip|networkhd|multicast|distributed|network/i.test(args.prompt)
+      ? "AVoIP"
+      : args.switchingNeeded
+        ? "Matrix"
+        : args.byodUsbC
+          ? "Apollo"
+          : args.distanceHint
+            ? "HDBaseT"
+            : "";
+
+  return {
+    sources: args.endpoints != null ? Number(args.endpoints) : undefined,
+    displays: args.displays != null ? Number(args.displays) : undefined,
+    transport,
+  };
+}
 function summarizeSurveyImportText(text: string): string {
   const singleLine = text.replace(/\s+/g, " ").trim();
   if (singleLine.length <= 220) return singleLine;
@@ -513,7 +548,14 @@ export function GenerationProvider(props: { children: React.ReactNode }) {
     });
 
     const suggestionInput = text || extracted.summary.join("; ");
-    const productSuggestions = await suggestProducts(suggestionInput);
+    const productSuggestions = await suggestProducts(suggestionInput, buildSuggestionTopology({
+      displays: extracted.displays ?? null,
+      endpoints: extracted.endpoints ?? null,
+      distanceHint: extracted.distanceHint ?? null,
+      switchingNeeded: extracted.switchingNeeded ?? null,
+      byodUsbC: extracted.byodUsbC ?? null,
+      prompt: suggestionInput,
+    }));
     const catalogSkus = mergeSkus(
       activeProject.catalog?.skus,
       productSuggestions.recommendations.map((item) => item.sku),

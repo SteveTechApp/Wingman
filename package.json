@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:lookup-api": "node server/competitor-lookup-server.mjs",
+    "dev:full": "concurrently \"npm run dev\" \"npm run dev:lookup-api\"",
     "build": "vite build",
     "build:competitors": "node tools/build-competitor-catalog.mjs",
     "preview": "vite preview",
@@ -57,6 +58,7 @@
     "@types/uuid": "^9.0.8",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.24",
+    "concurrently": "^9.2.1",
     "eslint": "^9.39.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
@@ -76,4 +78,3 @@
     "dompurify": "^3.2.4"
   }
 }
-

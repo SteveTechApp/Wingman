@@ -142,7 +142,7 @@ export default function PublicShell() {
               flex: "0 0 auto",
             }}
           >
-            WyreStorm Wingman {APP_VERSION_LABEL} · {APP_BUILD_CHANNEL}
+            WyreStorm Wingman {APP_VERSION_LABEL} �f�?s· {APP_BUILD_CHANNEL}
           </div>
 
           <div

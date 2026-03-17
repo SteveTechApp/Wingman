@@ -44,7 +44,7 @@ export const getInfrastructureLogic = () => `
       -   **'AVoIP 1GbE' or 'AVoIP (NetworkHD)'**:
           -   Select the Decoder matching the Encoder series:
               -   100 Series: **'NHD-120-RX'**.
-              -   500 Series: **'NHD-500-RX'** (or **'NHD-500-RXE'** for video only/walls).
+              -   500 Series: **'NHD-500-RX'** (or **'NHD-500-E-RX'** for video only/walls).
       
       -   **'AVoIP 10GbE'**:
               -   600 Series: **'NHD-600-TRX'** (configured as Rx) or **'NHD-610-RX'**.

@@ -11,7 +11,7 @@ import {
   type ProductIntelligenceRecord,
   type ProductIntelligenceSummary,
 } from "@/services/productIntelligenceService";
-import type { CompetitorLookupRecord } from "@/services/competitorLookupService";
+import type { CompetitorLookupRecord } from "@/services/competitor/lookupService";
 
 export type LiveProductDataStatus = {
   endpoint: string | null;

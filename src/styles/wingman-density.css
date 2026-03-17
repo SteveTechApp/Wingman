@@ -1,0 +1,124 @@
+:root {
+  --wm-ui-scale: 0.90;
+  --wm-shell-gap: 14px;
+  --wm-card-pad: 14px;
+  --wm-block-pad: 12px;
+  --wm-nav-width: 248px;
+  --wm-topbar-height: 60px;
+}
+
+html {
+  font-size: 14px;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.wm-app,
+.wm-shell,
+.wm-shell__body,
+.wm-page,
+.wm-dashboard,
+.wm-toolhub,
+.wm-workspace,
+.wm-projects-page,
+.wm-discovery-page,
+.wm-catalogue-page,
+.wm-compare-page {
+  zoom: var(--wm-ui-scale);
+}
+
+.wm-shell__body,
+.wm-page,
+.wm-dashboard,
+.wm-toolhub,
+.wm-workspace,
+.wm-projects-page,
+.wm-discovery-page,
+.wm-catalogue-page,
+.wm-compare-page {
+  gap: var(--wm-shell-gap) !important;
+}
+
+.wm-nav,
+.wm-sidebar,
+.wm-left-nav,
+aside[class*="wm-"] {
+  width: var(--wm-nav-width) !important;
+  min-width: var(--wm-nav-width) !important;
+}
+
+.wm-topbar,
+.wm-header,
+header[class*="wm-"] {
+  min-height: var(--wm-topbar-height) !important;
+}
+
+.wm-card,
+.wm-panel,
+.wm-surface,
+.wm-tile,
+.wm-widget,
+.wm-block {
+  padding: var(--wm-card-pad) !important;
+  border-radius: 14px !important;
+}
+
+.wm-card h1,
+.wm-panel h1,
+.wm-page h1 {
+  font-size: 1.7rem !important;
+}
+
+.wm-card h2,
+.wm-panel h2,
+.wm-page h2 {
+  font-size: 1.35rem !important;
+}
+
+.wm-card h3,
+.wm-panel h3,
+.wm-page h3 {
+  font-size: 1.1rem !important;
+}
+
+button,
+.wm-btn,
+a.wm-btn,
+input,
+select,
+textarea {
+  min-height: 36px !important;
+}
+
+input,
+select,
+textarea {
+  padding: 8px 10px !important;
+}
+
+table th,
+table td {
+  padding: 8px 10px !important;
+}
+
+@media (max-width: 1600px) {
+  :root {
+    --wm-ui-scale: 0.88;
+    --wm-nav-width: 236px;
+  }
+}
+
+@media (max-width: 1366px) {
+  :root {
+    --wm-ui-scale: 0.84;
+    --wm-nav-width: 220px;
+    --wm-shell-gap: 12px;
+    --wm-card-pad: 12px;
+  }
+}

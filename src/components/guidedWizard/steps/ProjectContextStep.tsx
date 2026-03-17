@@ -201,7 +201,7 @@ const ProjectContextStep: React.FC<Props> = ({ details, setDetails, infrastructu
                                         {infrastructure.hasLocalRacks && infrastructure.hasCentralizedInfrastructure && (
                                             <div className="mt-2\ p-2\ bg-accent-bg-subtle\ border\ border-accent\ rounded-lg">
                                                 <p className="text-xs\ text-accent\ font-semibold">
-                                                    âœ“ Hybrid Configuration: Using both local and centralized equipment
+                                                    �?"�,��" Hybrid Configuration: Using both local and centralized equipment
                                                 </p>
                                             </div>
                                         )}

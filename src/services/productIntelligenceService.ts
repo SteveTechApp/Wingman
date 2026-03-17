@@ -1,4 +1,4 @@
-import competitorCatalog from "@/data/catalog/competitor-catalog.phase4.json";
+import competitorCatalog from "@/data/catalog/competitorCatalog";
 import { buildWyrestormSeedCatalogProducts } from "@/catalog/seedCatalog";
 import { classifyProductType, type ProductTypeGroup } from "@/catalog/classification";
 

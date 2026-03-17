@@ -1,8 +1,10 @@
 import http from "node:http";
 import fs from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
+import {
+  COMPETITOR_APPROVALS_FILE,
+  COMPETITOR_CATALOG_FILE,
+} from "./catalog/files.mjs";
 import {
   handleProductIntelligenceEvidencePost,
   handleProductIntelligenceGet,
@@ -36,12 +38,8 @@ import {
   handleWingmanWorkspaceMembersGet,
   handleWingmanWorkspaceSettingsPost,
 } from "./wingman-app-store.mjs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ROOT = path.resolve(__dirname, "..");
-const COMPETITOR_CATALOG_FILE = path.join(ROOT, "src", "data", "catalog", "competitor-catalog.phase4.json");
-const APPROVAL_DB_FILE = path.join(ROOT, "data", "competitor-approvals.json");
+import { resolveCompetitorMatch } from "./competitor/resolve-match.mjs";
+import { resolveCompetitorLiveLookup } from "./competitor/live-lookup.mjs";
 
 const PORT = Number(process.env.PORT || 8787);
 const HOST = process.env.HOST || "127.0.0.1";
@@ -1133,7 +1131,7 @@ function normalizeApprovalPayload(payload) {
 }
 
 async function readApprovalsFromFile() {
-  const rows = await readJsonFile(APPROVAL_DB_FILE, []);
+  const rows = await readJsonFile(COMPETITOR_APPROVALS_FILE, []);
   return Array.isArray(rows) ? rows : [];
 }
 
@@ -1155,7 +1153,7 @@ async function saveApprovalRecordToFile(nextRecord) {
   }
 
   approvals.sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
-  await writeJsonFile(APPROVAL_DB_FILE, approvals);
+  await writeJsonFile(COMPETITOR_APPROVALS_FILE, approvals);
   const stored = approvals.find((item) => item.id === nextRecord.id) || null;
   return {
     record: stored,
@@ -1374,7 +1372,7 @@ async function handleApprovalsGet(_req, res) {
     mode: approvals.mode,
     count: approvals.count,
     records: approvals.records,
-    file: APPROVAL_DB_FILE,
+    file: COMPETITOR_APPROVALS_FILE,
     table: SUPABASE_APPROVALS_TABLE,
     warnings: approvals.warnings,
   });
@@ -1432,7 +1430,7 @@ async function handleApprovalsPost(req, res) {
     mode: saved.mode,
     count: saved.count,
     record: saved.record,
-    file: APPROVAL_DB_FILE,
+    file: COMPETITOR_APPROVALS_FILE,
     table: SUPABASE_APPROVALS_TABLE,
     warnings: saved.warnings,
   });
@@ -1590,6 +1588,44 @@ function buildHealthPayload() {
 }
 
 const server = http.createServer(async (req, res) => {
+
+    if (req.method === "POST" && req.url === "/api/competitor/resolveMatch") {
+      try {
+        const body = await parseJsonBody(req);
+
+        const result = await resolveCompetitorMatch({
+          manufacturer: tidy(body.manufacturer),
+          model: tidy(body.model),
+          productUrl: tidy(body.productUrl),
+        });
+
+        return sendJson(res, result.ok ? 200 : 400, result);
+      } catch (error) {
+        return sendJson(res, 500, {
+          ok: false,
+          error: error instanceof Error ? error.message : "Resolve match failed",
+        });
+      }
+    }
+
+    if (req.method === "POST" && req.url === "/api/competitor/liveLookup") {
+      try {
+        const body = await parseJsonBody(req);
+
+        const result = await resolveCompetitorLiveLookup({
+          manufacturer: tidy(body.manufacturer),
+          model: tidy(body.model),
+          productUrl: tidy(body.productUrl),
+        });
+
+        return sendJson(res, result.ok ? 200 : 400, result);
+      } catch (error) {
+        return sendJson(res, 500, {
+          ok: false,
+          error: error instanceof Error ? error.message : "Live lookup failed",
+        });
+      }
+    }
   const method = req.method || "GET";
   const url = new URL(req.url || "/", `http://${req.headers.host || `${HOST}:${PORT}`}`);
 
@@ -1727,7 +1763,13 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (method === "POST" && url.pathname === "/api/competitor-lookup") {
+  if (
+  method === "POST" &&
+  (
+    url.pathname === "/api/competitor-lookup" ||
+    url.pathname === "/api/wingman/competitor-lookup"
+  )
+) {
     await handleLookupRequest(req, res);
     return;
   }

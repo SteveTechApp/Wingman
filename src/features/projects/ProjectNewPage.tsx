@@ -17,7 +17,9 @@ import RecentTextInput from "@/components/RecentTextInput";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
 import {
   RECENT_TEXT_HISTORY_KEYS,
+  RECENT_TEXT_HISTORY_SCOPES,
   getRecentTextEntries,
+  rememberRecentTextEntry,
 } from "@/features/inputs/recentTextEntries";
 import {
   createProject,
@@ -122,6 +124,25 @@ function buildTemplateNotes(seed: WorkbenchTemplateSeed): string {
   return blocks.join("\n\n");
 }
 
+let recentProjectsSnapshotCacheKey = "";
+let recentProjectsSnapshotCache: ReturnType<typeof loadProjects> = [];
+
+function getRecentProjectsSnapshot() {
+  const next = loadProjects().slice(0, 3);
+  const nextKey = next.map((project) => project.id).join("|");
+
+  if (nextKey !== recentProjectsSnapshotCacheKey) {
+    recentProjectsSnapshotCacheKey = nextKey;
+    recentProjectsSnapshotCache = next;
+  }
+
+  return recentProjectsSnapshotCache;
+}
+
+function getRecentProjectsServerSnapshot() {
+  return recentProjectsSnapshotCache;
+}
+
 export default function ProjectNewPage() {
   const nav = useNavigate();
   const [name, setName] = React.useState("");
@@ -136,12 +157,18 @@ export default function ProjectNewPage() {
   );
   const recentProjects = React.useSyncExternalStore(
     subscribeProjects,
-    () => loadProjects().slice(0, 3),
-    () => [],
+    getRecentProjectsSnapshot,
+    getRecentProjectsServerSnapshot,
   );
-  const recentCustomers = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.customer).slice(0, 3);
-  const recentSites = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.site).slice(0, 3);
-  const recentRooms = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.roomName).slice(0, 3);
+  const recentCustomers = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.customer, {
+    scope: RECENT_TEXT_HISTORY_SCOPES.projectNew,
+  }).slice(0, 3);
+  const recentSites = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.site, {
+    scope: RECENT_TEXT_HISTORY_SCOPES.projectNew,
+  }).slice(0, 3);
+  const recentRooms = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.roomName, {
+    scope: RECENT_TEXT_HISTORY_SCOPES.projectNew,
+  }).slice(0, 3);
   const hasRecentProjects = recentProjects.length > 0;
 
   React.useEffect(() => {
@@ -199,6 +226,16 @@ export default function ProjectNewPage() {
   }, [activeFlowStep, hasRecentProjects]);
 
   function createShell(methodTitle: string) {
+    rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.roomName, name, {
+      scope: RECENT_TEXT_HISTORY_SCOPES.projectNew,
+    });
+    rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.customer, customer, {
+      scope: RECENT_TEXT_HISTORY_SCOPES.projectNew,
+    });
+    rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.site, site, {
+      scope: RECENT_TEXT_HISTORY_SCOPES.projectNew,
+    });
+
     const recommendedFamilies = normalizeRecommendedFamilies(templateSeed?.recommendedFamilies);
     const project = createProject({
       name: name.trim() || templateSeed?.projectName || `${methodTitle} Project`,
@@ -270,7 +307,7 @@ export default function ProjectNewPage() {
     setName(project.roomName || project.name || "");
     setCustomer(project.customer || "");
     setSite(project.site || "");
-    setActiveFlowStep("start");
+    setActiveFlowStep("reuse");
   }
 
   function duplicateFromProject(project: StoredProject) {
@@ -363,6 +400,7 @@ export default function ProjectNewPage() {
             <RecentTextInput
               className="wm-form-input"
               historyKey={RECENT_TEXT_HISTORY_KEYS.roomName}
+              historyScope={RECENT_TEXT_HISTORY_SCOPES.projectNew}
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
@@ -377,6 +415,7 @@ export default function ProjectNewPage() {
             <RecentTextInput
               className="wm-form-input"
               historyKey={RECENT_TEXT_HISTORY_KEYS.customer}
+              historyScope={RECENT_TEXT_HISTORY_SCOPES.projectNew}
               value={customer}
               onChange={(e) => {
                 setCustomer(e.target.value);
@@ -391,6 +430,7 @@ export default function ProjectNewPage() {
             <RecentTextInput
               className="wm-form-input"
               historyKey={RECENT_TEXT_HISTORY_KEYS.site}
+              historyScope={RECENT_TEXT_HISTORY_SCOPES.projectNew}
               value={site}
               onChange={(e) => {
                 setSite(e.target.value);
@@ -415,7 +455,7 @@ export default function ProjectNewPage() {
                   className="wm-chip"
                   onClick={() => {
                     setCustomer(value);
-                    setActiveFlowStep("start");
+                    setActiveFlowStep("reuse");
                   }}
                 >
                   Customer: {value}
@@ -428,7 +468,7 @@ export default function ProjectNewPage() {
                   className="wm-chip"
                   onClick={() => {
                     setSite(value);
-                    setActiveFlowStep("start");
+                    setActiveFlowStep("reuse");
                   }}
                 >
                   Site: {value}
@@ -441,7 +481,7 @@ export default function ProjectNewPage() {
                   className="wm-chip"
                   onClick={() => {
                     setName(value);
-                    setActiveFlowStep("start");
+                    setActiveFlowStep("reuse");
                   }}
                 >
                   Room: {value}
@@ -455,7 +495,7 @@ export default function ProjectNewPage() {
           <button
             type="button"
             className="wm-btn wm-btn-primary"
-            onClick={() => setActiveFlowStep(hasRecentProjects ? "reuse" : "start")}
+            onClick={() => setActiveFlowStep("reuse")}
           >
             Continue workflow
           </button>
@@ -471,7 +511,7 @@ export default function ProjectNewPage() {
         >
           <div className="wm-section__head">
             <div className="wm-section__titles">
-              <div style={workflowLabelStyle("reuse")}>Step 2 / Reuse context{activeFlowStep === "reuse" ? " / Current position" : ""}</div>
+              <div style={workflowLabelStyle("reuse")}>Step 1 / Reuse context{activeFlowStep === "reuse" ? " / Current position" : ""}</div>
               <h2>Reuse recent project context</h2>
               <p>Pull forward the commercial context or duplicate a similar room so repeat work starts faster.</p>
             </div>
@@ -493,7 +533,7 @@ export default function ProjectNewPage() {
                       <div>
                         <div className="wm-title-lg">{project.name}</div>
                         <div className="wm-body-sm" style={{ opacity: 0.76 }}>
-                          {[project.customer || "Customer not set", project.site || "Site not set", project.roomName || "Room not set"].join(" · ")}
+                          {[project.customer || "Customer not set", project.site || "Site not set", project.roomName || "Room not set"].join(" Ã¢â‚¬â€œÃ‚· ")}
                         </div>
                       </div>
                       <span className="wm-chip">{resumeAction.shortLabel}</span>
@@ -528,96 +568,6 @@ export default function ProjectNewPage() {
           </CollapsibleCard>
         </section>
       ) : null}
-
-      <section
-        ref={startRef}
-        className="wm-section"
-        style={workflowSectionStyle("start")}
-        onClick={() => setActiveFlowStep("start")}
-      >
-        <div className="wm-section__head">
-          <div className="wm-section__titles">
-            <div style={workflowLabelStyle("start")}>Step {hasRecentProjects ? "3" : "2"} / Start method{activeFlowStep === "start" ? " / Current position" : ""}</div>
-            <h2>Choose how to start</h2>
-            <p>Pick the method that matches the information you have today. You can always switch tools later.</p>
-          </div>
-        </div>
-
-        <div className="wm-grid-cards">
-          {START_METHODS.map(({ id, title, description, helper, to, Icon }) => (
-            <article
-              key={id}
-              className="wm-work-card"
-              style={{
-                display: "grid",
-                gap: 14,
-                alignContent: "start",
-                minHeight: 0,
-              }}
-            >
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 14,
-                  display: "grid",
-                  placeItems: "center",
-                  border: "1px solid rgba(92, 189, 222, 0.18)",
-                  background: "linear-gradient(135deg, rgba(9,32,56,0.92), rgba(11,78,89,0.70))",
-                }}
-              >
-                <Icon className="h-5 w-5" />
-              </div>
-
-              <div className="wm-title-lg">{title}</div>
-              <div className="wm-body">{description}</div>
-              <div className="wm-body-sm" style={{ opacity: 0.72 }}>
-                {helper}
-              </div>
-
-              <button
-                type="button"
-                className={`wm-btn${id === "guided-project" ? " wm-btn-primary" : ""}`}
-                onClick={() => startWith({ id, title, description, helper, to, Icon })}
-              >
-                Start with {title}
-              </button>
-            </article>
-          ))}
-
-          <article className="wm-work-card" style={{ display: "grid", gap: 14, alignContent: "start" }}>
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 14,
-                display: "grid",
-                placeItems: "center",
-                border: "1px solid rgba(255,255,255,0.10)",
-                background: "rgba(255,255,255,0.04)",
-              }}
-            >
-              <FolderPlus className="h-5 w-5" />
-            </div>
-            <div className="wm-title-lg">Blank Workspace</div>
-            <div className="wm-body">
-              Create a project shell first and decide on the workflow later from the project page.
-            </div>
-            <div className="wm-body-sm" style={{ opacity: 0.72 }}>
-              Best for admin setup or when the opportunity still needs triage.
-            </div>
-            <button type="button" className="wm-btn" onClick={createBlankWorkspace}>
-              Create Blank Workspace
-            </button>
-          </article>
-        </div>
-
-        <div className="wm-actions-row" style={{ marginTop: 16 }}>
-          <button type="button" className="wm-btn" onClick={() => nav(WM_ROUTES.projects)}>
-            Cancel
-          </button>
-        </div>
-      </section>
     </div>
   );
 }
