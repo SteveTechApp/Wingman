@@ -1,13 +1,18 @@
 import React from "react";
 
-import type { CompetitorCompareCandidate } from "@/services/competitorCompareSearch";
+import type {
+  CompetitorCompareCandidate,
+} from "@/services/competitorCompareSearch";
+import type { CompetitorCompareOption } from "@/services/competitorCompareFit";
 import type { ManualCompetitorComparisonInput } from "@/services/manualCompetitorComparisonStore";
 
 type CompetitorManualComparisonPanelProps = {
   brand: string;
   query: string;
   selectedCandidate?: CompetitorCompareCandidate;
+  selectedOption?: CompetitorCompareOption;
   saveMessage?: string;
+  feedbackSummary?: string;
   onSave?: (input: ManualCompetitorComparisonInput) => void | Promise<void>;
   onDelete?: (brand: string, competitorSku: string) => void | Promise<void>;
 };
@@ -31,6 +36,7 @@ function formFromSelection(
   brand: string,
   query: string,
   selectedCandidate?: CompetitorCompareCandidate,
+  selectedOption?: CompetitorCompareOption,
 ): FormState {
   const comparison = selectedCandidate?.comparison;
   return {
@@ -39,8 +45,10 @@ function formFromSelection(
     category: tidy(comparison?.category),
     summary: tidy(comparison?.summary),
     features: Array.isArray(comparison?.features) ? comparison.features.join(", ") : "",
-    wyrestormSku: tidy(comparison?.wyrestormSku),
-    rationale: tidy(comparison?.rationale),
+    wyrestormSku: tidy(selectedOption?.wyrestormSku) || tidy(comparison?.wyrestormSku),
+    rationale:
+      selectedOption?.salesStory?.[0] ||
+      tidy(comparison?.rationale),
     notes: Array.isArray(comparison?.notes) ? comparison.notes.join("\n") : "",
   };
 }
@@ -64,13 +72,14 @@ export default function CompetitorManualComparisonPanel(
   props: CompetitorManualComparisonPanelProps,
 ) {
   const { brand, query, selectedCandidate, saveMessage, onSave, onDelete } = props;
+  const { selectedOption, feedbackSummary } = props;
   const [form, setForm] = React.useState<FormState>(() =>
-    formFromSelection(brand, query, selectedCandidate),
+    formFromSelection(brand, query, selectedCandidate, selectedOption),
   );
 
   React.useEffect(() => {
-    setForm(formFromSelection(brand, query, selectedCandidate));
-  }, [brand, query, selectedCandidate]);
+    setForm(formFromSelection(brand, query, selectedCandidate, selectedOption));
+  }, [brand, query, selectedCandidate, selectedOption]);
 
   const sourceIsManual = selectedCandidate?.sourceType === "manual";
 
@@ -244,6 +253,12 @@ export default function CompetitorManualComparisonPanel(
       <div style={{ fontSize: 12, color: saveMessage ? "#d6ffe4" : "rgba(255,255,255,0.54)" }}>
         {saveMessage || "Saved mappings become part of the local comparison library for future searches."}
       </div>
+
+      {feedbackSummary ? (
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.54)" }}>
+          {feedbackSummary}
+        </div>
+      ) : null}
     </div>
   );
 }

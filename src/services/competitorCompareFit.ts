@@ -309,15 +309,24 @@ function statusForPortCoverage(
 
   let matched = 0;
   let shortfalls = 0;
+  let coversAll = true;
   for (const [type, needed] of competitorMap.entries()) {
     const available = wyrestormMap.get(type) ?? 0;
     matched += Math.min(needed, available);
-    if (available < needed) shortfalls += 1;
+    if (available < needed) {
+      shortfalls += 1;
+      coversAll = false;
+    }
   }
 
   const coverage = matched / Math.max(1, competitorTotal);
+  if (coversAll && totalCount(wyrestormMap) > competitorTotal) {
+    return {
+      status: "better",
+      note: "WyreStorm offers additional visible I/O beyond the captured competitor profile.",
+    };
+  }
   if (coverage >= 1 && shortfalls === 0) return { status: "match" };
-  if (coverage >= 1.15) return { status: "better" };
   if (coverage >= 0.75) return { status: "review", note: "Some I/O is close but not exact." };
   return { status: "gap", note: "Visible I/O shortfall against the competitor profile." };
 }
@@ -334,8 +343,13 @@ function statusForVideo(
   if (compRes === 0 && compBandwidth === 0) {
     return { status: "review", note: "Competitor video ceiling is not fully captured." };
   }
+  if (
+    (wrRes > compRes && wrBandwidth >= compBandwidth) ||
+    (wrBandwidth > compBandwidth && wrRes >= compRes)
+  ) {
+    return { status: "better" };
+  }
   if (wrRes >= compRes && wrBandwidth >= compBandwidth) return { status: "match" };
-  if (wrRes > compRes || wrBandwidth > compBandwidth) return { status: "better" };
   if (wrRes === 0 && wrBandwidth === 0) return { status: "review", note: "WyreStorm video ceiling is incomplete." };
   return { status: "gap", note: "WyreStorm video ceiling trails the captured competitor baseline." };
 }
@@ -356,6 +370,9 @@ function statusForControl(
     if (right.has(value)) overlap += 1;
   });
 
+  if (left.size > 0 && overlap === left.size && right.size > left.size) {
+    return { status: "better" };
+  }
   if (left.size > 0 && overlap === left.size && right.size >= left.size) {
     return { status: "match" };
   }
