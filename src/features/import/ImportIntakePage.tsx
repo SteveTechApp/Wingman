@@ -1,6 +1,224 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
 
+const importIntakeToneStyles = {
+  hero: {
+    border: "1px solid rgba(103, 232, 249, 0.16)",
+    background: "linear-gradient(135deg, rgba(18,32,52,0.96), rgba(10,18,30,0.98))",
+    boxShadow: "0 24px 60px rgba(0,0,0,0.24)",
+  } satisfies React.CSSProperties,
+  cyanCard: {
+    border: "1px solid rgba(103, 232, 249, 0.22)",
+    background: "linear-gradient(135deg, rgba(8,56,72,0.30), rgba(255,255,255,0.02))",
+  } satisfies React.CSSProperties,
+  amberCard: {
+    border: "1px solid rgba(251, 191, 36, 0.22)",
+    background: "linear-gradient(135deg, rgba(92,56,8,0.24), rgba(255,255,255,0.02))",
+  } satisfies React.CSSProperties,
+  greenCard: {
+    border: "1px solid rgba(74, 222, 128, 0.22)",
+    background: "linear-gradient(135deg, rgba(10,62,30,0.26), rgba(255,255,255,0.02))",
+  } satisfies React.CSSProperties,
+  pinkCard: {
+    border: "1px solid rgba(244, 114, 182, 0.20)",
+    background: "linear-gradient(135deg, rgba(76,18,48,0.22), rgba(255,255,255,0.02))",
+  } satisfies React.CSSProperties,
+  chip: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "8px 12px",
+    borderRadius: 999,
+    border: "1px solid rgba(255,255,255,0.10)",
+    background: "rgba(255,255,255,0.04)",
+    color: "rgba(255,255,255,0.88)",
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: 0.2,
+  } satisfies React.CSSProperties,
+  sectionPad: {
+    padding: 16,
+    borderRadius: 12,
+  } satisfies React.CSSProperties,
+};
+
+function ImportIntakeFlashCard(props: {
+  title: string;
+  text?: string;
+  tone?: "cyan" | "amber" | "green" | "pink";
+  children?: React.ReactNode;
+}) {
+  const toneStyle =
+    props.tone === "amber"
+      ? importIntakeToneStyles.amberCard
+      : props.tone === "green"
+      ? importIntakeToneStyles.greenCard
+      : props.tone === "pink"
+      ? importIntakeToneStyles.pinkCard
+      : importIntakeToneStyles.cyanCard;
+
+  return (
+    <div
+      style={{
+        ...importIntakeToneStyles.sectionPad,
+        ...toneStyle,
+        display: "grid",
+        gap: 8,
+        borderRadius: 12,
+      }}
+    >
+      <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: 0.3 }}>
+        {props.title}
+      </div>
+      {props.text ? (
+        <div style={importCopyReduceStyles.helperText}>
+          {props.text}
+        </div>
+      ) : null}
+      {props.children}
+    </div>
+  );
+}
+
+
+const importWizardStyles = {
+  hero: {
+    border: "1px solid rgba(96, 165, 250, 0.18)",
+    background: "linear-gradient(135deg, rgba(16,24,40,0.98), rgba(10,18,32,0.96))",
+    boxShadow: "0 14px 30px rgba(0,0,0,0.16)",
+    borderRadius: 12,
+    padding: 14,
+  } satisfies React.CSSProperties,
+  chipRow: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 12,
+  } satisfies React.CSSProperties,
+  chip: {
+    borderRadius: 999,
+    border: "1px solid rgba(255,255,255,0.10)",
+    background: "rgba(255,255,255,0.04)",
+    padding: "7px 10px",
+    fontSize: 11,
+    fontWeight: 800,
+    color: "rgba(255,255,255,0.90)",
+    textAlign: "center",
+    letterSpacing: 0.2,
+  } satisfies React.CSSProperties,
+  flashGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: 10,
+    marginBottom: 12,
+  } satisfies React.CSSProperties,
+  flashCard: {
+    borderRadius: 12,
+    padding: 16,
+    display: "grid",
+    gap: 8,
+  } satisfies React.CSSProperties,
+  cyan: {
+    border: "1px solid rgba(103,232,249,0.22)",
+    background: "linear-gradient(135deg, rgba(10,56,72,0.32), rgba(255,255,255,0.02))",
+  } satisfies React.CSSProperties,
+  amber: {
+    border: "1px solid rgba(251,191,36,0.22)",
+    background: "linear-gradient(135deg, rgba(92,56,8,0.25), rgba(255,255,255,0.02))",
+  } satisfies React.CSSProperties,
+  green: {
+    border: "1px solid rgba(74,222,128,0.22)",
+    background: "linear-gradient(135deg, rgba(10,62,30,0.26), rgba(255,255,255,0.02))",
+  } satisfies React.CSSProperties,
+  dividerCyan: {
+    height: 4,
+    borderRadius: 999,
+    background: "linear-gradient(90deg, rgba(103,232,249,0.90), rgba(59,130,246,0.65))",
+    marginBottom: 10,
+  } satisfies React.CSSProperties,
+  dividerAmber: {
+    height: 4,
+    borderRadius: 999,
+    background: "linear-gradient(90deg, rgba(251,191,36,0.92), rgba(245,158,11,0.66))",
+    marginBottom: 10,
+  } satisfies React.CSSProperties,
+  dividerGreen: {
+    height: 4,
+    borderRadius: 999,
+    background: "linear-gradient(90deg, rgba(74,222,128,0.92), rgba(16,185,129,0.66))",
+    marginBottom: 10,
+  } satisfies React.CSSProperties,
+};
+
+function ImportWizardFlashCard(props: {
+  title: string;
+  text: string;
+  tone: "cyan" | "amber" | "green";
+}) {
+  const toneStyle =
+    props.tone === "amber"
+      ? importWizardStyles.amber
+      : props.tone === "green"
+      ? importWizardStyles.green
+      : importWizardStyles.cyan;
+
+  return (
+    <div style={{ ...importWizardStyles.flashCard, ...toneStyle }}>
+      <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: 0.25 }}>
+        {props.title}
+      </div>
+      <div style={{ fontSize: 11, lineHeight: 1.32, color: "rgba(255,255,255,0.68)" }}>
+        {props.text}
+      </div>
+    </div>
+  );
+}
+
+
+const importCopyReduceStyles = {
+  helperText: {
+    fontSize: 11,
+    lineHeight: 1.32,
+    color: "rgba(255,255,255,0.66)",
+    maxWidth: 720,
+  } satisfies React.CSSProperties,
+  promptBlock: {
+    padding: "9px 11px",
+    borderRadius: 12,
+    border: "1px solid rgba(255,255,255,0.08)",
+    background: "rgba(255,255,255,0.03)",
+    display: "grid",
+    gap: 6,
+  } satisfies React.CSSProperties,
+  promptLabel: {
+    fontSize: 11,
+    fontWeight: 900,
+    letterSpacing: 0.45,
+    textTransform: "uppercase",
+    color: "rgba(103,232,249,0.88)",
+  } satisfies React.CSSProperties,
+  promptText: {
+    fontSize: 11,
+    lineHeight: 1.32,
+    color: "rgba(255,255,255,0.74)",
+  } satisfies React.CSSProperties,
+} as const;
+
+function ImportPromptBlock(props: {
+  label: string;
+  text: string;
+}) {
+  return (
+    <div style={importCopyReduceStyles.promptBlock}>
+      <div style={importCopyReduceStyles.promptLabel}>{props.label}</div>
+      <div style={importCopyReduceStyles.promptText}>{props.text}</div>
+    </div>
+  );
+}
+
+import { useNavigate, useSearchParams } from "react-router-dom";
+
+import CollapsibleCard from "@/ui2/components/CollapsibleCard";
 import RecentTextInput from "@/components/RecentTextInput";
 import { recommendFamilies } from "@/features/discovery/discoveryStore";
 import {
@@ -33,7 +251,6 @@ import {
   stackStyle,
   textareaStyle,
 } from "@/ui2/page/PageChrome";
-import CollapsibleCard from "@/ui2/components/CollapsibleCard";
 
 import {
   importIntakeFile,
@@ -64,6 +281,7 @@ import {
 } from "./importIntakeSupport";
 
 type InsightPanel = "interrogation" | "solution";
+type IntakeSourceMode = "document" | "diagram";
 type TextGuidanceOption = {
   id: string;
   label: string;
@@ -79,6 +297,10 @@ const TEXT_GUIDANCE_OPTIONS: TextGuidanceOption[] = [
   { id: "commercial", label: "Budget and timeline", helper: "Prioritise budget, deadlines, and phasing constraints." },
 ];
 
+function resolveIntakeSourceMode(value: string | null): IntakeSourceMode {
+  return String(value ?? "").trim().toLowerCase() === "diagram" ? "diagram" : "document";
+}
+
 function toggleButtonStyle(active: boolean): React.CSSProperties {
   return {
     borderRadius: 999,
@@ -86,27 +308,69 @@ function toggleButtonStyle(active: boolean): React.CSSProperties {
     background: active ? "rgba(25,103,82,0.34)" : "rgba(255,255,255,0.03)",
     color: active ? "rgba(226,255,248,0.98)" : "rgba(255,255,255,0.82)",
     padding: "10px 14px",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 700,
     letterSpacing: "0.02em",
   };
 }
 
+function heroMetricStyle(accent: string): React.CSSProperties {
+  return {
+    borderRadius: 12,
+    border: `1px solid ${accent}`,
+    background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+    padding: 16,
+    display: "grid",
+    gap: 8,
+    alignContent: "start",
+    minHeight: 0,
+  };
+}
+
 function sourceCardStyle(tint: string): React.CSSProperties {
   return {
-    borderRadius: 16,
+    borderRadius: 14,
     border: `1px solid ${tint}`,
     background: "rgba(255,255,255,0.03)",
     padding: 16,
     display: "grid",
-    gap: 12,
+    gap: 8,
     alignContent: "start",
+  };
+}
+
+function checklistItemStyle(active: boolean, tier: "required" | "recommended" | "optional"): React.CSSProperties {
+  const tint =
+    tier === "required"
+      ? "120,208,189"
+      : tier === "recommended"
+        ? "244,196,114"
+        : "129,163,255";
+
+  return {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: 8,
+    padding: 12,
+    borderRadius: 12,
+    border: active ? `1px solid rgba(${tint},0.34)` : "1px solid rgba(255,255,255,0.08)",
+    background: active
+      ? `linear-gradient(180deg, rgba(${tint},0.14), rgba(${tint},0.05))`
+      : "rgba(255,255,255,0.03)",
+  };
+}
+
+function launchPanelStyle(): React.CSSProperties {
+  return {
+    ...cardStyle(),
+    background:
+      "linear-gradient(155deg, rgba(var(--wm-page-accent-rgb, 108,196,255),0.24) 0%, rgba(14,24,39,0.94) 42%, rgba(95,223,194,0.16) 100%)",
   };
 }
 
 function miniCardStyle(): React.CSSProperties {
   return {
-    borderRadius: 14,
+    borderRadius: 12,
     border: "1px solid rgba(255,255,255,0.08)",
     background: "rgba(255,255,255,0.03)",
     padding: 14,
@@ -117,12 +381,12 @@ function miniCardStyle(): React.CSSProperties {
 
 function reviewCardStyle(accent: string): React.CSSProperties {
   return {
-    borderRadius: 16,
+    borderRadius: 14,
     border: `1px solid ${accent}`,
     background: "linear-gradient(180deg, rgba(11,26,36,0.94), rgba(7,18,28,0.94))",
     padding: 16,
     display: "grid",
-    gap: 10,
+    gap: 8,
   };
 }
 
@@ -168,7 +432,7 @@ function drawerPanelStyle(): React.CSSProperties {
 
 function helperTextStyle(): React.CSSProperties {
   return {
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 1.5,
     color: "rgba(255,255,255,0.7)",
   };
@@ -216,11 +480,11 @@ function statusLabel(status: IntakeImportedFile["status"]): string {
 
 function renderList(lines: string[]): React.ReactNode {
   if (lines.length === 0) {
-    return <div style={{ fontSize: 12, opacity: 0.72 }}>Nothing surfaced yet.</div>;
+    return <div style={{ fontSize: 11, opacity: 0.72 }}>Nothing surfaced yet.</div>;
   }
 
   return (
-    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, lineHeight: 1.6, opacity: 0.88 }}>
+    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 11, lineHeight: 1.32, opacity: 0.88 }}>
       {lines.map((line) => (
         <li key={line}>{line}</li>
       ))}
@@ -238,7 +502,7 @@ function UploadedFileList({
   onRemove: (id: string) => void;
 }) {
   if (items.length === 0) {
-    return <div style={{ fontSize: 12, opacity: 0.68 }}>{emptyText}</div>;
+    return <div style={{ fontSize: 11, opacity: 0.68 }}>{emptyText}</div>;
   }
 
   return (
@@ -260,12 +524,12 @@ function UploadedFileList({
               display: "flex",
               alignItems: "start",
               justifyContent: "space-between",
-              gap: 10,
+              gap: 8,
               flexWrap: "wrap",
             }}
           >
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, wordBreak: "break-word" }}>{item.name}</div>
+              <div style={{ fontSize: 11, fontWeight: 700, wordBreak: "break-word" }}>{item.name}</div>
               <div style={{ fontSize: 11, opacity: 0.68, marginTop: 2 }}>
                 {item.sizeBytes.toLocaleString()} bytes
               </div>
@@ -279,9 +543,9 @@ function UploadedFileList({
             </div>
           </div>
 
-          <div style={{ fontSize: 12, lineHeight: 1.5, opacity: 0.82 }}>{item.statusMessage}</div>
+          <div style={{ fontSize: 11, lineHeight: 1.5, opacity: 0.82 }}>{item.statusMessage}</div>
           {item.excerpt ? (
-            <div style={{ fontSize: 12, lineHeight: 1.5, opacity: 0.7 }}>
+            <div style={{ fontSize: 11, lineHeight: 1.5, opacity: 0.7 }}>
               <strong>Excerpt:</strong> {item.excerpt}
             </div>
           ) : null}
@@ -350,12 +614,12 @@ function InsightDrawer({
       <div style={drawerPanelStyle()} onClick={(event) => event.stopPropagation()}>
         <div
           style={{
-            padding: 20,
+            padding: 14,
             borderBottom: "1px solid rgba(255,255,255,0.08)",
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "space-between",
-            gap: 16,
+            gap: 10,
           }}
         >
           <div style={{ minWidth: 0 }}>
@@ -371,7 +635,7 @@ function InsightDrawer({
           </button>
         </div>
 
-        <div style={{ padding: 20, overflowY: "auto", display: "grid", gap: 14 }}>
+        <div style={{ padding: 14, overflowY: "auto", display: "grid", gap: 14 }}>
           {children}
         </div>
       </div>
@@ -381,7 +645,9 @@ function InsightDrawer({
 
 export default function ImportIntakePage() {
   const nav = useNavigate();
-  const documentAttachmentKind = "document";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const intakeMode = resolveIntakeSourceMode(searchParams.get("mode"));
+  const attachmentKind = intakeMode === "diagram" ? "diagram" : "document";
 
   const [projectName, setProjectName] = React.useState("");
   const [customer, setCustomer] = React.useState("");
@@ -509,6 +775,12 @@ export default function ImportIntakePage() {
     [analysis],
   );
 
+  const updateIntakeMode = React.useCallback((nextMode: IntakeSourceMode) => {
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.set("mode", nextMode);
+    setSearchParams(nextSearchParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
   const actionDisabled = saving || loadingLane !== null;
   const canInterrogate = Boolean(
     documentNotes.trim() ||
@@ -526,7 +798,7 @@ export default function ImportIntakePage() {
     try {
       const imported = await Promise.all(
         files.map((file) =>
-          importIntakeFile(file, documentAttachmentKind)
+          importIntakeFile(file, attachmentKind)
         )
       );
 
@@ -541,7 +813,7 @@ export default function ImportIntakePage() {
     } finally {
       setLoadingLane(null);
     }
-  }, [documentAttachmentKind]);
+  }, [attachmentKind]);
 
   const removeImportedFile = React.useCallback((id: string) => {
     setDocumentFiles((current) => current.filter((item) => item.id !== id));
@@ -749,27 +1021,73 @@ export default function ImportIntakePage() {
     sourceCoverage,
   ]);
 
-  const description = "Paste the customer request on the left, review Wingman output on the right, then add optional supporting context below.";
-  const documentTitle = "Optional supporting documents";
-  const documentHelper = "Upload tender, RFQ, scope, or diagram files when available. Text input remains the primary path.";
-  const documentNoteLabel = "Supporting document notes";
+  const title = intakeMode === "diagram" ? "Import Diagram or Existing System" : "Import Brief or Document";
+  const description = intakeMode === "diagram"
+    ? "Bring in a sketch, signal flow, marked-up screenshot, or existing system notes and turn them into a clearer project path."
+    : "Bring in a customer brief, RFQ, tender wording, or email thread and convert it into a cleaner Wingman starting point.";
+  const intakeModeHelper = intakeMode === "diagram"
+    ? "Best when the opportunity starts from an existing layout or system map and you need a clean interpretation before discovery."
+    : "Best when the opportunity arrives as written text and you want Wingman to pull out the commercial and technical signals quickly.";
+  const documentTitle = intakeMode === "diagram" ? "Upload diagram files or screenshots" : "Upload briefs, tenders, or supporting documents";
+  const documentHelper = intakeMode === "diagram"
+    ? "Upload screenshots, PDFs, markups, diagrams, or photos of the existing system. Wingman will keep them attached to the intake and blend in extracted text where possible."
+    : "Upload RFQs, tenders, scope notes, emails, or markups. Text pasted on the left still remains the strongest signal if a file cannot be read cleanly.";
+  const documentNoteLabel = intakeMode === "diagram" ? "Diagram / system notes" : "Tender / RFQ notes";
   const documentAccept = ".pdf,.docx,.txt,.md,.csv,.eml,.png,.jpg,.jpeg,.svg";
+  const sourceTextLabel = intakeMode === "diagram" ? "Describe the diagram or existing system" : "Paste the customer request";
+  const sourceTextPlaceholder = intakeMode === "diagram"
+    ? "Describe the existing signal flow, rooms, displays, sources, control expectations, pain points, and what needs to change."
+    : "Paste tender wording, meeting notes, an email thread, or the customer request in plain English.";
+  const sourceTextHelper = intakeMode === "diagram"
+    ? "A plain-English description makes screenshots and marked-up diagrams much easier for Wingman to interpret."
+    : "You do not need to rewrite this as a questionnaire. Raw customer wording is usually the best input.";
+  const documentNotePlaceholder = intakeMode === "diagram"
+    ? "Call out what the diagram does not show clearly: pain points, rooms, signal issues, missing labels, or upgrade objectives."
+    : "Call out key deliverables, commercial constraints, tender language, or scope wording that should shape the output.";
   const interrogationSummary = interrogation
-    ? truncateText(interrogation.salesperson.summaryParagraph, 180)
-    : "Project not started yet. Add source text or uploaded files to begin the interrogation brief.";
+    ? truncateText(interrogation.salesperson.summaryParagraph, 200)
+    : "Wingman has not built an interrogation brief yet. Add text or supporting material to start the readout.";
   const solutionSummary = analysis
     ? analysis.topSkus.length > 0
-      ? `${analysis.topSkus[0].sku} currently leads the ranked SKU starting point.`
-      : "Wingman has a family direction and next-tool route, but no strong SKU match yet."
-    : "No current recommendation yet. Start the intake first, then Wingman will suggest a solution path.";
+      ? `${analysis.topSkus[0].sku} currently leads the ranked starting point, with ${analysis.nextToolLabel} as the next workflow.`
+      : `Wingman has a family direction and a recommended next workflow: ${analysis.nextToolLabel}.`
+    : "No current recommendation yet. Add source material and Wingman will suggest a family direction and next tool.";
+  const sourceSignalCount = [
+    sourceText.trim(),
+    documentNotes.trim(),
+    workingNotes.trim(),
+    documentFiles.length > 0 ? "files" : "",
+    selectedGuidancePrompts.length > 0 ? "guidance" : "",
+  ].filter(Boolean).length;
+  const readyFileCount = documentFiles.filter((item) => item.status === "ready").length;
+  const needsSummaryCount = documentFiles.filter((item) => item.status === "needs-summary").length;
+  const referenceOnlyCount = documentFiles.filter((item) => item.status === "unsupported" || item.status === "error").length;
+  const confidencePct = interrogation ? Math.round(interrogation.parsed.confidence * 100) : 0;
+  const projectShellName = deriveOpportunityName(briefInput);
+  const primaryActionLabel =
+    destination === "sales-enquiry" ? "Qualify in Guided Project" : "Continue to Guided Project";
+  const readinessLabel = requiredComplete === required.length
+    ? "Gate ready"
+    : `${required.length - requiredComplete} required check${required.length - requiredComplete === 1 ? "" : "s"} still open`;
+  const coverageLines = [
+    sourceText.trim() ? "Customer request text captured" : "",
+    documentFiles.length ? `${documentFiles.length} supporting file(s) attached` : "",
+    documentNotes.trim() ? "Formal notes added" : "",
+    workingNotes.trim() ? "Internal working notes added" : "",
+    selectedGuidancePrompts.length ? `${selectedGuidancePrompts.length} guidance priority areas selected` : "",
+  ].filter(Boolean);
+  const topNeedLines = interrogation?.salesperson.whatCustomerNeeds.slice(0, 3) ?? [];
+  const riskLines = interrogation?.salesperson.keyRisksAndUnknowns.slice(0, 3) ?? [];
+  const actionLines = interrogation?.salesperson.recommendedNextActions.slice(0, 3) ?? [];
+  const shortlistLines = analysis?.topSkus.slice(0, 4).map((item) => `${item.sku}${item.family ? ` - ${item.family}` : ""}`) ?? [];
 
   return (
     <>
       <div className="wm-page wm-animate-in wm-import-intake-page" style={pageWrapStyle()}>
         <div style={stackStyle(14)}>
           <PageHeader
-            eyebrow="TOOL"
-            title="Import Intake"
+            eyebrow={intakeMode === "diagram" ? "DIAGRAM INTAKE" : "IMPORT INTAKE"}
+            title={title}
             description={description}
             actions={
               <>
@@ -802,19 +1120,124 @@ export default function ImportIntakePage() {
             }
           />
 
+          <section style={cardStyle()}>
+            <div className="wm-import-intake-page__hero-grid">
+              <article style={heroMetricStyle("rgba(95,223,194,0.24)")}>
+                <div style={smallLabelStyle()}>Import path</div>
+                <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
+                  {intakeMode === "diagram" ? "Diagram-first" : "Brief-first"}
+                </div>
+                <div style={helperTextStyle()}>{intakeModeHelper}</div>
+              </article>
+
+              <article style={heroMetricStyle("rgba(99,160,224,0.24)")}>
+                <div style={smallLabelStyle()}>Coverage</div>
+                <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
+                  {sourceSignalCount} intake signal{sourceSignalCount === 1 ? "" : "s"}
+                </div>
+                <div style={helperTextStyle()}>{sourceCoverage}</div>
+              </article>
+
+              <article style={heroMetricStyle("rgba(244,196,114,0.24)")}>
+                <div style={smallLabelStyle()}>Interrogation confidence</div>
+                <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
+                  {confidencePct}%
+                </div>
+                <div style={helperTextStyle()}>
+                  {interrogation ? truncateText(interrogation.salesperson.summaryParagraph, 96) : "Add source material to build a live readout."}
+                </div>
+              </article>
+
+              <article style={heroMetricStyle("rgba(129,163,255,0.24)")}>
+                <div style={smallLabelStyle()}>Next route</div>
+                <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
+                  {analysis?.nextToolLabel ?? "Guided Project"}
+                </div>
+                <div style={helperTextStyle()}>
+                  {analysis?.topSkus[0]
+                    ? `${analysis.topSkus[0].sku} is the current lead SKU.`
+                    : "Wingman will suggest a route once the intake has enough detail."}
+                </div>
+              </article>
+            </div>
+          </section>
+
           <div className="wm-import-intake-page__layout">
             <div style={stackStyle(14)}>
               <div style={{ order: 2 }}>
+                <div style={{ height: 4, borderRadius: 999, background: "linear-gradient(90deg, rgba(103,232,249,0.8), rgba(74,222,128,0.72), rgba(251,191,36,0.72))", marginBottom: 10 }} />
+                <div style={importWizardStyles.dividerCyan} />
                 <CollapsibleCard
                   id="import-intake-supporting"
-                  title="Supporting information"
-                  subtitle="Project context, notes, and optional uploads."
-                  defaultCollapsed
+                  title="Intake setup and supporting evidence"
+                  subtitle="Choose the source route, set the target workflow, and capture the project shell details up front."
+                  defaultCollapsed={false}
                 >
                   <div
                     style={{
                       display: "grid",
-                      gap: 14,
+                      gap: 10,
+                      gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                      marginBottom: 14,
+                    }}
+                  >
+                    <article style={sourceCardStyle("rgba(99,160,224,0.16)")}>
+                      <div style={smallLabelStyle()}>Source route</div>
+                      <div style={{ fontSize: 16, fontWeight: 800 }}>
+                        {intakeMode === "diagram" ? "Diagram / Existing System" : "Brief / Document"}
+                      </div>
+                      <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button
+                          type="button"
+                          style={toggleButtonStyle(intakeMode === "document")}
+                          onClick={() => updateIntakeMode("document")}
+                        >
+                          Brief / Document
+                        </button>
+                        <button
+                          type="button"
+                          style={toggleButtonStyle(intakeMode === "diagram")}
+                          onClick={() => updateIntakeMode("diagram")}
+                        >
+                          Diagram / System
+                        </button>
+                      </div>
+                      <div style={{ ...helperTextStyle(), marginTop: 8 }}>{intakeModeHelper}</div>
+                    </article>
+
+                    <article style={sourceCardStyle("rgba(120,208,189,0.16)")}>
+                      <div style={smallLabelStyle()}>Launch target</div>
+                      <div style={{ fontSize: 16, fontWeight: 800 }}>
+                        {destination === "sales-enquiry" ? "Sales enquiry qualification" : "New project start"}
+                      </div>
+                      <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button
+                          type="button"
+                          style={toggleButtonStyle(destination === "project")}
+                          onClick={() => setDestination("project")}
+                        >
+                          New Project Start
+                        </button>
+                        <button
+                          type="button"
+                          style={toggleButtonStyle(destination === "sales-enquiry")}
+                          onClick={() => setDestination("sales-enquiry")}
+                        >
+                          Sales Enquiry
+                        </button>
+                      </div>
+                      <div style={{ ...helperTextStyle(), marginTop: 8 }}>
+                        {destination === "sales-enquiry"
+                          ? "Use this when you want a lighter qualification shell before committing to the fuller design flow."
+                          : "Use this when you want the intake written straight into a reusable project discovery shell."}
+                      </div>
+                    </article>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gap: 10,
                       gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
                     }}
                   >
@@ -849,42 +1272,22 @@ export default function ImportIntakePage() {
                     </Field>
                   </div>
 
-                  <div style={{ marginTop: 14 }}>
-                    <div style={smallLabelStyle()}>Start this intake as</div>
-                    <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                      <button
-                        type="button"
-                        style={toggleButtonStyle(destination === "project")}
-                        onClick={() => setDestination("project")}
-                      >
-                        New Project Start
-                      </button>
-                      <button
-                        type="button"
-                        style={toggleButtonStyle(destination === "sales-enquiry")}
-                        onClick={() => setDestination("sales-enquiry")}
-                      >
-                        New Sales Enquiry
-                      </button>
-                    </div>
-                  </div>
-
                   <Field label="Working notes">
                     <textarea
                       value={workingNotes}
                       onChange={(event) => setWorkingNotes(event.target.value)}
-                      placeholder="Capture assumptions, internal notes, deadlines, or anything else worth carrying into the next workflow."
+                      placeholder="Capture assumptions, internal notes, deadlines, owners, or anything else worth carrying into the next workflow."
                       style={textareaStyle(6)}
                     />
                   </Field>
 
-                  <article style={sourceCardStyle("rgba(120,208,189,0.2)")}>
+                  <article style={sourceCardStyle(intakeMode === "diagram" ? "rgba(120,208,189,0.28)" : "rgba(120,208,189,0.18)")}>
                     <div>
                       <div style={smallLabelStyle()}>{documentTitle}</div>
                       <div style={{ ...helperTextStyle(), marginTop: 8 }}>{documentHelper}</div>
                     </div>
 
-                    <Field label="Upload source files">
+                    <Field label={intakeMode === "diagram" ? "Upload diagram files" : "Upload source files"}>
                       <input
                         accept={documentAccept}
                         multiple
@@ -902,7 +1305,7 @@ export default function ImportIntakePage() {
                       <textarea
                         value={documentNotes}
                         onChange={(event) => setDocumentNotes(event.target.value)}
-                        placeholder="Call out key deliverables, commercial constraints, or tender wording that matters."
+                        placeholder={documentNotePlaceholder}
                         style={textareaStyle(6)}
                       />
                     </Field>
@@ -913,8 +1316,8 @@ export default function ImportIntakePage() {
                           borderRadius: 12,
                           border: "1px solid rgba(120,208,189,0.16)",
                           background: "rgba(12,33,44,0.5)",
-                          padding: "10px 12px",
-                          fontSize: 12,
+                          padding: "7px 10px",
+                          fontSize: 11,
                           lineHeight: 1.5,
                           color: "rgba(255,255,255,0.82)",
                         }}
@@ -924,16 +1327,22 @@ export default function ImportIntakePage() {
                     ) : null}
 
                     {loadingLane ? (
-                      <div style={{ fontSize: 12, opacity: 0.76 }}>
+                      <div style={{ fontSize: 11, opacity: 0.76 }}>
                         Reading uploaded source files...
                       </div>
                     ) : null}
+
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      <span className="wm-chip">{readyFileCount} ready</span>
+                      {needsSummaryCount > 0 ? <span className="wm-chip">{needsSummaryCount} need summary</span> : null}
+                      {referenceOnlyCount > 0 ? <span className="wm-chip">{referenceOnlyCount} reference only</span> : null}
+                    </div>
 
                     <div>
                       <div style={{ ...smallLabelStyle(), marginBottom: 8 }}>Uploaded files</div>
                       <UploadedFileList
                         items={documentFiles}
-                        emptyText="No supporting files uploaded yet."
+                        emptyText={intakeMode === "diagram" ? "No diagram files uploaded yet." : "No supporting files uploaded yet."}
                         onRemove={removeImportedFile}
                       />
                     </div>
@@ -942,49 +1351,53 @@ export default function ImportIntakePage() {
               </div>
 
         <section style={{ ...cardStyle(), order: 1 }}>
-          <div style={sectionTitleStyle()}>Input text</div>
+          <div style={sectionTitleStyle()}>{intakeMode === "diagram" ? "Explain the current system" : "Primary text intake"}</div>
           <div style={sectionTextStyle()}>
-            Paste the request text or type the brief in plain English.
+            {sourceTextHelper}
           </div>
 
           <div
             style={{
               marginTop: 16,
               display: "grid",
-              gap: 14,
+              gap: 10,
             }}
           >
-            <article style={sourceCardStyle("rgba(99,160,224,0.2)")}>
+            <article style={sourceCardStyle(intakeMode === "document" ? "rgba(99,160,224,0.28)" : "rgba(99,160,224,0.18)")}>
               <div>
-                <div style={smallLabelStyle()}>Text intake</div>
-                <div style={{ marginTop: 6, fontSize: 17, fontWeight: 800 }}>Paste or type customer request</div>
+                <div style={smallLabelStyle()}>{intakeMode === "diagram" ? "System description" : "Customer request"}</div>
+                <div style={{ marginTop: 6, fontSize: 17, fontWeight: 800 }}>{sourceTextLabel}</div>
               </div>
 
-              <Field label="Source text">
+              <Field label={sourceTextLabel}>
                 <textarea
                   value={sourceText}
                   onChange={(event) => setSourceText(event.target.value)}
-                  placeholder="Paste the customer request or type the brief in plain English."
+                  placeholder={sourceTextPlaceholder}
                   style={textareaStyle(14)}
                 />
               </Field>
 
               <Field label="Output focus (optional)">
                 <div style={{ ...helperTextStyle(), marginBottom: 8 }}>
-                  This is not a customer questionnaire. Tick any areas you want Wingman to prioritise in the output.
+                  Choose the parts of the response you want Wingman to weight most heavily.
                 </div>
-                <div style={{ display: "grid", gap: 8 }}>
+                <div className="wm-import-intake-page__guidance-grid">
                   {TEXT_GUIDANCE_OPTIONS.map((option) => (
                     <label
                       key={option.id}
                       style={{
                         display: "flex",
                         alignItems: "flex-start",
-                        gap: 10,
-                        padding: "10px 12px",
+                        gap: 8,
+                        padding: "7px 10px",
                         borderRadius: 12,
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        background: "rgba(255,255,255,0.02)",
+                        border: textGuidance.includes(option.id)
+                          ? "1px solid rgba(120,208,189,0.28)"
+                          : "1px solid rgba(255,255,255,0.08)",
+                        background: textGuidance.includes(option.id)
+                          ? "rgba(27,96,82,0.2)"
+                          : "rgba(255,255,255,0.02)",
                       }}
                     >
                       <input
@@ -994,7 +1407,7 @@ export default function ImportIntakePage() {
                         style={{ marginTop: 2 }}
                       />
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 700 }}>{option.label}</div>
+                        <div style={{ fontSize: 11, fontWeight: 700 }}>{option.label}</div>
                         <div style={{ fontSize: 11, opacity: 0.74, marginTop: 2 }}>{option.helper}</div>
                       </div>
                     </label>
@@ -1004,35 +1417,45 @@ export default function ImportIntakePage() {
                   Leave all unticked for a balanced response.
                 </div>
               </Field>
+
+              <div className="wm-import-intake-page__insight-grid">
+                <div style={miniCardStyle()}>
+                  <div style={smallLabelStyle()}>Customer needs</div>
+                  {renderList(topNeedLines)}
+                </div>
+                <div style={miniCardStyle()}>
+                  <div style={smallLabelStyle()}>Risks and unknowns</div>
+                  {renderList(riskLines)}
+                </div>
+                <div style={miniCardStyle()}>
+                  <div style={smallLabelStyle()}>Next actions</div>
+                  {renderList(actionLines)}
+                </div>
+                <div style={miniCardStyle()}>
+                  <div style={smallLabelStyle()}>SKU shortlist</div>
+                  {renderList(shortlistLines)}
+                </div>
+              </div>
             </article>
           </div>
         </section>
 
+              <div style={{ height: 4, borderRadius: 999, background: "linear-gradient(90deg, rgba(103,232,249,0.8), rgba(74,222,128,0.72), rgba(251,191,36,0.72))", marginBottom: 10 }} />
+                <div style={importWizardStyles.dividerAmber} />
               <CollapsibleCard
-                id="import-intake-qualification"
+                  id="import-intake-qualification"
                 title="Qualification checklist"
-                subtitle={`Required ${requiredComplete}/${required.length}. Recommended ${recommendedComplete}/${recommended.length}.`}
+                subtitle={`Required ${requiredComplete}/${required.length}. Recommended ${recommendedComplete}/${recommended.length}. ${readinessLabel}.`}
                 right={
                   <span className="wm-chip">
                     {requiredComplete === required.length ? "Gate Ready" : "Needs Review"}
                   </span>
                 }
-                defaultCollapsed
+                defaultCollapsed={false}
               >
-                <div style={{ display: "grid", gap: 10 }}>
+                <div className="wm-import-intake-page__checklist-grid">
                   {CHECKLIST.map((item) => (
-                    <label
-                      key={item.id}
-                      style={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: 10,
-                        padding: 10,
-                        borderRadius: 12,
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        background: "rgba(255,255,255,0.03)",
-                      }}
-                    >
+                    <label key={item.id} style={checklistItemStyle(Boolean(checklist[item.id]), item.tier)}>
                       <input
                         type="checkbox"
                         checked={Boolean(checklist[item.id])}
@@ -1040,7 +1463,7 @@ export default function ImportIntakePage() {
                         style={{ marginTop: 2 }}
                       />
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 600 }}>{item.label}</div>
+                        <div style={{ fontSize: 11, fontWeight: 600 }}>{item.label}</div>
                         <div style={{ fontSize: 11, opacity: 0.72, marginTop: 2, textTransform: "capitalize" }}>
                           {item.tier}
                         </div>
@@ -1055,20 +1478,25 @@ export default function ImportIntakePage() {
               </CollapsibleCard>
             </div>
 
-            <aside className="wm-import-intake-page__rail" style={{ display: "grid", gap: 14, alignContent: "start" }}>
-              <section style={cardStyle()}>
-                <div style={sectionTitleStyle()}>Review panels</div>
-                <div style={sectionTextStyle()}>
-                  Open a panel for detailed interpretation and recommendations.
+            <aside className="wm-import-intake-page__rail" style={{ display: "grid", gap: 10, alignContent: "start" }}>
+              <section style={launchPanelStyle()}>
+                <div style={smallLabelStyle()}>Launch this intake</div>
+                <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900, letterSpacing: "-0.05em" }}>
+                  {projectShellName}
+                </div>
+                <div style={{ ...helperTextStyle(), marginTop: 8 }}>
+                  {destination === "sales-enquiry"
+                    ? "Wingman will save this as a sales enquiry shell, attach the intake evidence, and route you into qualification."
+                    : "Wingman will write this intake into the active project shell and send you into the best next workflow."}
                 </div>
 
                 <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
                   <div style={reviewCardStyle("rgba(99,160,224,0.18)")}>
                     <div style={smallLabelStyle()}>Interrogation brief</div>
                     <div style={{ fontSize: 18, fontWeight: 800 }}>
-                      {interrogation ? `${Math.round(interrogation.parsed.confidence * 100)}% confidence` : "0% confidence"}
+                      {interrogation ? `${confidencePct}% confidence` : "Waiting for source material"}
                     </div>
-                    <div style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(255,255,255,0.8)" }}>
+                    <div style={{ fontSize: 11, lineHeight: 1.32, color: "rgba(255,255,255,0.8)" }}>
                       {interrogationSummary}
                     </div>
                     <button
@@ -1084,9 +1512,9 @@ export default function ImportIntakePage() {
                   <div style={reviewCardStyle("rgba(216,177,76,0.18)")}>
                     <div style={smallLabelStyle()}>Solution starting point</div>
                     <div style={{ fontSize: 18, fontWeight: 800 }}>
-                      {analysis ? analysis.nextToolLabel : "No current recommendation"}
+                      {analysis ? analysis.nextToolLabel : "No route yet"}
                     </div>
-                    <div style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(255,255,255,0.8)" }}>
+                    <div style={{ fontSize: 11, lineHeight: 1.32, color: "rgba(255,255,255,0.8)" }}>
                       {solutionSummary}
                     </div>
                     <button
@@ -1100,21 +1528,56 @@ export default function ImportIntakePage() {
                   </div>
 
                   <div style={reviewCardStyle("rgba(120,208,189,0.18)")}>
-                    <div style={smallLabelStyle()}>Source coverage</div>
-                    <div style={{ fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.84)" }}>
-                      {sourceCoverage}
+                    <div style={smallLabelStyle()}>Readiness board</div>
+                    <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
+                      <div style={miniCardStyle()}>
+                        <div style={smallLabelStyle()}>Required</div>
+                        <div style={{ fontSize: 18, fontWeight: 800 }}>{requiredComplete}/{required.length}</div>
+                      </div>
+                      <div style={miniCardStyle()}>
+                        <div style={smallLabelStyle()}>Files ready</div>
+                        <div style={{ fontSize: 18, fontWeight: 800 }}>{readyFileCount}</div>
+                      </div>
+                      <div style={miniCardStyle()}>
+                        <div style={smallLabelStyle()}>Coverage</div>
+                        <div style={{ fontSize: 18, fontWeight: 800 }}>{sourceSignalCount}</div>
+                      </div>
+                      <div style={miniCardStyle()}>
+                        <div style={smallLabelStyle()}>Route</div>
+                        <div style={{ fontSize: 18, fontWeight: 800 }}>{analysis?.nextToolLabel ?? "Guided Project"}</div>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 11, lineHeight: 1.7, color: "rgba(255,255,255,0.84)" }}>
+                      {readinessLabel}
                     </div>
                   </div>
                 </div>
               </section>
 
               <section style={cardStyle()}>
-                <div style={sectionTitleStyle()}>Launch intake</div>
+                <div style={sectionTitleStyle()}>Carry-forward summary</div>
                 <div style={sectionTextStyle()}>
-                  When the shell feels right, write the intake back into the project and open the next tool from here.
+                  This is the shape of the handoff Wingman is about to write back into the workspace.
                 </div>
 
                 <div style={{ marginTop: 16, display: "grid", gap: 10 }}>
+                  <div style={miniCardStyle()}>
+                    <div style={smallLabelStyle()}>Source coverage</div>
+                    <div style={{ ...helperTextStyle(), marginTop: 4 }}>{sourceCoverage}</div>
+                    {coverageLines.length > 0 ? renderList(coverageLines) : null}
+                  </div>
+
+                  {selectedGuidancePrompts.length > 0 ? (
+                    <div style={miniCardStyle()}>
+                      <div style={smallLabelStyle()}>Priority areas</div>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        {selectedGuidancePrompts.map((prompt) => (
+                          <span key={prompt} className="wm-chip">{prompt}</span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
                   <button
                     className="wm-btn wm-btn-primary"
                     disabled={actionDisabled}
@@ -1123,7 +1586,7 @@ export default function ImportIntakePage() {
                       void upsertProjectFromIntake("/app/tools/discovery");
                     }}
                   >
-                    {destination === "sales-enquiry" ? "Qualify in Guided Project" : "Continue to Guided Project"}
+                    {primaryActionLabel}
                   </button>
 
                   {analysis ? (
@@ -1165,7 +1628,7 @@ export default function ImportIntakePage() {
             onClose={() => setOpenPanel(null)}
           >
             {!canInterrogate || !interrogation ? (
-              <div style={{ fontSize: 12, opacity: 0.74 }}>
+              <div style={{ fontSize: 11, opacity: 0.74 }}>
                 Upload a tender or RFQ, or paste the request text to generate an interrogation summary.
               </div>
             ) : (
@@ -1182,12 +1645,12 @@ export default function ImportIntakePage() {
 
                 <div
                   style={{
-                    borderRadius: 14,
+                    borderRadius: 12,
                     border: "1px solid rgba(255,255,255,0.08)",
                     background: "rgba(255,255,255,0.03)",
                     padding: 14,
                     fontSize: 14,
-                    lineHeight: 1.6,
+                    lineHeight: 1.32,
                     color: "rgba(255,255,255,0.9)",
                   }}
                 >
@@ -1197,7 +1660,7 @@ export default function ImportIntakePage() {
                 <div
                   style={{
                     display: "grid",
-                    gap: 14,
+                    gap: 10,
                     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
                   }}
                 >
@@ -1258,7 +1721,7 @@ export default function ImportIntakePage() {
             onClose={() => setOpenPanel(null)}
           >
             {!analysis ? (
-              <div style={{ fontSize: 12, opacity: 0.74 }}>
+              <div style={{ fontSize: 11, opacity: 0.74 }}>
                 No current recommendation yet. Add source material to generate family guidance and SKU ranking.
               </div>
             ) : (
@@ -1288,7 +1751,7 @@ export default function ImportIntakePage() {
 
                 <div style={{ display: "grid", gap: 8 }}>
                   {analysis.topSkus.length === 0 ? (
-                    <div style={{ fontSize: 12, opacity: 0.74 }}>
+                    <div style={{ fontSize: 11, opacity: 0.74 }}>
                       No confident SKU matches found yet. Add more detail to improve ranking.
                     </div>
                   ) : (
@@ -1298,15 +1761,15 @@ export default function ImportIntakePage() {
                         style={{
                           border: "1px solid rgba(255,255,255,0.08)",
                           borderRadius: 10,
-                          padding: "10px 12px",
+                          padding: "7px 10px",
                           background: "rgba(255,255,255,0.02)",
                         }}
                       >
                         <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
                           <strong>{item.sku}</strong>
-                          <span style={{ fontSize: 12, opacity: 0.74 }}>{item.family || "General"}</span>
+                          <span style={{ fontSize: 11, opacity: 0.74 }}>{item.family || "General"}</span>
                         </div>
-                        <div style={{ fontSize: 12, opacity: 0.84, marginTop: 4 }}>{item.description}</div>
+                        <div style={{ fontSize: 11, opacity: 0.84, marginTop: 4 }}>{item.description}</div>
                       </div>
                     ))
                   )}
@@ -1314,8 +1777,8 @@ export default function ImportIntakePage() {
 
                 {analysisNarrative.rationale.length > 0 ? (
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 600 }}>Rationale</div>
-                    <ul style={{ marginTop: 6, paddingLeft: 18, fontSize: 12, opacity: 0.82 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600 }}>Rationale</div>
+                    <ul style={{ marginTop: 6, paddingLeft: 18, fontSize: 11, opacity: 0.82 }}>
                       {analysisNarrative.rationale.map((line) => (
                         <li key={line}>{line}</li>
                       ))}
@@ -1325,8 +1788,8 @@ export default function ImportIntakePage() {
 
                 {analysisNarrative.cautions.length > 0 ? (
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 600 }}>Cautions</div>
-                    <ul style={{ marginTop: 6, paddingLeft: 18, fontSize: 12, opacity: 0.82 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600 }}>Cautions</div>
+                    <ul style={{ marginTop: 6, paddingLeft: 18, fontSize: 11, opacity: 0.82 }}>
                       {analysisNarrative.cautions.map((line) => (
                         <li key={line}>{line}</li>
                       ))}
@@ -1334,7 +1797,7 @@ export default function ImportIntakePage() {
                   </div>
                 ) : null}
 
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   <button
                     className="wm-btn wm-btn-primary"
                     disabled={actionDisabled}

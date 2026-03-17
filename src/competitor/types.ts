@@ -40,6 +40,8 @@ export type LiveLookupResult = {
   trace: CompetitorLookupTrace[];
   record?: CompetitorSpecRecord;
   error?: string;
+  mode?: string;
+  warnings?: string[];
 };
 
 export type VideoSpec = {

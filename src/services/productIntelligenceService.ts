@@ -526,6 +526,7 @@ function baseRecordForMutation(
 }
 
 function inferEndpointFromLookup(): string {
+  if (tidy(import.meta.env.MODE).toLowerCase() === "test") return "";
   if (!LOOKUP_ENDPOINT) return "";
   try {
     const parsed = new URL(LOOKUP_ENDPOINT);

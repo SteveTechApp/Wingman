@@ -1,252 +1,183 @@
-import * as React from "react";
-import type { LocalCompetitorLookupMatch } from "@/competitor/localCompetitorLookup";
-import type { CompetitorLookupTrace } from "@/competitor/types";
+import React from "react";
 
-type Props = {
-  trace: CompetitorLookupTrace[];
-  modeLabel: string;
-  localMatches?: LocalCompetitorLookupMatch[];
-  brand?: string;
-  sku?: string;
+type TraceLike = {
+  label?: string;
+  title?: string;
+  name?: string;
+  message?: string;
+  detail?: string;
+  description?: string;
+  active?: boolean;
+  current?: boolean;
+  isActive?: boolean;
+  state?: string;
+  status?: string;
+  phase?: string;
+  stepStatus?: string;
 };
 
-function stageLabel(stage: CompetitorLookupTrace["stage"]): string {
-  switch (stage) {
-    case "dataset":
-      return "Dataset";
-    case "web":
-      return "Live check";
-    case "extract":
-      return "Extract";
-    case "match":
-      return "Match";
-    case "done":
-      return "Complete";
-    case "error":
-      return "Error";
-    default:
-      return "Idle";
-  }
+type CompetitorLookupStatusPanelProps = {
+  trace?: TraceLike[];
+  traces?: TraceLike[];
+  items?: TraceLike[];
+  running?: boolean;
+  title?: string;
+  subtitle?: string;
+  emptyText?: string;
+  modeLabel?: string;
+  [key: string]: unknown;
+};
+
+function asText(value: unknown): string {
+  return typeof value === "string" ? value : "";
 }
 
-function formatTimestamp(value?: string): string | null {
-  if (!value) return null;
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return value;
-  return parsed.toLocaleString("en-GB", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function isTraceActive(item: TraceLike): boolean {
+  if (typeof item.active === "boolean") return item.active;
+  if (typeof item.current === "boolean") return item.current;
+  if (typeof item.isActive === "boolean") return item.isActive;
+
+  const marker = String(
+    item.state ??
+    item.status ??
+    item.phase ??
+    item.stepStatus ??
+    ""
+  ).toLowerCase();
+
+  return (
+    marker === "active" ||
+    marker === "running" ||
+    marker === "current" ||
+    marker === "in-progress"
+  );
 }
 
-function renderMatchLabel(match: LocalCompetitorLookupMatch): string {
-  if (match.wyrestormSku && match.wyrestormName) {
-    return `${match.wyrestormSku} - ${match.wyrestormName}`;
-  }
-  return match.wyrestormSku || match.wyrestormName || "No mapped WyreStorm SKU stored yet in the local catalogue.";
+function getTraceTitle(item: TraceLike, index: number): string {
+  return (
+    asText(item.label) ||
+    asText(item.title) ||
+    asText(item.name) ||
+    "Step " + String(index + 1)
+  );
 }
 
-export default function CompetitorLookupStatusPanel({
-  trace,
-  modeLabel,
-  localMatches = [],
-  brand,
-  sku,
-}: Props) {
-  const hasResults = localMatches.length > 0;
+function getTraceDetail(item: TraceLike): string {
+  return (
+    asText(item.message) ||
+    asText(item.detail) ||
+    asText(item.description)
+  );
+}
+
+export default function CompetitorLookupStatusPanel(props: CompetitorLookupStatusPanelProps) {
+  const {
+    traces,
+    trace,
+    items,
+    running = false,
+    title = "Lookup status",
+    subtitle = "View lookup progress and matching signals.",
+    emptyText = "No lookup activity yet.",
+    modeLabel = "",
+  } = props;
+
+  const rows = React.useMemo(() => {
+    const source = Array.isArray(trace) && trace.length > 0
+      ? trace
+      : Array.isArray(traces) && traces.length > 0
+      ? traces
+      : Array.isArray(items)
+      ? items
+      : [];
+
+    return source.filter(Boolean);
+  }, [trace, traces, items]);
 
   return (
     <div
-      className="wm-card"
       style={{
         display: "grid",
         gap: 14,
-        padding: 18,
-        border: "1px solid rgba(92, 225, 230, 0.18)",
-        background: "linear-gradient(180deg, rgba(10,16,26,0.96), rgba(8,12,20,0.92))",
+        padding: 16,
+        borderRadius: 16,
+        border: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(255,255,255,0.03)",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-        <div>
-          <div style={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.72 }}>
-            Lookup activity
-          </div>
-          <div style={{ fontSize: 18, fontWeight: 800, marginTop: 4 }}>
-            Competitor verification
-          </div>
-        </div>
-
-        <div
-          style={{
-            padding: "6px 10px",
-            borderRadius: 999,
-            fontSize: 12,
-            fontWeight: 700,
-            border: "1px solid rgba(92, 225, 230, 0.28)",
-            background: "rgba(92, 225, 230, 0.10)",
-            color: "#baf8fb",
-          }}
-        >
-          {modeLabel}
-        </div>
-      </div>
-
-      {trace.length === 0 ? (
-        <div style={{ opacity: 0.74, fontSize: 14 }}>
-          Enter a competitor brand and SKU to begin verification.
-        </div>
-      ) : (
-        <div style={{ display: "grid", gap: 10 }}>
-          {trace.map((item, index) => (
-            <div
-              key={`${item.stage}-${index}-${item.message}`}
-              style={{
-                display: "grid",
-                gap: 4,
-                padding: "12px 14px",
-                borderRadius: 14,
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.03)",
-              }}
-            >
-              <div style={{ display: "flex", gap: 10, justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
-                <div style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", opacity: 0.78 }}>
-                  {stageLabel(item.stage)}
-                </div>
-
-                {typeof item.confidence === "number" ? (
-                  <div style={{ fontSize: 12, opacity: 0.82 }}>
-                    Confidence {Math.round(item.confidence)}%
-                  </div>
-                ) : null}
-              </div>
-
-              <div style={{
-  fontSize:14,
-  fontWeight:600,
-  color: item.active ? "#5ce1e6" : "inherit",
-  background: item.active ? "rgba(92,225,230,0.12)" : "transparent",
-  padding:"6px 8px",
-  borderRadius:6
-}}>
-                {item.message}
-              </div>
-
-              {item.sourceLabel ? (
-                <div style={{ fontSize: 12, opacity: 0.76 }}>
-                  Source: {item.sourceLabel}{!item.usedLiveData && item.checkedUrl ? " - no structured data extracted" : ""}
-                </div>
-              ) : null}
-
-              {item.checkedUrl ? (
-                <div style={{ fontSize: 12, opacity: 0.76, wordBreak: "break-all" }}>
-                  Checked URL: {item.checkedUrl}
-                </div>
-              ) : null}
-
-              {item.updatedAt ? (
-                <div style={{ fontSize: 11, opacity: 0.58 }}>
-                  {formatTimestamp(item.updatedAt)}
-                </div>
-              ) : null}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {hasResults ? (
-        <div
-          style={{
-            display: "grid",
-            gap: 12,
-            paddingTop: 6,
-          }}
-        >
+      <div style={{ display: "grid", gap: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <div style={{ fontSize: 16, fontWeight: 800 }}>{title}</div>
           <div
             style={{
               fontSize: 12,
-              fontWeight: 800,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              opacity: 0.72,
+              fontWeight: 700,
+              color: running ? "#5ce1e6" : "rgba(255,255,255,0.58)",
             }}
           >
-            Results
+            {running ? "Running" : modeLabel || "Idle"}
           </div>
+        </div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.64)", lineHeight: 1.5 }}>
+          {subtitle}
+        </div>
+      </div>
 
-          {brand && sku ? (
-            <div
-              style={{
-                padding: "12px 14px",
-                borderRadius: 14,
-                border: "1px solid rgba(92, 225, 230, 0.16)",
-                background: "rgba(92, 225, 230, 0.06)",
-                fontSize: 13,
-                color: "#dffbff",
-              }}
-            >
-              Showing the top {localMatches.length} local matches for {brand} {sku}.
-            </div>
-          ) : null}
+      {rows.length === 0 ? (
+        <div
+          style={{
+            padding: 14,
+            borderRadius: 12,
+            border: "1px dashed rgba(255,255,255,0.10)",
+            color: "rgba(255,255,255,0.48)",
+            fontSize: 13,
+          }}
+        >
+          {emptyText}
+        </div>
+      ) : (
+        <div style={{ display: "grid", gap: 10 }}>
+          {rows.map((item, index) => {
+            const active = isTraceActive(item);
+            const lineTitle = getTraceTitle(item, index);
+            const lineDetail = getTraceDetail(item);
 
-          {localMatches.map((match, index) => (
-            <div
-              key={`${match.brand}-${match.sku}-${index}`}
-              style={{
-                display: "grid",
-                gap: 8,
-                padding: "14px 16px",
-                borderRadius: 16,
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: index === 0 ? "rgba(92, 225, 230, 0.08)" : "rgba(255,255,255,0.03)",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-                <div style={{ fontSize: 15, fontWeight: 700 }}>
-                  {match.brand} {match.sku}
-                </div>
-                <div
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 800,
-                    color: index === 0 ? "#9af3f6" : "rgba(255,255,255,0.78)",
-                  }}
-                >
-                  Score {match.score}
-                </div>
-              </div>
-
-              {match.name ? (
-                <div style={{ fontSize: 13, opacity: 0.84 }}>
-                  {match.name}
-                </div>
-              ) : null}
-
-              {(match.category || match.family) ? (
-                <div style={{ fontSize: 12, opacity: 0.7 }}>
-                  {[match.category, match.family].filter(Boolean).join(" | ")}
-                </div>
-              ) : null}
-
+            return (
               <div
+                key={lineTitle + "-" + String(index)}
                 style={{
-                  padding: "10px 12px",
+                  display: "grid",
+                  gap: 4,
+                  padding: "12px 14px",
                   borderRadius: 12,
-                  border: "1px solid rgba(92, 225, 230, 0.14)",
-                  background: "rgba(8, 20, 36, 0.42)",
-                  fontSize: 13,
-                  lineHeight: 1.45,
+                  border: active
+                    ? "1px solid rgba(92,225,230,0.24)"
+                    : "1px solid rgba(255,255,255,0.08)",
+                  background: active
+                    ? "rgba(92,225,230,0.12)"
+                    : "transparent",
+                  color: active ? "#5ce1e6" : "inherit",
                 }}
               >
-                <strong>Suggested WyreStorm match:</strong> {renderMatchLabel(match)}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800 }}>
+                    {lineTitle}
+                  </div>
+                  <div style={{ fontSize: 11, opacity: 0.72 }}>
+                    {active ? "Active" : ""}
+                  </div>
+                </div>
+
+                {lineDetail ? (
+                  <div style={{ fontSize: 12, color: active ? "#dffcff" : "rgba(255,255,255,0.68)" }}>
+                    {lineDetail}
+                  </div>
+                ) : null}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

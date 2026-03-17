@@ -290,6 +290,30 @@ function resetCaches(): void {
   projectsCacheSeeded = undefined;
 }
 
+
+function resetNewProjectState<T extends Record<string, unknown>>(project: T): T {
+  const next = { ...project } as T;
+  const mutable = next as Record<string, unknown>;
+
+  if ("matchPercent" in mutable) mutable["matchPercent"] = 0;
+  if ("matchScore" in mutable) mutable["matchScore"] = 0;
+  if ("score" in mutable && typeof mutable["score"] === "number") mutable["score"] = 0;
+  if ("confidenceScore" in mutable) mutable["confidenceScore"] = 0;
+
+  if ("associatedProducts" in mutable) mutable["associatedProducts"] = [];
+  if ("recommendedProducts" in mutable) mutable["recommendedProducts"] = [];
+  if ("selectedProducts" in mutable) mutable["selectedProducts"] = [];
+  if ("products" in mutable && Array.isArray(mutable["products"])) mutable["products"] = [];
+
+  if ("compare" in mutable) mutable["compare"] = undefined;
+  if ("compareRecords" in mutable) mutable["compareRecords"] = [];
+  if ("proposalLines" in mutable) mutable["proposalLines"] = [];
+  if ("productRecommendations" in mutable) mutable["productRecommendations"] = [];
+  if ("matchedProducts" in mutable) mutable["matchedProducts"] = [];
+  if ("relatedProducts" in mutable) mutable["relatedProducts"] = [];
+
+  return next;
+}
 function shouldSeedProjects(): boolean {
   return !deploymentSession || deploymentSession.mode === "demo";
 }
@@ -1060,7 +1084,7 @@ export function ensureActiveProject(partial?: Partial<StoredProject>): StoredPro
   });
 
   setActiveProjectIdInternal(created.id);
-  return created;
+  return resetNewProjectState(created);
 }
 
 export function updateProjectDiscovery(

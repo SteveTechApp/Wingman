@@ -186,11 +186,11 @@ function summarizeTierChange(
   ];
 
   if (added.length > 0) {
-    lines.push(`Adds: ${added.slice(0, 2).join(" Ã¢â‚¬â€œÃ¢â‚¬Å¡Ã‚¬â€“¢ ")}.`);
+    lines.push(`Adds: ${added.slice(0, 2).join(" ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â¢ ")}.`);
   }
 
   if (removed.length > 0) {
-    lines.push(`Reduces: ${removed.slice(0, 2).join(" Ã¢â‚¬â€œÃ¢â‚¬Å¡Ã‚¬â€“¢ ")}.`);
+    lines.push(`Reduces: ${removed.slice(0, 2).join(" ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â¢ ")}.`);
   }
 
   lines.push(`Commercial impact: ${targetProfile.commercialNote}`);
@@ -830,44 +830,9 @@ export default function TemplatesPage() {
           </div>
         </section>
 
-        <section ref={step3Ref} className="wm-card" style={workflowSectionStyle(3)}>
-          <div
-            style={workflowStepLabelStyle(3)}
-          >
-            Step 3{activeStep === 3 ? " / Current position" : ""}
-          </div>
-          <div style={{ marginTop: 6, fontWeight: 900, fontSize: 18 }}>
-            Choose capability tier
-          </div>
-          <div
-            style={{
-              marginTop: 6,
-              fontSize: 13,
-              color: "rgba(255,255,255,0.82)",
-              lineHeight: 1.45,
-            }}
-          >
-            Bronze protects the function, Silver is the default sweet spot, and Gold expands experience, resilience, and commercial polish.
-          </div>
-
-          <div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {TIER_ORDER.map((item) => (
-              <TierButton
-                key={item}
-                tier={item}
-                active={item === tier}
-                onClick={() => {
-                  setTier(item);
-                  setActiveStep(4);
-                }}
-              />
-            ))}
-          </div>
-        </section>
-
         <section ref={step4Ref} className="wm-card" style={workflowSectionStyle(4)}>
           <div style={workflowStepLabelStyle(4)}>Step 4{activeStep === 4 ? " / Current position" : ""}</div>
-          <div style={{ fontWeight: 900, fontSize: 18 }}>Selected template</div>
+          <div style={{ fontWeight: 900, fontSize: 18 }}>Review room details and solution tier</div>
 
           <div
             style={{
@@ -1008,6 +973,50 @@ export default function TemplatesPage() {
               >
                 <div style={{ fontWeight: 800, fontSize: 13 }}>Room assumptions</div>
                 <BulletList items={assumptions.slice(0, 3)} accentRgb={tierAccent.rgb} />
+              </div>
+              <div
+                style={{
+                  borderRadius: 14,
+                  border: `1px solid rgba(${tierAccent.rgb},0.20)`,
+                  background: `linear-gradient(180deg, rgba(${tierAccent.rgb},0.10) 0%, rgba(${tierAccent.rgb},0.04) 100%)`,
+                  padding: 12,
+                  display: "grid",
+                  gap: 10,
+                }}
+              >
+                <div style={{ fontWeight: 800, fontSize: 13 }}>Solution tier</div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "rgba(255,255,255,0.82)",
+                    lineHeight: 1.45,
+                  }}
+                >
+                  Choose the commercial level after confirming the room path and key assumptions.
+                </div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "rgba(255,255,255,0.78)",
+                    lineHeight: 1.45,
+                  }}
+                >
+                  Bronze protects the core function, Silver is the balanced default, and Gold expands flexibility, polish, and future headroom.
+                </div>
+
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {TIER_ORDER.map((item) => (
+                    <TierButton
+                      key={item}
+                      tier={item}
+                      active={item === tier}
+                      onClick={() => {
+                        setTier(item);
+                        setActiveStep(4);
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 
