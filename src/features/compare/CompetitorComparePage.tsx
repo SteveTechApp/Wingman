@@ -5,6 +5,12 @@ import CompetitorLookupStatusPanel from "@/components/competitor/CompetitorLooku
 import CompetitorCompareResultsPanel from "@/components/competitor/CompetitorCompareResultsPanel";
 import CompetitorManualComparisonPanel from "@/components/competitor/CompetitorManualComparisonPanel";
 import type { CompetitorLookupTrace } from "@/competitor/types";
+import type { CompetitorCompareOption } from "@/services/competitorCompareFit";
+import {
+  getCompetitorCompareFeedbackSummary,
+  logCompetitorCompareFeedback,
+  type CompetitorCompareFeedbackSummary,
+} from "@/services/competitorCompareFeedbackStore";
 import {
   searchCompetitorComparisons,
   verifyCompetitorComparisonLive,
@@ -41,8 +47,54 @@ function modeLabelFor(
   return "Ready";
 }
 
+function feedbackSummaryText(summary: CompetitorCompareFeedbackSummary): string {
+  if (summary.total === 0) {
+    return "Feedback loop is empty. Unmatched searches and manual saves will be logged locally to help expand the comparison library.";
+  }
+
+  return `Feedback loop: ${summary.noMatch} no-match search${summary.noMatch === 1 ? "" : "es"}, ${summary.ambiguous} ambiguous shortlist${summary.ambiguous === 1 ? "" : "s"}, ${summary.manualSave} manual save${summary.manualSave === 1 ? "" : "s"}, ${summary.liveVerified} live verification${summary.liveVerified === 1 ? "" : "s"}.`;
+}
+
+function ensureLiveCandidateInResult(
+  searchResult: CompetitorCompareSearchResult,
+  liveResult: CompetitorCompareLiveResult | null,
+): CompetitorCompareSearchResult {
+  if (!liveResult?.candidate) return searchResult;
+
+  const existingIndex = searchResult.candidates.findIndex(
+    (candidate) => candidate.id === liveResult.candidate?.id,
+  );
+  const candidates =
+    existingIndex >= 0
+      ? searchResult.candidates.map((candidate, index) =>
+          index === existingIndex ? liveResult.candidate! : candidate,
+        )
+      : [liveResult.candidate, ...searchResult.candidates];
+
+  return {
+    ...searchResult,
+    status: candidates.length > 0 ? "resolved" : searchResult.status,
+    summary:
+      liveResult.record && existingIndex < 0
+        ? `Live verification resolved ${liveResult.record.competitorSku}; the verified candidate is shown at the top of the shortlist.`
+        : searchResult.summary,
+    candidates,
+    bestCandidate:
+      candidates.find((candidate) => candidate.id === searchResult.bestCandidate?.id) ||
+      candidates[0],
+    suggestedWyrestormSkus: Array.from(
+      new Set([
+        ...searchResult.suggestedWyrestormSkus,
+        ...(liveResult.candidate.options ?? []).map((option) => option.wyrestormSku),
+      ]),
+    ).slice(0, 6),
+  };
+}
+
 function traceFor(
   searchResult: CompetitorCompareSearchResult,
+  selectedCandidate: CompetitorCompareCandidate | undefined,
+  selectedOption: CompetitorCompareOption | undefined,
   liveResult: CompetitorCompareLiveResult | null,
 ): CompetitorLookupTrace[] {
   const trace: CompetitorLookupTrace[] = [];
@@ -58,25 +110,27 @@ function traceFor(
     });
   }
 
-  if (searchResult.bestCandidate) {
+  if (selectedCandidate && selectedOption) {
     trace.push({
       stage: "match",
-      message: `${searchResult.bestCandidate.comparison.competitorSku} -> ${searchResult.bestCandidate.comparison.wyrestormSku}`,
-      sourceLabel: searchResult.bestCandidate.sourceLabel,
+      message: `${selectedCandidate.comparison.competitorSku} -> ${selectedOption.wyrestormSku} (${selectedOption.label})`,
+      sourceLabel: selectedCandidate.sourceLabel,
       usedLiveData: false,
       updatedAt: new Date().toISOString(),
+      confidence: selectedOption.fitScore,
     });
   }
 
   if (liveResult?.record) {
     trace.push({
       stage: "web",
-      message: `${liveResult.record.competitorSku} live-verified against ${liveResult.record.wyrestormSku}`,
+      message: `${liveResult.record.competitorSku} live-verified against ${liveResult.candidate?.primaryOption?.wyrestormSku || liveResult.record.wyrestormSku}`,
       sourceLabel: liveResult.sourceLabel,
       checkedUrl: liveResult.sourceUrl,
       usedLiveData: true,
       updatedAt: new Date().toISOString(),
-      confidence: liveResult.record.matchScore,
+      confidence:
+        liveResult.candidate?.primaryOption?.fitScore || liveResult.record.matchScore,
     });
   }
 
@@ -94,10 +148,15 @@ function traceFor(
   return trace;
 }
 
-function finderSuggestions(searchResult: CompetitorCompareSearchResult): FinderSuggestion[] {
+function finderSuggestions(
+  searchResult: CompetitorCompareSearchResult,
+): FinderSuggestion[] {
   return searchResult.candidates.map((candidate) => ({
     sku: candidate.comparison.competitorSku,
-    name: candidate.comparison.competitorName || candidate.comparison.wyrestormSku,
+    name:
+      candidate.comparison.competitorName ||
+      candidate.primaryOption?.wyrestormSku ||
+      candidate.comparison.wyrestormSku,
     type: candidate.comparison.category,
     score: candidate.searchScore,
   }));
@@ -107,48 +166,104 @@ export default function CompetitorComparePage() {
   const [brand, setBrand] = React.useState(DEFAULT_BRAND);
   const [sku, setSku] = React.useState(DEFAULT_SKU);
   const [running, setRunning] = React.useState(false);
-  const [searchResult, setSearchResult] = React.useState<CompetitorCompareSearchResult>(() =>
-    searchCompetitorComparisons("", ""),
-  );
-  const [selectedCandidateId, setSelectedCandidateId] = React.useState<string | undefined>();
-  const [liveResult, setLiveResult] = React.useState<CompetitorCompareLiveResult | null>(null);
+  const [searchResult, setSearchResult] =
+    React.useState<CompetitorCompareSearchResult>(() =>
+      searchCompetitorComparisons("", ""),
+    );
+  const [selectedCandidateId, setSelectedCandidateId] = React.useState<
+    string | undefined
+  >();
+  const [selectedOptionId, setSelectedOptionId] = React.useState<
+    string | undefined
+  >();
+  const [liveResult, setLiveResult] =
+    React.useState<CompetitorCompareLiveResult | null>(null);
   const [saveMessage, setSaveMessage] = React.useState("");
-  const localLookupTimer = React.useRef<number | null>(null);
-
-  const selectedCandidate = React.useMemo(
-    () =>
-      searchResult.candidates.find((candidate) => candidate.id === selectedCandidateId) ||
-      searchResult.bestCandidate,
-    [searchResult, selectedCandidateId],
+  const [feedbackSummary, setFeedbackSummary] = React.useState(() =>
+    feedbackSummaryText(getCompetitorCompareFeedbackSummary()),
   );
+  const localLookupTimer = React.useRef<number | null>(null);
+  const autoVerifyKey = React.useRef("");
 
-  const trace = React.useMemo(
-    () => traceFor(searchResult, liveResult),
+  const effectiveResult = React.useMemo(
+    () => ensureLiveCandidateInResult(searchResult, liveResult),
     [searchResult, liveResult],
   );
 
+  React.useEffect(() => {
+    setSelectedCandidateId((current) =>
+      effectiveResult.candidates.some((candidate) => candidate.id === current)
+        ? current
+        : effectiveResult.bestCandidate?.id,
+    );
+  }, [effectiveResult]);
+
+  const selectedCandidate = React.useMemo(
+    () =>
+      effectiveResult.candidates.find(
+        (candidate) => candidate.id === selectedCandidateId,
+      ) || effectiveResult.bestCandidate,
+    [effectiveResult, selectedCandidateId],
+  );
+
+  React.useEffect(() => {
+    setSelectedOptionId((current) =>
+      selectedCandidate?.options.some((option) => option.id === current)
+        ? current
+        : selectedCandidate?.primaryOption?.id,
+    );
+  }, [selectedCandidate]);
+
+  const selectedOption = React.useMemo(
+    () =>
+      selectedCandidate?.options.find((option) => option.id === selectedOptionId) ||
+      selectedCandidate?.primaryOption,
+    [selectedCandidate, selectedOptionId],
+  );
+
+  const trace = React.useMemo(
+    () => traceFor(effectiveResult, selectedCandidate, selectedOption, liveResult),
+    [effectiveResult, selectedCandidate, selectedOption, liveResult],
+  );
+
   const modeLabel = React.useMemo(
-    () => modeLabelFor(searchResult, liveResult, running),
-    [searchResult, liveResult, running],
+    () => modeLabelFor(effectiveResult, liveResult, running),
+    [effectiveResult, liveResult, running],
   );
 
   const localMatches = React.useMemo(
-    () => finderSuggestions(searchResult),
-    [searchResult],
+    () => finderSuggestions(effectiveResult),
+    [effectiveResult],
   );
+
+  const refreshFeedback = React.useCallback(() => {
+    setFeedbackSummary(feedbackSummaryText(getCompetitorCompareFeedbackSummary()));
+  }, []);
 
   const refreshSearch = React.useCallback(
     (nextBrand: string, nextSku: string) => {
       const result = searchCompetitorComparisons(nextBrand, nextSku);
       setSearchResult(result);
-      setSelectedCandidateId((current) =>
-        result.candidates.some((candidate) => candidate.id === current)
-          ? current
-          : result.bestCandidate?.id,
-      );
+
+      if (result.status === "no-match") {
+        logCompetitorCompareFeedback({
+          type: "no-match",
+          brand: nextBrand,
+          query: nextSku,
+        });
+      } else if (result.status === "ambiguous") {
+        logCompetitorCompareFeedback({
+          type: "ambiguous",
+          brand: nextBrand,
+          query: nextSku,
+          competitorSku: result.bestCandidate?.comparison.competitorSku,
+        });
+      }
+
+      refreshFeedback();
       return result;
     },
-    [],
+    [refreshFeedback],
   );
 
   const verifyLive = React.useCallback(
@@ -165,19 +280,22 @@ export default function CompetitorComparePage() {
         setLiveResult(result);
         if (result.record?.competitorSku) {
           setSku(result.record.competitorSku);
-          const refreshed = refreshSearch(nextBrand, result.record.competitorSku);
-          setSelectedCandidateId(
-            refreshed.candidates.find(
-              (candidate) =>
-                candidate.comparison.competitorSku === result.record?.competitorSku,
-            )?.id || refreshed.bestCandidate?.id,
-          );
+          logCompetitorCompareFeedback({
+            type: "live-verified",
+            brand: nextBrand,
+            query: nextSku,
+            competitorSku: result.record.competitorSku,
+            wyrestormSku:
+              result.candidate?.primaryOption?.wyrestormSku ||
+              result.record.wyrestormSku,
+          });
+          refreshFeedback();
         }
       } finally {
         setRunning(false);
       }
     },
-    [brand, sku, refreshSearch],
+    [brand, sku, refreshFeedback],
   );
 
   React.useEffect(() => {
@@ -190,8 +308,10 @@ export default function CompetitorComparePage() {
     }
 
     if (!nextBrand || !nextSku) {
+      autoVerifyKey.current = "";
       setSearchResult(searchCompetitorComparisons("", ""));
       setSelectedCandidateId(undefined);
+      setSelectedOptionId(undefined);
       setLiveResult(null);
       return;
     }
@@ -209,25 +329,77 @@ export default function CompetitorComparePage() {
     };
   }, [brand, sku, refreshSearch]);
 
+  React.useEffect(() => {
+    const candidate = selectedCandidate;
+    if (!candidate || running) return;
+    if (!(candidate.exactSku || candidate.searchConfidence === "High")) return;
+
+    const key = `${brand.trim()}::${candidate.comparison.competitorSku}`;
+    if (!key.trim()) return;
+    if (autoVerifyKey.current === key) return;
+
+    const alreadyVerified =
+      liveResult?.record &&
+      liveResult.record.brand === candidate.comparison.brand &&
+      liveResult.record.competitorSku === candidate.comparison.competitorSku;
+
+    autoVerifyKey.current = key;
+    if (!alreadyVerified) {
+      void verifyLive(candidate.comparison.competitorSku);
+    }
+  }, [brand, selectedCandidate, running, liveResult, verifyLive]);
+
   function handleSelectCandidate(candidate: CompetitorCompareCandidate) {
     setSelectedCandidateId(candidate.id);
+    setSelectedOptionId(candidate.primaryOption?.id);
     setSku(candidate.comparison.competitorSku);
+    setSaveMessage("");
+    void verifyLive(candidate.comparison.competitorSku);
+  }
+
+  function handleSelectOption(
+    candidate: CompetitorCompareCandidate,
+    option: CompetitorCompareOption,
+  ) {
+    setSelectedCandidateId(candidate.id);
+    setSelectedOptionId(option.id);
     setSaveMessage("");
   }
 
   function handleSaveManual(input: ManualCompetitorComparisonInput) {
     const saved = upsertManualCompetitorComparison(input);
-    setSaveMessage(`Saved ${saved.brand} ${saved.competitorSku} into the local comparison library.`);
+    logCompetitorCompareFeedback({
+      type: "manual-save",
+      brand: saved.brand,
+      query: saved.competitorSku,
+      competitorSku: saved.competitorSku,
+      wyrestormSku: saved.wyrestormSku,
+    });
+    refreshFeedback();
+    setSaveMessage(
+      `Saved ${saved.brand} ${saved.competitorSku} into the local comparison library.`,
+    );
     setSku(saved.competitorSku);
     const refreshed = refreshSearch(saved.brand, saved.competitorSku);
     setSelectedCandidateId(refreshed.bestCandidate?.id);
+    setSelectedOptionId(refreshed.bestCandidate?.primaryOption?.id);
   }
 
   function handleDeleteManual(nextBrand: string, competitorSku: string) {
     deleteManualCompetitorComparison(nextBrand, competitorSku);
-    setSaveMessage(`Removed ${nextBrand} ${competitorSku} from the local comparison library.`);
+    logCompetitorCompareFeedback({
+      type: "manual-delete",
+      brand: nextBrand,
+      query: competitorSku,
+      competitorSku,
+    });
+    refreshFeedback();
+    setSaveMessage(
+      `Removed ${nextBrand} ${competitorSku} from the local comparison library.`,
+    );
     const refreshed = refreshSearch(nextBrand, competitorSku);
     setSelectedCandidateId(refreshed.bestCandidate?.id);
+    setSelectedOptionId(refreshed.bestCandidate?.primaryOption?.id);
     setLiveResult(null);
   }
 
@@ -237,7 +409,9 @@ export default function CompetitorComparePage() {
         <div>
           <div className="wm-page-title">Competitor Comparison</div>
           <div className="wm-page-sub">
-            Search partial competitor SKUs, shortlist the nearest WyreStorm fit, verify the latest match live, and save manual fallback mappings for future use.
+            Search partial competitor SKUs, shortlist the nearest WyreStorm fit,
+            compare the top options side by side, verify the latest match live,
+            and save manual fallback mappings for future use.
           </div>
         </div>
       </div>
@@ -248,13 +422,15 @@ export default function CompetitorComparePage() {
             brand={brand}
             sku={sku}
             running={running}
-            hasLocalMatch={searchResult.candidates.length > 0}
+            hasLocalMatch={effectiveResult.candidates.length > 0}
             localMatches={localMatches}
             onBrandChange={setBrand}
             onSkuChange={setSku}
             onRun={(mode) => {
               if (mode === "web") {
-                void verifyLive(selectedCandidate?.comparison.competitorSku);
+                void verifyLive(
+                  selectedCandidate?.comparison.competitorSku || sku.trim(),
+                );
                 return;
               }
               refreshSearch(brand.trim(), sku.trim());
@@ -272,11 +448,15 @@ export default function CompetitorComparePage() {
         >
           <div className="wm-card">
             <CompetitorCompareResultsPanel
-              result={searchResult}
+              result={effectiveResult}
               selectedCandidateId={selectedCandidate?.id}
+              selectedOptionId={selectedOption?.id}
               liveResult={liveResult}
               onSelectCandidate={handleSelectCandidate}
-              onVerifyCandidate={(candidate) => void verifyLive(candidate.comparison.competitorSku)}
+              onVerifyCandidate={(candidate) =>
+                void verifyLive(candidate.comparison.competitorSku)
+              }
+              onSelectOption={handleSelectOption}
             />
           </div>
 
@@ -295,7 +475,9 @@ export default function CompetitorComparePage() {
                 brand={brand}
                 query={sku}
                 selectedCandidate={selectedCandidate}
+                selectedOption={selectedOption}
                 saveMessage={saveMessage}
+                feedbackSummary={feedbackSummary}
                 onSave={handleSaveManual}
                 onDelete={handleDeleteManual}
               />
