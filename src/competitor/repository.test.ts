@@ -17,14 +17,14 @@ describe("competitor repository", () => {
     const products = getCompetitorProducts();
     const counts = countByBrand();
 
-    expect(products.length).toBeGreaterThanOrEqual(46);
-    expect(counts.Atlona).toBeGreaterThanOrEqual(6);
+    expect(products.length).toBeGreaterThanOrEqual(56);
+    expect(counts.Atlona).toBeGreaterThanOrEqual(7);
     expect(counts.Barco).toBeGreaterThanOrEqual(5);
-    expect(counts.Blustream).toBeGreaterThanOrEqual(7);
-    expect(counts.Crestron).toBeGreaterThanOrEqual(8);
-    expect(counts.Extron).toBeGreaterThanOrEqual(6);
+    expect(counts.Blustream).toBeGreaterThanOrEqual(8);
+    expect(counts.Crestron).toBeGreaterThanOrEqual(10);
+    expect(counts.Extron).toBeGreaterThanOrEqual(11);
     expect(counts.Kramer).toBeGreaterThanOrEqual(6);
-    expect(counts.Lightware).toBeGreaterThanOrEqual(4);
+    expect(counts.Lightware).toBeGreaterThanOrEqual(5);
     expect(counts.ZeeVee).toBeGreaterThanOrEqual(4);
     expect(products.every((product) => typeof product.sourceUrl === "string" && product.sourceUrl.length > 0)).toBe(true);
 
@@ -42,6 +42,9 @@ describe("competitor repository", () => {
     const splitter = findCompetitorBySku("HD-DA2-4KZ-E");
     const soundbar = findCompetitorBySku("CLICKSHARE-BAR-PRO");
     const avoipDecoder = findCompetitorBySku("IP300UHD-RX");
+    const legacyMatrix = findCompetitorBySku("DM-MD8X8");
+    const seedSwitcher = findCompetitorBySku("DTP T USW 233");
+    const legacyEndpoint = findCompetitorBySku("NAV SD 501");
 
     expect(matrix?.outputs?.some((port) => port.type === "HDMI" && port.count === 8)).toBe(true);
     expect(matrix?.sourceUrl).toContain("kramerav.com");
@@ -52,5 +55,8 @@ describe("competitor repository", () => {
     expect(classifyCatalogProduct(splitter || {}).label).toBe("Splitter");
     expect(classifyCatalogProduct(soundbar || {}).label).toBe("UC Soundbar");
     expect(classifyCatalogProduct(avoipDecoder || {}).label).toBe("AVoIP Decoder");
+    expect(legacyMatrix?.sourceUrl).toContain("crestron.com");
+    expect(seedSwitcher?.sourceUrl).toContain("extron.com");
+    expect(legacyEndpoint?.video?.maxResolution).toBe("4K60");
   });
 });

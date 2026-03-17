@@ -1,7 +1,7 @@
 {
   "version": 1,
   "generatedAt": "2026-03-16T20:00:25.244Z",
-  "updatedAt": "2026-03-16T20:00:25.255Z",
+  "updatedAt": "2026-03-17T16:26:36.832Z",
   "records": [
     {
       "id": "competitor::atlona::AT-OME-CS31-SA",
@@ -63,12 +63,15 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "status": "draft",
       "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://atlona.com/product/at-ome-cs31-sa/",
         "https://atlona.com/",
         "https://atlona.com/?s=AT-OME-CS31-SA"
       ],
@@ -84,11 +87,31 @@
         "hdbasetoutput",
         "usbhostswitching"
       ],
-      "notes": "Official Atlona Omega collaboration-switcher page.",
+      "notes": "Official Atlona Omega collaboration-switcher page. | Official Atlona Omega collaboration-switcher page. | data/product-intelligence-db.json#1 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.255Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.255Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "atomecs31sa-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Collaboration switcher with USB-C and HDMI inputs, local HDMI plus HDBaseT outputs, USB routing, and BYOD-friendly room integration.",
+          "sourceUrl": "https://atlona.com/product/at-ome-cs31-sa/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "atomecs31sa-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Multi format presentation switcher; USB-C; USB routing; BYOD; Collaboration; HDBaseT output; USB host switching",
+          "sourceUrl": "https://atlona.com/product/at-ome-cs31-sa/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "ev_mmtlykdh_vma8cj",
           "type": "spec",
@@ -119,14 +142,16 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::atlona::AT-OME-MS42",
       "vendorType": "competitor",
       "brand": "Atlona",
       "sku": "AT-OME-MS42",
-      "name": "Omega MS42",
+      "name": "Presentation switcher",
       "family": "Omega",
       "category": "Switcher",
       "summary": "Four-input presentation switcher with wireless presentation, USB-C connectivity, dual HDMI outputs, and integrated USB hub support for small meeting spaces.",
@@ -136,7 +161,11 @@
         "Dual HDMI outputs",
         "USB hub",
         "BYOD",
-        "Auto switching"
+        "Auto switching",
+        "Presentation switching",
+        "Mixed inputs",
+        "BYOD meeting support",
+        "Apollo"
       ],
       "transport": "Local",
       "inputs": [
@@ -176,12 +205,15 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://atlona.com/product/at-ome-ms42/",
         "https://atlona.com/"
       ],
       "tags": [
@@ -193,13 +225,37 @@
         "dualhdmioutputs",
         "usbhub",
         "byod",
-        "autoswitching"
+        "autoswitching",
+        "presentationswitching",
+        "mixedinputs",
+        "byodmeetingsupport",
+        "apollo"
       ],
-      "notes": "Official Atlona Omega presentation-switcher page.",
+      "notes": "Official Atlona Omega presentation-switcher page. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Official Atlona Omega presentation-switcher page. | data/product-intelligence-db.json#2 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "atomems42-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Four-input presentation switcher with wireless presentation, USB-C connectivity, dual HDMI outputs, and integrated USB hub support for small meeting spaces.",
+          "sourceUrl": "https://atlona.com/product/at-ome-ms42/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "atomems42-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wireless presentation; USB-C; Dual HDMI outputs; USB hub; BYOD; Auto switching; Presentation switching; Mixed inputs; BYOD meeting support; Apollo",
+          "sourceUrl": "https://atlona.com/product/at-ome-ms42/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "atomems42-summary",
           "type": "spec",
@@ -220,7 +276,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::atlona::AT-OME-MS52W",
@@ -286,13 +344,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://atlona.com/product/at-ome-ms52w/",
         "https://atlona.com/"
       ],
       "tags": [
@@ -307,11 +368,31 @@
         "hdbasetmirroredoutput",
         "usbhostswitching"
       ],
-      "notes": "Official Atlona Omega matrix-switcher page.",
+      "notes": "Official Atlona Omega matrix-switcher page. | Official Atlona Omega matrix-switcher page. | data/product-intelligence-db.json#3 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "atomems52w-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Five-input presentation switcher with two HDMI outputs, mirrored HDBaseT output, USB-C, wireless presentation, and USB host integration.",
+          "sourceUrl": "https://atlona.com/product/at-ome-ms52w/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "atomems52w-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wireless presentation; USB-C; Auto switching; BYOD; Dual HDMI outputs; HDBaseT mirrored output; USB host switching",
+          "sourceUrl": "https://atlona.com/product/at-ome-ms52w/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "atomems52w-summary",
           "type": "spec",
@@ -332,7 +413,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::atlona::AT-OMNI-112",
@@ -377,13 +460,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://atlona.com/product/at-omni-112/",
         "https://atlona.com/"
       ],
       "tags": [
@@ -398,11 +484,31 @@
         "irpassthrough",
         "rs232passthrough"
       ],
-      "notes": "Official Atlona OmniStream dual-channel encoder page.",
+      "notes": "Official Atlona OmniStream dual-channel encoder page. | Official Atlona OmniStream dual-channel encoder page. | data/product-intelligence-db.json#4 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "atomni112-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Dual-channel AV over IP encoder for two HDMI sources up to 4K60 4:4:4 and HDR with embedded audio and RS-232 or IR pass-through over Gigabit Ethernet.",
+          "sourceUrl": "https://atlona.com/product/at-omni-112/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "atomni112-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP encoder; Dual-channel encoding; VCx codec; Ultra-low latency; Fast switching; HDR; IR pass-through; RS-232 pass-through",
+          "sourceUrl": "https://atlona.com/product/at-omni-112/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "atomni112-summary",
           "type": "spec",
@@ -423,7 +529,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::atlona::AT-OMNI-121",
@@ -467,13 +575,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://atlona.com/product/at-omni-121/",
         "https://atlona.com/"
       ],
       "tags": [
@@ -487,11 +598,31 @@
         "poe",
         "ieee802.1x"
       ],
-      "notes": "Official Atlona OmniStream decoder page.",
+      "notes": "Official Atlona OmniStream decoder page. | Official Atlona OmniStream decoder page. | data/product-intelligence-db.json#5 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "atomni121-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "AV over IP decoder for HDMI output up to 4K60 4:4:4 and HDR with ultra-fast switching, video wall processing, multiview support, and PoE operation.",
+          "sourceUrl": "https://atlona.com/product/at-omni-121/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "atomni121-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP decoder; Ultra-fast switching; Video wall; Multiview; Thumbnail preview; PoE; IEEE 802.1X",
+          "sourceUrl": "https://atlona.com/product/at-omni-121/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "atomni121-summary",
           "type": "spec",
@@ -512,7 +643,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::atlona::AT-UHD-EX-100CE-KIT",
@@ -556,13 +689,16 @@
       ],
       "video": {
         "maxResolution": "4K60",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": false
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://atlona.com/product/at-uhd-ex-100ce-kit/",
         "https://atlona.com/"
       ],
       "tags": [
@@ -575,11 +711,31 @@
         "pointtopointextension",
         "cecpassthrough"
       ],
-      "notes": "Official Atlona extender-kit page.",
+      "notes": "Official Atlona extender-kit page. | Official Atlona extender-kit page. | data/product-intelligence-db.json#6 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "atuhdex100cekit-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "HDBaseT extender kit for HDMI with HDCP 2.2 support, receiver-powered operation, and point-to-point extension over category cable.",
+          "sourceUrl": "https://atlona.com/product/at-uhd-ex-100ce-kit/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "atuhdex100cekit-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Extender kit; Receiver powered by transmitter; HDCP 2.2; Point-to-point extension; CEC pass-through",
+          "sourceUrl": "https://atlona.com/product/at-uhd-ex-100ce-kit/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "atuhdex100cekit-summary",
           "type": "spec",
@@ -600,7 +756,72 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
+    },
+    {
+      "id": "competitor::atlona::OMNISTREAM AT-OMNI-121",
+      "vendorType": "competitor",
+      "brand": "Atlona",
+      "sku": "OMNISTREAM AT-OMNI-121",
+      "name": "AV over IP Decoder",
+      "family": "OmniStream",
+      "category": "AVoIP",
+      "summary": "AV over IP Decoder legacy competitor reference record.",
+      "features": [
+        "AVoIP",
+        "4K60"
+      ],
+      "transport": "AVoIP",
+      "inputs": [],
+      "outputs": [],
+      "control": [],
+      "audio": [],
+      "video": {
+        "maxResolution": "4K60",
+        "hdmi": "2.0",
+        "hdr": true
+      },
+      "status": "draft",
+      "confidence": 0.68,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://atlona.com/?s=OMNISTREAM%20AT-OMNI-121"
+      ],
+      "tags": [
+        "omnistream",
+        "avoip",
+        "4k60"
+      ],
+      "notes": "src/competitor/competitors.json#7 merged into deployed competitor catalog.",
+      "createdAt": "2026-03-17T16:26:36.832Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
+      "evidence": [
+        {
+          "id": "omnistreamatomni121-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "AV over IP Decoder legacy competitor reference record.",
+          "sourceUrl": "https://atlona.com/?s=OMNISTREAM%20AT-OMNI-121",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.68,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "omnistreamatomni121-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP; 4K60",
+          "sourceUrl": "https://atlona.com/?s=OMNISTREAM%20AT-OMNI-121",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.66,
+          "notes": "Derived from deployed competitor catalog."
+        }
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::barco::CLICKSHARE-BAR-PRO",
@@ -660,12 +881,16 @@
       ],
       "video": {
         "maxResolution": "4K",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": false
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
-      "sourceUrls": [],
+      "sourceUrls": [
+        "https://www.barco.com/en/product/clickshare-video-bar-pro"
+      ],
       "tags": [
         "clickshare",
         "uc",
@@ -677,11 +902,31 @@
         "integratedcamera",
         "aiframing"
       ],
-      "notes": "Official Barco ClickShare Bar Pro product page.",
+      "notes": "Official Barco ClickShare Bar Pro product page. | Official Barco ClickShare Bar Pro product page. | data/product-intelligence-db.json#7 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "clicksharebarpro-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "All-in-one video bar for wireless conferencing with integrated camera, speakers, microphones, and ClickShare room sharing workflows.",
+          "sourceUrl": "https://www.barco.com/en/product/clickshare-video-bar-pro",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "clicksharebarpro-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Video bar; Wireless conferencing; Wireless presentation; BYOM; Integrated camera; AI framing",
+          "sourceUrl": "https://www.barco.com/en/product/clickshare-video-bar-pro",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "clicksharebarpro-summary",
           "type": "spec",
@@ -700,7 +945,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::barco::CLICKSHARE-BUTTON-5TH-GEN",
@@ -741,9 +988,11 @@
         "hdr": false
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
-      "sourceUrls": [],
+      "sourceUrls": [
+        "https://www.barco.com/en/support/clickshare-button"
+      ],
       "tags": [
         "clickshare",
         "accessories",
@@ -753,11 +1002,31 @@
         "oneclicksharing",
         "lowfrictionguestsharing"
       ],
-      "notes": "Official Barco ClickShare Button support page.",
+      "notes": "Official Barco ClickShare Button support page. | Official Barco ClickShare Button support page. | data/product-intelligence-db.json#8 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "clicksharebutton5thgen-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "USB-C wireless presentation dongle and meeting trigger button for one-click ClickShare room sharing.",
+          "sourceUrl": "https://www.barco.com/en/support/clickshare-button",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "clicksharebutton5thgen-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wireless presentation; USB-C dongle; One-click sharing; Low-friction guest sharing",
+          "sourceUrl": "https://www.barco.com/en/support/clickshare-button",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "clicksharebutton5thgen-summary",
           "type": "spec",
@@ -776,7 +1045,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::barco::CLICKSHARE-C-10",
@@ -826,12 +1097,16 @@
       ],
       "video": {
         "maxResolution": "4K",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": false
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
-      "sourceUrls": [],
+      "sourceUrls": [
+        "https://www.barco.com/en/product/clickshare-c-10"
+      ],
       "tags": [
         "clickshare",
         "switcher",
@@ -843,11 +1118,31 @@
         "buttonsupport",
         "appsharing"
       ],
-      "notes": "Official Barco ClickShare C-10 product page.",
+      "notes": "Official Barco ClickShare C-10 product page. | Official Barco ClickShare C-10 product page. | data/product-intelligence-db.json#9 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "clicksharec10-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Wireless presentation hub for huddle spaces with app or button sharing, 4K output, and native casting support.",
+          "sourceUrl": "https://www.barco.com/en/product/clickshare-c-10",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "clicksharec10-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wireless presentation; AirPlay; Google Cast; Miracast; Button support; App sharing",
+          "sourceUrl": "https://www.barco.com/en/product/clickshare-c-10",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "clicksharec10-summary",
           "type": "spec",
@@ -866,7 +1161,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::barco::CLICKSHARE-CX-20",
@@ -926,12 +1223,16 @@
       ],
       "video": {
         "maxResolution": "4K",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": false
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
-      "sourceUrls": [],
+      "sourceUrls": [
+        "https://www.barco.com/en/product/clickshare-cx-20"
+      ],
       "tags": [
         "clickshare",
         "switcher",
@@ -944,11 +1245,31 @@
         "miracast",
         "usbperipheralsharing"
       ],
-      "notes": "Official Barco ClickShare CX-20 product page.",
+      "notes": "Official Barco ClickShare CX-20 product page. | Official Barco ClickShare CX-20 product page. | data/product-intelligence-db.json#10 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "clicksharecx20-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Wireless conferencing and presentation hub for small meeting spaces with USB peripheral sharing and app or button workflows.",
+          "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-20",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "clicksharecx20-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wireless conferencing; Wireless presentation; BYOM; AirPlay; Google Cast; Miracast; USB peripheral sharing",
+          "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-20",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "clicksharecx20-summary",
           "type": "spec",
@@ -967,7 +1288,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::barco::CLICKSHARE-CX-30",
@@ -1027,12 +1350,16 @@
       ],
       "video": {
         "maxResolution": "4K",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": false
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
-      "sourceUrls": [],
+      "sourceUrls": [
+        "https://www.barco.com/en/product/clickshare-cx-30"
+      ],
       "tags": [
         "clickshare",
         "switcher",
@@ -1045,11 +1372,31 @@
         "byom",
         "usbperipheralsharing"
       ],
-      "notes": "Official Barco ClickShare CX-30 page.",
+      "notes": "Official Barco ClickShare CX-30 page. | Official Barco ClickShare CX-30 page. | data/product-intelligence-db.json#11 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "clicksharecx30-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Wireless conferencing and presentation hub with HDMI output, USB peripherals, AirPlay, Google Cast, and Miracast support for medium meeting rooms.",
+          "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-30",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "clicksharecx30-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wireless conferencing; Wireless presentation; AirPlay; Google Cast; Miracast; BYOM; USB peripheral sharing",
+          "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-30",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "clicksharecx30-summary",
           "type": "spec",
@@ -1068,7 +1415,71 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
+    },
+    {
+      "id": "competitor::blustream::IP200UHD-TX",
+      "vendorType": "competitor",
+      "brand": "Blustream",
+      "sku": "IP200UHD-TX",
+      "name": "AV over IP encoder",
+      "family": "IP",
+      "category": "AVoIP",
+      "summary": "AV over IP transmitter for distributed video workflows.",
+      "features": [
+        "AV over IP",
+        "Distributed video",
+        "Scalable routing",
+        "AVoIP"
+      ],
+      "transport": "AVoIP",
+      "inputs": [],
+      "outputs": [],
+      "control": [],
+      "audio": [],
+      "status": "draft",
+      "confidence": 0.68,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.blustream-us.com/search?q=IP200UHD-TX"
+      ],
+      "tags": [
+        "ip",
+        "avoip",
+        "avoverip",
+        "distributedvideo",
+        "scalablerouting"
+      ],
+      "notes": "Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#5 merged into deployed competitor catalog.",
+      "createdAt": "2026-03-17T16:26:36.832Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
+      "evidence": [
+        {
+          "id": "ip200uhdtx-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "AV over IP transmitter for distributed video workflows.",
+          "sourceUrl": "https://www.blustream-us.com/search?q=IP200UHD-TX",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.68,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "ip200uhdtx-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AV over IP; Distributed video; Scalable routing; AVoIP",
+          "sourceUrl": "https://www.blustream-us.com/search?q=IP200UHD-TX",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.66,
+          "notes": "Derived from deployed competitor catalog."
+        }
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::blustream::IP300UHD-RX",
@@ -1119,13 +1530,16 @@
       ],
       "video": {
         "maxResolution": "4K60",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.blustream-us.com/ip300uhd-rx",
         "https://www.blustream-us.com/"
       ],
       "tags": [
@@ -1138,11 +1552,31 @@
         "videowall",
         "matrixswitching"
       ],
-      "notes": "Official Blustream IP300UHD-RX page.",
+      "notes": "Official Blustream IP300UHD-RX page. | Official Blustream IP300UHD-RX page. | data/product-intelligence-db.json#12 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "ip300uhdrx-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "4K HDCP 2.2 HDMI-over-IP multicast decoder with HDMI output, USB and control extension, and one-gigabit AV transport.",
+          "sourceUrl": "https://www.blustream-us.com/ip300uhd-rx",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "ip300uhdrx-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP decoder; Multicast; USB/KVM extension; PoE; Video wall; Matrix switching",
+          "sourceUrl": "https://www.blustream-us.com/ip300uhd-rx",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "ip300uhdrx-summary",
           "type": "spec",
@@ -1163,7 +1597,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::blustream::IP300UHD-TX",
@@ -1210,13 +1646,16 @@
       ],
       "video": {
         "maxResolution": "4K60",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.blustream-us.com/ip300uhd-tx",
         "https://www.blustream-us.com/"
       ],
       "tags": [
@@ -1229,11 +1668,31 @@
         "videowall",
         "matrixswitching"
       ],
-      "notes": "Official Blustream IP300UHD-TX page.",
+      "notes": "Official Blustream IP300UHD-TX page. | Official Blustream IP300UHD-TX page. | data/product-intelligence-db.json#13 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "ip300uhdtx-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "4K HDCP 2.2 HDMI-over-IP multicast encoder with HDMI input, USB and control extension, and one-gigabit AV transport.",
+          "sourceUrl": "https://www.blustream-us.com/ip300uhd-tx",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "ip300uhdtx-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP encoder; Multicast; USB/KVM extension; PoE; Video wall; Matrix switching",
+          "sourceUrl": "https://www.blustream-us.com/ip300uhd-tx",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "ip300uhdtx-summary",
           "type": "spec",
@@ -1254,7 +1713,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::blustream::IP350UHD-TX",
@@ -1308,13 +1769,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.blustream-us.com/video-over-ip-extenders-ip350uhd-tx",
         "https://www.blustream-us.com/"
       ],
       "tags": [
@@ -1329,11 +1793,31 @@
         "videowall",
         "matrixswitching"
       ],
-      "notes": "Official Blustream IP350UHD-TX page.",
+      "notes": "Official Blustream IP350UHD-TX page. | Official Blustream IP350UHD-TX page. | data/product-intelligence-db.json#14 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "ip350uhdtx-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "4K HDMI-over-IP encoder with Dante and AES67 audio support, copper or fiber network uplinks, and bidirectional IR, RS-232, and USB-KVM extension.",
+          "sourceUrl": "https://www.blustream-us.com/video-over-ip-extenders-ip350uhd-tx",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "ip350uhdtx-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP encoder; Dante audio; AES67; Copper or fiber uplink; USB/KVM extension; PoE; Video wall; Matrix switching",
+          "sourceUrl": "https://www.blustream-us.com/video-over-ip-extenders-ip350uhd-tx",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "ip350uhdtx-summary",
           "type": "spec",
@@ -1354,7 +1838,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::blustream::SW41AB-V2",
@@ -1407,12 +1893,15 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.blustream-us.com/sw41ab-v2",
         "https://www.blustream-us.com/"
       ],
       "tags": [
@@ -1427,11 +1916,31 @@
         "18gbps",
         "hdcp2.2"
       ],
-      "notes": "Official Blustream SW41AB-V2 page.",
+      "notes": "Official Blustream SW41AB-V2 page. | Official Blustream SW41AB-V2 page. | data/product-intelligence-db.json#15 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "sw41abv2-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Four-input multiformat presentation switcher with HDMI and USB-C connectivity, 18 Gbps output, audio embedding and de-embedding, and web GUI control.",
+          "sourceUrl": "https://www.blustream-us.com/sw41ab-v2",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "sw41abv2-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Multi format presentation switcher; USB-C; Audio embedding; Audio de-embedding; Web GUI; 18 Gbps; HDCP 2.2",
+          "sourceUrl": "https://www.blustream-us.com/sw41ab-v2",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "sw41abv2-summary",
           "type": "spec",
@@ -1452,7 +1961,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::blustream::UEX3C-KIT",
@@ -1496,9 +2007,10 @@
       ],
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.blustream-us.com/uex3c-kit",
         "https://www.blustream-us.com/"
       ],
       "tags": [
@@ -1512,11 +2024,31 @@
         "conferencecamerasupport",
         "backwardcompatiblewithusb2.0and1.1"
       ],
-      "notes": "Official Blustream UEX3C-KIT page.",
+      "notes": "Official Blustream UEX3C-KIT page. | Official Blustream UEX3C-KIT page. | data/product-intelligence-db.json#16 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "uex3ckit-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "USB 3.2 Gen 1 extender kit supporting host-to-device extension up to 100 meters with power over cable and compatibility with conferencing cameras, audio devices, and storage.",
+          "sourceUrl": "https://www.blustream-us.com/uex3c-kit",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "uex3ckit-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Extender kit; USB 3.2 Gen 1; 5 Gbps; Power over cable; Conference camera support; Backward compatible with USB 2.0 and 1.1",
+          "sourceUrl": "https://www.blustream-us.com/uex3c-kit",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "uex3ckit-summary",
           "type": "spec",
@@ -1537,7 +2069,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::blustream::WMF-USBC-D",
@@ -1578,9 +2112,10 @@
         "hdr": false
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.blustream-us.com/wmf-usbc-d",
         "https://www.blustream-us.com/"
       ],
       "tags": [
@@ -1592,11 +2127,31 @@
         "oneclicksharing",
         "guestcollaboration"
       ],
-      "notes": "Official Blustream WMF-USBC-D page.",
+      "notes": "Official Blustream WMF-USBC-D page. | Official Blustream WMF-USBC-D page. | data/product-intelligence-db.json#17 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "wmfusbcd-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "USB-C wireless presentation dongle for instant screen sharing into Blustream WMF rooms without drivers or local software installation.",
+          "sourceUrl": "https://www.blustream-us.com/wmf-usbc-d",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "wmfusbcd-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "USB-C dongle; Wireless presentation; One-click sharing; Guest collaboration",
+          "sourceUrl": "https://www.blustream-us.com/wmf-usbc-d",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "wmfusbcd-summary",
           "type": "spec",
@@ -1617,7 +2172,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::blustream::WMF72",
@@ -1674,12 +2231,15 @@
       ],
       "video": {
         "maxResolution": "4K60",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.blustream-us.com/introducing-the-new-wmf72-from-blustream-2",
         "https://www.blustream-us.com/"
       ],
       "tags": [
@@ -1695,11 +2255,31 @@
         "wirelessusbcameraandmicrophone",
         "usbtouchback"
       ],
-      "notes": "Official Blustream WMF72 launch page.",
+      "notes": "Official Blustream WMF72 launch page. | Official Blustream WMF72 launch page. | data/product-intelligence-db.json#18 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "wmf72-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "4K multiformat presentation switcher with wired HDMI and USB-C inputs, AirPlay, Miracast, and Chromecast sharing, dual HDMI outputs, and wireless USB device support.",
+          "sourceUrl": "https://www.blustream-us.com/introducing-the-new-wmf72-from-blustream-2",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "wmf72-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wireless presentation; Multi format presentation switcher; AirPlay; Miracast; Chromecast; Dual HDMI outputs; Wireless USB camera and microphone; USB touch-back",
+          "sourceUrl": "https://www.blustream-us.com/introducing-the-new-wmf72-from-blustream-2",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "wmf72-summary",
           "type": "spec",
@@ -1720,7 +2300,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::crestron::AM-3200-WF-I",
@@ -1776,12 +2358,15 @@
       ],
       "video": {
         "maxResolution": "4K",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": false
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Presentation-Systems/AM-3200-WF-I",
         "https://www.crestron.com/"
       ],
       "tags": [
@@ -1796,11 +2381,31 @@
         "clouddeployment",
         "multisourcepresentation"
       ],
-      "notes": "Official Crestron AirMedia Series 3 page.",
+      "notes": "Official Crestron AirMedia Series 3 page. | Official Crestron AirMedia Series 3 page. | data/product-intelligence-db.json#19 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "am3200wfi-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Secure wireless presentation and conferencing system with native AirPlay and Miracast, digital signage, cloud management, and support for presenting multiple 4K sources onscreen.",
+          "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Presentation-Systems/AM-3200-WF-I",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "am3200wfi-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wireless presentation; Wireless conferencing; AirPlay; Miracast; Digital signage; Cloud deployment; Multi-source presentation",
+          "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Presentation-Systems/AM-3200-WF-I",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "am3200wfi-summary",
           "type": "spec",
@@ -1821,7 +2426,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::crestron::AM-TX3-100",
@@ -1862,9 +2469,10 @@
         "hdr": false
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Wireless-Conferencing/AM-TX3-100",
         "https://www.crestron.com/"
       ],
       "tags": [
@@ -1876,11 +2484,31 @@
         "onetouchsharing",
         "guestcollaboration"
       ],
-      "notes": "Official Crestron AirMedia Connect Adaptor page.",
+      "notes": "Official Crestron AirMedia Connect Adaptor page. | Official Crestron AirMedia Connect Adaptor page. | data/product-intelligence-db.json#20 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "amtx3100-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "USB-C wireless presentation dongle for one-touch AirMedia room sharing and guest collaboration workflows.",
+          "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Wireless-Conferencing/AM-TX3-100",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "amtx3100-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wireless presentation; USB-C dongle; One-touch sharing; Guest collaboration",
+          "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Wireless-Conferencing/AM-TX3-100",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "amtx3100-summary",
           "type": "spec",
@@ -1901,7 +2529,67 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
+    },
+    {
+      "id": "competitor::crestron::DM-MD8X8",
+      "vendorType": "competitor",
+      "brand": "Crestron",
+      "sku": "DM-MD8X8",
+      "name": "Matrix Switcher",
+      "family": "Matrix",
+      "category": "Matrix",
+      "summary": "Matrix Switcher legacy competitor reference record.",
+      "features": [
+        "matrix",
+        "switching"
+      ],
+      "transport": "Local",
+      "inputs": [],
+      "outputs": [],
+      "control": [],
+      "audio": [],
+      "status": "draft",
+      "confidence": 0.68,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.crestron.com/search-results?query=DM-MD8X8"
+      ],
+      "tags": [
+        "matrix",
+        "local",
+        "switching"
+      ],
+      "notes": "src/competitor/competitors.json#9 merged into deployed competitor catalog.",
+      "createdAt": "2026-03-17T16:26:36.832Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
+      "evidence": [
+        {
+          "id": "dmmd8x8-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Matrix Switcher legacy competitor reference record.",
+          "sourceUrl": "https://www.crestron.com/search-results?query=DM-MD8X8",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.68,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "dmmd8x8-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "matrix; switching",
+          "sourceUrl": "https://www.crestron.com/search-results?query=DM-MD8X8",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.66,
+          "notes": "Derived from deployed competitor catalog."
+        }
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::crestron::DM-NVX-360",
@@ -1919,7 +2607,12 @@
         "802.1X",
         "AES encryption",
         "Video wall",
-        "Matrix switching"
+        "Matrix switching",
+        "1Gb AV over IP",
+        "USB/KVM support",
+        "Enterprise AV routing",
+        "Control integration",
+        "AVoIP"
       ],
       "transport": "AVoIP",
       "inputs": [
@@ -1967,13 +2660,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-360",
         "https://www.crestron.com/"
       ],
       "tags": [
@@ -1985,13 +2681,37 @@
         "802.1x",
         "aesencryption",
         "videowall",
-        "matrixswitching"
+        "matrixswitching",
+        "1gbavoverip",
+        "usbkvmsupport",
+        "enterpriseavrouting",
+        "controlintegration"
       ],
-      "notes": "Official Crestron DM NVX 360 page.",
+      "notes": "Official Crestron DM NVX 360 page. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Official Crestron DM NVX 360 page. | data/product-intelligence-db.json#21 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "dmnvx360-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "4K60 4:4:4 AV-over-IP endpoint over 1GbE with HDMI and analog audio I/O, USB 2.0 extension, PoE+, and secure enterprise-network features.",
+          "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-360",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "dmnvx360-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP endpoint; USB 2.0 extension; PoE+; 802.1X; AES encryption; Video wall; Matrix switching; 1Gb AV over IP; USB/KVM support; Enterprise AV routing; Control integration; AVoIP",
+          "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-360",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "dmnvx360-summary",
           "type": "spec",
@@ -2012,7 +2732,74 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
+    },
+    {
+      "id": "competitor::crestron::DM-NVX-D30",
+      "vendorType": "competitor",
+      "brand": "Crestron",
+      "sku": "DM-NVX-D30",
+      "name": "AV over IP Decoder",
+      "family": "DM NVX",
+      "category": "AVoIP",
+      "summary": "AV over IP Decoder legacy competitor reference record.",
+      "features": [
+        "AVoIP",
+        "4K60",
+        "low-latency"
+      ],
+      "transport": "AVoIP",
+      "inputs": [],
+      "outputs": [],
+      "control": [],
+      "audio": [],
+      "video": {
+        "maxResolution": "4K60",
+        "hdmi": "2.0",
+        "hdr": true
+      },
+      "status": "draft",
+      "confidence": 0.68,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.crestron.com/search-results?query=DM-NVX-D30"
+      ],
+      "tags": [
+        "dmnvx",
+        "avoip",
+        "4k60",
+        "lowlatency"
+      ],
+      "notes": "src/competitor/competitors.json#4 merged into deployed competitor catalog.",
+      "createdAt": "2026-03-17T16:26:36.832Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
+      "evidence": [
+        {
+          "id": "dmnvxd30-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "AV over IP Decoder legacy competitor reference record.",
+          "sourceUrl": "https://www.crestron.com/search-results?query=DM-NVX-D30",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.68,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "dmnvxd30-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP; 4K60; low-latency",
+          "sourceUrl": "https://www.crestron.com/search-results?query=DM-NVX-D30",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.66,
+          "notes": "Derived from deployed competitor catalog."
+        }
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::crestron::DM-NVX-DIR2",
@@ -2047,9 +2834,10 @@
       ],
       "audio": [],
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Management/DM-NVX-DIR-ENT",
         "https://www.crestron.com/"
       ],
       "tags": [
@@ -2063,11 +2851,31 @@
         "browserbasedmanagement",
         "diagnostics"
       ],
-      "notes": "Official Crestron DM NVX Director page.",
+      "notes": "Official Crestron DM NVX Director page. | Official Crestron DM NVX Director page. | data/product-intelligence-db.json#22 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "dmnvxdir2-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "AV over IP management appliance for DM NVX systems that provides browser-based virtual matrix switching, endpoint monitoring, bulk configuration, and diagnostics.",
+          "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Management/DM-NVX-DIR-ENT",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "dmnvxdir2-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP controller; Virtual matrix switching; Endpoint monitoring; Bulk configuration; Browser-based management; Diagnostics",
+          "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Management/DM-NVX-DIR-ENT",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "dmnvxdir2-summary",
           "type": "spec",
@@ -2088,7 +2896,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::crestron::DM-NVX-E30",
@@ -2104,7 +2914,10 @@
         "USB extension",
         "PoE",
         "Video wall",
-        "Matrix switching"
+        "Matrix switching",
+        "AVoIP",
+        "4K60",
+        "low-latency"
       ],
       "transport": "AVoIP",
       "inputs": [
@@ -2141,13 +2954,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-E30",
         "https://www.crestron.com/"
       ],
       "tags": [
@@ -2157,13 +2973,35 @@
         "usbextension",
         "poe",
         "videowall",
-        "matrixswitching"
+        "matrixswitching",
+        "4k60",
+        "lowlatency"
       ],
-      "notes": "Official Crestron DM NVX E30 page.",
+      "notes": "Official Crestron DM NVX E30 page. | src/competitor/competitors.json#3 merged into deployed competitor catalog. | Official Crestron DM NVX E30 page. | data/product-intelligence-db.json#23 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "dmnvxe30-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Compact 4K60 4:4:4 AV-over-IP endpoint for enterprise distribution, switching, and USB extension workflows over 1GbE.",
+          "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-E30",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "dmnvxe30-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP endpoint; USB extension; PoE; Video wall; Matrix switching; AVoIP; 4K60; low-latency",
+          "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-E30",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "dmnvxe30-summary",
           "type": "spec",
@@ -2184,7 +3022,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::crestron::HD-DA2-4KZ-E",
@@ -2225,12 +3065,15 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.crestron.com/Products/Video/Distribution-Amplifiers/HD-DA2-4KZ-E",
         "https://www.crestron.com/"
       ],
       "tags": [
@@ -2244,11 +3087,31 @@
         "hdcp2.2",
         "compactformfactor"
       ],
-      "notes": "Official Crestron HD-DA2-4KZ-E page.",
+      "notes": "Official Crestron HD-DA2-4KZ-E page. | Official Crestron HD-DA2-4KZ-E page. | data/product-intelligence-db.json#24 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "hdda24kze-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "1x2 HDMI distribution amplifier for 4K60 4:4:4 and HDR with EDID management, high-bitrate audio support, and HDCP 2.2 compliance.",
+          "sourceUrl": "https://www.crestron.com/Products/Video/Distribution-Amplifiers/HD-DA2-4KZ-E",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "hdda24kze-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Splitter; Distribution amplifier; EDID management; HDR; HDCP 2.2; Compact form factor",
+          "sourceUrl": "https://www.crestron.com/Products/Video/Distribution-Amplifiers/HD-DA2-4KZ-E",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "hdda24kze-summary",
           "type": "spec",
@@ -2269,7 +3132,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::crestron::HD-MD4X2-4KZ-E",
@@ -2313,12 +3178,15 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.crestron.com/Products/Video/Switchers/HD-MD4X2-4KZ-E",
         "https://www.crestron.com/"
       ],
       "tags": [
@@ -2332,11 +3200,31 @@
         "xiocloud",
         "hdcp2.3"
       ],
-      "notes": "Official Crestron HD-MD4X2-4KZ-E page.",
+      "notes": "Official Crestron HD-MD4X2-4KZ-E page. | Official Crestron HD-MD4X2-4KZ-E page. | data/product-intelligence-db.json#25 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "hdmd4x24kze-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "4x2 HDMI matrix switcher for 4K60 4:4:4 and HDR distribution with audio breakaway, EDID management, and XiO Cloud compatibility.",
+          "sourceUrl": "https://www.crestron.com/Products/Video/Switchers/HD-MD4X2-4KZ-E",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "hdmd4x24kze-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Matrix switcher; Audio breakaway; EDID management; HDR; XiO Cloud; HDCP 2.3",
+          "sourceUrl": "https://www.crestron.com/Products/Video/Switchers/HD-MD4X2-4KZ-E",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "hdmd4x24kze-summary",
           "type": "spec",
@@ -2357,7 +3245,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::crestron::HD-PS622",
@@ -2420,13 +3310,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 40,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.crestron.com/Products/Video/Presentation-Systems/HD-PS622",
         "https://www.crestron.com/"
       ],
       "tags": [
@@ -2442,11 +3335,31 @@
         "hdr10",
         "dolbyvision"
       ],
-      "notes": "Official Crestron HD-PS622 page.",
+      "notes": "Official Crestron HD-PS622 page. | Official Crestron HD-PS622 page. | data/product-intelligence-db.json#26 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "hdps622-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "8x2 presentation switcher with six HDMI inputs, two DM inputs, two HDMI outputs, built-in 4K scalers, audio mixing, and enterprise management support.",
+          "sourceUrl": "https://www.crestron.com/Products/Video/Presentation-Systems/HD-PS622",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "hdps622-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Presentation switcher; Multi format presentation switcher; 4K scalers; Audio mixing; XiO Cloud; Automatic switching; HDR10; Dolby Vision",
+          "sourceUrl": "https://www.crestron.com/Products/Video/Presentation-Systems/HD-PS622",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "hdps622-summary",
           "type": "spec",
@@ -2467,7 +3380,133 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
+    },
+    {
+      "id": "competitor::extron::DTP CROSSPOINT 84",
+      "vendorType": "competitor",
+      "brand": "Extron",
+      "sku": "DTP CROSSPOINT 84",
+      "name": "Matrix Switcher",
+      "family": "DTP",
+      "category": "Matrix",
+      "summary": "Matrix Switcher legacy competitor reference record.",
+      "features": [
+        "matrix",
+        "switching"
+      ],
+      "transport": "Local",
+      "inputs": [],
+      "outputs": [],
+      "control": [],
+      "audio": [],
+      "status": "draft",
+      "confidence": 0.68,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.extron.com/search?searchterm=DTP%20CROSSPOINT%2084"
+      ],
+      "tags": [
+        "dtp",
+        "matrix",
+        "local",
+        "switching"
+      ],
+      "notes": "Typical fixed matrix/switching requirement. | src/competitor/competitors.json#8 merged into deployed competitor catalog.",
+      "createdAt": "2026-03-17T16:26:36.832Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
+      "evidence": [
+        {
+          "id": "dtpcrosspoint84-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Matrix Switcher legacy competitor reference record.",
+          "sourceUrl": "https://www.extron.com/search?searchterm=DTP%20CROSSPOINT%2084",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.68,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "dtpcrosspoint84-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "matrix; switching",
+          "sourceUrl": "https://www.extron.com/search?searchterm=DTP%20CROSSPOINT%2084",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.66,
+          "notes": "Derived from deployed competitor catalog."
+        }
+      ],
+      "reviewFlags": [],
+      "archived": false
+    },
+    {
+      "id": "competitor::extron::DTP T USW 233",
+      "vendorType": "competitor",
+      "brand": "Extron",
+      "sku": "DTP T USW 233",
+      "name": "HDBaseT switcher/transmitter",
+      "family": "DTP",
+      "category": "Switcher",
+      "summary": "Wall/furniture mounted switcher transmitter with HDMI / VGA / USB-C style presentation input approach.",
+      "features": [
+        "HDBaseT transport",
+        "Presentation switching",
+        "Table / lectern connectivity",
+        "Apollo",
+        "HDBaseT"
+      ],
+      "transport": "HDBaseT",
+      "inputs": [],
+      "outputs": [],
+      "control": [],
+      "audio": [],
+      "status": "draft",
+      "confidence": 0.68,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.extron.com/search?searchterm=DTP%20T%20USW%20233"
+      ],
+      "tags": [
+        "dtp",
+        "switcher",
+        "hdbaset",
+        "hdbasettransport",
+        "presentationswitching",
+        "tablelecternconnectivity",
+        "apollo"
+      ],
+      "notes": "Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog.",
+      "createdAt": "2026-03-17T16:26:36.832Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
+      "evidence": [
+        {
+          "id": "dtptusw233-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Wall/furniture mounted switcher transmitter with HDMI / VGA / USB-C style presentation input approach.",
+          "sourceUrl": "https://www.extron.com/search?searchterm=DTP%20T%20USW%20233",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.68,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "dtptusw233-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "HDBaseT transport; Presentation switching; Table / lectern connectivity; Apollo; HDBaseT",
+          "sourceUrl": "https://www.extron.com/search?searchterm=DTP%20T%20USW%20233",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.66,
+          "notes": "Derived from deployed competitor catalog."
+        }
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::extron::DTP3-R-201",
@@ -2511,13 +3550,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0b",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.extron.com/product/dtp3r201",
         "https://www.extron.com/"
       ],
       "tags": [
@@ -2530,11 +3572,31 @@
         "hdr",
         "hdcp2.3"
       ],
-      "notes": "Official Extron DTP3 R 201 page.",
+      "notes": "Official Extron DTP3 R 201 page. | Official Extron DTP3 R 201 page. | data/product-intelligence-db.json#27 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "dtp3r201-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Long-distance DTP3 receiver for HDMI and audio output with RS-232 pass-through and support for 4K60 4:4:4 signals over shielded twisted pair.",
+          "sourceUrl": "https://www.extron.com/product/dtp3r201",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "dtp3r201-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Extender receiver; De-embedded stereo audio; RS-232 pass-through; HDR; HDCP 2.3",
+          "sourceUrl": "https://www.extron.com/product/dtp3r201",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "dtp3r201-summary",
           "type": "spec",
@@ -2555,7 +3617,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::extron::DTP3-T-203",
@@ -2607,13 +3671,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0b",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.extron.com/product/dtp3t203",
         "https://www.extron.com/"
       ],
       "tags": [
@@ -2628,11 +3695,31 @@
         "autoswitching",
         "tallyoutput"
       ],
-      "notes": "Official Extron DTP3 T 203 page.",
+      "notes": "Official Extron DTP3 T 203 page. | Official Extron DTP3 T 203 page. | data/product-intelligence-db.json#28 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "dtp3t203-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Three-input long-distance presentation transmitter with two HDMI inputs, one USB-C input, local HDMI output, twisted-pair output, and USB-C charging.",
+          "sourceUrl": "https://www.extron.com/product/dtp3t203",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "dtp3t203-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Presentation switcher; Extender transmitter; USB-C 60W charging; Ethernet control; HDR; Auto switching; Tally output",
+          "sourceUrl": "https://www.extron.com/product/dtp3t203",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "dtp3t203-summary",
           "type": "spec",
@@ -2653,7 +3740,198 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
+    },
+    {
+      "id": "competitor::extron::IN1608",
+      "vendorType": "competitor",
+      "brand": "Extron",
+      "sku": "IN1608",
+      "name": "Presentation Switcher",
+      "family": "IN",
+      "category": "Switcher",
+      "summary": "Presentation Switcher legacy competitor reference record.",
+      "features": [
+        "switcher",
+        "presentation"
+      ],
+      "transport": "Local",
+      "inputs": [],
+      "outputs": [],
+      "control": [],
+      "audio": [],
+      "status": "draft",
+      "confidence": 0.68,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.extron.com/search?searchterm=IN1608"
+      ],
+      "tags": [
+        "in",
+        "switcher",
+        "local",
+        "presentation"
+      ],
+      "notes": "src/competitor/competitors.json#10 merged into deployed competitor catalog.",
+      "createdAt": "2026-03-17T16:26:36.832Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
+      "evidence": [
+        {
+          "id": "in1608-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Presentation Switcher legacy competitor reference record.",
+          "sourceUrl": "https://www.extron.com/search?searchterm=IN1608",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.68,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "in1608-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "switcher; presentation",
+          "sourceUrl": "https://www.extron.com/search?searchterm=IN1608",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.66,
+          "notes": "Derived from deployed competitor catalog."
+        }
+      ],
+      "reviewFlags": [],
+      "archived": false
+    },
+    {
+      "id": "competitor::extron::NAV E 501",
+      "vendorType": "competitor",
+      "brand": "Extron",
+      "sku": "NAV E 501",
+      "name": "AV over IP Encoder",
+      "family": "NAV",
+      "category": "AVoIP",
+      "summary": "AV over IP Encoder legacy competitor reference record.",
+      "features": [
+        "AVoIP",
+        "4K60",
+        "managed-network"
+      ],
+      "transport": "AVoIP",
+      "inputs": [],
+      "outputs": [],
+      "control": [],
+      "audio": [],
+      "video": {
+        "maxResolution": "4K60",
+        "hdmi": "2.0",
+        "hdr": true
+      },
+      "status": "draft",
+      "confidence": 0.68,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.extron.com/search?searchterm=NAV%20E%20501"
+      ],
+      "tags": [
+        "nav",
+        "avoip",
+        "4k60",
+        "managednetwork"
+      ],
+      "notes": "Typical enterprise AVoIP encoder use-case. | src/competitor/competitors.json#1 merged into deployed competitor catalog.",
+      "createdAt": "2026-03-17T16:26:36.832Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
+      "evidence": [
+        {
+          "id": "nave501-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "AV over IP Encoder legacy competitor reference record.",
+          "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20E%20501",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.68,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "nave501-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP; 4K60; managed-network",
+          "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20E%20501",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.66,
+          "notes": "Derived from deployed competitor catalog."
+        }
+      ],
+      "reviewFlags": [],
+      "archived": false
+    },
+    {
+      "id": "competitor::extron::NAV SD 501",
+      "vendorType": "competitor",
+      "brand": "Extron",
+      "sku": "NAV SD 501",
+      "name": "AV over IP Decoder",
+      "family": "NAV",
+      "category": "AVoIP",
+      "summary": "AV over IP Decoder legacy competitor reference record.",
+      "features": [
+        "AVoIP",
+        "4K60",
+        "managed-network"
+      ],
+      "transport": "AVoIP",
+      "inputs": [],
+      "outputs": [],
+      "control": [],
+      "audio": [],
+      "video": {
+        "maxResolution": "4K60",
+        "hdmi": "2.0",
+        "hdr": true
+      },
+      "status": "draft",
+      "confidence": 0.68,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://www.extron.com/search?searchterm=NAV%20SD%20501"
+      ],
+      "tags": [
+        "nav",
+        "avoip",
+        "4k60",
+        "managednetwork"
+      ],
+      "notes": "src/competitor/competitors.json#2 merged into deployed competitor catalog.",
+      "createdAt": "2026-03-17T16:26:36.832Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
+      "evidence": [
+        {
+          "id": "navsd501-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "AV over IP Decoder legacy competitor reference record.",
+          "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20SD%20501",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.68,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "navsd501-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP; 4K60; managed-network",
+          "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20SD%20501",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.66,
+          "notes": "Derived from deployed competitor catalog."
+        }
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::extron::NAV-E-121",
@@ -2704,13 +3982,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0b",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.extron.com/product/nave121",
         "https://www.extron.com/"
       ],
       "tags": [
@@ -2724,11 +4005,31 @@
         "ultralowlatency",
         "securetransport"
       ],
-      "notes": "Official Extron NAV E 121 page.",
+      "notes": "Official Extron NAV E 121 page. | Official Extron NAV E 121 page. | data/product-intelligence-db.json#29 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "nave121-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "One-gigabit HDMI encoder with HDMI loop-through, USB 2.0 over IP, AES67 audio support, and secure NAV AV over IP transport.",
+          "sourceUrl": "https://www.extron.com/product/nave121",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "nave121-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP encoder; HDMI loop-through; USB 2.0 over IP; AES67 audio; PURE3 codec; Ultra-low latency; Secure transport",
+          "sourceUrl": "https://www.extron.com/product/nave121",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "nave121-summary",
           "type": "spec",
@@ -2749,7 +4050,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::extron::NAV-SD-121",
@@ -2791,13 +4094,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0b",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.extron.com/product/navsd121",
         "https://www.extron.com/"
       ],
       "tags": [
@@ -2810,11 +4116,31 @@
         "vector4kscaling",
         "ultralowlatency"
       ],
-      "notes": "Official Extron NAV SD 121 page.",
+      "notes": "Official Extron NAV SD 121 page. | Official Extron NAV SD 121 page. | data/product-intelligence-db.json#30 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "navsd121-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "One-gigabit scaling decoder with HDMI output, AES67 audio support, HDMI preview output, and advanced scaling for NAV AV over IP systems.",
+          "sourceUrl": "https://www.extron.com/product/navsd121",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "navsd121-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP decoder; Scaling decoder; Confidence preview; AES67 audio; Vector 4K scaling; Ultra-low latency",
+          "sourceUrl": "https://www.extron.com/product/navsd121",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "navsd121-summary",
           "type": "spec",
@@ -2835,7 +4161,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::extron::NAVIGATOR",
@@ -2871,9 +4199,10 @@
       ],
       "audio": [],
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.extron.com/product/navigator",
         "https://www.extron.com/"
       ],
       "tags": [
@@ -2887,11 +4216,31 @@
         "systemdiagnostics",
         "duallan"
       ],
-      "notes": "Official Extron NAVigator page.",
+      "notes": "Official Extron NAVigator page. | Official Extron NAVigator page. | data/product-intelligence-db.json#31 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "navigator-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "AV over IP system manager that configures, controls, and monitors NAV encoders and decoders from an embedded web interface.",
+          "sourceUrl": "https://www.extron.com/product/navigator",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "navigator-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP controller; Embedded web interface; Device monitoring; Bulk configuration; System diagnostics; Dual LAN",
+          "sourceUrl": "https://www.extron.com/product/navigator",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "navigator-summary",
           "type": "spec",
@@ -2912,7 +4261,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::extron::SHARELINK-PRO-1100",
@@ -2964,9 +4315,10 @@
         "hdr": false
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.extron.com/product/sharelinkpro1100",
         "https://www.extron.com/"
       ],
       "tags": [
@@ -2980,11 +4332,31 @@
         "digitalsignage",
         "webshare"
       ],
-      "notes": "Official Extron ShareLink Pro 1100 page.",
+      "notes": "Official Extron ShareLink Pro 1100 page. | Official Extron ShareLink Pro 1100 page. | data/product-intelligence-db.json#32 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "sharelinkpro1100-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Wireless and wired presentation gateway with support for simultaneous display of up to four devices, HDMI input, dual Ethernet ports, and collaboration workflows.",
+          "sourceUrl": "https://www.extron.com/product/sharelinkpro1100",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "sharelinkpro1100-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wireless presentation; Quad view; ConferenceShare; HDMI input; Digital signage; WebShare",
+          "sourceUrl": "https://www.extron.com/product/sharelinkpro1100",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "sharelinkpro1100-summary",
           "type": "spec",
@@ -3005,7 +4377,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::kramer::KDS-DEC7",
@@ -3022,7 +4396,9 @@
         "HDR10",
         "PoE",
         "Secure transport",
-        "KDS-7 platform"
+        "KDS-7 platform",
+        "AVoIP",
+        "4K60"
       ],
       "transport": "AVoIP",
       "inputs": [
@@ -3057,13 +4433,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:2:0",
+        "hdmi": "2.0",
+        "bandwidthGbps": 10.2,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www1.kramerav.com/us/product/kds-dec7",
         "https://www.kramerav.com/"
       ],
       "tags": [
@@ -3074,13 +4453,34 @@
         "hdr10",
         "poe",
         "securetransport",
-        "kds7platform"
+        "kds7platform",
+        "4k60"
       ],
-      "notes": "Official Kramer KDS-DEC7 page.",
+      "notes": "Official Kramer KDS-DEC7 page. | src/competitor/competitors.json#6 merged into deployed competitor catalog. | Official Kramer KDS-DEC7 page. | data/product-intelligence-db.json#33 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "kdsdec7-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "High-performance AVoIP decoder for 4K60 4:2:0 HDR10 distribution over a 1G network with HDMI output, dual Ethernet, USB, analog audio, IR, RS-232, and CEC over IP.",
+          "sourceUrl": "https://www1.kramerav.com/us/product/kds-dec7",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "kdsdec7-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP decoder; USB extension; HDR10; PoE; Secure transport; KDS-7 platform; AVoIP; 4K60",
+          "sourceUrl": "https://www1.kramerav.com/us/product/kds-dec7",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "kdsdec7-summary",
           "type": "spec",
@@ -3101,7 +4501,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::kramer::KDS-EN7",
@@ -3119,7 +4521,9 @@
         "HDR10",
         "PoE",
         "Secure transport",
-        "KDS-7 platform"
+        "KDS-7 platform",
+        "AVoIP",
+        "4K60"
       ],
       "transport": "AVoIP",
       "inputs": [
@@ -3158,13 +4562,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:2:0",
+        "hdmi": "2.0",
+        "bandwidthGbps": 10.2,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www1.kramerav.com/us/product/kds-en7",
         "https://www.kramerav.com/"
       ],
       "tags": [
@@ -3176,13 +4583,34 @@
         "hdr10",
         "poe",
         "securetransport",
-        "kds7platform"
+        "kds7platform",
+        "4k60"
       ],
-      "notes": "Official Kramer KDS-EN7 page.",
+      "notes": "Official Kramer KDS-EN7 page. | src/competitor/competitors.json#5 merged into deployed competitor catalog. | Official Kramer KDS-EN7 page. | data/product-intelligence-db.json#34 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "kdsen7-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "High-performance AVoIP encoder for streaming 4K60 4:2:0 HDR10 video over a 1G network with HDMI loop-through, dual Ethernet, audio, USB, IR, RS-232, and CEC over IP.",
+          "sourceUrl": "https://www1.kramerav.com/us/product/kds-en7",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "kdsen7-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP encoder; HDMI loop-through; USB extension; HDR10; PoE; Secure transport; KDS-7 platform; AVoIP; 4K60",
+          "sourceUrl": "https://www1.kramerav.com/us/product/kds-en7",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "kdsen7-summary",
           "type": "spec",
@@ -3203,7 +4631,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::kramer::KDS-USB2",
@@ -3254,9 +4684,10 @@
       ],
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www1.kramerav.com/us/product/kds-usb2",
         "https://www.kramerav.com/"
       ],
       "tags": [
@@ -3271,11 +4702,31 @@
         "camerasupport",
         "hidsupport"
       ],
-      "notes": "Official Kramer KDS-USB2 page.",
+      "notes": "Official Kramer KDS-USB2 page. | Official Kramer KDS-USB2 page. | data/product-intelligence-db.json#35 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "kdsusb2-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "USB 2.0 extension solution for one-to-many and many-to-many host and device routing over IP with support for conferencing cameras, touch devices, and HID peripherals.",
+          "sourceUrl": "https://www1.kramerav.com/us/product/kds-usb2",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "kdsusb2-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Extender kit; USB 2.0 extension; One-to-many routing; Many-to-many routing; SwitchableUSB; Camera support; HID support",
+          "sourceUrl": "https://www1.kramerav.com/us/product/kds-usb2",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "kdsusb2-summary",
           "type": "spec",
@@ -3296,7 +4747,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::kramer::TP-580T",
@@ -3338,13 +4791,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:2:0",
+        "hdmi": "2.0",
+        "bandwidthGbps": 10.2,
         "hdr": false
       },
       "distanceMeters": 70,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www1.kramerav.com/us/product/tp-580t",
         "https://www.kramerav.com/"
       ],
       "tags": [
@@ -3358,11 +4814,31 @@
         "edidsupport",
         "hdcp2.2"
       ],
-      "notes": "Official Kramer TP-580T page.",
+      "notes": "Official Kramer TP-580T page. | Official Kramer TP-580T page. | data/product-intelligence-db.json#36 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "tp580t-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "HDBaseT transmitter for 4K60 4:2:0 HDMI, bidirectional RS-232 and IR, and long-reach twisted-pair extension over category cable.",
+          "sourceUrl": "https://www1.kramerav.com/us/product/tp-580t",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "tp580t-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Extender transmitter; Long-reach HDBaseT; Bidirectional IR; Bidirectional RS-232; EDID support; HDCP 2.2",
+          "sourceUrl": "https://www1.kramerav.com/us/product/tp-580t",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "tp580t-summary",
           "type": "spec",
@@ -3383,7 +4859,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::kramer::VIA-GO2",
@@ -3441,9 +4919,10 @@
         "hdr": false
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www1.kramerav.com/us/product/via%20go2",
         "https://www.kramerav.com/"
       ],
       "tags": [
@@ -3457,11 +4936,31 @@
         "securelogin",
         "twosimultaneouspresenters"
       ],
-      "notes": "Official Kramer VIA GO2 page.",
+      "notes": "Official Kramer VIA GO2 page. | Official Kramer VIA GO2 page. | data/product-intelligence-db.json#37 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "viago2-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Super-compact wireless presentation hub with integrated Wi-Fi, LAN connectivity, AirPlay, Miracast, and Chromebook support for secure collaboration in huddle spaces.",
+          "sourceUrl": "https://www1.kramerav.com/us/product/via%20go2",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "viago2-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Wireless presentation; AirPlay; Miracast; Chromebook mirroring; Secure login; Two simultaneous presenters",
+          "sourceUrl": "https://www1.kramerav.com/us/product/via%20go2",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "viago2-summary",
           "type": "spec",
@@ -3482,7 +4981,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::kramer::VS-88H2A",
@@ -3500,7 +5001,11 @@
         "Kramer Aware",
         "Web pages",
         "HDCP 2.2",
-        "HDR"
+        "HDR",
+        "Matrix switching",
+        "Multi-source routing",
+        "Fixed AV infrastructure",
+        "Matrix"
       ],
       "transport": "Local",
       "inputs": [
@@ -3537,12 +5042,15 @@
       ],
       "video": {
         "maxResolution": "4K60",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www1.kramerav.com/us/product/vs-88h2a",
         "https://www.kramerav.com/"
       ],
       "tags": [
@@ -3555,13 +5063,36 @@
         "krameraware",
         "webpages",
         "hdcp2.2",
-        "hdr"
+        "hdr",
+        "matrixswitching",
+        "multisourcerouting",
+        "fixedavinfrastructure"
       ],
-      "notes": "Official Kramer VS-88H2A page.",
+      "notes": "Official Kramer VS-88H2A page. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Official Kramer VS-88H2A page. | data/product-intelligence-db.json#38 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "vs88h2a-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "8x8 4K HDR HDMI matrix switcher with independent audio routes, EDID handling, web pages, and Kramer Aware cloud support.",
+          "sourceUrl": "https://www1.kramerav.com/us/product/vs-88h2a",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "vs88h2a-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Matrix switcher; Independent audio routes; EDID management; Kramer Aware; Web pages; HDCP 2.2; HDR; Matrix switching; Multi-source routing; Fixed AV infrastructure; Matrix",
+          "sourceUrl": "https://www1.kramerav.com/us/product/vs-88h2a",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "vs88h2a-summary",
           "type": "spec",
@@ -3582,7 +5113,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::lightware::DA2-HDMI",
@@ -3623,9 +5156,10 @@
         "hdr": false
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://lightware.com/products/da2-hdmi",
         "https://lightware.com/"
       ],
       "tags": [
@@ -3637,11 +5171,31 @@
         "edidmanagement",
         "compactformfactor"
       ],
-      "notes": "Official Lightware DA2-HDMI product page.",
+      "notes": "Official Lightware DA2-HDMI product page. | Official Lightware DA2-HDMI product page. | data/product-intelligence-db.json#39 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "da2hdmi-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Compact HDMI distribution amplifier for one HDMI source feeding two local HDMI displays with EDID handling.",
+          "sourceUrl": "https://lightware.com/products/da2-hdmi",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "da2hdmi-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Splitter; Distribution amplifier; EDID management; Compact form factor",
+          "sourceUrl": "https://lightware.com/products/da2-hdmi",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "da2hdmi-summary",
           "type": "spec",
@@ -3662,7 +5216,72 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
+    },
+    {
+      "id": "competitor::lightware::TPX-TX107",
+      "vendorType": "competitor",
+      "brand": "Lightware",
+      "sku": "TPX-TX107",
+      "name": "HDBaseT transmitter",
+      "family": "TPX",
+      "category": "Extender",
+      "summary": "Signal extension transmitter for professional AV transport workflows.",
+      "features": [
+        "HDBaseT transport",
+        "Point-to-point extension",
+        "Professional AV integration",
+        "HDBaseT"
+      ],
+      "transport": "HDBaseT",
+      "inputs": [],
+      "outputs": [],
+      "control": [],
+      "audio": [],
+      "status": "draft",
+      "confidence": 0.68,
+      "sourceType": "catalog",
+      "sourceUrls": [
+        "https://lightware.com/search?q=TPX-TX107"
+      ],
+      "tags": [
+        "tpx",
+        "extender",
+        "hdbaset",
+        "hdbasettransport",
+        "pointtopointextension",
+        "professionalavintegration"
+      ],
+      "notes": "Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog.",
+      "createdAt": "2026-03-17T16:26:36.832Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
+      "evidence": [
+        {
+          "id": "tpxtx107-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Signal extension transmitter for professional AV transport workflows.",
+          "sourceUrl": "https://lightware.com/search?q=TPX-TX107",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.68,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "tpxtx107-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "HDBaseT transport; Point-to-point extension; Professional AV integration; HDBaseT",
+          "sourceUrl": "https://lightware.com/search?q=TPX-TX107",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.66,
+          "notes": "Derived from deployed competitor catalog."
+        }
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::lightware::UCX-2X1-HC30",
@@ -3714,12 +5333,15 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.lightware.com/en/product-family/taurus-ucx",
         "https://lightware.com/"
       ],
       "tags": [
@@ -3734,11 +5356,31 @@
         "hdmi2.0",
         "ethernetcontrol"
       ],
-      "notes": "Official Lightware Taurus UCX family page.",
+      "notes": "Official Lightware Taurus UCX family page. | Official Lightware Taurus UCX family page. | data/product-intelligence-db.json#40 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "ucx2x1hc30-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "2x1 switcher with USB-C, HDMI 2.0, USB 3.1, and Ethernet control for collaboration spaces with host switching and room automation support.",
+          "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "ucx2x1hc30-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Presentation switcher; USB-C; USB 3.1; Host switching; Room automation; HDMI 2.0; Ethernet control",
+          "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "ucx2x1hc30-summary",
           "type": "spec",
@@ -3759,7 +5401,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::lightware::UCX-4X2-HC60D",
@@ -3817,12 +5461,15 @@
       ],
       "video": {
         "maxResolution": "5K21:9",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.lightware.com/en/product-family/taurus-ucx",
         "https://lightware.com/"
       ],
       "tags": [
@@ -3837,11 +5484,31 @@
         "roomautomation",
         "largeroomcollaboration"
       ],
-      "notes": "Official Lightware Taurus UCX family page and A&E specification.",
+      "notes": "Official Lightware Taurus UCX family page and A&E specification. | Official Lightware Taurus UCX family page and A&E specification. | data/product-intelligence-db.json#41 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "ucx4x2hc60d-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "4x2 switcher with two HDMI inputs, two USB-C inputs, dual HDMI outputs, USB 3.1 host switching, Dante and AES67 audio, and automation for large collaboration rooms.",
+          "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "ucx4x2hc60d-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Multi format presentation switcher; USB-C 100W charging; USB 3.1 host switching; Dante audio; AES67; Room automation; Large-room collaboration",
+          "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "ucx4x2hc60d-summary",
           "type": "spec",
@@ -3862,7 +5529,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::lightware::UCX-4X3-HCM40",
@@ -3913,12 +5582,15 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.lightware.com/en/products/ucx-4x3-hcm40-dual-screen",
         "https://lightware.com/"
       ],
       "tags": [
@@ -3932,11 +5604,31 @@
         "roomautomation",
         "collaboration"
       ],
-      "notes": "Official Lightware UCX-4x3-HCM40 product page.",
+      "notes": "Official Lightware UCX-4x3-HCM40 product page. | Official Lightware UCX-4x3-HCM40 product page. | data/product-intelligence-db.json#42 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "ucx4x3hcm40-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "4x3 universal matrix switcher with dual-screen extended desktop support, two HDMI inputs, one USB-C input, three HDMI outputs, and host switching for hybrid meeting rooms.",
+          "sourceUrl": "https://www.lightware.com/en/products/ucx-4x3-hcm40-dual-screen",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "ucx4x3hcm40-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "Matrix switcher; Dual-screen extended desktop; USB-C 100W charging; Host switching; Room automation; Collaboration",
+          "sourceUrl": "https://www.lightware.com/en/products/ucx-4x3-hcm40-dual-screen",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "ucx4x3hcm40-summary",
           "type": "spec",
@@ -3957,7 +5649,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::zeevee::Z4KMP48",
@@ -3991,9 +5685,10 @@
       ],
       "audio": [],
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.zeevee.com/z4kmp48-data-sheet/",
         "https://www.zeevee.com/"
       ],
       "tags": [
@@ -4006,11 +5701,31 @@
         "systemmonitoring",
         "centralizedconfiguration"
       ],
-      "notes": "Official ZeeVee ZyPer Management Platform product page.",
+      "notes": "Official ZeeVee ZyPer Management Platform product page. | Official ZeeVee ZyPer Management Platform product page. | data/product-intelligence-db.json#43 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "z4kmp48-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "AV over IP management platform for ZyPer systems with browser-based setup, drag-and-drop routing, monitoring, and system management for encoders and decoders.",
+          "sourceUrl": "https://www.zeevee.com/z4kmp48-data-sheet/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "z4kmp48-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP controller; Browser-based management; Drag-and-drop routing; System monitoring; Centralized configuration",
+          "sourceUrl": "https://www.zeevee.com/z4kmp48-data-sheet/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "z4kmp48-summary",
           "type": "spec",
@@ -4031,7 +5746,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::zeevee::ZUHD60-2EMP",
@@ -4085,13 +5802,16 @@
       ],
       "video": {
         "maxResolution": "4K60 4:4:4",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.zeevee.com/product/zuhd60-2emp/",
         "https://www.zeevee.com/"
       ],
       "tags": [
@@ -4104,11 +5824,31 @@
         "1gbetransport",
         "poe+"
       ],
-      "notes": "Official ZeeVee ZUHD60-2EMP product page.",
+      "notes": "Official ZeeVee ZUHD60-2EMP product page. | Official ZeeVee ZUHD60-2EMP product page. | data/product-intelligence-db.json#44 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "zuhd602emp-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Compressed 1GbE AV-over-IP encoder with three video inputs, an integrated management platform, KVM support, and support for HDMI, USB-C, and DisplayPort sources.",
+          "sourceUrl": "https://www.zeevee.com/product/zuhd60-2emp/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "zuhd602emp-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP encoder; Triple-input encoder; Integrated management platform; KVM support; 1GbE transport; PoE+",
+          "sourceUrl": "https://www.zeevee.com/product/zuhd60-2emp/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "zuhd602emp-summary",
           "type": "spec",
@@ -4129,7 +5869,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::zeevee::ZY-4K-DEC",
@@ -4174,13 +5916,16 @@
       ],
       "video": {
         "maxResolution": "4K60",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.zeevee.com/products/zyper4k/",
         "https://www.zeevee.com/"
       ],
       "tags": [
@@ -4193,11 +5938,31 @@
         "usbextension",
         "managednetworkmulticast"
       ],
-      "notes": "Official ZeeVee ZyPer4K family page.",
+      "notes": "Official ZeeVee ZyPer4K family page. | Official ZeeVee ZyPer4K family page. | data/product-intelligence-db.json#45 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "zy4kdec-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Zero-frame-latency one-gigabit HDMI-over-IP decoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
+          "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "zy4kdec-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP decoder; Zero-frame latency; PoE+; Video wall; USB extension; Managed-network multicast",
+          "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "zy4kdec-summary",
           "type": "spec",
@@ -4218,7 +5983,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "competitor::zeevee::ZY-4K-ENC",
@@ -4263,13 +6030,16 @@
       ],
       "video": {
         "maxResolution": "4K60",
+        "hdmi": "2.0",
+        "bandwidthGbps": 18,
         "hdr": true
       },
       "distanceMeters": 100,
       "status": "draft",
-      "confidence": 0.72,
+      "confidence": 0.76,
       "sourceType": "catalog",
       "sourceUrls": [
+        "https://www.zeevee.com/products/zyper4k/",
         "https://www.zeevee.com/"
       ],
       "tags": [
@@ -4282,11 +6052,31 @@
         "usbextension",
         "managednetworkmulticast"
       ],
-      "notes": "Official ZeeVee ZyPer4K family page.",
+      "notes": "Official ZeeVee ZyPer4K family page. | Official ZeeVee ZyPer4K family page. | data/product-intelligence-db.json#46 merged into deployed competitor catalog.",
       "createdAt": "2026-03-16T20:00:25.239Z",
-      "updatedAt": "2026-03-16T20:00:25.239Z",
-      "lastCapturedAt": "2026-03-16T20:00:25.239Z",
+      "updatedAt": "2026-03-17T16:26:36.832Z",
+      "lastCapturedAt": "2026-03-17T16:26:36.832Z",
       "evidence": [
+        {
+          "id": "zy4kenc-summary",
+          "type": "spec",
+          "label": "Catalog Summary",
+          "value": "Zero-frame-latency one-gigabit HDMI-over-IP encoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
+          "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.76,
+          "notes": "Derived from deployed competitor catalog."
+        },
+        {
+          "id": "zy4kenc-features",
+          "type": "io",
+          "label": "Catalog Features",
+          "value": "AVoIP encoder; Zero-frame latency; PoE+; Video wall; USB extension; Managed-network multicast",
+          "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+          "capturedAt": "2026-03-17T16:26:36.832Z",
+          "confidence": 0.74,
+          "notes": "Derived from deployed competitor catalog."
+        },
         {
           "id": "zy4kenc-summary",
           "type": "spec",
@@ -4307,7 +6097,9 @@
           "confidence": 0.72,
           "notes": "Derived from catalog feature list."
         }
-      ]
+      ],
+      "reviewFlags": [],
+      "archived": false
     },
     {
       "id": "wyrestorm::wyrestorm::EX-100-KVM",

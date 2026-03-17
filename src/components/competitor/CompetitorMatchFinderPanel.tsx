@@ -1,246 +1,373 @@
-import * as React from "react";
+import React from "react";
+import { getCompetitorBrands } from "@/competitor/repository";
 
-const BRANDS = [
+type LocalCompetitorLookupMatch = {
+  sku: string;
+  name?: string;
+  type?: string;
+  score?: number;
+};
+
+type CompetitorMatchFinderPanelProps = {
+  brand?: string;
+  sku?: string;
+  running?: boolean;
+  hasLocalMatch?: boolean;
+  localMatches?: LocalCompetitorLookupMatch[];
+  onBrandChange?: React.Dispatch<React.SetStateAction<string>> | ((value: string) => void);
+  onSkuChange?: React.Dispatch<React.SetStateAction<string>> | ((value: string) => void);
+  onRun?: (mode: "local" | "web") => void;
+};
+
+type Suggestion = {
+  sku: string;
+  name: string;
+  type: string;
+};
+
+const DEFAULT_BRANDS = [
+  "Atlona",
+  "Barco",
+  "Blustream",
   "Crestron",
   "Extron",
   "Kramer",
-  "Atlona",
   "Lightware",
-  "Blustream",
   "ZeeVee",
 ];
 
-type LocalMatch = {
-  brand: string;
-  sku: string;
-  name?: string;
-  family?: string;
-  category?: string;
-  wyrestormSku?: string;
-  wyrestormName?: string;
-  score: number;
+const BRAND_SEARCH_DOMAINS: Record<string, string> = {
+  Atlona: "atlona.com",
+  Barco: "barco.com",
+  Blustream: "blustream-us.com",
+  Crestron: "crestron.com",
+  Extron: "extron.com",
+  Kramer: "kramerav.com",
+  Lightware: "lightware.com",
+  ZeeVee: "zeevee.com",
 };
 
-type Props = {
-  brand: string;
-  sku: string;
-  running?: boolean;
-  hasLocalMatch: boolean;
-  localMatches: LocalMatch[];
-  onBrandChange: (v: string) => void;
-  onSkuChange: (v: string) => void;
-  onRun: (mode: "local" | "web") => void;
+const LOCAL_SKUS: Record<string, Suggestion[]> = {
+  Atlona: [
+    { sku: "AT-UHD-EX-100CE-KIT", name: "4K HDR HDBaseT extender kit", type: "Extender" },
+    { sku: "AT-OME-MS42", name: "4x2 matrix switcher", type: "Matrix" },
+    { sku: "AT-OME-CS31-SA", name: "switcher with USB-C", type: "Switcher" },
+  ],
+  Blustream: [
+    { sku: "HEX70CS", name: "HDBaseT extender set", type: "Extender" },
+    { sku: "SW41AB-V2", name: "4x1 HDMI switch", type: "Switcher" },
+    { sku: "MX44AB-V2", name: "4x4 matrix", type: "Matrix" },
+  ],
+  Crestron: [
+    { sku: "HD-EXT3-C-B", name: "DM Lite transmitter", type: "Extender" },
+    { sku: "HD-RX-4K-210-C-E", name: "receiver", type: "Receiver" },
+    { sku: "HD-MD4X1-4KZ-E", name: "4x1 switcher", type: "Switcher" },
+  ],
+  Extron: [
+    { sku: "DTP3 T 203", name: "DTP3 transmitter", type: "Extender" },
+    { sku: "DTP3 R 201", name: "DTP3 receiver", type: "Receiver" },
+    { sku: "IN1804", name: "presentation switcher", type: "Switcher" },
+  ],
+  Kramer: [
+    { sku: "TP-580T", name: "HDBaseT transmitter", type: "Extender" },
+    { sku: "TP-580R", name: "HDBaseT receiver", type: "Receiver" },
+    { sku: "VS-44H2A", name: "4x4 matrix", type: "Matrix" },
+  ],
+  Lightware: [
+    { sku: "TPX-TX95", name: "twisted pair transmitter", type: "Extender" },
+    { sku: "TPX-RX95", name: "twisted pair receiver", type: "Receiver" },
+    { sku: "MMX4x2-HT220", name: "matrix switcher", type: "Matrix" },
+  ],
+  ZeeVee: [
+    { sku: "ZVPRO820", name: "encoder / modulator", type: "AV over RF" },
+    { sku: "HDB2640", name: "HDMI encoder", type: "AV over IP" },
+    { sku: "SDH2640", name: "decoder", type: "AV over IP" },
+  ],
 };
 
-const fieldShell: React.CSSProperties = {
-  display: "grid",
-  gap: 8,
-};
+function normalise(value: string): string {
+  return value.trim().toLowerCase();
+}
 
-const fieldLabel: React.CSSProperties = {
-  fontSize: 12,
-  fontWeight: 800,
-  letterSpacing: 0.3,
-  textTransform: "uppercase",
-  opacity: 0.84,
-};
+function canonicalBrand(value: string): string {
+  const normalized = normalise(value);
+  if (normalized === "blustream" || normalized === "bluestream") return "Blustream";
+  return value.trim();
+}
 
-const fieldStyle: React.CSSProperties = {
-  height: 50,
-  borderRadius: 14,
-  background: "rgba(255,255,255,0.09)",
-  border: "1px solid rgba(255,255,255,0.22)",
-  color: "#f5fbff",
-  padding: "0 14px",
-  outline: "none",
-  fontSize: 16,
-  fontWeight: 600,
-  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
-};
+function rankSuggestions(items: Suggestion[], query: string): Suggestion[] {
+  const q = normalise(query);
+  if (!q) return items.slice(0, 8);
 
-export default function CompetitorMatchFinderPanel({
-  brand,
-  sku,
-  running = false,
-  hasLocalMatch,
-  localMatches,
-  onBrandChange,
-  onSkuChange,
-  onRun,
-}: Props) {
-  const canRun = brand.trim().length > 0 && sku.trim().length > 0 && !running;
-  const bestMatch = localMatches[0];
+  return items
+    .map((item) => {
+      const sku = normalise(item.sku);
+      const name = normalise(item.name);
+      const type = normalise(item.type);
+
+      let score = 0;
+      if (sku.startsWith(q)) score += 400;
+      if (sku.includes(q)) score += 250;
+      if (name.includes(q)) score += 120;
+      if (type.includes(q)) score += 60;
+
+      return { item, score };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score || a.item.sku.localeCompare(b.item.sku))
+    .map((entry) => entry.item)
+    .slice(0, 8);
+}
+
+function asText(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+function fireSetter(
+  setter: CompetitorMatchFinderPanelProps["onBrandChange"] | CompetitorMatchFinderPanelProps["onSkuChange"],
+  value: string
+) {
+  if (!setter) return;
+  (setter as (value: string) => void)(value);
+}
+
+export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderPanelProps) {
+  const {
+    brand = "",
+    sku = "",
+    running = false,
+    hasLocalMatch = false,
+    localMatches = [],
+    onBrandChange,
+    onSkuChange,
+    onRun,
+  } = props;
+
+  const [focused, setFocused] = React.useState(false);
+
+  const brands = React.useMemo(() => {
+    const deployed = getCompetitorBrands();
+    return deployed.length > 0 ? deployed : DEFAULT_BRANDS;
+  }, []);
+
+  const brandItems = React.useMemo(() => {
+    const key = canonicalBrand(brand);
+    return key ? LOCAL_SKUS[key] ?? [] : [];
+  }, [brand]);
+
+  const externalSuggestions = React.useMemo<Suggestion[]>(() => {
+    return (localMatches ?? [])
+      .filter((item) => item && typeof item.sku === "string" && item.sku.trim() !== "")
+      .map((item) => ({
+        sku: item.sku,
+        name: asText(item.name) || "Known competitor model",
+        type: asText(item.type) || "Product",
+      }));
+  }, [localMatches]);
+
+  const suggestions = React.useMemo(() => {
+    if (externalSuggestions.length > 0) {
+      return rankSuggestions(externalSuggestions, sku);
+    }
+    return rankSuggestions(brandItems, sku);
+  }, [externalSuggestions, brandItems, sku]);
+
+  const hasTypedQuery = sku.trim().length > 0;
+  const derivedHasLocalMatch = suggestions.length > 0;
+  const localMatchState = hasLocalMatch || derivedHasLocalMatch;
+  const noLocalMatch = brand !== "" && hasTypedQuery && !localMatchState;
+  const canSearchWeb = brand !== "" && hasTypedQuery && !running;
+  const searchWebHighlighted = noLocalMatch;
+
+  function chooseSuggestion(item: Suggestion) {
+    fireSetter(onSkuChange, item.sku);
+    setFocused(false);
+  }
+
+  function handleBrandChange(value: string) {
+    fireSetter(onBrandChange, value);
+    fireSetter(onSkuChange, "");
+  }
+
+  function handleSkuChange(value: string) {
+    fireSetter(onSkuChange, value);
+  }
+
+  function handleSearchWeb() {
+    if (onRun) {
+      onRun("web");
+      return;
+    }
+
+    const domain = BRAND_SEARCH_DOMAINS[canonicalBrand(brand)];
+    const text = domain
+      ? `site:${domain} "${sku}" ${brand}`.trim()
+      : [brand, sku].filter(Boolean).join(" ");
+    const url = "https://www.google.com/search?q=" + encodeURIComponent(text);
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
 
   return (
-    <div
-      className="wm-card wm-card-pad"
-      style={{
-        padding: 22,
-        borderRadius: 22,
-        background: "linear-gradient(180deg, rgba(9,24,44,0.96), rgba(7,20,36,0.92))",
-        border: "1px solid rgba(92,225,230,0.14)",
-        boxShadow: "0 18px 48px rgba(0,0,0,0.22)",
-      }}
-    >
-      <div style={{ display: "grid", gap: 6, marginBottom: 18 }}>
-        <div className="wm-section-title" style={{ margin: 0 }}>
-          Competitor Match Finder
-        </div>
-        <div style={{ fontSize: 14, opacity: 0.78, lineHeight: 1.5 }}>
-          Check your local competitor catalogue first. If no held SKU is found, continue with a live web lookup.
+    <div style={{ display: "grid", gap: 18 }}>
+      <div style={{ display: "grid", gap: 6 }}>
+        <div style={{ fontSize: 18, fontWeight: 800 }}>Competitor comparison</div>
+        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
+          Select a competitor brand, then type a full or partial model/SKU. Wingman will shortlist local comparison matches first, and live verification can confirm the latest vendor result.
         </div>
       </div>
 
       <div
         style={{
           display: "grid",
-          gap: 14,
-          gridTemplateColumns: "minmax(220px, 0.9fr) minmax(320px, 1.1fr)",
-          alignItems: "end",
+          gap: 16,
+          gridTemplateColumns: "minmax(220px, 280px) minmax(320px, 1fr) auto",
+          alignItems: "start",
         }}
       >
-        <label style={fieldShell}>
-          <span style={fieldLabel}>Competitor brand</span>
+        <div style={{ display: "grid", gap: 8 }}>
+          <label style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.3, opacity: 0.9 }}>
+            Competitor brand
+          </label>
           <select
             value={brand}
-            onChange={(e) => onBrandChange(e.target.value)}
-            style={fieldStyle}
+            onChange={(event) => handleBrandChange(event.target.value)}
+            style={{
+              height: 44,
+              borderRadius: 12,
+              border: "1px solid rgba(255,255,255,0.14)",
+              background: "rgba(255,255,255,0.04)",
+              color: brand ? "#eef5ff" : "rgba(255,255,255,0.52)",
+              padding: "0 14px",
+              outline: "none",
+            }}
           >
-            {BRANDS.map((item) => (
+            <option value="">Select competitor brand</option>
+            {brands.map((item) => (
               <option key={item} value={item}>
                 {item}
               </option>
             ))}
           </select>
-        </label>
+        </div>
 
-        <label style={fieldShell}>
-          <span style={fieldLabel}>Competitor SKU</span>
+        <div style={{ display: "grid", gap: 8, position: "relative" }}>
+          <label style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.3, opacity: 0.9 }}>
+            SKU / model
+          </label>
+
           <input
             value={sku}
-            onChange={(e) => onSkuChange(e.target.value)}
-            placeholder="Enter competitor SKU"
-            style={fieldStyle}
-          />
-        </label>
-      </div>
-
-      <div
-        style={{
-          marginTop: 18,
-          display: "flex",
-          gap: 12,
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => onRun("local")}
-          disabled={!canRun}
-          style={{
-            minWidth: 140,
-            height: 44,
-            padding: "0 16px",
-            borderRadius: 12,
-            border: "1px solid rgba(255,255,255,0.16)",
-            background: canRun
-              ? "linear-gradient(135deg, rgba(36,166,173,0.95), rgba(29,113,187,0.92))"
-              : "rgba(255,255,255,0.10)",
-            color: canRun ? "#f5fbff" : "rgba(255,255,255,0.52)",
-            fontWeight: 800,
-            fontSize: 14,
-            cursor: canRun ? "pointer" : "default",
-            boxShadow: canRun ? "0 10px 24px rgba(29,113,187,0.22)" : "none",
-          }}
-        >
-          {running ? "Checking..." : "Check local"}
-        </button>
-
-        {!hasLocalMatch ? (
-          <button
-            type="button"
-            onClick={() => onRun("web")}
-            disabled={!canRun}
+            disabled={!brand || running}
+            onFocus={() => setFocused(true)}
+            onBlur={() => { window.setTimeout(() => setFocused(false), 140); }}
+            onChange={(event) => handleSkuChange(event.target.value)}
+            placeholder={brand ? "Type competitor SKU or model" : "Choose a brand first"}
             style={{
-              minWidth: 140,
               height: 44,
-              padding: "0 16px",
               borderRadius: 12,
-              border: "1px solid rgba(92,225,230,0.22)",
-              background: "rgba(255,255,255,0.06)",
-              color: canRun ? "#dffbff" : "rgba(255,255,255,0.52)",
-              fontWeight: 800,
-              fontSize: 14,
-              cursor: canRun ? "pointer" : "default",
+              border: noLocalMatch
+                ? "1px solid rgba(255,190,92,0.55)"
+                : "1px solid rgba(255,255,255,0.14)",
+              background: brand ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.02)",
+              color: sku ? "#eef5ff" : "rgba(255,255,255,0.52)",
+              padding: "0 14px",
+              outline: "none",
+              boxShadow: noLocalMatch ? "0 0 0 3px rgba(255,190,92,0.10)" : "none",
             }}
-          >
-            Search web
-          </button>
-        ) : null}
+          />
 
-        <div style={{ fontSize: 12, opacity: 0.72 }}>
-          {hasLocalMatch
-            ? "Local SKU found. Start with the internal match before using web lookup."
-            : "No local SKU match found yet. Web search is available as the next step."}
-        </div>
-      </div>
-
-      <div
-        style={{
-          marginTop: 18,
-          padding: 14,
-          borderRadius: 16,
-          border: "1px solid rgba(255,255,255,0.10)",
-          background: "rgba(255,255,255,0.04)",
-          display: "grid",
-          gap: 8,
-        }}
-      >
-        <div style={{ fontSize: 12, fontWeight: 800, opacity: 0.82, textTransform: "uppercase" }}>
-          Local lookup result
-        </div>
-
-        {bestMatch ? (
-          <>
-            <div style={{ fontSize: 15, fontWeight: 700 }}>
-              {bestMatch.brand} {bestMatch.sku}
-            </div>
-
-            {bestMatch.name ? (
-              <div style={{ fontSize: 13, opacity: 0.82 }}>
-                {bestMatch.name}
-              </div>
-            ) : null}
-
-            <div style={{ fontSize: 13, opacity: 0.8 }}>
-              Score: {bestMatch.score}
-              {bestMatch.category ? ` - ${bestMatch.category}` : ""}
-              {bestMatch.family ? ` - ${bestMatch.family}` : ""}
-            </div>
-
+          {focused && brand && suggestions.length > 0 ? (
             <div
               style={{
-                marginTop: 4,
-                padding: 10,
-                borderRadius: 12,
-                background: "rgba(92,225,230,0.08)",
-                border: "1px solid rgba(92,225,230,0.16)",
-                fontSize: 13,
-                lineHeight: 1.5,
+                position: "absolute",
+                top: 74,
+                left: 0,
+                right: 0,
+                zIndex: 20,
+                borderRadius: 14,
+                border: "1px solid rgba(255,255,255,0.10)",
+                background: "rgba(9,12,20,0.98)",
+                boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
+                overflow: "hidden",
               }}
             >
-              <strong>Suggested WyreStorm match:</strong>{" "}
-              {bestMatch.wyrestormSku || bestMatch.wyrestormName
-                ? `${bestMatch.wyrestormSku || ""}${bestMatch.wyrestormSku && bestMatch.wyrestormName ? " - " : ""}${bestMatch.wyrestormName || ""}`
-                : "No mapped WyreStorm SKU stored yet in the local catalogue."}
+              {suggestions.map((item) => (
+                <button
+                  key={item.sku}
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => chooseSuggestion(item)}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "12px 14px",
+                    border: "none",
+                    borderTop: "1px solid rgba(255,255,255,0.06)",
+                    background: "transparent",
+                    color: "#eef5ff",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                    <div style={{ fontWeight: 800 }}>{item.sku}</div>
+                    <div style={{ fontSize: 12, opacity: 0.7 }}>{item.type}</div>
+                  </div>
+                  <div style={{ fontSize: 12, opacity: 0.76, marginTop: 4 }}>{item.name}</div>
+                </button>
+              ))}
             </div>
-          </>
-        ) : (
-          <div style={{ fontSize: 13, opacity: 0.72 }}>
-            No local match shown yet. Run a local check to search the held competitor catalogue.
+          ) : null}
+
+          <div style={{ minHeight: 20, fontSize: 12 }}>
+            {!brand ? (
+              <span style={{ color: "rgba(255,255,255,0.45)" }}>
+                Select a brand to enable type-ahead model lookup.
+              </span>
+            ) : noLocalMatch ? (
+              <span style={{ color: "rgba(255,190,92,0.92)" }}>
+                No local match found yet. Verify live or add more SKU detail.
+              </span>
+            ) : hasTypedQuery && localMatchState ? (
+              <span style={{ color: "rgba(122,236,160,0.88)" }}>
+                Local comparison suggestions available.
+              </span>
+            ) : (
+              <span style={{ color: "rgba(255,255,255,0.45)" }}>
+                Start typing to see partial-SKU shortlist suggestions.
+              </span>
+            )}
           </div>
-        )}
+        </div>
+
+        <div style={{ display: "grid", gap: 8 }}>
+          <label style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.3, opacity: 0.9 }}>
+            Search
+          </label>
+          <button
+            type="button"
+            onClick={handleSearchWeb}
+            disabled={!canSearchWeb}
+            style={{
+              height: 44,
+              minWidth: 148,
+              borderRadius: 12,
+              border: searchWebHighlighted
+                ? "1px solid rgba(255,190,92,0.65)"
+                : "1px solid rgba(255,255,255,0.14)",
+              background: !canSearchWeb
+                ? "rgba(255,255,255,0.04)"
+                : searchWebHighlighted
+                ? "linear-gradient(135deg, rgba(255,190,92,0.20), rgba(255,140,60,0.18))"
+                : "rgba(255,255,255,0.06)",
+              color: !canSearchWeb ? "rgba(255,255,255,0.45)" : "#eef5ff",
+              fontWeight: 800,
+              cursor: canSearchWeb ? "pointer" : "not-allowed",
+              boxShadow: searchWebHighlighted ? "0 0 0 3px rgba(255,190,92,0.10)" : "none",
+            }}
+          >
+            {running ? "Verifying..." : "Verify Live"}
+          </button>
+        </div>
       </div>
     </div>
   );

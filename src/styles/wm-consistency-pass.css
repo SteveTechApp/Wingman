@@ -8166,7 +8166,7 @@ footer[class*="wm-"] {
 .wm-import-intake-page__hero-grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
 .wm-import-intake-page__layout {
@@ -8181,6 +8181,26 @@ footer[class*="wm-"] {
   top: 18px;
 }
 
+.wm-import-intake-page__guidance-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wm-import-intake-page__checklist-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wm-import-intake-page__insight-grid,
+.wm-import-intake-page__summary-grid,
+.wm-import-intake-page__brief-fields {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
 @media (max-width: 1100px) {
   .wm-import-intake-page__hero-grid,
   .wm-import-intake-page__layout {
@@ -8189,6 +8209,11 @@ footer[class*="wm-"] {
 
   .wm-import-intake-page__rail {
     position: static;
+  }
+
+  .wm-import-intake-page__guidance-grid,
+  .wm-import-intake-page__checklist-grid {
+    grid-template-columns: 1fr;
   }
 }
 

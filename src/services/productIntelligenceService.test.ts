@@ -81,8 +81,10 @@ describe("product intelligence service", () => {
     const atlona = result.records.find((record) => record.brand === "Atlona" && record.sku === "AT-OME-MS52W");
     const extron = result.records.find((record) => record.brand === "Extron" && record.sku === "NAV-E-121");
     const zeevee = result.records.find((record) => record.brand === "ZeeVee" && record.sku === "ZY-4K-ENC");
+    const seedSwitcher = result.records.find((record) => record.brand === "Extron" && record.sku === "DTP T USW 233");
+    const legacyMatrix = result.records.find((record) => record.brand === "Crestron" && record.sku === "DM-MD8X8");
 
-    expect(result.records.length).toBeGreaterThanOrEqual(46);
+    expect(result.records.length).toBeGreaterThanOrEqual(56);
     expect(kramer).toBeTruthy();
     expect(kramer?.sourceUrls[0]).toContain("kramerav.com");
     expect(kramer?.evidence.length).toBeGreaterThanOrEqual(4);
@@ -103,6 +105,11 @@ describe("product intelligence service", () => {
     expect(zeevee).toBeTruthy();
     expect(zeevee?.latency).toContain("zero");
     expect(zeevee?.sourceUrls[0]).toContain("zeevee.com");
+
+    expect(seedSwitcher).toBeTruthy();
+    expect(seedSwitcher?.sourceUrls[0]).toContain("extron.com");
+    expect(legacyMatrix).toBeTruthy();
+    expect(legacyMatrix?.sourceUrls[0]).toContain("crestron.com");
   });
 
   it("applies local admin overrides, review flags, and archive state to the fetched records", async () => {

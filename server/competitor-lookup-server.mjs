@@ -60,37 +60,69 @@ const LOOKUP_PERSIST_RUNTIME_EVENTS = !["0", "false", "off", "no"].includes(Stri
 const SUPABASE_RUNTIME_EVENTS_TABLE = String(process.env.SUPABASE_LOOKUP_DIAGNOSTICS_TABLE || "competitor_lookup_runtime_events").trim();
 const SUPABASE_RUNTIME_EVENTS_ENABLED = Boolean(SUPABASE_APPROVALS_ENABLED && LOOKUP_PERSIST_RUNTIME_EVENTS);
 
+const SEARCH_ENGINE_PROVIDERS = [
+  {
+    key: "bing",
+    label: "Bing site search",
+    urls: (host, sku) => [
+      `https://www.bing.com/search?q=${encodeURIComponent(`site:${host} "${sku}"`)}`,
+    ],
+  },
+  {
+    key: "duckduckgo",
+    label: "DuckDuckGo site search",
+    urls: (host, sku) => [
+      `https://html.duckduckgo.com/html/?q=${encodeURIComponent(`site:${host} "${sku}"`)}`,
+    ],
+  },
+];
+
 const BRAND_ADAPTERS = {
   crestron: {
     hosts: ["crestron.com", "www.crestron.com"],
-    urls: (sku) => [`https://www.crestron.com/search-results?query=${encodeURIComponent(sku)}`],
+    searchUrls: (sku) => [`https://www.crestron.com/search-results?query=${encodeURIComponent(sku)}`],
+    productUrls: (sku) => [`https://www.crestron.com/Products/Model/${encodeURIComponent(sku)}`],
   },
   extron: {
     hosts: ["extron.com", "www.extron.com"],
-    urls: (sku) => [`https://www.extron.com/search?searchterm=${encodeURIComponent(sku)}`],
+    searchUrls: (sku) => [`https://www.extron.com/search?searchterm=${encodeURIComponent(sku)}`],
+    productUrls: (sku) => [`https://www.extron.com/product/${normalizeId(sku)}`],
   },
   atlona: {
     hosts: ["atlona.com", "www.atlona.com"],
-    urls: (sku) => [`https://atlona.com/?s=${encodeURIComponent(sku)}`],
+    searchUrls: (sku) => [`https://atlona.com/?s=${encodeURIComponent(sku)}`],
+    productUrls: (sku) => [`https://atlona.com/product/${encodeURIComponent(String(sku || "").trim().toLowerCase())}/`],
   },
   lightware: {
     hosts: ["lightware.com", "www.lightware.com"],
-    urls: (sku) => [`https://lightware.com/search?q=${encodeURIComponent(sku)}`],
+    searchUrls: (sku) => [`https://lightware.com/search?q=${encodeURIComponent(sku)}`],
+    productUrls: () => [],
   },
   blustream: {
     hosts: ["blustream-us.com", "www.blustream-us.com", "blustream.co.uk", "www.blustream.co.uk"],
-    urls: (sku) => [
+    searchUrls: (sku) => [
       `https://www.blustream-us.com/search?q=${encodeURIComponent(sku)}`,
       `https://www.blustream.co.uk/search?q=${encodeURIComponent(sku)}`,
     ],
+    productUrls: (sku) => [
+      `https://www.blustream-us.com/${encodeURIComponent(String(sku || "").trim().toLowerCase())}`,
+      `https://www.blustream.co.uk/${encodeURIComponent(String(sku || "").trim().toLowerCase())}`,
+    ],
   },
   kramer: {
-    hosts: ["kramerav.com", "www.kramerav.com"],
-    urls: (sku) => [`https://www.kramerav.com/search?term=${encodeURIComponent(sku)}`],
+    hosts: ["kramerav.com", "www.kramerav.com", "www1.kramerav.com"],
+    searchUrls: (sku) => [`https://www.kramerav.com/search?term=${encodeURIComponent(sku)}`],
+    productUrls: (sku) => [`https://www1.kramerav.com/us/product/${encodeURIComponent(String(sku || "").trim().toLowerCase())}`],
   },
   zeevee: {
     hosts: ["zeevee.com", "www.zeevee.com"],
-    urls: (sku) => [`https://www.zeevee.com/?s=${encodeURIComponent(sku)}`],
+    searchUrls: (sku) => [`https://www.zeevee.com/?s=${encodeURIComponent(sku)}`],
+    productUrls: () => [],
+  },
+  barco: {
+    hosts: ["barco.com", "www.barco.com"],
+    searchUrls: () => [],
+    productUrls: () => [],
   },
 };
 
@@ -828,19 +860,210 @@ async function fetchTextWithRetries(url, options = {}) {
   };
 }
 
+function preferredAdapterHost(adapter) {
+  if (!adapter || !Array.isArray(adapter.hosts)) return "";
+  const exact = adapter.hosts.find((host) => !String(host).startsWith("www."));
+  return tidy(exact || adapter.hosts[0]).toLowerCase();
+}
+
 function adapterUrlsFor(brand, skuOrQuery) {
   const { adapterKey, adapter } = adapterConfigForBrand(brand);
   if (!adapter) {
-    return { adapterKey: "", urls: [] };
+    return { adapterKey: "", productUrls: [], searchUrls: [], searchEngineUrls: [] };
   }
 
-  const rawUrls = adapter.urls(skuOrQuery);
-  const urls = rawUrls
+  const normalizeAdapterUrls = (values) => values
     .map((value) => normalizeLookupUrl(value))
-    .filter(Boolean)
-    .filter((value) => isAllowedAdapterUrl(adapterKey, value));
+    .filter(Boolean);
 
-  return { adapterKey, urls };
+  const productUrls = normalizeAdapterUrls(
+    typeof adapter.productUrls === "function" ? adapter.productUrls(skuOrQuery) : [],
+  ).filter((value) => isAllowedAdapterUrl(adapterKey, value));
+
+  const searchUrls = normalizeAdapterUrls(
+    typeof adapter.searchUrls === "function" ? adapter.searchUrls(skuOrQuery) : [],
+  ).filter((value) => isAllowedAdapterUrl(adapterKey, value));
+
+  const searchHost = preferredAdapterHost(adapter);
+  const searchEngineUrls = searchHost
+    ? SEARCH_ENGINE_PROVIDERS.flatMap((provider) =>
+        provider.urls(searchHost, skuOrQuery)
+          .map((value) => ({
+            provider: provider.label,
+            url: normalizeLookupUrl(value),
+          }))
+          .filter((entry) => Boolean(entry.url)),
+      )
+    : [];
+
+  return {
+    adapterKey,
+    productUrls,
+    searchUrls,
+    searchEngineUrls,
+  };
+}
+
+function isLikelySearchResultsUrl(rawUrl) {
+  try {
+    const parsed = new URL(rawUrl);
+    const pathText = parsed.pathname.toLowerCase();
+    return (
+      parsed.searchParams.has("q") ||
+      parsed.searchParams.has("s") ||
+      parsed.searchParams.has("query") ||
+      parsed.searchParams.has("term") ||
+      pathText.endsWith("/search") ||
+      pathText.includes("/search/")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function unwrapSearchEngineResultUrl(rawUrl, baseUrl) {
+  try {
+    const parsed = new URL(rawUrl, baseUrl);
+    const host = parsed.hostname.toLowerCase();
+    if (host.includes("duckduckgo.com")) {
+      const decoded = parsed.searchParams.get("uddg") || parsed.searchParams.get("u");
+      return decoded ? normalizeLookupUrl(decoded) : normalizeLookupUrl(parsed.toString());
+    }
+    if (host.includes("google.")) {
+      const decoded = parsed.searchParams.get("q") || parsed.searchParams.get("url");
+      return decoded ? normalizeLookupUrl(decoded) : normalizeLookupUrl(parsed.toString());
+    }
+    if (host.includes("bing.com")) {
+      const decoded = parsed.searchParams.get("url") || parsed.searchParams.get("u");
+      return decoded ? normalizeLookupUrl(decoded) : normalizeLookupUrl(parsed.toString());
+    }
+    return normalizeLookupUrl(parsed.toString());
+  } catch {
+    return null;
+  }
+}
+
+function scoreCandidateUrl(rawUrl, searchTerm) {
+  const normalizedTerm = normalizeId(searchTerm);
+  const blob = normalizeId(rawUrl);
+  let score = 0;
+
+  if (normalizedTerm && blob.includes(normalizedTerm)) score += 120;
+  if (/product|products|model|clickshare|navigator|nav|omega|omni|nvx/.test(rawUrl.toLowerCase())) score += 60;
+  if (isLikelySearchResultsUrl(rawUrl)) score -= 80;
+
+  return score;
+}
+
+function extractAllowedCandidateUrls(html, baseUrl, adapterKey, searchTerm) {
+  const hrefMatches = String(html || "").matchAll(/href=["']([^"'#]+)["']/gi);
+  const candidates = [];
+  const seen = new Set();
+
+  for (const match of hrefMatches) {
+    const resolved = unwrapSearchEngineResultUrl(match[1], baseUrl);
+    if (!resolved || !isAllowedAdapterUrl(adapterKey, resolved)) continue;
+    if (seen.has(resolved)) continue;
+    seen.add(resolved);
+    candidates.push(resolved);
+  }
+
+  return candidates
+    .map((url) => ({ url, score: scoreCandidateUrl(url, searchTerm) }))
+    .filter((entry) => entry.score > -20)
+    .sort((left, right) => right.score - left.score || left.url.localeCompare(right.url))
+    .slice(0, 5)
+    .map((entry) => entry.url);
+}
+
+function metadataMatchesSearchTerm(metadata, sourceUrl, searchTerm) {
+  const blob = normalizeId([
+    metadata?.title,
+    metadata?.description,
+    sourceUrl,
+  ].filter(Boolean).join(" "));
+  const normalizedTerm = normalizeId(searchTerm);
+  return Boolean(normalizedTerm && blob.includes(normalizedTerm));
+}
+
+function hasUsefulMetadata(metadata, searchTerm, sourceUrl, kind) {
+  if (!metadata?.title && !metadata?.description) return false;
+  if (kind === "product") return true;
+  if (metadataMatchesSearchTerm(metadata, sourceUrl, searchTerm) && !isLikelySearchResultsUrl(sourceUrl)) {
+    return true;
+  }
+  return false;
+}
+
+function buildMetadataRecord({ brand, sku, query, metadata, sourceUrl }) {
+  return {
+    brand: brand || "Unknown",
+    sku: normalizeSku(sku || query),
+    name: metadata.title || normalizeSku(sku || query),
+    family: "Unknown",
+    category: "Uncategorized",
+    summary: metadata.description || "Metadata captured from manufacturer website.",
+    features: [],
+    sourceUrl,
+  };
+}
+
+async function fetchProductCandidate({ adapterKey, brand, sku, query, searchTerm, url, warnings, traces }) {
+  const cacheKey = `${adapterKey}|${normalizeSku(searchTerm)}|${url}`;
+  const cached = readLookupCache(cacheKey);
+  if (cached) {
+    traces.push({
+      attempt: 0,
+      status: 200,
+      ok: true,
+      url,
+      cacheHit: true,
+    });
+    return cached;
+  }
+
+  const token = takeRateLimitToken(adapterKey || "lookup");
+  if (!token.ok) {
+    warnings.push(`Live enrichment rate limit reached for ${brand || adapterKey}. Retry in ${Math.ceil(token.retryAfterMs / 1000)}s.`);
+    traces.push({
+      attempt: 0,
+      status: 429,
+      ok: false,
+      url,
+      rateLimited: true,
+      retryAfterMs: token.retryAfterMs,
+    });
+    return null;
+  }
+
+  const fetched = await fetchTextWithRetries(url);
+  traces.push(...fetched.trace);
+
+  if (!fetched.ok) {
+    warnings.push(`Lookup attempt failed for ${url}.`);
+    return null;
+  }
+
+  if (!isAllowedAdapterUrl(adapterKey, fetched.finalUrl)) {
+    warnings.push(`Lookup redirect blocked due to host policy: ${fetched.finalUrl}.`);
+    return null;
+  }
+
+  const metadata = extractHtmlMetadata(fetched.html);
+  if (!hasUsefulMetadata(metadata, searchTerm, fetched.finalUrl, "product")) {
+    warnings.push(`Product page fetched but no usable metadata found: ${fetched.finalUrl}.`);
+    return null;
+  }
+
+  const record = buildMetadataRecord({
+    brand,
+    sku,
+    query,
+    metadata,
+    sourceUrl: fetched.finalUrl,
+  });
+  writeLookupCache(cacheKey, record);
+  return record;
 }
 
 async function lookupManufacturerMetadata({ brand, sku, query }) {
@@ -853,31 +1076,43 @@ async function lookupManufacturerMetadata({ brand, sku, query }) {
   }
 
   const searchTerm = sku || query;
-  const { adapterKey, urls } = adapterUrlsFor(brand, searchTerm);
+  const { adapterKey, productUrls, searchUrls, searchEngineUrls } = adapterUrlsFor(brand, searchTerm);
   const warnings = [];
   const traces = [];
 
-  if (urls.length === 0) {
+  if (!adapterKey) {
     warnings.push(`No manufacturer adapter configured for brand: ${brand || "unknown"}.`);
     return { record: null, warnings, traces };
   }
 
-  for (const sourceUrl of urls) {
-    const cacheKey = `${adapterKey}|${normalizeSku(searchTerm)}|${sourceUrl}`;
-    const cached = readLookupCache(cacheKey);
-    if (cached) {
-      traces.push({
-        attempt: 0,
-        status: 200,
-        ok: true,
-        url: sourceUrl,
-        cacheHit: true,
-      });
-      return {
-        record: cached,
+  const directAttempts = productUrls.map((url) => ({ url, kind: "product", label: "direct product url" }));
+  const searchAttempts = searchUrls.map((url) => ({ url, kind: "search", label: "manufacturer search" }));
+  const widerSearchAttempts = searchEngineUrls.map((entry) => ({
+    url: entry.url,
+    kind: "external-search",
+    label: entry.provider,
+  }));
+  const attempts = [...directAttempts, ...searchAttempts, ...widerSearchAttempts];
+
+  if (attempts.length === 0) {
+    warnings.push(`No lookup URLs available for brand: ${brand || adapterKey}.`);
+    return { record: null, warnings, traces };
+  }
+
+  for (const attempt of attempts) {
+    if (attempt.kind === "product") {
+      const direct = await fetchProductCandidate({
+        adapterKey,
+        brand,
+        sku,
+        query,
+        searchTerm,
+        url: attempt.url,
         warnings,
         traces,
-      };
+      });
+      if (direct) return { record: direct, warnings, traces };
+      continue;
     }
 
     const token = takeRateLimitToken(adapterKey);
@@ -887,49 +1122,59 @@ async function lookupManufacturerMetadata({ brand, sku, query }) {
         attempt: 0,
         status: 429,
         ok: false,
-        url: sourceUrl,
+        url: attempt.url,
         rateLimited: true,
         retryAfterMs: token.retryAfterMs,
       });
       break;
     }
 
-    const fetched = await fetchTextWithRetries(sourceUrl);
+    const fetched = await fetchTextWithRetries(attempt.url);
     traces.push(...fetched.trace);
 
     if (!fetched.ok) {
-      warnings.push(`Lookup attempt failed for ${sourceUrl}.`);
-      continue;
-    }
-
-    if (!isAllowedAdapterUrl(adapterKey, fetched.finalUrl)) {
-      warnings.push(`Lookup redirect blocked due to host policy: ${fetched.finalUrl}.`);
+      warnings.push(`Lookup attempt failed for ${attempt.url}.`);
       continue;
     }
 
     const metadata = extractHtmlMetadata(fetched.html);
-    if (!metadata.title && !metadata.description) {
-      warnings.push(`Page fetched but no title/description metadata found: ${fetched.finalUrl}.`);
+    if (
+      isAllowedAdapterUrl(adapterKey, fetched.finalUrl) &&
+      hasUsefulMetadata(metadata, searchTerm, fetched.finalUrl, attempt.kind) &&
+      !isLikelySearchResultsUrl(fetched.finalUrl)
+    ) {
+      const record = buildMetadataRecord({
+        brand,
+        sku,
+        query,
+        metadata,
+        sourceUrl: fetched.finalUrl,
+      });
+      writeLookupCache(`${adapterKey}|${normalizeSku(searchTerm)}|${attempt.url}`, record);
+      return { record, warnings, traces };
+    }
+
+    const candidateUrls = extractAllowedCandidateUrls(fetched.html, fetched.finalUrl, adapterKey, searchTerm);
+    if (candidateUrls.length === 0) {
+      warnings.push(`No product candidates discovered from ${attempt.label}: ${attempt.url}.`);
       continue;
     }
 
-    const record = {
-      brand: brand || "Unknown",
-      sku: normalizeSku(sku || query),
-      name: metadata.title || normalizeSku(sku || query),
-      family: "Unknown",
-      category: "Uncategorized",
-      summary: metadata.description || "Metadata captured from manufacturer website.",
-      features: [],
-      sourceUrl: fetched.finalUrl,
-    };
-    writeLookupCache(cacheKey, record);
-
-    return {
-      record,
-      warnings,
-      traces,
-    };
+    for (const candidateUrl of candidateUrls) {
+      const candidateRecord = await fetchProductCandidate({
+        adapterKey,
+        brand,
+        sku,
+        query,
+        searchTerm,
+        url: candidateUrl,
+        warnings,
+        traces,
+      });
+      if (!candidateRecord) continue;
+      writeLookupCache(`${adapterKey}|${normalizeSku(searchTerm)}|${attempt.url}`, candidateRecord);
+      return { record: candidateRecord, warnings, traces };
+    }
   }
 
   return {
@@ -967,7 +1212,8 @@ function matchCatalogRecord(catalog, { brand, sku, query }) {
 }
 
 function toLookupRecordFromCatalog(item, query) {
-  const { urls } = adapterUrlsFor(item.brand, item.sku || query);
+  const { productUrls, searchUrls } = adapterUrlsFor(item.brand, item.sku || query);
+  const sourceUrl = tidy(item.sourceUrl) || productUrls[0] || searchUrls[0];
   return {
     brand: tidy(item.brand) || "Unknown",
     sku: normalizeSku(item.sku || query),
@@ -983,7 +1229,7 @@ function toLookupRecordFromCatalog(item, query) {
     audio: Array.isArray(item.audio) ? item.audio : [],
     video: item.video && typeof item.video === "object" ? item.video : undefined,
     distanceMeters: typeof item.distance?.meters === "number" ? item.distance.meters : undefined,
-    sourceUrl: urls[0],
+    sourceUrl,
   };
 }
 

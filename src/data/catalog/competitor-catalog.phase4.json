@@ -50,9 +50,9 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "Local",
     "features": [
@@ -64,11 +64,11 @@
       "HDBaseT output",
       "USB host switching"
     ],
-    "notes": "Official Atlona Omega collaboration-switcher page."
+    "notes": "Official Atlona Omega collaboration-switcher page. | Official Atlona Omega collaboration-switcher page. | data/product-intelligence-db.json#1 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-OME-MS42",
-    "name": "Omega MS42",
+    "name": "Presentation switcher",
     "brand": "Atlona",
     "family": "Omega",
     "category": "Switcher",
@@ -113,9 +113,9 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "Local",
     "features": [
@@ -124,9 +124,13 @@
       "Dual HDMI outputs",
       "USB hub",
       "BYOD",
-      "Auto switching"
+      "Auto switching",
+      "Presentation switching",
+      "Mixed inputs",
+      "BYOD meeting support",
+      "Apollo"
     ],
-    "notes": "Official Atlona Omega presentation-switcher page."
+    "notes": "Official Atlona Omega presentation-switcher page. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Official Atlona Omega presentation-switcher page. | data/product-intelligence-db.json#2 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-OME-MS52W",
@@ -183,15 +187,11 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "Local",
-    "distance": {
-      "meters": 100,
-      "notes": "HDBaseT output reach depends on cabling and endpoint."
-    },
     "features": [
       "Wireless presentation",
       "USB-C",
@@ -201,7 +201,7 @@
       "HDBaseT mirrored output",
       "USB host switching"
     ],
-    "notes": "Official Atlona Omega matrix-switcher page."
+    "notes": "Official Atlona Omega matrix-switcher page. | Official Atlona Omega matrix-switcher page. | data/product-intelligence-db.json#3 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-OMNI-112",
@@ -236,16 +236,12 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "subframe",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "Gigabit Ethernet dependent."
-    },
+    "latency": "subframe",
     "features": [
       "AVoIP encoder",
       "Dual-channel encoding",
@@ -256,7 +252,7 @@
       "IR pass-through",
       "RS-232 pass-through"
     ],
-    "notes": "Official Atlona OmniStream dual-channel encoder page."
+    "notes": "Official Atlona OmniStream dual-channel encoder page. | Official Atlona OmniStream dual-channel encoder page. | data/product-intelligence-db.json#4 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-OMNI-121",
@@ -291,16 +287,12 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "subframe",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "Gigabit Ethernet dependent."
-    },
+    "latency": "subframe",
     "features": [
       "AVoIP decoder",
       "Ultra-fast switching",
@@ -310,7 +302,28 @@
       "PoE",
       "IEEE 802.1X"
     ],
-    "notes": "Official Atlona OmniStream decoder page."
+    "notes": "Official Atlona OmniStream decoder page. | Official Atlona OmniStream decoder page. | data/product-intelligence-db.json#5 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "OMNISTREAM AT-OMNI-121",
+    "name": "AV over IP Decoder",
+    "brand": "Atlona",
+    "family": "OmniStream",
+    "category": "AVoIP",
+    "status": "legacy",
+    "summary": "AV over IP Decoder legacy competitor reference record.",
+    "sourceUrl": "https://atlona.com/?s=OMNISTREAM%20AT-OMNI-121",
+    "video": {
+      "maxResolution": "4K60",
+      "hdmi": "2.0",
+      "hdr": true
+    },
+    "transport": "AVoIP",
+    "features": [
+      "AVoIP",
+      "4K60"
+    ],
+    "notes": "src/competitor/competitors.json#7 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-UHD-EX-100CE-KIT",
@@ -347,15 +360,11 @@
     ],
     "video": {
       "maxResolution": "4K60",
-      "hdr": false,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": false
     },
     "transport": "HDBaseT",
-    "distance": {
-      "meters": 100,
-      "notes": "Official kit distance is cabling dependent."
-    },
     "features": [
       "Extender kit",
       "Receiver powered by transmitter",
@@ -363,7 +372,7 @@
       "Point-to-point extension",
       "CEC pass-through"
     ],
-    "notes": "Official Atlona extender-kit page."
+    "notes": "Official Atlona extender-kit page. | Official Atlona extender-kit page. | data/product-intelligence-db.json#6 merged into deployed competitor catalog."
   },
   {
     "sku": "CLICKSHARE-BAR-PRO",
@@ -415,9 +424,9 @@
     ],
     "video": {
       "maxResolution": "4K",
-      "hdr": false,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": false
     },
     "transport": "Local",
     "features": [
@@ -428,7 +437,7 @@
       "Integrated camera",
       "AI framing"
     ],
-    "notes": "Official Barco ClickShare Bar Pro product page."
+    "notes": "Official Barco ClickShare Bar Pro product page. | Official Barco ClickShare Bar Pro product page. | data/product-intelligence-db.json#7 merged into deployed competitor catalog."
   },
   {
     "sku": "CLICKSHARE-BUTTON-5TH-GEN",
@@ -469,7 +478,7 @@
       "One-click sharing",
       "Low-friction guest sharing"
     ],
-    "notes": "Official Barco ClickShare Button support page."
+    "notes": "Official Barco ClickShare Button support page. | Official Barco ClickShare Button support page. | data/product-intelligence-db.json#8 merged into deployed competitor catalog."
   },
   {
     "sku": "CLICKSHARE-C-10",
@@ -511,9 +520,9 @@
     ],
     "video": {
       "maxResolution": "4K",
-      "hdr": false,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": false
     },
     "transport": "Local",
     "latency": "standard",
@@ -525,7 +534,7 @@
       "Button support",
       "App sharing"
     ],
-    "notes": "Official Barco ClickShare C-10 product page."
+    "notes": "Official Barco ClickShare C-10 product page. | Official Barco ClickShare C-10 product page. | data/product-intelligence-db.json#9 merged into deployed competitor catalog."
   },
   {
     "sku": "CLICKSHARE-CX-20",
@@ -576,9 +585,9 @@
     ],
     "video": {
       "maxResolution": "4K",
-      "hdr": false,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": false
     },
     "transport": "Local",
     "latency": "standard",
@@ -591,7 +600,7 @@
       "Miracast",
       "USB peripheral sharing"
     ],
-    "notes": "Official Barco ClickShare CX-20 product page."
+    "notes": "Official Barco ClickShare CX-20 product page. | Official Barco ClickShare CX-20 product page. | data/product-intelligence-db.json#10 merged into deployed competitor catalog."
   },
   {
     "sku": "CLICKSHARE-CX-30",
@@ -642,9 +651,9 @@
     ],
     "video": {
       "maxResolution": "4K",
-      "hdr": false,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": false
     },
     "transport": "Local",
     "latency": "standard",
@@ -657,7 +666,26 @@
       "BYOM",
       "USB peripheral sharing"
     ],
-    "notes": "Official Barco ClickShare CX-30 page."
+    "notes": "Official Barco ClickShare CX-30 page. | Official Barco ClickShare CX-30 page. | data/product-intelligence-db.json#11 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "IP200UHD-TX",
+    "name": "AV over IP encoder",
+    "brand": "Blustream",
+    "family": "IP",
+    "category": "AVoIP",
+    "subcategory": "AV over IP encoder",
+    "status": "draft",
+    "summary": "AV over IP transmitter for distributed video workflows.",
+    "sourceUrl": "https://www.blustream-us.com/search?q=IP200UHD-TX",
+    "transport": "AVoIP",
+    "features": [
+      "AV over IP",
+      "Distributed video",
+      "Scalable routing",
+      "AVoIP"
+    ],
+    "notes": "Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#5 merged into deployed competitor catalog."
   },
   {
     "sku": "IP300UHD-RX",
@@ -700,16 +728,12 @@
     ],
     "video": {
       "maxResolution": "4K60",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "low",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "One-gigabit multicast network dependent."
-    },
+    "latency": "low",
     "features": [
       "AVoIP decoder",
       "Multicast",
@@ -718,7 +742,7 @@
       "Video wall",
       "Matrix switching"
     ],
-    "notes": "Official Blustream IP300UHD-RX page."
+    "notes": "Official Blustream IP300UHD-RX page. | Official Blustream IP300UHD-RX page. | data/product-intelligence-db.json#12 merged into deployed competitor catalog."
   },
   {
     "sku": "IP300UHD-TX",
@@ -757,16 +781,12 @@
     ],
     "video": {
       "maxResolution": "4K60",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "low",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "One-gigabit multicast network dependent."
-    },
+    "latency": "low",
     "features": [
       "AVoIP encoder",
       "Multicast",
@@ -775,7 +795,7 @@
       "Video wall",
       "Matrix switching"
     ],
-    "notes": "Official Blustream IP300UHD-TX page."
+    "notes": "Official Blustream IP300UHD-TX page. | Official Blustream IP300UHD-TX page. | data/product-intelligence-db.json#13 merged into deployed competitor catalog."
   },
   {
     "sku": "IP350UHD-TX",
@@ -819,16 +839,12 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "low",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "Copper reach is Gigabit Ethernet dependent; fiber SFP extends farther by module choice."
-    },
+    "latency": "low",
     "features": [
       "AVoIP encoder",
       "Dante audio",
@@ -839,7 +855,7 @@
       "Video wall",
       "Matrix switching"
     ],
-    "notes": "Official Blustream IP350UHD-TX page."
+    "notes": "Official Blustream IP350UHD-TX page. | Official Blustream IP350UHD-TX page. | data/product-intelligence-db.json#14 merged into deployed competitor catalog."
   },
   {
     "sku": "SW41AB-V2",
@@ -883,9 +899,9 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "Local",
     "features": [
@@ -897,7 +913,7 @@
       "18 Gbps",
       "HDCP 2.2"
     ],
-    "notes": "Official Blustream SW41AB-V2 page."
+    "notes": "Official Blustream SW41AB-V2 page. | Official Blustream SW41AB-V2 page. | data/product-intelligence-db.json#15 merged into deployed competitor catalog."
   },
   {
     "sku": "UEX3C-KIT",
@@ -932,10 +948,6 @@
       "USB Audio"
     ],
     "transport": "USB Extension",
-    "distance": {
-      "meters": 100,
-      "notes": "Official maximum extension over category cable."
-    },
     "features": [
       "Extender kit",
       "USB 3.2 Gen 1",
@@ -944,7 +956,7 @@
       "Conference camera support",
       "Backward compatible with USB 2.0 and 1.1"
     ],
-    "notes": "Official Blustream UEX3C-KIT page."
+    "notes": "Official Blustream UEX3C-KIT page. | Official Blustream UEX3C-KIT page. | data/product-intelligence-db.json#16 merged into deployed competitor catalog."
   },
   {
     "sku": "WMF-USBC-D",
@@ -985,7 +997,7 @@
       "One-click sharing",
       "Guest collaboration"
     ],
-    "notes": "Official Blustream WMF-USBC-D page."
+    "notes": "Official Blustream WMF-USBC-D page. | Official Blustream WMF-USBC-D page. | data/product-intelligence-db.json#17 merged into deployed competitor catalog."
   },
   {
     "sku": "WMF72",
@@ -1032,12 +1044,12 @@
     ],
     "video": {
       "maxResolution": "4K60",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "standard",
     "transport": "Local",
+    "latency": "standard",
     "features": [
       "Wireless presentation",
       "Multi format presentation switcher",
@@ -1048,7 +1060,7 @@
       "Wireless USB camera and microphone",
       "USB touch-back"
     ],
-    "notes": "Official Blustream WMF72 launch page."
+    "notes": "Official Blustream WMF72 launch page. | Official Blustream WMF72 launch page. | data/product-intelligence-db.json#18 merged into deployed competitor catalog."
   },
   {
     "sku": "AM-3200-WF-I",
@@ -1095,12 +1107,12 @@
     ],
     "video": {
       "maxResolution": "4K",
-      "hdr": false,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": false
     },
-    "latency": "standard",
     "transport": "Local",
+    "latency": "standard",
     "features": [
       "Wireless presentation",
       "Wireless conferencing",
@@ -1110,7 +1122,7 @@
       "Cloud deployment",
       "Multi-source presentation"
     ],
-    "notes": "Official Crestron AirMedia Series 3 page."
+    "notes": "Official Crestron AirMedia Series 3 page. | Official Crestron AirMedia Series 3 page. | data/product-intelligence-db.json#19 merged into deployed competitor catalog."
   },
   {
     "sku": "AM-TX3-100",
@@ -1151,7 +1163,7 @@
       "One-touch sharing",
       "Guest collaboration"
     ],
-    "notes": "Official Crestron AirMedia Connect Adaptor page."
+    "notes": "Official Crestron AirMedia Connect Adaptor page. | Official Crestron AirMedia Connect Adaptor page. | data/product-intelligence-db.json#20 merged into deployed competitor catalog."
   },
   {
     "sku": "DM-NVX-360",
@@ -1208,16 +1220,12 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "low",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "1GbE network dependent."
-    },
+    "latency": "low",
     "features": [
       "AVoIP endpoint",
       "USB 2.0 extension",
@@ -1225,9 +1233,36 @@
       "802.1X",
       "AES encryption",
       "Video wall",
-      "Matrix switching"
+      "Matrix switching",
+      "1Gb AV over IP",
+      "USB/KVM support",
+      "Enterprise AV routing",
+      "Control integration",
+      "AVoIP"
     ],
-    "notes": "Official Crestron DM NVX 360 page."
+    "notes": "Official Crestron DM NVX 360 page. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Official Crestron DM NVX 360 page. | data/product-intelligence-db.json#21 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "DM-NVX-D30",
+    "name": "AV over IP Decoder",
+    "brand": "Crestron",
+    "family": "DM NVX",
+    "category": "AVoIP",
+    "status": "legacy",
+    "summary": "AV over IP Decoder legacy competitor reference record.",
+    "sourceUrl": "https://www.crestron.com/search-results?query=DM-NVX-D30",
+    "video": {
+      "maxResolution": "4K60",
+      "hdmi": "2.0",
+      "hdr": true
+    },
+    "transport": "AVoIP",
+    "features": [
+      "AVoIP",
+      "4K60",
+      "low-latency"
+    ],
+    "notes": "src/competitor/competitors.json#4 merged into deployed competitor catalog."
   },
   {
     "sku": "DM-NVX-DIR2",
@@ -1245,14 +1280,12 @@
         "count": 2
       }
     ],
-    "outputs": [],
     "control": [
       "TCP/IP",
       "HTTPS",
       "Web UI",
       "REST API"
     ],
-    "audio": [],
     "transport": "AVoIP",
     "features": [
       "AVoIP controller",
@@ -1262,7 +1295,7 @@
       "Browser-based management",
       "Diagnostics"
     ],
-    "notes": "Official Crestron DM NVX Director page."
+    "notes": "Official Crestron DM NVX Director page. | Official Crestron DM NVX Director page. | data/product-intelligence-db.json#22 merged into deployed competitor catalog."
   },
   {
     "sku": "DM-NVX-E30",
@@ -1308,24 +1341,23 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "low",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "1GbE network dependent."
-    },
+    "latency": "low",
     "features": [
       "AVoIP endpoint",
       "USB extension",
       "PoE",
       "Video wall",
-      "Matrix switching"
+      "Matrix switching",
+      "AVoIP",
+      "4K60",
+      "low-latency"
     ],
-    "notes": "Official Crestron DM NVX E30 page."
+    "notes": "Official Crestron DM NVX E30 page. | src/competitor/competitors.json#3 merged into deployed competitor catalog. | Official Crestron DM NVX E30 page. | data/product-intelligence-db.json#23 merged into deployed competitor catalog."
   },
   {
     "sku": "HD-DA2-4KZ-E",
@@ -1358,9 +1390,9 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "Local",
     "features": [
@@ -1371,7 +1403,7 @@
       "HDCP 2.2",
       "Compact form factor"
     ],
-    "notes": "Official Crestron HD-DA2-4KZ-E page."
+    "notes": "Official Crestron HD-DA2-4KZ-E page. | Official Crestron HD-DA2-4KZ-E page. | data/product-intelligence-db.json#24 merged into deployed competitor catalog."
   },
   {
     "sku": "HD-MD4X2-4KZ-E",
@@ -1407,9 +1439,9 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "Local",
     "features": [
@@ -1420,7 +1452,7 @@
       "XiO Cloud",
       "HDCP 2.3"
     ],
-    "notes": "Official Crestron HD-MD4X2-4KZ-E page."
+    "notes": "Official Crestron HD-MD4X2-4KZ-E page. | Official Crestron HD-MD4X2-4KZ-E page. | data/product-intelligence-db.json#25 merged into deployed competitor catalog."
   },
   {
     "sku": "HD-PS622",
@@ -1473,15 +1505,11 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "Local",
-    "distance": {
-      "meters": 40,
-      "notes": "DM inputs extend farther depending on cable and format."
-    },
     "features": [
       "Presentation switcher",
       "Multi format presentation switcher",
@@ -1492,7 +1520,59 @@
       "HDR10",
       "Dolby Vision"
     ],
-    "notes": "Official Crestron HD-PS622 page."
+    "notes": "Official Crestron HD-PS622 page. | Official Crestron HD-PS622 page. | data/product-intelligence-db.json#26 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "DM-MD8X8",
+    "name": "Matrix Switcher",
+    "brand": "Crestron",
+    "family": "Matrix",
+    "category": "Matrix",
+    "status": "legacy",
+    "summary": "Matrix Switcher legacy competitor reference record.",
+    "sourceUrl": "https://www.crestron.com/search-results?query=DM-MD8X8",
+    "transport": "Local",
+    "features": [
+      "matrix",
+      "switching"
+    ],
+    "notes": "src/competitor/competitors.json#9 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "DTP CROSSPOINT 84",
+    "name": "Matrix Switcher",
+    "brand": "Extron",
+    "family": "DTP",
+    "category": "Matrix",
+    "status": "legacy",
+    "summary": "Matrix Switcher legacy competitor reference record.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=DTP%20CROSSPOINT%2084",
+    "transport": "Local",
+    "features": [
+      "matrix",
+      "switching"
+    ],
+    "notes": "Typical fixed matrix/switching requirement. | src/competitor/competitors.json#8 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "DTP T USW 233",
+    "name": "HDBaseT switcher/transmitter",
+    "brand": "Extron",
+    "family": "DTP",
+    "category": "Switcher",
+    "subcategory": "HDBaseT switcher/transmitter",
+    "status": "draft",
+    "summary": "Wall/furniture mounted switcher transmitter with HDMI / VGA / USB-C style presentation input approach.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=DTP%20T%20USW%20233",
+    "transport": "HDBaseT",
+    "features": [
+      "HDBaseT transport",
+      "Presentation switching",
+      "Table / lectern connectivity",
+      "Apollo",
+      "HDBaseT"
+    ],
+    "notes": "Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog."
   },
   {
     "sku": "DTP3-R-201",
@@ -1529,15 +1609,11 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0b",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "HDBaseT",
-    "distance": {
-      "meters": 100,
-      "notes": "Official DTP3 extension reach on shielded twisted pair."
-    },
     "features": [
       "Extender receiver",
       "De-embedded stereo audio",
@@ -1545,7 +1621,7 @@
       "HDR",
       "HDCP 2.3"
     ],
-    "notes": "Official Extron DTP3 R 201 page."
+    "notes": "Official Extron DTP3 R 201 page. | Official Extron DTP3 R 201 page. | data/product-intelligence-db.json#27 merged into deployed competitor catalog."
   },
   {
     "sku": "DTP3-T-203",
@@ -1588,15 +1664,11 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0b",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "HDBaseT",
-    "distance": {
-      "meters": 100,
-      "notes": "Official long-distance twisted-pair extension."
-    },
     "features": [
       "Presentation switcher",
       "Extender transmitter",
@@ -1606,7 +1678,67 @@
       "Auto switching",
       "Tally output"
     ],
-    "notes": "Official Extron DTP3 T 203 page."
+    "notes": "Official Extron DTP3 T 203 page. | Official Extron DTP3 T 203 page. | data/product-intelligence-db.json#28 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "IN1608",
+    "name": "Presentation Switcher",
+    "brand": "Extron",
+    "family": "IN",
+    "category": "Switcher",
+    "status": "legacy",
+    "summary": "Presentation Switcher legacy competitor reference record.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=IN1608",
+    "transport": "Local",
+    "features": [
+      "switcher",
+      "presentation"
+    ],
+    "notes": "src/competitor/competitors.json#10 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "NAV E 501",
+    "name": "AV over IP Encoder",
+    "brand": "Extron",
+    "family": "NAV",
+    "category": "AVoIP",
+    "status": "legacy",
+    "summary": "AV over IP Encoder legacy competitor reference record.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20E%20501",
+    "video": {
+      "maxResolution": "4K60",
+      "hdmi": "2.0",
+      "hdr": true
+    },
+    "transport": "AVoIP",
+    "features": [
+      "AVoIP",
+      "4K60",
+      "managed-network"
+    ],
+    "notes": "Typical enterprise AVoIP encoder use-case. | src/competitor/competitors.json#1 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "NAV SD 501",
+    "name": "AV over IP Decoder",
+    "brand": "Extron",
+    "family": "NAV",
+    "category": "AVoIP",
+    "status": "legacy",
+    "summary": "AV over IP Decoder legacy competitor reference record.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20SD%20501",
+    "video": {
+      "maxResolution": "4K60",
+      "hdmi": "2.0",
+      "hdr": true
+    },
+    "transport": "AVoIP",
+    "features": [
+      "AVoIP",
+      "4K60",
+      "managed-network"
+    ],
+    "notes": "src/competitor/competitors.json#2 merged into deployed competitor catalog."
   },
   {
     "sku": "NAV-E-121",
@@ -1648,16 +1780,12 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0b",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "subframe",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "One-gigabit NAV network dependent."
-    },
+    "latency": "subframe",
     "features": [
       "AVoIP encoder",
       "HDMI loop-through",
@@ -1667,7 +1795,7 @@
       "Ultra-low latency",
       "Secure transport"
     ],
-    "notes": "Official Extron NAV E 121 page."
+    "notes": "Official Extron NAV E 121 page. | Official Extron NAV E 121 page. | data/product-intelligence-db.json#29 merged into deployed competitor catalog."
   },
   {
     "sku": "NAV-SD-121",
@@ -1701,16 +1829,12 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0b",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "subframe",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "One-gigabit NAV network dependent."
-    },
+    "latency": "subframe",
     "features": [
       "AVoIP decoder",
       "Scaling decoder",
@@ -1719,7 +1843,7 @@
       "Vector 4K scaling",
       "Ultra-low latency"
     ],
-    "notes": "Official Extron NAV SD 121 page."
+    "notes": "Official Extron NAV SD 121 page. | Official Extron NAV SD 121 page. | data/product-intelligence-db.json#30 merged into deployed competitor catalog."
   },
   {
     "sku": "NAVIGATOR",
@@ -1737,7 +1861,6 @@
         "count": 2
       }
     ],
-    "outputs": [],
     "control": [
       "TCP/IP",
       "HTTPS",
@@ -1745,7 +1868,6 @@
       "Web UI",
       "Active Directory"
     ],
-    "audio": [],
     "transport": "AVoIP",
     "features": [
       "AVoIP controller",
@@ -1755,7 +1877,7 @@
       "System diagnostics",
       "Dual LAN"
     ],
-    "notes": "Official Extron NAVigator page."
+    "notes": "Official Extron NAVigator page. | Official Extron NAVigator page. | data/product-intelligence-db.json#31 merged into deployed competitor catalog."
   },
   {
     "sku": "SHARELINK-PRO-1100",
@@ -1798,8 +1920,8 @@
       "maxResolution": "4K",
       "hdr": false
     },
-    "latency": "standard",
     "transport": "Local",
+    "latency": "standard",
     "features": [
       "Wireless presentation",
       "Quad view",
@@ -1808,7 +1930,7 @@
       "Digital signage",
       "WebShare"
     ],
-    "notes": "Official Extron ShareLink Pro 1100 page."
+    "notes": "Official Extron ShareLink Pro 1100 page. | Official Extron ShareLink Pro 1100 page. | data/product-intelligence-db.json#32 merged into deployed competitor catalog."
   },
   {
     "sku": "KDS-DEC7",
@@ -1852,25 +1974,23 @@
     ],
     "video": {
       "maxResolution": "4K60 4:2:0",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 10.2
+      "bandwidthGbps": 10.2,
+      "hdr": true
     },
-    "latency": "low",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "KDS-7 AVoIP network dependent."
-    },
+    "latency": "low",
     "features": [
       "AVoIP decoder",
       "USB extension",
       "HDR10",
       "PoE",
       "Secure transport",
-      "KDS-7 platform"
+      "KDS-7 platform",
+      "AVoIP",
+      "4K60"
     ],
-    "notes": "Official Kramer KDS-DEC7 page."
+    "notes": "Official Kramer KDS-DEC7 page. | src/competitor/competitors.json#6 merged into deployed competitor catalog. | Official Kramer KDS-DEC7 page. | data/product-intelligence-db.json#33 merged into deployed competitor catalog."
   },
   {
     "sku": "KDS-EN7",
@@ -1918,16 +2038,12 @@
     ],
     "video": {
       "maxResolution": "4K60 4:2:0",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 10.2
+      "bandwidthGbps": 10.2,
+      "hdr": true
     },
-    "latency": "low",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "KDS-7 AVoIP network dependent."
-    },
+    "latency": "low",
     "features": [
       "AVoIP encoder",
       "HDMI loop-through",
@@ -1935,9 +2051,11 @@
       "HDR10",
       "PoE",
       "Secure transport",
-      "KDS-7 platform"
+      "KDS-7 platform",
+      "AVoIP",
+      "4K60"
     ],
-    "notes": "Official Kramer KDS-EN7 page."
+    "notes": "Official Kramer KDS-EN7 page. | src/competitor/competitors.json#5 merged into deployed competitor catalog. | Official Kramer KDS-EN7 page. | data/product-intelligence-db.json#34 merged into deployed competitor catalog."
   },
   {
     "sku": "KDS-USB2",
@@ -1978,10 +2096,6 @@
       "USB Audio"
     ],
     "transport": "USB Extension",
-    "distance": {
-      "meters": 100,
-      "notes": "USB extension reach depends on network topology."
-    },
     "features": [
       "Extender kit",
       "USB 2.0 extension",
@@ -1991,7 +2105,7 @@
       "Camera support",
       "HID support"
     ],
-    "notes": "Official Kramer KDS-USB2 page."
+    "notes": "Official Kramer KDS-USB2 page. | Official Kramer KDS-USB2 page. | data/product-intelligence-db.json#35 merged into deployed competitor catalog."
   },
   {
     "sku": "TP-580T",
@@ -2025,15 +2139,11 @@
     ],
     "video": {
       "maxResolution": "4K60 4:2:0",
-      "hdr": false,
       "hdmi": "2.0",
-      "bandwidthGbps": 10.2
+      "bandwidthGbps": 10.2,
+      "hdr": false
     },
     "transport": "HDBaseT",
-    "distance": {
-      "meters": 70,
-      "notes": "Official long-reach extension distance depends on cable and format."
-    },
     "features": [
       "Extender transmitter",
       "Long-reach HDBaseT",
@@ -2042,7 +2152,7 @@
       "EDID support",
       "HDCP 2.2"
     ],
-    "notes": "Official Kramer TP-580T page."
+    "notes": "Official Kramer TP-580T page. | Official Kramer TP-580T page. | data/product-intelligence-db.json#36 merged into deployed competitor catalog."
   },
   {
     "sku": "VIA-GO2",
@@ -2091,8 +2201,8 @@
       "maxResolution": "4K30",
       "hdr": false
     },
-    "latency": "standard",
     "transport": "Local",
+    "latency": "standard",
     "features": [
       "Wireless presentation",
       "AirPlay",
@@ -2101,7 +2211,7 @@
       "Secure login",
       "Two simultaneous presenters"
     ],
-    "notes": "Official Kramer VIA GO2 page."
+    "notes": "Official Kramer VIA GO2 page. | Official Kramer VIA GO2 page. | data/product-intelligence-db.json#37 merged into deployed competitor catalog."
   },
   {
     "sku": "VS-88H2A",
@@ -2147,9 +2257,9 @@
     ],
     "video": {
       "maxResolution": "4K60",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "Local",
     "features": [
@@ -2159,9 +2269,13 @@
       "Kramer Aware",
       "Web pages",
       "HDCP 2.2",
-      "HDR"
+      "HDR",
+      "Matrix switching",
+      "Multi-source routing",
+      "Fixed AV infrastructure",
+      "Matrix"
     ],
-    "notes": "Official Kramer VS-88H2A page."
+    "notes": "Official Kramer VS-88H2A page. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Official Kramer VS-88H2A page. | data/product-intelligence-db.json#38 merged into deployed competitor catalog."
   },
   {
     "sku": "DA2-HDMI",
@@ -2202,7 +2316,7 @@
       "EDID management",
       "Compact form factor"
     ],
-    "notes": "Official Lightware DA2-HDMI product page."
+    "notes": "Official Lightware DA2-HDMI product page. | Official Lightware DA2-HDMI product page. | data/product-intelligence-db.json#39 merged into deployed competitor catalog."
   },
   {
     "sku": "UCX-2X1-HC30",
@@ -2245,9 +2359,9 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "Local",
     "features": [
@@ -2259,7 +2373,7 @@
       "HDMI 2.0",
       "Ethernet control"
     ],
-    "notes": "Official Lightware Taurus UCX family page."
+    "notes": "Official Lightware Taurus UCX family page. | Official Lightware Taurus UCX family page. | data/product-intelligence-db.json#40 merged into deployed competitor catalog."
   },
   {
     "sku": "UCX-4X2-HC60D",
@@ -2308,9 +2422,9 @@
     ],
     "video": {
       "maxResolution": "5K21:9",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "Local",
     "features": [
@@ -2322,7 +2436,7 @@
       "Room automation",
       "Large-room collaboration"
     ],
-    "notes": "Official Lightware Taurus UCX family page and A&E specification."
+    "notes": "Official Lightware Taurus UCX family page and A&E specification. | Official Lightware Taurus UCX family page and A&E specification. | data/product-intelligence-db.json#41 merged into deployed competitor catalog."
   },
   {
     "sku": "UCX-4X3-HCM40",
@@ -2365,9 +2479,9 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "Local",
     "features": [
@@ -2378,7 +2492,26 @@
       "Room automation",
       "Collaboration"
     ],
-    "notes": "Official Lightware UCX-4x3-HCM40 product page."
+    "notes": "Official Lightware UCX-4x3-HCM40 product page. | Official Lightware UCX-4x3-HCM40 product page. | data/product-intelligence-db.json#42 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "TPX-TX107",
+    "name": "HDBaseT transmitter",
+    "brand": "Lightware",
+    "family": "TPX",
+    "category": "Extender",
+    "subcategory": "HDBaseT transmitter",
+    "status": "draft",
+    "summary": "Signal extension transmitter for professional AV transport workflows.",
+    "sourceUrl": "https://lightware.com/search?q=TPX-TX107",
+    "transport": "HDBaseT",
+    "features": [
+      "HDBaseT transport",
+      "Point-to-point extension",
+      "Professional AV integration",
+      "HDBaseT"
+    ],
+    "notes": "Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog."
   },
   {
     "sku": "Z4KMP48",
@@ -2396,14 +2529,12 @@
         "count": 2
       }
     ],
-    "outputs": [],
     "control": [
       "TCP/IP",
       "HTTPS",
       "Web UI",
       "API"
     ],
-    "audio": [],
     "transport": "AVoIP",
     "features": [
       "AVoIP controller",
@@ -2412,7 +2543,7 @@
       "System monitoring",
       "Centralized configuration"
     ],
-    "notes": "Official ZeeVee ZyPer Management Platform product page."
+    "notes": "Official ZeeVee ZyPer Management Platform product page. | Official ZeeVee ZyPer Management Platform product page. | data/product-intelligence-db.json#43 merged into deployed competitor catalog."
   },
   {
     "sku": "ZY-4K-DEC",
@@ -2449,16 +2580,12 @@
     ],
     "video": {
       "maxResolution": "4K60",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "zero frame",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "Managed one-gigabit network dependent."
-    },
+    "latency": "zero frame",
     "features": [
       "AVoIP decoder",
       "Zero-frame latency",
@@ -2467,7 +2594,7 @@
       "USB extension",
       "Managed-network multicast"
     ],
-    "notes": "Official ZeeVee ZyPer4K family page."
+    "notes": "Official ZeeVee ZyPer4K family page. | Official ZeeVee ZyPer4K family page. | data/product-intelligence-db.json#45 merged into deployed competitor catalog."
   },
   {
     "sku": "ZY-4K-ENC",
@@ -2504,16 +2631,12 @@
     ],
     "video": {
       "maxResolution": "4K60",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "zero frame",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "Managed one-gigabit network dependent."
-    },
+    "latency": "zero frame",
     "features": [
       "AVoIP encoder",
       "Zero-frame latency",
@@ -2522,7 +2645,7 @@
       "USB extension",
       "Managed-network multicast"
     ],
-    "notes": "Official ZeeVee ZyPer4K family page."
+    "notes": "Official ZeeVee ZyPer4K family page. | Official ZeeVee ZyPer4K family page. | data/product-intelligence-db.json#46 merged into deployed competitor catalog."
   },
   {
     "sku": "ZUHD60-2EMP",
@@ -2568,16 +2691,12 @@
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
-      "hdr": true,
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "latency": "low",
     "transport": "AVoIP",
-    "distance": {
-      "meters": 100,
-      "notes": "1GbE Ethernet dependent."
-    },
+    "latency": "low",
     "features": [
       "AVoIP encoder",
       "Triple-input encoder",
@@ -2586,6 +2705,6 @@
       "1GbE transport",
       "PoE+"
     ],
-    "notes": "Official ZeeVee ZUHD60-2EMP product page."
+    "notes": "Official ZeeVee ZUHD60-2EMP product page. | Official ZeeVee ZUHD60-2EMP product page. | data/product-intelligence-db.json#44 merged into deployed competitor catalog."
   }
 ]
