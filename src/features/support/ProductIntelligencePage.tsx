@@ -600,7 +600,7 @@ export default function ProductIntelligencePage() {
                               <span className={flag.status === "resolved" ? "wm-chip" : "wm-chip wm-chip--warn"}>{flag.status}</span>
                             </div>
                             <div className="wm-body-sm">{flag.message}</div>
-                            <div className="wm-body-sm">{flag.createdBy} · {formatTimestamp(flag.createdAt)}{flag.resolvedAt ? ` · resolved ${formatTimestamp(flag.resolvedAt)}` : ""}</div>
+                            <div className="wm-body-sm">{flag.createdBy} �f�?s· {formatTimestamp(flag.createdAt)}{flag.resolvedAt ? ` �f�?s· resolved ${formatTimestamp(flag.resolvedAt)}` : ""}</div>
                             {flag.note ? <div className="wm-body-sm">{flag.note}</div> : null}
                             {flag.status === "open" && canAdmin ? <button type="button" className="wm-btn" disabled={activeId === `${record.id}:${flag.id}:resolve`} onClick={() => void resolveFlag(record, flag)}>{activeId === `${record.id}:${flag.id}:resolve` ? "Saving..." : "Resolve flag"}</button> : null}
                           </div>

@@ -2,6 +2,7 @@ import * as React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
 import TopBar from "@/app/navigation/TopBar";
+import DecisionFlowGuide from "@/app/navigation/DecisionFlowGuide";
 import WingmanCommandPalette from "@/app/navigation/WingmanCommandPalette";
 import MissionControlNav from "@/ui2/nav/MissionControlNav";
 import AppFooter from "@/app/layout/AppFooter";
@@ -243,6 +244,7 @@ export default function AppShell() {
         <main className="wm-shell-main wm-scrollbar-thin">
           <div className="wm-shell-content">
             <Outlet />
+            <DecisionFlowGuide />
           </div>
         </main>
       </div>

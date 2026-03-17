@@ -146,7 +146,7 @@ export default function GuruPanel({ open, onClose }: Props) {
             aria-label="Close Guru assistant"
             title="Close Guru assistant"
           >
-            ×
+            ?f?'�?,????
           </button>
         </div>
 
@@ -160,7 +160,7 @@ export default function GuruPanel({ open, onClose }: Props) {
             </div>
             <div className="wm-guru-context__body">
               {project
-                ? `${project.customer || "No customer"} • ${project.site || "No site"} • ${project.roomName || "No room"}`
+                ? `${project.customer || "No customer"} ?f��??s�� ${project.site || "No site"} ?f��??s�� ${project.roomName || "No room"}`
                 : "Open or create a project to give Guru better context."}
             </div>
           </div>

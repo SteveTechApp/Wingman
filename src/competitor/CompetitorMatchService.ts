@@ -28,8 +28,8 @@ function resRank(r?: string): number {
 
 function scoreExactSku(c: CompetitorItem, p: Product): MatchReason {
   // Not usually exact across brands, but supports same-SKU within WyreStorm if used.
-  const s = normaliseSku(c.sku);
-  const t = normaliseSku(p.sku);
+  const s = normaliseSku(c.sku ?? "");
+  const t = normaliseSku(p.sku ?? "");
   const hit = s === t ? 1 : 0;
   return { key: "exactSku", score: hit * 0.25, text: hit ? "Exact SKU match" : "No exact SKU match" };
 }
@@ -42,8 +42,8 @@ function scoreCategory(c: CompetitorItem, p: Product): MatchReason {
 }
 
 function scoreRole(c: CompetitorItem, p: Product): MatchReason {
-  const a = (c.role || "").toLowerCase();
-  const b = (p.role || "").toLowerCase();
+  const a = String(c.role ?? "").toLowerCase();
+  const b = String(p.role ?? "").toLowerCase();
   const hit = a && b && a === b ? 1 : 0;
   return { key: "role", score: hit * 0.20, text: hit ? `Role match: ${a}` : "Role differs/unknown" };
 }
@@ -79,7 +79,7 @@ function scoreFeatures(c: CompetitorItem, p: Product): MatchReason {
 }
 
 function scoreFamilyHint(c: CompetitorItem, p: Product): MatchReason {
-  const a = (c.familyHint || "").toLowerCase();
+  const a = String(c.familyHint ?? "").toLowerCase();
   const b = (p.family || "").toLowerCase();
   const hit = a && b && a === b ? 1 : 0;
   return { key: "family", score: hit * 0.10, text: hit ? `Family hint match: ${c.familyHint}` : "No family hint match" };
@@ -116,7 +116,7 @@ export function matchCompetitor(competitor: CompetitorItem, opts: MatchOptions =
   });
 
   return results
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
     .slice(0, topN);
 }
 

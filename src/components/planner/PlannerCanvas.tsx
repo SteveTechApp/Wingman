@@ -179,10 +179,10 @@ const PlannerCanvas: React.FC<PlannerCanvasProps> = ({
             />
             <div className="mt-4\ flex\ justify-between\ text-sm\ text-text-secondary">
                 <div>
-                    Grid: 1m Ãƒâ€” 1m
+                    Grid: 1m ?f��??s��?,??"?f��?,?s�?f��??s�� 1m
                 </div>
                 <div>
-                    Room: {dimensions.length}m Ãƒâ€” {dimensions.width}m Ãƒâ€” {dimensions.height}m
+                    Room: {dimensions.length}m ?f��??s��?,??"?f��?,?s�?f��??s�� {dimensions.width}m ?f��??s��?,??"?f��?,?s�?f��??s�� {dimensions.height}m
                 </div>
             </div>
         </div>

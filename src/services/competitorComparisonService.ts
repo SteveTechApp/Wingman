@@ -1,4 +1,5 @@
-import compareSeed from "@/data/catalog/competitor-compare.seed.json";
+import { compareStructuredCompetitor } from "@/competitor/fit";
+import compareSeed from "@/data/catalog/competitorCompareSeed";
 import {
   areProductTypesCompatible,
   classifyCatalogProduct,
@@ -20,7 +21,7 @@ import {
   type CompetitorLookupProvenance,
   type CompetitorLookupRecord,
   type CompetitorLookupResult,
-} from "@/services/competitorLookupService";
+} from "@/services/competitor/lookupService";
 import { getLiveProductDataToken } from "@/services/liveProductDataStore";
 import {
   assessComparisonIntelligence,
@@ -962,3 +963,27 @@ const competitorComparisonService = {
 };
 
 export default competitorComparisonService;
+
+
+function structuredFitRank(
+  competitor: {
+    sku: string;
+    name?: string;
+    summary?: string;
+    description?: string;
+    category?: string;
+    technology?: string;
+    features?: string[];
+  },
+  candidates: Array<{
+    sku: string;
+    name?: string;
+    summary?: string;
+    description?: string;
+    category?: string;
+    technology?: string;
+    features?: string[];
+  }>
+) {
+  return compareStructuredCompetitor(competitor, candidates);
+}

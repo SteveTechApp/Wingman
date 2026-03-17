@@ -62,6 +62,67 @@ export type GuidedProjectRecord = {
   createdAt: string;
 };
 
+
+function shouldHideQuestionIdForTrack(track: string, questionId: keyof GuidedProjectRecord) {
+  const path = normalizeDiscoveryPath(track);
+
+  const hiddenByPath: Record<string, Array<keyof GuidedProjectRecord>> = {
+    extend: [
+      "displayCount",
+      "outputBehaviour",
+      "networkEnvironment",
+      "roomLengthM",
+      "roomWidthM",
+      "roomHeightM",
+    ],
+    duplicate: [
+      "sourceCount",
+      "networkEnvironment",
+      "usbStandards",
+      "controlNeeds",
+      "powerPreference",
+      "passthroughNeeds",
+      "roomLengthM",
+      "roomWidthM",
+      "roomHeightM",
+    ],
+    switch: [
+      "networkEnvironment",
+      "roomLengthM",
+      "roomWidthM",
+      "roomHeightM",
+    ],
+    network: [
+      "roomLengthM",
+      "roomWidthM",
+      "roomHeightM",
+    ],
+    videowall: [
+      "networkEnvironment",
+      "usbStandards",
+      "audioBreakout",
+      "powerPreference",
+      "passthroughNeeds",
+      "roomLengthM",
+      "roomWidthM",
+      "roomHeightM",
+    ],
+  };
+
+  return (hiddenByPath[path] ?? []).includes(questionId);
+}
+
+function normalizeDiscoveryPath(value?: string) {
+  const v = (value ?? "").trim().toLowerCase();
+
+  if (v.includes("extend")) return "extend";
+  if (v.includes("duplicate")) return "duplicate";
+  if (v.includes("switch")) return "switch";
+  if (v.includes("network") || v.includes("avoip") || v.includes("distribute")) return "network";
+  if (v.includes("video wall") || v.includes("videowall") || v.includes("wall")) return "videowall";
+
+  return "";
+}
 export type GuidedProjectQuestionOptionDetail = {
   value: string;
   eyebrow?: string;
@@ -122,7 +183,7 @@ export const GUIDED_PROJECT_STEPS: ReadonlyArray<readonly [string, string]> = [
     "Lead with the outcome type and keep the shortlist focused on the product path.",
   ],
   [
-    "Core Fit",
+    "",
     "Capture counts, output behaviour, and reach so the likely WyreStorm product category becomes obvious.",
   ],
   [
@@ -139,37 +200,37 @@ const WORKFLOW_TRACK_DETAILS: ReadonlyArray<GuidedProjectQuestionOptionDetail> =
   {
     value: "Extend a signal",
     eyebrow: "Directional start",
-    summary: "Send one source to one destination over distance without assuming a whole-room system.",
+    summary: "Send one source to one destination over distance.",
     outcome: "Extender kit",
-    tags: ["Distance", "HDMI", "USB"],
+    tags: ["Distance ?f?'????T?f??s�?f?'�?f��?,?s�?f??s�?f?'�?f��?,?s�?f��?,?z� HDMI ?f?'????T?f??s�?f?'�?f��?,?s�?f??s�?f?'�?f��?,?s�?f��?,?z� USB"],
   },
   {
     value: "Duplicate a signal",
     eyebrow: "Directional start",
-    summary: "Take one source and mirror it to multiple displays or endpoints.",
+    summary: "Take one source and mirror it to multiple destinations.",
     outcome: "Splitter / distribution amplifier",
-    tags: ["1-to-many", "Mirrored outputs"],
+    tags: ["1-to-many ?f?'????T?f??s�?f?'�?f��?,?s�?f??s�?f?'�?f��?,?s�?f��?,?z� Mirrored outputs"],
   },
   {
     value: "Switch between devices",
     eyebrow: "Directional start",
-    summary: "Let the user choose between multiple sources or input formats.",
+    summary: "Let the user switch between multiple sources.",
     outcome: "Presentation switcher or matrix switch",
-    tags: ["Multi-source", "Routing"],
+    tags: ["Multi-source ?f?'????T?f??s�?f?'�?f��?,?s�?f??s�?f?'�?f��?,?s�?f��?,?z� Routing"],
   },
   {
     value: "Distribute over network",
     eyebrow: "Directional start",
     summary: "Move AV around the site over a managed network rather than a point-to-point link.",
     outcome: "AVoIP encoder / decoder / controller",
-    tags: ["Network", "AVoIP"],
+    tags: ["Network ?f?'????T?f??s�?f?'�?f��?,?s�?f??s�?f?'�?f��?,?s�?f��?,?z� AVoIP"],
   },
   {
     value: "Build a video wall",
     eyebrow: "Directional start",
     summary: "Start with the display canvas and processor strategy rather than generic room prompts.",
     outcome: "Video wall processor",
-    tags: ["Display canvas", "Processing"],
+    tags: ["Display canvas ?f?'????T?f??s�?f?'�?f��?,?s�?f??s�?f?'�?f��?,?s�?f��?,?z� Processing"],
   },
 ] as const;
 
@@ -186,7 +247,7 @@ const FEATURE_REQUIREMENTS = [
   "Audio breakout",
   "Control ports / pass-through",
   "PoH / remote power",
-  "Network-ready / AVoIP",
+  "Network ?f?'????T?f??s�?f?'�?f��?,?s�?f??s�?f?'�?f��?,?s�?f��?,?z� AVoIP",
   "Video wall processing",
 ] as const;
 
@@ -988,18 +1049,21 @@ export function createEmptyGuidedProjectRecord(): GuidedProjectRecord {
   };
 }
 
-export function getVisibleQuestionsForStep(
-  record: GuidedProjectRecord,
-  step: GuidedProjectStep,
-): GuidedProjectQuestionState[] {
-  return QUESTION_DEFS.filter((question) => {
-    if (question.step !== step) return false;
-    return question.shouldAsk ? question.shouldAsk(record) : true;
-  }).map((question) => ({
-    ...question,
-    activeBranch: Boolean(question.shouldAsk),
-    branchReasonText: question.branchReason?.(record),
-  }));
+export function getVisibleQuestionsForStep(record: GuidedProjectRecord, step: GuidedProjectStep) {
+  const track = record.workflowTrack;
+
+  return QUESTION_DEFS
+    .filter((question) => {
+      if (question.step !== step) return false;
+      if (typeof question.shouldAsk === "function" && !question.shouldAsk(record)) return false;
+      if (shouldHideQuestionIdForTrack(track, question.id)) return false;
+      return true;
+    })
+    .map((question) => ({
+      ...question,
+      activeBranch: typeof question.shouldAsk === "function" ? question.shouldAsk(record) : false,
+      branchReasonText: typeof question.branchReason === "function" ? question.branchReason(record) : undefined,
+    }));
 }
 
 export function getGuidedProjectProgress(record: GuidedProjectRecord): GuidedProjectProgress[] {

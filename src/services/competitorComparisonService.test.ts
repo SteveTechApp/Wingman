@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { areProductTypesCompatible, classifyCatalogProduct } from "@/catalog/classification";
-import compareSeed from "@/data/catalog/competitor-compare.seed.json";
+import compareSeed from "@/data/catalog/competitorCompareSeed";
 import { findCatalogProductBySku } from "@/catalog";
 import { getCompetitorProducts } from "@/competitor/repository";
 import { getComparisonRecords } from "@/services/competitorComparisonService";

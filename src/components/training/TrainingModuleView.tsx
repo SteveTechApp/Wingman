@@ -27,7 +27,7 @@ const TrainingModuleView: React.FC<TrainingModuleViewProps> = ({ module, onCompl
           {page.asset && (
             <div className="my-6\ p-4\ border\ rounded-lg\ text-center\ bg-input-bg">
                 <div className="bg-gradient-to-br\ from-blue-600\ via-blue-500\ to-blue-400\ rounded-lg\ p-8\ flex\ items-center\ justify-center">
-                  <div className="w-16\ h-16\ text-white/30">â—</div>
+                  <div className="w-16\ h-16\ text-white/30">�?,???o�??s��?,?�?f??s�</div>
                 </div>
                 <p className="text-sm\ text-text-secondary\ italic\ mt-2">{page.asset.title}</p>
             </div>

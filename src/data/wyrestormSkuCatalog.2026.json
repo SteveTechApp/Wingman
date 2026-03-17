@@ -1,932 +1,1663 @@
-{
-  "version": "2026",
-  "source": "2026 Wyrestorm SKU (1).xlsx",
-  "generatedAt": "2026-01-28T08:09:35.681Z",
-  "count": 154,
-  "items": [
-    {
-      "sku": "AMP-260-DNT",
-      "description": "120W Network Amplifier | 2 x 60w or 4 x 25w Channel Output @ 4ohm | Dual Power Options | Advanced DSP with Dante Integration",
-      "family": "AMP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "APO-210-UC",
-      "description": "Apolloâ„¢ Video-speakerphone switcher |USB-C & HDMI input  | HDMI Out & HDBaseTâ„¢ Out  |10W Speaker | Omni-direction 4xMics | Dual-View | Airplay & Miracast & APO-DG1 dongle",
-      "family": "APO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "APO-COM-MIC",
-      "description": "Apolloâ„¢ companion mic | MINI USB connection | Mounting on table",
-      "family": "APO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "APO-DG-DOCK",
-      "description": "Docking station for APO-DG1, APO-DG2 & APO-DG-HDMI",
-      "family": "APO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "APO-DG-HDMI",
-      "description": "HDMI â€“ USB C Adapter for the APO-DG1/2",
-      "family": "APO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "APO-DG1",
-      "description": "Apolloâ„¢  1080p USB-C(DP Atl mode) dongle for wireless casting",
-      "family": "APO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "APO-DG2",
-      "description": "Apolloâ„¢  4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing( with APP)",
-      "family": "APO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "APO-DG2-PRO",
-      "description": "Apolloâ„¢  4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing( without APP)",
-      "family": "APO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "APO-MIC-EXT",
-      "description": "Mini-USB to Ethernet adaptor for connection between Videobar and  Companion Mic APO-COM-MIC",
-      "family": "APO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "APO-SKY-MIC",
-      "description": "Apolloâ„¢ companion  Add-On Ceiling Mic | RJ45 connection",
-      "family": "APO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "APO-VX20-MNT",
-      "description": "WallÂ MountingÂ KitÂ forÂ theÂ APO-VX20-UCÂ VideoÂ Bar",
-      "family": "APO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "APO-VX20-UC",
-      "description": "Apolloâ„¢  Video Bar & Switcher | USB-C & HDMI input | HDMI Output |  4K AI camera | 120Â° DFOV | Auto Framing and Presenter Tracking|Dual 8w stereo Speakers | Airplay & Miracast & APO-DG1ï¼ŒZOOM Certification",
-      "family": "APO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAB-HAOC-10",
-      "description": "10m/32ft HDMI 2.0 AOC | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL3",
-      "family": "CAB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAB-HAOC-15",
-      "description": "15m/49ft HDMI 2.0 AOC | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL4",
-      "family": "CAB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAB-HAOC-15-C",
-      "description": "15m/49ft HDMI 2.0 AOC | Detachable Head | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR",
-      "family": "CAB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAB-HAOC-20",
-      "description": "20m/65ft HDMI 2.0 AOC | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL5",
-      "family": "CAB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAB-HAOC-20-C",
-      "description": "20m/65ft HDMI 2.0 AOC | Detachable Head | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR",
-      "family": "CAB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAB-HAOC-30-C",
-      "description": "30m/98ft HDMI 2.0 AOC | Detachable Head | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR",
-      "family": "CAB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAB-HAOC-FRL-10",
-      "description": "10m/32ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
-      "family": "CAB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAB-HAOC-FRL-15",
-      "description": "15m/49ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
-      "family": "CAB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAB-UAOC-15-C",
-      "description": "USB 3.2 M to F Active Optical Extension Cable | 10Gbps Superspeed+ | CPR Rated (15m/49ft)",
-      "family": "CAB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAB-USBC-15",
-      "description": "USB-C to C Active Optical Cable | 5Gbps Superspeed | 4K60 Alt-Mode | 60W PD | Screw-Lock Connector (15m/49ft)",
-      "family": "CAB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAM-210-NDI-PTZ",
-      "description": "1080p60 PTZ Camera | USB 3.0 | Network Streaming | 12x optical zoom | A.I. Auto-Framing | HDMI Out | NDI",
-      "family": "CAM",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "CAM-210-PTZ",
-      "description": "1080p60 PTZ Camera | USB 3.0 | Network Streaming | 12x optical zoom | A.I. Auto-Framing | HDMI Out",
-      "family": "CAM",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "COM-MIC-HUB",
-      "description": "Microphone Hub | Microphone Mixer | AEC & AGC & ANR | Web-UI",
-      "family": "COM",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-100-G2",
-      "description": "4K60Hz 4:2:0 HDBaseT Extender | PoH | CEC | IR | RS232 | 100m/327ft",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-100-H2",
-      "description": "4K60Hz 4:2:0  HDBT 2.0 Extender Set | PoH | USB 2.0 |Analog Audio & RS-232 Passthrough (4K: 100m/328ft)",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-100-IW-USBC",
-      "description": "USB 3.2 Single Gang In-Wall HDBT-USB3 Transmitter and Receiver Kit | 100m | PoH+| 5Gbps | 4 USB-A ports",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-100-KVM",
-      "description": "4K60Hz 4:2:0Â  HDBT 2.0 Extender Set | PoH | USB 2.0 |Analog Audio & RS-232 Passthrough (4K: 100m/328ft)",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-100-KVM-IP",
-      "description": "4K30Hz 4:4:4 IP Extender set | 1GbE | Zero latency | USB2.0 | Multi-Channel audio (4K30: 100m/328ft)",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-100-USB3",
-      "description": "USB 3.2 HDBT-USB3 Extender | 100m | PoH+| 5Gbps | 4 USB-A ports",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-35-H2",
-      "description": "4K60Hz 4:4:4 HDBaseTâ„¢ Extender Set | Dolby Vision & HDR | PoH | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-35-H2-ARC",
-      "description": "4K60Hz 4:4:4 HDBaseTâ„¢ Extender Set | Dolby Vision & HDR | ARC | PoH | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-40-G3",
-      "description": "1080p60Hz UTP Extender Set | IR Passthrough | PoC (1080p: 40m/131ft)",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-40-H2-ARC",
-      "description": "4K60Hz 4:4:4 HDBaseTâ„¢ Extender Set | Dolby Vision & HDR | ARC | PoH | RS232 & 2-Way IR Passthrough (4K: 40m/115ft, 1080p: 70m/230ft)",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-40-KVM-5K",
-      "description": "5K30Hz HDBT3.0 Extender Kit | Uncompressed video | HDMI Loop out | Audio de-embedding | Analog Audio pass-through | USB 2.0 | PoH | DIP Switch, RS232 control",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-60-USB2",
-      "description": "USB2.0Â ExtenderÂ SetÂ |Â 60mÂ |Â 480MbpsÂ |Â PoCÂ (TxÂ -Â Rx)Â |Â 1xÂ USBÂ HostÂ &Â 4xÂ USB-AÂ ports",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-70-G2",
-      "description": "4K60Hz 4:2:0  HDBaseTâ„¢ Extender Set | PoC | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-70-H2",
-      "description": "4K60Hz 4:4:4 HDBaseTâ„¢ Extender Set | Dolby Vision & HDR | PoH | RS232 & 2-Way IR Passthrough (4K: 70m/230ft, 1080p: 100m/328ft)",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX-80-KVM",
-      "description": "1080p60Hz UTP Extender | USB 2.0 | PoC",
-      "family": "EX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EX3-100-EARC",
-      "description": "4K60Hz 4:4:4ï¼Œ5K30Hz 4:4:4 HDBaseTâ„¢ Extender Set | Test Pattern | Dolby Vision and HDR | eARC | Audio De-embedding | POH | Low-bandwidth mode | RS232 | 2 Way IR Passthrough 4K 60hz 100m (Cat6a)",
-      "family": "EX3",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXA-100-EARC",
-      "description": "HDMI 2.0 Audio Only Extender  | eARC | ARC | RS232 Passthrough l IR Passthrough | CEC Passthrough  | 100m/327ft",
-      "family": "EXA",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXF-300-H2",
-      "description": "4K60Hz 4:4:4 Multi-Mode Fiber Extender Set | Dolby Vision & HDR | IR or RS-232 Passthrough (4K: 300m/984ft)",
-      "family": "EXF",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-4KUHD-0.5",
-      "description": "0.5m/1.6ft HDMI 2.0\r\nCable | 18Gbps 4K60Hz\r\n| Dolby Vision & HDR\r\n|ARC,CEC, ALLM, VRR, |\r\nCL3 & VW-1 Rated",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-4KUHD-1.0",
-      "description": "1m/3ft HDMI 2.0 Cable | 18Gbps  4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 &  VW-1 Rated",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-4KUHD-2.0",
-      "description": "2m/6.5ft HDMI 2.0 Cable | 18Gbps  4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 &  VW-1 Rated",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-4KUHD-3.0",
-      "description": "3m/10ft HDMI 2.0 Cable\r\n| 18Gbps 4K60Hz |\r\nDolby Vision & HDR\r\n|ARC,CEC, ALLM, VRR, |\r\nCL3 & VW-1 Rated",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-4KUHD-5.0",
-      "description": "5m/15ft HDMI 2.0 Cable\r\n| 18Gbps 4K60Hz |\r\nDolby Vision & HDR\r\n|ARC,CEC, ALLM, VRR, |\r\nCL3 & VW-1 Rated",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-8KUHD-0.5",
-      "description": "0.5m/1.6ft  HDMI 2.1 Cable | 48Gbps  8K60 | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-CAB-USBC-1M",
-      "description": "1m/3.2ft USB-C to C Cable | SuperSpeed USB 20Gbps | 4K60 Alt-Mode | 100w PD",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-CAB-USBC-2M",
-      "description": "2m/6.5ft USB-C to C Cable | SuperSpeed USB 20Gbps | 4K60 Alt-Mode | 100w PD",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-CAB-USBC-5M",
-      "description": "5m/16.40ft USB-C to C cable | MicroCoax | 4K60 | 10Gbps (5Gbps/Lane) | 60W | USB 3.2 Gen 1x2",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-CON-AUD-H2",
-      "description": "4K60Hz 4:4:4 HDMI 2.0 Audio Exractor with Passthrough | HDMI to S/PDIF or RCA | 4K60 | Dolby Vision & HDR",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-MX-0402-H2",
-      "description": "4K60Hz 4:4:4 4x2 HDMI Matrix Switch | Dolby Vision & HDR | ARC | CEC | Audio De-embed",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-SP-0102-8K",
-      "description": "8K60Hz  4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | Audio De-embed | Down-Scaler",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-SP-0102-H2",
-      "description": "4K60Hz 4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | 4k > 1080p Down-Scaler",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-SP-0104-H2",
-      "description": "4K60Hz 4:4:4  1x4 HDMI Splitter | Dolby Vision & HDR | 4k > 1080p Down-Scaler",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-SW-0201-8K",
-      "description": "8K60Hz 4:4:4 2x1 HDMI Switcher | Dolby Vision & HDR | ARC | Audio De-embed | EDID Management",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-SW-0401-8K",
-      "description": "8K60Hz 4:4:4 4x1 HDMI Switcher | Dolby Vision & HDR | ARC | Audio De-embed | EDID Management | RS232 Control",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "EXP-SW-0401-H2",
-      "description": "4K60Hz 4:4:4 4x1 HDMI Switcher | Dolby Vision & HDR",
-      "family": "EXP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "FOCUS 200 Pro",
-      "description": "4K AI Webcam | 120Â° DFOV | Gesture Control, Auto Framing and Presenter Tracking| Zoom certified |  USB 3.0 Support | Integrated Mic | High fram rateï¼ŒZOOM Certification",
-      "family": "FOCUS 200 Pro",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "HALO-COM-MIC",
-      "description": "Apolloâ„¢ companion mic | USB mini connection | Mounting on table",
-      "family": "HALO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "HALO-VX10-V2",
-      "description": "HALO Video Bar mini  |  4K AI camera | 120Â° DFOV | Auto Framing and Presenter Tracking|Dual 5w stereo Speakers | ZOOM Certification",
-      "family": "HALO",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "HALO 60",
-      "description": "Compact USB Speakerphone | Omni-direction 4xMics | AEC &ANR &AGC | USB & Bluetooth | 2500mAh Battery",
-      "family": "HALO 60",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "HALO 80",
-      "description": "USB/Bluetooth Speakerphone | Daisy-chain up to 9 units | Omni-Direction 4xMics | AEC | Noise Reduction | 3W speaker | USB2.0",
-      "family": "HALO 80",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-200-MS",
-      "description": "Compact In-Desk Connectivity | HDMI & USB-C Passthrough | USB Charging | Multi-Standard Mains Outlet",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-300",
-      "description": "Dual Channel CableBox | USB-C, HDMI+USB | Retractable | Cable management bag",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-300-BTN",
-      "description": "Dual Channel CableBox | USB-C, HDMI+USB | Touch buttons with LEDs | Retractable | Cable management bag",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-400-MS",
-      "description": "Flip Up In-Desk Connectivity | 2 HDMI & USB-C Passthrough | USB Charging | RJ-45 | Multi-Standard Mains Outlet",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-400-MS-C",
-      "description": "Flip Up In-Desk Connectivity | USB Charging| Multi-Standard Mains Outlet | customized ports",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-CBL-SPINE",
-      "description": "Under Desk Cable Management 'SPINE' for IDB Series (Adjustable up to 36\")",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-HDMI-C",
-      "description": "HDMI | Passthrough coupling socket | Front HDMI female | Back HDMI female",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-K2-C",
-      "description": "Carrier Keystone 2 ports | 45mm X 45mm | Black color",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-PWR-SCH",
-      "description": "2m Wieland to Schuko Power Supply Cable For IDB-MS Series (Schuko Plug)",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-PWR-UK",
-      "description": "2m Wieland to UK Power Supply Cable For IDB-MS Series (UK Plug)",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-RJ45-C",
-      "description": "RJ45 CAT6 | Passthrough coupling socket | Front RJ45 female | Back RJ45 female | Unshielded",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-USBA-C",
-      "description": "USB 3.0 type A | Passthrough coupling socket | Front USB A female | Back USB A female",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "IDB-USBC-C",
-      "description": "USB 3.2 type C | Passthrough coupling socket | Front USB C female | Back USB C female",
-      "family": "IDB",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-0402-MST",
-      "description": "SynergyÂ 4K60Hz HDR 4x2 HDMI & USB-C Matrix Switcher with MST | Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-0403-H3-MST",
-      "description": "SynergyÂ 4K60Hz HDR 4x3 HDMI & USB-C Matrix Switcher with MST & HDBaseT 3.0 Output| Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-0404-HDMI",
-      "description": "4K60Hz 4:4:4 4x4 HDMI Matrix | Dolby Vision & HDR | 4K-1080P Simple Scaler | Audio De-embed | CEC",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-0404-KIT",
-      "description": "4K60Hz  4:2:0 4x4 (3 HDBaseTâ„¢, 1 HDMI) Matrix | PoH | Includes 3 Receivers | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft)",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-0404-SCL",
-      "description": "4K60Hz 4:4:4 4x4 HDMI Matrix | HDR | Seamless Switching | Multiview | Videowall | Scaling Outputs |Balanced Analog and S/PDIF Audio De-embed | CEC",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-0804-EDC",
-      "description": "4K60Hz 4:4:4 8x4 Seamless Matrix | 7 HDMI & 1 USB-C input | 4 HDMI outputs | Audio DSP & Mixing | DANTE | Dolby Vision & HDR | CEC",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-0808-H2A-MK2",
-      "description": "4K60Hz 4:4:4 8x8 HDMI Matrix | Dolby Vision & HDR | Scaling Outputs | Balanced Audio De-embed | ARC | CEC | Sygma",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-0808-KIT-V2",
-      "description": "4K60Hz  4:2:0  8x8 HDBaseTâ„¢ Matrix | PoH | Includes 8 Receivers | 4x Mirrored HDMI | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft)",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-0808-SCL",
-      "description": "4K60 4:4:4 8x8 Seamless Scaling HDMI Matrix with USB-C | Audio De-embed | HDCP 2.3",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-0812-SCL",
-      "description": "4K60 4:4:4 8x12 Advanced Seamless Scaling HDMI Matrix | Advanced Video Wall | Audio De-embed | HDCP 2.3",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-1007-HYB",
-      "description": "4K60Hz 4:4:4 10x7 Seamless Matrix | 7 HDMI & 1 USB-C input | NetworkHD (500 series) & HDBT\r\nTM Inputs & outputs | Audio DSP, AMP & Mixing | DANTE | Dolby Vision & HDR | Routable CEC & RS232",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MX-1616-SCL",
-      "description": "16 Slot - 4K60Hz 4:4:4 Seamless Empty Custom Matrix Chassis",
-      "family": "MX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MXV-0404-H2A-KIT",
-      "description": "4K60Hz  4:4:4 4x4 HDBaseTâ„¢ Matrix | Dolby Vision & HDR | PoH | Includes 4 Receivers | Audio De-embed | (4K: 35m/115ft, 1080p: 70m/230ft)",
-      "family": "MXV",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MXV-0808-H2A-70-V3",
-      "description": "4K60Hz  4:4:4 8x8 HDBaseTâ„¢ Matrix | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 70m/230ft, 1080p: 100m/328ft)",
-      "family": "MXV",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MXV-0808-H2A-KIT",
-      "description": "4K60HzÂ  4:4:4 8x8 HDBaseTâ„¢ MatrixÂ  Kit w/ 6 standard receivers & 2 Scaling receivers | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft)",
-      "family": "MXV",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "MXV-0808-H2A-V3",
-      "description": "4K60Hz  4:4:4 8x8 HDBaseTâ„¢ Matrix | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft)",
-      "family": "MXV",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NetworkHD Touchâ„¢",
-      "description": "Free iPad & Android Control App for NetworkHD 100, 200 & 400 Series",
-      "family": "NetworkHD Touchâ„¢",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-000-RACK4",
-      "description": "6U/12 Slot Rack Mount for all NetworkHD Series",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-0401-MV",
-      "description": "NetworkHD 4-Input 4K60 Multiview Switcher | Dolby Vision & HDR | Audio De-embed | Compatible with 400 & 500 Series",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-124-TX",
-      "description": "4K30Hz Quad Encoder",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-140-RACK-1U",
-      "description": "1U/2 Slot Rack Mount for NHD-140-TX &NHD-124-TX Quad Encoder",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-150-RX",
-      "description": "4K30Hz Decoder | 4K60HZ Output | PoE | 9-Window Multiview Processing | Tile & Overlap Layout | Audio De-embed | RS232 | CEC",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-510-TX",
-      "description": "4K60Hz 4:4:4 Encoder | 1GbE | HDMI&USB-C Input | HDMI Loop out | Dolby Vision & HDR | PoE+ | USB 2.0 | Audio De-embed | SFP | IR & RS232 Routing | Dante AV-A",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-610-RX",
-      "description": "4K60Hz 4:4:4 SDVoE Decoder | 10G RJ45| Dolby Vision & HDR | Video Wall | Multiview | PoE+ | Ethernet Passthrough | Audio De-embed | USB 2.0 | IR&RS232",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-610-TX",
-      "description": "4K60Hz 4:4:4 SDVoE Encoder | 10G RJ45 | Dolby Vision & HDR | PoE+ | Ethernet Passthrough | Audio De-embed | Dante/AES67 | USB 2.0 | IR&RS232",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-610-TX-V2",
-      "description": "4K60Hz 4:4:4 SDVoE Encoder | 10G RJ45 | Dolby Vision & HDR | PoE+ | Ethernet Passthrough | Audio De-embed | Dante/AES67 | USB HID | IR&RS232",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-CTL-PRO-V2",
-      "description": "Pro Controller for NetworkHD Series | PoE | Dual NIC Network Isolation | Advanced Setup Interface & Wizard",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-RACK-1U",
-      "description": "1U/2 Slot Rack Mount for NetworkHDâ„¢ 110/120/500/600/CTL",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-RACK4-BLK",
-      "description": "Blanking Plate for NHD-000-RACK4",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-USB-TRX",
-      "description": "USB 2.0 over IP Transceiver | 1GbE | USB-A & USB-B Ports | SFP | PoE+ | USB Hub",
-      "family": "NHD",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "NHD-120-IW-TX",
-      "description": "4K30Hz 2-Gang In-Wall Encoder | PoE | Audio De-embed | IR TX | 1GbE Port for 3rd Device Passthrough",
-      "family": "NHD-120",
-      "tier": "Bronze"
-    },
-    {
-      "sku": "NHD-120-RX",
-      "description": "4K30Hz Decoder | PoE | Audio De-embed | Video Wall | IR & RS232 Routing | CEC",
-      "family": "NHD-120",
-      "tier": "Bronze"
-    },
-    {
-      "sku": "NHD-120-TX",
-      "description": "4K30Hz Encoder | PoE | Audio De-embed | IR & RS232 Routing",
-      "family": "NHD-120",
-      "tier": "Bronze"
-    },
-    {
-      "sku": "NHD-500-DNT-TX",
-      "description": "4K60Hz 4:4:4 Encoder | 2GbE RJ45 + SFP | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | Fiber | IR & RS232 Routing / Dante AES67",
-      "family": "NHD-500",
-      "tier": "Silver"
-    },
-    {
-      "sku": "NHD-500-E-RX",
-      "description": "Lite 4K60Hz 4:4:4 Decoder | 1GbE | Dolby Vision & HDR | PoE | RS232",
-      "family": "NHD-500",
-      "tier": "Silver"
-    },
-    {
-      "sku": "NHD-500-E-TX",
-      "description": "Lite 4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | Audio De-embed | IR",
-      "family": "NHD-500",
-      "tier": "Silver"
-    },
-    {
-      "sku": "NHD-500-IW-TX",
-      "description": "4K60Hz 4:4:4 2-Gang In-Wall Encoder | HDMI & USB-C Inputs | PoE | 1GbE | Dolby Vision & HDR | USB 2.0",
-      "family": "NHD-500",
-      "tier": "Silver"
-    },
-    {
-      "sku": "NHD-500-RX",
-      "description": "4K60Hz 4:4:4 Decoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Video Wall | Audio De-embed | ARC | S/PDIF | SFP | CEC | IR & RS232 Routing",
-      "family": "NHD-500",
-      "tier": "Silver"
-    },
-    {
-      "sku": "NHD-500-TX",
-      "description": "4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | ARC | S/PDIF | SFP | IR & RS232 Routing",
-      "family": "NHD-500",
-      "tier": "Silver"
-    },
-    {
-      "sku": "NHD-600-TRX",
-      "description": "4K60Hz 4:4:4 SDVoE Transceiver | 10G RJ45 | Dolby Vision & HDR | Video Wall | Multiview | PoE+ | Ethernet Passthrough | Audio De-embed | USB HID | IR & RS232",
-      "family": "NHD-600",
-      "tier": "Gold"
-    },
-    {
-      "sku": "NHD-600-TRXF",
-      "description": "4K60Hz 4:4:4 SDVoE Fiber Transceiver | 10G SFP+ | Dolby Vision & HDR | Video Wall | Multiview | Ethernet Passthrough | Audio De-embed | USB 2.0 | IR&RS232",
-      "family": "NHD-600",
-      "tier": "Gold"
-    },
-    {
-      "sku": "RX-35-POH",
-      "description": "4K60Hz 4:2:0  HDBaseTâ„¢ Receiver | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For TX-35-IW]",
-      "family": "RX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RX-500",
-      "description": "4K60Hz (4:2:0 8bit) HDBaseT 2.0 Receiver | PoH | USB 2.0 | Audio De-embed | RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For APO/SW Products]",
-      "family": "RX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RX-500",
-      "description": "4K60Hz 4:2:0  HDBaseT 2.0 Receiver | PoH | USB 2.0 | Audio De-embed | RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For APO/SW Products]",
-      "family": "RX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RX-70-4K",
-      "description": "4K60Hz 4:2:0  HDBaseTâ„¢ Receiver | PoH | Ethernet, IR & RS232 Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) [For TX-70-4K]",
-      "family": "RX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RX-70-4K-SCL",
-      "description": "4K60Hz 4:2:0  HDBaseTâ„¢ Scaling Receiver | PoH | Ethernet, IR & RS232 Passthrough |ARC (4K: 70m/230ft, 1080p: 100m/328ft)",
-      "family": "RX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RX-700",
-      "description": "4K60Hz 4:2:0  HDBaseT Receiver  | PoH | USB 2.0 | DSC | Audio De-embed | RS232 & IR Passthrough (4K: 100m/328ft) [For SW-130-TX]",
-      "family": "RX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RX3-100",
-      "description": "4K60Hz 4:4:4,5K30Hz 4:4:4 HDBaseT 3.0 Receiver | PoH | USB2.0 | CEC | RS232 passthrough | audio De-embed (4K: 100m/328ft) [For SW-120-TX3 & MX-1007-HYB]",
-      "family": "RX3",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RX3-100",
-      "description": "4K60Hz 4:4:4 HDBaseT 3.0 Receiver | PoH | USB2.0 | CEC | RS232 passthrough | audio De-embed (4K: 100m/328ft) [For SW-120-TX3 & MX-1007-HYB]",
-      "family": "RX3",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RXF-300-4K",
-      "description": "4K60Hz 4:4:4  Fiber Receiver | IR & RS232 Passthrough (4K:300m/984ft) [For H2XC]",
-      "family": "RXF",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RXV-35-4K",
-      "description": "4K60Hz 4:4:4 HDBaseT Receiver | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For MXV]",
-      "family": "RXV",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RXV-35-SCL",
-      "description": "4K60Hz 4:4:4 HDBaseT Scaling Receiver | PoH | Audio De-embed | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For MXV]",
-      "family": "RXV",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RXV-70-4K-G2",
-      "description": "4K60Hz 4:4:4 HDBaseT Receiver | PoH | IR & RS232 Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) [For MXV-70]",
-      "family": "RXV",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "RXV-70-G2-SCL",
-      "description": "4K60Hz 4:4:4  HDBaseT Scaling Receiver | PoH | Audio De-embed | IR & RS232 Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) [For MXV-70]",
-      "family": "RXV",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SP-0104-H2",
-      "description": "4K60Hz 4:4:4 1x4 HDMI Splitter | Dolby Vision & HDR | EDID Management",
-      "family": "SP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SP-0108-SCL",
-      "description": "4K60Hz 4:4:4 1x8 HDMI Splitter | Dolby Vision & HDR | EDID Management | Down-Scaling | Audio De-embed",
-      "family": "SP",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SW-0204-VW",
-      "description": "4K 60Hz 4-Output Video Wall |  1x4, 2x2 layout |Ultra-wide resolution support  | WEB GUI and RS232 control",
-      "family": "SW",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SW-0206-VW",
-      "description": "4K 60Hz 6-Output Video Wall |  Cascading up to 6 devices | Multi-fast layout and customized layout |Ultra-wide resolution support  | WEB GUI and RS232 control",
-      "family": "SW",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SW-120-TX3",
-      "description": "4K60Hz 4:4:4, 5K30Hz 4:4:4(HDMI) HDBaseT 3.0 Transmitter | HDMI & USB-C input | PoH | USB2.0 | RS232 passthrough (4K: 100m/328ft) [For RX3-100 & MX-1007-HYB]",
-      "family": "SW",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SW-120-TX3-UK",
-      "description": "4K60Hz 4:4:4, 5K30Hz 4:4:4(HDMI) HDBaseT 3.0 2-Gang In-Wall Transmitter | HDMI & USB-C input | PoH | USB2.0 | RS232 passthrough (4K: 100m/328ft) [For RX3-100 & MX-1007-HYB]",
-      "family": "SW",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SW-120-TX3-UK",
-      "description": "4K60Hz 4:4:4 HDBaseT 3.0 2-Gang In-Wall Transmitter | HDMI & USB-C input | PoH | USB2.0 | RS232 passthrough (4K: 100m/328ft) [For RX3-100 & MX-1007-HYB]",
-      "family": "SW",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SW-130-TX-UK",
-      "description": "3-Input 4K60Hz 4:2:0 In-wall HDBaseTâ„¢ Switcher | 2 HDMI + USB-C | CEC  | 2-Gang (4K: 100m/328ft)",
-      "family": "SW",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SW-220-TX-W",
-      "description": "Synergyâ„¢ 2-Input 4K30Hz Switcher | USB 3.0 | Airplay & Miracast | Dual-View | Supports APO-DG1 Dongle",
-      "family": "SW",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SW-510-TX",
-      "description": "Synergyâ„¢ 4-input 4K60Hz 4:2:0 HDBaseTâ„¢  Switcher | USB 2.0 | Ethernet Passthrough | IR, CEC & RS232 Passthrough (4K: 100m/328ft)",
-      "family": "SW",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SW-515-RX",
-      "description": "Synergyâ„¢ 3-input 4K60Hz 4:2:0 HDBaseTâ„¢ Switching Receiver | USB 2.0 | Ethernet Passthrough | Relays | IR, CEC & RS232 Passthrough (4K: 100m/328ft)",
-      "family": "SW",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SW-640L-TX-W",
-      "description": "Synergy 4-Input 4K60Hz Presentation Switcher | USB-C 60W PD | USB-C Ethernet | 2 HDMI Matrix Outputs | USB 3.0 | Quad View | Airplay & Miracast | Wireless Presentation & Conference with APO-DG2 & APO-DG2-PRO",
-      "family": "SW",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SYN-CTL-HUB",
-      "description": "Ethernet Protocol Converter for the SYN-TOUCH10 | RS232 | Relay | IR",
-      "family": "SYN",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SYN-KEY10",
-      "description": "Synergyâ„¢ 10-button Keypad Controller | Only comes with US back box",
-      "family": "SYN",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "SYN-TOUCH10",
-      "description": "Synergyâ„¢ 10.1â€ All-In-One Touchpad IP Controller | PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible)",
-      "family": "SYN",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "TS-280-EU",
-      "description": "2-Gang 2.8\" Touchscreen Controller for Presentation Switcher Solutions",
-      "family": "TS",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "TX-35-IW",
-      "description": "4K60Hz 4:2:0   HDBaseTâ„¢ Single Gang In-Wall Transmitter | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
-      "family": "TX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "TX-35-IW-KVM",
-      "description": "4K60Hz 4:2:0   HDMI & USB Single Gange In-Wall HDBT 2.0 Transmitter | HDMI 1.4 | HDCP 2.2 | 35m 4K 60 4:2:0",
-      "family": "TX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "TX-35-IWC-KVM",
-      "description": "4K60Hz 4:2:0  USB C Single Gang In-Wall HDBT 2.0 Transmitter | DP Alt Mode (4-Lane) | HDCP 2.2 | 35m 4K 60 4:2:0 | PoH | RS232 | USB 2.0",
-      "family": "TX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "TX-SCL-HDBT",
-      "description": "4K60Hz 4:2:0 HDBaseTâ„¢ ScalingÂ  Output Card for MX-1616-SCL | HDR | PoH | Audio De-Embed (4K: 100m/328ft)",
-      "family": "TX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "TX-SCL-HDMI",
-      "description": "4K60Hz 4:4:4HDMI Scaling Output Card for MX-1616-SCL | HDR | Audio De-embed",
-      "family": "TX",
-      "tier": "Unclassified"
-    },
-    {
-      "sku": "USB-HUB4",
-      "description": "4-Port 5Gbps Superspeed USB 3.2 Hub",
-      "family": "USB",
-      "tier": "Unclassified"
-    }
-  ]
-}
+[
+  {
+    "sku": "TS-280-EU",
+    "name": "TS-280-EU",
+    "slug": "ts-280-eu",
+    "family": "Accessories",
+    "type": "switcher",
+    "description": "2-Gang 2.8\" Touchscreen Controller for Presentation Switcher Solutions",
+    "searchText": "TS-280-EU 2-Gang 2.8\" Touchscreen Controller for Presentation Switcher Solutions Accessories switcher",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "USB-HUB4",
+    "name": "USB-HUB4",
+    "slug": "usb-hub4",
+    "family": "Accessories",
+    "type": "product",
+    "description": "4-Port 5Gbps Superspeed USB 3.2 Hub",
+    "searchText": "USB-HUB4 4-Port 5Gbps Superspeed USB 3.2 Hub Accessories product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "AMP-260-DNT",
+    "name": "AMP-260-DNT",
+    "slug": "amp-260-dnt",
+    "family": "Audio",
+    "type": "amplifier",
+    "description": "120W Network Amplifier | 2 x 60w or 4 x 25w Channel Output @ 4ohm | Dual Power Options | Advanced DSP with Dante Integration",
+    "searchText": "AMP-260-DNT 120W Network Amplifier | 2 x 60w or 4 x 25w Channel Output @ 4ohm | Dual Power Options | Advanced DSP with Dante Integration Audio amplifier",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAB-HAOC-10",
+    "name": "CAB-HAOC-10",
+    "slug": "cab-haoc-10",
+    "family": "Cables",
+    "type": "product",
+    "description": "10m/32ft HDMI 2.0 AOC | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL3",
+    "searchText": "CAB-HAOC-10 10m/32ft HDMI 2.0 AOC | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL3 Cables product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAB-HAOC-15",
+    "name": "CAB-HAOC-15",
+    "slug": "cab-haoc-15",
+    "family": "Cables",
+    "type": "product",
+    "description": "15m/49ft HDMI 2.0 AOC | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL4",
+    "searchText": "CAB-HAOC-15 15m/49ft HDMI 2.0 AOC | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL4 Cables product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAB-HAOC-15-C",
+    "name": "CAB-HAOC-15-C",
+    "slug": "cab-haoc-15-c",
+    "family": "Cables",
+    "type": "product",
+    "description": "15m/49ft HDMI 2.0 AOC | Detachable Head | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR",
+    "searchText": "CAB-HAOC-15-C 15m/49ft HDMI 2.0 AOC | Detachable Head | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR Cables product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAB-HAOC-20",
+    "name": "CAB-HAOC-20",
+    "slug": "cab-haoc-20",
+    "family": "Cables",
+    "type": "product",
+    "description": "20m/65ft HDMI 2.0 AOC | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL5",
+    "searchText": "CAB-HAOC-20 20m/65ft HDMI 2.0 AOC | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | FT4, CL5 Cables product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAB-HAOC-20-C",
+    "name": "CAB-HAOC-20-C",
+    "slug": "cab-haoc-20-c",
+    "family": "Cables",
+    "type": "product",
+    "description": "20m/65ft HDMI 2.0 AOC | Detachable Head | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR",
+    "searchText": "CAB-HAOC-20-C 20m/65ft HDMI 2.0 AOC | Detachable Head | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR Cables product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAB-HAOC-30-C",
+    "name": "CAB-HAOC-30-C",
+    "slug": "cab-haoc-30-c",
+    "family": "Cables",
+    "type": "product",
+    "description": "30m/98ft HDMI 2.0 AOC | Detachable Head | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR",
+    "searchText": "CAB-HAOC-30-C 30m/98ft HDMI 2.0 AOC | Detachable Head | 24Gbps | 4K60Hz | Dolby Vision & HDR | ARC, CEC, ALLM & VRR | ISF Certified | CPR Cables product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAB-HAOC-FRL-10",
+    "name": "CAB-HAOC-FRL-10",
+    "slug": "cab-haoc-frl-10",
+    "family": "Cables",
+    "type": "product",
+    "description": "10m/32ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
+    "searchText": "CAB-HAOC-FRL-10 10m/32ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified Cables product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAB-HAOC-FRL-15",
+    "name": "CAB-HAOC-FRL-15",
+    "slug": "cab-haoc-frl-15",
+    "family": "Cables",
+    "type": "product",
+    "description": "15m/49ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified",
+    "searchText": "CAB-HAOC-FRL-15 15m/49ft HDMI 2.1 AOC | 48Gbps | 8K60Hz | Dolby Vision & HDR | eARC, CEC, ALLM & VRR | ISF Certified | UHS Certified Cables product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAB-UAOC-15-C",
+    "name": "CAB-UAOC-15-C",
+    "slug": "cab-uaoc-15-c",
+    "family": "Cables",
+    "type": "cable",
+    "description": "USB 3.2 M to F Active Optical Extension Cable | 10Gbps Superspeed+ | CPR Rated (15m/49ft)",
+    "searchText": "CAB-UAOC-15-C USB 3.2 M to F Active Optical Extension Cable | 10Gbps Superspeed+ | CPR Rated (15m/49ft) Cables cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAB-USBC-15",
+    "name": "CAB-USBC-15",
+    "slug": "cab-usbc-15",
+    "family": "Cables",
+    "type": "cable",
+    "description": "USB-C to C Active Optical Cable | 5Gbps Superspeed | 4K60 Alt-Mode | 60W PD | Screw-Lock Connector (15m/49ft)",
+    "searchText": "CAB-USBC-15 USB-C to C Active Optical Cable | 5Gbps Superspeed | 4K60 Alt-Mode | 60W PD | Screw-Lock Connector (15m/49ft) Cables cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SP-0104-H2",
+    "name": "SP-0104-H2",
+    "slug": "sp-0104-h2",
+    "family": "Distribution",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 1x4 HDMI Splitter | Dolby Vision & HDR | EDID Management",
+    "searchText": "SP-0104-H2 4K60Hz 4:4:4 1x4 HDMI Splitter | Dolby Vision & HDR | EDID Management Distribution product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SP-0108-SCL",
+    "name": "SP-0108-SCL",
+    "slug": "sp-0108-scl",
+    "family": "Distribution",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 1x8 HDMI Splitter | Dolby Vision & HDR | EDID Management | Down-Scaling | Audio De-embed",
+    "searchText": "SP-0108-SCL 4K60Hz 4:4:4 1x8 HDMI Splitter | Dolby Vision & HDR | EDID Management | Down-Scaling | Audio De-embed Distribution product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-100-G2",
+    "name": "EX-100-G2",
+    "slug": "ex-100-g2",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:2:0 HDBaseT Extender | PoH | CEC | IR | RS232 | 100m/327ft",
+    "searchText": "EX-100-G2 4K60Hz 4:2:0 HDBaseT Extender | PoH | CEC | IR | RS232 | 100m/327ft Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-100-H2",
+    "name": "EX-100-H2",
+    "slug": "ex-100-h2",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:2:0 HDBT 2.0 Extender Set | PoH | USB 2.0 |Analog Audio & RS-232 Passthrough (4K: 100m/328ft)",
+    "searchText": "EX-100-H2 4K60Hz 4:2:0 HDBT 2.0 Extender Set | PoH | USB 2.0 |Analog Audio & RS-232 Passthrough (4K: 100m/328ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-100-IW-USBC",
+    "name": "EX-100-IW-USBC",
+    "slug": "ex-100-iw-usbc",
+    "family": "Extenders and KVM",
+    "type": "receiver",
+    "description": "USB 3.2 Single Gang In-Wall HDBT-USB3 Transmitter and Receiver Kit | 100m | PoH+| 5Gbps | 4 USB-A ports",
+    "searchText": "EX-100-IW-USBC USB 3.2 Single Gang In-Wall HDBT-USB3 Transmitter and Receiver Kit | 100m | PoH+| 5Gbps | 4 USB-A ports Extenders and KVM receiver",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-100-KVM",
+    "name": "EX-100-KVM",
+    "slug": "ex-100-kvm",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:2:0 HDBT 2.0 Extender Set | PoH | USB 2.0 |Analog Audio & RS-232 Passthrough (4K: 100m/328ft)",
+    "searchText": "EX-100-KVM 4K60Hz 4:2:0 HDBT 2.0 Extender Set | PoH | USB 2.0 |Analog Audio & RS-232 Passthrough (4K: 100m/328ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-100-KVM-IP",
+    "name": "EX-100-KVM-IP",
+    "slug": "ex-100-kvm-ip",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K30Hz 4:4:4 IP Extender set | 1GbE | Zero latency | USB2.0 | Multi-Channel audio (4K30: 100m/328ft)",
+    "searchText": "EX-100-KVM-IP 4K30Hz 4:4:4 IP Extender set | 1GbE | Zero latency | USB2.0 | Multi-Channel audio (4K30: 100m/328ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-100-USB3",
+    "name": "EX-100-USB3",
+    "slug": "ex-100-usb3",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "USB 3.2 HDBT-USB3 Extender | 100m | PoH+| 5Gbps | 4 USB-A ports",
+    "searchText": "EX-100-USB3 USB 3.2 HDBT-USB3 Extender | 100m | PoH+| 5Gbps | 4 USB-A ports Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-35-H2",
+    "name": "EX-35-H2",
+    "slug": "ex-35-h2",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4 HDBaseT TM Extender Set | Dolby Vision & HDR | PoH | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
+    "searchText": "EX-35-H2 4K60Hz 4:4:4 HDBaseT TM Extender Set | Dolby Vision & HDR | PoH | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-35-H2-ARC",
+    "name": "EX-35-H2-ARC",
+    "slug": "ex-35-h2-arc",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4 HDBaseT TM Extender Set | Dolby Vision & HDR | ARC | PoH | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
+    "searchText": "EX-35-H2-ARC 4K60Hz 4:4:4 HDBaseT TM Extender Set | Dolby Vision & HDR | ARC | PoH | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-40-G3",
+    "name": "EX-40-G3",
+    "slug": "ex-40-g3",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "1080p60Hz UTP Extender Set | IR Passthrough | PoC (1080p: 40m/131ft)",
+    "searchText": "EX-40-G3 1080p60Hz UTP Extender Set | IR Passthrough | PoC (1080p: 40m/131ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-40-H2-ARC",
+    "name": "EX-40-H2-ARC",
+    "slug": "ex-40-h2-arc",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4 HDBaseT TM Extender Set | Dolby Vision & HDR | ARC | PoH | RS232 & 2-Way IR Passthrough (4K: 40m/115ft, 1080p: 70m/230ft)",
+    "searchText": "EX-40-H2-ARC 4K60Hz 4:4:4 HDBaseT TM Extender Set | Dolby Vision & HDR | ARC | PoH | RS232 & 2-Way IR Passthrough (4K: 40m/115ft, 1080p: 70m/230ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-40-KVM-5K",
+    "name": "EX-40-KVM-5K",
+    "slug": "ex-40-kvm-5k",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "5K30Hz HDBT3.0 Extender Kit | Uncompressed video | HDMI Loop out | Audio de-embedding | Analog Audio pass-through | USB 2.0 | PoH | DIP Switch, RS232 control",
+    "searchText": "EX-40-KVM-5K 5K30Hz HDBT3.0 Extender Kit | Uncompressed video | HDMI Loop out | Audio de-embedding | Analog Audio pass-through | USB 2.0 | PoH | DIP Switch, RS232 control Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-60-USB2",
+    "name": "EX-60-USB2",
+    "slug": "ex-60-usb2",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "USB2.0 Extender Set | 60m | 480Mbps | PoC (Tx - Rx) | 1x USB Host & 4x USB-A ports",
+    "searchText": "EX-60-USB2 USB2.0 Extender Set | 60m | 480Mbps | PoC (Tx - Rx) | 1x USB Host & 4x USB-A ports Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-70-G2",
+    "name": "EX-70-G2",
+    "slug": "ex-70-g2",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:2:0 HDBaseT TM Extender Set | PoC | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
+    "searchText": "EX-70-G2 4K60Hz 4:2:0 HDBaseT TM Extender Set | PoC | RS232 & 2-Way IR Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-70-H2",
+    "name": "EX-70-H2",
+    "slug": "ex-70-h2",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4 HDBaseT TM Extender Set | Dolby Vision & HDR | PoH | RS232 & 2-Way IR Passthrough (4K: 70m/230ft, 1080p: 100m/328ft)",
+    "searchText": "EX-70-H2 4K60Hz 4:4:4 HDBaseT TM Extender Set | Dolby Vision & HDR | PoH | RS232 & 2-Way IR Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX-80-KVM",
+    "name": "EX-80-KVM",
+    "slug": "ex-80-kvm",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "1080p60Hz UTP Extender | USB 2.0 | PoC",
+    "searchText": "EX-80-KVM 1080p60Hz UTP Extender | USB 2.0 | PoC Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EX3-100-EARC",
+    "name": "EX3-100-EARC",
+    "slug": "ex3-100-earc",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:4:45K30Hz 4:4:4 HDBaseT TM Extender Set | Test Pattern | Dolby Vision and HDR | eARC | Audio De-embedding | POH | Low-bandwidth mode | RS232 | 2 Way IR Passthrough 4K 60hz 100m (Cat6a)",
+    "searchText": "EX3-100-EARC 4K60Hz 4:4:45K30Hz 4:4:4 HDBaseT TM Extender Set | Test Pattern | Dolby Vision and HDR | eARC | Audio De-embedding | POH | Low-bandwidth mode | RS232 | 2 Way IR Passthrough 4K 60hz 100m (Cat6a) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXA-100-EARC",
+    "name": "EXA-100-EARC",
+    "slug": "exa-100-earc",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "HDMI 2.0 Audio Only Extender | eARC | ARC | RS232 Passthrough l IR Passthrough | CEC Passthrough | 100m/327ft",
+    "searchText": "EXA-100-EARC HDMI 2.0 Audio Only Extender | eARC | ARC | RS232 Passthrough l IR Passthrough | CEC Passthrough | 100m/327ft Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXF-300-H2",
+    "name": "EXF-300-H2",
+    "slug": "exf-300-h2",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4 Multi-Mode Fiber Extender Set | Dolby Vision & HDR | IR or RS-232 Passthrough (4K: 300m/984ft)",
+    "searchText": "EXF-300-H2 4K60Hz 4:4:4 Multi-Mode Fiber Extender Set | Dolby Vision & HDR | IR or RS-232 Passthrough (4K: 300m/984ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-4KUHD-0.5",
+    "name": "EXP-4KUHD-0.5",
+    "slug": "exp-4kuhd-0-5",
+    "family": "Extenders and KVM",
+    "type": "cable",
+    "description": "0.5m/1.6ft HDMI 2.0 Cable | 18Gbps 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
+    "searchText": "EXP-4KUHD-0.5 0.5m/1.6ft HDMI 2.0 Cable | 18Gbps 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated Extenders and KVM cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-4KUHD-1.0",
+    "name": "EXP-4KUHD-1.0",
+    "slug": "exp-4kuhd-1-0",
+    "family": "Extenders and KVM",
+    "type": "cable",
+    "description": "1m/3ft HDMI 2.0 Cable | 18Gbps 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
+    "searchText": "EXP-4KUHD-1.0 1m/3ft HDMI 2.0 Cable | 18Gbps 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated Extenders and KVM cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-4KUHD-2.0",
+    "name": "EXP-4KUHD-2.0",
+    "slug": "exp-4kuhd-2-0",
+    "family": "Extenders and KVM",
+    "type": "cable",
+    "description": "2m/6.5ft HDMI 2.0 Cable | 18Gbps 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
+    "searchText": "EXP-4KUHD-2.0 2m/6.5ft HDMI 2.0 Cable | 18Gbps 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated Extenders and KVM cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-4KUHD-3.0",
+    "name": "EXP-4KUHD-3.0",
+    "slug": "exp-4kuhd-3-0",
+    "family": "Extenders and KVM",
+    "type": "cable",
+    "description": "3m/10ft HDMI 2.0 Cable | 18Gbps 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
+    "searchText": "EXP-4KUHD-3.0 3m/10ft HDMI 2.0 Cable | 18Gbps 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated Extenders and KVM cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-4KUHD-5.0",
+    "name": "EXP-4KUHD-5.0",
+    "slug": "exp-4kuhd-5-0",
+    "family": "Extenders and KVM",
+    "type": "cable",
+    "description": "5m/15ft HDMI 2.0 Cable | 18Gbps 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated",
+    "searchText": "EXP-4KUHD-5.0 5m/15ft HDMI 2.0 Cable | 18Gbps 4K60Hz | Dolby Vision & HDR |ARC,CEC, ALLM, VRR, | CL3 & VW-1 Rated Extenders and KVM cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-8KUHD-0.5",
+    "name": "EXP-8KUHD-0.5",
+    "slug": "exp-8kuhd-0-5",
+    "family": "Extenders and KVM",
+    "type": "cable",
+    "description": "0.5m/1.6ft HDMI 2.1 Cable | 48Gbps 8K60 | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified",
+    "searchText": "EXP-8KUHD-0.5 0.5m/1.6ft HDMI 2.1 Cable | 48Gbps 8K60 | Dolby Vision & HDR | eARC, CEC, ALLM, VRR, QMS, QFT | CL3 & VW-1 Rated | UHS Certified Extenders and KVM cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-CAB-USBC-1M",
+    "name": "EXP-CAB-USBC-1M",
+    "slug": "exp-cab-usbc-1m",
+    "family": "Extenders and KVM",
+    "type": "cable",
+    "description": "1m/3.2ft USB-C to C Cable | SuperSpeed USB 20Gbps | 4K60 Alt-Mode | 100w PD",
+    "searchText": "EXP-CAB-USBC-1M 1m/3.2ft USB-C to C Cable | SuperSpeed USB 20Gbps | 4K60 Alt-Mode | 100w PD Extenders and KVM cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-CAB-USBC-2M",
+    "name": "EXP-CAB-USBC-2M",
+    "slug": "exp-cab-usbc-2m",
+    "family": "Extenders and KVM",
+    "type": "cable",
+    "description": "2m/6.5ft USB-C to C Cable | SuperSpeed USB 20Gbps | 4K60 Alt-Mode | 100w PD",
+    "searchText": "EXP-CAB-USBC-2M 2m/6.5ft USB-C to C Cable | SuperSpeed USB 20Gbps | 4K60 Alt-Mode | 100w PD Extenders and KVM cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-CAB-USBC-5M",
+    "name": "EXP-CAB-USBC-5M",
+    "slug": "exp-cab-usbc-5m",
+    "family": "Extenders and KVM",
+    "type": "cable",
+    "description": "5m/16.40ft USB-C to C cable | MicroCoax | 4K60 | 10Gbps (5Gbps/Lane) | 60W | USB 3.2 Gen 1x2",
+    "searchText": "EXP-CAB-USBC-5M 5m/16.40ft USB-C to C cable | MicroCoax | 4K60 | 10Gbps (5Gbps/Lane) | 60W | USB 3.2 Gen 1x2 Extenders and KVM cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-CON-AUD-H2",
+    "name": "EXP-CON-AUD-H2",
+    "slug": "exp-con-aud-h2",
+    "family": "Extenders and KVM",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 HDMI 2.0 Audio Exractor with Passthrough | HDMI to S/PDIF or RCA | 4K60 | Dolby Vision & HDR",
+    "searchText": "EXP-CON-AUD-H2 4K60Hz 4:4:4 HDMI 2.0 Audio Exractor with Passthrough | HDMI to S/PDIF or RCA | 4K60 | Dolby Vision & HDR Extenders and KVM product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-MX-0402-H2",
+    "name": "EXP-MX-0402-H2",
+    "slug": "exp-mx-0402-h2",
+    "family": "Extenders and KVM",
+    "type": "matrix",
+    "description": "4K60Hz 4:4:4 4x2 HDMI Matrix Switch | Dolby Vision & HDR | ARC | CEC | Audio De-embed",
+    "searchText": "EXP-MX-0402-H2 4K60Hz 4:4:4 4x2 HDMI Matrix Switch | Dolby Vision & HDR | ARC | CEC | Audio De-embed Extenders and KVM matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-SP-0102-8K",
+    "name": "EXP-SP-0102-8K",
+    "slug": "exp-sp-0102-8k",
+    "family": "Extenders and KVM",
+    "type": "product",
+    "description": "8K60Hz 4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | Audio De-embed | Down-Scaler",
+    "searchText": "EXP-SP-0102-8K 8K60Hz 4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | Audio De-embed | Down-Scaler Extenders and KVM product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-SP-0102-H2",
+    "name": "EXP-SP-0102-H2",
+    "slug": "exp-sp-0102-h2",
+    "family": "Extenders and KVM",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | 4k > 1080p Down-Scaler",
+    "searchText": "EXP-SP-0102-H2 4K60Hz 4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | 4k > 1080p Down-Scaler Extenders and KVM product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-SP-0104-H2",
+    "name": "EXP-SP-0104-H2",
+    "slug": "exp-sp-0104-h2",
+    "family": "Extenders and KVM",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 1x4 HDMI Splitter | Dolby Vision & HDR | 4k > 1080p Down-Scaler",
+    "searchText": "EXP-SP-0104-H2 4K60Hz 4:4:4 1x4 HDMI Splitter | Dolby Vision & HDR | 4k > 1080p Down-Scaler Extenders and KVM product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-SW-0201-8K",
+    "name": "EXP-SW-0201-8K",
+    "slug": "exp-sw-0201-8k",
+    "family": "Extenders and KVM",
+    "type": "switcher",
+    "description": "8K60Hz 4:4:4 2x1 HDMI Switcher | Dolby Vision & HDR | ARC | Audio De-embed | EDID Management",
+    "searchText": "EXP-SW-0201-8K 8K60Hz 4:4:4 2x1 HDMI Switcher | Dolby Vision & HDR | ARC | Audio De-embed | EDID Management Extenders and KVM switcher",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-SW-0401-8K",
+    "name": "EXP-SW-0401-8K",
+    "slug": "exp-sw-0401-8k",
+    "family": "Extenders and KVM",
+    "type": "switcher",
+    "description": "8K60Hz 4:4:4 4x1 HDMI Switcher | Dolby Vision & HDR | ARC | Audio De-embed | EDID Management | RS232 Control",
+    "searchText": "EXP-SW-0401-8K 8K60Hz 4:4:4 4x1 HDMI Switcher | Dolby Vision & HDR | ARC | Audio De-embed | EDID Management | RS232 Control Extenders and KVM switcher",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "EXP-SW-0401-H2",
+    "name": "EXP-SW-0401-H2",
+    "slug": "exp-sw-0401-h2",
+    "family": "Extenders and KVM",
+    "type": "switcher",
+    "description": "4K60Hz 4:4:4 4x1 HDMI Switcher | Dolby Vision & HDR",
+    "searchText": "EXP-SW-0401-H2 4K60Hz 4:4:4 4x1 HDMI Switcher | Dolby Vision & HDR Extenders and KVM switcher",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "RX-35-POH",
+    "name": "RX-35-POH",
+    "slug": "rx-35-poh",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:2:0 HDBaseT TM Receiver | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For TX-35-IW]",
+    "searchText": "RX-35-POH 4K60Hz 4:2:0 HDBaseT TM Receiver | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For TX-35-IW] Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "RX-500",
+    "name": "RX-500",
+    "slug": "rx-500",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz (4:2:0 8bit) HDBaseT 2.0 Receiver | PoH | USB 2.0 | Audio De-embed | RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For APO/SW Products]",
+    "searchText": "RX-500 4K60Hz (4:2:0 8bit) HDBaseT 2.0 Receiver | PoH | USB 2.0 | Audio De-embed | RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For APO/SW Products] Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "RX-70-4K",
+    "name": "RX-70-4K",
+    "slug": "rx-70-4k",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:2:0 HDBaseT TM Receiver | PoH | Ethernet, IR & RS232 Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) [For TX-70-4K]",
+    "searchText": "RX-70-4K 4K60Hz 4:2:0 HDBaseT TM Receiver | PoH | Ethernet, IR & RS232 Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) [For TX-70-4K] Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "RX-70-4K-SCL",
+    "name": "RX-70-4K-SCL",
+    "slug": "rx-70-4k-scl",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:2:0 HDBaseT TM Scaling Receiver | PoH | Ethernet, IR & RS232 Passthrough |ARC (4K: 70m/230ft, 1080p: 100m/328ft)",
+    "searchText": "RX-70-4K-SCL 4K60Hz 4:2:0 HDBaseT TM Scaling Receiver | PoH | Ethernet, IR & RS232 Passthrough |ARC (4K: 70m/230ft, 1080p: 100m/328ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "RX-700",
+    "name": "RX-700",
+    "slug": "rx-700",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:2:0 HDBaseT Receiver | PoH | USB 2.0 | DSC | Audio De-embed | RS232 & IR Passthrough (4K: 100m/328ft) [For SW-130-TX]",
+    "searchText": "RX-700 4K60Hz 4:2:0 HDBaseT Receiver | PoH | USB 2.0 | DSC | Audio De-embed | RS232 & IR Passthrough (4K: 100m/328ft) [For SW-130-TX] Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "RX3-100",
+    "name": "RX3-100",
+    "slug": "rx3-100",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4,5K30Hz 4:4:4 HDBaseT 3.0 Receiver | PoH | USB2.0 | CEC | RS232 passthrough | audio De-embed (4K: 100m/328ft) [For SW-120-TX3 & MX-1007-HYB]",
+    "searchText": "RX3-100 4K60Hz 4:4:4,5K30Hz 4:4:4 HDBaseT 3.0 Receiver | PoH | USB2.0 | CEC | RS232 passthrough | audio De-embed (4K: 100m/328ft) [For SW-120-TX3 & MX-1007-HYB] Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "RXF-300-4K",
+    "name": "RXF-300-4K",
+    "slug": "rxf-300-4k",
+    "family": "Extenders and KVM",
+    "type": "receiver",
+    "description": "4K60Hz 4:4:4 Fiber Receiver | IR & RS232 Passthrough (4K:300m/984ft) [For H2XC]",
+    "searchText": "RXF-300-4K 4K60Hz 4:4:4 Fiber Receiver | IR & RS232 Passthrough (4K:300m/984ft) [For H2XC] Extenders and KVM receiver",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "RXV-35-4K",
+    "name": "RXV-35-4K",
+    "slug": "rxv-35-4k",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4 HDBaseT Receiver | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For MXV]",
+    "searchText": "RXV-35-4K 4K60Hz 4:4:4 HDBaseT Receiver | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For MXV] Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "RXV-35-SCL",
+    "name": "RXV-35-SCL",
+    "slug": "rxv-35-scl",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4 HDBaseT Scaling Receiver | PoH | Audio De-embed | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For MXV]",
+    "searchText": "RXV-35-SCL 4K60Hz 4:4:4 HDBaseT Scaling Receiver | PoH | Audio De-embed | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) [For MXV] Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "RXV-70-4K-G2",
+    "name": "RXV-70-4K-G2",
+    "slug": "rxv-70-4k-g2",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4 HDBaseT Receiver | PoH | IR & RS232 Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) [For MXV-70]",
+    "searchText": "RXV-70-4K-G2 4K60Hz 4:4:4 HDBaseT Receiver | PoH | IR & RS232 Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) [For MXV-70] Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "RXV-70-G2-SCL",
+    "name": "RXV-70-G2-SCL",
+    "slug": "rxv-70-g2-scl",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4 HDBaseT Scaling Receiver | PoH | Audio De-embed | IR & RS232 Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) [For MXV-70]",
+    "searchText": "RXV-70-G2-SCL 4K60Hz 4:4:4 HDBaseT Scaling Receiver | PoH | Audio De-embed | IR & RS232 Passthrough (4K: 70m/230ft, 1080p: 100m/328ft) [For MXV-70] Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "TX-35-IW",
+    "name": "TX-35-IW",
+    "slug": "tx-35-iw",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:2:0 HDBaseT TM Single Gang In-Wall Transmitter | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft)",
+    "searchText": "TX-35-IW 4K60Hz 4:2:0 HDBaseT TM Single Gang In-Wall Transmitter | PoH | IR & RS232 Passthrough (4K: 35m/115ft, 1080p: 70m/230ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "TX-35-IW-KVM",
+    "name": "TX-35-IW-KVM",
+    "slug": "tx-35-iw-kvm",
+    "family": "Extenders and KVM",
+    "type": "transmitter",
+    "description": "4K60Hz 4:2:0 HDMI & USB Single Gange In-Wall HDBT 2.0 Transmitter | HDMI 1.4 | HDCP 2.2 | 35m 4K 60 4:2:0",
+    "searchText": "TX-35-IW-KVM 4K60Hz 4:2:0 HDMI & USB Single Gange In-Wall HDBT 2.0 Transmitter | HDMI 1.4 | HDCP 2.2 | 35m 4K 60 4:2:0 Extenders and KVM transmitter",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "TX-35-IWC-KVM",
+    "name": "TX-35-IWC-KVM",
+    "slug": "tx-35-iwc-kvm",
+    "family": "Extenders and KVM",
+    "type": "transmitter",
+    "description": "4K60Hz 4:2:0 USB C Single Gang In-Wall HDBT 2.0 Transmitter | DP Alt Mode (4-Lane) | HDCP 2.2 | 35m 4K 60 4:2:0 | PoH | RS232 | USB 2.0",
+    "searchText": "TX-35-IWC-KVM 4K60Hz 4:2:0 USB C Single Gang In-Wall HDBT 2.0 Transmitter | DP Alt Mode (4-Lane) | HDCP 2.2 | 35m 4K 60 4:2:0 | PoH | RS232 | USB 2.0 Extenders and KVM transmitter",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "TX-SCL-HDBT",
+    "name": "TX-SCL-HDBT",
+    "slug": "tx-scl-hdbt",
+    "family": "Extenders and KVM",
+    "type": "extender",
+    "description": "4K60Hz 4:2:0 HDBaseT TM Scaling Output Card for MX-1616-SCL | HDR | PoH | Audio De-Embed (4K: 100m/328ft)",
+    "searchText": "TX-SCL-HDBT 4K60Hz 4:2:0 HDBaseT TM Scaling Output Card for MX-1616-SCL | HDR | PoH | Audio De-Embed (4K: 100m/328ft) Extenders and KVM extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "TX-SCL-HDMI",
+    "name": "TX-SCL-HDMI",
+    "slug": "tx-scl-hdmi",
+    "family": "Extenders and KVM",
+    "type": "product",
+    "description": "4K60Hz 4:4:4HDMI Scaling Output Card for MX-1616-SCL | HDR | Audio De-embed",
+    "searchText": "TX-SCL-HDMI 4K60Hz 4:4:4HDMI Scaling Output Card for MX-1616-SCL | HDR | Audio De-embed Extenders and KVM product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-1007-HYB",
+    "name": "MX-1007-HYB",
+    "slug": "mx-1007-hyb",
+    "family": "NetworkHD",
+    "type": "matrix",
+    "description": "4K60Hz 4:4:4 10x7 Seamless Matrix | 7 HDMI & 1 USB-C input | NetworkHD (500 series) & HDBT TM Inputs & outputs | Audio DSP, AMP & Mixing | DANTE | Dolby Vision & HDR | Routable CEC & RS232",
+    "searchText": "MX-1007-HYB 4K60Hz 4:4:4 10x7 Seamless Matrix | 7 HDMI & 1 USB-C input | NetworkHD (500 series) & HDBT TM Inputs & outputs | Audio DSP, AMP & Mixing | DANTE | Dolby Vision & HDR | Routable CEC & RS232 NetworkHD matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NETWORKHD TOUCH TM",
+    "name": "NETWORKHD TOUCH TM",
+    "slug": "networkhd-touch-tm",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "Free iPad & Android Control App for NetworkHD 100, 200 & 400 Series",
+    "searchText": "NETWORKHD TOUCH TM Free iPad & Android Control App for NetworkHD 100, 200 & 400 Series NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-000-RACK4",
+    "name": "NHD-000-RACK4",
+    "slug": "nhd-000-rack4",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "6U/12 Slot Rack Mount for all NetworkHD Series",
+    "searchText": "NHD-000-RACK4 6U/12 Slot Rack Mount for all NetworkHD Series NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-0401-MV",
+    "name": "NHD-0401-MV",
+    "slug": "nhd-0401-mv",
+    "family": "NetworkHD",
+    "type": "switcher",
+    "description": "NetworkHD 4-Input 4K60 Multiview Switcher | Dolby Vision & HDR | Audio De-embed | Compatible with 400 & 500 Series",
+    "searchText": "NHD-0401-MV NetworkHD 4-Input 4K60 Multiview Switcher | Dolby Vision & HDR | Audio De-embed | Compatible with 400 & 500 Series NetworkHD switcher",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-120-IW-TX",
+    "name": "NHD-120-IW-TX",
+    "slug": "nhd-120-iw-tx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K30Hz 2-Gang In-Wall Encoder | PoE | Audio De-embed | IR TX | 1GbE Port for 3rd Device Passthrough",
+    "searchText": "NHD-120-IW-TX 4K30Hz 2-Gang In-Wall Encoder | PoE | Audio De-embed | IR TX | 1GbE Port for 3rd Device Passthrough NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-120-RX",
+    "name": "NHD-120-RX",
+    "slug": "nhd-120-rx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K30Hz Decoder | PoE | Audio De-embed | Video Wall | IR & RS232 Routing | CEC",
+    "searchText": "NHD-120-RX 4K30Hz Decoder | PoE | Audio De-embed | Video Wall | IR & RS232 Routing | CEC NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-120-TX",
+    "name": "NHD-120-TX",
+    "slug": "nhd-120-tx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K30Hz Encoder | PoE | Audio De-embed | IR & RS232 Routing",
+    "searchText": "NHD-120-TX 4K30Hz Encoder | PoE | Audio De-embed | IR & RS232 Routing NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-124-TX",
+    "name": "NHD-124-TX",
+    "slug": "nhd-124-tx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K30Hz Quad Encoder",
+    "searchText": "NHD-124-TX 4K30Hz Quad Encoder NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-140-RACK-1U",
+    "name": "NHD-140-RACK-1U",
+    "slug": "nhd-140-rack-1u",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "1U/2 Slot Rack Mount for NHD-140-TX &NHD-124-TX Quad Encoder",
+    "searchText": "NHD-140-RACK-1U 1U/2 Slot Rack Mount for NHD-140-TX &NHD-124-TX Quad Encoder NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-150-RX",
+    "name": "NHD-150-RX",
+    "slug": "nhd-150-rx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K30Hz Decoder | 4K60HZ Output | PoE | 9-Window Multiview Processing | Tile & Overlap Layout | Audio De-embed | RS232 | CEC",
+    "searchText": "NHD-150-RX 4K30Hz Decoder | 4K60HZ Output | PoE | 9-Window Multiview Processing | Tile & Overlap Layout | Audio De-embed | RS232 | CEC NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-500-DNT-TX",
+    "name": "NHD-500-DNT-TX",
+    "slug": "nhd-500-dnt-tx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 Encoder | 2GbE RJ45 + SFP | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | Fiber | IR & RS232 Routing / Dante AES67",
+    "searchText": "NHD-500-DNT-TX 4K60Hz 4:4:4 Encoder | 2GbE RJ45 + SFP | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | Fiber | IR & RS232 Routing / Dante AES67 NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-500-E-RX",
+    "name": "NHD-500-E-RX",
+    "slug": "nhd-500-e-rx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "Lite 4K60Hz 4:4:4 Decoder | 1GbE | Dolby Vision & HDR | PoE | RS232",
+    "searchText": "NHD-500-E-RX Lite 4K60Hz 4:4:4 Decoder | 1GbE | Dolby Vision & HDR | PoE | RS232 NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-500-E-TX",
+    "name": "NHD-500-E-TX",
+    "slug": "nhd-500-e-tx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "Lite 4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | Audio De-embed | IR",
+    "searchText": "NHD-500-E-TX Lite 4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | Audio De-embed | IR NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-500-IW-TX",
+    "name": "NHD-500-IW-TX",
+    "slug": "nhd-500-iw-tx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 2-Gang In-Wall Encoder | HDMI & USB-C Inputs | PoE | 1GbE | Dolby Vision & HDR | USB 2.0",
+    "searchText": "NHD-500-IW-TX 4K60Hz 4:4:4 2-Gang In-Wall Encoder | HDMI & USB-C Inputs | PoE | 1GbE | Dolby Vision & HDR | USB 2.0 NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-500-RX",
+    "name": "NHD-500-RX",
+    "slug": "nhd-500-rx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 Decoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Video Wall | Audio De-embed | ARC | S/PDIF | SFP | CEC | IR & RS232 Routing",
+    "searchText": "NHD-500-RX 4K60Hz 4:4:4 Decoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Video Wall | Audio De-embed | ARC | S/PDIF | SFP | CEC | IR & RS232 Routing NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-500-TX",
+    "name": "NHD-500-TX",
+    "slug": "nhd-500-tx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | ARC | S/PDIF | SFP | IR & RS232 Routing",
+    "searchText": "NHD-500-TX 4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | ARC | S/PDIF | SFP | IR & RS232 Routing NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-510-TX",
+    "name": "NHD-510-TX",
+    "slug": "nhd-510-tx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 Encoder | 1GbE | HDMI&USB-C Input | HDMI Loop out | Dolby Vision & HDR | PoE+ | USB 2.0 | Audio De-embed | SFP | IR & RS232 Routing | Dante AV-A",
+    "searchText": "NHD-510-TX 4K60Hz 4:4:4 Encoder | 1GbE | HDMI&USB-C Input | HDMI Loop out | Dolby Vision & HDR | PoE+ | USB 2.0 | Audio De-embed | SFP | IR & RS232 Routing | Dante AV-A NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-600-TRX",
+    "name": "NHD-600-TRX",
+    "slug": "nhd-600-trx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 SDVoE Transceiver | 10G RJ45 | Dolby Vision & HDR | Video Wall | Multiview | PoE+ | Ethernet Passthrough | Audio De-embed | USB HID | IR & RS232",
+    "searchText": "NHD-600-TRX 4K60Hz 4:4:4 SDVoE Transceiver | 10G RJ45 | Dolby Vision & HDR | Video Wall | Multiview | PoE+ | Ethernet Passthrough | Audio De-embed | USB HID | IR & RS232 NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-600-TRXF",
+    "name": "NHD-600-TRXF",
+    "slug": "nhd-600-trxf",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 SDVoE Fiber Transceiver | 10G SFP+ | Dolby Vision & HDR | Video Wall | Multiview | Ethernet Passthrough | Audio De-embed | USB 2.0 | IR&RS232",
+    "searchText": "NHD-600-TRXF 4K60Hz 4:4:4 SDVoE Fiber Transceiver | 10G SFP+ | Dolby Vision & HDR | Video Wall | Multiview | Ethernet Passthrough | Audio De-embed | USB 2.0 | IR&RS232 NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-610-RX",
+    "name": "NHD-610-RX",
+    "slug": "nhd-610-rx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 SDVoE Decoder | 10G RJ45| Dolby Vision & HDR | Video Wall | Multiview | PoE+ | Ethernet Passthrough | Audio De-embed | USB 2.0 | IR&RS232",
+    "searchText": "NHD-610-RX 4K60Hz 4:4:4 SDVoE Decoder | 10G RJ45| Dolby Vision & HDR | Video Wall | Multiview | PoE+ | Ethernet Passthrough | Audio De-embed | USB 2.0 | IR&RS232 NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-610-TX",
+    "name": "NHD-610-TX",
+    "slug": "nhd-610-tx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 SDVoE Encoder | 10G RJ45 | Dolby Vision & HDR | PoE+ | Ethernet Passthrough | Audio De-embed | Dante/AES67 | USB 2.0 | IR&RS232",
+    "searchText": "NHD-610-TX 4K60Hz 4:4:4 SDVoE Encoder | 10G RJ45 | Dolby Vision & HDR | PoE+ | Ethernet Passthrough | Audio De-embed | Dante/AES67 | USB 2.0 | IR&RS232 NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-610-TX-V2",
+    "name": "NHD-610-TX-V2",
+    "slug": "nhd-610-tx-v2",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "4K60Hz 4:4:4 SDVoE Encoder | 10G RJ45 | Dolby Vision & HDR | PoE+ | Ethernet Passthrough | Audio De-embed | Dante/AES67 | USB HID | IR&RS232",
+    "searchText": "NHD-610-TX-V2 4K60Hz 4:4:4 SDVoE Encoder | 10G RJ45 | Dolby Vision & HDR | PoE+ | Ethernet Passthrough | Audio De-embed | Dante/AES67 | USB HID | IR&RS232 NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-CTL-PRO-V2",
+    "name": "NHD-CTL-PRO-V2",
+    "slug": "nhd-ctl-pro-v2",
+    "family": "NetworkHD",
+    "type": "controller",
+    "description": "Pro Controller for NetworkHD Series | PoE | Dual NIC Network Isolation | Advanced Setup Interface & Wizard",
+    "searchText": "NHD-CTL-PRO-V2 Pro Controller for NetworkHD Series | PoE | Dual NIC Network Isolation | Advanced Setup Interface & Wizard NetworkHD controller",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-RACK-1U",
+    "name": "NHD-RACK-1U",
+    "slug": "nhd-rack-1u",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "1U/2 Slot Rack Mount for NetworkHD TM 110/120/500/600/CTL",
+    "searchText": "NHD-RACK-1U 1U/2 Slot Rack Mount for NetworkHD TM 110/120/500/600/CTL NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-RACK4-BLK",
+    "name": "NHD-RACK4-BLK",
+    "slug": "nhd-rack4-blk",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "Blanking Plate for NHD-000-RACK4",
+    "searchText": "NHD-RACK4-BLK Blanking Plate for NHD-000-RACK4 NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "NHD-USB-TRX",
+    "name": "NHD-USB-TRX",
+    "slug": "nhd-usb-trx",
+    "family": "NetworkHD",
+    "type": "product",
+    "description": "USB 2.0 over IP Transceiver | 1GbE | USB-A & USB-B Ports | SFP | PoE+ | USB Hub",
+    "searchText": "NHD-USB-TRX USB 2.0 over IP Transceiver | 1GbE | USB-A & USB-B Ports | SFP | PoE+ | USB Hub NetworkHD product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "APO-210-UC",
+    "name": "APO-210-UC",
+    "slug": "apo-210-uc",
+    "family": "Presentation and UC",
+    "type": "switcher",
+    "description": "Apollo TM Video-speakerphone switcher |USB-C & HDMI input | HDMI Out & HDBaseT TM Out |10W Speaker | Omni-direction 4xMics | Dual-View | Airplay & Miracast & APO-DG1 dongle",
+    "searchText": "APO-210-UC Apollo TM Video-speakerphone switcher |USB-C & HDMI input | HDMI Out & HDBaseT TM Out |10W Speaker | Omni-direction 4xMics | Dual-View | Airplay & Miracast & APO-DG1 dongle Presentation and UC switcher",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "APO-COM-MIC",
+    "name": "APO-COM-MIC",
+    "slug": "apo-com-mic",
+    "family": "Presentation and UC",
+    "type": "product",
+    "description": "Apollo TM companion mic | MINI USB connection | Mounting on table",
+    "searchText": "APO-COM-MIC Apollo TM companion mic | MINI USB connection | Mounting on table Presentation and UC product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "APO-DG-DOCK",
+    "name": "APO-DG-DOCK",
+    "slug": "apo-dg-dock",
+    "family": "Presentation and UC",
+    "type": "product",
+    "description": "Docking station for APO-DG1, APO-DG2 & APO-DG-HDMI",
+    "searchText": "APO-DG-DOCK Docking station for APO-DG1, APO-DG2 & APO-DG-HDMI Presentation and UC product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "APO-DG-HDMI",
+    "name": "APO-DG-HDMI",
+    "slug": "apo-dg-hdmi",
+    "family": "Presentation and UC",
+    "type": "product",
+    "description": "HDMI - USB C Adapter for the APO-DG1/2",
+    "searchText": "APO-DG-HDMI HDMI - USB C Adapter for the APO-DG1/2 Presentation and UC product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "APO-DG1",
+    "name": "APO-DG1",
+    "slug": "apo-dg1",
+    "family": "Presentation and UC",
+    "type": "dongle",
+    "description": "Apollo TM 1080p USB-C(DP Atl mode) dongle for wireless casting",
+    "searchText": "APO-DG1 Apollo TM 1080p USB-C(DP Atl mode) dongle for wireless casting Presentation and UC dongle",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "APO-DG2",
+    "name": "APO-DG2",
+    "slug": "apo-dg2",
+    "family": "Presentation and UC",
+    "type": "dongle",
+    "description": "Apollo TM 4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing( with APP)",
+    "searchText": "APO-DG2 Apollo TM 4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing( with APP) Presentation and UC dongle",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "APO-DG2-PRO",
+    "name": "APO-DG2-PRO",
+    "slug": "apo-dg2-pro",
+    "family": "Presentation and UC",
+    "type": "dongle",
+    "description": "Apollo TM 4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing( without APP)",
+    "searchText": "APO-DG2-PRO Apollo TM 4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing( without APP) Presentation and UC dongle",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "APO-MIC-EXT",
+    "name": "APO-MIC-EXT",
+    "slug": "apo-mic-ext",
+    "family": "Presentation and UC",
+    "type": "product",
+    "description": "Mini-USB to Ethernet adaptor for connection between Videobar and Companion Mic APO-COM-MIC",
+    "searchText": "APO-MIC-EXT Mini-USB to Ethernet adaptor for connection between Videobar and Companion Mic APO-COM-MIC Presentation and UC product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "APO-SKY-MIC",
+    "name": "APO-SKY-MIC",
+    "slug": "apo-sky-mic",
+    "family": "Presentation and UC",
+    "type": "product",
+    "description": "Apollo TM companion Add-On Ceiling Mic | RJ45 connection",
+    "searchText": "APO-SKY-MIC Apollo TM companion Add-On Ceiling Mic | RJ45 connection Presentation and UC product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "APO-VX20-MNT",
+    "name": "APO-VX20-MNT",
+    "slug": "apo-vx20-mnt",
+    "family": "Presentation and UC",
+    "type": "video-bar",
+    "description": "Wall Mounting Kit for the APO-VX20-UC Video Bar",
+    "searchText": "APO-VX20-MNT Wall Mounting Kit for the APO-VX20-UC Video Bar Presentation and UC video-bar",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "APO-VX20-UC",
+    "name": "APO-VX20-UC",
+    "slug": "apo-vx20-uc",
+    "family": "Presentation and UC",
+    "type": "video-bar",
+    "description": "Apollo TM Video Bar & Switcher | USB-C & HDMI input | HDMI Output | 4K AI camera | 120 deg DFOV | Auto Framing and Presenter Tracking|Dual 8w stereo Speakers | Airplay & Miracast & APO-DG1ZOOM Certification",
+    "searchText": "APO-VX20-UC Apollo TM Video Bar & Switcher | USB-C & HDMI input | HDMI Output | 4K AI camera | 120 deg DFOV | Auto Framing and Presenter Tracking|Dual 8w stereo Speakers | Airplay & Miracast & APO-DG1ZOOM Certification Presentation and UC video-bar",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAM-210-NDI-PTZ",
+    "name": "CAM-210-NDI-PTZ",
+    "slug": "cam-210-ndi-ptz",
+    "family": "Presentation and UC",
+    "type": "camera",
+    "description": "1080p60 PTZ Camera | USB 3.0 | Network Streaming | 12x optical zoom | A.I. Auto-Framing | HDMI Out | NDI",
+    "searchText": "CAM-210-NDI-PTZ 1080p60 PTZ Camera | USB 3.0 | Network Streaming | 12x optical zoom | A.I. Auto-Framing | HDMI Out | NDI Presentation and UC camera",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "CAM-210-PTZ",
+    "name": "CAM-210-PTZ",
+    "slug": "cam-210-ptz",
+    "family": "Presentation and UC",
+    "type": "camera",
+    "description": "1080p60 PTZ Camera | USB 3.0 | Network Streaming | 12x optical zoom | A.I. Auto-Framing | HDMI Out",
+    "searchText": "CAM-210-PTZ 1080p60 PTZ Camera | USB 3.0 | Network Streaming | 12x optical zoom | A.I. Auto-Framing | HDMI Out Presentation and UC camera",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "COM-MIC-HUB",
+    "name": "COM-MIC-HUB",
+    "slug": "com-mic-hub",
+    "family": "Presentation and UC",
+    "type": "product",
+    "description": "Microphone Hub | Microphone Mixer | AEC & AGC & ANR | Web-UI",
+    "searchText": "COM-MIC-HUB Microphone Hub | Microphone Mixer | AEC & AGC & ANR | Web-UI Presentation and UC product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "FOCUS 200 PRO",
+    "name": "FOCUS 200 PRO",
+    "slug": "focus-200-pro",
+    "family": "Presentation and UC",
+    "type": "camera",
+    "description": "4K AI Webcam | 120 deg DFOV | Gesture Control, Auto Framing and Presenter Tracking| Zoom certified | USB 3.0 Support | Integrated Mic | High fram rateZOOM Certification",
+    "searchText": "FOCUS 200 PRO 4K AI Webcam | 120 deg DFOV | Gesture Control, Auto Framing and Presenter Tracking| Zoom certified | USB 3.0 Support | Integrated Mic | High fram rateZOOM Certification Presentation and UC camera",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "HALO 60",
+    "name": "HALO 60",
+    "slug": "halo-60",
+    "family": "Presentation and UC",
+    "type": "product",
+    "description": "Compact USB Speakerphone | Omni-direction 4xMics | AEC &ANR &AGC | USB & Bluetooth | 2500mAh Battery",
+    "searchText": "HALO 60 Compact USB Speakerphone | Omni-direction 4xMics | AEC &ANR &AGC | USB & Bluetooth | 2500mAh Battery Presentation and UC product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "HALO 80",
+    "name": "HALO 80",
+    "slug": "halo-80",
+    "family": "Presentation and UC",
+    "type": "product",
+    "description": "USB/Bluetooth Speakerphone | Daisy-chain up to 9 units | Omni-Direction 4xMics | AEC | Noise Reduction | 3W speaker | USB2.0",
+    "searchText": "HALO 80 USB/Bluetooth Speakerphone | Daisy-chain up to 9 units | Omni-Direction 4xMics | AEC | Noise Reduction | 3W speaker | USB2.0 Presentation and UC product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "HALO-COM-MIC",
+    "name": "HALO-COM-MIC",
+    "slug": "halo-com-mic",
+    "family": "Presentation and UC",
+    "type": "product",
+    "description": "Apollo TM companion mic | USB mini connection | Mounting on table",
+    "searchText": "HALO-COM-MIC Apollo TM companion mic | USB mini connection | Mounting on table Presentation and UC product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "HALO-VX10-V2",
+    "name": "HALO-VX10-V2",
+    "slug": "halo-vx10-v2",
+    "family": "Presentation and UC",
+    "type": "video-bar",
+    "description": "HALO Video Bar mini | 4K AI camera | 120 deg DFOV | Auto Framing and Presenter Tracking|Dual 5w stereo Speakers | ZOOM Certification",
+    "searchText": "HALO-VX10-V2 HALO Video Bar mini | 4K AI camera | 120 deg DFOV | Auto Framing and Presenter Tracking|Dual 5w stereo Speakers | ZOOM Certification Presentation and UC video-bar",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-200-MS",
+    "name": "IDB-200-MS",
+    "slug": "idb-200-ms",
+    "family": "Switching and Control",
+    "type": "product",
+    "description": "Compact In-Desk Connectivity | HDMI & USB-C Passthrough | USB Charging | Multi-Standard Mains Outlet",
+    "searchText": "IDB-200-MS Compact In-Desk Connectivity | HDMI & USB-C Passthrough | USB Charging | Multi-Standard Mains Outlet Switching and Control product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-300",
+    "name": "IDB-300",
+    "slug": "idb-300",
+    "family": "Switching and Control",
+    "type": "cable",
+    "description": "Dual Channel CableBox | USB-C, HDMI+USB | Retractable | Cable management bag",
+    "searchText": "IDB-300 Dual Channel CableBox | USB-C, HDMI+USB | Retractable | Cable management bag Switching and Control cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-300-BTN",
+    "name": "IDB-300-BTN",
+    "slug": "idb-300-btn",
+    "family": "Switching and Control",
+    "type": "cable",
+    "description": "Dual Channel CableBox | USB-C, HDMI+USB | Touch buttons with LEDs | Retractable | Cable management bag",
+    "searchText": "IDB-300-BTN Dual Channel CableBox | USB-C, HDMI+USB | Touch buttons with LEDs | Retractable | Cable management bag Switching and Control cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-400-MS",
+    "name": "IDB-400-MS",
+    "slug": "idb-400-ms",
+    "family": "Switching and Control",
+    "type": "product",
+    "description": "Flip Up In-Desk Connectivity | 2 HDMI & USB-C Passthrough | USB Charging | RJ-45 | Multi-Standard Mains Outlet",
+    "searchText": "IDB-400-MS Flip Up In-Desk Connectivity | 2 HDMI & USB-C Passthrough | USB Charging | RJ-45 | Multi-Standard Mains Outlet Switching and Control product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-400-MS-C",
+    "name": "IDB-400-MS-C",
+    "slug": "idb-400-ms-c",
+    "family": "Switching and Control",
+    "type": "product",
+    "description": "Flip Up In-Desk Connectivity | USB Charging| Multi-Standard Mains Outlet | customized ports",
+    "searchText": "IDB-400-MS-C Flip Up In-Desk Connectivity | USB Charging| Multi-Standard Mains Outlet | customized ports Switching and Control product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-CBL-SPINE",
+    "name": "IDB-CBL-SPINE",
+    "slug": "idb-cbl-spine",
+    "family": "Switching and Control",
+    "type": "cable",
+    "description": "Under Desk Cable Management 'SPINE' for IDB Series (Adjustable up to 36\")",
+    "searchText": "IDB-CBL-SPINE Under Desk Cable Management 'SPINE' for IDB Series (Adjustable up to 36\") Switching and Control cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-HDMI-C",
+    "name": "IDB-HDMI-C",
+    "slug": "idb-hdmi-c",
+    "family": "Switching and Control",
+    "type": "product",
+    "description": "HDMI | Passthrough coupling socket | Front HDMI female | Back HDMI female",
+    "searchText": "IDB-HDMI-C HDMI | Passthrough coupling socket | Front HDMI female | Back HDMI female Switching and Control product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-K2-C",
+    "name": "IDB-K2-C",
+    "slug": "idb-k2-c",
+    "family": "Switching and Control",
+    "type": "product",
+    "description": "Carrier Keystone 2 ports | 45mm X 45mm | Black color",
+    "searchText": "IDB-K2-C Carrier Keystone 2 ports | 45mm X 45mm | Black color Switching and Control product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-PWR-SCH",
+    "name": "IDB-PWR-SCH",
+    "slug": "idb-pwr-sch",
+    "family": "Switching and Control",
+    "type": "cable",
+    "description": "2m Wieland to Schuko Power Supply Cable For IDB-MS Series (Schuko Plug)",
+    "searchText": "IDB-PWR-SCH 2m Wieland to Schuko Power Supply Cable For IDB-MS Series (Schuko Plug) Switching and Control cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-PWR-UK",
+    "name": "IDB-PWR-UK",
+    "slug": "idb-pwr-uk",
+    "family": "Switching and Control",
+    "type": "cable",
+    "description": "2m Wieland to UK Power Supply Cable For IDB-MS Series (UK Plug)",
+    "searchText": "IDB-PWR-UK 2m Wieland to UK Power Supply Cable For IDB-MS Series (UK Plug) Switching and Control cable",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-RJ45-C",
+    "name": "IDB-RJ45-C",
+    "slug": "idb-rj45-c",
+    "family": "Switching and Control",
+    "type": "product",
+    "description": "RJ45 CAT6 | Passthrough coupling socket | Front RJ45 female | Back RJ45 female | Unshielded",
+    "searchText": "IDB-RJ45-C RJ45 CAT6 | Passthrough coupling socket | Front RJ45 female | Back RJ45 female | Unshielded Switching and Control product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-USBA-C",
+    "name": "IDB-USBA-C",
+    "slug": "idb-usba-c",
+    "family": "Switching and Control",
+    "type": "product",
+    "description": "USB 3.0 type A | Passthrough coupling socket | Front USB A female | Back USB A female",
+    "searchText": "IDB-USBA-C USB 3.0 type A | Passthrough coupling socket | Front USB A female | Back USB A female Switching and Control product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "IDB-USBC-C",
+    "name": "IDB-USBC-C",
+    "slug": "idb-usbc-c",
+    "family": "Switching and Control",
+    "type": "product",
+    "description": "USB 3.2 type C | Passthrough coupling socket | Front USB C female | Back USB C female",
+    "searchText": "IDB-USBC-C USB 3.2 type C | Passthrough coupling socket | Front USB C female | Back USB C female Switching and Control product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-0402-MST",
+    "name": "MX-0402-MST",
+    "slug": "mx-0402-mst",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "Synergy 4K60Hz HDR 4x2 HDMI & USB-C Matrix Switcher with MST | Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling",
+    "searchText": "MX-0402-MST Synergy 4K60Hz HDR 4x2 HDMI & USB-C Matrix Switcher with MST | Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-0403-H3-MST",
+    "name": "MX-0403-H3-MST",
+    "slug": "mx-0403-h3-mst",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "Synergy 4K60Hz HDR 4x3 HDMI & USB-C Matrix Switcher with MST & HDBaseT 3.0 Output| Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling",
+    "searchText": "MX-0403-H3-MST Synergy 4K60Hz HDR 4x3 HDMI & USB-C Matrix Switcher with MST & HDBaseT 3.0 Output| Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-0404-HDMI",
+    "name": "MX-0404-HDMI",
+    "slug": "mx-0404-hdmi",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60Hz 4:4:4 4x4 HDMI Matrix | Dolby Vision & HDR | 4K-1080P Simple Scaler | Audio De-embed | CEC",
+    "searchText": "MX-0404-HDMI 4K60Hz 4:4:4 4x4 HDMI Matrix | Dolby Vision & HDR | 4K-1080P Simple Scaler | Audio De-embed | CEC Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-0404-KIT",
+    "name": "MX-0404-KIT",
+    "slug": "mx-0404-kit",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60Hz 4:2:0 4x4 (3 HDBaseT TM, 1 HDMI) Matrix | PoH | Includes 3 Receivers | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft)",
+    "searchText": "MX-0404-KIT 4K60Hz 4:2:0 4x4 (3 HDBaseT TM, 1 HDMI) Matrix | PoH | Includes 3 Receivers | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft) Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-0404-SCL",
+    "name": "MX-0404-SCL",
+    "slug": "mx-0404-scl",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60Hz 4:4:4 4x4 HDMI Matrix | HDR | Seamless Switching | Multiview | Videowall | Scaling Outputs |Balanced Analog and S/PDIF Audio De-embed | CEC",
+    "searchText": "MX-0404-SCL 4K60Hz 4:4:4 4x4 HDMI Matrix | HDR | Seamless Switching | Multiview | Videowall | Scaling Outputs |Balanced Analog and S/PDIF Audio De-embed | CEC Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-0804-EDC",
+    "name": "MX-0804-EDC",
+    "slug": "mx-0804-edc",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60Hz 4:4:4 8x4 Seamless Matrix | 7 HDMI & 1 USB-C input | 4 HDMI outputs | Audio DSP & Mixing | DANTE | Dolby Vision & HDR | CEC",
+    "searchText": "MX-0804-EDC 4K60Hz 4:4:4 8x4 Seamless Matrix | 7 HDMI & 1 USB-C input | 4 HDMI outputs | Audio DSP & Mixing | DANTE | Dolby Vision & HDR | CEC Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-0808-H2A-MK2",
+    "name": "MX-0808-H2A-MK2",
+    "slug": "mx-0808-h2a-mk2",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60Hz 4:4:4 8x8 HDMI Matrix | Dolby Vision & HDR | Scaling Outputs | Balanced Audio De-embed | ARC | CEC | Sygma",
+    "searchText": "MX-0808-H2A-MK2 4K60Hz 4:4:4 8x8 HDMI Matrix | Dolby Vision & HDR | Scaling Outputs | Balanced Audio De-embed | ARC | CEC | Sygma Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-0808-KIT-V2",
+    "name": "MX-0808-KIT-V2",
+    "slug": "mx-0808-kit-v2",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60Hz 4:2:0 8x8 HDBaseT TM Matrix | PoH | Includes 8 Receivers | 4x Mirrored HDMI | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft)",
+    "searchText": "MX-0808-KIT-V2 4K60Hz 4:2:0 8x8 HDBaseT TM Matrix | PoH | Includes 8 Receivers | 4x Mirrored HDMI | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft) Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-0808-SCL",
+    "name": "MX-0808-SCL",
+    "slug": "mx-0808-scl",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60 4:4:4 8x8 Seamless Scaling HDMI Matrix with USB-C | Audio De-embed | HDCP 2.3",
+    "searchText": "MX-0808-SCL 4K60 4:4:4 8x8 Seamless Scaling HDMI Matrix with USB-C | Audio De-embed | HDCP 2.3 Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-0812-SCL",
+    "name": "MX-0812-SCL",
+    "slug": "mx-0812-scl",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60 4:4:4 8x12 Advanced Seamless Scaling HDMI Matrix | Advanced Video Wall | Audio De-embed | HDCP 2.3",
+    "searchText": "MX-0812-SCL 4K60 4:4:4 8x12 Advanced Seamless Scaling HDMI Matrix | Advanced Video Wall | Audio De-embed | HDCP 2.3 Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MX-1616-SCL",
+    "name": "MX-1616-SCL",
+    "slug": "mx-1616-scl",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "16 Slot - 4K60Hz 4:4:4 Seamless Empty Custom Matrix Chassis",
+    "searchText": "MX-1616-SCL 16 Slot - 4K60Hz 4:4:4 Seamless Empty Custom Matrix Chassis Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MXV-0404-H2A-KIT",
+    "name": "MXV-0404-H2A-KIT",
+    "slug": "mxv-0404-h2a-kit",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60Hz 4:4:4 4x4 HDBaseT TM Matrix | Dolby Vision & HDR | PoH | Includes 4 Receivers | Audio De-embed | (4K: 35m/115ft, 1080p: 70m/230ft)",
+    "searchText": "MXV-0404-H2A-KIT 4K60Hz 4:4:4 4x4 HDBaseT TM Matrix | Dolby Vision & HDR | PoH | Includes 4 Receivers | Audio De-embed | (4K: 35m/115ft, 1080p: 70m/230ft) Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MXV-0808-H2A-70-V3",
+    "name": "MXV-0808-H2A-70-V3",
+    "slug": "mxv-0808-h2a-70-v3",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60Hz 4:4:4 8x8 HDBaseT TM Matrix | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 70m/230ft, 1080p: 100m/328ft)",
+    "searchText": "MXV-0808-H2A-70-V3 4K60Hz 4:4:4 8x8 HDBaseT TM Matrix | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 70m/230ft, 1080p: 100m/328ft) Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MXV-0808-H2A-KIT",
+    "name": "MXV-0808-H2A-KIT",
+    "slug": "mxv-0808-h2a-kit",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60Hz 4:4:4 8x8 HDBaseT TM Matrix Kit w/ 6 standard receivers & 2 Scaling receivers | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft)",
+    "searchText": "MXV-0808-H2A-KIT 4K60Hz 4:4:4 8x8 HDBaseT TM Matrix Kit w/ 6 standard receivers & 2 Scaling receivers | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft) Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "MXV-0808-H2A-V3",
+    "name": "MXV-0808-H2A-V3",
+    "slug": "mxv-0808-h2a-v3",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "4K60Hz 4:4:4 8x8 HDBaseT TM Matrix | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft)",
+    "searchText": "MXV-0808-H2A-V3 4K60Hz 4:4:4 8x8 HDBaseT TM Matrix | Dolby Vision & HDR | PoH |Audio De-embed | Routable CEC & RS232 (4K: 35m/115ft, 1080p: 70m/230ft) Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SW-0204-VW",
+    "name": "SW-0204-VW",
+    "slug": "sw-0204-vw",
+    "family": "Switching and Control",
+    "type": "product",
+    "description": "4K 60Hz 4-Output Video Wall | 1x4, 2x2 layout |Ultra-wide resolution support | WEB GUI and RS232 control",
+    "searchText": "SW-0204-VW 4K 60Hz 4-Output Video Wall | 1x4, 2x2 layout |Ultra-wide resolution support | WEB GUI and RS232 control Switching and Control product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SW-0206-VW",
+    "name": "SW-0206-VW",
+    "slug": "sw-0206-vw",
+    "family": "Switching and Control",
+    "type": "product",
+    "description": "4K 60Hz 6-Output Video Wall | Cascading up to 6 devices | Multi-fast layout and customized layout |Ultra-wide resolution support | WEB GUI and RS232 control",
+    "searchText": "SW-0206-VW 4K 60Hz 6-Output Video Wall | Cascading up to 6 devices | Multi-fast layout and customized layout |Ultra-wide resolution support | WEB GUI and RS232 control Switching and Control product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SW-120-TX3",
+    "name": "SW-120-TX3",
+    "slug": "sw-120-tx3",
+    "family": "Switching and Control",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4, 5K30Hz 4:4:4(HDMI) HDBaseT 3.0 Transmitter | HDMI & USB-C input | PoH | USB2.0 | RS232 passthrough (4K: 100m/328ft) [For RX3-100 & MX-1007-HYB]",
+    "searchText": "SW-120-TX3 4K60Hz 4:4:4, 5K30Hz 4:4:4(HDMI) HDBaseT 3.0 Transmitter | HDMI & USB-C input | PoH | USB2.0 | RS232 passthrough (4K: 100m/328ft) [For RX3-100 & MX-1007-HYB] Switching and Control extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SW-120-TX3-UK",
+    "name": "SW-120-TX3-UK",
+    "slug": "sw-120-tx3-uk",
+    "family": "Switching and Control",
+    "type": "extender",
+    "description": "4K60Hz 4:4:4, 5K30Hz 4:4:4(HDMI) HDBaseT 3.0 2-Gang In-Wall Transmitter | HDMI & USB-C input | PoH | USB2.0 | RS232 passthrough (4K: 100m/328ft) [For RX3-100 & MX-1007-HYB]",
+    "searchText": "SW-120-TX3-UK 4K60Hz 4:4:4, 5K30Hz 4:4:4(HDMI) HDBaseT 3.0 2-Gang In-Wall Transmitter | HDMI & USB-C input | PoH | USB2.0 | RS232 passthrough (4K: 100m/328ft) [For RX3-100 & MX-1007-HYB] Switching and Control extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SW-130-TX-UK",
+    "name": "SW-130-TX-UK",
+    "slug": "sw-130-tx-uk",
+    "family": "Switching and Control",
+    "type": "switcher",
+    "description": "3-Input 4K60Hz 4:2:0 In-wall HDBaseT TM Switcher | 2 HDMI + USB-C | CEC | 2-Gang (4K: 100m/328ft)",
+    "searchText": "SW-130-TX-UK 3-Input 4K60Hz 4:2:0 In-wall HDBaseT TM Switcher | 2 HDMI + USB-C | CEC | 2-Gang (4K: 100m/328ft) Switching and Control switcher",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SW-220-TX-W",
+    "name": "SW-220-TX-W",
+    "slug": "sw-220-tx-w",
+    "family": "Switching and Control",
+    "type": "switcher",
+    "description": "Synergy TM 2-Input 4K30Hz Switcher | USB 3.0 | Airplay & Miracast | Dual-View | Supports APO-DG1 Dongle",
+    "searchText": "SW-220-TX-W Synergy TM 2-Input 4K30Hz Switcher | USB 3.0 | Airplay & Miracast | Dual-View | Supports APO-DG1 Dongle Switching and Control switcher",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SW-510-TX",
+    "name": "SW-510-TX",
+    "slug": "sw-510-tx",
+    "family": "Switching and Control",
+    "type": "switcher",
+    "description": "Synergy TM 4-input 4K60Hz 4:2:0 HDBaseT TM Switcher | USB 2.0 | Ethernet Passthrough | IR, CEC & RS232 Passthrough (4K: 100m/328ft)",
+    "searchText": "SW-510-TX Synergy TM 4-input 4K60Hz 4:2:0 HDBaseT TM Switcher | USB 2.0 | Ethernet Passthrough | IR, CEC & RS232 Passthrough (4K: 100m/328ft) Switching and Control switcher",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SW-515-RX",
+    "name": "SW-515-RX",
+    "slug": "sw-515-rx",
+    "family": "Switching and Control",
+    "type": "extender",
+    "description": "Synergy TM 3-input 4K60Hz 4:2:0 HDBaseT TM Switching Receiver | USB 2.0 | Ethernet Passthrough | Relays | IR, CEC & RS232 Passthrough (4K: 100m/328ft)",
+    "searchText": "SW-515-RX Synergy TM 3-input 4K60Hz 4:2:0 HDBaseT TM Switching Receiver | USB 2.0 | Ethernet Passthrough | Relays | IR, CEC & RS232 Passthrough (4K: 100m/328ft) Switching and Control extender",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SW-640L-TX-W",
+    "name": "SW-640L-TX-W",
+    "slug": "sw-640l-tx-w",
+    "family": "Switching and Control",
+    "type": "matrix",
+    "description": "Synergy 4-Input 4K60Hz Presentation Switcher | USB-C 60W PD | USB-C Ethernet | 2 HDMI Matrix Outputs | USB 3.0 | Quad View | Airplay & Miracast | Wireless Presentation & Conference with APO-DG2 & APO-DG2-PRO",
+    "searchText": "SW-640L-TX-W Synergy 4-Input 4K60Hz Presentation Switcher | USB-C 60W PD | USB-C Ethernet | 2 HDMI Matrix Outputs | USB 3.0 | Quad View | Airplay & Miracast | Wireless Presentation & Conference with APO-DG2 & APO-DG2-PRO Switching and Control matrix",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SYN-CTL-HUB",
+    "name": "SYN-CTL-HUB",
+    "slug": "syn-ctl-hub",
+    "family": "Switching and Control",
+    "type": "product",
+    "description": "Ethernet Protocol Converter for the SYN-TOUCH10 | RS232 | Relay | IR",
+    "searchText": "SYN-CTL-HUB Ethernet Protocol Converter for the SYN-TOUCH10 | RS232 | Relay | IR Switching and Control product",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SYN-KEY10",
+    "name": "SYN-KEY10",
+    "slug": "syn-key10",
+    "family": "Switching and Control",
+    "type": "controller",
+    "description": "Synergy TM 10-button Keypad Controller | Only comes with US back box",
+    "searchText": "SYN-KEY10 Synergy TM 10-button Keypad Controller | Only comes with US back box Switching and Control controller",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  },
+  {
+    "sku": "SYN-TOUCH10",
+    "name": "SYN-TOUCH10",
+    "slug": "syn-touch10",
+    "family": "Switching and Control",
+    "type": "controller",
+    "description": "Synergy TM 10.1\" All-In-One Touchpad IP Controller | PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible)",
+    "searchText": "SYN-TOUCH10 Synergy TM 10.1\" All-In-One Touchpad IP Controller | PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible) Switching and Control controller",
+    "source": "2026 Wyrestorm SKU (1).xlsx",
+    "year": 2026
+  }
+]

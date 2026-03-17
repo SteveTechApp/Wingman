@@ -4,3 +4,8 @@ export * from "./normalize";
 export * from "./enrich";
 export * from "./match";
 export * from "./repository";
+export * from "./boundCatalogue";
+export * from "./workflowCatalog";
+export * from "./recommendationCatalog";
+export * from "./guruCatalog";
+export * from "./serviceRecommendations";

@@ -1,15 +1,16 @@
-import rawCatalog from "@/data/catalog/wyrestorm-catalog.phase1.json";
-import skuCatalog from "@/data/wyrestormSkuCatalog.2026.json";
+import rawCatalog from "@/data/catalog/wyrestormSeedCatalog";
+import {
+  WYRESTORM_SKU_CATALOG_SOURCE,
+  wyrestormSkuCatalogItems,
+  type WyreStormSkuCatalogItem,
+} from "@/data/sku/wyrestormSkuCatalog";
 
 import { classifyProductType } from "./classification";
 import { enrichCatalogProduct } from "./enrich";
 import { normalizeCatalogProduct } from "./normalize";
 import type { CatalogPortCount, CatalogProduct, CatalogTransport, CatalogVideo } from "./types";
 
-type MasterSkuRow = {
-  sku?: string;
-  description?: string;
-  family?: string;
+type MasterSkuRow = Partial<WyreStormSkuCatalogItem> & {
   tier?: string;
 };
 
@@ -53,10 +54,12 @@ function tidy(value: unknown): string {
 
 function cleanText(value: unknown): string {
   return tidy(value)
-    .replace(/â„¢/g, "")
-    .replace(/Â/g, " ")
-    .replace(/â€“|–|—/g, "-")
-    .replace(/ï¼Œ/g, ", ")
+            .replace(/[^\x20-\x7E]/g, " ")
+    .replace(/\s*[\|\/,;]+\s*/g, " | ")
+    .replace(/\s+-\s+/g, " - ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .trim()
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -156,9 +159,18 @@ function pickTransport(familyCode: string, text: string): CatalogTransport {
   return "Unknown";
 }
 
-function pickFamilyLabel(familyCode: string): string {
+function inferFamilyLabelFromSku(sku: string): string {
+  const normalizedSku = normalizeKey(sku);
+  const matchedKey = Object.keys(FAMILY_LABELS)
+    .sort((left, right) => right.length - left.length)
+    .find((candidate) => normalizedSku.startsWith(candidate));
+
+  return matchedKey ? FAMILY_LABELS[matchedKey] : "";
+}
+
+function pickFamilyLabel(familyCode: string, sku: string): string {
   const key = normalizeKey(familyCode);
-  return FAMILY_LABELS[key] || cleanText(familyCode) || "Unknown";
+  return FAMILY_LABELS[key] || inferFamilyLabelFromSku(sku) || cleanText(familyCode) || "Unknown";
 }
 
 function pickFeatures(description: string): string[] {
@@ -193,7 +205,7 @@ function toDerivedCatalogProduct(row: MasterSkuRow): CatalogProduct | null {
   return {
     sku,
     name: summary,
-    family: pickFamilyLabel(familyCode),
+    family: pickFamilyLabel(familyCode, sku),
     category: classification.category,
     subcategory: classification.label,
     status: "active",
@@ -206,7 +218,7 @@ function toDerivedCatalogProduct(row: MasterSkuRow): CatalogProduct | null {
     transport: pickTransport(familyCode, description),
     distance: pickDistance(description),
     features: pickFeatures(description),
-    notes: `Expanded from ${cleanText((skuCatalog as { source?: string }).source) || "WyreStorm SKU master"}.`,
+    notes: `Expanded from ${cleanText(WYRESTORM_SKU_CATALOG_SOURCE) || "WyreStorm SKU master"}.`,
   };
 }
 
@@ -248,9 +260,7 @@ export function buildWyrestormSeedCatalogProducts(): CatalogProduct[] {
     seeded.set(product.sku, product);
   }
 
-  const masterItems = Array.isArray((skuCatalog as { items?: MasterSkuRow[] }).items)
-    ? ((skuCatalog as { items: MasterSkuRow[] }).items)
-    : [];
+  const masterItems = wyrestormSkuCatalogItems as MasterSkuRow[];
 
   for (const row of masterItems) {
     const derived = toDerivedCatalogProduct(row);

@@ -1,6 +1,8 @@
 import { findCatalogProductBySku, getCatalogProducts } from "./repository";
 import type { Product, ProductCategory, ProductRole } from "./model";
 
+// Compatibility adapter for older product-model consumers.
+
 function inferRole(sku: string, name: string): ProductRole {
   const text = `${sku} ${name}`.toUpperCase();
   if (/\bTRX\b/.test(text)) return "TRX";

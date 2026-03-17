@@ -201,7 +201,7 @@ const ProductComparisonModal: React.FC<ProductComparisonModalProps> = ({
       {products.length < 4 && (
         <div className="mt-4 p-4 bg-background-secondary border border-border-color rounded-lg">
           <p className="text-sm text-text-secondary">
-            ðŸ’¡ Tip: You can compare up to 4 products at once. Add more products to see side-by-side differences.
+            �?,???o�??s��??z�?f??s� Tip: You can compare up to 4 products at once. Add more products to see side-by-side differences.
           </p>
         </div>
       )}

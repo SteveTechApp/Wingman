@@ -1,63 +1,160 @@
-import * as React from "react";
+export type ComparisonStage =
+  | "idle"
+  | "dataset"
+  | "web"
+  | "extract"
+  | "match"
+  | "done"
+  | "error";
 
-export type CompetitorIO = {
-  inputs?: string[];
-  outputs?: string[];
+export type CompetitorLookupTrace = {
+  stage: ComparisonStage;
+  message: string;
+  sourceLabel?: string;
+  checkedUrl?: string;
+  usedLiveData?: boolean;
+  confidence?: number;
+  updatedAt?: string;
 };
 
-export type CompetitorVideo = {
-  maxResolution?: "1080p" | "4K30" | "4K60" | "8K";
-  bandwidthGbps?: number;
-};
-
-export type CompetitorItem = {
+export type CompetitorSpecRecord = {
   brand: string;
   sku: string;
-  model?: string;
-  latency?: string;
-
-  // Broad grouping (switcher, matrix, extender, encoder, decoder, etc.)
+  title?: string;
   category?: string;
-
-  // TX/RX/Encoder/Decoder/Matrix/Switcher/etc.
-  role?: string;
-
-  video?: CompetitorVideo;
-  io?: CompetitorIO;
-
-  // Simple capability tags: "usb", "kvm", "poe", "poh", "audioBreakout", etc.
-  features?: string[];
-
-  // Used to nudge within a product family (e.g., "NetworkHD", "HDBaseT", "Apollo")
-  familyHint?: string;
+  inputs?: string[];
+  outputs?: string[];
+  maxResolution?: string;
+  bandwidthGbps?: number;
+  hdcp?: string;
+  control?: string[];
+  usb?: string[];
+  distance?: string;
+  notes?: string[];
+  sourceUrl?: string;
+  lastVerifiedAt?: string;
+  [key: string]: unknown;
 };
 
-export type ProductVideo = {
-  maxResolution?: "1080p" | "4K30" | "4K60" | "8K";
+export type LiveLookupResult = {
+  trace: CompetitorLookupTrace[];
+  record?: CompetitorSpecRecord;
+  error?: string;
+};
+
+export type VideoSpec = {
+  maxResolution?: string;
   bandwidthGbps?: number;
+  hdcp?: string;
+  [key: string]: unknown;
 };
 
 export type Product = {
-  brand: "WyreStorm";
-  sku: string;
+  id?: string;
+  sku?: string;
+  partNumber?: string;
   name?: string;
+  title?: string;
+  brand?: string;
+  manufacturer?: string;
   category?: string;
-  role?: string;
   family?: string;
-  video?: ProductVideo;
+  subcategory?: string;
+  familyHint?: string;
+  role?: string;
+
+  description?: string;
+  summary?: string;
+
+  inputs?: string[];
+  outputs?: string[];
   features?: string[];
+  keywords?: string[];
+  tags?: string[];
+  control?: string[];
+  usb?: string[];
+
+  maxResolution?: string;
+  resolution?: string;
+  bandwidthGbps?: number;
+  hdcp?: string;
+  distance?: string;
+  msrp?: number | string;
+  price?: number | string;
+
+  video?: VideoSpec;
+
+  notes?: string[];
+  sourceUrl?: string;
+  lastVerifiedAt?: string;
+
+  [key: string]: unknown;
+};
+
+export type CompetitorItem = {
+  id?: string;
+  sku?: string;
+  partNumber?: string;
+  name?: string;
+  title?: string;
+  brand?: string;
+  manufacturer?: string;
+  category?: string;
+  family?: string;
+  subcategory?: string;
+  familyHint?: string;
+  role?: string;
+
+  description?: string;
+  summary?: string;
+
+  inputs?: string[];
+  outputs?: string[];
+  features?: string[];
+  keywords?: string[];
+  tags?: string[];
+  control?: string[];
+  usb?: string[];
+
+  maxResolution?: string;
+  resolution?: string;
+  bandwidthGbps?: number;
+  hdcp?: string;
+  distance?: string;
+  msrp?: number | string;
+  price?: number | string;
+
+  video?: VideoSpec;
+
+  notes?: string[];
+  sourceUrl?: string;
+  lastVerifiedAt?: string;
+
+  [key: string]: unknown;
 };
 
 export type MatchReason = {
   key: string;
-  score: number;   // 0..1 contribution
+  score: number;
   text: string;
 };
 
 export type MatchResult = {
-  competitor: CompetitorItem;
-  product: Product;
-  score: number;       // 0..1
-  percent: number;     // 0..100
-  reasons: MatchReason[];
+  competitor?: CompetitorItem;
+  competitorItem?: CompetitorItem;
+  product?: Product;
+  wyrestormProduct?: Product;
+
+  score?: number;
+  confidence?: number;
+  reason?: MatchReason;
+  reasons?: MatchReason[];
+
+  matchType?: string;
+  notes?: string[];
+  explanation?: string;
+
+  trace?: CompetitorLookupTrace[];
+
+  [key: string]: unknown;
 };

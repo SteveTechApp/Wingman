@@ -82,7 +82,7 @@ export const VENUE_TEMPLATES: UserTemplate[] = [
             manuallyAddedEquipment: [
                 { sku: 'SW-640L-TX-W', name: '6-Input 4K/60Hz Presentation Switcher with USB-C & Wireless Casting', quantity: 1, category: 'Presentation Switcher', description: 'Dual output 4K presentation switcher with wireless casting, USB-C, and USB host for peripherals.', tags: ['Switcher', 'USB-C', 'Casting', '4K', 'Gold', '6x2', 'Dual Output', 'USB Host'] },
                 { sku: 'CAM-210-PTZ', name: '4K AI Tracking PTZ Camera with NDI|HX3', quantity: 1, category: 'Camera', description: 'A professional 4K60Hz PTZ camera with powerful AI tracking capabilities to automatically follow a presenter.', tags: ['Camera', 'PTZ', '4K', 'USB', '12x Zoom', 'AI Tracking', 'IP Stream', 'HDMI', 'NDI'] },
-                { sku: 'SYN-TOUCH10', name: 'Synergyâ„¢ 10.1â€ All-in-One Touchpad IP Controller', quantity: 1, category: 'Control', description: 'PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible)', tags: ['Control', 'Touchscreen', 'Synergy'] },
+                { sku: 'SYN-TOUCH10', name: 'Synergy�?,???o�??s�?.�?f??s� 10.1�?,???o�?,?s�?f??s� All-in-One Touchpad IP Controller', quantity: 1, category: 'Control', description: 'PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible)', tags: ['Control', 'Touchscreen', 'Synergy'] },
             ],
             constructionDetails: { wallConstruction: 'concrete', cableContainment: 'conduit', furnitureType: 'fixed' },
             audioSystemDetails: { speakerLayout: 'surface_mount', systemType: 'high_impedance', useCases: ['speech_reinforcement', 'program_audio'], microphoneType: 'wireless_lav', ucCompatibility: false },

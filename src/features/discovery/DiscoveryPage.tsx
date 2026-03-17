@@ -4,7 +4,10 @@ import RecentTextInput from "@/components/RecentTextInput";
 import PageFrame from "@/app/layout/PageFrame";
 import PageSection from "@/app/layout/PageSection";
 import LiveProjectStrip from "@/app/widgets/LiveProjectStrip";
-import { RECENT_TEXT_HISTORY_KEYS } from "@/features/inputs/recentTextEntries";
+import {
+  RECENT_TEXT_HISTORY_KEYS,
+  RECENT_TEXT_HISTORY_SCOPES,
+} from "@/features/inputs/recentTextEntries";
 import { getAvGuideSeed, saveAvGuideSeed } from "./avGuideSeed";
 import { buildAvGuideIntelligence } from "./avGuideIntelligence";
 
@@ -114,6 +117,7 @@ export default function DiscoveryPage() {
               <RecentTextInput
                 className="wm-input"
                 historyKey={RECENT_TEXT_HISTORY_KEYS.customer}
+                historyScope={RECENT_TEXT_HISTORY_SCOPES.discoveryPage}
                 value={state.customer ?? ""}
                 onChange={(e) => updateField("customer", e.target.value)}
               />
@@ -124,6 +128,7 @@ export default function DiscoveryPage() {
               <RecentTextInput
                 className="wm-input"
                 historyKey={RECENT_TEXT_HISTORY_KEYS.roomType}
+                historyScope={RECENT_TEXT_HISTORY_SCOPES.discoveryPage}
                 value={state.roomType ?? ""}
                 onChange={(e) => updateField("roomType", e.target.value)}
               />
@@ -134,6 +139,7 @@ export default function DiscoveryPage() {
               <RecentTextInput
                 className="wm-input"
                 historyKey={RECENT_TEXT_HISTORY_KEYS.application}
+                historyScope={RECENT_TEXT_HISTORY_SCOPES.discoveryPage}
                 value={state.application ?? ""}
                 onChange={(e) => updateField("application", e.target.value)}
               />

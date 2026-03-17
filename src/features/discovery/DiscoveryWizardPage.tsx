@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-
+import SystemArchitecturePreview from "@/features/discovery/SystemArchitecturePreview";
 import RecentTextInput from "@/components/RecentTextInput";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@/features/governance/recommendationGovernance";
 import {
   RECENT_TEXT_HISTORY_KEYS,
+  RECENT_TEXT_HISTORY_SCOPES,
   rememberRecentTextEntry,
 } from "@/features/inputs/recentTextEntries";
 import {
@@ -37,7 +38,7 @@ import {
 
 const STORAGE_KEY = "wm_discovery_seed";
 const SNAPSHOT_POSITION_KEY = "wm_discovery_snapshot_position_v1";
-const SNAPSHOT_FLOAT_WIDTH = 350;
+const SNAPSHOT_FLOAT_WIDTH = 300;
 const SNAPSHOT_FLOAT_MARGIN = 8;
 const SNAPSHOT_FLOAT_TOP_MIN = 66;
 const SNAPSHOT_FLOAT_COMPACT_BREAKPOINT = 1100;
@@ -115,6 +116,20 @@ function writeRecord(record: GuidedProjectRecord) {
   } catch {}
 }
 
+function getNearestVisibleStep(
+  record: GuidedProjectRecord,
+  start: number,
+  direction: 1 | -1,
+) {
+  let index = start;
+  while (index >= 0 && index < GUIDED_PROJECT_STEPS.length) {
+    if (getVisibleQuestionsForStep(record, index as GuidedProjectStep).length > 0) {
+      return index as GuidedProjectStep;
+    }
+    index += direction;
+  }
+  return Math.max(0, Math.min(GUIDED_PROJECT_STEPS.length - 1, start)) as GuidedProjectStep;
+}
 function mergeFirst(...values: Array<string | undefined>) {
   return values.find((value) => hasText(value)) ?? "";
 }
@@ -201,7 +216,7 @@ function renderField(
                 <span className="wm-gp__cardOutcome">Leads toward: {detail.outcome}</span>
               ) : null}
               {detail.tags?.length ? (
-                <span className="wm-gp__cardTags">{detail.tags.join(" • ")}</span>
+                <span className="wm-gp__cardTags">{detail.tags.join("")}</span>
               ) : null}
             </button>
           );
@@ -233,8 +248,7 @@ function renderField(
       </div>
     );
   }
-
-  if (question.input === "select") {
+if (question.input === "select") {
     return (
       <select
         className="wm-ui__select"
@@ -281,6 +295,7 @@ function renderField(
         className="wm-ui__input"
         aria-label={question.label}
         historyKey={historyKey}
+        historyScope={RECENT_TEXT_HISTORY_SCOPES.discoveryWizard}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={question.placeholder}
@@ -360,6 +375,9 @@ function findNextQuestion(
 }
 
 export default function DiscoveryWizardPage() {
+const [sources,setSources] = React.useState<number>(1)
+  const [displays,setDisplays] = React.useState<number>(1)
+  const [resolution,setResolution] = React.useState<string>("4K")
   const navigate = useNavigate();
   const activeProject = React.useSyncExternalStore(
     subscribeProjects,
@@ -534,26 +552,56 @@ export default function DiscoveryWizardPage() {
   );
 
   function updateField(field: keyof GuidedProjectRecord, value: string) {
-    const shouldAdvanceFromOutcome =
-      field === "workflowTrack" &&
-      activeStep === 0 &&
-      !hasText(record.workflowTrack) &&
-      hasText(value);
-    setRecord((previous) => {
-      if (field === "workflowTrack") {
-        const shouldSeedOutcome = !hasText(previous.customerOutcome) || previous.customerOutcome === previous.workflowTrack;
-        return {
-          ...previous,
-          [field]: value,
-          customerOutcome: shouldSeedOutcome ? value : previous.customerOutcome,
+  const normalizedTrack = field === "workflowTrack" ? value.trim().toLowerCase() : "";
+
+  const shouldAdvanceFromOutcome =
+    field === "workflowTrack" &&
+    activeStep === 0 &&
+    !hasText(record.workflowTrack) &&
+    hasText(value);
+
+  setRecord((previous) => {
+    let next: GuidedProjectRecord;
+
+    if (field === "workflowTrack") {
+      const shouldSeedOutcome =
+        !hasText(previous.customerOutcome) || previous.customerOutcome === previous.workflowTrack;
+
+      next = {
+        ...previous,
+        [field]: value,
+        
+      };
+
+      if (normalizedTrack.includes("duplicate")) {
+        next = {
+          ...next,
+          sourceCount: "1",
         };
       }
-      return { ...previous, [field]: value };
-    });
-    if (shouldAdvanceFromOutcome) {
-      setActiveStep(1);
+
+      if (normalizedTrack.includes("video wall")) {
+        next = {
+          ...next,
+          outputBehaviour: "video-wall",
+        };
+      }
+    } else {
+      next = { ...previous, [field]: value };
     }
+
+    return next;
+  });
+
+  if (shouldAdvanceFromOutcome) {
+    const firstStep = getNearestVisibleStep(
+      { ...record, workflowTrack: value },
+      1,
+      1
+    );
+    setActiveStep(firstStep);
   }
+}
 
   function save() {
     const computedAdvice = buildGuidedProjectAdvice(record);
@@ -563,7 +611,15 @@ export default function DiscoveryWizardPage() {
       recommendedNextTool: computedAdvice.nextToolPath,
     };
 
-    rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.customer, payload.customer);
+    rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.customer, payload.customer, {
+      scope: RECENT_TEXT_HISTORY_SCOPES.discoveryWizard,
+    });
+    rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.site, payload.site, {
+      scope: RECENT_TEXT_HISTORY_SCOPES.discoveryWizard,
+    });
+    rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.roomName, payload.roomName, {
+      scope: RECENT_TEXT_HISTORY_SCOPES.discoveryWizard,
+    });
     writeRecord(payload);
     setRecord(payload);
 
@@ -638,13 +694,15 @@ export default function DiscoveryWizardPage() {
   }
 
   function next() {
-    if (activeStep < GUIDED_PROJECT_STEPS.length - 1) {
-      setActiveStep((value) => (value + 1) as GuidedProjectStep);
-      return;
-    }
-    const computedAdvice = save();
-    navigate(computedAdvice.nextToolPath);
+  const nextIndex = getNearestVisibleStep(record, activeStep + 1, 1);
+  if (nextIndex > activeStep && nextIndex < GUIDED_PROJECT_STEPS.length) {
+    setActiveStep(nextIndex);
+    return;
   }
+
+  const computedAdvice = save();
+  navigate(computedAdvice.nextToolPath || WM_ROUTES.tools);
+}
 
   return (
     <div className="wm-page wm-dw6 wm-ui wm-guided-project-page" data-active-step={activeStep}>
@@ -699,7 +757,7 @@ export default function DiscoveryWizardPage() {
           </div>
 
           <div className="wm-guided-project-page__canvas">
-            <div className="wm-dw6__content wm-guided-project-page__layout">
+            <div className="wm-dw6__content wm-guided-project-page__layout wm-guided-project-page__layout--full">
               <div className="wm-guided-project-page__main">
                 <div
                   ref={stepTopRef}
@@ -783,7 +841,7 @@ export default function DiscoveryWizardPage() {
                     </section>
                   ) : null}
 
-                  <div className={`wm-dw6__nav wm-guided-project-page__nav${nextQuestion ? " is-dimmed-flow" : " is-active-flow"}`}>
+                  <div className={`wm-dw6__nav wm-guided-project-page__nav$`}>
                     <div className="wm-dw6__navLeft">
                       <span className="wm-ui__helper wm-dw6__save-meta">
                         {record.workflowTrack || "Choose a direction to begin"}
@@ -792,7 +850,7 @@ export default function DiscoveryWizardPage() {
                     <div className="wm-dw6__navRight">
                       <button
                         className="wm-ui__btn wm-ui__btn--ghost"
-                        onClick={() => setActiveStep((value) => Math.max(0, value - 1) as GuidedProjectStep)}
+                        onClick={() => setActiveStep((value) => getNearestVisibleStep(record, value - 1, -1))}
                         disabled={activeStep === 0}
                       >
                         Previous
@@ -809,111 +867,8 @@ export default function DiscoveryWizardPage() {
                   </div>
                 </div>
               </div>
-
-              <aside className="wm-guided-project-page__sidebar">
-                <div className={`wm-guided-project-page__drawers${nextQuestion ? " is-dimmed-flow" : ""}`}>
-                  <details className="wm-guided-project-page__drawer wm-guided-project-page__drawer--coach">
-                    <summary>Coach notes and recommendation logic</summary>
-                    <div className="wm-guided-project-page__drawer-body">
-                      <div className="wm-guided-project-page__drawer-grid">
-                        <article className="wm-gp__summaryCard">
-                          <div className="wm-gp__summaryEyebrow">Why this fit is leading</div>
-                          <ul className="wm-gp__list">
-                            {leadReasons.map((item) => (
-                              <li key={item}>{item}</li>
-                            ))}
-                          </ul>
-                        </article>
-
-                        <article className="wm-gp__summaryCard">
-                          <div className="wm-gp__summaryEyebrow">Still worth clarifying</div>
-                          <ul className="wm-gp__list">
-                            {branchHighlights.length > 0
-                              ? branchHighlights.slice(0, 3).map((item) => <li key={item}>{item}</li>)
-                              : priorityNextActions.map((item) => <li key={item}>{item}</li>)}
-                          </ul>
-                        </article>
-
-                        <article className="wm-gp__summaryCard">
-                          <div className="wm-gp__summaryEyebrow">Recommendation state</div>
-                          <div className="wm-guided-project-page__lens-stack">
-                            {displayedLenses.map((lens) => (
-                              <article key={lens.id} className="wm-gp__decisionCard">
-                                <div className="wm-gp__decisionTop">
-                                  <div className="wm-gp__summaryEyebrow">{lens.title}</div>
-                                  <span className={`wm-gp__state wm-gp__state--${lens.state}`}>
-                                    {stateLabel(lens.state)}
-                                  </span>
-                                </div>
-                                <div className="wm-gp__summaryCopy">{lens.summary}</div>
-                              </article>
-                            ))}
-                          </div>
-                          <div className="wm-guided-project-page__governanceNote">
-                            Rule set {governance.recommendationRules.version} using catalog {governance.recommendationRules.catalogVersion}
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-                  </details>
-                </div>
-              </aside>
             </div>
           </div>
-        </section>
-
-        <section
-          className={`wm-guided-project-page__snapshotFloat${nextQuestion ? " is-dimmed-flow" : " is-active-flow"}${snapshotCollapsed ? " is-collapsed" : ""}`}
-          aria-label="Live snapshot"
-          style={
-            isCompactSnapshotViewport
-              ? undefined
-              : {
-                  left: snapshotPosition.left,
-                  top: snapshotPosition.top,
-                  right: "auto",
-                }
-          }
-        >
-          <header className="wm-guided-project-page__snapshotHead" onPointerDown={startSnapshotDrag}>
-            <div>
-              <div className="wm-guided-project-page__summaryLabel">Live snapshot</div>
-              <div className="wm-guided-project-page__snapshotSubhead">Conversation outcome</div>
-            </div>
-            <button
-              type="button"
-              className="wm-guided-project-page__snapshotToggle"
-              onClick={() => setSnapshotCollapsed((value) => !value)}
-              aria-expanded={!snapshotCollapsed}
-            >
-              {snapshotCollapsed ? "Expand" : "Minimise"}
-            </button>
-          </header>
-          {!snapshotCollapsed ? (
-            <div className="wm-guided-project-page__summaryList">
-              <div className="wm-guided-project-page__summaryItem">
-                <span>Direction</span>
-                <strong>{record.workflowTrack || "Not confirmed yet"}</strong>
-              </div>
-              <div className="wm-guided-project-page__summaryItem">
-                <span>Project</span>
-                <strong>{activeProject?.name || record.roomName || "Current guided project"}</strong>
-              </div>
-              <div className="wm-guided-project-page__summaryItem">
-                <span>Save state</span>
-                <strong>{saveStatus}</strong>
-              </div>
-              <div className="wm-guided-project-page__summaryItem">
-                <span>Ask next</span>
-                <strong>
-                  {nextQuestion?.label ||
-                    (nextQueuedQuestion
-                      ? "Open follow-up detail for additional narrowing"
-                      : "Core step capture is complete")}
-                </strong>
-              </div>
-            </div>
-          ) : null}
         </section>
       </div>
     </div>

@@ -5,6 +5,8 @@ import RecentTextInput from "@/components/RecentTextInput";
 import { recommendFamilies } from "@/features/discovery/discoveryStore";
 import {
   RECENT_TEXT_HISTORY_KEYS,
+  RECENT_TEXT_HISTORY_SCOPES,
+  rememberRecentTextEntry,
 } from "@/features/inputs/recentTextEntries";
 import { buildFullInterpretation } from "@/features/intelligence/fullInterpretation";
 import { parseCustomerRequest } from "@/features/intelligence/parser";
@@ -563,6 +565,15 @@ export default function ImportIntakePage() {
       const name = deriveOpportunityName(briefInput);
       const customerName = customer.trim();
       const siteName = site.trim();
+      rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.roomName, name, {
+        scope: RECENT_TEXT_HISTORY_SCOPES.importIntake,
+      });
+      rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.customer, customerName, {
+        scope: RECENT_TEXT_HISTORY_SCOPES.importIntake,
+      });
+      rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.site, siteName, {
+        scope: RECENT_TEXT_HISTORY_SCOPES.importIntake,
+      });
       const sourceNotes = buildStoredSourceNotes(briefInput);
       const qualificationSummary = buildQualificationSummary(checklist);
       const generatedAnalysis = analysis ? buildAnalysisNotesBlock(analysis) : "";
@@ -810,6 +821,7 @@ export default function ImportIntakePage() {
                     <Field label="Project or enquiry name">
                       <RecentTextInput
                         historyKey={RECENT_TEXT_HISTORY_KEYS.roomName}
+                        historyScope={RECENT_TEXT_HISTORY_SCOPES.importIntake}
                         value={projectName}
                         onChange={(event) => setProjectName(event.target.value)}
                         style={inputStyle()}
@@ -819,6 +831,7 @@ export default function ImportIntakePage() {
                     <Field label="Customer">
                       <RecentTextInput
                         historyKey={RECENT_TEXT_HISTORY_KEYS.customer}
+                        historyScope={RECENT_TEXT_HISTORY_SCOPES.importIntake}
                         value={customer}
                         onChange={(event) => setCustomer(event.target.value)}
                         style={inputStyle()}
@@ -828,6 +841,7 @@ export default function ImportIntakePage() {
                     <Field label="Site">
                       <RecentTextInput
                         historyKey={RECENT_TEXT_HISTORY_KEYS.site}
+                        historyScope={RECENT_TEXT_HISTORY_SCOPES.importIntake}
                         value={site}
                         onChange={(event) => setSite(event.target.value)}
                         style={inputStyle()}

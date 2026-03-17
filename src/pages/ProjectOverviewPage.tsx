@@ -552,7 +552,7 @@ export default function ProjectOverviewPage() {
                       </div>
                       <div className="wm-body" style={{ marginTop: 6 }}>{comment.body}</div>
                       <div className="wm-body-sm" style={{ marginTop: 6, opacity: 0.72 }}>
-                        {comment.authorName} · {formatDate(comment.createdAt)}
+                        {comment.authorName} �f�?s· {formatDate(comment.createdAt)}
                       </div>
                     </article>
                   ))
@@ -583,7 +583,7 @@ export default function ProjectOverviewPage() {
                     {(project.attachments ?? []).length > 0 ? (
                       project.attachments?.map((attachment) => (
                         <li key={attachment.id}>
-                          {attachment.name} · {attachment.kind} · {attachment.source}
+                          {attachment.name} �f�?s· {attachment.kind} �f�?s· {attachment.source}
                         </li>
                       ))
                     ) : (
@@ -599,7 +599,7 @@ export default function ProjectOverviewPage() {
                       project.shares?.map((share) => (
                         <li key={share.id}>
                           {share.title}
-                          {share.accessCode ? ` · Code ${share.accessCode}` : ""}
+                          {share.accessCode ? ` �f�?s· Code ${share.accessCode}` : ""}
                         </li>
                       ))
                     ) : (

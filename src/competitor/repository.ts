@@ -1,4 +1,4 @@
-import rawCompetitors from "@/data/catalog/competitor-catalog.phase4.json";
+import rawCompetitors from "@/data/catalog/competitorCatalog";
 import { enrichCatalogProduct } from "@/catalog/enrich";
 import { rankCatalogMatches } from "@/catalog/match";
 import { filterCatalog, normalizeCatalogProduct } from "@/catalog/normalize";

@@ -113,7 +113,7 @@ export const AVOIP_PRODUCTS: Product[] = [
         audio: { dsp: true }
     },
     {
-        sku: 'NHD-500-TXE',
+        sku: 'NHD-500-E-TX',
         name: 'NetworkHD 500 Series 4K60 JPEG 2000 Encoder (HDMI Only)',
         category: 'AVoIP Encoder',
         description: 'A cost-effective "essentials" version of the 500-series encoder. It provides the same visually lossless 4K60 JPEG 2000 video path without the richer audio and USB features, making it a good fit for straightforward HDMI-only source distribution.',
@@ -127,7 +127,7 @@ export const AVOIP_PRODUCTS: Product[] = [
         avoip: { codec: 'JPEG-2000' }
     },
     {
-        sku: 'NHD-500-RXE',
+        sku: 'NHD-500-E-RX',
         name: 'NetworkHD 500 Series 4K60 JPEG 2000 Decoder (HDMI Only)',
         category: 'AVoIP Decoder',
         description: 'A cost-effective "essentials" version of the 500-series decoder. It provides the same visually lossless 4K60 output and is well suited to display endpoints and video-wall panels that do not need USB/KVM or advanced audio features.',

@@ -75,8 +75,8 @@ export const RETAIL_TEMPLATES: UserTemplate[] = [
             features: [],
             functionalityStatement: 'An engaging brand experience zone designed to attract and immerse customers. It features a 2x2 video wall, driven by a visually lossless NetworkHD 500 series AVoIP system (one decoder per panel). This provides high-impact 4K brand content with excellent clarity. Directional speakers create a focused audio experience.',
             manuallyAddedEquipment: [
-                { sku: 'NHD-500-TXE', name: 'NetworkHD 500 Series 4K60 JPEG-XS Encoder (HDMI Only)', quantity: 1, category: 'AVoIP Encoder', description: 'A cost-effective, visually lossless 4K60 4:4:4 encoder over 1GbE.', tags: ['NetworkHD', 'AVoIP', 'Encoder', '4K', 'JPEG-XS', '1GbE', '4K60', '4:4:4', 'Low Latency', 'Video Wall'] },
-                { sku: 'NHD-500-RXE', name: 'NetworkHD 500 Series 4K60 JPEG-XS Decoder (HDMI Only)', quantity: 4, category: 'AVoIP Decoder', description: 'A cost-effective, visually lossless 4K60 4:4:4 decoder over 1GbE.', tags: ['NetworkHD', 'AVoIP', 'Decoder', '4K', 'JPEG-XS', '1GbE', '4K60', '4:4:4', 'Low Latency', 'Video Wall'] },
+                { sku: 'NHD-500-E-TX', name: 'NetworkHD 500 Series 4K60 JPEG-XS Encoder (HDMI Only)', quantity: 1, category: 'AVoIP Encoder', description: 'A cost-effective, visually lossless 4K60 4:4:4 encoder over 1GbE.', tags: ['NetworkHD', 'AVoIP', 'Encoder', '4K', 'JPEG-XS', '1GbE', '4K60', '4:4:4', 'Low Latency', 'Video Wall'] },
+                { sku: 'NHD-500-E-RX', name: 'NetworkHD 500 Series 4K60 JPEG-XS Decoder (HDMI Only)', quantity: 4, category: 'AVoIP Decoder', description: 'A cost-effective, visually lossless 4K60 4:4:4 decoder over 1GbE.', tags: ['NetworkHD', 'AVoIP', 'Decoder', '4K', 'JPEG-XS', '1GbE', '4K60', '4:4:4', 'Low Latency', 'Video Wall'] },
                 { sku: 'NHD-CTL-PRO', name: 'NetworkHD Pro Controller', quantity: 1, category: 'Control', description: 'Centralized controller for NetworkHD systems.', tags: ['NetworkHD', 'Control', 'Controller'] },
             ],
             constructionDetails: { wallConstruction: 'drywall', cableContainment: 'conduit', furnitureType: 'fixed' },

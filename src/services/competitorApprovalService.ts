@@ -1,4 +1,4 @@
-import type { CompetitorLookupCacheEntrySummary } from "@/services/competitorLookupService";
+import type { CompetitorLookupCacheEntrySummary } from "@/services/competitor/lookupService";
 
 export type CompetitorApprovalQueueRecord = {
   id: string;
@@ -242,4 +242,3 @@ export async function flushApprovalQueue(): Promise<FlushApprovalQueueResult> {
     warnings,
   };
 }
-

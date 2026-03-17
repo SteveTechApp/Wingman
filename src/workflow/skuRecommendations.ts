@@ -1,4 +1,4 @@
-import { loadCatalogItems, type CatalogItem } from "./catalogueAdapter";
+import { loadCatalogItems, type CatalogItem } from "@/catalog/workflowCatalog";
 import { buildSolutionRecommendation } from "./solutionRecommendations";
 import { getActiveWorkflowProject } from "./workflowStore";
 

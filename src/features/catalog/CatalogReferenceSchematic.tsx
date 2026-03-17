@@ -399,7 +399,7 @@ export default function CatalogReferenceSchematic({ products }: Props) {
             {index < model.connectors.length ? (
               <div className="wm-catalog-page__schematic-connector" aria-hidden="true">
                 <span className="wm-catalog-page__schematic-connector-label">{model.connectors[index]}</span>
-                <span className="wm-catalog-page__schematic-connector-arrow">→</span>
+                <span className="wm-catalog-page__schematic-connector-arrow">�?????T</span>
               </div>
             ) : null}
           </React.Fragment>

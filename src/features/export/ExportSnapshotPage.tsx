@@ -5,12 +5,7 @@ import {
   subscribeProjects,
   type StoredProject,
 } from "@/features/projects/projectStore";
-import skuCatalog from "@/data/wyrestormSkuCatalog.2026";
-
-type SkuItem = {
-  sku: string;
-  description?: string;
-};
+import { describeCatalogSku } from "@/catalog/recommendationCatalog";
 
 type SelectedProductRow = {
   sku: string;
@@ -26,31 +21,6 @@ function normalizeText(value: unknown, fallback = "-"): string {
   const text = String(value ?? "").trim();
   return text.length > 0 ? text : fallback;
 }
-
-function readCatalogItems(): SkuItem[] {
-  const anyCatalog = skuCatalog as any;
-  const items =
-    (anyCatalog?.items as SkuItem[] | undefined) ??
-    (anyCatalog?.default?.items as SkuItem[] | undefined) ??
-    (anyCatalog?.default?.default?.items as SkuItem[] | undefined) ??
-    [];
-
-  return Array.isArray(items) ? items : [];
-}
-
-function buildSkuDescriptionMap(): Map<string, string> {
-  const map = new Map<string, string>();
-  for (const item of readCatalogItems()) {
-    const sku = String(item.sku ?? "").trim();
-    if (!sku) continue;
-    if (!map.has(sku)) {
-      map.set(sku, normalizeText(item.description, "Description unavailable"));
-    }
-  }
-  return map;
-}
-
-const SKU_DESCRIPTION_MAP = buildSkuDescriptionMap();
 
 function buildSelectedProductRows(project: StoredProject | null): SelectedProductRow[] {
   if (!project) return [];
@@ -69,7 +39,7 @@ function buildSelectedProductRows(project: StoredProject | null): SelectedProduc
     .map(([sku, quantity]) => ({
       sku,
       quantity,
-      description: SKU_DESCRIPTION_MAP.get(sku) ?? "Description unavailable",
+      description: normalizeText(describeCatalogSku(sku), "Description unavailable"),
     }))
     .sort((a, b) => a.sku.localeCompare(b.sku));
 }

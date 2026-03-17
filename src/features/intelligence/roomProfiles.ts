@@ -232,7 +232,7 @@ export const roomProfiles: RoomProfile[] = [
   },
   {
     id: "cafe-social-space",
-    label: "Café / Social Space",
+    label: "Caf�f�'© / Social Space",
     synonyms: ["cafe", "social space", "breakout food area"],
     likelyUses: ["signage", "background audio", "information display"],
     defaultAssumptions: [

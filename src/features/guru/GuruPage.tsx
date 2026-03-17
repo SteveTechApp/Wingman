@@ -1114,7 +1114,7 @@ export default function GuruPage() {
           <div className="wm-guru-float-panel__head">
             <div className="wm-guru-float-panel__dragzone" onPointerDown={startPanelDrag}>
               <h2 className="wm-guru-float-panel__title">Guru Assistant</h2>
-              <p className="wm-guru-float-panel__sub">{def.label} · {def.subtitle}</p>
+              <p className="wm-guru-float-panel__sub">{def.label} �f�?s· {def.subtitle}</p>
             </div>
             <div className="wm-guru-float-panel__head-actions">
               <button className="wm-btn" type="button" onClick={resetPanelSize}>
@@ -1202,7 +1202,7 @@ export default function GuruPage() {
                   <div>{answer.text}</div>
                   <div className="wm-guru-float-muted" style={{ marginTop: 8 }}>
                     Confidence: {confidenceLabel(answer.confidence)}
-                    {answeredAt ? ` · Updated at ${answeredAt}` : ""}
+                    {answeredAt ? ` �f�?s· Updated at ${answeredAt}` : ""}
                   </div>
                 </>
               ) : (

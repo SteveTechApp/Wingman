@@ -204,7 +204,7 @@ export default function GuruMount() {
               opacity: 0.72,
             }}
           >
-            ⤡
+            �f¢¤¡
           </span>
         </button>
       </div>

@@ -148,7 +148,7 @@ function buildProjectActionBundle(
 ): ProjectActionBundle {
   const resumeAction = getProjectResumeAction(project);
   const summaryBits = [project.customer, project.site, project.roomName].filter(Boolean);
-  const summary = summaryBits.length > 0 ? summaryBits.join(" · ") : "Project workspace";
+  const summary = summaryBits.length > 0 ? summaryBits.join(" ?f??s� ") : "Project workspace";
 
   return {
     project,
@@ -170,8 +170,8 @@ function buildProjectActionBundle(
     },
     resume: {
       id: `project-resume-${project.id}`,
-      label: `${resumeAction.label} · ${project.name}`,
-      description: `${summary} · ${project.stage || "Discovery"}`,
+      label: `${resumeAction.label} ?f??s� ${project.name}`,
+      description: `${summary} ?f??s� ${project.stage || "Discovery"}`,
       group: "Continue",
       kind: "resume",
       badge: resumeAction.shortLabel,
@@ -521,7 +521,7 @@ export default function WingmanCommandPalette({
                   <div className="wm-commandPalette__spotlightTitle">{primaryAction.label}</div>
                   <div className="wm-commandPalette__spotlightBody">
                     {activeBundle
-                      ? `${activeBundle.project.name} • ${activeBundle.summary}`
+                      ? `${activeBundle.project.name} ?f��??s�� ${activeBundle.summary}`
                       : primaryAction.description}
                   </div>
                   <div className="wm-commandPalette__spotlightFooter">

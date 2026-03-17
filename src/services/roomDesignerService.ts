@@ -1,3 +1,4 @@
+import { recommendSkusForFamilies, type SolutionRecommendationTier } from "@/catalog/serviceRecommendations";
 import { buildDesignBundle } from "@/features/systemDesign/cableScheduleEngine";
 import { summariseDesignBundle, writeDesignBundle } from "@/features/systemDesign/designBundleStore";
 import type {
@@ -43,45 +44,6 @@ const FAMILY_ORDER = [
   "USB Extension",
   "Video Wall",
 ] as const;
-
-type TierSkuMap = {
-  Bronze: string[];
-  Silver: string[];
-  Gold: string[];
-};
-
-const SKU_MAP: Record<string, TierSkuMap> = {
-  Apollo: {
-    Bronze: ["SW-0201-4K"],
-    Silver: ["SW-220-TX-W"],
-    Gold: ["SW-640L-TX-W", "APO-DG2"],
-  },
-  HDBaseT: {
-    Bronze: ["EX-70-H2"],
-    Silver: ["EX-100-H2"],
-    Gold: ["SW-510-TX"],
-  },
-  AVoIP: {
-    Bronze: ["NHD-110-TX", "NHD-110-RX"],
-    Silver: ["NHD-500-TX", "NHD-500-RX"],
-    Gold: ["NHD-500-TX", "NHD-500-RX", "NHD-0401-MV"],
-  },
-  Matrix: {
-    Bronze: ["MX-0404-H2A"],
-    Silver: ["MX-0808-H2A-MK2"],
-    Gold: ["MX-0808-H2A-MK2"],
-  },
-  "USB Extension": {
-    Bronze: ["EX-USB-H2"],
-    Silver: ["EX-USB-H2"],
-    Gold: ["EX-USB-H2"],
-  },
-  "Video Wall": {
-    Bronze: ["SW-0204-VW"],
-    Silver: ["SW-0206-VW"],
-    Gold: ["SW-0206-VW", "NHD-0401-MV"],
-  },
-};
 
 function normalizeText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
@@ -211,19 +173,9 @@ function inferNextTool(families: string[]): string {
 }
 
 function inferSkus(families: string[], tier: "Bronze" | "Silver" | "Gold"): string[] {
-  const skus: string[] = [];
-
-  for (const family of families) {
-    const entry = SKU_MAP[family];
-    if (!entry) continue;
-    skus.push(...entry[tier]);
-  }
-
-  if (skus.length === 0) {
-    skus.push(...SKU_MAP.Apollo[tier]);
-  }
-
-  return uniqueOrdered(skus).slice(0, 8);
+  return uniqueOrdered(
+    recommendSkusForFamilies(families, tier as SolutionRecommendationTier, 8),
+  ).slice(0, 8);
 }
 
 export async function designRoom(input: RoomDesignerInput): Promise<RoomDesignerResponse> {

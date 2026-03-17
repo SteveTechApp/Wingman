@@ -15,7 +15,7 @@ export const getAvoipLogic = () => `
   - If 'switchFeatures' does not include 'igmp_snooping', you MUST state the network is NOT suitable and the design will not work. DO NOT select AVoIP products.
   
   **NHD 500 Series "E" Version Logic**:
-  Use 'NHD-500-TXE'/'NHD-500-RXE' for sources/displays that only need HDMI, especially for video wall panels, to reduce cost.
+  Use 'NHD-500-E-TX'/'NHD-500-E-RX' for sources/displays that only need HDMI, especially for video wall panels, to reduce cost.
 `;
 
 
