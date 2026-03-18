@@ -134,4 +134,25 @@ describe("askGuru", () => {
     expect(answer.suggestedSkus?.map((item) => item.sku)).toContain("SW-640L-TX-W");
     expect(answer.confidence).toBe("high");
   });
+
+  it("pulls site-survey guidance from the shared training library in resources mode", async () => {
+    const answer = await askGuru("What should I capture during an AV site survey?", {
+      mode: "resources",
+    });
+
+    expect(answer.text).toContain("Site Survey Field Guide");
+    expect(answer.text.toLowerCase()).toContain("room");
+    expect(answer.sources?.some((source) => source.to === "/app/tools/training")).toBe(true);
+  });
+
+  it("uses networking reference knowledge without forcing product guidance for conceptual questions", async () => {
+    vi.mocked(assessQuestionIntelligence).mockResolvedValue(makeAssessment());
+
+    const answer = await askGuru("Explain IGMP snooping in simple terms for AVoIP multicast.", {
+      mode: "ask",
+    });
+
+    expect(answer.text).toContain("IGMP Snooping");
+    expect(answer.text).not.toContain("To tighten this into exact product guidance");
+  });
 });

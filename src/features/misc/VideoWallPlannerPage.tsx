@@ -1275,7 +1275,7 @@ export default function VideoWallPlannerPage() {
         </div>
 
         <div className="wm-video-wall-page__hero-center">
-          <div className="wm-tier-picker wm-video-wall-page__hero-tech-picker" aria-label="Video wall technology">
+          <div className="wm-tier-picker wm-tier-picker--compact wm-video-wall-page__hero-tech-picker" aria-label="Video wall technology">
             {(["LCD", "LED"] as VideoWallTechnology[]).map((item) => (
               <button
                 key={item}
@@ -1484,7 +1484,7 @@ export default function VideoWallPlannerPage() {
                 <div className="wm-card__subtitle">Switch between Bronze, Silver, and Gold solution paths.</div>
               </div>
 
-              <div className="wm-tier-picker wm-video-wall-page__recommendation-tier-picker" aria-label="Recommendation tier">
+              <div className="wm-tier-picker wm-tier-picker--compact wm-video-wall-page__recommendation-tier-picker" aria-label="Recommendation tier">
                 {QUALITY_TIER_OPTIONS.map((item) => (
                   <button
                     key={item.value}

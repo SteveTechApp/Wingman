@@ -198,6 +198,7 @@ function renderField(
   onChange: (value: string) => void,
 ) {
   if (question.input === "cards") {
+    const useCompactCards = question.id !== "workflowTrack";
     const details =
       question.optionDetails ??
       question.options?.map((option) => ({
@@ -207,14 +208,19 @@ function renderField(
       [];
 
     return (
-      <div className="wm-gp__cardGrid" role="listbox" aria-label={question.label}>
+      <div
+        className={`wm-gp__cardGrid${useCompactCards ? " wm-gp__cardGrid--compact" : ""}`}
+        role="listbox"
+        aria-label={question.label}
+        data-question-id={question.id}
+      >
         {details.map((detail) => {
           const selected = value === detail.value;
           return (
             <button
               key={detail.value}
               type="button"
-              className={`wm-gp__cardOption${selected ? " is-selected" : ""}`}
+              className={`wm-gp__cardOption${selected ? " is-selected" : ""}${useCompactCards ? " wm-gp__cardOption--compact" : ""}`}
               aria-pressed={selected}
               onClick={() => onChange(detail.value)}
               style={
@@ -863,6 +869,8 @@ const [sources,setSources] = React.useState<number>(1)
                     <section
                       key={question.id}
                       className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextQuestion?.id === question.id ? " is-focus is-active-flow" : ""}${nextQuestion && nextQuestion.id !== question.id ? " is-dimmed-flow" : ""}`}
+                      data-question-id={question.id}
+                      data-question-input={question.input}
                     >
                         <div className="wm-ui__field">
                           <span className="wm-ui__label">{question.label}</span>
@@ -906,6 +914,8 @@ const [sources,setSources] = React.useState<number>(1)
                               <section
                                 key={question.id}
                                 className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextQuestion?.id === question.id ? " is-focus is-active-flow" : ""}${nextQuestion && nextQuestion.id !== question.id ? " is-dimmed-flow" : ""}`}
+                                data-question-id={question.id}
+                                data-question-input={question.input}
                               >
                                 <div className="wm-ui__field">
                                   <span className="wm-ui__label">{question.label}</span>
