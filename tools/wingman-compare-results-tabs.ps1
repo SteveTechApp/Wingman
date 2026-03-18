@@ -1,3 +1,54 @@
+[CmdletBinding()]
+param(
+  [string]$Root = "",
+  [switch]$Apply
+)
+
+$ErrorActionPreference = "Stop"
+if (-not $Apply) { throw "Run with -Apply" }
+
+function Find-RepoRoot {
+  param([string]$Start = "")
+  $dir = if ($Start) { (Resolve-Path $Start).Path } else { (Get-Location).Path }
+  while ($true) {
+    if (Test-Path (Join-Path $dir "package.json")) { return $dir }
+    $parent = Split-Path $dir -Parent
+    if ($parent -eq $dir) { throw "Could not find package.json from $dir" }
+    $dir = $parent
+  }
+}
+
+function Save-Utf8NoBom {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$Content
+  )
+  [System.IO.File]::WriteAllText($Path, $Content, [System.Text.UTF8Encoding]::new($false))
+}
+
+function Backup-File {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$RepoRoot,
+    [Parameter(Mandatory = $true)][string]$BackupRoot
+  )
+  $relative = $Path.Substring($RepoRoot.Length).TrimStart('\','/')
+  $dest = Join-Path $BackupRoot $relative
+  $destDir = Split-Path $dest -Parent
+  New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+  Copy-Item $Path $dest -Force
+}
+
+$repoRoot = Find-RepoRoot -Start $Root
+$path = Join-Path $repoRoot "src\components\competitor\CompetitorCompareResultsPanel.tsx"
+if (-not (Test-Path $path)) { throw "File not found: $path" }
+
+$stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$backupRoot = Join-Path $repoRoot "_RESCUE\compare-results-tabs-$stamp"
+New-Item -ItemType Directory -Force -Path $backupRoot | Out-Null
+Backup-File -Path $path -RepoRoot $repoRoot -BackupRoot $backupRoot
+
+$content = @'
 import React from "react";
 
 import type {
@@ -790,3 +841,17 @@ export default function CompetitorCompareResultsPanel(
     </div>
   );
 }
+'@
+
+Save-Utf8NoBom -Path $path -Content $content
+
+Write-Host ""
+Write-Host "Patched:" -ForegroundColor Green
+Write-Host "  $path" -ForegroundColor Green
+Write-Host ""
+Write-Host "Backup:" -ForegroundColor Yellow
+Write-Host "  $backupRoot" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Next:" -ForegroundColor Cyan
+Write-Host "  npm run typecheck"
+Write-Host "  npm run dev"

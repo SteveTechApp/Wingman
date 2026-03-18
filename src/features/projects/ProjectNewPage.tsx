@@ -2,7 +2,6 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FileUp,
-  FolderPlus,
   LayoutTemplate,
   Route,
   ScanSearch,
@@ -151,7 +150,6 @@ export default function ProjectNewPage() {
   const [activeFlowStep, setActiveFlowStep] = React.useState<ProjectFlowStep>("details");
   const detailsRef = React.useRef<HTMLElement | null>(null);
   const reuseRef = React.useRef<HTMLElement | null>(null);
-  const startRef = React.useRef<HTMLElement | null>(null);
   const [templateSeed, setTemplateSeed] = React.useState<WorkbenchTemplateSeed | null>(() =>
     readTemplateSeed()
   );
@@ -207,13 +205,9 @@ export default function ProjectNewPage() {
   }
 
   React.useEffect(() => {
-    if (activeFlowStep === "details" || typeof window === "undefined") return;
+    if (activeFlowStep !== "reuse" || !hasRecentProjects || typeof window === "undefined") return;
 
-    const target =
-      activeFlowStep === "reuse"
-        ? (hasRecentProjects ? reuseRef.current : startRef.current)
-        : startRef.current;
-
+    const target = reuseRef.current;
     if (!target) return;
 
     const rect = target.getBoundingClientRect();
@@ -286,11 +280,6 @@ export default function ProjectNewPage() {
   function startWith(method: StartMethod) {
     createShell(method.title);
     nav(method.to);
-  }
-
-  function createBlankWorkspace() {
-    const project = createShell("New");
-    nav(`/app/projects/${encodeURIComponent(project.id)}`);
   }
 
   function startFromSelectedTemplate() {
@@ -495,7 +484,7 @@ export default function ProjectNewPage() {
           <button
             type="button"
             className="wm-btn wm-btn-primary"
-            onClick={() => setActiveFlowStep("reuse")}
+            onClick={() => startWith(START_METHODS[0])}
           >
             Continue workflow
           </button>

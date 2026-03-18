@@ -13,6 +13,7 @@ type ActionCard = {
   description: string;
   to: string;
   Icon: IconType;
+  accentRgb: string;
 };
 
 const startCards: ActionCard[] = [
@@ -21,18 +22,21 @@ const startCards: ActionCard[] = [
     description: "Create a new Wingman project and begin requirements capture.",
     to: "/app/projects/new",
     Icon: PlusCircle,
+    accentRgb: "59, 212, 208",
   },
   {
     title: "Import a brief",
     description: "Bring in customer notes or scope information and structure it.",
     to: "/app/tools/import-intake",
     Icon: ClipboardList,
+    accentRgb: "242, 140, 40",
   },
   {
     title: "Browse architecture starters",
     description: "Use templates and proven solution patterns as a starting point.",
     to: "/app/tools/templates",
     Icon: LayoutTemplate,
+    accentRgb: "75, 141, 255",
   },
 ];
 
@@ -41,6 +45,7 @@ function CompactActionCard({
   description,
   to,
   Icon,
+  accentRgb,
   onOpen,
 }: ActionCard & { onOpen: (to: string) => void }) {
   return (
@@ -58,7 +63,8 @@ function CompactActionCard({
         borderRadius: 16,
         cursor: "pointer",
         color: "var(--wm-text)",
-      }}
+        "--wm-action-accent-rgb": accentRgb,
+      } as React.CSSProperties}
     >
       <div
         style={{
@@ -69,6 +75,7 @@ function CompactActionCard({
         }}
       >
         <span
+          className="wm-dashboard-page__action-card-icon"
           style={{
             width: 28,
             height: 28,
@@ -82,7 +89,7 @@ function CompactActionCard({
           <Icon size={16} />
         </span>
 
-        <ArrowRight size={18} />
+        <ArrowRight size={18} className="wm-dashboard-page__action-card-arrow" />
       </div>
 
       <div>
@@ -108,6 +115,7 @@ function CompactActionCard({
       </div>
 
       <div
+        className="wm-dashboard-page__action-card-cta"
         style={{
           fontSize: 12,
           fontWeight: 700,
