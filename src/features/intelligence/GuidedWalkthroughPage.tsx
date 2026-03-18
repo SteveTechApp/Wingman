@@ -60,7 +60,13 @@ function AnswerChips({
   const current = (value ?? "").toLowerCase();
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+        gap: 6,
+      }}
+    >
       {options.map((option) => {
         const selected = current.includes(option.value.toLowerCase());
 
@@ -71,11 +77,18 @@ function AnswerChips({
             className="wm-btn"
             onClick={() => onSelect(option.value)}
             style={{
-              minHeight: 34,
-              padding: "6px 10px",
-              borderRadius: 999,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              minHeight: 30,
+              width: "100%",
+              padding: "5px 10px",
+              borderRadius: 12,
               border: selected ? "2px solid var(--wm-accent, #26b3a8)" : "1px solid rgba(255,255,255,0.12)",
-              background: selected ? "rgba(38,179,168,0.14)" : "rgba(255,255,255,0.04)"
+              background: selected ? "rgba(38,179,168,0.14)" : "rgba(255,255,255,0.04)",
+              textAlign: "left",
+              fontSize: 12,
+              lineHeight: 1.25,
             }}
           >
             {option.label}
@@ -99,9 +112,9 @@ function QuestionCard({
     <label
       style={{
         display: "grid",
-        gap: 8,
-        padding: 12,
-        borderRadius: 14,
+        gap: 6,
+        padding: 10,
+        borderRadius: 12,
         background: "rgba(255,255,255,0.03)",
         border: "1px solid rgba(255,255,255,0.08)"
       }}

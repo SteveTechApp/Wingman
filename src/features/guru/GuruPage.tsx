@@ -434,27 +434,32 @@ const pageStyles = `
 
 .wm-guru-float-panel__body{
   overflow: auto;
-  padding: 12px 14px 14px;
+  padding: 10px 12px 12px;
   display: grid;
-  gap: 12px;
+  gap: 10px;
   background: linear-gradient(180deg, rgb(21, 24, 32), rgb(14, 18, 25));
 }
 
 .wm-guru-float-modes{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 6px;
 }
 
 .wm-guru-float-mode{
-  min-height: 30px;
-  padding: 0 10px;
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 6px 10px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.05);
   color: rgba(228, 239, 251, 0.88);
   font-size: 12px;
   font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
   cursor: pointer;
 }
 
@@ -500,22 +505,26 @@ const pageStyles = `
 }
 
 .wm-guru-float-quickasks{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 6px;
 }
 
 .wm-guru-float-chip{
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
-  border-radius: 999px;
+  justify-content: flex-start;
+  min-height: 30px;
+  width: 100%;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.04);
   color: rgba(220, 232, 246, 0.88);
-  padding: 0 10px;
+  padding: 6px 10px;
   font-size: 11px;
   font-weight: 700;
+  line-height: 1.25;
+  text-align: left;
   text-decoration: none;
   cursor: pointer;
 }
@@ -532,11 +541,20 @@ const pageStyles = `
 }
 
 .wm-guru-float-actions--support{
+  display: grid;
+  grid-template-columns: repeat(3, max-content) minmax(0, 1fr);
   align-items: center;
+  gap: 6px 8px;
+}
+
+.wm-guru-float-actions--support .wm-guru-float-chip{
+  width: auto;
 }
 
 .wm-guru-float-actions--support .wm-guru-float-muted{
-  margin-left: auto;
+  margin-left: 0;
+  justify-self: end;
+  text-align: right;
 }
 
 .wm-guru-float-actions .wm-btn{
@@ -641,6 +659,17 @@ const pageStyles = `
 }
 
 @media (max-width: 720px){
+  .wm-guru-float-modes,
+  .wm-guru-float-quickasks,
+  .wm-guru-float-actions--support{
+    grid-template-columns: 1fr;
+  }
+
+  .wm-guru-float-actions--support .wm-guru-float-muted{
+    justify-self: start;
+    text-align: left;
+  }
+
   .wm-guru-float-page{
     padding: 0;
   }

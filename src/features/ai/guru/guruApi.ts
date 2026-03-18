@@ -169,34 +169,39 @@ function strongestConfidence(
   return best ?? "low";
 }
 
-function shouldIncludeProductMatches(question: string, mode: GuruMode, confidence: GuruAnswer["confidence"]): boolean {
-  if (mode === "project-check" && confidence !== "low") return true;
-
+function isProductDirectedQuestion(question: string): boolean {
   const lower = question.toLowerCase();
-  return confidence !== "low" && (
-    /\bsku\b|\bmodel\b|\bfamily\b|\bproduct\b|\brecommend\b|\bsuggest\b/.test(lower) ||
+  const explicitIntent =
+    /\bsku\b|\bmodel\b|\bfamily\b|\bproduct\b|\brecommend\b|\bsuggest\b|\bchoose\b|\bspecify\b/.test(lower) ||
     lower.includes("start with") ||
-    lower.includes("which wyrestorm") ||
+    lower.includes("which wyrestorm");
+  const roomOrWorkflowIntent =
     lower.includes("meeting room") ||
     lower.includes("boardroom") ||
     lower.includes("usb-c") ||
-    lower.includes("apollo") ||
-    lower.includes("hdbaset") ||
-    lower.includes("avoip") ||
-    lower.includes("networkhd") ||
-    lower.includes("matrix") ||
-    lower.includes("switcher") ||
-    lower.includes("splitter") ||
-    lower.includes("extender") ||
-    lower.includes("video wall")
+    lower.includes("byod") ||
+    lower.includes("byom");
+  const categoryIntent =
+    /\bneed\b|\blooking for\b|\bquote\b|\bproposal\b|\bshortlist\b/.test(lower) &&
+    /\bapollo\b|\bhdbaset\b|\bavoip\b|\bnetworkhd\b|\bmatrix\b|\bswitcher\b|\bsplitter\b|\bextender\b|\bvideo wall\b/.test(lower);
+
+  return (
+    explicitIntent ||
+    roomOrWorkflowIntent ||
+    categoryIntent
   );
+}
+
+function shouldIncludeProductMatches(question: string, mode: GuruMode, confidence: GuruAnswer["confidence"]): boolean {
+  if (mode === "project-check" && confidence !== "low") return true;
+  return confidence !== "low" && isProductDirectedQuestion(question);
 }
 
 export async function askGuru(question: string, ctx: GuruContext): Promise<GuruAnswer> {
   const q = tidy(question);
   if (!q) return { text: "Ask a question to get started.", confidence: "low" };
 
-  const knowledge = assessGuruKnowledge(q, ctx.mode);
+  const knowledge = await assessGuruKnowledge(q, ctx.mode);
 
   if (ctx.mode === "resources") {
     if (knowledge.text) {
@@ -308,12 +313,15 @@ export async function askGuru(question: string, ctx: GuruContext): Promise<GuruA
   }
 
   if (intelligence.escalationRequired && shouldShowProductChecks) {
-    lines.push("");
     if (knowledge.text && topRecords.length === 0) {
-      lines.push("To tighten this into exact product guidance:");
-      lines.push("- Add room type, source count, display/output count, transport distance, and control or USB requirements.");
-      lines.push("- If this is a competitor replacement, include brand and model so Guru can compare against verified records.");
+      if (ctx.mode === "project-check" || isProductDirectedQuestion(q)) {
+        lines.push("");
+        lines.push("To tighten this into exact product guidance:");
+        lines.push("- Add room type, source count, display/output count, transport distance, and control or USB requirements.");
+        lines.push("- If this is a competitor replacement, include brand and model so Guru can compare against verified records.");
+      }
     } else {
+      lines.push("");
       lines.push(knowledge.text ? "Checks before customer commitment:" : "Escalation required:");
       lines.push(...intelligence.escalationReasons.map((reason) => `- ${reason}`));
     }

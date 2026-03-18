@@ -27,6 +27,8 @@ const TrainingHubPage = React.lazy(() => import("@/features/misc/TrainingHubPage
 const VideoWallPlannerPage = React.lazy(() => import("@/features/misc/VideoWallPlannerPage"));
 const TemplatesPage = React.lazy(() => import("@/features/templates/TemplatesPage"));
 const GuruToolHostPage = React.lazy(() => import("@/features/guru/GuruToolHostPage"));
+const ProductIntelligencePage = React.lazy(() => import("@/features/support/ProductIntelligencePage"));
+const CompetitorLookupDiagnosticsPage = React.lazy(() => import("@/features/support/CompetitorLookupDiagnosticsPage"));
 
 // Pages
 const ProjectOverviewPage = React.lazy(() => import("@/pages/ProjectOverviewPage"));
@@ -77,6 +79,8 @@ export default function AppRoutes() {
           <Route path="tools/training" element={<TrainingHubPage />} />
           <Route path="tools/video-wall" element={<VideoWallPlannerPage />} />
           <Route path="tools/templates" element={<TemplatesPage />} />
+          <Route path="tools/product-intelligence" element={<ProductIntelligencePage />} />
+          <Route path="tools/competitor-lookup-diagnostics" element={<CompetitorLookupDiagnosticsPage />} />
 
           {/* Friendly aliases */}
           <Route path="toolhub" element={<Navigate to="/app/tools" replace />} />

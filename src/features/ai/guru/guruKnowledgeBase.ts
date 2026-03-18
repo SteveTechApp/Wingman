@@ -28,6 +28,16 @@ export type GuruKnowledgeAssessment = {
   sources: GuruKnowledgeSource[];
 };
 
+type GuruKnowledgeReferenceEntry = {
+  id: string;
+  title: string;
+  body: string;
+  raw: string;
+  keywords: string[];
+  modes?: GuruKnowledgeMode[];
+  sources: GuruKnowledgeSource[];
+};
+
 function source(title: string, to: string): GuruKnowledgeSource {
   return { title, kind: "training", to };
 }
@@ -438,19 +448,23 @@ function confidenceForScore(score: number): GuruKnowledgeAssessment["confidence"
   return "low";
 }
 
-export function assessGuruKnowledge(question: string, mode: GuruKnowledgeMode): GuruKnowledgeAssessment {
+function emptyAssessment(): GuruKnowledgeAssessment {
+  return {
+    score: 0,
+    confidence: "low",
+    text: "",
+    familyHints: [],
+    matchedTopicIds: [],
+    sources: [],
+  };
+}
+
+function buildCuratedKnowledgeAssessment(question: string, mode: GuruKnowledgeMode): GuruKnowledgeAssessment {
   const query = normalize(question);
   const queryTokens = tokenSet(question);
 
   if (!query) {
-    return {
-      score: 0,
-      confidence: "low",
-      text: "",
-      familyHints: [],
-      matchedTopicIds: [],
-      sources: [],
-    };
+    return emptyAssessment();
   }
 
   const ranked = GURU_KNOWLEDGE_TOPICS
@@ -468,14 +482,7 @@ export function assessGuruKnowledge(question: string, mode: GuruKnowledgeMode): 
     .sort((left, right) => right.score - left.score);
 
   if (ranked.length === 0) {
-    return {
-      score: 0,
-      confidence: "low",
-      text: "",
-      familyHints: [],
-      matchedTopicIds: [],
-      sources: [],
-    };
+    return emptyAssessment();
   }
 
   const primary = ranked[0]!.topic;
@@ -515,4 +522,325 @@ export function assessGuruKnowledge(question: string, mode: GuruKnowledgeMode): 
     matchedTopicIds: secondary ? [primary.id, secondary.id] : [primary.id],
     sources: dedupeSources([...(primary.sources ?? []), ...(secondary?.sources ?? [])]),
   };
+}
+
+let cachedReferenceEntries: GuruKnowledgeReferenceEntry[] | null = null;
+
+function confidenceRank(value: GuruKnowledgeAssessment["confidence"]): number {
+  if (value === "high") return 3;
+  if (value === "medium") return 2;
+  return 1;
+}
+
+function strongestConfidence(
+  left: GuruKnowledgeAssessment["confidence"],
+  right: GuruKnowledgeAssessment["confidence"],
+): GuruKnowledgeAssessment["confidence"] {
+  return confidenceRank(left) >= confidenceRank(right) ? left : right;
+}
+
+function uniqueStrings(values: string[], limit = 18): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+
+  for (const value of values) {
+    const item = value.trim();
+    if (!item) continue;
+    const key = item.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
+    if (out.length >= limit) break;
+  }
+
+  return out;
+}
+
+function stripMarkdown(value: string): string {
+  return value
+    .replace(/<[^>]+>/g, " ")
+    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/`{1,3}/g, "")
+    .replace(/[*_>#]+/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\r/g, "")
+    .replace(/\n+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function summarizeText(value: string, maxSentences = 2): string {
+  const plain = stripMarkdown(value);
+  if (!plain) return "";
+  const sentences = plain
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+  return sentences.slice(0, maxSentences).join(" ");
+}
+
+function extractHighlights(raw: string, body: string, limit = 3): string[] {
+  const rawLines = raw
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const bulletLines = rawLines
+    .filter((line) => /^[-*]\s+/.test(line) || /^\d+\.\s+/.test(line) || /^#{2,4}\s+/.test(line))
+    .map((line) =>
+      stripMarkdown(
+        line
+          .replace(/^[-*]\s+/, "")
+          .replace(/^\d+\.\s+/, "")
+          .replace(/^#{2,4}\s+/, ""),
+      ),
+    )
+    .filter(Boolean);
+
+  if (bulletLines.length > 0) {
+    return uniqueStrings(bulletLines, limit);
+  }
+
+  const sentences = stripMarkdown(body)
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+
+  return uniqueStrings(sentences, limit);
+}
+
+function referenceKeywords(...values: string[]): string[] {
+  const phrases = values.map((value) => stripMarkdown(value)).filter(Boolean);
+  const tokens = uniqueStrings(
+    phrases.flatMap((value) => Array.from(tokenSet(value))),
+    28,
+  );
+  return uniqueStrings([...phrases, ...tokens], 32);
+}
+
+function inferReferenceModes(label: string): GuruKnowledgeMode[] | undefined {
+  const value = label.toLowerCase();
+
+  if (
+    value.includes("troubleshoot") ||
+    value.includes("site survey") ||
+    value.includes("field guide") ||
+    value.includes("sales inquiry") ||
+    value.includes("bant")
+  ) {
+    return ["project-check", "ask"];
+  }
+
+  if (
+    value.includes("signals") ||
+    value.includes("terminology") ||
+    value.includes("network") ||
+    value.includes("hdbaset") ||
+    value.includes("avoip") ||
+    value.includes("datasheet") ||
+    value.includes("video wall")
+  ) {
+    return ["resources", "ask", "project-check"];
+  }
+
+  return undefined;
+}
+
+function buildTrainingReferenceEntries(
+  trainingModules: Array<{
+    id: string;
+    title: string;
+    contentPages: Array<{ title: string; content: string; asset?: { title?: string } }>;
+  }>,
+): GuruKnowledgeReferenceEntry[] {
+  return trainingModules.flatMap((module) =>
+    module.contentPages.map((page, index) => ({
+      id: `training:${module.id}:${index}`,
+      title: `${module.title}: ${page.title}`,
+      body: summarizeText(page.content, 3),
+      raw: page.content,
+      keywords: referenceKeywords(module.title, page.title, page.content, page.asset?.title || ""),
+      modes: inferReferenceModes(`${module.title} ${page.title}`),
+      sources: [TRAINING_SOURCE],
+    })),
+  );
+}
+
+function splitTechnicalSections(markdown: string): Array<{ title: string; body: string }> {
+  return markdown
+    .split(/\n##\s+/)
+    .map((section, index) => {
+      const rawSection = index === 0 ? section.replace(/^#.*\n?/, "").trim() : section.trim();
+      if (!rawSection) return null;
+      const [titleLine, ...bodyLines] = rawSection.split("\n");
+      return {
+        title: stripMarkdown(titleLine || ""),
+        body: bodyLines.join("\n").trim(),
+      };
+    })
+    .filter((section): section is { title: string; body: string } => Boolean(section?.title && section.body));
+}
+
+function buildTechnicalReferenceEntries(markdown: string): GuruKnowledgeReferenceEntry[] {
+  const sections = splitTechnicalSections(markdown);
+  const entries: GuruKnowledgeReferenceEntry[] = [];
+
+  sections.forEach((section, sectionIndex) => {
+    entries.push({
+      id: `tech:${sectionIndex}`,
+      title: section.title,
+      body: summarizeText(section.body, 3),
+      raw: section.body,
+      keywords: referenceKeywords(section.title, section.body),
+      modes: inferReferenceModes(section.title),
+      sources: [TRAINING_SOURCE],
+    });
+
+    const bulletMatches = Array.from(
+      section.body.matchAll(/-\s+\*\*([^*]+)\*\*:?\s*([\s\S]*?)(?=\n-\s+\*\*|\n##\s+|$)/g),
+    );
+
+    bulletMatches.forEach((match, bulletIndex) => {
+      const bulletTitle = stripMarkdown(match[1] || "");
+      const bulletBody = (match[2] || "").trim();
+      if (!bulletTitle || !bulletBody) return;
+
+      entries.push({
+        id: `tech:${sectionIndex}:bullet:${bulletIndex}`,
+        title: `${section.title}: ${bulletTitle}`,
+        body: summarizeText(bulletBody, 3),
+        raw: bulletBody,
+        keywords: referenceKeywords(section.title, bulletTitle, bulletBody),
+        modes: inferReferenceModes(`${section.title} ${bulletTitle}`),
+        sources: [TRAINING_SOURCE],
+      });
+    });
+  });
+
+  return entries;
+}
+
+async function loadReferenceEntries(): Promise<GuruKnowledgeReferenceEntry[]> {
+  if (cachedReferenceEntries) {
+    return cachedReferenceEntries;
+  }
+
+  const [{ TRAINING_MODULES }, { TECHNICAL_DATABASE }] = await Promise.all([
+    import("@/data/trainingContent"),
+    import("@/data/technicalDatabase"),
+  ]);
+
+  cachedReferenceEntries = [
+    ...buildTrainingReferenceEntries(TRAINING_MODULES),
+    ...buildTechnicalReferenceEntries(TECHNICAL_DATABASE),
+  ];
+
+  return cachedReferenceEntries;
+}
+
+function scoreReferenceEntry(
+  entry: GuruKnowledgeReferenceEntry,
+  query: string,
+  queryTokens: Set<string>,
+  mode: GuruKnowledgeMode,
+): number {
+  let score = 0;
+
+  if (!entry.modes || entry.modes.includes(mode)) {
+    score += 3;
+  }
+
+  score += keywordScore(query, queryTokens, entry.title) * 2;
+
+  for (const keyword of entry.keywords) {
+    score += keywordScore(query, queryTokens, keyword);
+  }
+
+  const overlap = entry.keywords.filter((keyword) => queryTokens.has(normalize(keyword))).length;
+  score += Math.min(12, overlap * 2);
+
+  return score;
+}
+
+async function buildReferenceKnowledgeAssessment(
+  question: string,
+  mode: GuruKnowledgeMode,
+): Promise<GuruKnowledgeAssessment> {
+  const query = normalize(question);
+  const queryTokens = tokenSet(question);
+
+  if (!query) {
+    return emptyAssessment();
+  }
+
+  const entries = await loadReferenceEntries();
+  const ranked = entries
+    .map((entry) => ({
+      entry,
+      score: scoreReferenceEntry(entry, query, queryTokens, mode),
+    }))
+    .filter((item) => item.score >= 12)
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 3);
+
+  if (ranked.length === 0) {
+    return emptyAssessment();
+  }
+
+  const [primary, secondary] = ranked;
+  const highlights = extractHighlights(primary!.entry.raw, primary!.entry.body, 3);
+  const lines = [`Reference guidance from ${primary!.entry.title}: ${primary!.entry.body}`];
+
+  if (highlights.length > 0) {
+    lines.push("", "Useful reference points:");
+    lines.push(...highlights.map((item) => `- ${item}`));
+  }
+
+  if (secondary && secondary.score >= primary!.score * 0.8) {
+    lines.push("", `Related reference: ${secondary.entry.title}.`);
+    const related = extractHighlights(secondary.entry.raw, secondary.entry.body, 2);
+    lines.push(...related.map((item) => `- ${item}`));
+  }
+
+  return {
+    score: primary!.score,
+    confidence: confidenceForScore(primary!.score),
+    text: lines.join("\n"),
+    familyHints: [],
+    matchedTopicIds: ranked.map((item) => item.entry.id),
+    sources: dedupeSources(ranked.flatMap((item) => item.entry.sources)),
+  };
+}
+
+function mergeKnowledgeAssessments(
+  curated: GuruKnowledgeAssessment,
+  reference: GuruKnowledgeAssessment,
+): GuruKnowledgeAssessment {
+  if (!curated.text) return reference;
+  if (!reference.text) return curated;
+
+  const text =
+    reference.score >= curated.score * 0.78 || curated.confidence === "low"
+      ? `${curated.text}\n\nReference detail:\n${reference.text}`
+      : curated.text;
+
+  return {
+    score: Math.max(curated.score, reference.score),
+    confidence: strongestConfidence(curated.confidence, reference.confidence),
+    text,
+    familyHints: uniqueStrings([...curated.familyHints, ...reference.familyHints]),
+    matchedTopicIds: uniqueStrings([...curated.matchedTopicIds, ...reference.matchedTopicIds], 10),
+    sources: dedupeSources([...curated.sources, ...reference.sources]),
+  };
+}
+
+export async function assessGuruKnowledge(
+  question: string,
+  mode: GuruKnowledgeMode,
+): Promise<GuruKnowledgeAssessment> {
+  const curated = buildCuratedKnowledgeAssessment(question, mode);
+  const reference = await buildReferenceKnowledgeAssessment(question, mode);
+  return mergeKnowledgeAssessments(curated, reference);
 }
