@@ -1,3 +1,151 @@
+[CmdletBinding()]
+param(
+  [string]$Root = "",
+  [switch]$Apply
+)
+
+$ErrorActionPreference = "Stop"
+if (-not $Apply) { throw "Run with -Apply" }
+
+function Find-RepoRoot {
+  param([string]$Start = "")
+  $dir = if ($Start) { (Resolve-Path $Start).Path } else { (Get-Location).Path }
+  while ($true) {
+    if (Test-Path (Join-Path $dir "package.json")) { return $dir }
+    $parent = Split-Path $dir -Parent
+    if ($parent -eq $dir) { throw "Could not find package.json from $dir" }
+    $dir = $parent
+  }
+}
+
+function Read-Text {
+  param([Parameter(Mandatory = $true)][string]$Path)
+  return [System.IO.File]::ReadAllText($Path)
+}
+
+function Save-Utf8NoBom {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$Content
+  )
+  [System.IO.File]::WriteAllText($Path, $Content, [System.Text.UTF8Encoding]::new($false))
+}
+
+function Backup-File {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$RepoRoot,
+    [Parameter(Mandatory = $true)][string]$BackupRoot
+  )
+  $relative = $Path.Substring($RepoRoot.Length).TrimStart('\','/')
+  $dest = Join-Path $BackupRoot $relative
+  $destDir = Split-Path $dest -Parent
+  New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+  Copy-Item $Path $dest -Force
+}
+
+$repoRoot = Find-RepoRoot -Start $Root
+
+$pagePath = Join-Path $repoRoot "src\features\compare\CompetitorComparePage.tsx"
+$resultsPath = Join-Path $repoRoot "src\components\competitor\CompetitorCompareResultsPanel.tsx"
+
+if (-not (Test-Path $pagePath)) { throw "File not found: $pagePath" }
+if (-not (Test-Path $resultsPath)) { throw "File not found: $resultsPath" }
+
+$stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$backupRoot = Join-Path $repoRoot "_RESCUE\compare-overhaul-pass1-$stamp"
+New-Item -ItemType Directory -Force -Path $backupRoot | Out-Null
+
+Backup-File -Path $pagePath -RepoRoot $repoRoot -BackupRoot $backupRoot
+Backup-File -Path $resultsPath -RepoRoot $repoRoot -BackupRoot $backupRoot
+
+# ------------------------------------------------------------
+# 1) Tighten CompetitorComparePage.tsx
+# ------------------------------------------------------------
+$page = Read-Text $pagePath
+
+$page = $page.Replace(
+@'
+      <div className="wm-page-body" style={{ display: "grid", gap: 14 }}>
+'@,
+@'
+      <div className="wm-page-body" style={{ display: "grid", gap: 12 }}>
+'@
+)
+
+$page = $page.Replace(
+@'
+        <div className="wm-card" style={{ padding: 14 }}>
+'@,
+@'
+        <div className="wm-card" style={{ padding: 10 }}>
+'@
+)
+
+$page = $page.Replace(
+@'
+        <div
+          style={{
+            display: "grid",
+            gap: 14,
+            gridTemplateColumns: "minmax(0, 1.25fr) minmax(320px, 0.95fr)",
+            alignItems: "start",
+          }}
+        >
+'@,
+@'
+        <div
+          style={{
+            display: "grid",
+            gap: 12,
+            gridTemplateColumns: "minmax(0, 1.6fr) 320px",
+            alignItems: "start",
+          }}
+        >
+'@
+)
+
+$page = $page.Replace(
+@'
+          <div className="wm-card" style={{ padding: 14 }}>
+'@,
+@'
+          <div className="wm-card" style={{ padding: 10 }}>
+'@
+)
+
+$page = $page.Replace(
+@'
+          <div style={{ display: "grid", gap: 14 }}>
+'@,
+@'
+          <div
+            style={{
+              display: "grid",
+              gap: 10,
+              alignContent: "start",
+              position: "sticky",
+              top: 16,
+            }}
+          >
+'@
+)
+
+$page = $page.Replace(
+@'
+            <div className="wm-card" style={{ padding: 14 }}>
+'@,
+@'
+            <div className="wm-card" style={{ padding: 10 }}>
+'@
+)
+
+Save-Utf8NoBom -Path $pagePath -Content $page
+
+# ------------------------------------------------------------
+# 2) Replace CompetitorCompareResultsPanel.tsx with a compact layout
+# ------------------------------------------------------------
+$resultsContent = @'
 import React from "react";
 
 import type {
@@ -22,8 +170,6 @@ type CompetitorCompareResultsPanelProps = {
     option: CompetitorCompareOption,
   ) => void;
 };
-
-type ResultsTabKey = "overview" | "compare" | "sales" | "live";
 
 type CompactSectionTitleProps = {
   title: string;
@@ -141,24 +287,6 @@ function sectionTitle({ title, subtitle }: CompactSectionTitleProps) {
   );
 }
 
-function tabButtonStyle(active: boolean): React.CSSProperties {
-  return {
-    height: 32,
-    padding: "0 12px",
-    borderRadius: 999,
-    border: active
-      ? "1px solid rgba(92,225,230,0.28)"
-      : "1px solid rgba(255,255,255,0.08)",
-    background: active
-      ? "rgba(92,225,230,0.12)"
-      : "rgba(255,255,255,0.03)",
-    color: active ? "#dffcff" : "rgba(255,255,255,0.76)",
-    fontSize: 11,
-    fontWeight: 700,
-    cursor: "pointer",
-  };
-}
-
 export default function CompetitorCompareResultsPanel(
   props: CompetitorCompareResultsPanelProps,
 ) {
@@ -171,8 +299,6 @@ export default function CompetitorCompareResultsPanel(
     onVerifyCandidate,
     onSelectOption,
   } = props;
-
-  const [activeTab, setActiveTab] = React.useState<ResultsTabKey>("overview");
 
   const activeCandidate = selectedCandidate(result, selectedCandidateId);
   const activeOption = selectedOption(activeCandidate, selectedOptionId);
@@ -410,126 +536,100 @@ export default function CompetitorCompareResultsPanel(
             background: "rgba(255,255,255,0.02)",
           }}
         >
-          <div style={{ display: "grid", gap: 8 }}>
-            <div style={{ display: "grid", gap: 2 }}>
-              <div style={{ fontSize: 14, fontWeight: 800 }}>
-                WyreStorm options for {activeCandidate.comparison.competitorSku}
-              </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: "rgba(255,255,255,0.60)",
-                  lineHeight: 1.35,
-                }}
-              >
-                Compare the strongest replacement paths before positioning one to the customer.
-              </div>
+          <div style={{ display: "grid", gap: 2 }}>
+            <div style={{ fontSize: 14, fontWeight: 800 }}>
+              WyreStorm options for {activeCandidate.comparison.competitorSku}
             </div>
-
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              <button
-                type="button"
-                onClick={() => setActiveTab("overview")}
-                style={tabButtonStyle(activeTab === "overview")}
-              >
-                Overview
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("compare")}
-                style={tabButtonStyle(activeTab === "compare")}
-              >
-                Compare
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("sales")}
-                style={tabButtonStyle(activeTab === "sales")}
-              >
-                Sales Notes
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("live")}
-                style={tabButtonStyle(activeTab === "live")}
-              >
-                Live Data
-              </button>
+            <div
+              style={{
+                fontSize: 11,
+                color: "rgba(255,255,255,0.60)",
+                lineHeight: 1.35,
+              }}
+            >
+              Compare the strongest replacement paths before positioning one to the customer.
             </div>
           </div>
 
-          {activeTab === "overview" ? (
-            <div style={{ display: "grid", gap: 12 }}>
-              <div
-                style={{
-                  display: "grid",
-                  gap: 8,
-                  gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
-                }}
-              >
-                {activeCandidate.options.map((option) => {
-                  const active = option.id === activeOption?.id;
+          <div
+            style={{
+              display: "grid",
+              gap: 8,
+              gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+            }}
+          >
+            {activeCandidate.options.map((option) => {
+              const active = option.id === activeOption?.id;
 
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => onSelectOption?.(activeCandidate, option)}
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => onSelectOption?.(activeCandidate, option)}
+                  style={{
+                    display: "grid",
+                    gap: 6,
+                    padding: 12,
+                    textAlign: "left",
+                    borderRadius: 12,
+                    border: active
+                      ? "1px solid rgba(92,225,230,0.28)"
+                      : "1px solid rgba(255,255,255,0.08)",
+                    background: active
+                      ? "rgba(92,225,230,0.08)"
+                      : "rgba(255,255,255,0.03)",
+                    color: "#eef5ff",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: 8,
+                      alignItems: "center",
+                    }}
+                  >
+                    <div style={{ fontSize: 11, fontWeight: 800, opacity: 0.82 }}>
+                      {option.label}
+                    </div>
+                    <span
                       style={{
-                        display: "grid",
-                        gap: 6,
-                        padding: 12,
-                        textAlign: "left",
-                        borderRadius: 12,
-                        border: active
-                          ? "1px solid rgba(92,225,230,0.28)"
-                          : "1px solid rgba(255,255,255,0.08)",
-                        background: active
-                          ? "rgba(92,225,230,0.08)"
-                          : "rgba(255,255,255,0.03)",
-                        color: "#eef5ff",
-                        cursor: "pointer",
+                        padding: "3px 7px",
+                        borderRadius: 999,
+                        fontSize: 10,
+                        fontWeight: 700,
+                        ...chipStyle(confidenceAccent(option.fitConfidence)),
                       }}
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: 8,
-                          alignItems: "center",
-                        }}
-                      >
-                        <div style={{ fontSize: 11, fontWeight: 800, opacity: 0.82 }}>
-                          {option.label}
-                        </div>
-                        <span
-                          style={{
-                            padding: "3px 7px",
-                            borderRadius: 999,
-                            fontSize: 10,
-                            fontWeight: 700,
-                            ...chipStyle(confidenceAccent(option.fitConfidence)),
-                          }}
-                        >
-                          {option.fitConfidence}
-                        </span>
-                      </div>
+                      {option.fitConfidence}
+                    </span>
+                  </div>
 
-                      <div style={{ fontSize: 15, fontWeight: 800, color: "#dffcff" }}>
-                        {option.wyrestormSku}
-                      </div>
-                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.72)" }}>
-                        {option.wyrestormName || option.wyrestormCategory}
-                      </div>
-                      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.56)" }}>
-                        Fit {option.fitScore}/100
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: "#dffcff" }}>
+                    {option.wyrestormSku}
+                  </div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.72)" }}>
+                    {option.wyrestormName || option.wyrestormCategory}
+                  </div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.56)" }}>
+                    Fit {option.fitScore}/100
+                  </div>
+                </button>
+              );
+            })}
+          </div>
 
-              {activeOption ? (
+          {activeOption ? (
+            <div
+              style={{
+                display: "grid",
+                gap: 12,
+                gridTemplateColumns: "minmax(0, 1.05fr) minmax(0, 0.95fr)",
+                alignItems: "start",
+              }}
+            >
+              <div style={{ display: "grid", gap: 12 }}>
                 <div
                   style={{
                     display: "grid",
@@ -550,12 +650,47 @@ export default function CompetitorCompareResultsPanel(
                     {activeOption.positioningSummary}
                   </div>
                 </div>
-              ) : null}
-            </div>
-          ) : null}
 
-          {activeTab === "compare" ? (
-            activeOption ? (
+                <div
+                  style={{
+                    display: "grid",
+                    gap: 6,
+                    padding: 12,
+                    borderRadius: 12,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.03)",
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: 800 }}>
+                    Sales talk track
+                  </div>
+                  {activeOption.salesStory.map((line) => (
+                    <div
+                      key={line}
+                      style={{
+                        fontSize: 11,
+                        color: "rgba(255,255,255,0.70)",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      - {line}
+                    </div>
+                  ))}
+                  {activeOption.cautions.map((line) => (
+                    <div
+                      key={line}
+                      style={{
+                        fontSize: 11,
+                        color: "#ffe6b7",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      - {line}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div
                 style={{
                   display: "grid",
@@ -597,196 +732,121 @@ export default function CompetitorCompareResultsPanel(
                   </div>
                 ))}
               </div>
-            ) : (
-              <div
-                style={{
-                  padding: 12,
-                  borderRadius: 12,
-                  border: "1px dashed rgba(255,255,255,0.12)",
-                  color: "rgba(255,255,255,0.56)",
-                  fontSize: 12,
-                }}
-              >
-                Select an option to view the side-by-side comparison.
-              </div>
-            )
-          ) : null}
-
-          {activeTab === "sales" ? (
-            activeOption ? (
-              <div style={{ display: "grid", gap: 12 }}>
-                <div
-                  style={{
-                    display: "grid",
-                    gap: 6,
-                    padding: 12,
-                    borderRadius: 12,
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    background: "rgba(255,255,255,0.03)",
-                  }}
-                >
-                  <div style={{ fontSize: 13, fontWeight: 800 }}>
-                    Sales talk track
-                  </div>
-                  {activeOption.salesStory.map((line) => (
-                    <div
-                      key={line}
-                      style={{
-                        fontSize: 11,
-                        color: "rgba(255,255,255,0.70)",
-                        lineHeight: 1.35,
-                      }}
-                    >
-                      - {line}
-                    </div>
-                  ))}
-                  {activeOption.cautions.map((line) => (
-                    <div
-                      key={line}
-                      style={{
-                        fontSize: 11,
-                        color: "#ffe6b7",
-                        lineHeight: 1.35,
-                      }}
-                    >
-                      - {line}
-                    </div>
-                  ))}
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gap: 6,
-                    padding: 12,
-                    borderRadius: 12,
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    background: "rgba(255,255,255,0.02)",
-                  }}
-                >
-                  <div style={{ fontSize: 13, fontWeight: 800 }}>Sales decode</div>
-                  {result.salesAdvice.map((item) => (
-                    <div
-                      key={item}
-                      style={{
-                        fontSize: 11,
-                        color: "rgba(255,255,255,0.70)",
-                        lineHeight: 1.35,
-                      }}
-                    >
-                      - {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div
-                style={{
-                  padding: 12,
-                  borderRadius: 12,
-                  border: "1px dashed rgba(255,255,255,0.12)",
-                  color: "rgba(255,255,255,0.56)",
-                  fontSize: 12,
-                }}
-              >
-                Select an option to review sales notes.
-              </div>
-            )
-          ) : null}
-
-          {activeTab === "live" ? (
-            liveResult?.record ? (
-              <div
-                style={{
-                  display: "grid",
-                  gap: 8,
-                  padding: 12,
-                  borderRadius: 12,
-                  border: "1px solid rgba(122,236,160,0.24)",
-                  background: "rgba(122,236,160,0.10)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 10,
-                    alignItems: "center",
-                  }}
-                >
-                  <div style={{ fontSize: 14, fontWeight: 800 }}>
-                    Live verification
-                  </div>
-                  <span
-                    style={{
-                      padding: "4px 8px",
-                      borderRadius: 999,
-                      fontSize: 10,
-                      fontWeight: 700,
-                      ...chipStyle("green"),
-                    }}
-                  >
-                    {liveResult.sourceLabel}
-                  </span>
-                </div>
-
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: "rgba(255,255,255,0.80)",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {liveResult.record.brand} {liveResult.record.competitorSku} compares
-                  closest to{" "}
-                  <strong>
-                    {liveResult.candidate?.primaryOption?.wyrestormSku ||
-                      liveResult.record.wyrestormSku}
-                  </strong>
-                  {liveResult.record.wyrestormName
-                    ? ` (${liveResult.record.wyrestormName})`
-                    : ""}.
-                </div>
-
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.68)" }}>
-                  {liveResult.record.rationale}
-                </div>
-
-                {liveResult.intelligence?.summary ? (
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.68)" }}>
-                    {liveResult.intelligence.summary}
-                  </div>
-                ) : null}
-
-                {liveResult.warnings.length > 0 ? (
-                  <div style={{ display: "grid", gap: 4 }}>
-                    {liveResult.warnings.map((warning) => (
-                      <div
-                        key={warning}
-                        style={{ fontSize: 11, color: "#ffe6b7" }}
-                      >
-                        - {warning}
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            ) : (
-              <div
-                style={{
-                  padding: 12,
-                  borderRadius: 12,
-                  border: "1px dashed rgba(255,255,255,0.12)",
-                  color: "rgba(255,255,255,0.56)",
-                  fontSize: 12,
-                }}
-              >
-                No live verification data yet.
-              </div>
-            )
+            </div>
           ) : null}
         </div>
       ) : null}
+
+      {liveResult?.record ? (
+        <div
+          style={{
+            display: "grid",
+            gap: 8,
+            padding: 12,
+            borderRadius: 12,
+            border: "1px solid rgba(122,236,160,0.24)",
+            background: "rgba(122,236,160,0.10)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 10,
+              alignItems: "center",
+            }}
+          >
+            <div style={{ fontSize: 14, fontWeight: 800 }}>Live verification</div>
+            <span
+              style={{
+                padding: "4px 8px",
+                borderRadius: 999,
+                fontSize: 10,
+                fontWeight: 700,
+                ...chipStyle("green"),
+              }}
+            >
+              {liveResult.sourceLabel}
+            </span>
+          </div>
+
+          <div
+            style={{ fontSize: 12, color: "rgba(255,255,255,0.80)", lineHeight: 1.4 }}
+          >
+            {liveResult.record.brand} {liveResult.record.competitorSku} compares closest to{" "}
+            <strong>
+              {liveResult.candidate?.primaryOption?.wyrestormSku ||
+                liveResult.record.wyrestormSku}
+            </strong>
+            {liveResult.record.wyrestormName
+              ? ` (${liveResult.record.wyrestormName})`
+              : ""}.
+          </div>
+
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.68)" }}>
+            {liveResult.record.rationale}
+          </div>
+
+          {liveResult.intelligence?.summary ? (
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.68)" }}>
+              {liveResult.intelligence.summary}
+            </div>
+          ) : null}
+
+          {liveResult.warnings.length > 0 ? (
+            <div style={{ display: "grid", gap: 4 }}>
+              {liveResult.warnings.map((warning) => (
+                <div
+                  key={warning}
+                  style={{ fontSize: 11, color: "#ffe6b7" }}
+                >
+                  - {warning}
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div
+        style={{
+          display: "grid",
+          gap: 6,
+          padding: 12,
+          borderRadius: 12,
+          border: "1px solid rgba(255,255,255,0.08)",
+          background: "rgba(255,255,255,0.02)",
+        }}
+      >
+        <div style={{ fontSize: 13, fontWeight: 800 }}>Sales decode</div>
+        {result.salesAdvice.map((item) => (
+          <div
+            key={item}
+            style={{
+              fontSize: 11,
+              color: "rgba(255,255,255,0.70)",
+              lineHeight: 1.35,
+            }}
+          >
+            - {item}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
+'@
+
+Save-Utf8NoBom -Path $resultsPath -Content $resultsContent
+
+Write-Host ""
+Write-Host "Patched files:" -ForegroundColor Green
+Write-Host "  $pagePath" -ForegroundColor Green
+Write-Host "  $resultsPath" -ForegroundColor Green
+Write-Host ""
+Write-Host "Backup:" -ForegroundColor Yellow
+Write-Host "  $backupRoot" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Next:" -ForegroundColor Cyan
+Write-Host "  npm run typecheck"
+Write-Host "  npm run dev"

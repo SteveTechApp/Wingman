@@ -57,14 +57,17 @@ function inputStyle(multiline = false): React.CSSProperties {
   return {
     minHeight: multiline ? 96 : 42,
     borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.12)",
-    background: "rgba(255,255,255,0.04)",
+    border: "1px solid rgba(115,231,255,0.26)",
+    background:
+      "radial-gradient(circle at 12% 14%, rgba(115,231,255,0.12), transparent 34%), linear-gradient(180deg, rgba(13,26,42,0.98), rgba(9,19,32,0.99))",
     color: "#eef5ff",
     padding: multiline ? "10px 12px" : "0 12px",
     outline: "none",
     resize: multiline ? "vertical" : "none",
     fontFamily: "inherit",
     fontSize: 13,
+    boxShadow:
+      "inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.018), 0 10px 24px rgba(3,12,22,0.16)",
   };
 }
 

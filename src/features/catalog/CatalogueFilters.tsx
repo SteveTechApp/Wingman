@@ -38,9 +38,25 @@ type FilterSectionProps = {
 const DEFAULT_OPEN_SECTIONS: Record<string, boolean> = {
   technology: true,
   category: true,
-  features: true,
+  features: false,
   lifecycle: false,
 };
+
+function cleanFilterLabel(value: string): string {
+  const v = String(value || "").trim();
+
+  if (v === "Videowall") return "Video Wall";
+  if (v === "Zoom certified") return "Zoom Certified";
+  if (v === "ZOOM Certification") return "Zoom Certified";
+  if (v === "Web-UI") return "Web UI";
+  if (v === "WEB GUI and RS232 control") return "Web GUI and RS232 Control";
+
+  return v
+    .replace(/Ã.+$/g, "")
+    .replace(/Â/g, "")
+    .replace(/â.+$/g, "")
+    .trim();
+}
 
 function RenderCheck({ value, active, onClick }: RenderCheckProps) {
   return (
@@ -49,8 +65,8 @@ function RenderCheck({ value, active, onClick }: RenderCheckProps) {
       className={active ? "wm-cat2__check is-active" : "wm-cat2__check"}
       onClick={onClick}
     >
-      <span className="wm-cat2__check-box">{active ? "Ã¢Å“â€œ" : ""}</span>
-      <span>{value}</span>
+      <span className="wm-cat2__check-box">{active ? "✓" : ""}</span>
+      <span>{cleanFilterLabel(value)}</span>
     </button>
   );
 }
@@ -62,7 +78,7 @@ function FilterSection({
   onToggleSection,
   children,
 }: FilterSectionProps) {
-  const isOpen = openSections[sectionKey];
+  const isOpen = !!openSections[sectionKey];
 
   return (
     <section className="wm-cat2__filter-group">
@@ -74,8 +90,14 @@ function FilterSection({
         aria-controls={"section-" + sectionKey}
       >
         <span>{title}</span>
-        <span className={isOpen ? "wm-cat2__filter-chevron is-open" : "wm-cat2__filter-chevron"}>
-          Ã¢â€“¾
+        <span
+          className={
+            isOpen
+              ? "wm-cat2__filter-chevron is-open"
+              : "wm-cat2__filter-chevron"
+          }
+        >
+          v
         </span>
       </button>
 
@@ -89,7 +111,8 @@ function FilterSection({
 }
 
 export default function CatalogueFilters(props: CatalogueFiltersProps) {
-  const [openSections, setOpenSections] = React.useState<Record<string, boolean>>(DEFAULT_OPEN_SECTIONS);
+  const [openSections, setOpenSections] =
+    React.useState<Record<string, boolean>>(DEFAULT_OPEN_SECTIONS);
 
   function toggleSection(sectionKey: string) {
     setOpenSections((prev) => ({
@@ -126,10 +149,18 @@ export default function CatalogueFilters(props: CatalogueFiltersProps) {
       </div>
 
       <div className="wm-cat2__filters-actions">
-        <button type="button" className="wm-cat2__filters-action" onClick={expandAll}>
+        <button
+          type="button"
+          className="wm-cat2__filters-action"
+          onClick={expandAll}
+        >
           Expand all
         </button>
-        <button type="button" className="wm-cat2__filters-action" onClick={collapseAll}>
+        <button
+          type="button"
+          className="wm-cat2__filters-action"
+          onClick={collapseAll}
+        >
           Collapse all
         </button>
       </div>

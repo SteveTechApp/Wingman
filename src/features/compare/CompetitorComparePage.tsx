@@ -64,6 +64,7 @@ function ensureLiveCandidateInResult(
   const existingIndex = searchResult.candidates.findIndex(
     (candidate) => candidate.id === liveResult.candidate?.id,
   );
+
   const candidates =
     existingIndex >= 0
       ? searchResult.candidates.map((candidate, index) =>
@@ -179,6 +180,7 @@ export default function CompetitorComparePage() {
   const [liveResult, setLiveResult] =
     React.useState<CompetitorCompareLiveResult | null>(null);
   const [saveMessage, setSaveMessage] = React.useState("");
+  const [manualPanelOpen, setManualPanelOpen] = React.useState(false);
   const [feedbackSummary, setFeedbackSummary] = React.useState(() =>
     feedbackSummaryText(getCompetitorCompareFeedbackSummary()),
   );
@@ -405,82 +407,158 @@ export default function CompetitorComparePage() {
 
   return (
     <div className="wm-page">
-      <div className="wm-page-header">
-        <div>
-          <div className="wm-page-title">Competitor Comparison</div>
-          <div className="wm-page-sub">
-            Search partial competitor SKUs, shortlist the nearest WyreStorm fit,
-            compare the top options side by side, verify the latest match live,
-            and save manual fallback mappings for future use.
+      <div style={{ maxWidth: 1480, margin: "0 auto", width: "100%" }}>
+        <div className="wm-page-header">
+          <div>
+            <div className="wm-page-title">Competitor Comparison</div>
+            <div className="wm-page-sub">
+              Search partial competitor SKUs, shortlist the nearest WyreStorm fit,
+              compare the top options side by side, verify the latest match live,
+              and save manual fallback mappings for future use.
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="wm-page-body" style={{ display: "grid", gap: 18 }}>
-        <div className="wm-card">
-          <CompetitorMatchFinderPanel
-            brand={brand}
-            sku={sku}
-            running={running}
-            hasLocalMatch={effectiveResult.candidates.length > 0}
-            localMatches={localMatches}
-            onBrandChange={setBrand}
-            onSkuChange={setSku}
-            onRun={(mode) => {
-              if (mode === "web") {
-                void verifyLive(
-                  selectedCandidate?.comparison.competitorSku || sku.trim(),
-                );
-                return;
-              }
-              refreshSearch(brand.trim(), sku.trim());
-            }}
-          />
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gap: 18,
-            gridTemplateColumns: "minmax(0, 1.4fr) minmax(360px, 1fr)",
-            alignItems: "start",
-          }}
-        >
-          <div className="wm-card">
-            <CompetitorCompareResultsPanel
-              result={effectiveResult}
-              selectedCandidateId={selectedCandidate?.id}
-              selectedOptionId={selectedOption?.id}
-              liveResult={liveResult}
-              onSelectCandidate={handleSelectCandidate}
-              onVerifyCandidate={(candidate) =>
-                void verifyLive(candidate.comparison.competitorSku)
-              }
-              onSelectOption={handleSelectOption}
-            />
-          </div>
-
-          <div style={{ display: "grid", gap: 18 }}>
-            <CompetitorLookupStatusPanel
-              trace={trace}
-              modeLabel={modeLabel}
+        <div className="wm-page-body" style={{ display: "grid", gap: 10 }}>
+          <div className="wm-card" style={{ padding: 10 }}>
+            <CompetitorMatchFinderPanel
+              brand={brand}
+              sku={sku}
               running={running}
-              title="Lookup status"
-              subtitle="See what came from the local comparison library, what was verified live, and whether the match still needs clarification."
-              emptyText="No compare activity yet."
+              hasLocalMatch={effectiveResult.candidates.length > 0}
+              localMatches={localMatches}
+              onBrandChange={setBrand}
+              onSkuChange={setSku}
+              onRun={(mode) => {
+                if (mode === "web") {
+                  void verifyLive(
+                    selectedCandidate?.comparison.competitorSku || sku.trim(),
+                  );
+                  return;
+                }
+                refreshSearch(brand.trim(), sku.trim());
+              }}
             />
+          </div>
 
-            <div className="wm-card">
-              <CompetitorManualComparisonPanel
-                brand={brand}
-                query={sku}
-                selectedCandidate={selectedCandidate}
-                selectedOption={selectedOption}
-                saveMessage={saveMessage}
-                feedbackSummary={feedbackSummary}
-                onSave={handleSaveManual}
-                onDelete={handleDeleteManual}
+          <div
+            style={{
+              display: "grid",
+              gap: 10,
+              gridTemplateColumns: "minmax(0, 1.6fr) 320px",
+              alignItems: "start",
+            }}
+          >
+            <div
+              className="wm-card"
+              style={{
+                padding: 12,
+                border: "1px solid rgba(92,225,230,0.18)",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.25)",
+              }}
+            >
+              <CompetitorCompareResultsPanel
+                result={effectiveResult}
+                selectedCandidateId={selectedCandidate?.id}
+                selectedOptionId={selectedOption?.id}
+                liveResult={liveResult}
+                onSelectCandidate={handleSelectCandidate}
+                onVerifyCandidate={(candidate) =>
+                  void verifyLive(candidate.comparison.competitorSku)
+                }
+                onSelectOption={handleSelectOption}
               />
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gap: 10,
+                alignContent: "start",
+                position: "sticky",
+                top: 20,
+              }}
+            >
+              <div style={{ opacity: 0.85 }}>
+                <CompetitorLookupStatusPanel
+                  trace={trace}
+                  modeLabel={modeLabel}
+                  running={running}
+                  title="Lookup status"
+                  subtitle="See what came from the local comparison library, what was verified live, and whether the match still needs clarification."
+                  emptyText="No compare activity yet."
+                />
+              </div>
+
+              <div className="wm-card" style={{ padding: 10, opacity: 0.92 }}>
+                <button
+                  type="button"
+                  onClick={() => setManualPanelOpen((current) => !current)}
+                  aria-expanded={manualPanelOpen}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    padding: 0,
+                    margin: 0,
+                    border: "none",
+                    background: "transparent",
+                    color: "#eef5ff",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                >
+                  <div style={{ display: "grid", gap: 3 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800 }}>
+                      Manual fallback mapping
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "rgba(255,255,255,0.62)",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      Save or remove local override mappings when the automatic match needs help.
+                    </div>
+                  </div>
+
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      minWidth: 28,
+                      height: 28,
+                      borderRadius: 999,
+                      display: "grid",
+                      placeItems: "center",
+                      border: "1px solid rgba(255,255,255,0.10)",
+                      background: "rgba(255,255,255,0.04)",
+                      color: "rgba(255,255,255,0.80)",
+                      fontSize: 14,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {manualPanelOpen ? "-" : "+"}
+                  </div>
+                </button>
+
+                {manualPanelOpen ? (
+                  <div style={{ marginTop: 12 }}>
+                    <CompetitorManualComparisonPanel
+                      brand={brand}
+                      query={sku}
+                      selectedCandidate={selectedCandidate}
+                      selectedOption={selectedOption}
+                      saveMessage={saveMessage}
+                      feedbackSummary={feedbackSummary}
+                      onSave={handleSaveManual}
+                      onDelete={handleDeleteManual}
+                    />
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>

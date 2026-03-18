@@ -1920,10 +1920,82 @@
   background: linear-gradient(180deg, rgba(25, 44, 68, 0.9), rgba(17, 32, 49, 0.94));
 }
 
+.wm-dashboard-page__action-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-color: rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.18);
+  background:
+    radial-gradient(circle at 16% 14%, rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.18), transparent 26%),
+    radial-gradient(circle at 100% 0%, rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(25, 44, 68, 0.92), rgba(17, 32, 49, 0.96));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    background 140ms ease;
+}
+
+.wm-dashboard-page__action-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 14px 12px 14px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.75), transparent 72%);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.wm-dashboard-page__action-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.wm-dashboard-page__action-card-icon {
+  border-color: rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.28) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.2),
+    rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.08)
+  );
+  color: rgba(245, 249, 255, 0.98);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 22px rgba(6, 14, 24, 0.22);
+}
+
+.wm-dashboard-page__action-card-arrow {
+  color: rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.92);
+}
+
+.wm-dashboard-page__action-card-cta {
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.18),
+    rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.08)
+  );
+  border: 1px solid rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.18);
+}
+
 .wm-dashboard-page__action-card:hover,
 .wm-dashboard-page__rail-link:hover {
   border-color: rgba(115, 231, 255, 0.24);
   background: linear-gradient(180deg, rgba(29, 51, 78, 0.94), rgba(19, 35, 53, 0.97));
+}
+
+.wm-dashboard-page__action-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.28);
+  background:
+    radial-gradient(circle at 16% 14%, rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.24), transparent 28%),
+    radial-gradient(circle at 100% 0%, rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.14), transparent 36%),
+    linear-gradient(180deg, rgba(29, 51, 78, 0.94), rgba(19, 35, 53, 0.97));
+  box-shadow: 0 14px 28px rgba(6, 14, 24, 0.2);
 }
 
 .wm-workspace-admin-page .wm-page-subtitle,
@@ -11078,4 +11150,169 @@ footer[class*="wm-"] {
 
 .wm-guided-project-page__layout--full .wm-guided-project-page__sidebar{
   display: none !important;
+}
+
+/* Shared user-entry emphasis */
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="color"]):not([type="image"]):not([type="hidden"]):not(.wm-commandPalette__input),
+  textarea,
+  select,
+  .wm-input,
+  .wm-select,
+  .wm-textarea,
+  .wm-form-input,
+  .wm-form-textarea,
+  .wm-ui__input,
+  .wm-ui__select,
+  .wm-ui__textarea
+) {
+  border-color: rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.26);
+  background:
+    radial-gradient(circle at 12% 14%, rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(13, 26, 42, 0.98), rgba(9, 19, 32, 0.99));
+  color: rgba(247, 250, 255, 0.98);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgba(255, 255, 255, 0.018),
+    0 10px 24px rgba(3, 12, 22, 0.16);
+  caret-color: rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.92);
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="color"]):not([type="image"]):not([type="hidden"]):not(.wm-commandPalette__input),
+  textarea,
+  select,
+  .wm-input,
+  .wm-select,
+  .wm-textarea,
+  .wm-form-input,
+  .wm-form-textarea,
+  .wm-ui__input,
+  .wm-ui__select,
+  .wm-ui__textarea
+):hover:not(:disabled):not([readonly]) {
+  border-color: rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.36);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.08),
+    0 12px 30px rgba(3, 12, 22, 0.18);
+}
+
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="color"]):not([type="image"]):not([type="hidden"]):not(.wm-commandPalette__input),
+  textarea,
+  select,
+  .wm-input,
+  .wm-select,
+  .wm-textarea,
+  .wm-form-input,
+  .wm-form-textarea,
+  .wm-ui__input,
+  .wm-ui__select,
+  .wm-ui__textarea
+):focus,
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="color"]):not([type="image"]):not([type="hidden"]):not(.wm-commandPalette__input),
+  textarea,
+  select,
+  .wm-input,
+  .wm-select,
+  .wm-textarea,
+  .wm-form-input,
+  .wm-form-textarea,
+  .wm-ui__input,
+  .wm-ui__select,
+  .wm-ui__textarea
+):focus-visible {
+  border-color: rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.58) !important;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.18), transparent 38%),
+    linear-gradient(180deg, rgba(15, 29, 46, 0.99), rgba(10, 21, 35, 1)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.52),
+    0 0 0 4px rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.16),
+    0 16px 36px rgba(3, 12, 22, 0.2) !important;
+  outline: none !important;
+}
+
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="color"]):not([type="image"]):not([type="hidden"]):not(.wm-commandPalette__input),
+  textarea,
+  select,
+  .wm-input,
+  .wm-select,
+  .wm-textarea,
+  .wm-form-input,
+  .wm-form-textarea,
+  .wm-ui__input,
+  .wm-ui__select,
+  .wm-ui__textarea
+):disabled,
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="color"]):not([type="image"]):not([type="hidden"]):not(.wm-commandPalette__input),
+  textarea,
+  select,
+  .wm-input,
+  .wm-select,
+  .wm-textarea,
+  .wm-form-input,
+  .wm-form-textarea,
+  .wm-ui__input,
+  .wm-ui__select,
+  .wm-ui__textarea
+)[readonly] {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(12, 22, 35, 0.9), rgba(9, 17, 28, 0.94));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  color: rgba(214, 226, 242, 0.78);
+}
+
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="color"]):not([type="image"]):not([type="hidden"]):not(.wm-commandPalette__input),
+  textarea,
+  .wm-input,
+  .wm-textarea,
+  .wm-form-input,
+  .wm-form-textarea,
+  .wm-ui__input,
+  .wm-ui__textarea
+)::placeholder {
+  color: rgba(200, 216, 236, 0.72) !important;
+}
+
+.wm-commandPalette__searchShell {
+  border-color: rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.26);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.12), transparent 34%),
+    linear-gradient(135deg, rgba(14, 28, 45, 0.96), rgba(9, 19, 32, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 12px 28px rgba(3, 12, 22, 0.18);
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.wm-commandPalette__searchShell:focus-within {
+  border-color: rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.54);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.18), transparent 38%),
+    linear-gradient(135deg, rgba(15, 30, 48, 0.98), rgba(10, 21, 35, 1));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.5),
+    0 0 0 4px rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.16),
+    0 16px 36px rgba(3, 12, 22, 0.2);
+}
+
+.wm-commandPalette__input {
+  caret-color: rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.92);
+}
+
+.wm-commandPalette__input::placeholder {
+  color: rgba(200, 216, 236, 0.72);
 }
