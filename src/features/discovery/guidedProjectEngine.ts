@@ -361,7 +361,7 @@ const TRANSPORT_DISTANCE_BANDS = [
 const TRANSPORT_CABLE_TYPES = ["Cat5e", "Cat6", "Cat6A", "Cat7", "Fibre", "Not sure yet"] as const;
 const DUPLICATE_TRANSPORT_CABLE_TYPES = [
   "HDMI copper lead",
-  "HDMI over fibre lead",
+  "HAOC optical HDMI lead",
   "Add HDMI extender line item",
 ] as const;
 const DUPLICATE_HDMI_COPPER_LENGTHS = ["0.5m", "1m", "2m", "3m", "5m", "10m"] as const;
@@ -628,14 +628,83 @@ function getTransportDistanceBandOptions(record: GuidedProjectRecord): readonly 
 
 function getTransportCablePrompt(record: GuidedProjectRecord): string {
   return normalizeDiscoveryPath(record.workflowTrack || getWorkflowTrack(record)) === "duplicate"
-    ? "Choose whether the mirrored outputs stay on direct HDMI copper, HDMI over fibre, or need a separate HDMI extender line item."
+    ? "Choose whether the mirrored outputs stay on direct HDMI copper, HAOC optical HDMI, or need a separate HDMI extender line item."
     : "Confirm whether the main run is Cat5e, Cat6, Cat6A, Cat7, or fibre before trusting long-distance video claims.";
 }
 
 function getTransportDistancePrompt(record: GuidedProjectRecord): string {
   return normalizeDiscoveryPath(record.workflowTrack || getWorkflowTrack(record)) === "duplicate"
-    ? "Choose the direct HDMI lead length, optical HDMI lead length, or the extender reach band that best matches the job."
+    ? "Choose the direct HDMI lead length, HAOC optical HDMI lead length, or the extender reach band that best matches the job."
     : "Get the real installed distance to separate patching, extension, and network-led options.";
+}
+
+function getTypicalInputCableLength(record: GuidedProjectRecord): string {
+  if (includesAny(record.sourcePlacement, ["rack"])) return "0.5m";
+  if (
+    includesAny(record.sourcePlacement, ["table", "byod"]) ||
+    includesAny(record.sourceConnectionPath, ["floor box", "wall plate"])
+  ) {
+    return "2m";
+  }
+  return "1m";
+}
+
+function getDirectOutputCableLength(record: GuidedProjectRecord): string {
+  const selected = record.transportDistanceBand;
+  if (hasText(selected)) return selected;
+  if (includesAny(record.transportCableType, ["haoc", "fibre", "fiber", "optical"])) return "10m-30m to suit route";
+  if (includesAny(record.transportCableType, ["copper"])) return "1m-2m local, or a direct long HDMI lead if viable";
+  return "1m-2m local";
+}
+
+function buildSuggestedCableList(record: GuidedProjectRecord): string[] {
+  const track = lower(getWorkflowTrack(record));
+  const sourceCount =
+    num(record.sourceCount) > 0
+      ? num(record.sourceCount)
+      : track === "extend a signal" || track === "duplicate a signal"
+        ? 1
+        : 0;
+  const displayCount =
+    num(record.displayCount) > 0
+      ? num(record.displayCount)
+      : track === "extend a signal"
+        ? 1
+        : track === "duplicate a signal"
+          ? 2
+          : 0;
+  const inputLeadType = includesAny(record.sourceConnectionType, ["usb-c"]) ? "USB-C" : "HDMI";
+  const outputLeadType = includesAny(record.displayConnectionType, ["usb-c"]) ? "USB-C" : "HDMI";
+  const outputLabel = outputLeadType === "USB-C" ? "USB-C output cable" : "HDMI output cable";
+  const suggestions: string[] = [];
+  const duplicateExtender = track === "duplicate a signal" && includesAny(record.transportCableType, ["extender"]);
+  const duplicateHaoc = track === "duplicate a signal" && includesAny(record.transportCableType, ["haoc", "fibre", "fiber", "optical"]);
+
+  if (sourceCount > 0) {
+    suggestions.push(`${sourceCount} x ${inputLeadType} input cable (${getTypicalInputCableLength(record)} typical).`);
+  }
+
+  if (displayCount > 0) {
+    if (duplicateExtender) {
+      suggestions.push(`${displayCount} x HDMI extender output path (${getTransportBand(record) || "reach to confirm"}).`);
+      suggestions.push(`${displayCount * 2} x short HDMI patch lead for the extender TX/RX ends.`);
+    } else if (duplicateHaoc) {
+      suggestions.push(`${displayCount} x HAOC HDMI output cable (${getDirectOutputCableLength(record)}).`);
+    } else {
+      suggestions.push(`${displayCount} x ${outputLabel} (${getDirectOutputCableLength(record)}).`);
+    }
+  }
+
+  if (track === "duplicate a signal" && displayCount > 0) {
+    const hdmiLeadCount = sourceCount + displayCount + (duplicateExtender ? displayCount * 2 : 0);
+    suggestions.push(
+      duplicateExtender
+        ? `Duplicate path checkpoint: ${hdmiLeadCount} HDMI leads plus ${displayCount} extender link${displayCount === 1 ? "" : "s"}.`
+        : `Duplicate path checkpoint: ${hdmiLeadCount} HDMI leads for the splitter path.`,
+    );
+  }
+
+  return uniq(suggestions).slice(0, 4);
 }
 
 function getUsbStandardOptions(record: GuidedProjectRecord): readonly string[] {
@@ -1501,10 +1570,10 @@ export function buildBranchHighlights(record: GuidedProjectRecord): string[] {
     !hasText(record.transportDistanceBand) &&
     !isTrack(record, "build a video wall")
   ) {
-    items.push("Get the real installed distance to separate patching, extension, and network-led options.");
+    items.push(getTransportDistancePrompt(record));
   }
   if (needsTransportCable && !hasText(record.transportCableType)) {
-    items.push("Confirm whether the main run is Cat5e, Cat6, Cat6A, Cat7, or fibre before trusting long-distance video claims.");
+    items.push(getTransportCablePrompt(record));
   }
   if (!hasSelections(record.signalFormats)) {
     items.push("Resolution and frame-rate requirements are still open.");
@@ -1782,6 +1851,9 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
   const independentSwitching = includesAny(outputBehaviour, ["independent"]);
   const passthroughSelections = parseGuidedProjectSelections(record.passthroughNeeds);
   const transportCableRank = getTransportCableRank(record);
+  const duplicateDirectCopper = track === "duplicate a signal" && includesAny(record.transportCableType, ["hdmi copper"]);
+  const duplicateHaoc = track === "duplicate a signal" && includesAny(record.transportCableType, ["haoc", "fibre", "fiber", "optical"]);
+  const duplicateExtenderLineItem = track === "duplicate a signal" && includesAny(record.transportCableType, ["extender"]);
   const structuredCableKnown =
     transportCableRank >= 2 ||
     includesAny(record.sourceCableType, ["cat5e", "cat6", "cat6a", "cat7", "fibre", "fiber", "optical"]) ||
@@ -1834,14 +1906,22 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
     focusCategory =
       featureRequested(record, "scaled") || featureRequested(record, "mixed resolution")
         ? "Scaler-equipped distribution amplifier"
-        : transportReachM >= 15
-          ? "Distribution amplifier or mirrored extender set"
-        : "Splitter / distribution amplifier";
+        : duplicateExtenderLineItem || transportReachM > 10
+          ? "Distribution amplifier plus HDMI extender line item"
+          : duplicateHaoc
+            ? "Distribution amplifier with HAOC HDMI leads"
+            : "Splitter / distribution amplifier";
     workflowSummary =
-      "Keep this in distribution language until the questions prove the customer really needs switching, matrix routing, or network transport.";
+      "Keep this in distribution language until the questions prove the customer needs short copper HDMI, HAOC optical HDMI, or a separate mirrored extender path.";
     addScore("Matrix", 2, "A one-to-many signal flow points to distribution logic, even if the final product is a splitter rather than a full matrix.");
-    if (transportReachM >= 10) {
-      addScore("HDBaseT", 3, "Mirroring over distance suggests the shortlist should include distribution products that solve transport as well as duplication.");
+    if (duplicateExtenderLineItem || transportReachM > 10) {
+      addScore("HDBaseT", 3, "Longer mirrored output delivery suggests the shortlist should include distribution products plus a dedicated extender path.");
+    }
+    if (duplicateHaoc) {
+      addScore("Matrix", 1, "HAOC optical HDMI keeps the solution in simple distribution language without forcing a full matrix conversation.");
+    }
+    if (duplicateDirectCopper && transportReachM <= 10) {
+      addScore("Matrix", 1, "Short direct HDMI copper runs still favour simple splitter or distribution-amplifier logic.");
     }
   } else if (track === "switch between devices") {
     const presentationLed =
@@ -2026,10 +2106,10 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
     !hasText(record.transportDistanceBand) &&
     track !== "build a video wall"
   ) {
-    nextActions.push("Capture the installed route length or reach band.");
+    nextActions.push(getTransportDistancePrompt(record));
   }
   if (needsTransportCable && !hasText(record.transportCableType)) {
-    nextActions.push("Confirm whether the main run is Cat5e, Cat6, Cat6A, Cat7, or fibre because distance and resolution change the safe shortlist.");
+    nextActions.push(getTransportCablePrompt(record));
   }
   if (!hasSelections(record.signalFormats)) {
     nextActions.push("Tick the real signal formats required by the customer.");
@@ -2078,6 +2158,8 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
   if (hasSelections(record.passthroughNeeds)) cues.push(`Pass-through: ${formatSelections(record.passthroughNeeds)}.`);
   if (hasText(record.networkEnvironment)) cues.push(`Network: ${record.networkEnvironment}.`);
   if (hasSelections(record.audioBreakout)) cues.push(`Audio breakout: ${formatSelections(record.audioBreakout)}.`);
+  const cableSuggestions = buildSuggestedCableList(record);
+  if (cableSuggestions.length > 0) cues.push(`Cable add-ons: ${cableSuggestions.join(" ")}`);
 
   const order: GuidedProjectFamily[] = ["Video Wall", "AVoIP", "Matrix", "HDBaseT", "Apollo", "USB Extension"];
   const positiveFamilies = order.filter((family) => scores[family] > 0);
@@ -2160,6 +2242,7 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
 }
 
 export function buildGuidedProjectNotes(record: GuidedProjectRecord, advice: GuidedProjectAdvice): string {
+  const cableSuggestions = buildSuggestedCableList(record);
   return [
     record.notes.trim(),
     "Guided Project summary:",
@@ -2195,6 +2278,8 @@ export function buildGuidedProjectNotes(record: GuidedProjectRecord, advice: Gui
     `Pass-through: ${formatSelections(record.passthroughNeeds)}`,
     `Power preference: ${record.powerPreference || "Not confirmed"}`,
     `Network environment: ${record.networkEnvironment || "Not confirmed"}`,
+    cableSuggestions.length > 0 ? "Suggested cable add-ons:" : "",
+    ...cableSuggestions,
   ]
     .filter(Boolean)
     .join("\n");

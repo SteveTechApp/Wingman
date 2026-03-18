@@ -50,6 +50,7 @@ const PANEL_LAYOUT_KEY = "wm_guru_panel_layout_v1";
 const PANEL_POSITION_KEY = "wm_guru_panel_position_v1";
 const LAUNCHER_POSITION_KEY = "wm_guru_launcher_position_v1";
 const DEFAULT_PANEL_LAYOUT: GuruPanelLayout = { width: 520, height: 680 };
+const DEFAULT_ROUTE_PANEL_LAYOUT: GuruPanelLayout = { width: 960, height: 780 };
 const PANEL_MIN_WIDTH = 360;
 const PANEL_MIN_HEIGHT = 420;
 const PANEL_VIEWPORT_MARGIN = 6;
@@ -234,6 +235,17 @@ function defaultPanelPosition(layout: GuruPanelLayout): GuruPanelPosition {
   };
 }
 
+function defaultRoutePanelPosition(layout: GuruPanelLayout): GuruPanelPosition {
+  if (typeof window === "undefined") {
+    return { left: 32, top: 96 };
+  }
+
+  return {
+    left: Math.max(PANEL_VIEWPORT_MARGIN, Math.round((window.innerWidth - layout.width) / 2)),
+    top: Math.max(92, Math.round((window.innerHeight - layout.height) / 2)),
+  };
+}
+
 function readPanelPosition(layout: GuruPanelLayout): GuruPanelPosition {
   try {
     const fallback = defaultPanelPosition(layout);
@@ -378,15 +390,10 @@ const pageStyles = `
 }
 
 .wm-guru-float-panel.is-route{
-  left: 50%;
-  top: 108px;
-  right: auto;
-  bottom: auto;
-  width: min(960px, calc(100vw - 72px));
-  height: min(780px, calc(100dvh - 156px));
+  min-width: min(520px, calc(100vw - 32px));
+  min-height: min(520px, calc(100dvh - 48px));
   max-width: calc(100vw - 40px);
   max-height: calc(100dvh - 48px);
-  transform: translateX(-50%);
 }
 
 .wm-guru-float-panel__head{
@@ -542,6 +549,17 @@ const pageStyles = `
   justify-content: center;
   font-size: 14px;
   font-weight: 800;
+  color: #fff8ef !important;
+  background: linear-gradient(135deg, #ef852a, #d05819) !important;
+  text-shadow: 0 1px 0 rgba(86, 37, 9, 0.4);
+  box-shadow: 0 10px 24px rgba(236, 123, 39, 0.24) !important;
+}
+
+.wm-guru-submit:disabled{
+  color: rgba(255, 248, 239, 0.84) !important;
+  background: linear-gradient(135deg, rgba(239, 133, 42, 0.72), rgba(208, 88, 25, 0.72)) !important;
+  opacity: 0.78;
+  cursor: not-allowed;
 }
 
 .wm-guru-float-answer{
@@ -620,14 +638,6 @@ const pageStyles = `
 .wm-guru-float-panel__corner--br::after{
   border-bottom: 1px solid rgba(158, 207, 255, 0.74);
   border-right: 1px solid rgba(158, 207, 255, 0.74);
-}
-
-.wm-guru-float-panel.is-route .wm-guru-float-panel__dragzone{
-  cursor: default;
-}
-
-.wm-guru-float-panel.is-route .wm-guru-float-panel__corner{
-  display: none;
 }
 
 @media (max-width: 720px){
@@ -869,7 +879,11 @@ export default function GuruPage() {
   React.useEffect(() => {
     if (!isGuruRoute) return;
     setPanelOpen(true);
-  }, [isGuruRoute]);
+    if (isCompactViewport) return;
+    const nextLayout = clampLayoutToViewport(DEFAULT_ROUTE_PANEL_LAYOUT);
+    setPanelLayout(nextLayout);
+    setPanelPosition(clampPositionToViewport(defaultRoutePanelPosition(nextLayout), nextLayout));
+  }, [clampLayoutToViewport, clampPositionToViewport, isCompactViewport, isGuruRoute]);
 
   React.useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -961,7 +975,7 @@ export default function GuruPage() {
 
   const startPanelDrag = React.useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
-      if (isGuruRoute || isCompactViewport || event.button !== 0) return;
+      if (isCompactViewport || event.button !== 0) return;
       event.preventDefault();
       event.stopPropagation();
       dragRef.current = {
@@ -971,12 +985,12 @@ export default function GuruPage() {
         startTop: panelPosition.top,
       };
     },
-    [isCompactViewport, isGuruRoute, panelPosition.left, panelPosition.top],
+    [isCompactViewport, panelPosition.left, panelPosition.top],
   );
 
   const startPanelResize = React.useCallback(
     (corner: GuruResizeCorner) => (event: React.PointerEvent<HTMLButtonElement>) => {
-      if (isGuruRoute || isCompactViewport || event.button !== 0) return;
+      if (isCompactViewport || event.button !== 0) return;
       event.preventDefault();
       event.stopPropagation();
       resizeRef.current = {
@@ -989,7 +1003,7 @@ export default function GuruPage() {
         startHeight: panelLayout.height,
       };
     },
-    [isCompactViewport, isGuruRoute, panelLayout.height, panelLayout.width, panelPosition.left, panelPosition.top],
+    [isCompactViewport, panelLayout.height, panelLayout.width, panelPosition.left, panelPosition.top],
   );
 
   const def = MODE_DEFS[mode];
@@ -1113,10 +1127,14 @@ export default function GuruPage() {
   };
 
   const resetPanelSize = React.useCallback(() => {
-    const nextLayout = clampLayoutToViewport(DEFAULT_PANEL_LAYOUT);
+    const nextLayout = clampLayoutToViewport(isGuruRoute ? DEFAULT_ROUTE_PANEL_LAYOUT : DEFAULT_PANEL_LAYOUT);
     setPanelLayout(nextLayout);
-    setPanelPosition((current) => clampPositionToViewport(current, nextLayout));
-  }, [clampLayoutToViewport, clampPositionToViewport]);
+    setPanelPosition((current) =>
+      isGuruRoute
+        ? clampPositionToViewport(defaultRoutePanelPosition(nextLayout), nextLayout)
+        : clampPositionToViewport(current, nextLayout),
+    );
+  }, [clampLayoutToViewport, clampPositionToViewport, isGuruRoute]);
 
   if (typeof document === "undefined") return null;
 
@@ -1163,7 +1181,7 @@ export default function GuruPage() {
           aria-label="Guru helper"
           aria-modal="false"
           style={
-            isGuruRoute || isCompactViewport
+            isCompactViewport
               ? undefined
               : {
                   left: panelPosition.left,
@@ -1181,11 +1199,11 @@ export default function GuruPage() {
               <p className="wm-guru-float-panel__sub">{def.label} · {def.subtitle}</p>
             </div>
             <div className="wm-guru-float-panel__head-actions">
+              <button className="wm-btn" type="button" onClick={resetPanelSize}>
+                Reset size
+              </button>
               {!isGuruRoute ? (
                 <>
-                  <button className="wm-btn" type="button" onClick={resetPanelSize}>
-                    Reset size
-                  </button>
                   <button className="wm-btn" type="button" onClick={() => setPanelOpen(false)}>
                     Close
                   </button>
@@ -1336,38 +1354,36 @@ export default function GuruPage() {
 
             {transferMessage ? <div className="wm-guru-float-muted">{transferMessage}</div> : null}
           </div>
-          {!isGuruRoute ? (
-            <>
-              <button
-                type="button"
-                tabIndex={-1}
-                aria-label="Resize from top left"
-                className="wm-guru-float-panel__corner wm-guru-float-panel__corner--tl"
-                onPointerDown={startPanelResize("top-left")}
-              />
-              <button
-                type="button"
-                tabIndex={-1}
-                aria-label="Resize from top right"
-                className="wm-guru-float-panel__corner wm-guru-float-panel__corner--tr"
-                onPointerDown={startPanelResize("top-right")}
-              />
-              <button
-                type="button"
-                tabIndex={-1}
-                aria-label="Resize from bottom left"
-                className="wm-guru-float-panel__corner wm-guru-float-panel__corner--bl"
-                onPointerDown={startPanelResize("bottom-left")}
-              />
-              <button
-                type="button"
-                tabIndex={-1}
-                aria-label="Resize from bottom right"
-                className="wm-guru-float-panel__corner wm-guru-float-panel__corner--br"
-                onPointerDown={startPanelResize("bottom-right")}
-              />
-            </>
-          ) : null}
+          <>
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label="Resize from top left"
+              className="wm-guru-float-panel__corner wm-guru-float-panel__corner--tl"
+              onPointerDown={startPanelResize("top-left")}
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label="Resize from top right"
+              className="wm-guru-float-panel__corner wm-guru-float-panel__corner--tr"
+              onPointerDown={startPanelResize("top-right")}
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label="Resize from bottom left"
+              className="wm-guru-float-panel__corner wm-guru-float-panel__corner--bl"
+              onPointerDown={startPanelResize("bottom-left")}
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label="Resize from bottom right"
+              className="wm-guru-float-panel__corner wm-guru-float-panel__corner--br"
+              onPointerDown={startPanelResize("bottom-right")}
+            />
+          </>
         </aside>
       ) : null}
     </div>,
