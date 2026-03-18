@@ -43,7 +43,7 @@ export default function SystemArchitecturePreview(props:Props){
       <h4 style={{marginTop:20}}>Signal Path</h4>
 
       {signal.links.map((l,i)=>(
-        <div key={i}>{l.from} �?????T {l.to}</div>
+        <div key={i}>{l.from} -&gt; {l.to}</div>
       ))}
 
     <h4 style={{marginTop:20}}>Network Capacity</h4>

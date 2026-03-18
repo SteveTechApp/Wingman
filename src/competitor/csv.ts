@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { CompetitorItem } from "./types";
+import type { CompetitorItem , ResolutionValue } from "./types";
 
 function norm(s: string) {
   return (s || "").trim();
@@ -45,7 +45,7 @@ function intOrUndef(s: string) {
   return Number.isFinite(n) ? n : undefined;
 }
 
-function parseResolution(value: string): NonNullable<CompetitorItem["video"]>["maxResolution"] | undefined {
+function parseResolution(value: string): ResolutionValue | undefined {
   const v = lower(value);
 
   if (v.includes("8k")) return "8K";
@@ -132,11 +132,9 @@ export function parseCompetitorCsv(
     const item: CompetitorItem = {
       brand,
       sku: model,
-      model,
       category,
       role,
       features,
-      latency,
       io:
         typeof inputs === "number" || typeof outputs === "number"
           ? {
@@ -150,7 +148,7 @@ export function parseCompetitorCsv(
                   : undefined,
             }
           : undefined,
-      video: maxResolution ? { maxResolution } : undefined,
+      video: maxResolution ? { maxResolution: { value: maxResolution, confidence: "medium", source: "csv" } } : undefined,
       familyHint: noteText || undefined,
     };
 

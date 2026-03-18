@@ -34,9 +34,6 @@ main > *,
 .wm-guru-fab,
 .wm-guru-float-launcher {
   position: fixed !important;
-  right: 24px !important;
-  bottom: 24px !important;
-  inset: auto 24px 24px auto !important;
   z-index: 5000 !important;
 }
 

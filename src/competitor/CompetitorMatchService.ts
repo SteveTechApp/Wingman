@@ -2,6 +2,14 @@ import * as React from "react";
 import type { CompetitorItem, MatchReason, MatchResult, Product } from "./types";
 import { WYRESTORM_PRODUCTS } from "./competitorDataset";
 
+
+
+function specValue<T>(input: T | { value?: T } | undefined): T | undefined {
+  if (input && typeof input === "object" && "value" in input) {
+    return (input as { value?: T }).value;
+  }
+  return input as T | undefined;
+}
 /** Normalise SKUs to compare: uppercase, strip spaces, dashes, underscores, slashes */
 export function normaliseSku(s: string): string {
   return (s || "")
@@ -49,8 +57,8 @@ function scoreRole(c: CompetitorItem, p: Product): MatchReason {
 }
 
 function scoreResolution(c: CompetitorItem, p: Product): MatchReason {
-  const cr = resRank(c.video?.maxResolution);
-  const pr = resRank(p.video?.maxResolution);
+  const cr = resRank(specValue(c.video?.maxResolution));
+  const pr = resRank(specValue(p.video?.maxResolution));
   if (!cr || !pr) return { key: "resolution", score: 0.05, text: "Resolution unknown (light weight)" };
   const diff = Math.abs(cr - pr);
   const hit = diff === 0 ? 1 : diff === 1 ? 0.6 : 0.2;
@@ -61,7 +69,7 @@ function scoreBandwidth(c: CompetitorItem, p: Product): MatchReason {
   const cb = c.video?.bandwidthGbps || 0;
   const pb = p.video?.bandwidthGbps || 0;
   if (!cb || !pb) return { key: "bandwidth", score: 0.05, text: "Bandwidth unknown (light weight)" };
-  const diff = Math.abs(cb - pb);
+  const diff = Math.abs(Number(cb ?? 0) - Number(pb ?? 0));
   const hit = diff <= 1 ? 1 : diff <= 3 ? 0.6 : 0.2;
   return { key: "bandwidth", score: hit * 0.10, text: `Bandwidth closeness: competitor ${cb}Gbps vs WyreStorm ${pb}Gbps` };
 }

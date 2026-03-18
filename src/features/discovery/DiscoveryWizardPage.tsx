@@ -18,7 +18,10 @@ import {
   buildGuidedProjectLenses,
   buildGuidedProjectNotes,
   createEmptyGuidedProjectRecord,
+  getCoreFieldsForStep,
   getGuidedProjectProgress,
+  getGuidedProjectStepSubtitle,
+  getHiddenQuestionIdsForTrack,
   getNextToolLabel,
   getVisibleQuestionsForStep,
   GUIDED_PROJECT_STEPS,
@@ -140,11 +143,16 @@ function mergeProject(
 ): GuidedProjectRecord {
   if (!project) return record;
   const discovery = project.discovery;
+  const mergedWorkflowTrack = mergeFirst(record.workflowTrack, discovery?.workflowTrack);
+  const fixedHdmiPath =
+    mergedWorkflowTrack.toLowerCase().includes("extend") ||
+    mergedWorkflowTrack.toLowerCase().includes("duplicate");
   return {
     ...record,
-    workflowTrack: mergeFirst(record.workflowTrack, discovery?.workflowTrack),
+    workflowTrack: mergedWorkflowTrack,
     projectScope: mergeFirst(record.projectScope, discovery?.projectScope, "Single device or signal path"),
     customerOutcome: mergeFirst(record.customerOutcome, discovery?.customerOutcome),
+    switchSolutionType: mergeFirst(record.switchSolutionType, discovery?.switchSolutionType),
     featureRequirements: mergeFirst(record.featureRequirements, discovery?.featureRequirements),
     customer: mergeFirst(record.customer, discovery?.customer, project.customer),
     site: mergeFirst(record.site, discovery?.site, project.site),
@@ -156,18 +164,19 @@ function mergeProject(
     installationPath: mergeFirst(record.installationPath, discovery?.installationPath),
     cableDistanceM: mergeFirst(record.cableDistanceM, discovery?.cableDistanceM),
     transportDistanceBand: mergeFirst(record.transportDistanceBand, discovery?.transportDistanceBand),
+    transportCableType: mergeFirst(record.transportCableType, discovery?.transportCableType),
     displayCount: mergeFirst(record.displayCount, discovery?.displayCount),
     sourceCount: mergeFirst(record.sourceCount, discovery?.sourceCount),
     outputBehaviour: mergeFirst(record.outputBehaviour, discovery?.outputBehaviour),
     sourceTypes: mergeFirst(record.sourceTypes, discovery?.sourceTypes),
     sourcePlacement: mergeFirst(record.sourcePlacement, discovery?.sourcePlacement),
     sourceConnectionPath: mergeFirst(record.sourceConnectionPath, discovery?.sourceConnectionPath),
-    sourceConnectionType: mergeFirst(record.sourceConnectionType, discovery?.sourceConnectionType),
+    sourceConnectionType: mergeFirst(record.sourceConnectionType, discovery?.sourceConnectionType, fixedHdmiPath ? "HDMI" : undefined),
     signalFormats: mergeFirst(record.signalFormats, discovery?.signalFormats),
     signalHdr: mergeFirst(record.signalHdr, discovery?.signalHdr),
     sourceCableType: mergeFirst(record.sourceCableType, discovery?.sourceCableType),
     displayConnectionPath: mergeFirst(record.displayConnectionPath, discovery?.displayConnectionPath),
-    displayConnectionType: mergeFirst(record.displayConnectionType, discovery?.displayConnectionType),
+    displayConnectionType: mergeFirst(record.displayConnectionType, discovery?.displayConnectionType, fixedHdmiPath ? "HDMI" : undefined),
     displayCableType: mergeFirst(record.displayCableType, discovery?.displayCableType),
     networkEnvironment: mergeFirst(record.networkEnvironment, discovery?.networkEnvironment),
     usbNeeds: mergeFirst(record.usbNeeds, discovery?.usbNeeds),
@@ -208,6 +217,11 @@ function renderField(
               className={`wm-gp__cardOption${selected ? " is-selected" : ""}`}
               aria-pressed={selected}
               onClick={() => onChange(detail.value)}
+              style={
+                detail.accentRgb
+                  ? ({ "--wm-gp-card-accent-rgb": detail.accentRgb } as React.CSSProperties)
+                  : undefined
+              }
             >
               <span className="wm-gp__cardEyebrow">{detail.eyebrow ?? "Direction"}</span>
               <span className="wm-gp__cardTitle">{detail.title ?? detail.value}</span>
@@ -216,7 +230,7 @@ function renderField(
                 <span className="wm-gp__cardOutcome">Leads toward: {detail.outcome}</span>
               ) : null}
               {detail.tags?.length ? (
-                <span className="wm-gp__cardTags">{detail.tags.join("")}</span>
+                <span className="wm-gp__cardTags">{detail.tags.join(" / ")}</span>
               ) : null}
             </button>
           );
@@ -328,25 +342,12 @@ const STEP_SHORT_LABELS: Record<GuidedProjectStep, string> = {
   3: "Checks",
 };
 
-const STEP_COMPACT_SUBTITLES: Record<GuidedProjectStep, string> = {
-  0: "Choose the outcome type.",
-  1: "Confirm counts and distance.",
-  2: "Lock transport and signal path.",
-  3: "Final checks before shortlist.",
-};
-
-const CORE_FIELDS_BY_STEP: Record<GuidedProjectStep, ReadonlyArray<keyof GuidedProjectRecord>> = {
-  0: ["workflowTrack"],
-  1: ["sourceCount", "displayCount", "outputBehaviour", "featureRequirements", "cableDistanceM", "transportDistanceBand"],
-  2: ["sourcePlacement", "sourceConnectionType", "signalFormats", "displayConnectionType", "networkEnvironment"],
-  3: ["usbNeeds", "usbStandards", "audioNeeds", "powerPreference", "passthroughNeeds"],
-};
-
 function splitQuestionsForLiveCall(
+  record: GuidedProjectRecord,
   step: GuidedProjectStep,
   questions: GuidedProjectQuestionState[],
 ): { primaryQuestions: GuidedProjectQuestionState[]; followUpQuestions: GuidedProjectQuestionState[] } {
-  const priority = new Set<keyof GuidedProjectRecord>(CORE_FIELDS_BY_STEP[step]);
+  const priority = new Set<keyof GuidedProjectRecord>(getCoreFieldsForStep(record, step));
   const primaryQuestions = questions.filter((question) => priority.has(question.id));
   const followUpQuestions = questions.filter((question) => !priority.has(question.id));
 
@@ -413,8 +414,8 @@ const [sources,setSources] = React.useState<number>(1)
     [activeStep, record],
   );
   const { primaryQuestions, followUpQuestions } = React.useMemo(
-    () => splitQuestionsForLiveCall(activeStep, activeQuestions),
-    [activeQuestions, activeStep],
+    () => splitQuestionsForLiveCall(record, activeStep, activeQuestions),
+    [activeQuestions, activeStep, record],
   );
   const branchHighlights = React.useMemo(() => buildBranchHighlights(deferredRecord), [deferredRecord]);
   const lenses = React.useMemo(() => buildGuidedProjectLenses(deferredRecord), [deferredRecord]);
@@ -446,11 +447,81 @@ const [sources,setSources] = React.useState<number>(1)
         firstPendingFollowUpIndex === -1 ? true : index <= firstPendingFollowUpIndex,
       )
     : [];
+  const nextVisibleStep = getNearestVisibleStep(record, activeStep + 1, 1);
+  const hasNextVisibleStep =
+    nextVisibleStep > activeStep && nextVisibleStep < GUIDED_PROJECT_STEPS.length;
+  const showSectionCta = activeStep > 0;
+  const sectionCtaLabel = hasNextVisibleStep
+    ? `Next: ${GUIDED_PROJECT_STEPS[nextVisibleStep][0]}`
+    : `Open ${getNextToolLabel(advice.nextToolPath)}`;
   const saveStatus = projectSavedAt
     ? `Project saved ${projectSavedAt}`
     : draftSavedAt
       ? `Draft saved ${draftSavedAt}`
       : `Progress ${totalDone}/${totalFields}`;
+
+  const syncProjectSnapshot = React.useCallback(
+    (sourceRecord: GuidedProjectRecord, computedAdvice = buildGuidedProjectAdvice(sourceRecord)) => {
+      if (!activeProject?.id) return computedAdvice;
+
+      updateProjectDiscovery(activeProject.id, {
+        workflowTrack: sourceRecord.workflowTrack,
+        projectScope: sourceRecord.projectScope,
+        customerOutcome: sourceRecord.customerOutcome,
+        switchSolutionType: sourceRecord.switchSolutionType,
+        featureRequirements: sourceRecord.featureRequirements,
+        customer: sourceRecord.customer || activeProject.customer,
+        site: sourceRecord.site || activeProject.site,
+        roomName: sourceRecord.roomName || activeProject.roomName || activeProject.name,
+        applicationType: sourceRecord.applicationType,
+        roomLengthM: sourceRecord.roomLengthM,
+        roomWidthM: sourceRecord.roomWidthM,
+        roomHeightM: sourceRecord.roomHeightM,
+        installationPath: sourceRecord.installationPath,
+        cableDistanceM: sourceRecord.cableDistanceM,
+        transportDistanceBand: sourceRecord.transportDistanceBand,
+        transportCableType: sourceRecord.transportCableType,
+        displayCount: sourceRecord.displayCount,
+        sourceCount: sourceRecord.sourceCount,
+        outputBehaviour: sourceRecord.outputBehaviour,
+        sourceTypes: sourceRecord.sourceTypes,
+        sourcePlacement: sourceRecord.sourcePlacement,
+        sourceConnectionPath: sourceRecord.sourceConnectionPath,
+        sourceConnectionType: sourceRecord.sourceConnectionType,
+        signalFormats: sourceRecord.signalFormats,
+        signalHdr: sourceRecord.signalHdr,
+        sourceCableType: sourceRecord.sourceCableType,
+        displayConnectionPath: sourceRecord.displayConnectionPath,
+        displayConnectionType: sourceRecord.displayConnectionType,
+        displayCableType: sourceRecord.displayCableType,
+        networkEnvironment: sourceRecord.networkEnvironment,
+        usbNeeds: sourceRecord.usbNeeds,
+        usbStandards: sourceRecord.usbStandards,
+        audioNeeds: sourceRecord.audioNeeds,
+        audioBreakout: sourceRecord.audioBreakout,
+        controlNeeds: sourceRecord.controlNeeds,
+        powerPreference: sourceRecord.powerPreference,
+        passthroughNeeds: sourceRecord.passthroughNeeds,
+        budgetBand: sourceRecord.budgetBand,
+        urgency: sourceRecord.urgency,
+        notes: buildGuidedProjectNotes(sourceRecord, computedAdvice),
+        recommendedFamilies: computedAdvice.families,
+        recommendedNextTool: computedAdvice.nextToolPath,
+      });
+
+      updateProject(activeProject.id, {
+        recommendationGovernance: buildRecommendationGovernanceSnapshot({
+          primaryRecommendation: computedAdvice.primary,
+          recommendedFamilies: computedAdvice.families,
+          reasoning: computedAdvice.reasons,
+          nextActions: computedAdvice.nextActions,
+        }),
+      });
+
+      return computedAdvice;
+    },
+    [activeProject],
+  );
 
   React.useEffect(() => {
     if (!activeProject) return;
@@ -468,13 +539,21 @@ const [sources,setSources] = React.useState<number>(1)
 
     const timer = window.setTimeout(() => {
       writeRecord(record);
-      setDraftSavedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+      const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      setDraftSavedAt(timestamp);
+
+      if (activeProject?.id) {
+        syncProjectSnapshot(record);
+        setProjectSavedAt(timestamp);
+      } else {
+        setProjectSavedAt("");
+      }
     }, 220);
 
     return () => {
       window.clearTimeout(timer);
     };
-  }, [record]);
+  }, [activeProject?.id, record, syncProjectSnapshot]);
 
   React.useEffect(() => {
     if (activeStep === 0 || typeof window === "undefined") return;
@@ -557,7 +636,6 @@ const [sources,setSources] = React.useState<number>(1)
   const shouldAdvanceFromOutcome =
     field === "workflowTrack" &&
     activeStep === 0 &&
-    !hasText(record.workflowTrack) &&
     hasText(value);
 
   setRecord((previous) => {
@@ -570,13 +648,28 @@ const [sources,setSources] = React.useState<number>(1)
       next = {
         ...previous,
         [field]: value,
-        
+        customerOutcome: shouldSeedOutcome ? value : previous.customerOutcome,
+        switchSolutionType: normalizedTrack.includes("switch") ? previous.switchSolutionType : "",
       };
+
+      if (normalizedTrack.includes("extend")) {
+        next = {
+          ...next,
+          sourceCount: "1",
+          displayCount: "1",
+          outputBehaviour: "One destination only",
+          sourceConnectionType: "HDMI",
+          displayConnectionType: "HDMI",
+        };
+      }
 
       if (normalizedTrack.includes("duplicate")) {
         next = {
           ...next,
           sourceCount: "1",
+          outputBehaviour: "Same content everywhere",
+          sourceConnectionType: "HDMI",
+          displayConnectionType: "HDMI",
         };
       }
 
@@ -586,8 +679,40 @@ const [sources,setSources] = React.useState<number>(1)
           outputBehaviour: "video-wall",
         };
       }
+
+      for (const questionId of getHiddenQuestionIdsForTrack(value)) {
+        if (questionId === "sourceCount" && (normalizedTrack.includes("extend") || normalizedTrack.includes("duplicate"))) continue;
+        if (questionId === "displayCount" && normalizedTrack.includes("extend")) continue;
+        if (questionId === "outputBehaviour" && (normalizedTrack.includes("extend") || normalizedTrack.includes("duplicate") || normalizedTrack.includes("video wall"))) continue;
+        if (questionId === "sourceConnectionType" && (normalizedTrack.includes("extend") || normalizedTrack.includes("duplicate"))) continue;
+        if (questionId === "displayConnectionType" && (normalizedTrack.includes("extend") || normalizedTrack.includes("duplicate"))) continue;
+        next = {
+          ...next,
+          [questionId]: "",
+        };
+      }
     } else {
       next = { ...previous, [field]: value };
+      if (field === "switchSolutionType") {
+        if (value.toLowerCase().includes("matrix")) {
+          next = {
+            ...next,
+            sourceConnectionType: "HDMI",
+            displayConnectionType:
+              previous.displayConnectionType.toLowerCase().includes("class") || !hasText(previous.displayConnectionType)
+                ? "HDMI"
+                : previous.displayConnectionType,
+          };
+        }
+        if (value.toLowerCase().includes("presentation")) {
+          next = {
+            ...next,
+            displayConnectionType: previous.displayConnectionType.toLowerCase().includes("class")
+              ? ""
+              : previous.displayConnectionType,
+          };
+        }
+      }
     }
 
     return next;
@@ -623,59 +748,7 @@ const [sources,setSources] = React.useState<number>(1)
     writeRecord(payload);
     setRecord(payload);
 
-    if (activeProject?.id) {
-      updateProjectDiscovery(activeProject.id, {
-        workflowTrack: payload.workflowTrack,
-        projectScope: payload.projectScope,
-        customerOutcome: payload.customerOutcome,
-        featureRequirements: payload.featureRequirements,
-        customer: payload.customer || activeProject.customer,
-        site: payload.site || activeProject.site,
-        roomName: payload.roomName || activeProject.roomName || activeProject.name,
-        applicationType: payload.applicationType,
-        roomLengthM: payload.roomLengthM,
-        roomWidthM: payload.roomWidthM,
-        roomHeightM: payload.roomHeightM,
-        installationPath: payload.installationPath,
-        cableDistanceM: payload.cableDistanceM,
-        transportDistanceBand: payload.transportDistanceBand,
-        displayCount: payload.displayCount,
-        sourceCount: payload.sourceCount,
-        outputBehaviour: payload.outputBehaviour,
-        sourceTypes: payload.sourceTypes,
-        sourcePlacement: payload.sourcePlacement,
-        sourceConnectionPath: payload.sourceConnectionPath,
-        sourceConnectionType: payload.sourceConnectionType,
-        signalFormats: payload.signalFormats,
-        signalHdr: payload.signalHdr,
-        sourceCableType: payload.sourceCableType,
-        displayConnectionPath: payload.displayConnectionPath,
-        displayConnectionType: payload.displayConnectionType,
-        displayCableType: payload.displayCableType,
-        networkEnvironment: payload.networkEnvironment,
-        usbNeeds: payload.usbNeeds,
-        usbStandards: payload.usbStandards,
-        audioNeeds: payload.audioNeeds,
-        audioBreakout: payload.audioBreakout,
-        controlNeeds: payload.controlNeeds,
-        powerPreference: payload.powerPreference,
-        passthroughNeeds: payload.passthroughNeeds,
-        budgetBand: payload.budgetBand,
-        urgency: payload.urgency,
-        notes: buildGuidedProjectNotes(payload, computedAdvice),
-        recommendedFamilies: payload.recommendedFamilies,
-        recommendedNextTool: payload.recommendedNextTool,
-      });
-
-      updateProject(activeProject.id, {
-        recommendationGovernance: buildRecommendationGovernanceSnapshot({
-          primaryRecommendation: computedAdvice.primary,
-          recommendedFamilies: computedAdvice.families,
-          reasoning: computedAdvice.reasons,
-          nextActions: computedAdvice.nextActions,
-        }),
-      });
-    }
+    syncProjectSnapshot(payload, computedAdvice);
 
     const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     setDraftSavedAt(timestamp);
@@ -730,7 +803,7 @@ const [sources,setSources] = React.useState<number>(1)
           </div>
         </section>
 
-        <section className="wm-section">
+        <section className="wm-section wm-guided-project-page__stageShell">
           <div className="wm-guided-project-page__workflowBar">
             <div className="wm-guided-project-page__stepRail">
               {GUIDED_PROJECT_STEPS.map(([title], index) => (
@@ -753,6 +826,7 @@ const [sources,setSources] = React.useState<number>(1)
             </div>
             <div className="wm-guided-project-page__workflowMeta">
               <span className="wm-guided-project-page__quickPill">Step {activeStep + 1} of {GUIDED_PROJECT_STEPS.length}</span>
+              <span className="wm-guided-project-page__quickMeta">{saveStatus}</span>
             </div>
           </div>
 
@@ -765,10 +839,21 @@ const [sources,setSources] = React.useState<number>(1)
                 >
                   <div>
                     <h2 className="wm-ui__sectionTitle">Step {activeStep + 1}: {GUIDED_PROJECT_STEPS[activeStep][0]}</h2>
-                    <p className="wm-ui__sectionText">{STEP_COMPACT_SUBTITLES[activeStep]}</p>
+                    <p className="wm-ui__sectionText">{getGuidedProjectStepSubtitle(record, activeStep)}</p>
                   </div>
-                  <div className="wm-guided-project-page__sectionBadge">
-                    {primaryDone}/{primaryQuestions.length || progress[activeStep].total} core prompts
+                  <div className="wm-guided-project-page__sectionMeta">
+                    <div className="wm-guided-project-page__sectionBadge">
+                      {primaryDone}/{primaryQuestions.length || progress[activeStep].total} core prompts
+                    </div>
+                    {showSectionCta ? (
+                      <button
+                        type="button"
+                        className="wm-guided-project-page__sectionCta"
+                        onClick={next}
+                      >
+                        {sectionCtaLabel}
+                      </button>
+                    ) : null}
                   </div>
                 </div>
 
@@ -841,30 +926,6 @@ const [sources,setSources] = React.useState<number>(1)
                     </section>
                   ) : null}
 
-                  <div className={`wm-dw6__nav wm-guided-project-page__nav$`}>
-                    <div className="wm-dw6__navLeft">
-                      <span className="wm-ui__helper wm-dw6__save-meta">
-                        {record.workflowTrack || "Choose a direction to begin"}
-                      </span>
-                    </div>
-                    <div className="wm-dw6__navRight">
-                      <button
-                        className="wm-ui__btn wm-ui__btn--ghost"
-                        onClick={() => setActiveStep((value) => getNearestVisibleStep(record, value - 1, -1))}
-                        disabled={activeStep === 0}
-                      >
-                        Previous
-                      </button>
-                      <button className="wm-ui__btn" onClick={save}>
-                        Save to project
-                      </button>
-                      <button className="wm-ui__btn wm-ui__btn--primary" onClick={next}>
-                        {activeStep < GUIDED_PROJECT_STEPS.length - 1
-                          ? "Next step"
-                          : `Save and Open ${getNextToolLabel(advice.nextToolPath)}`}
-                      </button>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

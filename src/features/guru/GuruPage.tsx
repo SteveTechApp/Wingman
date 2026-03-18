@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { Bot } from "lucide-react";
 import { askGuru, type GuruAnswer, type GuruMode as ApiGuruMode } from "@/features/ai/guru/guruApi";
@@ -377,6 +377,18 @@ const pageStyles = `
   pointer-events: auto;
 }
 
+.wm-guru-float-panel.is-route{
+  left: 50%;
+  top: 108px;
+  right: auto;
+  bottom: auto;
+  width: min(960px, calc(100vw - 72px));
+  height: min(780px, calc(100dvh - 156px));
+  max-width: calc(100vw - 40px);
+  max-height: calc(100dvh - 48px);
+  transform: translateX(-50%);
+}
+
 .wm-guru-float-panel__head{
   display: flex;
   align-items: flex-start;
@@ -411,11 +423,6 @@ const pageStyles = `
   margin: 4px 0 0;
   color: rgba(201, 217, 236, 0.78);
   font-size: 12px;
-}
-
-.wm-guru-float-resize-note{
-  color: rgba(190, 212, 237, 0.72);
-  font-size: 11px;
 }
 
 .wm-guru-float-panel__body{
@@ -459,6 +466,12 @@ const pageStyles = `
   color: rgba(218, 231, 246, 0.9);
   font-size: 12px;
   font-weight: 700;
+}
+
+.wm-guru-float-promptHint{
+  color: rgba(195, 214, 232, 0.78);
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .wm-guru-float-input{
@@ -506,8 +519,29 @@ const pageStyles = `
   gap: 8px;
 }
 
+.wm-guru-float-actions--primary{
+  display: grid;
+  gap: 8px;
+}
+
+.wm-guru-float-actions--support{
+  align-items: center;
+}
+
+.wm-guru-float-actions--support .wm-guru-float-muted{
+  margin-left: auto;
+}
+
 .wm-guru-float-actions .wm-btn{
   min-height: 34px;
+}
+
+.wm-guru-submit{
+  width: 100%;
+  min-height: 42px !important;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .wm-guru-float-answer{
@@ -588,6 +622,14 @@ const pageStyles = `
   border-right: 1px solid rgba(158, 207, 255, 0.74);
 }
 
+.wm-guru-float-panel.is-route .wm-guru-float-panel__dragzone{
+  cursor: default;
+}
+
+.wm-guru-float-panel.is-route .wm-guru-float-panel__corner{
+  display: none;
+}
+
 @media (max-width: 720px){
   .wm-guru-float-page{
     padding: 0;
@@ -612,6 +654,18 @@ const pageStyles = `
     display: none;
   }
 
+  .wm-guru-float-panel.is-route{
+    left: 10px;
+    right: 10px;
+    top: 82px;
+    bottom: auto;
+    width: auto;
+    height: calc(100dvh - 112px);
+    max-width: none;
+    max-height: calc(100dvh - 92px);
+    transform: none;
+  }
+
   .wm-guru-float-launcher{
     right: 10px;
     bottom: 10px;
@@ -620,7 +674,9 @@ const pageStyles = `
 `;
 
 export default function GuruPage() {
+  const location = useLocation();
   const navigate = useNavigate();
+  const isGuruRoute = location.pathname.startsWith("/app/tools/guru");
 
   const clampLayoutToViewport = React.useCallback((layout: GuruPanelLayout): GuruPanelLayout => {
     if (typeof window === "undefined") return layout;
@@ -811,6 +867,11 @@ export default function GuruPage() {
   }, [clampLayoutToViewport, clampPositionToViewport]);
 
   React.useEffect(() => {
+    if (!isGuruRoute) return;
+    setPanelOpen(true);
+  }, [isGuruRoute]);
+
+  React.useEffect(() => {
     if (typeof window === "undefined") return undefined;
 
     const onPointerMove = (event: PointerEvent) => {
@@ -884,7 +945,7 @@ export default function GuruPage() {
 
   const startLauncherDrag = React.useCallback(
     (event: React.PointerEvent<HTMLButtonElement>) => {
-      if (isCompactViewport || event.button !== 0) return;
+      if (isGuruRoute || isCompactViewport || event.button !== 0) return;
       event.preventDefault();
       event.stopPropagation();
       launcherDragRef.current = {
@@ -895,12 +956,12 @@ export default function GuruPage() {
         moved: false,
       };
     },
-    [isCompactViewport, launcherPosition.left, launcherPosition.top],
+    [isCompactViewport, isGuruRoute, launcherPosition.left, launcherPosition.top],
   );
 
   const startPanelDrag = React.useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
-      if (isCompactViewport || event.button !== 0) return;
+      if (isGuruRoute || isCompactViewport || event.button !== 0) return;
       event.preventDefault();
       event.stopPropagation();
       dragRef.current = {
@@ -910,12 +971,12 @@ export default function GuruPage() {
         startTop: panelPosition.top,
       };
     },
-    [isCompactViewport, panelPosition.left, panelPosition.top],
+    [isCompactViewport, isGuruRoute, panelPosition.left, panelPosition.top],
   );
 
   const startPanelResize = React.useCallback(
     (corner: GuruResizeCorner) => (event: React.PointerEvent<HTMLButtonElement>) => {
-      if (isCompactViewport || event.button !== 0) return;
+      if (isGuruRoute || isCompactViewport || event.button !== 0) return;
       event.preventDefault();
       event.stopPropagation();
       resizeRef.current = {
@@ -928,26 +989,17 @@ export default function GuruPage() {
         startHeight: panelLayout.height,
       };
     },
-    [isCompactViewport, panelLayout.height, panelLayout.width, panelPosition.left, panelPosition.top],
+    [isCompactViewport, isGuruRoute, panelLayout.height, panelLayout.width, panelPosition.left, panelPosition.top],
   );
 
   const def = MODE_DEFS[mode];
-  const promptPreview = React.useMemo(() => buildPrompt(mode, question, context), [mode, question, context]);
   const hasContent = question.trim().length > 0 || context.trim().length > 0;
   const suggestedSkus = React.useMemo(() => normalizeSuggestedSkus(answer), [answer]);
-
-  const copyPrompt = async () => {
-    try {
-      await navigator.clipboard.writeText(promptPreview);
-      setCopiedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
-    } catch {
-    }
-  };
 
   const clearAll = () => {
     setQuestion("");
     setContext("");
-    setCopiedAt("");
+    setContextOpen(false);
     setAnswerError("");
     setAnswer(null);
     setAnsweredAt("");
@@ -1004,6 +1056,16 @@ export default function GuruPage() {
       setAnswerBusy(false);
     }
   };
+
+  const handleQuestionKeyDown = React.useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter" && !answerBusy) {
+        event.preventDefault();
+        void askLiveGuru();
+      }
+    },
+    [answerBusy],
+  );
 
   const sendSuggestedSkusToProject = () => {
     if (suggestedSkus.length === 0) {
@@ -1062,44 +1124,46 @@ export default function GuruPage() {
     <div className="wm-guru-float-page">
       <style>{pageStyles}</style>
 
-      <button
-        type="button"
-        className={`wm-guru-float-launcher ${panelOpen ? "is-open" : ""}`}
-        onPointerDown={startLauncherDrag}
-        onClick={() => {
-          if (suppressLauncherToggleRef.current) {
-            suppressLauncherToggleRef.current = false;
-            return;
+      {!isGuruRoute ? (
+        <button
+          type="button"
+          className={`wm-guru-float-launcher ${panelOpen ? "is-open" : ""}`}
+          onPointerDown={startLauncherDrag}
+          onClick={() => {
+            if (suppressLauncherToggleRef.current) {
+              suppressLauncherToggleRef.current = false;
+              return;
+            }
+            setPanelOpen((value) => !value);
+          }}
+          aria-label={panelOpen ? "Close Guru" : "Open Guru"}
+          aria-expanded={panelOpen}
+          title={panelOpen ? "Close Guru (drag to move)" : "Open Guru (drag to move)"}
+          style={
+            isCompactViewport
+              ? undefined
+              : {
+                  left: launcherPosition.left,
+                  top: launcherPosition.top,
+                  right: "auto",
+                  bottom: "auto",
+                }
           }
-          setPanelOpen((value) => !value);
-        }}
-        aria-label={panelOpen ? "Close Guru" : "Open Guru"}
-        aria-expanded={panelOpen}
-        title={panelOpen ? "Close Guru (drag to move)" : "Open Guru (drag to move)"}
-        style={
-          isCompactViewport
-            ? undefined
-            : {
-                left: launcherPosition.left,
-                top: launcherPosition.top,
-                right: "auto",
-                bottom: "auto",
-              }
-        }
-      >
-        <span className="wm-guru-float-launcher__icon">
-          <Bot size={20} />
-        </span>
-      </button>
+        >
+          <span className="wm-guru-float-launcher__icon">
+            <Bot size={20} />
+          </span>
+        </button>
+      ) : null}
 
       {panelOpen ? (
         <aside
-          className="wm-guru-float-panel"
+          className={`wm-guru-float-panel${isGuruRoute ? " is-route" : ""}`}
           role="dialog"
           aria-label="Guru helper"
           aria-modal="false"
           style={
-            isCompactViewport
+            isGuruRoute || isCompactViewport
               ? undefined
               : {
                   left: panelPosition.left,
@@ -1114,23 +1178,23 @@ export default function GuruPage() {
           <div className="wm-guru-float-panel__head">
             <div className="wm-guru-float-panel__dragzone" onPointerDown={startPanelDrag}>
               <h2 className="wm-guru-float-panel__title">Guru Assistant</h2>
-              <p className="wm-guru-float-panel__sub">{def.label} �f�?s· {def.subtitle}</p>
+              <p className="wm-guru-float-panel__sub">{def.label} · {def.subtitle}</p>
             </div>
             <div className="wm-guru-float-panel__head-actions">
-              <button className="wm-btn" type="button" onClick={resetPanelSize}>
-                Reset size
-              </button>
-              <button className="wm-btn" type="button" onClick={() => setPanelOpen(false)}>
-                Close
-              </button>
+              {!isGuruRoute ? (
+                <>
+                  <button className="wm-btn" type="button" onClick={resetPanelSize}>
+                    Reset size
+                  </button>
+                  <button className="wm-btn" type="button" onClick={() => setPanelOpen(false)}>
+                    Close
+                  </button>
+                </>
+              ) : null}
             </div>
           </div>
 
           <div className="wm-guru-float-panel__body">
-            <div className="wm-guru-float-resize-note">
-              Tip: drag this header to move Guru and resize from any corner.
-            </div>
-
             <div className="wm-guru-float-modes">
               {(Object.values(MODE_DEFS) as GuruModeDef[]).map((item) => (
                 <button
@@ -1145,23 +1209,46 @@ export default function GuruPage() {
             </div>
 
             <div className="wm-guru-float-field">
-              <label>Main question</label>
+              <label>Ask Guru</label>
               <textarea
                 className="wm-guru-float-input"
                 value={question}
-                rows={4}
+                rows={isGuruRoute ? 5 : 4}
                 onChange={(event) => setQuestion(event.target.value)}
+                onKeyDown={handleQuestionKeyDown}
                 placeholder={def.placeholder}
               />
+              <div className="wm-guru-float-promptHint">
+                Start with the main question. Add extra context only if it helps narrow the advice. Press Ctrl+Enter to ask.
+              </div>
             </div>
 
-            <div className="wm-guru-float-actions">
+            <div className="wm-guru-float-actions wm-guru-float-actions--primary">
               <button className="wm-btn wm-btn-primary wm-guru-submit" type="button" onClick={askLiveGuru} disabled={!hasContent || answerBusy}>
                 {answerBusy ? "Thinking..." : "Ask Guru"}
               </button>
-              <button className="wm-btn" type="button" onClick={copyPrompt} disabled={!hasContent}>Copy prompt</button>
-              <button className="wm-btn" type="button" onClick={insertContextTemplate}>Context template</button>
-              <button className="wm-btn" type="button" onClick={clearAll}>Clear</button>
+              <div className="wm-guru-float-muted">
+                {answerBusy
+                  ? "Guru is working through your question."
+                  : answeredAt
+                    ? `Last updated at ${answeredAt}.`
+                    : "Answer will appear below."}
+              </div>
+            </div>
+
+            <div className="wm-guru-float-actions wm-guru-float-actions--support">
+              <button className="wm-guru-float-chip" type="button" onClick={() => setContextOpen((value) => !value)}>
+                {contextOpen ? "Hide context" : "Add context"}
+              </button>
+              <button className="wm-guru-float-chip" type="button" onClick={insertContextTemplate}>
+                Use context template
+              </button>
+              <button className="wm-guru-float-chip" type="button" onClick={clearAll}>
+                Clear
+              </button>
+              <div className="wm-guru-float-muted">
+                Keep it simple first, then add context if the answer needs tightening.
+              </div>
             </div>
 
             <div className="wm-guru-float-quickasks">
@@ -1170,15 +1257,6 @@ export default function GuruPage() {
                   {ask}
                 </button>
               ))}
-            </div>
-
-            <div className="wm-guru-float-actions">
-              <button className="wm-guru-float-chip" type="button" onClick={() => setContextOpen((value) => !value)}>
-                {contextOpen ? "Hide context" : "Add context"}
-              </button>
-              <div className="wm-guru-float-muted">
-                {copiedAt ? `Prompt copied at ${copiedAt}.` : "Ask directly first, then add context if needed."}
-              </div>
             </div>
 
             {contextOpen ? (
@@ -1202,7 +1280,7 @@ export default function GuruPage() {
                   <div>{answer.text}</div>
                   <div className="wm-guru-float-muted" style={{ marginTop: 8 }}>
                     Confidence: {confidenceLabel(answer.confidence)}
-                    {answeredAt ? ` �f�?s· Updated at ${answeredAt}` : ""}
+                    {answeredAt ? ` · Updated at ${answeredAt}` : ""}
                   </div>
                 </>
               ) : (
@@ -1258,34 +1336,38 @@ export default function GuruPage() {
 
             {transferMessage ? <div className="wm-guru-float-muted">{transferMessage}</div> : null}
           </div>
-          <button
-            type="button"
-            tabIndex={-1}
-            aria-label="Resize from top left"
-            className="wm-guru-float-panel__corner wm-guru-float-panel__corner--tl"
-            onPointerDown={startPanelResize("top-left")}
-          />
-          <button
-            type="button"
-            tabIndex={-1}
-            aria-label="Resize from top right"
-            className="wm-guru-float-panel__corner wm-guru-float-panel__corner--tr"
-            onPointerDown={startPanelResize("top-right")}
-          />
-          <button
-            type="button"
-            tabIndex={-1}
-            aria-label="Resize from bottom left"
-            className="wm-guru-float-panel__corner wm-guru-float-panel__corner--bl"
-            onPointerDown={startPanelResize("bottom-left")}
-          />
-          <button
-            type="button"
-            tabIndex={-1}
-            aria-label="Resize from bottom right"
-            className="wm-guru-float-panel__corner wm-guru-float-panel__corner--br"
-            onPointerDown={startPanelResize("bottom-right")}
-          />
+          {!isGuruRoute ? (
+            <>
+              <button
+                type="button"
+                tabIndex={-1}
+                aria-label="Resize from top left"
+                className="wm-guru-float-panel__corner wm-guru-float-panel__corner--tl"
+                onPointerDown={startPanelResize("top-left")}
+              />
+              <button
+                type="button"
+                tabIndex={-1}
+                aria-label="Resize from top right"
+                className="wm-guru-float-panel__corner wm-guru-float-panel__corner--tr"
+                onPointerDown={startPanelResize("top-right")}
+              />
+              <button
+                type="button"
+                tabIndex={-1}
+                aria-label="Resize from bottom left"
+                className="wm-guru-float-panel__corner wm-guru-float-panel__corner--bl"
+                onPointerDown={startPanelResize("bottom-left")}
+              />
+              <button
+                type="button"
+                tabIndex={-1}
+                aria-label="Resize from bottom right"
+                className="wm-guru-float-panel__corner wm-guru-float-panel__corner--br"
+                onPointerDown={startPanelResize("bottom-right")}
+              />
+            </>
+          ) : null}
         </aside>
       ) : null}
     </div>,
