@@ -114,6 +114,7 @@ export type ProjectDiscovery = {
   workflowTrack?: string;
   projectScope?: string;
   customerOutcome?: string;
+  switchSolutionType?: string;
   featureRequirements?: string;
   applicationType?: string;
   roomLengthM?: string;
@@ -125,6 +126,7 @@ export type ProjectDiscovery = {
   rackLocation?: string;
   cableDistanceM?: string;
   transportDistanceBand?: string;
+  transportCableType?: string;
   displayCount?: string;
   sourceCount?: string;
   outputBehaviour?: string;
@@ -375,10 +377,12 @@ function normalizeDiscovery(discovery?: ProjectDiscovery): ProjectDiscovery | un
     workflowTrack: discovery.workflowTrack ?? "",
     projectScope: discovery.projectScope ?? "",
     customerOutcome: discovery.customerOutcome ?? "",
+    switchSolutionType: discovery.switchSolutionType ?? "",
     featureRequirements: discovery.featureRequirements ?? "",
     notes: discovery.notes ?? "",
     installationPath: discovery.installationPath ?? "",
     transportDistanceBand: discovery.transportDistanceBand ?? "",
+    transportCableType: discovery.transportCableType ?? "",
     outputBehaviour: discovery.outputBehaviour ?? "",
     sourceTypes: discovery.sourceTypes ?? "",
     sourcePlacement: discovery.sourcePlacement ?? "",

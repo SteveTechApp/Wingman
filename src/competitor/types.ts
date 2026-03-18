@@ -1,138 +1,91 @@
-export type ComparisonStage =
-  | "idle"
-  | "dataset"
-  | "web"
-  | "extract"
-  | "match"
-  | "done"
-  | "error";
+export type Confidence = "high" | "medium" | "low";
 
-export type CompetitorLookupTrace = {
-  stage: ComparisonStage;
-  message: string;
-  sourceLabel?: string;
-  checkedUrl?: string;
-  usedLiveData?: boolean;
-  confidence?: number;
-  updatedAt?: string;
+export type ResolutionValue = "8K" | "4K60" | "4K30" | "1080p";
+export type TransportValue = "HDBaseT" | "AVoIP" | "DTP" | "SDVoE" | "Unknown";
+export type AvailabilityValue = "stocked" | "special-order" | "end-of-life" | "unknown";
+
+export type SpecField<T> = {
+  value?: T | undefined;
+  confidence: Confidence;
+  source?: string;
 };
 
-export type CompetitorSpecRecord = {
-  brand: string;
-  sku: string;
-  title?: string;
-  category?: string;
-  inputs?: string[];
-  outputs?: string[];
-  maxResolution?: string;
-  bandwidthGbps?: number;
-  hdcp?: string;
-  control?: string[];
-  usb?: string[];
-  distance?: string;
-  notes?: string[];
-  sourceUrl?: string;
-  lastVerifiedAt?: string;
-  [key: string]: unknown;
-};
-
-export type LiveLookupResult = {
-  trace: CompetitorLookupTrace[];
-  record?: CompetitorSpecRecord;
-  error?: string;
-  mode?: string;
-  warnings?: string[];
-};
+export type MaybeScored<T> = T | SpecField<T | undefined> | undefined;
 
 export type VideoSpec = {
-  maxResolution?: string;
-  bandwidthGbps?: number;
-  hdcp?: string;
-  [key: string]: unknown;
+  maxResolution?: MaybeScored<ResolutionValue>;
+  bandwidthGbps?: MaybeScored<number>;
+  hdcp?: MaybeScored<string>;
+  hdr?: MaybeScored<boolean>;
 };
 
-export type Product = {
-  id?: string;
-  sku?: string;
-  partNumber?: string;
-  name?: string;
-  title?: string;
-  brand?: string;
-  manufacturer?: string;
-  category?: string;
-  family?: string;
-  subcategory?: string;
-  familyHint?: string;
-  role?: string;
+export type ConnectivitySpec = {
+  inputs?: MaybeScored<string[]>;
+  outputs?: MaybeScored<string[]>;
+  transport?: MaybeScored<TransportValue>;
+  poe?: MaybeScored<boolean>;
+};
 
-  description?: string;
-  summary?: string;
+export type DistanceSpec = {
+  maxMeters1080p?: MaybeScored<number>;
+  maxMeters4k?: MaybeScored<number>;
+};
 
-  inputs?: string[];
-  outputs?: string[];
-  features?: string[];
-  keywords?: string[];
-  tags?: string[];
-  control?: string[];
-  usb?: string[];
+export type AudioSpec = {
+  audioFormats?: MaybeScored<string[]>;
+  analogBreakout?: MaybeScored<boolean>;
+};
 
-  maxResolution?: string;
-  resolution?: string;
-  bandwidthGbps?: number;
-  hdcp?: string;
-  distance?: string;
-  msrp?: number | string;
-  price?: number | string;
-
-  video?: VideoSpec;
-
-  notes?: string[];
-  sourceUrl?: string;
-  lastVerifiedAt?: string;
-
-  [key: string]: unknown;
+export type CommercialSpec = {
+  estimatedStreetPriceGbp?: MaybeScored<number>;
+  availability?: MaybeScored<AvailabilityValue>;
 };
 
 export type CompetitorItem = {
   id?: string;
-  sku?: string;
-  partNumber?: string;
+  brand: string;
+  sku: string;
   name?: string;
-  title?: string;
-  brand?: string;
-  manufacturer?: string;
+  model?: string;
   category?: string;
   family?: string;
-  subcategory?: string;
-  familyHint?: string;
-  role?: string;
-
-  description?: string;
-  summary?: string;
-
-  inputs?: string[];
-  outputs?: string[];
-  features?: string[];
-  keywords?: string[];
-  tags?: string[];
-  control?: string[];
-  usb?: string[];
-
-  maxResolution?: string;
-  resolution?: string;
-  bandwidthGbps?: number;
-  hdcp?: string;
-  distance?: string;
-  msrp?: number | string;
-  price?: number | string;
+  lifecycle?: "active" | "legacy" | "draft";
+  notes?: string;
+  sourceSummary?: string;
+  lastUpdated?: string;
 
   video?: VideoSpec;
+  connectivity?: ConnectivitySpec;
+  distance?: DistanceSpec;
+  audio?: AudioSpec;
+  commercial?: CommercialSpec;
 
-  notes?: string[];
-  sourceUrl?: string;
-  lastVerifiedAt?: string;
+  role?: string;
+  features?: string[];
+  familyHint?: string;
+  sourceurl?: string;
+  io?: unknown;
+  url?: string;
+};
 
-  [key: string]: unknown;
+export type Product = {
+  brand?: string;
+  sku?: string;
+  name?: string;
+  model?: string;
+  category?: string;
+  family?: string;
+  role?: string;
+  video?: {
+    maxResolution?: ResolutionValue | string;
+    bandwidthGbps?: number;
+  };
+  connectivity?: {
+    transport?: TransportValue | string;
+    inputs?: string[];
+    outputs?: string[];
+  };
+  features?: string[];
 };
 
 export type MatchReason = {
@@ -142,21 +95,66 @@ export type MatchReason = {
 };
 
 export type MatchResult = {
+  candidate?: CompetitorItem;
   competitor?: CompetitorItem;
-  competitorItem?: CompetitorItem;
   product?: Product;
-  wyrestormProduct?: Product;
+  score: number;
+  percent?: number;
+  reasons: MatchReason[];
+};
 
-  score?: number;
+export type CompetitorLookupTrace = {
+  stage: string;
+  message: string;
+  at?: string;
+  updatedAt?: string;
+  sourceLabel?: string;
+  checkedUrl?: unknown;
+  usedLiveData?: boolean;
   confidence?: number;
-  reason?: MatchReason;
-  reasons?: MatchReason[];
+  payload?: unknown;
+};
 
-  matchType?: string;
-  notes?: string[];
-  explanation?: string;
+export type CompetitorSpecRecord = Record<string, unknown> & {
+  brand?: string;
+  sku?: string;
+  source?: string;
+  url?: string;
+};
 
+export type LiveLookupResult = {
+  ok?: boolean;
+  brand?: string;
+  sku?: string;
+  source?: string;
+  sourceurl?: string;
+  sourceLabel?: string;
+  traces?: CompetitorLookupTrace[];
   trace?: CompetitorLookupTrace[];
+  specs?: CompetitorSpecRecord;
+  record?: CompetitorSpecRecord;
+  mode?: string;
+  warnings?: unknown[];
+  error?: string;
+};
 
-  [key: string]: unknown;
+export type PartialCompetitorSeed = Partial<Omit<CompetitorItem, "video" | "connectivity" | "distance" | "audio" | "commercial">> & {
+  video?: Partial<VideoSpec>;
+  connectivity?: Partial<ConnectivitySpec>;
+  distance?: Partial<DistanceSpec>;
+  audio?: Partial<AudioSpec>;
+  commercial?: Partial<CommercialSpec>;
+};
+
+export type EnrichmentWarning = {
+  code: string;
+  message: string;
+  severity: "info" | "warning" | "error";
+};
+
+export type EnrichmentResult = {
+  item: CompetitorItem;
+  qualityScore: number;
+  completenessBand: "complete" | "usable" | "needs-enrichment";
+  warnings: EnrichmentWarning[];
 };

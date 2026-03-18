@@ -522,7 +522,7 @@ export default function ProjectNewPage() {
                       <div>
                         <div className="wm-title-lg">{project.name}</div>
                         <div className="wm-body-sm" style={{ opacity: 0.76 }}>
-                          {[project.customer || "Customer not set", project.site || "Site not set", project.roomName || "Room not set"].join(" ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÂ· ")}
+                          {[project.customer || "Customer not set", project.site || "Site not set", project.roomName || "Room not set"].join(" / ")}
                         </div>
                       </div>
                       <span className="wm-chip">{resumeAction.shortLabel}</span>
