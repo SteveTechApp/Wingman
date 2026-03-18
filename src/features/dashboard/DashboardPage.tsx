@@ -60,7 +60,7 @@ function CompactActionCard({
         minHeight: 0,
         padding: 10,
         textAlign: "left",
-        borderRadius: 16,
+        borderRadius: 12,
         cursor: "pointer",
         color: "var(--wm-text)",
         "--wm-action-accent-rgb": accentRgb,
@@ -95,7 +95,7 @@ function CompactActionCard({
       <div>
         <div
           style={{
-            fontSize: 18,
+            fontSize: 10,
             fontWeight: 700,
             lineHeight: 1.15,
             marginBottom: 6,
@@ -105,7 +105,7 @@ function CompactActionCard({
         </div>
         <div
           style={{
-            fontSize: 13,
+            fontSize: 10,
             opacity: 0.78,
             lineHeight: 1.35,
           }}
@@ -117,7 +117,7 @@ function CompactActionCard({
       <div
         className="wm-dashboard-page__action-card-cta"
         style={{
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: 700,
           opacity: 0.86,
         }}
@@ -161,10 +161,10 @@ function RailLink({
           gap: 8,
         }}
       >
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{title}</span>
+        <span style={{ fontSize: 10, fontWeight: 700 }}>{title}</span>
         <FolderOpen size={17} />
       </div>
-      <span style={{ fontSize: 12, opacity: 0.72, lineHeight: 1.35 }}>{subtitle}</span>
+      <span style={{ fontSize: 10, opacity: 0.72, lineHeight: 1.35 }}>{subtitle}</span>
     </button>
   );
 }
@@ -210,7 +210,7 @@ export default function DashboardPage() {
         className="wm-card wm-dashboard-page__hero"
         style={{
           padding: 10,
-          borderRadius: 18,
+          borderRadius: 14,
           display: "grid",
           gap: 6,
         }}
@@ -287,7 +287,7 @@ export default function DashboardPage() {
           className="wm-card wm-dashboard-page__active-project"
           style={{
             padding: 10,
-            borderRadius: 16,
+            borderRadius: 12,
             minHeight: "unset",
             display: "grid",
             gap: 6,
@@ -317,7 +317,7 @@ export default function DashboardPage() {
 
           <div
             style={{
-              fontSize: 13,
+              fontSize: 10,
               opacity: 0.76,
               lineHeight: 1.35,
             }}
@@ -327,7 +327,7 @@ export default function DashboardPage() {
 
           <div
             style={{
-              fontSize: 13,
+              fontSize: 10,
               fontWeight: 700,
             }}
           >
@@ -364,14 +364,14 @@ export default function DashboardPage() {
           className="wm-card wm-dashboard-page__start-panel"
           style={{
             padding: 10,
-            borderRadius: 18,
+            borderRadius: 14,
             display: "grid",
             gap: 6,
           }}
         >
           <div
             style={{
-              fontSize: 18,
+              fontSize: 10,
               fontWeight: 800,
               lineHeight: 1.1,
             }}
@@ -400,14 +400,14 @@ export default function DashboardPage() {
           className="wm-card wm-dashboard-page__panel"
           style={{
             padding: 10,
-            borderRadius: 18,
+            borderRadius: 14,
             display: "grid",
             gap: 8,
           }}
         >
           <div
             style={{
-              fontSize: 18,
+              fontSize: 10,
               fontWeight: 800,
               lineHeight: 1.1,
             }}
@@ -430,7 +430,7 @@ export default function DashboardPage() {
               style={{
                 padding: 12,
                 borderRadius: 14,
-                fontSize: 13,
+                fontSize: 10,
                 opacity: 0.78,
                 lineHeight: 1.4,
               }}

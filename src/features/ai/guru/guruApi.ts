@@ -7,6 +7,9 @@ import {
   assessQuestionIntelligence,
   type IntelligenceSupportAction,
 } from "@/services/productIntelligenceAdvisor";
+import type { ProductIntelligenceRecord } from "@/services/productIntelligenceService";
+import { buildAvRecommendationFromDiscovery } from "@/services/av-recommendation/engine";
+import type { GuidedProjectRecord } from "@/features/discovery/guidedProjectEngine";
 
 export type GuruMode = "ask" | "resources" | "project-check";
 
@@ -15,6 +18,17 @@ export type GuruAnswer = {
   sources?: Array<{ title: string; kind: "training" | "video" | "doc" | "link"; to?: string; url?: string }>;
   confidence?: "low" | "medium" | "high";
   suggestedSkus?: Array<{ sku: string; name?: string; reason?: string }>;
+  explanation?: {
+    headline?: string;
+    why?: string[];
+    whatsMissing?: string[];
+    handoffItems?: Array<{
+      prompt: string;
+      label: string;
+      step: number;
+      questionId: string;
+    }>;
+  };
 };
 
 export type GuruContext = {
@@ -23,6 +37,7 @@ export type GuruContext = {
   videowall?: unknown;
   bom?: unknown;
   notes?: string;
+  discovery?: Partial<GuidedProjectRecord> | null;
 };
 
 const COMPETITOR_BRANDS = [
@@ -37,6 +52,14 @@ const COMPETITOR_BRANDS = [
 
 function tidy(value: unknown): string {
   return String(value ?? "").trim();
+}
+
+function hasText(value: unknown): boolean {
+  return tidy(value).length > 0;
+}
+
+function normalizeSku(value: unknown): string {
+  return tidy(value).toUpperCase();
 }
 
 function toGuruConfidence(value: "High" | "Medium" | "Low"): GuruAnswer["confidence"] {
@@ -173,6 +196,9 @@ function isProductDirectedQuestion(question: string): boolean {
   const lower = question.toLowerCase();
   const explicitIntent =
     /\bsku\b|\bmodel\b|\bfamily\b|\bproduct\b|\brecommend\b|\bsuggest\b|\bchoose\b|\bspecify\b/.test(lower) ||
+    (/\b(which|what)\b/.test(lower) &&
+      /\bsupport\b|\bsupports\b/.test(lower) &&
+      /\bswitcher\b|\bmatrix\b|\bextender\b|\bsplitter\b|\bpresentation\b|\bwireless\b/.test(lower)) ||
     lower.includes("start with") ||
     lower.includes("which wyrestorm");
   const roomOrWorkflowIntent =
@@ -197,11 +223,197 @@ function shouldIncludeProductMatches(question: string, mode: GuruMode, confidenc
   return confidence !== "low" && isProductDirectedQuestion(question);
 }
 
+function isDesignOrWorkflowQuestion(question: string): boolean {
+  const lower = question.toLowerCase();
+  return /\b(room|workflow|design|project|switch|switcher|matrix|extender|hdbaset|avoip|video wall|family|fit|recommend)\b/.test(lower);
+}
+
+function isRecommendationStyleQuestion(question: string, mode: GuruMode): boolean {
+  if (mode === "project-check") return true;
+  const lower = question.toLowerCase();
+  return (
+    isProductDirectedQuestion(question) ||
+    /\b(start with|start|family|direction|fit|recommend|recommendation|best option|best fit|what should i use|what family should i start with)\b/.test(lower)
+  );
+}
+
+type CapabilityLookup = {
+  category: "presentation-switcher" | null;
+  capability: "airplay" | "miracast" | "wireless-casting" | null;
+};
+
+function recordTextBlob(record: ProductIntelligenceRecord): string {
+  return [
+    record.brand,
+    record.sku,
+    record.name,
+    record.family,
+    record.group,
+    record.category,
+    record.subcategory,
+    record.summary,
+    ...(record.features ?? []),
+    ...(record.tags ?? []),
+    record.notes,
+  ]
+    .map((value) => tidy(value).toLowerCase())
+    .filter(Boolean)
+    .join(" ");
+}
+
+function detectCapabilityLookup(question: string): CapabilityLookup | null {
+  const lower = question.toLowerCase();
+  const asksForSupportedProducts =
+    /\b(which|what)\b/.test(lower) &&
+    /\bsupport\b|\bsupports\b/.test(lower);
+
+  if (!asksForSupportedProducts) return null;
+
+  const category = lower.includes("presentation switcher") || lower.includes("presentation switchers")
+    ? "presentation-switcher"
+    : null;
+
+  const capability = lower.includes("airplay")
+    ? "airplay"
+    : lower.includes("miracast")
+      ? "miracast"
+      : lower.includes("wireless casting") || lower.includes("wireless presentation")
+        ? "wireless-casting"
+        : null;
+
+  if (!category || !capability) return null;
+
+  return { category, capability };
+}
+
+function recordMatchesCapabilityLookup(
+  record: ProductIntelligenceRecord,
+  lookup: CapabilityLookup,
+): boolean {
+  const blob = recordTextBlob(record);
+  const isPresentationSwitcher =
+    blob.includes("presentation switcher") ||
+    (blob.includes("switcher") && blob.includes("presentation"));
+
+  if (lookup.category === "presentation-switcher" && !isPresentationSwitcher) {
+    return false;
+  }
+
+  if (lookup.capability === "airplay") {
+    return blob.includes("airplay") || blob.includes("wireless casting") || normalizeSku(record.sku).endsWith("-W");
+  }
+  if (lookup.capability === "miracast") {
+    return blob.includes("miracast") || blob.includes("wireless casting") || normalizeSku(record.sku).endsWith("-W");
+  }
+  if (lookup.capability === "wireless-casting") {
+    return blob.includes("wireless casting") || blob.includes("airplay") || blob.includes("miracast") || normalizeSku(record.sku).endsWith("-W");
+  }
+
+  return false;
+}
+
+function buildCapabilityLookupAnswer(
+  question: string,
+  records: ProductIntelligenceRecord[],
+): GuruAnswer | null {
+  const lookup = detectCapabilityLookup(question);
+  if (!lookup) return null;
+
+  const matches = records.filter((record) => recordMatchesCapabilityLookup(record, lookup)).slice(0, 4);
+  if (matches.length === 0) return null;
+
+  const skuList = matches.map((record) => record.sku).join(", ");
+  const lines = [
+    `WyreStorm presentation switchers with ${lookup.capability === "wireless-casting" ? "wireless casting" : lookup.capability} support: ${skuList}.`,
+    "In this dataset, the wireless `-W` variants are the native AirPlay / Miracast models.",
+  ];
+
+  if (lookup.capability === "airplay") {
+    lines.push("AirPlay works when the Apple device and switcher are on the same IP subnet.");
+  }
+
+  return {
+    text: lines.join("\n"),
+    confidence: matches.length >= 2 ? "high" : "medium",
+    suggestedSkus: mergeSuggestedSkus(
+      matches.map((record) => ({
+        sku: record.sku,
+        name: record.name,
+        reason: `Matches the requested ${lookup.capability} capability.`,
+      })),
+    ),
+    sources: dedupeSources([
+      { title: "Product Intelligence", kind: "training", to: "/app/tools/product-intelligence" },
+      { title: "Product Catalog", kind: "training", to: "/app/tools/catalog" },
+    ]),
+  };
+}
+
+function buildSharedRecommendationAnswer(
+  question: string,
+  ctx: GuruContext,
+): GuruAnswer | null {
+  if (!ctx.discovery) return null;
+
+  const recommendation = buildAvRecommendationFromDiscovery(ctx.discovery);
+  const shouldUse =
+    ctx.mode === "project-check" ||
+    isProductDirectedQuestion(question) ||
+    isDesignOrWorkflowQuestion(question);
+
+  if (!shouldUse) return null;
+
+  const recommendationStyle = isRecommendationStyleQuestion(question, ctx.mode);
+  const why = recommendation.whyThisAnswer.slice(0, recommendationStyle ? 2 : 1);
+  const missing = recommendation.whatsMissing.slice(0, recommendationStyle ? 3 : 2);
+
+  const lines = [
+    recommendationStyle
+      ? `Likely direction: ${recommendation.advice.focusCategory}, led by ${recommendation.primaryFamily} (${recommendation.confidenceLabel} confidence).`
+      : `Current project direction: ${recommendation.advice.focusCategory}, led by ${recommendation.primaryFamily}.`,
+  ];
+
+  if (why.length > 0) {
+    lines.push("Why this answer:");
+    lines.push(...why.map((item) => `- ${item}`));
+  } else if (hasText(recommendation.advice.workflowSummary)) {
+    lines.push(recommendation.advice.workflowSummary);
+  }
+
+  if (missing.length > 0) {
+    lines.push(recommendationStyle ? "What's still missing:" : "Still worth confirming:");
+    lines.push(...missing.map((item) => `- ${item}`));
+  }
+
+  return {
+    text: lines.filter(Boolean).join("\n"),
+    confidence: recommendation.confidenceLabel,
+    explanation: {
+      headline: recommendationStyle
+        ? `${recommendation.primaryFamily} is the lead WyreStorm direction for this brief.`
+        : `Current lead family: ${recommendation.primaryFamily}.`,
+      why,
+      whatsMissing: missing,
+      handoffItems: recommendation.missingItems.slice(0, recommendationStyle ? 3 : 2).map((item) => ({
+        prompt: item.prompt,
+        label: item.label,
+        step: item.step,
+        questionId: item.questionId,
+      })),
+    },
+    sources: [
+      { title: "Guided Project", kind: "training", to: "/app/tools/discovery" },
+      { title: "Product Catalog", kind: "training", to: "/app/tools/catalog" },
+    ],
+  };
+}
+
 export async function askGuru(question: string, ctx: GuruContext): Promise<GuruAnswer> {
   const q = tidy(question);
   if (!q) return { text: "Ask a question to get started.", confidence: "low" };
 
   const knowledge = await assessGuruKnowledge(q, ctx.mode);
+  const sharedRecommendation = buildSharedRecommendationAnswer(q, ctx);
 
   if (ctx.mode === "resources") {
     if (knowledge.text) {
@@ -270,9 +482,14 @@ export async function askGuru(question: string, ctx: GuruContext): Promise<GuruA
 
   const intelligence = await assessQuestionIntelligence(q);
   const topRecords = intelligence.records.slice(0, 3);
+  const directCapabilityAnswer = buildCapabilityLookupAnswer(q, intelligence.records);
+  if (directCapabilityAnswer) {
+    return directCapabilityAnswer;
+  }
   const productConfidence = toGuruConfidence(intelligence.confidence);
   const includeProductMatches = shouldIncludeProductMatches(q, ctx.mode, productConfidence);
   const suggestedSkus = includeProductMatches ? questionSkuSuggestions(topRecords) : [];
+  const preferSharedNarrative = Boolean(sharedRecommendation) && isRecommendationStyleQuestion(q, ctx.mode);
   const shouldShowProductChecks =
     !knowledge.text ||
     includeProductMatches ||
@@ -280,6 +497,19 @@ export async function askGuru(question: string, ctx: GuruContext): Promise<GuruA
 
   if (!knowledge.text && topRecords.length === 0) {
     const supportSources = supportActionsToSources(intelligence.supportActions);
+    if (sharedRecommendation) {
+      return {
+        text: addAdvisorSuffix(sharedRecommendation.text, ctx.mode),
+        confidence: sharedRecommendation.confidence,
+        explanation: sharedRecommendation.explanation,
+        sources: dedupeSources([
+          ...baseSources,
+          ...(sharedRecommendation.sources ?? []),
+          ...supportSources,
+        ]),
+        suggestedSkus: [],
+      };
+    }
     return {
       text: addAdvisorSuffix(
         [
@@ -299,7 +529,12 @@ export async function askGuru(question: string, ctx: GuruContext): Promise<GuruA
 
   const lines: string[] = [];
 
-  if (knowledge.text) {
+  if (sharedRecommendation) {
+    lines.push(sharedRecommendation.text);
+  }
+
+  if (knowledge.text && (!preferSharedNarrative || !sharedRecommendation)) {
+    if (lines.length > 0) lines.push("");
     lines.push(knowledge.text);
   }
 
@@ -312,7 +547,7 @@ export async function askGuru(question: string, ctx: GuruContext): Promise<GuruA
     lines.push(...topRecords.map((record) => `- ${record.brand} ${record.sku}: ${record.summary}`));
   }
 
-  if (intelligence.escalationRequired && shouldShowProductChecks) {
+  if (intelligence.escalationRequired && shouldShowProductChecks && !sharedRecommendation) {
     if (knowledge.text && topRecords.length === 0) {
       if (ctx.mode === "project-check" || isProductDirectedQuestion(q)) {
         lines.push("");
@@ -334,7 +569,13 @@ export async function askGuru(question: string, ctx: GuruContext): Promise<GuruA
   return {
     text: addAdvisorSuffix(lines.join("\n"), ctx.mode),
     confidence: strongestConfidence(knowledge.confidence, productConfidence),
-    sources: dedupeSources([...baseSources, ...knowledge.sources, ...supportSources]),
+    explanation: sharedRecommendation?.explanation,
+    sources: dedupeSources([
+      ...baseSources,
+      ...(sharedRecommendation?.sources ?? []),
+      ...knowledge.sources,
+      ...supportSources,
+    ]),
     suggestedSkus,
   };
 }

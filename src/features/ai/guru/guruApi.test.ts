@@ -155,4 +155,118 @@ describe("askGuru", () => {
     expect(answer.text).toContain("IGMP Snooping");
     expect(answer.text).not.toContain("To tighten this into exact product guidance");
   });
+
+  it("answers direct capability questions with concise matching switchers instead of generic design guidance", async () => {
+    vi.mocked(assessQuestionIntelligence).mockResolvedValue(
+      makeAssessment({
+        score: 88,
+        confidence: "High",
+        escalationRequired: false,
+        escalationReasons: [],
+        records: [
+          makeRecord({
+            sku: "SW-220-TX-W",
+            name: "SW-220-TX-W",
+            summary: "Wireless presentation switcher with native AirPlay and Miracast support.",
+            features: ["AirPlay", "Miracast", "Wireless casting"],
+            tags: ["presentation switcher", "airplay"],
+          }),
+          makeRecord({
+            sku: "SW-620-TX-W",
+            name: "SW-620-TX-W",
+            summary: "Wireless presentation switcher with AirPlay, Miracast, and BYOM support.",
+            features: ["AirPlay", "Miracast", "Wireless casting"],
+            tags: ["presentation switcher", "airplay"],
+          }),
+          makeRecord({
+            sku: "SW-640L-TX-W",
+            name: "SW-640L-TX-W",
+            summary: "Dual-output wireless presentation switcher with native AirPlay and Miracast casting.",
+            features: ["AirPlay", "Miracast", "Wireless casting"],
+            tags: ["presentation switcher", "airplay"],
+          }),
+          makeRecord({
+            sku: "SW-510-TX",
+            name: "SW-510-TX",
+            summary: "HDBaseT presentation switcher without native wireless casting.",
+            features: ["HDBaseT"],
+            tags: ["presentation switcher"],
+          }),
+        ],
+      }),
+    );
+
+    const answer = await askGuru("which presentation switchers support airplay?", {
+      mode: "ask",
+    });
+
+    expect(answer.text).toContain("SW-220-TX-W");
+    expect(answer.text).toContain("SW-620-TX-W");
+    expect(answer.text).toContain("SW-640L-TX-W");
+    expect(answer.text).toContain("same IP subnet");
+    expect(answer.text).not.toContain("First decide whether the room is presentation-led or routing-led");
+    expect(answer.confidence).toBe("high");
+  });
+
+  it("uses shared discovery recommendation context when Guru is asked against an active project", async () => {
+    vi.mocked(assessQuestionIntelligence).mockResolvedValue(makeAssessment());
+
+    const answer = await askGuru("What family should I start with for this project?", {
+      mode: "project-check",
+      discovery: {
+        workflowTrack: "Extend a signal",
+        sourceCount: "1",
+        displayCount: "1",
+        sourceConnectionType: "HDMI",
+        displayConnectionType: "HDMI",
+        transportDistanceBand: "Up to 70m",
+        transportCableType: "Cat6",
+        signalFormats: "4K 60Hz 4:4:4",
+      },
+    });
+
+    expect(answer.text).toContain("Likely direction");
+    expect(answer.text).toContain("Why this answer:");
+    expect(answer.text).toContain("What's still missing:");
+    expect(answer.text).toContain("HDBaseT");
+    expect(answer.text).not.toContain("No strong product matches were found");
+    expect(answer.explanation?.headline).toContain("HDBaseT");
+    expect(answer.explanation?.why?.length).toBeGreaterThan(0);
+    expect(answer.explanation?.whatsMissing?.length).toBeGreaterThan(0);
+    expect(answer.explanation?.handoffItems?.[0]?.step).toBeDefined();
+    expect(answer.explanation?.handoffItems?.[0]?.questionId).toBeTruthy();
+    expect(answer.sources?.some((source) => source.to === "/app/tools/discovery")).toBe(true);
+  });
+
+  it("keeps project recommendation answers concise even when broad knowledge content is available", async () => {
+    vi.mocked(assessQuestionIntelligence).mockResolvedValue(
+      makeAssessment({
+        score: 82,
+        confidence: "High",
+        escalationRequired: false,
+        escalationReasons: [],
+        records: [makeRecord()],
+      }),
+    );
+
+    const answer = await askGuru("What should I recommend for this project?", {
+      mode: "project-check",
+      discovery: {
+        workflowTrack: "Switch between devices",
+        sourceCount: "3",
+        displayCount: "2",
+        sourceConnectionType: "HDMI",
+        displayConnectionType: "HDMI",
+        switchSolutionType: "Presentation switcher",
+        featureRequirements: "AirPlay, Miracast, USB-C",
+      },
+    });
+
+    expect(answer.text).toContain("Likely direction:");
+    expect(answer.text).toContain("Why this answer:");
+    expect(answer.text).toContain("Best product starting points");
+    expect(answer.text).not.toContain("First decide whether the room is presentation-led or routing-led");
+    expect(answer.explanation?.headline).toBeTruthy();
+    expect(answer.explanation?.why?.length).toBeGreaterThan(0);
+  });
 });
