@@ -1,7 +1,10 @@
 import * as React from "react";
+
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import AppShell from "@/app/shell/AppShell";
+import ProductIntelligenceAdminGate from "@/components/admin/ProductIntelligenceAdminGate";
+
 import RequireAuth from "@/auth/RequireAuth";
 
 // Public
@@ -79,7 +82,7 @@ export default function AppRoutes() {
           <Route path="tools/training" element={<TrainingHubPage />} />
           <Route path="tools/video-wall" element={<VideoWallPlannerPage />} />
           <Route path="tools/templates" element={<TemplatesPage />} />
-          <Route path="tools/product-intelligence" element={<ProductIntelligencePage />} />
+          <Route path="tools/product-intelligence" element={<ProductIntelligenceAdminGate><ProductIntelligencePage /></ProductIntelligenceAdminGate>} />
           <Route path="tools/competitor-lookup-diagnostics" element={<CompetitorLookupDiagnosticsPage />} />
 
           {/* Friendly aliases */}

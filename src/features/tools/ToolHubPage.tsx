@@ -132,7 +132,7 @@ function CompactRow({
               borderRadius: 999,
               background: tone.panel,
               color: tone.text,
-              fontSize: 12,
+              fontSize: 10,
               fontWeight: 700,
             }}
           >
@@ -202,7 +202,7 @@ export default function ToolHubPage() {
     [adminTools, coreTools, enablementTools],
   );
 
-  const reservedSlots = Math.max(0, GRID_SLOTS - boardTools.length);
+  const reservedSlots = Math.max(0, 8 - boardTools.length);
 
   return (
     <div className="wm-page wm-tool-hub-page">
@@ -211,7 +211,7 @@ export default function ToolHubPage() {
           <div className="wm-tool-hub__eyebrow">Toolbox</div>
           <div className="wm-title-xl">Open any tool directly.</div>
           <div className="wm-body-sm wm-page-subtitle-muted">
-            Fixed 3x3 board for fast access. Active tools stay in place, with reserved slots ready for future upgrades.
+            Fast 4x2 launcher for direct access. Active tools stay pinned, with limited room for future additions.
           </div>
         </div>
       </section>

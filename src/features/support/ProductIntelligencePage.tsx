@@ -1,633 +1,1146 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
-
-import { useAuth } from "@/context/AuthContext";
-import CollapsibleCard from "@/ui2/components/CollapsibleCard";
 import {
-  addProductIntelligenceEvidence,
-  fetchProductIntelligenceHealth,
-  fetchProductIntelligenceRecords,
-  flagProductIntelligenceRecord,
-  getProductIntelligenceContractSummary,
-  getProductIntelligenceEndpoint,
-  getProductIntelligenceHealthEndpoint,
-  refreshProductIntelligenceCatalogSeed,
-  setProductIntelligenceRecordArchived,
-  updateProductIntelligenceFlagStatus,
-  updateProductIntelligenceStatus,
-  upsertProductIntelligenceRecord,
-  type ProductApprovalStatus,
-  type ProductIntelligenceRecord,
-  type ProductReviewFlag,
-  type ProductVendorType,
-} from "@/services/productIntelligenceService";
+  Archive,
+  ArrowUpDown,
+  CheckCircle2,
+  ChevronDown,
+  ExternalLink,
+  Filter,
+  RefreshCw,
+  Search,
+  ShieldAlert,
+  SlidersHorizontal,
+  Tag,
+  XCircle,
+} from "lucide-react";
 
-type StatusOption = "all" | ProductApprovalStatus;
-type VendorTypeOption = "all" | ProductVendorType;
-type ViewOption = "active" | "flagged" | "archived" | "all";
+type RemoteRecord = Record<string, unknown>;
 
-type EditorState = {
-  vendorType: ProductVendorType;
-  brand: string;
+type StatusTone = "approved" | "draft" | "expired" | "flagged" | "archived" | "unknown";
+
+type ProductRecord = {
+  id: string;
   sku: string;
   name: string;
+  vendor: string;
+  vendorType: string;
   family: string;
-  group: ProductIntelligenceRecord["group"];
+  group: string;
   category: string;
   subcategory: string;
+  classificationSource: string;
+  approvalStatus: string;
+  confidence: number | null;
+  evidenceEntries: number | null;
+  lastCaptured: string;
+  lastReviewed: string;
+  sourceLink: string;
   summary: string;
-  transport: string;
-  sourceUrl: string;
-  status: ProductApprovalStatus;
-  confidence: string;
-  features: string;
-  notes: string;
+  archived: boolean;
+  flagged: boolean;
 };
 
-const GROUP_OPTIONS: ProductIntelligenceRecord["group"][] = [
-  "distribution",
-  "extender",
-  "matrix",
-  "avoip",
-  "camera",
-  "audio",
-  "uc",
-  "switcher",
-  "control",
-  "casting",
-  "videowall",
-  "other",
-];
+type SortMode = "sku" | "family" | "status" | "confidence";
 
-const EMPTY_EDITOR: EditorState = {
-  vendorType: "wyrestorm",
-  brand: "WyreStorm",
-  sku: "",
-  name: "",
-  family: "",
-  group: "other",
-  category: "",
-  subcategory: "",
-  summary: "",
-  transport: "",
-  sourceUrl: "",
-  status: "draft",
-  confidence: "0.78",
-  features: "",
-  notes: "",
+type HealthSummary = {
+  visibleRecords: number;
+  approved: number;
+  openFlags: number;
+  archived: number;
+  highConfidence: number;
+  manualOverrides: number;
+  matchingTotal: number;
+  endpointStatus: string;
 };
 
-function formatTimestamp(value: string | undefined): string {
-  if (!value) return "-";
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return value;
-  return parsed.toLocaleString();
+
+function tidy(value: unknown): string {
+  return String(value ?? "").trim();
 }
 
-function statusChipClass(status: ProductApprovalStatus): string {
-  if (status === "approved") return "wm-chip";
-  if (status === "expired") return "wm-chip wm-chip--warn";
-  return "wm-chip";
+function buildProductIntelligenceEndpoint(): string {
+  const explicit = tidy(import.meta.env.VITE_PRODUCT_INTELLIGENCE_ENDPOINT);
+  if (explicit) return explicit.replace(/\/$/, "");
+
+  const competitor = tidy(import.meta.env.VITE_COMPETITOR_LOOKUP_ENDPOINT);
+  if (competitor) {
+    try {
+      const parsed = new URL(competitor);
+      const cleanPath = parsed.pathname.replace(/\/$/, "");
+      parsed.pathname = cleanPath.endsWith("/api/competitor-lookup")
+        ? cleanPath.replace(/\/api\/competitor-lookup$/, "/api/product-intelligence")
+        : "/api/product-intelligence";
+      return parsed.toString().replace(/\/$/, "");
+    } catch {
+    }
+  }
+
+  return "http://127.0.0.1:8787/api/product-intelligence";
 }
 
-function formatFlagKind(value: ProductReviewFlag["kind"]): string {
-  return value.replace(/-/g, " ").replace(/\b\w/g, (match) => match.toUpperCase());
+const PRODUCT_INTELLIGENCE_ENDPOINT = buildProductIntelligenceEndpoint();
+const STATUS_ORDER: Record<string, number> = {
+  approved: 0,
+  draft: 1,
+  pending: 2,
+  flagged: 3,
+  expired: 4,
+  archived: 5,
+  unknown: 6,
+};
+
+function asString(value: unknown, fallback = ""): string {
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  return fallback;
 }
 
-function splitCommaValues(value: string): string[] {
-  return value.split(",").map((item) => item.trim()).filter(Boolean);
+function asNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
 }
 
-function editorFromRecord(record: ProductIntelligenceRecord): EditorState {
+function asBool(value: unknown): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  if (typeof value === "string") {
+    const v = value.trim().toLowerCase();
+    return v === "true" || v === "1" || v === "yes" || v === "y";
+  }
+  return false;
+}
+
+function titleCase(value: string): string {
+  if (!value) return "";
+  return value
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
+function firstNonEmpty(record: RemoteRecord, keys: string[], fallback = ""): string {
+  for (const key of keys) {
+    const value = asString(record[key]);
+    if (value) return value;
+  }
+  return fallback;
+}
+
+function firstNumber(record: RemoteRecord, keys: string[]): number | null {
+  for (const key of keys) {
+    const value = asNumber(record[key]);
+    if (value !== null) return value;
+  }
+  return null;
+}
+
+function firstBool(record: RemoteRecord, keys: string[]): boolean {
+  for (const key of keys) {
+    if (key in record) return asBool(record[key]);
+  }
+  return false;
+}
+
+function truncate(value: string, max = 180): string {
+  if (value.length <= max) return value;
+  return `${value.slice(0, max - 1).trim()}ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦`;
+}
+
+function detectSummary(record: RemoteRecord): string {
+  const direct = firstNonEmpty(record, [
+    "summary",
+    "description",
+    "notes",
+    "overview",
+    "reason",
+    "commentary",
+    "supportingText",
+  ]);
+
+  if (direct) return direct;
+
+  const family = firstNonEmpty(record, ["family"]);
+  const category = firstNonEmpty(record, ["category"]);
+  const subcategory = firstNonEmpty(record, ["subcategory"]);
+  const group = firstNonEmpty(record, ["group"]);
+
+  const parts = [family, category, subcategory, group].filter(Boolean);
+  return parts.length ? parts.join(" ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ ") : "No product summary available.";
+}
+
+function normaliseRecord(input: RemoteRecord, index: number): ProductRecord {
+  const approvalStatus =
+    firstNonEmpty(input, ["approvalStatus", "status", "state", "reviewStatus"], "unknown").toLowerCase();
+
+  const sourceLink = firstNonEmpty(input, ["sourceLink", "sourceUrl", "url", "link"]);
+  const summary = truncate(detectSummary(input), 220);
+
   return {
-    vendorType: record.vendorType,
-    brand: record.brand,
-    sku: record.sku,
-    name: record.name,
-    family: record.family,
-    group: record.group,
-    category: record.category,
-    subcategory: record.subcategory || "",
-    summary: record.summary,
-    transport: record.transport || "",
-    sourceUrl: record.sourceUrls[0] || "",
-    status: record.status,
-    confidence: String(record.confidence),
-    features: record.features.join(", "),
-    notes: record.notes || "",
+    id: firstNonEmpty(input, ["id", "_id", "recordId", "sku"], `record-${index + 1}`),
+    sku: firstNonEmpty(input, ["sku", "partNumber", "model", "code"], `RECORD-${index + 1}`),
+    name: firstNonEmpty(input, ["name", "title", "productName"], "Unnamed record"),
+    vendor: firstNonEmpty(input, ["vendor", "brand", "manufacturer"], "Unknown"),
+    vendorType: firstNonEmpty(input, ["vendorType", "vendor_type", "sourceVendorType"], "Unknown"),
+    family: firstNonEmpty(input, ["family"], "Unassigned"),
+    group: firstNonEmpty(input, ["group"], "Unassigned"),
+    category: firstNonEmpty(input, ["category"], "Unassigned"),
+    subcategory: firstNonEmpty(input, ["subcategory"], "Unassigned"),
+    classificationSource: firstNonEmpty(input, ["classificationSource", "sourceType", "source"], "source"),
+    approvalStatus,
+    confidence: firstNumber(input, ["confidence", "score", "matchConfidence"]),
+    evidenceEntries: firstNumber(input, ["evidenceEntries", "evidenceCount", "evidence"]),
+    lastCaptured: firstNonEmpty(input, ["lastCaptured", "capturedAt", "updatedAt"], "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â"),
+    lastReviewed: firstNonEmpty(input, ["lastReviewed", "reviewedAt"], "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â"),
+    sourceLink,
+    summary,
+    archived: firstBool(input, ["archived", "isArchived"]),
+    flagged: firstBool(input, ["flagged", "hasFlag", "reviewFlag"]),
   };
 }
 
-function openFlagCount(record: ProductIntelligenceRecord): number {
-  return record.reviewFlags.filter((flag) => flag.status === "open").length;
+function statusTone(record: ProductRecord): StatusTone {
+  if (record.archived) return "archived";
+  if (record.flagged) return "flagged";
+
+  const status = record.approvalStatus.toLowerCase();
+  if (status.includes("approve")) return "approved";
+  if (status.includes("draft")) return "draft";
+  if (status.includes("expire")) return "expired";
+  if (status.includes("flag")) return "flagged";
+  if (status.includes("archive")) return "archived";
+  return "unknown";
+}
+
+function toneStyles(tone: StatusTone): React.CSSProperties {
+  switch (tone) {
+    case "approved":
+      return {
+        color: "#bbf7d0",
+        border: "1px solid rgba(34,197,94,0.24)",
+        background: "rgba(34,197,94,0.12)",
+      };
+    case "draft":
+      return {
+        color: "#bfdbfe",
+        border: "1px solid rgba(59,130,246,0.24)",
+        background: "rgba(59,130,246,0.12)",
+      };
+    case "expired":
+      return {
+        color: "#fed7aa",
+        border: "1px solid rgba(249,115,22,0.24)",
+        background: "rgba(249,115,22,0.12)",
+      };
+    case "flagged":
+      return {
+        color: "#fecaca",
+        border: "1px solid rgba(239,68,68,0.24)",
+        background: "rgba(239,68,68,0.12)",
+      };
+    case "archived":
+      return {
+        color: "#e2e8f0",
+        border: "1px solid rgba(148,163,184,0.22)",
+        background: "rgba(148,163,184,0.12)",
+      };
+    default:
+      return {
+        color: "#cbd5e1",
+        border: "1px solid rgba(148,163,184,0.18)",
+        background: "rgba(255,255,255,0.04)",
+      };
+  }
+}
+
+function pillBase(): React.CSSProperties {
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    height: 28,
+    padding: "0 10px",
+    borderRadius: 999,
+    fontSize: 12,
+    fontWeight: 700,
+    whiteSpace: "nowrap",
+  };
+}
+
+function smallLabelStyle(): React.CSSProperties {
+  return {
+    fontSize: 11,
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    color: "rgba(148,163,184,0.86)",
+  };
+}
+
+function metricCard(label: string, value: string | number, tone?: "good" | "warning" | "neutral") {
+  let valueColor = "#f8fafc";
+  if (tone === "good") valueColor = "#86efac";
+  if (tone === "warning") valueColor = "#fdba74";
+
+  return (
+    <div
+      key={label}
+      style={{
+        minHeight: 84,
+        borderRadius: 18,
+        border: "1px solid rgba(255,255,255,0.08)",
+        background: "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))",
+        padding: 14,
+        display: "grid",
+        gap: 8,
+        alignContent: "start",
+      }}
+    >
+      <div style={smallLabelStyle()}>{label}</div>
+      <div style={{ fontSize: 26, lineHeight: 1, fontWeight: 900, color: valueColor }}>{value}</div>
+    </div>
+  );
+}
+
+function ProductCard(props: {
+  item: ProductRecord;
+  expanded: boolean;
+  onToggle: (id: string) => void;
+}) {
+  const { item, expanded, onToggle } = props;
+  const tone = statusTone(item);
+
+  return (
+    <article
+      style={{
+        borderRadius: 20,
+        border: "1px solid rgba(255,255,255,0.08)",
+        background: "linear-gradient(180deg, rgba(3,18,24,0.98), rgba(4,13,18,0.98))",
+        boxShadow: "0 12px 26px rgba(0,0,0,0.18)",
+        overflow: "hidden",
+      }}
+    >
+      <div style={{ padding: 16, display: "grid", gap: 14 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <div style={{ minWidth: 0, display: "grid", gap: 8 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <span style={{ ...pillBase(), ...toneStyles(tone) }}>{titleCase(item.approvalStatus || "unknown")}</span>
+              <span
+                style={{
+                  ...pillBase(),
+                  color: "#d1fae5",
+                  border: "1px solid rgba(16,185,129,0.20)",
+                  background: "rgba(16,185,129,0.08)",
+                }}
+              >
+                {item.group}
+              </span>
+              <span
+                style={{
+                  ...pillBase(),
+                  color: "#dbeafe",
+                  border: "1px solid rgba(59,130,246,0.20)",
+                  background: "rgba(59,130,246,0.08)",
+                }}
+              >
+                {item.family}
+              </span>
+            </div>
+
+            <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.06em", color: "#5eead4" }}>{item.sku}</div>
+            <div style={{ fontSize: 20, fontWeight: 900, lineHeight: 1.15, color: "#f8fafc" }}>{item.name}</div>
+            <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(226,232,240,0.78)" }}>{item.summary}</div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onToggle(item.id)}
+            style={{
+              flexShrink: 0,
+              width: 38,
+              height: 38,
+              borderRadius: 12,
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+              color: "#e2e8f0",
+              display: "grid",
+              placeItems: "center",
+              cursor: "pointer",
+            }}
+            title={expanded ? "Collapse details" : "Expand details"}
+          >
+            <ChevronDown
+              size={16}
+              style={{
+                transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 140ms ease",
+              }}
+            />
+          </button>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: 10,
+            paddingTop: 12,
+            borderTop: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <div style={{ display: "grid", gap: 4 }}>
+            <div style={smallLabelStyle()}>Category</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>{item.category}</div>
+          </div>
+          <div style={{ display: "grid", gap: 4 }}>
+            <div style={smallLabelStyle()}>Subcategory</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>{item.subcategory}</div>
+          </div>
+          <div style={{ display: "grid", gap: 4 }}>
+            <div style={smallLabelStyle()}>Vendor</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>{item.vendor}</div>
+          </div>
+          <div style={{ display: "grid", gap: 4 }}>
+            <div style={smallLabelStyle()}>Confidence</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>
+              {item.confidence === null ? "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â" : item.confidence.toFixed(2)}
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 8,
+            paddingTop: 12,
+            borderTop: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <span
+            style={{
+              ...pillBase(),
+              color: "#e2e8f0",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+            }}
+          >
+            Evidence {item.evidenceEntries ?? 0}
+          </span>
+
+          <span
+            style={{
+              ...pillBase(),
+              color: "#cbd5e1",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+            }}
+          >
+            {item.vendorType}
+          </span>
+
+          <span
+            style={{
+              ...pillBase(),
+              color: "#cbd5e1",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+            }}
+          >
+            {item.classificationSource}
+          </span>
+
+          {item.flagged ? (
+            <span
+              style={{
+                ...pillBase(),
+                color: "#fecaca",
+                border: "1px solid rgba(239,68,68,0.22)",
+                background: "rgba(239,68,68,0.10)",
+              }}
+            >
+              <ShieldAlert size={13} />
+              Review
+            </span>
+          ) : null}
+
+          {item.archived ? (
+            <span
+              style={{
+                ...pillBase(),
+                color: "#e2e8f0",
+                border: "1px solid rgba(148,163,184,0.22)",
+                background: "rgba(148,163,184,0.10)",
+              }}
+            >
+              <Archive size={13} />
+              Archived
+            </span>
+          ) : null}
+        </div>
+
+        {expanded ? (
+          <div
+            style={{
+              display: "grid",
+              gap: 12,
+              paddingTop: 14,
+              borderTop: "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gap: 10,
+              }}
+            >
+              <div
+                style={{
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.03)",
+                  padding: 12,
+                  display: "grid",
+                  gap: 6,
+                }}
+              >
+                <div style={smallLabelStyle()}>Last captured</div>
+                <div style={{ fontSize: 13, color: "#f8fafc" }}>{item.lastCaptured}</div>
+              </div>
+
+              <div
+                style={{
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.03)",
+                  padding: 12,
+                  display: "grid",
+                  gap: 6,
+                }}
+              >
+                <div style={smallLabelStyle()}>Last reviewed</div>
+                <div style={{ fontSize: 13, color: "#f8fafc" }}>{item.lastReviewed}</div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+              }}
+            >
+              <button
+                type="button"
+                style={{
+                  height: 34,
+                  padding: "0 12px",
+                  borderRadius: 10,
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.05)",
+                  color: "#e2e8f0",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Edit
+              </button>
+
+              <button
+                type="button"
+                style={{
+                  height: 34,
+                  padding: "0 12px",
+                  borderRadius: 10,
+                  border: "1px solid rgba(34,197,94,0.22)",
+                  background: "rgba(34,197,94,0.10)",
+                  color: "#bbf7d0",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Mark approved
+              </button>
+
+              <button
+                type="button"
+                style={{
+                  height: 34,
+                  padding: "0 12px",
+                  borderRadius: 10,
+                  border: "1px solid rgba(59,130,246,0.22)",
+                  background: "rgba(59,130,246,0.10)",
+                  color: "#bfdbfe",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Mark draft
+              </button>
+
+              <button
+                type="button"
+                style={{
+                  height: 34,
+                  padding: "0 12px",
+                  borderRadius: 10,
+                  border: "1px solid rgba(239,68,68,0.22)",
+                  background: "rgba(239,68,68,0.10)",
+                  color: "#fecaca",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Flag issue
+              </button>
+
+              {item.sourceLink ? (
+                <a
+                  href={item.sourceLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    height: 34,
+                    padding: "0 12px",
+                    borderRadius: 10,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.05)",
+                    color: "#e2e8f0",
+                    fontWeight: 700,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    textDecoration: "none",
+                  }}
+                >
+                  <ExternalLink size={14} />
+                  Source
+                </a>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </article>
+  );
 }
 
 export default function ProductIntelligencePage() {
-  const nav = useNavigate();
-  const auth = useAuth();
-  const canAdmin = Boolean(
-    auth.permissions.canManageWorkspace ||
-    auth.workspaceRole === "admin" ||
-    auth.workspaceRole === "owner" ||
-    auth.user?.role === "admin",
-  );
+  const [records, setRecords] = React.useState<ProductRecord[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const [search, setSearch] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState("all");
+  const [vendorFilter, setVendorFilter] = React.useState("all");
+  const [viewFilter, setViewFilter] = React.useState("active");
+  const [sortMode, setSortMode] = React.useState<SortMode>("sku");
+  const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
 
-  const [records, setRecords] = React.useState<ProductIntelligenceRecord[]>([]);
-  const [total, setTotal] = React.useState(0);
-  const [statusFilter, setStatusFilter] = React.useState<StatusOption>("all");
-  const [vendorTypeFilter, setVendorTypeFilter] = React.useState<VendorTypeOption>("all");
-  const [searchFilter, setSearchFilter] = React.useState("");
-  const [viewFilter, setViewFilter] = React.useState<ViewOption>("active");
-  const [loading, setLoading] = React.useState(false);
-  const [activeId, setActiveId] = React.useState("");
-  const [message, setMessage] = React.useState("");
-  const [warnings, setWarnings] = React.useState<string[]>([]);
-  const [summary, setSummary] = React.useState({
-    total: 0,
-    byStatus: { draft: 0, approved: 0, expired: 0 },
-    byVendorType: { wyrestorm: 0, competitor: 0 },
-    stale90Days: 0,
-    highConfidence: 0,
-  });
-  const [endpointAvailable, setEndpointAvailable] = React.useState(false);
-  const [healthUpdatedAt, setHealthUpdatedAt] = React.useState("");
-  const [evidenceBrand, setEvidenceBrand] = React.useState("WyreStorm");
-  const [evidenceSku, setEvidenceSku] = React.useState("");
-  const [evidenceType, setEvidenceType] = React.useState<"spec" | "io" | "compatibility" | "positioning" | "application" | "other">("spec");
-  const [evidenceLabel, setEvidenceLabel] = React.useState("");
-  const [evidenceValue, setEvidenceValue] = React.useState("");
-  const [evidenceSourceUrl, setEvidenceSourceUrl] = React.useState("");
-  const [editingRecordId, setEditingRecordId] = React.useState("");
-  const [editor, setEditor] = React.useState<EditorState>(EMPTY_EDITOR);
-  const [flagDrafts, setFlagDrafts] = React.useState<Record<string, string>>({});
+  const loadRecords = React.useCallback(async (silent = false) => {
+    try {
+      if (silent) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
 
-  const endpoint = getProductIntelligenceEndpoint();
-  const healthEndpoint = getProductIntelligenceHealthEndpoint();
-  const contractSummary = getProductIntelligenceContractSummary();
+      setError("");
 
-  const refresh = React.useCallback(async () => {
-    setLoading(true);
-    const queryResult = await fetchProductIntelligenceRecords({
-      vendorType: vendorTypeFilter === "all" ? undefined : vendorTypeFilter,
-      status: statusFilter === "all" ? undefined : statusFilter,
-      q: searchFilter || undefined,
-      limit: 4000,
-      includeArchived: true,
-    });
-    const health = await fetchProductIntelligenceHealth();
+      const candidateUrls = [
+        `PRODUCT_INTELLIGENCE_ENDPOINT`,
+        "http://127.0.0.1:8787/api/product-intelligence",
+        "http://127.0.0.1:8787/api/product-intelligence/records",
+        "http://127.0.0.1:8787/api/wingman/catalog/product-intelligence",
+        "http://127.0.0.1:8787/api/wingman/support/product-intelligence"
+      ];
 
-    setRecords(queryResult.records);
-    setTotal(queryResult.total);
-    setWarnings([...queryResult.warnings, ...health.warnings]);
-    setSummary(queryResult.summary);
-    setEndpointAvailable(queryResult.available);
-    setHealthUpdatedAt(health.updatedAt || health.generatedAt || health.fetchedAt);
-    setLoading(false);
-  }, [searchFilter, statusFilter, vendorTypeFilter]);
+      let response: Response | null = null;
+      let lastError = "";
+
+      for (const url of candidateUrls) {
+        try {
+          const attempt = await fetch(url, {
+            method: "GET",
+            headers: { Accept: "application/json" },
+          });
+
+          if (attempt.ok) {
+            response = attempt;
+            break;
+          }
+
+          lastError = `Request failed: ${attempt.status} for ${url}`;
+        } catch (err) {
+          lastError = err instanceof Error ? err.message : `Request failed for ${url}`;
+        }
+      }
+
+      if (!response) {
+        throw new Error(lastError || "No product intelligence endpoint responded.");
+      }
+
+      const raw = (await response.json()) as unknown;
+
+      let list: RemoteRecord[] = [];
+
+      if (Array.isArray(raw)) {
+        list = raw as RemoteRecord[];
+      } else if (raw && typeof raw === "object") {
+        const obj = raw as Record<string, unknown>;
+        if (Array.isArray(obj.records)) list = obj.records as RemoteRecord[];
+        else if (Array.isArray(obj.items)) list = obj.items as RemoteRecord[];
+        else if (Array.isArray(obj.results)) list = obj.results as RemoteRecord[];
+        else if (Array.isArray(obj.data)) list = obj.data as RemoteRecord[];
+      }
+
+      const normalised = list.map((item, index) => normaliseRecord(item, index));
+      setRecords(normalised);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unable to load product intelligence records.";
+      setError(message);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
   React.useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    void loadRecords(false);
+  }, [loadRecords]);
 
-  const visibleRecords = React.useMemo(() => records.filter((record) => {
-    if (viewFilter === "active") return !record.archived;
-    if (viewFilter === "flagged") return openFlagCount(record) > 0;
-    if (viewFilter === "archived") return Boolean(record.archived);
-    return true;
-  }), [records, viewFilter]);
+  const vendors = React.useMemo(() => {
+    return ["all", ...Array.from(new Set(records.map((r) => r.vendor).filter(Boolean))).sort((a, b) => a.localeCompare(b))];
+  }, [records]);
 
-  const openFlags = React.useMemo(
-    () => records.flatMap((record) => record.reviewFlags.filter((flag) => flag.status === "open").map((flag) => ({ record, flag }))),
-    [records],
-  );
+  const statuses = React.useMemo(() => {
+    return ["all", ...Array.from(new Set(records.map((r) => r.approvalStatus).filter(Boolean))).sort((a, b) => a.localeCompare(b))];
+  }, [records]);
 
-  const archivedCount = React.useMemo(() => records.filter((record) => record.archived).length, [records]);
-  const manualCount = React.useMemo(() => records.filter((record) => record.classificationSource === "manual").length, [records]);
+  const hasActiveFilters = React.useMemo(() => {
+    return (
+      search.trim().length > 0 ||
+      statusFilter !== "all" ||
+      vendorFilter !== "all" ||
+      viewFilter !== "active"
+    );
+  }, [search, statusFilter, vendorFilter, viewFilter]);
 
-  const updateStatus = React.useCallback(async (record: ProductIntelligenceRecord, status: ProductApprovalStatus) => {
-    const opId = `${record.id}:${status}`;
-    setActiveId(opId);
-    const result = await updateProductIntelligenceStatus({
-      brand: record.brand,
-      sku: record.sku,
-      vendorType: record.vendorType,
-      status,
-      reviewedBy: auth.user?.email || "wingman-support",
+  const filtered = React.useMemo(() => {
+    if (!hasActiveFilters) {
+      return [];
+    }
+
+    const q = search.trim().toLowerCase();
+
+    let list = records.filter((item) => {
+      const matchesSearch =
+        !q ||
+        item.sku.toLowerCase().includes(q) ||
+        item.name.toLowerCase().includes(q) ||
+        item.family.toLowerCase().includes(q) ||
+        item.group.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q) ||
+        item.subcategory.toLowerCase().includes(q) ||
+        item.vendor.toLowerCase().includes(q) ||
+        item.summary.toLowerCase().includes(q);
+
+      const matchesStatus = statusFilter === "all" || item.approvalStatus === statusFilter;
+      const matchesVendor = vendorFilter === "all" || item.vendor === vendorFilter;
+      const matchesView =
+        viewFilter === "all" ||
+        (viewFilter === "active" && !item.archived) ||
+        (viewFilter === "archived" && item.archived) ||
+        (viewFilter === "review" && item.flagged);
+
+      return matchesSearch && matchesStatus && matchesVendor && matchesView;
     });
-    setActiveId("");
-    setMessage(result.message);
-    if (result.warnings.length > 0) setWarnings((prev) => [...result.warnings, ...prev].slice(0, 12));
-    await refresh();
-  }, [auth.user?.email, refresh]);
 
-  const refreshCatalogSeed = React.useCallback(async () => {
-    setActiveId("refresh-seed");
-    const result = await refreshProductIntelligenceCatalogSeed();
-    setActiveId("");
-    setMessage(result.message);
-    if (result.warnings.length > 0) setWarnings((prev) => [...result.warnings, ...prev].slice(0, 12));
-    await refresh();
-  }, [refresh]);
+    list = [...list].sort((a, b) => {
+      if (sortMode === "family") {
+        return a.family.localeCompare(b.family) || a.sku.localeCompare(b.sku);
+      }
 
-  const submitEvidence = React.useCallback(async () => {
-    const brand = evidenceBrand.trim();
-    const sku = evidenceSku.trim();
-    const label = evidenceLabel.trim();
-    const value = evidenceValue.trim();
-    if (!brand || !sku || !label || !value) {
-      setMessage("Evidence requires brand, SKU, label, and value.");
-      return;
-    }
+      if (sortMode === "status") {
+        const aRank = STATUS_ORDER[a.approvalStatus] ?? STATUS_ORDER.unknown;
+        const bRank = STATUS_ORDER[b.approvalStatus] ?? STATUS_ORDER.unknown;
+        return aRank - bRank || a.sku.localeCompare(b.sku);
+      }
 
-    setActiveId("add-evidence");
-    const result = await addProductIntelligenceEvidence({
-      vendorType: brand.toLowerCase() === "wyrestorm" ? "wyrestorm" : "competitor",
-      brand,
-      sku,
-      type: evidenceType,
-      label,
-      value,
-      sourceUrl: evidenceSourceUrl.trim() || undefined,
-      confidence: 0.76,
-      notes: "Captured by product-intelligence workflow",
+      if (sortMode === "confidence") {
+        const aVal = a.confidence ?? -1;
+        const bVal = b.confidence ?? -1;
+        return bVal - aVal || a.sku.localeCompare(b.sku);
+      }
+
+      return a.sku.localeCompare(b.sku);
     });
-    setActiveId("");
-    setMessage(result.message);
-    if (result.warnings.length > 0) setWarnings((prev) => [...result.warnings, ...prev].slice(0, 12));
-    setEvidenceLabel("");
-    setEvidenceValue("");
-    setEvidenceSourceUrl("");
-    await refresh();
-  }, [evidenceBrand, evidenceLabel, evidenceSku, evidenceSourceUrl, evidenceType, evidenceValue, refresh]);
 
-  const beginCreate = React.useCallback(() => {
-    setEditingRecordId("new");
-    setEditor(EMPTY_EDITOR);
-  }, []);
+    return list;
+  }, [records, search, statusFilter, vendorFilter, viewFilter, sortMode, hasActiveFilters]);
 
-  const beginEdit = React.useCallback((record: ProductIntelligenceRecord) => {
-    setEditingRecordId(record.id);
-    setEditor(editorFromRecord(record));
-    setEvidenceBrand(record.brand);
-    setEvidenceSku(record.sku);
-  }, []);
+  const health = React.useMemo<HealthSummary>(() => {
+    const approved = records.filter((r) => statusTone(r) === "approved").length;
+    const openFlags = records.filter((r) => r.flagged).length;
+    const archived = records.filter((r) => r.archived).length;
+    const highConfidence = records.filter((r) => (r.confidence ?? 0) >= 0.85).length;
+    const manualOverrides = records.filter((r) => r.classificationSource.toLowerCase().includes("manual")).length;
 
-  const cancelEdit = React.useCallback(() => {
-    setEditingRecordId("");
-    setEditor(EMPTY_EDITOR);
-  }, []);
-
-  const saveEditor = React.useCallback(async () => {
-    if (!canAdmin) {
-      setMessage("Only administrators can edit catalogue records.");
-      return;
-    }
-
-    const brand = editor.brand.trim();
-    const sku = editor.sku.trim();
-    const family = editor.family.trim();
-    const name = editor.name.trim();
-    if (!brand || !sku || !family || !name) {
-      setMessage("Brand, SKU, family, and name are required.");
-      return;
-    }
-
-    setActiveId(`save:${editingRecordId || sku}`);
-    const result = await upsertProductIntelligenceRecord({
-      vendorType: editor.vendorType,
-      brand,
-      sku,
-      name,
-      family,
-      group: editor.group,
-      category: editor.category.trim(),
-      subcategory: editor.subcategory.trim() || undefined,
-      summary: editor.summary.trim(),
-      transport: editor.transport.trim() || undefined,
-      sourceUrls: editor.sourceUrl.trim() ? [editor.sourceUrl.trim()] : [],
-      status: editor.status,
-      confidence: Number(editor.confidence) || 0.78,
-      features: splitCommaValues(editor.features),
-      notes: editor.notes.trim() || undefined,
-      classificationSource: "manual",
-      sourceType: "manual",
-    });
-    setActiveId("");
-    setMessage(result.message);
-    if (result.warnings.length > 0) setWarnings((prev) => [...result.warnings, ...prev].slice(0, 12));
-    cancelEdit();
-    await refresh();
-  }, [canAdmin, cancelEdit, editor, editingRecordId, refresh]);
-
-  const toggleArchive = React.useCallback(async (record: ProductIntelligenceRecord, archived: boolean) => {
-    if (!canAdmin) {
-      setMessage("Only administrators can remove or restore records.");
-      return;
-    }
-    setActiveId(`${record.id}:${archived ? "archive" : "restore"}`);
-    const result = await setProductIntelligenceRecordArchived({
-      vendorType: record.vendorType,
-      brand: record.brand,
-      sku: record.sku,
+    return {
+      visibleRecords: filtered.length,
+      approved,
+      openFlags,
       archived,
-      reviewedBy: auth.user?.email || "wingman-admin",
-      note: archived ? "Removed from active catalogue by administrator." : "Restored to active catalogue by administrator.",
-      record,
-    });
-    setActiveId("");
-    setMessage(result.message);
-    if (result.warnings.length > 0) setWarnings((prev) => [...result.warnings, ...prev].slice(0, 12));
-    await refresh();
-  }, [auth.user?.email, canAdmin, refresh]);
+      highConfidence,
+      manualOverrides,
+      matchingTotal: records.length,
+      endpointStatus: error ? "Offline" : "Online",
+    };
+  }, [records, filtered, error]);
 
-  const submitFlag = React.useCallback(async (record: ProductIntelligenceRecord) => {
-    const note = flagDrafts[record.id]?.trim();
-    setActiveId(`${record.id}:flag`);
-    const result = await flagProductIntelligenceRecord({
-      vendorType: record.vendorType,
-      brand: record.brand,
-      sku: record.sku,
-      kind: "categorisation",
-      message: note || `Review the family/category/group association for ${record.brand} ${record.sku}.`,
-      note: note ? "Flag raised from product-intelligence maintenance view." : undefined,
-      source: "product-intelligence",
-      createdBy: auth.user?.email || "wingman-user",
-      record,
-    });
-    setActiveId("");
-    setMessage(result.message);
-    setFlagDrafts((prev) => ({ ...prev, [record.id]: "" }));
-    if (result.warnings.length > 0) setWarnings((prev) => [...result.warnings, ...prev].slice(0, 12));
-    await refresh();
-  }, [auth.user?.email, flagDrafts, refresh]);
+  function toggleExpanded(id: string) {
+    setExpanded((current) => ({
+      ...current,
+      [id]: !current[id],
+    }));
+  }
 
-  const resolveFlag = React.useCallback(async (record: ProductIntelligenceRecord, flag: ProductReviewFlag) => {
-    if (!canAdmin) {
-      setMessage("Only administrators can resolve review flags.");
-      return;
-    }
-    setActiveId(`${record.id}:${flag.id}:resolve`);
-    const result = await updateProductIntelligenceFlagStatus({
-      vendorType: record.vendorType,
-      brand: record.brand,
-      sku: record.sku,
-      flagId: flag.id,
-      status: "resolved",
-      resolvedBy: auth.user?.email || "wingman-admin",
-      note: "Resolved from product-intelligence maintenance view.",
-      record,
+  function cycleSort() {
+    setSortMode((current) => {
+      if (current === "sku") return "family";
+      if (current === "family") return "status";
+      if (current === "status") return "confidence";
+      return "sku";
     });
-    setActiveId("");
-    setMessage(result.message);
-    if (result.warnings.length > 0) setWarnings((prev) => [...result.warnings, ...prev].slice(0, 12));
-    await refresh();
-  }, [auth.user?.email, canAdmin, refresh]);
+  }
 
   return (
-    <div className="wm-page wm-product-intel-page">
-      <section className="wm-hero">
-        <div className="wm-page-hero-row">
-          <div className="wm-grid">
-            <div className="wm-title-xl">Product Intelligence</div>
-            <div className="wm-body-sm wm-page-subtitle">
-              Maintain trusted WyreStorm and competitor records with explicit group, category, and subcategory control.
-              Flags, local overrides, and archive state now feed the live catalogue view.
+    <div
+      className="wm-page"
+      style={{
+        display: "grid",
+        gap: 18,
+      }}
+    >
+      <section
+        className="wm-card"
+        style={{
+          borderRadius: 24,
+          border: "1px solid rgba(255,255,255,0.08)",
+          background: "linear-gradient(135deg, rgba(4,24,34,0.98), rgba(3,16,24,0.98))",
+          boxShadow: "0 22px 48px rgba(0,0,0,0.18)",
+          padding: 18,
+          display: "grid",
+          gap: 16,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+          <div style={{ display: "grid", gap: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase", color: "#5eead4" }}>
+              Product intelligence
+            </div>
+            <div style={{ fontSize: 36, lineHeight: 1, fontWeight: 900, color: "#f8fafc" }}>
+              Compact review workspace
+            </div>
+            <div style={{ maxWidth: 900, fontSize: 14, lineHeight: 1.55, color: "rgba(226,232,240,0.76)" }}>
+              Lighter record browsing, smaller cards, stronger field grouping, and progressive detail expansion instead of full-width maintenance walls.
             </div>
           </div>
-          <div className="wm-actions-row">
-            <button type="button" className="wm-btn" onClick={() => nav("/app/tools/catalog")}>Product Reference</button>
-            <button type="button" className="wm-btn" onClick={() => nav("/app/tools")}>Tool Hub</button>
-            <button type="button" className="wm-btn" onClick={() => void refresh()} disabled={loading}>{loading ? "Refreshing..." : "Refresh"}</button>
-            <button type="button" className="wm-btn wm-btn-primary" onClick={() => void refreshCatalogSeed()} disabled={activeId === "refresh-seed"}>
-              {activeId === "refresh-seed" ? "Refreshing Seed..." : "Refresh Catalog Seed"}
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              onClick={() => void loadRecords(true)}
+              style={{
+                height: 40,
+                padding: "0 14px",
+                borderRadius: 12,
+                border: "1px solid rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.05)",
+                color: "#f8fafc",
+                fontWeight: 800,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                cursor: "pointer",
+              }}
+            >
+              <RefreshCw size={15} className={refreshing ? "wm-spin" : ""} />
+              {refreshing ? "Refreshing" : "Refresh"}
+            </button>
+
+            <button
+              type="button"
+              onClick={cycleSort}
+              style={{
+                height: 40,
+                padding: "0 14px",
+                borderRadius: 12,
+                border: "1px solid rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.05)",
+                color: "#f8fafc",
+                fontWeight: 800,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                cursor: "pointer",
+              }}
+            >
+              <ArrowUpDown size={15} />
+              Sort: {sortMode}
             </button>
           </div>
         </div>
-      </section>
 
-      <section className="wm-section">
-        <CollapsibleCard
-          id="product-intelligence-health"
-          title="Health snapshot"
-          subtitle="Endpoint and record health indicators."
-          right={<span className="wm-chip">{endpointAvailable ? "Online" : "Fallback"}</span>}
-          defaultCollapsed
+        <div
+          style={{
+            display: "grid",
+            gap: 12,
+            gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+          }}
         >
-          <div className="wm-grid-cards wm-product-intel-page__stats">
-            <article className="wm-work-card"><div className="wm-section-title">Endpoint status</div><div className="wm-title-lg wm-product-intel-page__meta">{endpointAvailable ? "Online" : "Fallback mode"}</div></article>
-            <article className="wm-work-card"><div className="wm-section-title">Visible records</div><div className="wm-title-lg">{visibleRecords.length}</div></article>
-            <article className="wm-work-card"><div className="wm-section-title">Matching total</div><div className="wm-title-lg">{total}</div></article>
-            <article className="wm-work-card"><div className="wm-section-title">Open flags</div><div className="wm-title-lg">{openFlags.length}</div></article>
-            <article className="wm-work-card"><div className="wm-section-title">Archived</div><div className="wm-title-lg">{archivedCount}</div></article>
-            <article className="wm-work-card"><div className="wm-section-title">Manual overrides</div><div className="wm-title-lg">{manualCount}</div></article>
-            <article className="wm-work-card"><div className="wm-section-title">Approved</div><div className="wm-title-lg">{summary.byStatus.approved}</div></article>
-            <article className="wm-work-card"><div className="wm-section-title">High confidence</div><div className="wm-title-lg">{summary.highConfidence}</div></article>
-          </div>
-        </CollapsibleCard>
-      </section>
-
-      <section className="wm-section">
-        <CollapsibleCard
-          id="product-intelligence-contract-endpoint"
-          title="Contract and endpoint"
-          subtitle={contractSummary}
-          defaultCollapsed
-        >
-          <div className="wm-product-intel-page__meta-grid">
-            <div><span>Data endpoint:</span><strong>{endpoint ?? "Not configured"}</strong></div>
-            <div><span>Health endpoint:</span><strong>{healthEndpoint ?? "Not configured"}</strong></div>
-            <div><span>Health updated:</span><strong>{formatTimestamp(healthUpdatedAt)}</strong></div>
-          </div>
-        </CollapsibleCard>
-      </section>
-
-      <section className="wm-section">
-        <CollapsibleCard
-          id="product-intelligence-review-queue"
-          title="Review queue"
-          subtitle="Open issues raised for family, category, group, or source-link investigation."
-          right={<span className={openFlags.length > 0 ? "wm-chip wm-chip--warn" : "wm-chip"}>{openFlags.length} open</span>}
-          defaultCollapsed={openFlags.length === 0}
-        >
-          {openFlags.length === 0 ? (
-            <div className="wm-body-sm">No open review flags at the moment.</div>
-          ) : (
-            <div className="wm-product-intel-page__flag-queue">
-              {openFlags.map(({ record, flag }) => (
-                <article key={`${record.id}:${flag.id}`} className="wm-work-card wm-product-intel-page__flag-card">
-                  <div className="wm-product-intel-page__record-head">
-                    <strong>{record.brand} {record.sku}</strong>
-                    <span className="wm-chip">{formatFlagKind(flag.kind)}</span>
-                  </div>
-                  <div className="wm-body-sm">{flag.message}</div>
-                  <div className="wm-body-sm wm-product-intel-page__record-summary">{record.family} / {record.group} / {record.category}{record.subcategory ? ` / ${record.subcategory}` : ""}</div>
-                  <div className="wm-body-sm">Raised by {flag.createdBy} on {formatTimestamp(flag.createdAt)}</div>
-                  {flag.note ? <div className="wm-body-sm">{flag.note}</div> : null}
-                  <div className="wm-actions-row">
-                    <button type="button" className="wm-btn" onClick={() => beginEdit(record)}>Edit record</button>
-                    {canAdmin ? (
-                      <button type="button" className="wm-btn" disabled={activeId === `${record.id}:${flag.id}:resolve`} onClick={() => void resolveFlag(record, flag)}>
-                        {activeId === `${record.id}:${flag.id}:resolve` ? "Saving..." : "Resolve flag"}
-                      </button>
-                    ) : null}
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </CollapsibleCard>
-      </section>
-
-      <section className="wm-section">
-        <div className="wm-section__head">
-          <div className="wm-section__titles"><h2>Filters</h2><p>Narrow by approval state, vendor, search term, or review view.</p></div>
-        </div>
-        <div className="wm-product-intel-page__filters wm-product-intel-page__filters--wide">
-          <label className="wm-product-intel-page__filter"><span>Status</span><select className="wm-form-input" value={statusFilter} onChange={(event) => setStatusFilter(event.currentTarget.value as StatusOption)}><option value="all">All statuses</option><option value="approved">Approved</option><option value="draft">Draft</option><option value="expired">Expired</option></select></label>
-          <label className="wm-product-intel-page__filter"><span>Vendor</span><select className="wm-form-input" value={vendorTypeFilter} onChange={(event) => setVendorTypeFilter(event.currentTarget.value as VendorTypeOption)}><option value="all">All vendors</option><option value="wyrestorm">WyreStorm</option><option value="competitor">Competitor</option></select></label>
-          <label className="wm-product-intel-page__filter"><span>View</span><select className="wm-form-input" value={viewFilter} onChange={(event) => setViewFilter(event.currentTarget.value as ViewOption)}><option value="active">Active</option><option value="flagged">Flagged</option><option value="archived">Archived</option><option value="all">All records</option></select></label>
-          <label className="wm-product-intel-page__filter wm-product-intel-page__filter--search"><span>Search</span><input className="wm-form-input" value={searchFilter} onChange={(event) => setSearchFilter(event.currentTarget.value)} placeholder="brand, sku, family, group, category..." /></label>
+          {metricCard("Endpoint status", health.endpointStatus, health.endpointStatus === "Online" ? "good" : "warning")}
+          {metricCard("Visible records", health.visibleRecords)}
+          {metricCard("Approved", health.approved, "good")}
+          {metricCard("Open flags", health.openFlags, health.openFlags > 0 ? "warning" : "neutral")}
+          {metricCard("Archived", health.archived)}
+          {metricCard("High confidence", health.highConfidence)}
+          {metricCard("Manual overrides", health.manualOverrides)}
+          {metricCard("Matching total", health.matchingTotal)}
         </div>
       </section>
 
-      <section className="wm-section">
-        <CollapsibleCard
-          id={`product-intelligence-record-maintenance-${editingRecordId ? "editing" : "idle"}`}
-          title="Record maintenance"
-          subtitle="Correct SKU grouping, add missing entries, or update classifications."
-          right={<span className="wm-chip">{canAdmin ? "Admin" : "Read only"}</span>}
-          defaultCollapsed={!editingRecordId}
-        >
-          <div className="wm-actions-row" style={{ marginBottom: 10 }}>
-            <button type="button" className="wm-btn" onClick={beginCreate}>Add new entry</button>
-            {!canAdmin ? <span className="wm-chip">Admin controls locked</span> : null}
-          </div>
-          <div className="wm-product-intel-page__editor">
-            <label className="wm-product-intel-page__filter"><span>Vendor type</span><select className="wm-form-input" value={editor.vendorType} onChange={(event) => setEditor((prev) => ({ ...prev, vendorType: event.currentTarget.value as ProductVendorType }))}><option value="wyrestorm">WyreStorm</option><option value="competitor">Competitor</option></select></label>
-            <label className="wm-product-intel-page__filter"><span>Brand</span><input className="wm-form-input" value={editor.brand} onChange={(event) => setEditor((prev) => ({ ...prev, brand: event.currentTarget.value }))} /></label>
-            <label className="wm-product-intel-page__filter"><span>SKU</span><input className="wm-form-input" value={editor.sku} onChange={(event) => setEditor((prev) => ({ ...prev, sku: event.currentTarget.value.toUpperCase() }))} /></label>
-            <label className="wm-product-intel-page__filter wm-product-intel-page__filter--span-2"><span>Name</span><input className="wm-form-input" value={editor.name} onChange={(event) => setEditor((prev) => ({ ...prev, name: event.currentTarget.value }))} /></label>
-            <label className="wm-product-intel-page__filter"><span>Family</span><input className="wm-form-input" value={editor.family} onChange={(event) => setEditor((prev) => ({ ...prev, family: event.currentTarget.value }))} /></label>
-            <label className="wm-product-intel-page__filter"><span>Group</span><select className="wm-form-input" value={editor.group} onChange={(event) => setEditor((prev) => ({ ...prev, group: event.currentTarget.value as ProductIntelligenceRecord["group"] }))}>{GROUP_OPTIONS.map((group) => <option key={group} value={group}>{group}</option>)}</select></label>
-            <label className="wm-product-intel-page__filter"><span>Category</span><input className="wm-form-input" value={editor.category} onChange={(event) => setEditor((prev) => ({ ...prev, category: event.currentTarget.value }))} /></label>
-            <label className="wm-product-intel-page__filter"><span>Subcategory</span><input className="wm-form-input" value={editor.subcategory} onChange={(event) => setEditor((prev) => ({ ...prev, subcategory: event.currentTarget.value }))} /></label>
-            <label className="wm-product-intel-page__filter"><span>Status</span><select className="wm-form-input" value={editor.status} onChange={(event) => setEditor((prev) => ({ ...prev, status: event.currentTarget.value as ProductApprovalStatus }))}><option value="approved">Approved</option><option value="draft">Draft</option><option value="expired">Expired</option></select></label>
-            <label className="wm-product-intel-page__filter"><span>Confidence</span><input className="wm-form-input" value={editor.confidence} onChange={(event) => setEditor((prev) => ({ ...prev, confidence: event.currentTarget.value }))} /></label>
-            <label className="wm-product-intel-page__filter"><span>Transport</span><input className="wm-form-input" value={editor.transport} onChange={(event) => setEditor((prev) => ({ ...prev, transport: event.currentTarget.value }))} /></label>
-            <label className="wm-product-intel-page__filter wm-product-intel-page__filter--span-2"><span>Source URL</span><input className="wm-form-input" value={editor.sourceUrl} onChange={(event) => setEditor((prev) => ({ ...prev, sourceUrl: event.currentTarget.value }))} /></label>
-            <label className="wm-product-intel-page__filter wm-product-intel-page__filter--span-2"><span>Features</span><input className="wm-form-input" value={editor.features} onChange={(event) => setEditor((prev) => ({ ...prev, features: event.currentTarget.value }))} placeholder="wireless casting, usb-c, dual view" /></label>
-            <label className="wm-product-intel-page__filter wm-product-intel-page__filter--full"><span>Summary</span><textarea className="wm-form-input" rows={3} value={editor.summary} onChange={(event) => setEditor((prev) => ({ ...prev, summary: event.currentTarget.value }))} /></label>
-            <label className="wm-product-intel-page__filter wm-product-intel-page__filter--full"><span>Notes</span><textarea className="wm-form-input" rows={3} value={editor.notes} onChange={(event) => setEditor((prev) => ({ ...prev, notes: event.currentTarget.value }))} /></label>
-            <div className="wm-product-intel-page__editor-actions">
-              <button type="button" className="wm-btn" onClick={cancelEdit}>Clear</button>
-              <button type="button" className="wm-btn wm-btn-primary" onClick={() => void saveEditor()} disabled={!canAdmin || activeId === `save:${editingRecordId || editor.sku}`}>
-                {activeId === `save:${editingRecordId || editor.sku}` ? "Saving..." : editingRecordId === "new" ? "Add entry" : "Save changes"}
-              </button>
-            </div>
-          </div>
-        </CollapsibleCard>
-      </section>
-
-      <section className="wm-section">
-        <CollapsibleCard
-          id="product-intelligence-evidence"
-          title="Evidence capture"
-          subtitle="Add source-backed evidence to improve trust and classification confidence."
-          defaultCollapsed
-        >
-          <div className="wm-product-intel-page__evidence">
-            <label><span>Brand</span><input className="wm-form-input" value={evidenceBrand} onChange={(event) => setEvidenceBrand(event.currentTarget.value)} placeholder="WyreStorm" /></label>
-            <label><span>SKU</span><input className="wm-form-input" value={evidenceSku} onChange={(event) => setEvidenceSku(event.currentTarget.value)} placeholder="EX-70-H2" /></label>
-            <label><span>Type</span><select className="wm-form-input" value={evidenceType} onChange={(event) => setEvidenceType(event.currentTarget.value as typeof evidenceType)}><option value="spec">Spec</option><option value="io">I/O</option><option value="compatibility">Compatibility</option><option value="positioning">Positioning</option><option value="application">Application</option><option value="other">Other</option></select></label>
-            <label className="wm-product-intel-page__evidence-wide"><span>Label</span><input className="wm-form-input" value={evidenceLabel} onChange={(event) => setEvidenceLabel(event.currentTarget.value)} placeholder="HDBaseT distance capability" /></label>
-            <label className="wm-product-intel-page__evidence-wide"><span>Evidence value</span><input className="wm-form-input" value={evidenceValue} onChange={(event) => setEvidenceValue(event.currentTarget.value)} placeholder="Supports up to 70m over Cat6." /></label>
-            <label className="wm-product-intel-page__evidence-wide"><span>Source URL</span><input className="wm-form-input" value={evidenceSourceUrl} onChange={(event) => setEvidenceSourceUrl(event.currentTarget.value)} placeholder="https://..." /></label>
-            <div className="wm-product-intel-page__evidence-actions">
-              <button type="button" className="wm-btn wm-btn-primary" onClick={() => void submitEvidence()} disabled={activeId === "add-evidence"}>{activeId === "add-evidence" ? "Saving..." : "Add evidence"}</button>
-            </div>
-          </div>
-        </CollapsibleCard>
-      </section>
-
-      <section className="wm-section">
-        <div className="wm-section__head">
-          <div className="wm-section__titles"><h2>Records</h2><p>Review the live classification, flag incorrect SKU associations, and maintain the active catalogue set.</p></div>
+      <section
+        className="wm-card"
+        style={{
+          borderRadius: 20,
+          border: "1px solid rgba(255,255,255,0.08)",
+          background: "rgba(3,14,20,0.92)",
+          padding: 16,
+          display: "grid",
+          gap: 14,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#f8fafc", fontWeight: 900 }}>
+          <SlidersHorizontal size={16} />
+          Filters
         </div>
-        {message ? <div className="wm-body-sm wm-product-intel-page__message">{message}</div> : null}
-        {warnings.length > 0 ? <div className="wm-product-intel-page__warnings">{warnings.slice(0, 12).map((warning, index) => <div key={`${warning}_${index}`} className="wm-product-intel-page__warning-item">{warning}</div>)}</div> : null}
-        {visibleRecords.length === 0 ? (
-          <div className="wm-body">No product intelligence records found for the selected filters.</div>
-        ) : (
-          <div className="wm-product-intel-page__records">
-            {visibleRecords.map((record) => {
-              const approveId = `${record.id}:approved`;
-              const draftId = `${record.id}:draft`;
-              const expireId = `${record.id}:expired`;
-              const archiveId = `${record.id}:${record.archived ? "restore" : "archive"}`;
-              return (
-                <article key={record.id} className="wm-panel">
-                  <div className="wm-product-intel-page__record">
-                    <div className="wm-product-intel-page__record-head">
-                      <strong>{record.brand} {record.sku}</strong>
-                      <div className="wm-actions-row">
-                        <span className={statusChipClass(record.status)}>{record.status}</span>
-                        <span className="wm-chip">{record.group}</span>
-                        {record.archived ? <span className="wm-chip wm-chip--warn">Archived</span> : null}
-                        {openFlagCount(record) > 0 ? <span className="wm-chip wm-chip--warn">{openFlagCount(record)} open flag(s)</span> : null}
-                      </div>
-                    </div>
-                    <div className="wm-product-intel-page__record-grid">
-                      <div><span>Name</span><strong>{record.name}</strong></div>
-                      <div><span>Vendor type</span><strong>{record.vendorType}</strong></div>
-                      <div><span>Family</span><strong>{record.family}</strong></div>
-                      <div><span>Group</span><strong>{record.group}</strong></div>
-                      <div><span>Category</span><strong>{record.category}</strong></div>
-                      <div><span>Subcategory</span><strong>{record.subcategory || "-"}</strong></div>
-                      <div><span>Classification source</span><strong>{record.classificationSource}</strong></div>
-                      <div><span>Confidence</span><strong>{record.confidence.toFixed(2)}</strong></div>
-                      <div><span>Evidence entries</span><strong>{record.evidence.length}</strong></div>
-                      <div><span>Last captured</span><strong>{formatTimestamp(record.lastCapturedAt)}</strong></div>
-                      <div><span>Last reviewed</span><strong>{formatTimestamp(record.lastReviewedAt)}</strong></div>
-                      <div><span>Source link</span><strong>{record.sourceUrls[0] || "-"}</strong></div>
-                    </div>
-                    <div className="wm-body-sm wm-product-intel-page__record-summary">{record.summary}</div>
-                    {record.reviewFlags.length > 0 ? (
-                      <div className="wm-product-intel-page__record-flags">
-                        {record.reviewFlags.map((flag) => (
-                          <div key={flag.id} className="wm-product-intel-page__record-flag">
-                            <div className="wm-product-intel-page__record-head">
-                              <strong>{formatFlagKind(flag.kind)}</strong>
-                              <span className={flag.status === "resolved" ? "wm-chip" : "wm-chip wm-chip--warn"}>{flag.status}</span>
-                            </div>
-                            <div className="wm-body-sm">{flag.message}</div>
-                            <div className="wm-body-sm">{flag.createdBy} �f�?s· {formatTimestamp(flag.createdAt)}{flag.resolvedAt ? ` �f�?s· resolved ${formatTimestamp(flag.resolvedAt)}` : ""}</div>
-                            {flag.note ? <div className="wm-body-sm">{flag.note}</div> : null}
-                            {flag.status === "open" && canAdmin ? <button type="button" className="wm-btn" disabled={activeId === `${record.id}:${flag.id}:resolve`} onClick={() => void resolveFlag(record, flag)}>{activeId === `${record.id}:${flag.id}:resolve` ? "Saving..." : "Resolve flag"}</button> : null}
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
-                    <label className="wm-product-intel-page__flag-entry">
-                      <span>Flag for review</span>
-                      <textarea className="wm-form-input" rows={2} value={flagDrafts[record.id] || ""} onChange={(event) => setFlagDrafts((prev) => ({ ...prev, [record.id]: event.currentTarget.value }))} placeholder="Describe the incorrect category, family, group, or association." />
-                    </label>
-                    <div className="wm-product-intel-page__record-actions">
-                      <button type="button" className="wm-btn" disabled={activeId === `${record.id}:flag`} onClick={() => void submitFlag(record)}>{activeId === `${record.id}:flag` ? "Saving..." : "Flag issue"}</button>
-                      <button type="button" className="wm-btn" onClick={() => beginEdit(record)}>Edit</button>
-                      {canAdmin ? <>
-                        <button type="button" className="wm-btn" disabled={activeId === approveId} onClick={() => void updateStatus(record, "approved")}>{activeId === approveId ? "Saving..." : "Mark approved"}</button>
-                        <button type="button" className="wm-btn" disabled={activeId === draftId} onClick={() => void updateStatus(record, "draft")}>{activeId === draftId ? "Saving..." : "Mark draft"}</button>
-                        <button type="button" className="wm-btn" disabled={activeId === expireId} onClick={() => void updateStatus(record, "expired")}>{activeId === expireId ? "Saving..." : "Mark expired"}</button>
-                        <button type="button" className="wm-btn" disabled={activeId === archiveId} onClick={() => void toggleArchive(record, !record.archived)}>{activeId === archiveId ? "Saving..." : record.archived ? "Restore entry" : "Remove from catalogue"}</button>
-                      </> : null}
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
+
+        <div
+          style={{
+            display: "grid",
+            gap: 12,
+            gridTemplateColumns: "minmax(240px, 2fr) repeat(3, minmax(160px, 1fr))",
+          }}
+        >
+          <label
+            style={{
+              height: 46,
+              borderRadius: 14,
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "0 14px",
+            }}
+          >
+            <Search size={16} color="#5eead4" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search brand, SKU, family, group, category..."
+              style={{
+                flex: 1,
+                background: "transparent",
+                border: "none",
+                outline: "none",
+                color: "#f8fafc",
+                fontSize: 14,
+              }}
+            />
+          </label>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{
+              height: 46,
+              borderRadius: 14,
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+              color: "#f8fafc",
+              padding: "0 14px",
+            }}
+          >
+            {statuses.map((status) => (
+              <option key={status} value={status} style={{ background: "#07141a", color: "#f8fafc" }}>
+                {status === "all" ? "All statuses" : titleCase(status)}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={vendorFilter}
+            onChange={(e) => setVendorFilter(e.target.value)}
+            style={{
+              height: 46,
+              borderRadius: 14,
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+              color: "#f8fafc",
+              padding: "0 14px",
+            }}
+          >
+            {vendors.map((vendor) => (
+              <option key={vendor} value={vendor} style={{ background: "#07141a", color: "#f8fafc" }}>
+                {vendor === "all" ? "All vendors" : vendor}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={viewFilter}
+            onChange={(e) => setViewFilter(e.target.value)}
+            style={{
+              height: 46,
+              borderRadius: 14,
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+              color: "#f8fafc",
+              padding: "0 14px",
+            }}
+          >
+            <option value="active" style={{ background: "#07141a", color: "#f8fafc" }}>Active</option>
+            <option value="all" style={{ background: "#07141a", color: "#f8fafc" }}>All records</option>
+            <option value="review" style={{ background: "#07141a", color: "#f8fafc" }}>Review queue</option>
+            <option value="archived" style={{ background: "#07141a", color: "#f8fafc" }}>Archived</option>
+          </select>
+        </div>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          <span
+            style={{
+              ...pillBase(),
+              color: "#cbd5e1",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+            }}
+          >
+            <Filter size={13} />
+            {filtered.length} shown
+          </span>
+
+          <span
+            style={{
+              ...pillBase(),
+              color: "#cbd5e1",
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+            }}
+          >
+            <Tag size={13} />
+            {statusFilter === "all" ? "All statuses" : titleCase(statusFilter)}
+          </span>
+        </div>
       </section>
+
+      {error ? (
+        <section
+          className="wm-card"
+          style={{
+            borderRadius: 18,
+            border: "1px solid rgba(239,68,68,0.18)",
+            background: "rgba(127,29,29,0.18)",
+            padding: 16,
+            color: "#fecaca",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          <XCircle size={18} />
+          {error}
+        </section>
+      ) : null}
+
+      {loading ? (
+        <section
+          className="wm-card"
+          style={{
+            borderRadius: 20,
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(3,14,20,0.92)",
+            padding: 18,
+            color: "#cbd5e1",
+          }}
+        >
+          Loading product intelligence recordsÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦
+        </section>
+      ) : (
+        <section
+          style={{
+            display: "grid",
+            gap: 16,
+            gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+          }}
+        >
+          {filtered.map((item) => (
+            <ProductCard
+              key={item.id}
+              item={item}
+              expanded={!!expanded[item.id]}
+              onToggle={toggleExpanded}
+            />
+          ))}
+        </section>
+      )}
+
+      {!loading && !error && !hasActiveFilters ? (
+        <section
+          className="wm-card"
+          style={{
+            borderRadius: 20,
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(3,14,20,0.92)",
+            padding: 24,
+            display: "grid",
+            gap: 10,
+          }}
+        >
+          <div style={{ fontSize: 18, fontWeight: 900, color: "#f8fafc" }}>
+            Start with a filter or search
+          </div>
+          <div style={{ fontSize: 14, color: "rgba(226,232,240,0.74)", maxWidth: 720, lineHeight: 1.55 }}>
+            No product cards are shown by default. Enter a SKU, brand, family, group, or category, or change one of the filters to begin narrowing the records.
+          </div>
+        </section>
+      ) : null}
+
+      {!loading && !error && hasActiveFilters && filtered.length === 0 ? (
+        <section
+          className="wm-card"
+          style={{
+            borderRadius: 20,
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(3,14,20,0.92)",
+            padding: 20,
+            display: "grid",
+            gap: 8,
+          }}
+        >
+          <div style={{ fontSize: 18, fontWeight: 900, color: "#f8fafc" }}>No records match the current filters</div>
+          <div style={{ fontSize: 14, color: "rgba(226,232,240,0.74)" }}>
+            Adjust the search term, status, vendor, or view filter.
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

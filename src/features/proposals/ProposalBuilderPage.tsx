@@ -27,6 +27,8 @@ import {
   type CommercialTier,
 } from "@/proposal/bom/pricing";
 import { useProposalStore } from "@/proposal/bom/store";
+import { buildAvRecommendationFromDiscovery } from "@/services/av-recommendation/engine";
+import { buildProposalDraftSeed } from "@/features/proposals/proposalTemplates";
 
 type ProposalDraft = {
   executiveSummary: string;
@@ -215,6 +217,20 @@ function getCoverageTone(disposition: BomLineCoverage["disposition"]): "included
   return disposition;
 }
 
+function mergeEmptyDraftFields(draft: ProposalDraft, patch: Partial<ProposalDraft>): ProposalDraft {
+  const next = { ...draft };
+
+  (Object.keys(patch) as Array<keyof ProposalDraft>).forEach((key) => {
+    const current = draft[key];
+    const incoming = patch[key];
+    if (!hasText(current) && hasText(incoming)) {
+      next[key] = incoming as string;
+    }
+  });
+
+  return next;
+}
+
 const FIELD_BY_ID = Object.fromEntries(FIELDS.map((field) => [field.id, field])) as Record<
   ProposalField["id"],
   ProposalField
@@ -280,6 +296,41 @@ export default function ProposalBuilderPage() {
     () => getTierCoverageSummary(proposalState.lines, activePriceTier),
     [proposalState.lines, activePriceTier],
   );
+  const recommendation = React.useMemo(
+    () => (activeProject?.discovery ? buildAvRecommendationFromDiscovery(activeProject.discovery) : null),
+    [activeProject?.discovery],
+  );
+  const recommendationDraftSeed = React.useMemo(() => {
+    if (!recommendation) return null;
+
+    return buildProposalDraftSeed({
+      projectName: activeProject?.name,
+      customerName: activeProject?.customer,
+      roomType: activeProject?.roomName || activeProject?.discovery?.applicationType,
+      verticalMarket: activeProject?.discovery?.applicationType,
+      tier: activePriceTier,
+      salespersonSummary: recommendation.summaries.salesperson,
+      engineerSummary: recommendation.summaries.engineer,
+      proposalSummary: recommendation.summaries.proposal,
+      confidenceLabel: recommendation.confidenceLabel,
+      confidenceScore: recommendation.confidenceScore,
+      missingInputs: recommendation.whatsMissing,
+      accessoryLines: recommendation.accessoryBom.map((item) => item.description),
+    });
+  }, [
+    activePriceTier,
+    activeProject?.customer,
+    activeProject?.discovery?.applicationType,
+    activeProject?.name,
+    activeProject?.roomName,
+    recommendation,
+  ]);
+
+  React.useEffect(() => {
+    if (!recommendationDraftSeed) return;
+    setDraft((previous) => mergeEmptyDraftFields(previous, recommendationDraftSeed));
+  }, [projectId, recommendationDraftSeed]);
+
   const tieredLines = React.useMemo(
     () =>
       proposalState.lines
@@ -385,6 +436,14 @@ export default function ProposalBuilderPage() {
     setSavedAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
   };
 
+  const applyRecommendationDraft = () => {
+    if (!recommendationDraftSeed) return;
+    setDraft((previous) => ({
+      ...previous,
+      ...recommendationDraftSeed,
+    }));
+  };
+
   return (
     <div className="wm-page wm-proposal-builder-page">
       <section className="wm-hero wm-proposal-builder-page__hero">
@@ -450,6 +509,14 @@ export default function ProposalBuilderPage() {
             </div>
 
             <div className="wm-actions-row wm-proposal-builder-page__hero-actions">
+              <button
+                type="button"
+                className="wm-btn"
+                onClick={applyRecommendationDraft}
+                disabled={!recommendationDraftSeed}
+              >
+                Refresh from recommendation
+              </button>
               <button type="button" className="wm-btn" onClick={saveDraftToProject} disabled={!activeProject}>
                 Save draft
               </button>
@@ -553,6 +620,64 @@ export default function ProposalBuilderPage() {
         </section>
 
         <div className="wm-grid wm-proposal-builder-page__rail">
+          {recommendation ? (
+            <section className="wm-section wm-section--tone-cyan">
+              <div className="wm-section__head">
+                <div className="wm-section__titles">
+                  <h2>Shared recommendation</h2>
+                  <p>Proposal framing now reads from the same recommendation layer as Guided Project.</p>
+                </div>
+              </div>
+
+              <div className="wm-proposal-builder-page__summary-grid">
+                <article className="wm-work-card wm-proposal-builder-page__summary-card wm-proposal-builder-page__summary-card--cyan">
+                  <div className="wm-proposal-builder-page__summary-label">Lead family</div>
+                  <div className="wm-title-lg">{recommendation.primaryFamily}</div>
+                  <div className="wm-body-sm">{recommendation.advice.focusCategory}</div>
+                </article>
+
+                <article className="wm-work-card wm-proposal-builder-page__summary-card wm-proposal-builder-page__summary-card--emerald">
+                  <div className="wm-proposal-builder-page__summary-label">Confidence</div>
+                  <div className="wm-title-lg">{recommendation.confidenceScore}%</div>
+                  <div className="wm-body-sm">{recommendation.confidenceLabel}</div>
+                </article>
+
+                <article className="wm-work-card wm-proposal-builder-page__summary-card wm-proposal-builder-page__summary-card--amber">
+                  <div className="wm-proposal-builder-page__summary-label">Missing inputs</div>
+                  <div className="wm-title-lg">{recommendation.whatsMissing.length}</div>
+                  <div className="wm-body-sm">{recommendation.completeness.answered}/{recommendation.completeness.total} prompts answered</div>
+                </article>
+
+                <article className="wm-work-card wm-proposal-builder-page__summary-card wm-proposal-builder-page__summary-card--indigo">
+                  <div className="wm-proposal-builder-page__summary-label">Add-on lines</div>
+                  <div className="wm-title-lg">{recommendation.accessoryBom.length}</div>
+                  <div className="wm-body-sm">Cables, accessories, and dependencies</div>
+                </article>
+              </div>
+
+              <div className="wm-proposal-builder-page__tier-focus">
+                <div className="wm-proposal-builder-page__tier-focus-head">
+                  <strong>Salesperson wording</strong>
+                  <span className="wm-proposal-builder-page__tier-focus-pill">
+                    Shared engine output
+                  </span>
+                </div>
+                <div className="wm-proposal-builder-page__tier-focus-copy">{recommendation.summaries.salesperson}</div>
+                <div className="wm-proposal-builder-page__tier-focus-list">
+                  <div><strong>Engineer notes:</strong> {recommendation.summaries.engineer}</div>
+                  <div><strong>Proposal-ready BOM:</strong> {recommendation.summaries.proposal}</div>
+                </div>
+                {recommendation.whatsMissing.length > 0 ? (
+                  <div className="wm-proposal-builder-page__tier-focus-list">
+                    {recommendation.whatsMissing.map((item) => (
+                      <div key={item}>{item}</div>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            </section>
+          ) : null}
+
           <section className="wm-section wm-section--tone-amber">
             <div className="wm-section__head">
               <div className="wm-section__titles">

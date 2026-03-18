@@ -1,4 +1,5 @@
 import type { WingmanProjectState } from "@/core/workflow/projectState";
+import { buildAvRecommendationFromProjectState } from "@/services/av-recommendation/engine";
 
 export type CatalogRecommendation = {
   family: string;
@@ -21,15 +22,6 @@ export type CatalogIntelligence = {
   nextTool: string;
   nextToolPath: string;
 };
-
-function txt(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function num(value: unknown): number {
-  const n = typeof value === "number" ? value : Number(value ?? 0);
-  return Number.isFinite(n) ? n : 0;
-}
 
 function apolloProducts() {
   return [
@@ -55,6 +47,22 @@ function avoipProducts() {
   ];
 }
 
+function matrixProducts() {
+  return [
+    { sku: "MX-0402-H2", name: "4x2 HDMI Matrix", role: "Core routing" },
+    { sku: "MX-0808-H2A", name: "8x8 HDMI Matrix", role: "Larger routed switching" },
+    { sku: "SW-510-TX", name: "5-Input Presentation Switcher", role: "Presentation-led switching" },
+  ];
+}
+
+function usbExtensionProducts() {
+  return [
+    { sku: "EX-100-KVM-TX", name: "USB / KVM Transmitter", role: "Source-side USB extension" },
+    { sku: "EX-100-KVM-RX", name: "USB / KVM Receiver", role: "Display / host-side USB extension" },
+    { sku: "SW-640L-TX-W", name: "Wireless USB-C Presentation Switcher", role: "USB-aware collaboration switcher" },
+  ];
+}
+
 function videoWallProducts() {
   return [
     { sku: "VW-PROC-4K", name: "Video Wall Processor", role: "Wall processing" },
@@ -71,56 +79,27 @@ function defaultProducts() {
   ];
 }
 
+function shortlistForFamily(family: string) {
+  if (family === "Apollo") return apolloProducts();
+  if (family === "HDBaseT") return hdbtProducts();
+  if (family === "AVoIP") return avoipProducts();
+  if (family === "Matrix") return matrixProducts();
+  if (family === "USB Extension") return usbExtensionProducts();
+  if (family === "Video Wall") return videoWallProducts();
+  return defaultProducts();
+}
+
 export function buildCatalogIntelligence(state: WingmanProjectState): CatalogIntelligence {
-  const room = txt(state.roomType).toLowerCase();
-  const app = txt(state.application).toLowerCase();
-  const distance = num(state.distanceM);
-  const displays = num(state.displayCount);
-  const sources = num(state.sourceCount);
-  const usb = txt(state.avGuide?.usb).toLowerCase();
-  const videoWall = txt(state.videoWall?.wallType).toLowerCase();
-
-  let primaryFamily = "Core AV Switching";
-  let reasoning = "The current project points to a standard switching and distribution workflow.";
-  let shortlist = defaultProducts();
-
-  if (
-    videoWall === "lcd" ||
-    videoWall === "led" ||
-    app.includes("video wall") ||
-    room.includes("video wall") ||
-    displays >= 4
-  ) {
-    primaryFamily = "Video Wall";
-    reasoning = "Display count or wall-design context suggests wall processing, mapped outputs, and specialist display workflow.";
-    shortlist = videoWallProducts();
-  } else if (
-    app.includes("teams") ||
-    app.includes("meeting") ||
-    room.includes("meeting")
-  ) {
-    primaryFamily = "Apollo";
-    reasoning = "Meeting-room collaboration and room-hub workflows suggest Apollo as the strongest starting family.";
-    shortlist = apolloProducts();
-  } else if (sources >= 4 || displays >= 3) {
-    primaryFamily = "AVoIP / NetworkHD";
-    reasoning = "Higher source/display counts suggest a distributed architecture and flexible endpoint routing.";
-    shortlist = avoipProducts();
-  } else if (distance >= 15) {
-    primaryFamily = "HDBaseT";
-    reasoning = "Recorded transport distance suggests extension-led architecture and HDBaseT-style signal transport.";
-    shortlist = hdbtProducts();
-  } else if (usb.includes("camera") || usb.includes("byod")) {
-    primaryFamily = "Apollo";
-    reasoning = "USB collaboration requirements suggest a room-hub workflow is likely to be the best fit.";
-    shortlist = apolloProducts();
-  }
+  const recommendation = buildAvRecommendationFromProjectState(state);
 
   return {
-    primaryFamily,
-    reasoning,
-    shortlist,
+    primaryFamily: recommendation.primaryFamily,
+    reasoning:
+      recommendation.summaries.salesperson ||
+      recommendation.whyThisAnswer[0] ||
+      recommendation.advice.summary,
+    shortlist: shortlistForFamily(recommendation.primaryFamily),
     nextTool: "Proposal Builder",
-    nextToolPath: "/app/tools/proposal",
+    nextToolPath: recommendation.advice.nextToolPath || "/app/tools/proposal",
   };
 }

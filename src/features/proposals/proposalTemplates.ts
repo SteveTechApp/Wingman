@@ -8,6 +8,27 @@ export type ProposalTemplateInput = {
   compareSummary?: string;
 };
 
+export type ProposalRecommendationInput = ProposalTemplateInput & {
+  salespersonSummary?: string;
+  engineerSummary?: string;
+  proposalSummary?: string;
+  confidenceLabel?: string;
+  confidenceScore?: number;
+  missingInputs?: string[];
+  accessoryLines?: string[];
+};
+
+export type ProposalDraftSeed = {
+  executiveSummary: string;
+  customerRequirements: string;
+  systemOverview: string;
+  billOfMaterials: string;
+  commercialNotes: string;
+  assumptions: string;
+  exclusions: string;
+  nextStep: string;
+};
+
 function tidy(value: unknown): string {
   return String(value ?? "").trim();
 }
@@ -86,4 +107,61 @@ export function buildNextStepsTemplate(_input: ProposalTemplateInput): string {
     "Review commercial assumptions, lead times, and installation scope.",
     "Issue final customer proposal for approval.",
   ].join("\n");
+}
+
+export function buildProposalDraftSeed(input: ProposalRecommendationInput): ProposalDraftSeed {
+  const executiveSummary =
+    tidy(input.salespersonSummary) ||
+    buildExecutiveSummaryTemplate(input);
+
+  const customerRequirements = [
+    tidy(input.roomType) ? `Application context: ${tidy(input.roomType)}.` : "",
+    tidy(input.verticalMarket) ? `Vertical market: ${tidy(input.verticalMarket)}.` : "",
+    Array.isArray(input.missingInputs) && input.missingInputs.length > 0
+      ? `Open qualification points: ${input.missingInputs.join(" ")}`
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const systemOverview =
+    tidy(input.engineerSummary) ||
+    buildSolutionOverviewTemplate(input);
+
+  const billOfMaterials = [
+    tidy(input.proposalSummary),
+    Array.isArray(input.accessoryLines) && input.accessoryLines.length > 0
+      ? `Suggested accessories and cabling:\n${input.accessoryLines.map((item) => `- ${item}`).join("\n")}`
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const commercialNotes = [
+    buildCommercialNotesTemplate(input),
+    tidy(input.confidenceLabel)
+      ? `Recommendation confidence: ${tidy(input.confidenceLabel)}${typeof input.confidenceScore === "number" ? ` (${input.confidenceScore}%)` : ""}.`
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const assumptions = buildAssumptionsTemplate(input);
+  const exclusions = buildExclusionsTemplate(input);
+
+  const nextStep =
+    Array.isArray(input.missingInputs) && input.missingInputs.length > 0
+      ? input.missingInputs.slice(0, 2).join(" ")
+      : buildNextStepsTemplate(input);
+
+  return {
+    executiveSummary,
+    customerRequirements,
+    systemOverview,
+    billOfMaterials,
+    commercialNotes,
+    assumptions,
+    exclusions,
+    nextStep,
+  };
 }

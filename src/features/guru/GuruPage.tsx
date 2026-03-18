@@ -3,7 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { Bot } from "lucide-react";
 import { askGuru, type GuruAnswer, type GuruMode as ApiGuruMode } from "@/features/ai/guru/guruApi";
-import { getActiveProject, updateProject } from "@/features/projects/projectStore";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
+import {
+  getActiveProject,
+  subscribeProjects,
+  updateProject,
+  type StoredProject,
+} from "@/features/projects/projectStore";
 import { addLineToSavedProposal } from "@/proposal/bom/store";
 
 type GuruMode =
@@ -17,6 +23,26 @@ type GuruWorkspaceState = {
   mode: GuruMode;
   question: string;
   context: string;
+};
+
+type GuruHistoryEntry = {
+  id: string;
+  projectId: string | null;
+  question: string;
+  context: string;
+  mode: GuruMode;
+  answeredAt: string;
+  status: string;
+  answer: GuruAnswer;
+};
+
+type GuruAnswerSession = {
+  combinedQuestion: string;
+  contextText: string;
+  apiMode: ApiGuruMode;
+  projectId: string | null;
+  discoverySignature: string;
+  usedDiscovery: boolean;
 };
 
 type GuruPanelLayout = {
@@ -46,6 +72,7 @@ type GuruModeDef = {
 };
 
 const STORAGE_KEY = "wm_guru_workspace_v3";
+const HISTORY_STORAGE_KEY = "wm_guru_history_v1";
 const PANEL_LAYOUT_KEY = "wm_guru_panel_layout_v1";
 const PANEL_POSITION_KEY = "wm_guru_panel_position_v1";
 const LAUNCHER_POSITION_KEY = "wm_guru_launcher_position_v1";
@@ -159,6 +186,48 @@ function writeState(state: GuruWorkspaceState) {
   }
 }
 
+function guruHistoryStorageKey(projectId: string | null): string {
+  return `${HISTORY_STORAGE_KEY}:${projectId ?? "global"}`;
+}
+
+function readGuruHistory(projectId: string | null): GuruHistoryEntry[] {
+  try {
+    const raw = localStorage.getItem(guruHistoryStorageKey(projectId));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as GuruHistoryEntry[];
+    return Array.isArray(parsed) ? parsed.slice(0, 8) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeGuruHistory(projectId: string | null, history: GuruHistoryEntry[]) {
+  try {
+    localStorage.setItem(guruHistoryStorageKey(projectId), JSON.stringify(history.slice(0, 8)));
+  } catch {
+  }
+}
+
+function makeGuruHistoryEntryId(): string {
+  return `guru_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function buildGuruCombinedQuestion(question: string, context: string): string {
+  const primaryQuestion = question.trim();
+  const contextText = context.trim();
+  return contextText
+    ? `${primaryQuestion || "Use the following context to answer the request."}\n\nContext:\n${contextText}`
+    : primaryQuestion;
+}
+
+function buildDiscoverySignature(project: StoredProject | null | undefined): string {
+  try {
+    return JSON.stringify(project?.discovery ?? null);
+  } catch {
+    return "";
+  }
+}
+
 function buildPrompt(mode: GuruMode, question: string, context: string): string {
   const def = MODE_DEFS[mode];
   const sections: string[] = [def.persona, "", `Mode: ${def.label}`];
@@ -180,6 +249,54 @@ function confidenceLabel(value: GuruAnswer["confidence"]): string {
   if (value === "high") return "High";
   if (value === "medium") return "Medium";
   return "Low";
+}
+
+function confidenceRank(value: GuruAnswer["confidence"]): number {
+  if (value === "high") return 3;
+  if (value === "medium") return 2;
+  if (value === "low") return 1;
+  return 0;
+}
+
+function buildAutoRefreshStatus(
+  previous: GuruAnswer | null,
+  next: GuruAnswer,
+): string {
+  if (!previous) {
+    return "Updated from the latest Discovery inputs.";
+  }
+
+  const changes: string[] = [];
+  const previousConfidence = confidenceLabel(previous.confidence);
+  const nextConfidence = confidenceLabel(next.confidence);
+
+  if (previous.confidence !== next.confidence) {
+    changes.push(`Confidence moved ${previousConfidence} -> ${nextConfidence}.`);
+  }
+
+  const previousHeadline = previous.explanation?.headline?.trim() ?? "";
+  const nextHeadline = next.explanation?.headline?.trim() ?? "";
+  if (previousHeadline && nextHeadline && previousHeadline !== nextHeadline) {
+    changes.push(`Lead direction updated to ${nextHeadline}`);
+  }
+
+  const previousMissing = previous.explanation?.whatsMissing?.length ?? 0;
+  const nextMissing = next.explanation?.whatsMissing?.length ?? 0;
+  if (previousMissing !== nextMissing) {
+    if (nextMissing < previousMissing) {
+      changes.push(`Missing inputs reduced ${previousMissing} -> ${nextMissing}.`);
+    } else {
+      changes.push(`Missing inputs changed ${previousMissing} -> ${nextMissing}.`);
+    }
+  }
+
+  if (changes.length === 0 && confidenceRank(next.confidence) > confidenceRank(previous.confidence)) {
+    changes.push(`Confidence improved to ${nextConfidence}.`);
+  }
+
+  return changes.length > 0
+    ? `Updated from the latest Discovery inputs. ${changes.join(" ")}`
+    : "Updated from the latest Discovery inputs.";
 }
 
 function normalizeSuggestedSkus(answer: GuruAnswer | null): Array<{ sku: string; name?: string; reason?: string }> {
@@ -591,6 +708,129 @@ const pageStyles = `
   font-size: 13px;
 }
 
+.wm-guru-float-explain{
+  display: grid;
+  gap: 8px;
+}
+
+.wm-guru-float-explain-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.wm-guru-float-explain-card{
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(17, 29, 44, 0.92), rgba(11, 19, 31, 0.94));
+  padding: 10px 11px;
+  display: grid;
+  gap: 6px;
+}
+
+.wm-guru-float-explain-card--confidence{
+  border-color: rgba(115, 205, 176, 0.34);
+  background: linear-gradient(180deg, rgba(19, 47, 48, 0.94), rgba(12, 23, 31, 0.96));
+}
+
+.wm-guru-float-explain-card--why{
+  border-color: rgba(100, 176, 255, 0.3);
+}
+
+.wm-guru-float-explain-card--missing{
+  border-color: rgba(255, 191, 114, 0.3);
+}
+
+.wm-guru-float-explain-label{
+  color: rgba(191, 210, 233, 0.74);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-guru-float-explain-headline{
+  color: rgba(243, 249, 255, 0.96);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.wm-guru-float-explain-list{
+  margin: 0;
+  padding-left: 16px;
+  color: rgba(220, 232, 246, 0.9);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.wm-guru-float-explain-list li + li{
+  margin-top: 4px;
+}
+
+.wm-guru-float-explain-actions{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-guru-float-history{
+  display: grid;
+  gap: 8px;
+}
+
+.wm-guru-float-historyHead{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wm-guru-float-historyList{
+  display: grid;
+  gap: 6px;
+}
+
+.wm-guru-float-historyItem{
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 9px 10px;
+  text-align: left;
+  display: grid;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.wm-guru-float-historyItem:hover{
+  border-color: rgba(117, 194, 255, 0.28);
+  background: rgba(18, 32, 49, 0.68);
+}
+
+.wm-guru-float-historyMeta{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: rgba(190, 210, 233, 0.76);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.wm-guru-float-historyQuestion{
+  color: rgba(236, 244, 252, 0.94);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.wm-guru-float-historySummary{
+  color: rgba(196, 214, 235, 0.8);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .wm-guru-float-muted{
   color: rgba(195, 214, 232, 0.76);
   font-size: 12px;
@@ -716,6 +956,11 @@ export default function GuruPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const isGuruRoute = location.pathname.startsWith("/app/tools/guru");
+  const activeProject = React.useSyncExternalStore(
+    subscribeProjects,
+    () => getActiveProject() ?? null,
+    () => null,
+  );
 
   const clampLayoutToViewport = React.useCallback((layout: GuruPanelLayout): GuruPanelLayout => {
     if (typeof window === "undefined") return layout;
@@ -835,7 +1080,12 @@ export default function GuruPage() {
   const [answerError, setAnswerError] = React.useState("");
   const [answer, setAnswer] = React.useState<GuruAnswer | null>(null);
   const [answeredAt, setAnsweredAt] = React.useState("");
+  const [answerStatus, setAnswerStatus] = React.useState("");
   const [transferMessage, setTransferMessage] = React.useState("");
+  const [lastAskedSession, setLastAskedSession] = React.useState<GuruAnswerSession | null>(null);
+  const [historyEntries, setHistoryEntries] = React.useState<GuruHistoryEntry[]>(() =>
+    readGuruHistory(activeProject?.id ?? null),
+  );
   const [panelOpen, setPanelOpen] = React.useState(false);
   const [contextOpen, setContextOpen] = React.useState(false);
   const [panelLayout, setPanelLayout] = React.useState<GuruPanelLayout>(initialPanelLayout);
@@ -871,10 +1121,19 @@ export default function GuruPage() {
     moved: boolean;
   }>(null);
   const suppressLauncherToggleRef = React.useRef(false);
+  const latestAnswerRef = React.useRef<GuruAnswer | null>(null);
+
+  React.useEffect(() => {
+    latestAnswerRef.current = answer;
+  }, [answer]);
 
   React.useEffect(() => {
     writeState({ mode, question, context });
   }, [mode, question, context]);
+
+  React.useEffect(() => {
+    setHistoryEntries(readGuruHistory(activeProject?.id ?? null));
+  }, [activeProject?.id]);
 
   React.useEffect(() => {
     writePanelLayout(panelLayout);
@@ -1038,6 +1297,11 @@ export default function GuruPage() {
   const def = MODE_DEFS[mode];
   const hasContent = question.trim().length > 0 || context.trim().length > 0;
   const suggestedSkus = React.useMemo(() => normalizeSuggestedSkus(answer), [answer]);
+  const explanation = answer?.explanation ?? null;
+  const activeDiscoverySignature = React.useMemo(
+    () => buildDiscoverySignature(activeProject),
+    [activeProject],
+  );
 
   const clearAll = () => {
     setQuestion("");
@@ -1046,8 +1310,40 @@ export default function GuruPage() {
     setAnswerError("");
     setAnswer(null);
     setAnsweredAt("");
+    setAnswerStatus("");
+    setLastAskedSession(null);
     setTransferMessage("");
   };
+
+  const pushHistoryEntry = React.useCallback(
+    (entry: Omit<GuruHistoryEntry, "id">) => {
+      const projectId = entry.projectId ?? null;
+      setHistoryEntries((previous) => {
+        const next = [
+          {
+            ...entry,
+            id: makeGuruHistoryEntryId(),
+          },
+          ...previous,
+        ].slice(0, 8);
+        writeGuruHistory(projectId, next);
+        return next;
+      });
+    },
+    [],
+  );
+
+  const restoreHistoryEntry = React.useCallback((entry: GuruHistoryEntry) => {
+    setMode(entry.mode);
+    setQuestion(entry.question);
+    setContext(entry.context);
+    setAnswer(entry.answer);
+    setAnsweredAt(entry.answeredAt);
+    setAnswerStatus(entry.status);
+    setAnswerError("");
+    setTransferMessage("");
+    setPanelOpen(true);
+  }, []);
 
   const insertContextTemplate = () => {
     setContextOpen(true);
@@ -1067,14 +1363,16 @@ export default function GuruPage() {
     });
   };
 
-  const askLiveGuru = async () => {
-    const primaryQuestion = question.trim();
-    const contextText = context.trim();
-    const combined = contextText
-      ? `${primaryQuestion || "Use the following context to answer the request."}\n\nContext:\n${contextText}`
-      : primaryQuestion;
-
-    if (!combined.trim()) {
+  const runGuruQuery = React.useCallback(async (
+    params: {
+      combinedQuestion: string;
+      contextText: string;
+      apiMode: ApiGuruMode;
+      project: StoredProject | null;
+      autoRefresh?: boolean;
+    },
+  ) => {
+    if (!params.combinedQuestion.trim()) {
       setAnswerError("Add a question or context before asking Guru.");
       setAnswer(null);
       setPanelOpen(true);
@@ -1083,22 +1381,89 @@ export default function GuruPage() {
 
     setPanelOpen(true);
     setAnswerBusy(true);
-    setAnswerError("");
-    setTransferMessage("");
+    if (!params.autoRefresh) {
+      setAnswerError("");
+      setTransferMessage("");
+      setAnswerStatus("");
+    }
     try {
-      const result = await askGuru(combined, {
-        mode: mapModeToApiMode(mode),
-        notes: contextText || undefined,
+      const result = await askGuru(params.combinedQuestion, {
+        mode: params.apiMode,
+        notes: params.contextText || undefined,
+        discovery: params.project?.discovery ?? null,
       });
+      const answeredTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const refreshStatus = params.autoRefresh
+        ? buildAutoRefreshStatus(latestAnswerRef.current, result)
+        : "";
       setAnswer(result);
-      setAnsweredAt(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+      setAnsweredAt(answeredTime);
+      setLastAskedSession({
+        combinedQuestion: params.combinedQuestion,
+        contextText: params.contextText,
+        apiMode: params.apiMode,
+        projectId: params.project?.id ?? null,
+        discoverySignature: buildDiscoverySignature(params.project),
+        usedDiscovery: Boolean(params.project?.discovery),
+      });
+      if (params.autoRefresh) {
+        setAnswerStatus(refreshStatus);
+      }
+      pushHistoryEntry({
+        projectId: params.project?.id ?? null,
+        question,
+        context: params.contextText,
+        mode,
+        answeredAt: answeredTime,
+        status: refreshStatus,
+        answer: result,
+      });
     } catch {
-      setAnswerError("Guru request failed. Retry, or open diagnostics if this persists.");
-      setAnswer(null);
+      if (!params.autoRefresh) {
+        setAnswerError("Guru request failed. Retry, or open diagnostics if this persists.");
+        setAnswer(null);
+      }
     } finally {
       setAnswerBusy(false);
     }
+  }, [mode, pushHistoryEntry, question]);
+
+  const askLiveGuru = async () => {
+    const contextText = context.trim();
+    const combined = buildGuruCombinedQuestion(question, contextText);
+
+    await runGuruQuery({
+      combinedQuestion: combined,
+      contextText,
+      apiMode: mapModeToApiMode(mode),
+      project: activeProject,
+    });
   };
+
+  React.useEffect(() => {
+    if (answerBusy || !lastAskedSession?.usedDiscovery) return;
+    if ((activeProject?.id ?? null) !== lastAskedSession.projectId) return;
+    if (activeDiscoverySignature === lastAskedSession.discoverySignature) return;
+
+    const currentCombined = buildGuruCombinedQuestion(question, context);
+    if (currentCombined.trim() !== lastAskedSession.combinedQuestion.trim()) return;
+
+    void runGuruQuery({
+      combinedQuestion: lastAskedSession.combinedQuestion,
+      contextText: lastAskedSession.contextText,
+      apiMode: lastAskedSession.apiMode,
+      project: activeProject,
+      autoRefresh: true,
+    });
+  }, [
+    activeDiscoverySignature,
+    activeProject,
+    answerBusy,
+    context,
+    lastAskedSession,
+    question,
+    runGuruQuery,
+  ]);
 
   const handleQuestionKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -1154,6 +1519,18 @@ export default function GuruPage() {
 
     setTransferMessage(`Added ${suggestedSkus.length} SKU(s) to Proposal BOM draft.`);
   };
+
+  const openDiscoveryHandoff = React.useCallback(
+    (item: NonNullable<NonNullable<GuruAnswer["explanation"]>["handoffItems"]>[number]) => {
+      navigate(WM_ROUTES.discovery, {
+        state: {
+          focusStep: item.step,
+          focusQuestionId: item.questionId,
+        },
+      });
+    },
+    [navigate],
+  );
 
   const resetPanelSize = React.useCallback(() => {
     const nextLayout = clampLayoutToViewport(isGuruRoute ? DEFAULT_ROUTE_PANEL_LAYOUT : DEFAULT_PANEL_LAYOUT);
@@ -1281,6 +1658,9 @@ export default function GuruPage() {
                     ? `Last updated at ${answeredAt}.`
                     : "Answer will appear below."}
               </div>
+              {answerStatus ? (
+                <div className="wm-guru-float-muted">{answerStatus}</div>
+              ) : null}
             </div>
 
             <div className="wm-guru-float-actions wm-guru-float-actions--support">
@@ -1335,6 +1715,58 @@ export default function GuruPage() {
               )}
             </div>
 
+            {answer && explanation ? (
+              <div className="wm-guru-float-explain">
+                <div className="wm-guru-float-explain-grid">
+                  <article className="wm-guru-float-explain-card wm-guru-float-explain-card--confidence">
+                    <div className="wm-guru-float-explain-label">Confidence</div>
+                    <div className="wm-guru-float-explain-headline">
+                      {confidenceLabel(answer.confidence)}
+                    </div>
+                    {explanation.headline ? (
+                      <div className="wm-guru-float-muted">{explanation.headline}</div>
+                    ) : null}
+                  </article>
+
+                  {explanation.why && explanation.why.length > 0 ? (
+                    <article className="wm-guru-float-explain-card wm-guru-float-explain-card--why">
+                      <div className="wm-guru-float-explain-label">Why This Answer</div>
+                      <ul className="wm-guru-float-explain-list">
+                        {explanation.why.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </article>
+                  ) : null}
+
+                  {explanation.whatsMissing && explanation.whatsMissing.length > 0 ? (
+                    <article className="wm-guru-float-explain-card wm-guru-float-explain-card--missing">
+                      <div className="wm-guru-float-explain-label">What&apos;s Still Missing</div>
+                      <ul className="wm-guru-float-explain-list">
+                        {explanation.whatsMissing.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                      {explanation.handoffItems && explanation.handoffItems.length > 0 ? (
+                        <div className="wm-guru-float-explain-actions">
+                          {explanation.handoffItems.map((item) => (
+                            <button
+                              key={`${item.step}:${item.questionId}`}
+                              type="button"
+                              className="wm-guru-float-chip"
+                              onClick={() => openDiscoveryHandoff(item)}
+                            >
+                              Open Step {item.step + 1}: {item.label}
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
+                    </article>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+
             {answer?.sources && answer.sources.length > 0 ? (
               <div className="wm-guru-float-quickasks">
                 {answer.sources.map((source) => (
@@ -1382,6 +1814,36 @@ export default function GuruPage() {
             ) : null}
 
             {transferMessage ? <div className="wm-guru-float-muted">{transferMessage}</div> : null}
+
+            {historyEntries.length > 0 ? (
+              <div className="wm-guru-float-history">
+                <div className="wm-guru-float-historyHead">
+                  <div className="wm-guru-float-explain-label">Recent Guru History</div>
+                  <div className="wm-guru-float-muted">
+                    {activeProject?.name ? `Project: ${activeProject.name}` : "General workspace"}
+                  </div>
+                </div>
+                <div className="wm-guru-float-historyList">
+                  {historyEntries.slice(0, 5).map((entry) => (
+                    <button
+                      key={entry.id}
+                      type="button"
+                      className="wm-guru-float-historyItem"
+                      onClick={() => restoreHistoryEntry(entry)}
+                    >
+                      <div className="wm-guru-float-historyMeta">
+                        <span>{entry.answeredAt}</span>
+                        <span>{confidenceLabel(entry.answer.confidence)}</span>
+                      </div>
+                      <div className="wm-guru-float-historyQuestion">{entry.question || "Context-led Guru answer"}</div>
+                      <div className="wm-guru-float-historySummary">
+                        {entry.status || entry.answer.explanation?.headline || entry.answer.text.split("\n")[0]}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
           <>
             <button

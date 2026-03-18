@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SystemArchitecturePreview from "@/features/discovery/SystemArchitecturePreview";
 import RecentTextInput from "@/components/RecentTextInput";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
@@ -14,7 +14,6 @@ import {
 } from "@/features/inputs/recentTextEntries";
 import {
   buildBranchHighlights,
-  buildGuidedProjectAdvice,
   buildGuidedProjectLenses,
   buildGuidedProjectNotes,
   createEmptyGuidedProjectRecord,
@@ -38,6 +37,7 @@ import {
   updateProject,
   updateProjectDiscovery,
 } from "@/features/projects/projectStore";
+import { buildAvRecommendationFromDiscovery } from "@/services/av-recommendation/engine";
 
 const STORAGE_KEY = "wm_discovery_seed";
 const SNAPSHOT_POSITION_KEY = "wm_discovery_snapshot_position_v1";
@@ -385,6 +385,7 @@ export default function DiscoveryWizardPage() {
 const [sources,setSources] = React.useState<number>(1)
   const [displays,setDisplays] = React.useState<number>(1)
   const [resolution,setResolution] = React.useState<string>("4K")
+  const location = useLocation();
   const navigate = useNavigate();
   const activeProject = React.useSyncExternalStore(
     subscribeProjects,
@@ -400,12 +401,14 @@ const [sources,setSources] = React.useState<number>(1)
   const [snapshotPosition, setSnapshotPosition] = React.useState<SnapshotFloatPosition>(() =>
     readSnapshotPosition(),
   );
+  const [handoffFocusQuestionId, setHandoffFocusQuestionId] = React.useState<keyof GuidedProjectRecord | null>(null);
   const [isCompactSnapshotViewport, setIsCompactSnapshotViewport] = React.useState(() =>
     typeof window !== "undefined" ? window.innerWidth <= SNAPSHOT_FLOAT_COMPACT_BREAKPOINT : false,
   );
   const deferredRecord = React.useDeferredValue(record);
   const didMountRef = React.useRef(false);
   const stepTopRef = React.useRef<HTMLDivElement | null>(null);
+  const questionRefs = React.useRef<Partial<Record<keyof GuidedProjectRecord, HTMLElement | null>>>({});
   const snapshotDragRef = React.useRef<null | {
     startX: number;
     startY: number;
@@ -413,7 +416,11 @@ const [sources,setSources] = React.useState<number>(1)
     startTop: number;
   }>(null);
 
-  const advice = React.useMemo(() => buildGuidedProjectAdvice(deferredRecord), [deferredRecord]);
+  const recommendation = React.useMemo(
+    () => buildAvRecommendationFromDiscovery(deferredRecord),
+    [deferredRecord],
+  );
+  const advice = recommendation.advice;
   const progress = React.useMemo(() => getGuidedProjectProgress(record), [record]);
   const activeQuestions = React.useMemo(
     () => getVisibleQuestionsForStep(record, activeStep),
@@ -467,8 +474,11 @@ const [sources,setSources] = React.useState<number>(1)
       : `Progress ${totalDone}/${totalFields}`;
 
   const syncProjectSnapshot = React.useCallback(
-    (sourceRecord: GuidedProjectRecord, computedAdvice = buildGuidedProjectAdvice(sourceRecord)) => {
-      if (!activeProject?.id) return computedAdvice;
+    (
+      sourceRecord: GuidedProjectRecord,
+      computedRecommendation = buildAvRecommendationFromDiscovery(sourceRecord),
+    ) => {
+      if (!activeProject?.id) return computedRecommendation.advice;
 
       updateProjectDiscovery(activeProject.id, {
         workflowTrack: sourceRecord.workflowTrack,
@@ -510,21 +520,23 @@ const [sources,setSources] = React.useState<number>(1)
         passthroughNeeds: sourceRecord.passthroughNeeds,
         budgetBand: sourceRecord.budgetBand,
         urgency: sourceRecord.urgency,
-        notes: buildGuidedProjectNotes(sourceRecord, computedAdvice),
-        recommendedFamilies: computedAdvice.families,
-        recommendedNextTool: computedAdvice.nextToolPath,
+        notes: buildGuidedProjectNotes(sourceRecord, computedRecommendation.advice),
+        recommendedFamilies: computedRecommendation.advice.families,
+        recommendedNextTool: computedRecommendation.advice.nextToolPath,
       });
 
       updateProject(activeProject.id, {
         recommendationGovernance: buildRecommendationGovernanceSnapshot({
-          primaryRecommendation: computedAdvice.primary,
-          recommendedFamilies: computedAdvice.families,
-          reasoning: computedAdvice.reasons,
-          nextActions: computedAdvice.nextActions,
+          primaryRecommendation: computedRecommendation.advice.primary,
+          recommendedFamilies: computedRecommendation.advice.families,
+          reasoning: computedRecommendation.whyThisAnswer,
+          nextActions: computedRecommendation.whatsMissing.length > 0
+            ? computedRecommendation.whatsMissing
+            : computedRecommendation.advice.nextActions,
         }),
       });
 
-      return computedAdvice;
+      return computedRecommendation.advice;
     },
     [activeProject],
   );
@@ -536,6 +548,66 @@ const [sources,setSources] = React.useState<number>(1)
       return JSON.stringify(previous) === JSON.stringify(next) ? previous : next;
     });
   }, [activeProject]);
+
+  React.useEffect(() => {
+    const focusState = location.state as
+      | {
+          focusStep?: GuidedProjectStep;
+          focusQuestionId?: keyof GuidedProjectRecord;
+        }
+      | null;
+
+    if (!focusState || typeof focusState.focusStep !== "number") return;
+
+    const targetStep = focusState.focusStep as GuidedProjectStep;
+    const targetQuestions = getVisibleQuestionsForStep(record, targetStep);
+    const targetQuestion = focusState.focusQuestionId
+      ? targetQuestions.find((question) => question.id === focusState.focusQuestionId)
+      : null;
+
+    setActiveStep(targetStep);
+
+    if (targetQuestion) {
+      const primaryIds = new Set(getCoreFieldsForStep(record, targetStep));
+      if (!primaryIds.has(targetQuestion.id)) {
+        setFollowUpVisibility((previous) => ({
+          ...previous,
+          [targetStep]: true,
+        }));
+      }
+      setHandoffFocusQuestionId(targetQuestion.id);
+    }
+
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate, record]);
+
+  React.useEffect(() => {
+    if (!handoffFocusQuestionId) return;
+
+    const timer = window.setTimeout(() => {
+      const element = questionRefs.current[handoffFocusQuestionId];
+      if (!element) return;
+
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      const control = element.querySelector<HTMLElement>(
+        "input, select, textarea, button, [tabindex]:not([tabindex='-1'])",
+      );
+
+      window.setTimeout(() => {
+        control?.focus({ preventScroll: true });
+      }, 120);
+    }, 80);
+
+    const clearTimer = window.setTimeout(() => {
+      setHandoffFocusQuestionId(null);
+    }, 2600);
+
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(clearTimer);
+    };
+  }, [activeStep, handoffFocusQuestionId, showFollowUps]);
 
   React.useEffect(() => {
     if (!didMountRef.current) {
@@ -735,7 +807,8 @@ const [sources,setSources] = React.useState<number>(1)
 }
 
   function save() {
-    const computedAdvice = buildGuidedProjectAdvice(record);
+    const computedRecommendation = buildAvRecommendationFromDiscovery(record);
+    const computedAdvice = computedRecommendation.advice;
     const payload: GuidedProjectRecord = {
       ...record,
       recommendedFamilies: computedAdvice.families,
@@ -754,7 +827,7 @@ const [sources,setSources] = React.useState<number>(1)
     writeRecord(payload);
     setRecord(payload);
 
-    syncProjectSnapshot(payload, computedAdvice);
+    syncProjectSnapshot(payload, computedRecommendation);
 
     const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     setDraftSavedAt(timestamp);
@@ -868,7 +941,10 @@ const [sources,setSources] = React.useState<number>(1)
                   {visiblePrimaryQuestions.map((question) => (
                     <section
                       key={question.id}
-                      className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextQuestion?.id === question.id ? " is-focus is-active-flow" : ""}${nextQuestion && nextQuestion.id !== question.id ? " is-dimmed-flow" : ""}`}
+                      ref={(element) => {
+                        questionRefs.current[question.id] = element;
+                      }}
+                      className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextQuestion?.id === question.id ? " is-focus is-active-flow" : ""}${nextQuestion && nextQuestion.id !== question.id ? " is-dimmed-flow" : ""}${handoffFocusQuestionId === question.id ? " is-handoff-focus" : ""}`}
                       data-question-id={question.id}
                       data-question-input={question.input}
                     >
@@ -913,7 +989,10 @@ const [sources,setSources] = React.useState<number>(1)
                             {visibleFollowUpQuestions.map((question) => (
                               <section
                                 key={question.id}
-                                className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextQuestion?.id === question.id ? " is-focus is-active-flow" : ""}${nextQuestion && nextQuestion.id !== question.id ? " is-dimmed-flow" : ""}`}
+                                ref={(element) => {
+                                  questionRefs.current[question.id] = element;
+                                }}
+                                className={`wm-gp__questionCard${question.fullWidth ? " is-full" : ""}${nextQuestion?.id === question.id ? " is-focus is-active-flow" : ""}${nextQuestion && nextQuestion.id !== question.id ? " is-dimmed-flow" : ""}${handoffFocusQuestionId === question.id ? " is-handoff-focus" : ""}`}
                                 data-question-id={question.id}
                                 data-question-input={question.input}
                               >

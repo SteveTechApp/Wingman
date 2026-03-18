@@ -657,7 +657,7 @@ function getDirectOutputCableLength(record: GuidedProjectRecord): string {
   return "1m-2m local";
 }
 
-function buildSuggestedCableList(record: GuidedProjectRecord): string[] {
+export function buildSuggestedCableList(record: GuidedProjectRecord): string[] {
   const track = lower(getWorkflowTrack(record));
   const sourceCount =
     num(record.sourceCount) > 0
