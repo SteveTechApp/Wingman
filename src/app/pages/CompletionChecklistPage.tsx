@@ -428,22 +428,15 @@ export default function CompletionChecklistPage() {
       style={{ width: "100%", maxWidth: "none", margin: 0, minWidth: 0 }}
     >
       <div style={{ display: "grid", gap: 14 }}>
-        <div>
-          <div className="wm-page-eyebrow">WORKFLOW VALIDATION</div>
-          <h1 className="wm-page-title" style={{ marginBottom: 8 }}>
-            Completion Workflow
-          </h1>
-          <div
-            style={{
-              maxWidth: 980,
-              fontSize: 14,
-              color: "rgba(255,255,255,0.88)",
-              lineHeight: 1.5,
-            }}
-          >
-            Use this as the final gate before proposal issue, export, or internal hand-off. The
-            checklist combines manual confirmation with live project and proposal signals so the
-            active opportunity can be marked commercially ready in the shared project store.
+        <div className="wm-page-intro">
+          <div className="wm-page-intro__main">
+            <div className="wm-page-eyebrow">WORKFLOW VALIDATION</div>
+            <h1 className="wm-page-title">Completion Workflow</h1>
+            <div className="wm-page-intro__copy">
+              Use this as the final gate before proposal issue, export, or internal hand-off. The
+              checklist combines manual confirmation with live project and proposal signals so the
+              active opportunity can be marked commercially ready in the shared project store.
+            </div>
           </div>
         </div>
 

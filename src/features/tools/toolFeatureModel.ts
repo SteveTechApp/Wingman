@@ -4,6 +4,7 @@ import {
   Briefcase,
   ClipboardCheck,
   ClipboardList,
+  Compass,
   FileText,
   FolderPlus,
   GraduationCap,
@@ -27,6 +28,17 @@ export type WingmanItem = {
 };
 
 export const WINGMAN_TOOLS: WingmanItem[] = [
+  {
+    id: "navigator",
+    title: "AV Navigator",
+    description: "Use plain-English prompts to guide early sales conversations and point toward the right next tool.",
+    kind: "tool",
+    to: "/app/tools/navigator",
+    tag: "Sales Helper",
+    highlight: "Quick-fire Q&A",
+    accentRgb: "56,189,248",
+    Icon: Compass,
+  },
   {
     id: "guru",
     title: "Guru",
@@ -110,7 +122,7 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
   {
     id: "discovery",
     title: "Guided Project",
-    description: "Capture customer needs, room dynamics, and signal-path decisions without overwhelming the conversation.",
+    description: "Capture customer needs, room dynamics, and signal-path decisions once the opportunity is ready for a fuller workflow.",
     kind: "feature",
     to: "/app/tools/discovery",
     tag: "Workflow",

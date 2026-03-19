@@ -1,0 +1,107 @@
+
+.wm-sidebar-section-tools {
+  margin-top: 12px;
+}
+
+.wm-sidebar-section-tools .wm-sidebar-button {
+  margin-bottom: 6px;
+}
+
+.wm-sidebar-section-tools .wm-sidebar-button:last-child {
+  margin-bottom: 0;
+} 
+.wm-sidebar-button .wm-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* WINGMAN_SIDEBAR_TOOLS_TUNING_START */
+/* Sidebar density reduction + extra breathing room for Tools & Reference */
+
+.wm-sidebar-section[data-section="tools"],
+.wm-sidebar-group[data-section="tools"],
+.wm-sidebar-tools-section {
+  margin-top: 14px;
+  padding-top: 6px;
+}
+
+.wm-sidebar-section[data-section="tools"] .wm-sidebar-button,
+.wm-sidebar-group[data-section="tools"] .wm-sidebar-button,
+.wm-sidebar-tools-section .wm-sidebar-button,
+.wm-sidebar .wm-sidebar-button {
+  min-height: 36px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.2;
+  gap: 10px;
+}
+
+.wm-sidebar-section[data-section="tools"] .wm-sidebar-button + .wm-sidebar-button,
+.wm-sidebar-group[data-section="tools"] .wm-sidebar-button + .wm-sidebar-button,
+.wm-sidebar-tools-section .wm-sidebar-button + .wm-sidebar-button {
+  margin-top: 6px;
+}
+
+.wm-sidebar .wm-sidebar-button .wm-sidebar-icon,
+.wm-sidebar .wm-sidebar-button .wm-nav-icon,
+.wm-sidebar .wm-sidebar-button .wm-icon {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+}
+
+/* Slightly reduce overall sidebar card heaviness where buttons are used */
+.wm-sidebar .wm-sidebar-button {
+  box-sizing: border-box;
+}
+/* WINGMAN_SIDEBAR_TOOLS_TUNING_END */
+
+
+/* WINGMAN_COMPACT_SIDEBAR_BUTTONS_START */
+
+.wm-sidebar .wm-sidebar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* center horizontally */
+  gap: 8px;
+
+  height: 28px;            /* ~50% reduction */
+  padding: 4px 8px;
+
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+/* Center text */
+.wm-sidebar .wm-sidebar-button span,
+.wm-sidebar .wm-sidebar-button .label {
+  text-align: center;
+  flex: none;
+}
+
+/* Reduce icon size */
+.wm-sidebar .wm-sidebar-button .wm-icon,
+.wm-sidebar .wm-sidebar-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Reduce vertical spacing between buttons */
+.wm-sidebar .wm-sidebar-button + .wm-sidebar-button {
+  margin-top: 4px;
+}
+
+/* WINGMAN_COMPACT_SIDEBAR_BUTTONS_END */
+
+/* WINGMAN_SIDEBAR_BUTTON_WIDTH_ONLY_START */
+/* Width-only adjustment for left sidebar buttons */
+.wm-sidebar .wm-sidebar-button,
+.wm-sidebar a.wm-sidebar-button,
+.wm-sidebar button.wm-sidebar-button {
+  width: calc(100% - 28px);
+  margin-left: auto;
+  margin-right: auto;
+}
+/* WINGMAN_SIDEBAR_BUTTON_WIDTH_ONLY_END */

@@ -17,6 +17,7 @@ export const ROUTES: RouteDef[] = [
   { path: "/app/workflow/completion", label: "Completion Workflow", group: "Workspace", nav: false, auth: true },
 
   { path: "/app/tools", label: "Tool Hub", group: "Tools", nav: true, auth: false },
+  { path: "/app/tools/navigator", label: "AV Navigator", group: "Tools", nav: true, auth: false },
   { path: "/app/tools/discovery", label: "Guided Project", group: "Tools", nav: true, auth: false },
   { path: "/app/tools/catalog", label: "Product Catalog", group: "Tools", nav: true, auth: false },
   { path: "/app/tools/proposal", label: "Proposal Builder", group: "Tools", nav: true, auth: false },

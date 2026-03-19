@@ -15,6 +15,7 @@ export type CatalogueProduct = {
   sku: string;
   name: string;
   technology: CatalogueTechnology;
+  technologyTags: CatalogueTechnology[];
   category: string;
   summary: string;
   status: CatalogueStatus;

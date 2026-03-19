@@ -17,7 +17,7 @@ export default function PageFrame({
 }: PageFrameProps) {
   return (
     <div className="wm-page">
-      <div className="wm-page__header">
+      <div className="wm-page__header wm-page-intro">
         <div className="wm-page__heading">
           <h1>{title}</h1>
           {subtitle ? <p>{subtitle}</p> : null}

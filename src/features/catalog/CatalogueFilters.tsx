@@ -166,7 +166,7 @@ export default function CatalogueFilters(props: CatalogueFiltersProps) {
       </div>
 
       <FilterSection
-        title="Technology Type"
+        title="Technology / Capability"
         sectionKey="technology"
         openSections={openSections}
         onToggleSection={toggleSection}

@@ -3,6 +3,7 @@ export const WM_ROUTES = {
   projects: "/app/projects",
   newProject: "/app/projects/new",
   tools: "/app/tools",
+  navigator: "/app/tools/navigator",
   discovery: "/app/tools/discovery",
   importIntake: "/app/tools/import-intake",
   templates: "/app/tools/templates",

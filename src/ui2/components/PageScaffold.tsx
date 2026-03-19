@@ -14,35 +14,22 @@ export default function PageScaffold({
   children,
 }: PageScaffoldProps) {
   return (
-    <div
-      className="wm-page wm-animate-in"
-      style={{
-        width: "100%",
-        maxWidth: "none",
-        margin: 0,
-        minWidth: 0,
-      }}
-    >
-      <div style={{ display: "grid", gap: 14 }}>
-        <div>
+    <div className="wm-page wm-animate-in">
+      <div className="wm-section-stack">
+        <div className="wm-page-intro">
+          <div className="wm-page-intro__main">
           {eyebrow ? <div className="wm-page-eyebrow">{eyebrow}</div> : null}
 
-          <h1 className="wm-page-title" style={{ marginBottom: 8 }}>
+            <h1 className="wm-page-title">
             {title}
           </h1>
 
           {intro ? (
-            <div
-              style={{
-                maxWidth: 760,
-                fontSize: 14,
-                color: "rgba(255,255,255,0.88)",
-                lineHeight: 1.45,
-              }}
-            >
+              <div className="wm-page-intro__copy">
               {intro}
-            </div>
+              </div>
           ) : null}
+        </div>
         </div>
 
         {children}

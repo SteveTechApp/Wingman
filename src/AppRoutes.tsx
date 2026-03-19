@@ -18,6 +18,7 @@ const DashboardPage = React.lazy(() => import("@/features/dashboard/DashboardPag
 const ProjectsPage = React.lazy(() => import("@/features/projects/ProjectsPage"));
 const ProjectNewPage = React.lazy(() => import("@/features/projects/ProjectNewPage"));
 const ToolHubPage = React.lazy(() => import("@/features/tools/ToolHubPage"));
+const AvNavigatorPage = React.lazy(() => import("@/features/navigator/AvNavigatorPage"));
 
 // Tools / workflows
 const DiscoveryWizardPage = React.lazy(() => import("@/features/discovery/DiscoveryWizardPage"));
@@ -72,6 +73,7 @@ export default function AppRoutes() {
           <Route path="tools" element={<ToolHubPage />} />
 
           {/* Tools */}
+          <Route path="tools/navigator" element={<AvNavigatorPage />} />
           <Route path="tools/discovery" element={<DiscoveryWizardPage />} />
           <Route path="tools/catalog" element={<CatalogPage />} />
           <Route path="tools/compare" element={<CompetitorComparePage />} />
@@ -87,6 +89,7 @@ export default function AppRoutes() {
 
           {/* Friendly aliases */}
           <Route path="toolhub" element={<Navigate to="/app/tools" replace />} />
+          <Route path="navigator" element={<Navigate to="/app/tools/navigator" replace />} />
           <Route path="catalogue" element={<Navigate to="/app/tools/catalog" replace />} />
           <Route path="compare" element={<Navigate to="/app/tools/compare" replace />} />
           <Route path="training" element={<Navigate to="/app/tools/training" replace />} />

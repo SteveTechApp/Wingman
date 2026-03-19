@@ -1272,11 +1272,11 @@
 }
 
 .wm-page-eyebrow {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(173, 201, 233, 0.9);
+  color: rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.9);
 }
 
 @keyframes wm-fade-in {
@@ -1315,6 +1315,58 @@
   font-size: 14px;
   line-height: 1.5;
   color: rgba(226, 236, 255, 0.8);
+}
+
+.wm-page-intro,
+.wm-page__header,
+.wm-page-header,
+.wm-pagehead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.wm-page-intro__main,
+.wm-page__heading,
+.wm-pagehead__left {
+  min-width: 0;
+  max-width: 920px;
+  display: grid;
+  gap: 8px;
+}
+
+.wm-page-intro__copy,
+.wm-page__heading p,
+.wm-page-sub,
+.wm-pagehead .wm-lead {
+  max-width: 920px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(226, 236, 255, 0.82);
+}
+
+.wm-page-intro__actions,
+.wm-page__actions,
+.wm-pagehead__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wm-page-title,
+.wm-page__heading h1,
+.wm-pagehead .wm-h1,
+.wm-page-intro__title {
+  margin: 0;
+  font-size: clamp(24px, 2.4vw, 32px);
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #f7fbff;
 }
 
 .wm-about-page,
@@ -8928,13 +8980,27 @@ footer[class*="wm-"] {
 }
 
 /* App-wide typography normalization for routed pages. */
+.wm-app-bg,
+.wm-shell-root,
+.wm-page {
+  font-family: var(--wm-font-ui) !important;
+}
+
+.wm-app-bg :is(h1, h2, h3, h4, h5, h6, p, span, div, label, strong, small, li, a, button, input, select, textarea, th, td),
+.wm-shell-root :is(h1, h2, h3, h4, h5, h6, p, span, div, label, strong, small, li, a, button, input, select, textarea, th, td),
 .wm-page,
 .wm-page button,
 .wm-page input,
 .wm-page select,
 .wm-page textarea,
 .wm-page label {
-  font-family: var(--wm-font-ui);
+  font-family: var(--wm-font-ui) !important;
+}
+
+.wm-app-bg :is(code, pre, kbd, samp),
+.wm-shell-root :is(code, pre, kbd, samp),
+.wm-page :is(code, pre, kbd, samp) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
 }
 
 .wm-page p,
@@ -10578,7 +10644,7 @@ footer[class*="wm-"] {
    ========================================================= */
 
 .wm-video-wall-page{
-  --wm-video-wall-font: "Aptos Narrow", "Bahnschrift", "Segoe UI Variable Text", "Arial Narrow", "Segoe UI", sans-serif;
+  --wm-video-wall-font: var(--wm-font-ui);
   font-family: var(--wm-video-wall-font);
 }
 
@@ -13048,3 +13114,163 @@ footer[class*="wm-"] {
     padding: 10px !important;
   }
 }
+
+/* WINGMAN_NAV_ITEM_WIDTH_FIX_START */
+.wm-nav:not(.is-collapsed) .wm-nav__item {
+  width: fit-content;
+  max-width: 100%;
+}
+/* WINGMAN_NAV_ITEM_WIDTH_FIX_END */
+
+/* WINGMAN_NAV_TEXT_RIGHT_PADDING_START */
+.wm-nav:not(.is-collapsed) .wm-nav__item {
+  width: max-content;
+  max-width: calc(100% - 8px);
+}
+
+.wm-nav:not(.is-collapsed) .wm-nav__item-copy {
+  padding-right: 5px;
+}
+/* WINGMAN_NAV_TEXT_RIGHT_PADDING_END */
+
+/* WINGMAN_NAV_UNIFORM_WIDTH_CENTERED_TEXT_START */
+/* Uniform sidebar button width with left badge and centered text */
+.wm-nav:not(.is-collapsed) .wm-nav__item {
+  width: 152px;
+  max-width: 152px;
+}
+
+.wm-nav:not(.is-collapsed) .wm-nav__item-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  width: 100%;
+  padding-right: 5px;
+  text-align: center;
+}
+
+.wm-nav:not(.is-collapsed) .wm-nav__item-title {
+  width: 100%;
+  text-align: center;
+}
+/* WINGMAN_NAV_UNIFORM_WIDTH_CENTERED_TEXT_END */
+
+/* WINGMAN_SIDEBAR_HIDE_ACTIVE_AND_SPACING_START */
+
+/* Hide active project card in left sidebar */
+.wm-nav__active-card {
+  display: none !important;
+}
+
+/* Tighten the top block slightly once active project is removed */
+.wm-nav__top {
+  gap: 10px;
+}
+
+/* Add slightly more space between nav sections */
+.wm-nav__sections {
+  gap: 16px;
+}
+
+.wm-nav__section {
+  gap: 20px;
+}
+
+/* Add a little more space between buttons */
+.wm-nav__list,
+.wm-nav__links,
+.wm-nav__items {
+  gap: 10px;
+}
+
+/* Keep sidebar buttons consistent and slightly better spaced */
+.wm-nav:not(.is-collapsed) .wm-nav__item {
+  width: 152px;
+  max-width: 152px;
+}
+
+/* Keep icon left, text centred in the remaining button area */
+.wm-nav:not(.is-collapsed) .wm-nav__item-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  padding-right: 5px;
+  text-align: center;
+}
+
+.wm-nav:not(.is-collapsed) .wm-nav__item-title {
+  width: 100%;
+  text-align: center;
+}
+
+/* WINGMAN_SIDEBAR_HIDE_ACTIVE_AND_SPACING_END */
+
+/* WINGMAN_SIDEBAR_BREATHING_ROOM_START */
+
+/* More space between main sidebar sections */
+.wm-nav__sections {
+  gap: 18px;
+}
+
+/* Slightly more space between section title and items */
+.wm-nav__section {
+  gap: 10px;
+}
+
+/* Center button stack within each section */
+.wm-nav__list,
+.wm-nav__links,
+.wm-nav__items {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Keep existing button width, just center each button */
+.wm-nav:not(.is-collapsed) .wm-nav__item {
+  width: 152px;
+  max-width: 152px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* WINGMAN_SIDEBAR_BREATHING_ROOM_END */
+
+/* WINGMAN_SIDEBAR_SECTION_PADDING_CENTER_START */
+
+/* Double the section spacing */
+.wm-nav__sections {
+  gap: 36px;
+}
+
+/* Add breathing room inside each section container */
+.wm-nav__section {
+  gap: 12px;
+  padding: 10px 10px 12px 10px;
+}
+
+/* Center button stack within each section */
+.wm-nav__list,
+.wm-nav__links,
+.wm-nav__items {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+/* Keep current button size, just ensure centered placement */
+.wm-nav:not(.is-collapsed) .wm-nav__item {
+  width: 152px;
+  max-width: 152px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* WINGMAN_SIDEBAR_SECTION_PADDING_CENTER_END */

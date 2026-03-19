@@ -10,6 +10,7 @@ export const ROUTES = {
   ],
   tools: [
     { path: "/app/tools", label: "Tool Hub" },
+    { path: "/app/tools/navigator", label: "AV Navigator" },
     { path: "/app/tools/discovery", label: "Guided Project" },
     { path: "/app/tools/catalog", label: "Catalog" },
     { path: "/app/tools/compare", label: "Compare" },

@@ -97,68 +97,25 @@ export function PageHeader({
 }) {
   return (
     <section
+      className="wm-hero wm-page-intro"
       style={{
-        ...cardStyle(),
         background:
           "linear-gradient(132deg, rgba(var(--wm-page-accent-rgb, 108,196,255),0.2) 0%, rgba(15,30,47,0.9) 38%, rgba(var(--wm-page-accent-rgb, 108,196,255),0.12) 100%)",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: 16,
-          alignItems: "start",
-          flexWrap: "wrap",
-        }}
-      >
-        <div style={{ maxWidth: 900 }}>
-          <div
-            style={{
-              fontSize: 12,
-              lineHeight: 1,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              fontWeight: 800,
-              color: "rgba(120,208,189,0.82)",
-            }}
-          >
-            {eyebrow}
-          </div>
-
-          <h1
-            style={{
-              margin: "10px 0 0",
-              fontSize: 30,
-              lineHeight: 1.04,
-              letterSpacing: "-0.04em",
-              fontWeight: 900,
-              color: "rgba(255,255,255,0.98)",
-            }}
-          >
-            {title}
-          </h1>
-
-          {description ? (
-            <div
-              style={{
-                marginTop: 10,
-                fontSize: 14,
-                lineHeight: 1.55,
-                color: "rgba(255,255,255,0.74)",
-              }}
-            >
-              {description}
-            </div>
-          ) : null}
-        </div>
-
-        {actions ? (
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {actions}
-          </div>
+      <div className="wm-page-intro__main">
+        <div className="wm-page-eyebrow">{eyebrow}</div>
+        <h1 className="wm-page-intro__title">{title}</h1>
+        {description ? (
+          <div className="wm-page-intro__copy">{description}</div>
         ) : null}
       </div>
+
+      {actions ? (
+        <div className="wm-page-intro__actions">
+          {actions}
+        </div>
+      ) : null}
     </section>
   );
 }
