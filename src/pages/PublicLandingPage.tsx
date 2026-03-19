@@ -33,7 +33,7 @@ export default function PublicLandingPage() {
 
           <div style={styles.ctaRow}>
             <Link to="/signup" style={{ ...styles.button, ...styles.primaryButton }}>
-              Create Workspace
+              Create Account
             </Link>
 
             <Link to="/login" style={{ ...styles.button, ...styles.secondaryButton }}>

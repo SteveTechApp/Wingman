@@ -520,7 +520,7 @@ export default function CompetitorComparePage() {
                       <div style={{ fontWeight: row.matches ? 700 : 500 }}>
                         {row.wyrestorm}
                         <span className="wm-muted" style={{ marginLeft: 8 }}>
-                          {row.matches ? "�?,???o�??s�?.??o" : "�?,???o�??s��"}
+                          {row.matches ? "Matched" : "Unmatched"}
                         </span>
                       </div>
                     </div>

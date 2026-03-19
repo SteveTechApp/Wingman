@@ -3,6 +3,8 @@ import * as React from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { WM_ROUTES } from "@/core/wingman/routeMap";
+
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = React.useState(false);
   React.useEffect(() => {
@@ -86,7 +88,7 @@ function FlowLine({ animate }: { animate: boolean }) {
         }}
       >
         <div style={{ fontWeight: 900 }}>How Wingman thinks</div>
-        <div style={{ fontSize: 12, opacity: 0.7 }}>Capture �?,???o�??s� ?f��??s��??z� Validate �?,???o�??s� ?f��??s��??z� Select �?,???o�??s� ?f��??s��??z� Output</div>
+        <div style={{ fontSize: 12, opacity: 0.7 }}>Capture / Validate / Select / Output</div>
       </div>
 
       <div style={{ padding: 14 }}>
@@ -197,7 +199,7 @@ export default function PublicAboutPage() {
             <img src="/heroLogo.png" alt="WyreStorm Wingman" style={{ width: 150, height: "auto", opacity: 0.92 }} />
             <div>
               <div style={{ fontWeight: 900, letterSpacing: "0.04em" }}>Wingman</div>
-              <div style={{ fontSize: 12, opacity: 0.72 }}>About �?,???o� Decision system �?,???o� Tiered outputs</div>
+              <div style={{ fontSize: 12, opacity: 0.72 }}>About / Decision system / Tiered outputs</div>
             </div>
           </div>
 
@@ -237,7 +239,7 @@ export default function PublicAboutPage() {
         <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 16, alignItems: "start" }}>
           <div>
             <div style={{ fontSize: 12, letterSpacing: "0.14em", opacity: 0.75, marginBottom: 12 }}>
-              WYRESTORM CAPABILITY LOGIC �?,???o� INSTALL-AWARE VALIDATION �?,???o� QUOTE-READY STRUCTURE
+              WYRESTORM CAPABILITY LOGIC / INSTALL-AWARE VALIDATION / QUOTE-READY STRUCTURE
             </div>
 
             <h1 style={{ fontSize: "clamp(32px, 4.2vw, 58px)", lineHeight: 1.03, margin: "0 0 14px", fontWeight: 760 }}>
@@ -267,7 +269,7 @@ export default function PublicAboutPage() {
             <div style={{ display: "grid", gap: 10 }}>
               {[
                 { t: "Tiered BOM (Bronze / Silver / Gold)", d: "A complete baseline you can quote, not a vague suggestion." },
-                { t: "Commercial proposal structure", d: "Cost-controlled �?,???o�??s� ?f��??s��??z� recommended �?,???o�??s� ?f��??s��??z� future-proof narrative." },
+                { t: "Commercial proposal structure", d: "Cost-controlled, recommended, future-proof narrative." },
                 { t: "Flags and assumptions", d: "Distances, bandwidth limits, and topology risks highlighted early." },
               ].map((x) => (
                 <div key={x.t} style={{ padding: 12, borderRadius: 14, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(0,0,0,0.14)" }}>
@@ -283,7 +285,7 @@ export default function PublicAboutPage() {
             <div style={{ display: "grid", gap: 10 }}>
               {[
                 { t: "Invalid topology", d: "Wrong roles, missing endpoints, broken assumptions." },
-                { t: "Underspec�?,???o�?,?s�?f��?,?z�d performance", d: "Bandwidth/resolution mismatches flagged before quote." },
+                { t: "Underspecified performance", d: "Bandwidth/resolution mismatches flagged before quote." },
                 { t: "Shipping problems", d: "EoL avoided unless explicitly enabled." },
               ].map((x) => (
                 <div key={x.t} style={{ padding: 12, borderRadius: 14, border: "1px dashed rgba(255,255,255,0.14)", background: "rgba(0,0,0,0.14)" }}>
@@ -321,7 +323,7 @@ export default function PublicAboutPage() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button
               type="button"
-              onClick={() => nav("/app/templates")}
+              onClick={() => nav(WM_ROUTES.templates)}
               style={{
                 borderRadius: 999,
                 padding: "10px 16px",

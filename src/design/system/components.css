@@ -47,6 +47,11 @@
   border:1px solid var(--wm-border);
 
   background:var(--wm-surface-1);
+  color: var(--wm-text);
+  font-family: var(--wm-font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
 
   cursor:pointer;
 }
@@ -71,6 +76,10 @@
   border:1px solid var(--wm-border);
 
   background:var(--wm-surface-1);
+  color: var(--wm-text);
+  font-family: var(--wm-font-ui);
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 /* Tables */
@@ -219,8 +228,10 @@
 }
 
 .wm-ui__label{
-  font-size:12px;
+  font-size:11px;
   font-weight:600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color:rgba(236,244,255,0.75);
 }
 
@@ -236,6 +247,7 @@
   padding:8px 10px;
 
   font-size:14px;
+  line-height:1.5;
   color:var(--wm-text);
 
   outline:none;

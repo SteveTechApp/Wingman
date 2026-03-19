@@ -85,7 +85,7 @@ export default function RoomWizardPage() {
 
       <div ref={step1Ref} style={workflowWrapStyle(1)} onClick={() => setActiveStep(1)}>
         <PageSection
-          title={`Step 1 �f�?s· Choose the Starting Point${activeStep === 1 ? " �f�?s· Current position" : ""}`}
+          title={`Step 1 / Choose the Starting Point${activeStep === 1 ? " / Current position" : ""}`}
           subtitle="Select market, room type, and solution tier."
         >
           <div className="wm-grid-3">
@@ -142,7 +142,7 @@ export default function RoomWizardPage() {
 
       <div ref={step2Ref} style={workflowWrapStyle(2)} onClick={() => setActiveStep(2)}>
         <PageSection
-          title={`Step 2 �f�?s· Recommended Design Direction${activeStep === 2 ? " �f�?s· Current position" : ""}`}
+          title={`Step 2 / Recommended Design Direction${activeStep === 2 ? " / Current position" : ""}`}
           subtitle="Use the template choice to simplify the next design decision."
         >
           <div className="wm-grid-2">
@@ -175,7 +175,7 @@ export default function RoomWizardPage() {
 
       <div ref={step3Ref} style={workflowWrapStyle(3)} onClick={() => setActiveStep(3)}>
         <PageSection
-          title={`Step 3 �f�?s· Template Snapshot${activeStep === 3 ? " �f�?s· Current position" : ""}`}
+          title={`Step 3 / Template Snapshot${activeStep === 3 ? " / Current position" : ""}`}
           subtitle="Summary of the current room wizard selection."
         >
           <div className="wm-summaryList">

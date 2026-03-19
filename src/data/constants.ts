@@ -54,8 +54,8 @@ export const SUPPORTED_LANGUAGES: { code: LanguageCode, name: string }[] = [
     { code: 'en-GB', name: 'English (UK)' },
     { code: 'en-US', name: 'English (US)' },
     { code: 'en-AU', name: 'English (AU)' },
-    { code: 'fr-FR', name: 'Fran�?,???o�ais (France)' },
-    { code: 'es-ES', name: 'Espa�?,???o�ol (Espa�?,???o�a)' },
+    { code: 'fr-FR', name: 'Francais (France)' },
+    { code: 'es-ES', name: 'Espanol (Espana)' },
     { code: 'de-DE', name: 'Deutsch (Deutschland)' },
 ];
 

@@ -123,7 +123,7 @@ img {
 }
 
 .wm-title-xl {
-  font-size: 24px;
+  font-size: clamp(26px, 2.2vw, 34px);
   line-height: 1.08;
   font-weight: 900;
   letter-spacing: -0.03em;
@@ -131,29 +131,29 @@ img {
 }
 
 .wm-title-lg {
-  font-size: 14px;
-  line-height: 1.2;
+  font-size: 18px;
+  line-height: 1.22;
   font-weight: 800;
   color: #f3f8ff;
 }
 
 .wm-title-md {
-  font-size: 12px;
-  line-height: 1.2;
+  font-size: 16px;
+  line-height: 1.24;
   font-weight: 800;
   color: #f3f8ff;
 }
 
 .wm-body {
   color: var(--wm-text-2);
-  line-height: 1.45;
-  font-size: 12px;
+  line-height: 1.55;
+  font-size: 14px;
 }
 
 .wm-body-sm {
   color: var(--wm-text-3);
-  line-height: 1.45;
-  font-size: 11px;
+  line-height: 1.5;
+  font-size: 13px;
 }
 
 .wm-muted {
@@ -161,7 +161,7 @@ img {
 }
 
 .wm-section-title {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--wm-text);
   letter-spacing: 0.01em;
@@ -171,8 +171,9 @@ img {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
-  padding: 4px 8px;
-  font-size: 10px;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.35px;
   color: #dff7ff;
@@ -187,9 +188,11 @@ img {
   background: rgba(255,255,255,0.035);
   color: var(--wm-text);
   border-radius: 10px;
-  padding: 8px 11px;
-  font-size: 12px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
   font-weight: 700;
+  line-height: 1;
   cursor: pointer;
   transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
 }
@@ -214,7 +217,8 @@ img {
   background: rgba(11,20,33,0.78);
   color: var(--wm-text);
   border-radius: 12px;
-  height: 34px;
+  min-height: 36px;
+  height: 36px;
   padding: 0 14px;
   font-size: 12px;
   font-weight: 800;
@@ -228,15 +232,16 @@ img {
 }
 
 .wm-input-shell {
-  height: 40px;
+  min-height: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   border-radius: 14px;
   border: 1px solid var(--wm-border);
   background: rgba(11,22,37,0.78);
   color: var(--wm-text);
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   padding: 0 14px;
   overflow: hidden;
   white-space: nowrap;
@@ -252,7 +257,7 @@ img {
 }
 
 .wm-stat-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--wm-text-3);
 }

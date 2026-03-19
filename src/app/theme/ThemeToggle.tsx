@@ -36,7 +36,7 @@ export default function ThemeToggle() {
       type="button"
       className="wm-btn wm-btn-quiet"
       onClick={() => setMode(m => next(m))}
-      title="Cycle theme: Auto –€ â€™ Dark –€ â€™ Light"
+      title="Cycle theme: Auto -> Dark -> Light"
       aria-label={label}
     >
       {label}

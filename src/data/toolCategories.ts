@@ -1,7 +1,7 @@
 import * as React from "react";
 
 export type ToolCategoryId =
-  | "Workspace"
+  | "Projects"
   | "Tools"
   | "Training"
   | "Support"
@@ -22,11 +22,11 @@ export type ToolCategory = {
 
 export const TOOL_CATEGORIES: ToolCategory[] = [
   {
-    id: "Workspace",
-    label: "Workspace",
+    id: "Projects",
+    label: "Projects",
     items: [
       { path: "/app/dashboard", label: "Dashboard", description: "Overview and status" },
-      { path: "/app/projects", label: "Projects", description: "Saved workspaces" },
+      { path: "/app/projects", label: "Projects", description: "Saved projects" },
     ],
   },
   {

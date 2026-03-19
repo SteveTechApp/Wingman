@@ -90,7 +90,10 @@ export default function AppRoutes() {
           <Route path="catalogue" element={<Navigate to="/app/tools/catalog" replace />} />
           <Route path="compare" element={<Navigate to="/app/tools/compare" replace />} />
           <Route path="training" element={<Navigate to="/app/tools/training" replace />} />
+          <Route path="templates" element={<Navigate to="/app/tools/templates" replace />} />
+          <Route path="import" element={<Navigate to="/app/tools/import-intake" replace />} />
           <Route path="survey-import" element={<Navigate to="/app/tools/import-intake" replace />} />
+          <Route path="settings/workspace" element={<Navigate to="/app/projects" replace />} />
 
           {/* App 404 */}
           <Route path="*" element={<NotFoundPage />} />

@@ -1109,13 +1109,18 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
 }
 
 /* Legacy class compatibility layer for routed pages */
 .wm-chip {
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
+  min-height: 30px;
   padding: 0 10px;
   border-radius: 999px;
   border: 1px solid rgba(119, 166, 230, 0.18);
@@ -1123,6 +1128,7 @@
   color: rgba(236, 244, 255, 0.9);
   font-size: 12px;
   font-weight: 700;
+  line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -1136,7 +1142,7 @@
 .wm-label {
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(214, 227, 243, 0.76);
 }
@@ -1148,7 +1154,9 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(10, 22, 36, 0.6);
   color: rgba(245, 250, 255, 0.96);
-  padding: 9px 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.45;
   outline: none;
 }
 
@@ -1209,15 +1217,16 @@
 
 .wm-card__title {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 800;
+  line-height: 1.22;
   color: #f4f8ff;
 }
 
 .wm-card__subtitle {
   margin: 0;
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.5;
   color: rgba(214, 227, 243, 0.78);
 }
 
@@ -1713,17 +1722,24 @@
 .wm-split-columns {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 12px;
+  gap: 16px;
   align-items: start;
 }
 
 .wm-work-card {
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(180deg, rgba(24, 42, 64, 0.72), rgba(18, 33, 50, 0.8));
-  padding: 10px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(var(--wm-page-accent-rgb, 115, 231, 255), 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(17, 33, 52, 0.94), rgba(11, 22, 37, 0.97));
+  padding: 14px;
   display: grid;
-  gap: 7px;
+  gap: 9px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 14px 30px rgba(4, 12, 22, 0.18);
 }
 
 .wm-work-card--primary {
@@ -1828,17 +1844,164 @@
 .wm-form-input,
 .wm-form-textarea {
   width: 100%;
+  min-height: 42px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.11);
   background: rgba(17, 32, 49, 0.86);
   color: rgba(245, 250, 255, 0.96);
-  padding: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.45;
   outline: none;
 }
 
 .wm-form-input::placeholder,
 .wm-form-textarea::placeholder {
   color: rgba(209, 223, 241, 0.58);
+}
+
+.wm-page-lead {
+  max-width: 920px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(224, 236, 250, 0.86);
+}
+
+.wm-flow-section {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(9, 20, 33, 0.82), rgba(7, 16, 28, 0.68));
+  opacity: 0.76;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+.wm-flow-section.is-active {
+  border-color: rgba(var(--wm-flow-accent-rgb, 96, 194, 132), 0.34);
+  background: linear-gradient(
+    180deg,
+    rgba(var(--wm-flow-accent-rgb, 96, 194, 132), 0.12),
+    rgba(var(--wm-flow-accent-rgb, 96, 194, 132), 0.05)
+  );
+  box-shadow:
+    0 0 0 1px rgba(var(--wm-flow-accent-rgb, 96, 194, 132), 0.12),
+    0 18px 36px rgba(var(--wm-flow-accent-rgb, 96, 194, 132), 0.08);
+  opacity: 1;
+}
+
+.wm-flow-section__eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.wm-flow-section__eyebrow.is-active {
+  color: rgba(var(--wm-flow-accent-rgb, 96, 194, 132), 0.94);
+}
+
+.wm-choice-card {
+  width: 100%;
+  text-align: left;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at top left, rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.06), transparent 32%),
+    rgba(255, 255, 255, 0.04);
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.96);
+  cursor: pointer;
+  display: grid;
+  gap: 6px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.wm-choice-card.is-active {
+  border-color: rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.34);
+  background:
+    radial-gradient(circle at top left, rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.14), transparent 34%),
+    linear-gradient(
+      180deg,
+      rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.18),
+      rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.08)
+    );
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.08),
+    0 12px 24px rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.08);
+}
+
+.wm-choice-card__title {
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: rgba(248, 251, 255, 0.98);
+}
+
+.wm-choice-card__body {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.wm-choice-card__meta {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.wm-tier-button {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wm-tier-button.is-active {
+  border-color: rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.38);
+  background: linear-gradient(
+    180deg,
+    rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.22),
+    rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.10)
+  );
+  box-shadow: 0 10px 18px rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.10);
+}
+
+.wm-bullet-list {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-bullet-list__item {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.wm-bullet-list__dot {
+  width: 9px;
+  height: 9px;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: rgba(var(--wm-choice-accent-rgb, 115, 231, 255), 0.92);
+}
+
+.wm-bullet-list__copy {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .wm-card,
@@ -1906,7 +2069,8 @@
 }
 
 .wm-dashboard-page__start-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 .wm-dashboard-page__rail {
@@ -1920,10 +2084,15 @@
   background: linear-gradient(180deg, rgba(25, 44, 68, 0.9), rgba(17, 32, 49, 0.94));
 }
 
+.wm-dashboard-page__panel {
+  gap: 16px;
+}
+
 .wm-dashboard-page__action-card {
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  min-height: 320px;
   border-color: rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.18);
   background:
     radial-gradient(circle at 16% 14%, rgba(var(--wm-action-accent-rgb, 115, 231, 255), 0.18), transparent 26%),
@@ -2905,10 +3074,14 @@ section{
 /* Route typography and spacing harmonization */
 .wm-page-subtitle{
   margin-top: 2px;
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .wm-page-subtitle-muted{
   margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.55;
   opacity: 0.78;
 }
 
@@ -8341,6 +8514,213 @@ footer[class*="wm-"] {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.wm-import-divider {
+  height: 4px;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(103, 232, 249, 0.8), rgba(74, 222, 128, 0.72), rgba(251, 191, 36, 0.72));
+}
+
+.wm-import-panel {
+  --wm-panel-accent-rgb: var(--wm-page-accent-rgb, 107, 211, 255);
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(var(--wm-panel-accent-rgb), 0.16);
+  background:
+    radial-gradient(circle at top left, rgba(var(--wm-panel-accent-rgb), 0.10), transparent 34%),
+    linear-gradient(180deg, rgba(11, 24, 38, 0.96), rgba(8, 18, 30, 0.92));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+.wm-import-panel--metric {
+  min-height: 100%;
+  gap: 10px;
+}
+
+.wm-import-panel--source {
+  background:
+    radial-gradient(circle at top left, rgba(var(--wm-panel-accent-rgb), 0.08), transparent 34%),
+    rgba(255, 255, 255, 0.04);
+}
+
+.wm-import-panel--review {
+  background:
+    radial-gradient(circle at top left, rgba(var(--wm-panel-accent-rgb), 0.12), transparent 36%),
+    linear-gradient(180deg, rgba(11, 26, 36, 0.94), rgba(7, 18, 28, 0.94));
+}
+
+.wm-import-panel--mini {
+  padding: 14px;
+  border-color: rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top left, rgba(var(--wm-panel-accent-rgb), 0.08), transparent 32%),
+    rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.wm-import-panel__eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.wm-import-panel__title {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: rgba(248, 251, 255, 0.98);
+}
+
+.wm-import-panel__metric {
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: rgba(248, 251, 255, 0.98);
+}
+
+.wm-import-panel__value {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: rgba(248, 251, 255, 0.98);
+}
+
+.wm-import-panel__hero-value {
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: -0.05em;
+  color: rgba(248, 251, 255, 0.98);
+}
+
+.wm-import-panel__helper {
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.wm-import-empty-text {
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.wm-import-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.wm-import-list--tight {
+  margin-top: 6px;
+  opacity: 0.82;
+}
+
+.wm-import-file-list {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-import-file-item {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wm-import-file-item__head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wm-import-file-item__meta {
+  min-width: 0;
+}
+
+.wm-import-file-item__name {
+  font-size: 11px;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.wm-import-file-item__size {
+  margin-top: 2px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.wm-import-file-item__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.wm-import-file-item__body {
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.wm-import-file-item__excerpt {
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.wm-import-note {
+  padding: 7px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(120, 208, 189, 0.16);
+  background: rgba(12, 33, 44, 0.5);
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.wm-import-drawer__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wm-import-drawer__title-wrap {
+  min-width: 0;
+}
+
+.wm-import-drawer__title {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: rgba(248, 251, 255, 0.98);
+}
+
+.wm-import-drawer__body {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  overflow-y: auto;
+}
+
 .wm-import-intake-page__layout {
   display: grid;
   gap: 14px;
@@ -8453,19 +8833,28 @@ footer[class*="wm-"] {
 }
 
 .wm-shell-main{
-  padding: 8px 10px 12px;
+  padding: 12px 14px 18px;
 }
 
 .wm-page{
+  --wm-page-accent-rgb: 115, 231, 255;
   --wm-page-accent: rgba(115, 231, 255, 0.36);
-  gap: 10px !important;
+  gap: 14px !important;
 }
 
 .wm-page > .wm-hero{
   position: relative;
   overflow: hidden;
-  border-radius: 10px;
-  padding: 12px 14px !important;
+  border-radius: 18px;
+  padding: 18px 20px !important;
+  border: 1px solid rgba(var(--wm-page-accent-rgb), 0.24);
+  background:
+    radial-gradient(circle at top left, rgba(var(--wm-page-accent-rgb), 0.16), transparent 26%),
+    radial-gradient(circle at top right, rgba(var(--wm-page-accent-rgb), 0.12), transparent 30%),
+    linear-gradient(135deg, rgba(17, 34, 53, 0.98), rgba(11, 22, 36, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 20px 42px rgba(var(--wm-page-accent-rgb), 0.12);
 }
 
 .wm-page > .wm-hero::after{
@@ -8473,8 +8862,10 @@ footer[class*="wm-"] {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(108deg, var(--wm-page-accent), transparent 46%);
-  opacity: 0.2;
+  background:
+    linear-gradient(110deg, rgba(var(--wm-page-accent-rgb), 0.18), transparent 42%),
+    radial-gradient(circle at 82% 10%, rgba(var(--wm-page-accent-rgb), 0.14), transparent 24%);
+  opacity: 0.95;
 }
 
 .wm-page > .wm-hero > *{
@@ -8484,37 +8875,151 @@ footer[class*="wm-"] {
 
 .wm-page .wm-title-xl,
 .wm-page .wm-hero h1{
-  margin-bottom: 6px !important;
-  font-size: clamp(22px, 2.2vw, 30px) !important;
+  margin-bottom: 8px !important;
+  font-size: clamp(24px, 2.4vw, 32px) !important;
   line-height: 1.08;
 }
 
 .wm-page .wm-page-subtitle-muted{
-  margin-top: 4px;
-  font-size: 12px;
-  line-height: 1.4;
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(224, 236, 250, 0.84);
 }
 
 .wm-page .wm-section{
-  margin-top: 12px !important;
-  padding: 12px !important;
-  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 10px !important;
+  padding: 16px !important;
+  border-radius: 18px;
+  border: 1px solid rgba(var(--wm-page-accent-rgb), 0.18);
+  border-left: 4px solid rgba(var(--wm-page-accent-rgb), 0.52);
+  background:
+    radial-gradient(circle at top left, rgba(var(--wm-page-accent-rgb), 0.11), transparent 26%),
+    linear-gradient(180deg, rgba(16, 31, 49, 0.96), rgba(9, 20, 34, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 18px 36px rgba(4, 12, 22, 0.18);
 }
 
 .wm-page .wm-section__head{
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.wm-page .wm-section__titles h2{
+  font-size: clamp(20px, 1.5vw, 24px);
+  line-height: 1.14;
 }
 
 .wm-page .wm-section__titles p{
-  margin: 2px 0 0;
-  font-size: 12px;
-  line-height: 1.4;
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(216, 229, 244, 0.78);
 }
 
 .wm-page .wm-card,
 .wm-page .wm-work-card{
-  padding: 12px !important;
-  border-radius: 10px;
+  padding: 16px !important;
+  border-radius: 16px;
+}
+
+/* App-wide typography normalization for routed pages. */
+.wm-page,
+.wm-page button,
+.wm-page input,
+.wm-page select,
+.wm-page textarea,
+.wm-page label {
+  font-family: var(--wm-font-ui);
+}
+
+.wm-page p,
+.wm-page li,
+.wm-page td,
+.wm-page th,
+.wm-page label,
+.wm-page input,
+.wm-page select,
+.wm-page textarea,
+.wm-page button,
+.wm-page .wm-body,
+.wm-page .wm-body-sm,
+.wm-page .wm-page-sub,
+.wm-page .wm-page-subtitle,
+.wm-page .wm-page-subtitle-muted {
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.wm-page small,
+.wm-page .wm-chip,
+.wm-page .wm-tag,
+.wm-page .wm-label,
+.wm-page .wm-kicker,
+.wm-page [class$="__eyebrow"],
+.wm-page [class*="__eyebrow "] {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.wm-page .wm-card__title,
+.wm-page .wm-title-md,
+.wm-page .wm-title-lg,
+.wm-page .wm-work-card__head h3,
+.wm-page .wm-page-title {
+  font-size: clamp(17px, 1.2vw, 19px);
+  line-height: 1.24;
+}
+
+.wm-page .wm-btn,
+.wm-page .wm-btn-nav,
+.wm-page .wm-tier-button {
+  min-height: 40px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.wm-page .wm-form-input,
+.wm-page .wm-form-textarea,
+.wm-page .wm-select,
+.wm-page .wm-textarea,
+.wm-page .wm-input-shell,
+.wm-page .wm-ui__input,
+.wm-page .wm-ui__select,
+.wm-page .wm-ui__textarea {
+  min-height: 42px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.wm-page [style*="font-size: 10px"],
+.wm-page [style*="font-size:10px"] {
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+}
+
+.wm-page [style*="font-size: 11px"],
+.wm-page [style*="font-size:11px"] {
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+}
+
+.wm-page [style*="font-size: 12px"],
+.wm-page [style*="font-size:12px"],
+.wm-page [style*="font-size: 13px"],
+.wm-page [style*="font-size:13px"] {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+.wm-page [style*="font-size: 14px"],
+.wm-page [style*="font-size:14px"] {
+  font-size: 14px !important;
+  line-height: 1.55 !important;
 }
 
 /* Hide low-value informational pills; keep action controls visible. */
@@ -8529,13 +9034,20 @@ footer[class*="wm-"] {
 }
 
 /* Page accent variation so routes are easier to distinguish. */
-.wm-dashboard-page{ --wm-page-accent: rgba(115, 231, 255, 0.38); }
-.wm-guided-project-page{ --wm-page-accent: rgba(116, 224, 153, 0.4); }
-.wm-import-intake-page{ --wm-page-accent: rgba(107, 211, 255, 0.4); }
-.wm-catalog-page{ --wm-page-accent: rgba(87, 231, 233, 0.42); }
-.wm-proposal-builder-page{ --wm-page-accent: rgba(255, 176, 110, 0.42); }
-.wm-product-intel-page{ --wm-page-accent: rgba(143, 161, 255, 0.4); }
-.wm-project-overview-page{ --wm-page-accent: rgba(127, 235, 190, 0.38); }
+.wm-dashboard-page{ --wm-page-accent-rgb: 115, 231, 255; --wm-page-accent: rgba(115, 231, 255, 0.38); }
+.wm-guided-project-page{ --wm-page-accent-rgb: 116, 224, 153; --wm-page-accent: rgba(116, 224, 153, 0.4); }
+.wm-import-intake-page{ --wm-page-accent-rgb: 107, 211, 255; --wm-page-accent: rgba(107, 211, 255, 0.4); }
+.wm-catalog-page{ --wm-page-accent-rgb: 87, 231, 233; --wm-page-accent: rgba(87, 231, 233, 0.42); }
+.wm-proposal-builder-page{ --wm-page-accent-rgb: 255, 176, 110; --wm-page-accent: rgba(255, 176, 110, 0.42); }
+.wm-product-intel-page{ --wm-page-accent-rgb: 143, 161, 255; --wm-page-accent: rgba(143, 161, 255, 0.4); }
+.wm-project-overview-page{ --wm-page-accent-rgb: 127, 235, 190; --wm-page-accent: rgba(127, 235, 190, 0.38); }
+.wm-project-new-page{ --wm-page-accent-rgb: 96, 194, 132; --wm-page-accent: rgba(96, 194, 132, 0.38); }
+.wm-projects-page{ --wm-page-accent-rgb: 104, 188, 255; --wm-page-accent: rgba(104, 188, 255, 0.38); }
+.wm-tool-hub-page{ --wm-page-accent-rgb: 96, 194, 132; --wm-page-accent: rgba(96, 194, 132, 0.34); }
+.wm-about-page{ --wm-page-accent-rgb: 120, 176, 255; --wm-page-accent: rgba(120, 176, 255, 0.34); }
+.wm-profile-page{ --wm-page-accent-rgb: 111, 214, 201; --wm-page-accent: rgba(111, 214, 201, 0.34); }
+.wm-templates-page{ --wm-page-accent-rgb: 96, 194, 132; --wm-page-accent: rgba(96, 194, 132, 0.36); }
+.wm-lookup-page{ --wm-page-accent-rgb: 252, 160, 95; --wm-page-accent: rgba(252, 160, 95, 0.34); }
 
 /* Catalog cleanup: shorter reference cards and less helper clutter. */
 .wm-catalog-page__search-foot{

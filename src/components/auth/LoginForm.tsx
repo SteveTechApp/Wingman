@@ -61,7 +61,7 @@ export default function LoginForm({
       {!!title && (
         <div className={isModern ? "wm-login-form__title-group" : undefined}>
           <div className={isModern ? "wm-login-form__eyebrow" : undefined}>
-            Workspace access
+            Account access
           </div>
           <div className={isModern ? "wm-login-form__title" : "wm-h2"}>
             {title}
@@ -157,25 +157,25 @@ export default function LoginForm({
 
       {isModern ? (
         <div className="wm-login-form__status-card">
-          <div className="wm-login-form__status-title">Workspace services</div>
+          <div className="wm-login-form__status-title">Service status</div>
           <div className="wm-login-form__status-copy">
             {backendHealthy
-              ? "Backend workspace services are available and ready for live sign-in."
-              : "Backend workspace services look unavailable right now. Demo mode will still let you explore the app."}
+              ? "Backend services are available and ready for live sign-in."
+              : "Backend services look unavailable right now. Demo mode will still let you explore the app."}
           </div>
         </div>
       ) : (
         <div className="wm-body-sm" style={{ opacity: 0.76 }}>
           {backendHealthy
-            ? "Backend workspace services are available."
-            : "Backend workspace services look unavailable right now. Demo mode will still let you explore the app."}
+            ? "Backend services are available."
+            : "Backend services look unavailable right now. Demo mode will still let you explore the app."}
         </div>
       )}
 
       <div className={isModern ? "wm-login-form__footer" : "wm-body-sm"} style={isModern ? undefined : { opacity: 0.76 }}>
         Need an account?{" "}
         <Link className={isModern ? "wm-login-form__footer-link" : undefined} to="/signup">
-          Create workspace
+          Create account
         </Link>
       </div>
     </form>

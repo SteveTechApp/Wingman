@@ -16,7 +16,7 @@ export default function ProductCard({
   onViewDetails,
 }: ProductCardProps) {
   return (
-    <article className="wm-cat2__card">
+    <article className="wm-work-card wm-cat2__card">
       <div className="wm-cat2__card-top">
         <div>
           <p className="wm-cat2__sku">{product.sku}</p>
@@ -47,7 +47,7 @@ export default function ProductCard({
       </div>
 
       <div className="wm-cat2__apps">
-        Best for: {product.applications.slice(0, 2).join(" ?f��??s�� ")}
+        Best for: {product.applications.slice(0, 2).join(", ")}
       </div>
 
       <div className="wm-cat2__actions">

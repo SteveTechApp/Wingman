@@ -50,7 +50,7 @@ export default function PublicLandingPage() {
             cursor: "pointer",
           }}
         >
-          Enter Workspace
+          Open App
         </button>
       </div>
     </div>

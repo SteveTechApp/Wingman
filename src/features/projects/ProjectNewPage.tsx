@@ -17,7 +17,6 @@ import { WM_ROUTES } from "@/core/wingman/routeMap";
 import {
   RECENT_TEXT_HISTORY_KEYS,
   RECENT_TEXT_HISTORY_SCOPES,
-  getRecentTextEntries,
   rememberRecentTextEntry,
 } from "@/features/inputs/recentTextEntries";
 import {
@@ -85,7 +84,7 @@ const RECOMMENDED_FAMILIES: DiscoveryProductFamily[] = [
   "Video Wall",
 ];
 const FLOW_ACTIVE_RGB = "96,194,132";
-type ProjectFlowStep = "details" | "reuse" | "start";
+type ProjectFlowStep = "details" | "reuse";
 
 function normalizeRecommendedFamilies(
   values?: string[],
@@ -158,15 +157,6 @@ export default function ProjectNewPage() {
     getRecentProjectsSnapshot,
     getRecentProjectsServerSnapshot,
   );
-  const recentCustomers = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.customer, {
-    scope: RECENT_TEXT_HISTORY_SCOPES.projectNew,
-  }).slice(0, 3);
-  const recentSites = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.site, {
-    scope: RECENT_TEXT_HISTORY_SCOPES.projectNew,
-  }).slice(0, 3);
-  const recentRooms = getRecentTextEntries(RECENT_TEXT_HISTORY_KEYS.roomName, {
-    scope: RECENT_TEXT_HISTORY_SCOPES.projectNew,
-  }).slice(0, 3);
   const hasRecentProjects = recentProjects.length > 0;
 
   React.useEffect(() => {
@@ -174,34 +164,12 @@ export default function ProjectNewPage() {
     setName((current) => current.trim() ? current : templateSeed.projectName);
   }, [templateSeed]);
 
-  function workflowSectionStyle(step: ProjectFlowStep): React.CSSProperties {
-    const isActive = activeFlowStep === step;
-    return {
-      borderRadius: 18,
-      border: isActive
-        ? `1px solid rgba(${FLOW_ACTIVE_RGB},0.34)`
-        : "1px solid rgba(255,255,255,0.08)",
-      background: isActive
-        ? `linear-gradient(180deg, rgba(${FLOW_ACTIVE_RGB},0.10), rgba(${FLOW_ACTIVE_RGB},0.04))`
-        : "linear-gradient(180deg, rgba(9,16,28,0.94), rgba(6,11,20,0.92))",
-      boxShadow: isActive
-        ? `0 0 0 1px rgba(${FLOW_ACTIVE_RGB},0.12), 0 18px 48px rgba(${FLOW_ACTIVE_RGB},0.08)`
-        : "0 18px 48px rgba(0,0,0,0.22)",
-      opacity: isActive ? 1 : 0.66,
-      transition: "border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, opacity 180ms ease",
-    };
+  function flowSectionClassName(step: ProjectFlowStep) {
+    return `wm-section wm-flow-section${activeFlowStep === step ? " is-active" : ""}`;
   }
 
-  function workflowLabelStyle(step: ProjectFlowStep): React.CSSProperties {
-    const isActive = activeFlowStep === step;
-    return {
-      marginBottom: 8,
-      fontSize: 11,
-      fontWeight: 800,
-      letterSpacing: "0.14em",
-      textTransform: "uppercase",
-      color: isActive ? `rgba(${FLOW_ACTIVE_RGB},0.94)` : "rgba(255,255,255,0.62)",
-    };
+  function flowEyebrowClassName(step: ProjectFlowStep) {
+    return `wm-flow-section__eyebrow${activeFlowStep === step ? " is-active" : ""}`;
   }
 
   React.useEffect(() => {
@@ -315,7 +283,7 @@ export default function ProjectNewPage() {
         <div className="wm-grid wm-project-new-page__hero">
           <div className="wm-kicker">Projects</div>
           <div className="wm-title-xl">Start New Project</div>
-          <div className="wm-body-sm wm-page-subtitle-muted" style={{ maxWidth: 920 }}>
+          <div className="wm-page-lead">
             Create the project shell once, then choose the best way to begin. Wingman should
             adapt to how the opportunity arrives, whether that is a guided conversation, a proven
             template, a customer brief, or an existing diagram.
@@ -371,13 +339,20 @@ export default function ProjectNewPage() {
 
       <section
         ref={detailsRef}
-        className="wm-section"
-        style={workflowSectionStyle("details")}
+        className={flowSectionClassName("details")}
+        style={{
+          "--wm-flow-accent-rgb": FLOW_ACTIVE_RGB,
+          width: "100%",
+          maxWidth: 980,
+          justifySelf: "start",
+        } as React.CSSProperties}
         onClick={() => setActiveFlowStep("details")}
       >
         <div className="wm-section__head">
           <div className="wm-section__titles">
-            <div style={workflowLabelStyle("details")}>Step 1 / Opportunity details{activeFlowStep === "details" ? " / Current position" : ""}</div>
+            <div className={flowEyebrowClassName("details")}>
+              Step 1 / Opportunity details{activeFlowStep === "details" ? " / Current position" : ""}
+            </div>
             <h2>Opportunity details</h2>
             <p>Keep this light. Add just enough commercial context so the next workflow has a project to work from.</p>
           </div>
@@ -430,56 +405,6 @@ export default function ProjectNewPage() {
           </label>
         </div>
 
-        {recentCustomers.length > 0 || recentSites.length > 0 || recentRooms.length > 0 ? (
-          <div style={{ marginTop: 16, display: "grid", gap: 10 }}>
-            <div className="wm-body-sm" style={{ opacity: 0.78 }}>
-              Quick carry-forward
-            </div>
-
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {recentCustomers.map((value) => (
-                <button
-                  key={`customer-${value}`}
-                  type="button"
-                  className="wm-chip"
-                  onClick={() => {
-                    setCustomer(value);
-                    setActiveFlowStep("reuse");
-                  }}
-                >
-                  Customer: {value}
-                </button>
-              ))}
-              {recentSites.map((value) => (
-                <button
-                  key={`site-${value}`}
-                  type="button"
-                  className="wm-chip"
-                  onClick={() => {
-                    setSite(value);
-                    setActiveFlowStep("reuse");
-                  }}
-                >
-                  Site: {value}
-                </button>
-              ))}
-              {recentRooms.map((value) => (
-                <button
-                  key={`room-${value}`}
-                  type="button"
-                  className="wm-chip"
-                  onClick={() => {
-                    setName(value);
-                    setActiveFlowStep("reuse");
-                  }}
-                >
-                  Room: {value}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
         <div className="wm-actions-row" style={{ marginTop: 16 }}>
           <button
             type="button"
@@ -494,13 +419,15 @@ export default function ProjectNewPage() {
       {hasRecentProjects ? (
         <section
           ref={reuseRef}
-          className="wm-section"
-          style={workflowSectionStyle("reuse")}
+          className={flowSectionClassName("reuse")}
+          style={{ "--wm-flow-accent-rgb": FLOW_ACTIVE_RGB } as React.CSSProperties}
           onClick={() => setActiveFlowStep("reuse")}
         >
           <div className="wm-section__head">
             <div className="wm-section__titles">
-              <div style={workflowLabelStyle("reuse")}>Step 1 / Reuse context{activeFlowStep === "reuse" ? " / Current position" : ""}</div>
+              <div className={flowEyebrowClassName("reuse")}>
+                Step 1 / Reuse context{activeFlowStep === "reuse" ? " / Current position" : ""}
+              </div>
               <h2>Reuse recent project context</h2>
               <p>Pull forward the commercial context or duplicate a similar room so repeat work starts faster.</p>
             </div>

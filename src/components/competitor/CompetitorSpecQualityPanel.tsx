@@ -172,7 +172,7 @@ export default function CompetitorSpecQualityPanel({ item, compact = false }: Pr
               >
                 <div style={{ color: "white", fontWeight: 700, fontSize: 13 }}>{warning.message}</div>
                 <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 11, marginTop: 3 }}>
-                  {warning.severity.toUpperCase()} Ã¢â‚¬Â¢ {warning.code}
+                  {warning.severity.toUpperCase()} / {warning.code}
                 </div>
               </div>
             ))}

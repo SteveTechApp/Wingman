@@ -7,7 +7,7 @@ import { deleteProject, setActiveProjectId } from "@/features/projects/projectSt
 
 function toCompactSummary(summary: string): string {
   const normalized = String(summary ?? "").replace(/\s+/g, " ").trim();
-  if (!normalized) return "Project workspace ready.";
+  if (!normalized) return "Project ready.";
 
   const sentence = normalized.split(/(?<=[.!?])\s+/)[0] || normalized;
   if (sentence.length <= 140) return sentence;
@@ -36,7 +36,7 @@ export default function ProjectsPage() {
       <section className="wm-hero">
         <div className="wm-page-hero-row">
           <div>
-            <div className="wm-title-xl">Projects workspace</div>
+            <div className="wm-title-xl">Projects</div>
             <div className="wm-body-sm wm-page-subtitle">
               Track opportunities, continue active work, and jump back into the right workflow.
             </div>
@@ -135,7 +135,7 @@ export default function ProjectsPage() {
           {projects.length === 0 ? (
             <div className="wm-dashboard-empty">
               <div className="wm-title-lg">No projects yet</div>
-              <div className="wm-body">Create your first project to start building live workspace data.</div>
+              <div className="wm-body">Create your first project to start building live project data.</div>
             </div>
           ) : null}
         </div>

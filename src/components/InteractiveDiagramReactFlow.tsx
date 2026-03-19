@@ -287,7 +287,7 @@ const InteractiveDiagram: React.FC<InteractiveDiagramProps> = ({
     return (
       <div className="h-full\ flex\ items-center\ justify-center\ bg-gray-50\ dark:bg-gray-800\ border\ border-border-color\ rounded-lg">
         <div className="text-center\ p-8">
-          <div className="text-6xl\ mb-4">�?,???o�??s��?f???�?,??"?</div>
+          <div className="text-6xl\ mb-4">[]</div>
           <h3 className="text-xl\ font-bold\ mb-2">No Equipment Yet</h3>
           <p className="text-text-secondary">
             Add equipment to your room to see the system diagram

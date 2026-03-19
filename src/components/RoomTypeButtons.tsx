@@ -10,21 +10,21 @@ interface RoomType {
 }
 
 const roomTypes: RoomType[] = [
-  { id: 'conference', name: 'Conference Room', icon: '�?,???o�?f??s�', optionsCount: 8, category: 'meeting' },
-  { id: 'boardroom', name: 'Boardroom', icon: '�?,???o�??s�?<?"?f��??s��', optionsCount: 3, category: 'meeting' },
-  { id: 'huddle', name: 'Huddle Space', icon: '�?,???o�??s��??z�?f??s�', optionsCount: 3, category: 'workspace' },
-  { id: 'classroom', name: 'Classroom', icon: '�?,???o�??s�?.??o?f???�', optionsCount: 3, category: 'education' },
-  { id: 'lecture', name: 'Lecture Hall', icon: '�?,???o�??s�?.??o', optionsCount: 3, category: 'education' },
-  { id: 'auditorium', name: 'Auditorium', icon: '�?,???o�', optionsCount: 5, category: 'entertainment' },
-  { id: 'worship', name: 'House of Worship', icon: '�?,???o�??s��?f??s�', optionsCount: 1, category: 'other' },
-  { id: 'command', name: 'Command Center', icon: '�?,???o�??s��?,??"?f??s��?,???o�?f??s�', optionsCount: 4, category: 'workspace' },
-  { id: 'sports', name: 'Sports Bar', icon: '�?,???o�?f???�?,?�', optionsCount: 0, category: 'entertainment' },
-  { id: 'retail', name: 'Retail Space', icon: '�?,???o�?f??s�', optionsCount: 0, category: 'other' },
-  { id: 'venue', name: 'Large Venue', icon: '�?,???o�?f???��?,???o�?f??s�', optionsCount: 0, category: 'entertainment' },
-  { id: 'other', name: 'Other', icon: '�?,???o�??s�?.??o?f��??s��', optionsCount: 0, category: 'other' },
-  { id: 'lobby', name: 'Lobby', icon: '�?,???o�', optionsCount: 0, category: 'other' },
-  { id: 'briefing', name: 'Briefing Room', icon: '�?,???o�??s�?.??o?f??? ', optionsCount: 0, category: 'meeting' },
-  { id: 'council', name: 'Council Chamber', icon: '�?,???o�??s��?,??"�?,???o�?f??s�', optionsCount: 0, category: 'meeting' },
+  { id: 'conference', name: 'Conference Room', icon: 'CR', optionsCount: 8, category: 'meeting' },
+  { id: 'boardroom', name: 'Boardroom', icon: 'BR', optionsCount: 3, category: 'meeting' },
+  { id: 'huddle', name: 'Huddle Space', icon: 'HS', optionsCount: 3, category: 'workspace' },
+  { id: 'classroom', name: 'Classroom', icon: 'CL', optionsCount: 3, category: 'education' },
+  { id: 'lecture', name: 'Lecture Hall', icon: 'LH', optionsCount: 3, category: 'education' },
+  { id: 'auditorium', name: 'Auditorium', icon: 'AU', optionsCount: 5, category: 'entertainment' },
+  { id: 'worship', name: 'House of Worship', icon: 'HW', optionsCount: 1, category: 'other' },
+  { id: 'command', name: 'Command Center', icon: 'CC', optionsCount: 4, category: 'workspace' },
+  { id: 'sports', name: 'Sports Bar', icon: 'SB', optionsCount: 0, category: 'entertainment' },
+  { id: 'retail', name: 'Retail Space', icon: 'CR', optionsCount: 0, category: 'other' },
+  { id: 'venue', name: 'Large Venue', icon: 'LV', optionsCount: 0, category: 'entertainment' },
+  { id: 'other', name: 'Other', icon: 'OT', optionsCount: 0, category: 'other' },
+  { id: 'lobby', name: 'Lobby', icon: 'AU', optionsCount: 0, category: 'other' },
+  { id: 'briefing', name: 'Briefing Room', icon: 'LH?f??? ', optionsCount: 0, category: 'meeting' },
+  { id: 'council', name: 'Council Chamber', icon: 'CO', optionsCount: 0, category: 'meeting' },
 ];
 
 const RoomTypeButtons: React.FC = () => {
@@ -206,7 +206,7 @@ const RoomTypeButtons: React.FC = () => {
               color: '#00642f',
               fontWeight: '600',
             }}>
-              �?,???o�??s�?.??o {roomTypes.find(r => r.id === selectedRoom)?.name} selected
+              LH {roomTypes.find(r => r.id === selectedRoom)?.name} selected
             </p>
           </div>
         )}
@@ -231,6 +231,5 @@ const RoomTypeButtons: React.FC = () => {
 };
 
 export default RoomTypeButtons;
-
 
 

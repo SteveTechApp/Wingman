@@ -1557,7 +1557,7 @@ export default function ImportIntakePage() {
               <section style={cardStyle()}>
                 <div style={sectionTitleStyle()}>Carry-forward summary</div>
                 <div style={sectionTextStyle()}>
-                  This is the shape of the handoff Wingman is about to write back into the workspace.
+                  This is the shape of the handoff Wingman is about to write back into the project.
                 </div>
 
                 <div style={{ marginTop: 16, display: "grid", gap: 10 }}>

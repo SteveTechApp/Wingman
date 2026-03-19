@@ -40,7 +40,7 @@ export default function AppFooter() {
  <div className="wm-app-footer__meta">
  <span>Copyright {year} WyreStorm Technologies</span>
  <span className="wm-app-footer__sep" aria-hidden="true">|</span>
- <span>Secure commercial workspace shell</span>
+ <span>Commercial AV project platform</span>
  </div>
  </div>
  </footer>

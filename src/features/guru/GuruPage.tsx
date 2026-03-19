@@ -1820,7 +1820,7 @@ export default function GuruPage() {
                 <div className="wm-guru-float-historyHead">
                   <div className="wm-guru-float-explain-label">Recent Guru History</div>
                   <div className="wm-guru-float-muted">
-                    {activeProject?.name ? `Project: ${activeProject.name}` : "General workspace"}
+                    {activeProject?.name ? `Project: ${activeProject.name}` : "General context"}
                   </div>
                 </div>
                 <div className="wm-guru-float-historyList">

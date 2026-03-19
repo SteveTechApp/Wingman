@@ -113,95 +113,108 @@ export default function CataloguePage() {
   }
 
   return (
-    <div className="wm-cat2">
-      <CatalogueHeader
-        search={filters.search}
-        onSearchChange={(value) => setFilters((prev) => ({ ...prev, search: value }))}
-        resultCount={results.length}
-        compareCount={compareSkus.length}
-      />
-
-      <CatalogueQuickChips
-        technologies={TECHNOLOGY_OPTIONS}
-        selected={filters.technology}
-        onToggle={toggleTechnology}
-      />
-
-      <div className="wm-cat2__layout">
-        <CatalogueFilters
-          technologyOptions={TECHNOLOGY_OPTIONS}
-          categoryOptions={categoryOptions}
-          featureOptions={featureOptions}
-          statusOptions={STATUS_OPTIONS}
-          selectedTechnology={filters.technology}
-          selectedCategory={filters.category}
-          selectedFeatures={filters.featureTags}
-          selectedStatus={filters.status}
-          onToggleTechnology={toggleTechnology}
-          onToggleCategory={toggleCategory}
-          onToggleFeature={toggleFeature}
-          onToggleStatus={toggleStatus}
-          onClear={clearFilters}
+    <div className="wm-page wm-catalog-page wm-cat2">
+      <section className="wm-hero">
+        <CatalogueHeader
+          search={filters.search}
+          onSearchChange={(value) => setFilters((prev) => ({ ...prev, search: value }))}
+          resultCount={results.length}
+          compareCount={compareSkus.length}
         />
 
-        <main className="wm-cat2__results">
-          <div className="wm-cat2__toolbar wm-cat2__toolbar--stack">
-            <div>
-              <h2>Results</h2>
-              <p>Search by SKU, technology family, or specific capability.</p>
-            </div>
+        <CatalogueQuickChips
+          technologies={TECHNOLOGY_OPTIONS}
+          selected={filters.technology}
+          onToggle={toggleTechnology}
+        />
+      </section>
 
-            <div className="wm-cat2__sort">
-              <label htmlFor="wm-cat2-sort">Sort</label>
-              <select
-                id="wm-cat2-sort"
-                className="wm-cat2__select"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as CatalogueSort)}
-              >
-                <option value="relevance">Relevance</option>
-                <option value="sku-asc">SKU A-Z</option>
-                <option value="sku-desc">SKU Z-A</option>
-                <option value="technology">Technology</option>
-              </select>
-            </div>
+      <section className="wm-section wm-section--tone-cyan">
+        <div className="wm-section__head">
+          <div className="wm-section__titles">
+            <h2>Catalogue workspace</h2>
+            <p>Filter by technology, compare shortlist options, and inspect product detail without leaving the catalog.</p>
           </div>
+        </div>
 
-          {!hasActiveFilters ? (
-            <div className="wm-cat2__empty">
-              <h3>Search the WyreStorm product catalogue</h3>
-              <p>
-                Start by entering a SKU, choosing a technology type, or selecting a feature to display matching products.
-              </p>
-            </div>
-          ) : results.length === 0 ? (
-            <div className="wm-cat2__empty">
-              <h3>No matching products found</h3>
-              <p>Try removing one or more filters or use a broader search term.</p>
-              <button type="button" className="wm-cat2__btn wm-cat2__btn--primary" onClick={clearFilters}>
-                Clear filters
-              </button>
-            </div>
-          ) : (
-            <div className="wm-cat2__grid">
-              {results.map((product) => (
-                <ProductCard
-                  key={product.sku}
-                  product={product}
-                  compared={compareSkus.includes(product.sku)}
-                  onToggleCompare={toggleCompare}
-                  onViewDetails={setSelectedSku}
-                />
-              ))}
-            </div>
-          )}
-        </main>
+        <div className="wm-section__body">
+          <div className="wm-cat2__layout">
+            <CatalogueFilters
+              technologyOptions={TECHNOLOGY_OPTIONS}
+              categoryOptions={categoryOptions}
+              featureOptions={featureOptions}
+              statusOptions={STATUS_OPTIONS}
+              selectedTechnology={filters.technology}
+              selectedCategory={filters.category}
+              selectedFeatures={filters.featureTags}
+              selectedStatus={filters.status}
+              onToggleTechnology={toggleTechnology}
+              onToggleCategory={toggleCategory}
+              onToggleFeature={toggleFeature}
+              onToggleStatus={toggleStatus}
+              onClear={clearFilters}
+            />
 
-        <CompareDrawer
-          products={compareProducts}
-          onRemove={(sku) => setCompareSkus((prev) => prev.filter((x) => x !== sku))}
-        />
-      </div>
+            <main className="wm-work-card wm-cat2__results">
+              <div className="wm-cat2__toolbar wm-cat2__toolbar--stack">
+                <div>
+                  <h2>Results</h2>
+                  <p>Search by SKU, technology family, or specific capability.</p>
+                </div>
+
+                <div className="wm-cat2__sort">
+                  <label htmlFor="wm-cat2-sort">Sort</label>
+                  <select
+                    id="wm-cat2-sort"
+                    className="wm-cat2__select"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as CatalogueSort)}
+                  >
+                    <option value="relevance">Relevance</option>
+                    <option value="sku-asc">SKU A-Z</option>
+                    <option value="sku-desc">SKU Z-A</option>
+                    <option value="technology">Technology</option>
+                  </select>
+                </div>
+              </div>
+
+              {!hasActiveFilters ? (
+                <div className="wm-work-card wm-cat2__empty">
+                  <h3>Search the WyreStorm product catalogue</h3>
+                  <p>
+                    Start by entering a SKU, choosing a technology type, or selecting a feature to display matching products.
+                  </p>
+                </div>
+              ) : results.length === 0 ? (
+                <div className="wm-work-card wm-cat2__empty">
+                  <h3>No matching products found</h3>
+                  <p>Try removing one or more filters or use a broader search term.</p>
+                  <button type="button" className="wm-cat2__btn wm-cat2__btn--primary" onClick={clearFilters}>
+                    Clear filters
+                  </button>
+                </div>
+              ) : (
+                <div className="wm-cat2__grid">
+                  {results.map((product) => (
+                    <ProductCard
+                      key={product.sku}
+                      product={product}
+                      compared={compareSkus.includes(product.sku)}
+                      onToggleCompare={toggleCompare}
+                      onViewDetails={setSelectedSku}
+                    />
+                  ))}
+                </div>
+              )}
+            </main>
+
+            <CompareDrawer
+              products={compareProducts}
+              onRemove={(sku) => setCompareSkus((prev) => prev.filter((x) => x !== sku))}
+            />
+          </div>
+        </div>
+      </section>
 
       <ProductDetailDrawer product={selectedProduct} onClose={() => setSelectedSku(null)} />
     </div>

@@ -41,12 +41,13 @@
   --wm-btn-h: 40px;
   --wm-input-h: 38px;
 
-  --wm-font-ui: Inter, "Segoe UI", Arial, sans-serif;
-  --wm-fs-body: 15px;
+  --wm-font-ui: Inter, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  --wm-font-sans: var(--wm-font-ui);
+  --wm-fs-body: 14px;
   --wm-fs-label: 12px;
-  --wm-fs-card: 17px;
-  --wm-fs-section: 24px;
-  --wm-fs-page: 44px;
+  --wm-fs-card: 18px;
+  --wm-fs-section: clamp(22px, 1.8vw, 28px);
+  --wm-fs-page: clamp(30px, 2.8vw, 40px);
 
   --wm-fw-body: 400;
   --wm-fw-ui: 500;
@@ -74,6 +75,7 @@ body,
   font-family: var(--wm-font-ui);
   font-size: var(--wm-fs-body);
   font-weight: var(--wm-fw-body);
+  line-height: 1.5;
   letter-spacing: var(--wm-ls-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -91,6 +93,7 @@ textarea {
   font-family: var(--wm-font-ui);
   font-size: var(--wm-fs-body);
   font-weight: var(--wm-fw-body);
+  line-height: 1.5;
   letter-spacing: var(--wm-ls-normal);
 }
 

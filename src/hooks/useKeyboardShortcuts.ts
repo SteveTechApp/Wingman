@@ -58,9 +58,9 @@ export const getShortcutLabel = (shortcut: Omit<KeyboardShortcut, 'action' | 'de
   const parts: string[] = [];
   const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 
-  if (shortcut.ctrl) parts.push(isMac ? 'Ãƒ¢Ã…â€™Ã‹Å“' : 'Ctrl');
-  if (shortcut.shift) parts.push(isMac ? 'â€“â‚¬¡Ã‚§' : 'Shift');
-  if (shortcut.alt) parts.push(isMac ? 'â€“¥' : 'Alt');
+  if (shortcut.ctrl) parts.push(isMac ? 'Cmd' : 'Ctrl');
+  if (shortcut.shift) parts.push(isMac ? 'Shift' : 'Shift');
+  if (shortcut.alt) parts.push(isMac ? 'Alt' : 'Alt');
   parts.push(shortcut.key.toUpperCase());
 
   return parts.join(isMac ? '' : '+');
