@@ -5,14 +5,18 @@ import { getWingmanFeatures, getWingmanTools } from "@/core/wingman/wingmanData"
 import { useAuth } from "@/context/AuthContext";
 import type { WingmanItem } from "@/features/tools/toolFeatureModel";
 
-const CORE_TOOL_IDS = ["guru", "catalogue", "competitor-compare", "videowall", "product-intelligence"];
+const CORE_TOOL_IDS = ["navigator", "guru", "catalogue", "competitor-compare", "videowall", "product-intelligence"];
 const ADMIN_TOOL_IDS = ["competitor-lookup-diagnostics"];
 const ENABLEMENT_FEATURE_IDS = ["training"];
-const GRID_SLOTS = 9;
 
 type ItemCopyOverride = Partial<Pick<WingmanItem, "title" | "description" | "tag" | "highlight">>;
 
 const TOOL_COPY_OVERRIDES: Record<string, ItemCopyOverride> = {
+  navigator: {
+    description: "Use quick-fire, plain-English prompts to guide newer sellers through early customer conversations.",
+    tag: "Sales Helper",
+    highlight: "Simplify the first call",
+  },
   guru: {
     description: "Ask for AV guidance, product direction, and technical answers whenever you need a fast steer.",
     tag: "Sales Assistant",

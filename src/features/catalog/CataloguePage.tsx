@@ -3,10 +3,17 @@ import CatalogueHeader from "./CatalogueHeader";
 import CatalogueQuickChips from "./CatalogueQuickChips";
 import CatalogueFilters from "./CatalogueFilters";
 import ProductCard from "./ProductCard";
+import ProductDigestRow from "./ProductDigestRow";
 import CompareDrawer from "./CompareDrawer";
 import ProductDetailDrawer from "./ProductDetailDrawer";
+import { getCategoryAccent } from "./catalogCategoryAccent";
 import { realCatalogueProducts } from "./catalogue.data.generated";
-import { filterProducts, uniqueValues, type CatalogueSort } from "./catalogue.utils";
+import {
+  filterProducts,
+  groupProductsByTechnology,
+  uniqueValues,
+  type CatalogueSort,
+} from "./catalogue.utils";
 import type {
   CatalogueFilters as CatalogueFiltersState,
   CatalogueStatus,
@@ -24,6 +31,7 @@ function toggleInArray<T>(items: T[], value: T): T[] {
 }
 
 export default function CataloguePage() {
+  const [viewMode, setViewMode] = React.useState<"list" | "cards">("list");
   const [filters, setFilters] = React.useState<CatalogueFiltersState>({
     search: "",
     technology: [],
@@ -72,6 +80,8 @@ export default function CataloguePage() {
     () => realCatalogueProducts.find((product) => product.sku === selectedSku) ?? null,
     [selectedSku]
   );
+
+  const resultGroups = React.useMemo(() => groupProductsByTechnology(results), [results]);
 
   function toggleTechnology(value: CatalogueTechnology) {
     setFilters((prev) => ({ ...prev, technology: toggleInArray(prev.technology, value) }));
@@ -176,6 +186,23 @@ export default function CataloguePage() {
                     <option value="technology">Technology</option>
                   </select>
                 </div>
+
+                <div className="wm-cat2__view-toggle" role="tablist" aria-label="Catalog view">
+                  <button
+                    type="button"
+                    className={viewMode === "list" ? "wm-cat2__view-btn is-active" : "wm-cat2__view-btn"}
+                    onClick={() => setViewMode("list")}
+                  >
+                    Digest list
+                  </button>
+                  <button
+                    type="button"
+                    className={viewMode === "cards" ? "wm-cat2__view-btn is-active" : "wm-cat2__view-btn"}
+                    onClick={() => setViewMode("cards")}
+                  >
+                    Cards
+                  </button>
+                </div>
               </div>
 
               {!hasActiveFilters ? (
@@ -194,16 +221,61 @@ export default function CataloguePage() {
                   </button>
                 </div>
               ) : (
-                <div className="wm-cat2__grid">
-                  {results.map((product) => (
-                    <ProductCard
-                      key={product.sku}
-                      product={product}
-                      compared={compareSkus.includes(product.sku)}
-                      onToggleCompare={toggleCompare}
-                      onViewDetails={setSelectedSku}
-                    />
-                  ))}
+                <div className="wm-cat2__groups">
+                  {resultGroups.map((group) => {
+                    const accent = getCategoryAccent(group.title);
+                    const categoryPreview = group.categories.slice(0, 3).join(" · ");
+                    const extraCategoryCount = Math.max(group.categories.length - 3, 0);
+                    const groupStyle = {
+                      "--wm-cat2-group-accent": accent.chipBg,
+                      "--wm-cat2-group-accent-border": accent.border,
+                      "--wm-cat2-group-accent-text": accent.chipText,
+                    } as React.CSSProperties;
+
+                    return (
+                      <section key={group.key} className="wm-cat2__group" style={groupStyle}>
+                        <div className="wm-cat2__group-head">
+                          <div className="wm-cat2__group-copy">
+                            <p className="wm-cat2__group-label">Product type</p>
+                            <h3>{group.title}</h3>
+                            <p>
+                              {categoryPreview || "Catalog products"}
+                              {extraCategoryCount > 0 ? ` +${extraCategoryCount} more` : ""}
+                            </p>
+                          </div>
+                          <span className="wm-cat2__group-count">
+                            {group.items.length} {group.items.length === 1 ? "item" : "items"}
+                          </span>
+                        </div>
+
+                        {viewMode === "list" ? (
+                          <div className="wm-cat2__list">
+                            {group.items.map((product) => (
+                              <ProductDigestRow
+                                key={product.sku}
+                                product={product}
+                                compared={compareSkus.includes(product.sku)}
+                                onToggleCompare={toggleCompare}
+                                onViewDetails={setSelectedSku}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="wm-cat2__grid">
+                            {group.items.map((product) => (
+                              <ProductCard
+                                key={product.sku}
+                                product={product}
+                                compared={compareSkus.includes(product.sku)}
+                                onToggleCompare={toggleCompare}
+                                onViewDetails={setSelectedSku}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </section>
+                    );
+                  })}
                 </div>
               )}
             </main>

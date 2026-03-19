@@ -133,7 +133,7 @@ export default function DashboardPage() {
                     <div className="wm-title-lg" style={{ fontSize: 22, lineHeight: 1.14 }}>
                       {card.title}
                     </div>
-                    <div className="wm-body" style={{ fontSize: 14, lineHeight: 1.6 }}>
+                    <div className="wm-body" style={{ fontSize: 16, lineHeight: 1.6 }}>
                       {card.description}
                     </div>
                   </div>

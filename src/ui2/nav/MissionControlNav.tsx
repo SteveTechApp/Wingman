@@ -191,7 +191,8 @@ export default function MissionControlNav({ collapsed = false, onToggleCollapse 
                       justifyContent: "center",
                       fontSize: 9,
                       fontWeight: 700,
-                      justifySelf: collapsed ? "center" : "start",
+                      justifySelf: collapsed ? "center" : "center",
+                      maxWidth: "fit-content",
                     }}
                   >
                     {item.short}

@@ -10,14 +10,14 @@ type Props = {
 
 export default function PageHeader({ title, subtitle, actions, right, className }: Props) {
   return (
-    <div className={["wm-pagehead", className].filter(Boolean).join(" ")}>
-      <div className="wm-pagehead__left">
-        <div className="wm-h1">{title}</div>
-        {subtitle ? <div className="wm-lead">{subtitle}</div> : null}
+    <div className={["wm-pagehead", "wm-page-intro", className].filter(Boolean).join(" ")}>
+      <div className="wm-pagehead__left wm-page-intro__main">
+        <div className="wm-h1 wm-page-intro__title">{title}</div>
+        {subtitle ? <div className="wm-lead wm-page-intro__copy">{subtitle}</div> : null}
       </div>
 
       {(actions || right) ? (
-        <div className="wm-pagehead__actions">
+        <div className="wm-pagehead__actions wm-page-intro__actions">
           {actions}
           {right}
         </div>

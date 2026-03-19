@@ -1,7 +1,7 @@
-import type { CatalogueFilters, CatalogueProduct, ProductCardView } from "./catalogue.types";
+import type { CatalogueFilters, CatalogueTechnology, CatalogueProduct, ProductCardView } from "./catalogue.types";
 
 function normalise(value: string): string {
-  return value.toLowerCase().replace(/[\s\-_\/]+/g, "");
+  return value.toLowerCase().replace(/[\s/_-]+/g, "");
 }
 
 function scoreProduct(product: CatalogueProduct, search: string): number {
@@ -10,7 +10,7 @@ function scoreProduct(product: CatalogueProduct, search: string): number {
 
   const sku = normalise(product.sku);
   const name = normalise(product.name);
-  const tech = normalise(product.technology);
+  const tech = product.technologyTags.map(normalise).join(" ");
   const category = normalise(product.category);
   const summary = normalise(product.summary);
   const tags = product.featureTags.map(normalise);
@@ -79,6 +79,15 @@ function matchesOneOf(selected: string[], actual: string): boolean {
   return selected.some((item) => getNormalisedTechnologyBucket(item) === actualNorm);
 }
 
+function matchesTechnology(selected: CatalogueTechnology[], actual: CatalogueTechnology[]): boolean {
+  if (selected.length === 0) {
+    return true;
+  }
+
+  const actualNorm = new Set(actual.map(getNormalisedTechnologyBucket));
+  return selected.some((item) => actualNorm.has(getNormalisedTechnologyBucket(item)));
+}
+
 function matchesAnyTag(selected: string[], actualTags: string[]): boolean {
   if (selected.length === 0) {
     return true;
@@ -89,6 +98,13 @@ function matchesAnyTag(selected: string[], actualTags: string[]): boolean {
 }
 
 export type CatalogueSort = "relevance" | "sku-asc" | "sku-desc" | "technology";
+
+export type CatalogueProductGroup = {
+  key: CatalogueTechnology;
+  title: CatalogueTechnology;
+  items: ProductCardView[];
+  categories: string[];
+};
 
 export function filterProducts(
   products: CatalogueProduct[],
@@ -102,11 +118,12 @@ export function filterProducts(
     }))
     .filter((product) => {
       const technologyMatch = matchesOneOf(filters.technology, product.technology);
+      const technologyTagMatch = matchesTechnology(filters.technology, product.technologyTags);
       const categoryMatch = matchesOneOf(filters.category, product.category);
       const statusMatch = matchesOneOf(filters.status, product.status);
       const featureMatch = matchesAnyTag(filters.featureTags, product.featureTags);
 
-      if (!technologyMatch) {
+      if (!technologyMatch && !technologyTagMatch) {
         return false;
       }
 
@@ -165,4 +182,29 @@ export function filterProducts(
 
 export function uniqueValues<T>(items: readonly T[]): T[] {
   return [...new Set<T>(items)];
+}
+
+export function groupProductsByTechnology(products: ProductCardView[]): CatalogueProductGroup[] {
+  const groups = new Map<CatalogueTechnology, CatalogueProductGroup>();
+
+  for (const product of products) {
+    const existing = groups.get(product.technology);
+
+    if (existing) {
+      existing.items.push(product);
+      if (product.category && !existing.categories.includes(product.category)) {
+        existing.categories.push(product.category);
+      }
+      continue;
+    }
+
+    groups.set(product.technology, {
+      key: product.technology,
+      title: product.technology,
+      items: [product],
+      categories: product.category ? [product.category] : [],
+    });
+  }
+
+  return Array.from(groups.values());
 }
