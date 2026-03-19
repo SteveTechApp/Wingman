@@ -14,7 +14,7 @@ export default function GuruFab({ onClick, isOpen = false }: Props) {
       title="Open Guru assistant"
       aria-label="Open Guru assistant"
     >
-      <span className="wm-guru-fab__icon">�f¢�.�?o¦</span>
+      <span className="wm-guru-fab__icon">AI</span>
       <span className="wm-guru-fab__label">Guru</span>
     </button>
   );

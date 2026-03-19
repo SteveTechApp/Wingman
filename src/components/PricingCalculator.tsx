@@ -182,7 +182,7 @@ const PricingCalculator: React.FC<PricingCalculatorProps> = ({ equipment, onPric
                       <div className="font-semibold\ text-sm">{item.name}</div>
                       <div className="text-xs\ text-text-secondary">{item.sku}</div>
                       <div className="text-xs\ text-text-secondary\ mt-1">
-                        {formatCurrency(unitPrice)} �?"�,��?� {quantity}
+                        {formatCurrency(unitPrice)} x {quantity}
                       </div>
                     </div>
                     <div className="text-right">

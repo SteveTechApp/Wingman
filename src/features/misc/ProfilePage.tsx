@@ -13,7 +13,7 @@ export default function ProfilePage() {
           <div>
             <div style={{ fontWeight: 700, fontSize: 18 }}>User Profile</div>
             <div style={{ opacity: 0.75, fontSize: 13 }}>
-              Set your preferences before entering the workspace.
+              Set your preferences before opening the app.
             </div>
           </div>
 
@@ -27,7 +27,7 @@ export default function ProfilePage() {
               onClick={() => nav("/app/tools")}
               type="button"
             >
-              Enter Workspace
+              Open Tools
             </button>
           </div>
         </div>
@@ -38,7 +38,7 @@ export default function ProfilePage() {
 
         {!open && (
           <div style={{ marginTop: 12, opacity: 0.8, fontSize: 13 }}>
-            Profile panel closed. Use the workspace button above.
+            Profile panel closed. Use the Open Tools button above.
           </div>
         )}
       </div>

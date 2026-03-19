@@ -255,7 +255,7 @@ export const CORPORATE_TEMPLATES: UserTemplate[] = [
                 { sku: 'APO-DG2', name: 'Apollo USB-C/HDMI Wireless Casting Dongle (for -W SKUs)', quantity: 1, category: 'Unified Communications', description: 'Wireless casting dongle with USB data support for BYOM.', tags: ['UC', 'Casting', 'Wireless', 'USB-C', 'HDMI', 'Dongle', 'BYOM', 'USB'] },
                 { sku: 'GEN-PTZ-CAM', name: 'Generic 4K PTZ Camera', quantity: 1, category: 'Camera', description: 'A professional 4K pan-tilt-zoom camera with 12x optical zoom, USB, and IP streaming.', tags: ['Camera', 'PTZ', '4K', 'USB', '12x Zoom', 'USB3.0', 'IP Stream', 'HDMI'] },
                 { sku: 'COM-MIC-HUB', name: 'Microphone Hub | Microphone Mixer', quantity: 1, category: 'Audio Processor', description: 'AEC & AGC & ANR | Web-UI', tags: ['DSP', 'Microphone', 'Mixer', 'AEC', 'AGC'] },
-                { sku: 'SYN-TOUCH10', name: 'Synergy�?,???o�??s�?.�?f??s� 10.1�?,???o�?,?s�?f??s� All-in-One Touchpad IP Controller', quantity: 1, category: 'Control', description: 'PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible)', tags: ['Control', 'Touchscreen', 'Synergy'] },
+                { sku: 'SYN-TOUCH10', name: 'Synergy 10.1in All-in-One Touchpad IP Controller', quantity: 1, category: 'Control', description: 'PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible)', tags: ['Control', 'Touchscreen', 'Synergy'] },
             ],
             constructionDetails: { wallConstruction: 'drywall', cableContainment: 'floor_boxes', furnitureType: 'fixed' },
             audioSystemDetails: { speakerLayout: 'in_ceiling', systemType: 'low_impedance', useCases: ['speech_reinforcement', 'video_conferencing'], microphoneType: 'ceiling_mic', ucCompatibility: true },

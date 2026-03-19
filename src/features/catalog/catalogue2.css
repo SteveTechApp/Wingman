@@ -1,22 +1,22 @@
 .wm-cat2 {
   display: grid;
   gap: 18px;
-  padding: 18px;
+  padding: 0;
   color: #e8eef8;
 }
 
 .wm-cat2__header {
   display: grid;
-  gap: 16px;
-  padding: 20px;
-  border: 1px solid rgba(110, 145, 190, 0.22);
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(16, 24, 37, 0.96), rgba(10, 16, 26, 0.94));
+  gap: 20px;
+}
+
+.wm-cat2__header-copy {
+  max-width: 780px;
 }
 
 .wm-cat2__eyebrow {
   margin: 0 0 4px 0;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #7eb9ff;
@@ -24,29 +24,37 @@
 
 .wm-cat2__title {
   margin: 0;
-  font-size: 30px;
-  line-height: 1.1;
+  font-size: clamp(30px, 2.7vw, 38px);
+  line-height: 1.08;
 }
 
 .wm-cat2__subtitle {
   margin: 6px 0 0 0;
+  font-size: 14px;
+  line-height: 1.55;
   color: #aab7ca;
 }
 
-.wm-cat2__header-tools {
+.wm-cat2__header-tools,
+.wm-cat2__search-wrap {
   display: grid;
   gap: 12px;
 }
 
+.wm-cat2__header-tools {
+  max-width: 860px;
+}
+
 .wm-cat2__search {
   width: 100%;
-  height: 48px;
+  min-height: 44px;
+  height: 44px;
   border-radius: 14px;
   border: 1px solid rgba(124, 158, 207, 0.22);
   background: rgba(8, 13, 22, 0.9);
   color: #eef4ff;
   padding: 0 16px;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .wm-cat2__meta {
@@ -64,6 +72,7 @@
   border: 1px solid rgba(110, 145, 190, 0.18);
   color: #c9d8ee;
   font-size: 12px;
+  line-height: 1.2;
 }
 
 .wm-cat2__chips {
@@ -76,9 +85,12 @@
   border: 1px solid rgba(115, 143, 182, 0.2);
   background: rgba(16, 24, 37, 0.9);
   color: #d9e6f8;
-  padding: 10px 14px;
+  min-height: 40px;
+  padding: 0 14px;
   border-radius: 999px;
   cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .wm-cat2__chip.is-active {
@@ -97,9 +109,7 @@
 .wm-cat2__filters,
 .wm-cat2__compare,
 .wm-cat2__results {
-  border: 1px solid rgba(110, 145, 190, 0.18);
-  border-radius: 20px;
-  background: rgba(10, 16, 26, 0.92);
+  min-width: 0;
 }
 
 .wm-cat2__filters {
@@ -121,7 +131,7 @@
 
 .wm-cat2__filter-group h3 {
   margin: 0 0 10px 0;
-  font-size: 13px;
+  font-size: 14px;
   color: #dce7f7;
 }
 
@@ -142,6 +152,8 @@
   border-radius: 12px;
   cursor: pointer;
   text-align: left;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .wm-cat2__check.is-active {
@@ -183,6 +195,8 @@
 
 .wm-cat2__toolbar p {
   margin: 4px 0 0 0;
+  font-size: 14px;
+  line-height: 1.5;
   color: #9eb0c7;
 }
 
@@ -196,9 +210,6 @@
   display: grid;
   gap: 12px;
   padding: 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(105, 133, 172, 0.16);
-  background: linear-gradient(180deg, rgba(17, 26, 39, 0.96), rgba(11, 18, 29, 0.96));
   min-height: 260px;
 }
 
@@ -219,8 +230,8 @@
 
 .wm-cat2__card-title {
   margin: 0;
-  font-size: 17px;
-  line-height: 1.25;
+  font-size: 18px;
+  line-height: 1.22;
 }
 
 .wm-cat2__status,
@@ -235,7 +246,7 @@
 
 .wm-cat2__status {
   padding: 6px 10px;
-  font-size: 11px;
+  font-size: 12px;
   background: rgba(32, 47, 72, 0.95);
   border: 1px solid rgba(103, 136, 178, 0.22);
   color: #d7e5f7;
@@ -254,7 +265,7 @@
   background: rgba(23, 67, 112, 0.95);
   border: 1px solid rgba(91, 165, 255, 0.3);
   color: #eef6ff;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .wm-cat2__mini-badge,
@@ -264,22 +275,26 @@
   border: 1px solid rgba(103, 136, 178, 0.16);
   color: #cad7ea;
   font-size: 12px;
+  line-height: 1.3;
 }
 
 .wm-cat2__summary {
   margin: 0;
   color: #b5c3d7;
-  line-height: 1.45;
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .wm-cat2__specs {
   color: #8fa6c4;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .wm-cat2__apps {
   color: #dce8f8;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .wm-cat2__actions {
@@ -291,8 +306,10 @@
 .wm-cat2__btn {
   appearance: none;
   border-radius: 12px;
-  padding: 10px 12px;
+  min-height: 40px;
+  padding: 0 14px;
   cursor: pointer;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -414,8 +431,6 @@
   height: 100vh;
   overflow: auto;
   padding: 20px;
-  border-left: 1px solid rgba(110, 145, 190, 0.18);
-  background: rgba(10, 16, 26, 0.98);
   color: #e8eef8;
   box-shadow: -12px 0 32px rgba(0, 0, 0, 0.28);
 }
@@ -469,12 +484,13 @@
 }
 
 .wm-cat2__empty h3 {
-  font-size: 18px;
+  font-size: 20px;
   margin: 0 0 8px 0;
 }
 
 .wm-cat2__empty p {
   font-size: 14px;
+  line-height: 1.55;
   margin: 0 0 12px 0;
   max-width: 620px;
 }
@@ -488,7 +504,7 @@
   border: 0;
   background: transparent;
   color: #dce7f7;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   text-align: left;
   cursor: pointer;
@@ -513,6 +529,10 @@
   display: grid;
   gap: 10px;
 }
+
+.wm-cat2__results > .wm-cat2__empty {
+  min-height: 220px;
+}
 .wm-cat2__filters-actions {
   display: flex;
   gap: 8px;
@@ -527,7 +547,7 @@
   border: 1px solid rgba(104, 136, 176, 0.18);
   background: rgba(12, 19, 30, 0.9);
   color: #d6e3f5;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
 }
 

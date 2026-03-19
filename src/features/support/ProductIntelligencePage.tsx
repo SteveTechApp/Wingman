@@ -148,7 +148,7 @@ function firstBool(record: RemoteRecord, keys: string[]): boolean {
 
 function truncate(value: string, max = 180): string {
   if (value.length <= max) return value;
-  return `${value.slice(0, max - 1).trim()}ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦`;
+  return `${value.slice(0, max - 1).trim()}...`;
 }
 
 function detectSummary(record: RemoteRecord): string {
@@ -170,7 +170,7 @@ function detectSummary(record: RemoteRecord): string {
   const group = firstNonEmpty(record, ["group"]);
 
   const parts = [family, category, subcategory, group].filter(Boolean);
-  return parts.length ? parts.join(" ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ ") : "No product summary available.";
+  return parts.length ? parts.join(" / ") : "No product summary available.";
 }
 
 function normaliseRecord(input: RemoteRecord, index: number): ProductRecord {
@@ -194,8 +194,8 @@ function normaliseRecord(input: RemoteRecord, index: number): ProductRecord {
     approvalStatus,
     confidence: firstNumber(input, ["confidence", "score", "matchConfidence"]),
     evidenceEntries: firstNumber(input, ["evidenceEntries", "evidenceCount", "evidence"]),
-    lastCaptured: firstNonEmpty(input, ["lastCaptured", "capturedAt", "updatedAt"], "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â"),
-    lastReviewed: firstNonEmpty(input, ["lastReviewed", "reviewedAt"], "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â"),
+    lastCaptured: firstNonEmpty(input, ["lastCaptured", "capturedAt", "updatedAt"], "-"),
+    lastReviewed: firstNonEmpty(input, ["lastReviewed", "reviewedAt"], "-"),
     sourceLink,
     summary,
     archived: firstBool(input, ["archived", "isArchived"]),
@@ -407,7 +407,7 @@ function ProductCard(props: {
           <div style={{ display: "grid", gap: 4 }}>
             <div style={smallLabelStyle()}>Confidence</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>
-              {item.confidence === null ? "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â" : item.confidence.toFixed(2)}
+              {item.confidence === null ? "-" : item.confidence.toFixed(2)}
             </div>
           </div>
         </div>
@@ -1081,7 +1081,7 @@ export default function ProductIntelligencePage() {
             color: "#cbd5e1",
           }}
         >
-          Loading product intelligence recordsÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦
+          Loading product intelligence records...
         </section>
       ) : (
         <section

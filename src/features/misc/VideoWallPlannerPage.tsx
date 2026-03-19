@@ -1727,7 +1727,7 @@ export default function VideoWallPlannerPage() {
                   <div className="wm-video-wall-page__product-window-title">
                     <span className="wm-video-wall-page__product-sku">{product.sku}</span>
                     <strong>{product.name}</strong>
-                    <small>{product.family} �f�?s· {product.category}</small>
+                    <small>{product.family} / {product.category}</small>
                   </div>
 
                   <div className="wm-video-wall-page__product-window-actions">

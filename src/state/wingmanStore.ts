@@ -122,7 +122,9 @@ export const wingmanActions = {
       ui: { ...(STATE.ui ?? {}), loadingContext: ctx },
     });
   },
-};/** useWingman(selector?) ?f��??s��?,??"?f��??s�?.�?f??s��?,???o�?,?s�?f???�?,??" supports both patterns:
+};
+
+/** useWingman(selector?) supports both patterns:
  *   const s = useWingman()
  *   const v = useWingman(s => s.auth.isAuthed)
  */

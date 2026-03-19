@@ -1,444 +1,189 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, ClipboardList, FolderOpen, LayoutTemplate, PlusCircle } from "lucide-react";
 import {
-  getActiveProject,
-  subscribeProjects,
-} from "@/features/projects/projectStore";
+  ArrowRight,
+  ClipboardList,
+  FolderPlus,
+  LayoutTemplate,
+} from "lucide-react";
 
-type IconType = React.ComponentType<{ size?: string | number; className?: string }>;
+import { WM_ROUTES } from "@/core/wingman/routeMap";
 
-type ActionCard = {
+type WorkflowCard = {
+  eyebrow: string;
   title: string;
   description: string;
+  supportingPoints: string[];
   to: string;
-  Icon: IconType;
   accentRgb: string;
+  Icon: React.ComponentType<{ className?: string }>;
 };
 
-const startCards: ActionCard[] = [
+const workflowCards: WorkflowCard[] = [
   {
+    eyebrow: "Discovery",
     title: "Start a new project",
-    description: "Create a new Wingman project and begin requirements capture.",
-    to: "/app/projects/new",
-    Icon: PlusCircle,
-    accentRgb: "59, 212, 208",
+    description:
+      "Create a new Wingman project, capture requirements, and begin building a structured AV solution.",
+    supportingPoints: [
+      "Capture customer requirements",
+      "Define room and scope",
+      "Start guided design",
+    ],
+    to: WM_ROUTES.newProject,
+    accentRgb: "115, 231, 255",
+    Icon: FolderPlus,
   },
   {
+    eyebrow: "Import",
     title: "Import a brief",
-    description: "Bring in customer notes or scope information and structure it.",
-    to: "/app/tools/import-intake",
+    description:
+      "Bring in customer notes, tender text, or survey data and convert it into a structured project.",
+    supportingPoints: [
+      "Import notes or scope",
+      "Structure the brief",
+      "Reduce manual setup",
+    ],
+    to: WM_ROUTES.importIntake,
+    accentRgb: "108, 196, 255",
     Icon: ClipboardList,
-    accentRgb: "242, 140, 40",
   },
   {
+    eyebrow: "Templates",
     title: "Browse architecture starters",
-    description: "Use templates and proven solution patterns as a starting point.",
-    to: "/app/tools/templates",
+    description:
+      "Start from proven room and solution templates to move faster and stay consistent.",
+    supportingPoints: [
+      "Use proven templates",
+      "Speed up early design",
+      "Keep solutions consistent",
+    ],
+    to: WM_ROUTES.templates,
+    accentRgb: "96, 194, 132",
     Icon: LayoutTemplate,
-    accentRgb: "75, 141, 255",
   },
 ];
-
-function CompactActionCard({
-  title,
-  description,
-  to,
-  Icon,
-  accentRgb,
-  onOpen,
-}: ActionCard & { onOpen: (to: string) => void }) {
-  return (
-    <button
-      type="button"
-      onClick={() => onOpen(to)}
-      className="wm-card wm-dashboard-page__action-card"
-      style={{
-        display: "grid",
-        gridTemplateRows: "auto 1fr auto",
-        gap: 10,
-        minHeight: 0,
-        padding: 10,
-        textAlign: "left",
-        borderRadius: 12,
-        cursor: "pointer",
-        color: "var(--wm-text)",
-        "--wm-action-accent-rgb": accentRgb,
-      } as React.CSSProperties}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 10,
-        }}
-      >
-        <span
-          className="wm-dashboard-page__action-card-icon"
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: 999,
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            border: "1px solid rgba(255,255,255,0.16)",
-          }}
-        >
-          <Icon size={16} />
-        </span>
-
-        <ArrowRight size={18} className="wm-dashboard-page__action-card-arrow" />
-      </div>
-
-      <div>
-        <div
-          style={{
-            fontSize: 10,
-            fontWeight: 700,
-            lineHeight: 1.15,
-            marginBottom: 6,
-          }}
-        >
-          {title}
-        </div>
-        <div
-          style={{
-            fontSize: 10,
-            opacity: 0.78,
-            lineHeight: 1.35,
-          }}
-        >
-          {description}
-        </div>
-      </div>
-
-      <div
-        className="wm-dashboard-page__action-card-cta"
-        style={{
-          fontSize: 10,
-          fontWeight: 700,
-          opacity: 0.86,
-        }}
-      >
-        Open
-      </div>
-    </button>
-  );
-}
-
-function RailLink({
-  title,
-  subtitle,
-  onClick,
-}: {
-  title: string;
-  subtitle: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="wm-card wm-dashboard-page__rail-link"
-      style={{
-        display: "grid",
-        gap: 6,
-        padding: 12,
-        minHeight: 0,
-        textAlign: "left",
-        borderRadius: 14,
-        cursor: "pointer",
-        color: "var(--wm-text)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 8,
-        }}
-      >
-        <span style={{ fontSize: 10, fontWeight: 700 }}>{title}</span>
-        <FolderOpen size={17} />
-      </div>
-      <span style={{ fontSize: 10, opacity: 0.72, lineHeight: 1.35 }}>{subtitle}</span>
-    </button>
-  );
-}
 
 export default function DashboardPage() {
   const navigate = useNavigate();
 
-  const activeProject = React.useSyncExternalStore(
-    subscribeProjects,
-    () => getActiveProject() ?? null,
-    () => null,
-  );
-
-  const activeProjectName = activeProject?.name ?? "No active project";
-
-  const activeProjectSubtitle = activeProject?.customer
-    ? activeProject.customer
-    : "Open an existing project or create a new one to continue.";
-
-  const pickUpWork = React.useMemo(() => {
-    if (!activeProject) {
-      return [];
-    }
-
-    return [
-      {
-        title: activeProject.name ?? "Active project",
-        subtitle: activeProject.customer || "Continue working on this project.",
-        to: "/app/projects",
-      },
-    ];
-  }, [activeProject]);
-
   return (
-    <div
-      className="wm-dashboard-page"
-      style={{
-        display: "grid",
-        gap: 8,
-      }}
-    >
-      <section
-        className="wm-card wm-dashboard-page__hero"
-        style={{
-          padding: 10,
-          borderRadius: 14,
-          display: "grid",
-          gap: 6,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            gap: 8,
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ minWidth: 0 }}>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                opacity: 0.72,
-                marginBottom: 4,
-              }}
-            >
-              Mission Control
+    <div className="wm-page wm-dashboard-page">
+      <section className="wm-hero wm-dashboard-page__hero">
+        <div className="wm-page-hero-row">
+          <div className="wm-grid">
+            <div className="wm-kicker">Mission Control</div>
+            <div className="wm-title-xl">What do you want to move forward today?</div>
+            <div className="wm-body-sm wm-page-subtitle-muted" style={{ maxWidth: 820 }}>
+              Start from a clean project shell, import an existing brief, or use a proven template path.
+              The app should feel like the guided project page: clear separation, obvious next moves, and
+              just enough colour to make each choice distinct.
             </div>
-            <h1
-              style={{
-                margin: 0,
-                fontSize: 26,
-                lineHeight: 1.06,
-                fontWeight: 800,
-              }}
-            >
-              What do you want to move forward today?
-            </h1>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              gap: 8,
-              flexWrap: "wrap",
-            }}
-          >
-            <button
-              type="button"
-              className="wm-btn-nav wm-btn-nav--primary"
-              onClick={() => navigate("/app/tools/discovery")}
-              style={{ minHeight: 36, padding: "0 13px", borderRadius: 12 }}
-            >
-              Resume Guided Project
-            </button>
-            <button
-              type="button"
-              className="wm-btn-nav"
-              onClick={() => navigate("/app/tools/import-intake")}
-              style={{ minHeight: 36, padding: "0 13px", borderRadius: 12 }}
-            >
-              Import Customer Brief
-            </button>
-            <button
-              type="button"
-              className="wm-btn-nav"
-              onClick={() => navigate("/app/projects")}
-              style={{ minHeight: 36, padding: "0 13px", borderRadius: 12 }}
-            >
-              Open Projects
-            </button>
-          </div>
-        </div>
-
-        <div
-          className="wm-card wm-dashboard-page__active-project"
-          style={{
-            padding: 10,
-            borderRadius: 12,
-            minHeight: "unset",
-            display: "grid",
-            gap: 6,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              opacity: 0.72,
-            }}
-          >
-            Active Project
-          </div>
-
-          <div
-            style={{
-              fontSize: 24,
-              lineHeight: 1.02,
-              fontWeight: 800,
-            }}
-          >
-            {activeProjectName}
-          </div>
-
-          <div
-            style={{
-              fontSize: 10,
-              opacity: 0.76,
-              lineHeight: 1.35,
-            }}
-          >
-            {activeProjectSubtitle}
-          </div>
-
-          <div
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-            }}
-          >
-            Next best move:{" "}
-            <button
-              type="button"
-              onClick={() => navigate("/app/tools/discovery")}
-              style={{
-                background: "transparent",
-                border: "none",
-                padding: 0,
-                margin: 0,
-                cursor: "pointer",
-                font: "inherit",
-                fontWeight: 800,
-                color: "var(--wm-text)",
-              }}
-            >
-              Resume Guided Project
-            </button>
           </div>
         </div>
       </section>
 
-      <section
-        className="wm-dashboard-page__main-grid"
-        style={{
-          display: "grid",
-          gap: 8,
-          alignItems: "start",
-        }}
-      >
-        <div
-          className="wm-card wm-dashboard-page__start-panel"
-          style={{
-            padding: 10,
-            borderRadius: 14,
-            display: "grid",
-            gap: 6,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 10,
-              fontWeight: 800,
-              lineHeight: 1.1,
-            }}
-          >
-            Start a Project
-          </div>
-
-          <div
-            className="wm-dashboard__start-grid wm-dashboard-page__start-grid"
-            style={{
-              display: "grid",
-              gap: 8,
-            }}
-          >
-            {startCards.map((card) => (
-              <CompactActionCard
-                key={card.title}
-                {...card}
-                onOpen={(to) => navigate(to)}
-              />
-            ))}
+      <section className="wm-section wm-section--tone-cyan wm-dashboard-page__panel">
+        <div className="wm-section__head">
+          <div className="wm-section__titles">
+            <h2>Start Paths</h2>
+            <p>Choose the cleanest entry point for the opportunity in front of you.</p>
           </div>
         </div>
 
-        <section
-          className="wm-card wm-dashboard-page__panel"
-          style={{
-            padding: 10,
-            borderRadius: 14,
-            display: "grid",
-            gap: 8,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 10,
-              fontWeight: 800,
-              lineHeight: 1.1,
-            }}
-          >
-            Pick up work
-          </div>
-
-          {pickUpWork.length ? (
-            pickUpWork.map((item) => (
-              <RailLink
-                key={item.title}
-                title={item.title}
-                subtitle={item.subtitle}
-                onClick={() => navigate(item.to)}
-              />
-            ))
-          ) : (
-            <div
-              className="wm-card"
+        <div className="wm-grid-cards wm-dashboard-page__start-grid">
+          {workflowCards.map((card) => (
+            <button
+              key={card.title}
+              type="button"
+              className="wm-work-card wm-dashboard-page__action-card wm-hover-lift"
               style={{
-                padding: 12,
-                borderRadius: 14,
-                fontSize: 10,
-                opacity: 0.78,
-                lineHeight: 1.4,
-              }}
+                "--wm-action-accent-rgb": card.accentRgb,
+                appearance: "none",
+                width: "100%",
+                minHeight: 0,
+                textAlign: "left",
+                cursor: "pointer",
+                color: "inherit",
+              } as React.CSSProperties}
+              onClick={() => navigate(card.to)}
             >
-              No active work yet. Start a new project or import a brief.
-            </div>
-          )}
-        </section>
+              <div className="wm-dashboard-page__action-card-top" style={{ display: "grid", gap: 12 }}>
+                <div className="wm-kicker" style={{ color: `rgba(${card.accentRgb}, 0.96)` }}>
+                  {card.eyebrow}
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "44px minmax(0, 1fr)", gap: 12, alignItems: "start" }}>
+                  <span
+                    className="wm-dashboard-page__action-card-icon"
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 12,
+                      border: `1px solid rgba(${card.accentRgb}, 0.28)`,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <card.Icon />
+                  </span>
+
+                  <div style={{ display: "grid", gap: 8 }}>
+                    <div className="wm-title-lg" style={{ fontSize: 22, lineHeight: 1.14 }}>
+                      {card.title}
+                    </div>
+                    <div className="wm-body" style={{ fontSize: 14, lineHeight: 1.6 }}>
+                      {card.description}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gap: 8 }}>
+                  {card.supportingPoints.map((point) => (
+                    <div
+                      key={point}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "10px 1fr",
+                        gap: 10,
+                        alignItems: "start",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: 999,
+                          marginTop: 6,
+                          background: `rgba(${card.accentRgb}, 0.9)`,
+                        }}
+                      />
+                      <span className="wm-body-sm" style={{ fontSize: 13, lineHeight: 1.55 }}>
+                        {point}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  marginTop: 10,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                }}
+              >
+                <span className="wm-dashboard-page__action-card-cta">Open</span>
+                <span className="wm-dashboard-page__action-card-arrow">
+                  <ArrowRight size={18} />
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
       </section>
     </div>
   );

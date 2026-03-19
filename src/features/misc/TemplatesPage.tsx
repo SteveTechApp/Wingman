@@ -43,46 +43,13 @@ function SelectCard({
     <button
       type="button"
       onClick={onClick}
-      className="wm-hover-lift"
-      style={{
-        width: "100%",
-        textAlign: "left",
-        borderRadius: 14,
-        border: active
-          ? `1px solid rgba(${accentRgb},0.34)`
-          : "1px solid rgba(255,255,255,0.12)",
-        background: active
-          ? `linear-gradient(180deg, rgba(${accentRgb},0.18) 0%, rgba(${accentRgb},0.08) 100%)`
-          : "rgba(255,255,255,0.04)",
-        padding: 14,
-        cursor: "pointer",
-        color: "rgba(255,255,255,0.96)",
-        boxShadow: active ? `inset 0 0 0 1px rgba(${accentRgb},0.08)` : "none",
-      }}
+      className={`wm-choice-card wm-hover-lift${active ? " is-active" : ""}`}
+      style={{ "--wm-choice-accent-rgb": accentRgb } as React.CSSProperties}
     >
-      <div style={{ fontWeight: 900, fontSize: 15 }}>{title}</div>
-      <div
-        style={{
-          marginTop: 5,
-          fontSize: 12,
-          color: "rgba(255,255,255,0.84)",
-          lineHeight: 1.4,
-        }}
-      >
-        {text}
-      </div>
+      <div className="wm-choice-card__title">{title}</div>
+      <div className="wm-choice-card__body">{text}</div>
       {meta ? (
-        <div
-          style={{
-            marginTop: 10,
-            fontSize: 11,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.66)",
-          }}
-        >
-          {meta}
-        </div>
+        <div className="wm-choice-card__meta">{meta}</div>
       ) : null}
     </button>
   );
@@ -103,23 +70,8 @@ function TierButton({
     <button
       type="button"
       onClick={onClick}
-      className="wm-hover-lift"
-      style={{
-        height: 42,
-        padding: "0 14px",
-        borderRadius: 12,
-        border: active
-          ? `1px solid rgba(${accent.rgb},0.38)`
-          : "1px solid rgba(255,255,255,0.12)",
-        background: active
-          ? `linear-gradient(180deg, rgba(${accent.rgb},0.22) 0%, rgba(${accent.rgb},0.10) 100%)`
-          : "rgba(255,255,255,0.04)",
-        color: "rgba(255,255,255,0.96)",
-        fontSize: 14,
-        fontWeight: 800,
-        cursor: "pointer",
-        boxShadow: active ? `0 10px 18px rgba(${accent.rgb},0.10)` : "none",
-      }}
+      className={`wm-tier-button wm-hover-lift${active ? " is-active" : ""}`}
+      style={{ "--wm-choice-accent-rgb": accent.rgb } as React.CSSProperties}
     >
       {accent.label}
     </button>
@@ -134,27 +86,11 @@ function BulletList({
   accentRgb: string;
 }) {
   return (
-    <div style={{ display: "grid", gap: 8 }}>
+    <div className="wm-bullet-list" style={{ "--wm-choice-accent-rgb": accentRgb } as React.CSSProperties}>
       {items.map((item, i) => (
-        <div
-          key={i}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "10px 1fr",
-            gap: 10,
-            alignItems: "start",
-          }}
-        >
-          <div
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: 999,
-              marginTop: 6,
-              background: `rgba(${accentRgb},0.92)`,
-            }}
-          />
-          <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.90)" }}>
+        <div key={i} className="wm-bullet-list__item">
+          <div className="wm-bullet-list__dot" />
+          <div className="wm-bullet-list__copy">
             {item}
           </div>
         </div>
@@ -186,11 +122,11 @@ function summarizeTierChange(
   ];
 
   if (added.length > 0) {
-    lines.push(`Adds: ${added.slice(0, 2).join(" ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â¢ ")}.`);
+    lines.push(`Adds: ${added.slice(0, 2).join(", ")}.`);
   }
 
   if (removed.length > 0) {
-    lines.push(`Reduces: ${removed.slice(0, 2).join(" ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â¢ ")}.`);
+    lines.push(`Reduces: ${removed.slice(0, 2).join(", ")}.`);
   }
 
   lines.push(`Commercial impact: ${targetProfile.commercialNote}`);
@@ -506,35 +442,12 @@ export default function TemplatesPage() {
     [room, tier, tierProfile],
   );
 
-  function workflowSectionStyle(step: 1 | 2 | 3 | 4): React.CSSProperties {
-    const isActive = activeStep === step;
-
-    return {
-      padding: 16,
-      borderRadius: 18,
-      border: isActive
-        ? `1px solid rgba(${FLOW_ACTIVE_RGB},0.36)`
-        : "1px solid rgba(255,255,255,0.10)",
-      background: isActive
-        ? `linear-gradient(180deg, rgba(${FLOW_ACTIVE_RGB},0.12) 0%, rgba(${FLOW_ACTIVE_RGB},0.05) 100%)`
-        : "linear-gradient(180deg, rgba(9,20,33,0.78) 0%, rgba(7,16,28,0.62) 100%)",
-      boxShadow: isActive
-        ? `0 0 0 1px rgba(${FLOW_ACTIVE_RGB},0.12), 0 14px 30px rgba(${FLOW_ACTIVE_RGB},0.07)`
-        : "none",
-      opacity: isActive ? 1 : 0.64,
-      transition: "border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, opacity 180ms ease",
-    };
+  function flowSectionClassName(step: 1 | 2 | 3 | 4) {
+    return `wm-card wm-flow-section${activeStep === step ? " is-active" : ""}`;
   }
 
-  function workflowStepLabelStyle(step: 1 | 2 | 3 | 4): React.CSSProperties {
-    const isActive = activeStep === step;
-
-    return {
-      fontSize: 11,
-      letterSpacing: "0.14em",
-      color: isActive ? `rgba(${FLOW_ACTIVE_RGB},0.94)` : "rgba(255,255,255,0.72)",
-      textTransform: "uppercase",
-    };
+  function flowEyebrowClassName(step: 1 | 2 | 3 | 4) {
+    return `wm-flow-section__eyebrow${activeStep === step ? " is-active" : ""}`;
   }
 
   React.useEffect(() => {
@@ -625,28 +538,21 @@ export default function TemplatesPage() {
 
   return (
     <div
-      className="wm-page wm-animate-in"
-      style={{ width: "100%", maxWidth: "none", margin: 0, minWidth: 0 }}
+      className="wm-page wm-animate-in wm-templates-page"
+      style={{ width: "100%", maxWidth: 1600, margin: "0 auto", minWidth: 0, zoom: 1 }}
     >
-      <div style={{ display: "grid", gap: 14 }}>
-        <div>
+      <div style={{ display: "grid", gap: 18 }}>
+        <section className="wm-hero">
           <div className="wm-page-eyebrow">WORKFLOW TEMPLATES</div>
           <h1 className="wm-page-title" style={{ marginBottom: 8 }}>
             Template Workbench
           </h1>
-          <div
-            style={{
-              maxWidth: 820,
-              fontSize: 14,
-              color: "rgba(255,255,255,0.88)",
-              lineHeight: 1.45,
-            }}
-          >
+          <div className="wm-page-lead">
             Cover common room types fast, but keep the design commercially credible. Every template path includes
             Bronze, Silver, and Gold positioning, with room assumptions, value-engineered moves, and performance
             upgrades so we can right-size the answer without losing the function.
           </div>
-        </div>
+        </section>
 
         <CollapsibleCard
           id="templates-quick-filters"
@@ -658,34 +564,20 @@ export default function TemplatesPage() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: 12,
+              gap: 14,
             }}
           >
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by room, market, keyword, family, or use case"
-              style={{
-                height: 40,
-                borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.14)",
-                background: "rgba(255,255,255,0.05)",
-                padding: "0 12px",
-                color: "rgba(255,255,255,0.96)",
-              }}
+              className="wm-form-input"
             />
 
             <select
               value={useCaseGroup}
               onChange={(e) => setUseCaseGroup(e.target.value as "all" | UseCaseGroup)}
-              style={{
-                height: 40,
-                borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.14)",
-                background: "rgba(255,255,255,0.05)",
-                padding: "0 12px",
-                color: "rgba(255,255,255,0.96)",
-              }}
+              className="wm-form-input"
             >
               {USE_CASE_GROUPS.map((x) => (
                 <option key={x.id} value={x.id} style={{ color: "#111" }}>
@@ -697,14 +589,7 @@ export default function TemplatesPage() {
             <select
               value={budgetBias}
               onChange={(e) => setBudgetBias(e.target.value as "all" | BudgetBias)}
-              style={{
-                height: 40,
-                borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.14)",
-                background: "rgba(255,255,255,0.05)",
-                padding: "0 12px",
-                color: "rgba(255,255,255,0.96)",
-              }}
+              className="wm-form-input"
             >
               {BUDGET_BIASES.map((x) => (
                 <option key={x.id} value={x.id} style={{ color: "#111" }}>
@@ -719,7 +604,7 @@ export default function TemplatesPage() {
               marginTop: 14,
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: 10,
+              gap: 12,
             }}
           >
             {[
@@ -730,15 +615,8 @@ export default function TemplatesPage() {
             ].map((item) => (
               <div
                 key={item}
-                style={{
-                  borderRadius: 12,
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(255,255,255,0.03)",
-                  padding: "10px 12px",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: "rgba(255,255,255,0.88)",
-                }}
+                className="wm-work-card"
+                style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.88)" }}
               >
                 {item}
               </div>
@@ -746,21 +624,23 @@ export default function TemplatesPage() {
           </div>
         </CollapsibleCard>
 
-        <section ref={step1Ref} className="wm-card" style={workflowSectionStyle(1)}>
-          <div
-            style={workflowStepLabelStyle(1)}
-          >
+        <section
+          ref={step1Ref}
+          className={flowSectionClassName(1)}
+          style={{ "--wm-flow-accent-rgb": FLOW_ACTIVE_RGB } as React.CSSProperties}
+        >
+          <div className={flowEyebrowClassName(1)}>
             Step 1{activeStep === 1 ? " / Current position" : ""}
           </div>
-          <div style={{ marginTop: 6, fontWeight: 900, fontSize: 18 }}>
+          <div style={{ marginTop: 6, fontWeight: 900, fontSize: 20 }}>
             Choose the application
           </div>
           <div
             style={{
               marginTop: 6,
-              fontSize: 13,
+              fontSize: 14,
               color: "rgba(255,255,255,0.82)",
-              lineHeight: 1.45,
+              lineHeight: 1.55,
             }}
           >
             Start with the customer environment so the room templates stay grounded in how the space will actually be used.
@@ -770,8 +650,8 @@ export default function TemplatesPage() {
             style={{
               marginTop: 14,
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: 10,
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: 12,
             }}
           >
             {MARKETS.map((item) => (
@@ -788,21 +668,23 @@ export default function TemplatesPage() {
           </div>
         </section>
 
-        <section ref={step2Ref} className="wm-card" style={workflowSectionStyle(2)}>
-          <div
-            style={workflowStepLabelStyle(2)}
-          >
+        <section
+          ref={step2Ref}
+          className={flowSectionClassName(2)}
+          style={{ "--wm-flow-accent-rgb": FLOW_ACTIVE_RGB } as React.CSSProperties}
+        >
+          <div className={flowEyebrowClassName(2)}>
             Step 2{activeStep === 2 ? " / Current position" : ""}
           </div>
-          <div style={{ marginTop: 6, fontWeight: 900, fontSize: 18 }}>
+          <div style={{ marginTop: 6, fontWeight: 900, fontSize: 20 }}>
             Choose a room type
           </div>
           <div
             style={{
               marginTop: 6,
-              fontSize: 13,
+              fontSize: 14,
               color: "rgba(255,255,255,0.82)",
-              lineHeight: 1.45,
+              lineHeight: 1.55,
             }}
           >
             These are practical room patterns rather than abstract labels, so the tier guidance stays anchored to a believable use case.
@@ -812,8 +694,8 @@ export default function TemplatesPage() {
             style={{
               marginTop: 14,
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-              gap: 10,
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: 12,
             }}
           >
             {visibleRooms.map((item) => (
@@ -830,9 +712,13 @@ export default function TemplatesPage() {
           </div>
         </section>
 
-        <section ref={step4Ref} className="wm-card" style={workflowSectionStyle(4)}>
-          <div style={workflowStepLabelStyle(4)}>Step 4{activeStep === 4 ? " / Current position" : ""}</div>
-          <div style={{ fontWeight: 900, fontSize: 18 }}>Review room details and solution tier</div>
+        <section
+          ref={step4Ref}
+          className={flowSectionClassName(4)}
+          style={{ "--wm-flow-accent-rgb": FLOW_ACTIVE_RGB } as React.CSSProperties}
+        >
+          <div className={flowEyebrowClassName(4)}>Step 4{activeStep === 4 ? " / Current position" : ""}</div>
+          <div style={{ fontWeight: 900, fontSize: 20 }}>Review room details and solution tier</div>
 
           <div
             style={{
@@ -840,9 +726,9 @@ export default function TemplatesPage() {
               borderRadius: 16,
               border: `1px solid rgba(${tierAccent.rgb},0.22)`,
               background: `linear-gradient(180deg, rgba(${tierAccent.rgb},0.12) 0%, rgba(${tierAccent.rgb},0.05) 100%)`,
-              padding: 14,
+              padding: 16,
               display: "grid",
-              gap: 14,
+              gap: 16,
             }}
           >
             <div
@@ -857,8 +743,8 @@ export default function TemplatesPage() {
               <div style={{ display: "grid", gap: 8, minWidth: "min(100%, 420px)", flex: "1 1 420px" }}>
                 <div
                   style={{
-                    fontSize: 11,
-                    letterSpacing: "0.14em",
+                    fontSize: 12,
+                    letterSpacing: "0.12em",
                     color: "rgba(255,255,255,0.72)",
                     textTransform: "uppercase",
                   }}
@@ -866,19 +752,19 @@ export default function TemplatesPage() {
                   Selected path
                 </div>
 
-                <div style={{ fontWeight: 900, fontSize: 18 }}>
+                <div style={{ fontWeight: 900, fontSize: 20 }}>
                   {market.name} / {room.name} / {tierProfile.label}
                 </div>
 
-                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.92)", lineHeight: 1.5 }}>
+                <div style={{ fontSize: 15, color: "rgba(255,255,255,0.92)", lineHeight: 1.6 }}>
                   {tierProfile.summary}
                 </div>
 
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
+                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.84)", lineHeight: 1.55 }}>
                   <strong>Recommended families:</strong> {room.recommendedFamilies.join(", ")}
                 </div>
 
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.84)", lineHeight: 1.5 }}>
+                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.84)", lineHeight: 1.55 }}>
                   <strong>Recommended next tool:</strong> {getToolLabel(room.nextTool)}
                 </div>
               </div>
@@ -920,22 +806,22 @@ export default function TemplatesPage() {
                   borderRadius: 14,
                   border: "1px solid rgba(255,255,255,0.10)",
                   background: "rgba(255,255,255,0.03)",
-                  padding: 12,
+                  padding: 14,
                   display: "grid",
-                  gap: 10,
+                  gap: 12,
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: 13 }}>Clear summary</div>
-                <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
+                <div style={{ fontWeight: 800, fontSize: 14 }}>Clear summary</div>
+                <div style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>
                   <strong>Positioning:</strong> {tierProfile.positioning}
                 </div>
-                <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
+                <div style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>
                   <strong>Performance:</strong> {tierProfile.performance}
                 </div>
-                <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.88)" }}>
+                <div style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>
                   <strong>Commercial:</strong> {tierProfile.commercialNote}
                 </div>
-                <div style={{ fontWeight: 800, fontSize: 12, marginTop: 2 }}>What you get in this tier</div>
+                <div style={{ fontWeight: 800, fontSize: 13, marginTop: 2 }}>What you get in this tier</div>
                 <BulletList items={tierProfile.includedSystems.slice(0, 3)} accentRgb={tierAccent.rgb} />
               </div>
             </div>
@@ -952,12 +838,12 @@ export default function TemplatesPage() {
                   borderRadius: 14,
                   border: "1px solid rgba(255,255,255,0.10)",
                   background: "rgba(255,255,255,0.03)",
-                  padding: 12,
+                  padding: 14,
                   display: "grid",
-                  gap: 10,
+                  gap: 12,
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: 13 }}>Core credibility</div>
+                <div style={{ fontWeight: 800, fontSize: 14 }}>Core credibility</div>
                 <BulletList items={credibility} accentRgb={market.accentRgb} />
               </div>
 
@@ -966,12 +852,12 @@ export default function TemplatesPage() {
                   borderRadius: 14,
                   border: "1px solid rgba(255,255,255,0.10)",
                   background: "rgba(255,255,255,0.03)",
-                  padding: 12,
+                  padding: 14,
                   display: "grid",
-                  gap: 10,
+                  gap: 12,
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: 13 }}>Room assumptions</div>
+                <div style={{ fontWeight: 800, fontSize: 14 }}>Room assumptions</div>
                 <BulletList items={assumptions.slice(0, 3)} accentRgb={tierAccent.rgb} />
               </div>
               <div
@@ -979,26 +865,26 @@ export default function TemplatesPage() {
                   borderRadius: 14,
                   border: `1px solid rgba(${tierAccent.rgb},0.20)`,
                   background: `linear-gradient(180deg, rgba(${tierAccent.rgb},0.10) 0%, rgba(${tierAccent.rgb},0.04) 100%)`,
-                  padding: 12,
+                  padding: 14,
                   display: "grid",
-                  gap: 10,
+                  gap: 12,
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: 13 }}>Solution tier</div>
+                <div style={{ fontWeight: 800, fontSize: 14 }}>Solution tier</div>
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: 13,
                     color: "rgba(255,255,255,0.82)",
-                    lineHeight: 1.45,
+                    lineHeight: 1.55,
                   }}
                 >
                   Choose the commercial level after confirming the room path and key assumptions.
                 </div>
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: 13,
                     color: "rgba(255,255,255,0.78)",
-                    lineHeight: 1.45,
+                    lineHeight: 1.55,
                   }}
                 >
                   Bronze protects the core function, Silver is the balanced default, and Gold expands flexibility, polish, and future headroom.
@@ -1021,25 +907,25 @@ export default function TemplatesPage() {
             </div>
 
             <div
-              style={{
-                borderRadius: 14,
-                border: "1px solid rgba(255,255,255,0.10)",
-                background: "rgba(255,255,255,0.03)",
-                padding: 12,
-                display: "grid",
-                gap: 10,
-              }}
-            >
-              <div style={{ fontWeight: 900, fontSize: 14 }}>Alternative tiers</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.80)", lineHeight: 1.45 }}>
+                style={{
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: "rgba(255,255,255,0.03)",
+                  padding: 14,
+                  display: "grid",
+                  gap: 12,
+                }}
+              >
+              <div style={{ fontWeight: 900, fontSize: 15 }}>Alternative tiers</div>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.80)", lineHeight: 1.55 }}>
                 If you switch tier, this is what changes in plain English.
               </div>
 
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                  gap: 10,
+                  gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                  gap: 12,
                 }}
               >
                 {alternativeTiers.map((option) => (
@@ -1049,15 +935,15 @@ export default function TemplatesPage() {
                       borderRadius: 12,
                       border: `1px solid rgba(${option.accent.rgb},0.24)`,
                       background: `linear-gradient(180deg, rgba(${option.accent.rgb},0.11) 0%, rgba(${option.accent.rgb},0.04) 100%)`,
-                      padding: 12,
+                      padding: 14,
                       display: "grid",
-                      gap: 8,
+                      gap: 10,
                     }}
                   >
-                    <div style={{ fontWeight: 800, fontSize: 13 }}>
+                    <div style={{ fontWeight: 800, fontSize: 14 }}>
                       {option.accent.label} option
                     </div>
-                    <div style={{ fontSize: 13, color: "rgba(255,255,255,0.90)", lineHeight: 1.45 }}>
+                    <div style={{ fontSize: 14, color: "rgba(255,255,255,0.90)", lineHeight: 1.55 }}>
                       {option.profile.summary}
                     </div>
                     <BulletList items={option.summaryLines} accentRgb={option.accent.rgb} />
@@ -1067,109 +953,6 @@ export default function TemplatesPage() {
             </div>
           </div>
         </section>
-
-        <CollapsibleCard
-          id="templates_more_detail"
-          title="More detail"
-          subtitle="Commercial context, typical use, and included system behaviours for the selected path."
-          defaultCollapsed
-        >
-          <div style={{ display: "grid", gap: 14 }}>
-            <div
-              style={{
-                borderRadius: 14,
-                border: "1px solid rgba(255,255,255,0.10)",
-                background: "rgba(255,255,255,0.03)",
-                padding: 12,
-              }}
-            >
-              <div style={{ fontWeight: 800, fontSize: 13 }}>{market.name} buyer context</div>
-              <div
-                style={{
-                  marginTop: 5,
-                  fontSize: 12,
-                  color: "rgba(255,255,255,0.82)",
-                  lineHeight: 1.45,
-                }}
-              >
-                {market.buyer}
-              </div>
-            </div>
-
-            <div
-              style={{
-                borderRadius: 14,
-                border: `1px solid rgba(${market.accentRgb},0.20)`,
-                background: `linear-gradient(180deg, rgba(${market.accentRgb},0.10) 0%, rgba(${market.accentRgb},0.04) 100%)`,
-                padding: 12,
-              }}
-            >
-              <div style={{ fontWeight: 800, fontSize: 13 }}>{room.name}</div>
-              <div
-                style={{
-                  marginTop: 5,
-                  fontSize: 12,
-                  color: "rgba(255,255,255,0.84)",
-                  lineHeight: 1.45,
-                }}
-              >
-                {room.short}
-              </div>
-
-              <div
-                style={{
-                  marginTop: 10,
-                  fontSize: 11,
-                  letterSpacing: "0.12em",
-                  color: "rgba(255,255,255,0.66)",
-                  textTransform: "uppercase",
-                }}
-              >
-                Typical use
-              </div>
-
-              <div style={{ marginTop: 6, display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {room.useCases.map((item) => (
-                  <span
-                    key={item}
-                    style={{
-                      padding: "6px 10px",
-                      borderRadius: 999,
-                      border: "1px solid rgba(255,255,255,0.10)",
-                      background: "rgba(255,255,255,0.04)",
-                      fontSize: 11,
-                      color: "rgba(255,255,255,0.84)",
-                    }}
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                gap: 14,
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 10 }}>
-                  Included system behaviours
-                </div>
-                <BulletList items={tierProfile.includedSystems} accentRgb={tierAccent.rgb} />
-              </div>
-
-              <div>
-                <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 10 }}>
-                  Why this tier is stronger
-                </div>
-                <BulletList items={tierProfile.uplift} accentRgb={market.accentRgb} />
-              </div>
-            </div>
-          </div>
-        </CollapsibleCard>
       </div>
     </div>
   );

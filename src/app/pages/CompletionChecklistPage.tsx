@@ -581,9 +581,9 @@ export default function CompletionChecklistPage() {
               >
                 <div>{completedCount} of {totalCount} checks complete</div>
                 <div>Commercial readiness engine: {readiness.status} ({readiness.score}%)</div>
-                <div>Next step: {isReady ? "Mark the project ready and return to the workspace." : readiness.nextStep}</div>
+                <div>Next step: {isReady ? "Mark the project ready and return to Projects." : readiness.nextStep}</div>
                 {!permissions.canMarkCommercialReady ? (
-                  <div>Only sales and admin workspace roles can complete the commercial readiness gate.</div>
+                  <div>Only sales and admin roles can complete the commercial readiness gate.</div>
                 ) : null}
                 {saveError ? <div style={{ color: "#ff9da5" }}>{saveError}</div> : null}
               </div>

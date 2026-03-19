@@ -591,13 +591,13 @@ export default function VideoWallBuilderPage() {
                       <div className="wm-vw__nodeLabel">{preview.sources} active source{preview.sources === 1 ? "" : "s"}</div>
                       <div className="wm-vw__nodeMeta">Current content ratio: {seed.contentAspectRatio ?? "16:9"}</div>
                     </div>
-                    <div className="wm-vw__arrow">�?????T</div>
+                    <div className="wm-vw__arrow">to</div>
                     <div className="wm-vw__node">
                       <div className="wm-vw__nodeEyebrow">Processing</div>
                       <div className="wm-vw__nodeLabel">{processor}</div>
                       <div className="wm-vw__nodeMeta">{preview.processorMode}</div>
                     </div>
-                    <div className="wm-vw__arrow">�?????T</div>
+                    <div className="wm-vw__arrow">to</div>
                     <div className="wm-vw__node">
                       <div className="wm-vw__nodeEyebrow">Wall outputs</div>
                       <div className="wm-vw__nodeLabel">{preview.signalColumns} x {preview.signalRows} map</div>

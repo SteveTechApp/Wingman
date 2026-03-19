@@ -95,7 +95,7 @@ export default function ProjectOverviewPage() {
           <div className="wm-grid">
             <div className="wm-title-xl">Project not found</div>
             <div className="wm-body">
-              The requested project could not be loaded. Return to the projects workspace and pick an active record.
+              The requested project could not be loaded. Return to Projects and pick an active record.
             </div>
             <div className="wm-actions-row">
               <button
@@ -552,7 +552,7 @@ export default function ProjectOverviewPage() {
                       </div>
                       <div className="wm-body" style={{ marginTop: 6 }}>{comment.body}</div>
                       <div className="wm-body-sm" style={{ marginTop: 6, opacity: 0.72 }}>
-                        {comment.authorName} �f�?s· {formatDate(comment.createdAt)}
+                        {comment.authorName} / {formatDate(comment.createdAt)}
                       </div>
                     </article>
                   ))
@@ -583,7 +583,7 @@ export default function ProjectOverviewPage() {
                     {(project.attachments ?? []).length > 0 ? (
                       project.attachments?.map((attachment) => (
                         <li key={attachment.id}>
-                          {attachment.name} �f�?s· {attachment.kind} �f�?s· {attachment.source}
+                          {attachment.name} / {attachment.kind} / {attachment.source}
                         </li>
                       ))
                     ) : (
@@ -599,7 +599,7 @@ export default function ProjectOverviewPage() {
                       project.shares?.map((share) => (
                         <li key={share.id}>
                           {share.title}
-                          {share.accessCode ? ` �f�?s· Code ${share.accessCode}` : ""}
+                          {share.accessCode ? ` / Code ${share.accessCode}` : ""}
                         </li>
                       ))
                     ) : (

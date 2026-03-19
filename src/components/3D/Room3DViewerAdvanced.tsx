@@ -43,17 +43,17 @@ const DraggableEquipment: React.FC<{
     const category = equipment.category?.toLowerCase() || '';
 
     if (category.includes('display') || category.includes('monitor')) {
-      return { size: [0.8, 0.5, 0.1] as [number, number, number], color: '#1e293b', icon: '�?,???o�??s��?,??"?f??s��?,???o�?f??s�' };
+      return { size: [0.8, 0.5, 0.1] as [number, number, number], color: '#1e293b', icon: 'DSP' };
     } else if (category.includes('speaker') || category.includes('audio')) {
-      return { size: [0.3, 0.3, 0.3] as [number, number, number], color: '#0f172a', icon: '�?,???o�??s��?f??? ' };
+      return { size: [0.3, 0.3, 0.3] as [number, number, number], color: '#0f172a', icon: 'AUD' };
     } else if (category.includes('camera')) {
-      return { size: [0.2, 0.2, 0.15] as [number, number, number], color: '#334155', icon: '�?,???o�??s�?.??o?f??s�' };
+      return { size: [0.2, 0.2, 0.15] as [number, number, number], color: '#334155', icon: 'CAM' };
     } else if (category.includes('matrix') || category.includes('switcher')) {
-      return { size: [0.4, 0.2, 0.3] as [number, number, number], color: '#475569', icon: '�?,???o�??s��?f��?,?s�' };
+      return { size: [0.4, 0.2, 0.3] as [number, number, number], color: '#475569', icon: 'SW' };
     } else if (category.includes('source') || category.includes('player')) {
-      return { size: [0.35, 0.15, 0.25] as [number, number, number], color: '#581c87', icon: '�?,???o�??s�?.??o?f��?,?s�' };
+      return { size: [0.35, 0.15, 0.25] as [number, number, number], color: '#581c87', icon: 'SRC' };
     } else {
-      return { size: [0.3, 0.3, 0.3] as [number, number, number], color: '#64748b', icon: '�?????T' };
+      return { size: [0.3, 0.3, 0.3] as [number, number, number], color: '#64748b', icon: 'EQ' };
     }
   };
 
@@ -377,11 +377,11 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
         {/* Instructions overlay */}
         <div className="absolute\ bottom-4\ left-4\ bg-background\ border\ border-border-color\ rounded-lg\ p-3\ text-sm\ text-text-secondary\ shadow-lg\ max-w-xs">
           <p className="font-bold\ text-text-primary\ mb-2">Controls:</p>
-          <p>�?,???o�??s��?,??"?f??s��?,???o�?f??s� Left click + drag: Rotate view</p>
-          <p>�?,???o�??s��?,??"?f??s��?,???o�?f??s� Right click + drag: Pan view</p>
-          <p>�?,???o�??s��?,??"?f??s��?,???o�?f??s� Scroll: Zoom in/out</p>
-          {enableDragDrop && <p>�?????T Click & drag equipment to reposition</p>}
-          <p>�?,???o�??s��??z�?f??s� Hover over equipment for details</p>
+          <p>DSP Left click + drag: Rotate view</p>
+          <p>DSP Right click + drag: Pan view</p>
+          <p>DSP Scroll: Zoom in/out</p>
+          {enableDragDrop && <p>EQ Click & drag equipment to reposition</p>}
+          <p>Hover over equipment for details</p>
         </div>
 
         {/* Cable costs summary */}
@@ -394,7 +394,7 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
               <p className="text-xs\ mt-2\ border-t\ border-border-color\ pt-2">
                 {Object.entries(cableCosts.breakdown).map(([type, data]) => (
                   <span key={type} className="block">
-                    {type}: {data.distance.toFixed(1)}m �?,???o�??s��?,?� {data.count} = ${data.cost.toFixed(0)}
+                    {type}: {data.distance.toFixed(1)}m x {data.count} = ${data.cost.toFixed(0)}
                   </span>
                 ))}
               </p>
@@ -407,5 +407,4 @@ const Room3DViewerAdvanced: React.FC<Room3DViewerAdvancedProps> = ({
 };
 
 export default Room3DViewerAdvanced;
-
 

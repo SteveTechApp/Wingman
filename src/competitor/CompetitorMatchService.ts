@@ -149,3 +149,15 @@ export function matchToCatalog(competitor: CompetitorItem, opts: MatchOptions = 
 export function canAddSku(sku: string): boolean {
   return !!sku && !!sku.trim();
 }
+export function scoreToBand(score: number): "strong" | "good" | "partial" | "weak" {
+  if (score >= 85) return "strong";
+  if (score >= 70) return "good";
+  if (score >= 55) return "partial";
+  return "weak";
+}
+
+export function scoreToConfidence(score: number): "high" | "medium" | "low" {
+  if (score >= 80) return "high";
+  if (score >= 60) return "medium";
+  return "low";
+}

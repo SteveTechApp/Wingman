@@ -4,6 +4,7 @@ export const WM_ROUTES = {
   newProject: "/app/projects/new",
   tools: "/app/tools",
   discovery: "/app/tools/discovery",
+  importIntake: "/app/tools/import-intake",
   templates: "/app/tools/templates",
   roomDesigner: "/app/tools/room-wizard",
   proposals: "/app/tools/proposal",
@@ -13,5 +14,4 @@ export const WM_ROUTES = {
   videowall: "/app/tools/video-wall",
   competitorCompare: "/app/tools/compare",
   training: "/app/tools/training",
-  settings: "/app/settings/workspace",
 } as const;

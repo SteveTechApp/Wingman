@@ -140,7 +140,7 @@ export default function CatalogueFilters(props: CatalogueFiltersProps) {
   }
 
   return (
-    <aside className="wm-cat2__filters">
+    <aside className="wm-work-card wm-cat2__filters">
       <div className="wm-cat2__filters-top">
         <h2>Filters</h2>
         <button type="button" className="wm-cat2__clear" onClick={props.onClear}>

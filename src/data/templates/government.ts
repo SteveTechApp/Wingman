@@ -143,7 +143,7 @@ export const GOVERNMENT_TEMPLATES: UserTemplate[] = [
             manuallyAddedEquipment: [
                 { sku: 'MX-1007-HYB', name: '10x7 Hybrid HDBaseT/HDMI Matrix Switcher', quantity: 1, category: 'Matrix Switcher', description: 'A powerful hybrid matrix with 10 inputs (HDMI, HDBaseT) and 7 outputs, with integrated audio DSP.', tags: ['Matrix', 'HDBaseT', 'DSP', '4K', 'Gold', '10x7', 'HDMI'] },
                 { sku: 'CAM-210-PTZ', name: '4K AI Tracking PTZ Camera with NDI|HX3', quantity: 3, category: 'Camera', description: 'A professional 4K60Hz PTZ camera with powerful AI tracking capabilities to automatically follow a presenter.', tags: ['Camera', 'PTZ', '4K', 'USB', '12x Zoom', 'AI Tracking', 'IP Stream', 'HDMI', 'NDI'] },
-                { sku: 'SYN-TOUCH10', name: 'Synergy�?,???o�??s�?.�?f??s� 10.1�?,???o�?,?s�?f??s� All-in-One Touchpad IP Controller', quantity: 1, category: 'Control', description: 'PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible)', tags: ['Control', 'Touchscreen', 'Synergy'] },
+                { sku: 'SYN-TOUCH10', name: 'Synergy 10.1in All-in-One Touchpad IP Controller', quantity: 1, category: 'Control', description: 'PoE+ | Table Top Stand & Wall-Mount (US/UK/EU Compatible)', tags: ['Control', 'Touchscreen', 'Synergy'] },
             ],
             features: [
                 { name: 'Video Conferencing', priority: 'must-have' },

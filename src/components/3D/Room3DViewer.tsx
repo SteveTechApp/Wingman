@@ -195,10 +195,10 @@ const Room3DViewer: React.FC<Room3DViewerProps> = ({ room, onEquipmentClick }) =
       {/* Instructions overlay */}
       <div className="absolute\ bottom-4\ left-4\ bg-background\ border\ border-border-color\ rounded-lg\ p-3\ text-sm\ text-text-secondary\ shadow-lg">
         <p><strong>Controls:</strong></p>
-        <p>�?,???o�??s��?,??"?f??s��?,???o�?f??s� Left click + drag: Rotate</p>
-        <p>�?,???o�??s��?,??"?f??s��?,???o�?f??s� Right click + drag: Pan</p>
-        <p>�?,???o�??s��?,??"?f??s��?,???o�?f??s� Scroll: Zoom</p>
-        <p>�?,???o�??s��??z�?f??s� Hover over equipment to see details</p>
+        <p>Left click + drag: Rotate</p>
+        <p>Right click + drag: Pan</p>
+        <p>Scroll: Zoom</p>
+        <p>Hover over equipment to see details</p>
       </div>
     </div>
   );

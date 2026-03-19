@@ -30,7 +30,7 @@ type WingmanCommandPaletteProps = {
   onClose: () => void;
 };
 
-type CommandGroup = "Continue" | "Start" | "Workflow" | "Workspace" | "Admin";
+type CommandGroup = "Continue" | "Start" | "Workflow" | "Admin";
 type CommandKind =
   | "project"
   | "resume"
@@ -39,7 +39,6 @@ type CommandKind =
   | "import"
   | "template"
   | "workflow"
-  | "workspace"
   | "admin";
 
 type CommandAction = {
@@ -62,7 +61,7 @@ type ProjectActionBundle = {
   duplicate: CommandAction;
 };
 
-const GROUP_ORDER: CommandGroup[] = ["Continue", "Start", "Workflow", "Workspace", "Admin"];
+const GROUP_ORDER: CommandGroup[] = ["Continue", "Start", "Workflow", "Admin"];
 
 function buildSearchText(action: CommandAction): string {
   return [
@@ -117,7 +116,7 @@ function groupActions(actions: CommandAction[]): Array<{ group: CommandGroup; ac
 }
 
 function commandIcon(action: CommandAction, size = 18) {
-  if (action.kind === "project" || action.kind === "workspace") {
+  if (action.kind === "project") {
     return <FolderOpen size={size} />;
   }
   if (action.kind === "resume" || action.kind === "workflow") {
@@ -148,7 +147,7 @@ function buildProjectActionBundle(
 ): ProjectActionBundle {
   const resumeAction = getProjectResumeAction(project);
   const summaryBits = [project.customer, project.site, project.roomName].filter(Boolean);
-  const summary = summaryBits.length > 0 ? summaryBits.join(" ?f??s� ") : "Project workspace";
+  const summary = summaryBits.length > 0 ? summaryBits.join(" / ") : "Project record";
 
   return {
     project,
@@ -170,8 +169,8 @@ function buildProjectActionBundle(
     },
     resume: {
       id: `project-resume-${project.id}`,
-      label: `${resumeAction.label} ?f??s� ${project.name}`,
-      description: `${summary} ?f??s� ${project.stage || "Discovery"}`,
+      label: `${resumeAction.label} / ${project.name}`,
+      description: `${summary} / ${project.stage || "Discovery"}`,
       group: "Continue",
       kind: "resume",
       badge: resumeAction.shortLabel,
@@ -327,13 +326,13 @@ export default function WingmanCommandPalette({
       },
     },
     {
-      id: "projects-workspace",
-      label: "Open Projects Workspace",
+      id: "projects",
+      label: "Open Projects",
       description: "Browse all active work and continue the right opportunity.",
-      group: "Workspace",
-      kind: "workspace",
+      group: "Workflow",
+      kind: "workflow",
       badge: "Projects",
-      keywords: ["projects", "workspace", "opportunities"],
+      keywords: ["projects", "opportunities", "pipeline"],
       run: () => {
         onClose();
         navigate(WM_ROUTES.projects);
@@ -343,26 +342,13 @@ export default function WingmanCommandPalette({
       id: "tool-hub",
       label: "Open Tool Hub",
       description: "Jump to all Wingman tools and specialist workflows.",
-      group: "Workspace",
-      kind: "workspace",
+      group: "Workflow",
+      kind: "workflow",
       badge: "Tools",
       keywords: ["tool hub", "tools", "reference"],
       run: () => {
         onClose();
         navigate(WM_ROUTES.tools);
-      },
-    },
-    {
-      id: "workspace-settings",
-      label: "Open Workspace Settings",
-      description: "Manage members, roles, and invites for the workspace.",
-      group: "Admin",
-      kind: "admin",
-      badge: "Admin",
-      keywords: ["workspace", "settings", "invites", "roles"],
-      run: () => {
-        onClose();
-        navigate(WM_ROUTES.settings);
       },
     },
   ], [navigate, onClose]);
@@ -417,9 +403,8 @@ export default function WingmanCommandPalette({
     activeBundle?.open ?? null,
     actionMap.get("guided-project") ?? null,
     actionMap.get("proposal") ?? null,
-    actionMap.get("projects-workspace") ?? null,
+    actionMap.get("projects") ?? null,
     actionMap.get("tool-hub") ?? null,
-    actionMap.get("workspace-settings") ?? null,
   ].filter((action): action is CommandAction => Boolean(action));
 
   const defaultPreviewAction = primaryAction ?? launchActions[0] ?? filteredActions[0] ?? null;
@@ -452,7 +437,7 @@ export default function WingmanCommandPalette({
       >
         <div className="wm-commandPalette__topline">
           <div>
-            <div className="wm-commandPalette__eyebrow">Workspace Launcher</div>
+            <div className="wm-commandPalette__eyebrow">Wingman Launcher</div>
             <div className="wm-commandPalette__title">Find the right next move</div>
           </div>
 
@@ -521,7 +506,7 @@ export default function WingmanCommandPalette({
                   <div className="wm-commandPalette__spotlightTitle">{primaryAction.label}</div>
                   <div className="wm-commandPalette__spotlightBody">
                     {activeBundle
-                      ? `${activeBundle.project.name} ?f��??s�� ${activeBundle.summary}`
+                      ? `${activeBundle.project.name} / ${activeBundle.summary}`
                       : primaryAction.description}
                   </div>
                   <div className="wm-commandPalette__spotlightFooter">
@@ -566,7 +551,7 @@ export default function WingmanCommandPalette({
 
                 {recentBundles.length === 0 ? (
                   <div className="wm-commandPalette__empty">
-                    No recent projects yet. Start with a new project or import a tender, email, or RFQ to seed the workspace.
+                    No recent projects yet. Start with a new project or import a tender, email, or RFQ to seed your project list.
                   </div>
                 ) : (
                   <div className="wm-commandPalette__projectList">

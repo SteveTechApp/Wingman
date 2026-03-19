@@ -263,9 +263,9 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({
                 config.type === "lcd" ? "text-green-100" : "text-text-secondary"
               }`}
             >
-              <li>?f��??s�� Commercial display panels</li>
-              <li>?f��??s�� Thin bezels but still segmented</li>
-              <li>?f��??s�� Strong value for larger display canvases</li>
+              <li>Commercial display panels</li>
+              <li>Thin bezels but still segmented</li>
+              <li>Strong value for larger display canvases</li>
             </ul>
           </button>
 
@@ -290,9 +290,9 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({
                 config.type === "led" ? "text-green-100" : "text-text-secondary"
               }`}
             >
-              <li>?f��??s�� Seamless image with no bezels</li>
-              <li>?f��??s�� Normally one processor input feed</li>
-              <li>?f��??s�� Premium visual impact</li>
+              <li>Seamless image with no bezels</li>
+              <li>Normally one processor input feed</li>
+              <li>Premium visual impact</li>
             </ul>
           </button>
         </div>
@@ -411,7 +411,7 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({
                           : "text-green-600"
                       }
                     >
-                      ?f�?.??o�?,??"
+                      Pros:
                     </span>{" "}
                     {opt.pros.join(", ")}
                   </div>
@@ -487,7 +487,7 @@ const VideoWallConfigurator: React.FC<VideoWallConfiguratorProps> = ({
 
               <div className="text-right">
                 <span className="text-lg font-bold text-slate-700">
-                  ?f?'�?,????{product.quantity}
+                  x{product.quantity}
                 </span>
               </div>
             </div>

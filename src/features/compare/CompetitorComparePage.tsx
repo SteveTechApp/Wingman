@@ -1,11 +1,25 @@
 import * as React from "react";
+import {
+  CheckCircle2,
+  ChevronDown,
+  ExternalLink,
+  RefreshCw,
+  Search,
+  ShieldAlert,
+  ShieldCheck,
+  Wand2,
+  XCircle,
+} from "lucide-react";
 
 import CompetitorMatchFinderPanel from "@/components/competitor/CompetitorMatchFinderPanel";
 import CompetitorLookupStatusPanel from "@/components/competitor/CompetitorLookupStatusPanel";
-import CompetitorCompareResultsPanel from "@/components/competitor/CompetitorCompareResultsPanel";
 import CompetitorManualComparisonPanel from "@/components/competitor/CompetitorManualComparisonPanel";
 import type { CompetitorLookupTrace } from "@/competitor/types";
-import type { CompetitorCompareOption } from "@/services/competitorCompareFit";
+import type {
+  CompetitorCompareMatrixRow,
+  CompetitorCompareOption,
+  CompetitorCompareMatrixStatus,
+} from "@/services/competitorCompareFit";
 import {
   getCompetitorCompareFeedbackSummary,
   logCompetitorCompareFeedback,
@@ -163,6 +177,410 @@ function finderSuggestions(
   }));
 }
 
+function formatPercent(value: number | undefined): string {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  return `${Math.round(value)}%`;
+}
+
+function confidenceLabel(value: number | undefined): "High" | "Medium" | "Low" {
+  const score = value ?? 0;
+  if (score >= 85) return "High";
+  if (score >= 65) return "Medium";
+  return "Low";
+}
+
+function bandLabel(
+  value: number | undefined,
+): "Strong fit" | "Good fit" | "Functional alternative" | "Weak fit" {
+  const score = value ?? 0;
+  if (score >= 85) return "Strong fit";
+  if (score >= 70) return "Good fit";
+  if (score >= 55) return "Functional alternative";
+  return "Weak fit";
+}
+
+function bandTone(value: number | undefined): React.CSSProperties {
+  const score = value ?? 0;
+  if (score >= 85) {
+    return {
+      color: "#bbf7d0",
+      background: "rgba(34,197,94,0.12)",
+      border: "1px solid rgba(34,197,94,0.26)",
+    };
+  }
+  if (score >= 70) {
+    return {
+      color: "#bfdbfe",
+      background: "rgba(59,130,246,0.12)",
+      border: "1px solid rgba(59,130,246,0.26)",
+    };
+  }
+  if (score >= 55) {
+    return {
+      color: "#fde68a",
+      background: "rgba(245,158,11,0.12)",
+      border: "1px solid rgba(245,158,11,0.26)",
+    };
+  }
+  return {
+    color: "#fecaca",
+    background: "rgba(239,68,68,0.12)",
+    border: "1px solid rgba(239,68,68,0.26)",
+  };
+}
+
+function matrixTone(status: CompetitorCompareMatrixStatus): React.CSSProperties {
+  switch (status) {
+    case "better":
+      return {
+        color: "#bbf7d0",
+        background: "rgba(34,197,94,0.10)",
+        border: "1px solid rgba(34,197,94,0.22)",
+      };
+    case "match":
+      return {
+        color: "#bfdbfe",
+        background: "rgba(59,130,246,0.10)",
+        border: "1px solid rgba(59,130,246,0.22)",
+      };
+    case "gap":
+      return {
+        color: "#fecaca",
+        background: "rgba(239,68,68,0.10)",
+        border: "1px solid rgba(239,68,68,0.22)",
+      };
+    default:
+      return {
+        color: "#e2e8f0",
+        background: "rgba(148,163,184,0.10)",
+        border: "1px solid rgba(148,163,184,0.20)",
+      };
+  }
+}
+
+function pillStyle(): React.CSSProperties {
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    height: 28,
+    padding: "0 10px",
+    borderRadius: 999,
+    fontSize: 12,
+    fontWeight: 800,
+    whiteSpace: "nowrap",
+  };
+}
+
+function notesFor(
+  candidate: CompetitorCompareCandidate,
+  selectedOption: CompetitorCompareOption | undefined,
+  liveResult: CompetitorCompareLiveResult | null,
+): string[] {
+  const out: string[] = [];
+
+  out.push(...(selectedOption?.reasons ?? []).slice(0, 3));
+  out.push(...(candidate.searchReasons ?? []).slice(0, 2));
+  if (selectedOption?.positioningSummary) out.push(selectedOption.positioningSummary);
+  if (liveResult?.record) out.push("Competitor record live verified.");
+
+  const seen = new Set<string>();
+  return out
+    .filter((line) => {
+      const key = line.trim().toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 5);
+}
+
+function MatrixTable({ rows }: { rows: CompetitorCompareMatrixRow[] }) {
+  if (!rows.length) return null;
+
+  return (
+    <div
+      style={{
+        display: "grid",
+        gap: 8,
+        borderTop: "1px solid rgba(255,255,255,0.08)",
+        paddingTop: 12,
+      }}
+    >
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1.2fr 1fr 1fr auto",
+          gap: 8,
+          fontSize: 11,
+          fontWeight: 800,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.52)",
+        }}
+      >
+        <div>Feature</div>
+        <div>Competitor</div>
+        <div>WyreStorm</div>
+        <div>Status</div>
+      </div>
+
+      {rows.map((row) => (
+        <div
+          key={row.id}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.2fr 1fr 1fr auto",
+            gap: 8,
+            alignItems: "start",
+            padding: "10px 12px",
+            borderRadius: 12,
+            border: "1px solid rgba(255,255,255,0.06)",
+            background: "rgba(255,255,255,0.03)",
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 700 }}>{row.label}</div>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.84)" }}>{row.competitorValue}</div>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.84)" }}>{row.wyrestormValue}</div>
+          <div>
+            <span style={{ ...pillStyle(), ...matrixTone(row.status), height: 26 }}>
+              {row.status}
+            </span>
+          </div>
+          {row.note ? (
+            <div
+              style={{
+                gridColumn: "1 / -1",
+                fontSize: 12,
+                color: "rgba(255,255,255,0.62)",
+                lineHeight: 1.45,
+                marginTop: 2,
+              }}
+            >
+              {row.note}
+            </div>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ResultCard(props: {
+  candidate: CompetitorCompareCandidate;
+  selected: boolean;
+  selectedOptionId?: string;
+  liveResult: CompetitorCompareLiveResult | null;
+  onSelectCandidate: (candidate: CompetitorCompareCandidate) => void;
+  onSelectOption: (
+    candidate: CompetitorCompareCandidate,
+    option: CompetitorCompareOption,
+  ) => void;
+  onVerifyCandidate: (candidate: CompetitorCompareCandidate) => void;
+}) {
+  const {
+    candidate,
+    selected,
+    selectedOptionId,
+    liveResult,
+    onSelectCandidate,
+    onSelectOption,
+    onVerifyCandidate,
+  } = props;
+
+  const selectedOption =
+    candidate.options.find((option) => option.id === selectedOptionId) ||
+    candidate.primaryOption ||
+    candidate.options[0];
+
+  const score =
+    selectedOption?.fitScore ??
+    candidate.searchScore ??
+    liveResult?.record?.matchScore ??
+    0;
+
+  const notes = notesFor(candidate, selectedOption, liveResult);
+
+  return (
+    <div
+      className="wm-card"
+      style={{
+        padding: 14,
+        display: "grid",
+        gap: 12,
+        border: selected
+          ? "1px solid rgba(74,222,128,0.28)"
+          : "1px solid rgba(255,255,255,0.08)",
+        background: selected
+          ? "linear-gradient(180deg, rgba(8,26,20,0.96), rgba(5,18,15,0.96))"
+          : undefined,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start" }}>
+        <div style={{ display: "grid", gap: 6, minWidth: 0 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <span style={{ ...pillStyle(), ...bandTone(score) }}>{bandLabel(score)}</span>
+            <span
+              style={{
+                ...pillStyle(),
+                color: "#cbd5e1",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              Confidence {confidenceLabel(score)}
+            </span>
+            {liveResult?.record &&
+            liveResult.record.competitorSku === candidate.comparison.competitorSku ? (
+              <span
+                style={{
+                  ...pillStyle(),
+                  color: "#a7f3d0",
+                  background: "rgba(16,185,129,0.10)",
+                  border: "1px solid rgba(16,185,129,0.22)",
+                }}
+              >
+                <ShieldCheck size={13} style={{ marginRight: 6 }} />
+                Live verified
+              </span>
+            ) : null}
+          </div>
+
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.68)", fontWeight: 700 }}>
+            {candidate.comparison.brand} {candidate.comparison.competitorSku}
+          </div>
+
+          <div style={{ fontSize: 22, lineHeight: 1.1, fontWeight: 900 }}>
+            {selectedOption?.wyrestormSku || candidate.comparison.wyrestormSku || "No mapped SKU"}
+          </div>
+
+          <div style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", lineHeight: 1.45 }}>
+            {selectedOption?.label || "Best WyreStorm fit"}
+          </div>
+        </div>
+
+        <div
+          style={{
+            minWidth: 92,
+            textAlign: "right",
+            padding: "8px 10px",
+            borderRadius: 14,
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(255,255,255,0.04)",
+          }}
+        >
+          <div style={{ fontSize: 28, lineHeight: 1, fontWeight: 900 }}>{formatPercent(score)}</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.62)", fontWeight: 800, marginTop: 4 }}>
+            Match
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gap: 8 }}>
+        <div style={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.52)", fontWeight: 800 }}>
+          Why this match
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          {notes.map((note) => (
+            <div
+              key={note}
+              style={{
+                display: "flex",
+                gap: 8,
+                alignItems: "flex-start",
+                color: "rgba(255,255,255,0.80)",
+                lineHeight: 1.45,
+                fontSize: 13,
+              }}
+            >
+              <CheckCircle2 size={15} style={{ marginTop: 2, flexShrink: 0, color: "#86efac" }} />
+              <span>{note}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <MatrixTable rows={selectedOption?.matrix ?? []} />
+
+      {candidate.options.length > 1 ? (
+        <div style={{ display: "grid", gap: 8 }}>
+          <div style={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.52)", fontWeight: 800 }}>
+            Other WyreStorm options
+          </div>
+
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {candidate.options.map((option) => {
+              const isActive = option.id === selectedOption?.id;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => onSelectOption(candidate, option)}
+                  style={{
+                    height: 34,
+                    padding: "0 12px",
+                    borderRadius: 10,
+                    border: isActive
+                      ? "1px solid rgba(74,222,128,0.26)"
+                      : "1px solid rgba(255,255,255,0.08)",
+                    background: isActive
+                      ? "rgba(34,197,94,0.10)"
+                      : "rgba(255,255,255,0.04)",
+                    color: "#fff",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                  }}
+                >
+                  {option.wyrestormSku} · {formatPercent(option.fitScore)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        <button
+          type="button"
+          onClick={() => onSelectCandidate(candidate)}
+          style={{
+            height: 36,
+            padding: "0 12px",
+            borderRadius: 10,
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: selected ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.05)",
+            color: "#fff",
+            fontWeight: 800,
+            cursor: "pointer",
+          }}
+        >
+          {selected ? "Selected" : "Use this result"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onVerifyCandidate(candidate)}
+          style={{
+            height: 36,
+            padding: "0 12px",
+            borderRadius: 10,
+            border: "1px solid rgba(96,165,250,0.22)",
+            background: "rgba(59,130,246,0.10)",
+            color: "#bfdbfe",
+            fontWeight: 800,
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <RefreshCw size={14} />
+          Verify live
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function CompetitorComparePage() {
   const [brand, setBrand] = React.useState(DEFAULT_BRAND);
   const [sku, setSku] = React.useState(DEFAULT_SKU);
@@ -269,23 +687,23 @@ export default function CompetitorComparePage() {
   );
 
   const verifyLive = React.useCallback(
-    async (targetSku?: string) => {
+    async (nextSku: string) => {
       const nextBrand = brand.trim();
-      const nextSku = (targetSku || sku).trim();
-      if (!nextBrand || !nextSku) return;
+      const targetSku = nextSku.trim();
+      if (!nextBrand || !targetSku) return;
 
       setRunning(true);
       setSaveMessage("");
 
       try {
-        const result = await verifyCompetitorComparisonLive(nextBrand, nextSku);
+        const result = await verifyCompetitorComparisonLive(nextBrand, targetSku);
         setLiveResult(result);
-        if (result.record?.competitorSku) {
-          setSku(result.record.competitorSku);
+
+        if (result.record) {
           logCompetitorCompareFeedback({
             type: "live-verified",
             brand: nextBrand,
-            query: nextSku,
+            query: targetSku,
             competitorSku: result.record.competitorSku,
             wyrestormSku:
               result.candidate?.primaryOption?.wyrestormSku ||
@@ -297,7 +715,7 @@ export default function CompetitorComparePage() {
         setRunning(false);
       }
     },
-    [brand, sku, refreshFeedback],
+    [brand, refreshFeedback],
   );
 
   React.useEffect(() => {
@@ -412,14 +830,12 @@ export default function CompetitorComparePage() {
           <div>
             <div className="wm-page-title">Competitor Comparison</div>
             <div className="wm-page-sub">
-              Search partial competitor SKUs, shortlist the nearest WyreStorm fit,
-              compare the top options side by side, verify the latest match live,
-              and save manual fallback mappings for future use.
+              Live lookup, scored WyreStorm fit, and a clearer side-by-side feature matrix.
             </div>
           </div>
         </div>
 
-        <div className="wm-page-body" style={{ display: "grid", gap: 10 }}>
+        <div className="wm-page-body" style={{ display: "grid", gap: 12 }}>
           <div className="wm-card" style={{ padding: 10 }}>
             <CompetitorMatchFinderPanel
               brand={brand}
@@ -444,30 +860,102 @@ export default function CompetitorComparePage() {
           <div
             style={{
               display: "grid",
-              gap: 10,
-              gridTemplateColumns: "minmax(0, 1.6fr) 320px",
+              gap: 12,
+              gridTemplateColumns: "minmax(0, 1.6fr) minmax(320px, 0.9fr)",
               alignItems: "start",
             }}
           >
-            <div
-              className="wm-card"
-              style={{
-                padding: 12,
-                border: "1px solid rgba(92,225,230,0.18)",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.25)",
-              }}
-            >
-              <CompetitorCompareResultsPanel
-                result={effectiveResult}
-                selectedCandidateId={selectedCandidate?.id}
-                selectedOptionId={selectedOption?.id}
-                liveResult={liveResult}
-                onSelectCandidate={handleSelectCandidate}
-                onVerifyCandidate={(candidate) =>
-                  void verifyLive(candidate.comparison.competitorSku)
-                }
-                onSelectOption={handleSelectOption}
-              />
+            <div style={{ display: "grid", gap: 12 }}>
+              <div
+                className="wm-card"
+                style={{
+                  padding: 14,
+                  display: "grid",
+                  gap: 10,
+                  border:
+                    effectiveResult.status === "no-match"
+                      ? "1px solid rgba(239,68,68,0.18)"
+                      : "1px solid rgba(255,255,255,0.08)",
+                }}
+              >
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                  <span
+                    style={{
+                      ...pillStyle(),
+                      color: "#dbeafe",
+                      background: "rgba(59,130,246,0.10)",
+                      border: "1px solid rgba(59,130,246,0.22)",
+                    }}
+                  >
+                    <Search size={13} style={{ marginRight: 6 }} />
+                    {modeLabel}
+                  </span>
+
+                  {liveResult?.record ? (
+                    <span
+                      style={{
+                        ...pillStyle(),
+                        color: "#bbf7d0",
+                        background: "rgba(34,197,94,0.10)",
+                        border: "1px solid rgba(34,197,94,0.22)",
+                      }}
+                    >
+                      <ShieldCheck size={13} style={{ marginRight: 6 }} />
+                      Live verified
+                    </span>
+                  ) : null}
+
+                  {effectiveResult.status === "ambiguous" ? (
+                    <span
+                      style={{
+                        ...pillStyle(),
+                        color: "#fde68a",
+                        background: "rgba(245,158,11,0.10)",
+                        border: "1px solid rgba(245,158,11,0.22)",
+                      }}
+                    >
+                      <ShieldAlert size={13} style={{ marginRight: 6 }} />
+                      Clarify shortlist
+                    </span>
+                  ) : null}
+                </div>
+
+                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", lineHeight: 1.55 }}>
+                  {effectiveResult.summary}
+                </div>
+              </div>
+
+              {effectiveResult.candidates.length > 0 ? (
+                <div style={{ display: "grid", gap: 12 }}>
+                  {effectiveResult.candidates.map((candidate) => (
+                    <ResultCard
+                      key={candidate.id}
+                      candidate={candidate}
+                      selected={candidate.id === selectedCandidate?.id}
+                      selectedOptionId={
+                        candidate.id === selectedCandidate?.id
+                          ? selectedOption?.id
+                          : candidate.primaryOption?.id
+                      }
+                      liveResult={liveResult}
+                      onSelectCandidate={handleSelectCandidate}
+                      onSelectOption={handleSelectOption}
+                      onVerifyCandidate={(nextCandidate) =>
+                        void verifyLive(nextCandidate.comparison.competitorSku)
+                      }
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="wm-card" style={{ padding: 18, display: "grid", gap: 8 }}>
+                  <div style={{ fontSize: 18, fontWeight: 900 }}>
+                    Start with a competitor brand and SKU
+                  </div>
+                  <div style={{ color: "rgba(255,255,255,0.72)", lineHeight: 1.55 }}>
+                    The compare engine will search the local mapping library first, then verify the record live when confidence is high enough.
+                  </div>
+                </div>
+              )}
             </div>
 
             <div
@@ -479,7 +967,7 @@ export default function CompetitorComparePage() {
                 top: 20,
               }}
             >
-              <div style={{ opacity: 0.85 }}>
+              <div style={{ opacity: 0.92 }}>
                 <CompetitorLookupStatusPanel
                   trace={trace}
                   modeLabel={modeLabel}
@@ -490,62 +978,92 @@ export default function CompetitorComparePage() {
                 />
               </div>
 
-              <div className="wm-card" style={{ padding: 10, opacity: 0.92 }}>
-                <button
-                  type="button"
-                  onClick={() => setManualPanelOpen((current) => !current)}
-                  aria-expanded={manualPanelOpen}
-                  style={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    padding: 0,
-                    margin: 0,
-                    border: "none",
-                    background: "transparent",
-                    color: "#eef5ff",
-                    cursor: "pointer",
-                    textAlign: "left",
-                  }}
-                >
-                  <div style={{ display: "grid", gap: 3 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800 }}>
-                      Manual fallback mapping
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 11,
-                        color: "rgba(255,255,255,0.62)",
-                        lineHeight: 1.35,
-                      }}
-                    >
+              <div className="wm-card" style={{ padding: 12, opacity: 0.96, display: "grid", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                  <div style={{ display: "grid", gap: 4 }}>
+                    <div style={{ fontSize: 14, fontWeight: 900 }}>Manual overrides</div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.64)", lineHeight: 1.45 }}>
                       Save or remove local override mappings when the automatic match needs help.
                     </div>
                   </div>
 
-                  <div
-                    aria-hidden="true"
+                  <button
+                    type="button"
+                    onClick={() => setManualPanelOpen((current) => !current)}
                     style={{
-                      minWidth: 28,
-                      height: 28,
-                      borderRadius: 999,
+                      width: 32,
+                      height: 32,
+                      borderRadius: 10,
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      background: "rgba(255,255,255,0.04)",
+                      color: "#fff",
                       display: "grid",
                       placeItems: "center",
-                      border: "1px solid rgba(255,255,255,0.10)",
-                      background: "rgba(255,255,255,0.04)",
-                      color: "rgba(255,255,255,0.80)",
-                      fontSize: 14,
-                      fontWeight: 800,
+                      cursor: "pointer",
+                    }}
+                    title={manualPanelOpen ? "Collapse" : "Expand"}
+                  >
+                    <ChevronDown
+                      size={16}
+                      style={{
+                        transform: manualPanelOpen ? "rotate(180deg)" : "rotate(0deg)",
+                        transition: "transform 140ms ease",
+                      }}
+                    />
+                  </button>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 8,
+                    color: "rgba(255,255,255,0.70)",
+                    fontSize: 12,
+                  }}
+                >
+                  <span
+                    style={{
+                      ...pillStyle(),
+                      color: "#ddd6fe",
+                      background: "rgba(139,92,246,0.10)",
+                      border: "1px solid rgba(139,92,246,0.22)",
                     }}
                   >
-                    {manualPanelOpen ? "-" : "+"}
+                    <Wand2 size={13} style={{ marginRight: 6 }} />
+                    Manual mapping
+                  </span>
+
+                  <span
+                    style={{
+                      ...pillStyle(),
+                      color: "#cbd5e1",
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
+                  >
+                    {feedbackSummary}
+                  </span>
+                </div>
+
+                {saveMessage ? (
+                  <div
+                    style={{
+                      borderRadius: 12,
+                      padding: "10px 12px",
+                      background: "rgba(34,197,94,0.10)",
+                      border: "1px solid rgba(34,197,94,0.22)",
+                      color: "#bbf7d0",
+                      fontSize: 13,
+                      lineHeight: 1.45,
+                    }}
+                  >
+                    {saveMessage}
                   </div>
-                </button>
+                ) : null}
 
                 {manualPanelOpen ? (
-                  <div style={{ marginTop: 12 }}>
+                  <div style={{ marginTop: 2 }}>
                     <CompetitorManualComparisonPanel
                       brand={brand}
                       query={sku}
@@ -559,6 +1077,51 @@ export default function CompetitorComparePage() {
                   </div>
                 ) : null}
               </div>
+
+              {liveResult?.sourceUrl ? (
+                <a
+                  href={liveResult.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="wm-card"
+                  style={{
+                    padding: 12,
+                    textDecoration: "none",
+                    color: "inherit",
+                    display: "grid",
+                    gap: 6,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                    <div style={{ fontSize: 14, fontWeight: 900 }}>Verified source</div>
+                    <ExternalLink size={15} />
+                  </div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.70)", lineHeight: 1.45 }}>
+                    {liveResult.sourceLabel || "Live lookup source"}
+                  </div>
+                </a>
+              ) : null}
+
+              {effectiveResult.status === "no-match" ? (
+                <div
+                  className="wm-card"
+                  style={{
+                    padding: 12,
+                    display: "grid",
+                    gap: 8,
+                    border: "1px solid rgba(239,68,68,0.18)",
+                    background: "rgba(127,29,29,0.18)",
+                  }}
+                >
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", color: "#fecaca", fontWeight: 900 }}>
+                    <XCircle size={16} />
+                    No clean local match
+                  </div>
+                  <div style={{ color: "rgba(255,255,255,0.72)", fontSize: 13, lineHeight: 1.5 }}>
+                    Use manual override to save a known replacement or run live verification again after refining the SKU.
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>

@@ -15,7 +15,7 @@ export const AUDIO_SYSTEMS: Product[] = [
         }
     },
     {
-        sku: 'APO-SKY-MIC', name: 'Apollo�?,???o�??s�?.�?f??s� companion Add-On Ceiling Mic', category: 'Microphone',
+        sku: 'APO-SKY-MIC', name: 'Apollo companion Add-On Ceiling Mic', category: 'Microphone',
         description: 'RJ45 connection',
         tags: ['Microphone', 'Ceiling'],
     },

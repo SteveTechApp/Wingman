@@ -146,7 +146,7 @@ export const TRAINING_MODULES: TrainingModule[] = [
         title: "From Discovery to BOM",
         minutes: 10,
         bullets: [
-          "Start with Room Wizard –€ â€™ validate IO –€ â€™ select switching",
+          "Start with Room Wizard / validate IO / select switching",
           "Add ancillaries: cabling, mounts, project mgmt",
           "Export proposal and review risks"
         ]
