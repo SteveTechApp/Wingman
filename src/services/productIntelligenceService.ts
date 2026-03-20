@@ -1,6 +1,13 @@
 import competitorCatalog from "@/data/catalog/competitorCatalog";
 import { buildWyrestormSeedCatalogProducts } from "@/catalog/seedCatalog";
 import { classifyProductType, type ProductTypeGroup } from "@/catalog/classification";
+import { inferCatalogMetadata } from "@/catalog/metadataInference";
+import type { CatalogDistance,
+  CatalogIntegrationProfile,
+  CatalogPowerProfile,
+  CatalogUsbProfile,
+  CatalogVideo,
+  CatalogWirelessProfile,  CatalogProduct } from "@/catalog/types";
 
 export type ProductVendorType = "wyrestorm" | "competitor";
 export type ProductApprovalStatus = "draft" | "approved" | "expired";
@@ -29,12 +36,12 @@ export type ProductPortCount = {
   count: number;
 };
 
-export type ProductVideoProfile = {
-  maxResolution?: string;
-  hdr?: boolean;
-  hdmi?: string;
-  bandwidthGbps?: number;
-};
+export type ProductVideoProfile = CatalogVideo;
+export type ProductDistanceProfile = CatalogDistance;
+export type ProductUsbProfile = CatalogUsbProfile;
+export type ProductWirelessProfile = CatalogWirelessProfile;
+export type ProductIntegrationProfile = CatalogIntegrationProfile;
+export type ProductPowerProfile = CatalogPowerProfile;
 
 export type ProductEvidenceEntry = {
   id: string;
@@ -59,6 +66,11 @@ export type ProductIntelligenceRecord = {
   subcategory?: string;
   classificationSource: ProductClassificationSource;
   summary: string;
+  technology?: string;
+  topology?: string;
+  role?: string;
+  directionality?: string;
+  outputBehavior?: string;
   features: string[];
   transport?: string;
   inputs: ProductPortCount[];
@@ -67,7 +79,12 @@ export type ProductIntelligenceRecord = {
   audio: string[];
   video?: ProductVideoProfile;
   latency?: string;
+  distance?: ProductDistanceProfile;
   distanceMeters?: number;
+  usb?: ProductUsbProfile;
+  wireless?: ProductWirelessProfile;
+  integration?: ProductIntegrationProfile;
+  power?: ProductPowerProfile;
   status: ProductApprovalStatus;
   confidence: number;
   sourceType: ProductSourceType;
@@ -361,6 +378,11 @@ function sanitizeRecord(record: ProductIntelligenceRecord): ProductIntelligenceR
       tidy(record.category) || tidy(record.subcategory) ? "source" : "inferred",
     ),
     summary: tidy(record.summary) || `${normalizeSku(record.sku)} reference record.`,
+    technology: tidy(record.technology) || undefined,
+    topology: tidy(record.topology) || undefined,
+    role: tidy(record.role) || undefined,
+    directionality: tidy(record.directionality) || undefined,
+    outputBehavior: tidy(record.outputBehavior) || undefined,
     features: dedupeStrings(record.features || [], 24),
     transport: tidy(record.transport) || undefined,
     inputs: mapPortArray(record.inputs),
@@ -369,15 +391,30 @@ function sanitizeRecord(record: ProductIntelligenceRecord): ProductIntelligenceR
     audio: dedupeStrings(record.audio || [], 16),
     video: mapVideo(record.video),
     latency: tidy(record.latency) || undefined,
-    distanceMeters: Number(record.distanceMeters) || undefined,
+    distance: mapDistance(record.distance, record.distanceMeters),
+    distanceMeters: mapNumber(record.distanceMeters ?? record.distance?.meters),
+    usb: mapUsb(record.usb),
+    wireless: mapWireless(record.wireless),
+    integration: mapIntegration(record.integration),
+    power: mapPower(record.power),
     confidence: clampConfidence(record.confidence, record.vendorType === "wyrestorm" ? 0.85 : 0.7),
     sourceUrls: dedupeStrings(record.sourceUrls || [], 8).map((entry) => normalizeUrl(entry)).filter(Boolean),
     tags: dedupeStrings(
       [
+        record.technology,
+        record.topology,
+        record.role,
+        record.directionality,
+        record.outputBehavior,
         record.family,
         record.category,
         record.subcategory,
         record.group,
+        record.video?.maxResolution,
+        record.video?.maxFramerate,
+        record.distance?.hdbasetClass,
+        record.distance?.networkSpeed,
+        record.distance?.codec,
         ...classification.tags,
         ...(record.tags || []),
       ],
@@ -499,6 +536,11 @@ function baseRecordForMutation(
     subcategory: tidy(partial.subcategory) || classification.label || undefined,
     classificationSource: tidy(partial.category) || tidy(partial.subcategory) ? "manual" : "inferred",
     summary: tidy(partial.summary) || `${normalizeSku(payload.sku)} reference record.`,
+    technology: tidy(partial.technology) || undefined,
+    topology: tidy(partial.topology) || undefined,
+    role: tidy(partial.role) || undefined,
+    directionality: tidy(partial.directionality) || undefined,
+    outputBehavior: tidy(partial.outputBehavior) || undefined,
     features: dedupeStrings(asArray<string>(partial.features), 24),
     transport: tidy(partial.transport) || undefined,
     inputs: mapPortArray(partial.inputs),
@@ -507,12 +549,27 @@ function baseRecordForMutation(
     audio: dedupeStrings(asArray<string>(partial.audio), 16),
     video: mapVideo(partial.video),
     latency: normalizeLatency(partial.latency),
-    distanceMeters: Number(partial.distanceMeters) || undefined,
+    distance: mapDistance(partial.distance, partial.distanceMeters),
+    distanceMeters: mapNumber(partial.distanceMeters ?? partial.distance?.meters),
+    usb: mapUsb(partial.usb),
+    wireless: mapWireless(partial.wireless),
+    integration: mapIntegration(partial.integration),
+    power: mapPower(partial.power),
     status: "draft",
     confidence: clampConfidence(partial.confidence, 0.68),
     sourceType: partial.sourceType || "manual",
     sourceUrls: dedupeStrings(asArray<string>(partial.sourceUrls), 8).map((entry) => normalizeUrl(entry)).filter(Boolean),
-    tags: dedupeStrings([classification.group, classification.label, ...classification.tags, ...asArray<string>(partial.tags)], 24),
+    tags: dedupeStrings([
+      partial.technology,
+      partial.topology,
+      partial.role,
+      partial.directionality,
+      partial.outputBehavior,
+      classification.group,
+      classification.label,
+      ...classification.tags,
+      ...asArray<string>(partial.tags),
+    ], 24),
     notes: tidy(partial.notes) || undefined,
     createdAt: nowIso(),
     updatedAt: nowIso(),
@@ -564,20 +621,172 @@ function mapPortArray(value: unknown): ProductPortCount[] {
     .slice(0, 24);
 }
 
+function mapBoolean(value: unknown): boolean | undefined {
+  return typeof value === "boolean" ? value : undefined;
+}
+
+function mapNumber(value: unknown): number | undefined {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 function mapVideo(value: unknown): ProductVideoProfile | undefined {
   if (!value || typeof value !== "object") return undefined;
   const maxResolution = tidy((value as { maxResolution?: unknown }).maxResolution);
+  const maxFramerate = tidy((value as { maxFramerate?: unknown }).maxFramerate);
+  const chroma = tidy((value as { chroma?: unknown }).chroma);
   const hdrValue = (value as { hdr?: unknown }).hdr;
+  const dolbyVisionValue = (value as { dolbyVision?: unknown }).dolbyVision;
   const hdmi = tidy((value as { hdmi?: unknown }).hdmi);
+  const hdmiVersion = tidy((value as { hdmiVersion?: unknown }).hdmiVersion);
+  const hdcpVersion = tidy((value as { hdcpVersion?: unknown }).hdcpVersion);
   const bandwidthGbpsValue = Number((value as { bandwidthGbps?: unknown }).bandwidthGbps);
+  const scaling = mapBoolean((value as { scaling?: unknown }).scaling);
+  const downscaling = mapBoolean((value as { downscaling?: unknown }).downscaling);
+  const upscaling = mapBoolean((value as { upscaling?: unknown }).upscaling);
+  const multiview = mapBoolean((value as { multiview?: unknown }).multiview);
+  const seamlessSwitching = mapBoolean((value as { seamlessSwitching?: unknown }).seamlessSwitching);
   const hdr = typeof hdrValue === "boolean" ? hdrValue : undefined;
-  if (!maxResolution && hdr == null && !hdmi && !Number.isFinite(bandwidthGbpsValue)) return undefined;
+  const dolbyVision = typeof dolbyVisionValue === "boolean" ? dolbyVisionValue : undefined;
+  if (
+    !maxResolution &&
+    !maxFramerate &&
+    !chroma &&
+    hdr == null &&
+    dolbyVision == null &&
+    !hdmi &&
+    !hdmiVersion &&
+    !hdcpVersion &&
+    !Number.isFinite(bandwidthGbpsValue) &&
+    scaling == null &&
+    downscaling == null &&
+    upscaling == null &&
+    multiview == null &&
+    seamlessSwitching == null
+  ) {
+    return undefined;
+  }
   return {
     maxResolution: maxResolution || undefined,
+    maxFramerate: maxFramerate || undefined,
+    chroma: chroma || undefined,
     hdr,
+    dolbyVision,
     hdmi: hdmi || undefined,
+    hdmiVersion: hdmiVersion || undefined,
+    hdcpVersion: hdcpVersion || undefined,
     bandwidthGbps: Number.isFinite(bandwidthGbpsValue) ? bandwidthGbpsValue : undefined,
+    scaling,
+    downscaling,
+    upscaling,
+    multiview,
+    seamlessSwitching,
   };
+}
+
+function mapDistance(value: unknown, fallbackMeters?: unknown): ProductDistanceProfile | undefined {
+  const objectValue = value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+  const meters = mapNumber(objectValue?.meters ?? fallbackMeters);
+  const meters1080p = mapNumber(objectValue?.meters1080p);
+  const meters4k = mapNumber(objectValue?.meters4k);
+  const hdbasetClass = tidy(objectValue?.hdbasetClass);
+  const networkSpeed = tidy(objectValue?.networkSpeed);
+  const codec = tidy(objectValue?.codec);
+  const latencyClass = tidy(objectValue?.latencyClass);
+  const notes = tidy(objectValue?.notes);
+
+  if (
+    meters == null &&
+    meters1080p == null &&
+    meters4k == null &&
+    !hdbasetClass &&
+    !networkSpeed &&
+    !codec &&
+    !latencyClass &&
+    !notes
+  ) {
+    return undefined;
+  }
+
+  return {
+    meters,
+    meters1080p,
+    meters4k,
+    hdbasetClass: hdbasetClass === "Class A" || hdbasetClass === "Class B" ? hdbasetClass : undefined,
+    networkSpeed: networkSpeed || undefined,
+    codec: codec || undefined,
+    latencyClass: latencyClass || undefined,
+    notes: notes || undefined,
+  };
+}
+
+function mapUsb(value: unknown): ProductUsbProfile | undefined {
+  if (!value || typeof value !== "object") return undefined;
+
+  const usb = {
+    passthrough: mapBoolean((value as { passthrough?: unknown }).passthrough),
+    hostPorts: mapNumber((value as { hostPorts?: unknown }).hostPorts),
+    devicePorts: mapNumber((value as { devicePorts?: unknown }).devicePorts),
+    usbCVideoInput: mapBoolean((value as { usbCVideoInput?: unknown }).usbCVideoInput),
+    usbCChargingWatts: mapNumber((value as { usbCChargingWatts?: unknown }).usbCChargingWatts),
+    kvmSupport: mapBoolean((value as { kvmSupport?: unknown }).kvmSupport),
+    cameraSharing: mapBoolean((value as { cameraSharing?: unknown }).cameraSharing),
+    peripheralSwitching: mapBoolean((value as { peripheralSwitching?: unknown }).peripheralSwitching),
+  };
+
+  return Object.values(usb).some((entry) => entry != null) ? usb : undefined;
+}
+
+function mapWireless(value: unknown): ProductWirelessProfile | undefined {
+  if (!value || typeof value !== "object") return undefined;
+
+  const wireless = {
+    airplay: mapBoolean((value as { airplay?: unknown }).airplay),
+    miracast: mapBoolean((value as { miracast?: unknown }).miracast),
+    googleCast: mapBoolean((value as { googleCast?: unknown }).googleCast),
+    wirelessPresentation: mapBoolean((value as { wirelessPresentation?: unknown }).wirelessPresentation),
+    wirelessConference: mapBoolean((value as { wirelessConference?: unknown }).wirelessConference),
+    mst: mapBoolean((value as { mst?: unknown }).mst),
+    byod: mapBoolean((value as { byod?: unknown }).byod),
+    byom: mapBoolean((value as { byom?: unknown }).byom),
+  };
+
+  return Object.values(wireless).some((entry) => entry != null) ? wireless : undefined;
+}
+
+function mapIntegration(value: unknown): ProductIntegrationProfile | undefined {
+  if (!value || typeof value !== "object") return undefined;
+
+  const integration = {
+    rs232: mapBoolean((value as { rs232?: unknown }).rs232),
+    ir: mapBoolean((value as { ir?: unknown }).ir),
+    lanControl: mapBoolean((value as { lanControl?: unknown }).lanControl),
+    webUi: mapBoolean((value as { webUi?: unknown }).webUi),
+    api: mapBoolean((value as { api?: unknown }).api),
+    cec: mapBoolean((value as { cec?: unknown }).cec),
+    relayCount: mapNumber((value as { relayCount?: unknown }).relayCount),
+    gpioCount: mapNumber((value as { gpioCount?: unknown }).gpioCount),
+    poe: mapBoolean((value as { poe?: unknown }).poe),
+    poePd: mapBoolean((value as { poePd?: unknown }).poePd),
+  };
+
+  return Object.values(integration).some((entry) => entry != null) ? integration : undefined;
+}
+
+function mapPower(value: unknown): ProductPowerProfile | undefined {
+  if (!value || typeof value !== "object") return undefined;
+
+  const power = {
+    powerSupplyType: tidy((value as { powerSupplyType?: unknown }).powerSupplyType) || undefined,
+    poc: mapBoolean((value as { poc?: unknown }).poc),
+    poh: mapBoolean((value as { poh?: unknown }).poh),
+    rackWidth: tidy((value as { rackWidth?: unknown }).rackWidth) || undefined,
+    formFactor: tidy((value as { formFactor?: unknown }).formFactor) || undefined,
+    wallPlate: mapBoolean((value as { wallPlate?: unknown }).wallPlate),
+    tableMount: mapBoolean((value as { tableMount?: unknown }).tableMount),
+  };
+
+  return Object.values(power).some((entry) => entry != null && entry !== "") ? power : undefined;
 }
 
 function normalizeLatency(value: unknown): string | undefined {
@@ -611,6 +820,16 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
   const audio = dedupeStrings(asArray<string>(row.audio), 16);
   const video = mapVideo(row.video);
   const latency = normalizeLatency(row.latency);
+  const technology = tidy(row.technology);
+  const topology = tidy(row.topology);
+  const role = tidy(row.role);
+  const directionality = tidy(row.directionality);
+  const outputBehavior = tidy(row.outputBehavior);
+  const distance = mapDistance((row as { distance?: unknown }).distance, row.distanceMeters);
+  const usb = mapUsb(row.usb);
+  const wireless = mapWireless(row.wireless);
+  const integration = mapIntegration(row.integration);
+  const power = mapPower(row.power);
   const explicitCategory = tidy(row.category);
   const explicitSubcategory = tidy(row.subcategory);
   const classification = classifyProductType({
@@ -624,6 +843,30 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
     features,
     audio,
     control,
+  });
+  const inferredMetadata = inferCatalogMetadata({
+    sku,
+    name: tidy(row.name) || sku,
+    family: tidy(row.family) || "Unknown",
+    category: explicitCategory || classification.category || tidy(row.family) || "Uncategorized",
+    subcategory: explicitSubcategory || classification.label || undefined,
+    status: vendorType === "wyrestorm" ? "active" : "draft",
+    summary,
+    technology: technology || undefined,
+    topology: topology || undefined,
+    role: role || undefined,
+    directionality: directionality || undefined,
+    outputBehavior: outputBehavior || undefined,
+    transport: tidy(row.transport) as CatalogProduct["transport"],
+    inputs,
+    outputs,
+    control,
+    audio,
+    video,
+    distance,
+    wireless,
+    integration,
+    features,
   });
 
   const evidence: ProductEvidenceEntry[] = [];
@@ -691,6 +934,24 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
       notes: "Derived from catalog video metadata.",
     });
   }
+  if (distance?.meters != null || distance?.meters4k != null || distance?.hdbasetClass || distance?.networkSpeed || distance?.codec) {
+    evidence.push({
+      id: `${normalizeId(sku)}-distance`,
+      type: "spec",
+      label: "Catalog Distance and Transport",
+      value: [
+        distance.meters != null ? `Distance: ${distance.meters}m` : "",
+        distance.meters4k != null ? `4K: ${distance.meters4k}m` : "",
+        distance.hdbasetClass ? `HDBaseT: ${distance.hdbasetClass}` : "",
+        distance.networkSpeed ? `Network: ${distance.networkSpeed}` : "",
+        distance.codec ? `Codec: ${distance.codec}` : "",
+      ].filter(Boolean).join(" | "),
+      sourceUrl: sourceUrl || undefined,
+      capturedAt: now,
+      confidence,
+      notes: "Derived from catalog distance and transport metadata.",
+    });
+  }
   if (latency) {
     evidence.push({
       id: `${normalizeId(sku)}-latency`,
@@ -728,6 +989,11 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
     subcategory: explicitSubcategory || classification.label || undefined,
     classificationSource: explicitCategory || explicitSubcategory ? "source" : "inferred",
     summary,
+    technology: technology || inferredMetadata.technology || undefined,
+    topology: topology || inferredMetadata.topology || undefined,
+    role: role || inferredMetadata.role || undefined,
+    directionality: directionality || inferredMetadata.directionality || undefined,
+    outputBehavior: outputBehavior || inferredMetadata.outputBehavior || undefined,
     features,
     transport: tidy(row.transport) || undefined,
     inputs,
@@ -736,12 +1002,22 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
     audio,
     video,
     latency,
-    distanceMeters: Number((row as { distance?: { meters?: unknown } }).distance?.meters ?? row.distanceMeters) || undefined,
+    distance: inferredMetadata.distance || distance,
+    distanceMeters: mapNumber((row as { distance?: { meters?: unknown } }).distance?.meters ?? row.distanceMeters),
+    usb,
+    wireless,
+    integration,
+    power,
     status,
     confidence,
     sourceType: "catalog",
     sourceUrls: sourceUrl ? [sourceUrl] : [],
     tags: dedupeStrings([
+      technology,
+      topology,
+      role,
+      directionality,
+      outputBehavior,
       tidy(row.family),
       tidy(row.category),
       tidy(row.subcategory),
@@ -752,9 +1028,15 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
       ...control,
       ...audio,
       video?.maxResolution,
+      video?.maxFramerate,
       video?.hdmi,
+      video?.hdmiVersion,
+      video?.hdcpVersion,
       Number.isFinite(video?.bandwidthGbps) ? `${video?.bandwidthGbps}Gbps` : "",
       video?.hdr ? "HDR" : "",
+      distance?.hdbasetClass,
+      distance?.networkSpeed,
+      distance?.codec,
       latency,
       ...classification.tags,
       ...features,
@@ -918,6 +1200,11 @@ function mapBackendRecord(raw: Record<string, unknown>): ProductIntelligenceReco
       explicitCategory || explicitSubcategory ? "source" : "inferred",
     ),
     summary: tidy(raw.summary) || `${sku} reference record.`,
+    technology: tidy(raw.technology) || undefined,
+    topology: tidy(raw.topology) || undefined,
+    role: tidy(raw.role) || undefined,
+    directionality: tidy(raw.directionality) || undefined,
+    outputBehavior: tidy(raw.outputBehavior) || undefined,
     features: dedupeStrings(asArray<string>(raw.features), 24),
     transport: tidy(raw.transport) || undefined,
     inputs: mapPortArray(raw.inputs),
@@ -926,12 +1213,27 @@ function mapBackendRecord(raw: Record<string, unknown>): ProductIntelligenceReco
     audio: dedupeStrings(asArray<string>(raw.audio), 16),
     video: mapVideo(raw.video),
     latency: normalizeLatency(raw.latency),
-    distanceMeters: Number(raw.distanceMeters) || undefined,
+    distance: mapDistance(raw.distance, raw.distanceMeters),
+    distanceMeters: mapNumber(raw.distanceMeters ?? (raw.distance as { meters?: unknown } | undefined)?.meters),
+    usb: mapUsb(raw.usb),
+    wireless: mapWireless(raw.wireless),
+    integration: mapIntegration(raw.integration),
+    power: mapPower(raw.power),
     status,
     confidence: clampConfidence(raw.confidence, vendorType === "wyrestorm" ? 0.85 : 0.7),
     sourceType,
     sourceUrls: dedupeStrings(asArray<string>(raw.sourceUrls), 8).map((entry) => normalizeUrl(entry)).filter(Boolean),
-    tags: dedupeStrings([classification.group, classification.label, ...classification.tags, ...asArray<string>(raw.tags)], 24),
+    tags: dedupeStrings([
+      raw.technology,
+      raw.topology,
+      raw.role,
+      raw.directionality,
+      raw.outputBehavior,
+      classification.group,
+      classification.label,
+      ...classification.tags,
+      ...asArray<string>(raw.tags),
+    ], 24),
     notes: tidy(raw.notes) || undefined,
     createdAt: tidy(raw.createdAt) || nowIso(),
     updatedAt: tidy(raw.updatedAt) || nowIso(),
@@ -983,7 +1285,7 @@ export function getProductIntelligenceHealthEndpoint(): string | null {
 }
 
 export function getProductIntelligenceContractSummary(): string {
-  return "GET /api/product-intelligence with filters; POST /refresh, /upsert, /status, /evidence. Records include family/group/category detail, source URLs, capture dates, confidence, approval status, and local review flags.";
+  return "GET /api/product-intelligence with filters; POST /refresh, /upsert, /status, /evidence. Records include topology, role, transport, structured I/O, richer video and distance detail, source URLs, capture dates, confidence, approval status, and local review flags.";
 }
 
 export async function fetchProductIntelligenceRecords(query: ProductIntelligenceQuery = {}): Promise<ProductIntelligenceQueryResult> {
@@ -1153,6 +1455,11 @@ function buildRecordFromUpsertPayload(
       manualCategory ? "manual" : existing?.classificationSource || "inferred",
     ),
     summary,
+    technology: tidy(payload.technology ?? existing?.technology) || undefined,
+    topology: tidy(payload.topology ?? existing?.topology) || undefined,
+    role: tidy(payload.role ?? existing?.role) || undefined,
+    directionality: tidy(payload.directionality ?? existing?.directionality) || undefined,
+    outputBehavior: tidy(payload.outputBehavior ?? existing?.outputBehavior) || undefined,
     features,
     transport,
     inputs: mapPortArray(payload.inputs ?? existing?.inputs),
@@ -1161,13 +1468,23 @@ function buildRecordFromUpsertPayload(
     audio,
     video: mapVideo(payload.video ?? existing?.video),
     latency: normalizeLatency(payload.latency ?? existing?.latency),
-    distanceMeters: Number(payload.distanceMeters ?? existing?.distanceMeters) || undefined,
+    distance: mapDistance(payload.distance ?? existing?.distance, payload.distanceMeters ?? existing?.distanceMeters),
+    distanceMeters: mapNumber(payload.distanceMeters ?? existing?.distanceMeters ?? existing?.distance?.meters),
+    usb: mapUsb(payload.usb ?? existing?.usb),
+    wireless: mapWireless(payload.wireless ?? existing?.wireless),
+    integration: mapIntegration(payload.integration ?? existing?.integration),
+    power: mapPower(payload.power ?? existing?.power),
     status: payload.status ?? existing?.status ?? "draft",
     confidence: clampConfidence(payload.confidence, existing?.confidence ?? (vendorType === "wyrestorm" ? 0.85 : 0.7)),
     sourceType: payload.sourceType ?? existing?.sourceType ?? "manual",
     sourceUrls,
     tags: dedupeStrings(
       [
+        payload.technology ?? existing?.technology,
+        payload.topology ?? existing?.topology,
+        payload.role ?? existing?.role,
+        payload.directionality ?? existing?.directionality,
+        payload.outputBehavior ?? existing?.outputBehavior,
         family,
         category,
         subcategory,

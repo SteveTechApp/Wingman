@@ -23,6 +23,7 @@ export type GuidedProjectRecord = {
   projectScope: string;
   customerOutcome: string;
   switchSolutionType: string;
+  matrixIoPreset: string;
   featureRequirements: string;
   customer: string;
   site: string;
@@ -37,6 +38,7 @@ export type GuidedProjectRecord = {
   transportCableType: string;
   displayCount: string;
   sourceCount: string;
+  sourceInventory: string;
   outputBehaviour: string;
   sourceTypes: string;
   sourcePlacement: string;
@@ -285,12 +287,80 @@ const SWITCH_SOLUTION_DETAILS: ReadonlyArray<GuidedProjectQuestionOptionDetail> 
     accentRgb: "112, 154, 255",
   },
   {
-    value: "Matrix switch",
-    eyebrow: "Switch fit",
-    summary: "Fixed-format HDMI routing with HDMI or HDBaseT outputs and matrix-style switching logic.",
-    outcome: "Matrix switch",
-    tags: ["HDMI inputs", "HDBaseT outputs", "Class A / B"],
+    value: "Matrix switcher",
+    eyebrow: "Matrix routing",
+    summary: "Preset HDMI or HDBaseT matrix routing with fixed I/O layouts and independent zone switching.",
+    outcome: "Matrix switcher",
+    tags: ["Preset I/O", "HDMI matrix", "HDBaseT matrix"],
     accentRgb: "76, 132, 255",
+  },
+  {
+    value: "Matrix kit",
+    eyebrow: "Matrix routing",
+    summary: "Preset matrix kit with HDBaseT zones, local mirrored HDMI outputs, and receiver-led room endpoints.",
+    outcome: "Matrix kit",
+    tags: ["Preset kit", "HDBaseT", "Mirrored HDMI"],
+    accentRgb: "76, 132, 255",
+  },
+] as const;
+
+type MatrixIoPreset = {
+  value: string;
+  switchSolutionType: "Matrix switcher" | "Matrix kit";
+  inputCount: number;
+  zoneCount: number;
+  mirroredHdmiCount: number;
+  outputMode: "hdmi" | "hdbaset";
+};
+
+const MATRIX_IO_PRESETS: readonly MatrixIoPreset[] = [
+  {
+    value: "4x2 HDMI",
+    switchSolutionType: "Matrix switcher",
+    inputCount: 4,
+    zoneCount: 2,
+    mirroredHdmiCount: 0,
+    outputMode: "hdmi",
+  },
+  {
+    value: "4x4 HDMI",
+    switchSolutionType: "Matrix switcher",
+    inputCount: 4,
+    zoneCount: 4,
+    mirroredHdmiCount: 0,
+    outputMode: "hdmi",
+  },
+  {
+    value: "8x8 HDMI",
+    switchSolutionType: "Matrix switcher",
+    inputCount: 8,
+    zoneCount: 8,
+    mirroredHdmiCount: 0,
+    outputMode: "hdmi",
+  },
+  {
+    value: "8x8+8 HDBaseT",
+    switchSolutionType: "Matrix switcher",
+    inputCount: 8,
+    zoneCount: 8,
+    mirroredHdmiCount: 8,
+    outputMode: "hdbaset",
+  },
+  {
+    value: "4x3+1 kit",
+    switchSolutionType: "Matrix kit",
+    inputCount: 4,
+    zoneCount: 4,
+    mirroredHdmiCount: 1,
+    outputMode: "hdbaset",
+  },
+  {
+    value: "8x8+4 kit",
+    switchSolutionType: "Matrix kit",
+    inputCount: 8,
+    zoneCount: 8,
+    mirroredHdmiCount: 4,
+    outputMode: "hdbaset",
   },
 ] as const;
 
@@ -444,7 +514,11 @@ const DISPLAY_CONNECTION_TYPES = [
   "Not sure yet",
 ] as const;
 
-const MATRIX_DISPLAY_CONNECTION_TYPES = ["HDMI", "HDBaseT Class B", "HDBaseT Class A"] as const;
+const MATRIX_DISPLAY_CONNECTION_TYPES = [
+  "HDMI",
+  "HDBaseT Class B (35m @ 4K)",
+  "HDBaseT Class A (70m @ 4K)",
+] as const;
 
 const NETWORK_ENVIRONMENTS = [
   "No managed AV network needed",
@@ -737,12 +811,20 @@ function getPassthroughPrompt(record: GuidedProjectRecord): string {
 }
 
 function getDisplayConnectionOptions(record: GuidedProjectRecord): readonly string[] {
+  const matrixPreset = findMatrixIoPreset(record.matrixIoPreset);
+  if (matrixPreset?.outputMode === "hdmi") return ["HDMI"];
+  if (matrixPreset?.outputMode === "hdbaset") {
+    return MATRIX_DISPLAY_CONNECTION_TYPES.filter((option) => option !== "HDMI");
+  }
   return isMatrixSwitch(record) ? MATRIX_DISPLAY_CONNECTION_TYPES : DISPLAY_CONNECTION_TYPES;
 }
 
 function getDisplayConnectionPrompt(record: GuidedProjectRecord): string {
+  const matrixPreset = findMatrixIoPreset(record.matrixIoPreset);
   return isMatrixSwitch(record)
-    ? "Confirm whether the outputs stay on HDMI or need HDBaseT Class B or Class A."
+    ? matrixPreset?.outputMode === "hdbaset"
+      ? "Pick the HDBaseT class for the matrix outputs: Class B for 35m at 4K or Class A for 70m at 4K."
+      : "Confirm whether the matrix outputs stay on HDMI or need an HDBaseT output class."
     : "Confirm whether the output side needs HDMI, HDBaseT, or IP / Stream.";
 }
 
@@ -758,6 +840,20 @@ function isMatrixSwitch(record: GuidedProjectRecord): boolean {
     normalizeDiscoveryPath(record.workflowTrack || getWorkflowTrack(record)) === "switch" &&
     lower(record.switchSolutionType).includes("matrix")
   );
+}
+
+function isMatrixKit(record: GuidedProjectRecord): boolean {
+  return isMatrixSwitch(record) && lower(record.switchSolutionType).includes("kit");
+}
+
+export function findMatrixIoPreset(value: string | undefined): MatrixIoPreset | undefined {
+  return MATRIX_IO_PRESETS.find((preset) => preset.value === value);
+}
+
+function getMatrixIoPresetOptions(record: GuidedProjectRecord): readonly string[] {
+  if (!isMatrixSwitch(record)) return [];
+  const type = isMatrixKit(record) ? "Matrix kit" : "Matrix switcher";
+  return MATRIX_IO_PRESETS.filter((preset) => preset.switchSolutionType === type).map((preset) => preset.value);
 }
 
 function distanceBandLimit(value: string | undefined): number {
@@ -993,24 +1089,41 @@ const QUESTION_DEFS: GuidedProjectQuestion[] = [
     fullWidth: true,
   },
   {
-    id: "sourceCount",
-    step: 1,
-    label: "Source count",
-    helper: "How many source devices need to be supported?",
-    input: "number",
-    placeholder: "1",
-  },
-  {
     id: "switchSolutionType",
     step: 1,
     label: "What kind of switching is needed?",
-    helper: "Separate presentation switching from fixed-format matrix routing before narrowing the shortlist.",
+    helper: "Separate workflow-led presentation switching from preset matrix routing before narrowing the shortlist.",
     input: "cards",
     options: SWITCH_SOLUTION_DETAILS.map((item) => item.value),
     optionDetails: SWITCH_SOLUTION_DETAILS,
     fullWidth: true,
     shouldAsk: (record) => normalizeDiscoveryPath(record.workflowTrack || getWorkflowTrack(record)) === "switch",
     branchReason: () => "This split decides whether the shortlist should protect user workflow or focus on pure routing.",
+  },
+  {
+    id: "matrixIoPreset",
+    step: 1,
+    label: "Matrix I/O preset",
+    helper: "Pick the fixed matrix layout first so the guide can lock the source count, destination count, and mirrored-output behaviour.",
+    input: "select",
+    options: getMatrixIoPresetOptions,
+    shouldAsk: (record) => isMatrixSwitch(record),
+    branchReason: () => "Preset matrix layouts narrow the real product family faster than open-ended I/O counting.",
+  },
+  {
+    id: "sourceCount",
+    step: 1,
+    label: "Source count",
+    helper: "Confirm the source total once the switching fit is clear, or label each fixed matrix input after the preset is chosen.",
+    input: "number",
+    placeholder: "1",
+    shouldAsk: (record) => {
+      const path = normalizeDiscoveryPath(record.workflowTrack || getWorkflowTrack(record));
+      if (!path) return false;
+      if (path !== "switch") return true;
+      return hasText(record.switchSolutionType) && (!isMatrixSwitch(record) || hasText(record.matrixIoPreset));
+    },
+    branchReason: () => "Count the active sources only after the switching path is clear.",
   },
   {
     id: "sourceConnectionType",
@@ -1039,14 +1152,17 @@ const QUESTION_DEFS: GuidedProjectQuestion[] = [
     id: "displayConnectionType",
     step: 1,
     label: "Output connection type",
-    helper: "Confirm the expected handoff at the output side before narrowing the switch, matrix, or transport path.",
+    helper: "Confirm the output handoff. HDBaseT matrix presets should use Class B (35m @ 4K) or Class A (70m @ 4K).",
     input: "select",
     options: getDisplayConnectionOptions,
     shouldAsk: (record) =>
-      num(record.displayCount) > 0 ||
-      hasText(record.workflowTrack) ||
-      hasText(record.displayConnectionPath) ||
-      !isTrack(record, "not sure yet"),
+      isMatrixSwitch(record)
+        ? hasText(record.matrixIoPreset) &&
+          findMatrixIoPreset(record.matrixIoPreset)?.outputMode !== "hdmi"
+        : num(record.displayCount) > 0 ||
+          hasText(record.workflowTrack) ||
+          hasText(record.displayConnectionPath) ||
+          !isTrack(record, "not sure yet"),
     branchReason: () => "Lock down whether the destination side stays direct, HDBaseT-led, or stream-led before comparing SKUs.",
   },
   {
@@ -1057,9 +1173,10 @@ const QUESTION_DEFS: GuidedProjectQuestion[] = [
     input: "select",
     options: OUTPUT_BEHAVIOUR,
     shouldAsk: (record) =>
-      num(record.displayCount) > 0 ||
-      num(record.sourceCount) > 0 ||
-      !isTrack(record, "not sure yet"),
+      !isMatrixSwitch(record) &&
+      (num(record.displayCount) > 0 ||
+        num(record.sourceCount) > 0 ||
+        !isTrack(record, "not sure yet")),
     branchReason: () => "Output behaviour is the fastest way to avoid recommending a matrix for a simple splitter job.",
   },
     {
@@ -1336,7 +1453,6 @@ const QUESTION_DEFS: GuidedProjectQuestion[] = [
 const DEFAULT_CORE_FIELDS_BY_STEP: Record<GuidedProjectStep, ReadonlyArray<keyof GuidedProjectRecord>> = {
   0: ["workflowTrack"],
   1: [
-    "sourceCount",
     "switchSolutionType",
     "sourceConnectionType",
     "displayCount",
@@ -1346,7 +1462,7 @@ const DEFAULT_CORE_FIELDS_BY_STEP: Record<GuidedProjectStep, ReadonlyArray<keyof
     "transportDistanceBand",
     "transportCableType",
   ],
-  2: ["sourcePlacement", "sourceConnectionPath", "displayConnectionPath"],
+  2: ["sourceCount", "sourcePlacement", "sourceConnectionPath", "displayConnectionPath"],
   3: ["usbNeeds", "audioNeeds", "controlNeeds", "budgetBand", "urgency"],
 };
 
@@ -1372,15 +1488,13 @@ const FIT_CORE_FIELDS_BY_PATH: Record<string, ReadonlyArray<keyof GuidedProjectR
   ],
   switch: [
     "switchSolutionType",
+    "matrixIoPreset",
     "sourceCount",
-    "sourceConnectionType",
     "displayCount",
     "displayConnectionType",
-    "outputBehaviour",
     "featureRequirements",
   ],
   network: [
-    "sourceCount",
     "displayCount",
     "outputBehaviour",
     "networkEnvironment",
@@ -1389,7 +1503,6 @@ const FIT_CORE_FIELDS_BY_PATH: Record<string, ReadonlyArray<keyof GuidedProjectR
     "transportDistanceBand",
   ],
   videowall: [
-    "sourceCount",
     "displayCount",
     "featureRequirements",
     "signalFormats",
@@ -1406,7 +1519,7 @@ const STEP_SUBTITLES_DEFAULT: Record<GuidedProjectStep, string> = {
 const FIT_SUBTITLES_BY_PATH: Record<string, string> = {
   extend: "Capture the extender capability set, signal envelope, and real route length.",
   duplicate: "Confirm the mirrored HDMI outputs, the cable or extender approach, and the HDMI capability needed on every leg.",
-  switch: "Decide whether this is presentation switching or matrix routing, then narrow the fit.",
+  switch: "Decide whether this is presentation switching, a matrix switcher, or a matrix kit, then lock the fit.",
   network: "Confirm scale, routing behavior, and network readiness.",
   videowall: "Confirm source count, display scale, and processor fit.",
 };
@@ -1452,6 +1565,7 @@ export function createEmptyGuidedProjectRecord(): GuidedProjectRecord {
     projectScope: "Single device or signal path",
     customerOutcome: "",
     switchSolutionType: "",
+    matrixIoPreset: "",
     featureRequirements: "",
     customer: "",
     site: "",
@@ -1466,6 +1580,7 @@ export function createEmptyGuidedProjectRecord(): GuidedProjectRecord {
     transportCableType: "",
     displayCount: "",
     sourceCount: "",
+    sourceInventory: "",
     outputBehaviour: "",
     sourceTypes: "",
     sourcePlacement: "",
@@ -2079,7 +2194,10 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
     nextActions.push("Confirm the number of source devices.");
   }
   if (needsSwitchSolutionType && !hasText(record.switchSolutionType)) {
-    nextActions.push("Confirm whether the user needs a presentation switcher or a matrix switch.");
+    nextActions.push("Confirm whether the user needs a presentation switcher, matrix switcher, or matrix kit.");
+  }
+  if (isMatrixSwitch(record) && !hasText(record.matrixIoPreset)) {
+    nextActions.push("Lock the preset matrix I/O layout before confirming outputs.");
   }
   if (needsSourceConnectionType && !hasText(record.sourceConnectionType)) {
     nextActions.push("Confirm whether the sources need HDMI, USB-C, or another handoff.");
@@ -2143,6 +2261,7 @@ export function buildGuidedProjectAdvice(record: GuidedProjectRecord): GuidedPro
   if (hasText(record.projectScope)) cues.push(`Scope: ${record.projectScope}.`);
   if (hasText(record.customerOutcome)) cues.push(`Outcome: ${record.customerOutcome}.`);
   if (hasText(record.switchSolutionType)) cues.push(`Switch fit: ${record.switchSolutionType}.`);
+  if (hasText(record.matrixIoPreset)) cues.push(`Matrix I/O: ${record.matrixIoPreset}.`);
   if (featureRequirements.length > 0) cues.push(`Required features: ${featureRequirements.join(", ")}.`);
   if (hasText(record.outputBehaviour)) cues.push(`Output behaviour: ${record.outputBehaviour}.`);
   if (sources > 0) cues.push(`Sources: ${sources}.`);
@@ -2252,6 +2371,7 @@ export function buildGuidedProjectNotes(record: GuidedProjectRecord, advice: Gui
     `Primary family: ${advice.primary} (${advice.confidence})`,
     `Customer outcome: ${record.customerOutcome || record.workflowTrack || "Not confirmed"}`,
     `Switch fit: ${record.switchSolutionType || "Not confirmed"}`,
+    `Matrix I/O: ${record.matrixIoPreset || "Not confirmed"}`,
     `Required features: ${formatSelections(record.featureRequirements)}`,
     `Application: ${record.applicationType || "Not confirmed"}`,
     `Sources: ${record.sourceCount || "Not confirmed"}`,

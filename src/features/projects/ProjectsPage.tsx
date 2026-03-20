@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, Trash2 } from "lucide-react";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
 import { useBoundProjects } from "@/core/wingman/storeBridge";
-import { deleteProject, setActiveProjectId, type ProjectStage } from "@/features/projects/projectStore";
+import { deleteProject, setActiveProjectId } from "@/features/projects/projectStore";
 
 function toCompactSummary(summary: string): string {
   const normalized = String(summary ?? "").replace(/\s+/g, " ").trim();
@@ -14,7 +14,7 @@ function toCompactSummary(summary: string): string {
   return `${sentence.slice(0, 137).trimEnd()}...`;
 }
 
-function toStageLabel(stage: ProjectStage | string): string {
+function toStageLabel(stage: string): string {
   return String(stage ?? "Draft").replace(/-/g, " ");
 }
 

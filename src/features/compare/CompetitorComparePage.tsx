@@ -3,6 +3,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ExternalLink,
+  Mail,
   RefreshCw,
   Search,
   ShieldAlert,
@@ -271,27 +272,116 @@ function pillStyle(): React.CSSProperties {
   };
 }
 
-function notesFor(
+function summaryLineForMatrixRow(row: CompetitorCompareMatrixRow): string {
+  if (row.status === "better") {
+    return `${row.label} is stronger on the WyreStorm side.`;
+  }
+  if (row.status === "match") {
+    return `${row.label} is aligned between the competitor and WyreStorm option.`;
+  }
+  if (row.status === "review") {
+    return row.note || `${row.label} needs a closer check before final sign-off.`;
+  }
+  return row.note || `${row.label} trails the captured competitor baseline.`;
+}
+
+function decisionSummaryFor(
   candidate: CompetitorCompareCandidate,
   selectedOption: CompetitorCompareOption | undefined,
   liveResult: CompetitorCompareLiveResult | null,
-): string[] {
-  const out: string[] = [];
+  score: number,
+): { headline: string; bullets: string[]; caution?: string } {
+  const sku = selectedOption?.wyrestormSku || candidate.comparison.wyrestormSku || "This WyreStorm option";
+  const matrix = selectedOption?.matrix ?? [];
+  const positiveRows = matrix.filter((row) => row.id !== "category" && (row.status === "better" || row.status === "match"));
+  const cautionRow = matrix.find((row) => row.id !== "category" && (row.status === "gap" || row.status === "review"));
 
-  out.push(...(selectedOption?.reasons ?? []).slice(0, 3));
-  out.push(...(candidate.searchReasons ?? []).slice(0, 2));
-  if (selectedOption?.positioningSummary) out.push(selectedOption.positioningSummary);
-  if (liveResult?.record) out.push("Competitor record live verified.");
+  let headline = `${sku} is the closest current WyreStorm fit.`;
+  if (score >= 85) {
+    headline = `${sku} wins on core fit and key capability coverage.`;
+  } else if (score >= 70) {
+    headline = `${sku} is the clearest fit on I/O, transport, and workflow alignment.`;
+  }
+
+  const bullets: string[] = [];
+  bullets.push(...(selectedOption?.reasons ?? []).slice(0, 2));
+  bullets.push(...positiveRows.slice(0, 2).map(summaryLineForMatrixRow));
+  if (selectedOption?.positioningSummary) bullets.push(selectedOption.positioningSummary);
+  if (liveResult?.record) bullets.push("Competitor record live verified.");
 
   const seen = new Set<string>();
-  return out
+  const compactBullets = bullets
     .filter((line) => {
       const key = line.trim().toLowerCase();
       if (!key || seen.has(key)) return false;
       seen.add(key);
       return true;
     })
-    .slice(0, 5);
+    .slice(0, 3);
+
+  const caution =
+    score >= 85
+      ? undefined
+      : cautionRow
+        ? summaryLineForMatrixRow(cautionRow)
+        : (selectedOption?.cautions ?? [])[0];
+
+  return { headline, bullets: compactBullets, caution };
+}
+
+function buildAskWyreStormEmail(input: {
+  brand: string;
+  sku: string;
+  candidate?: CompetitorCompareCandidate;
+  option?: CompetitorCompareOption;
+  liveResult?: CompetitorCompareLiveResult | null;
+}): { subject: string; body: string } {
+  const { brand, sku, candidate, option, liveResult } = input;
+  const competitorSku = candidate?.comparison.competitorSku || sku.trim();
+  const competitorName = candidate?.comparison.competitorName || liveResult?.record?.competitorName;
+  const suggestedSku = option?.wyrestormSku || candidate?.comparison.wyrestormSku || "";
+  const subject = `Wingman compare help: ${brand} ${competitorSku}`.trim();
+
+  const lines = [
+    "Hi,",
+    "",
+    "Wingman could not identify an obvious WyreStorm replacement and I would like guidance on the best match.",
+    "",
+    `Competitor brand: ${brand || "-"}`,
+    `Competitor SKU: ${competitorSku || "-"}`,
+    `Competitor product: ${competitorName || "-"}`,
+    `Wingman suggested SKU: ${suggestedSku || "No qualified automatic match"}`,
+    `Live source: ${liveResult?.sourceUrl || "-"}`,
+    "",
+    "Application / room type:",
+    "Required inputs / outputs:",
+    "Required transport / connection type:",
+    "Special features needed:",
+    "",
+    "Thanks,",
+  ];
+
+  return {
+    subject,
+    body: lines.join("\n"),
+  };
+}
+
+function openAskWyreStormEmail(input: {
+  brand: string;
+  sku: string;
+  candidate?: CompetitorCompareCandidate;
+  option?: CompetitorCompareOption;
+  liveResult?: CompetitorCompareLiveResult | null;
+}) {
+  if (typeof window === "undefined") return;
+  const draft = buildAskWyreStormEmail(input);
+  const query = new URLSearchParams({
+    subject: draft.subject,
+    body: draft.body,
+  });
+  const outlookUrl = `https://outlook.office.com/mail/deeplink/compose?${query.toString()}`;
+  window.open(outlookUrl, "_blank", "noopener,noreferrer");
 }
 
 function MatrixTable({ rows }: { rows: CompetitorCompareMatrixRow[] }) {
@@ -370,21 +460,28 @@ function ResultCard(props: {
   selected: boolean;
   selectedOptionId?: string;
   liveResult: CompetitorCompareLiveResult | null;
+  showAskWyreStorm?: boolean;
   onSelectCandidate: (candidate: CompetitorCompareCandidate) => void;
   onSelectOption: (
     candidate: CompetitorCompareCandidate,
     option: CompetitorCompareOption,
   ) => void;
   onVerifyCandidate: (candidate: CompetitorCompareCandidate) => void;
+  onAskWyreStorm?: (
+    candidate: CompetitorCompareCandidate,
+    option: CompetitorCompareOption | undefined,
+  ) => void;
 }) {
   const {
     candidate,
     selected,
     selectedOptionId,
     liveResult,
+    showAskWyreStorm,
     onSelectCandidate,
     onSelectOption,
     onVerifyCandidate,
+    onAskWyreStorm,
   } = props;
 
   const selectedOption =
@@ -398,7 +495,7 @@ function ResultCard(props: {
     liveResult?.record?.matchScore ??
     0;
 
-  const notes = notesFor(candidate, selectedOption, liveResult);
+  const decisionSummary = decisionSummaryFor(candidate, selectedOption, liveResult, score);
 
   return (
     <div
@@ -477,25 +574,55 @@ function ResultCard(props: {
 
       <div style={{ display: "grid", gap: 8 }}>
         <div style={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.52)", fontWeight: 800 }}>
-          Why this match
+          Why this won
         </div>
-        <div style={{ display: "grid", gap: 6 }}>
-          {notes.map((note) => (
+        <div
+          style={{
+            display: "grid",
+            gap: 8,
+            padding: 12,
+            borderRadius: 14,
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(255,255,255,0.04)",
+          }}
+        >
+          <div style={{ fontSize: 15, lineHeight: 1.4, color: "#f8fafc", fontWeight: 800 }}>
+            {decisionSummary.headline}
+          </div>
+          <div style={{ display: "grid", gap: 6 }}>
+            {decisionSummary.bullets.map((note) => (
+              <div
+                key={note}
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  alignItems: "flex-start",
+                  color: "rgba(255,255,255,0.80)",
+                  lineHeight: 1.45,
+                  fontSize: 13,
+                }}
+              >
+                <CheckCircle2 size={15} style={{ marginTop: 2, flexShrink: 0, color: "#86efac" }} />
+                <span>{note}</span>
+              </div>
+            ))}
+          </div>
+          {decisionSummary.caution ? (
             <div
-              key={note}
               style={{
                 display: "flex",
                 gap: 8,
                 alignItems: "flex-start",
-                color: "rgba(255,255,255,0.80)",
+                color: "#fde68a",
                 lineHeight: 1.45,
                 fontSize: 13,
+                paddingTop: 2,
               }}
             >
-              <CheckCircle2 size={15} style={{ marginTop: 2, flexShrink: 0, color: "#86efac" }} />
-              <span>{note}</span>
+              <ShieldAlert size={15} style={{ marginTop: 2, flexShrink: 0, color: "#fbbf24" }} />
+              <span>{decisionSummary.caution}</span>
             </div>
-          ))}
+          ) : null}
         </div>
       </div>
 
@@ -576,6 +703,29 @@ function ResultCard(props: {
           <RefreshCw size={14} />
           Verify live
         </button>
+
+        {showAskWyreStorm && onAskWyreStorm ? (
+          <button
+            type="button"
+            onClick={() => onAskWyreStorm(candidate, selectedOption)}
+            style={{
+              height: 36,
+              padding: "0 12px",
+              borderRadius: 10,
+              border: "1px solid rgba(245,158,11,0.24)",
+              background: "rgba(245,158,11,0.10)",
+              color: "#fde68a",
+              fontWeight: 800,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <Mail size={14} />
+            Ask WyreStorm
+          </button>
+        ) : null}
       </div>
     </div>
   );
@@ -656,6 +806,17 @@ export default function CompetitorComparePage() {
     [effectiveResult],
   );
 
+  const hasCompareActivity =
+    running ||
+    effectiveResult.status !== "idle" ||
+    Boolean(liveResult) ||
+    trace.length > 0 ||
+    Boolean(saveMessage) ||
+    manualPanelOpen;
+  const askWyreStormVisible =
+    Boolean(brand.trim() && sku.trim()) &&
+    (effectiveResult.status !== "resolved" || !selectedOption || (selectedOption.fitScore ?? 0) < 75);
+
   const refreshFeedback = React.useCallback(() => {
     setFeedbackSummary(feedbackSummaryText(getCompetitorCompareFeedbackSummary()));
   }, []);
@@ -718,6 +879,22 @@ export default function CompetitorComparePage() {
     [brand, refreshFeedback],
   );
 
+  const handleAskWyreStorm = React.useCallback(
+    (
+      candidate?: CompetitorCompareCandidate,
+      option?: CompetitorCompareOption,
+    ) => {
+      openAskWyreStormEmail({
+        brand: brand.trim(),
+        sku: sku.trim(),
+        candidate,
+        option,
+        liveResult,
+      });
+    },
+    [brand, sku, liveResult],
+  );
+
   React.useEffect(() => {
     const nextBrand = brand.trim();
     const nextSku = sku.trim();
@@ -768,6 +945,12 @@ export default function CompetitorComparePage() {
       void verifyLive(candidate.comparison.competitorSku);
     }
   }, [brand, selectedCandidate, running, liveResult, verifyLive]);
+
+  React.useEffect(() => {
+    if (effectiveResult.status === "no-match" && liveResult?.record) {
+      setManualPanelOpen(true);
+    }
+  }, [effectiveResult.status, liveResult]);
 
   function handleSelectCandidate(candidate: CompetitorCompareCandidate) {
     setSelectedCandidateId(candidate.id);
@@ -836,7 +1019,10 @@ export default function CompetitorComparePage() {
         </section>
 
         <div className="wm-page-body wm-compare-page__body" style={{ display: "grid", gap: 12 }}>
-          <div className="wm-card" style={{ padding: 10 }}>
+          <div
+            className="wm-card"
+            style={{ padding: 10, overflow: "visible", position: "relative", zIndex: 40 }}
+          >
             <CompetitorMatchFinderPanel
               brand={brand}
               sku={sku}
@@ -857,273 +1043,324 @@ export default function CompetitorComparePage() {
             />
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gap: 12,
-              gridTemplateColumns: "minmax(0, 1.6fr) minmax(320px, 0.9fr)",
-              alignItems: "start",
-            }}
-          >
-            <div style={{ display: "grid", gap: 12 }}>
-              <div
-                className="wm-card"
-                style={{
-                  padding: 14,
-                  display: "grid",
-                  gap: 10,
-                  border:
-                    effectiveResult.status === "no-match"
-                      ? "1px solid rgba(239,68,68,0.18)"
-                      : "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-                  <span
-                    style={{
-                      ...pillStyle(),
-                      color: "#dbeafe",
-                      background: "rgba(59,130,246,0.10)",
-                      border: "1px solid rgba(59,130,246,0.22)",
-                    }}
-                  >
-                    <Search size={13} style={{ marginRight: 6 }} />
-                    {modeLabel}
-                  </span>
-
-                  {liveResult?.record ? (
+          {hasCompareActivity ? (
+            <div
+              style={{
+                display: "grid",
+                gap: 12,
+                gridTemplateColumns: "minmax(0, 1.6fr) minmax(320px, 0.9fr)",
+                alignItems: "start",
+              }}
+            >
+              <div style={{ display: "grid", gap: 12 }}>
+                <div
+                  className="wm-card"
+                  style={{
+                    padding: 14,
+                    display: "grid",
+                    gap: 10,
+                    border:
+                      effectiveResult.status === "no-match"
+                        ? "1px solid rgba(239,68,68,0.18)"
+                        : "1px solid rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
                     <span
                       style={{
                         ...pillStyle(),
-                        color: "#bbf7d0",
-                        background: "rgba(34,197,94,0.10)",
-                        border: "1px solid rgba(34,197,94,0.22)",
+                        color: "#dbeafe",
+                        background: "rgba(59,130,246,0.10)",
+                        border: "1px solid rgba(59,130,246,0.22)",
                       }}
                     >
-                      <ShieldCheck size={13} style={{ marginRight: 6 }} />
-                      Live verified
+                      <Search size={13} style={{ marginRight: 6 }} />
+                      {modeLabel}
                     </span>
-                  ) : null}
 
-                  {effectiveResult.status === "ambiguous" ? (
-                    <span
-                      style={{
-                        ...pillStyle(),
-                        color: "#fde68a",
-                        background: "rgba(245,158,11,0.10)",
-                        border: "1px solid rgba(245,158,11,0.22)",
-                      }}
-                    >
-                      <ShieldAlert size={13} style={{ marginRight: 6 }} />
-                      Clarify shortlist
-                    </span>
-                  ) : null}
+                    {liveResult?.record ? (
+                      <span
+                        style={{
+                          ...pillStyle(),
+                          color: "#bbf7d0",
+                          background: "rgba(34,197,94,0.10)",
+                          border: "1px solid rgba(34,197,94,0.22)",
+                        }}
+                      >
+                        <ShieldCheck size={13} style={{ marginRight: 6 }} />
+                        Live verified
+                      </span>
+                    ) : null}
+
+                    {effectiveResult.status === "ambiguous" ? (
+                      <span
+                        style={{
+                          ...pillStyle(),
+                          color: "#fde68a",
+                          background: "rgba(245,158,11,0.10)",
+                          border: "1px solid rgba(245,158,11,0.22)",
+                        }}
+                      >
+                        <ShieldAlert size={13} style={{ marginRight: 6 }} />
+                        Clarify shortlist
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", lineHeight: 1.55 }}>
+                    {effectiveResult.summary}
+                  </div>
                 </div>
 
-                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", lineHeight: 1.55 }}>
-                  {effectiveResult.summary}
-                </div>
-              </div>
-
-              {effectiveResult.candidates.length > 0 ? (
-                <div style={{ display: "grid", gap: 12 }}>
-                  {effectiveResult.candidates.map((candidate) => (
-                    <ResultCard
-                      key={candidate.id}
-                      candidate={candidate}
-                      selected={candidate.id === selectedCandidate?.id}
-                      selectedOptionId={
-                        candidate.id === selectedCandidate?.id
-                          ? selectedOption?.id
-                          : candidate.primaryOption?.id
-                      }
+                {effectiveResult.candidates.length > 0 ? (
+                  <div style={{ display: "grid", gap: 12 }}>
+                    {effectiveResult.candidates.map((candidate) => (
+                      <ResultCard
+                        key={candidate.id}
+                        candidate={candidate}
+                        selected={candidate.id === selectedCandidate?.id}
+                        selectedOptionId={
+                          candidate.id === selectedCandidate?.id
+                            ? selectedOption?.id
+                            : candidate.primaryOption?.id
+                        }
                       liveResult={liveResult}
+                      showAskWyreStorm={
+                        askWyreStormVisible &&
+                        candidate.id === selectedCandidate?.id
+                      }
                       onSelectCandidate={handleSelectCandidate}
                       onSelectOption={handleSelectOption}
                       onVerifyCandidate={(nextCandidate) =>
                         void verifyLive(nextCandidate.comparison.competitorSku)
                       }
+                      onAskWyreStorm={handleAskWyreStorm}
                     />
                   ))}
                 </div>
-              ) : (
-                <div className="wm-card" style={{ padding: 18, display: "grid", gap: 8 }}>
-                  <div style={{ fontSize: 18, fontWeight: 900 }}>
-                    Start with a competitor brand and SKU
-                  </div>
-                  <div style={{ color: "rgba(255,255,255,0.72)", lineHeight: 1.55 }}>
-                    The compare engine will search the local mapping library first, then verify the record live when confidence is high enough.
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gap: 10,
-                alignContent: "start",
-                position: "sticky",
-                top: 20,
-              }}
-            >
-              <div style={{ opacity: 0.92 }}>
-                <CompetitorLookupStatusPanel
-                  trace={trace}
-                  modeLabel={modeLabel}
-                  running={running}
-                  title="Lookup status"
-                  subtitle="See what came from the local comparison library, what was verified live, and whether the match still needs clarification."
-                  emptyText="No compare activity yet."
-                />
+                ) : null}
               </div>
 
-              <div className="wm-card" style={{ padding: 12, opacity: 0.96, display: "grid", gap: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                  <div style={{ display: "grid", gap: 4 }}>
-                    <div style={{ fontSize: 14, fontWeight: 900 }}>Manual overrides</div>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.64)", lineHeight: 1.45 }}>
-                      Save or remove local override mappings when the automatic match needs help.
+              <div
+                style={{
+                  display: "grid",
+                  gap: 10,
+                  alignContent: "start",
+                  position: "sticky",
+                  top: 20,
+                }}
+              >
+                <div style={{ opacity: 0.92 }}>
+                  <CompetitorLookupStatusPanel
+                    trace={trace}
+                    modeLabel={modeLabel}
+                    running={running}
+                    title="Lookup status"
+                    subtitle="See what came from the local comparison library, what was verified live, and whether the match still needs clarification."
+                    emptyText="No compare activity yet."
+                  />
+                </div>
+
+                <div className="wm-card" style={{ padding: 12, opacity: 0.96, display: "grid", gap: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                    <div style={{ display: "grid", gap: 4 }}>
+                      <div style={{ fontSize: 14, fontWeight: 900 }}>Manual overrides</div>
+                      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.64)", lineHeight: 1.45 }}>
+                        Save or remove local override mappings when the automatic match needs help.
+                      </div>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setManualPanelOpen((current) => !current)}
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 10,
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "rgba(255,255,255,0.04)",
+                        color: "#fff",
+                        display: "grid",
+                        placeItems: "center",
+                        cursor: "pointer",
+                      }}
+                      title={manualPanelOpen ? "Collapse" : "Expand"}
+                    >
+                      <ChevronDown
+                        size={16}
+                        style={{
+                          transform: manualPanelOpen ? "rotate(180deg)" : "rotate(0deg)",
+                          transition: "transform 140ms ease",
+                        }}
+                      />
+                    </button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setManualPanelOpen((current) => !current)}
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 10,
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      background: "rgba(255,255,255,0.04)",
-                      color: "#fff",
-                      display: "grid",
-                      placeItems: "center",
-                      cursor: "pointer",
-                    }}
-                    title={manualPanelOpen ? "Collapse" : "Expand"}
-                  >
-                    <ChevronDown
-                      size={16}
-                      style={{
-                        transform: manualPanelOpen ? "rotate(180deg)" : "rotate(0deg)",
-                        transition: "transform 140ms ease",
-                      }}
-                    />
-                  </button>
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 8,
-                    color: "rgba(255,255,255,0.70)",
-                    fontSize: 12,
-                  }}
-                >
-                  <span
-                    style={{
-                      ...pillStyle(),
-                      color: "#ddd6fe",
-                      background: "rgba(139,92,246,0.10)",
-                      border: "1px solid rgba(139,92,246,0.22)",
-                    }}
-                  >
-                    <Wand2 size={13} style={{ marginRight: 6 }} />
-                    Manual mapping
-                  </span>
-
-                  <span
-                    style={{
-                      ...pillStyle(),
-                      color: "#cbd5e1",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                    }}
-                  >
-                    {feedbackSummary}
-                  </span>
-                </div>
-
-                {saveMessage ? (
                   <div
                     style={{
-                      borderRadius: 12,
-                      padding: "10px 12px",
-                      background: "rgba(34,197,94,0.10)",
-                      border: "1px solid rgba(34,197,94,0.22)",
-                      color: "#bbf7d0",
-                      fontSize: 13,
-                      lineHeight: 1.45,
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 8,
+                      color: "rgba(255,255,255,0.70)",
+                      fontSize: 12,
                     }}
                   >
-                    {saveMessage}
+                    <span
+                      style={{
+                        ...pillStyle(),
+                        color: "#ddd6fe",
+                        background: "rgba(139,92,246,0.10)",
+                        border: "1px solid rgba(139,92,246,0.22)",
+                      }}
+                    >
+                      <Wand2 size={13} style={{ marginRight: 6 }} />
+                      Manual mapping
+                    </span>
+
+                    <span
+                      style={{
+                        ...pillStyle(),
+                        color: "#cbd5e1",
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                      }}
+                    >
+                      {feedbackSummary}
+                    </span>
                   </div>
+
+                  {saveMessage ? (
+                    <div
+                      style={{
+                        borderRadius: 12,
+                        padding: "10px 12px",
+                        background: "rgba(34,197,94,0.10)",
+                        border: "1px solid rgba(34,197,94,0.22)",
+                        color: "#bbf7d0",
+                        fontSize: 13,
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      {saveMessage}
+                    </div>
+                  ) : null}
+
+                  {manualPanelOpen ? (
+                    <div style={{ marginTop: 2 }}>
+                      <CompetitorManualComparisonPanel
+                        brand={brand}
+                        query={sku}
+                        selectedCandidate={selectedCandidate}
+                        selectedOption={selectedOption}
+                        saveMessage={saveMessage}
+                        feedbackSummary={feedbackSummary}
+                        onSave={handleSaveManual}
+                        onDelete={handleDeleteManual}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+
+                {liveResult?.sourceUrl ? (
+                  <a
+                    href={liveResult.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="wm-card"
+                    style={{
+                      padding: 12,
+                      textDecoration: "none",
+                      color: "inherit",
+                      display: "grid",
+                      gap: 6,
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                      <div style={{ fontSize: 14, fontWeight: 900 }}>Verified source</div>
+                      <ExternalLink size={15} />
+                    </div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.70)", lineHeight: 1.45 }}>
+                      {liveResult.sourceLabel || "Live lookup source"}
+                    </div>
+                  </a>
                 ) : null}
 
-                {manualPanelOpen ? (
-                  <div style={{ marginTop: 2 }}>
-                    <CompetitorManualComparisonPanel
-                      brand={brand}
-                      query={sku}
-                      selectedCandidate={selectedCandidate}
-                      selectedOption={selectedOption}
-                      saveMessage={saveMessage}
-                      feedbackSummary={feedbackSummary}
-                      onSave={handleSaveManual}
-                      onDelete={handleDeleteManual}
-                    />
+                {effectiveResult.status === "no-match" ? (
+                  <div
+                    className="wm-card"
+                    style={{
+                      padding: 12,
+                      display: "grid",
+                      gap: 8,
+                      border: "1px solid rgba(239,68,68,0.18)",
+                      background: "rgba(127,29,29,0.18)",
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", color: "#fecaca", fontWeight: 900 }}>
+                      <XCircle size={16} />
+                      No clean local match
+                    </div>
+                    <div style={{ color: "rgba(255,255,255,0.72)", fontSize: 13, lineHeight: 1.5 }}>
+                      Use manual override to save a known replacement or run live verification again after refining the SKU.
+                    </div>
+                    {askWyreStormVisible ? (
+                      <button
+                        type="button"
+                        onClick={() => handleAskWyreStorm(selectedCandidate, selectedOption)}
+                        style={{
+                          height: 36,
+                          padding: "0 12px",
+                          borderRadius: 10,
+                          border: "1px solid rgba(245,158,11,0.24)",
+                          background: "rgba(245,158,11,0.10)",
+                          color: "#fde68a",
+                          fontWeight: 800,
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                          justifySelf: "start",
+                        }}
+                      >
+                        <Mail size={14} />
+                        Ask WyreStorm
+                      </button>
+                    ) : null}
                   </div>
                 ) : null}
               </div>
-
-              {liveResult?.sourceUrl ? (
-                <a
-                  href={liveResult.sourceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="wm-card"
-                  style={{
-                    padding: 12,
-                    textDecoration: "none",
-                    color: "inherit",
-                    display: "grid",
-                    gap: 6,
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                    <div style={{ fontSize: 14, fontWeight: 900 }}>Verified source</div>
-                    <ExternalLink size={15} />
-                  </div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.70)", lineHeight: 1.45 }}>
-                    {liveResult.sourceLabel || "Live lookup source"}
-                  </div>
-                </a>
-              ) : null}
-
-              {effectiveResult.status === "no-match" ? (
-                <div
-                  className="wm-card"
-                  style={{
-                    padding: 12,
-                    display: "grid",
-                    gap: 8,
-                    border: "1px solid rgba(239,68,68,0.18)",
-                    background: "rgba(127,29,29,0.18)",
-                  }}
-                >
-                  <div style={{ display: "flex", gap: 8, alignItems: "center", color: "#fecaca", fontWeight: 900 }}>
-                    <XCircle size={16} />
-                    No clean local match
-                  </div>
-                  <div style={{ color: "rgba(255,255,255,0.72)", fontSize: 13, lineHeight: 1.5 }}>
-                    Use manual override to save a known replacement or run live verification again after refining the SKU.
-                  </div>
-                </div>
-              ) : null}
             </div>
-          </div>
+          ) : (
+            <div
+              className="wm-card"
+              style={{
+                padding: 14,
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: 12,
+                justifyContent: "space-between",
+              }}
+            >
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                <span
+                  style={{
+                    ...pillStyle(),
+                    color: "#dbeafe",
+                    background: "rgba(59,130,246,0.10)",
+                    border: "1px solid rgba(59,130,246,0.22)",
+                  }}
+                >
+                  <Search size={13} style={{ marginRight: 6 }} />
+                  Ready
+                </span>
+
+                <span style={{ color: "rgba(255,255,255,0.78)", lineHeight: 1.5 }}>
+                  Start typing a competitor SKU or model to shortlist likely WyreStorm fits.
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

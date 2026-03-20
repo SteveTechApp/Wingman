@@ -1,5 +1,5 @@
 import React from "react";
-import { getCompetitorBrands } from "@/competitor/repository";
+import { getCompetitorBrands, getCompetitorProducts } from "@/competitor/repository";
 
 type LocalCompetitorLookupMatch = {
   sku: string;
@@ -28,7 +28,7 @@ type Suggestion = {
 const DEFAULT_BRANDS = [
   "Atlona",
   "Barco",
-  "Blustream",
+  "BluStream",
   "Crestron",
   "Extron",
   "Kramer",
@@ -39,50 +39,12 @@ const DEFAULT_BRANDS = [
 const BRAND_SEARCH_DOMAINS: Record<string, string> = {
   Atlona: "atlona.com",
   Barco: "barco.com",
-  Blustream: "blustream-us.com",
+  BluStream: "blustream-us.com",
   Crestron: "crestron.com",
   Extron: "extron.com",
   Kramer: "kramerav.com",
   Lightware: "lightware.com",
   ZeeVee: "zeevee.com",
-};
-
-const LOCAL_SKUS: Record<string, Suggestion[]> = {
-  Atlona: [
-    { sku: "AT-UHD-EX-100CE-KIT", name: "4K HDR HDBaseT extender kit", type: "Extender" },
-    { sku: "AT-OME-MS42", name: "4x2 matrix switcher", type: "Matrix" },
-    { sku: "AT-OME-CS31-SA", name: "switcher with USB-C", type: "Switcher" },
-  ],
-  Blustream: [
-    { sku: "HEX70CS", name: "HDBaseT extender set", type: "Extender" },
-    { sku: "SW41AB-V2", name: "4x1 HDMI switch", type: "Switcher" },
-    { sku: "MX44AB-V2", name: "4x4 matrix", type: "Matrix" },
-  ],
-  Crestron: [
-    { sku: "HD-EXT3-C-B", name: "DM Lite transmitter", type: "Extender" },
-    { sku: "HD-RX-4K-210-C-E", name: "receiver", type: "Receiver" },
-    { sku: "HD-MD4X1-4KZ-E", name: "4x1 switcher", type: "Switcher" },
-  ],
-  Extron: [
-    { sku: "DTP3 T 203", name: "DTP3 transmitter", type: "Extender" },
-    { sku: "DTP3 R 201", name: "DTP3 receiver", type: "Receiver" },
-    { sku: "IN1804", name: "presentation switcher", type: "Switcher" },
-  ],
-  Kramer: [
-    { sku: "TP-580T", name: "HDBaseT transmitter", type: "Extender" },
-    { sku: "TP-580R", name: "HDBaseT receiver", type: "Receiver" },
-    { sku: "VS-44H2A", name: "4x4 matrix", type: "Matrix" },
-  ],
-  Lightware: [
-    { sku: "TPX-TX95", name: "twisted pair transmitter", type: "Extender" },
-    { sku: "TPX-RX95", name: "twisted pair receiver", type: "Receiver" },
-    { sku: "MMX4x2-HT220", name: "matrix switcher", type: "Matrix" },
-  ],
-  ZeeVee: [
-    { sku: "ZVPRO820", name: "encoder / modulator", type: "AV over RF" },
-    { sku: "HDB2640", name: "HDMI encoder", type: "AV over IP" },
-    { sku: "SDH2640", name: "decoder", type: "AV over IP" },
-  ],
 };
 
 function normalise(value: string): string {
@@ -91,13 +53,13 @@ function normalise(value: string): string {
 
 function canonicalBrand(value: string): string {
   const normalized = normalise(value);
-  if (normalized === "blustream" || normalized === "bluestream") return "Blustream";
+  if (normalized === "blustream" || normalized === "bluestream") return "BluStream";
   return value.trim();
 }
 
 function rankSuggestions(items: Suggestion[], query: string): Suggestion[] {
   const q = normalise(query);
-  if (!q) return items.slice(0, 8);
+  if (!q) return items.slice(0, 10);
 
   return items
     .map((item) => {
@@ -116,7 +78,7 @@ function rankSuggestions(items: Suggestion[], query: string): Suggestion[] {
     .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score || a.item.sku.localeCompare(b.item.sku))
     .map((entry) => entry.item)
-    .slice(0, 8);
+    .slice(0, 10);
 }
 
 function asText(value: unknown): string {
@@ -142,7 +104,6 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
     onSkuChange,
     onRun,
   } = props;
-
   const [focused, setFocused] = React.useState(false);
 
   const brands = React.useMemo(() => {
@@ -150,9 +111,23 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
     return deployed.length > 0 ? deployed : DEFAULT_BRANDS;
   }, []);
 
-  const brandItems = React.useMemo(() => {
+  const brandItems = React.useMemo<Suggestion[]>(() => {
     const key = canonicalBrand(brand);
-    return key ? LOCAL_SKUS[key] ?? [] : [];
+    if (!key) return [];
+
+    const deduped = new Map<string, Suggestion>();
+    for (const product of getCompetitorProducts()) {
+      if (canonicalBrand(String(product.brand || "")) !== key) continue;
+      const productSku = String(product.sku || "").trim();
+      if (!productSku) continue;
+      deduped.set(productSku, {
+        sku: productSku,
+        name: product.name || product.summary || "Stored competitor product",
+        type: product.category || product.family || "Product",
+      });
+    }
+
+    return Array.from(deduped.values()).sort((left, right) => left.sku.localeCompare(right.sku));
   }, [brand]);
 
   const externalSuggestions = React.useMemo<Suggestion[]>(() => {
@@ -165,36 +140,57 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
       }));
   }, [localMatches]);
 
-  const suggestions = React.useMemo(() => {
-    if (externalSuggestions.length > 0) {
-      return rankSuggestions(externalSuggestions, sku);
+  const skuOptions = React.useMemo(() => {
+    const merged = new Map<string, Suggestion>();
+    for (const item of brandItems) {
+      merged.set(item.sku, item);
     }
-    return rankSuggestions(brandItems, sku);
-  }, [externalSuggestions, brandItems, sku]);
+    for (const item of externalSuggestions) {
+      merged.set(item.sku, item);
+    }
+    return Array.from(merged.values()).sort((left, right) => left.sku.localeCompare(right.sku));
+  }, [brandItems, externalSuggestions]);
+
+  const suggestions = React.useMemo(() => {
+    const ranked = rankSuggestions(skuOptions, sku);
+    const currentSku = sku.trim();
+    if (
+      currentSku &&
+      !ranked.some((item) => item.sku === currentSku) &&
+      skuOptions.some((item) => item.sku === currentSku)
+    ) {
+      const currentItem = skuOptions.find((item) => item.sku === currentSku);
+      if (currentItem) return [currentItem, ...ranked].slice(0, 10);
+    }
+    return ranked;
+  }, [skuOptions, sku]);
 
   const hasTypedQuery = sku.trim().length > 0;
-  const derivedHasLocalMatch = suggestions.length > 0;
+  const derivedHasLocalMatch = skuOptions.some(
+    (item) => normalise(item.sku) === normalise(sku),
+  );
   const localMatchState = hasLocalMatch || derivedHasLocalMatch;
   const noLocalMatch = brand !== "" && hasTypedQuery && !localMatchState;
   const canSearchWeb = brand !== "" && hasTypedQuery && !running;
   const searchWebHighlighted = noLocalMatch;
 
-  function chooseSuggestion(item: Suggestion) {
-    fireSetter(onSkuChange, item.sku);
-    setFocused(false);
-  }
-
   function handleBrandChange(value: string) {
     fireSetter(onBrandChange, value);
     fireSetter(onSkuChange, "");
+    setFocused(false);
   }
 
   function handleSkuChange(value: string) {
     fireSetter(onSkuChange, value);
   }
 
+  function chooseSuggestion(item: Suggestion) {
+    fireSetter(onSkuChange, item.sku);
+    setFocused(false);
+  }
+
   function handleSearchWeb() {
-    if (onRun) {
+    if (onRun && sku.trim()) {
       onRun("web");
       return;
     }
@@ -208,11 +204,11 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
   }
 
   return (
-    <div style={{ display: "grid", gap: 18 }}>
+    <div style={{ display: "grid", gap: 18, position: "relative", zIndex: 2 }}>
       <div style={{ display: "grid", gap: 6 }}>
         <div style={{ fontSize: 18, fontWeight: 800 }}>Competitor comparison</div>
         <div style={{ fontSize: 13, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
-          Select a competitor brand, then type a full or partial model/SKU. Wingman will shortlist local comparison matches first, and live verification can confirm the latest vendor result.
+          Pick a competitor brand, choose a stored SKU, or type a missing one and search the web to pull it into the compare flow.
         </div>
       </div>
 
@@ -250,7 +246,14 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
           </select>
         </div>
 
-        <div style={{ display: "grid", gap: 8, position: "relative" }}>
+        <div
+          style={{
+            display: "grid",
+            gap: 8,
+            position: "relative",
+            zIndex: focused ? 80 : 2,
+          }}
+        >
           <label style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.3, opacity: 0.9 }}>
             SKU / model
           </label>
@@ -259,9 +262,11 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
             value={sku}
             disabled={!brand || running}
             onFocus={() => setFocused(true)}
-            onBlur={() => { window.setTimeout(() => setFocused(false), 140); }}
+            onBlur={() => {
+              window.setTimeout(() => setFocused(false), 140);
+            }}
             onChange={(event) => handleSkuChange(event.target.value)}
-            placeholder={brand ? "Type competitor SKU or model" : "Choose a brand first"}
+            placeholder={brand ? "Pick or type competitor SKU / model" : "Choose a brand first"}
             style={{
               height: 44,
               borderRadius: 12,
@@ -276,64 +281,101 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
             }}
           />
 
-          {focused && brand && suggestions.length > 0 ? (
+          {focused && brand ? (
             <div
               style={{
                 position: "absolute",
                 top: 74,
                 left: 0,
                 right: 0,
-                zIndex: 20,
+                zIndex: 120,
                 borderRadius: 14,
                 border: "1px solid rgba(255,255,255,0.10)",
                 background: "rgba(9,12,20,0.98)",
                 boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
                 overflow: "hidden",
+                maxHeight: 320,
+                overflowY: "auto",
+                overscrollBehavior: "contain",
               }}
             >
-              {suggestions.map((item) => (
-                <button
-                  key={item.sku}
-                  type="button"
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => chooseSuggestion(item)}
+              {suggestions.length > 0 ? (
+                suggestions.map((item) => (
+                  <button
+                    key={item.sku}
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => chooseSuggestion(item)}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "12px 14px",
+                      border: "none",
+                      borderTop: "1px solid rgba(255,255,255,0.06)",
+                      background: "transparent",
+                      color: "#eef5ff",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                      <div style={{ fontWeight: 800 }}>{item.sku}</div>
+                      <div style={{ fontSize: 12, opacity: 0.7 }}>{item.type}</div>
+                    </div>
+                    <div style={{ fontSize: 12, opacity: 0.76, marginTop: 4 }}>{item.name}</div>
+                  </button>
+                ))
+              ) : (
+                <div
                   style={{
-                    width: "100%",
-                    textAlign: "left",
                     padding: "12px 14px",
-                    border: "none",
-                    borderTop: "1px solid rgba(255,255,255,0.06)",
-                    background: "transparent",
-                    color: "#eef5ff",
-                    cursor: "pointer",
+                    color: "rgba(255,255,255,0.62)",
+                    fontSize: 12,
+                    lineHeight: 1.45,
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-                    <div style={{ fontWeight: 800 }}>{item.sku}</div>
-                    <div style={{ fontSize: 12, opacity: 0.7 }}>{item.type}</div>
-                  </div>
-                  <div style={{ fontSize: 12, opacity: 0.76, marginTop: 4 }}>{item.name}</div>
-                </button>
-              ))}
+                  No stored SKU matches yet. Search the web for this model.
+                </div>
+              )}
+
+              <button
+                type="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={handleSearchWeb}
+                style={{
+                  width: "100%",
+                  textAlign: "left",
+                  padding: "12px 14px",
+                  border: "none",
+                  borderTop: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(59,130,246,0.10)",
+                  color: "#dbeafe",
+                  cursor: "pointer",
+                  fontWeight: 800,
+                }}
+              >
+                {hasTypedQuery ? `Search the web for "${sku.trim()}"` : "Search the web"}
+              </button>
             </div>
           ) : null}
 
           <div style={{ minHeight: 20, fontSize: 12 }}>
             {!brand ? (
               <span style={{ color: "rgba(255,255,255,0.45)" }}>
-                Select a brand to enable type-ahead model lookup.
+                Select a brand to load its stored products.
               </span>
             ) : noLocalMatch ? (
               <span style={{ color: "rgba(255,190,92,0.92)" }}>
-                No local match found yet. Verify live or add more SKU detail.
+                This SKU is not in the stored list. Search the web, confirm it, then save it into the comparison library.
+              </span>
+            ) : skuOptions.length === 0 ? (
+              <span style={{ color: "rgba(255,255,255,0.45)" }}>
+                No stored products for this brand yet. Type a SKU and search the web.
               </span>
             ) : hasTypedQuery && localMatchState ? (
-              <span style={{ color: "rgba(122,236,160,0.88)" }}>
-                Local comparison suggestions available.
-              </span>
+              <span style={{ color: "rgba(122,236,160,0.88)" }}>Stored product selected.</span>
             ) : (
               <span style={{ color: "rgba(255,255,255,0.45)" }}>
-                Start typing to see partial-SKU shortlist suggestions.
+                Pick a stored model or type a missing SKU to search the web.
               </span>
             )}
           </div>

@@ -21,6 +21,7 @@
     "check:routes": "node tools/verify-routes.mjs",
     "migrate:wingman:tables": "node tools/migrate-wingman-state-to-tables.mjs",
     "audit:css": "node tools/audit-css-coverage.mjs",
+    "audit:catalog-io": "node tools/audit-catalog-io.mjs",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix"
   },
