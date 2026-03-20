@@ -60,43 +60,43 @@ const FIELDS: ProposalField[] = [
   {
     id: "executiveSummary",
     label: "Executive summary",
-    placeholder: "What outcome are we delivering and why this direction?",
+    placeholder: "What are we delivering and why?",
     rows: 4,
   },
   {
     id: "customerRequirements",
     label: "Customer requirements",
-    placeholder: "Capture customer goals, use cases, and constraints in plain language.",
+    placeholder: "What does the customer need, and what matters most?",
     rows: 4,
   },
   {
     id: "systemOverview",
     label: "System overview",
-    placeholder: "Describe the proposed architecture and user workflow.",
+    placeholder: "How will the system work day to day?",
     rows: 4,
   },
   {
     id: "billOfMaterials",
     label: "Bill of materials notes",
-    placeholder: "Add BOM notes, tier assumptions, and delivery dependencies.",
+    placeholder: "What matters in the BOM, tier choice, or delivery?",
     rows: 4,
   },
   {
     id: "commercialNotes",
     label: "Commercial notes",
-    placeholder: "Capture offer positioning, differentiators, and stakeholder guidance.",
+    placeholder: "How should we position the offer?",
     rows: 4,
   },
   {
     id: "assumptions",
     label: "Assumptions",
-    placeholder: "List project assumptions that influence scope and offer level.",
+    placeholder: "What are we assuming?",
     rows: 3,
   },
   {
     id: "exclusions",
     label: "Exclusions",
-    placeholder: "List what is out of scope for this proposal draft.",
+    placeholder: "What stays out of scope?",
     rows: 3,
   },
 ];
@@ -105,14 +105,14 @@ const FIELD_GROUPS: ProposalFieldGroup[] = [
   {
     id: "story",
     title: "Customer story",
-    description: "Lead with the business outcome, user needs, and solution direction.",
+    description: "State the outcome, the need, and the solution.",
     tone: "cyan",
     fieldIds: ["executiveSummary", "customerRequirements", "systemOverview"],
   },
   {
     id: "commercial",
     title: "Offer framing",
-    description: "Shape the BOM message, stakeholder positioning, and scope boundaries.",
+    description: "Shape the offer, the scope, and the boundaries.",
     tone: "amber",
     fieldIds: ["billOfMaterials", "commercialNotes", "assumptions", "exclusions"],
   },
@@ -126,7 +126,7 @@ const EMPTY_DRAFT: ProposalDraft = {
   commercialNotes: "",
   assumptions: "",
   exclusions: "",
-  nextStep: "Confirm offer tier and issue proposal pack",
+  nextStep: "Confirm tier and issue proposal pack",
 };
 
 const TIER_OPTIONS: Array<{ value: CommercialTier; label: string; strapline: string }> = [
@@ -452,7 +452,7 @@ export default function ProposalBuilderPage() {
             <div className="wm-kicker">Proposal Studio</div>
             <div className="wm-title-xl">Proposal Builder</div>
             <div className="wm-body-sm wm-page-subtitle-muted">
-              Turn the current BOM into a customer-ready proposal with clearer Bronze, Silver, and Gold offer paths.
+              Turn the live BOM into a clear customer proposal.
             </div>
 
             <div className="wm-proposal-builder-page__hero-chips">
@@ -462,7 +462,7 @@ export default function ProposalBuilderPage() {
               </div>
               <div className="wm-proposal-builder-page__hero-chip wm-proposal-builder-page__hero-chip--amber">
                 <Layers3 size={15} />
-                <span>{activePriceTier} offer</span>
+                <span>{activePriceTier} tier</span>
               </div>
               <div className="wm-proposal-builder-page__hero-chip wm-proposal-builder-page__hero-chip--indigo">
                 <ClipboardList size={15} />
@@ -482,7 +482,7 @@ export default function ProposalBuilderPage() {
                 <span>Proposal momentum</span>
               </div>
               <div className="wm-proposal-builder-page__autosave">
-                {savedAt ? `Saved at ${savedAt}` : "Draft auto-saves locally."}
+                {savedAt ? `Saved at ${savedAt}` : "Auto-saves locally."}
               </div>
             </div>
 
@@ -491,7 +491,7 @@ export default function ProposalBuilderPage() {
                 <span className="wm-proposal-builder-page__hero-stat-label">Draft completion</span>
                 <strong className="wm-proposal-builder-page__hero-stat-value">{draftProgress.pct}%</strong>
                 <span className="wm-proposal-builder-page__hero-stat-copy">
-                  {draftProgress.completed} of {draftProgress.total} content blocks ready
+                  {draftProgress.completed} of {draftProgress.total} blocks ready
                 </span>
               </article>
 
@@ -502,7 +502,7 @@ export default function ProposalBuilderPage() {
               </article>
 
               <article className="wm-proposal-builder-page__hero-stat wm-proposal-builder-page__hero-stat--amber">
-                <span className="wm-proposal-builder-page__hero-stat-label">Offer posture</span>
+                <span className="wm-proposal-builder-page__hero-stat-label">Tier posture</span>
                 <strong className="wm-proposal-builder-page__hero-stat-value">{coverageSummary.costBand}</strong>
                 <span className="wm-proposal-builder-page__hero-stat-copy">{tierProfile.scopeLabel}</span>
               </article>
@@ -545,15 +545,15 @@ export default function ProposalBuilderPage() {
         <section className="wm-section wm-section--tone-cyan">
           <div className="wm-section__head">
             <div className="wm-section__titles">
-              <h2>Proposal narrative</h2>
-              <p>Build the customer-safe story before the proposal leaves Wingman.</p>
+              <h2>Proposal story</h2>
+              <p>Write the customer-safe version first.</p>
             </div>
           </div>
 
           <div className="wm-proposal-builder-page__progress-strip">
             <div className="wm-proposal-builder-page__progress-copy">
               <Target size={15} />
-              <span>Keep the story concise, commercial, and safe for customer review.</span>
+              <span>Keep it short, commercial, and client-safe.</span>
             </div>
             <div className="wm-proposal-builder-page__progress-track">
               <div
@@ -625,7 +625,7 @@ export default function ProposalBuilderPage() {
               <div className="wm-section__head">
                 <div className="wm-section__titles">
                   <h2>Shared recommendation</h2>
-                  <p>Proposal framing now reads from the same recommendation layer as Guided Project.</p>
+                  <p>Uses the same recommendation engine as Guided Project.</p>
                 </div>
               </div>
 
@@ -657,7 +657,7 @@ export default function ProposalBuilderPage() {
 
               <div className="wm-proposal-builder-page__tier-focus">
                 <div className="wm-proposal-builder-page__tier-focus-head">
-                  <strong>Salesperson wording</strong>
+                  <strong>Sales line</strong>
                   <span className="wm-proposal-builder-page__tier-focus-pill">
                     Shared engine output
                   </span>
@@ -682,7 +682,7 @@ export default function ProposalBuilderPage() {
             <div className="wm-section__head">
               <div className="wm-section__titles">
                 <h2>Offer tiering</h2>
-                <p>Wingman uses low, medium, and high offer logic rather than stored pricing data.</p>
+                <p>Choose the lean, balanced, or enhanced path.</p>
               </div>
             </div>
 
@@ -725,8 +725,8 @@ export default function ProposalBuilderPage() {
           <section className="wm-section wm-section--tone-indigo">
             <div className="wm-section__head">
               <div className="wm-section__titles">
-                <h2>Offer summary</h2>
-                <p>See how much of the active BOM this offer level carries.</p>
+                <h2>Tier summary</h2>
+                <p>See what this tier keeps, makes optional, or holds back.</p>
               </div>
             </div>
 
@@ -788,7 +788,7 @@ export default function ProposalBuilderPage() {
         <div className="wm-section__head">
           <div className="wm-section__titles">
             <h2>Tiered BOM review</h2>
-            <p>Check what is included, optional, or held back at the selected offer level.</p>
+            <p>See what this tier includes, makes optional, or holds back.</p>
           </div>
         </div>
 
@@ -831,7 +831,7 @@ export default function ProposalBuilderPage() {
                     </label>
 
                     <div className="wm-proposal-builder-page__bom-metric">
-                      <span className="wm-proposal-builder-page__bom-metric-label">Offer status</span>
+                      <span className="wm-proposal-builder-page__bom-metric-label">Tier status</span>
                       <strong className="wm-proposal-builder-page__bom-metric-value">{coverage.label}</strong>
                     </div>
 
@@ -862,7 +862,7 @@ export default function ProposalBuilderPage() {
           <div className="wm-work-card wm-proposal-builder-page__empty-state">
             <div className="wm-title-lg">No BOM lines yet</div>
             <div className="wm-body">
-              Add SKUs from Guru or the catalogue to start shaping Bronze, Silver, and Gold offer levels.
+              Add SKUs from Guru or Catalogue to start shaping the tiers.
             </div>
           </div>
         )}

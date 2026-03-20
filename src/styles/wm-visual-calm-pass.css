@@ -1,504 +1,75 @@
-
-
-/* =========================================================
-   1. Global calm-down
-   ========================================================= */
-/* REMOVED by wingman-design-system-cleanup: destructive wildcard box-shadow reset */
-
-
-[style*="box-shadow"] {
-  box-shadow: 0 8px 20px rgba(0,0,0,0.10) !important;
+:root {
+  --wm-calm-border: rgba(142, 170, 208, 0.18);
+  --wm-calm-text-soft: rgba(223, 232, 245, 0.78);
+  --wm-calm-text-dim: rgba(196, 209, 226, 0.66);
 }
 
-[style*="border: 1px solid rgba(255,255,255,0.10)"],
-[style*="border: 1px solid rgba(255,255,255,0.08)"],
-[style*="border: 1px solid rgba(255,255,255,0.06)"] {
-  border-color: var(--wm-calm-border) !important;
+.wm-shell-root {
+  background:
+    radial-gradient(circle at top left, rgba(58, 113, 194, 0.18), transparent 24%),
+    radial-gradient(circle at top right, rgba(33, 167, 147, 0.08), transparent 20%),
+    linear-gradient(180deg, #09131d 0%, #0a141f 100%);
 }
 
-/* =========================================================
-   2. Sidebar softer
-   ========================================================= */
-.wm-shell-root aside,
-.wm-shell-root [class*="sidebar"],
-.wm-shell-root [class*="sidenav"] {
-  background: linear-gradient(180deg, rgba(6,17,31,0.90), rgba(5,14,27,0.88)) !important;
-}
-
-.wm-shell-root aside [style*="background"],
-.wm-shell-root [class*="sidebar"] [style*="background"] {
-  background-image: none !important;
-}
-
-.wm-shell-root aside h1,
-.wm-shell-root aside h2,
-.wm-shell-root aside h3,
-.wm-shell-root [class*="sidebar"] h1,
-.wm-shell-root [class*="sidebar"] h2,
-.wm-shell-root [class*="sidebar"] h3 {
-  color: #eef5ff !important;
-}
-
-.wm-shell-root aside p,
-.wm-shell-root aside small,
-.wm-shell-root aside span,
-.wm-shell-root [class*="sidebar"] p,
-.wm-shell-root [class*="sidebar"] small,
-.wm-shell-root [class*="sidebar"] span {
-  color: var(--wm-calm-text-dim) !important;
-}
-
-.wm-shell-root aside button,
-.wm-shell-root aside a,
-.wm-shell-root [class*="sidebar"] button,
-.wm-shell-root [class*="sidebar"] a {
-  box-shadow: none !important;
-}
-
-.wm-shell-root aside [style*="linear-gradient"],
-.wm-shell-root [class*="sidebar"] [style*="linear-gradient"] {
-  background-image: none !important;
-  background-color: rgba(255,255,255,0.03) !important;
-}
-
-.wm-shell-root aside [style*="active"],
-.wm-shell-root [class*="sidebar"] [style*="active"] {
-  box-shadow: none !important;
-}
-
-/* =========================================================
-   3. Topbar cleaner
-   ========================================================= */
-.wm-shell-root .wm-topbar {
-  background: rgba(7,16,30,0.70) !important;
-  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-}
-
-.wm-shell-root .wm-topbar img {
-  opacity: 0.96;
-}
-
-.wm-shell-root .wm-topbar button {
-  box-shadow: none !important;
-}
-
-.wm-shell-root .wm-topbar [style*="background: rgba(255,255,255,0.03)"] {
-  background: rgba(255,255,255,0.02) !important;
-}
-
-/* =========================================================
-   4. Main content hierarchy
-   ========================================================= */
 .wm-shell-root main {
-  background: transparent !important;
+  background: transparent;
 }
 
-.wm-shell-root main h1,
-.wm-shell-root main h2 {
-  letter-spacing: -0.02em !important;
-}
-
-[style*="font-size: 42px"],
-[style*="font-size:42px"] {
-  font-size: 34px !important;
-}
-
-[style*="font-size: 36px"],
-[style*="font-size:36px"] {
-  font-size: 28px !important;
-}
-
-[style*="padding: 16px"],
-[style*="padding:16px"] {
-  padding: 14px !important;
-}
-
-/* =========================================================
-   5. Make main dashboard panel strongest
-   ========================================================= */
-.wm-shell-root main section:first-of-type,
-.wm-shell-root main article:first-of-type {
-  background: linear-gradient(180deg, rgba(8,24,48,0.78), rgba(6,17,33,0.82)) !important;
-  border-color: rgba(79,150,255,0.10) !important;
-}
-
-/* =========================================================
-   6. Mute right-hand stats rail
-   ========================================================= */
-[style*="Active project"],
-[style*="CURRENT SKUS"],
-[style*="PROPOSAL STATE"],
-[style*="PROJECTS SAVED"] {
-  box-shadow: none !important;
-}
-
-.wm-shell-root main > div > section:last-child > div,
-.wm-shell-root main > div > aside > div,
-.wm-shell-root main > div > section:last-child [style*="linear-gradient"],
-.wm-shell-root main > div > section:last-child [style*="rgba(7,23,48"] {
-  background: linear-gradient(180deg, rgba(8,21,40,0.55), rgba(6,16,30,0.62)) !important;
-  border-color: rgba(255,255,255,0.05) !important;
-}
-
-.wm-shell-root main > div > section:last-child [style*="font-size: 24px"],
-.wm-shell-root main > div > section:last-child [style*="font-size:24px"] {
-  font-size: 20px !important;
-}
-
-/* =========================================================
-   7. Chips and status pills quieter
-   ========================================================= */
-[style*="border-radius: 999"],
-[style*="border-radius:999"] {
-  background: rgba(255,255,255,0.035) !important;
-  border-color: rgba(255,255,255,0.04) !important;
-  color: rgba(230,238,255,0.76) !important;
-}
-
-/* =========================================================
-   8. Quick Actions: reduce shouting
-   ========================================================= */
-[style*="Quick Actions"] + div,
-[style*="Quick Actions"] {
-  box-shadow: none !important;
-}
-
-[style*="Quick Actions"] ~ div [style*="min-height: 138px"],
-[style*="Quick Actions"] ~ div [style*="min-height:138px"],
-[style*="Quick Actions"] ~ div [style*="min-height: 122px"],
-[style*="Quick Actions"] ~ div [style*="min-height:122px"] {
-  min-height: 110px !important;
-}
-
-[style*="Quick Actions"] ~ div button,
-[style*="Quick Actions"] ~ div [style*="linear-gradient(135deg"] {
-  background-image: none !important;
-  background-color: rgba(255,255,255,0.025) !important;
-  border-color: rgba(255,255,255,0.05) !important;
-}
-
-[style*="Quick Actions"] ~ div [style*="featured"],
-[style*="Quick Actions"] ~ div [style*="Primary"] {
-  background-color: rgba(21,174,205,0.12) !important;
-}
-
-[style*="Quick Actions"] ~ div [style*="font-size: 21px"],
-[style*="Quick Actions"] ~ div [style*="font-size:21px"] {
-  font-size: 16px !important;
-}
-
-[style*="Quick Actions"] ~ div [style*="font-size: 14px"],
-[style*="Quick Actions"] ~ div [style*="font-size:14px"] {
-  color: var(--wm-calm-text-soft) !important;
-}
-
-/* =========================================================
-   9. Workflow steps cleaner
-   ========================================================= */
-[style*="Discovery"],
-[style*="System Design"],
-[style*="Proposal"] {
-  box-shadow: none !important;
-}
-
-[style*="Discovery"] button,
-[style*="System Design"] button,
-[style*="Proposal"] button {
-  background-image: none !important;
-}
-
-/* =========================================================
-   10. Footer lower contrast
-   ========================================================= */
+.wm-shell-root .wm-topbar,
+.wm-shell-root .wm-shell-nav,
 .wm-shell-root footer {
-  background: rgba(5,12,22,0.96) !important;
-  border-top: 1px solid rgba(255,255,255,0.04) !important;
+  backdrop-filter: blur(18px);
+}
+
+.wm-shell-root .wm-topbar {
+  background: rgba(9, 17, 27, 0.78);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wm-shell-root .wm-shell-nav {
+  background: linear-gradient(180deg, rgba(10, 19, 31, 0.92), rgba(7, 14, 23, 0.96));
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wm-shell-root footer {
+  background: rgba(7, 13, 21, 0.92);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.wm-shell-root .wm-card,
+.wm-shell-root .wm-section,
+.wm-shell-root .wm-work-card {
+  box-shadow: 0 18px 36px rgba(4, 11, 20, 0.18);
+}
+
+.wm-shell-root .wm-nav a,
+.wm-shell-root .wm-nav button,
+.wm-shell-root .wm-topbar a,
+.wm-shell-root .wm-topbar button {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .wm-shell-root footer a,
 .wm-shell-root footer span,
 .wm-shell-root footer div {
-  color: rgba(220,232,255,0.72) !important;
+  color: rgba(220, 232, 246, 0.74);
 }
 
-/* =========================================================
-   11. Guru less loud
-   ========================================================= */
-.wm-guru-fab,
-.wm-guru-float-launcher {
-  box-shadow: 0 10px 22px rgba(0,0,0,0.22) !important;
-}
-
-.wm-guru-fab {
-  width: 52px !important;
-  height: 52px !important;
-  min-width: 52px !important;
-  padding: 0 !important;
-}
-
-/* === VIDEO WALL PLANNER REFINEMENT START === */
-[data-page="video-wall"],
-.wm-video-wall-page {
-  --wm-vw-panel-bg: linear-gradient(180deg, rgba(10,24,40,.96), rgba(7,18,31,.98));
-  --wm-vw-panel-border: rgba(110,170,255,.10);
-  --wm-vw-panel-border-strong: rgba(110,170,255,.16);
-  --wm-vw-soft-border: rgba(255,255,255,.06);
-  --wm-vw-shadow: 0 10px 28px rgba(0,0,0,.28);
-  --wm-vw-text-soft: rgba(220,230,242,.72);
-  --wm-vw-text-mid: rgba(238,244,251,.9);
-  --wm-vw-accent: rgba(33,199,156,.20);
-  --wm-vw-accent-border: rgba(33,199,156,.32);
-}
-
-/* page frame */
-[data-page="video-wall"].wm-video-wall-page,
-.wm-video-wall-page {
-  padding-bottom: 12px;
-}
-
-/* header / hero */
-[data-page="video-wall"] .page-header,
-[data-page="video-wall"] .hero,
-.wm-video-wall-page .page-header,
-.wm-video-wall-page .hero {
-  border-radius: 16px;
-  border: 1px solid var(--wm-vw-panel-border);
-  background:
-    linear-gradient(90deg, rgba(5,20,38,.98) 0%, rgba(4,29,56,.96) 52%, rgba(3,22,44,.94) 100%);
-  box-shadow: 0 10px 24px rgba(0,0,0,.25);
-  padding: 18px 20px;
-}
-
-[data-page="video-wall"] h1,
-.wm-video-wall-page h1 {
-  font-size: 30px;
-  line-height: 1.05;
-  letter-spacing: -.025em;
-  margin-bottom: 6px;
-}
-
-[data-page="video-wall"] .page-header p,
-[data-page="video-wall"] .hero p,
-.wm-video-wall-page .page-header p,
-.wm-video-wall-page .hero p {
-  color: var(--wm-vw-text-soft);
-  font-size: 13px;
-  line-height: 1.45;
-  max-width: 980px;
-}
-
-/* content layout */
-[data-page="video-wall"] .content-grid,
-[data-page="video-wall"] .video-wall-content-grid,
-.wm-video-wall-page .content-grid,
-.wm-video-wall-page .video-wall-content-grid {
-  gap: 18px;
-  align-items: start;
-}
-
-/* cards */
-[data-page="video-wall"] .wm-card,
-[data-page="video-wall"] .card,
-[data-page="video-wall"] .panel,
-.wm-video-wall-page .wm-card,
-.wm-video-wall-page .card,
-.wm-video-wall-page .panel {
-  background: var(--wm-vw-panel-bg);
-  border: 1px solid var(--wm-vw-panel-border);
-  border-radius: 16px;
-  box-shadow: var(--wm-vw-shadow);
-}
-
-[data-page="video-wall"] .wm-card,
-.wm-video-wall-page .wm-card {
-  padding: 18px 18px 16px;
-}
-
-[data-page="video-wall"] .wm-card + .wm-card,
-[data-page="video-wall"] .card + .card,
-[data-page="video-wall"] .panel + .panel,
-.wm-video-wall-page .wm-card + .wm-card,
-.wm-video-wall-page .card + .card,
-.wm-video-wall-page .panel + .panel {
-  margin-top: 16px;
-}
-
-/* input area */
-[data-page="video-wall"] .form-panel,
-[data-page="video-wall"] .input-panel,
-.wm-video-wall-page .form-panel,
-.wm-video-wall-page .input-panel {
-  max-width: 900px;
-}
-
-[data-page="video-wall"] label,
-.wm-video-wall-page label {
-  display: block;
-  margin-bottom: 5px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  color: rgba(235,242,250,.78);
-}
-
-[data-page="video-wall"] input,
-[data-page="video-wall"] select,
-[data-page="video-wall"] textarea,
-.wm-video-wall-page input,
-.wm-video-wall-page select,
-.wm-video-wall-page textarea {
-  min-height: 38px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.035);
-  color: rgba(247,250,255,.96);
-  padding: 8px 10px;
-  box-shadow: none;
-}
-
-[data-page="video-wall"] input:focus,
-[data-page="video-wall"] select:focus,
-[data-page="video-wall"] textarea:focus,
-.wm-video-wall-page input:focus,
-.wm-video-wall-page select:focus,
-.wm-video-wall-page textarea:focus {
-  border-color: rgba(104,180,255,.42);
-  box-shadow: 0 0 0 3px rgba(66,133,244,.14);
-  outline: none;
-}
-
-/* summary rows */
-[data-page="video-wall"] .summary-row,
-[data-page="video-wall"] .kv-row,
-.wm-video-wall-page .summary-row,
-.wm-video-wall-page .kv-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--wm-vw-soft-border);
-}
-
-[data-page="video-wall"] .summary-row:last-child,
-[data-page="video-wall"] .kv-row:last-child,
-.wm-video-wall-page .summary-row:last-child,
-.wm-video-wall-page .kv-row:last-child {
-  border-bottom: none;
-}
-
-[data-page="video-wall"] .summary-row > :first-child,
-[data-page="video-wall"] .kv-row > :first-child,
-.wm-video-wall-page .summary-row > :first-child,
-.wm-video-wall-page .kv-row > :first-child {
-  color: var(--wm-vw-text-soft);
-}
-
-[data-page="video-wall"] .summary-row > :last-child,
-[data-page="video-wall"] .kv-row > :last-child,
-.wm-video-wall-page .summary-row > :last-child,
-.wm-video-wall-page .kv-row > :last-child {
-  color: var(--wm-vw-text-mid);
-  font-weight: 600;
-  text-align: right;
-}
-
-/* recommendation emphasis */
-[data-page="video-wall"] .recommendation-panel,
-[data-page="video-wall"] .processor-recommendation,
-.wm-video-wall-page .recommendation-panel,
-.wm-video-wall-page .processor-recommendation {
-  border: 1px solid var(--wm-vw-accent-border);
-  background: linear-gradient(180deg, rgba(10,31,37,.98), rgba(8,23,30,.98));
-  box-shadow:
-    0 10px 28px rgba(0,0,0,.28),
-    inset 0 0 0 1px rgba(33,199,156,.05);
-}
-
-[data-page="video-wall"] .recommendation-panel h3,
-[data-page="video-wall"] .processor-recommendation h3,
-.wm-video-wall-page .recommendation-panel h3,
-.wm-video-wall-page .processor-recommendation h3 {
-  color: #e8fff8;
-}
-
-/* notes panel */
-[data-page="video-wall"] .notes-panel,
-[data-page="video-wall"] .mounting-notes,
-.wm-video-wall-page .notes-panel,
-.wm-video-wall-page .mounting-notes {
-  background: linear-gradient(180deg, rgba(12,29,46,.94), rgba(9,23,37,.98));
-}
-
-/* actions */
-[data-page="video-wall"] .planner-actions,
-[data-page="video-wall"] .action-row,
-.wm-video-wall-page .planner-actions,
-.wm-video-wall-page .action-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-[data-page="video-wall"] button,
-.wm-video-wall-page button {
-  min-height: 38px;
-  border-radius: 10px;
-}
-
-/* slightly calm nav edge */
 .wm-nav {
-  border-right: 1px solid rgba(120,180,255,.07);
-}
-
-.wm-nav a,
-.wm-nav button {
-  transition: background-color .16s ease, border-color .16s ease, opacity .16s ease;
+  border-right: 1px solid rgba(120, 180, 255, 0.07);
 }
 
 .wm-nav a:not(.is-active),
 .wm-nav button:not(.is-active) {
-  opacity: .88;
+  opacity: 0.92;
 }
 
 .wm-nav a:hover,
 .wm-nav button:hover {
   opacity: 1;
 }
-
-@media (max-width: 1200px) {
-  [data-page="video-wall"] .content-grid,
-  [data-page="video-wall"] .video-wall-content-grid,
-  .wm-video-wall-page .content-grid,
-  .wm-video-wall-page .video-wall-content-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  [data-page="video-wall"] .form-panel,
-  [data-page="video-wall"] .input-panel,
-  .wm-video-wall-page .form-panel,
-  .wm-video-wall-page .input-panel {
-    max-width: none;
-  }
-}
-
-@media (max-width: 760px) {
-  [data-page="video-wall"] .page-header,
-  [data-page="video-wall"] .hero,
-  .wm-video-wall-page .page-header,
-  .wm-video-wall-page .hero {
-    padding: 14px;
-  }
-
-  [data-page="video-wall"] .wm-card,
-  .wm-video-wall-page .wm-card {
-    padding: 14px;
-  }
-
-  [data-page="video-wall"] h1,
-  .wm-video-wall-page h1 {
-    font-size: 24px;
-  }
-}
-/* === VIDEO WALL PLANNER REFINEMENT END === */

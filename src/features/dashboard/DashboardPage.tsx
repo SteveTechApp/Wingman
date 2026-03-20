@@ -24,10 +24,10 @@ const workflowCards: WorkflowCard[] = [
     eyebrow: "Discovery",
     title: "Start a new project",
     description:
-      "Create a new Wingman project, capture requirements, and begin building a structured AV solution.",
+      "Set up a clean project shell and move straight into discovery.",
     supportingPoints: [
-      "Capture customer requirements",
-      "Define room and scope",
+      "Capture the basics",
+      "Shape the room scope",
       "Start guided design",
     ],
     to: WM_ROUTES.newProject,
@@ -38,11 +38,11 @@ const workflowCards: WorkflowCard[] = [
     eyebrow: "Import",
     title: "Import a brief",
     description:
-      "Bring in customer notes, tender text, or survey data and convert it into a structured project.",
+      "Turn a brief, tender, or notes into a workable project start.",
     supportingPoints: [
-      "Import notes or scope",
-      "Structure the brief",
-      "Reduce manual setup",
+      "Bring in source material",
+      "Pull out key signals",
+      "Skip manual setup",
     ],
     to: WM_ROUTES.importIntake,
     accentRgb: "108, 196, 255",
@@ -52,11 +52,11 @@ const workflowCards: WorkflowCard[] = [
     eyebrow: "Templates",
     title: "Browse architecture starters",
     description:
-      "Start from proven room and solution templates to move faster and stay consistent.",
+      "Use proven room starters to move faster and stay consistent.",
     supportingPoints: [
-      "Use proven templates",
-      "Speed up early design",
-      "Keep solutions consistent",
+      "Start from tested patterns",
+      "Move faster early",
+      "Stay consistent",
     ],
     to: WM_ROUTES.templates,
     accentRgb: "96, 194, 132",
@@ -73,11 +73,9 @@ export default function DashboardPage() {
         <div className="wm-page-hero-row">
           <div className="wm-grid">
             <div className="wm-kicker">Mission Control</div>
-            <div className="wm-title-xl">What do you want to move forward today?</div>
+            <div className="wm-title-xl">Pick the fastest way to start.</div>
             <div className="wm-body-sm wm-page-subtitle-muted" style={{ maxWidth: 820 }}>
-              Start from a clean project shell, import an existing brief, or use a proven template path.
-              The app should feel like the guided project page: clear separation, obvious next moves, and
-              just enough colour to make each choice distinct.
+              Start clean, import the brief, or jump in with a proven template.
             </div>
           </div>
         </div>
@@ -87,7 +85,7 @@ export default function DashboardPage() {
         <div className="wm-section__head">
           <div className="wm-section__titles">
             <h2>Start Paths</h2>
-            <p>Choose the cleanest entry point for the opportunity in front of you.</p>
+            <p>Choose the clearest route for the job in front of you.</p>
           </div>
         </div>
 
@@ -108,74 +106,48 @@ export default function DashboardPage() {
               } as React.CSSProperties}
               onClick={() => navigate(card.to)}
             >
-              <div className="wm-dashboard-page__action-card-top" style={{ display: "grid", gap: 12 }}>
+              <div className="wm-dashboard-page__action-card-top">
                 <div className="wm-kicker" style={{ color: `rgba(${card.accentRgb}, 0.96)` }}>
                   {card.eyebrow}
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "44px minmax(0, 1fr)", gap: 12, alignItems: "start" }}>
+                <div className="wm-dashboard-page__action-card-head">
                   <span
                     className="wm-dashboard-page__action-card-icon"
                     style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 12,
                       border: `1px solid rgba(${card.accentRgb}, 0.28)`,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
                     }}
                   >
                     <card.Icon />
                   </span>
 
-                  <div style={{ display: "grid", gap: 8 }}>
-                    <div className="wm-title-lg" style={{ fontSize: 22, lineHeight: 1.14 }}>
+                  <div className="wm-dashboard-page__action-card-copy">
+                    <div className="wm-title-lg wm-dashboard-page__action-card-title">
                       {card.title}
                     </div>
-                    <div className="wm-body" style={{ fontSize: 16, lineHeight: 1.6 }}>
+                    <div className="wm-body wm-dashboard-page__action-card-description">
                       {card.description}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gap: 8 }}>
+                <div className="wm-dashboard-page__action-tags">
                   {card.supportingPoints.map((point) => (
-                    <div
+                    <span
                       key={point}
+                      className="wm-dashboard-page__action-tag"
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "10px 1fr",
-                        gap: 10,
-                        alignItems: "start",
+                        borderColor: `rgba(${card.accentRgb}, 0.22)`,
+                        color: `rgba(${card.accentRgb}, 0.96)`,
                       }}
                     >
-                      <span
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 999,
-                          marginTop: 6,
-                          background: `rgba(${card.accentRgb}, 0.9)`,
-                        }}
-                      />
-                      <span className="wm-body-sm" style={{ fontSize: 13, lineHeight: 1.55 }}>
-                        {point}
-                      </span>
-                    </div>
+                      {point}
+                    </span>
                   ))}
                 </div>
               </div>
 
-              <div
-                style={{
-                  marginTop: 10,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 12,
-                }}
-              >
+              <div className="wm-dashboard-page__action-card-footer">
                 <span className="wm-dashboard-page__action-card-cta">Open</span>
                 <span className="wm-dashboard-page__action-card-arrow">
                   <ArrowRight size={18} />

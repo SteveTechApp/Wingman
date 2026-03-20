@@ -44,32 +44,32 @@ const START_METHODS: StartMethod[] = [
   {
     id: "guided-project",
     title: "Guided Project",
-    description: "Use a low-clutter guided decision tree to understand the room, the signal path, and the customer workflow.",
-    helper: "Best for live discovery calls and early-stage qualification.",
+    description: "Map the room, signal flow, and user journey step by step.",
+    helper: "Best for live discovery.",
     to: WM_ROUTES.discovery,
     Icon: Route,
   },
   {
     id: "templates",
     title: "Templates",
-    description: "Start from a proven room archetype and then tailor the solution for the opportunity.",
-    helper: "Best for common room types and repeatable solutions.",
+    description: "Start from a proven room type and tailor it from there.",
+    helper: "Best for repeatable spaces.",
     to: WM_ROUTES.templates,
     Icon: LayoutTemplate,
   },
   {
     id: "import-brief",
     title: "Import Brief or Document",
-    description: "Bring in a customer brief, tender notes, scope document, or email thread and let Wingman extract the important signals.",
-    helper: "Best when the project already has written input material.",
+    description: "Turn written source material into a cleaner project start.",
+    helper: "Best when the brief already exists.",
     to: "/app/tools/import-intake?mode=document",
     Icon: FileUp,
   },
   {
     id: "import-diagram",
     title: "Import Diagram or Existing System",
-    description: "Start from a customer sketch, signal flow, or existing system map and convert it into a guided project path.",
-    helper: "Best when the physical flow already exists but needs translating into technology choices.",
+    description: "Turn an existing sketch or system map into a guided path.",
+    helper: "Best when the system shape already exists.",
     to: "/app/tools/import-intake?mode=diagram",
     Icon: ScanSearch,
   },
@@ -284,9 +284,8 @@ export default function ProjectNewPage() {
           <div className="wm-kicker">Projects</div>
           <div className="wm-title-xl">Start New Project</div>
           <div className="wm-page-lead">
-            Create the project shell once, then choose the best way to begin. Wingman should
-            adapt to how the opportunity arrives, whether that is a guided conversation, a proven
-            template, a customer brief, or an existing diagram.
+            Set the shell once, then start the job the right way: guided, template-led, brief-led,
+            or diagram-led.
           </div>
         </div>
       </section>
@@ -295,7 +294,7 @@ export default function ProjectNewPage() {
         <section className="wm-section">
           <div className="wm-section__head">
             <div className="wm-section__titles">
-              <h2>Template starter loaded</h2>
+              <h2>Template starter ready</h2>
               <p>
                 {templateSeed.verticalMarket.name} / {templateSeed.roomType.name} / {templateSeed.tier.label}
               </p>
@@ -308,7 +307,7 @@ export default function ProjectNewPage() {
             </div>
 
             <div className="wm-body-sm" style={{ opacity: 0.78 }}>
-              Recommended next step: {getToolLabel(templateSeed.recommendedTool)}
+              Next move: {getToolLabel(templateSeed.recommendedTool)}
             </div>
 
             {templateSeed.recommendedFamilies?.length ? (
@@ -327,10 +326,10 @@ export default function ProjectNewPage() {
                 className="wm-btn wm-btn-primary"
                 onClick={startFromSelectedTemplate}
               >
-                Create shell and open {getToolLabel(templateSeed.recommendedTool)}
+                Open {getToolLabel(templateSeed.recommendedTool)} with this starter
               </button>
               <button type="button" className="wm-btn" onClick={discardSelectedTemplate}>
-                Discard template starter
+                Clear starter
               </button>
             </div>
           </article>
@@ -354,7 +353,7 @@ export default function ProjectNewPage() {
               Step 1 / Opportunity details{activeFlowStep === "details" ? " / Current position" : ""}
             </div>
             <h2>Opportunity details</h2>
-            <p>Keep this light. Add just enough commercial context so the next workflow has a project to work from.</p>
+            <p>Keep this light. Add enough context to name the job and move on.</p>
           </div>
         </div>
 
@@ -411,7 +410,7 @@ export default function ProjectNewPage() {
             className="wm-btn wm-btn-primary"
             onClick={() => startWith(START_METHODS[0])}
           >
-            Continue workflow
+            Start Guided Project
           </button>
         </div>
       </section>
@@ -429,14 +428,14 @@ export default function ProjectNewPage() {
                 Step 1 / Reuse context{activeFlowStep === "reuse" ? " / Current position" : ""}
               </div>
               <h2>Reuse recent project context</h2>
-              <p>Pull forward the commercial context or duplicate a similar room so repeat work starts faster.</p>
+              <p>Pull forward past context or duplicate a similar room to move faster.</p>
             </div>
           </div>
 
           <CollapsibleCard
             id="project-new-reuse-context"
             title="Recent project context"
-            subtitle="Expand only when you want to reuse or duplicate past opportunities."
+            subtitle="Open this when you want to reuse details or duplicate a similar job."
             defaultCollapsed
           >
             <div className="wm-grid-cards">

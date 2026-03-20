@@ -24,8 +24,9 @@ type Props = {
 
 function chipClass(active: boolean) {
   return [
-    "inline-flex items-center rounded-full px-2 py-0.5 text-xs",
-    active ? "bg-white/15 text-white" : "bg-white/5 text-white/70 hover:bg-white/10",
+    "wm-chip",
+    "wm-sidepanel__chip",
+    active ? "is-active" : "",
   ].join(" ");
 }
 

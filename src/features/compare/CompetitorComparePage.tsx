@@ -824,18 +824,18 @@ export default function CompetitorComparePage() {
   }
 
   return (
-    <div className="wm-page">
-      <div style={{ maxWidth: 1480, margin: "0 auto", width: "100%" }}>
-        <div className="wm-page-header">
+    <div className="wm-page wm-compare-page">
+      <div className="wm-compare-page__canvas">
+        <section className="wm-hero wm-page-header wm-compare-page__hero">
           <div>
             <div className="wm-page-title">Competitor Comparison</div>
-            <div className="wm-page-sub">
+            <div className="wm-page-sub wm-compare-page__subtitle">
               Live lookup, scored WyreStorm fit, and a clearer side-by-side feature matrix.
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="wm-page-body" style={{ display: "grid", gap: 12 }}>
+        <div className="wm-page-body wm-compare-page__body" style={{ display: "grid", gap: 12 }}>
           <div className="wm-card" style={{ padding: 10 }}>
             <CompetitorMatchFinderPanel
               brand={brand}
