@@ -846,10 +846,10 @@ export default function ProductIntelligencePage() {
               Product intelligence
             </div>
             <div style={{ fontSize: 36, lineHeight: 1, fontWeight: 900, color: "#f8fafc" }}>
-              Compact review workspace
+              Review trusted records
             </div>
             <div style={{ maxWidth: 900, fontSize: 14, lineHeight: 1.55, color: "rgba(226,232,240,0.76)" }}>
-              Lighter record browsing, smaller cards, stronger field grouping, and progressive detail expansion instead of full-width maintenance walls.
+              Search fast, scan smaller cards, and open detail only when you need it.
             </div>
           </div>
 
@@ -929,7 +929,7 @@ export default function ProductIntelligencePage() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#f8fafc", fontWeight: 900 }}>
           <SlidersHorizontal size={16} />
-          Filters
+          Narrow the list
         </div>
 
         <div
@@ -955,7 +955,7 @@ export default function ProductIntelligencePage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search brand, SKU, family, group, category..."
+              placeholder="Search SKU, brand, family, group, or category..."
               style={{
                 flex: 1,
                 background: "transparent",
@@ -1115,10 +1115,10 @@ export default function ProductIntelligencePage() {
           }}
         >
           <div style={{ fontSize: 18, fontWeight: 900, color: "#f8fafc" }}>
-            Start with a filter or search
+            Search or filter to begin
           </div>
           <div style={{ fontSize: 14, color: "rgba(226,232,240,0.74)", maxWidth: 720, lineHeight: 1.55 }}>
-            No product cards are shown by default. Enter a SKU, brand, family, group, or category, or change one of the filters to begin narrowing the records.
+            Cards stay hidden until you narrow the list by SKU, brand, family, group, category, or status.
           </div>
         </section>
       ) : null}
@@ -1137,7 +1137,7 @@ export default function ProductIntelligencePage() {
         >
           <div style={{ fontSize: 18, fontWeight: 900, color: "#f8fafc" }}>No records match the current filters</div>
           <div style={{ fontSize: 14, color: "rgba(226,232,240,0.74)" }}>
-            Adjust the search term, status, vendor, or view filter.
+            Change the search, status, vendor, or view filter.
           </div>
         </section>
       ) : null}

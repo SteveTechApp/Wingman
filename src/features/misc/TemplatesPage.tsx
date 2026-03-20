@@ -9,6 +9,7 @@ import {
   TIER_ORDER,
   USE_CASE_GROUPS,
   type BudgetBias,
+  type MarketTemplate,
   type RoomTemplate,
   type TierKey,
   type UseCaseGroup,
@@ -25,15 +26,19 @@ const TOOL_LABELS: Record<string, string> = {
 };
 
 function SelectCard({
+  eyebrow,
   title,
   text,
+  detail,
   active,
   accentRgb,
   meta,
   onClick,
 }: {
+  eyebrow?: string;
   title: string;
   text: string;
+  detail?: string;
   active?: boolean;
   accentRgb: string;
   meta?: string;
@@ -46,8 +51,14 @@ function SelectCard({
       className={`wm-choice-card wm-hover-lift${active ? " is-active" : ""}`}
       style={{ "--wm-choice-accent-rgb": accentRgb } as React.CSSProperties}
     >
+      {eyebrow ? (
+        <div className="wm-choice-card__eyebrow">{eyebrow}</div>
+      ) : null}
       <div className="wm-choice-card__title">{title}</div>
       <div className="wm-choice-card__body">{text}</div>
+      {detail ? (
+        <div className="wm-choice-card__detail">{detail}</div>
+      ) : null}
       {meta ? (
         <div className="wm-choice-card__meta">{meta}</div>
       ) : null}
@@ -101,6 +112,17 @@ function BulletList({
 
 function getToolLabel(path: string): string {
   return TOOL_LABELS[path] ?? path.replace("/app/tools/", "").replace(/-/g, " ");
+}
+
+function getPunchyStory(story: string): string {
+  const trimmed = story.trim().replace(/\.$/, "");
+  const parts = trimmed.split(/\s+(where|that|built|with)\s+/i);
+  return parts[0] || trimmed;
+}
+
+function getRoomCardMeta(room: RoomTemplate): string {
+  const families = room.recommendedFamilies.slice(0, 2).join(" + ");
+  return families ? `Built on ${families}` : "Template ready";
 }
 
 function summarizeTierChange(
@@ -310,6 +332,173 @@ function performanceUpgradeMoves(room: RoomTemplate, tier: TierKey): string[] {
   }
 }
 
+type ScenarioDetail = {
+  headline: string;
+  story: string;
+  designPurpose: string;
+  customerScenario: string;
+  sourceOutput: string;
+  tierFit: string;
+  baseline: string[];
+  operationalPriorities: string[];
+  roomAssumptions: string[];
+  tierChoice: string;
+};
+
+function getIoProfile(room: RoomTemplate, tier: TierKey): {
+  sources: string;
+  outputs: string;
+  operators: string;
+} {
+  if (room.id.includes("huddle")) {
+    return {
+      sources: tier === "bronze"
+        ? "2 routine sources: a bring-your-own laptop and one in-room UC or PC source"
+        : "3 routine sources: a bring-your-own laptop, an in-room UC or PC source, and an overflow wireless presentation path",
+      outputs: "1 main front-of-room display",
+      operators: "a general office user who needs auto-switching and obvious input selection",
+    };
+  }
+
+  if (room.id.includes("boardroom") || room.id.includes("operations") || room.id.includes("mdt") || room.id.includes("chamber")) {
+    return {
+      sources: tier === "gold"
+        ? "4 live sources: table laptop, in-room PC, UC appliance, and guest HDMI ingest"
+        : "3 live sources: table laptop, in-room PC, and UC appliance",
+      outputs: "2 front-of-room displays with shared presentation confidence",
+      operators: "an executive host or coordinator who cannot afford awkward source changes in front of clients or stakeholders",
+    };
+  }
+
+  if (room.id.includes("classroom") || room.id.includes("training") || room.id.includes("seminar")) {
+    return {
+      sources: tier === "bronze"
+        ? "2 presenter sources: lecturer PC and guest laptop input"
+        : "3 presenter sources: lecturer PC, guest laptop input, and visualiser or wireless share path",
+      outputs: room.id.includes("seminar")
+        ? "1 main display with optional confidence monitor behaviour"
+        : "1 main teaching display plus 1 confidence or overflow output",
+      operators: "different presenters across the week, not one power user who knows a custom workflow",
+    };
+  }
+
+  if (room.id.includes("lecture") || room.id.includes("townhall") || room.id.includes("ballroom") || room.id.includes("event")) {
+    return {
+      sources: tier === "gold"
+        ? "5 active sources: lectern PC, guest laptop, wireless share, VC feed, and event playback source"
+        : "4 active sources: lectern PC, guest laptop, wireless share, and event playback source",
+      outputs: room.id.includes("ballroom")
+        ? "3-4 destination outputs across main displays, confidence display, and divisible-room feeds"
+        : "2-3 destination outputs across main displays and confidence or relay screens",
+      operators: "venue or corporate staff who need preset-based operation during live sessions",
+    };
+  }
+
+  if (room.id.includes("sports-bar")) {
+    return {
+      sources: tier === "bronze"
+        ? "3 routine sources: local signage player and two live TV or sports feeds"
+        : "4 routine sources: local signage player, two live TV feeds, and one event or promo source",
+      outputs: "4-8 display outputs across the viewing zone",
+      operators: "bar staff who need quick daily source changes without engineering support",
+    };
+  }
+
+  if (room.id.includes("showroom") || room.id.includes("window") || room.id.includes("reception") || room.id.includes("waiting")) {
+    return {
+      sources: tier === "bronze"
+        ? "1-2 content sources: a signage player and optional local promo or laptop input"
+        : "2-3 content sources: signage player, local promo input, and a service laptop or event source",
+      outputs: room.id.includes("window")
+        ? "1-2 customer-facing displays"
+        : "2-4 customer-facing displays or signage endpoints",
+      operators: "front-of-house staff who need the system to feel fixed, simple, and repeatable",
+    };
+  }
+
+  if (room.id.includes("studio") || room.id.includes("gym")) {
+    return {
+      sources: tier === "bronze"
+        ? "2 daily sources: an instructor laptop and a local media or signage player"
+        : "3 daily sources: an instructor laptop, local media player, and one guest or event input",
+      outputs: "2 display destinations plus an audio-led teaching zone",
+      operators: "fitness or venue staff who need one dependable daily playback routine",
+    };
+  }
+
+  if (room.id.includes("suite") || room.id.includes("lounge") || room.id.includes("cinema") || room.id.includes("consultation")) {
+    return {
+      sources: tier === "gold"
+        ? "4 active sources: local playback, guest laptop input, UC or streaming device, and one premium media source"
+        : "2-3 active sources: local playback, guest laptop input, and one room PC or media source",
+      outputs: room.id.includes("cinema")
+        ? "1 main cinematic display plus local audio system"
+        : "1-2 displays with a premium local presentation or entertainment path",
+      operators: "guest-facing staff who need the room to feel polished even when operated casually",
+    };
+  }
+
+  if (room.id.includes("multiroom")) {
+    return {
+      sources: "3 shared sources: local playback, streaming endpoint, and one guest presentation input",
+      outputs: "3-6 zone outputs across adjoining rooms or media zones",
+      operators: "a homeowner or installer who wants simple distribution without rethinking the platform later",
+    };
+  }
+
+  return {
+    sources: tier === "bronze"
+      ? "2 routine sources: one local room source and one guest presentation source"
+      : "3 routine sources: one local room source, one guest presentation source, and one overflow or wireless path",
+    outputs: room.useCaseGroup === "signage" ? "2-4 display outputs" : "1-2 display outputs",
+    operators: "day-to-day staff who need a dependable operating pattern rather than a bespoke AV workflow",
+  };
+}
+
+function buildScenarioDetail(
+  market: MarketTemplate,
+  room: RoomTemplate,
+  tier: TierKey,
+  tierProfile: TierProfile,
+): ScenarioDetail {
+  const io = getIoProfile(room, tier);
+  const tierLabel = TIER_ACCENTS[tier].label;
+
+  return {
+    headline: `${tierLabel} starting point for a ${market.name.toLowerCase()} ${room.name.toLowerCase()}.`,
+    story: room.story,
+    designPurpose: room.designPurpose,
+    customerScenario:
+      `Built for ${room.useCases[0].toLowerCase()} in a ${market.name.toLowerCase()} setting, with a layout that feels right on day one and stays easy to use every day.`,
+    sourceOutput:
+      `${io.sources}. ${io.outputs}. Operated by ${io.operators}.`,
+    tierFit:
+      tier === "bronze"
+        ? "Bronze keeps the room simple and dependable."
+        : tier === "silver"
+          ? "Silver adds a smoother day-to-day experience without overcomplicating the room."
+          : "Gold is for rooms where polish, flexibility, and visibility matter as much as core function.",
+    baseline: [
+      `Use case: ${room.useCases.slice(0, 2).join(" and ")}.`,
+      `Design goal: ${room.designPurpose}`,
+      `System size: ${io.sources}, with ${io.outputs}.`,
+      `Core families: ${room.recommendedFamilies.join(" and ")}.`,
+    ],
+    operationalPriorities: [
+      `Keep source selection clear for ${io.operators}.`,
+      `Make ${room.useCases[0].toLowerCase()} reliable every day.`,
+      `Protect the room outcome before adding extras.`,
+    ],
+    roomAssumptions: [
+      `Sources: ${io.sources}.`,
+      `Outputs: ${io.outputs}.`,
+      "People should be able to start and switch content quickly.",
+    ],
+    tierChoice:
+      `Stay on ${tierLabel} unless the source count, output count, room visibility, or operator needs change.`,
+  };
+}
+
 export default function TemplatesPage() {
   const nav = useNavigate();
   const FLOW_ACTIVE_RGB = "96,194,132";
@@ -354,6 +543,8 @@ export default function TemplatesPage() {
             market.summary,
             room.name,
             room.short,
+            room.story,
+            room.designPurpose,
             room.useCases.join(" "),
             room.keywords.join(" "),
             room.recommendedFamilies.join(" "),
@@ -426,8 +617,10 @@ export default function TemplatesPage() {
 
   const tierProfile = room.tiers[tier];
   const tierAccent = TIER_ACCENTS[tier];
-  const assumptions = React.useMemo(() => roomAssumptions(room), [room]);
-  const credibility = React.useMemo(() => roomCredibility(room), [room]);
+  const scenarioDetail = React.useMemo(
+    () => buildScenarioDetail(market, room, tier, tierProfile),
+    [market, room, tier, tierProfile],
+  );
   const upgradeMoves = React.useMemo(() => performanceUpgradeMoves(room, tier), [room, tier]);
   const alternativeTiers = React.useMemo(
     () =>
@@ -506,6 +699,8 @@ export default function TemplatesPage() {
         id: room.id,
         name: room.name,
         summary: room.short,
+        story: room.story,
+        designPurpose: room.designPurpose,
         useCases: room.useCases,
       },
       tier: {
@@ -518,7 +713,7 @@ export default function TemplatesPage() {
       },
       includedSystems: tierProfile.includedSystems,
       uplift: [...tierProfile.uplift, ...upgradeMoves],
-      assumptions,
+      assumptions: scenarioDetail.roomAssumptions,
       recommendedFamilies: room.recommendedFamilies,
       recommendedTool: room.nextTool,
       projectName: market.name + " - " + room.name + " (" + tierProfile.label + ")",
@@ -548,9 +743,8 @@ export default function TemplatesPage() {
             Template Workbench
           </h1>
           <div className="wm-page-lead">
-            Cover common room types fast, but keep the design commercially credible. Every template path includes
-            Bronze, Silver, and Gold positioning, with room assumptions, value-engineered moves, and performance
-            upgrades so we can right-size the answer without losing the function.
+            Pick the market, pick the room, then choose the tier. Each template now explains the room story,
+            the design goal, and the product families that best fit the application.
           </div>
         </section>
 
@@ -633,7 +827,7 @@ export default function TemplatesPage() {
             Step 1{activeStep === 1 ? " / Current position" : ""}
           </div>
           <div style={{ marginTop: 6, fontWeight: 900, fontSize: 20 }}>
-            Choose the application
+            Choose the market
           </div>
           <div
             style={{
@@ -643,7 +837,7 @@ export default function TemplatesPage() {
               lineHeight: 1.55,
             }}
           >
-            Start with the customer environment so the room templates stay grounded in how the space will actually be used.
+            Start with the market so the room options match the kind of customer and application you are designing for.
           </div>
 
           <div
@@ -657,9 +851,11 @@ export default function TemplatesPage() {
             {MARKETS.map((item) => (
               <SelectCard
                 key={item.id}
+                eyebrow={`${item.roomTypes.length} room types`}
                 title={item.name}
                 text={item.summary}
-                meta={`${item.roomTypes.length} scenarios`}
+                detail={item.buyer}
+                meta="Choose market"
                 active={item.id === market.id}
                 accentRgb={item.accentRgb}
                 onClick={() => selectMarket(item.id)}
@@ -677,7 +873,7 @@ export default function TemplatesPage() {
             Step 2{activeStep === 2 ? " / Current position" : ""}
           </div>
           <div style={{ marginTop: 6, fontWeight: 900, fontSize: 20 }}>
-            Choose a room type
+            Choose the room
           </div>
           <div
             style={{
@@ -687,7 +883,7 @@ export default function TemplatesPage() {
               lineHeight: 1.55,
             }}
           >
-            These are practical room patterns rather than abstract labels, so the tier guidance stays anchored to a believable use case.
+            These are ready-made room patterns. Each one tells you what the room is for and why the design fits that market.
           </div>
 
           <div
@@ -701,9 +897,11 @@ export default function TemplatesPage() {
             {visibleRooms.map((item) => (
               <SelectCard
                 key={item.id}
+                eyebrow={item.useCases[0]}
                 title={item.name}
-                text={item.short}
-                meta={`${item.useCases.length} typical use patterns`}
+                text={getPunchyStory(item.story)}
+                detail={getRoomCardMeta(item)}
+                meta={`${TIER_ACCENTS[item.defaultTier].label} start`}
                 active={item.id === room.id}
                 accentRgb={market.accentRgb}
                 onClick={() => selectRoom(item.id)}
@@ -718,7 +916,7 @@ export default function TemplatesPage() {
           style={{ "--wm-flow-accent-rgb": FLOW_ACTIVE_RGB } as React.CSSProperties}
         >
           <div className={flowEyebrowClassName(4)}>Step 4{activeStep === 4 ? " / Current position" : ""}</div>
-          <div style={{ fontWeight: 900, fontSize: 20 }}>Review room details and solution tier</div>
+          <div style={{ fontWeight: 900, fontSize: 20 }}>Review the template</div>
 
           <div
             style={{
@@ -748,8 +946,8 @@ export default function TemplatesPage() {
                     color: "rgba(255,255,255,0.72)",
                     textTransform: "uppercase",
                   }}
-                >
-                  Selected path
+                  >
+                  Template selected
                 </div>
 
                 <div style={{ fontWeight: 900, fontSize: 20 }}>
@@ -757,7 +955,15 @@ export default function TemplatesPage() {
                 </div>
 
                 <div style={{ fontSize: 15, color: "rgba(255,255,255,0.92)", lineHeight: 1.6 }}>
-                  {tierProfile.summary}
+                  {scenarioDetail.headline}
+                </div>
+
+                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.88)", lineHeight: 1.6 }}>
+                  <strong>Story:</strong> {scenarioDetail.story}
+                </div>
+
+                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.84)", lineHeight: 1.55 }}>
+                  <strong>Built for:</strong> {scenarioDetail.designPurpose}
                 </div>
 
                 <div style={{ fontSize: 13, color: "rgba(255,255,255,0.84)", lineHeight: 1.55 }}>
@@ -811,18 +1017,18 @@ export default function TemplatesPage() {
                   gap: 12,
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: 14 }}>Clear summary</div>
+                <div style={{ fontWeight: 800, fontSize: 14 }}>Best fit</div>
                 <div style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>
-                  <strong>Positioning:</strong> {tierProfile.positioning}
+                  <strong>Use:</strong> {scenarioDetail.customerScenario}
                 </div>
                 <div style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>
-                  <strong>Performance:</strong> {tierProfile.performance}
+                  <strong>Scope:</strong> {scenarioDetail.sourceOutput}
                 </div>
                 <div style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>
-                  <strong>Commercial:</strong> {tierProfile.commercialNote}
+                  <strong>Tier fit:</strong> {scenarioDetail.tierFit}
                 </div>
-                <div style={{ fontWeight: 800, fontSize: 13, marginTop: 2 }}>What you get in this tier</div>
-                <BulletList items={tierProfile.includedSystems.slice(0, 3)} accentRgb={tierAccent.rgb} />
+                <div style={{ fontWeight: 800, fontSize: 13, marginTop: 2 }}>Key points</div>
+                <BulletList items={scenarioDetail.baseline} accentRgb={tierAccent.rgb} />
               </div>
             </div>
 
@@ -843,8 +1049,8 @@ export default function TemplatesPage() {
                   gap: 12,
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: 14 }}>Core credibility</div>
-                <BulletList items={credibility} accentRgb={market.accentRgb} />
+                <div style={{ fontWeight: 800, fontSize: 14 }}>Keep these true</div>
+                <BulletList items={scenarioDetail.operationalPriorities} accentRgb={market.accentRgb} />
               </div>
 
               <div
@@ -857,8 +1063,8 @@ export default function TemplatesPage() {
                   gap: 12,
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: 14 }}>Room assumptions</div>
-                <BulletList items={assumptions.slice(0, 3)} accentRgb={tierAccent.rgb} />
+                <div style={{ fontWeight: 800, fontSize: 14 }}>Room setup</div>
+                <BulletList items={scenarioDetail.roomAssumptions} accentRgb={tierAccent.rgb} />
               </div>
               <div
                 style={{
@@ -878,7 +1084,7 @@ export default function TemplatesPage() {
                     lineHeight: 1.55,
                   }}
                 >
-                  Choose the commercial level after confirming the room path and key assumptions.
+                  Match the tier to the real source count, output count, and how demanding the room will be to operate.
                 </div>
                 <div
                   style={{
@@ -887,7 +1093,7 @@ export default function TemplatesPage() {
                     lineHeight: 1.55,
                   }}
                 >
-                  Bronze protects the core function, Silver is the balanced default, and Gold expands flexibility, polish, and future headroom.
+                  {scenarioDetail.tierChoice}
                 </div>
 
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -918,7 +1124,7 @@ export default function TemplatesPage() {
               >
               <div style={{ fontWeight: 900, fontSize: 15 }}>Alternative tiers</div>
               <div style={{ fontSize: 13, color: "rgba(255,255,255,0.80)", lineHeight: 1.55 }}>
-                If you switch tier, this is what changes in plain English.
+                If you move tier, this is what changes.
               </div>
 
               <div

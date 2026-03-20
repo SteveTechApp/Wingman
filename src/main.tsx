@@ -12,6 +12,7 @@ import "@/design/system/layout.css";
 import "@/design/system/components.css";
 import "@/styles/wm-export.css";
 import "@/styles/wm-consistency-pass.css";
+import "@/styles/wm-enterprise-pass.css";
 
 import * as React from "react";
 import ReactDOM from "react-dom/client";

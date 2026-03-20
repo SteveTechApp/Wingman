@@ -137,6 +137,23 @@ function mergeFirst(...values: Array<string | undefined>) {
   return values.find((value) => hasText(value)) ?? "";
 }
 
+function getScrollRoot(): HTMLElement | null {
+  return document.querySelector(".wm-shell-main");
+}
+
+function scrollElementToStepTop(element: HTMLElement, behavior: ScrollBehavior = "smooth") {
+  const scrollRoot = getScrollRoot();
+  if (!scrollRoot) {
+    element.scrollIntoView({ behavior, block: "start" });
+    return;
+  }
+
+  const rootRect = scrollRoot.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+  const top = scrollRoot.scrollTop + (elementRect.top - rootRect.top) - 12;
+  scrollRoot.scrollTo({ top: Math.max(0, top), behavior });
+}
+
 function mergeProject(
   record: GuidedProjectRecord,
   project: ReturnType<typeof getActiveProject>,
@@ -637,13 +654,14 @@ const [sources,setSources] = React.useState<number>(1)
     if (activeStep === 0 || typeof window === "undefined") return;
     if (!stepTopRef.current) return;
 
-    const rect = stepTopRef.current.getBoundingClientRect();
-    const topPadding = 92;
-    const bottomPadding = 20;
-    const fullyVisible = rect.top >= topPadding && rect.bottom <= window.innerHeight - bottomPadding;
-    if (fullyVisible) return;
+    const frame = window.requestAnimationFrame(() => {
+      if (!stepTopRef.current) return;
+      scrollElementToStepTop(stepTopRef.current);
+    });
 
-    stepTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
   }, [activeStep]);
 
   React.useEffect(() => {
@@ -924,15 +942,6 @@ const [sources,setSources] = React.useState<number>(1)
                     <div className="wm-guided-project-page__sectionBadge">
                       {primaryDone}/{primaryQuestions.length || progress[activeStep].total} core prompts
                     </div>
-                    {showSectionCta ? (
-                      <button
-                        type="button"
-                        className="wm-guided-project-page__sectionCta"
-                        onClick={next}
-                      >
-                        {sectionCtaLabel}
-                      </button>
-                    ) : null}
                   </div>
                 </div>
 
@@ -1013,6 +1022,18 @@ const [sources,setSources] = React.useState<number>(1)
                         </>
                       ) : null}
                     </section>
+                  ) : null}
+
+                  {showSectionCta ? (
+                    <div className="wm-guided-project-page__workflowFooter">
+                      <button
+                        type="button"
+                        className="wm-guided-project-page__sectionCta"
+                        onClick={next}
+                      >
+                        {sectionCtaLabel}
+                      </button>
+                    </div>
                   ) : null}
 
                 </div>

@@ -1023,35 +1023,35 @@ export default function ImportIntakePage() {
 
   const title = intakeMode === "diagram" ? "Import Diagram or Existing System" : "Import Brief or Document";
   const description = intakeMode === "diagram"
-    ? "Bring in a sketch, signal flow, marked-up screenshot, or existing system notes and turn them into a clearer project path."
-    : "Bring in a customer brief, RFQ, tender wording, or email thread and convert it into a cleaner Wingman starting point.";
+    ? "Turn a sketch or live system into a clean project start."
+    : "Turn a brief, RFQ, or email trail into a clean project start.";
   const intakeModeHelper = intakeMode === "diagram"
-    ? "Best when the opportunity starts from an existing layout or system map and you need a clean interpretation before discovery."
-    : "Best when the opportunity arrives as written text and you want Wingman to pull out the commercial and technical signals quickly.";
-  const documentTitle = intakeMode === "diagram" ? "Upload diagram files or screenshots" : "Upload briefs, tenders, or supporting documents";
+    ? "Best when the system shape already exists."
+    : "Best when the brief already exists in writing.";
+  const documentTitle = intakeMode === "diagram" ? "Upload diagrams or screenshots" : "Upload briefs or support files";
   const documentHelper = intakeMode === "diagram"
-    ? "Upload screenshots, PDFs, markups, diagrams, or photos of the existing system. Wingman will keep them attached to the intake and blend in extracted text where possible."
-    : "Upload RFQs, tenders, scope notes, emails, or markups. Text pasted on the left still remains the strongest signal if a file cannot be read cleanly.";
+    ? "Add screenshots, PDFs, markups, or photos. Wingman keeps them with the intake and uses extracted text where it can."
+    : "Add RFQs, tenders, notes, emails, or markups. Pasted text is still the strongest signal.";
   const documentNoteLabel = intakeMode === "diagram" ? "Diagram / system notes" : "Tender / RFQ notes";
   const documentAccept = ".pdf,.docx,.txt,.md,.csv,.eml,.png,.jpg,.jpeg,.svg";
-  const sourceTextLabel = intakeMode === "diagram" ? "Describe the diagram or existing system" : "Paste the customer request";
+  const sourceTextLabel = intakeMode === "diagram" ? "Describe the current system" : "Paste the customer brief";
   const sourceTextPlaceholder = intakeMode === "diagram"
     ? "Describe the existing signal flow, rooms, displays, sources, control expectations, pain points, and what needs to change."
     : "Paste tender wording, meeting notes, an email thread, or the customer request in plain English.";
   const sourceTextHelper = intakeMode === "diagram"
-    ? "A plain-English description makes screenshots and marked-up diagrams much easier for Wingman to interpret."
-    : "You do not need to rewrite this as a questionnaire. Raw customer wording is usually the best input.";
+    ? "A short plain-English summary makes diagrams much easier to read."
+    : "Paste the raw wording. No need to rewrite it.";
   const documentNotePlaceholder = intakeMode === "diagram"
     ? "Call out what the diagram does not show clearly: pain points, rooms, signal issues, missing labels, or upgrade objectives."
     : "Call out key deliverables, commercial constraints, tender language, or scope wording that should shape the output.";
   const interrogationSummary = interrogation
     ? truncateText(interrogation.salesperson.summaryParagraph, 200)
-    : "Wingman has not built an interrogation brief yet. Add text or supporting material to start the readout.";
+    : "Add source material to build the interrogation brief.";
   const solutionSummary = analysis
     ? analysis.topSkus.length > 0
       ? `${analysis.topSkus[0].sku} currently leads the ranked starting point, with ${analysis.nextToolLabel} as the next workflow.`
       : `Wingman has a family direction and a recommended next workflow: ${analysis.nextToolLabel}.`
-    : "No current recommendation yet. Add source material and Wingman will suggest a family direction and next tool.";
+    : "Add source material to get a family direction and next route.";
   const sourceSignalCount = [
     sourceText.trim(),
     documentNotes.trim(),
@@ -1065,16 +1065,16 @@ export default function ImportIntakePage() {
   const confidencePct = interrogation ? Math.round(interrogation.parsed.confidence * 100) : 0;
   const projectShellName = deriveOpportunityName(briefInput);
   const primaryActionLabel =
-    destination === "sales-enquiry" ? "Qualify in Guided Project" : "Continue to Guided Project";
+    destination === "sales-enquiry" ? "Open qualification" : "Open Guided Project";
   const readinessLabel = requiredComplete === required.length
-    ? "Gate ready"
-    : `${required.length - requiredComplete} required check${required.length - requiredComplete === 1 ? "" : "s"} still open`;
+    ? "Ready to launch"
+    : `${required.length - requiredComplete} required check${required.length - requiredComplete === 1 ? "" : "s"} left`;
   const coverageLines = [
-    sourceText.trim() ? "Customer request text captured" : "",
-    documentFiles.length ? `${documentFiles.length} supporting file(s) attached` : "",
+    sourceText.trim() ? "Source text added" : "",
+    documentFiles.length ? `${documentFiles.length} file(s) attached` : "",
     documentNotes.trim() ? "Formal notes added" : "",
     workingNotes.trim() ? "Internal working notes added" : "",
-    selectedGuidancePrompts.length ? `${selectedGuidancePrompts.length} guidance priority areas selected` : "",
+    selectedGuidancePrompts.length ? `${selectedGuidancePrompts.length} focus area(s) selected` : "",
   ].filter(Boolean);
   const topNeedLines = interrogation?.salesperson.whatCustomerNeeds.slice(0, 3) ?? [];
   const riskLines = interrogation?.salesperson.keyRisksAndUnknowns.slice(0, 3) ?? [];
@@ -1114,7 +1114,7 @@ export default function ImportIntakePage() {
                     void upsertProjectFromIntake("/app/tools/discovery");
                   }}
                 >
-                  {saving ? "Saving..." : "Open Guided Project"}
+                  {saving ? "Saving..." : "Launch Guided Project"}
                 </button>
               </>
             }
@@ -1123,7 +1123,7 @@ export default function ImportIntakePage() {
           <section style={cardStyle()}>
             <div className="wm-import-intake-page__hero-grid">
               <article style={heroMetricStyle("rgba(95,223,194,0.24)")}>
-                <div style={smallLabelStyle()}>Import path</div>
+                <div style={smallLabelStyle()}>Start mode</div>
                 <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
                   {intakeMode === "diagram" ? "Diagram-first" : "Brief-first"}
                 </div>
@@ -1131,7 +1131,7 @@ export default function ImportIntakePage() {
               </article>
 
               <article style={heroMetricStyle("rgba(99,160,224,0.24)")}>
-                <div style={smallLabelStyle()}>Coverage</div>
+                <div style={smallLabelStyle()}>Signals</div>
                 <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
                   {sourceSignalCount} intake signal{sourceSignalCount === 1 ? "" : "s"}
                 </div>
@@ -1139,24 +1139,24 @@ export default function ImportIntakePage() {
               </article>
 
               <article style={heroMetricStyle("rgba(244,196,114,0.24)")}>
-                <div style={smallLabelStyle()}>Interrogation confidence</div>
+                <div style={smallLabelStyle()}>Readout confidence</div>
                 <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
                   {confidencePct}%
                 </div>
                 <div style={helperTextStyle()}>
-                  {interrogation ? truncateText(interrogation.salesperson.summaryParagraph, 96) : "Add source material to build a live readout."}
+                  {interrogation ? truncateText(interrogation.salesperson.summaryParagraph, 96) : "Add source material to build the readout."}
                 </div>
               </article>
 
               <article style={heroMetricStyle("rgba(129,163,255,0.24)")}>
-                <div style={smallLabelStyle()}>Next route</div>
+                <div style={smallLabelStyle()}>Next tool</div>
                 <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
                   {analysis?.nextToolLabel ?? "Guided Project"}
                 </div>
                 <div style={helperTextStyle()}>
                   {analysis?.topSkus[0]
                     ? `${analysis.topSkus[0].sku} is the current lead SKU.`
-                    : "Wingman will suggest a route once the intake has enough detail."}
+                    : "Wingman will suggest the next tool once the intake is clear enough."}
                 </div>
               </article>
             </div>
@@ -1169,8 +1169,8 @@ export default function ImportIntakePage() {
                 <div style={importWizardStyles.dividerCyan} />
                 <CollapsibleCard
                   id="import-intake-supporting"
-                  title="Intake setup and supporting evidence"
-                  subtitle="Choose the source route, set the target workflow, and capture the project shell details up front."
+                  title="Intake setup"
+                  subtitle="Set the source, the destination, and the core project details."
                   defaultCollapsed={false}
                 >
                   <div
@@ -1228,8 +1228,8 @@ export default function ImportIntakePage() {
                       </div>
                       <div style={{ ...helperTextStyle(), marginTop: 8 }}>
                         {destination === "sales-enquiry"
-                          ? "Use this when you want a lighter qualification shell before committing to the fuller design flow."
-                          : "Use this when you want the intake written straight into a reusable project discovery shell."}
+                          ? "Best for a lighter qualification shell."
+                          : "Best when this should become a full project shell."}
                       </div>
                     </article>
                   </div>
@@ -1276,7 +1276,7 @@ export default function ImportIntakePage() {
                     <textarea
                       value={workingNotes}
                       onChange={(event) => setWorkingNotes(event.target.value)}
-                      placeholder="Capture assumptions, internal notes, deadlines, owners, or anything else worth carrying into the next workflow."
+                      placeholder="Add assumptions, deadlines, owners, or anything else worth carrying forward."
                       style={textareaStyle(6)}
                     />
                   </Field>
@@ -1351,7 +1351,7 @@ export default function ImportIntakePage() {
               </div>
 
         <section style={{ ...cardStyle(), order: 1 }}>
-          <div style={sectionTitleStyle()}>{intakeMode === "diagram" ? "Explain the current system" : "Primary text intake"}</div>
+          <div style={sectionTitleStyle()}>{intakeMode === "diagram" ? "Describe the current system" : "Paste the source text"}</div>
           <div style={sectionTextStyle()}>
             {sourceTextHelper}
           </div>
@@ -1380,7 +1380,7 @@ export default function ImportIntakePage() {
 
               <Field label="Output focus (optional)">
                 <div style={{ ...helperTextStyle(), marginBottom: 8 }}>
-                  Choose the parts of the response you want Wingman to weight most heavily.
+                  Tell Wingman what to weight most.
                 </div>
                 <div className="wm-import-intake-page__guidance-grid">
                   {TEXT_GUIDANCE_OPTIONS.map((option) => (
@@ -1414,7 +1414,7 @@ export default function ImportIntakePage() {
                   ))}
                 </div>
                 <div style={{ ...helperTextStyle(), marginTop: 8 }}>
-                  Leave all unticked for a balanced response.
+                  Leave all off for a balanced read.
                 </div>
               </Field>
 
@@ -1444,7 +1444,7 @@ export default function ImportIntakePage() {
                 <div style={importWizardStyles.dividerAmber} />
               <CollapsibleCard
                   id="import-intake-qualification"
-                title="Qualification checklist"
+                title="Launch checklist"
                 subtitle={`Required ${requiredComplete}/${required.length}. Recommended ${recommendedComplete}/${recommended.length}. ${readinessLabel}.`}
                 right={
                   <span className="wm-chip">
@@ -1473,7 +1473,7 @@ export default function ImportIntakePage() {
                 </div>
 
                 <div style={{ ...helperTextStyle(), marginTop: 14 }}>
-                  Complete the required checks before launching into the next tool.
+                  Clear the required checks before you launch.
                 </div>
               </CollapsibleCard>
             </div>
@@ -1486,8 +1486,8 @@ export default function ImportIntakePage() {
                 </div>
                 <div style={{ ...helperTextStyle(), marginTop: 8 }}>
                   {destination === "sales-enquiry"
-                    ? "Wingman will save this as a sales enquiry shell, attach the intake evidence, and route you into qualification."
-                    : "Wingman will write this intake into the active project shell and send you into the best next workflow."}
+                    ? "Wingman will save an enquiry shell, attach the evidence, and send you into qualification."
+                    : "Wingman will save the intake into a project shell and send you to the next tool."}
                 </div>
 
                 <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
@@ -1555,9 +1555,9 @@ export default function ImportIntakePage() {
               </section>
 
               <section style={cardStyle()}>
-                <div style={sectionTitleStyle()}>Carry-forward summary</div>
+                <div style={sectionTitleStyle()}>Handoff summary</div>
                 <div style={sectionTextStyle()}>
-                  This is the shape of the handoff Wingman is about to write back into the project.
+                  This is what Wingman is about to write into the project.
                 </div>
 
                 <div style={{ marginTop: 16, display: "grid", gap: 10 }}>
@@ -1622,14 +1622,14 @@ export default function ImportIntakePage() {
             title="Enquiry interrogation"
             subtitle={
               interrogation
-                ? "Commercial interpretation, customer intent, and next questions from the blended intake."
-                : "Add source text or uploaded files to generate an interrogation summary."
+                ? "Customer intent, commercial readout, and next questions."
+                : "Add source text or files to build the interrogation brief."
             }
             onClose={() => setOpenPanel(null)}
           >
             {!canInterrogate || !interrogation ? (
               <div style={{ fontSize: 11, opacity: 0.74 }}>
-                Upload a tender or RFQ, or paste the request text to generate an interrogation summary.
+                Upload a tender or RFQ, or paste the request text to build the interrogation brief.
               </div>
             ) : (
               <>
@@ -1715,14 +1715,14 @@ export default function ImportIntakePage() {
             title="Solution starting point"
             subtitle={
               analysis
-                ? "Existing family recommendations and ranked SKUs, separated from the intake flow so you can inspect them on demand."
-                : "No current recommendation yet. Add source material to generate family guidance and SKU ranking."
+                ? "Recommended families, ranked SKUs, and the next tool."
+                : "Add source material to get family guidance and SKU ranking."
             }
             onClose={() => setOpenPanel(null)}
           >
             {!analysis ? (
               <div style={{ fontSize: 11, opacity: 0.74 }}>
-                No current recommendation yet. Add source material to generate family guidance and SKU ranking.
+                Add source material to get family guidance and SKU ranking.
               </div>
             ) : (
               <>

@@ -18,6 +18,8 @@ export type RoomTemplate = {
   id: string;
   name: string;
   short: string;
+  story: string;
+  designPurpose: string;
   useCases: string[];
   defaultTier: TierKey;
   tiers: Record<TierKey, TierProfile>;
@@ -26,6 +28,11 @@ export type RoomTemplate = {
   budgetBias: BudgetBias;
   recommendedFamilies: string[];
   nextTool: string;
+};
+
+type RoomNarrative = {
+  story: string;
+  designPurpose: string;
 };
 
 export type MarketTemplate = {
@@ -135,10 +142,17 @@ function room(
   recommendedFamilies: string[],
   nextTool: string,
 ): RoomTemplate {
+  const narrative = ROOM_NARRATIVES[id] ?? {
+    story: `${name} is framed as a practical ${short.toLowerCase()}`,
+    designPurpose: `Designed to align the ${name.toLowerCase()} template to its intended market and day-to-day application.`,
+  };
+
   return {
     id,
     name,
     short,
+    story: narrative.story,
+    designPurpose: narrative.designPurpose,
     useCases,
     defaultTier,
     tiers,
@@ -149,6 +163,137 @@ function room(
     nextTool,
   };
 }
+
+const ROOM_NARRATIVES: Record<string, RoomNarrative> = {
+  "corporate-huddle": {
+    story: "A fast-turn meeting alcove where visiting laptops connect in seconds and the room clears between back-to-back catchups.",
+    designPurpose: "Designed for laptop-first collaboration in compact corporate spaces where speed, low training overhead, and one-screen confidence matter more than feature depth.",
+  },
+  "corporate-boardroom": {
+    story: "An executive room where dual displays, table connectivity, and polished handoffs shape client perception during leadership reviews.",
+    designPurpose: "Designed for high-visibility decision making and client-facing presentations in corporate boardrooms that need premium switching confidence and professional finish.",
+  },
+  "corporate-training": {
+    story: "A staff enablement room that must reset quickly between presenters, keeping the trainer in control and the audience focused.",
+    designPurpose: "Designed for instructor-led corporate learning, onboarding, and sales enablement sessions where repeatable source flow and predictable display behaviour matter.",
+  },
+  "corporate-townhall": {
+    story: "A company broadcast room for all-hands updates, mixed media cues, and leadership messaging that needs to scale beyond a simple meeting room.",
+    designPurpose: "Designed for presentation-led corporate communications, hybrid briefings, and large internal events where room visibility, coverage, and operational polish are critical.",
+  },
+  "education-classroom": {
+    story: "A daily teaching room built for first bell to last bell, where teachers need the same dependable routine every period.",
+    designPurpose: "Designed for standard classroom instruction with simple presenter control, reliable front-of-room display, and supportable campus-wide repeatability.",
+  },
+  "education-training": {
+    story: "A practical teaching space where lecturers switch between local content, guest devices, and demonstration material without derailing the lesson.",
+    designPurpose: "Designed for hands-on education and lab-style delivery where mixed inputs, instructor control, and repeatable training workflows are essential.",
+  },
+  "education-lecture": {
+    story: "A larger teaching venue where presenter confidence, audience sightlines, and clean transitions matter more than ad hoc flexibility.",
+    designPurpose: "Designed for lecture-led delivery and formal campus presentations that need stronger routing confidence, audience coverage, and scalable AV infrastructure.",
+  },
+  "education-seminar": {
+    story: "A discussion-focused room where conversation, shared content, and tutor-led interaction need to coexist without the space feeling over-engineered.",
+    designPurpose: "Designed for collaborative higher-education seminars and small-group teaching where balanced presentation and discussion workflow are the priority.",
+  },
+  "hospitality-suite": {
+    story: "A premium guest suite where the AV needs to feel effortless, discreet, and polished for sponsors, VIPs, or private hosts.",
+    designPurpose: "Designed for hospitality lounges and suites where guest experience, presentation polish, and flexible entertainment carry commercial value.",
+  },
+  "hospitality-bar": {
+    story: "A high-energy viewing zone where multiple screens must stay in sync and staff need fast control during busy service.",
+    designPurpose: "Designed for sports bars and multi-screen hospitality venues that prioritise dependable distribution, quick source changes, and visible guest impact.",
+  },
+  "hospitality-event": {
+    story: "A flexible hire space that shifts from ambient lounge mode to branded event mode without rebuilding the operating workflow.",
+    designPurpose: "Designed for adaptable hospitality event areas where changing sources, temporary branding, and staff-friendly control must work night after night.",
+  },
+  "hospitality-ballroom": {
+    story: "A divisible event suite that has to support banqueting, presentations, and live moments while the room layout changes around it.",
+    designPurpose: "Designed for large-format hospitality events, banqueting, and conference use where scalable distribution, zone control, and premium room confidence are essential.",
+  },
+  "retail-showroom": {
+    story: "A display-led retail bay where the screens help the product tell its story before a salesperson even starts the conversation.",
+    designPurpose: "Designed for showroom merchandising and branded product presentation where visual consistency, repeatability, and simple day-to-day operation matter.",
+  },
+  "retail-consultation": {
+    story: "A small high-conversion zone where a salesperson can move from conversation to product proof without making the customer wait.",
+    designPurpose: "Designed for assisted selling, consultation, and product demo workflows where focused presentation and polished one-to-one interaction drive outcomes.",
+  },
+  "retail-window-signage": {
+    story: "A street-facing attraction point that has seconds to stop passing traffic and push a clear promotional message.",
+    designPurpose: "Designed for retail window campaigns and digital signage where brightness, repeatable playback, and easy promotional refresh cycles are the core goal.",
+  },
+  "retail-experience": {
+    story: "A flagship environment where storytelling, immersion, and hands-on demo moments are part of the brand itself.",
+    designPurpose: "Designed for premium retail experiences, launches, and immersive consultation journeys where technology must support theatre as well as sales.",
+  },
+  "healthcare-consultation": {
+    story: "A private clinical room where the display supports explanation and reassurance without turning the session into a technical event.",
+    designPurpose: "Designed for patient consultations and clinician review spaces that need simple, low-friction visual support, privacy, and dependable daily operation.",
+  },
+  "healthcare-training": {
+    story: "A staff learning room where repeated demonstrations and structured teaching need clear control and consistent source handling.",
+    designPurpose: "Designed for healthcare education and workshop delivery where repeatability, instructor confidence, and supportable system behaviour are key.",
+  },
+  "healthcare-waiting": {
+    story: "A front-of-house healthcare zone where messaging reduces uncertainty, guides flow, and supports the patient experience.",
+    designPurpose: "Designed for waiting rooms and patient communication areas where signage clarity, operational simplicity, and always-on reliability matter.",
+  },
+  "healthcare-operations": {
+    story: "A coordination room where multidisciplinary teams review cases, compare information, and make time-sensitive decisions together.",
+    designPurpose: "Designed for clinical operations, MDT reviews, and planning meetings that require secure collaboration, multi-source confidence, and high room credibility.",
+  },
+  "government-meeting": {
+    story: "A dependable civic workspace for routine department meetings where value, consistency, and ease of use matter every day.",
+    designPurpose: "Designed for standard public-sector collaboration with clear presentation workflow, sensible cost control, and repeatable deployment standards.",
+  },
+  "government-briefing": {
+    story: "A formal presentation room where officials need to deliver updates clearly, confidently, and without avoidable friction.",
+    designPurpose: "Designed for structured briefings and leadership communications in government settings where presentation discipline and reliable control matter.",
+  },
+  "government-chamber": {
+    story: "A public-facing chamber where the room must support proceedings with the right level of ceremony, confidence, and transparency.",
+    designPurpose: "Designed for council and civic debate environments that need formal presentation quality, dependable routing, and polished public-session workflow.",
+  },
+  "government-eoc": {
+    story: "A mission-critical room where teams coordinate live information under pressure and the system has to stay ahead of the situation.",
+    designPurpose: "Designed for emergency response and command-style government operations where resilience, visibility, and rapid decision support are fundamental.",
+  },
+  "leisure-studio": {
+    story: "A class-based space where instructors need media, microphones, and displays to work instantly as the session starts.",
+    designPurpose: "Designed for fitness studios and leisure teaching spaces where dependable playback, easy operation, and strong participant experience matter.",
+  },
+  "leisure-lounge": {
+    story: "A relaxed social area where the AV should enhance dwell time and premium feel without demanding staff attention.",
+    designPurpose: "Designed for lounges and member spaces that blend casual entertainment with hospitality polish and simple everyday control.",
+  },
+  "leisure-event": {
+    story: "A flexible leisure venue that swings between private hire, live events, and day-to-day operation on the same infrastructure.",
+    designPurpose: "Designed for mixed-use event spaces where routing flexibility, fast changeovers, and commercially visible performance are required.",
+  },
+  "leisure-reception": {
+    story: "A welcome area that sets the tone on arrival with promotions, wayfinding, and a clean first impression.",
+    designPurpose: "Designed for leisure reception and arrival environments where messaging clarity, brand impact, and supportable signage workflows are central.",
+  },
+  "residential-cinema": {
+    story: "A dedicated home cinema where the client is buying immersion, not just a display on a wall.",
+    designPurpose: "Designed for premium residential movie rooms that prioritise performance, theatre-like experience, and a polished integrated result.",
+  },
+  "residential-lounge": {
+    story: "A daily-use living space where entertainment should feel premium but never complicated for the family.",
+    designPurpose: "Designed for residential lounge viewing and casual media use where intuitive control, neat integration, and lifestyle fit are more important than feature overload.",
+  },
+  "residential-multiroom": {
+    story: "A whole-home distribution setup where shared content needs to move cleanly between zones without becoming a maintenance burden.",
+    designPurpose: "Designed for multiroom residential media systems that need dependable distribution, scalable zone planning, and simple user operation.",
+  },
+  "residential-outdoor": {
+    story: "A terrace or garden extension where AV adds atmosphere for hosting without pretending the space is an indoor cinema.",
+    designPurpose: "Designed for outdoor residential viewing and entertaining where practical scope, weather-aware distribution, and lifestyle-led usability are the right goals.",
+  },
+};
 
 const meetingTiers = makeTiers({
   bronze: {

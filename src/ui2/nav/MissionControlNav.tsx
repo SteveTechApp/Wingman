@@ -1,5 +1,12 @@
 import * as React from "react";
-import { NavLink } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import {
+  getMissionControlStage,
+  isMissionControlItemActive,
+  MISSION_CONTROL_STAGES,
+  type MissionControlItem,
+  type MissionControlStage,
+} from "@/ui2/nav/missionControlStandard";
 import {
   getActiveProject,
   subscribeProjects,
@@ -10,224 +17,182 @@ type MissionControlNavProps = {
   onToggleCollapse?: () => void;
 };
 
-type NavItem = {
-  section: string;
-  tone: "mission" | "workflow" | "tools";
-  title: string;
-  short: string;
-  to: string;
-};
+function toMonogram(name: string | null | undefined): string {
+  const source = (name || "").trim();
+  if (!source) return "--";
 
-const NAV_ITEMS: NavItem[] = [
-  { section: "Mission Control", tone: "mission", title: "Dashboard", short: "MC", to: "/app/dashboard" },
-  { section: "Mission Control", tone: "mission", title: "Projects", short: "PR", to: "/app/projects" },
+  const initials = source
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
 
-  { section: "Workflow", tone: "workflow", title: "Guided Project", short: "GP", to: "/app/tools/discovery" },
-  { section: "Workflow", tone: "workflow", title: "Architecture", short: "AR", to: "/app/dashboard" },
-  { section: "Workflow", tone: "workflow", title: "Products", short: "PD", to: "/app/tools/catalog" },
-  { section: "Workflow", tone: "workflow", title: "Proposal", short: "PB", to: "/app/tools/proposal" },
-
-  { section: "Tools & Reference", tone: "tools", title: "Tool Hub", short: "TH", to: "/app/tools" },
-  { section: "Tools & Reference", tone: "tools", title: "Catalogue", short: "CT", to: "/app/tools/catalog" },
-  { section: "Tools & Reference", tone: "tools", title: "Competitors", short: "CC", to: "/app/tools/compare" },
-  { section: "Tools & Reference", tone: "tools", title: "Video Wall", short: "VW", to: "/app/tools/video-wall" },
-];
-
-function groupedItems(items: NavItem[]): Array<{ section: string; tone: NavItem["tone"]; items: NavItem[] }> {
-  const map = new Map<string, NavItem[]>();
-  for (const item of items) {
-    const current = map.get(item.section) ?? [];
-    current.push(item);
-    map.set(item.section, current);
-  }
-  return Array.from(map.entries()).map(([section, sectionItems]) => ({
-    section,
-    tone: sectionItems[0]?.tone ?? "mission",
-    items: sectionItems,
-  }));
+  return initials || source.slice(0, 2).toUpperCase();
 }
 
-export default function MissionControlNav({ collapsed = false, onToggleCollapse }: MissionControlNavProps) {
+function resolveFocusItem(
+  stage: MissionControlStage,
+  pathname: string,
+  search: string,
+): MissionControlItem {
+  return (
+    stage.items.find((item) => isMissionControlItemActive(item, pathname, search))
+    ?? stage.items[0]
+  );
+}
+
+export default function MissionControlNav({
+  collapsed = false,
+  onToggleCollapse,
+}: MissionControlNavProps) {
+  const location = useLocation();
+  const searchParams = React.useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search],
+  );
   const activeProject = React.useSyncExternalStore(
     subscribeProjects,
     () => getActiveProject() ?? null,
     () => null,
   );
 
-  const sections = React.useMemo(() => groupedItems(NAV_ITEMS), []);
+  const currentStage = React.useMemo(
+    () => getMissionControlStage(location.pathname, location.search),
+    [location.pathname, location.search],
+  );
+
+  const focusItem = React.useMemo(
+    () => resolveFocusItem(currentStage, location.pathname, location.search),
+    [currentStage, location.pathname, location.search],
+  );
+  const isControlDashboard =
+    location.pathname === "/app/dashboard"
+    && currentStage.id === "control"
+    && searchParams.get("panel") !== "architecture";
+
+  const activeProjectName = activeProject?.name ?? "No active project";
+  const projectMonogram = React.useMemo(() => toMonogram(activeProject?.name), [activeProject?.name]);
 
   return (
-    <aside
-      className={`wm-nav${collapsed ? " is-collapsed" : ""}`}
-      style={{
-        display: "grid",
-        gridTemplateRows: "auto auto 1fr",
-        gap: 10,
-        padding: collapsed ? "8px 6px" : "10px 8px",
-      }}
-    >
-      <div
-        className="wm-nav__top"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: collapsed ? "center" : "flex-end",
-          gap: 8,
-        }}
-      >
-        <button
-          type="button"
-          className="wm-nav__collapse"
-          onClick={onToggleCollapse}
-          aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
-          title={collapsed ? "Expand navigation" : "Collapse navigation"}
-          style={{
-            minHeight: 28,
-            height: 28,
-            minWidth: 28,
-            width: 28,
-            borderRadius: 8,
-            padding: 0,
-          }}
-        >
-          {collapsed ? ">>" : "<<"}
-        </button>
-      </div>
-
-      <div
-        className="wm-nav__active-card"
-        style={{
-          padding: collapsed ? "8px 6px" : "8px 10px",
-          borderRadius: 12,
-        }}
-      >
-        {!collapsed ? <div className="wm-nav__active-label">Active Project</div> : null}
-        <div
-          className="wm-nav__active-name"
-          style={{
-            fontSize: collapsed ? 11 : 13,
-            lineHeight: 1.2,
-            fontWeight: 700,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {collapsed ? (activeProject?.name?.slice(0, 2) ?? "--") : (activeProject?.name ?? "No active project")}
-        </div>
-      </div>
-
-      <div
-        className="wm-nav__sections"
-        style={{
-          display: "grid",
-          gap: 10,
-          alignContent: "start",
-        }}
-      >
-        {sections.map((section) => (
-          <section
-            key={section.section}
-            className={`wm-nav__section wm-nav__section--${section.tone}`}
-            style={{
-              display: "grid",
-              gap: 4,
-              padding: 0,
-              margin: 0,
-            }}
-          >
-            {!collapsed ? (
-              <div
-                className="wm-nav__section-title"
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  padding: "0 2px",
-                  margin: 0,
-                }}
-              >
-                {section.section}
-              </div>
+    <aside className={`wm-nav wm-nav-standard${collapsed ? " is-collapsed" : ""}`}>
+      <div className="wm-nav-standard__header">
+        {!collapsed ? (
+          <div className="wm-nav-standard__brand-copy">
+            <div className="wm-nav-standard__eyebrow">Mission Control</div>
+            {!isControlDashboard ? (
+              <div className="wm-nav-standard__title">Workspace Rail</div>
             ) : null}
+          </div>
+        ) : (
+          <span className="wm-nav-standard__collapsed-mark" aria-hidden="true">
+            MC
+          </span>
+        )}
 
-            <div
-              className="wm-nav__list"
-              style={{
-                display: "grid",
-                gap: 4,
-              }}
-            >
-              {section.items.map((item) => (
-                <NavLink
-                  key={`${section.section}-${item.title}`}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    `wm-nav__item wm-nav__item--${item.tone}${isActive ? " is-active" : ""}${collapsed ? " is-collapsed" : ""}`
-                  }
-                  title={collapsed ? item.title : undefined}
-                  style={{
-                    minHeight: collapsed ? 34 : 38,
-                    height: collapsed ? 34 : 38,
-                    display: "grid",
-                    gridTemplateColumns: collapsed ? "1fr" : "28px 1fr",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: collapsed ? "0" : "0 10px",
-                    borderRadius: 10,
-                    textDecoration: "none",
-                  }}
-                >
-                  <span
-                    className="wm-nav__item-badge"
-                    style={{
-                      width: 20,
-                      height: 20,
-                      minWidth: 20,
-                      borderRadius: 999,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 9,
-                      fontWeight: 700,
-                      justifySelf: collapsed ? "center" : "center",
-                      maxWidth: "fit-content",
-                    }}
-                  >
-                    {item.short}
-                  </span>
-
-                  {!collapsed ? (
-                    <span
-                      className="wm-nav__item-copy"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        minWidth: 0,
-                      }}
-                    >
-                      <span
-                        className="wm-nav__item-title"
-                        style={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                          fontSize: 13,
-                          fontWeight: 600,
-                          lineHeight: 1,
-                        }}
-                      >
-                        {item.title}
-                      </span>
-                    </span>
-                  ) : null}
-                </NavLink>
-              ))}
-            </div>
-          </section>
-        ))}
+        {onToggleCollapse ? (
+          <button
+            type="button"
+            className="wm-nav-standard__collapse"
+            onClick={onToggleCollapse}
+            aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+            title={collapsed ? "Expand navigation" : "Collapse navigation"}
+          >
+            {collapsed ? ">>" : "<<"}
+          </button>
+        ) : null}
       </div>
+
+      {!collapsed && !isControlDashboard ? (
+        <div className="wm-nav-standard__status" data-tone={currentStage.tone}>
+          <div className="wm-nav-standard__status-head">
+            <span className="wm-nav-standard__status-stage-pill">
+              {currentStage.index} {currentStage.label}
+            </span>
+            <span className="wm-nav-standard__focus-pill">{focusItem.title}</span>
+          </div>
+
+          <div className="wm-nav-standard__status-project">
+            <span className="wm-nav-standard__project-badge">{projectMonogram}</span>
+
+            <div className="wm-nav-standard__status-copy">
+              <span className="wm-nav-standard__project-name">{activeProjectName}</span>
+              <span className="wm-nav-standard__project-meta">{currentStage.description}</span>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <nav className="wm-nav-standard__stages" aria-label="Mission Control navigation">
+        {MISSION_CONTROL_STAGES.map((stage) => {
+          const isCurrent = stage.id === currentStage.id;
+
+          return (
+            <section
+              key={stage.id}
+              className={`wm-nav-stage${isCurrent ? " is-current" : ""}`}
+              data-tone={stage.tone}
+            >
+              {!collapsed ? (
+                <div className="wm-nav-stage__summary">
+                  <span className="wm-nav-stage__index">{stage.index}</span>
+                  <span className="wm-nav-stage__summary-copy">
+                    <span className="wm-nav-stage__label">{stage.label}</span>
+                  </span>
+                </div>
+              ) : (
+                <div className="wm-nav-stage__collapsed-head">{stage.index}</div>
+              )}
+
+              {collapsed ? (
+                <div className="wm-nav-stage__collapsed-links">
+                  {stage.items.map((item) => {
+                    const isActive = isMissionControlItemActive(item, location.pathname, location.search);
+
+                    return (
+                      <Link
+                        key={item.id}
+                        to={item.to}
+                        className={`wm-nav-stage__icon-link${isActive ? " is-active" : ""}`}
+                        title={item.title}
+                        aria-label={item.title}
+                        aria-current={isActive ? "page" : undefined}
+                      >
+                        {item.short}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="wm-nav-stage__body">
+                  <div className="wm-nav-stage__links">
+                    {stage.items.map((item) => {
+                      const isActive = isMissionControlItemActive(item, location.pathname, location.search);
+
+                      return (
+                        <Link
+                          key={item.id}
+                          to={item.to}
+                          className={`wm-nav-stage__link${isActive ? " is-active" : ""}`}
+                          aria-current={isActive ? "page" : undefined}
+                          title={item.description}
+                        >
+                          <span className="wm-nav-stage__link-badge">{item.short}</span>
+
+                          <span className="wm-nav-stage__link-copy">
+                            <span className="wm-nav-stage__link-title">{item.title}</span>
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </section>
+          );
+        })}
+      </nav>
+
     </aside>
   );
 }

@@ -75,8 +75,8 @@ export default function InviteAcceptancePage() {
   );
 
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-md p-6 pt-10">
+    <div className="wm-page wm-invite-page">
+      <div className="wm-invite-page__inner">
         <div className="wm-card wm-card-pad" style={{ display: "grid", gap: 12 }}>
           <div className="wm-h2">Join Workspace</div>
           {loading ? <div className="wm-p">Loading invitation...</div> : null}

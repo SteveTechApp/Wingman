@@ -13,45 +13,45 @@ type ItemCopyOverride = Partial<Pick<WingmanItem, "title" | "description" | "tag
 
 const TOOL_COPY_OVERRIDES: Record<string, ItemCopyOverride> = {
   navigator: {
-    description: "Use quick-fire, plain-English prompts to guide newer sellers through early customer conversations.",
+    description: "Guide early customer calls with plain-English prompts.",
     tag: "Sales Helper",
-    highlight: "Simplify the first call",
+    highlight: "Guide the first call",
   },
   guru: {
-    description: "Ask for AV guidance, product direction, and technical answers whenever you need a fast steer.",
+    description: "Get fast AV answers, product direction, and technical help.",
     tag: "Sales Assistant",
-    highlight: "Ask Wingman anything",
+    highlight: "Ask for a steer",
   },
   catalogue: {
-    description: "Browse WyreStorm products, key specifications, ranges, and family-level reference data.",
+    description: "Browse WyreStorm ranges, specs, and family context.",
     tag: "Reference",
     highlight: "Browse products",
   },
   videowall: {
-    description: "Plan LCD and LED wall layouts, sizing, viewing impact, and supporting architecture.",
+    description: "Plan LCD and LED walls, sizing, and supporting architecture.",
     tag: "Design Utility",
-    highlight: "Size and configure walls",
+    highlight: "Plan the wall",
   },
   "competitor-compare": {
-    description: "Compare WyreStorm against other brands to support positioning, objection handling, and trade-offs.",
+    description: "Position WyreStorm against competitors with clear trade-offs.",
     tag: "Sales Utility",
-    highlight: "Position against competitors",
+    highlight: "Handle the comparison",
   },
   "competitor-lookup-diagnostics": {
-    description: "Inspect competitor lookup cache and provenance records to verify the comparison pipeline is healthy.",
+    description: "Check lookup health, cache, and provenance records.",
     tag: "Diagnostics",
-    highlight: "Inspect lookup pipeline",
+    highlight: "Check pipeline health",
   },
   "product-intelligence": {
-    description: "Review trusted WyreStorm and competitor records, supporting evidence, and approval confidence.",
+    description: "Review trusted records, evidence, and approval confidence.",
     tag: "Trusted Data",
-    highlight: "Approve trusted product data",
+    highlight: "Review trusted data",
   },
 };
 
 const FEATURE_COPY_OVERRIDES: Record<string, ItemCopyOverride> = {
   training: {
-    description: "Build confidence across products, positioning, and AV design with self-serve learning support.",
+    description: "Build product, positioning, and AV design confidence on demand.",
     tag: "Enablement",
     highlight: "Learn as you go",
   },
@@ -213,9 +213,9 @@ export default function ToolHubPage() {
       <section className="wm-hero wm-tool-hub__hero">
         <div className="wm-tool-hub__hero-copy">
           <div className="wm-tool-hub__eyebrow">Toolbox</div>
-          <div className="wm-title-xl">Open any tool directly.</div>
+          <div className="wm-title-xl">Open a tool. Keep moving.</div>
           <div className="wm-body-sm wm-page-subtitle-muted">
-            Fast 4x2 launcher for direct access. Active tools stay pinned, with limited room for future additions.
+            Direct access to the core Wingman tools, with space held for what comes next.
           </div>
         </div>
       </section>
@@ -231,7 +231,7 @@ export default function ToolHubPage() {
               <div className="wm-tool-hub__future-label">Future upgrade</div>
               <div className="wm-tool-hub__future-title">Reserved slot {index + 1}</div>
               <div className="wm-body-sm wm-tool-hub__future-copy">
-                Space held for upcoming tools.
+                Held for the next tool.
               </div>
               <button type="button" className="wm-btn wm-tool-hub__tool-open" disabled>
                 Coming soon
