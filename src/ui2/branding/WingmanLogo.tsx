@@ -10,7 +10,7 @@ type Props = {
   alt?: string;
 };
 
-export default function WingmanLogo({ height = 34, className = "", alt = "WyreStorm Wingman" }: Props) {
+export default function WingmanLogo({ height = 68, className = "", alt = "WyreStorm Wingman" }: Props) {
   return (
     <img
       src={heroLogo}

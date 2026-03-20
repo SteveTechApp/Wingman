@@ -76,18 +76,6 @@ export const MISSION_CONTROL_STAGES: MissionControlStage[] = [
         match: { pathname: "/app/tools/discovery", mode: "prefix" },
       },
       {
-        id: "architecture",
-        title: "Architecture",
-        short: "AR",
-        to: "/app/dashboard?panel=architecture",
-        description: "Review recommended topology and system structure.",
-        match: {
-          pathname: "/app/dashboard",
-          mode: "exact",
-          searchParams: { panel: "architecture" },
-        },
-      },
-      {
         id: "products",
         title: "Products",
         short: "PD",

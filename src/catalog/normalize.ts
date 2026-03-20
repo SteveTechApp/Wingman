@@ -1,7 +1,154 @@
-import type { CatalogFilters, CatalogProduct, CatalogTransport } from "./types";
+import type {
+  CatalogDistanceClass,
+  CatalogFilters,
+  CatalogProduct,
+  CatalogTransport,
+} from "./types";
+import { inferCatalogIo } from "./ioInference";
+import { inferCatalogMetadata } from "./metadataInference";
 
 function tidy(value: unknown): string {
   return String(value ?? "").trim();
+}
+
+function asOptionalBoolean(value: unknown): boolean | undefined {
+  return typeof value === "boolean" ? value : undefined;
+}
+
+function asOptionalNumber(value: unknown): number | undefined {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+function asCatalogDistanceClass(value: unknown): CatalogDistanceClass | undefined {
+  const v = tidy(value).toLowerCase().replace(/\s+/g, "");
+
+  if (!v) return undefined;
+
+  if (v === "a" || v === "classa") return "Class A";
+  if (v === "b" || v === "classb") return "Class B";
+
+  return undefined;
+}
+
+function mapVideo(value: CatalogProduct["video"]): CatalogProduct["video"] {
+  if (!value || typeof value !== "object") return undefined;
+
+  const video = {
+    maxResolution: tidy(value.maxResolution) || undefined,
+    maxFramerate: tidy(value.maxFramerate) || undefined,
+    chroma: tidy(value.chroma) || undefined,
+    hdr: asOptionalBoolean(value.hdr),
+    dolbyVision: asOptionalBoolean(value.dolbyVision),
+    hdmi: tidy(value.hdmi) || undefined,
+    hdmiVersion: tidy(value.hdmiVersion) || undefined,
+    hdcpVersion: tidy(value.hdcpVersion) || undefined,
+    bandwidthGbps: asOptionalNumber(value.bandwidthGbps),
+    scaling: asOptionalBoolean(value.scaling),
+    downscaling: asOptionalBoolean(value.downscaling),
+    upscaling: asOptionalBoolean(value.upscaling),
+    multiview: asOptionalBoolean(value.multiview),
+    seamlessSwitching: asOptionalBoolean(value.seamlessSwitching),
+  };
+
+  return Object.values(video).some((entry) => entry != null && entry !== "")
+    ? video
+    : undefined;
+}
+
+function mapDistance(value: CatalogProduct["distance"]): CatalogProduct["distance"] {
+  if (!value || typeof value !== "object") return undefined;
+
+  const distance = {
+    meters: asOptionalNumber(value.meters),
+    meters1080p: asOptionalNumber(value.meters1080p),
+    meters4k: asOptionalNumber(value.meters4k),
+    hdbasetClass: asCatalogDistanceClass(value.hdbasetClass),
+    networkSpeed: tidy(value.networkSpeed) || undefined,
+    codec: tidy(value.codec) || undefined,
+    latencyClass: tidy(value.latencyClass) || undefined,
+    notes: tidy(value.notes) || undefined,
+  };
+
+  return Object.values(distance).some((entry) => entry != null && entry !== "")
+    ? distance
+    : undefined;
+}
+
+function mapUsb(value: CatalogProduct["usb"]): CatalogProduct["usb"] {
+  if (!value || typeof value !== "object") return undefined;
+
+  const usb = {
+    passthrough: asOptionalBoolean(value.passthrough),
+    hostPorts: asOptionalNumber(value.hostPorts),
+    devicePorts: asOptionalNumber(value.devicePorts),
+    usbCVideoInput: asOptionalBoolean(value.usbCVideoInput),
+    usbCChargingWatts: asOptionalNumber(value.usbCChargingWatts),
+    kvmSupport: asOptionalBoolean(value.kvmSupport),
+    cameraSharing: asOptionalBoolean(value.cameraSharing),
+    peripheralSwitching: asOptionalBoolean(value.peripheralSwitching),
+  };
+
+  return Object.values(usb).some((entry) => entry != null)
+    ? usb
+    : undefined;
+}
+
+function mapWireless(value: CatalogProduct["wireless"]): CatalogProduct["wireless"] {
+  if (!value || typeof value !== "object") return undefined;
+
+  const wireless = {
+    airplay: asOptionalBoolean(value.airplay),
+    miracast: asOptionalBoolean(value.miracast),
+    googleCast: asOptionalBoolean(value.googleCast),
+    wirelessPresentation: asOptionalBoolean(value.wirelessPresentation),
+    wirelessConference: asOptionalBoolean(value.wirelessConference),
+    mst: asOptionalBoolean(value.mst),
+    byod: asOptionalBoolean(value.byod),
+    byom: asOptionalBoolean(value.byom),
+  };
+
+  return Object.values(wireless).some((entry) => entry != null)
+    ? wireless
+    : undefined;
+}
+
+function mapIntegration(value: CatalogProduct["integration"]): CatalogProduct["integration"] {
+  if (!value || typeof value !== "object") return undefined;
+
+  const integration = {
+    rs232: asOptionalBoolean(value.rs232),
+    ir: asOptionalBoolean(value.ir),
+    lanControl: asOptionalBoolean(value.lanControl),
+    webUi: asOptionalBoolean(value.webUi),
+    api: asOptionalBoolean(value.api),
+    cec: asOptionalBoolean(value.cec),
+    relayCount: asOptionalNumber(value.relayCount),
+    gpioCount: asOptionalNumber(value.gpioCount),
+    poe: asOptionalBoolean(value.poe),
+    poePd: asOptionalBoolean(value.poePd),
+  };
+
+  return Object.values(integration).some((entry) => entry != null)
+    ? integration
+    : undefined;
+}
+
+function mapPower(value: CatalogProduct["power"]): CatalogProduct["power"] {
+  if (!value || typeof value !== "object") return undefined;
+
+  const power = {
+    powerSupplyType: tidy(value.powerSupplyType) || undefined,
+    poc: asOptionalBoolean(value.poc),
+    poh: asOptionalBoolean(value.poh),
+    rackWidth: tidy(value.rackWidth) || undefined,
+    formFactor: tidy(value.formFactor) || undefined,
+    wallPlate: asOptionalBoolean(value.wallPlate),
+    tableMount: asOptionalBoolean(value.tableMount),
+  };
+
+  return Object.values(power).some((entry) => entry != null && entry !== "")
+    ? power
+    : undefined;
 }
 
 export function normalizeTransport(value: unknown): CatalogTransport {
@@ -35,7 +182,7 @@ export function normalizeCategory(value: unknown): string {
 }
 
 export function normalizeCatalogProduct(input: CatalogProduct): CatalogProduct {
-  return {
+  const normalized: CatalogProduct = {
     ...input,
     sku: tidy(input.sku).toUpperCase(),
     name: tidy(input.name),
@@ -44,8 +191,21 @@ export function normalizeCatalogProduct(input: CatalogProduct): CatalogProduct {
     subcategory: tidy(input.subcategory),
     summary: tidy(input.summary),
     sourceUrl: tidy(input.sourceUrl),
+    technology: tidy(input.technology),
+    topology: tidy(input.topology),
+    role: tidy(input.role),
+    directionality: tidy(input.directionality),
+    outputBehavior: tidy(input.outputBehavior),
+    inputTotal: asOptionalNumber(input.inputTotal),
+    outputTotal: asOptionalNumber(input.outputTotal),
     latency: tidy(input.latency),
     transport: normalizeTransport(input.transport),
+    video: mapVideo(input.video),
+    distance: mapDistance(input.distance),
+    usb: mapUsb(input.usb),
+    wireless: mapWireless(input.wireless),
+    integration: mapIntegration(input.integration),
+    power: mapPower(input.power),
 
     features: Array.isArray(input.features)
       ? input.features.map((x) => tidy(x)).filter(Boolean)
@@ -63,15 +223,35 @@ export function normalizeCatalogProduct(input: CatalogProduct): CatalogProduct {
       ? input.inputs.map((x) => ({
           type: tidy(x.type),
           count: Number(x.count || 0),
-        }))
+        })).filter((x) => x.type && x.count > 0)
       : [],
 
     outputs: Array.isArray(input.outputs)
       ? input.outputs.map((x) => ({
           type: tidy(x.type),
           count: Number(x.count || 0),
-        }))
+        })).filter((x) => x.type && x.count > 0)
       : [],
+  };
+
+  const inferredIo = inferCatalogIo(normalized);
+  const inferredMetadata = inferCatalogMetadata({
+    ...normalized,
+    inputs: inferredIo.inputs,
+    outputs: inferredIo.outputs,
+  });
+  return {
+    ...normalized,
+    technology: normalized.technology || inferredMetadata.technology,
+    topology: normalized.topology || inferredMetadata.topology,
+    role: normalized.role || inferredMetadata.role,
+    directionality: normalized.directionality || inferredMetadata.directionality,
+    outputBehavior: normalized.outputBehavior || inferredMetadata.outputBehavior,
+    distance: inferredMetadata.distance || normalized.distance,
+    inputTotal: normalized.inputTotal ?? inferredIo.inputs.reduce((sum, entry) => sum + entry.count, 0),
+    outputTotal: normalized.outputTotal ?? inferredIo.outputs.reduce((sum, entry) => sum + entry.count, 0),
+    inputs: inferredIo.inputs,
+    outputs: inferredIo.outputs,
   };
 }
 

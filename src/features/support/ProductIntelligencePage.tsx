@@ -1,709 +1,168 @@
 import * as React from "react";
+import { CheckCircle2, RefreshCw, Save, Search } from "lucide-react";
+
 import {
-  Archive,
-  ArrowUpDown,
-  CheckCircle2,
-  ChevronDown,
-  ExternalLink,
-  Filter,
-  RefreshCw,
-  Search,
-  ShieldAlert,
-  SlidersHorizontal,
-  Tag,
-  XCircle,
-} from "lucide-react";
+  addProductIntelligenceEvidence,
+  fetchProductIntelligenceRecords,
+  updateProductIntelligenceStatus,
+  upsertProductIntelligenceRecord,
+  type ProductIntelligenceRecord,
+} from "@/services/productIntelligenceService";
+import {
+  Field,
+  PageHeader,
+  cardStyle,
+  fieldLabelStyle,
+  inputStyle,
+  pageWrapStyle,
+  sectionTextStyle,
+  sectionTitleStyle,
+  stackStyle,
+  textareaStyle,
+} from "@/ui2/page/PageChrome";
 
-type RemoteRecord = Record<string, unknown>;
-
-type StatusTone = "approved" | "draft" | "expired" | "flagged" | "archived" | "unknown";
-
-type ProductRecord = {
-  id: string;
-  sku: string;
-  name: string;
-  vendor: string;
-  vendorType: string;
-  family: string;
-  group: string;
-  category: string;
-  subcategory: string;
-  classificationSource: string;
-  approvalStatus: string;
-  confidence: number | null;
-  evidenceEntries: number | null;
-  lastCaptured: string;
-  lastReviewed: string;
-  sourceLink: string;
+type QueueFilter = "all" | "review" | "draft" | "approved";
+type MessageTone = "good" | "warn";
+type EditorState = {
   summary: string;
-  archived: boolean;
-  flagged: boolean;
+  technology: string;
+  topology: string;
+  role: string;
+  directionality: string;
+  outputBehavior: string;
+  transport: string;
+  inputsText: string;
+  outputsText: string;
+  featuresText: string;
+  controlText: string;
+  audioText: string;
+  maxResolution: string;
+  bandwidthGbps: string;
+  hdmiVersion: string;
+  hdcpVersion: string;
+  meters4k: string;
+  meters1080p: string;
+  hdbasetClass: string;
+  networkSpeed: string;
+  codec: string;
+  sourceUrl: string;
+  notes: string;
+  airplay: boolean;
+  miracast: boolean;
+  mst: boolean;
+  rs232: boolean;
+  ir: boolean;
+  lanControl: boolean;
+  evidenceLabel: string;
+  evidenceValue: string;
+  evidenceUrl: string;
 };
 
-type SortMode = "sku" | "family" | "status" | "confidence";
-
-type HealthSummary = {
-  visibleRecords: number;
-  approved: number;
-  openFlags: number;
-  archived: number;
-  highConfidence: number;
-  manualOverrides: number;
-  matchingTotal: number;
-  endpointStatus: string;
-};
-
-
-function tidy(value: unknown): string {
-  return String(value ?? "").trim();
+function tidy(value: unknown): string { return String(value ?? "").trim(); }
+function parseList(value: string): string[] { return value.split(/[\n,;]+/g).map((item) => tidy(item)).filter(Boolean); }
+function formatList(values?: string[]): string { return Array.isArray(values) ? values.join(", ") : ""; }
+function toNumber(value: string): number | undefined { const parsed = Number(value); return Number.isFinite(parsed) ? parsed : undefined; }
+function formatPorts(ports?: Array<{ type: string; count: number }>): string {
+  return Array.isArray(ports) ? ports.map((port) => `${port.type}:${Math.max(0, Number(port.count) || 0)}`).join(", ") : "";
 }
-
-function buildProductIntelligenceEndpoint(): string {
-  const explicit = tidy(import.meta.env.VITE_PRODUCT_INTELLIGENCE_ENDPOINT);
-  if (explicit) return explicit.replace(/\/$/, "");
-
-  const competitor = tidy(import.meta.env.VITE_COMPETITOR_LOOKUP_ENDPOINT);
-  if (competitor) {
-    try {
-      const parsed = new URL(competitor);
-      const cleanPath = parsed.pathname.replace(/\/$/, "");
-      parsed.pathname = cleanPath.endsWith("/api/competitor-lookup")
-        ? cleanPath.replace(/\/api\/competitor-lookup$/, "/api/product-intelligence")
-        : "/api/product-intelligence";
-      return parsed.toString().replace(/\/$/, "");
-    } catch {
-    }
-  }
-
-  return "http://127.0.0.1:8787/api/product-intelligence";
+function parsePorts(value: string): Array<{ type: string; count: number }> {
+  return value.split(/[\n,;]+/g).map((raw) => tidy(raw)).filter(Boolean).map((entry) => {
+    const match = entry.match(/^(.+?)\s*[:x]\s*(\d+)$/i) || entry.match(/^(.+?)\s+(\d+)$/);
+    if (match) return { type: tidy(match[1]), count: Number(match[2]) || 0 };
+    return { type: entry, count: 1 };
+  }).filter((entry) => entry.type && entry.count > 0);
 }
-
-const PRODUCT_INTELLIGENCE_ENDPOINT = buildProductIntelligenceEndpoint();
-const STATUS_ORDER: Record<string, number> = {
-  approved: 0,
-  draft: 1,
-  pending: 2,
-  flagged: 3,
-  expired: 4,
-  archived: 5,
-  unknown: 6,
-};
-
-function asString(value: unknown, fallback = ""): string {
-  if (typeof value === "string") return value.trim();
-  if (typeof value === "number" && Number.isFinite(value)) return String(value);
-  return fallback;
+function needsDistance(record: ProductIntelligenceRecord): boolean {
+  const blob = [record.transport, record.technology, record.topology, record.role, record.directionality, record.category, record.subcategory, record.summary, ...(record.features || [])].map((item) => tidy(item).toLowerCase()).join(" ");
+  return /hdbaset|avoip|encoder|decoder|transmitter|receiver|extender/.test(blob);
 }
-
-function asNumber(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string") {
-    const n = Number(value);
-    return Number.isFinite(n) ? n : null;
-  }
-  return null;
+function needsVideo(record: ProductIntelligenceRecord): boolean {
+  if (isControllerRecord(record)) return false;
+  return tidy(record.transport).toLowerCase() !== "usb extension";
 }
-
-function asBool(value: unknown): boolean {
-  if (typeof value === "boolean") return value;
-  if (typeof value === "number") return value !== 0;
-  if (typeof value === "string") {
-    const v = value.trim().toLowerCase();
-    return v === "true" || v === "1" || v === "yes" || v === "y";
-  }
-  return false;
+function isControllerRecord(record: ProductIntelligenceRecord): boolean {
+  return tidy(record.role).toLowerCase() === "controller" || tidy(record.topology).toLowerCase() === "controller" || tidy(record.category).toLowerCase() === "control";
 }
-
-function titleCase(value: string): string {
-  if (!value) return "";
-  return value
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(/\b\w/g, (m) => m.toUpperCase());
+function recordIssues(record: ProductIntelligenceRecord): string[] {
+  const inputTotal = (record.inputs || []).reduce((sum, item) => sum + (Number(item.count) || 0), 0);
+  const outputTotal = (record.outputs || []).reduce((sum, item) => sum + (Number(item.count) || 0), 0);
+  const isController = isControllerRecord(record);
+  const issues: string[] = [];
+  if (!isController && (inputTotal === 0 || outputTotal === 0)) issues.push("I/O");
+  if (!tidy(record.technology) || !tidy(record.topology) || !tidy(record.role)) issues.push("Taxonomy");
+  if (needsVideo(record) && !tidy(record.video?.maxResolution) && !Number(record.video?.bandwidthGbps)) issues.push("Video");
+  if (!isController && needsDistance(record) && !(record.distance?.meters || record.distance?.meters4k || record.distance?.meters1080p || tidy(record.distance?.hdbasetClass) || tidy(record.distance?.networkSpeed) || tidy(record.distance?.codec) || record.distanceMeters)) issues.push("Distance");
+  if (!isController && outputTotal > 1 && !tidy(record.outputBehavior)) issues.push("Output");
+  return issues;
 }
-
-function firstNonEmpty(record: RemoteRecord, keys: string[], fallback = ""): string {
-  for (const key of keys) {
-    const value = asString(record[key]);
-    if (value) return value;
-  }
-  return fallback;
+function priority(record: ProductIntelligenceRecord): number {
+  let score = recordIssues(record).length * 10;
+  if (record.status === "draft") score += 8;
+  if (record.reviewFlags.some((flag) => flag.status === "open")) score += 5;
+  if (record.vendorType === "competitor") score += 2;
+  return score;
 }
-
-function firstNumber(record: RemoteRecord, keys: string[]): number | null {
-  for (const key of keys) {
-    const value = asNumber(record[key]);
-    if (value !== null) return value;
-  }
-  return null;
-}
-
-function firstBool(record: RemoteRecord, keys: string[]): boolean {
-  for (const key of keys) {
-    if (key in record) return asBool(record[key]);
-  }
-  return false;
-}
-
-function truncate(value: string, max = 180): string {
-  if (value.length <= max) return value;
-  return `${value.slice(0, max - 1).trim()}...`;
-}
-
-function detectSummary(record: RemoteRecord): string {
-  const direct = firstNonEmpty(record, [
-    "summary",
-    "description",
-    "notes",
-    "overview",
-    "reason",
-    "commentary",
-    "supportingText",
-  ]);
-
-  if (direct) return direct;
-
-  const family = firstNonEmpty(record, ["family"]);
-  const category = firstNonEmpty(record, ["category"]);
-  const subcategory = firstNonEmpty(record, ["subcategory"]);
-  const group = firstNonEmpty(record, ["group"]);
-
-  const parts = [family, category, subcategory, group].filter(Boolean);
-  return parts.length ? parts.join(" / ") : "No product summary available.";
-}
-
-function normaliseRecord(input: RemoteRecord, index: number): ProductRecord {
-  const approvalStatus =
-    firstNonEmpty(input, ["approvalStatus", "status", "state", "reviewStatus"], "unknown").toLowerCase();
-
-  const sourceLink = firstNonEmpty(input, ["sourceLink", "sourceUrl", "url", "link"]);
-  const summary = truncate(detectSummary(input), 220);
-
+function buildEditor(record: ProductIntelligenceRecord | null): EditorState {
   return {
-    id: firstNonEmpty(input, ["id", "_id", "recordId", "sku"], `record-${index + 1}`),
-    sku: firstNonEmpty(input, ["sku", "partNumber", "model", "code"], `RECORD-${index + 1}`),
-    name: firstNonEmpty(input, ["name", "title", "productName"], "Unnamed record"),
-    vendor: firstNonEmpty(input, ["vendor", "brand", "manufacturer"], "Unknown"),
-    vendorType: firstNonEmpty(input, ["vendorType", "vendor_type", "sourceVendorType"], "Unknown"),
-    family: firstNonEmpty(input, ["family"], "Unassigned"),
-    group: firstNonEmpty(input, ["group"], "Unassigned"),
-    category: firstNonEmpty(input, ["category"], "Unassigned"),
-    subcategory: firstNonEmpty(input, ["subcategory"], "Unassigned"),
-    classificationSource: firstNonEmpty(input, ["classificationSource", "sourceType", "source"], "source"),
-    approvalStatus,
-    confidence: firstNumber(input, ["confidence", "score", "matchConfidence"]),
-    evidenceEntries: firstNumber(input, ["evidenceEntries", "evidenceCount", "evidence"]),
-    lastCaptured: firstNonEmpty(input, ["lastCaptured", "capturedAt", "updatedAt"], "-"),
-    lastReviewed: firstNonEmpty(input, ["lastReviewed", "reviewedAt"], "-"),
-    sourceLink,
-    summary,
-    archived: firstBool(input, ["archived", "isArchived"]),
-    flagged: firstBool(input, ["flagged", "hasFlag", "reviewFlag"]),
+    summary: tidy(record?.summary),
+    technology: tidy(record?.technology),
+    topology: tidy(record?.topology),
+    role: tidy(record?.role),
+    directionality: tidy(record?.directionality),
+    outputBehavior: tidy(record?.outputBehavior),
+    transport: tidy(record?.transport),
+    inputsText: formatPorts(record?.inputs),
+    outputsText: formatPorts(record?.outputs),
+    featuresText: formatList(record?.features),
+    controlText: formatList(record?.control),
+    audioText: formatList(record?.audio),
+    maxResolution: tidy(record?.video?.maxResolution),
+    bandwidthGbps: record?.video?.bandwidthGbps != null ? String(record.video.bandwidthGbps) : "",
+    hdmiVersion: tidy(record?.video?.hdmiVersion || record?.video?.hdmi),
+    hdcpVersion: tidy(record?.video?.hdcpVersion),
+    meters4k: record?.distance?.meters4k != null ? String(record.distance.meters4k) : "",
+    meters1080p: record?.distance?.meters1080p != null ? String(record.distance.meters1080p) : "",
+    hdbasetClass: tidy(record?.distance?.hdbasetClass),
+    networkSpeed: tidy(record?.distance?.networkSpeed),
+    codec: tidy(record?.distance?.codec),
+    sourceUrl: tidy(record?.sourceUrls?.[0]),
+    notes: tidy(record?.notes),
+    airplay: Boolean(record?.wireless?.airplay),
+    miracast: Boolean(record?.wireless?.miracast),
+    mst: Boolean(record?.wireless?.mst),
+    rs232: Boolean(record?.integration?.rs232),
+    ir: Boolean(record?.integration?.ir),
+    lanControl: Boolean(record?.integration?.lanControl),
+    evidenceLabel: "",
+    evidenceValue: "",
+    evidenceUrl: tidy(record?.sourceUrls?.[0]),
   };
-}
-
-function statusTone(record: ProductRecord): StatusTone {
-  if (record.archived) return "archived";
-  if (record.flagged) return "flagged";
-
-  const status = record.approvalStatus.toLowerCase();
-  if (status.includes("approve")) return "approved";
-  if (status.includes("draft")) return "draft";
-  if (status.includes("expire")) return "expired";
-  if (status.includes("flag")) return "flagged";
-  if (status.includes("archive")) return "archived";
-  return "unknown";
-}
-
-function toneStyles(tone: StatusTone): React.CSSProperties {
-  switch (tone) {
-    case "approved":
-      return {
-        color: "#bbf7d0",
-        border: "1px solid rgba(34,197,94,0.24)",
-        background: "rgba(34,197,94,0.12)",
-      };
-    case "draft":
-      return {
-        color: "#bfdbfe",
-        border: "1px solid rgba(59,130,246,0.24)",
-        background: "rgba(59,130,246,0.12)",
-      };
-    case "expired":
-      return {
-        color: "#fed7aa",
-        border: "1px solid rgba(249,115,22,0.24)",
-        background: "rgba(249,115,22,0.12)",
-      };
-    case "flagged":
-      return {
-        color: "#fecaca",
-        border: "1px solid rgba(239,68,68,0.24)",
-        background: "rgba(239,68,68,0.12)",
-      };
-    case "archived":
-      return {
-        color: "#e2e8f0",
-        border: "1px solid rgba(148,163,184,0.22)",
-        background: "rgba(148,163,184,0.12)",
-      };
-    default:
-      return {
-        color: "#cbd5e1",
-        border: "1px solid rgba(148,163,184,0.18)",
-        background: "rgba(255,255,255,0.04)",
-      };
-  }
-}
-
-function pillBase(): React.CSSProperties {
-  return {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    height: 28,
-    padding: "0 10px",
-    borderRadius: 999,
-    fontSize: 12,
-    fontWeight: 700,
-    whiteSpace: "nowrap",
-  };
-}
-
-function smallLabelStyle(): React.CSSProperties {
-  return {
-    fontSize: 11,
-    fontWeight: 800,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    color: "rgba(148,163,184,0.86)",
-  };
-}
-
-function metricCard(label: string, value: string | number, tone?: "good" | "warning" | "neutral") {
-  let valueColor = "#f8fafc";
-  if (tone === "good") valueColor = "#86efac";
-  if (tone === "warning") valueColor = "#fdba74";
-
-  return (
-    <div
-      key={label}
-      style={{
-        minHeight: 84,
-        borderRadius: 18,
-        border: "1px solid rgba(255,255,255,0.08)",
-        background: "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))",
-        padding: 14,
-        display: "grid",
-        gap: 8,
-        alignContent: "start",
-      }}
-    >
-      <div style={smallLabelStyle()}>{label}</div>
-      <div style={{ fontSize: 26, lineHeight: 1, fontWeight: 900, color: valueColor }}>{value}</div>
-    </div>
-  );
-}
-
-function ProductCard(props: {
-  item: ProductRecord;
-  expanded: boolean;
-  onToggle: (id: string) => void;
-}) {
-  const { item, expanded, onToggle } = props;
-  const tone = statusTone(item);
-
-  return (
-    <article
-      style={{
-        borderRadius: 20,
-        border: "1px solid rgba(255,255,255,0.08)",
-        background: "linear-gradient(180deg, rgba(3,18,24,0.98), rgba(4,13,18,0.98))",
-        boxShadow: "0 12px 26px rgba(0,0,0,0.18)",
-        overflow: "hidden",
-      }}
-    >
-      <div style={{ padding: 16, display: "grid", gap: 14 }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-          <div style={{ minWidth: 0, display: "grid", gap: 8 }}>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              <span style={{ ...pillBase(), ...toneStyles(tone) }}>{titleCase(item.approvalStatus || "unknown")}</span>
-              <span
-                style={{
-                  ...pillBase(),
-                  color: "#d1fae5",
-                  border: "1px solid rgba(16,185,129,0.20)",
-                  background: "rgba(16,185,129,0.08)",
-                }}
-              >
-                {item.group}
-              </span>
-              <span
-                style={{
-                  ...pillBase(),
-                  color: "#dbeafe",
-                  border: "1px solid rgba(59,130,246,0.20)",
-                  background: "rgba(59,130,246,0.08)",
-                }}
-              >
-                {item.family}
-              </span>
-            </div>
-
-            <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.06em", color: "#5eead4" }}>{item.sku}</div>
-            <div style={{ fontSize: 20, fontWeight: 900, lineHeight: 1.15, color: "#f8fafc" }}>{item.name}</div>
-            <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(226,232,240,0.78)" }}>{item.summary}</div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => onToggle(item.id)}
-            style={{
-              flexShrink: 0,
-              width: 38,
-              height: 38,
-              borderRadius: 12,
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.04)",
-              color: "#e2e8f0",
-              display: "grid",
-              placeItems: "center",
-              cursor: "pointer",
-            }}
-            title={expanded ? "Collapse details" : "Expand details"}
-          >
-            <ChevronDown
-              size={16}
-              style={{
-                transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 140ms ease",
-              }}
-            />
-          </button>
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-            gap: 10,
-            paddingTop: 12,
-            borderTop: "1px solid rgba(255,255,255,0.08)",
-          }}
-        >
-          <div style={{ display: "grid", gap: 4 }}>
-            <div style={smallLabelStyle()}>Category</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>{item.category}</div>
-          </div>
-          <div style={{ display: "grid", gap: 4 }}>
-            <div style={smallLabelStyle()}>Subcategory</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>{item.subcategory}</div>
-          </div>
-          <div style={{ display: "grid", gap: 4 }}>
-            <div style={smallLabelStyle()}>Vendor</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>{item.vendor}</div>
-          </div>
-          <div style={{ display: "grid", gap: 4 }}>
-            <div style={smallLabelStyle()}>Confidence</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>
-              {item.confidence === null ? "-" : item.confidence.toFixed(2)}
-            </div>
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 8,
-            paddingTop: 12,
-            borderTop: "1px solid rgba(255,255,255,0.08)",
-          }}
-        >
-          <span
-            style={{
-              ...pillBase(),
-              color: "#e2e8f0",
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.04)",
-            }}
-          >
-            Evidence {item.evidenceEntries ?? 0}
-          </span>
-
-          <span
-            style={{
-              ...pillBase(),
-              color: "#cbd5e1",
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.04)",
-            }}
-          >
-            {item.vendorType}
-          </span>
-
-          <span
-            style={{
-              ...pillBase(),
-              color: "#cbd5e1",
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.04)",
-            }}
-          >
-            {item.classificationSource}
-          </span>
-
-          {item.flagged ? (
-            <span
-              style={{
-                ...pillBase(),
-                color: "#fecaca",
-                border: "1px solid rgba(239,68,68,0.22)",
-                background: "rgba(239,68,68,0.10)",
-              }}
-            >
-              <ShieldAlert size={13} />
-              Review
-            </span>
-          ) : null}
-
-          {item.archived ? (
-            <span
-              style={{
-                ...pillBase(),
-                color: "#e2e8f0",
-                border: "1px solid rgba(148,163,184,0.22)",
-                background: "rgba(148,163,184,0.10)",
-              }}
-            >
-              <Archive size={13} />
-              Archived
-            </span>
-          ) : null}
-        </div>
-
-        {expanded ? (
-          <div
-            style={{
-              display: "grid",
-              gap: 12,
-              paddingTop: 14,
-              borderTop: "1px solid rgba(255,255,255,0.08)",
-            }}
-          >
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gap: 10,
-              }}
-            >
-              <div
-                style={{
-                  borderRadius: 14,
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  background: "rgba(255,255,255,0.03)",
-                  padding: 12,
-                  display: "grid",
-                  gap: 6,
-                }}
-              >
-                <div style={smallLabelStyle()}>Last captured</div>
-                <div style={{ fontSize: 13, color: "#f8fafc" }}>{item.lastCaptured}</div>
-              </div>
-
-              <div
-                style={{
-                  borderRadius: 14,
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  background: "rgba(255,255,255,0.03)",
-                  padding: 12,
-                  display: "grid",
-                  gap: 6,
-                }}
-              >
-                <div style={smallLabelStyle()}>Last reviewed</div>
-                <div style={{ fontSize: 13, color: "#f8fafc" }}>{item.lastReviewed}</div>
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 8,
-              }}
-            >
-              <button
-                type="button"
-                style={{
-                  height: 34,
-                  padding: "0 12px",
-                  borderRadius: 10,
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  background: "rgba(255,255,255,0.05)",
-                  color: "#e2e8f0",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                Edit
-              </button>
-
-              <button
-                type="button"
-                style={{
-                  height: 34,
-                  padding: "0 12px",
-                  borderRadius: 10,
-                  border: "1px solid rgba(34,197,94,0.22)",
-                  background: "rgba(34,197,94,0.10)",
-                  color: "#bbf7d0",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                Mark approved
-              </button>
-
-              <button
-                type="button"
-                style={{
-                  height: 34,
-                  padding: "0 12px",
-                  borderRadius: 10,
-                  border: "1px solid rgba(59,130,246,0.22)",
-                  background: "rgba(59,130,246,0.10)",
-                  color: "#bfdbfe",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                Mark draft
-              </button>
-
-              <button
-                type="button"
-                style={{
-                  height: 34,
-                  padding: "0 12px",
-                  borderRadius: 10,
-                  border: "1px solid rgba(239,68,68,0.22)",
-                  background: "rgba(239,68,68,0.10)",
-                  color: "#fecaca",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                Flag issue
-              </button>
-
-              {item.sourceLink ? (
-                <a
-                  href={item.sourceLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    height: 34,
-                    padding: "0 12px",
-                    borderRadius: 10,
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    background: "rgba(255,255,255,0.05)",
-                    color: "#e2e8f0",
-                    fontWeight: 700,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                    textDecoration: "none",
-                  }}
-                >
-                  <ExternalLink size={14} />
-                  Source
-                </a>
-              ) : null}
-            </div>
-          </div>
-        ) : null}
-      </div>
-    </article>
-  );
 }
 
 export default function ProductIntelligencePage() {
-  const [records, setRecords] = React.useState<ProductRecord[]>([]);
+  const [records, setRecords] = React.useState<ProductIntelligenceRecord[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [message, setMessage] = React.useState("");
+  const [messageTone, setMessageTone] = React.useState<MessageTone>("good");
   const [search, setSearch] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [vendorFilter, setVendorFilter] = React.useState("all");
-  const [viewFilter, setViewFilter] = React.useState("active");
-  const [sortMode, setSortMode] = React.useState<SortMode>("sku");
-  const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
+  const [queueFilter, setQueueFilter] = React.useState<QueueFilter>("review");
+  const [vendorFilter, setVendorFilter] = React.useState<"all" | "competitor" | "wyrestorm">("all");
+  const [selectedId, setSelectedId] = React.useState("");
+  const [editor, setEditor] = React.useState<EditorState>(() => buildEditor(null));
 
   const loadRecords = React.useCallback(async (silent = false) => {
     try {
-      if (silent) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-
+      if (silent) setRefreshing(true); else setLoading(true);
       setError("");
-
-      const candidateUrls = [
-        `PRODUCT_INTELLIGENCE_ENDPOINT`,
-        "http://127.0.0.1:8787/api/product-intelligence",
-        "http://127.0.0.1:8787/api/product-intelligence/records",
-        "http://127.0.0.1:8787/api/wingman/catalog/product-intelligence",
-        "http://127.0.0.1:8787/api/wingman/support/product-intelligence"
-      ];
-
-      let response: Response | null = null;
-      let lastError = "";
-
-      for (const url of candidateUrls) {
-        try {
-          const attempt = await fetch(url, {
-            method: "GET",
-            headers: { Accept: "application/json" },
-          });
-
-          if (attempt.ok) {
-            response = attempt;
-            break;
-          }
-
-          lastError = `Request failed: ${attempt.status} for ${url}`;
-        } catch (err) {
-          lastError = err instanceof Error ? err.message : `Request failed for ${url}`;
-        }
-      }
-
-      if (!response) {
-        throw new Error(lastError || "No product intelligence endpoint responded.");
-      }
-
-      const raw = (await response.json()) as unknown;
-
-      let list: RemoteRecord[] = [];
-
-      if (Array.isArray(raw)) {
-        list = raw as RemoteRecord[];
-      } else if (raw && typeof raw === "object") {
-        const obj = raw as Record<string, unknown>;
-        if (Array.isArray(obj.records)) list = obj.records as RemoteRecord[];
-        else if (Array.isArray(obj.items)) list = obj.items as RemoteRecord[];
-        else if (Array.isArray(obj.results)) list = obj.results as RemoteRecord[];
-        else if (Array.isArray(obj.data)) list = obj.data as RemoteRecord[];
-      }
-
-      const normalised = list.map((item, index) => normaliseRecord(item, index));
-      setRecords(normalised);
+      const result = await fetchProductIntelligenceRecords({ limit: 500, includeArchived: false });
+      const ordered = [...result.records].sort((left, right) => priority(right) - priority(left) || left.sku.localeCompare(right.sku));
+      setRecords(ordered);
+      setSelectedId((current) => current || ordered[0]?.id || "");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unable to load product intelligence records.";
-      setError(message);
+      setError(err instanceof Error ? err.message : "Unable to load product intelligence records.");
       setRecords([]);
     } finally {
       setLoading(false);
@@ -711,436 +170,297 @@ export default function ProductIntelligencePage() {
     }
   }, []);
 
-  React.useEffect(() => {
-    void loadRecords(false);
-  }, [loadRecords]);
+  React.useEffect(() => { void loadRecords(false); }, [loadRecords]);
 
-  const vendors = React.useMemo(() => {
-    return ["all", ...Array.from(new Set(records.map((r) => r.vendor).filter(Boolean))).sort((a, b) => a.localeCompare(b))];
-  }, [records]);
-
-  const statuses = React.useMemo(() => {
-    return ["all", ...Array.from(new Set(records.map((r) => r.approvalStatus).filter(Boolean))).sort((a, b) => a.localeCompare(b))];
-  }, [records]);
-
-  const hasActiveFilters = React.useMemo(() => {
-    return (
-      search.trim().length > 0 ||
-      statusFilter !== "all" ||
-      vendorFilter !== "all" ||
-      viewFilter !== "active"
-    );
-  }, [search, statusFilter, vendorFilter, viewFilter]);
-
-  const filtered = React.useMemo(() => {
-    if (!hasActiveFilters) {
-      return [];
-    }
-
+  const queueRecords = React.useMemo(() => {
     const q = search.trim().toLowerCase();
-
-    let list = records.filter((item) => {
-      const matchesSearch =
-        !q ||
-        item.sku.toLowerCase().includes(q) ||
-        item.name.toLowerCase().includes(q) ||
-        item.family.toLowerCase().includes(q) ||
-        item.group.toLowerCase().includes(q) ||
-        item.category.toLowerCase().includes(q) ||
-        item.subcategory.toLowerCase().includes(q) ||
-        item.vendor.toLowerCase().includes(q) ||
-        item.summary.toLowerCase().includes(q);
-
-      const matchesStatus = statusFilter === "all" || item.approvalStatus === statusFilter;
-      const matchesVendor = vendorFilter === "all" || item.vendor === vendorFilter;
-      const matchesView =
-        viewFilter === "all" ||
-        (viewFilter === "active" && !item.archived) ||
-        (viewFilter === "archived" && item.archived) ||
-        (viewFilter === "review" && item.flagged);
-
-      return matchesSearch && matchesStatus && matchesVendor && matchesView;
+    return records.filter((record) => {
+      const matchesSearch = !q || [record.sku, record.name, record.brand, record.category, record.subcategory, record.summary].some((item) => tidy(item).toLowerCase().includes(q));
+      const matchesVendor = vendorFilter === "all" || record.vendorType === vendorFilter;
+      const needsReview = recordIssues(record).length > 0 || record.status !== "approved" || record.reviewFlags.some((flag) => flag.status === "open");
+      const matchesQueue = queueFilter === "all" || (queueFilter === "draft" && record.status === "draft") || (queueFilter === "approved" && record.status === "approved") || (queueFilter === "review" && needsReview);
+      return matchesSearch && matchesVendor && matchesQueue;
     });
+  }, [queueFilter, records, search, vendorFilter]);
 
-    list = [...list].sort((a, b) => {
-      if (sortMode === "family") {
-        return a.family.localeCompare(b.family) || a.sku.localeCompare(b.sku);
-      }
+  const selected = React.useMemo(() => queueRecords.find((record) => record.id === selectedId) ?? records.find((record) => record.id === selectedId) ?? null, [queueRecords, records, selectedId]);
+  React.useEffect(() => { setEditor(buildEditor(selected)); }, [selected]);
+  React.useEffect(() => { if (!selectedId && queueRecords[0]) setSelectedId(queueRecords[0].id); }, [queueRecords, selectedId]);
 
-      if (sortMode === "status") {
-        const aRank = STATUS_ORDER[a.approvalStatus] ?? STATUS_ORDER.unknown;
-        const bRank = STATUS_ORDER[b.approvalStatus] ?? STATUS_ORDER.unknown;
-        return aRank - bRank || a.sku.localeCompare(b.sku);
-      }
+  const metrics = React.useMemo(() => ({
+    needsReview: records.filter((record) => recordIssues(record).length > 0 || record.status !== "approved").length,
+    drafts: records.filter((record) => record.status === "draft").length,
+    approved: records.filter((record) => record.status === "approved").length,
+    highPriority: records.filter((record) => priority(record) >= 20).length,
+  }), [records]);
 
-      if (sortMode === "confidence") {
-        const aVal = a.confidence ?? -1;
-        const bVal = b.confidence ?? -1;
-        return bVal - aVal || a.sku.localeCompare(b.sku);
-      }
+  function setField<K extends keyof EditorState>(key: K, value: EditorState[K]) { setEditor((current) => ({ ...current, [key]: value })); }
 
-      return a.sku.localeCompare(b.sku);
-    });
-
-    return list;
-  }, [records, search, statusFilter, vendorFilter, viewFilter, sortMode, hasActiveFilters]);
-
-  const health = React.useMemo<HealthSummary>(() => {
-    const approved = records.filter((r) => statusTone(r) === "approved").length;
-    const openFlags = records.filter((r) => r.flagged).length;
-    const archived = records.filter((r) => r.archived).length;
-    const highConfidence = records.filter((r) => (r.confidence ?? 0) >= 0.85).length;
-    const manualOverrides = records.filter((r) => r.classificationSource.toLowerCase().includes("manual")).length;
-
-    return {
-      visibleRecords: filtered.length,
-      approved,
-      openFlags,
-      archived,
-      highConfidence,
-      manualOverrides,
-      matchingTotal: records.length,
-      endpointStatus: error ? "Offline" : "Online",
-    };
-  }, [records, filtered, error]);
-
-  function toggleExpanded(id: string) {
-    setExpanded((current) => ({
-      ...current,
-      [id]: !current[id],
-    }));
+  async function saveCoreFields() {
+    if (!selected) return;
+    setSaving(true);
+    setMessage("");
+    try {
+      const result = await upsertProductIntelligenceRecord({
+        vendorType: selected.vendorType,
+        brand: selected.brand,
+        sku: selected.sku,
+        name: selected.name,
+        family: selected.family,
+        category: selected.category,
+        subcategory: selected.subcategory,
+        group: selected.group,
+        summary: editor.summary,
+        technology: editor.technology,
+        topology: editor.topology,
+        role: editor.role,
+        directionality: editor.directionality,
+        outputBehavior: editor.outputBehavior,
+        transport: editor.transport,
+        inputs: parsePorts(editor.inputsText),
+        outputs: parsePorts(editor.outputsText),
+        features: parseList(editor.featuresText),
+        control: parseList(editor.controlText),
+        audio: parseList(editor.audioText),
+        video: {
+          maxResolution: tidy(editor.maxResolution) || undefined,
+          bandwidthGbps: toNumber(editor.bandwidthGbps),
+          hdmiVersion: tidy(editor.hdmiVersion) || undefined,
+          hdcpVersion: tidy(editor.hdcpVersion) || undefined,
+        },
+        distance: {
+          meters4k: toNumber(editor.meters4k),
+          meters1080p: toNumber(editor.meters1080p),
+          hdbasetClass: editor.hdbasetClass === "Class A" || editor.hdbasetClass === "Class B" ? editor.hdbasetClass : undefined,
+          networkSpeed: tidy(editor.networkSpeed) || undefined,
+          codec: tidy(editor.codec) || undefined,
+        },
+        wireless: {
+          airplay: editor.airplay || undefined,
+          miracast: editor.miracast || undefined,
+          mst: editor.mst || undefined,
+        },
+        integration: {
+          rs232: editor.rs232 || undefined,
+          ir: editor.ir || undefined,
+          lanControl: editor.lanControl || undefined,
+        },
+        sourceUrls: editor.sourceUrl ? [editor.sourceUrl] : selected.sourceUrls,
+        notes: editor.notes,
+      });
+      setMessage(result.message);
+      setMessageTone(result.available ? "good" : "warn");
+      await loadRecords(true);
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Save failed.");
+      setMessageTone("warn");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  function cycleSort() {
-    setSortMode((current) => {
-      if (current === "sku") return "family";
-      if (current === "family") return "status";
-      if (current === "status") return "confidence";
-      return "sku";
-    });
+  async function saveEvidence() {
+    if (!selected || !tidy(editor.evidenceLabel) || !tidy(editor.evidenceValue)) return;
+    setSaving(true);
+    setMessage("");
+    try {
+      const result = await addProductIntelligenceEvidence({
+        vendorType: selected.vendorType,
+        brand: selected.brand,
+        sku: selected.sku,
+        type: "spec",
+        label: editor.evidenceLabel,
+        value: editor.evidenceValue,
+        sourceUrl: tidy(editor.evidenceUrl) || tidy(editor.sourceUrl) || undefined,
+      });
+      setMessage(result.message);
+      setMessageTone(result.available ? "good" : "warn");
+      setEditor((current) => ({ ...current, evidenceLabel: "", evidenceValue: "" }));
+      await loadRecords(true);
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Unable to add evidence.");
+      setMessageTone("warn");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function setStatus(status: "approved" | "draft") {
+    if (!selected) return;
+    setSaving(true);
+    setMessage("");
+    try {
+      const result = await updateProductIntelligenceStatus({
+        vendorType: selected.vendorType,
+        brand: selected.brand,
+        sku: selected.sku,
+        status,
+        reviewedBy: "wingman-admin",
+      });
+      setMessage(result.message);
+      setMessageTone(result.available ? "good" : "warn");
+      await loadRecords(true);
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Unable to update status.");
+      setMessageTone("warn");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
-    <div
-      className="wm-page"
-      style={{
-        display: "grid",
-        gap: 18,
-      }}
-    >
-      <section
-        className="wm-card"
-        style={{
-          borderRadius: 24,
-          border: "1px solid rgba(255,255,255,0.08)",
-          background: "linear-gradient(135deg, rgba(4,24,34,0.98), rgba(3,16,24,0.98))",
-          boxShadow: "0 22px 48px rgba(0,0,0,0.18)",
-          padding: 18,
-          display: "grid",
-          gap: 16,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-          <div style={{ display: "grid", gap: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase", color: "#5eead4" }}>
-              Product intelligence
-            </div>
-            <div style={{ fontSize: 36, lineHeight: 1, fontWeight: 900, color: "#f8fafc" }}>
-              Review trusted records
-            </div>
-            <div style={{ maxWidth: 900, fontSize: 14, lineHeight: 1.55, color: "rgba(226,232,240,0.76)" }}>
-              Search fast, scan smaller cards, and open detail only when you need it.
-            </div>
+    <div style={{ ...pageWrapStyle(), ...stackStyle(18) }}>
+      <PageHeader
+        eyebrow="REFERENCE"
+        title="Product Intelligence"
+        description="Work through the highest-risk records first, fill the core comparison fields, and only approve products when the data is strong enough to trust."
+        actions={
+          <button type="button" onClick={() => void loadRecords(true)} disabled={refreshing || loading} style={{ height: 40, padding: "0 14px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.06)", color: "#f8fafc", display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 800, cursor: "pointer" }}>
+            <RefreshCw size={15} />
+            Refresh queue
+          </button>
+        }
+      />
+
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
+        {[["Needs Review", metrics.needsReview], ["Drafts", metrics.drafts], ["Approved", metrics.approved], ["High Priority", metrics.highPriority]].map(([label, value]) => (
+          <div key={String(label)} style={{ borderRadius: 18, border: "1px solid rgba(255,255,255,0.08)", background: "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))", padding: 14, display: "grid", gap: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(148,163,184,0.84)" }}>{label}</div>
+            <div style={{ fontSize: 28, lineHeight: 1, fontWeight: 900, color: "#f8fafc" }}>{value}</div>
           </div>
-
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button
-              type="button"
-              onClick={() => void loadRecords(true)}
-              style={{
-                height: 40,
-                padding: "0 14px",
-                borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.05)",
-                color: "#f8fafc",
-                fontWeight: 800,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                cursor: "pointer",
-              }}
-            >
-              <RefreshCw size={15} className={refreshing ? "wm-spin" : ""} />
-              {refreshing ? "Refreshing" : "Refresh"}
-            </button>
-
-            <button
-              type="button"
-              onClick={cycleSort}
-              style={{
-                height: 40,
-                padding: "0 14px",
-                borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.05)",
-                color: "#f8fafc",
-                fontWeight: 800,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                cursor: "pointer",
-              }}
-            >
-              <ArrowUpDown size={15} />
-              Sort: {sortMode}
-            </button>
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gap: 12,
-            gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
-          }}
-        >
-          {metricCard("Endpoint status", health.endpointStatus, health.endpointStatus === "Online" ? "good" : "warning")}
-          {metricCard("Visible records", health.visibleRecords)}
-          {metricCard("Approved", health.approved, "good")}
-          {metricCard("Open flags", health.openFlags, health.openFlags > 0 ? "warning" : "neutral")}
-          {metricCard("Archived", health.archived)}
-          {metricCard("High confidence", health.highConfidence)}
-          {metricCard("Manual overrides", health.manualOverrides)}
-          {metricCard("Matching total", health.matchingTotal)}
-        </div>
+        ))}
       </section>
 
-      <section
-        className="wm-card"
-        style={{
-          borderRadius: 20,
-          border: "1px solid rgba(255,255,255,0.08)",
-          background: "rgba(3,14,20,0.92)",
-          padding: 16,
-          display: "grid",
-          gap: 14,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#f8fafc", fontWeight: 900 }}>
-          <SlidersHorizontal size={16} />
-          Narrow the list
-        </div>
+      {error ? <section style={{ ...cardStyle(), borderColor: "rgba(239,68,68,0.22)", color: "#fecaca" }}>{error}</section> : null}
+      {message ? <section style={{ ...cardStyle(), borderColor: messageTone === "good" ? "rgba(34,197,94,0.22)" : "rgba(245,158,11,0.22)", color: messageTone === "good" ? "#bbf7d0" : "#fde68a" }}>{message}</section> : null}
 
-        <div
-          style={{
-            display: "grid",
-            gap: 12,
-            gridTemplateColumns: "minmax(240px, 2fr) repeat(3, minmax(160px, 1fr))",
-          }}
-        >
-          <label
-            style={{
-              height: 46,
-              borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.04)",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "0 14px",
-            }}
-          >
-            <Search size={16} color="#5eead4" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search SKU, brand, family, group, or category..."
-              style={{
-                flex: 1,
-                background: "transparent",
-                border: "none",
-                outline: "none",
-                color: "#f8fafc",
-                fontSize: 14,
-              }}
-            />
+      <section style={{ display: "grid", gridTemplateColumns: "360px minmax(0, 1fr)", gap: 16, alignItems: "start" }}>
+        <aside style={{ ...cardStyle(), display: "grid", gap: 14, position: "sticky", top: 16 }}>
+          <div style={{ display: "grid", gap: 6 }}>
+            <div style={sectionTitleStyle()}>Review Queue</div>
+            <div style={sectionTextStyle()}>Start with records missing I/O, taxonomy, video, distance, or output behavior.</div>
+          </div>
+          <label style={{ display: "grid", gap: 6 }}>
+            <div style={fieldLabelStyle()}>Search</div>
+            <div style={{ position: "relative" }}>
+              <Search size={15} style={{ position: "absolute", left: 12, top: 13, color: "rgba(148,163,184,0.75)" }} />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="SKU, brand, category" style={{ ...inputStyle(), paddingLeft: 36 }} />
+            </div>
           </label>
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            style={{
-              height: 46,
-              borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.04)",
-              color: "#f8fafc",
-              padding: "0 14px",
-            }}
-          >
-            {statuses.map((status) => (
-              <option key={status} value={status} style={{ background: "#07141a", color: "#f8fafc" }}>
-                {status === "all" ? "All statuses" : titleCase(status)}
-              </option>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {(["review", "draft", "approved", "all"] as QueueFilter[]).map((item) => (
+              <button key={item} type="button" onClick={() => setQueueFilter(item)} style={{ height: 34, padding: "0 12px", borderRadius: 999, border: queueFilter === item ? "1px solid rgba(96,165,250,0.42)" : "1px solid rgba(255,255,255,0.08)", background: queueFilter === item ? "rgba(59,130,246,0.18)" : "rgba(255,255,255,0.04)", color: queueFilter === item ? "#dbeafe" : "#cbd5e1", fontWeight: 700, cursor: "pointer" }}>
+                {item === "review" ? "Needs review" : item[0].toUpperCase() + item.slice(1)}
+              </button>
             ))}
-          </select>
-
-          <select
-            value={vendorFilter}
-            onChange={(e) => setVendorFilter(e.target.value)}
-            style={{
-              height: 46,
-              borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.04)",
-              color: "#f8fafc",
-              padding: "0 14px",
-            }}
-          >
-            {vendors.map((vendor) => (
-              <option key={vendor} value={vendor} style={{ background: "#07141a", color: "#f8fafc" }}>
-                {vendor === "all" ? "All vendors" : vendor}
-              </option>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {([{ value: "all", label: "All vendors" }, { value: "competitor", label: "Competitors" }, { value: "wyrestorm", label: "WyreStorm" }] as const).map((item) => (
+              <button key={item.value} type="button" onClick={() => setVendorFilter(item.value)} style={{ height: 34, padding: "0 12px", borderRadius: 999, border: vendorFilter === item.value ? "1px solid rgba(96,165,250,0.42)" : "1px solid rgba(255,255,255,0.08)", background: vendorFilter === item.value ? "rgba(59,130,246,0.18)" : "rgba(255,255,255,0.04)", color: vendorFilter === item.value ? "#dbeafe" : "#cbd5e1", fontWeight: 700, cursor: "pointer" }}>{item.label}</button>
             ))}
-          </select>
+          </div>
+          <div style={{ display: "grid", gap: 10, maxHeight: "70vh", overflowY: "auto", paddingRight: 4 }}>
+            {loading ? <div style={{ color: "rgba(226,232,240,0.76)" }}>Loading product intelligence records...</div> : queueRecords.length === 0 ? <div style={{ color: "rgba(226,232,240,0.76)" }}>No records match the current queue filter.</div> : queueRecords.map((record) => {
+              const issues = recordIssues(record);
+              return (
+                <button key={record.id} type="button" onClick={() => setSelectedId(record.id)} style={{ textAlign: "left", borderRadius: 16, border: selectedId === record.id ? "1px solid rgba(96,165,250,0.45)" : "1px solid rgba(255,255,255,0.08)", background: selectedId === record.id ? "linear-gradient(180deg, rgba(18,42,76,0.78), rgba(8,20,34,0.92))" : "linear-gradient(180deg, rgba(10,20,33,0.9), rgba(6,14,24,0.94))", padding: 14, display: "grid", gap: 10, cursor: "pointer" }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", color: "#5eead4" }}>{record.brand} · {record.sku}</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, lineHeight: 1.2, color: "#f8fafc" }}>{record.name}</div>
+                  <div style={{ fontSize: 13, lineHeight: 1.45, color: "rgba(226,232,240,0.74)" }}>{record.category} / {record.subcategory}</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", height: 24, padding: "0 9px", borderRadius: 999, fontSize: 11, fontWeight: 800, color: record.status === "approved" ? "#bbf7d0" : "#bfdbfe", border: record.status === "approved" ? "1px solid rgba(34,197,94,0.22)" : "1px solid rgba(59,130,246,0.22)", background: record.status === "approved" ? "rgba(34,197,94,0.12)" : "rgba(59,130,246,0.12)" }}>{record.status}</span>
+                    {issues.slice(0, 4).map((issue) => <span key={`${record.id}-${issue}`} style={{ display: "inline-flex", alignItems: "center", height: 24, padding: "0 9px", borderRadius: 999, fontSize: 11, fontWeight: 800, color: "#fde68a", border: "1px solid rgba(245,158,11,0.22)", background: "rgba(245,158,11,0.12)" }}>{issue}</span>)}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </aside>
+        <main style={{ ...cardStyle(), display: "grid", gap: 16 }}>
+          {!selected ? <div style={{ color: "rgba(226,232,240,0.76)" }}>Pick a record from the review queue to start enriching it.</div> : (
+            <>
+              <div style={{ display: "grid", gap: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "flex-start" }}>
+                  <div style={{ minWidth: 0, display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", color: "#5eead4" }}>{selected.brand} · {selected.vendorType}</div>
+                    <div style={{ fontSize: 28, fontWeight: 900, lineHeight: 1.1, color: "#f8fafc" }}>{selected.sku}</div>
+                    <div style={{ fontSize: 17, fontWeight: 800, color: "rgba(226,232,240,0.94)" }}>{selected.name}</div>
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 8 }}>
+                    {recordIssues(selected).map((issue) => <span key={issue} style={{ display: "inline-flex", alignItems: "center", height: 24, padding: "0 9px", borderRadius: 999, fontSize: 11, fontWeight: 800, color: "#fde68a", border: "1px solid rgba(245,158,11,0.22)", background: "rgba(245,158,11,0.12)" }}>{issue}</span>)}
+                  </div>
+                </div>
+                <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(226,232,240,0.72)" }}>Fill the core comparison fields below, then approve the record once it is strong enough for automated matching.</div>
+              </div>
 
-          <select
-            value={viewFilter}
-            onChange={(e) => setViewFilter(e.target.value)}
-            style={{
-              height: 46,
-              borderRadius: 14,
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.04)",
-              color: "#f8fafc",
-              padding: "0 14px",
-            }}
-          >
-            <option value="active" style={{ background: "#07141a", color: "#f8fafc" }}>Active</option>
-            <option value="all" style={{ background: "#07141a", color: "#f8fafc" }}>All records</option>
-            <option value="review" style={{ background: "#07141a", color: "#f8fafc" }}>Review queue</option>
-            <option value="archived" style={{ background: "#07141a", color: "#f8fafc" }}>Archived</option>
-          </select>
-        </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                <button type="button" onClick={() => void saveCoreFields()} disabled={saving} style={{ height: 40, padding: "0 14px", borderRadius: 12, border: "1px solid rgba(96,165,250,0.32)", background: "rgba(59,130,246,0.16)", color: "#dbeafe", fontWeight: 800, display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer" }}><Save size={15} />Save core fields</button>
+                <button type="button" onClick={() => void setStatus("approved")} disabled={saving} style={{ height: 40, padding: "0 14px", borderRadius: 12, border: "1px solid rgba(34,197,94,0.28)", background: "rgba(34,197,94,0.12)", color: "#bbf7d0", fontWeight: 800, display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer" }}><CheckCircle2 size={15} />Mark approved</button>
+                <button type="button" onClick={() => void setStatus("draft")} disabled={saving} style={{ height: 40, padding: "0 14px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.05)", color: "#e2e8f0", fontWeight: 800, cursor: "pointer" }}>Keep as draft</button>
+              </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          <span
-            style={{
-              ...pillBase(),
-              color: "#cbd5e1",
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.04)",
-            }}
-          >
-            <Filter size={13} />
-            {filtered.length} shown
-          </span>
+              <section style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+                <Field label="Summary"><textarea rows={4} value={editor.summary} onChange={(event) => setField("summary", event.target.value)} style={textareaStyle(4)} /></Field>
+                <Field label="Notes"><textarea rows={4} value={editor.notes} onChange={(event) => setField("notes", event.target.value)} style={textareaStyle(4)} /></Field>
+                <Field label="Technology"><input value={editor.technology} onChange={(event) => setField("technology", event.target.value)} style={inputStyle()} /></Field>
+                <Field label="Topology"><input value={editor.topology} onChange={(event) => setField("topology", event.target.value)} style={inputStyle()} /></Field>
+                <Field label="Role"><input value={editor.role} onChange={(event) => setField("role", event.target.value)} style={inputStyle()} /></Field>
+                <Field label="Directionality"><input value={editor.directionality} onChange={(event) => setField("directionality", event.target.value)} style={inputStyle()} /></Field>
+                <Field label="Transport"><input value={editor.transport} onChange={(event) => setField("transport", event.target.value)} style={inputStyle()} /></Field>
+                <Field label="Output Behavior"><input value={editor.outputBehavior} onChange={(event) => setField("outputBehavior", event.target.value)} style={inputStyle()} /></Field>
+                <Field label="Inputs"><input value={editor.inputsText} onChange={(event) => setField("inputsText", event.target.value)} placeholder="HDMI:4, USB-C:1" style={inputStyle()} /></Field>
+                <Field label="Outputs"><input value={editor.outputsText} onChange={(event) => setField("outputsText", event.target.value)} placeholder="HDMI:2, HDBaseT:2" style={inputStyle()} /></Field>
+                <Field label="Features"><input value={editor.featuresText} onChange={(event) => setField("featuresText", event.target.value)} placeholder="wireless presentation, KVM, audio de-embed" style={inputStyle()} /></Field>
+                <Field label="Control / Connectivity"><input value={editor.controlText} onChange={(event) => setField("controlText", event.target.value)} placeholder="RS-232, IR, LAN, relay" style={inputStyle()} /></Field>
+                <Field label="Audio"><input value={editor.audioText} onChange={(event) => setField("audioText", event.target.value)} placeholder="analog audio out, de-embed" style={inputStyle()} /></Field>
+                <Field label="Source URL"><input value={editor.sourceUrl} onChange={(event) => setField("sourceUrl", event.target.value)} placeholder="https://..." style={inputStyle()} /></Field>
+              </section>
 
-          <span
-            style={{
-              ...pillBase(),
-              color: "#cbd5e1",
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.04)",
-            }}
-          >
-            <Tag size={13} />
-            {statusFilter === "all" ? "All statuses" : titleCase(statusFilter)}
-          </span>
-        </div>
+              <section style={{ display: "grid", gap: 12 }}>
+                <div style={sectionTitleStyle()}>Video and Distance</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 }}>
+                  <Field label="Max Resolution"><input value={editor.maxResolution} onChange={(event) => setField("maxResolution", event.target.value)} style={inputStyle()} /></Field>
+                  <Field label="Bandwidth (Gbps)"><input value={editor.bandwidthGbps} onChange={(event) => setField("bandwidthGbps", event.target.value)} style={inputStyle()} /></Field>
+                  <Field label="HDMI Version"><input value={editor.hdmiVersion} onChange={(event) => setField("hdmiVersion", event.target.value)} style={inputStyle()} /></Field>
+                  <Field label="HDCP Version"><input value={editor.hdcpVersion} onChange={(event) => setField("hdcpVersion", event.target.value)} style={inputStyle()} /></Field>
+                  <Field label="4K Distance (m)"><input value={editor.meters4k} onChange={(event) => setField("meters4k", event.target.value)} style={inputStyle()} /></Field>
+                  <Field label="1080p Distance (m)"><input value={editor.meters1080p} onChange={(event) => setField("meters1080p", event.target.value)} style={inputStyle()} /></Field>
+                  <Field label="HDBaseT Class"><select value={editor.hdbasetClass} onChange={(event) => setField("hdbasetClass", event.target.value)} style={inputStyle()}><option value="">Not set</option><option value="Class A">Class A</option><option value="Class B">Class B</option></select></Field>
+                  <Field label="Network Speed"><input value={editor.networkSpeed} onChange={(event) => setField("networkSpeed", event.target.value)} style={inputStyle()} /></Field>
+                  <Field label="Codec"><input value={editor.codec} onChange={(event) => setField("codec", event.target.value)} style={inputStyle()} /></Field>
+                </div>
+              </section>
+
+              <section style={{ display: "grid", gap: 12 }}>
+                <div style={sectionTitleStyle()}>Key Feature Toggles</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 10 }}>
+                  {([
+                    ["airplay", "AirPlay"], ["miracast", "Miracast"], ["mst", "MST"], ["rs232", "RS-232"], ["ir", "IR"], ["lanControl", "LAN Control"],
+                  ] as const).map(([key, label]) => (
+                    <label key={key} style={{ display: "flex", alignItems: "center", gap: 8, minHeight: 42, padding: "0 12px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "#e2e8f0", fontWeight: 700 }}>
+                      <input type="checkbox" checked={editor[key]} onChange={(event) => setField(key, event.target.checked)} />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </section>
+
+              <section style={{ ...cardStyle(), padding: 16, display: "grid", gap: 12 }}>
+                <div style={{ display: "grid", gap: 4 }}>
+                  <div style={sectionTitleStyle()}>Evidence Capture</div>
+                  <div style={sectionTextStyle()}>Add a short evidence note when you confirm a key spec from a product page or datasheet.</div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr auto", gap: 10, alignItems: "end" }}>
+                  <Field label="Evidence Label"><input value={editor.evidenceLabel} onChange={(event) => setField("evidenceLabel", event.target.value)} style={inputStyle()} /></Field>
+                  <Field label="Evidence Detail"><input value={editor.evidenceValue} onChange={(event) => setField("evidenceValue", event.target.value)} style={inputStyle()} /></Field>
+                  <Field label="Evidence URL"><input value={editor.evidenceUrl} onChange={(event) => setField("evidenceUrl", event.target.value)} style={inputStyle()} /></Field>
+                  <button type="button" onClick={() => void saveEvidence()} disabled={saving || !tidy(editor.evidenceLabel) || !tidy(editor.evidenceValue)} style={{ height: 42, padding: "0 14px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.05)", color: "#f8fafc", fontWeight: 800, cursor: "pointer" }}>Add evidence</button>
+                </div>
+              </section>
+            </>
+          )}
+        </main>
       </section>
-
-      {error ? (
-        <section
-          className="wm-card"
-          style={{
-            borderRadius: 18,
-            border: "1px solid rgba(239,68,68,0.18)",
-            background: "rgba(127,29,29,0.18)",
-            padding: 16,
-            color: "#fecaca",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-          }}
-        >
-          <XCircle size={18} />
-          {error}
-        </section>
-      ) : null}
-
-      {loading ? (
-        <section
-          className="wm-card"
-          style={{
-            borderRadius: 20,
-            border: "1px solid rgba(255,255,255,0.08)",
-            background: "rgba(3,14,20,0.92)",
-            padding: 18,
-            color: "#cbd5e1",
-          }}
-        >
-          Loading product intelligence records...
-        </section>
-      ) : (
-        <section
-          style={{
-            display: "grid",
-            gap: 16,
-            gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
-          }}
-        >
-          {filtered.map((item) => (
-            <ProductCard
-              key={item.id}
-              item={item}
-              expanded={!!expanded[item.id]}
-              onToggle={toggleExpanded}
-            />
-          ))}
-        </section>
-      )}
-
-      {!loading && !error && !hasActiveFilters ? (
-        <section
-          className="wm-card"
-          style={{
-            borderRadius: 20,
-            border: "1px solid rgba(255,255,255,0.08)",
-            background: "rgba(3,14,20,0.92)",
-            padding: 24,
-            display: "grid",
-            gap: 10,
-          }}
-        >
-          <div style={{ fontSize: 18, fontWeight: 900, color: "#f8fafc" }}>
-            Search or filter to begin
-          </div>
-          <div style={{ fontSize: 14, color: "rgba(226,232,240,0.74)", maxWidth: 720, lineHeight: 1.55 }}>
-            Cards stay hidden until you narrow the list by SKU, brand, family, group, category, or status.
-          </div>
-        </section>
-      ) : null}
-
-      {!loading && !error && hasActiveFilters && filtered.length === 0 ? (
-        <section
-          className="wm-card"
-          style={{
-            borderRadius: 20,
-            border: "1px solid rgba(255,255,255,0.08)",
-            background: "rgba(3,14,20,0.92)",
-            padding: 20,
-            display: "grid",
-            gap: 8,
-          }}
-        >
-          <div style={{ fontSize: 18, fontWeight: 900, color: "#f8fafc" }}>No records match the current filters</div>
-          <div style={{ fontSize: 14, color: "rgba(226,232,240,0.74)" }}>
-            Change the search, status, vendor, or view filter.
-          </div>
-        </section>
-      ) : null}
     </div>
   );
 }

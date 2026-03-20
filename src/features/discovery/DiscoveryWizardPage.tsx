@@ -17,6 +17,7 @@ import {
   buildGuidedProjectLenses,
   buildGuidedProjectNotes,
   createEmptyGuidedProjectRecord,
+  findMatrixIoPreset,
   getCoreFieldsForStep,
   getGuidedProjectProgress,
   getGuidedProjectStepSubtitle,
@@ -50,6 +51,176 @@ type SnapshotFloatPosition = {
   left: number;
   top: number;
 };
+
+type SourceInventoryItem = {
+  id: string;
+  sourceType: string;
+  connectionType: string;
+};
+
+type SourceInventoryCustomConfig = {
+  sourceInventoryItems: SourceInventoryItem[];
+  sourceConnectionOptions: readonly string[];
+  sourceCountLocked?: boolean;
+  lockLabel?: string;
+  lockConnectionType?: string;
+  onAddSource: () => void;
+  onRemoveSource: (id: string) => void;
+  onUpdateSource: (
+    id: string,
+    field: keyof Pick<SourceInventoryItem, "sourceType" | "connectionType">,
+    nextValue: string,
+  ) => void;
+};
+
+const SOURCE_TYPE_OPTIONS = [
+  "Laptop",
+  "PC",
+  "Wireless presentation",
+  "Camera",
+  "Document camera",
+  "Signage player",
+  "Media player",
+  "BYOD dock",
+  "Other",
+] as const;
+
+const FALLBACK_SOURCE_CONNECTION_OPTIONS = [
+  "HDMI",
+  "USB-C",
+  "HDMI plus USB",
+  "HDBaseT handoff",
+  "AVoIP or network encoder",
+  "Fiber handoff",
+  "Mixed transport",
+  "Not sure yet",
+] as const;
+
+function makeSourceInventoryId(seed?: number) {
+  return seed == null ? `src_${Date.now()}_${Math.random().toString(36).slice(2, 8)}` : `src_seed_${seed}`;
+}
+
+function parseSourceInventory(value: string | undefined): SourceInventoryItem[] {
+  if (!hasText(value)) return [];
+  try {
+    const parsed = JSON.parse(value ?? "");
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((item, index) => {
+        if (!item || typeof item !== "object") return null;
+        const sourceType =
+          typeof item.sourceType === "string"
+            ? item.sourceType
+            : typeof item.type === "string"
+              ? item.type
+              : "";
+        const connectionType = typeof item.connectionType === "string" ? item.connectionType : "";
+        return {
+          id:
+            typeof item.id === "string" && item.id.trim().length > 0
+              ? item.id
+              : makeSourceInventoryId(index),
+          sourceType,
+          connectionType,
+        } satisfies SourceInventoryItem;
+      })
+      .filter((item): item is SourceInventoryItem => item != null);
+  } catch {
+    return [];
+  }
+}
+
+function splitSeedList(value: string | undefined): string[] {
+  return String(value ?? "")
+    .split(/[,+/]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function deriveSourceInventorySeed(record: GuidedProjectRecord): SourceInventoryItem[] {
+  const count = Math.max(0, Number.parseInt(record.sourceCount || "", 10) || 0);
+  if (count <= 0) return [];
+  const typeSeeds = splitSeedList(record.sourceTypes);
+  const connectionSeed =
+    hasText(record.sourceConnectionType) &&
+    !record.sourceConnectionType.toLowerCase().includes("mixed")
+      ? record.sourceConnectionType
+      : "";
+  return Array.from({ length: count }, (_, index) => ({
+    id: makeSourceInventoryId(index),
+    sourceType: typeSeeds[index] ?? (typeSeeds.length === 1 ? typeSeeds[0] : ""),
+    connectionType: connectionSeed,
+  }));
+}
+
+function getSourceInventoryItems(record: GuidedProjectRecord): SourceInventoryItem[] {
+  const parsed = parseSourceInventory(record.sourceInventory);
+  if (parsed.length > 0) return parsed;
+  return deriveSourceInventorySeed(record);
+}
+
+function serializeSourceInventory(items: SourceInventoryItem[]): string {
+  return JSON.stringify(
+    items.map((item) => ({
+      id: item.id,
+      sourceType: item.sourceType,
+      connectionType: item.connectionType,
+    })),
+  );
+}
+
+function summarizeSourceTypes(items: SourceInventoryItem[]): string {
+  const values = Array.from(
+    new Set(items.map((item) => item.sourceType.trim()).filter(Boolean)),
+  );
+  return values.join(", ");
+}
+
+function summarizeSourceConnections(items: SourceInventoryItem[]): string {
+  const values = Array.from(
+    new Set(items.map((item) => item.connectionType.trim()).filter(Boolean)),
+  );
+  if (values.length === 0) return "";
+  if (values.length === 1) return values[0];
+  return "Mixed transport";
+}
+
+function isSourceInventoryComplete(items: SourceInventoryItem[], requireConnection: boolean) {
+  return (
+    items.length > 0 &&
+    items.every(
+      (item) =>
+        hasText(item.sourceType) &&
+        (!requireConnection || hasText(item.connectionType)),
+    )
+  );
+}
+
+function syncRecordFromSourceInventory(
+  record: GuidedProjectRecord,
+  items: SourceInventoryItem[],
+): GuidedProjectRecord {
+  return {
+    ...record,
+    sourceInventory: items.length > 0 ? serializeSourceInventory(items) : "",
+    sourceCount: items.length > 0 ? String(items.length) : "",
+    sourceTypes: summarizeSourceTypes(items),
+    sourceConnectionType: summarizeSourceConnections(items),
+  };
+}
+
+function buildLockedSourceInventory(
+  record: GuidedProjectRecord,
+  sourceCount: number,
+  connectionType: string,
+): SourceInventoryItem[] {
+  const existing = getSourceInventoryItems(record);
+  return Array.from({ length: sourceCount }, (_, index) => ({
+    id: existing[index]?.id ?? makeSourceInventoryId(index),
+    sourceType: existing[index]?.sourceType ?? "",
+    connectionType,
+  }));
+}
 
 function clampSnapshotPosition(position: SnapshotFloatPosition): SnapshotFloatPosition {
   if (typeof window === "undefined") return position;
@@ -103,11 +274,12 @@ function readRecord(): GuidedProjectRecord {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return createEmptyGuidedProjectRecord();
     const parsed = JSON.parse(raw) as Partial<GuidedProjectRecord>;
-    return {
+    const next = {
       ...createEmptyGuidedProjectRecord(),
       ...parsed,
       projectScope: mergeFirst(parsed.projectScope, "Single device or signal path"),
     };
+    return syncRecordFromSourceInventory(next, getSourceInventoryItems(next));
   } catch {
     return createEmptyGuidedProjectRecord();
   }
@@ -164,12 +336,13 @@ function mergeProject(
   const fixedHdmiPath =
     mergedWorkflowTrack.toLowerCase().includes("extend") ||
     mergedWorkflowTrack.toLowerCase().includes("duplicate");
-  return {
+  const next = {
     ...record,
     workflowTrack: mergedWorkflowTrack,
     projectScope: mergeFirst(record.projectScope, discovery?.projectScope, "Single device or signal path"),
     customerOutcome: mergeFirst(record.customerOutcome, discovery?.customerOutcome),
     switchSolutionType: mergeFirst(record.switchSolutionType, discovery?.switchSolutionType),
+    matrixIoPreset: mergeFirst(record.matrixIoPreset, discovery?.matrixIoPreset),
     featureRequirements: mergeFirst(record.featureRequirements, discovery?.featureRequirements),
     customer: mergeFirst(record.customer, discovery?.customer, project.customer),
     site: mergeFirst(record.site, discovery?.site, project.site),
@@ -184,6 +357,7 @@ function mergeProject(
     transportCableType: mergeFirst(record.transportCableType, discovery?.transportCableType),
     displayCount: mergeFirst(record.displayCount, discovery?.displayCount),
     sourceCount: mergeFirst(record.sourceCount, discovery?.sourceCount),
+    sourceInventory: mergeFirst(record.sourceInventory, discovery?.sourceInventory),
     outputBehaviour: mergeFirst(record.outputBehaviour, discovery?.outputBehaviour),
     sourceTypes: mergeFirst(record.sourceTypes, discovery?.sourceTypes),
     sourcePlacement: mergeFirst(record.sourcePlacement, discovery?.sourcePlacement),
@@ -207,13 +381,84 @@ function mergeProject(
     urgency: mergeFirst(record.urgency, discovery?.urgency),
     notes: mergeFirst(record.notes, discovery?.notes),
   };
+  return syncRecordFromSourceInventory(next, getSourceInventoryItems(next));
 }
 
 function renderField(
   question: GuidedProjectQuestionState,
   value: string,
   onChange: (value: string) => void,
+  custom?: SourceInventoryCustomConfig,
 ) {
+  if (question.id === "sourceCount" && custom) {
+    return (
+      <div className="wm-gp__sourceRoster">
+        <div className="wm-gp__sourceRosterToolbar">
+          <span className="wm-gp__sourceRosterCount">
+            {custom.sourceInventoryItems.length} source{custom.sourceInventoryItems.length === 1 ? "" : "s"}
+          </span>
+          {custom.lockLabel ? <span className="wm-gp__sourceRosterLock">{custom.lockLabel}</span> : null}
+          <button
+            type="button"
+            className="wm-gp__sourceRosterAdd"
+            onClick={custom.onAddSource}
+            disabled={custom.sourceCountLocked}
+          >
+            +
+          </button>
+        </div>
+
+        <div className="wm-gp__sourceRosterList">
+          {custom.sourceInventoryItems.map((item, index) => (
+            <div key={item.id} className="wm-gp__sourceRosterRow">
+              <div className="wm-gp__sourceRosterIndex">{index + 1}</div>
+              <select
+                className="wm-ui__select"
+                aria-label={`Source ${index + 1} type`}
+                value={item.sourceType}
+                onChange={(event) =>
+                  custom.onUpdateSource(item.id, "sourceType", event.target.value)
+                }
+              >
+                <option value="">Source type</option>
+                {SOURCE_TYPE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="wm-ui__select"
+                aria-label={`Source ${index + 1} connection`}
+                value={item.connectionType}
+                disabled={Boolean(custom.lockConnectionType)}
+                onChange={(event) =>
+                  custom.onUpdateSource(item.id, "connectionType", event.target.value)
+                }
+              >
+                <option value="">Connection</option>
+                {custom.sourceConnectionOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="wm-gp__sourceRosterRemove"
+                aria-label={`Remove source ${index + 1}`}
+                onClick={() => custom.onRemoveSource(item.id)}
+                disabled={custom.sourceCountLocked || custom.sourceInventoryItems.length <= 1}
+              >
+                -
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (question.input === "cards") {
     const useCompactCards = question.id !== "workflowTrack";
     const details =
@@ -365,6 +610,50 @@ const STEP_SHORT_LABELS: Record<GuidedProjectStep, string> = {
   3: "Checks",
 };
 
+const TOP_BAR_RESOLUTION_OPTIONS = [
+  { value: "1080p", shortLabel: "1080p", detail: "Full HD" },
+  { value: "4K 30Hz 4:4:4", shortLabel: "4K30", detail: "Entry 4K" },
+  { value: "4K 60Hz 4:4:4", shortLabel: "4K60", detail: "Standard 4K" },
+  { value: "5K", shortLabel: "5K", detail: "Ultra-wide" },
+  { value: "8K", shortLabel: "8K", detail: "High-end" },
+  { value: "Custom", shortLabel: "Mixed", detail: "Custom mix" },
+] as const;
+
+const TOP_BAR_RESOLUTION_VALUES = new Set(
+  TOP_BAR_RESOLUTION_OPTIONS.map((option) => option.value),
+);
+
+function getTopBarResolutionValue(signalFormats: string | undefined) {
+  const selected = parseGuidedProjectSelections(signalFormats).filter((item) =>
+    TOP_BAR_RESOLUTION_VALUES.has(item as (typeof TOP_BAR_RESOLUTION_OPTIONS)[number]["value"]),
+  );
+
+  if (selected.length === 1 && selected[0] !== "Custom") {
+    return selected[0];
+  }
+
+  if (selected.length > 0) {
+    return "Custom";
+  }
+
+  return "";
+}
+
+function getTopBarResolutionHint(selectedResolution: string) {
+  if (!selectedResolution) return "Set the target display format early.";
+  if (selectedResolution === "Custom") return "Mixed or custom display formats are in play.";
+  return `${selectedResolution} is the active display target.`;
+}
+
+const COMPACT_STEP_ONE_SUMMARY_IDS: Array<keyof GuidedProjectRecord> = [
+  "matrixIoPreset",
+  "sourceCount",
+  "sourceConnectionType",
+  "displayCount",
+  "displayConnectionType",
+  "outputBehaviour",
+];
+
 function splitQuestionsForLiveCall(
   record: GuidedProjectRecord,
   step: GuidedProjectStep,
@@ -387,21 +676,37 @@ function splitQuestionsForLiveCall(
 function countAnsweredFields(
   record: GuidedProjectRecord,
   questions: GuidedProjectQuestionState[],
+  options?: {
+    sourceInventoryReady?: boolean;
+  },
 ): number {
-  return questions.filter((question) => hasText(String(record[question.id] ?? ""))).length;
+  return questions.filter((question) => isQuestionAnswered(record, question, options)).length;
 }
 
 function findNextQuestion(
   record: GuidedProjectRecord,
   questions: GuidedProjectQuestionState[],
+  options?: {
+    sourceInventoryReady?: boolean;
+  },
 ): GuidedProjectQuestionState | null {
-  return questions.find((question) => !hasText(String(record[question.id] ?? ""))) ?? null;
+  return questions.find((question) => !isQuestionAnswered(record, question, options)) ?? null;
+}
+
+function isQuestionAnswered(
+  record: GuidedProjectRecord,
+  question: Pick<GuidedProjectQuestionState, "id">,
+  options?: {
+    sourceInventoryReady?: boolean;
+  },
+) {
+  if (question.id === "sourceCount" || question.id === "sourceConnectionType") {
+    return options?.sourceInventoryReady ?? false;
+  }
+  return hasText(String(record[question.id] ?? ""));
 }
 
 export default function DiscoveryWizardPage() {
-const [sources,setSources] = React.useState<number>(1)
-  const [displays,setDisplays] = React.useState<number>(1)
-  const [resolution,setResolution] = React.useState<string>("4K")
   const location = useLocation();
   const navigate = useNavigate();
   const activeProject = React.useSyncExternalStore(
@@ -447,6 +752,38 @@ const [sources,setSources] = React.useState<number>(1)
     () => splitQuestionsForLiveCall(record, activeStep, activeQuestions),
     [activeQuestions, activeStep, record],
   );
+  const activeMatrixPreset = React.useMemo(
+    () => findMatrixIoPreset(record.matrixIoPreset),
+    [record.matrixIoPreset],
+  );
+  const sourceInventoryItems = React.useMemo(
+    () => {
+      const items = getSourceInventoryItems(record);
+      return items.length > 0 || activeQuestions.some((question) => question.id === "sourceCount")
+        ? items.length > 0
+          ? items
+          : [{ id: makeSourceInventoryId(0), sourceType: "", connectionType: "" }]
+        : [];
+    },
+    [activeQuestions, record],
+  );
+  const sourceConnectionOptions = React.useMemo(
+    () =>
+      activeMatrixPreset
+        ? ["HDMI"]
+        : activeQuestions.find((question) => question.id === "sourceConnectionType")?.options ??
+          [...FALLBACK_SOURCE_CONNECTION_OPTIONS],
+    [activeMatrixPreset, activeQuestions],
+  );
+  const sourceCountLocked = Boolean(activeMatrixPreset);
+  const sourceInventoryReady = React.useMemo(
+    () =>
+      isSourceInventoryComplete(
+        sourceInventoryItems,
+        activeQuestions.some((question) => question.id === "sourceConnectionType"),
+      ),
+    [activeQuestions, sourceInventoryItems],
+  );
   const branchHighlights = React.useMemo(() => buildBranchHighlights(deferredRecord), [deferredRecord]);
   const lenses = React.useMemo(() => buildGuidedProjectLenses(deferredRecord), [deferredRecord]);
   const totalDone = progress.reduce((sum, item) => sum + item.complete, 0);
@@ -456,24 +793,66 @@ const [sources,setSources] = React.useState<number>(1)
   const priorityNextActions = advice.nextActions.slice(0, 3);
   const activeLenses = lenses.filter((lens) => lens.state !== "watch");
   const displayedLenses = (activeLenses.length > 0 ? activeLenses : lenses).slice(0, 3);
-  const primaryDone = countAnsweredFields(record, primaryQuestions);
-  const followUpDone = countAnsweredFields(record, followUpQuestions);
+  const showSwitchDecisionSummary =
+    activeStep === 1 &&
+    hasText(record.switchSolutionType) &&
+    primaryQuestions.some((question) => question.id === "switchSolutionType");
+  const hiddenQuestionIds = React.useMemo(() => {
+    const hidden = new Set<keyof GuidedProjectRecord>();
+    if (activeStep === 1 && activeQuestions.some((question) => question.id === "sourceCount")) {
+      hidden.add("sourceConnectionType");
+    }
+    if (activeStep === 2 && sourceInventoryItems.length > 0) {
+      hidden.add("sourceTypes");
+    }
+    return hidden;
+  }, [activeQuestions, activeStep, sourceInventoryItems.length]);
+  const stepOneSummaryIds =
+    activeStep === 1 ? new Set<keyof GuidedProjectRecord>(COMPACT_STEP_ONE_SUMMARY_IDS) : null;
+  const summaryFilteredPrimaryQuestions = primaryQuestions.filter(
+    (question) =>
+      !(showSwitchDecisionSummary && question.id === "switchSolutionType") &&
+      !hiddenQuestionIds.has(question.id),
+  );
+  const compactSummaryQuestions =
+    stepOneSummaryIds == null
+      ? []
+      : summaryFilteredPrimaryQuestions.filter((question) =>
+          stepOneSummaryIds.has(question.id) &&
+          isQuestionAnswered(record, question, { sourceInventoryReady }),
+        );
+  const displayedPrimaryQuestions = summaryFilteredPrimaryQuestions.filter(
+    (question) =>
+      !(
+        stepOneSummaryIds?.has(question.id) &&
+        isQuestionAnswered(record, question, { sourceInventoryReady })
+      ),
+  );
+  const displayedFollowUpQuestions = followUpQuestions.filter(
+    (question) => !hiddenQuestionIds.has(question.id),
+  );
+  const primaryDone = countAnsweredFields(record, primaryQuestions, { sourceInventoryReady });
+  const followUpDone = countAnsweredFields(record, followUpQuestions, { sourceInventoryReady });
   const showFollowUps = followUpVisibility[activeStep] ?? false;
-  const nextPrimaryQuestion = findNextQuestion(record, primaryQuestions);
-  const nextFollowUpQuestion = findNextQuestion(record, followUpQuestions);
+  const nextPrimaryQuestion = findNextQuestion(record, displayedPrimaryQuestions, {
+    sourceInventoryReady,
+  });
+  const nextFollowUpQuestion = findNextQuestion(record, displayedFollowUpQuestions, {
+    sourceInventoryReady,
+  });
   const nextQuestion = nextPrimaryQuestion ?? (showFollowUps ? nextFollowUpQuestion : null);
   const nextQueuedQuestion = nextPrimaryQuestion ?? nextFollowUpQuestion;
-  const firstPendingPrimaryIndex = primaryQuestions.findIndex(
-    (question) => !hasText(String(record[question.id] ?? "")),
+  const firstPendingPrimaryIndex = displayedPrimaryQuestions.findIndex(
+    (question) => !isQuestionAnswered(record, question, { sourceInventoryReady }),
   );
-  const visiblePrimaryQuestions = primaryQuestions.filter((_, index) =>
+  const visiblePrimaryQuestions = displayedPrimaryQuestions.filter((_, index) =>
     firstPendingPrimaryIndex === -1 ? true : index <= firstPendingPrimaryIndex,
   );
-  const firstPendingFollowUpIndex = followUpQuestions.findIndex(
-    (question) => !hasText(String(record[question.id] ?? "")),
+  const firstPendingFollowUpIndex = displayedFollowUpQuestions.findIndex(
+    (question) => !isQuestionAnswered(record, question, { sourceInventoryReady }),
   );
   const visibleFollowUpQuestions = showFollowUps
-    ? followUpQuestions.filter((_, index) =>
+    ? displayedFollowUpQuestions.filter((_, index) =>
         firstPendingFollowUpIndex === -1 ? true : index <= firstPendingFollowUpIndex,
       )
     : [];
@@ -489,6 +868,12 @@ const [sources,setSources] = React.useState<number>(1)
     : draftSavedAt
       ? `Draft saved ${draftSavedAt}`
       : `Progress ${totalDone}/${totalFields}`;
+  const selectedTopBarResolution = getTopBarResolutionValue(record.signalFormats);
+  const topBarResolutionHint = getTopBarResolutionHint(selectedTopBarResolution);
+  const switchDecisionHint =
+    activeMatrixPreset == null && record.switchSolutionType.toLowerCase().includes("matrix")
+      ? "Next up: lock the preset I/O layout, then label each source in order."
+      : "Next up: source count, then the rest of the fit path in order.";
 
   const syncProjectSnapshot = React.useCallback(
     (
@@ -502,6 +887,7 @@ const [sources,setSources] = React.useState<number>(1)
         projectScope: sourceRecord.projectScope,
         customerOutcome: sourceRecord.customerOutcome,
         switchSolutionType: sourceRecord.switchSolutionType,
+        matrixIoPreset: sourceRecord.matrixIoPreset,
         featureRequirements: sourceRecord.featureRequirements,
         customer: sourceRecord.customer || activeProject.customer,
         site: sourceRecord.site || activeProject.site,
@@ -516,6 +902,7 @@ const [sources,setSources] = React.useState<number>(1)
         transportCableType: sourceRecord.transportCableType,
         displayCount: sourceRecord.displayCount,
         sourceCount: sourceRecord.sourceCount,
+        sourceInventory: sourceRecord.sourceInventory,
         outputBehaviour: sourceRecord.outputBehaviour,
         sourceTypes: sourceRecord.sourceTypes,
         sourcePlacement: sourceRecord.sourcePlacement,
@@ -556,6 +943,44 @@ const [sources,setSources] = React.useState<number>(1)
       return computedRecommendation.advice;
     },
     [activeProject],
+  );
+
+  const replaceSourceInventory = React.useCallback((items: SourceInventoryItem[]) => {
+    setRecord((previous) => syncRecordFromSourceInventory(previous, items));
+  }, []);
+
+  const addSourceInventoryItem = React.useCallback(() => {
+    replaceSourceInventory([
+      ...sourceInventoryItems,
+      { id: makeSourceInventoryId(), sourceType: "", connectionType: "" },
+    ]);
+  }, [replaceSourceInventory, sourceInventoryItems]);
+
+  const removeSourceInventoryItem = React.useCallback(
+    (id: string) => {
+      const remaining = sourceInventoryItems.filter((item) => item.id !== id);
+      replaceSourceInventory(
+        remaining.length > 0
+          ? remaining
+          : [{ id: makeSourceInventoryId(), sourceType: "", connectionType: "" }],
+      );
+    },
+    [replaceSourceInventory, sourceInventoryItems],
+  );
+
+  const updateSourceInventoryItem = React.useCallback(
+    (
+      id: string,
+      field: keyof Pick<SourceInventoryItem, "sourceType" | "connectionType">,
+      nextValue: string,
+    ) => {
+      replaceSourceInventory(
+        sourceInventoryItems.map((item) =>
+          item.id === id ? { ...item, [field]: nextValue } : item,
+        ),
+      );
+    },
+    [replaceSourceInventory, sourceInventoryItems],
   );
 
   React.useEffect(() => {
@@ -746,6 +1171,7 @@ const [sources,setSources] = React.useState<number>(1)
         [field]: value,
         customerOutcome: shouldSeedOutcome ? value : previous.customerOutcome,
         switchSolutionType: normalizedTrack.includes("switch") ? previous.switchSolutionType : "",
+        matrixIoPreset: normalizedTrack.includes("switch") ? previous.matrixIoPreset : "",
       };
 
       if (normalizedTrack.includes("extend")) {
@@ -789,23 +1215,103 @@ const [sources,setSources] = React.useState<number>(1)
       }
     } else {
       next = { ...previous, [field]: value };
+      if (!hasText(value) && field === "sourceCount") {
+        next = {
+          ...next,
+          matrixIoPreset: previous.matrixIoPreset ? "" : next.matrixIoPreset,
+          sourceInventory: "",
+          sourceTypes: "",
+          sourceConnectionType: previous.matrixIoPreset ? "HDMI" : "",
+        };
+      }
+      if (!hasText(value) && field === "displayCount" && previous.matrixIoPreset) {
+        next = {
+          ...next,
+          matrixIoPreset: "",
+          sourceCount: "",
+          sourceInventory: "",
+          sourceTypes: "",
+          sourceConnectionType: "HDMI",
+          outputBehaviour: "",
+          displayConnectionType: "",
+        };
+      }
       if (field === "switchSolutionType") {
-        if (value.toLowerCase().includes("matrix")) {
+        const previousPreset = findMatrixIoPreset(previous.matrixIoPreset);
+        const keepsPreviousPreset = previousPreset?.switchSolutionType === value;
+        if (!hasText(value)) {
           next = {
             ...next,
-            sourceConnectionType: "HDMI",
-            displayConnectionType:
-              previous.displayConnectionType.toLowerCase().includes("class") || !hasText(previous.displayConnectionType)
-                ? "HDMI"
-                : previous.displayConnectionType,
+            matrixIoPreset: "",
+            displayConnectionType: "",
+            displayCount: "",
+            outputBehaviour: "",
           };
+        }
+        if (value.toLowerCase().includes("matrix")) {
+          let matrixNext: GuidedProjectRecord = {
+            ...next,
+            matrixIoPreset: keepsPreviousPreset ? previous.matrixIoPreset : "",
+            sourceConnectionType: "HDMI",
+            sourceCount: keepsPreviousPreset && previousPreset ? String(previousPreset.inputCount) : "",
+            sourceInventory: "",
+            sourceTypes: "",
+            displayCount: keepsPreviousPreset && previousPreset ? String(previousPreset.zoneCount) : "",
+            outputBehaviour: keepsPreviousPreset && previousPreset ? "Independent switching per display" : "",
+            displayConnectionType:
+              keepsPreviousPreset && previousPreset
+                ? previousPreset.outputMode === "hdmi"
+                  ? "HDMI"
+                  : previous.displayConnectionType.toLowerCase().includes("class")
+                    ? previous.displayConnectionType
+                    : ""
+                : "",
+          };
+          if (keepsPreviousPreset && previousPreset) {
+            matrixNext = syncRecordFromSourceInventory(
+              matrixNext,
+              buildLockedSourceInventory(previous, previousPreset.inputCount, "HDMI"),
+            );
+          }
+          next = matrixNext;
         }
         if (value.toLowerCase().includes("presentation")) {
           next = {
             ...next,
+            matrixIoPreset: "",
             displayConnectionType: previous.displayConnectionType.toLowerCase().includes("class")
               ? ""
               : previous.displayConnectionType,
+            outputBehaviour:
+              previous.outputBehaviour === "Independent switching per display"
+                ? ""
+                : previous.outputBehaviour,
+          };
+        }
+      }
+      if (field === "matrixIoPreset") {
+        const preset = findMatrixIoPreset(value);
+        if (preset) {
+          next = syncRecordFromSourceInventory(
+            {
+              ...next,
+              sourceConnectionType: "HDMI",
+              displayCount: String(preset.zoneCount),
+              outputBehaviour: "Independent switching per display",
+              displayConnectionType: preset.outputMode === "hdmi" ? "HDMI" : "",
+            },
+            buildLockedSourceInventory(previous, preset.inputCount, "HDMI"),
+          );
+        } else if (previous.switchSolutionType.toLowerCase().includes("matrix")) {
+          next = {
+            ...next,
+            sourceCount: "",
+            sourceInventory: "",
+            sourceTypes: "",
+            sourceConnectionType: "HDMI",
+            displayCount: "",
+            outputBehaviour: "",
+            displayConnectionType: "",
           };
         }
       }
@@ -921,6 +1427,26 @@ const [sources,setSources] = React.useState<number>(1)
                 </button>
               ))}
             </div>
+            <div className="wm-guided-project-page__resolutionRail">
+              <div className="wm-guided-project-page__resolutionHead">
+                <span className="wm-guided-project-page__resolutionLabel">Output resolution</span>
+                <span className="wm-guided-project-page__resolutionHint">{topBarResolutionHint}</span>
+              </div>
+              <div className="wm-guided-project-page__resolutionTabs">
+                {TOP_BAR_RESOLUTION_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={`wm-guided-project-page__resolutionTab${selectedTopBarResolution === option.value ? " is-active" : ""}`}
+                    onClick={() => updateField("signalFormats", option.value)}
+                    aria-pressed={selectedTopBarResolution === option.value}
+                  >
+                    <span className="wm-guided-project-page__resolutionTabValue">{option.shortLabel}</span>
+                    <span className="wm-guided-project-page__resolutionTabDetail">{option.detail}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="wm-guided-project-page__workflowMeta">
               <span className="wm-guided-project-page__quickPill">Step {activeStep + 1} of {GUIDED_PROJECT_STEPS.length}</span>
               <span className="wm-guided-project-page__quickMeta">{saveStatus}</span>
@@ -947,6 +1473,50 @@ const [sources,setSources] = React.useState<number>(1)
 
                 <div className="wm-dw6__wizardShell wm-guided-project-page__wizardShell">
                 <div className="wm-guided-project-page__questionStack">
+                  {showSwitchDecisionSummary ? (
+                    <section className="wm-guided-project-page__decisionLockup">
+                      <div className="wm-guided-project-page__decisionLockupCopy">
+                        <span className="wm-guided-project-page__decisionLockupLabel">
+                          Switch fit locked
+                        </span>
+                        <strong className="wm-guided-project-page__decisionLockupValue">
+                          {record.switchSolutionType}
+                        </strong>
+                        <span className="wm-guided-project-page__decisionLockupHint">
+                          {switchDecisionHint}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="wm-guided-project-page__decisionLockupAction"
+                        onClick={() => updateField("switchSolutionType", "")}
+                      >
+                        Change
+                      </button>
+                    </section>
+                  ) : null}
+                  {compactSummaryQuestions.map((question) => (
+                    <section
+                      key={`${question.id}-summary`}
+                      className="wm-guided-project-page__summaryLockup"
+                    >
+                      <div className="wm-guided-project-page__summaryLockupCopy">
+                        <span className="wm-guided-project-page__summaryLockupLabel">
+                          {question.label}
+                        </span>
+                        <strong className="wm-guided-project-page__summaryLockupValue">
+                          {String(record[question.id] ?? "")}
+                        </strong>
+                      </div>
+                      <button
+                        type="button"
+                        className="wm-guided-project-page__summaryLockupAction"
+                        onClick={() => updateField(question.id, "")}
+                      >
+                        Change
+                      </button>
+                    </section>
+                  ))}
                   {visiblePrimaryQuestions.map((question) => (
                     <section
                       key={question.id}
@@ -963,6 +1533,18 @@ const [sources,setSources] = React.useState<number>(1)
                             question,
                             String(record[question.id] ?? ""),
                             (value) => updateField(question.id, value),
+                            question.id === "sourceCount"
+                              ? {
+                                  sourceInventoryItems,
+                                  sourceConnectionOptions,
+                                  sourceCountLocked,
+                                  lockLabel: activeMatrixPreset ? `${activeMatrixPreset.value} fixed` : undefined,
+                                  lockConnectionType: activeMatrixPreset ? "HDMI" : undefined,
+                                  onAddSource: addSourceInventoryItem,
+                                  onRemoveSource: removeSourceInventoryItem,
+                                  onUpdateSource: updateSourceInventoryItem,
+                                }
+                              : undefined,
                           )}
                           {nextQuestion?.id === question.id ? (
                             <span className="wm-gp__field-help">{question.helper}</span>
@@ -972,7 +1554,7 @@ const [sources,setSources] = React.useState<number>(1)
                     ))}
                   </div>
 
-                  {followUpQuestions.length > 0 ? (
+                  {displayedFollowUpQuestions.length > 0 ? (
                     <section className={`wm-guided-project-page__followupShell${nextPrimaryQuestion ? " is-dimmed-flow" : ""}`}>
                       <button
                         type="button"
@@ -986,7 +1568,7 @@ const [sources,setSources] = React.useState<number>(1)
                       >
                         {showFollowUps
                           ? "Hide follow-up detail"
-                          : `Show ${followUpQuestions.length} follow-up prompt${followUpQuestions.length === 1 ? "" : "s"}${followUpDone > 0 ? ` (${followUpDone} answered)` : ""}`}
+                          : `Show ${displayedFollowUpQuestions.length} follow-up prompt${displayedFollowUpQuestions.length === 1 ? "" : "s"}${followUpDone > 0 ? ` (${followUpDone} answered)` : ""}`}
                       </button>
 
                       {showFollowUps ? (
@@ -1011,6 +1593,18 @@ const [sources,setSources] = React.useState<number>(1)
                                     question,
                                     String(record[question.id] ?? ""),
                                     (value) => updateField(question.id, value),
+                                    question.id === "sourceCount"
+                                      ? {
+                                          sourceInventoryItems,
+                                          sourceConnectionOptions,
+                                          sourceCountLocked,
+                                          lockLabel: activeMatrixPreset ? `${activeMatrixPreset.value} fixed` : undefined,
+                                          lockConnectionType: activeMatrixPreset ? "HDMI" : undefined,
+                                          onAddSource: addSourceInventoryItem,
+                                          onRemoveSource: removeSourceInventoryItem,
+                                          onUpdateSource: updateSourceInventoryItem,
+                                        }
+                                      : undefined,
                                   )}
                                   {nextQuestion?.id === question.id ? (
                                     <span className="wm-gp__field-help">{question.helper}</span>

@@ -2,6 +2,7 @@ export * from "./types";
 export * from "./classification";
 export * from "./normalize";
 export * from "./enrich";
+export * from "./ioInference";
 export * from "./match";
 export * from "./repository";
 export * from "./boundCatalogue";

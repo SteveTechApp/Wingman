@@ -115,6 +115,7 @@ export type ProjectDiscovery = {
   projectScope?: string;
   customerOutcome?: string;
   switchSolutionType?: string;
+  matrixIoPreset?: string;
   featureRequirements?: string;
   applicationType?: string;
   roomLengthM?: string;
@@ -129,6 +130,7 @@ export type ProjectDiscovery = {
   transportCableType?: string;
   displayCount?: string;
   sourceCount?: string;
+  sourceInventory?: string;
   outputBehaviour?: string;
   sourceTypes?: string;
   sourcePlacement?: string;
@@ -378,12 +380,14 @@ function normalizeDiscovery(discovery?: ProjectDiscovery): ProjectDiscovery | un
     projectScope: discovery.projectScope ?? "",
     customerOutcome: discovery.customerOutcome ?? "",
     switchSolutionType: discovery.switchSolutionType ?? "",
+    matrixIoPreset: discovery.matrixIoPreset ?? "",
     featureRequirements: discovery.featureRequirements ?? "",
     notes: discovery.notes ?? "",
     installationPath: discovery.installationPath ?? "",
     transportDistanceBand: discovery.transportDistanceBand ?? "",
     transportCableType: discovery.transportCableType ?? "",
     outputBehaviour: discovery.outputBehaviour ?? "",
+    sourceInventory: discovery.sourceInventory ?? "",
     sourceTypes: discovery.sourceTypes ?? "",
     sourcePlacement: discovery.sourcePlacement ?? "",
     sourceConnectionPath: discovery.sourceConnectionPath ?? "",

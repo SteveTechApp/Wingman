@@ -734,7 +734,7 @@ export default function TemplatesPage() {
   return (
     <div
       className="wm-page wm-animate-in wm-templates-page"
-      style={{ width: "100%", maxWidth: 1600, margin: "0 auto", minWidth: 0, zoom: 1 }}
+      style={{ width: "100%", margin: "0 auto", minWidth: 0, zoom: 1 }}
     >
       <div style={{ display: "grid", gap: 18 }}>
         <section className="wm-hero">

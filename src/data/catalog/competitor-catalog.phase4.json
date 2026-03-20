@@ -8,7 +8,7 @@
     "subcategory": "Presentation Switcher",
     "status": "active",
     "summary": "Collaboration switcher with USB-C and HDMI inputs, local HDMI plus HDBaseT outputs, USB routing, and BYOD-friendly room integration.",
-    "sourceUrl": "https://atlona.com/product/at-ome-cs31-sa/",
+    "sourceUrl": "https://atlona.com/product/at-ome-cs31-sa-hdbt/",
     "inputs": [
       {
         "type": "HDMI",
@@ -55,6 +55,10 @@
       "hdr": true
     },
     "transport": "Local",
+    "distance": {
+      "meters": 100,
+      "notes": "Official Atlona HDBT variant supports HDBaseT extension up to 330 feet / 100 meters."
+    },
     "features": [
       "Multi format presentation switcher",
       "USB-C",
@@ -64,7 +68,7 @@
       "HDBaseT output",
       "USB host switching"
     ],
-    "notes": "Official Atlona Omega collaboration-switcher page. | Official Atlona Omega collaboration-switcher page. | data/product-intelligence-db.json#1 merged into deployed competitor catalog."
+    "notes": "Official Atlona Omega collaboration-switcher page aligned to the HDBT variant with local HDMI plus HDBaseT output. | Official Atlona Omega collaboration-switcher page. | data/product-intelligence-db.json#1 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-OME-MS42",
@@ -118,6 +122,10 @@
       "hdr": true
     },
     "transport": "Local",
+    "distance": {
+      "meters": 100,
+      "notes": "Official Atlona page describes HDBaseT transmission up to 330 feet / 100 meters."
+    },
     "features": [
       "Wireless presentation",
       "USB-C",
@@ -148,6 +156,10 @@
         "count": 2
       },
       {
+        "type": "DisplayPort",
+        "count": 1
+      },
+      {
         "type": "USB-C",
         "count": 1
       },
@@ -163,14 +175,10 @@
     "outputs": [
       {
         "type": "HDMI",
-        "count": 2
-      },
-      {
-        "type": "HDBaseT",
         "count": 1
       },
       {
-        "type": "USB Device",
+        "type": "HDBaseT",
         "count": 1
       }
     ],
@@ -192,16 +200,22 @@
       "hdr": true
     },
     "transport": "Local",
+    "distance": {
+      "meters": 100,
+      "notes": "Official Atlona page describes HDBaseT transmission up to 330 feet / 100 meters."
+    },
     "features": [
       "Wireless presentation",
+      "DisplayPort",
       "USB-C",
       "Auto switching",
       "BYOD",
-      "Dual HDMI outputs",
-      "HDBaseT mirrored output",
+      "HDMI + HDBaseT outputs",
+      "Mirrored or matrixed output modes",
       "USB host switching"
     ],
-    "notes": "Official Atlona Omega matrix-switcher page. | Official Atlona Omega matrix-switcher page. | data/product-intelligence-db.json#3 merged into deployed competitor catalog."
+    "outputBehavior": "selectable mirrored / matrixed",
+    "notes": "Official Atlona Omega matrix-switcher page describes a 5x2 switching topology built from two HDMI inputs, one DisplayPort input, one USB-C input, and wireless presentation, with one HDMI output and one HDBaseT output that can operate in mirrored or matrixed modes. | Official Atlona Omega matrix-switcher page. | data/product-intelligence-db.json#3 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-OMNI-112",
@@ -241,6 +255,10 @@
       "hdr": true
     },
     "transport": "AVoIP",
+    "distance": {
+      "networkSpeed": "1G",
+      "notes": "Official Atlona OmniStream decoder page describes 1 Gigabit AV over IP operation."
+    },
     "latency": "subframe",
     "features": [
       "AVoIP encoder",
@@ -292,6 +310,10 @@
       "hdr": true
     },
     "transport": "AVoIP",
+    "distance": {
+      "networkSpeed": "1G",
+      "notes": "Official Atlona OmniStream decoder page describes 1 Gigabit AV over IP operation."
+    },
     "latency": "subframe",
     "features": [
       "AVoIP decoder",
@@ -313,12 +335,28 @@
     "status": "legacy",
     "summary": "AV over IP Decoder legacy competitor reference record.",
     "sourceUrl": "https://atlona.com/?s=OMNISTREAM%20AT-OMNI-121",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
     "video": {
       "maxResolution": "4K60",
       "hdmi": "2.0",
       "hdr": true
     },
     "transport": "AVoIP",
+    "distance": {
+      "networkSpeed": "1G",
+      "notes": "Legacy decoder reference aligned to a standard 1G AVoIP endpoint profile."
+    },
     "features": [
       "AVoIP",
       "4K60"
@@ -365,6 +403,10 @@
       "hdr": false
     },
     "transport": "HDBaseT",
+    "distance": {
+      "meters": 100,
+      "notes": "Official Atlona extender-kit page describes extension up to 330 feet / 100 meters."
+    },
     "features": [
       "Extender kit",
       "Receiver powered by transmitter",
@@ -678,7 +720,27 @@
     "status": "draft",
     "summary": "AV over IP transmitter for distributed video workflows.",
     "sourceUrl": "https://www.blustream-us.com/search?q=IP200UHD-TX",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:2:0",
+      "bandwidthGbps": 10.2
+    },
     "transport": "AVoIP",
+    "distance": {
+      "networkSpeed": "1G",
+      "notes": "Draft encoder reference aligned to a standard 1G AVoIP transmitter profile."
+    },
     "features": [
       "AV over IP",
       "Distributed video",
@@ -948,6 +1010,10 @@
       "USB Audio"
     ],
     "transport": "USB Extension",
+    "distance": {
+      "meters": 100,
+      "notes": "Official Blustream page describes host-to-device USB extension up to 100 meters."
+    },
     "features": [
       "Extender kit",
       "USB 3.2 Gen 1",
@@ -1251,12 +1317,28 @@
     "status": "legacy",
     "summary": "AV over IP Decoder legacy competitor reference record.",
     "sourceUrl": "https://www.crestron.com/search-results?query=DM-NVX-D30",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
     "video": {
       "maxResolution": "4K60",
       "hdmi": "2.0",
       "hdr": true
     },
     "transport": "AVoIP",
+    "distance": {
+      "networkSpeed": "1G",
+      "notes": "Legacy decoder reference aligned to a standard 1G DM NVX endpoint profile."
+    },
     "features": [
       "AVoIP",
       "4K60",
@@ -1520,59 +1602,128 @@
       "HDR10",
       "Dolby Vision"
     ],
+    "outputBehavior": "mirrored + local",
     "notes": "Official Crestron HD-PS622 page. | Official Crestron HD-PS622 page. | data/product-intelligence-db.json#26 merged into deployed competitor catalog."
   },
   {
     "sku": "DM-MD8X8",
-    "name": "Matrix Switcher",
+    "name": "DigitalMedia 8x8 Matrix Switcher",
     "brand": "Crestron",
     "family": "Matrix",
     "category": "Matrix",
     "status": "legacy",
-    "summary": "Matrix Switcher legacy competitor reference record.",
+    "summary": "Fully modular and expandable 8x8 DigitalMedia matrix switcher for routing up to eight AV sources to up to eight destinations.",
     "sourceUrl": "https://www.crestron.com/search-results?query=DM-MD8X8",
+    "inputs": [
+      {
+        "type": "DigitalMedia",
+        "count": 8
+      }
+    ],
+    "outputs": [
+      {
+        "type": "DigitalMedia",
+        "count": 8
+      }
+    ],
+    "video": {
+      "maxResolution": "4K",
+      "hdcpVersion": "2.2"
+    },
     "transport": "Local",
     "features": [
-      "matrix",
-      "switching"
+      "DigitalMedia matrix",
+      "Modular I/O",
+      "8x8 routing"
     ],
-    "notes": "src/competitor/competitors.json#9 merged into deployed competitor catalog."
+    "notes": "Official Crestron search result describes the DM-MD8X8 as a fully modular and expandable 8x8 DigitalMedia matrix switcher. | src/competitor/competitors.json#9 merged into deployed competitor catalog."
   },
   {
     "sku": "DTP CROSSPOINT 84",
-    "name": "Matrix Switcher",
+    "name": "DTP CrossPoint 84 4K",
     "brand": "Extron",
     "family": "DTP",
     "category": "Matrix",
     "status": "legacy",
-    "summary": "Matrix Switcher legacy competitor reference record.",
-    "sourceUrl": "https://www.extron.com/search?searchterm=DTP%20CROSSPOINT%2084",
-    "transport": "Local",
-    "features": [
-      "matrix",
-      "switching"
+    "summary": "8x4 seamless 4K scaling presentation matrix switcher with six HDMI inputs, two DTP inputs, two HDMI outputs, and two DTP outputs.",
+    "sourceUrl": "https://www.extron.com/product/dtpcrosspoint84",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 6
+      },
+      {
+        "type": "DTP",
+        "count": 2
+      }
     ],
-    "notes": "Typical fixed matrix/switching requirement. | src/competitor/competitors.json#8 merged into deployed competitor catalog."
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "DTP",
+        "count": 2
+      }
+    ],
+    "transport": "Local",
+    "video": {
+      "maxResolution": "4K"
+    },
+    "distance": {
+      "meters": 100,
+      "notes": "Official Extron product summary describes DTP extension up to 330 feet / 100 meters."
+    },
+    "features": [
+      "Seamless scaling",
+      "Presentation matrix",
+      "DTP extension"
+    ],
+    "notes": "Official Extron product page describes the DTP CrossPoint 84 4K as an 8x4 seamless 4K scaling presentation matrix switcher with six HDMI inputs, two DTP inputs, two HDMI outputs, and two DTP outputs. | src/competitor/competitors.json#8 merged into deployed competitor catalog."
   },
   {
     "sku": "DTP T USW 233",
-    "name": "HDBaseT switcher/transmitter",
+    "name": "DTP T USW 233",
     "brand": "Extron",
     "family": "DTP",
     "category": "Switcher",
     "subcategory": "HDBaseT switcher/transmitter",
     "status": "draft",
-    "summary": "Wall/furniture mounted switcher transmitter with HDMI / VGA / USB-C style presentation input approach.",
-    "sourceUrl": "https://www.extron.com/search?searchterm=DTP%20T%20USW%20233",
+    "summary": "Three-input switcher with integrated DTP transmitter, two HDMI inputs, one RGB input, and one DTP output for presentation extension.",
+    "sourceUrl": "https://www.extron.com/product/dtptusw233",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "RGB",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "DTP",
+        "count": 1
+      }
+    ],
+    "video": {
+      "maxResolution": "1920x1200"
+    },
     "transport": "HDBaseT",
+    "distance": {
+      "meters": 70,
+      "notes": "Official Extron product page describes extension over one shielded CATx cable up to 230 feet / 70 meters."
+    },
     "features": [
       "HDBaseT transport",
       "Presentation switching",
       "Table / lectern connectivity",
-      "Apollo",
-      "HDBaseT"
+      "Integrated DTP transmitter",
+      "Auto switching"
     ],
-    "notes": "Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog."
+    "notes": "Official Extron product page describes the DTP T USW 233 as a three-input switcher with integrated DTP transmitter, two HDMI inputs, one RGB input, and one DTP output. | competitor-compare.seed.json#2 merged into deployed competitor catalog."
   },
   {
     "sku": "DTP3-R-201",
@@ -1614,6 +1765,10 @@
       "hdr": true
     },
     "transport": "HDBaseT",
+    "distance": {
+      "meters": 100,
+      "notes": "Official Extron product page describes extension up to 330 feet / 100 meters over one shielded CATx cable."
+    },
     "features": [
       "Extender receiver",
       "De-embedded stereo audio",
@@ -1669,6 +1824,10 @@
       "hdr": true
     },
     "transport": "HDBaseT",
+    "distance": {
+      "meters": 100,
+      "notes": "Official Extron product page describes extension up to 330 feet / 100 meters over one shielded CATx cable."
+    },
     "features": [
       "Presentation switcher",
       "Extender transmitter",
@@ -1682,19 +1841,43 @@
   },
   {
     "sku": "IN1608",
-    "name": "Presentation Switcher",
+    "name": "IN1608 xi",
     "brand": "Extron",
     "family": "IN",
     "category": "Switcher",
     "status": "legacy",
-    "summary": "Presentation Switcher legacy competitor reference record.",
-    "sourceUrl": "https://www.extron.com/search?searchterm=IN1608",
-    "transport": "Local",
-    "features": [
-      "switcher",
-      "presentation"
+    "summary": "Eight-input HDCP-compliant scaling presentation switcher with six HDMI inputs, two DTP inputs, HDMI outputs, and DTP extension.",
+    "sourceUrl": "https://www.extron.com/product/in1608",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 6
+      },
+      {
+        "type": "DTP",
+        "count": 2
+      }
     ],
-    "notes": "src/competitor/competitors.json#10 merged into deployed competitor catalog."
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "DTP",
+        "count": 1
+      }
+    ],
+    "transport": "Local",
+    "video": {
+      "maxResolution": "4K"
+    },
+    "features": [
+      "Presentation switcher",
+      "Scaling",
+      "DTP extension"
+    ],
+    "notes": "Official Extron product summary describes the IN1608 xi as an eight-input HDCP-compliant scaling presentation switcher with DTP extension. | src/competitor/competitors.json#10 merged into deployed competitor catalog."
   },
   {
     "sku": "NAV E 501",
@@ -1705,12 +1888,28 @@
     "status": "legacy",
     "summary": "AV over IP Encoder legacy competitor reference record.",
     "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20E%20501",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
     "video": {
       "maxResolution": "4K60",
       "hdmi": "2.0",
       "hdr": true
     },
     "transport": "AVoIP",
+    "distance": {
+      "networkSpeed": "1G",
+      "notes": "Legacy encoder reference aligned to a standard 1G NAV endpoint profile."
+    },
     "features": [
       "AVoIP",
       "4K60",
@@ -1727,12 +1926,28 @@
     "status": "legacy",
     "summary": "AV over IP Decoder legacy competitor reference record.",
     "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20SD%20501",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
     "video": {
       "maxResolution": "4K60",
       "hdmi": "2.0",
       "hdr": true
     },
     "transport": "AVoIP",
+    "distance": {
+      "networkSpeed": "1G",
+      "notes": "Legacy decoder reference aligned to a standard 1G NAV endpoint profile."
+    },
     "features": [
       "AVoIP",
       "4K60",
@@ -2096,6 +2311,11 @@
       "USB Audio"
     ],
     "transport": "USB Extension",
+    "distance": {
+      "meters": 100,
+      "networkSpeed": "1G",
+      "notes": "Official Kramer product page describes up to 100 meters over CAT and longer range over fiber or network switching."
+    },
     "features": [
       "Extender kit",
       "USB 2.0 extension",
@@ -2144,6 +2364,11 @@
       "hdr": false
     },
     "transport": "HDBaseT",
+    "distance": {
+      "meters4k": 40,
+      "meters1080p": 70,
+      "notes": "Official Kramer product page describes up to 40 meters at 4K60 4:2:0 and 70 meters at 1080p."
+    },
     "features": [
       "Extender transmitter",
       "Long-reach HDBaseT",
@@ -2455,7 +2680,7 @@
       },
       {
         "type": "USB-C",
-        "count": 1
+        "count": 2
       }
     ],
     "outputs": [
@@ -2487,12 +2712,13 @@
     "features": [
       "Matrix switcher",
       "Dual-screen extended desktop",
+      "Single USB-C host can present two routed video streams",
       "USB-C 100W charging",
       "Host switching",
       "Room automation",
       "Collaboration"
     ],
-    "notes": "Official Lightware UCX-4x3-HCM40 product page. | Official Lightware UCX-4x3-HCM40 product page. | data/product-intelligence-db.json#42 merged into deployed competitor catalog."
+    "notes": "Official Lightware UCX-4x3-HCM40 product page. Logical 4x3 count reflects dual-screen extended desktop over a single USB-C host alongside two HDMI inputs. | Official Lightware UCX-4x3-HCM40 product page. | data/product-intelligence-db.json#42 merged into deployed competitor catalog."
   },
   {
     "sku": "TPX-TX107",
@@ -2504,7 +2730,28 @@
     "status": "draft",
     "summary": "Signal extension transmitter for professional AV transport workflows.",
     "sourceUrl": "https://lightware.com/search?q=TPX-TX107",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT",
+        "count": 1
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18
+    },
     "transport": "HDBaseT",
+    "distance": {
+      "meters": 100,
+      "notes": "Official Lightware product page describes HDMI 2.0 / HDBaseT extension up to 100 meters."
+    },
     "features": [
       "HDBaseT transport",
       "Point-to-point extension",
