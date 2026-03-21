@@ -22,6 +22,8 @@
     "migrate:wingman:tables": "node tools/migrate-wingman-state-to-tables.mjs",
     "audit:css": "node tools/audit-css-coverage.mjs",
     "audit:catalog-io": "node tools/audit-catalog-io.mjs",
+    "audit:product-intelligence": "node tools/audit-product-intelligence.mjs",
+    "sync:product-intelligence": "node tools/sync-product-intelligence-db.mjs",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix"
   },

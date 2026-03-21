@@ -38,6 +38,7 @@ import {
   upsertManualCompetitorComparison,
   type ManualCompetitorComparisonInput,
 } from "@/services/manualCompetitorComparisonStore";
+import { captureManualCompetitorProduct } from "@/services/liveProductDataStore";
 
 const DEFAULT_BRAND = "";
 const DEFAULT_SKU = "";
@@ -270,6 +271,105 @@ function pillStyle(): React.CSSProperties {
     fontWeight: 800,
     whiteSpace: "nowrap",
   };
+}
+
+function labelForComparisonDomain(value?: string): string {
+  switch (value) {
+    case "AVOIP":
+      return "AVoIP";
+    case "MATRIX":
+      return "Matrix";
+    case "PRESENTATION":
+      return "Presentation";
+    case "EXTENDER":
+      return "Extender";
+    case "VIDEO_WALL":
+      return "Video wall";
+    case "CONTROL":
+      return "Control";
+    default:
+      return "Unknown";
+  }
+}
+
+function labelForComparisonUseCase(value?: string): string {
+  switch (value) {
+    case "DISTRIBUTION":
+      return "Distribution";
+    case "COLLABORATION":
+      return "Collaboration";
+    case "ROUTING":
+      return "Routing";
+    case "MULTIVIEW":
+      return "Multiview";
+    case "WALL_PROCESSING":
+      return "Wall processing";
+    case "EXTENSION":
+      return "Extension";
+    case "CONTROL":
+      return "Control";
+    default:
+      return "Unknown";
+  }
+}
+
+function stateLabelForCandidate(candidate: CompetitorCompareCandidate): string {
+  const domain = candidate.comparison.comparisonDomain;
+  const useCase = candidate.comparison.comparisonUseCase;
+
+  switch (domain) {
+    case "PRESENTATION":
+      return useCase === "COLLABORATION" ? "Presentation system" : "Presentation matrix";
+    case "AVOIP":
+      return useCase === "MULTIVIEW" ? "AVoIP multiview" : "AVoIP family";
+    case "MATRIX":
+      return "Matrix system";
+    case "EXTENDER":
+      return "Extender path";
+    case "VIDEO_WALL":
+      return useCase === "MULTIVIEW" ? "Video wall compositor" : "Video wall system";
+    case "CONTROL":
+      return "Control appliance";
+    default:
+      return "Unknown state";
+  }
+}
+
+function comparisonClassWarning(candidate: CompetitorCompareCandidate): string {
+  const domain = candidate.comparison.comparisonDomain;
+  const useCase = candidate.comparison.comparisonUseCase;
+  if (!domain || domain === "UNKNOWN") {
+    return "Product class is not fully captured yet, so treat the shortlist carefully.";
+  }
+
+  if (domain === "PRESENTATION") {
+    return `Treat this as a presentation system: ${labelForComparisonUseCase(useCase).toLowerCase()} comes first, not plain matrix routing.`;
+  }
+
+  if (domain === "EXTENDER") {
+    return "Treat this as an extender path: point-to-point reach matters more than distribution or routing.";
+  }
+
+  if (domain === "VIDEO_WALL") {
+    return "Treat this as a video wall system: wall processing or multiview composition is the real job.";
+  }
+
+  if (domain === "CONTROL") {
+    return "Treat this as a control appliance: management and orchestration matter more than signal routing.";
+  }
+
+  if (domain === "AVOIP") {
+    return `Treat this as an AVoIP family: compare like-for-like against ${labelForComparisonUseCase(useCase).toLowerCase()} endpoints.`;
+  }
+
+  return `${labelForComparisonDomain(domain)} class: ${labelForComparisonUseCase(useCase)} workflow.`;
+}
+
+function comparisonClassLabel(candidate: CompetitorCompareCandidate): string {
+  const domain = labelForComparisonDomain(candidate.comparison.comparisonDomain);
+  const useCase = labelForComparisonUseCase(candidate.comparison.comparisonUseCase);
+  if (domain === "Unknown" && useCase === "Unknown") return "Class unknown";
+  return `${domain} · ${useCase}`;
 }
 
 function summaryLineForMatrixRow(row: CompetitorCompareMatrixRow): string {
@@ -524,7 +624,17 @@ function ResultCard(props: {
                 border: "1px solid rgba(255,255,255,0.08)",
               }}
             >
-              Confidence {confidenceLabel(score)}
+                Confidence {confidenceLabel(score)}
+              </span>
+            <span
+              style={{
+                ...pillStyle(),
+                color: "#e0f2fe",
+                background: "rgba(14,165,233,0.12)",
+                border: "1px solid rgba(14,165,233,0.24)",
+              }}
+            >
+              {stateLabelForCandidate(candidate)}
             </span>
             {liveResult?.record &&
             liveResult.record.competitorSku === candidate.comparison.competitorSku ? (
@@ -544,6 +654,19 @@ function ResultCard(props: {
 
           <div style={{ fontSize: 13, color: "rgba(255,255,255,0.68)", fontWeight: 700 }}>
             {candidate.comparison.brand} {candidate.comparison.competitorSku}
+          </div>
+
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <span
+              style={{
+                ...pillStyle(),
+                color: "#fde68a",
+                background: "rgba(245,158,11,0.12)",
+                border: "1px solid rgba(245,158,11,0.22)",
+              }}
+            >
+              {comparisonClassLabel(candidate)}
+            </span>
           </div>
 
           <div style={{ fontSize: 22, lineHeight: 1.1, fontWeight: 900 }}>
@@ -623,6 +746,43 @@ function ResultCard(props: {
               <span>{decisionSummary.caution}</span>
             </div>
           ) : null}
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gap: 8,
+          padding: 12,
+          borderRadius: 14,
+          border: "1px solid rgba(245,158,11,0.18)",
+          background: "rgba(245,158,11,0.07)",
+        }}
+      >
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          <span
+            style={{
+              ...pillStyle(),
+              color: "#fde68a",
+              background: "rgba(245,158,11,0.14)",
+              border: "1px solid rgba(245,158,11,0.26)",
+            }}
+          >
+            {labelForComparisonDomain(candidate.comparison.comparisonDomain)}
+          </span>
+          <span
+            style={{
+              ...pillStyle(),
+              color: "#fcd34d",
+              background: "rgba(251,191,36,0.10)",
+              border: "1px solid rgba(251,191,36,0.20)",
+            }}
+          >
+            {labelForComparisonUseCase(candidate.comparison.comparisonUseCase)}
+          </span>
+        </div>
+        <div style={{ fontSize: 13, color: "#fde68a", lineHeight: 1.45, fontWeight: 700 }}>
+          {comparisonClassWarning(candidate)}
         </div>
       </div>
 
@@ -969,8 +1129,16 @@ export default function CompetitorComparePage() {
     setSaveMessage("");
   }
 
-  function handleSaveManual(input: ManualCompetitorComparisonInput) {
+  async function handleSaveManual(input: ManualCompetitorComparisonInput) {
     const saved = upsertManualCompetitorComparison(input);
+    await captureManualCompetitorProduct({
+      brand: saved.brand,
+      competitorSku: saved.competitorSku,
+      competitorName: saved.competitorName,
+      category: saved.category,
+      summary: saved.summary,
+      features: saved.features,
+    });
     logCompetitorCompareFeedback({
       type: "manual-save",
       brand: saved.brand,
@@ -1157,6 +1325,11 @@ export default function CompetitorComparePage() {
                     running={running}
                     title="Lookup status"
                     subtitle="See what came from the local comparison library, what was verified live, and whether the match still needs clarification."
+                    insight={
+                      selectedCandidate
+                        ? `${stateLabelForCandidate(selectedCandidate)}. ${comparisonClassWarning(selectedCandidate)}`
+                        : ""
+                    }
                     emptyText="No compare activity yet."
                   />
                 </div>

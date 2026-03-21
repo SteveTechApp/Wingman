@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { WM_ROUTES } from "@/core/wingman/routeMap";
+import { findRecommendationCatalogItemBySku } from "@/catalog/recommendationCatalog";
 import ProposalHandoffPanel from "@/features/proposals/ProposalHandoffPanel";
 import {
   getActiveProject,
@@ -186,7 +187,7 @@ function createProjectNotes(draft: ProposalDraft): string {
 }
 
 function deriveSuggestedPriceTier(project: StoredProject | null | undefined): CommercialTier {
-  const tier = project?.proposal?.selectedTier ?? project?.template?.tier;
+  const tier = project?.proposal?.selectedTier ?? project?.videowall?.designTier ?? project?.template?.tier;
   return normalizePriceTier(
     tier === "Bronze" || tier === "Silver" || tier === "Gold" ? tier : undefined,
   );
@@ -248,6 +249,7 @@ export default function ProposalBuilderPage() {
   const [proposalState, proposalDispatch] = useProposalStore(projectId);
   const [draft, setDraft] = React.useState<ProposalDraft>(() => readDraft(projectId));
   const [savedAt, setSavedAt] = React.useState("");
+  const hydratedMetaProjectIdRef = React.useRef<string | null>(null);
   const suggestedPriceTier = React.useMemo(
     () => deriveSuggestedPriceTier(activeProject),
     [activeProject],
@@ -272,18 +274,46 @@ export default function ProposalBuilderPage() {
       metaPatch.projectName = activeProject.name;
     }
 
-    if (!proposalState.meta.priceTier) {
+    if (activeProject && hydratedMetaProjectIdRef.current !== projectId) {
       metaPatch.priceTier = suggestedPriceTier;
     }
 
     if (Object.keys(metaPatch).length > 0) {
+      if (metaPatch.priceTier) {
+        hydratedMetaProjectIdRef.current = projectId;
+      }
       proposalDispatch({ type: "SET_META", patch: metaPatch });
     }
   }, [
+    projectId,
     activeProject?.name,
     proposalDispatch,
-    proposalState.meta.priceTier,
     proposalState.meta.projectName,
+    suggestedPriceTier,
+  ]);
+
+  React.useEffect(() => {
+    const recommendedItems = activeProject?.videowall?.recommendedItems ?? [];
+    if (!activeProject?.id || proposalState.lines.length > 0 || recommendedItems.length === 0) return;
+
+    recommendedItems.forEach((item) => {
+      const catalogItem = findRecommendationCatalogItemBySku(item.sku);
+      proposalDispatch({
+        type: "ADD_LINE",
+        line: {
+          sku: item.sku,
+          description: catalogItem?.description || item.role || item.sku,
+          qty: item.quantity,
+          tier: suggestedPriceTier,
+          notes: item.role ? `Video wall role: ${item.role}` : "Added from Video Wall Planner",
+        },
+      });
+    });
+  }, [
+    activeProject?.id,
+    activeProject?.videowall?.recommendedItems,
+    proposalDispatch,
+    proposalState.lines.length,
     suggestedPriceTier,
   ]);
 

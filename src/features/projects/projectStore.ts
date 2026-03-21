@@ -45,6 +45,16 @@ export type ProjectTemplateContext = {
 
 export type ProjectVideoWall = {
   technology: VideoWallTechnology;
+  designTier?: ProjectTemplateTier;
+  wallGoal?: "single" | "grid" | "pip" | "custom";
+  buildMethod?: "tile-mode" | "per-display";
+  multiviewStyle?: "equal-tiles" | "floating-windows" | "fixed-windows";
+  pathMode?: "auto" | "local-processor" | "networkhd-120" | "networkhd-500" | "sdvoe-600";
+  performancePriority?: "auto" | "low-bandwidth" | "low-latency" | "best-image";
+  sourceProfile?: "player" | "matrix-feed" | "direct-hdmi" | "camera" | "mixed";
+  sourceLandingStyle?: "standard" | "wallplate";
+  requiresDanteAudio?: boolean;
+  requiresUsbKvmLink?: boolean;
   rows: number;
   cols: number;
   widthM: number;
@@ -434,6 +444,65 @@ function normalizeVideoWall(videowall?: ProjectVideoWall): ProjectVideoWall | un
   return {
     ...videowall,
     technology: videowall.technology ?? "LCD",
+    designTier:
+      videowall.designTier === "Bronze" ||
+      videowall.designTier === "Silver" ||
+      videowall.designTier === "Gold"
+        ? videowall.designTier
+        : undefined,
+    wallGoal:
+      videowall.wallGoal === "single" ||
+      videowall.wallGoal === "grid" ||
+      videowall.wallGoal === "pip" ||
+      videowall.wallGoal === "custom"
+        ? videowall.wallGoal
+        : undefined,
+    buildMethod:
+      videowall.buildMethod === "tile-mode" || videowall.buildMethod === "per-display"
+        ? videowall.buildMethod
+        : undefined,
+    multiviewStyle:
+      videowall.multiviewStyle === "equal-tiles" ||
+      videowall.multiviewStyle === "floating-windows" ||
+      videowall.multiviewStyle === "fixed-windows"
+        ? videowall.multiviewStyle
+        : undefined,
+    pathMode:
+      videowall.pathMode === "auto" ||
+      videowall.pathMode === "local-processor" ||
+      videowall.pathMode === "networkhd-120" ||
+      videowall.pathMode === "networkhd-500" ||
+      videowall.pathMode === "sdvoe-600"
+        ? videowall.pathMode
+        : undefined,
+    performancePriority:
+      videowall.performancePriority === "auto" ||
+      videowall.performancePriority === "low-bandwidth" ||
+      videowall.performancePriority === "low-latency" ||
+      videowall.performancePriority === "best-image"
+        ? videowall.performancePriority
+        : undefined,
+    sourceProfile:
+      videowall.sourceProfile === "player" ||
+      videowall.sourceProfile === "matrix-feed" ||
+      videowall.sourceProfile === "direct-hdmi" ||
+      videowall.sourceProfile === "camera" ||
+      videowall.sourceProfile === "mixed"
+        ? videowall.sourceProfile
+        : undefined,
+    sourceLandingStyle:
+      videowall.sourceLandingStyle === "standard" ||
+      videowall.sourceLandingStyle === "wallplate"
+        ? videowall.sourceLandingStyle
+        : undefined,
+    requiresDanteAudio:
+      typeof videowall.requiresDanteAudio === "boolean"
+        ? videowall.requiresDanteAudio
+        : undefined,
+    requiresUsbKvmLink:
+      typeof videowall.requiresUsbKvmLink === "boolean"
+        ? videowall.requiresUsbKvmLink
+        : undefined,
     rows: Number(videowall.rows) || 1,
     cols: Number(videowall.cols) || 1,
     widthM: Number(videowall.widthM) || 0,
@@ -1243,10 +1312,18 @@ export function applyVideoWallToProject(
   );
   const outputRows = videowall.outputRows ?? videowall.rows ?? 1;
   const outputCols = videowall.outputCols ?? videowall.cols ?? 1;
+  const selectedTier =
+    videowall.designTier ??
+    (project.proposal?.selectedTier === "Bronze" ||
+    project.proposal?.selectedTier === "Silver" ||
+    project.proposal?.selectedTier === "Gold"
+      ? project.proposal.selectedTier
+      : undefined);
 
   const notesParts = [
     project.notes?.trim(),
     videowall.summary?.trim(),
+    selectedTier ? `Design tier: ${selectedTier}` : "",
     Array.isArray(videowall.mountingNotes) && videowall.mountingNotes.length
       ? `Mounting notes: ${videowall.mountingNotes.join("; ")}`
       : "",
@@ -1283,6 +1360,10 @@ export function applyVideoWallToProject(
       ...(project.catalog ?? {}),
       selectedBrand: project.catalog?.selectedBrand ?? "WyreStorm",
       skus: mergedCatalogSkus,
+    },
+    proposal: {
+      ...(project.proposal ?? {}),
+      selectedTier: selectedTier ?? project.proposal?.selectedTier,
     },
   });
 }

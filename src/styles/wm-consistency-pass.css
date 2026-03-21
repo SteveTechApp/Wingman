@@ -12550,10 +12550,23 @@ footer[class*="wm-"] {
   align-items: stretch;
 }
 
+.wm-video-wall-lite__decisionGrid {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(420px, 1.3fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
 .wm-video-wall-lite__recommendationCopy {
   display: grid;
   gap: 10px;
   align-content: start;
+}
+
+.wm-video-wall-lite__detailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .wm-video-wall-lite__previewPanel {
@@ -12601,6 +12614,8 @@ footer[class*="wm-"] {
 
 @media (max-width: 1280px) {
   .wm-video-wall-lite__layout,
+  .wm-video-wall-lite__decisionGrid,
+  .wm-video-wall-lite__detailGrid,
   .wm-video-wall-lite__recommendationGrid {
     grid-template-columns: 1fr;
   }

@@ -5,10 +5,9 @@
     "brand": "Atlona",
     "family": "Omega",
     "category": "Switcher",
-    "subcategory": "Presentation Switcher",
-    "status": "active",
+    "status": "draft",
     "summary": "Collaboration switcher with USB-C and HDMI inputs, local HDMI plus HDBaseT outputs, USB routing, and BYOD-friendly room integration.",
-    "sourceUrl": "https://atlona.com/product/at-ome-cs31-sa-hdbt/",
+    "sourceUrl": "https://atlona.com/product/at-ome-cs31-sa/",
     "inputs": [
       {
         "type": "HDMI",
@@ -56,8 +55,7 @@
     },
     "transport": "Local",
     "distance": {
-      "meters": 100,
-      "notes": "Official Atlona HDBT variant supports HDBaseT extension up to 330 feet / 100 meters."
+      "meters": 100
     },
     "features": [
       "Multi format presentation switcher",
@@ -68,7 +66,7 @@
       "HDBaseT output",
       "USB host switching"
     ],
-    "notes": "Official Atlona Omega collaboration-switcher page aligned to the HDBT variant with local HDMI plus HDBaseT output. | Official Atlona Omega collaboration-switcher page. | data/product-intelligence-db.json#1 merged into deployed competitor catalog."
+    "notes": "Official Atlona Omega collaboration-switcher page. | Official Atlona Omega collaboration-switcher page. | data/product-intelligence-db.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-OME-MS42",
@@ -76,8 +74,8 @@
     "brand": "Atlona",
     "family": "Omega",
     "category": "Switcher",
-    "subcategory": "Presentation Switcher",
-    "status": "active",
+    "subcategory": "Presentation switcher",
+    "status": "draft",
     "summary": "Four-input presentation switcher with wireless presentation, USB-C connectivity, dual HDMI outputs, and integrated USB hub support for small meeting spaces.",
     "sourceUrl": "https://atlona.com/product/at-ome-ms42/",
     "inputs": [
@@ -122,23 +120,19 @@
       "hdr": true
     },
     "transport": "Local",
-    "distance": {
-      "meters": 100,
-      "notes": "Official Atlona page describes HDBaseT transmission up to 330 feet / 100 meters."
-    },
     "features": [
+      "Presentation switching",
+      "Mixed inputs",
+      "BYOD meeting support",
+      "Apollo",
       "Wireless presentation",
       "USB-C",
       "Dual HDMI outputs",
       "USB hub",
       "BYOD",
-      "Auto switching",
-      "Presentation switching",
-      "Mixed inputs",
-      "BYOD meeting support",
-      "Apollo"
+      "Auto switching"
     ],
-    "notes": "Official Atlona Omega presentation-switcher page. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Official Atlona Omega presentation-switcher page. | data/product-intelligence-db.json#2 merged into deployed competitor catalog."
+    "notes": "Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#12 merged into deployed competitor catalog. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#12 merged into deployed competitor catalog. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#12 merged into deployed competitor catalog. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#12 merged into deployed competitor catalog. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#12 merged into deployed competitor catalog. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#12 merged into deployed competitor catalog. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#12 merged into deployed competitor catalog. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#12 merged into deployed competitor catalog. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#12 merged into deployed competitor catalog. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#12 merged into deployed competitor catalog. | Official Atlona Omega presentation-switcher page. | Apollo is the strongest Wingman family for this meeting-space switching use case. | Confirm room UC type | Check expected number of inputs | Review USB peripheral needs | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Official Atlona Omega presentation-switcher page. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#3 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-OME-MS52W",
@@ -146,9 +140,8 @@
     "brand": "Atlona",
     "family": "Omega",
     "category": "Switcher",
-    "subcategory": "Presentation Switcher",
-    "status": "active",
-    "summary": "Five-input presentation switcher with two HDMI outputs, mirrored HDBaseT output, USB-C, wireless presentation, and USB host integration.",
+    "status": "draft",
+    "summary": "Five-input presentation switcher with two HDMI outputs, HDBaseT output, USB-C, DisplayPort, wireless presentation, and USB host integration.",
     "sourceUrl": "https://atlona.com/product/at-ome-ms52w/",
     "inputs": [
       {
@@ -175,10 +168,14 @@
     "outputs": [
       {
         "type": "HDMI",
-        "count": 1
+        "count": 2
       },
       {
         "type": "HDBaseT",
+        "count": 1
+      },
+      {
+        "type": "USB Device",
         "count": 1
       }
     ],
@@ -201,21 +198,226 @@
     },
     "transport": "Local",
     "distance": {
-      "meters": 100,
-      "notes": "Official Atlona page describes HDBaseT transmission up to 330 feet / 100 meters."
+      "meters": 100
     },
     "features": [
       "Wireless presentation",
-      "DisplayPort",
       "USB-C",
       "Auto switching",
       "BYOD",
-      "HDMI + HDBaseT outputs",
-      "Mirrored or matrixed output modes",
+      "Dual HDMI outputs",
+      "HDBaseT mirrored output",
       "USB host switching"
     ],
-    "outputBehavior": "selectable mirrored / matrixed",
-    "notes": "Official Atlona Omega matrix-switcher page describes a 5x2 switching topology built from two HDMI inputs, one DisplayPort input, one USB-C input, and wireless presentation, with one HDMI output and one HDBaseT output that can operate in mirrored or matrixed modes. | Official Atlona Omega matrix-switcher page. | data/product-intelligence-db.json#3 merged into deployed competitor catalog."
+    "notes": "Official Atlona Omega matrix-switcher page. | Official Atlona Omega matrix-switcher page. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "AT-OME-PS62",
+    "name": "Omega PS62",
+    "brand": "Atlona",
+    "family": "Omega",
+    "category": "Switcher",
+    "status": "draft",
+    "summary": "6x2 matrix presentation switcher with USB hub, HDBaseT output, second output for display distribution, and lecture-hall collaboration routing.",
+    "sourceUrl": "https://atlona.com/product/at-ome-ps62/",
+    "inputs": [
+      {
+        "type": "AV Input",
+        "count": 6
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "HDBaseT",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio",
+      "USB Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "HDBASET",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "Matrix presentation switcher",
+      "USB hub",
+      "HDBaseT output",
+      "USB routing",
+      "Auto switching",
+      "Display control",
+      "Ducking",
+      "Lecture hall"
+    ],
+    "notes": "Official Atlona AV Solutions for Business / Education brochure and product page. | data/product-intelligence-db.json#57 merged into deployed competitor catalog. | data/product-intelligence-db.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#5 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "AT-OME-SW32",
+    "name": "Omega SW32",
+    "brand": "Atlona",
+    "family": "Omega",
+    "category": "Switcher",
+    "status": "draft",
+    "summary": "3-input matrix switcher with HDMI and USB-C sources and dual HDMI outputs for classroom and meeting-room collaboration.",
+    "sourceUrl": "https://atlona.com/product/at-ome-sw32/",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "Local",
+    "features": [
+      "Matrix switcher",
+      "USB-C",
+      "Dual HDMI outputs",
+      "Auto switching",
+      "BYOD",
+      "Presentation switching"
+    ],
+    "notes": "Official Atlona education brochure and product page. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "AT-OME-TX11-WP",
+    "name": "Omega TX11-WP",
+    "brand": "Atlona",
+    "family": "Omega",
+    "category": "Extender",
+    "status": "draft",
+    "summary": "Wallplate HDBaseT transmitter with HDMI input for BYOD podium feeds and 100 m category-cable extension.",
+    "sourceUrl": "https://atlona.com/product/at-ome-tx11-wp/",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "TCP/IP",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:2:0",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "HDBASET",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "Wallplate transmitter",
+      "HDBaseT",
+      "BYOD podium feed",
+      "Automatic input selection",
+      "USB hub"
+    ],
+    "notes": "Official Atlona education and business brochure plus product page. | data/product-intelligence-db.json#59 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "AT-OMNI-111",
+    "name": "OmniStream Networked AV Encoder",
+    "brand": "Atlona",
+    "family": "OmniStream",
+    "category": "AVoIP",
+    "status": "draft",
+    "summary": "Single-channel networked AV encoder for managed Gigabit distribution with 4K60 4:4:4 VCx compression, multiview, and video-wall workflows.",
+    "sourceUrl": "https://atlona.com/product/at-omni-111/",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "Web GUI"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "AVOIP",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "AVoIP encoder",
+      "VCx codec",
+      "Gigabit Ethernet",
+      "Multiview",
+      "Video wall",
+      "PoE",
+      "Ultra-low latency",
+      "Fast switching"
+    ],
+    "notes": "Official Atlona OmniStream education brochure and product page. | data/product-intelligence-db.json#60 merged into deployed competitor catalog. | data/product-intelligence-db.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#8 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-OMNI-112",
@@ -223,8 +425,7 @@
     "brand": "Atlona",
     "family": "OmniStream",
     "category": "AVoIP",
-    "subcategory": "Encoder",
-    "status": "active",
+    "status": "draft",
     "summary": "Dual-channel AV over IP encoder for two HDMI sources up to 4K60 4:4:4 and HDR with embedded audio and RS-232 or IR pass-through over Gigabit Ethernet.",
     "sourceUrl": "https://atlona.com/product/at-omni-112/",
     "inputs": [
@@ -256,10 +457,8 @@
     },
     "transport": "AVoIP",
     "distance": {
-      "networkSpeed": "1G",
-      "notes": "Official Atlona OmniStream decoder page describes 1 Gigabit AV over IP operation."
+      "meters": 100
     },
-    "latency": "subframe",
     "features": [
       "AVoIP encoder",
       "Dual-channel encoding",
@@ -270,7 +469,7 @@
       "IR pass-through",
       "RS-232 pass-through"
     ],
-    "notes": "Official Atlona OmniStream dual-channel encoder page. | Official Atlona OmniStream dual-channel encoder page. | data/product-intelligence-db.json#4 merged into deployed competitor catalog."
+    "notes": "Official Atlona OmniStream dual-channel encoder page. | Official Atlona OmniStream dual-channel encoder page. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#9 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-OMNI-121",
@@ -278,8 +477,7 @@
     "brand": "Atlona",
     "family": "OmniStream",
     "category": "AVoIP",
-    "subcategory": "Decoder",
-    "status": "active",
+    "status": "draft",
     "summary": "AV over IP decoder for HDMI output up to 4K60 4:4:4 and HDR with ultra-fast switching, video wall processing, multiview support, and PoE operation.",
     "sourceUrl": "https://atlona.com/product/at-omni-121/",
     "inputs": [
@@ -311,10 +509,8 @@
     },
     "transport": "AVoIP",
     "distance": {
-      "networkSpeed": "1G",
-      "notes": "Official Atlona OmniStream decoder page describes 1 Gigabit AV over IP operation."
+      "meters": 100
     },
-    "latency": "subframe",
     "features": [
       "AVoIP decoder",
       "Ultra-fast switching",
@@ -324,15 +520,97 @@
       "PoE",
       "IEEE 802.1X"
     ],
-    "notes": "Official Atlona OmniStream decoder page. | Official Atlona OmniStream decoder page. | data/product-intelligence-db.json#5 merged into deployed competitor catalog."
+    "notes": "Official Atlona OmniStream decoder page. | Official Atlona OmniStream decoder page. | data/product-intelligence-db.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#10 merged into deployed competitor catalog."
   },
   {
-    "sku": "OMNISTREAM AT-OMNI-121",
-    "name": "AV over IP Decoder",
+    "sku": "AT-OMNI-311",
+    "name": "OmniStream USB to IP Adapter",
     "brand": "Atlona",
     "family": "OmniStream",
     "category": "AVoIP",
-    "status": "legacy",
+    "status": "draft",
+    "summary": "USB-to-IP adapter for extending USB devices across OmniStream networks for conferencing peripherals and remote collaboration.",
+    "sourceUrl": "https://atlona.com/product/at-omni-311/",
+    "inputs": [
+      {
+        "type": "USB",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI"
+    ],
+    "audio": [
+      "USB Audio"
+    ],
+    "transport": "USB Extension",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "USB to IP",
+      "KVM",
+      "OmniStream",
+      "Remote peripherals",
+      "Managed-network USB"
+    ],
+    "notes": "Official Atlona OmniStream product page. | data/product-intelligence-db.json#61 merged into deployed competitor catalog. | data/product-intelligence-db.json#11 merged into deployed competitor catalog. | data/product-intelligence-db.json#11 merged into deployed competitor catalog. | data/product-intelligence-db.json#11 merged into deployed competitor catalog. | data/product-intelligence-db.json#11 merged into deployed competitor catalog. | data/product-intelligence-db.json#11 merged into deployed competitor catalog. | data/product-intelligence-db.json#11 merged into deployed competitor catalog. | data/product-intelligence-db.json#11 merged into deployed competitor catalog. | data/product-intelligence-db.json#11 merged into deployed competitor catalog. | data/product-intelligence-db.json#11 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "AT-OMNI-324",
+    "name": "OmniStream IP to USB Adapter",
+    "brand": "Atlona",
+    "family": "OmniStream",
+    "category": "AVoIP",
+    "status": "draft",
+    "summary": "IP-to-USB adapter for bringing remote OmniStream devices back to the host side for conferencing and collaboration workflows.",
+    "sourceUrl": "https://atlona.com/product/at-omni-324/",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "USB",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI"
+    ],
+    "audio": [
+      "USB Audio"
+    ],
+    "transport": "USB Extension",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "IP to USB",
+      "KVM",
+      "OmniStream",
+      "Remote peripherals",
+      "Managed-network USB"
+    ],
+    "notes": "Official Atlona OmniStream product page. | data/product-intelligence-db.json#62 merged into deployed competitor catalog. | data/product-intelligence-db.json#12 merged into deployed competitor catalog. | data/product-intelligence-db.json#12 merged into deployed competitor catalog. | data/product-intelligence-db.json#12 merged into deployed competitor catalog. | data/product-intelligence-db.json#12 merged into deployed competitor catalog. | data/product-intelligence-db.json#12 merged into deployed competitor catalog. | data/product-intelligence-db.json#12 merged into deployed competitor catalog. | data/product-intelligence-db.json#12 merged into deployed competitor catalog. | data/product-intelligence-db.json#12 merged into deployed competitor catalog. | data/product-intelligence-db.json#12 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "OMNISTREAM AT-OMNI-121",
+    "name": "OmniStream Networked AV Decoder",
+    "brand": "Atlona",
+    "family": "OmniStream",
+    "category": "AVoIP",
+    "status": "draft",
     "summary": "AV over IP Decoder legacy competitor reference record.",
     "sourceUrl": "https://atlona.com/?s=OMNISTREAM%20AT-OMNI-121",
     "inputs": [
@@ -348,20 +626,25 @@
       }
     ],
     "video": {
-      "maxResolution": "4K60",
+      "maxResolution": "4K60 4:4:4",
       "hdmi": "2.0",
+      "bandwidthGbps": 18,
       "hdr": true
     },
-    "transport": "AVoIP",
+    "transport": "AVOIP",
     "distance": {
-      "networkSpeed": "1G",
-      "notes": "Legacy decoder reference aligned to a standard 1G AVoIP endpoint profile."
+      "meters": 100
     },
     "features": [
-      "AVoIP",
-      "4K60"
+      "AVoIP decoder",
+      "Ultra-fast switching",
+      "Video wall",
+      "Multiview",
+      "Thumbnail preview",
+      "PoE",
+      "IEEE 802.1X"
     ],
-    "notes": "src/competitor/competitors.json#7 merged into deployed competitor catalog."
+    "notes": "src/competitor/competitors.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog."
   },
   {
     "sku": "AT-UHD-EX-100CE-KIT",
@@ -369,8 +652,7 @@
     "brand": "Atlona",
     "family": "UHD-EX",
     "category": "Extender",
-    "subcategory": "Extender Kit",
-    "status": "active",
+    "status": "draft",
     "summary": "HDBaseT extender kit for HDMI with HDCP 2.2 support, receiver-powered operation, and point-to-point extension over category cable.",
     "sourceUrl": "https://atlona.com/product/at-uhd-ex-100ce-kit/",
     "inputs": [
@@ -404,8 +686,7 @@
     },
     "transport": "HDBaseT",
     "distance": {
-      "meters": 100,
-      "notes": "Official Atlona extender-kit page describes extension up to 330 feet / 100 meters."
+      "meters": 100
     },
     "features": [
       "Extender kit",
@@ -414,7 +695,150 @@
       "Point-to-point extension",
       "CEC pass-through"
     ],
-    "notes": "Official Atlona extender-kit page. | Official Atlona extender-kit page. | data/product-intelligence-db.json#6 merged into deployed competitor catalog."
+    "notes": "Official Atlona extender-kit page. | Official Atlona extender-kit page. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#13 merged into deployed competitor catalog. | data/product-intelligence-db.json#13 merged into deployed competitor catalog. | data/product-intelligence-db.json#13 merged into deployed competitor catalog. | data/product-intelligence-db.json#13 merged into deployed competitor catalog. | data/product-intelligence-db.json#13 merged into deployed competitor catalog. | data/product-intelligence-db.json#13 merged into deployed competitor catalog. | data/product-intelligence-db.json#13 merged into deployed competitor catalog. | data/product-intelligence-db.json#13 merged into deployed competitor catalog. | data/product-intelligence-db.json#13 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "AT-OCS-900N",
+    "name": "Network Enabled Occupancy Sensor",
+    "brand": "Atlona",
+    "family": "Velocity",
+    "category": "Control",
+    "status": "draft",
+    "summary": "Network-enabled occupancy sensor for Velocity room automation and occupancy-aware control.",
+    "sourceUrl": "https://atlona.com/product/at-ocs-900n/",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI"
+    ],
+    "features": [
+      "Occupancy sensor",
+      "Room automation",
+      "Velocity",
+      "Network-enabled"
+    ],
+    "notes": "Official Atlona Velocity product page and education guide. | data/product-intelligence-db.json#67 merged into deployed competitor catalog. | data/product-intelligence-db.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#1 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "AT-VGW-HW",
+    "name": "Velocity Hardware Gateway",
+    "brand": "Atlona",
+    "family": "Velocity",
+    "category": "Control",
+    "status": "draft",
+    "summary": "Velocity hardware gateway for AV control, scheduling, device management, and remote cloud administration.",
+    "sourceUrl": "https://atlona.com/product/vgw-hw/",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "HTTPS",
+      "Web UI"
+    ],
+    "features": [
+      "AV control",
+      "Room scheduling",
+      "Device management",
+      "Remote administration",
+      "Velocity gateway"
+    ],
+    "notes": "Official Atlona Velocity product page and education guide. | data/product-intelligence-db.json#63 merged into deployed competitor catalog. | data/product-intelligence-db.json#14 merged into deployed competitor catalog. | data/product-intelligence-db.json#14 merged into deployed competitor catalog. | data/product-intelligence-db.json#14 merged into deployed competitor catalog. | data/product-intelligence-db.json#14 merged into deployed competitor catalog. | data/product-intelligence-db.json#14 merged into deployed competitor catalog. | data/product-intelligence-db.json#14 merged into deployed competitor catalog. | data/product-intelligence-db.json#14 merged into deployed competitor catalog. | data/product-intelligence-db.json#14 merged into deployed competitor catalog. | data/product-intelligence-db.json#14 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "AT-VKP-8E",
+    "name": "Velocity 8 Button Keypad Controller",
+    "brand": "Atlona",
+    "family": "Velocity",
+    "category": "Control",
+    "status": "draft",
+    "summary": "8-button Velocity keypad controller for quick room recall, source selection, and automation triggers.",
+    "sourceUrl": "https://atlona.com/product/at-vkp-8e/",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "HTTPS",
+      "Web UI"
+    ],
+    "features": [
+      "Keypad controller",
+      "Preset recall",
+      "AV control",
+      "Velocity"
+    ],
+    "notes": "Official Atlona Velocity product page and education guide. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | data/product-intelligence-db.json#15 merged into deployed competitor catalog. | data/product-intelligence-db.json#15 merged into deployed competitor catalog. | data/product-intelligence-db.json#15 merged into deployed competitor catalog. | data/product-intelligence-db.json#15 merged into deployed competitor catalog. | data/product-intelligence-db.json#15 merged into deployed competitor catalog. | data/product-intelligence-db.json#15 merged into deployed competitor catalog. | data/product-intelligence-db.json#15 merged into deployed competitor catalog. | data/product-intelligence-db.json#15 merged into deployed competitor catalog. | data/product-intelligence-db.json#15 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "AT-VTP-700VL",
+    "name": "Velocity 7 Inch Touch Panel",
+    "brand": "Atlona",
+    "family": "Velocity",
+    "category": "Control",
+    "status": "draft",
+    "summary": "7-inch Velocity touch panel for AV control, room scheduling, and user-friendly source selection.",
+    "sourceUrl": "https://atlona.com/product/at-vtp-700vl-bl/",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "HTTPS",
+      "Web UI"
+    ],
+    "features": [
+      "Touch panel",
+      "AV control",
+      "Room scheduling",
+      "Velocity",
+      "PoE"
+    ],
+    "notes": "Official Atlona Velocity product page and education guide. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | data/product-intelligence-db.json#16 merged into deployed competitor catalog. | data/product-intelligence-db.json#16 merged into deployed competitor catalog. | data/product-intelligence-db.json#16 merged into deployed competitor catalog. | data/product-intelligence-db.json#16 merged into deployed competitor catalog. | data/product-intelligence-db.json#16 merged into deployed competitor catalog. | data/product-intelligence-db.json#16 merged into deployed competitor catalog. | data/product-intelligence-db.json#16 merged into deployed competitor catalog. | data/product-intelligence-db.json#16 merged into deployed competitor catalog. | data/product-intelligence-db.json#16 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "AT-VTPG-1000VL",
+    "name": "Velocity All In One 10 Inch Touch Panel with Gateway",
+    "brand": "Atlona",
+    "family": "Velocity",
+    "category": "Control",
+    "status": "draft",
+    "summary": "10-inch all-in-one Velocity touch panel with embedded gateway for room control and scheduling.",
+    "sourceUrl": "https://atlona.com/product/vtpg-1000vl/",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "HTTPS",
+      "Web UI"
+    ],
+    "features": [
+      "Touch panel",
+      "Embedded gateway",
+      "AV control",
+      "Room scheduling",
+      "Velocity",
+      "PoE"
+    ],
+    "notes": "Official Atlona Velocity product page and education guide. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | data/product-intelligence-db.json#17 merged into deployed competitor catalog. | data/product-intelligence-db.json#17 merged into deployed competitor catalog. | data/product-intelligence-db.json#17 merged into deployed competitor catalog. | data/product-intelligence-db.json#17 merged into deployed competitor catalog. | data/product-intelligence-db.json#17 merged into deployed competitor catalog. | data/product-intelligence-db.json#17 merged into deployed competitor catalog. | data/product-intelligence-db.json#17 merged into deployed competitor catalog. | data/product-intelligence-db.json#17 merged into deployed competitor catalog. | data/product-intelligence-db.json#17 merged into deployed competitor catalog."
   },
   {
     "sku": "CLICKSHARE-BAR-PRO",
@@ -422,8 +846,7 @@
     "brand": "Barco",
     "family": "ClickShare",
     "category": "UC",
-    "subcategory": "UC Soundbar",
-    "status": "active",
+    "status": "draft",
     "summary": "All-in-one video bar for wireless conferencing with integrated camera, speakers, microphones, and ClickShare room sharing workflows.",
     "sourceUrl": "https://www.barco.com/en/product/clickshare-video-bar-pro",
     "inputs": [
@@ -479,7 +902,7 @@
       "Integrated camera",
       "AI framing"
     ],
-    "notes": "Official Barco ClickShare Bar Pro product page. | Official Barco ClickShare Bar Pro product page. | data/product-intelligence-db.json#7 merged into deployed competitor catalog."
+    "notes": "Official Barco ClickShare Bar Pro product page. | Official Barco ClickShare Bar Pro product page. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#19 merged into deployed competitor catalog. | data/product-intelligence-db.json#19 merged into deployed competitor catalog. | data/product-intelligence-db.json#19 merged into deployed competitor catalog. | data/product-intelligence-db.json#19 merged into deployed competitor catalog. | data/product-intelligence-db.json#19 merged into deployed competitor catalog. | data/product-intelligence-db.json#19 merged into deployed competitor catalog. | data/product-intelligence-db.json#19 merged into deployed competitor catalog. | data/product-intelligence-db.json#19 merged into deployed competitor catalog. | data/product-intelligence-db.json#19 merged into deployed competitor catalog."
   },
   {
     "sku": "CLICKSHARE-BUTTON-5TH-GEN",
@@ -487,8 +910,7 @@
     "brand": "Barco",
     "family": "ClickShare",
     "category": "Accessories",
-    "subcategory": "USB Casting Dongle",
-    "status": "active",
+    "status": "draft",
     "summary": "USB-C wireless presentation dongle and meeting trigger button for one-click ClickShare room sharing.",
     "sourceUrl": "https://www.barco.com/en/support/clickshare-button",
     "inputs": [
@@ -520,7 +942,7 @@
       "One-click sharing",
       "Low-friction guest sharing"
     ],
-    "notes": "Official Barco ClickShare Button support page. | Official Barco ClickShare Button support page. | data/product-intelligence-db.json#8 merged into deployed competitor catalog."
+    "notes": "Official Barco ClickShare Button support page. | Official Barco ClickShare Button support page. | data/product-intelligence-db.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog."
   },
   {
     "sku": "CLICKSHARE-C-10",
@@ -528,8 +950,7 @@
     "brand": "Barco",
     "family": "ClickShare",
     "category": "Switcher",
-    "subcategory": "Wireless Presentation",
-    "status": "active",
+    "status": "draft",
     "summary": "Wireless presentation hub for huddle spaces with app or button sharing, 4K output, and native casting support.",
     "sourceUrl": "https://www.barco.com/en/product/clickshare-c-10",
     "inputs": [
@@ -567,7 +988,6 @@
       "hdr": false
     },
     "transport": "Local",
-    "latency": "standard",
     "features": [
       "Wireless presentation",
       "AirPlay",
@@ -576,7 +996,7 @@
       "Button support",
       "App sharing"
     ],
-    "notes": "Official Barco ClickShare C-10 product page. | Official Barco ClickShare C-10 product page. | data/product-intelligence-db.json#9 merged into deployed competitor catalog."
+    "notes": "Official Barco ClickShare C-10 product page. | Official Barco ClickShare C-10 product page. | data/product-intelligence-db.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#21 merged into deployed competitor catalog. | data/product-intelligence-db.json#21 merged into deployed competitor catalog. | data/product-intelligence-db.json#21 merged into deployed competitor catalog. | data/product-intelligence-db.json#21 merged into deployed competitor catalog. | data/product-intelligence-db.json#21 merged into deployed competitor catalog. | data/product-intelligence-db.json#21 merged into deployed competitor catalog. | data/product-intelligence-db.json#21 merged into deployed competitor catalog. | data/product-intelligence-db.json#21 merged into deployed competitor catalog. | data/product-intelligence-db.json#21 merged into deployed competitor catalog."
   },
   {
     "sku": "CLICKSHARE-CX-20",
@@ -584,8 +1004,7 @@
     "brand": "Barco",
     "family": "ClickShare",
     "category": "Switcher",
-    "subcategory": "Wireless Presentation",
-    "status": "active",
+    "status": "draft",
     "summary": "Wireless conferencing and presentation hub for small meeting spaces with USB peripheral sharing and app or button workflows.",
     "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-20",
     "inputs": [
@@ -632,7 +1051,6 @@
       "hdr": false
     },
     "transport": "Local",
-    "latency": "standard",
     "features": [
       "Wireless conferencing",
       "Wireless presentation",
@@ -642,7 +1060,7 @@
       "Miracast",
       "USB peripheral sharing"
     ],
-    "notes": "Official Barco ClickShare CX-20 product page. | Official Barco ClickShare CX-20 product page. | data/product-intelligence-db.json#10 merged into deployed competitor catalog."
+    "notes": "Official Barco ClickShare CX-20 product page. | Official Barco ClickShare CX-20 product page. | data/product-intelligence-db.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#11 merged into deployed competitor catalog. | data/product-intelligence-db.json#22 merged into deployed competitor catalog. | data/product-intelligence-db.json#22 merged into deployed competitor catalog. | data/product-intelligence-db.json#22 merged into deployed competitor catalog. | data/product-intelligence-db.json#22 merged into deployed competitor catalog. | data/product-intelligence-db.json#22 merged into deployed competitor catalog. | data/product-intelligence-db.json#22 merged into deployed competitor catalog. | data/product-intelligence-db.json#22 merged into deployed competitor catalog. | data/product-intelligence-db.json#22 merged into deployed competitor catalog. | data/product-intelligence-db.json#22 merged into deployed competitor catalog."
   },
   {
     "sku": "CLICKSHARE-CX-30",
@@ -650,8 +1068,7 @@
     "brand": "Barco",
     "family": "ClickShare",
     "category": "Switcher",
-    "subcategory": "Wireless Presentation",
-    "status": "active",
+    "status": "draft",
     "summary": "Wireless conferencing and presentation hub with HDMI output, USB peripherals, AirPlay, Google Cast, and Miracast support for medium meeting rooms.",
     "sourceUrl": "https://www.barco.com/en/product/clickshare-cx-30",
     "inputs": [
@@ -698,7 +1115,6 @@
       "hdr": false
     },
     "transport": "Local",
-    "latency": "standard",
     "features": [
       "Wireless conferencing",
       "Wireless presentation",
@@ -708,7 +1124,7 @@
       "BYOM",
       "USB peripheral sharing"
     ],
-    "notes": "Official Barco ClickShare CX-30 page. | Official Barco ClickShare CX-30 page. | data/product-intelligence-db.json#11 merged into deployed competitor catalog."
+    "notes": "Official Barco ClickShare CX-30 page. | Official Barco ClickShare CX-30 page. | data/product-intelligence-db.json#11 merged into deployed competitor catalog. | data/product-intelligence-db.json#12 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog."
   },
   {
     "sku": "IP200UHD-TX",
@@ -734,12 +1150,13 @@
     ],
     "video": {
       "maxResolution": "4K60 4:2:0",
-      "bandwidthGbps": 10.2
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "AVoIP",
     "distance": {
-      "networkSpeed": "1G",
-      "notes": "Draft encoder reference aligned to a standard 1G AVoIP transmitter profile."
+      "meters": 100
     },
     "features": [
       "AV over IP",
@@ -747,7 +1164,7 @@
       "Scalable routing",
       "AVoIP"
     ],
-    "notes": "Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#5 merged into deployed competitor catalog."
+    "notes": "Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#14 merged into deployed competitor catalog. | Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#14 merged into deployed competitor catalog. | Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#14 merged into deployed competitor catalog. | Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#14 merged into deployed competitor catalog. | Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#14 merged into deployed competitor catalog. | Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#14 merged into deployed competitor catalog. | Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#14 merged into deployed competitor catalog. | Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#14 merged into deployed competitor catalog. | Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#14 merged into deployed competitor catalog. | Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#14 merged into deployed competitor catalog. | Closest Wingman recommendation is WyreStorm NetworkHD encoder/decoder architecture. | Check multicast / network readiness | Confirm USB requirements | Assess endpoint count | competitor-compare.seed.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#13 merged into deployed competitor catalog. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#24 merged into deployed competitor catalog."
   },
   {
     "sku": "IP300UHD-RX",
@@ -755,8 +1172,7 @@
     "brand": "Blustream",
     "family": "IP300",
     "category": "AVoIP",
-    "subcategory": "Decoder",
-    "status": "active",
+    "status": "draft",
     "summary": "4K HDCP 2.2 HDMI-over-IP multicast decoder with HDMI output, USB and control extension, and one-gigabit AV transport.",
     "sourceUrl": "https://www.blustream-us.com/ip300uhd-rx",
     "inputs": [
@@ -795,7 +1211,9 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "low",
+    "distance": {
+      "meters": 100
+    },
     "features": [
       "AVoIP decoder",
       "Multicast",
@@ -804,7 +1222,7 @@
       "Video wall",
       "Matrix switching"
     ],
-    "notes": "Official Blustream IP300UHD-RX page. | Official Blustream IP300UHD-RX page. | data/product-intelligence-db.json#12 merged into deployed competitor catalog."
+    "notes": "Official Blustream IP300UHD-RX page. | Official Blustream IP300UHD-RX page. | data/product-intelligence-db.json#12 merged into deployed competitor catalog. | data/product-intelligence-db.json#14 merged into deployed competitor catalog. | data/product-intelligence-db.json#25 merged into deployed competitor catalog. | data/product-intelligence-db.json#25 merged into deployed competitor catalog. | data/product-intelligence-db.json#25 merged into deployed competitor catalog. | data/product-intelligence-db.json#25 merged into deployed competitor catalog. | data/product-intelligence-db.json#25 merged into deployed competitor catalog. | data/product-intelligence-db.json#25 merged into deployed competitor catalog. | data/product-intelligence-db.json#25 merged into deployed competitor catalog. | data/product-intelligence-db.json#25 merged into deployed competitor catalog. | data/product-intelligence-db.json#25 merged into deployed competitor catalog."
   },
   {
     "sku": "IP300UHD-TX",
@@ -812,8 +1230,7 @@
     "brand": "Blustream",
     "family": "IP300",
     "category": "AVoIP",
-    "subcategory": "Encoder",
-    "status": "active",
+    "status": "draft",
     "summary": "4K HDCP 2.2 HDMI-over-IP multicast encoder with HDMI input, USB and control extension, and one-gigabit AV transport.",
     "sourceUrl": "https://www.blustream-us.com/ip300uhd-tx",
     "inputs": [
@@ -848,7 +1265,9 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "low",
+    "distance": {
+      "meters": 100
+    },
     "features": [
       "AVoIP encoder",
       "Multicast",
@@ -857,7 +1276,7 @@
       "Video wall",
       "Matrix switching"
     ],
-    "notes": "Official Blustream IP300UHD-TX page. | Official Blustream IP300UHD-TX page. | data/product-intelligence-db.json#13 merged into deployed competitor catalog."
+    "notes": "Official Blustream IP300UHD-TX page. | Official Blustream IP300UHD-TX page. | data/product-intelligence-db.json#13 merged into deployed competitor catalog. | data/product-intelligence-db.json#15 merged into deployed competitor catalog. | data/product-intelligence-db.json#26 merged into deployed competitor catalog. | data/product-intelligence-db.json#26 merged into deployed competitor catalog. | data/product-intelligence-db.json#26 merged into deployed competitor catalog. | data/product-intelligence-db.json#26 merged into deployed competitor catalog. | data/product-intelligence-db.json#26 merged into deployed competitor catalog. | data/product-intelligence-db.json#26 merged into deployed competitor catalog. | data/product-intelligence-db.json#26 merged into deployed competitor catalog. | data/product-intelligence-db.json#26 merged into deployed competitor catalog. | data/product-intelligence-db.json#26 merged into deployed competitor catalog."
   },
   {
     "sku": "IP350UHD-TX",
@@ -865,8 +1284,7 @@
     "brand": "Blustream",
     "family": "IP350",
     "category": "AVoIP",
-    "subcategory": "Encoder",
-    "status": "active",
+    "status": "draft",
     "summary": "4K HDMI-over-IP encoder with Dante and AES67 audio support, copper or fiber network uplinks, and bidirectional IR, RS-232, and USB-KVM extension.",
     "sourceUrl": "https://www.blustream-us.com/video-over-ip-extenders-ip350uhd-tx",
     "inputs": [
@@ -906,7 +1324,9 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "low",
+    "distance": {
+      "meters": 100
+    },
     "features": [
       "AVoIP encoder",
       "Dante audio",
@@ -917,7 +1337,7 @@
       "Video wall",
       "Matrix switching"
     ],
-    "notes": "Official Blustream IP350UHD-TX page. | Official Blustream IP350UHD-TX page. | data/product-intelligence-db.json#14 merged into deployed competitor catalog."
+    "notes": "Official Blustream IP350UHD-TX page. | Official Blustream IP350UHD-TX page. | data/product-intelligence-db.json#14 merged into deployed competitor catalog. | data/product-intelligence-db.json#16 merged into deployed competitor catalog. | data/product-intelligence-db.json#27 merged into deployed competitor catalog. | data/product-intelligence-db.json#27 merged into deployed competitor catalog. | data/product-intelligence-db.json#27 merged into deployed competitor catalog. | data/product-intelligence-db.json#27 merged into deployed competitor catalog. | data/product-intelligence-db.json#27 merged into deployed competitor catalog. | data/product-intelligence-db.json#27 merged into deployed competitor catalog. | data/product-intelligence-db.json#27 merged into deployed competitor catalog. | data/product-intelligence-db.json#27 merged into deployed competitor catalog. | data/product-intelligence-db.json#27 merged into deployed competitor catalog."
   },
   {
     "sku": "SW41AB-V2",
@@ -925,8 +1345,7 @@
     "brand": "Blustream",
     "family": "SW",
     "category": "Switcher",
-    "subcategory": "Presentation Switcher",
-    "status": "active",
+    "status": "draft",
     "summary": "Four-input multiformat presentation switcher with HDMI and USB-C connectivity, 18 Gbps output, audio embedding and de-embedding, and web GUI control.",
     "sourceUrl": "https://www.blustream-us.com/sw41ab-v2",
     "inputs": [
@@ -975,7 +1394,7 @@
       "18 Gbps",
       "HDCP 2.2"
     ],
-    "notes": "Official Blustream SW41AB-V2 page. | Official Blustream SW41AB-V2 page. | data/product-intelligence-db.json#15 merged into deployed competitor catalog."
+    "notes": "Official Blustream SW41AB-V2 page. | Official Blustream SW41AB-V2 page. | data/product-intelligence-db.json#15 merged into deployed competitor catalog. | data/product-intelligence-db.json#17 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog."
   },
   {
     "sku": "UEX3C-KIT",
@@ -983,8 +1402,7 @@
     "brand": "Blustream",
     "family": "UEX",
     "category": "Extender",
-    "subcategory": "Extender Kit",
-    "status": "active",
+    "status": "draft",
     "summary": "USB 3.2 Gen 1 extender kit supporting host-to-device extension up to 100 meters with power over cable and compatibility with conferencing cameras, audio devices, and storage.",
     "sourceUrl": "https://www.blustream-us.com/uex3c-kit",
     "inputs": [
@@ -1011,8 +1429,7 @@
     ],
     "transport": "USB Extension",
     "distance": {
-      "meters": 100,
-      "notes": "Official Blustream page describes host-to-device USB extension up to 100 meters."
+      "meters": 100
     },
     "features": [
       "Extender kit",
@@ -1022,7 +1439,7 @@
       "Conference camera support",
       "Backward compatible with USB 2.0 and 1.1"
     ],
-    "notes": "Official Blustream UEX3C-KIT page. | Official Blustream UEX3C-KIT page. | data/product-intelligence-db.json#16 merged into deployed competitor catalog."
+    "notes": "Official Blustream UEX3C-KIT page. | Official Blustream UEX3C-KIT page. | data/product-intelligence-db.json#16 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#29 merged into deployed competitor catalog. | data/product-intelligence-db.json#29 merged into deployed competitor catalog. | data/product-intelligence-db.json#29 merged into deployed competitor catalog. | data/product-intelligence-db.json#29 merged into deployed competitor catalog. | data/product-intelligence-db.json#29 merged into deployed competitor catalog. | data/product-intelligence-db.json#29 merged into deployed competitor catalog. | data/product-intelligence-db.json#29 merged into deployed competitor catalog. | data/product-intelligence-db.json#29 merged into deployed competitor catalog. | data/product-intelligence-db.json#29 merged into deployed competitor catalog."
   },
   {
     "sku": "WMF-USBC-D",
@@ -1030,8 +1447,7 @@
     "brand": "Blustream",
     "family": "WMF",
     "category": "Accessories",
-    "subcategory": "USB Casting Dongle",
-    "status": "active",
+    "status": "draft",
     "summary": "USB-C wireless presentation dongle for instant screen sharing into Blustream WMF rooms without drivers or local software installation.",
     "sourceUrl": "https://www.blustream-us.com/wmf-usbc-d",
     "inputs": [
@@ -1063,7 +1479,7 @@
       "One-click sharing",
       "Guest collaboration"
     ],
-    "notes": "Official Blustream WMF-USBC-D page. | Official Blustream WMF-USBC-D page. | data/product-intelligence-db.json#17 merged into deployed competitor catalog."
+    "notes": "Official Blustream WMF-USBC-D page. | Official Blustream WMF-USBC-D page. | data/product-intelligence-db.json#17 merged into deployed competitor catalog. | data/product-intelligence-db.json#19 merged into deployed competitor catalog. | data/product-intelligence-db.json#30 merged into deployed competitor catalog. | data/product-intelligence-db.json#30 merged into deployed competitor catalog. | data/product-intelligence-db.json#30 merged into deployed competitor catalog. | data/product-intelligence-db.json#30 merged into deployed competitor catalog. | data/product-intelligence-db.json#30 merged into deployed competitor catalog. | data/product-intelligence-db.json#30 merged into deployed competitor catalog. | data/product-intelligence-db.json#30 merged into deployed competitor catalog. | data/product-intelligence-db.json#30 merged into deployed competitor catalog. | data/product-intelligence-db.json#30 merged into deployed competitor catalog."
   },
   {
     "sku": "WMF72",
@@ -1071,8 +1487,7 @@
     "brand": "Blustream",
     "family": "WMF",
     "category": "Switcher",
-    "subcategory": "Presentation Switcher",
-    "status": "active",
+    "status": "draft",
     "summary": "4K multiformat presentation switcher with wired HDMI and USB-C inputs, AirPlay, Miracast, and Chromecast sharing, dual HDMI outputs, and wireless USB device support.",
     "sourceUrl": "https://www.blustream-us.com/introducing-the-new-wmf72-from-blustream-2",
     "inputs": [
@@ -1115,7 +1530,6 @@
       "hdr": true
     },
     "transport": "Local",
-    "latency": "standard",
     "features": [
       "Wireless presentation",
       "Multi format presentation switcher",
@@ -1126,7 +1540,7 @@
       "Wireless USB camera and microphone",
       "USB touch-back"
     ],
-    "notes": "Official Blustream WMF72 launch page. | Official Blustream WMF72 launch page. | data/product-intelligence-db.json#18 merged into deployed competitor catalog."
+    "notes": "Official Blustream WMF72 launch page. | Official Blustream WMF72 launch page. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog."
   },
   {
     "sku": "AM-3200-WF-I",
@@ -1134,8 +1548,7 @@
     "brand": "Crestron",
     "family": "AirMedia",
     "category": "Switcher",
-    "subcategory": "Wireless Presentation",
-    "status": "active",
+    "status": "draft",
     "summary": "Secure wireless presentation and conferencing system with native AirPlay and Miracast, digital signage, cloud management, and support for presenting multiple 4K sources onscreen.",
     "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Presentation-Systems/AM-3200-WF-I",
     "inputs": [
@@ -1178,7 +1591,6 @@
       "hdr": false
     },
     "transport": "Local",
-    "latency": "standard",
     "features": [
       "Wireless presentation",
       "Wireless conferencing",
@@ -1188,7 +1600,7 @@
       "Cloud deployment",
       "Multi-source presentation"
     ],
-    "notes": "Official Crestron AirMedia Series 3 page. | Official Crestron AirMedia Series 3 page. | data/product-intelligence-db.json#19 merged into deployed competitor catalog."
+    "notes": "Official Crestron AirMedia Series 3 page. | Official Crestron AirMedia Series 3 page. | data/product-intelligence-db.json#19 merged into deployed competitor catalog. | data/product-intelligence-db.json#21 merged into deployed competitor catalog. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#32 merged into deployed competitor catalog."
   },
   {
     "sku": "AM-TX3-100",
@@ -1196,8 +1608,7 @@
     "brand": "Crestron",
     "family": "AirMedia",
     "category": "Accessories",
-    "subcategory": "USB Casting Dongle",
-    "status": "active",
+    "status": "draft",
     "summary": "USB-C wireless presentation dongle for one-touch AirMedia room sharing and guest collaboration workflows.",
     "sourceUrl": "https://www.crestron.com/Products/Workspace-Solutions/Wireless-Presentation/AirMedia-Wireless-Conferencing/AM-TX3-100",
     "inputs": [
@@ -1229,7 +1640,41 @@
       "One-touch sharing",
       "Guest collaboration"
     ],
-    "notes": "Official Crestron AirMedia Connect Adaptor page. | Official Crestron AirMedia Connect Adaptor page. | data/product-intelligence-db.json#20 merged into deployed competitor catalog."
+    "notes": "Official Crestron AirMedia Connect Adaptor page. | Official Crestron AirMedia Connect Adaptor page. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#22 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "DM-MD8X8",
+    "name": "DM-MD8X8",
+    "brand": "Crestron",
+    "family": "DM Modular Matrix",
+    "category": "Matrix",
+    "status": "draft",
+    "summary": "Matrix Switcher legacy competitor reference record.",
+    "sourceUrl": "https://www.crestron.com/search-results?query=DM-MD8X8",
+    "inputs": [
+      {
+        "type": "Modular Input",
+        "count": 8
+      }
+    ],
+    "outputs": [
+      {
+        "type": "Modular Output",
+        "count": 8
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "HDMI_DISTRIBUTION",
+    "features": [
+      "matrix",
+      "switching"
+    ],
+    "notes": "src/competitor/competitors.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog."
   },
   {
     "sku": "DM-NVX-360",
@@ -1237,8 +1682,8 @@
     "brand": "Crestron",
     "family": "DM NVX",
     "category": "AVoIP",
-    "subcategory": "Encoder/Decoder",
-    "status": "active",
+    "subcategory": "AV over IP encoder/decoder",
+    "status": "draft",
     "summary": "4K60 4:4:4 AV-over-IP endpoint over 1GbE with HDMI and analog audio I/O, USB 2.0 extension, PoE+, and secure enterprise-network features.",
     "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-360",
     "inputs": [
@@ -1291,60 +1736,24 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "low",
+    "distance": {
+      "meters": 100
+    },
     "features": [
+      "1Gb AV over IP",
+      "USB/KVM support",
+      "Enterprise AV routing",
+      "Control integration",
+      "AVoIP",
       "AVoIP endpoint",
       "USB 2.0 extension",
       "PoE+",
       "802.1X",
       "AES encryption",
       "Video wall",
-      "Matrix switching",
-      "1Gb AV over IP",
-      "USB/KVM support",
-      "Enterprise AV routing",
-      "Control integration",
-      "AVoIP"
+      "Matrix switching"
     ],
-    "notes": "Official Crestron DM NVX 360 page. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Official Crestron DM NVX 360 page. | data/product-intelligence-db.json#21 merged into deployed competitor catalog."
-  },
-  {
-    "sku": "DM-NVX-D30",
-    "name": "AV over IP Decoder",
-    "brand": "Crestron",
-    "family": "DM NVX",
-    "category": "AVoIP",
-    "status": "legacy",
-    "summary": "AV over IP Decoder legacy competitor reference record.",
-    "sourceUrl": "https://www.crestron.com/search-results?query=DM-NVX-D30",
-    "inputs": [
-      {
-        "type": "LAN",
-        "count": 1
-      }
-    ],
-    "outputs": [
-      {
-        "type": "HDMI",
-        "count": 1
-      }
-    ],
-    "video": {
-      "maxResolution": "4K60",
-      "hdmi": "2.0",
-      "hdr": true
-    },
-    "transport": "AVoIP",
-    "distance": {
-      "networkSpeed": "1G",
-      "notes": "Legacy decoder reference aligned to a standard 1G DM NVX endpoint profile."
-    },
-    "features": [
-      "AVoIP",
-      "4K60",
-      "low-latency"
-    ],
-    "notes": "src/competitor/competitors.json#4 merged into deployed competitor catalog."
+    "notes": "Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Official Crestron DM NVX 360 page. | Closest Wingman direction is WyreStorm NetworkHD family for 1Gb AV over IP distribution with enterprise-style routing. | Validate USB expectations | Confirm decoder/encoder quantity | Check control system integration needs | competitor-compare.seed.json#1 merged into deployed competitor catalog. | Official Crestron DM NVX 360 page. | data/product-intelligence-db.json#21 merged into deployed competitor catalog. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#35 merged into deployed competitor catalog. | data/product-intelligence-db.json#35 merged into deployed competitor catalog. | data/product-intelligence-db.json#35 merged into deployed competitor catalog. | data/product-intelligence-db.json#35 merged into deployed competitor catalog. | data/product-intelligence-db.json#35 merged into deployed competitor catalog. | data/product-intelligence-db.json#35 merged into deployed competitor catalog. | data/product-intelligence-db.json#35 merged into deployed competitor catalog. | data/product-intelligence-db.json#35 merged into deployed competitor catalog. | data/product-intelligence-db.json#35 merged into deployed competitor catalog."
   },
   {
     "sku": "DM-NVX-DIR2",
@@ -1352,8 +1761,7 @@
     "brand": "Crestron",
     "family": "DM NVX",
     "category": "Control",
-    "subcategory": "AVoIP Controller",
-    "status": "active",
+    "status": "draft",
     "summary": "AV over IP management appliance for DM NVX systems that provides browser-based virtual matrix switching, endpoint monitoring, bulk configuration, and diagnostics.",
     "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Management/DM-NVX-DIR-ENT",
     "inputs": [
@@ -1377,7 +1785,7 @@
       "Browser-based management",
       "Diagnostics"
     ],
-    "notes": "Official Crestron DM NVX Director page. | Official Crestron DM NVX Director page. | data/product-intelligence-db.json#22 merged into deployed competitor catalog."
+    "notes": "Official Crestron DM NVX Director page. | Official Crestron DM NVX Director page. | data/product-intelligence-db.json#22 merged into deployed competitor catalog. | data/product-intelligence-db.json#26 merged into deployed competitor catalog. | data/product-intelligence-db.json#37 merged into deployed competitor catalog. | data/product-intelligence-db.json#37 merged into deployed competitor catalog. | data/product-intelligence-db.json#37 merged into deployed competitor catalog. | data/product-intelligence-db.json#37 merged into deployed competitor catalog. | data/product-intelligence-db.json#37 merged into deployed competitor catalog. | data/product-intelligence-db.json#37 merged into deployed competitor catalog. | data/product-intelligence-db.json#37 merged into deployed competitor catalog. | data/product-intelligence-db.json#37 merged into deployed competitor catalog. | data/product-intelligence-db.json#37 merged into deployed competitor catalog."
   },
   {
     "sku": "DM-NVX-E30",
@@ -1385,8 +1793,7 @@
     "brand": "Crestron",
     "family": "DM NVX",
     "category": "AVoIP",
-    "subcategory": "Encoder/Decoder",
-    "status": "active",
+    "status": "draft",
     "summary": "Compact 4K60 4:4:4 AV-over-IP endpoint for enterprise distribution, switching, and USB extension workflows over 1GbE.",
     "sourceUrl": "https://www.crestron.com/Products/Video/DigitalMedia-NVX-Endpoints/DM-NVX-E30",
     "inputs": [
@@ -1428,7 +1835,9 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "low",
+    "distance": {
+      "meters": 100
+    },
     "features": [
       "AVoIP endpoint",
       "USB extension",
@@ -1439,7 +1848,45 @@
       "4K60",
       "low-latency"
     ],
-    "notes": "Official Crestron DM NVX E30 page. | src/competitor/competitors.json#3 merged into deployed competitor catalog. | Official Crestron DM NVX E30 page. | data/product-intelligence-db.json#23 merged into deployed competitor catalog."
+    "notes": "Official Crestron DM NVX E30 page. | src/competitor/competitors.json#3 merged into deployed competitor catalog. | Official Crestron DM NVX E30 page. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#27 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "DM-NVX-D30",
+    "name": "DM-NVX-D30",
+    "brand": "Crestron",
+    "family": "DM-NVX",
+    "category": "AVoIP",
+    "status": "draft",
+    "summary": "AV over IP Decoder legacy competitor reference record.",
+    "sourceUrl": "https://www.crestron.com/search-results?query=DM-NVX-D30",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "AVOIP",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "AVoIP",
+      "4K60",
+      "low-latency"
+    ],
+    "notes": "src/competitor/competitors.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#25 merged into deployed competitor catalog. | data/product-intelligence-db.json#36 merged into deployed competitor catalog. | data/product-intelligence-db.json#36 merged into deployed competitor catalog. | data/product-intelligence-db.json#36 merged into deployed competitor catalog. | data/product-intelligence-db.json#36 merged into deployed competitor catalog. | data/product-intelligence-db.json#36 merged into deployed competitor catalog. | data/product-intelligence-db.json#36 merged into deployed competitor catalog. | data/product-intelligence-db.json#36 merged into deployed competitor catalog. | data/product-intelligence-db.json#36 merged into deployed competitor catalog. | data/product-intelligence-db.json#36 merged into deployed competitor catalog."
   },
   {
     "sku": "HD-DA2-4KZ-E",
@@ -1447,8 +1894,7 @@
     "brand": "Crestron",
     "family": "HD",
     "category": "Distribution",
-    "subcategory": "Splitter",
-    "status": "active",
+    "status": "draft",
     "summary": "1x2 HDMI distribution amplifier for 4K60 4:4:4 and HDR with EDID management, high-bitrate audio support, and HDCP 2.2 compliance.",
     "sourceUrl": "https://www.crestron.com/Products/Video/Distribution-Amplifiers/HD-DA2-4KZ-E",
     "inputs": [
@@ -1485,7 +1931,7 @@
       "HDCP 2.2",
       "Compact form factor"
     ],
-    "notes": "Official Crestron HD-DA2-4KZ-E page. | Official Crestron HD-DA2-4KZ-E page. | data/product-intelligence-db.json#24 merged into deployed competitor catalog."
+    "notes": "Official Crestron HD-DA2-4KZ-E page. | Official Crestron HD-DA2-4KZ-E page. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog."
   },
   {
     "sku": "HD-MD4X2-4KZ-E",
@@ -1493,8 +1939,7 @@
     "brand": "Crestron",
     "family": "HD",
     "category": "Matrix",
-    "subcategory": "Matrix Switch",
-    "status": "active",
+    "status": "draft",
     "summary": "4x2 HDMI matrix switcher for 4K60 4:4:4 and HDR distribution with audio breakaway, EDID management, and XiO Cloud compatibility.",
     "sourceUrl": "https://www.crestron.com/Products/Video/Switchers/HD-MD4X2-4KZ-E",
     "inputs": [
@@ -1534,7 +1979,7 @@
       "XiO Cloud",
       "HDCP 2.3"
     ],
-    "notes": "Official Crestron HD-MD4X2-4KZ-E page. | Official Crestron HD-MD4X2-4KZ-E page. | data/product-intelligence-db.json#25 merged into deployed competitor catalog."
+    "notes": "Official Crestron HD-MD4X2-4KZ-E page. | Official Crestron HD-MD4X2-4KZ-E page. | data/product-intelligence-db.json#25 merged into deployed competitor catalog. | data/product-intelligence-db.json#29 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog."
   },
   {
     "sku": "HD-PS622",
@@ -1542,8 +1987,7 @@
     "brand": "Crestron",
     "family": "HD",
     "category": "Switcher",
-    "subcategory": "Presentation Switcher",
-    "status": "active",
+    "status": "draft",
     "summary": "8x2 presentation switcher with six HDMI inputs, two DM inputs, two HDMI outputs, built-in 4K scalers, audio mixing, and enterprise management support.",
     "sourceUrl": "https://www.crestron.com/Products/Video/Presentation-Systems/HD-PS622",
     "inputs": [
@@ -1554,23 +1998,11 @@
       {
         "type": "DM",
         "count": 2
-      },
-      {
-        "type": "Analog Audio",
-        "count": 2
       }
     ],
     "outputs": [
       {
         "type": "HDMI",
-        "count": 2
-      },
-      {
-        "type": "DM",
-        "count": 2
-      },
-      {
-        "type": "Analog Audio",
         "count": 2
       }
     ],
@@ -1592,6 +2024,9 @@
       "hdr": true
     },
     "transport": "Local",
+    "distance": {
+      "meters": 40
+    },
     "features": [
       "Presentation switcher",
       "Multi format presentation switcher",
@@ -1602,50 +2037,106 @@
       "HDR10",
       "Dolby Vision"
     ],
-    "outputBehavior": "mirrored + local",
-    "notes": "Official Crestron HD-PS622 page. | Official Crestron HD-PS622 page. | data/product-intelligence-db.json#26 merged into deployed competitor catalog."
+    "notes": "Official Crestron HD-PS622 page. | Official Crestron HD-PS622 page. | data/product-intelligence-db.json#26 merged into deployed competitor catalog. | data/product-intelligence-db.json#30 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog."
   },
   {
-    "sku": "DM-MD8X8",
-    "name": "DigitalMedia 8x8 Matrix Switcher",
-    "brand": "Crestron",
-    "family": "Matrix",
-    "category": "Matrix",
-    "status": "legacy",
-    "summary": "Fully modular and expandable 8x8 DigitalMedia matrix switcher for routing up to eight AV sources to up to eight destinations.",
-    "sourceUrl": "https://www.crestron.com/search-results?query=DM-MD8X8",
+    "sku": "DTP T USW 233",
+    "name": "HDBaseT switcher/transmitter",
+    "brand": "Extron",
+    "family": "DTP",
+    "category": "Switcher",
+    "subcategory": "HDBaseT switcher/transmitter",
+    "status": "draft",
+    "summary": "Wall/furniture mounted switcher transmitter with HDMI / VGA / USB-C style presentation input approach.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=DTP%20T%20USW%20233",
     "inputs": [
       {
-        "type": "DigitalMedia",
-        "count": 8
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB-C",
+        "count": 1
       }
     ],
     "outputs": [
       {
-        "type": "DigitalMedia",
-        "count": 8
+        "type": "DTP",
+        "count": 1
       }
     ],
     "video": {
-      "maxResolution": "4K",
-      "hdcpVersion": "2.2"
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "transport": "Local",
+    "transport": "HDBASET",
+    "distance": {
+      "meters": 100
+    },
     "features": [
-      "DigitalMedia matrix",
-      "Modular I/O",
-      "8x8 routing"
+      "HDBaseT transport",
+      "Presentation switching",
+      "Table / lectern connectivity",
+      "Apollo",
+      "HDBaseT"
     ],
-    "notes": "Official Crestron search result describes the DM-MD8X8 as a fully modular and expandable 8x8 DigitalMedia matrix switcher. | src/competitor/competitors.json#9 merged into deployed competitor catalog."
+    "notes": "Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog. | Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog. | Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog. | Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog. | Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog. | Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog. | Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog. | Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog. | Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog. | Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog. | Closest WyreStorm direction is an Apollo or HDBaseT presentation-switching workflow depending on room and UC needs. | Check input mix | Confirm USB-C behavior | Assess room UC requirements | competitor-compare.seed.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#45 merged into deployed competitor catalog. | data/product-intelligence-db.json#45 merged into deployed competitor catalog. | data/product-intelligence-db.json#45 merged into deployed competitor catalog. | data/product-intelligence-db.json#45 merged into deployed competitor catalog. | data/product-intelligence-db.json#45 merged into deployed competitor catalog. | data/product-intelligence-db.json#45 merged into deployed competitor catalog. | data/product-intelligence-db.json#45 merged into deployed competitor catalog. | data/product-intelligence-db.json#45 merged into deployed competitor catalog. | data/product-intelligence-db.json#45 merged into deployed competitor catalog."
   },
   {
     "sku": "DTP CROSSPOINT 84",
     "name": "DTP CrossPoint 84 4K",
     "brand": "Extron",
-    "family": "DTP",
+    "family": "DTP CrossPoint",
     "category": "Matrix",
-    "status": "legacy",
-    "summary": "8x4 seamless 4K scaling presentation matrix switcher with six HDMI inputs, two DTP inputs, two HDMI outputs, and two DTP outputs.",
+    "status": "draft",
+    "summary": "Matrix Switcher legacy competitor reference record.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=DTP%20CROSSPOINT%2084",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 6
+      },
+      {
+        "type": "DTP",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "DTP",
+        "count": 2
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "HDBASET",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "matrix",
+      "switching"
+    ],
+    "notes": "Typical fixed matrix/switching requirement. | src/competitor/competitors.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "DTP CROSSPOINT 84 4K",
+    "name": "DTP CrossPoint 84 4K",
+    "brand": "Extron",
+    "family": "DTP CrossPoint",
+    "category": "Matrix",
+    "status": "draft",
+    "summary": "8x4 matrix switcher with HDMI and DTP inputs, dual HDMI outputs, scaled DTP outputs, and integrated control and audio functions.",
     "sourceUrl": "https://www.extron.com/product/dtpcrosspoint84",
     "inputs": [
       {
@@ -1667,63 +2158,123 @@
         "count": 2
       }
     ],
-    "transport": "Local",
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio",
+      "DSP"
+    ],
     "video": {
-      "maxResolution": "4K"
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
     },
+    "transport": "HDBASET",
     "distance": {
-      "meters": 100,
-      "notes": "Official Extron product summary describes DTP extension up to 330 feet / 100 meters."
+      "meters": 100
     },
     "features": [
-      "Seamless scaling",
-      "Presentation matrix",
-      "DTP extension"
+      "Matrix switching",
+      "Scaling",
+      "DTP extension",
+      "Control processor",
+      "Audio DSP",
+      "Presentation matrix"
     ],
-    "notes": "Official Extron product page describes the DTP CrossPoint 84 4K as an 8x4 seamless 4K scaling presentation matrix switcher with six HDMI inputs, two DTP inputs, two HDMI outputs, and two DTP outputs. | src/competitor/competitors.json#8 merged into deployed competitor catalog."
+    "notes": "Official Extron DTP CrossPoint 84 4K product page and literature. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | Official Extron DTP CrossPoint 84 4K product page and literature. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | Official Extron DTP CrossPoint 84 4K product page and literature. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | Official Extron DTP CrossPoint 84 4K product page and literature. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | Official Extron DTP CrossPoint 84 4K product page and literature. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | Official Extron DTP CrossPoint 84 4K product page and literature. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | Official Extron DTP CrossPoint 84 4K product page and literature. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | Official Extron DTP CrossPoint 84 4K product page and literature. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | Official Extron DTP CrossPoint 84 4K product page and literature. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | Official Extron DTP CrossPoint 84 4K product page and literature. | data/product-intelligence-db.json#68 merged into deployed competitor catalog. | data/product-intelligence-db.json#44 merged into deployed competitor catalog. | data/product-intelligence-db.json#44 merged into deployed competitor catalog. | data/product-intelligence-db.json#44 merged into deployed competitor catalog. | data/product-intelligence-db.json#44 merged into deployed competitor catalog. | data/product-intelligence-db.json#44 merged into deployed competitor catalog. | data/product-intelligence-db.json#44 merged into deployed competitor catalog. | data/product-intelligence-db.json#44 merged into deployed competitor catalog. | data/product-intelligence-db.json#44 merged into deployed competitor catalog. | data/product-intelligence-db.json#44 merged into deployed competitor catalog."
   },
   {
-    "sku": "DTP T USW 233",
-    "name": "DTP T USW 233",
+    "sku": "DTP3 R 201",
+    "name": "HDBaseT extender receiver",
     "brand": "Extron",
-    "family": "DTP",
-    "category": "Switcher",
-    "subcategory": "HDBaseT switcher/transmitter",
+    "family": "DTP3",
+    "category": "Extender",
+    "subcategory": "HDBaseT extender receiver",
     "status": "draft",
-    "summary": "Three-input switcher with integrated DTP transmitter, two HDMI inputs, one RGB input, and one DTP output for presentation extension.",
-    "sourceUrl": "https://www.extron.com/product/dtptusw233",
+    "summary": "Receiver-side DTP3 endpoint with HDMI output and audio de-embedding for point-to-point extension.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=DTP3%20R%20201",
     "inputs": [
       {
-        "type": "HDMI",
-        "count": 2
-      },
-      {
-        "type": "RGB",
+        "type": "DTP3",
         "count": 1
       }
     ],
     "outputs": [
       {
-        "type": "DTP",
+        "type": "HDMI",
         "count": 1
       }
     ],
     "video": {
-      "maxResolution": "1920x1200"
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
     },
-    "transport": "HDBaseT",
+    "transport": "HDBASET",
     "distance": {
-      "meters": 70,
-      "notes": "Official Extron product page describes extension over one shielded CATx cable up to 230 feet / 70 meters."
+      "meters": 100
     },
     "features": [
       "HDBaseT transport",
-      "Presentation switching",
-      "Table / lectern connectivity",
-      "Integrated DTP transmitter",
-      "Auto switching"
+      "Receiver",
+      "Audio de-embedding",
+      "Control pass-through",
+      "HDBaseT"
     ],
-    "notes": "Official Extron product page describes the DTP T USW 233 as a three-input switcher with integrated DTP transmitter, two HDMI inputs, one RGB input, and one DTP output. | competitor-compare.seed.json#2 merged into deployed competitor catalog."
+    "notes": "Treat this as a receiver in a 1:1 extension pair, not as a decoder-per-panel wall endpoint. | Review distance, loop-through, and audio breakout requirements | Keep it separate from NAV or matrix comparisons | competitor-compare.seed.json#10 merged into deployed competitor catalog. | Treat this as a receiver in a 1:1 extension pair, not as a decoder-per-panel wall endpoint. | Review distance, loop-through, and audio breakout requirements | Keep it separate from NAV or matrix comparisons | competitor-compare.seed.json#10 merged into deployed competitor catalog. | Treat this as a receiver in a 1:1 extension pair, not as a decoder-per-panel wall endpoint. | Review distance, loop-through, and audio breakout requirements | Keep it separate from NAV or matrix comparisons | competitor-compare.seed.json#10 merged into deployed competitor catalog. | Treat this as a receiver in a 1:1 extension pair, not as a decoder-per-panel wall endpoint. | Review distance, loop-through, and audio breakout requirements | Keep it separate from NAV or matrix comparisons | competitor-compare.seed.json#10 merged into deployed competitor catalog. | Treat this as a receiver in a 1:1 extension pair, not as a decoder-per-panel wall endpoint. | Review distance, loop-through, and audio breakout requirements | Keep it separate from NAV or matrix comparisons | competitor-compare.seed.json#10 merged into deployed competitor catalog. | Treat this as a receiver in a 1:1 extension pair, not as a decoder-per-panel wall endpoint. | Review distance, loop-through, and audio breakout requirements | Keep it separate from NAV or matrix comparisons | competitor-compare.seed.json#10 merged into deployed competitor catalog. | Treat this as a receiver in a 1:1 extension pair, not as a decoder-per-panel wall endpoint. | Review distance, loop-through, and audio breakout requirements | Keep it separate from NAV or matrix comparisons | competitor-compare.seed.json#10 merged into deployed competitor catalog. | Treat this as a receiver in a 1:1 extension pair, not as a decoder-per-panel wall endpoint. | Review distance, loop-through, and audio breakout requirements | Keep it separate from NAV or matrix comparisons | competitor-compare.seed.json#10 merged into deployed competitor catalog. | Treat this as a receiver in a 1:1 extension pair, not as a decoder-per-panel wall endpoint. | Review distance, loop-through, and audio breakout requirements | Keep it separate from NAV or matrix comparisons | competitor-compare.seed.json#10 merged into deployed competitor catalog. | Treat this as a receiver in a 1:1 extension pair, not as a decoder-per-panel wall endpoint. | Review distance, loop-through, and audio breakout requirements | Keep it separate from NAV or matrix comparisons | competitor-compare.seed.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "DTP3 T 203",
+    "name": "HDBaseT extender transmitter",
+    "brand": "Extron",
+    "family": "DTP3",
+    "category": "Extender",
+    "subcategory": "HDBaseT extender transmitter",
+    "status": "draft",
+    "summary": "USB-C and HDMI transmitter with loop-through and DTP3 extension for local source staging.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=DTP3%20T%20203",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "DTP3",
+        "count": 1
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "HDBASET",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "HDBaseT transport",
+      "USB-C",
+      "Loop-through",
+      "Presentation staging",
+      "HDBaseT",
+      "Apollo"
+    ],
+    "notes": "Treat this as an extender or source-stage transmitter, not as a matrix or AVoIP endpoint. | Compare loop-through, power delivery, and control pass-through | Do not use it as a substitute for wall processing | competitor-compare.seed.json#9 merged into deployed competitor catalog. | Treat this as an extender or source-stage transmitter, not as a matrix or AVoIP endpoint. | Compare loop-through, power delivery, and control pass-through | Do not use it as a substitute for wall processing | competitor-compare.seed.json#9 merged into deployed competitor catalog. | Treat this as an extender or source-stage transmitter, not as a matrix or AVoIP endpoint. | Compare loop-through, power delivery, and control pass-through | Do not use it as a substitute for wall processing | competitor-compare.seed.json#9 merged into deployed competitor catalog. | Treat this as an extender or source-stage transmitter, not as a matrix or AVoIP endpoint. | Compare loop-through, power delivery, and control pass-through | Do not use it as a substitute for wall processing | competitor-compare.seed.json#9 merged into deployed competitor catalog. | Treat this as an extender or source-stage transmitter, not as a matrix or AVoIP endpoint. | Compare loop-through, power delivery, and control pass-through | Do not use it as a substitute for wall processing | competitor-compare.seed.json#9 merged into deployed competitor catalog. | Treat this as an extender or source-stage transmitter, not as a matrix or AVoIP endpoint. | Compare loop-through, power delivery, and control pass-through | Do not use it as a substitute for wall processing | competitor-compare.seed.json#9 merged into deployed competitor catalog. | Treat this as an extender or source-stage transmitter, not as a matrix or AVoIP endpoint. | Compare loop-through, power delivery, and control pass-through | Do not use it as a substitute for wall processing | competitor-compare.seed.json#9 merged into deployed competitor catalog. | Treat this as an extender or source-stage transmitter, not as a matrix or AVoIP endpoint. | Compare loop-through, power delivery, and control pass-through | Do not use it as a substitute for wall processing | competitor-compare.seed.json#9 merged into deployed competitor catalog. | Treat this as an extender or source-stage transmitter, not as a matrix or AVoIP endpoint. | Compare loop-through, power delivery, and control pass-through | Do not use it as a substitute for wall processing | competitor-compare.seed.json#9 merged into deployed competitor catalog. | Treat this as an extender or source-stage transmitter, not as a matrix or AVoIP endpoint. | Compare loop-through, power delivery, and control pass-through | Do not use it as a substitute for wall processing | competitor-compare.seed.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog."
   },
   {
     "sku": "DTP3-R-201",
@@ -1731,8 +2282,7 @@
     "brand": "Extron",
     "family": "DTP3",
     "category": "Extender",
-    "subcategory": "Extender Receiver",
-    "status": "active",
+    "status": "draft",
     "summary": "Long-distance DTP3 receiver for HDMI and audio output with RS-232 pass-through and support for 4K60 4:4:4 signals over shielded twisted pair.",
     "sourceUrl": "https://www.extron.com/product/dtp3r201",
     "inputs": [
@@ -1766,8 +2316,7 @@
     },
     "transport": "HDBaseT",
     "distance": {
-      "meters": 100,
-      "notes": "Official Extron product page describes extension up to 330 feet / 100 meters over one shielded CATx cable."
+      "meters": 100
     },
     "features": [
       "Extender receiver",
@@ -1776,7 +2325,7 @@
       "HDR",
       "HDCP 2.3"
     ],
-    "notes": "Official Extron DTP3 R 201 page. | Official Extron DTP3 R 201 page. | data/product-intelligence-db.json#27 merged into deployed competitor catalog."
+    "notes": "Official Extron DTP3 R 201 page. | Official Extron DTP3 R 201 page. | data/product-intelligence-db.json#27 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#49 merged into deployed competitor catalog. | data/product-intelligence-db.json#49 merged into deployed competitor catalog. | data/product-intelligence-db.json#49 merged into deployed competitor catalog. | data/product-intelligence-db.json#49 merged into deployed competitor catalog. | data/product-intelligence-db.json#49 merged into deployed competitor catalog. | data/product-intelligence-db.json#49 merged into deployed competitor catalog. | data/product-intelligence-db.json#49 merged into deployed competitor catalog. | data/product-intelligence-db.json#49 merged into deployed competitor catalog. | data/product-intelligence-db.json#49 merged into deployed competitor catalog."
   },
   {
     "sku": "DTP3-T-203",
@@ -1784,8 +2333,7 @@
     "brand": "Extron",
     "family": "DTP3",
     "category": "Extender",
-    "subcategory": "Extender Transmitter",
-    "status": "active",
+    "status": "draft",
     "summary": "Three-input long-distance presentation transmitter with two HDMI inputs, one USB-C input, local HDMI output, twisted-pair output, and USB-C charging.",
     "sourceUrl": "https://www.extron.com/product/dtp3t203",
     "inputs": [
@@ -1825,8 +2373,7 @@
     },
     "transport": "HDBaseT",
     "distance": {
-      "meters": 100,
-      "notes": "Official Extron product page describes extension up to 330 feet / 100 meters over one shielded CATx cable."
+      "meters": 100
     },
     "features": [
       "Presentation switcher",
@@ -1837,21 +2384,74 @@
       "Auto switching",
       "Tally output"
     ],
-    "notes": "Official Extron DTP3 T 203 page. | Official Extron DTP3 T 203 page. | data/product-intelligence-db.json#28 merged into deployed competitor catalog."
+    "notes": "Official Extron DTP3 T 203 page. | Official Extron DTP3 T 203 page. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "DTP3 CROSSPOINT 42",
+    "name": "Presentation matrix",
+    "brand": "Extron",
+    "family": "DTP3 CrossPoint",
+    "category": "Matrix",
+    "subcategory": "Presentation matrix",
+    "status": "draft",
+    "summary": "4x2 presentation matrix with USB-C, HDMI, DTP3 extension, scaling, and local HDMI output alongside an extension output.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=DTP3%20CROSSPOINT%2042",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 3
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "HDBASET",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "Presentation matrix",
+      "4K/60",
+      "USB-C",
+      "DTP3",
+      "Scaling",
+      "Audio de-embedding",
+      "Matrix",
+      "HDBaseT",
+      "Apollo"
+    ],
+    "notes": "Treat this as a matrix-led presentation workflow with extension, not a simple switcher or AVoIP wall. | Separate the matrix core from the DTP3 extension layer | Compare by local inputs, scaled outputs, and room control | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Treat this as a matrix-led presentation workflow with extension, not a simple switcher or AVoIP wall. | Separate the matrix core from the DTP3 extension layer | Compare by local inputs, scaled outputs, and room control | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Treat this as a matrix-led presentation workflow with extension, not a simple switcher or AVoIP wall. | Separate the matrix core from the DTP3 extension layer | Compare by local inputs, scaled outputs, and room control | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Treat this as a matrix-led presentation workflow with extension, not a simple switcher or AVoIP wall. | Separate the matrix core from the DTP3 extension layer | Compare by local inputs, scaled outputs, and room control | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Treat this as a matrix-led presentation workflow with extension, not a simple switcher or AVoIP wall. | Separate the matrix core from the DTP3 extension layer | Compare by local inputs, scaled outputs, and room control | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Treat this as a matrix-led presentation workflow with extension, not a simple switcher or AVoIP wall. | Separate the matrix core from the DTP3 extension layer | Compare by local inputs, scaled outputs, and room control | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Treat this as a matrix-led presentation workflow with extension, not a simple switcher or AVoIP wall. | Separate the matrix core from the DTP3 extension layer | Compare by local inputs, scaled outputs, and room control | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Treat this as a matrix-led presentation workflow with extension, not a simple switcher or AVoIP wall. | Separate the matrix core from the DTP3 extension layer | Compare by local inputs, scaled outputs, and room control | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Treat this as a matrix-led presentation workflow with extension, not a simple switcher or AVoIP wall. | Separate the matrix core from the DTP3 extension layer | Compare by local inputs, scaled outputs, and room control | competitor-compare.seed.json#3 merged into deployed competitor catalog. | Treat this as a matrix-led presentation workflow with extension, not a simple switcher or AVoIP wall. | Separate the matrix core from the DTP3 extension layer | Compare by local inputs, scaled outputs, and room control | competitor-compare.seed.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#46 merged into deployed competitor catalog. | data/product-intelligence-db.json#46 merged into deployed competitor catalog. | data/product-intelligence-db.json#46 merged into deployed competitor catalog. | data/product-intelligence-db.json#46 merged into deployed competitor catalog. | data/product-intelligence-db.json#46 merged into deployed competitor catalog. | data/product-intelligence-db.json#46 merged into deployed competitor catalog. | data/product-intelligence-db.json#46 merged into deployed competitor catalog. | data/product-intelligence-db.json#46 merged into deployed competitor catalog. | data/product-intelligence-db.json#46 merged into deployed competitor catalog."
   },
   {
     "sku": "IN1608",
     "name": "IN1608 xi",
     "brand": "Extron",
-    "family": "IN",
+    "family": "IN1608",
     "category": "Switcher",
-    "status": "legacy",
-    "summary": "Eight-input HDCP-compliant scaling presentation switcher with six HDMI inputs, two DTP inputs, HDMI outputs, and DTP extension.",
-    "sourceUrl": "https://www.extron.com/product/in1608",
+    "status": "draft",
+    "summary": "Presentation Switcher legacy competitor reference record.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=IN1608",
     "inputs": [
       {
         "type": "HDMI",
-        "count": 6
+        "count": 4
+      },
+      {
+        "type": "Analog Video",
+        "count": 2
       },
       {
         "type": "DTP",
@@ -1868,16 +2468,257 @@
         "count": 1
       }
     ],
-    "transport": "Local",
     "video": {
-      "maxResolution": "4K"
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "HDBASET",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "switcher",
+      "presentation"
+    ],
+    "notes": "src/competitor/competitors.json#10 merged into deployed competitor catalog. | data/product-intelligence-db.json#35 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "IN1608 XI",
+    "name": "IN1608 xi",
+    "brand": "Extron",
+    "family": "IN1608",
+    "category": "Switcher",
+    "status": "draft",
+    "summary": "Eight-input presentation switcher with HDMI, analog, and DTP inputs, dual HDMI outputs, DTP output, scaling, and integrated control.",
+    "sourceUrl": "https://www.extron.com/product/in1608",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      },
+      {
+        "type": "Analog Video",
+        "count": 2
+      },
+      {
+        "type": "DTP",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "DTP",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio",
+      "DSP"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "HDBASET",
+    "distance": {
+      "meters": 100
     },
     "features": [
       "Presentation switcher",
       "Scaling",
-      "DTP extension"
+      "DTP extension",
+      "Control processor",
+      "Audio DSP",
+      "Dual HDMI outputs"
     ],
-    "notes": "Official Extron product summary describes the IN1608 xi as an eight-input HDCP-compliant scaling presentation switcher with DTP extension. | src/competitor/competitors.json#10 merged into deployed competitor catalog."
+    "notes": "Official Extron IN1608 xi product page and literature. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | Official Extron IN1608 xi product page and literature. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | Official Extron IN1608 xi product page and literature. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | Official Extron IN1608 xi product page and literature. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | Official Extron IN1608 xi product page and literature. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | Official Extron IN1608 xi product page and literature. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | Official Extron IN1608 xi product page and literature. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | Official Extron IN1608 xi product page and literature. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | Official Extron IN1608 xi product page and literature. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | Official Extron IN1608 xi product page and literature. | data/product-intelligence-db.json#69 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "IN1808",
+    "name": "Presentation switcher",
+    "brand": "Extron",
+    "family": "IN1808",
+    "category": "Switcher",
+    "subcategory": "Presentation switcher",
+    "status": "draft",
+    "summary": "Seamless 8-input presentation switcher with HDMI, DisplayPort, and DTP2 inputs plus dual HDMI outputs.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=IN1808",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      },
+      {
+        "type": "DisplayPort",
+        "count": 2
+      },
+      {
+        "type": "DTP2",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "HDBASET",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "Presentation switching",
+      "Scaling",
+      "Dual HDMI outputs",
+      "DTP2",
+      "Audio DSP",
+      "Apollo",
+      "HDBaseT"
+    ],
+    "notes": "This is a presentation-switcher workflow first, so compare it against Apollo-style room switching before considering matrix products. | Check input mix and scaling needs | Review USB, audio, and control requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog. | This is a presentation-switcher workflow first, so compare it against Apollo-style room switching before considering matrix products. | Check input mix and scaling needs | Review USB, audio, and control requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog. | This is a presentation-switcher workflow first, so compare it against Apollo-style room switching before considering matrix products. | Check input mix and scaling needs | Review USB, audio, and control requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog. | This is a presentation-switcher workflow first, so compare it against Apollo-style room switching before considering matrix products. | Check input mix and scaling needs | Review USB, audio, and control requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog. | This is a presentation-switcher workflow first, so compare it against Apollo-style room switching before considering matrix products. | Check input mix and scaling needs | Review USB, audio, and control requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog. | This is a presentation-switcher workflow first, so compare it against Apollo-style room switching before considering matrix products. | Check input mix and scaling needs | Review USB, audio, and control requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog. | This is a presentation-switcher workflow first, so compare it against Apollo-style room switching before considering matrix products. | Check input mix and scaling needs | Review USB, audio, and control requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog. | This is a presentation-switcher workflow first, so compare it against Apollo-style room switching before considering matrix products. | Check input mix and scaling needs | Review USB, audio, and control requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog. | This is a presentation-switcher workflow first, so compare it against Apollo-style room switching before considering matrix products. | Check input mix and scaling needs | Review USB, audio, and control requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog. | This is a presentation-switcher workflow first, so compare it against Apollo-style room switching before considering matrix products. | Check input mix and scaling needs | Review USB, audio, and control requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#54 merged into deployed competitor catalog. | data/product-intelligence-db.json#54 merged into deployed competitor catalog. | data/product-intelligence-db.json#54 merged into deployed competitor catalog. | data/product-intelligence-db.json#54 merged into deployed competitor catalog. | data/product-intelligence-db.json#54 merged into deployed competitor catalog. | data/product-intelligence-db.json#54 merged into deployed competitor catalog. | data/product-intelligence-db.json#54 merged into deployed competitor catalog. | data/product-intelligence-db.json#54 merged into deployed competitor catalog. | data/product-intelligence-db.json#54 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "NAV 10E 501",
+    "name": "AV over IP encoder",
+    "brand": "Extron",
+    "family": "NAV",
+    "category": "AVoIP",
+    "subcategory": "AV over IP encoder",
+    "status": "draft",
+    "summary": "10Gb AV over IP encoder for premium transport, USB 2.0, and high-bandwidth distribution workflows.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=NAV%2010E%20501",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "AVoIP",
+    "distance": {
+      "meters": 100
+    },
+    "features": [
+      "10Gb AV over IP",
+      "USB/KVM support",
+      "Premium transport",
+      "Control integration",
+      "AVoIP"
+    ],
+    "notes": "Treat this as a premium AVoIP encoder, not a basic extender or presentation switcher. | Use bandwidth and endpoint counts as the deciding factors | Keep it separate from HDBaseT wall products | competitor-compare.seed.json#7 merged into deployed competitor catalog. | Treat this as a premium AVoIP encoder, not a basic extender or presentation switcher. | Use bandwidth and endpoint counts as the deciding factors | Keep it separate from HDBaseT wall products | competitor-compare.seed.json#7 merged into deployed competitor catalog. | Treat this as a premium AVoIP encoder, not a basic extender or presentation switcher. | Use bandwidth and endpoint counts as the deciding factors | Keep it separate from HDBaseT wall products | competitor-compare.seed.json#7 merged into deployed competitor catalog. | Treat this as a premium AVoIP encoder, not a basic extender or presentation switcher. | Use bandwidth and endpoint counts as the deciding factors | Keep it separate from HDBaseT wall products | competitor-compare.seed.json#7 merged into deployed competitor catalog. | Treat this as a premium AVoIP encoder, not a basic extender or presentation switcher. | Use bandwidth and endpoint counts as the deciding factors | Keep it separate from HDBaseT wall products | competitor-compare.seed.json#7 merged into deployed competitor catalog. | Treat this as a premium AVoIP encoder, not a basic extender or presentation switcher. | Use bandwidth and endpoint counts as the deciding factors | Keep it separate from HDBaseT wall products | competitor-compare.seed.json#7 merged into deployed competitor catalog. | Treat this as a premium AVoIP encoder, not a basic extender or presentation switcher. | Use bandwidth and endpoint counts as the deciding factors | Keep it separate from HDBaseT wall products | competitor-compare.seed.json#7 merged into deployed competitor catalog. | Treat this as a premium AVoIP encoder, not a basic extender or presentation switcher. | Use bandwidth and endpoint counts as the deciding factors | Keep it separate from HDBaseT wall products | competitor-compare.seed.json#7 merged into deployed competitor catalog. | Treat this as a premium AVoIP encoder, not a basic extender or presentation switcher. | Use bandwidth and endpoint counts as the deciding factors | Keep it separate from HDBaseT wall products | competitor-compare.seed.json#7 merged into deployed competitor catalog. | Treat this as a premium AVoIP encoder, not a basic extender or presentation switcher. | Use bandwidth and endpoint counts as the deciding factors | Keep it separate from HDBaseT wall products | competitor-compare.seed.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#56 merged into deployed competitor catalog. | data/product-intelligence-db.json#56 merged into deployed competitor catalog. | data/product-intelligence-db.json#56 merged into deployed competitor catalog. | data/product-intelligence-db.json#56 merged into deployed competitor catalog. | data/product-intelligence-db.json#56 merged into deployed competitor catalog. | data/product-intelligence-db.json#56 merged into deployed competitor catalog. | data/product-intelligence-db.json#56 merged into deployed competitor catalog. | data/product-intelligence-db.json#56 merged into deployed competitor catalog. | data/product-intelligence-db.json#56 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "NAV 10SD 501",
+    "name": "AV over IP decoder",
+    "brand": "Extron",
+    "family": "NAV",
+    "category": "AVoIP",
+    "subcategory": "AV over IP decoder",
+    "status": "draft",
+    "summary": "10Gb AV over IP decoder with high-bandwidth output, scaling, AES67 audio, and premium endpoint behavior.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=NAV%2010SD%20501",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "AVoIP",
+    "features": [
+      "10Gb AV over IP",
+      "Scaling decoder",
+      "AES67",
+      "Premium endpoint",
+      "AVoIP"
+    ],
+    "notes": "Treat this as the decoder side of a premium distributed system, not as a simple wall processor. | Compare decoder count and transport bandwidth | Review whether the wall is one canvas or many endpoints | competitor-compare.seed.json#8 merged into deployed competitor catalog. | Treat this as the decoder side of a premium distributed system, not as a simple wall processor. | Compare decoder count and transport bandwidth | Review whether the wall is one canvas or many endpoints | competitor-compare.seed.json#8 merged into deployed competitor catalog. | Treat this as the decoder side of a premium distributed system, not as a simple wall processor. | Compare decoder count and transport bandwidth | Review whether the wall is one canvas or many endpoints | competitor-compare.seed.json#8 merged into deployed competitor catalog. | Treat this as the decoder side of a premium distributed system, not as a simple wall processor. | Compare decoder count and transport bandwidth | Review whether the wall is one canvas or many endpoints | competitor-compare.seed.json#8 merged into deployed competitor catalog. | Treat this as the decoder side of a premium distributed system, not as a simple wall processor. | Compare decoder count and transport bandwidth | Review whether the wall is one canvas or many endpoints | competitor-compare.seed.json#8 merged into deployed competitor catalog. | Treat this as the decoder side of a premium distributed system, not as a simple wall processor. | Compare decoder count and transport bandwidth | Review whether the wall is one canvas or many endpoints | competitor-compare.seed.json#8 merged into deployed competitor catalog. | Treat this as the decoder side of a premium distributed system, not as a simple wall processor. | Compare decoder count and transport bandwidth | Review whether the wall is one canvas or many endpoints | competitor-compare.seed.json#8 merged into deployed competitor catalog. | Treat this as the decoder side of a premium distributed system, not as a simple wall processor. | Compare decoder count and transport bandwidth | Review whether the wall is one canvas or many endpoints | competitor-compare.seed.json#8 merged into deployed competitor catalog. | Treat this as the decoder side of a premium distributed system, not as a simple wall processor. | Compare decoder count and transport bandwidth | Review whether the wall is one canvas or many endpoints | competitor-compare.seed.json#8 merged into deployed competitor catalog. | Treat this as the decoder side of a premium distributed system, not as a simple wall processor. | Compare decoder count and transport bandwidth | Review whether the wall is one canvas or many endpoints | competitor-compare.seed.json#8 merged into deployed competitor catalog. | data/product-intelligence-db.json#57 merged into deployed competitor catalog. | data/product-intelligence-db.json#57 merged into deployed competitor catalog. | data/product-intelligence-db.json#57 merged into deployed competitor catalog. | data/product-intelligence-db.json#57 merged into deployed competitor catalog. | data/product-intelligence-db.json#57 merged into deployed competitor catalog. | data/product-intelligence-db.json#57 merged into deployed competitor catalog. | data/product-intelligence-db.json#57 merged into deployed competitor catalog. | data/product-intelligence-db.json#57 merged into deployed competitor catalog. | data/product-intelligence-db.json#57 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "NAV E 121",
+    "name": "AV over IP encoder",
+    "brand": "Extron",
+    "family": "NAV",
+    "category": "AVoIP",
+    "subcategory": "AV over IP encoder",
+    "status": "draft",
+    "summary": "1Gb AV over IP encoder with HDMI loop-through, USB 2.0, AES67 audio, and NAV management.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20E%20121",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      },
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "AVoIP",
+    "features": [
+      "1Gb AV over IP",
+      "USB/KVM support",
+      "AES67",
+      "Control integration",
+      "AVoIP"
+    ],
+    "notes": "Compare this as a distributed AVoIP encoder, not as a matrix or simple wall processor. | Use encoder and decoder counts, not family name alone | Check the network speed and controller role | competitor-compare.seed.json#5 merged into deployed competitor catalog. | Compare this as a distributed AVoIP encoder, not as a matrix or simple wall processor. | Use encoder and decoder counts, not family name alone | Check the network speed and controller role | competitor-compare.seed.json#5 merged into deployed competitor catalog. | Compare this as a distributed AVoIP encoder, not as a matrix or simple wall processor. | Use encoder and decoder counts, not family name alone | Check the network speed and controller role | competitor-compare.seed.json#5 merged into deployed competitor catalog. | Compare this as a distributed AVoIP encoder, not as a matrix or simple wall processor. | Use encoder and decoder counts, not family name alone | Check the network speed and controller role | competitor-compare.seed.json#5 merged into deployed competitor catalog. | Compare this as a distributed AVoIP encoder, not as a matrix or simple wall processor. | Use encoder and decoder counts, not family name alone | Check the network speed and controller role | competitor-compare.seed.json#5 merged into deployed competitor catalog. | Compare this as a distributed AVoIP encoder, not as a matrix or simple wall processor. | Use encoder and decoder counts, not family name alone | Check the network speed and controller role | competitor-compare.seed.json#5 merged into deployed competitor catalog. | Compare this as a distributed AVoIP encoder, not as a matrix or simple wall processor. | Use encoder and decoder counts, not family name alone | Check the network speed and controller role | competitor-compare.seed.json#5 merged into deployed competitor catalog. | Compare this as a distributed AVoIP encoder, not as a matrix or simple wall processor. | Use encoder and decoder counts, not family name alone | Check the network speed and controller role | competitor-compare.seed.json#5 merged into deployed competitor catalog. | Compare this as a distributed AVoIP encoder, not as a matrix or simple wall processor. | Use encoder and decoder counts, not family name alone | Check the network speed and controller role | competitor-compare.seed.json#5 merged into deployed competitor catalog. | Compare this as a distributed AVoIP encoder, not as a matrix or simple wall processor. | Use encoder and decoder counts, not family name alone | Check the network speed and controller role | competitor-compare.seed.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#58 merged into deployed competitor catalog."
   },
   {
     "sku": "NAV E 501",
@@ -1885,7 +2726,7 @@
     "brand": "Extron",
     "family": "NAV",
     "category": "AVoIP",
-    "status": "legacy",
+    "status": "draft",
     "summary": "AV over IP Encoder legacy competitor reference record.",
     "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20E%20501",
     "inputs": [
@@ -1907,15 +2748,56 @@
     },
     "transport": "AVoIP",
     "distance": {
-      "networkSpeed": "1G",
-      "notes": "Legacy encoder reference aligned to a standard 1G NAV endpoint profile."
+      "meters": 100
     },
     "features": [
       "AVoIP",
       "4K60",
       "managed-network"
     ],
-    "notes": "Typical enterprise AVoIP encoder use-case. | src/competitor/competitors.json#1 merged into deployed competitor catalog."
+    "notes": "Typical enterprise AVoIP encoder use-case. | src/competitor/competitors.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#36 merged into deployed competitor catalog. | data/product-intelligence-db.json#59 merged into deployed competitor catalog. | data/product-intelligence-db.json#59 merged into deployed competitor catalog. | data/product-intelligence-db.json#59 merged into deployed competitor catalog. | data/product-intelligence-db.json#59 merged into deployed competitor catalog. | data/product-intelligence-db.json#59 merged into deployed competitor catalog. | data/product-intelligence-db.json#59 merged into deployed competitor catalog. | data/product-intelligence-db.json#59 merged into deployed competitor catalog. | data/product-intelligence-db.json#59 merged into deployed competitor catalog. | data/product-intelligence-db.json#59 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "NAV SD 121",
+    "name": "AV over IP decoder",
+    "brand": "Extron",
+    "family": "NAV",
+    "category": "AVoIP",
+    "subcategory": "AV over IP decoder",
+    "status": "draft",
+    "summary": "1Gb scaling decoder with HDMI output, HDMI preview output, AES67 audio support, and advanced NAV decoding.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20SD%20121",
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "HDMI Preview",
+        "count": 1
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "AVoIP",
+    "features": [
+      "1Gb AV over IP",
+      "Scaling decoder",
+      "AES67",
+      "Preview output",
+      "AVoIP"
+    ],
+    "notes": "Compare this as a decoder-side wall endpoint, not as a standalone processor. | Wall designs should count decoders per display | Review preview output and scaling behavior separately | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Compare this as a decoder-side wall endpoint, not as a standalone processor. | Wall designs should count decoders per display | Review preview output and scaling behavior separately | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Compare this as a decoder-side wall endpoint, not as a standalone processor. | Wall designs should count decoders per display | Review preview output and scaling behavior separately | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Compare this as a decoder-side wall endpoint, not as a standalone processor. | Wall designs should count decoders per display | Review preview output and scaling behavior separately | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Compare this as a decoder-side wall endpoint, not as a standalone processor. | Wall designs should count decoders per display | Review preview output and scaling behavior separately | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Compare this as a decoder-side wall endpoint, not as a standalone processor. | Wall designs should count decoders per display | Review preview output and scaling behavior separately | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Compare this as a decoder-side wall endpoint, not as a standalone processor. | Wall designs should count decoders per display | Review preview output and scaling behavior separately | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Compare this as a decoder-side wall endpoint, not as a standalone processor. | Wall designs should count decoders per display | Review preview output and scaling behavior separately | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Compare this as a decoder-side wall endpoint, not as a standalone processor. | Wall designs should count decoders per display | Review preview output and scaling behavior separately | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Compare this as a decoder-side wall endpoint, not as a standalone processor. | Wall designs should count decoders per display | Review preview output and scaling behavior separately | competitor-compare.seed.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#60 merged into deployed competitor catalog. | data/product-intelligence-db.json#60 merged into deployed competitor catalog. | data/product-intelligence-db.json#60 merged into deployed competitor catalog. | data/product-intelligence-db.json#60 merged into deployed competitor catalog. | data/product-intelligence-db.json#60 merged into deployed competitor catalog. | data/product-intelligence-db.json#60 merged into deployed competitor catalog. | data/product-intelligence-db.json#60 merged into deployed competitor catalog. | data/product-intelligence-db.json#60 merged into deployed competitor catalog. | data/product-intelligence-db.json#60 merged into deployed competitor catalog."
   },
   {
     "sku": "NAV SD 501",
@@ -1923,7 +2805,7 @@
     "brand": "Extron",
     "family": "NAV",
     "category": "AVoIP",
-    "status": "legacy",
+    "status": "draft",
     "summary": "AV over IP Decoder legacy competitor reference record.",
     "sourceUrl": "https://www.extron.com/search?searchterm=NAV%20SD%20501",
     "inputs": [
@@ -1945,15 +2827,14 @@
     },
     "transport": "AVoIP",
     "distance": {
-      "networkSpeed": "1G",
-      "notes": "Legacy decoder reference aligned to a standard 1G NAV endpoint profile."
+      "meters": 100
     },
     "features": [
       "AVoIP",
       "4K60",
       "managed-network"
     ],
-    "notes": "src/competitor/competitors.json#2 merged into deployed competitor catalog."
+    "notes": "src/competitor/competitors.json#2 merged into deployed competitor catalog. | data/product-intelligence-db.json#37 merged into deployed competitor catalog. | data/product-intelligence-db.json#61 merged into deployed competitor catalog. | data/product-intelligence-db.json#61 merged into deployed competitor catalog. | data/product-intelligence-db.json#61 merged into deployed competitor catalog. | data/product-intelligence-db.json#61 merged into deployed competitor catalog. | data/product-intelligence-db.json#61 merged into deployed competitor catalog. | data/product-intelligence-db.json#61 merged into deployed competitor catalog. | data/product-intelligence-db.json#61 merged into deployed competitor catalog. | data/product-intelligence-db.json#61 merged into deployed competitor catalog. | data/product-intelligence-db.json#61 merged into deployed competitor catalog."
   },
   {
     "sku": "NAV-E-121",
@@ -1961,8 +2842,7 @@
     "brand": "Extron",
     "family": "NAV",
     "category": "AVoIP",
-    "subcategory": "Encoder",
-    "status": "active",
+    "status": "draft",
     "summary": "One-gigabit HDMI encoder with HDMI loop-through, USB 2.0 over IP, AES67 audio support, and secure NAV AV over IP transport.",
     "sourceUrl": "https://www.extron.com/product/nave121",
     "inputs": [
@@ -2000,7 +2880,9 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "subframe",
+    "distance": {
+      "meters": 100
+    },
     "features": [
       "AVoIP encoder",
       "HDMI loop-through",
@@ -2010,7 +2892,7 @@
       "Ultra-low latency",
       "Secure transport"
     ],
-    "notes": "Official Extron NAV E 121 page. | Official Extron NAV E 121 page. | data/product-intelligence-db.json#29 merged into deployed competitor catalog."
+    "notes": "Official Extron NAV E 121 page. | Official Extron NAV E 121 page. | data/product-intelligence-db.json#29 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#62 merged into deployed competitor catalog. | data/product-intelligence-db.json#62 merged into deployed competitor catalog. | data/product-intelligence-db.json#62 merged into deployed competitor catalog. | data/product-intelligence-db.json#62 merged into deployed competitor catalog. | data/product-intelligence-db.json#62 merged into deployed competitor catalog. | data/product-intelligence-db.json#62 merged into deployed competitor catalog. | data/product-intelligence-db.json#62 merged into deployed competitor catalog. | data/product-intelligence-db.json#62 merged into deployed competitor catalog. | data/product-intelligence-db.json#62 merged into deployed competitor catalog."
   },
   {
     "sku": "NAV-SD-121",
@@ -2018,8 +2900,7 @@
     "brand": "Extron",
     "family": "NAV",
     "category": "AVoIP",
-    "subcategory": "Decoder",
-    "status": "active",
+    "status": "draft",
     "summary": "One-gigabit scaling decoder with HDMI output, AES67 audio support, HDMI preview output, and advanced scaling for NAV AV over IP systems.",
     "sourceUrl": "https://www.extron.com/product/navsd121",
     "inputs": [
@@ -2049,7 +2930,9 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "subframe",
+    "distance": {
+      "meters": 100
+    },
     "features": [
       "AVoIP decoder",
       "Scaling decoder",
@@ -2058,7 +2941,7 @@
       "Vector 4K scaling",
       "Ultra-low latency"
     ],
-    "notes": "Official Extron NAV SD 121 page. | Official Extron NAV SD 121 page. | data/product-intelligence-db.json#30 merged into deployed competitor catalog."
+    "notes": "Official Extron NAV SD 121 page. | Official Extron NAV SD 121 page. | data/product-intelligence-db.json#30 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#63 merged into deployed competitor catalog. | data/product-intelligence-db.json#63 merged into deployed competitor catalog. | data/product-intelligence-db.json#63 merged into deployed competitor catalog. | data/product-intelligence-db.json#63 merged into deployed competitor catalog. | data/product-intelligence-db.json#63 merged into deployed competitor catalog. | data/product-intelligence-db.json#63 merged into deployed competitor catalog. | data/product-intelligence-db.json#63 merged into deployed competitor catalog. | data/product-intelligence-db.json#63 merged into deployed competitor catalog. | data/product-intelligence-db.json#63 merged into deployed competitor catalog."
   },
   {
     "sku": "NAVIGATOR",
@@ -2066,8 +2949,7 @@
     "brand": "Extron",
     "family": "NAV",
     "category": "Control",
-    "subcategory": "AVoIP Controller",
-    "status": "active",
+    "status": "draft",
     "summary": "AV over IP system manager that configures, controls, and monitors NAV encoders and decoders from an embedded web interface.",
     "sourceUrl": "https://www.extron.com/product/navigator",
     "inputs": [
@@ -2092,7 +2974,7 @@
       "System diagnostics",
       "Dual LAN"
     ],
-    "notes": "Official Extron NAVigator page. | Official Extron NAVigator page. | data/product-intelligence-db.json#31 merged into deployed competitor catalog."
+    "notes": "Official Extron NAVigator page. | Official Extron NAVigator page. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | data/product-intelligence-db.json#64 merged into deployed competitor catalog."
   },
   {
     "sku": "SHARELINK-PRO-1100",
@@ -2100,8 +2982,7 @@
     "brand": "Extron",
     "family": "ShareLink",
     "category": "Switcher",
-    "subcategory": "Wireless Presentation",
-    "status": "active",
+    "status": "draft",
     "summary": "Wireless and wired presentation gateway with support for simultaneous display of up to four devices, HDMI input, dual Ethernet ports, and collaboration workflows.",
     "sourceUrl": "https://www.extron.com/product/sharelinkpro1100",
     "inputs": [
@@ -2129,23 +3010,119 @@
       "Web UI"
     ],
     "audio": [
-      "HDMI Audio"
+      "HDMI Audio",
+      "Embedded Audio"
     ],
     "video": {
       "maxResolution": "4K",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
       "hdr": false
     },
     "transport": "Local",
-    "latency": "standard",
     "features": [
       "Wireless presentation",
       "Quad view",
       "ConferenceShare",
       "HDMI input",
       "Digital signage",
-      "WebShare"
+      "WebShare",
+      "Collaboration",
+      "Multi-user sharing",
+      "Moderator mode",
+      "BYOD"
     ],
-    "notes": "Official Extron ShareLink Pro 1100 page. | Official Extron ShareLink Pro 1100 page. | data/product-intelligence-db.json#32 merged into deployed competitor catalog."
+    "notes": "Official Extron ShareLink Pro 1100 page. | Official Extron ShareLink Pro 1100 page. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | data/product-intelligence-db.json#66 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "SHARELINK PRO 1100",
+    "name": "ShareLink Pro 1100",
+    "brand": "Extron",
+    "family": "ShareLink Pro",
+    "category": "Switcher",
+    "status": "draft",
+    "summary": "Wireless collaboration gateway with wired HDMI input, network sharing, and multi-user presentation control for meeting rooms and classrooms.",
+    "sourceUrl": "https://www.extron.com/product/sharelinkpro1100",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "Wireless Presentation",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "video": {
+      "maxResolution": "4K60",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "transport": "HDMI_DISTRIBUTION",
+    "features": [
+      "Wireless presentation",
+      "Collaboration",
+      "Multi-user sharing",
+      "Moderator mode",
+      "BYOD"
+    ],
+    "notes": "Official Extron ShareLink Pro 1100 product page and literature. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | data/product-intelligence-db.json#65 merged into deployed competitor catalog."
+  },
+  {
+    "sku": "MGP 641 XI",
+    "name": "Multiview processor",
+    "brand": "Extron",
+    "family": "Unknown",
+    "category": "Multiview processor",
+    "status": "draft",
+    "summary": "Four-window 4K/60 multiview processor for building a single canvas from multiple sources.",
+    "sourceUrl": "https://www.extron.com/search?searchterm=MGP%20641%20XI",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "hdmi": "2.0",
+      "bandwidthGbps": 18,
+      "hdr": true
+    },
+    "technology": "VIDEO_WALL",
+    "topology": "MULTIVIEW",
+    "role": "SWITCHER",
+    "directionality": "OUTPUT",
+    "features": [
+      "Multiview",
+      "4K/60",
+      "Scaling",
+      "Windowing",
+      "Canvas",
+      "Video Wall",
+      "Apollo"
+    ],
+    "notes": "Treat this as a canvas processor for a one-screen or one-wall composition, not as a basic matrix. | Compare against wall processors and multiview workflows | Do not confuse it with decoder-per-panel AVoIP | competitor-compare.seed.json#11 merged into deployed competitor catalog. | Treat this as a canvas processor for a one-screen or one-wall composition, not as a basic matrix. | Compare against wall processors and multiview workflows | Do not confuse it with decoder-per-panel AVoIP | competitor-compare.seed.json#11 merged into deployed competitor catalog. | Treat this as a canvas processor for a one-screen or one-wall composition, not as a basic matrix. | Compare against wall processors and multiview workflows | Do not confuse it with decoder-per-panel AVoIP | competitor-compare.seed.json#11 merged into deployed competitor catalog. | Treat this as a canvas processor for a one-screen or one-wall composition, not as a basic matrix. | Compare against wall processors and multiview workflows | Do not confuse it with decoder-per-panel AVoIP | competitor-compare.seed.json#11 merged into deployed competitor catalog. | Treat this as a canvas processor for a one-screen or one-wall composition, not as a basic matrix. | Compare against wall processors and multiview workflows | Do not confuse it with decoder-per-panel AVoIP | competitor-compare.seed.json#11 merged into deployed competitor catalog. | Treat this as a canvas processor for a one-screen or one-wall composition, not as a basic matrix. | Compare against wall processors and multiview workflows | Do not confuse it with decoder-per-panel AVoIP | competitor-compare.seed.json#11 merged into deployed competitor catalog. | Treat this as a canvas processor for a one-screen or one-wall composition, not as a basic matrix. | Compare against wall processors and multiview workflows | Do not confuse it with decoder-per-panel AVoIP | competitor-compare.seed.json#11 merged into deployed competitor catalog. | Treat this as a canvas processor for a one-screen or one-wall composition, not as a basic matrix. | Compare against wall processors and multiview workflows | Do not confuse it with decoder-per-panel AVoIP | competitor-compare.seed.json#11 merged into deployed competitor catalog. | Treat this as a canvas processor for a one-screen or one-wall composition, not as a basic matrix. | Compare against wall processors and multiview workflows | Do not confuse it with decoder-per-panel AVoIP | competitor-compare.seed.json#11 merged into deployed competitor catalog. | Treat this as a canvas processor for a one-screen or one-wall composition, not as a basic matrix. | Compare against wall processors and multiview workflows | Do not confuse it with decoder-per-panel AVoIP | competitor-compare.seed.json#11 merged into deployed competitor catalog. | data/product-intelligence-db.json#55 merged into deployed competitor catalog. | data/product-intelligence-db.json#55 merged into deployed competitor catalog. | data/product-intelligence-db.json#55 merged into deployed competitor catalog. | data/product-intelligence-db.json#55 merged into deployed competitor catalog. | data/product-intelligence-db.json#55 merged into deployed competitor catalog. | data/product-intelligence-db.json#55 merged into deployed competitor catalog. | data/product-intelligence-db.json#55 merged into deployed competitor catalog. | data/product-intelligence-db.json#55 merged into deployed competitor catalog. | data/product-intelligence-db.json#55 merged into deployed competitor catalog."
   },
   {
     "sku": "KDS-DEC7",
@@ -2153,8 +3130,7 @@
     "brand": "Kramer",
     "family": "KDS",
     "category": "AVoIP",
-    "subcategory": "Decoder",
-    "status": "active",
+    "status": "draft",
     "summary": "High-performance AVoIP decoder for 4K60 4:2:0 HDR10 distribution over a 1G network with HDMI output, dual Ethernet, USB, analog audio, IR, RS-232, and CEC over IP.",
     "sourceUrl": "https://www1.kramerav.com/us/product/kds-dec7",
     "inputs": [
@@ -2194,7 +3170,9 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "low",
+    "distance": {
+      "meters": 100
+    },
     "features": [
       "AVoIP decoder",
       "USB extension",
@@ -2205,7 +3183,7 @@
       "AVoIP",
       "4K60"
     ],
-    "notes": "Official Kramer KDS-DEC7 page. | src/competitor/competitors.json#6 merged into deployed competitor catalog. | Official Kramer KDS-DEC7 page. | data/product-intelligence-db.json#33 merged into deployed competitor catalog."
+    "notes": "Official Kramer KDS-DEC7 page. | src/competitor/competitors.json#6 merged into deployed competitor catalog. | Official Kramer KDS-DEC7 page. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#67 merged into deployed competitor catalog. | data/product-intelligence-db.json#67 merged into deployed competitor catalog. | data/product-intelligence-db.json#67 merged into deployed competitor catalog. | data/product-intelligence-db.json#67 merged into deployed competitor catalog. | data/product-intelligence-db.json#67 merged into deployed competitor catalog. | data/product-intelligence-db.json#67 merged into deployed competitor catalog. | data/product-intelligence-db.json#67 merged into deployed competitor catalog. | data/product-intelligence-db.json#67 merged into deployed competitor catalog. | data/product-intelligence-db.json#67 merged into deployed competitor catalog."
   },
   {
     "sku": "KDS-EN7",
@@ -2213,8 +3191,7 @@
     "brand": "Kramer",
     "family": "KDS",
     "category": "AVoIP",
-    "subcategory": "Encoder",
-    "status": "active",
+    "status": "draft",
     "summary": "High-performance AVoIP encoder for streaming 4K60 4:2:0 HDR10 video over a 1G network with HDMI loop-through, dual Ethernet, audio, USB, IR, RS-232, and CEC over IP.",
     "sourceUrl": "https://www1.kramerav.com/us/product/kds-en7",
     "inputs": [
@@ -2258,7 +3235,9 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "low",
+    "distance": {
+      "meters": 100
+    },
     "features": [
       "AVoIP encoder",
       "HDMI loop-through",
@@ -2270,7 +3249,7 @@
       "AVoIP",
       "4K60"
     ],
-    "notes": "Official Kramer KDS-EN7 page. | src/competitor/competitors.json#5 merged into deployed competitor catalog. | Official Kramer KDS-EN7 page. | data/product-intelligence-db.json#34 merged into deployed competitor catalog."
+    "notes": "Official Kramer KDS-EN7 page. | src/competitor/competitors.json#5 merged into deployed competitor catalog. | Official Kramer KDS-EN7 page. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | data/product-intelligence-db.json#68 merged into deployed competitor catalog. | data/product-intelligence-db.json#68 merged into deployed competitor catalog. | data/product-intelligence-db.json#68 merged into deployed competitor catalog. | data/product-intelligence-db.json#68 merged into deployed competitor catalog. | data/product-intelligence-db.json#68 merged into deployed competitor catalog. | data/product-intelligence-db.json#68 merged into deployed competitor catalog. | data/product-intelligence-db.json#68 merged into deployed competitor catalog. | data/product-intelligence-db.json#68 merged into deployed competitor catalog. | data/product-intelligence-db.json#68 merged into deployed competitor catalog."
   },
   {
     "sku": "KDS-USB2",
@@ -2278,8 +3257,7 @@
     "brand": "Kramer",
     "family": "KDS",
     "category": "Extender",
-    "subcategory": "Extender Kit",
-    "status": "active",
+    "status": "draft",
     "summary": "USB 2.0 extension solution for one-to-many and many-to-many host and device routing over IP with support for conferencing cameras, touch devices, and HID peripherals.",
     "sourceUrl": "https://www1.kramerav.com/us/product/kds-usb2",
     "inputs": [
@@ -2312,9 +3290,7 @@
     ],
     "transport": "USB Extension",
     "distance": {
-      "meters": 100,
-      "networkSpeed": "1G",
-      "notes": "Official Kramer product page describes up to 100 meters over CAT and longer range over fiber or network switching."
+      "meters": 100
     },
     "features": [
       "Extender kit",
@@ -2325,7 +3301,7 @@
       "Camera support",
       "HID support"
     ],
-    "notes": "Official Kramer KDS-USB2 page. | Official Kramer KDS-USB2 page. | data/product-intelligence-db.json#35 merged into deployed competitor catalog."
+    "notes": "Official Kramer KDS-USB2 page. | Official Kramer KDS-USB2 page. | data/product-intelligence-db.json#35 merged into deployed competitor catalog. | data/product-intelligence-db.json#44 merged into deployed competitor catalog. | data/product-intelligence-db.json#69 merged into deployed competitor catalog. | data/product-intelligence-db.json#69 merged into deployed competitor catalog. | data/product-intelligence-db.json#69 merged into deployed competitor catalog. | data/product-intelligence-db.json#69 merged into deployed competitor catalog. | data/product-intelligence-db.json#69 merged into deployed competitor catalog. | data/product-intelligence-db.json#69 merged into deployed competitor catalog. | data/product-intelligence-db.json#69 merged into deployed competitor catalog. | data/product-intelligence-db.json#69 merged into deployed competitor catalog. | data/product-intelligence-db.json#69 merged into deployed competitor catalog."
   },
   {
     "sku": "TP-580T",
@@ -2333,8 +3309,7 @@
     "brand": "Kramer",
     "family": "TP",
     "category": "Extender",
-    "subcategory": "Extender Transmitter",
-    "status": "active",
+    "status": "draft",
     "summary": "HDBaseT transmitter for 4K60 4:2:0 HDMI, bidirectional RS-232 and IR, and long-reach twisted-pair extension over category cable.",
     "sourceUrl": "https://www1.kramerav.com/us/product/tp-580t",
     "inputs": [
@@ -2365,9 +3340,7 @@
     },
     "transport": "HDBaseT",
     "distance": {
-      "meters4k": 40,
-      "meters1080p": 70,
-      "notes": "Official Kramer product page describes up to 40 meters at 4K60 4:2:0 and 70 meters at 1080p."
+      "meters": 70
     },
     "features": [
       "Extender transmitter",
@@ -2377,7 +3350,7 @@
       "EDID support",
       "HDCP 2.2"
     ],
-    "notes": "Official Kramer TP-580T page. | Official Kramer TP-580T page. | data/product-intelligence-db.json#36 merged into deployed competitor catalog."
+    "notes": "Official Kramer TP-580T page. | Official Kramer TP-580T page. | data/product-intelligence-db.json#36 merged into deployed competitor catalog. | data/product-intelligence-db.json#45 merged into deployed competitor catalog. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | data/product-intelligence-db.json#70 merged into deployed competitor catalog."
   },
   {
     "sku": "VIA-GO2",
@@ -2385,8 +3358,7 @@
     "brand": "Kramer",
     "family": "VIA",
     "category": "Switcher",
-    "subcategory": "Wireless Presentation",
-    "status": "active",
+    "status": "draft",
     "summary": "Super-compact wireless presentation hub with integrated Wi-Fi, LAN connectivity, AirPlay, Miracast, and Chromebook support for secure collaboration in huddle spaces.",
     "sourceUrl": "https://www1.kramerav.com/us/product/via%20go2",
     "inputs": [
@@ -2427,7 +3399,6 @@
       "hdr": false
     },
     "transport": "Local",
-    "latency": "standard",
     "features": [
       "Wireless presentation",
       "AirPlay",
@@ -2436,7 +3407,7 @@
       "Secure login",
       "Two simultaneous presenters"
     ],
-    "notes": "Official Kramer VIA GO2 page. | Official Kramer VIA GO2 page. | data/product-intelligence-db.json#37 merged into deployed competitor catalog."
+    "notes": "Official Kramer VIA GO2 page. | Official Kramer VIA GO2 page. | data/product-intelligence-db.json#37 merged into deployed competitor catalog. | data/product-intelligence-db.json#46 merged into deployed competitor catalog. | data/product-intelligence-db.json#71 merged into deployed competitor catalog. | data/product-intelligence-db.json#71 merged into deployed competitor catalog. | data/product-intelligence-db.json#71 merged into deployed competitor catalog. | data/product-intelligence-db.json#71 merged into deployed competitor catalog. | data/product-intelligence-db.json#71 merged into deployed competitor catalog. | data/product-intelligence-db.json#71 merged into deployed competitor catalog. | data/product-intelligence-db.json#71 merged into deployed competitor catalog. | data/product-intelligence-db.json#71 merged into deployed competitor catalog. | data/product-intelligence-db.json#71 merged into deployed competitor catalog."
   },
   {
     "sku": "VS-88H2A",
@@ -2444,8 +3415,8 @@
     "brand": "Kramer",
     "family": "VS",
     "category": "Matrix",
-    "subcategory": "Matrix Switch",
-    "status": "active",
+    "subcategory": "Matrix switcher",
+    "status": "draft",
     "summary": "8x8 4K HDR HDMI matrix switcher with independent audio routes, EDID handling, web pages, and Kramer Aware cloud support.",
     "sourceUrl": "https://www1.kramerav.com/us/product/vs-88h2a",
     "inputs": [
@@ -2488,19 +3459,19 @@
     },
     "transport": "Local",
     "features": [
+      "Matrix switching",
+      "Multi-source routing",
+      "Fixed AV infrastructure",
+      "Matrix",
       "Matrix switcher",
       "Independent audio routes",
       "EDID management",
       "Kramer Aware",
       "Web pages",
       "HDCP 2.2",
-      "HDR",
-      "Matrix switching",
-      "Multi-source routing",
-      "Fixed AV infrastructure",
-      "Matrix"
+      "HDR"
     ],
-    "notes": "Official Kramer VS-88H2A page. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Official Kramer VS-88H2A page. | data/product-intelligence-db.json#38 merged into deployed competitor catalog."
+    "notes": "Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#15 merged into deployed competitor catalog. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#15 merged into deployed competitor catalog. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#15 merged into deployed competitor catalog. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#15 merged into deployed competitor catalog. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#15 merged into deployed competitor catalog. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#15 merged into deployed competitor catalog. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#15 merged into deployed competitor catalog. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#15 merged into deployed competitor catalog. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#15 merged into deployed competitor catalog. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#15 merged into deployed competitor catalog. | Official Kramer VS-88H2A page. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations | competitor-compare.seed.json#6 merged into deployed competitor catalog. | Official Kramer VS-88H2A page. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog."
   },
   {
     "sku": "DA2-HDMI",
@@ -2508,8 +3479,7 @@
     "brand": "Lightware",
     "family": "DA",
     "category": "Distribution",
-    "subcategory": "Splitter",
-    "status": "active",
+    "status": "draft",
     "summary": "Compact HDMI distribution amplifier for one HDMI source feeding two local HDMI displays with EDID handling.",
     "sourceUrl": "https://lightware.com/products/da2-hdmi",
     "inputs": [
@@ -2541,7 +3511,7 @@
       "EDID management",
       "Compact form factor"
     ],
-    "notes": "Official Lightware DA2-HDMI product page. | Official Lightware DA2-HDMI product page. | data/product-intelligence-db.json#39 merged into deployed competitor catalog."
+    "notes": "Official Lightware DA2-HDMI product page. | Official Lightware DA2-HDMI product page. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog."
   },
   {
     "sku": "UCX-2X1-HC30",
@@ -2549,8 +3519,7 @@
     "brand": "Lightware",
     "family": "Taurus UCX",
     "category": "Switcher",
-    "subcategory": "Presentation Switcher",
-    "status": "active",
+    "status": "draft",
     "summary": "2x1 switcher with USB-C, HDMI 2.0, USB 3.1, and Ethernet control for collaboration spaces with host switching and room automation support.",
     "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
     "inputs": [
@@ -2598,7 +3567,7 @@
       "HDMI 2.0",
       "Ethernet control"
     ],
-    "notes": "Official Lightware Taurus UCX family page. | Official Lightware Taurus UCX family page. | data/product-intelligence-db.json#40 merged into deployed competitor catalog."
+    "notes": "Official Lightware Taurus UCX family page. | Official Lightware Taurus UCX family page. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog."
   },
   {
     "sku": "UCX-4X2-HC60D",
@@ -2606,8 +3575,7 @@
     "brand": "Lightware",
     "family": "Taurus UCX",
     "category": "Switcher",
-    "subcategory": "Presentation Switcher",
-    "status": "active",
+    "status": "draft",
     "summary": "4x2 switcher with two HDMI inputs, two USB-C inputs, dual HDMI outputs, USB 3.1 host switching, Dante and AES67 audio, and automation for large collaboration rooms.",
     "sourceUrl": "https://www.lightware.com/en/product-family/taurus-ucx",
     "inputs": [
@@ -2661,7 +3629,7 @@
       "Room automation",
       "Large-room collaboration"
     ],
-    "notes": "Official Lightware Taurus UCX family page and A&E specification. | Official Lightware Taurus UCX family page and A&E specification. | data/product-intelligence-db.json#41 merged into deployed competitor catalog."
+    "notes": "Official Lightware Taurus UCX family page and A&E specification. | Official Lightware Taurus UCX family page and A&E specification. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog."
   },
   {
     "sku": "UCX-4X3-HCM40",
@@ -2669,9 +3637,8 @@
     "brand": "Lightware",
     "family": "Taurus UCX",
     "category": "Matrix",
-    "subcategory": "Matrix Switch",
-    "status": "active",
-    "summary": "4x3 universal matrix switcher with dual-screen extended desktop support, two HDMI inputs, one USB-C input, three HDMI outputs, and host switching for hybrid meeting rooms.",
+    "status": "draft",
+    "summary": "4x3 universal matrix switcher with dual-screen extended desktop support, two HDMI inputs, two USB-C inputs, three HDMI outputs, and host switching for hybrid meeting rooms.",
     "sourceUrl": "https://www.lightware.com/en/products/ucx-4x3-hcm40-dual-screen",
     "inputs": [
       {
@@ -2712,13 +3679,12 @@
     "features": [
       "Matrix switcher",
       "Dual-screen extended desktop",
-      "Single USB-C host can present two routed video streams",
       "USB-C 100W charging",
       "Host switching",
       "Room automation",
       "Collaboration"
     ],
-    "notes": "Official Lightware UCX-4x3-HCM40 product page. Logical 4x3 count reflects dual-screen extended desktop over a single USB-C host alongside two HDMI inputs. | Official Lightware UCX-4x3-HCM40 product page. | data/product-intelligence-db.json#42 merged into deployed competitor catalog."
+    "notes": "Official Lightware UCX-4x3-HCM40 product page. | Official Lightware UCX-4x3-HCM40 product page. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog."
   },
   {
     "sku": "TPX-TX107",
@@ -2738,19 +3704,19 @@
     ],
     "outputs": [
       {
-        "type": "HDBaseT",
+        "type": "TPX",
         "count": 1
       }
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
       "hdmi": "2.0",
-      "bandwidthGbps": 18
+      "bandwidthGbps": 18,
+      "hdr": true
     },
     "transport": "HDBaseT",
     "distance": {
-      "meters": 100,
-      "notes": "Official Lightware product page describes HDMI 2.0 / HDBaseT extension up to 100 meters."
+      "meters": 100
     },
     "features": [
       "HDBaseT transport",
@@ -2758,7 +3724,7 @@
       "Professional AV integration",
       "HDBaseT"
     ],
-    "notes": "Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog."
+    "notes": "Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#13 merged into deployed competitor catalog. | Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#13 merged into deployed competitor catalog. | Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#13 merged into deployed competitor catalog. | Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#13 merged into deployed competitor catalog. | Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#13 merged into deployed competitor catalog. | Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#13 merged into deployed competitor catalog. | Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#13 merged into deployed competitor catalog. | Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#13 merged into deployed competitor catalog. | Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#13 merged into deployed competitor catalog. | Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#13 merged into deployed competitor catalog. | Closest match is the WyreStorm HDBaseT extender range for structured point-to-point extension. | Check distance | Confirm USB or control pass-through | Validate power requirements | competitor-compare.seed.json#4 merged into deployed competitor catalog. | data/product-intelligence-db.json#49 merged into deployed competitor catalog. | data/product-intelligence-db.json#74 merged into deployed competitor catalog. | data/product-intelligence-db.json#74 merged into deployed competitor catalog. | data/product-intelligence-db.json#74 merged into deployed competitor catalog. | data/product-intelligence-db.json#74 merged into deployed competitor catalog. | data/product-intelligence-db.json#74 merged into deployed competitor catalog. | data/product-intelligence-db.json#74 merged into deployed competitor catalog. | data/product-intelligence-db.json#74 merged into deployed competitor catalog. | data/product-intelligence-db.json#74 merged into deployed competitor catalog. | data/product-intelligence-db.json#74 merged into deployed competitor catalog."
   },
   {
     "sku": "Z4KMP48",
@@ -2766,8 +3732,7 @@
     "brand": "ZeeVee",
     "family": "ZyPer Management Platform",
     "category": "Control",
-    "subcategory": "AVoIP Controller",
-    "status": "active",
+    "status": "draft",
     "summary": "AV over IP management platform for ZyPer systems with browser-based setup, drag-and-drop routing, monitoring, and system management for encoders and decoders.",
     "sourceUrl": "https://www.zeevee.com/z4kmp48-data-sheet/",
     "inputs": [
@@ -2790,7 +3755,7 @@
       "System monitoring",
       "Centralized configuration"
     ],
-    "notes": "Official ZeeVee ZyPer Management Platform product page. | Official ZeeVee ZyPer Management Platform product page. | data/product-intelligence-db.json#43 merged into deployed competitor catalog."
+    "notes": "Official ZeeVee ZyPer Management Platform product page. | Official ZeeVee ZyPer Management Platform product page. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | data/product-intelligence-db.json#78 merged into deployed competitor catalog. | data/product-intelligence-db.json#78 merged into deployed competitor catalog. | data/product-intelligence-db.json#78 merged into deployed competitor catalog. | data/product-intelligence-db.json#78 merged into deployed competitor catalog. | data/product-intelligence-db.json#78 merged into deployed competitor catalog. | data/product-intelligence-db.json#78 merged into deployed competitor catalog. | data/product-intelligence-db.json#78 merged into deployed competitor catalog. | data/product-intelligence-db.json#78 merged into deployed competitor catalog. | data/product-intelligence-db.json#78 merged into deployed competitor catalog."
   },
   {
     "sku": "ZY-4K-DEC",
@@ -2798,8 +3763,7 @@
     "brand": "ZeeVee",
     "family": "ZyPer4K",
     "category": "AVoIP",
-    "subcategory": "Decoder",
-    "status": "active",
+    "status": "draft",
     "summary": "Zero-frame-latency one-gigabit HDMI-over-IP decoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
     "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
     "inputs": [
@@ -2832,7 +3796,9 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "zero frame",
+    "distance": {
+      "meters": 100
+    },
     "features": [
       "AVoIP decoder",
       "Zero-frame latency",
@@ -2841,7 +3807,7 @@
       "USB extension",
       "Managed-network multicast"
     ],
-    "notes": "Official ZeeVee ZyPer4K family page. | Official ZeeVee ZyPer4K family page. | data/product-intelligence-db.json#45 merged into deployed competitor catalog."
+    "notes": "Official ZeeVee ZyPer4K family page. | Official ZeeVee ZyPer4K family page. | data/product-intelligence-db.json#45 merged into deployed competitor catalog. | data/product-intelligence-db.json#55 merged into deployed competitor catalog. | data/product-intelligence-db.json#80 merged into deployed competitor catalog. | data/product-intelligence-db.json#80 merged into deployed competitor catalog. | data/product-intelligence-db.json#80 merged into deployed competitor catalog. | data/product-intelligence-db.json#80 merged into deployed competitor catalog. | data/product-intelligence-db.json#80 merged into deployed competitor catalog. | data/product-intelligence-db.json#80 merged into deployed competitor catalog. | data/product-intelligence-db.json#80 merged into deployed competitor catalog. | data/product-intelligence-db.json#80 merged into deployed competitor catalog. | data/product-intelligence-db.json#80 merged into deployed competitor catalog."
   },
   {
     "sku": "ZY-4K-ENC",
@@ -2849,8 +3815,7 @@
     "brand": "ZeeVee",
     "family": "ZyPer4K",
     "category": "AVoIP",
-    "subcategory": "Encoder",
-    "status": "active",
+    "status": "draft",
     "summary": "Zero-frame-latency one-gigabit HDMI-over-IP encoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
     "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
     "inputs": [
@@ -2883,7 +3848,9 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "zero frame",
+    "distance": {
+      "meters": 100
+    },
     "features": [
       "AVoIP encoder",
       "Zero-frame latency",
@@ -2892,7 +3859,7 @@
       "USB extension",
       "Managed-network multicast"
     ],
-    "notes": "Official ZeeVee ZyPer4K family page. | Official ZeeVee ZyPer4K family page. | data/product-intelligence-db.json#46 merged into deployed competitor catalog."
+    "notes": "Official ZeeVee ZyPer4K family page. | Official ZeeVee ZyPer4K family page. | data/product-intelligence-db.json#46 merged into deployed competitor catalog. | data/product-intelligence-db.json#56 merged into deployed competitor catalog. | data/product-intelligence-db.json#81 merged into deployed competitor catalog. | data/product-intelligence-db.json#81 merged into deployed competitor catalog. | data/product-intelligence-db.json#81 merged into deployed competitor catalog. | data/product-intelligence-db.json#81 merged into deployed competitor catalog. | data/product-intelligence-db.json#81 merged into deployed competitor catalog. | data/product-intelligence-db.json#81 merged into deployed competitor catalog. | data/product-intelligence-db.json#81 merged into deployed competitor catalog. | data/product-intelligence-db.json#81 merged into deployed competitor catalog. | data/product-intelligence-db.json#81 merged into deployed competitor catalog."
   },
   {
     "sku": "ZUHD60-2EMP",
@@ -2900,8 +3867,7 @@
     "brand": "ZeeVee",
     "family": "ZyPerUHD60",
     "category": "AVoIP",
-    "subcategory": "Encoder",
-    "status": "active",
+    "status": "draft",
     "summary": "Compressed 1GbE AV-over-IP encoder with three video inputs, an integrated management platform, KVM support, and support for HDMI, USB-C, and DisplayPort sources.",
     "sourceUrl": "https://www.zeevee.com/product/zuhd60-2emp/",
     "inputs": [
@@ -2943,7 +3909,9 @@
       "hdr": true
     },
     "transport": "AVoIP",
-    "latency": "low",
+    "distance": {
+      "meters": 100
+    },
     "features": [
       "AVoIP encoder",
       "Triple-input encoder",
@@ -2952,6 +3920,6 @@
       "1GbE transport",
       "PoE+"
     ],
-    "notes": "Official ZeeVee ZUHD60-2EMP product page. | Official ZeeVee ZUHD60-2EMP product page. | data/product-intelligence-db.json#44 merged into deployed competitor catalog."
+    "notes": "Official ZeeVee ZUHD60-2EMP product page. | Official ZeeVee ZUHD60-2EMP product page. | data/product-intelligence-db.json#44 merged into deployed competitor catalog. | data/product-intelligence-db.json#54 merged into deployed competitor catalog. | data/product-intelligence-db.json#79 merged into deployed competitor catalog. | data/product-intelligence-db.json#79 merged into deployed competitor catalog. | data/product-intelligence-db.json#79 merged into deployed competitor catalog. | data/product-intelligence-db.json#79 merged into deployed competitor catalog. | data/product-intelligence-db.json#79 merged into deployed competitor catalog. | data/product-intelligence-db.json#79 merged into deployed competitor catalog. | data/product-intelligence-db.json#79 merged into deployed competitor catalog. | data/product-intelligence-db.json#79 merged into deployed competitor catalog. | data/product-intelligence-db.json#79 merged into deployed competitor catalog."
   }
 ]

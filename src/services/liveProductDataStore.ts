@@ -13,6 +13,15 @@ import {
 } from "@/services/productIntelligenceService";
 import type { CompetitorLookupRecord } from "@/services/competitor/lookupService";
 
+export type ManualCompetitorProductCaptureInput = {
+  brand: string;
+  competitorSku: string;
+  competitorName?: string;
+  category?: string;
+  summary?: string;
+  features?: string[];
+};
+
 export type LiveProductDataStatus = {
   endpoint: string | null;
   available: boolean;
@@ -468,6 +477,66 @@ function toLookupIntelligenceRecord(record: CompetitorLookupRecord): ProductInte
   });
 }
 
+function toManualCompetitorIntelligenceRecord(
+  input: ManualCompetitorProductCaptureInput,
+): ProductIntelligenceRecord {
+  const brand = tidy(input.brand) || "Unknown";
+  const sku = normalizeSku(input.competitorSku);
+  const name = tidy(input.competitorName) || sku;
+  const summary = tidy(input.summary) || `${brand} ${sku} manually saved from competitor compare.`;
+  const featureList = dedupeStrings(input.features || [], 24);
+  const classification = classifyProductType({
+    sku,
+    name,
+    category: input.category,
+    summary,
+    features: featureList,
+  });
+  const now = nowIso();
+
+  return sanitizeRecord({
+    inputs: [],
+    outputs: [],
+    control: [],
+    audio: [],
+    id: `competitor::${normalizeId(brand)}::${sku}`,
+    vendorType: "competitor",
+    brand,
+    sku,
+    name,
+    family: tidy(input.category) || classification.label || "Unknown",
+    group: classification.group,
+    category: classification.category || tidy(input.category) || "Manual comparison",
+    subcategory: classification.label || undefined,
+    classificationSource: "manual",
+    summary,
+    features: featureList,
+    status: "draft",
+    confidence: 0.72,
+    sourceType: "manual",
+    sourceUrls: [],
+    tags: dedupeStrings(
+      [
+        brand,
+        input.category,
+        classification.group,
+        classification.label,
+        ...classification.tags,
+        ...featureList,
+      ],
+      20,
+    ),
+    notes: "Captured from manual competitor comparison save.",
+    createdAt: now,
+    updatedAt: now,
+    lastCapturedAt: now,
+    evidence: [],
+    reviewFlags: [],
+    archived: false,
+
+  });
+}
+
 export async function captureCompetitorLookupRecord(record: CompetitorLookupRecord): Promise<void> {
   const normalized = toLookupIntelligenceRecord(record);
   mergeSnapshotRecord(normalized);
@@ -530,5 +599,54 @@ export async function captureCompetitorLookupRecord(record: CompetitorLookupReco
       confidence: normalized.confidence,
       notes: "Auto-captured from live competitor lookup workflow.",
     });
+  }
+}
+
+export async function captureManualCompetitorProduct(
+  input: ManualCompetitorProductCaptureInput,
+): Promise<void> {
+  const normalized = toManualCompetitorIntelligenceRecord(input);
+  mergeSnapshotRecord(normalized);
+
+  const result = await upsertProductIntelligenceRecord({
+    vendorType: "competitor",
+    brand: normalized.brand,
+    sku: normalized.sku,
+    name: normalized.name,
+    family: normalized.family,
+    category: normalized.category,
+    subcategory: normalized.subcategory,
+    group: normalized.group,
+    classificationSource: normalized.classificationSource,
+    summary: normalized.summary,
+    technology: normalized.technology,
+    topology: normalized.topology,
+    role: normalized.role,
+    directionality: normalized.directionality,
+    outputBehavior: normalized.outputBehavior,
+    features: normalized.features,
+    transport: normalized.transport,
+    inputs: normalized.inputs,
+    outputs: normalized.outputs,
+    control: normalized.control,
+    audio: normalized.audio,
+    video: normalized.video,
+    latency: normalized.latency,
+    distance: normalized.distance,
+    distanceMeters: normalized.distanceMeters,
+    usb: normalized.usb,
+    wireless: normalized.wireless,
+    integration: normalized.integration,
+    power: normalized.power,
+    status: normalized.status,
+    confidence: normalized.confidence,
+    sourceType: "manual",
+    sourceUrls: normalized.sourceUrls,
+    tags: normalized.tags,
+    notes: normalized.notes,
+  });
+
+  if (result.record) {
+    mergeSnapshotRecord(result.record);
   }
 }

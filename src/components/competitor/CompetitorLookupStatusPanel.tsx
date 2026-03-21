@@ -23,6 +23,7 @@ type CompetitorLookupStatusPanelProps = {
   running?: boolean;
   title?: string;
   subtitle?: string;
+  insight?: string;
   emptyText?: string;
   modeLabel?: string;
   [key: string]: unknown;
@@ -78,6 +79,7 @@ export default function CompetitorLookupStatusPanel(props: CompetitorLookupStatu
     running = false,
     title = "Lookup status",
     subtitle = "View lookup progress and matching signals.",
+    insight = "",
     emptyText = "No lookup activity yet.",
     modeLabel = "",
   } = props;
@@ -122,6 +124,23 @@ export default function CompetitorLookupStatusPanel(props: CompetitorLookupStatu
           {subtitle}
         </div>
       </div>
+
+      {insight ? (
+        <div
+          style={{
+            padding: "10px 12px",
+            borderRadius: 12,
+            border: "1px solid rgba(245,158,11,0.18)",
+            background: "rgba(245,158,11,0.08)",
+            color: "#fde68a",
+            fontSize: 12,
+            lineHeight: 1.45,
+            fontWeight: 700,
+          }}
+        >
+          {insight}
+        </div>
+      ) : null}
 
       {rows.length === 0 ? (
         <div

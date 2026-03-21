@@ -1,5 +1,9 @@
 import React from "react";
 import { getCompetitorBrands, getCompetitorProducts } from "@/competitor/repository";
+import {
+  getLiveProductDataToken,
+  subscribeLiveProductData,
+} from "@/services/liveProductDataStore";
 
 type LocalCompetitorLookupMatch = {
   sku: string;
@@ -105,11 +109,18 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
     onRun,
   } = props;
   const [focused, setFocused] = React.useState(false);
+  const [liveDataToken, setLiveDataToken] = React.useState(() => getLiveProductDataToken());
+
+  React.useEffect(() => {
+    return subscribeLiveProductData(() => {
+      setLiveDataToken(getLiveProductDataToken());
+    });
+  }, []);
 
   const brands = React.useMemo(() => {
     const deployed = getCompetitorBrands();
     return deployed.length > 0 ? deployed : DEFAULT_BRANDS;
-  }, []);
+  }, [liveDataToken]);
 
   const brandItems = React.useMemo<Suggestion[]>(() => {
     const key = canonicalBrand(brand);
@@ -128,7 +139,7 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
     }
 
     return Array.from(deduped.values()).sort((left, right) => left.sku.localeCompare(right.sku));
-  }, [brand]);
+  }, [brand, liveDataToken]);
 
   const externalSuggestions = React.useMemo<Suggestion[]>(() => {
     return (localMatches ?? [])

@@ -1,78 +1,41 @@
 import React, { useMemo, useState } from "react";
 
-import { findRecommendationCatalogItemBySku } from "@/catalog/recommendationCatalog";
+import { type SolutionRecommendationTier } from "@/catalog/serviceRecommendations";
 import {
-  getTierSkusForFamily,
-  type SolutionRecommendationTier,
-} from "@/catalog/serviceRecommendations";
+  getMinimumSourceCountForRecommendation as getVideoWallMinimumSourceCount,
+  recommendationFor as buildVideoWallRecommendation,
+} from "@/data/techDatabase/videoWallRecommendationEngine";
+import {
+  resolveVideoWallDecision as resolveVideoWallDecisionRule,
+  type VideoWallDecisionArgs,
+  type VideoWallDesignState,
+  type VideoWallMultiviewStyle,
+  type VideoWallPathMode,
+  type VideoWallPerformancePriority,
+} from "@/data/techDatabase/videoWallDecisionRules";
+import {
+  sourceLandingCopy,
+  sourceProfileCopy,
+  tierCopy,
+  type SourceLandingStyle,
+  type SourceProfile,
+} from "@/data/techDatabase/videoWallCopy";
+import {
+  applyVideoWallToProject,
+  getActiveProject,
+  subscribeProjects,
+} from "@/features/projects/projectStore";
 
 type WallGoal = "single" | "grid" | "pip" | "custom";
 type BuildMethod = "tile-mode" | "per-display";
 type BezelPreset = "none" | "thin" | "standard" | "thick";
-type SourceProfile = "player" | "matrix-feed" | "direct-hdmi" | "mixed";
-
-type BomLine = {
-  sku: string;
-  qty: number;
-  note?: string;
-};
-
-type Recommendation = {
-  title: string;
-  architecture: string;
-  product: string;
-  reason: string;
-  bom: BomLine[];
-  sourceSummary: string;
-  customerSummary: string;
-  engineeringSummary: string;
-};
+type WallBehavior = "single-canvas" | "multiview" | "addressed-panels";
 
 const bezelValues: Record<BezelPreset, number> = {
   none: 0,
   thin: 4,
   standard: 8,
   thick: 14,
-};
-
-const tierCopy: Record<
-  SolutionRecommendationTier,
-  { label: string; sublabel: string }
-> = {
-  Bronze: {
-    label: "Bronze",
-    sublabel: "Lean wall design using the entry-level processor or NetworkHD path.",
-  },
-  Silver: {
-    label: "Silver",
-    sublabel: "Balanced wall design for day-to-day commercial installs.",
-  },
-  Gold: {
-    label: "Gold",
-    sublabel: "Highest flexibility for demanding walls, multiview, and premium control.",
-  },
-};
-
-const sourceProfileCopy: Record<
-  SourceProfile,
-  { label: string; sublabel: string }
-> = {
-  player: {
-    label: "Signage player / media server",
-    sublabel: "One or more dedicated playback devices feeding the wall.",
-  },
-  "matrix-feed": {
-    label: "One feed from matrix or processor",
-    sublabel: "The wall receives a prepared feed from upstream switching.",
-  },
-  "direct-hdmi": {
-    label: "Direct HDMI sources",
-    sublabel: "Laptops, players, or boxes need to land in the wall workflow directly.",
-  },
-  mixed: {
-    label: "Mixed source set",
-    sublabel: "A blend of source types with more flexible staging or switching.",
-  },
 };
 
 function clamp(n: number, min: number, max: number): number {
@@ -83,215 +46,131 @@ function formatMm(value: number): string {
   return `${Math.round(value)} mm`;
 }
 
-function formatCount(value: number, singular: string, plural = `${singular}s`): string {
-  return `${value} ${value === 1 ? singular : plural}`;
+function deriveVideoWallDesignState(args: VideoWallDecisionArgs): VideoWallDesignState {
+  return resolveVideoWallDecisionRule(args).designState;
 }
 
-function firstAvailableSku(candidates: string[], fallback: string): string {
-  for (const candidate of candidates) {
-    if (findRecommendationCatalogItemBySku(candidate)) return candidate;
+function getWallBehavior(goal: WallGoal, buildMethod: BuildMethod): WallBehavior {
+  if (buildMethod === "per-display") return "addressed-panels";
+  if (goal === "single") return "single-canvas";
+  return "multiview";
+}
+
+function getWallGoal(
+  wallBehavior: WallBehavior,
+  multiviewStyle: VideoWallMultiviewStyle,
+): WallGoal {
+  if (wallBehavior === "single-canvas" || wallBehavior === "addressed-panels") {
+    return "single";
   }
 
-  return candidates[0] || fallback;
+  if (multiviewStyle === "floating-windows") return "pip";
+  if (multiviewStyle === "fixed-windows") return "custom";
+  return "grid";
 }
 
-function findSkuByPattern(
-  candidates: string[],
-  pattern: RegExp,
-  fallback: string,
-): string {
-  return firstAvailableSku(
-    candidates.filter((sku) => pattern.test(sku)),
-    fallback,
-  );
+function getBuildMethod(wallBehavior: WallBehavior): BuildMethod {
+  return wallBehavior === "addressed-panels" ? "per-display" : "tile-mode";
 }
 
-function describeSku(sku: string): string {
-  return findRecommendationCatalogItemBySku(sku)?.description || "";
-}
+const wallBehaviorCopy: Record<
+  WallBehavior,
+  { label: string; shortLabel: string; sublabel: string }
+> = {
+  "single-canvas": {
+    label: "Single canvas",
+    shortLabel: "Single",
+    sublabel: "One wall image or one prepared wall feed.",
+  },
+  multiview: {
+    label: "Multiview canvas",
+    shortLabel: "Multi",
+    sublabel: "Multiple windows on one wall canvas.",
+  },
+  "addressed-panels": {
+    label: "Addressed panels",
+    shortLabel: "Panels",
+    sublabel: "One decoder or TRX behind each display.",
+  },
+};
 
-function createBomLine(sku: string, qty: number, note?: string): BomLine {
-  const description = describeSku(sku);
-  const fullNote = [note, description].filter(Boolean).join(" ");
-  return {
-    sku,
-    qty,
-    note: fullNote || undefined,
-  };
-}
+const multiviewStyleCopy: Record<
+  VideoWallMultiviewStyle,
+  { label: string; shortLabel: string; sublabel: string }
+> = {
+  "equal-tiles": {
+    label: "Equal tiles",
+    shortLabel: "Grid",
+    sublabel: "Regular multiview grid across one wall feed.",
+  },
+  "floating-windows": {
+    label: "Floating windows",
+    shortLabel: "Float",
+    sublabel: "Overlay or pinch-style windows on one wall feed.",
+  },
+  "fixed-windows": {
+    label: "Fixed XY windows",
+    shortLabel: "Fixed",
+    sublabel: "Non-overlapping windows placed by fixed coordinates.",
+  },
+};
 
-function getProcessorSku(tier: SolutionRecommendationTier): string {
-  const candidates = getTierSkusForFamily("Video Wall", tier, 4);
-  if (tier === "Bronze") {
-    return findSkuByPattern(candidates, /^SW-0204-VW$/i, "SW-0204-VW");
-  }
+const pathModeCopy: Record<
+  VideoWallPathMode,
+  { label: string; shortLabel: string; sublabel: string }
+> = {
+  auto: {
+    label: "Auto path",
+    shortLabel: "Auto",
+    sublabel: "Let Wingman resolve the path from the brief.",
+  },
+  "local-processor": {
+    label: "Local processor",
+    shortLabel: "Direct",
+    sublabel: "SW-0204/0206-VW or local HDMI processor path.",
+  },
+  "networkhd-120": {
+    label: "120-series",
+    shortLabel: "120",
+    sublabel: "Lowest-cost 1Gb NetworkHD path.",
+  },
+  "networkhd-500": {
+    label: "500-series",
+    shortLabel: "500",
+    sublabel: "Higher-quality 1Gb NetworkHD path.",
+  },
+  "sdvoe-600": {
+    label: "600-series SDVoE",
+    shortLabel: "600",
+    sublabel: "Premium 10Gb SDVoE path.",
+  },
+};
 
-  return findSkuByPattern(candidates, /^SW-0206-VW$/i, "SW-0206-VW");
-}
-
-function getMultiviewSku(): string {
-  return firstAvailableSku(["NHD-0401-MV"], "NHD-0401-MV");
-}
-
-function getMatrixSku(tier: SolutionRecommendationTier, sourceCount: number): string {
-  const candidates = getTierSkusForFamily("Matrix", tier, 4);
-  if (tier === "Bronze" && sourceCount <= 4) {
-    return findSkuByPattern(candidates, /^MX-0404-HDMI$/i, "MX-0404-HDMI");
-  }
-
-  return findSkuByPattern(candidates, /^MX-0808-H2A-MK2$/i, "MX-0808-H2A-MK2");
-}
-
-function getAvoipSourceSku(tier: SolutionRecommendationTier): string {
-  const candidates = getTierSkusForFamily("AVoIP", tier, 6);
-
-  if (tier === "Gold") {
-    return findSkuByPattern(candidates, /^NHD-600-TRX$/i, "NHD-600-TRX");
-  }
-
-  return findSkuByPattern(
-    candidates,
-    /-TX$/i,
-    tier === "Bronze" ? "NHD-120-TX" : "NHD-500-TX",
-  );
-}
-
-function getAvoipDisplaySku(tier: SolutionRecommendationTier): string {
-  const candidates = getTierSkusForFamily("AVoIP", tier, 6);
-
-  if (tier === "Gold") {
-    return findSkuByPattern(candidates, /^NHD-610-RX$/i, "NHD-610-RX");
-  }
-
-  return findSkuByPattern(
-    candidates,
-    /-RX$/i,
-    tier === "Bronze" ? "NHD-120-RX" : "NHD-500-RX",
-  );
-}
-
-function getAvoipControllerSku(): string {
-  return firstAvailableSku(["NHD-CTL-PRO-V2"], "NHD-CTL-PRO-V2");
-}
-
-function recommendationFor(args: {
-  tier: SolutionRecommendationTier;
-  goal: WallGoal;
-  buildMethod: BuildMethod;
-  rows: number;
-  cols: number;
-  sourceCount: number;
-  sourceProfile: SourceProfile;
-}): Recommendation {
-  const { tier, goal, buildMethod, rows, cols, sourceCount, sourceProfile } = args;
-  const displays = rows * cols;
-  const processorSku = getProcessorSku(tier);
-  const multiviewSku = getMultiviewSku();
-  const matrixSku = getMatrixSku(tier, sourceCount);
-  const sourceSku = getAvoipSourceSku(tier);
-  const displaySku = getAvoipDisplaySku(tier);
-  const controllerSku = getAvoipControllerSku();
-  const processorCapacity = processorSku === "SW-0204-VW" ? 4 : 6;
-  const processorQty = Math.max(1, Math.ceil(displays / processorCapacity));
-  const sourceTypeLabel = sourceProfileCopy[sourceProfile].label;
-  const needsFlexibleSourceStage =
-    sourceCount > 1 || goal !== "single" || sourceProfile === "direct-hdmi" || sourceProfile === "mixed";
-  const usesDirectSources = sourceProfile === "direct-hdmi" || sourceProfile === "mixed";
-
-  if (buildMethod === "per-display") {
-    const bom: BomLine[] = [
-      createBomLine(
-        sourceSku,
-        sourceCount,
-        `${formatCount(sourceCount, "source")} encoded onto the NetworkHD fabric.`,
-      ),
-      createBomLine(
-        displaySku,
-        displays,
-        `${formatCount(displays, "display")} driven individually for wall control and recall.`,
-      ),
-      createBomLine(
-        controllerSku,
-        1,
-        "Central controller for wall presets, endpoint management, and grouped behavior.",
-      ),
-    ];
-
-    if (usesDirectSources && sourceCount > 4) {
-      bom.unshift(
-        createBomLine(
-          matrixSku,
-          1,
-          "Front-end staging for a larger direct-source set before it enters the addressed wall workflow.",
-        ),
-      );
-    }
-
-    return {
-      title: goal === "single" ? "Addressed wall design" : "Addressed wall with flexible zoning",
-      architecture: `${tierCopy[tier].label} AVoIP wall with addressed displays`,
-      product: `${displaySku} + ${controllerSku}`,
-      reason:
-        goal === "single"
-          ? "This path keeps each display addressable, which is the safer choice once the wall has multiple live sources or needs future layout flexibility."
-          : "This path gives every display its own endpoint so the wall can support grouped zones, multiview behavior, and more flexible future recalls.",
-      bom,
-      sourceSummary: `${formatCount(sourceCount, "source")} from ${sourceTypeLabel.toLowerCase()} will be handled as individual feeds rather than one fixed wall feed.`,
-      customerSummary: `The ${rows} x ${cols} wall stays flexible at the ${tier.toLowerCase()} tier, with each display addressable so the design can grow beyond one fixed layout.`,
-      engineeringSummary: `Allow ${sourceCount} source endpoints, ${displays} display endpoints, and one controller. This is the correct path when source diversity matters more than a simple single-feed wall processor.`,
-    };
-  }
-
-  const bom: BomLine[] = [];
-
-  if (usesDirectSources && sourceCount > 1) {
-    bom.push(
-      createBomLine(
-        matrixSku,
-        1,
-        "Stages multiple direct HDMI sources before they land in the wall path.",
-      ),
-    );
-  }
-
-  if (needsFlexibleSourceStage) {
-    bom.push(
-      createBomLine(
-        multiviewSku,
-        1,
-        sourceCount > 4
-          ? "First multiview stage for the wall. Add upstream switching if more than four live sources must be visible or recalled."
-          : "Builds the wall feed when more than one source or a multiview layout is required.",
-      ),
-    );
-  }
-
-  bom.push(
-    createBomLine(
-      processorSku,
-      processorQty,
-      processorQty > 1
-        ? `Processor-led wall path sized for ${formatCount(displays, "display")} across ${processorQty} chassis.`
-        : `Processor-led wall path sized for ${formatCount(displays, "display")}.`,
-    ),
-  );
-
-  return {
-    title: needsFlexibleSourceStage ? "Processor-led wall with source staging" : "Single-feed processor wall",
-    architecture: `${tierCopy[tier].label} dedicated video wall path`,
-    product: needsFlexibleSourceStage ? `${processorSku} + ${multiviewSku}` : processorSku,
-    reason:
-      needsFlexibleSourceStage
-        ? "The wall is still being treated as one tiled destination, but the source side now needs staging before that feed reaches the processor."
-        : "This is the cleanest path when the wall behaves as one destination with one prepared source image across the full display surface.",
-    bom,
-    sourceSummary: needsFlexibleSourceStage
-      ? `${formatCount(sourceCount, "source")} from ${sourceTypeLabel.toLowerCase()} will be collapsed into one prepared wall feed before distribution.`
-      : `${formatCount(sourceCount, "source")} from ${sourceTypeLabel.toLowerCase()} can feed the wall directly as one prepared canvas.`,
-    customerSummary: `The ${rows} x ${cols} wall is being treated as one tiled surface at the ${tier.toLowerCase()} tier, which keeps the design simpler and more cost-controlled.`,
-    engineeringSummary: `Size the wall processor for ${formatCount(displays, "display")}. Add source staging only where multiple live inputs, multiview, or custom layouts need to be resolved before the wall feed.`,
-  };
-}
+const performancePriorityCopy: Record<
+  VideoWallPerformancePriority,
+  { label: string; shortLabel: string; sublabel: string }
+> = {
+  auto: {
+    label: "Balanced",
+    shortLabel: "Auto",
+    sublabel: "Use the default path logic for the selected tier and wall state.",
+  },
+  "low-bandwidth": {
+    label: "Low bandwidth",
+    shortLabel: "BW",
+    sublabel: "Leanest network footprint and cost-led path.",
+  },
+  "low-latency": {
+    label: "Low latency",
+    shortLabel: "Fast",
+    sublabel: "Prefer faster response and stronger wall sync.",
+  },
+  "best-image": {
+    label: "Best image",
+    shortLabel: "IQ",
+    sublabel: "Bias toward premium image quality and transport.",
+  },
+};
 
 function SectionCard(props: {
   title: string;
@@ -327,10 +206,11 @@ function SectionCard(props: {
   );
 }
 
-function ChoiceButton(props: {
+function ControlOption(props: {
   active: boolean;
   onClick: () => void;
   label: string;
+  shortLabel?: string;
   sublabel?: string;
 }) {
   return (
@@ -339,27 +219,87 @@ function ChoiceButton(props: {
       onClick={props.onClick}
       style={{
         width: "100%",
+        minHeight: props.sublabel ? 72 : 58,
         textAlign: "left",
-        borderRadius: 14,
+        borderRadius: 12,
         border: props.active
-          ? "1px solid rgba(126,192,255,0.45)"
+          ? "1px solid rgba(126,192,255,0.5)"
           : "1px solid rgba(97,162,255,0.18)",
         background: props.active
-          ? "linear-gradient(180deg, rgba(26,74,130,0.9) 0%, rgba(12,42,84,0.92) 100%)"
-          : "rgba(9,20,40,0.86)",
+          ? "linear-gradient(180deg, rgba(26,74,130,0.92) 0%, rgba(12,42,84,0.94) 100%)"
+          : "rgba(9,20,40,0.84)",
         color: "#f5f9ff",
-        padding: "12px 14px",
+        padding: "10px 12px",
         cursor: "pointer",
         display: "grid",
-        gap: 4,
+        alignContent: "start",
+        gap: 3,
       }}
     >
-      <div style={{ fontSize: 14, fontWeight: 800 }}>{props.label}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {props.shortLabel ? (
+          <span
+            style={{
+              minWidth: 30,
+              height: 24,
+              borderRadius: 999,
+              border: "1px solid rgba(255,255,255,0.12)",
+              display: "inline-grid",
+              placeItems: "center",
+              fontSize: 10,
+              fontWeight: 900,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "rgba(238,245,255,0.86)",
+              background: "rgba(255,255,255,0.05)",
+            }}
+          >
+            {props.shortLabel}
+          </span>
+        ) : null}
+        <span style={{ fontSize: 13, fontWeight: 800 }}>{props.label}</span>
+      </div>
       {props.sublabel ? (
-        <div style={{ fontSize: 12, color: "rgba(214,228,255,0.74)", lineHeight: 1.4 }}>
+        <div style={{ fontSize: 11, lineHeight: 1.4, color: "rgba(214,228,255,0.72)" }}>
           {props.sublabel}
         </div>
       ) : null}
+    </button>
+  );
+}
+
+function CompactTierButton(props: {
+  active: boolean;
+  onClick: () => void;
+  shortLabel: string;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={props.onClick}
+      style={{
+        minHeight: 54,
+        borderRadius: 12,
+        border: props.active
+          ? "1px solid rgba(126,192,255,0.55)"
+          : "1px solid rgba(97,162,255,0.18)",
+        background: props.active
+          ? "linear-gradient(180deg, rgba(26,74,130,0.92) 0%, rgba(12,42,84,0.94) 100%)"
+          : "rgba(9,20,40,0.82)",
+        color: "#f5f9ff",
+        padding: "10px 12px",
+        cursor: "pointer",
+        display: "grid",
+        justifyItems: "center",
+        alignContent: "center",
+        gap: 2,
+      }}
+    >
+      <span style={{ fontSize: 16, fontWeight: 900, lineHeight: 1 }}>{props.shortLabel}</span>
+      <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: props.active ? "rgba(243,248,255,0.96)" : "rgba(201,227,255,0.72)" }}>
+        {props.label}
+      </span>
     </button>
   );
 }
@@ -370,6 +310,8 @@ function NumberField(props: {
   min: number;
   max: number;
   onChange: (value: number) => void;
+  disabled?: boolean;
+  helperText?: string;
 }) {
   return (
     <label style={{ display: "grid", gap: 6 }}>
@@ -381,18 +323,24 @@ function NumberField(props: {
         value={props.value}
         min={props.min}
         max={props.max}
+        disabled={props.disabled}
         onChange={(e) => props.onChange(clamp(Number(e.target.value) || props.value, props.min, props.max))}
         style={{
           borderRadius: 12,
-          border: "1px solid rgba(97,162,255,0.18)",
-          background: "rgba(9,20,40,0.9)",
-          color: "#f5f9ff",
+          border: props.disabled ? "1px solid rgba(97,162,255,0.12)" : "1px solid rgba(97,162,255,0.18)",
+          background: props.disabled ? "rgba(9,20,40,0.58)" : "rgba(9,20,40,0.9)",
+          color: props.disabled ? "rgba(245,249,255,0.72)" : "#f5f9ff",
           padding: "10px 12px",
           fontSize: 14,
           fontWeight: 700,
           outline: "none",
         }}
       />
+      {props.helperText ? (
+        <span style={{ fontSize: 11, lineHeight: 1.4, color: "rgba(201,227,255,0.66)" }}>
+          {props.helperText}
+        </span>
+      ) : null}
     </label>
   );
 }
@@ -432,17 +380,67 @@ function SelectField<T extends string>(props: {
   );
 }
 
+function PreviewBadge(props: {
+  left?: string;
+  right?: string;
+  top?: string;
+  bottom?: string;
+  label: string;
+  accent: string;
+}) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: props.left,
+        right: props.right,
+        top: props.top,
+        bottom: props.bottom,
+        zIndex: 4,
+        padding: "6px 10px",
+        borderRadius: 999,
+        border: `1px solid ${props.accent}`,
+        background: "rgba(4,13,27,0.86)",
+        color: "#eef5ff",
+        fontSize: 10,
+        fontWeight: 900,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        boxShadow: "0 10px 24px rgba(0,0,0,0.28)",
+        pointerEvents: "none",
+      }}
+    >
+      {props.label}
+    </div>
+  );
+}
+
 function PreviewOverlay(props: {
   goal: WallGoal;
   buildMethod: BuildMethod;
+  wallBehavior: WallBehavior;
+  multiviewStyle: VideoWallMultiviewStyle;
+  pathMode: VideoWallPathMode;
   rows: number;
   cols: number;
+  contentSourceCount: number;
+  ingressCount: number;
 }) {
+  const accentMap: Record<VideoWallPathMode, string> = {
+    auto: "rgba(145,205,255,0.55)",
+    "local-processor": "rgba(255,196,118,0.58)",
+    "networkhd-120": "rgba(120,199,255,0.6)",
+    "networkhd-500": "rgba(103,229,208,0.6)",
+    "sdvoe-600": "rgba(104,214,255,0.65)",
+  };
+  const accent = accentMap[props.pathMode];
   const base: React.CSSProperties = {
     position: "absolute",
-    border: "2px solid rgba(255,255,255,0.74)",
-    background: "rgba(255,255,255,0.2)",
-    borderRadius: 10,
+    border: `1px solid ${accent}`,
+    background: "linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.12) 100%)",
+    boxShadow: "0 16px 36px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.1)",
+    backdropFilter: "blur(4px)",
+    borderRadius: 12,
     color: "#fff",
     fontSize: 11,
     fontWeight: 900,
@@ -450,24 +448,69 @@ function PreviewOverlay(props: {
     placeItems: "center",
     letterSpacing: "0.06em",
     textTransform: "uppercase",
+    overflow: "hidden",
   };
+  const detailText: React.CSSProperties = {
+    fontSize: 9,
+    fontWeight: 700,
+    letterSpacing: "0.05em",
+    color: "rgba(234,242,255,0.7)",
+  };
+  const renderFrame = (
+    label: string,
+    detail?: string,
+    style?: React.CSSProperties,
+    tone: "primary" | "support" = "support",
+  ) => (
+    <div
+      style={{
+        ...base,
+        background:
+          tone === "primary"
+            ? "linear-gradient(180deg, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.14) 100%)"
+            : base.background,
+        ...style,
+      }}
+    >
+      <div style={{ display: "grid", justifyItems: "center", gap: 4 }}>
+        <span>{label}</span>
+        {detail ? <span style={detailText}>{detail}</span> : null}
+      </div>
+    </div>
+  );
+
+  const badges = (
+    <>
+      <PreviewBadge left="12px" top="12px" label={pathModeCopy[props.pathMode].shortLabel} accent={accent} />
+      <PreviewBadge
+        right="12px"
+        top="12px"
+        label={
+          props.wallBehavior === "multiview"
+            ? multiviewStyleCopy[props.multiviewStyle].shortLabel
+            : wallBehaviorCopy[props.wallBehavior].shortLabel
+        }
+        accent={accent}
+      />
+      <PreviewBadge left="12px" bottom="12px" label={`${props.ingressCount} in`} accent={accent} />
+      <PreviewBadge
+        right="12px"
+        bottom="12px"
+        label={
+          props.buildMethod === "per-display"
+            ? `${props.rows * props.cols} out`
+            : "1 feed"
+        }
+        accent={accent}
+      />
+    </>
+  );
 
   if (props.buildMethod === "per-display") {
-    if (props.rows === 2 && props.cols === 4 && props.goal !== "single") {
-      return (
-        <>
-          <div style={{ ...base, left: "25%", top: "6%", width: "50%", height: "88%" }}>Main zone</div>
-          <div style={{ ...base, left: "3%", top: "6%", width: "18%", height: "40%" }}>Side 1</div>
-          <div style={{ ...base, left: "3%", bottom: "6%", width: "18%", height: "40%" }}>Side 2</div>
-          <div style={{ ...base, right: "3%", top: "6%", width: "18%", height: "40%" }}>Side 3</div>
-          <div style={{ ...base, right: "3%", bottom: "6%", width: "18%", height: "40%" }}>Side 4</div>
-        </>
-      );
-    }
-
     const cells: React.ReactNode[] = [];
     const cellW = 100 / props.cols;
     const cellH = 100 / props.rows;
+    const endpointLabel = props.pathMode === "sdvoe-600" ? "TRX" : "RX";
 
     for (let r = 0; r < props.rows; r += 1) {
       for (let c = 0; c < props.cols; c += 1) {
@@ -476,70 +519,215 @@ function PreviewOverlay(props: {
             key={`${r}-${c}`}
             style={{
               ...base,
-              left: `${c * cellW + 2}%`,
-              top: `${r * cellH + 3}%`,
-              width: `${cellW - 4}%`,
-              height: `${cellH - 6}%`,
+              left: `${c * cellW + 1.8}%`,
+              top: `${r * cellH + 2.4}%`,
+              width: `${cellW - 3.6}%`,
+              height: `${cellH - 4.8}%`,
             }}
           >
-            {r * props.cols + c + 1}
-          </div>
+            <div style={{ display: "grid", justifyItems: "center", gap: 4 }}>
+              <span>{r * props.cols + c + 1}</span>
+              <span style={detailText}>{endpointLabel}</span>
+            </div>
+          </div>,
         );
       }
     }
 
-    return <>{cells}</>;
+    return (
+      <>
+        {badges}
+        {cells}
+      </>
+    );
   }
 
   if (props.goal === "single") {
-    return <div style={{ ...base, inset: "6%" }}>Wall image</div>;
+    return (
+      <>
+        {badges}
+        {renderFrame("Wall feed", props.ingressCount === 1 ? "Prepared output" : `${props.ingressCount} inputs`, { inset: "8%" }, "primary")}
+      </>
+    );
   }
 
   if (props.goal === "grid") {
+    const tileCount = clamp(props.contentSourceCount, 2, props.pathMode === "sdvoe-600" ? 16 : 9);
+    const tileCols = Math.ceil(Math.sqrt(tileCount));
+    const tileRows = Math.ceil(tileCount / tileCols);
+    const pad = 8;
+    const gap = 3;
+    const tileW = (100 - pad * 2 - gap * (tileCols - 1)) / tileCols;
+    const tileH = (100 - pad * 2 - gap * (tileRows - 1)) / tileRows;
+    const tiles: React.ReactNode[] = [];
+
+    for (let index = 0; index < tileCount; index += 1) {
+      const r = Math.floor(index / tileCols);
+      const c = index % tileCols;
+      tiles.push(
+        renderFrame(
+          `${index + 1}`,
+          "Tile",
+          {
+            left: `${pad + c * (tileW + gap)}%`,
+            top: `${pad + r * (tileH + gap)}%`,
+            width: `${tileW}%`,
+            height: `${tileH}%`,
+          },
+          index === 0 ? "primary" : "support",
+        ),
+      );
+    }
+
     return (
       <>
-        <div style={{ ...base, left: "6%", top: "8%", width: "42%", height: "38%" }}>1</div>
-        <div style={{ ...base, right: "6%", top: "8%", width: "42%", height: "38%" }}>2</div>
-        <div style={{ ...base, left: "6%", bottom: "8%", width: "42%", height: "38%" }}>3</div>
-        <div style={{ ...base, right: "6%", bottom: "8%", width: "42%", height: "38%" }}>4</div>
+        {badges}
+        {tiles}
       </>
     );
   }
 
   if (props.goal === "pip") {
+    const floatingCount = clamp(props.contentSourceCount, 1, props.pathMode === "networkhd-500" ? 4 : 6);
+    const overlayRects = [
+      { right: "8%", top: "11%", width: "24%", height: "18%" },
+      { left: "11%", bottom: "12%", width: "22%", height: "17%" },
+      { right: "14%", bottom: "10%", width: "20%", height: "15%" },
+      { left: "18%", top: "15%", width: "18%", height: "14%" },
+      { right: "30%", top: "58%", width: "16%", height: "13%" },
+    ];
+
     return (
       <>
-        <div style={{ ...base, inset: "6%" }}>Main</div>
-        <div style={{ ...base, right: "9%", bottom: "11%", width: "24%", height: "24%" }}>Inset</div>
+        {badges}
+        {renderFrame("Main", "Floating canvas", { left: "8%", top: "10%", width: "58%", height: "64%" }, "primary")}
+        {overlayRects.slice(0, Math.max(0, floatingCount - 1)).map((rect, index) =>
+          renderFrame(
+            `Pin ${index + 1}`,
+            "Overlay",
+            {
+              ...rect,
+              zIndex: 2 + index,
+            },
+          ),
+        )}
       </>
     );
   }
 
+  const fixedCount = clamp(props.contentSourceCount, 2, props.pathMode === "sdvoe-600" ? 16 : 9);
+  const fixedGuides = Array.from({ length: 3 }).map((_, index) => (
+    <React.Fragment key={index}>
+      <div
+        style={{
+          position: "absolute",
+          left: `${25 * (index + 1)}%`,
+          top: "0%",
+          bottom: "0%",
+          width: 1,
+          background: "rgba(186,219,255,0.12)",
+          zIndex: 0,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: `${25 * (index + 1)}%`,
+          left: "0%",
+          right: "0%",
+          height: 1,
+          background: "rgba(186,219,255,0.12)",
+          zIndex: 0,
+        }}
+      />
+    </React.Fragment>
+  ));
+  const fixedPresets =
+    fixedCount <= 6
+      ? [
+          { left: "8%", top: "10%", width: "38%", height: "32%" },
+          { left: "52%", top: "10%", width: "28%", height: "15%" },
+          { left: "52%", top: "29%", width: "28%", height: "13%" },
+          { left: "8%", top: "50%", width: "18%", height: "25%" },
+          { left: "29%", top: "50%", width: "17%", height: "25%" },
+          { left: "52%", top: "50%", width: "28%", height: "25%" },
+        ]
+      : null;
+
+  const fixedWindows = fixedPresets
+    ? fixedPresets.slice(0, fixedCount).map((rect, index) =>
+        renderFrame(
+          `S${index + 1}`,
+          "Fixed XY",
+          {
+            ...rect,
+            zIndex: 1,
+          },
+          index === 0 ? "primary" : "support",
+        ),
+      )
+    : Array.from({ length: fixedCount }).map((_, index) => {
+        const row = Math.floor(index / 4);
+        const col = index % 4;
+        return renderFrame(
+          `S${index + 1}`,
+          "Fixed XY",
+          {
+            left: `${8 + col * 21}%`,
+            top: `${10 + row * 18}%`,
+            width: "18%",
+            height: "14%",
+            zIndex: 1,
+          },
+          index === 0 ? "primary" : "support",
+        );
+      });
+
   return (
     <>
-      <div style={{ ...base, left: "5%", top: "8%", width: "52%", height: "44%" }}>Main</div>
-      <div style={{ ...base, right: "7%", top: "12%", width: "24%", height: "20%" }}>A</div>
-      <div style={{ ...base, right: "10%", bottom: "10%", width: "28%", height: "24%" }}>B</div>
+      {badges}
+      {fixedGuides}
+      {fixedWindows}
     </>
   );
 }
 
 export default function VideoWallPlannerPage() {
+  const activeProject = React.useSyncExternalStore(
+    subscribeProjects,
+    () => getActiveProject() ?? null,
+    () => null,
+  );
   const [tier, setTier] = useState<SolutionRecommendationTier>("Silver");
-  const [goal, setGoal] = useState<WallGoal>("single");
-  const [buildMethod, setBuildMethod] = useState<BuildMethod>("tile-mode");
+  const [wallBehavior, setWallBehavior] = useState<WallBehavior>("single-canvas");
+  const [multiviewStyle, setMultiviewStyle] =
+    useState<VideoWallMultiviewStyle>("equal-tiles");
+  const [pathMode, setPathMode] = useState<VideoWallPathMode>("auto");
+  const [performancePriority, setPerformancePriority] =
+    useState<VideoWallPerformancePriority>("auto");
   const [rows, setRows] = useState(2);
   const [cols, setCols] = useState(2);
   const [sourceCount, setSourceCount] = useState(1);
   const [sourceProfile, setSourceProfile] = useState<SourceProfile>("player");
+  const [sourceLandingStyle, setSourceLandingStyle] =
+    useState<SourceLandingStyle>("standard");
+  const [requiresDanteAudio, setRequiresDanteAudio] = useState(false);
+  const [requiresUsbKvmLink, setRequiresUsbKvmLink] = useState(false);
   const [bezelPreset, setBezelPreset] = useState<BezelPreset>("thin");
+  const hydratedProjectIdRef = React.useRef<string | null>(null);
+  const persistedSnapshotRef = React.useRef<string>("");
 
   const totalDisplays = rows * cols;
   const bezel = bezelValues[bezelPreset];
-  const wallAspectRatio = `${cols * 16} / ${rows * 9}`;
+  const goal = useMemo(
+    () => getWallGoal(wallBehavior, multiviewStyle),
+    [multiviewStyle, wallBehavior],
+  );
+  const buildMethod = useMemo(() => getBuildMethod(wallBehavior), [wallBehavior]);
+  const wallIngressCount = sourceProfile === "matrix-feed" ? 1 : sourceCount;
 
   const recommendation = useMemo(() => {
-    return recommendationFor({
+    return buildVideoWallRecommendation({
       tier,
       goal,
       buildMethod,
@@ -547,8 +735,220 @@ export default function VideoWallPlannerPage() {
       cols,
       sourceCount,
       sourceProfile,
+      sourceLandingStyle,
+      requiresDanteAudio,
+      requiresUsbKvmLink,
+      multiviewStyle,
+      pathMode,
+      performancePriority,
     });
-  }, [tier, goal, buildMethod, rows, cols, sourceCount, sourceProfile]);
+  }, [
+    tier,
+    goal,
+    buildMethod,
+    rows,
+    cols,
+    sourceCount,
+    sourceProfile,
+    sourceLandingStyle,
+    requiresDanteAudio,
+    requiresUsbKvmLink,
+    multiviewStyle,
+    pathMode,
+    performancePriority,
+  ]);
+  const resolvedTier = recommendation?.resolvedTier ?? tier;
+  const resolvedPathMode = (recommendation?.resolvedPathMode ?? pathMode) as VideoWallPathMode;
+
+  const minimumRecommendedSourceCount = useMemo(
+    () => getVideoWallMinimumSourceCount(recommendation),
+    [recommendation],
+  );
+  const quadInputSourceState = (recommendation?.product ?? "").includes("NHD-124");
+  const displayedSourceCount = quadInputSourceState ? 4 : sourceCount;
+  const designState = useMemo(
+    () =>
+      deriveVideoWallDesignState({
+        cols,
+        rows,
+        tier: resolvedTier,
+        goal,
+        buildMethod,
+        sourceProfile,
+        sourceCount,
+        sourceLandingStyle,
+        requiresDanteAudio,
+        requiresUsbKvmLink,
+        multiviewStyle,
+        pathMode: resolvedPathMode,
+        performancePriority,
+      }),
+    [
+      buildMethod,
+      goal,
+      multiviewStyle,
+      pathMode,
+      performancePriority,
+      requiresDanteAudio,
+      requiresUsbKvmLink,
+      resolvedPathMode,
+      resolvedTier,
+      sourceCount,
+      sourceLandingStyle,
+      sourceProfile,
+      cols,
+      rows,
+    ],
+  );
+
+  React.useEffect(() => {
+    if (quadInputSourceState && sourceCount !== 4) {
+      setSourceCount(4);
+      return;
+    }
+
+    if (sourceCount >= minimumRecommendedSourceCount) return;
+    setSourceCount(minimumRecommendedSourceCount);
+  }, [minimumRecommendedSourceCount, quadInputSourceState, sourceCount]);
+
+  React.useEffect(() => {
+    if (!activeProject?.id || hydratedProjectIdRef.current === activeProject.id) return;
+
+    hydratedProjectIdRef.current = activeProject.id;
+
+    const savedWall = activeProject.videowall;
+    if (savedWall) {
+      if (savedWall.designTier) setTier(savedWall.designTier);
+      if (savedWall.wallGoal || savedWall.buildMethod) {
+        setWallBehavior(
+          getWallBehavior(
+            savedWall.wallGoal ?? "single",
+            savedWall.buildMethod ?? "tile-mode",
+          ),
+        );
+      }
+      if (savedWall.multiviewStyle) setMultiviewStyle(savedWall.multiviewStyle);
+      else if (savedWall.wallGoal) {
+        setMultiviewStyle(
+          savedWall.wallGoal === "pip"
+            ? "floating-windows"
+            : savedWall.wallGoal === "custom"
+            ? "fixed-windows"
+            : "equal-tiles",
+        );
+      }
+      if (savedWall.pathMode) setPathMode(savedWall.pathMode);
+      if (savedWall.performancePriority) {
+        setPerformancePriority(savedWall.performancePriority);
+      }
+      if (savedWall.rows) setRows(savedWall.rows);
+      if (savedWall.cols) setCols(savedWall.cols);
+      if (savedWall.sourceCount != null) setSourceCount(Math.max(1, savedWall.sourceCount));
+      if (savedWall.sourceProfile) setSourceProfile(savedWall.sourceProfile);
+      if (savedWall.sourceLandingStyle) setSourceLandingStyle(savedWall.sourceLandingStyle);
+      if (typeof savedWall.requiresDanteAudio === "boolean") {
+        setRequiresDanteAudio(savedWall.requiresDanteAudio);
+      }
+      if (typeof savedWall.requiresUsbKvmLink === "boolean") {
+        setRequiresUsbKvmLink(savedWall.requiresUsbKvmLink);
+      }
+      if (savedWall.bezelMm === 0) {
+        setBezelPreset("none");
+      } else if (savedWall.bezelMm != null && savedWall.bezelMm <= 4) {
+        setBezelPreset("thin");
+      } else if (savedWall.bezelMm != null && savedWall.bezelMm <= 8) {
+        setBezelPreset("standard");
+      } else if (savedWall.bezelMm != null) {
+        setBezelPreset("thick");
+      }
+      return;
+    }
+
+    const proposalTier = activeProject.proposal?.selectedTier;
+    if (proposalTier === "Bronze" || proposalTier === "Silver" || proposalTier === "Gold") {
+      setTier(proposalTier);
+    }
+
+    const discoverySourceCount = Number(activeProject.discovery?.sourceCount);
+    if (Number.isFinite(discoverySourceCount) && discoverySourceCount > 0) {
+      setSourceCount(discoverySourceCount);
+    }
+  }, [activeProject]);
+
+  const projectVideoWallSnapshot = useMemo(
+    () => ({
+      technology: "LCD" as const,
+      designTier: resolvedTier,
+      wallGoal: goal,
+      buildMethod,
+      multiviewStyle,
+      pathMode,
+      performancePriority,
+      sourceProfile,
+      sourceLandingStyle,
+      requiresDanteAudio,
+      requiresUsbKvmLink,
+      rows,
+      cols,
+      widthM: 0,
+      heightM: 0,
+      diagonalIn: 0,
+      bezelMm: bezel,
+      sourceCount: wallIngressCount,
+      outputRows: rows,
+      outputCols: cols,
+      panelCount: totalDisplays,
+      contentAspectRatio: `${cols * 16}:${rows * 9}`,
+      lcdDriveStrategy:
+        buildMethod === "per-display"
+          ? ("decoder-per-screen" as const)
+          : ("tile-loop-multiview" as const),
+      recommendedSku: recommendation?.bom?.[0]?.sku ?? recommendation.product,
+      recommendedSkuQty: recommendation?.bom?.[0]?.qty ?? 1,
+      recommendedItems: (recommendation?.bom ?? []).map((line) => ({
+        sku: line.sku,
+        quantity: line.qty,
+        role: line.role,
+      })),
+      processorRecommendation: recommendation.product,
+      summary: recommendation.customerSummary,
+      warnings: [recommendation.reason, ...designState.guardrails],
+      mountingNotes: [
+        designState.summary,
+        recommendation.transportSummary,
+        recommendation.performanceSummary,
+        recommendation.sourceSummary,
+        recommendation.engineeringSummary,
+      ],
+    }),
+    [
+      bezel,
+      buildMethod,
+      cols,
+      designState,
+      goal,
+      multiviewStyle,
+      pathMode,
+      performancePriority,
+      recommendation,
+      requiresDanteAudio,
+      requiresUsbKvmLink,
+      resolvedTier,
+      rows,
+      sourceCount,
+      sourceLandingStyle,
+      sourceProfile,
+      totalDisplays,
+    ],
+  );
+
+  React.useEffect(() => {
+    if (!activeProject?.id) return;
+    const snapshot = JSON.stringify(projectVideoWallSnapshot);
+    if (persistedSnapshotRef.current === snapshot) return;
+    persistedSnapshotRef.current = snapshot;
+    applyVideoWallToProject(activeProject.id, projectVideoWallSnapshot);
+  }, [activeProject?.id, projectVideoWallSnapshot]);
 
   return (
     <div className="wm-page wm-video-wall-page" style={{ padding: 14 }}>
@@ -588,7 +988,7 @@ export default function VideoWallPlannerPage() {
             </div>
             <div
               style={{
-                maxWidth: 920,
+                
                 fontSize: 13,
                 lineHeight: 1.42,
                 color: "rgba(225,235,255,0.76)",
@@ -601,59 +1001,152 @@ export default function VideoWallPlannerPage() {
         </div>
 
         <div className="wm-video-wall-lite__layout">
-          <div style={{ display: "grid", gap: 10 }}>
-            <SectionCard title="1. Which design tier fits the wall?">
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                  gap: 10,
-                }}
-              >
-                {(["Bronze", "Silver", "Gold"] as const).map((option) => (
-                  <ChoiceButton
-                    key={option}
-                    active={tier === option}
-                    onClick={() => setTier(option)}
-                    label={tierCopy[option].label}
-                    sublabel={tierCopy[option].sublabel}
-                  />
-                ))}
+          <div style={{ display: "grid", gap: 6 }}>
+            <SectionCard title="Wall control panel">
+              <div style={{ display: "grid", gap: 6 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(214,228,255,0.64)" }}>
+                  Wall behavior
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(108px, 1fr))", gap: 6 }}>
+                  {(Object.entries(wallBehaviorCopy) as Array<
+                    [WallBehavior, (typeof wallBehaviorCopy)[WallBehavior]]
+                  >).map(([value, option]) => (
+                    <ControlOption
+                      key={value}
+                      active={wallBehavior === value}
+                      onClick={() => setWallBehavior(value)}
+                      shortLabel={option.shortLabel}
+                      label={option.label}
+                      sublabel={option.sublabel}
+                    />
+                  ))}
+                </div>
+
+                {wallBehavior === "multiview" ? (
+                  <>
+                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(214,228,255,0.64)", marginTop: 4 }}>
+                      Window style
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(108px, 1fr))", gap: 6 }}>
+                      {(Object.entries(multiviewStyleCopy) as Array<
+                        [VideoWallMultiviewStyle, (typeof multiviewStyleCopy)[VideoWallMultiviewStyle]]
+                      >).map(([value, option]) => (
+                        <ControlOption
+                          key={value}
+                          active={multiviewStyle === value}
+                          onClick={() => setMultiviewStyle(value)}
+                          shortLabel={option.shortLabel}
+                          label={option.label}
+                          sublabel={option.sublabel}
+                        />
+                      ))}
+                    </div>
+                  </>
+                ) : null}
+
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(214,228,255,0.64)", marginTop: 4 }}>
+                  Design tier
+                </div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(86px, 1fr))",
+                    gap: 6,
+                  }}
+                >
+                  {([
+                    { value: "Bronze", shortLabel: "B" },
+                    { value: "Silver", shortLabel: "S" },
+                    { value: "Gold", shortLabel: "G" },
+                  ] as const).map((option) => (
+                    <CompactTierButton
+                      key={option.value}
+                      active={tier === option.value}
+                      onClick={() => setTier(option.value)}
+                      shortLabel={option.shortLabel}
+                      label={tierCopy[option.value].label}
+                    />
+                  ))}
+                </div>
+
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(214,228,255,0.64)", marginTop: 4 }}>
+                  Path override
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(86px, 1fr))", gap: 6 }}>
+                  {(Object.entries(pathModeCopy) as Array<
+                    [VideoWallPathMode, (typeof pathModeCopy)[VideoWallPathMode]]
+                  >).map(([value, option]) => (
+                    <ControlOption
+                      key={value}
+                      active={pathMode === value}
+                      onClick={() => setPathMode(value)}
+                      shortLabel={option.shortLabel}
+                      label={option.label}
+                    />
+                  ))}
+                </div>
+
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(214,228,255,0.64)", marginTop: 4 }}>
+                  Priority
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(86px, 1fr))", gap: 6 }}>
+                  {(Object.entries(performancePriorityCopy) as Array<
+                    [
+                      VideoWallPerformancePriority,
+                      (typeof performancePriorityCopy)[VideoWallPerformancePriority],
+                    ]
+                  >).map(([value, option]) => (
+                    <ControlOption
+                      key={value}
+                      active={performancePriority === value}
+                      onClick={() => setPerformancePriority(value)}
+                      shortLabel={option.shortLabel}
+                      label={option.label}
+                    />
+                  ))}
+                </div>
+
+                <div
+                  style={{
+                    borderRadius: 12,
+                    border: "1px solid rgba(97,162,255,0.14)",
+                    background: "rgba(8,19,36,0.65)",
+                    padding: "10px 12px",
+                    display: "grid",
+                    gap: 6,
+                    fontSize: 12,
+                    lineHeight: 1.45,
+                    color: "rgba(225,235,255,0.72)",
+                  }}
+                >
+                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                    Resolved architecture
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ padding: "5px 9px", borderRadius: 999, border: "1px solid rgba(97,162,255,0.16)", background: "rgba(255,255,255,0.04)", fontWeight: 800, color: "#ffffff" }}>
+                      {tierCopy[resolvedTier].label}
+                    </span>
+                    <span style={{ padding: "5px 9px", borderRadius: 999, border: "1px solid rgba(97,162,255,0.16)", background: "rgba(255,255,255,0.04)", color: "rgba(225,235,255,0.84)" }}>
+                      {pathModeCopy[resolvedPathMode].label}
+                    </span>
+                    {wallBehavior === "multiview" ? (
+                      <span style={{ padding: "5px 9px", borderRadius: 999, border: "1px solid rgba(97,162,255,0.16)", background: "rgba(255,255,255,0.04)", color: "rgba(225,235,255,0.84)" }}>
+                        {multiviewStyleCopy[multiviewStyle].label}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div>
+                    {pathMode === "auto"
+                      ? "Priority steers the auto path. Pick a fixed path when you want to force the architecture."
+                      : "Path override is active, so priority is advisory rather than decisive."}
+                  </div>
+                </div>
               </div>
             </SectionCard>
 
-            <SectionCard title="2. What should the wall do?">
-              <div style={{ display: "grid", gap: 10 }}>
-                <ChoiceButton
-                  active={goal === "single"}
-                  onClick={() => setGoal("single")}
-                  label="One big image"
-                  sublabel="One image across the whole wall."
-                />
-                <ChoiceButton
-                  active={goal === "grid"}
-                  onClick={() => setGoal("grid")}
-                  label="Several equal windows"
-                  sublabel="Best for regular multiview grids."
-                />
-                <ChoiceButton
-                  active={goal === "pip"}
-                  onClick={() => setGoal("pip")}
-                  label="One main image + small windows"
-                  sublabel="Main presentation with inset or support windows."
-                />
-                <ChoiceButton
-                  active={goal === "custom"}
-                  onClick={() => setGoal("custom")}
-                  label="Mixed custom layout"
-                  sublabel="More advanced custom composition."
-                />
-              </div>
-            </SectionCard>
-
-            <SectionCard title="3. How big is the wall?">
-              <div style={{ display: "grid", gap: 10 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <SectionCard title="Wall geometry">
+              <div style={{ display: "grid", gap: 6 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 6 }}>
                   <NumberField label="Rows" value={rows} min={1} max={8} onChange={setRows} />
                   <NumberField label="Columns" value={cols} min={1} max={8} onChange={setCols} />
                 </div>
@@ -686,14 +1179,20 @@ export default function VideoWallPlannerPage() {
               </div>
             </SectionCard>
 
-            <SectionCard title="4. What sources need to hit the wall?">
-              <div style={{ display: "grid", gap: 10 }}>
+            <SectionCard title="Sources and connectivity">
+              <div style={{ display: "grid", gap: 6 }}>
                 <NumberField
                   label="Source devices"
-                  value={sourceCount}
+                  value={displayedSourceCount}
                   min={1}
                   max={12}
                   onChange={setSourceCount}
+                  disabled={quadInputSourceState}
+                  helperText={
+                    quadInputSourceState
+                      ? "Locked to 4 because NHD-124-TX is a quad-input encoder."
+                      : undefined
+                  }
                 />
 
                 <SelectField
@@ -703,56 +1202,140 @@ export default function VideoWallPlannerPage() {
                     { value: "player", label: sourceProfileCopy.player.label },
                     { value: "matrix-feed", label: sourceProfileCopy["matrix-feed"].label },
                     { value: "direct-hdmi", label: sourceProfileCopy["direct-hdmi"].label },
+                    { value: "camera", label: sourceProfileCopy.camera.label },
                     { value: "mixed", label: sourceProfileCopy.mixed.label },
                   ]}
                   onChange={setSourceProfile}
                 />
+
+                <SelectField
+                  label="Source landing"
+                  value={sourceLandingStyle}
+                  options={[
+                    { value: "standard", label: sourceLandingCopy.standard.label },
+                    { value: "wallplate", label: sourceLandingCopy.wallplate.label },
+                  ]}
+                  onChange={setSourceLandingStyle}
+                />
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 6 }}>
+                  <ControlOption
+                    active={requiresDanteAudio}
+                    onClick={() => setRequiresDanteAudio((value) => !value)}
+                    shortLabel="D"
+                    label="Dante / AES67"
+                    sublabel="Only pick networked audio when the brief actually needs it."
+                  />
+                  <ControlOption
+                    active={requiresUsbKvmLink}
+                    onClick={() => setRequiresUsbKvmLink((value) => !value)}
+                    shortLabel="USB"
+                    label="USB / KVM"
+                    sublabel="Push 500-series paths from 500-E to full TX/RX when needed."
+                  />
+                </div>
 
                 <div
                   style={{
                     borderRadius: 12,
                     border: "1px solid rgba(97,162,255,0.14)",
                     background: "rgba(8,19,36,0.65)",
-                    padding: 10,
-                    fontSize: 13,
-                    lineHeight: 1.4,
+                    padding: "10px 12px",
+                    display: "grid",
+                    gap: 6,
+                    fontSize: 12,
+                    lineHeight: 1.45,
                     color: "rgba(225,235,255,0.72)",
                   }}
                 >
-                  {sourceProfileCopy[sourceProfile].sublabel}
+                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                    Effective wall ingress
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: "#ffffff" }}>
+                    {wallIngressCount} sources
+                  </div>
+                  <div>{sourceProfileCopy[sourceProfile].sublabel}</div>
+                  <div>{sourceLandingCopy[sourceLandingStyle].sublabel}</div>
                 </div>
-              </div>
-            </SectionCard>
 
-            <SectionCard title="5. How will it be driven?">
-              <div style={{ display: "grid", gap: 10 }}>
-                <ChoiceButton
-                  active={buildMethod === "tile-mode"}
-                  onClick={() => setBuildMethod("tile-mode")}
-                  label="Single wall feed using screen tile mode"
-                  sublabel="Fastest and simplest when the wall behaves as one destination."
-                />
-                <ChoiceButton
-                  active={buildMethod === "per-display"}
-                  onClick={() => setBuildMethod("per-display")}
-                  label="Independent screens / grouped zones"
-                  sublabel="Best when screens or wall sections need separate behavior."
-                />
+                {minimumRecommendedSourceCount > 1 && !quadInputSourceState ? (
+                  <div
+                    style={{
+                      borderRadius: 12,
+                      border: "1px solid rgba(97,162,255,0.14)",
+                      background: "rgba(8,19,36,0.65)",
+                      padding: "10px 12px",
+                      fontSize: 12,
+                      lineHeight: 1.45,
+                      color: "rgba(225,235,255,0.72)",
+                    }}
+                  >
+                    <strong style={{ color: "#f5f9ff" }}>NHD-124-TX</strong> resolves to {minimumRecommendedSourceCount} source inputs in one box, so the wall ingress is raised automatically for this path.
+                  </div>
+                ) : null}
+
+                {sourceProfile === "matrix-feed" && sourceCount > 1 ? (
+                  <div
+                    style={{
+                      borderRadius: 12,
+                      border: "1px solid rgba(97,162,255,0.14)",
+                      background: "rgba(8,19,36,0.65)",
+                      padding: "10px 12px",
+                      fontSize: 12,
+                      lineHeight: 1.45,
+                      color: "rgba(225,235,255,0.72)",
+                    }}
+                  >
+                    Upstream switching collapses {sourceCount} sources into <strong style={{ color: "#f5f9ff" }}>1 prepared wall feed</strong> before the wall path begins.
+                  </div>
+                ) : null}
               </div>
             </SectionCard>
           </div>
 
-          <div style={{ display: "grid", gap: 10 }}>
-            <SectionCard title="Recommended solution">
-              <div className="wm-video-wall-lite__recommendationGrid">
-                <div className="wm-video-wall-lite__recommendationCopy">
+          <div style={{ display: "grid", gap: 6 }}>
+            <SectionCard title="Resolved solution">
+              <div style={{ display: "grid", gap: 14 }}>
+                <div className="wm-video-wall-lite__decisionGrid">
                   <div
                     style={{
-                      borderRadius: 14,
+                      borderRadius: 12,
+                      border: "1px solid rgba(97,162,255,0.16)",
+                      background: "rgba(8,19,36,0.62)",
+                      padding: "14px 16px",
+                      display: "grid",
+                      gap: 6,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: "rgba(201,227,255,0.75)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Selected fit
+                    </div>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      <span style={{ padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(145,205,255,0.22)", background: "rgba(8,19,36,0.42)", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(218,234,255,0.82)" }}>
+                        {tierCopy[resolvedTier].label}
+                      </span>
+                      <span style={{ padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(145,205,255,0.22)", background: "rgba(8,19,36,0.42)", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(218,234,255,0.82)" }}>
+                        {pathModeCopy[resolvedPathMode].label}
+                      </span>
+                      <span style={{ padding: "6px 10px", borderRadius: 999, border: "1px solid rgba(145,205,255,0.22)", background: "rgba(8,19,36,0.42)", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(218,234,255,0.82)" }}>
+                        {recommendation.windowModeSummary}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(225,235,255,0.74)" }}>
+                      {recommendation.transportSummary}
+                    </div>
+                    <div style={{ fontSize: 12, lineHeight: 1.45, color: "rgba(214,228,255,0.68)" }}>
+                      {recommendation.performanceSummary}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      borderRadius: 12,
                       border: "1px solid rgba(124,191,255,0.3)",
                       background:
                         "linear-gradient(180deg, rgba(18,52,94,0.72) 0%, rgba(10,28,54,0.82) 100%)",
-                      padding: "12px 14px",
+                      padding: "14px 16px",
                       display: "grid",
                       gap: 6,
                     }}
@@ -772,98 +1355,92 @@ export default function VideoWallPlannerPage() {
                     <div style={{ fontSize: 13, lineHeight: 1.55, color: "rgba(233,240,255,0.86)" }}>
                       {recommendation.reason}
                     </div>
-                  </div>
-
-                  <div
-                    style={{
-                      borderRadius: 12,
-                      border: "1px solid rgba(97,162,255,0.12)",
-                      background: "rgba(8,19,36,0.6)",
-                      padding: "12px 14px",
-                      display: "grid",
-                      gap: 6,
-                    }}
-                  >
-                    <div style={{ fontSize: 12, color: "rgba(201,227,255,0.72)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                      Source strategy
-                    </div>
-                    <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(233,240,255,0.82)" }}>
-                      {recommendation.sourceSummary}
+                    <div style={{ fontSize: 12, lineHeight: 1.5, color: "rgba(218,234,255,0.72)" }}>
+                      {designState.summary}
                     </div>
                   </div>
+                </div>
 
+                <div
+                  className="wm-video-wall-lite__previewPanel"
+                  style={{
+                    display: "grid",
+                    gap: 10,
+                  }}
+                >
                   <div
                     style={{
-                      borderRadius: 12,
-                      border: "1px solid rgba(97,162,255,0.12)",
-                      background: "rgba(8,19,36,0.6)",
-                      padding: "12px 14px",
                       display: "grid",
-                      gap: 6,
+                      gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+                      gap: 8,
                     }}
                   >
-                    <div style={{ fontSize: 12, color: "rgba(201,227,255,0.72)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                      Starter BOM
-                    </div>
-                    {recommendation.bom.map((line, index) => (
-                      <div key={`${line.sku}-${index}`} style={{ display: "grid", gap: 2 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: "#ffffff" }}>{line.sku}</div>
-                          <div style={{ fontSize: 14, fontWeight: 900, color: "#ffffff" }}>Qty {line.qty}</div>
+                    {[
+                      {
+                        label: "Canvas",
+                        value:
+                          wallBehavior === "addressed-panels"
+                            ? `${rows} x ${cols} panels`
+                            : wallBehavior === "multiview"
+                              ? multiviewStyleCopy[multiviewStyle].label
+                              : "Single wall feed",
+                      },
+                      {
+                        label: "Content",
+                        value:
+                          wallBehavior === "multiview"
+                            ? `${displayedSourceCount} sources on wall`
+                            : `${Math.max(1, displayedSourceCount)} source${displayedSourceCount === 1 ? "" : "s"}`,
+                      },
+                      {
+                        label: "Ingress",
+                        value:
+                          wallIngressCount === 1
+                            ? "1 prepared feed"
+                            : `${wallIngressCount} wall inputs`,
+                      },
+                      {
+                        label: "Endpoints",
+                        value:
+                          buildMethod === "per-display"
+                            ? `${totalDisplays} ${resolvedPathMode === "sdvoe-600" ? "TRX" : "RX"}`
+                            : "1 wall output",
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        style={{
+                          borderRadius: 12,
+                          border: "1px solid rgba(97,162,255,0.14)",
+                          background: "rgba(8,19,36,0.58)",
+                          padding: "10px 12px",
+                          display: "grid",
+                          gap: 4,
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: 11,
+                            color: "rgba(201,227,255,0.66)",
+                            fontWeight: 800,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.08em",
+                          }}
+                        >
+                          {item.label}
                         </div>
-                        {line.note ? (
-                          <div style={{ fontSize: 12, lineHeight: 1.4, color: "rgba(201,227,255,0.68)" }}>
-                            {line.note}
-                          </div>
-                        ) : null}
+                        <div style={{ fontSize: 13, fontWeight: 800, color: "#ffffff" }}>
+                          {item.value}
+                        </div>
                       </div>
                     ))}
                   </div>
 
                   <div
-                    style={{
-                      borderRadius: 12,
-                      border: "1px solid rgba(97,162,255,0.12)",
-                      background: "rgba(8,19,36,0.6)",
-                      padding: "12px 14px",
-                      display: "grid",
-                      gap: 6,
-                    }}
-                  >
-                    <div style={{ fontSize: 12, color: "rgba(201,227,255,0.72)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                      Customer-facing summary
-                    </div>
-                    <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(233,240,255,0.82)" }}>
-                      {recommendation.customerSummary}
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      borderRadius: 12,
-                      border: "1px solid rgba(97,162,255,0.12)",
-                      background: "rgba(8,19,36,0.6)",
-                      padding: "12px 14px",
-                      display: "grid",
-                      gap: 6,
-                    }}
-                  >
-                    <div style={{ fontSize: 12, color: "rgba(201,227,255,0.72)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                      Engineering summary
-                    </div>
-                    <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(233,240,255,0.82)" }}>
-                      {recommendation.engineeringSummary}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="wm-video-wall-lite__previewPanel">
-                  <div
                     className="wm-video-wall-lite__previewSurface"
                     style={{
-                      width: "100%",
-                      aspectRatio: wallAspectRatio,
-                      minHeight: 300,
+                      width: "min(100%, 760px)",
+                      aspectRatio: `${cols * 16} / ${rows * 9}`,
                       position: "relative",
                       borderRadius: 12,
                       overflow: "hidden",
@@ -886,15 +1463,145 @@ export default function VideoWallPlannerPage() {
                           key={index}
                           style={{
                             boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08)",
-                            background: "linear-gradient(180deg, rgba(18,20,28,1) 0%, rgba(9,10,15,1) 100%)",
+                            background:
+                              "linear-gradient(180deg, rgba(18,20,28,1) 0%, rgba(9,10,15,1) 100%)",
                           }}
                         />
                       ))}
                     </div>
 
-                    <div style={{ position: "absolute", inset: 0, opacity: 0.55 }}>
-                      <PreviewOverlay goal={goal} buildMethod={buildMethod} rows={rows} cols={cols} />
+                    <div style={{ position: "absolute", inset: 0 }}>
+                      <PreviewOverlay
+                        goal={goal}
+                        buildMethod={buildMethod}
+                        wallBehavior={wallBehavior}
+                        multiviewStyle={multiviewStyle}
+                        pathMode={resolvedPathMode}
+                        rows={rows}
+                        cols={cols}
+                        contentSourceCount={Math.max(1, displayedSourceCount)}
+                        ingressCount={Math.max(1, wallIngressCount)}
+                      />
                     </div>
+                  </div>
+                </div>
+
+                <div className="wm-video-wall-lite__detailGrid" style={{ alignItems: "start" }}>
+                  <div
+                    style={{
+                      borderRadius: 12,
+                      border: "1px solid rgba(97,162,255,0.12)",
+                      background: "rgba(8,19,36,0.6)",
+                      padding: "14px 16px",
+                      display: "grid",
+                      gap: 6,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: "rgba(201,227,255,0.72)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Path fit
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "#ffffff" }}>
+                      {designState.label}
+                    </div>
+                    <div style={{ fontSize: 13, lineHeight: 1.55, color: "rgba(233,240,255,0.84)" }}>
+                      {designState.summary}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      borderRadius: 12,
+                      border: "1px solid rgba(97,162,255,0.12)",
+                      background: "rgba(8,19,36,0.6)",
+                      padding: "14px 16px",
+                      display: "grid",
+                      gap: 6,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: "rgba(201,227,255,0.72)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Source strategy
+                    </div>
+                    <div style={{ fontSize: 13, lineHeight: 1.55, color: "rgba(233,240,255,0.84)" }}>
+                      {recommendation.sourceSummary}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      borderRadius: 12,
+                      border: "1px solid rgba(97,162,255,0.12)",
+                      background: "rgba(8,19,36,0.6)",
+                      padding: "14px 16px",
+                      display: "grid",
+                      gap: 6,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: "rgba(201,227,255,0.72)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Capability fit
+                    </div>
+                    <div style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(233,240,255,0.84)" }}>
+                      {recommendation.windowModeSummary}
+                    </div>
+                    <div style={{ fontSize: 12, lineHeight: 1.5, color: "rgba(218,234,255,0.74)" }}>
+                      {recommendation.transportSummary}
+                    </div>
+                    <div style={{ fontSize: 12, lineHeight: 1.5, color: "rgba(218,234,255,0.74)" }}>
+                      {recommendation.performanceSummary}
+                    </div>
+                    <div style={{ fontSize: 12, lineHeight: 1.5, color: "rgba(218,234,255,0.74)" }}>
+                      {recommendation.engineeringSummary}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      borderRadius: 12,
+                      border: "1px solid rgba(97,162,255,0.12)",
+                      background: "rgba(8,19,36,0.6)",
+                      padding: "14px 16px",
+                      display: "grid",
+                      gap: 6,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: "rgba(201,227,255,0.72)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Starter BOM
+                    </div>
+                    {(recommendation?.bom ?? []).map((line, index) => (
+                      <div key={`${line.sku}-${index}`} style={{ display: "grid", gap: 2 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: 6 }}>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: "#ffffff" }}>{line.sku}</div>
+                          <div style={{ fontSize: 14, fontWeight: 900, color: "#ffffff" }}>Qty {line.qty}</div>
+                        </div>
+                        {line.note ? (
+                          <div style={{ fontSize: 12, lineHeight: 1.4, color: "rgba(201,227,255,0.68)" }}>
+                            {line.note}
+                          </div>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div
+                    style={{
+                      borderRadius: 12,
+                      border: "1px solid rgba(97,162,255,0.12)",
+                      background: "rgba(8,19,36,0.6)",
+                      padding: "14px 16px",
+                      display: "grid",
+                      gap: 6,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: "rgba(201,227,255,0.72)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Guardrails
+                    </div>
+                    {(designState?.guardrails ?? []).map((guardrail, index) => (
+                      <div
+                        key={`${designState.label}-${index}`}
+                        style={{ fontSize: 12, lineHeight: 1.5, color: "rgba(218,234,255,0.74)" }}
+                      >
+                        {guardrail}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

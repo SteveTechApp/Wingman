@@ -2,6 +2,7 @@ import competitorCatalog from "@/data/catalog/competitorCatalog";
 import { buildWyrestormSeedCatalogProducts } from "@/catalog/seedCatalog";
 import { classifyProductType, type ProductTypeGroup } from "@/catalog/classification";
 import { inferCatalogMetadata } from "@/catalog/metadataInference";
+import committedProductIntelligenceDb from "../../data/product-intelligence-db.json";
 import type { CatalogDistance,
   CatalogIntegrationProfile,
   CatalogPowerProfile,
@@ -214,6 +215,13 @@ export type ProductIntelligenceArchivePayload = {
   note?: string;
   reviewedBy?: string;
   record?: Partial<ProductIntelligenceRecord>;
+};
+
+type CommittedProductIntelligenceDb = {
+  version?: number;
+  generatedAt?: string;
+  updatedAt?: string;
+  records?: ProductIntelligenceRecord[];
 };
 
 const EXPLICIT_ENDPOINT = String(import.meta.env.VITE_PRODUCT_INTELLIGENCE_ENDPOINT ?? "").trim();
@@ -1063,7 +1071,16 @@ function buildLocalFallbackRecords(): ProductIntelligenceRecord[] {
     const mapped = makeCatalogRecord(row, "competitor");
     if (mapped) out.push(mapped);
   }
-  return out.sort((a, b) => {
+  const committedRecords = asArray<ProductIntelligenceRecord>(
+    ((committedProductIntelligenceDb as unknown) as CommittedProductIntelligenceDb)?.records,
+  ).map((record) =>
+    sanitizeRecord({
+      ...record,
+      vendorType: inferVendorType(record.vendorType, record.brand),
+    }),
+  );
+
+  return mergeRecordsById([...out, ...committedRecords]).sort((a, b) => {
     const vendorCmp = a.vendorType.localeCompare(b.vendorType);
     if (vendorCmp !== 0) return vendorCmp;
     const brandCmp = a.brand.localeCompare(b.brand);

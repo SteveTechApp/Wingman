@@ -55,15 +55,7 @@ export default function TopBar({
       className="wm-topbar"
       
     >
-      <div
-        className="wm-topbar__brand-row"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          minWidth: 0,
-        }}
-      >
+      <div className="wm-topbar__brand-row">
         {showMobileMenu ? (
           <button
             type="button"
@@ -95,29 +87,13 @@ export default function TopBar({
         
       >
         <strong
-          style={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            display: "block",
-            width: "100%",
-          }}
+          className="wm-topbar__project-text"
         >
           {activeProjectName}
         </strong>
       </div>
 
-      <div
-        className="wm-topbar__actions"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          gap: 6,
-          minWidth: 0,
-          flexWrap: "nowrap",
-        }}
-      >
+      <div className="wm-topbar__actions">
         <button
           type="button"
           onClick={onOpenCommandPalette}
