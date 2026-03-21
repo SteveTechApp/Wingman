@@ -5,6 +5,33 @@ export type TransportClass =
   | "USB_EXTENSION"
   | "UNKNOWN";
 
+export type ComparisonDomain =
+  | "AVOIP"
+  | "MATRIX"
+  | "PRESENTATION"
+  | "EXTENDER"
+  | "VIDEO_WALL"
+  | "CONTROL"
+  | "UNKNOWN";
+
+export type ComparisonUseCase =
+  | "DISTRIBUTION"
+  | "COLLABORATION"
+  | "ROUTING"
+  | "MULTIVIEW"
+  | "WALL_PROCESSING"
+  | "EXTENSION"
+  | "CONTROL"
+  | "UNKNOWN";
+
+export type ComparisonHints = {
+  preferredDomains: ComparisonDomain[];
+  preferredUseCases: ComparisonUseCase[];
+  avoidDomains: ComparisonDomain[];
+  avoidUseCases: ComparisonUseCase[];
+  rankLowerUseCases: ComparisonUseCase[];
+};
+
 export type AvoipSubtype =
   | "JPEG2000"
   | "H264_H265"
@@ -37,6 +64,11 @@ export type VideoCapability = {
 export type StructuredProduct = {
   sku: string;
   name: string;
+  notes?: string[];
+  familyRuleId?: string;
+  comparisonDomain: ComparisonDomain;
+  comparisonUseCase: ComparisonUseCase;
+  comparisonHints?: ComparisonHints;
   transport: TransportClass;
   avoipSubtype: AvoipSubtype;
   hdbtGeneration: HdbtGeneration;
@@ -57,6 +89,7 @@ export type StructuredProduct = {
 };
 
 export type FitBreakdown = {
+  comparisonDomainScore: number;
   transportScore: number;
   subtypeScore: number;
   generationScore: number;

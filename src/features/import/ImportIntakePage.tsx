@@ -1080,6 +1080,16 @@ export default function ImportIntakePage() {
   const riskLines = interrogation?.salesperson.keyRisksAndUnknowns.slice(0, 3) ?? [];
   const actionLines = interrogation?.salesperson.recommendedNextActions.slice(0, 3) ?? [];
   const shortlistLines = analysis?.topSkus.slice(0, 4).map((item) => `${item.sku}${item.family ? ` - ${item.family}` : ""}`) ?? [];
+  const sourceInsightSummary =
+    `${topNeedLines.length} need${topNeedLines.length === 1 ? "" : "s"}, ` +
+    `${riskLines.length} risk${riskLines.length === 1 ? "" : "s"}, ` +
+    `${actionLines.length} action${actionLines.length === 1 ? "" : "s"}, ` +
+    `${shortlistLines.length} SKU${shortlistLines.length === 1 ? "" : "s"}`;
+  const checklistSummary =
+    `${requiredComplete}/${required.length} required, ${recommendedComplete}/${recommended.length} recommended`;
+  const handoffSummary =
+    `${coverageLines.length} coverage item${coverageLines.length === 1 ? "" : "s"}, ` +
+    `${selectedGuidancePrompts.length} priority area${selectedGuidancePrompts.length === 1 ? "" : "s"}`;
 
   return (
     <>
@@ -1418,24 +1428,32 @@ export default function ImportIntakePage() {
                 </div>
               </Field>
 
-              <div className="wm-import-intake-page__insight-grid">
-                <div style={miniCardStyle()}>
-                  <div style={smallLabelStyle()}>Customer needs</div>
-                  {renderList(topNeedLines)}
+              <CollapsibleCard
+                id="import-intake-source-intelligence"
+                title="Source intelligence"
+                subtitle="Needs, risks, actions, and ranked SKUs in one place."
+                right={<span className="wm-chip">{sourceInsightSummary}</span>}
+                defaultCollapsed
+              >
+                <div className="wm-import-intake-page__insight-grid">
+                  <div style={miniCardStyle()}>
+                    <div style={smallLabelStyle()}>Customer needs</div>
+                    {renderList(topNeedLines)}
+                  </div>
+                  <div style={miniCardStyle()}>
+                    <div style={smallLabelStyle()}>Risks and unknowns</div>
+                    {renderList(riskLines)}
+                  </div>
+                  <div style={miniCardStyle()}>
+                    <div style={smallLabelStyle()}>Next actions</div>
+                    {renderList(actionLines)}
+                  </div>
+                  <div style={miniCardStyle()}>
+                    <div style={smallLabelStyle()}>SKU shortlist</div>
+                    {renderList(shortlistLines)}
+                  </div>
                 </div>
-                <div style={miniCardStyle()}>
-                  <div style={smallLabelStyle()}>Risks and unknowns</div>
-                  {renderList(riskLines)}
-                </div>
-                <div style={miniCardStyle()}>
-                  <div style={smallLabelStyle()}>Next actions</div>
-                  {renderList(actionLines)}
-                </div>
-                <div style={miniCardStyle()}>
-                  <div style={smallLabelStyle()}>SKU shortlist</div>
-                  {renderList(shortlistLines)}
-                </div>
-              </div>
+              </CollapsibleCard>
             </article>
           </div>
         </section>
@@ -1448,10 +1466,10 @@ export default function ImportIntakePage() {
                 subtitle={`Required ${requiredComplete}/${required.length}. Recommended ${recommendedComplete}/${recommended.length}. ${readinessLabel}.`}
                 right={
                   <span className="wm-chip">
-                    {requiredComplete === required.length ? "Gate Ready" : "Needs Review"}
+                    {checklistSummary}
                   </span>
                 }
-                defaultCollapsed={false}
+                defaultCollapsed
               >
                 <div className="wm-import-intake-page__checklist-grid">
                   {CHECKLIST.map((item) => (
@@ -1490,6 +1508,37 @@ export default function ImportIntakePage() {
                     : "Wingman will save the intake into a project shell and send you to the next tool."}
                 </div>
 
+                <div
+                  style={{
+                    marginTop: 14,
+                    display: "grid",
+                    gap: 8,
+                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                  }}
+                >
+                  <button className="wm-btn" disabled={!interrogation || actionDisabled} type="button" onClick={() => setOpenPanel("interrogation")}>
+                    Interrogation brief
+                  </button>
+                  <button
+                    className="wm-btn"
+                    disabled={!analysis || actionDisabled}
+                    type="button"
+                    onClick={() => setOpenPanel("solution")}
+                  >
+                    Solution brief
+                  </button>
+                  <button
+                    className="wm-btn wm-btn-primary"
+                    disabled={actionDisabled}
+                    type="button"
+                    onClick={() => {
+                      void upsertProjectFromIntake("/app/tools/discovery");
+                    }}
+                  >
+                    {primaryActionLabel}
+                  </button>
+                </div>
+
                 <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
                   <div style={reviewCardStyle("rgba(99,160,224,0.18)")}>
                     <div style={smallLabelStyle()}>Interrogation brief</div>
@@ -1499,14 +1548,6 @@ export default function ImportIntakePage() {
                     <div style={{ fontSize: 11, lineHeight: 1.32, color: "rgba(255,255,255,0.8)" }}>
                       {interrogationSummary}
                     </div>
-                    <button
-                      className="wm-btn"
-                      disabled={!interrogation}
-                      type="button"
-                      onClick={() => setOpenPanel("interrogation")}
-                    >
-                      Open interrogation brief
-                    </button>
                   </div>
 
                   <div style={reviewCardStyle("rgba(216,177,76,0.18)")}>
@@ -1517,14 +1558,6 @@ export default function ImportIntakePage() {
                     <div style={{ fontSize: 11, lineHeight: 1.32, color: "rgba(255,255,255,0.8)" }}>
                       {solutionSummary}
                     </div>
-                    <button
-                      className="wm-btn"
-                      disabled={!analysis}
-                      type="button"
-                      onClick={() => setOpenPanel("solution")}
-                    >
-                      Open solution brief
-                    </button>
                   </div>
 
                   <div style={reviewCardStyle("rgba(120,208,189,0.18)")}>
@@ -1554,8 +1587,13 @@ export default function ImportIntakePage() {
                 </div>
               </section>
 
-              <section style={cardStyle()}>
-                <div style={sectionTitleStyle()}>Handoff summary</div>
+              <CollapsibleCard
+                id="import-intake-handoff"
+                title="Handoff summary"
+                subtitle="What Wingman will store before it launches."
+                right={<span className="wm-chip">{handoffSummary}</span>}
+                defaultCollapsed
+              >
                 <div style={sectionTextStyle()}>
                   This is what Wingman is about to write into the project.
                 </div>
@@ -1577,17 +1615,6 @@ export default function ImportIntakePage() {
                       </div>
                     </div>
                   ) : null}
-
-                  <button
-                    className="wm-btn wm-btn-primary"
-                    disabled={actionDisabled}
-                    type="button"
-                    onClick={() => {
-                      void upsertProjectFromIntake("/app/tools/discovery");
-                    }}
-                  >
-                    {primaryActionLabel}
-                  </button>
 
                   {analysis ? (
                     <button
@@ -1613,7 +1640,7 @@ export default function ImportIntakePage() {
                     {destination === "sales-enquiry" ? "Save enquiry to Projects" : "Save intake to Projects"}
                   </button>
                 </div>
-              </section>
+              </CollapsibleCard>
             </aside>
           </div>
 

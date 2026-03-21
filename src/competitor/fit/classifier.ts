@@ -1,6 +1,9 @@
 import { FAMILY_RULES } from "./familyRules";
+import { inferComparisonDomain, inferComparisonUseCase } from "./comparisonRules";
 import type {
   AvoipSubtype,
+  ComparisonDomain,
+  ComparisonUseCase,
   DeviceRole,
   HdbtGeneration,
   StructuredProduct,
@@ -77,6 +80,21 @@ function detectVideo(blob: string): VideoCapability {
   return { maxResolution, chroma, bandwidth };
 }
 
+function resolveComparisonDomain(
+  blob: string,
+  familyRule: (typeof FAMILY_RULES)[number] | undefined,
+): ComparisonDomain {
+  return familyRule?.comparisonDomain ?? inferComparisonDomain(blob);
+}
+
+function resolveComparisonUseCase(
+  blob: string,
+  domain: ComparisonDomain,
+  familyRule: (typeof FAMILY_RULES)[number] | undefined,
+): ComparisonUseCase {
+  return familyRule?.comparisonUseCase ?? inferComparisonUseCase(blob, domain);
+}
+
 export function buildStructuredProduct(input: {
   sku: string;
   name?: string;
@@ -98,10 +116,17 @@ export function buildStructuredProduct(input: {
 
   const multiview = /multiview|multi-view|windowing/.test(blob);
   const familyRule = findFamilyRule(blob);
+  const comparisonDomain = resolveComparisonDomain(blob, familyRule);
+  const comparisonUseCase = resolveComparisonUseCase(blob, comparisonDomain, familyRule);
 
   return {
     sku: input.sku,
     name: input.name ?? input.sku,
+    notes: familyRule?.notes ? [familyRule.notes] : undefined,
+    familyRuleId: familyRule?.id,
+    comparisonDomain,
+    comparisonUseCase,
+    comparisonHints: familyRule?.comparisonHints,
     transport: familyRule?.transport ?? detectTransport(blob),
     avoipSubtype: familyRule?.avoipSubtype ?? detectAvoipSubtype(blob, familyRule?.multiview ?? multiview),
     hdbtGeneration: familyRule?.hdbtGeneration ?? detectHdbtGeneration(blob),

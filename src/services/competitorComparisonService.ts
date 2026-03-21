@@ -32,11 +32,14 @@ import {
   buildAvSignalProfile,
   evaluateAvCompatibility,
 } from "@/services/avLogicEngine";
+import { inferCompetitorKnowledgeProfile } from "../competitor/brandKnowledge";
+import { inferComparisonDomain, inferComparisonUseCase } from "@/competitor/fit/comparisonRules";
 import {
   buildEvidenceContextLines,
   buildProductEvidenceDigest,
   type ProductEvidenceDigest,
 } from "@/services/liveProductEvidenceService";
+import type { ComparisonDomain, ComparisonUseCase } from "@/competitor/fit/types";
 
 export type ComparisonProvenance = {
   mode: "curated" | "lookup";
@@ -69,6 +72,8 @@ export type CompetitorComparisonRecord = {
   competitorSku: string;
   competitorName?: string;
   category: string;
+  comparisonDomain?: ComparisonDomain;
+  comparisonUseCase?: ComparisonUseCase;
   summary: string;
   features: string[];
   ioComparison?: string;
@@ -491,6 +496,56 @@ function formatCompetitorCategory(product: CatalogProduct): string {
     .join(" / ") || "Uncategorized";
 }
 
+function inferComparisonDomainForProduct(product: CatalogProduct): ComparisonDomain {
+  const textBlob = [
+    product.family,
+    product.category,
+    product.subcategory,
+    product.summary,
+    ...(product.features ?? []),
+    ...(product.control ?? []),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  if (/\bvideo wall\b|\bvideowall\b|\bwall processor\b|\bwall feed\b/.test(textBlob)) return "VIDEO_WALL";
+  if (/\bmatrix\b|\bmodular matrix\b|\bmatrix switch\b|\bmatrix switching\b/.test(textBlob)) return "MATRIX";
+  if (/\bextender\b|\bpoint to point\b|\bhdbaset\b|\btps\b|\btpx\b/.test(textBlob)) return "EXTENDER";
+  if (/\bcontrol\b|\bcontroller\b|\bmanagement\b/.test(textBlob)) return "CONTROL";
+  if (/\bpresentation switcher\b|\bcollaboration\b|\bbyod\b|\bbyom\b|\bucx\b|\bdmps\b|\bhd-ps\b|\bomni\b|\bome\b/.test(textBlob)) {
+    return "PRESENTATION";
+  }
+  if (/\bnvx\b|\bnav\b|\bubex\b|\bvinx\b|\bnetworkhd\b|\bavoip\b|\bsdvoe\b|\bencoder\b|\bdecoder\b/.test(textBlob)) {
+    return "AVOIP";
+  }
+  return "UNKNOWN";
+}
+
+function inferComparisonUseCaseForProduct(product: CatalogProduct, domain: ComparisonDomain): ComparisonUseCase {
+  const textBlob = [
+    product.family,
+    product.category,
+    product.subcategory,
+    product.summary,
+    ...(product.features ?? []),
+    ...(product.control ?? []),
+    ...(product.audio ?? []),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  if (/\bmultiview\b|\bmulti-view\b|\bwindowing\b/.test(textBlob)) return "MULTIVIEW";
+  if (/\bvideo wall\b|\bvideowall\b|\bwall processor\b|\bwall feed\b/.test(textBlob)) return "WALL_PROCESSING";
+  if (/\bcollaboration\b|\bbyod\b|\bbyom\b|\busb-c\b|\bwireless presentation\b|\bhuddle\b/.test(textBlob)) return "COLLABORATION";
+  if (/\bextension\b|\bextender\b|\bpoint to point\b|\blong reach\b/.test(textBlob)) return "EXTENSION";
+  if (domain === "MATRIX") return "ROUTING";
+  if (domain === "AVOIP") return "DISTRIBUTION";
+  if (domain === "EXTENDER") return "EXTENSION";
+  if (domain === "VIDEO_WALL") return "WALL_PROCESSING";
+  if (domain === "CONTROL") return "CONTROL";
+  return "UNKNOWN";
+}
+
 function scoreToConfidence(score: number): CompareConfidence {
   if (score >= 75) return "High";
   if (score >= 60) return "Medium";
@@ -809,6 +864,10 @@ function fallbackSeedRecord(product: CompetitorProduct): CompetitorComparisonRec
   });
 
   if (!match) return null;
+  const knowledge = inferCompetitorKnowledgeProfile(product);
+  const comparisonDomain = knowledge.comparisonDomain ?? inferComparisonDomainForProduct(product);
+  const comparisonUseCase =
+    knowledge.comparisonUseCase ?? inferComparisonUseCaseForProduct(product, comparisonDomain);
 
   const resolvedWyrestorm = resolveWyrestormReference({
     sku: match.wyrestormSku,
@@ -820,7 +879,9 @@ function fallbackSeedRecord(product: CompetitorProduct): CompetitorComparisonRec
     competitorSku: normalizeSku(match.competitorSku || product.sku),
     competitorName: tidy(product.name) || undefined,
     category: tidy(match.category) || tidy(product.category) || "Uncategorized",
-    summary: tidy(match.summary) || tidy(product.summary) || "Seed comparison record.",
+    comparisonDomain,
+    comparisonUseCase,
+    summary: tidy(match.summary) || tidy(product.summary) || knowledge.summary || "Seed comparison record.",
     features: Array.isArray(match.features) ? match.features.map((item) => tidy(item)).filter(Boolean) : [],
     wyrestormSku: resolvedWyrestorm.sku,
     wyrestormName: resolvedWyrestorm.name,
@@ -828,11 +889,12 @@ function fallbackSeedRecord(product: CompetitorProduct): CompetitorComparisonRec
     wyrestormVerified: resolvedWyrestorm.verified,
     confidence: resolvedWyrestorm.verified ? match.confidence || "Low" : "Low",
     rationale: resolvedWyrestorm.verified
-      ? tidy(match.rationale) || "Seed fallback used because deterministic candidate scoring returned no result."
+      ? tidy(match.rationale) || knowledge.summary || "Seed fallback used because deterministic candidate scoring returned no result."
       : "Seed comparison captured this competitor, but it does not yet point to a verified WyreStorm catalog SKU. Manual mapping is required before sharing a replacement.",
-    recommendedFamilies: Array.isArray(match.recommendedFamilies) ? match.recommendedFamilies : ["Apollo"],
+    recommendedFamilies: Array.isArray(match.recommendedFamilies) ? match.recommendedFamilies : knowledge.recommendedFamilies,
     notes: Array.from(
       new Set([
+        ...knowledge.caveats,
         ...resolvedWyrestorm.notes,
         ...(Array.isArray(match.notes) ? match.notes.map((item) => tidy(item)).filter(Boolean) : []),
       ]),
@@ -851,15 +913,21 @@ function toComparisonRecord(
   provenance: ComparisonProvenance,
 ): CompetitorComparisonRecord {
   const matchSummary = candidate.reasons.length > 0 ? candidate.reasons.join(" ") : "Deterministic compatibility scoring.";
+  const knowledge = inferCompetitorKnowledgeProfile(competitor);
+  const comparisonDomain = knowledge.comparisonDomain ?? inferComparisonDomainForProduct(competitor);
+  const comparisonUseCase =
+    knowledge.comparisonUseCase ?? inferComparisonUseCaseForProduct(competitor, comparisonDomain);
 
   return {
     brand: tidy(competitor.brand) || "Unknown",
     competitorSku: normalizeSku(competitor.sku),
     competitorName: tidy(competitor.name) || undefined,
     category: formatCompetitorCategory(competitor),
+    comparisonDomain,
+    comparisonUseCase,
     summary:
       tidy(competitor.summary) ||
-      `${tidy(competitor.name) || normalizeSku(competitor.sku)} competitor reference for deterministic match scoring.`,
+      `${tidy(competitor.name) || normalizeSku(competitor.sku)} competitor reference for deterministic match scoring. ${knowledge.summary}`,
     features: Array.isArray(competitor.features) ? competitor.features.map((item) => tidy(item)).filter(Boolean) : [],
     ioComparison: candidate.ioSummary,
     wyrestormSku: candidate.product.sku,
@@ -868,9 +936,10 @@ function toComparisonRecord(
     wyrestormVerified: true,
     confidence: scoreToConfidence(candidate.score),
     matchScore: candidate.score,
-    rationale: `Closest verified WyreStorm fit: ${candidate.product.sku} (${candidate.product.name}). ${matchSummary}`,
+    rationale: `Closest verified WyreStorm fit: ${candidate.product.sku} (${candidate.product.name}). ${matchSummary} ${knowledge.summary}`,
     recommendedFamilies: inferRecommendedFamilies(candidate.product),
     notes: [
+      ...knowledge.caveats,
       ...candidate.notes,
       `Validate against latest official datasheets for ${normalizeSku(competitor.sku)} and ${candidate.product.sku}.`,
     ],
