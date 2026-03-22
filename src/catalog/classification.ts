@@ -31,10 +31,18 @@ type ProductTypeInput = {
   subcategory?: string;
   summary?: string;
   description?: string;
+  technology?: string;
+  topology?: string;
+  role?: string;
+  directionality?: string;
+  outputBehavior?: string;
   transport?: string;
   features?: string[];
   audio?: string[];
   control?: string[];
+  notes?: string;
+  normalizedTags?: string[];
+  matchKeywords?: string[];
 };
 
 function tidy(value: unknown): string {
@@ -91,14 +99,34 @@ export function classifyProductType(input: ProductTypeInput): ProductTypeClassif
     input.subcategory,
     input.summary,
     input.description,
+    input.technology,
+    input.topology,
+    input.role,
+    input.directionality,
+    input.outputBehavior,
     input.transport,
     input.features,
     input.audio,
     input.control,
+    input.notes,
+    input.normalizedTags,
+    input.matchKeywords,
   );
 
+  const apolloFamily =
+    sku.startsWith("APO-") || family.startsWith("APO") || has(text, /\bapollo\b/);
+  const synergyFamily =
+    sku.startsWith("SW-") || family === "SW" || family.includes("SWITCHER");
+  const matrixFamily =
+    sku.startsWith("MX-") || family.startsWith("MX") || has(text, /\bmatrix\b/);
   const wirelessCasting = has(text, /\bwireless casting\b|\bwireless presentation\b|\bwireless conference\b|airplay|miracast/);
-  const usbDongle = has(text, /\bdongle\b/) && (wirelessCasting || has(text, /\busb[- ]?c\b|\busb c\b/));
+  const usbDongle =
+    !apolloFamily &&
+    !has(text, /\bspeakerphone\b/) &&
+    !has(text, /\bmic(?:rophone)?\b/) &&
+    !has(text, /\bspeaker\b|\bspeakers\b|\bvideo[- ]speakerphone\b|\bsoundbar\b/) &&
+    has(text, /\bdongle\b/) &&
+    (wirelessCasting || has(text, /\busb[- ]?c\b|\busb c\b/));
   const videoBar = has(text, /\bvideo bar\b|\bvideobar\b|\bsoundbar\b/);
   const webcam = has(text, /\bweb ?cam\b/);
   const cameraLike = webcam || has(text, /\bcamera\b|\bptz\b|\bndi\b/);
@@ -108,6 +136,8 @@ export function classifyProductType(input: ProductTypeInput): ProductTypeClassif
   const dante = has(text, /\bdante\b|\baes67\b/);
   const amplifier = has(text, /\bamp(?:lifier)?\b/);
   const microphone = has(text, /\bmic(?:rophone)?\b/);
+  const speaker =
+    has(text, /\bspeaker\b|\bspeakers\b|\bvideo[- ]speakerphone\b|\bsoundbar\b/);
   const usb = has(text, /\busb(?:[- ]?c|[- ]?a|[- ]?b|[- ]?2\.0|[- ]?3\.0|[- ]?3\.2|\b)/);
   const speakerphone = has(text, /\bspeakerphone\b/);
   const avoipLike =
@@ -119,9 +149,25 @@ export function classifyProductType(input: ProductTypeInput): ProductTypeClassif
     family.includes("CTL") ||
     has(text, /\bcontroller\b|\bcontrol processor\b|\bcontrol gateway\b|\bmanagement controller\b|\bav controller\b/);
   const matrix =
-    family.startsWith("MX") ||
-    has(text, /\bmatrix(?: switch| switcher| kit| chassis)\b/) ||
-    (has(text, /\bmatrix\b/) && has(text, /\b\d+x\d+\b/));
+    !synergyFamily &&
+    (matrixFamily ||
+      has(text, /\bmatrix(?: switch| switcher| kit| chassis)\b/) ||
+      (has(text, /\bmatrix\b/) && has(text, /\b\d+x\d+\b/)));
+  const matrixKit =
+    matrix &&
+    (has(text, /\bmatrix kit\b|\bwith included receivers\b|\bincludes \d+ receivers\b|\bincluded receivers\b/) ||
+      (has(text, /\bkit\b/) && has(text, /\breceiver\b|\breceivers\b/)));
+  const matrixDock =
+    matrix &&
+    !matrixKit &&
+    (has(text, /\bmst\b|\bdock(?:ing)?\b/) ||
+      (has(text, /\busb[- ]?c\b/) &&
+        has(text, /\bcharging\b|\bpassthrough\b|\bgpio\b|\b1gbe\b|\b2\.5gbe\b/)));
+  const advancedMatrix =
+    matrix &&
+    !matrixKit &&
+    !matrixDock &&
+    has(text, /\bvideo wall\b|\bvideowall\b|\bmultiview\b|\bseamless\b/);
   const splitter =
     family === "SP" ||
     has(text, /\bsplitter\b|\bdistribution amplifier\b|\bdistribution amp\b|\bhdmi da\b/);
@@ -136,7 +182,10 @@ export function classifyProductType(input: ProductTypeInput): ProductTypeClassif
     family === "RX3" ||
     family === "RXF" ||
     family === "RXV";
-  const extenderLike = !avoipLike && (extendersByFamily || has(text, /\bextender\b|\bhdbaset\b/));
+  const extenderLike =
+    !avoipLike &&
+    (extendersByFamily ||
+      has(text, /\bextender\b|\bhdbaset extender\b|\btransmitter\b|\breceiver\b/));
   const extenderKit =
     extenderLike &&
     (has(text, /\bextender set\b|\bextender kit\b|\btransmitter and receiver kit\b/) ||
@@ -148,10 +197,23 @@ export function classifyProductType(input: ProductTypeInput): ProductTypeClassif
   const micHub =
     has(text, /\bmicrophone hub\b|\bmicrophone mixer\b|\bmixer\b/) ||
     (has(text, /\bhub\b/) && microphone);
+  const ucSignals =
+    has(text, /\bunified communications\b|\bconference\b|\bteams\b|\bzoom\b|\bbyom\b|\bbyod\b|\bmeeting appliance\b|\bvideo[- ]speakerphone\b/);
   const presentationSwitcher =
     !extenderLike &&
+    !apolloFamily &&
     (has(text, /\bpresentation switcher\b|\bmulti[- ]?format\b/) ||
+      (synergyFamily && has(text, /\bswitcher\b|\bswitch\b/)) ||
       (has(text, /\bswitcher\b|\bswitch\b/) && has(text, /\bpresentation\b|\busb[- ]?c\b|\bdual[- ]view\b|\bquad view\b/)));
+  const ucAppliance =
+    !cameraLike &&
+    !extenderLike &&
+    !avoipLike &&
+    !matrix &&
+    ((apolloFamily && (ucSignals || microphone || speaker || speakerphone || wirelessCasting || usb)) ||
+      has(text, /\bpresentation and uc\b|\bunified communications\b|\bmeeting appliance\b|\bbyom\b|\bvideo[- ]speakerphone\b/) ||
+      ((speakerphone || microphone || speaker) &&
+        (presentationSwitcher || wirelessCasting || usb || ucSignals)));
   const touchController = has(text, /\btouch(?:screen|pad)?\b/) && controller;
   const videoWall = has(text, /\bvideo wall\b|\bvideowall\b/);
 
@@ -174,6 +236,20 @@ export function classifyProductType(input: ProductTypeInput): ProductTypeClassif
       label: "UC Soundbar",
       tags: wirelessCasting ? ["wireless-casting"] : [],
       requiredTags: ["uc-soundbar", ...(wirelessCasting ? ["wireless-casting"] : [])],
+    });
+  }
+
+  if (ucAppliance) {
+    return buildClassification({
+      group: "uc",
+      primaryType: "uc-appliance",
+      category: "UC",
+      label: "UC Appliance",
+      tags: [
+        ...(presentationSwitcher ? ["presentation-switcher"] : []),
+        ...(wirelessCasting ? ["wireless-casting"] : []),
+      ],
+      requiredTags: ["uc-appliance"],
     });
   }
 
@@ -311,6 +387,39 @@ export function classifyProductType(input: ProductTypeInput): ProductTypeClassif
       primaryType: "splitter",
       category: "Distribution",
       label: "Splitter",
+    });
+  }
+
+  if (matrixKit) {
+    return buildClassification({
+      group: "matrix",
+      primaryType: "matrix-kit",
+      category: "Matrix",
+      label: "Matrix Kit",
+      tags: ["matrix-switch"],
+      requiredTags: ["matrix-kit"],
+    });
+  }
+
+  if (matrixDock) {
+    return buildClassification({
+      group: "matrix",
+      primaryType: "matrix-dock",
+      category: "Matrix",
+      label: "Matrix Dock",
+      tags: has(text, /\bhdbase?t\b|\bhdbaset\b/) ? ["hybrid-output"] : [],
+      requiredTags: ["matrix-dock"],
+    });
+  }
+
+  if (advancedMatrix) {
+    return buildClassification({
+      group: "matrix",
+      primaryType: "advanced-matrix",
+      category: "Matrix",
+      label: "Advanced Matrix",
+      tags: ["matrix-switch"],
+      requiredTags: ["advanced-matrix"],
     });
   }
 
@@ -455,10 +564,18 @@ export function classifyCatalogProduct(product: Partial<CatalogProduct>): Produc
     category: product.category,
     subcategory: product.subcategory,
     summary: product.summary,
+    technology: product.technology,
+    topology: product.topology,
+    role: product.role,
+    directionality: product.directionality,
+    outputBehavior: product.outputBehavior,
     transport: product.transport,
     features: product.features,
     audio: product.audio,
     control: product.control,
+    notes: product.notes,
+    normalizedTags: product.normalizedTags,
+    matchKeywords: product.matchKeywords,
   });
 }
 

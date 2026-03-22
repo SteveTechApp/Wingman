@@ -25,7 +25,7 @@ const DiscoveryWizardPage = React.lazy(() => import("@/features/discovery/Discov
 const CatalogPage = React.lazy(() => import("@/features/catalog/CatalogPage"));
 const CompetitorComparePage = React.lazy(() => import("@/features/compare/CompetitorComparePage"));
 const RoomWizardPage = React.lazy(() => import("@/features/room-wizard/RoomWizardPage"));
-const ProposalBuilderPage = React.lazy(() => import("@/features/proposals/ProposalBuilderPage"));
+const ProposalBuilderPage = React.lazy(() => import("@/features/proposal/ProposalPage"));
 const ImportIntakePage = React.lazy(() => import("@/features/import/ImportIntakePage"));
 const TrainingHubPage = React.lazy(() => import("@/features/misc/TrainingHubPage"));
 const VideoWallPlannerPage = React.lazy(() => import("@/features/misc/VideoWallPlannerPage"));
@@ -79,6 +79,7 @@ export default function AppRoutes() {
           <Route path="tools/compare" element={<CompetitorComparePage />} />
           <Route path="tools/guru" element={<GuruToolHostPage />} />
           <Route path="tools/room-wizard" element={<RoomWizardPage />} />
+          <Route path="tools/room-wizard/new" element={<RoomWizardPage />} />
           <Route path="tools/proposal" element={<ProposalBuilderPage />} />
           <Route path="tools/import-intake" element={<ImportIntakePage />} />
           <Route path="tools/training" element={<TrainingHubPage />} />

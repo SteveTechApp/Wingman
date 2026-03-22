@@ -465,28 +465,53 @@ function tagsFor(product: CatalogProduct): Set<string> {
 }
 
 function inferRecommendedFamilies(product: CatalogProduct): DiscoveryProductFamily[] {
-  const families: DiscoveryProductFamily[] = [];
+  const families = new Set<DiscoveryProductFamily>();
+  const classification = classifyCatalogProduct(product);
   const textBlob = [
     product.family,
     product.category,
     product.subcategory,
+    product.summary,
     product.transport,
     ...(product.features ?? []),
   ].join(" ").toLowerCase();
 
-  if (textBlob.includes("apollo") || textBlob.includes("presentation") || textBlob.includes("byod")) {
-    families.push("Apollo");
+  if (
+    classification.group === "uc" ||
+    classification.primaryType.startsWith("uc-") ||
+    textBlob.includes("apollo")
+  ) {
+    families.add("Apollo");
   }
-  if (textBlob.includes("hdbaset")) families.push("HDBaseT");
-  if (textBlob.includes("avoip") || textBlob.includes("networkhd") || textBlob.includes("ip")) {
-    families.push("AVoIP");
+  if (classification.group === "extender" || textBlob.includes("hdbaset")) {
+    families.add("HDBaseT");
   }
-  if (textBlob.includes("matrix")) families.push("Matrix");
-  if (textBlob.includes("usb")) families.push("USB Extension");
-  if (textBlob.includes("video wall")) families.push("Video Wall");
+  if (
+    classification.group === "avoip" ||
+    textBlob.includes("avoip") ||
+    textBlob.includes("networkhd")
+  ) {
+    families.add("AVoIP");
+  }
+  if (classification.group === "matrix" || textBlob.includes("matrix")) {
+    families.add("Matrix");
+  }
+  if (
+    classification.primaryType.includes("usb") ||
+    (classification.group === "extender" && textBlob.includes("usb")) ||
+    textBlob.includes("usb extension")
+  ) {
+    families.add("USB Extension");
+  }
+  if (
+    classification.group === "videowall" ||
+    textBlob.includes("video wall") ||
+    textBlob.includes("videowall")
+  ) {
+    families.add("Video Wall");
+  }
 
-  const deduped = Array.from(new Set(families));
-  return deduped.length > 0 ? deduped : ["Apollo"];
+  return Array.from(families);
 }
 
 function formatCompetitorCategory(product: CatalogProduct): string {
@@ -873,6 +898,22 @@ function fallbackSeedRecord(product: CompetitorProduct): CompetitorComparisonRec
     sku: match.wyrestormSku,
     category: match.wyrestormCategory,
   });
+  const structuredSuggestions = structuredSuggestionSkus(product, 3);
+  const structuredLead = structuredSuggestions[0];
+  const selectedWyrestorm = resolvedWyrestorm.verified
+    ? resolvedWyrestorm
+    : structuredLead
+      ? {
+          sku: structuredLead.sku,
+          name: tidy(structuredLead.name) || undefined,
+          category: formatWyrestormCategory(structuredLead),
+          verified: false,
+          notes: [
+            ...resolvedWyrestorm.notes,
+            `Seed mapping pointed to "${tidy(match.wyrestormSku)}", so ${structuredLead.sku} is being used as the closest structured starting point until a verified replacement is curated.`,
+          ],
+        }
+      : resolvedWyrestorm;
 
   return {
     brand: tidy(match.brand) || tidy(product.brand) || "Unknown",
@@ -883,19 +924,32 @@ function fallbackSeedRecord(product: CompetitorProduct): CompetitorComparisonRec
     comparisonUseCase,
     summary: tidy(match.summary) || tidy(product.summary) || knowledge.summary || "Seed comparison record.",
     features: Array.isArray(match.features) ? match.features.map((item) => tidy(item)).filter(Boolean) : [],
-    wyrestormSku: resolvedWyrestorm.sku,
-    wyrestormName: resolvedWyrestorm.name,
-    wyrestormCategory: resolvedWyrestorm.category,
-    wyrestormVerified: resolvedWyrestorm.verified,
-    confidence: resolvedWyrestorm.verified ? match.confidence || "Low" : "Low",
-    rationale: resolvedWyrestorm.verified
+    wyrestormSku: selectedWyrestorm.sku,
+    wyrestormName: selectedWyrestorm.name,
+    wyrestormCategory: selectedWyrestorm.category,
+    wyrestormVerified: selectedWyrestorm.verified,
+    confidence: selectedWyrestorm.verified ? match.confidence || "Low" : "Low",
+    rationale: selectedWyrestorm.verified
       ? tidy(match.rationale) || knowledge.summary || "Seed fallback used because deterministic candidate scoring returned no result."
-      : "Seed comparison captured this competitor, but it does not yet point to a verified WyreStorm catalog SKU. Manual mapping is required before sharing a replacement.",
-    recommendedFamilies: Array.isArray(match.recommendedFamilies) ? match.recommendedFamilies : knowledge.recommendedFamilies,
+      : structuredLead
+        ? `Seed comparison captured the product direction but not a verified WyreStorm SKU. ${structuredLead.sku} is the closest structured starting point and should be validated in the comparison matrix before sharing a replacement.`
+        : "Seed comparison captured this competitor, but it does not yet point to a verified WyreStorm catalog SKU. Manual mapping is required before sharing a replacement.",
+    recommendedFamilies: Array.isArray(match.recommendedFamilies)
+      ? match.recommendedFamilies
+      : structuredLead
+        ? inferRecommendedFamilies(structuredLead)
+        : knowledge.recommendedFamilies,
     notes: Array.from(
       new Set([
         ...knowledge.caveats,
-        ...resolvedWyrestorm.notes,
+        ...selectedWyrestorm.notes,
+        ...(structuredSuggestions.length > 0
+          ? [
+              `Closest structured suggestions: ${structuredSuggestions
+                .map((candidate) => candidate.sku)
+                .join(", ")}.`,
+            ]
+          : []),
         ...(Array.isArray(match.notes) ? match.notes.map((item) => tidy(item)).filter(Boolean) : []),
       ]),
     ),
@@ -943,6 +997,94 @@ function toComparisonRecord(
       ...candidate.notes,
       `Validate against latest official datasheets for ${normalizeSku(competitor.sku)} and ${candidate.product.sku}.`,
     ],
+    provenance,
+  };
+}
+
+function structuredSuggestionSkus(
+  competitor: CompetitorProduct,
+  limit = 3,
+): CatalogProduct[] {
+  const ranked = structuredFitRank(
+    {
+      sku: competitor.sku,
+      name: competitor.name,
+      summary: competitor.summary,
+      description: competitor.notes,
+      category: competitor.category,
+      technology: competitor.technology,
+      features: competitor.features,
+    },
+    getCatalogProducts().map((candidate) => ({
+      sku: candidate.sku,
+      name: candidate.name,
+      summary: candidate.summary,
+      description: candidate.notes,
+      category: candidate.category,
+      technology: candidate.technology,
+      features: candidate.features,
+    })),
+  );
+
+  return ranked
+    .slice(0, limit)
+    .map((item) => findCatalogProductBySku(item.sku))
+    .filter((item): item is CatalogProduct => Boolean(item));
+}
+
+function manualReviewRecord(
+  competitor: CompetitorProduct,
+  provenance: ComparisonProvenance,
+  reason: string,
+): CompetitorComparisonRecord {
+  const knowledge = inferCompetitorKnowledgeProfile(competitor);
+  const comparisonDomain =
+    knowledge.comparisonDomain ?? inferComparisonDomainForProduct(competitor);
+  const comparisonUseCase =
+    knowledge.comparisonUseCase ??
+    inferComparisonUseCaseForProduct(competitor, comparisonDomain);
+  const structuredSuggestions = structuredSuggestionSkus(competitor, 3);
+  const structuredLead = structuredSuggestions[0];
+
+  return {
+    brand: tidy(competitor.brand) || "Unknown",
+    competitorSku: normalizeSku(competitor.sku),
+    competitorName: tidy(competitor.name) || undefined,
+    category: formatCompetitorCategory(competitor),
+    comparisonDomain,
+    comparisonUseCase,
+    summary:
+      tidy(competitor.summary) ||
+      `${tidy(competitor.name) || normalizeSku(competitor.sku)} is searchable, but the automatic compare library needs a manual review for the final replacement call.`,
+    features: Array.isArray(competitor.features)
+      ? competitor.features.map((item) => tidy(item)).filter(Boolean)
+      : [],
+    ioComparison: "Closest available options require manual review.",
+    wyrestormSku: structuredLead?.sku || "Manual review required",
+    wyrestormName: tidy(structuredLead?.name) || undefined,
+    wyrestormCategory: structuredLead
+      ? formatWyrestormCategory(structuredLead)
+      : "Unverified / manual review",
+    wyrestormVerified: false,
+    confidence: "Low",
+    rationale: structuredLead
+      ? `No deterministic candidate cleared the automatic threshold. ${structuredLead.sku} is the closest structured starting point and should be checked in the comparison matrix before being presented as a replacement.`
+      : "No deterministic candidate cleared the automatic threshold. Use the comparison matrix and manual review before presenting a replacement.",
+    recommendedFamilies: structuredLead
+      ? inferRecommendedFamilies(structuredLead)
+      : knowledge.recommendedFamilies,
+    notes: Array.from(
+      new Set([
+        reason,
+        ...knowledge.caveats,
+        structuredSuggestions.length > 0
+          ? `Closest structured suggestions: ${structuredSuggestions
+              .map((product) => product.sku)
+              .join(", ")}.`
+          : "No structured fallback suggestions were available from the current catalog.",
+        "Review competitor inputs, outputs, transport, and workflow details before confirming the final WyreStorm SKU.",
+      ]),
+    ).slice(0, 10),
     provenance,
   };
 }
@@ -1068,7 +1210,23 @@ function buildCuratedRecords(): CompetitorComparisonRecord[] {
     }
 
     const fallback = fallbackSeedRecord(competitor);
-    if (fallback) records.push(fallback);
+    if (fallback) {
+      records.push(fallback);
+      continue;
+    }
+
+    records.push(
+      manualReviewRecord(
+        competitor,
+        toComparisonProvenance("curated", {
+          source: "catalog",
+          label: "Curated competitor catalog",
+          fetchedAt: new Date().toISOString(),
+          sourceUrl: competitor.sourceUrl,
+        }),
+        "No deterministic match cleared the automatic threshold for the curated competitor record.",
+      ),
+    );
   }
 
   // Include seed-only entries that are not represented in curated catalog.
@@ -1222,22 +1380,11 @@ export async function lookupAndCompare(query: string): Promise<LookupAndCompareR
     });
     const evidenceContext = buildEvidenceContextLines(competitorEvidence, null);
 
-    const fallback: CompetitorComparisonRecord = {
-      brand: tidy(competitor.brand) || "Unknown",
-      competitorSku: normalizeSku(competitor.sku),
-      competitorName: tidy(competitor.name) || undefined,
-      category: tidy(competitor.category) || "Uncategorized",
-      summary: tidy(competitor.summary) || "Lookup completed but no deterministic WyreStorm candidate was found.",
-      features: Array.isArray(competitor.features) ? competitor.features.map((item) => tidy(item)).filter(Boolean) : [],
-      wyrestormSku: "Manual review required",
-      wyrestormCategory: "Unverified / manual review",
-      wyrestormVerified: false,
-      confidence: "Low",
-      rationale: "Lookup record was captured, but no verified WyreStorm catalog SKU could be confirmed automatically.",
-      recommendedFamilies: ["Apollo"],
-      notes: ["Review competitor specs and map to a verified WyreStorm catalog SKU before sharing the recommendation."],
-      provenance: toComparisonProvenance("lookup", lookup.provenance),
-    };
+    const fallback = manualReviewRecord(
+      competitor,
+      toComparisonProvenance("lookup", lookup.provenance),
+      "Live lookup captured the competitor SKU, but no deterministic candidate cleared the automatic threshold.",
+    );
     const assessedFallback = await withIntelligenceAssessment(fallback, {
       query,
       baselineScore: 24,

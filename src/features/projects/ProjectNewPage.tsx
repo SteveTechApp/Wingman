@@ -96,7 +96,7 @@ function normalizeRecommendedFamilies(
 }
 
 function getToolLabel(path?: string): string {
-  if (path === WM_ROUTES.roomDesigner) return "Room Wizard";
+  if (path === WM_ROUTES.roomDesigner) return "Room Designer";
   if (path === WM_ROUTES.proposals) return "Proposal Builder";
   if (path === WM_ROUTES.catalogue) return "Product Catalogue";
   if (path === WM_ROUTES.videowall) return "Video Wall Planner";
@@ -282,10 +282,9 @@ export default function ProjectNewPage() {
       <section className="wm-hero">
         <div className="wm-grid wm-project-new-page__hero">
           <div className="wm-kicker">Projects</div>
-          <div className="wm-title-xl">Start New Project</div>
+          <div className="wm-title-xl">Project Launcher</div>
           <div className="wm-page-lead">
-            Set the shell once, then start the job the right way: guided, template-led, brief-led,
-            or diagram-led.
+            Create a light project shell, then choose the right assisted starting path for the opportunity.
           </div>
         </div>
       </section>

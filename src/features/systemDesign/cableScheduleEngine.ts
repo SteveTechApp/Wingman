@@ -31,13 +31,32 @@ function inferFamilies(discovery: DiscoverySeed, template?: TemplateSeed | null)
 }
 
 function defaultRouteLength(discovery: DiscoverySeed): number {
-  const longest = n(discovery.cableDistanceM, 0);
+  const longest = Math.max(
+    n(discovery.cableDistanceM, 0),
+    n(discovery.sourceToRackDistanceM, 0),
+    n(discovery.rackToDisplayDistanceM, 0),
+  );
   if (longest > 0) return longest;
   return 12;
 }
 
 function shortPatch(): number {
   return 3;
+}
+
+function sourceRouteLength(discovery: DiscoverySeed): number {
+  const routed = n(discovery.sourceToRackDistanceM, 0);
+  if (routed > 0) return routed;
+  return shortPatch();
+}
+
+function displayRouteLength(discovery: DiscoverySeed): number {
+  const routed = Math.max(
+    n(discovery.rackToDisplayDistanceM, 0),
+    n(discovery.cableDistanceM, 0),
+  );
+  if (routed > 0) return routed;
+  return 12;
 }
 
 function makeDevices(discovery: DiscoverySeed, template?: TemplateSeed | null, videoWall?: VideoWallSeed | null) {
@@ -157,6 +176,8 @@ function buildCables(
 ) {
   const items: CableScheduleItem[] = [];
   const longest = defaultRouteLength(discovery);
+  const sourceLeg = sourceRouteLength(discovery);
+  const displayLeg = displayRouteLength(discovery);
   const short = shortPatch();
 
   const coreId = devices.find(x => x.id === "core-1")?.id;
@@ -178,7 +199,7 @@ function buildCables(
         cableType: "Category Cable",
         connectorA: "HDMI",
         connectorB: "RJ45",
-        estimatedLengthM: short,
+        estimatedLengthM: sourceLeg,
         quantity: 1,
         routeNote: "Source to encoder / network entry",
         assumption: "AVoIP workflow assumed",
@@ -194,7 +215,7 @@ function buildCables(
         cableType: "HDMI Cable",
         connectorA: "HDMI",
         connectorB: "HDMI",
-        estimatedLengthM: short,
+        estimatedLengthM: sourceLeg,
         quantity: 1,
         routeNote: "Source to core",
       });
@@ -231,7 +252,7 @@ function buildCables(
         cableType: "Category Cable",
         connectorA: "RJ45",
         connectorB: "RJ45 / Decoder",
-        estimatedLengthM: longest,
+        estimatedLengthM: displayLeg,
         quantity: 1,
         routeNote: "AV network to display endpoint",
         assumption: "Decoder endpoint implied",
@@ -247,7 +268,7 @@ function buildCables(
         cableType: "Cat6 / HDBaseT",
         connectorA: "RJ45",
         connectorB: "RJ45 / RX",
-        estimatedLengthM: longest,
+        estimatedLengthM: displayLeg,
         quantity: 1,
         routeNote: "Rack to display route",
         assumption: "Receiver endpoint implied at display",
@@ -263,7 +284,7 @@ function buildCables(
         cableType: "HDMI Cable",
         connectorA: "HDMI",
         connectorB: "HDMI",
-        estimatedLengthM: longest,
+        estimatedLengthM: displayLeg,
         quantity: 1,
         routeNote: "Core to display route",
       });

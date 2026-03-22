@@ -4,7 +4,6 @@ import {
   ChevronDown,
   ExternalLink,
   Mail,
-  RefreshCw,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -17,9 +16,13 @@ import CompetitorLookupStatusPanel from "@/components/competitor/CompetitorLooku
 import CompetitorManualComparisonPanel from "@/components/competitor/CompetitorManualComparisonPanel";
 import type { CompetitorLookupTrace } from "@/competitor/types";
 import type {
+  CompetitorCompareCoverageLevel,
+  CompetitorCompareDecisionStatus,
   CompetitorCompareMatrixRow,
-  CompetitorCompareOption,
   CompetitorCompareMatrixStatus,
+  CompetitorCompareMatchMethod,
+  CompetitorCompareOption,
+  CompetitorComparePortDelta,
 } from "@/services/competitorCompareFit";
 import {
   getCompetitorCompareFeedbackSummary,
@@ -55,11 +58,15 @@ function modeLabelFor(
   liveResult: CompetitorCompareLiveResult | null,
   running: boolean,
 ): string {
-  if (running) return "Checking live";
-  if (liveResult?.record) return "Live verified";
-  if (searchResult.status === "ambiguous") return "Clarify match";
-  if (searchResult.status === "resolved") return "Local match found";
-  if (searchResult.status === "no-match") return "No local match";
+  if (running) return "Looking up live";
+  if (liveResult?.record) return "Live lookup captured";
+  if (searchResult.status === "ambiguous") return "Clarify local SKU";
+  if (searchResult.status === "resolved") {
+    return searchResult.bestCandidate?.exactSku
+      ? "Stored local match"
+      : "Closest local shortlist";
+  }
+  if (searchResult.status === "no-match") return "SKU not in local library";
   return "Ready";
 }
 
@@ -68,7 +75,7 @@ function feedbackSummaryText(summary: CompetitorCompareFeedbackSummary): string 
     return "Feedback loop is empty. Unmatched searches and manual saves will be logged locally to help expand the comparison library.";
   }
 
-  return `Feedback loop: ${summary.noMatch} no-match search${summary.noMatch === 1 ? "" : "es"}, ${summary.ambiguous} ambiguous shortlist${summary.ambiguous === 1 ? "" : "s"}, ${summary.manualSave} manual save${summary.manualSave === 1 ? "" : "s"}, ${summary.liveVerified} live verification${summary.liveVerified === 1 ? "" : "s"}.`;
+  return `Feedback loop: ${summary.noMatch} no-match search${summary.noMatch === 1 ? "" : "es"}, ${summary.ambiguous} ambiguous shortlist${summary.ambiguous === 1 ? "" : "s"}, ${summary.manualSave} manual save${summary.manualSave === 1 ? "" : "s"}, ${summary.liveVerified} live lookup${summary.liveVerified === 1 ? "" : "s"}.`;
 }
 
 function ensureLiveCandidateInResult(
@@ -93,7 +100,7 @@ function ensureLiveCandidateInResult(
     status: candidates.length > 0 ? "resolved" : searchResult.status,
     summary:
       liveResult.record && existingIndex < 0
-        ? `Live verification resolved ${liveResult.record.competitorSku}; the verified candidate is shown at the top of the shortlist.`
+        ? `Live lookup captured ${liveResult.record.competitorSku}; the scraped candidate is shown at the top of the shortlist.`
         : searchResult.summary,
     candidates,
     bestCandidate:
@@ -155,7 +162,7 @@ function traceFor(
     trace.push({
       stage: "web",
       message: warning,
-      sourceLabel: liveResult?.sourceLabel || "Live verification",
+      sourceLabel: liveResult?.sourceLabel || "Live lookup",
       checkedUrl: liveResult?.sourceUrl,
       usedLiveData: Boolean(liveResult?.record),
       updatedAt: new Date().toISOString(),
@@ -191,46 +198,6 @@ function confidenceLabel(value: number | undefined): "High" | "Medium" | "Low" {
   return "Low";
 }
 
-function bandLabel(
-  value: number | undefined,
-): "Strong fit" | "Good fit" | "Functional alternative" | "Weak fit" {
-  const score = value ?? 0;
-  if (score >= 85) return "Strong fit";
-  if (score >= 70) return "Good fit";
-  if (score >= 55) return "Functional alternative";
-  return "Weak fit";
-}
-
-function bandTone(value: number | undefined): React.CSSProperties {
-  const score = value ?? 0;
-  if (score >= 85) {
-    return {
-      color: "#bbf7d0",
-      background: "rgba(34,197,94,0.12)",
-      border: "1px solid rgba(34,197,94,0.26)",
-    };
-  }
-  if (score >= 70) {
-    return {
-      color: "#bfdbfe",
-      background: "rgba(59,130,246,0.12)",
-      border: "1px solid rgba(59,130,246,0.26)",
-    };
-  }
-  if (score >= 55) {
-    return {
-      color: "#fde68a",
-      background: "rgba(245,158,11,0.12)",
-      border: "1px solid rgba(245,158,11,0.26)",
-    };
-  }
-  return {
-    color: "#fecaca",
-    background: "rgba(239,68,68,0.12)",
-    border: "1px solid rgba(239,68,68,0.26)",
-  };
-}
-
 function matrixTone(status: CompetitorCompareMatrixStatus): React.CSSProperties {
   switch (status) {
     case "better":
@@ -256,6 +223,163 @@ function matrixTone(status: CompetitorCompareMatrixStatus): React.CSSProperties 
         color: "#e2e8f0",
         background: "rgba(148,163,184,0.10)",
         border: "1px solid rgba(148,163,184,0.20)",
+      };
+  }
+}
+
+function matchMethodLabel(
+  value: CompetitorCompareMatchMethod | undefined,
+): string {
+  switch (value) {
+    case "direct-replacement":
+      return "Direct replacement";
+    case "covers-brief":
+      return "Covers the brief";
+    case "functional-alternative":
+      return "Functional alternative";
+    case "manual-review":
+      return "Manual review";
+    default:
+      return "Candidate";
+  }
+}
+
+function matchMethodTone(
+  value: CompetitorCompareMatchMethod | undefined,
+): React.CSSProperties {
+  switch (value) {
+    case "direct-replacement":
+      return {
+        color: "#bbf7d0",
+        background: "rgba(34,197,94,0.12)",
+        border: "1px solid rgba(34,197,94,0.26)",
+      };
+    case "covers-brief":
+      return {
+        color: "#bfdbfe",
+        background: "rgba(59,130,246,0.12)",
+        border: "1px solid rgba(59,130,246,0.26)",
+      };
+    case "functional-alternative":
+      return {
+        color: "#fde68a",
+        background: "rgba(245,158,11,0.12)",
+        border: "1px solid rgba(245,158,11,0.26)",
+      };
+    default:
+      return {
+        color: "#fecaca",
+        background: "rgba(239,68,68,0.12)",
+        border: "1px solid rgba(239,68,68,0.26)",
+      };
+  }
+}
+
+function coverageLevelLabel(
+  value: CompetitorCompareCoverageLevel | undefined,
+): string {
+  switch (value) {
+    case "exact":
+      return "Exact";
+    case "covers":
+      return "Covers";
+    case "partial":
+      return "Partial";
+    case "missing":
+      return "Missing";
+    case "unknown":
+      return "Unknown";
+    default:
+      return "Unknown";
+  }
+}
+
+function coverageLevelTone(
+  value: CompetitorCompareCoverageLevel | undefined,
+): React.CSSProperties {
+  switch (value) {
+    case "exact":
+      return {
+        color: "#bbf7d0",
+        background: "rgba(34,197,94,0.12)",
+        border: "1px solid rgba(34,197,94,0.26)",
+      };
+    case "covers":
+      return {
+        color: "#bfdbfe",
+        background: "rgba(59,130,246,0.12)",
+        border: "1px solid rgba(59,130,246,0.26)",
+      };
+    case "partial":
+      return {
+        color: "#fde68a",
+        background: "rgba(245,158,11,0.12)",
+        border: "1px solid rgba(245,158,11,0.26)",
+      };
+    case "missing":
+      return {
+        color: "#fecaca",
+        background: "rgba(239,68,68,0.12)",
+        border: "1px solid rgba(239,68,68,0.26)",
+      };
+    default:
+      return {
+        color: "#cbd5e1",
+        background: "rgba(148,163,184,0.10)",
+        border: "1px solid rgba(148,163,184,0.22)",
+      };
+  }
+}
+
+function decisionTone(
+  status: CompetitorCompareDecisionStatus,
+): React.CSSProperties {
+  if (status === "pass") {
+    return {
+      color: "#bbf7d0",
+      background: "rgba(34,197,94,0.10)",
+      border: "1px solid rgba(34,197,94,0.22)",
+    };
+  }
+  if (status === "warn") {
+    return {
+      color: "#fde68a",
+      background: "rgba(245,158,11,0.10)",
+      border: "1px solid rgba(245,158,11,0.22)",
+    };
+  }
+  return {
+    color: "#fecaca",
+    background: "rgba(239,68,68,0.10)",
+    border: "1px solid rgba(239,68,68,0.22)",
+  };
+}
+
+function portDeltaTone(state: CompetitorComparePortDelta["state"]): React.CSSProperties {
+  switch (state) {
+    case "match":
+      return {
+        color: "#bbf7d0",
+        background: "rgba(34,197,94,0.10)",
+        border: "1px solid rgba(34,197,94,0.22)",
+      };
+    case "extra":
+      return {
+        color: "#bfdbfe",
+        background: "rgba(59,130,246,0.10)",
+        border: "1px solid rgba(59,130,246,0.22)",
+      };
+    case "short":
+      return {
+        color: "#fecaca",
+        background: "rgba(239,68,68,0.10)",
+        border: "1px solid rgba(239,68,68,0.22)",
+      };
+    default:
+      return {
+        color: "#cbd5e1",
+        background: "rgba(148,163,184,0.10)",
+        border: "1px solid rgba(148,163,184,0.22)",
       };
   }
 }
@@ -372,61 +496,39 @@ function comparisonClassLabel(candidate: CompetitorCompareCandidate): string {
   return `${domain} · ${useCase}`;
 }
 
-function summaryLineForMatrixRow(row: CompetitorCompareMatrixRow): string {
-  if (row.status === "better") {
-    return `${row.label} is stronger on the WyreStorm side.`;
-  }
-  if (row.status === "match") {
-    return `${row.label} is aligned between the competitor and WyreStorm option.`;
-  }
-  if (row.status === "review") {
-    return row.note || `${row.label} needs a closer check before final sign-off.`;
-  }
-  return row.note || `${row.label} trails the captured competitor baseline.`;
-}
-
 function decisionSummaryFor(
   candidate: CompetitorCompareCandidate,
   selectedOption: CompetitorCompareOption | undefined,
   liveResult: CompetitorCompareLiveResult | null,
-  score: number,
 ): { headline: string; bullets: string[]; caution?: string } {
-  const sku = selectedOption?.wyrestormSku || candidate.comparison.wyrestormSku || "This WyreStorm option";
-  const matrix = selectedOption?.matrix ?? [];
-  const positiveRows = matrix.filter((row) => row.id !== "category" && (row.status === "better" || row.status === "match"));
-  const cautionRow = matrix.find((row) => row.id !== "category" && (row.status === "gap" || row.status === "review"));
+  const sku =
+    selectedOption?.wyrestormSku ||
+    candidate.comparison.wyrestormSku ||
+    "This WyreStorm option";
+  const workflow = selectedOption?.decisionWorkflow ?? [];
+  const positiveSteps = workflow
+    .filter((step) => step.status === "pass")
+    .map((step) => step.summary);
+  const headline =
+    selectedOption?.matchBasis.summary ||
+    `${sku} is the current WyreStorm candidate.`;
 
-  let headline = `${sku} is the closest current WyreStorm fit.`;
-  if (score >= 85) {
-    headline = `${sku} wins on core fit and key capability coverage.`;
-  } else if (score >= 70) {
-    headline = `${sku} is the clearest fit on I/O, transport, and workflow alignment.`;
-  }
-
-  const bullets: string[] = [];
-  bullets.push(...(selectedOption?.reasons ?? []).slice(0, 2));
-  bullets.push(...positiveRows.slice(0, 2).map(summaryLineForMatrixRow));
-  if (selectedOption?.positioningSummary) bullets.push(selectedOption.positioningSummary);
-  if (liveResult?.record) bullets.push("Competitor record live verified.");
-
-  const seen = new Set<string>();
-  const compactBullets = bullets
-    .filter((line) => {
-      const key = line.trim().toLowerCase();
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    })
-    .slice(0, 3);
+  const bullets = [
+    liveResult?.record ? "Competitor record captured from live lookup." : "",
+    ...positiveSteps,
+    ...(selectedOption?.highlights.matches ?? []),
+    ...(selectedOption?.highlights.extras ?? []),
+    selectedOption?.positioningSummary || "",
+  ]
+    .filter(Boolean)
+    .slice(0, 4);
 
   const caution =
-    score >= 85
-      ? undefined
-      : cautionRow
-        ? summaryLineForMatrixRow(cautionRow)
-        : (selectedOption?.cautions ?? [])[0];
+    selectedOption?.highlights.gaps[0] ||
+    selectedOption?.highlights.reviews[0] ||
+    selectedOption?.cautions[0];
 
-  return { headline, bullets: compactBullets, caution };
+  return { headline, bullets, caution };
 }
 
 function buildAskWyreStormEmail(input: {
@@ -484,23 +586,25 @@ function openAskWyreStormEmail(input: {
   window.open(outlookUrl, "_blank", "noopener,noreferrer");
 }
 
-function MatrixTable({ rows }: { rows: CompetitorCompareMatrixRow[] }) {
-  if (!rows.length) return null;
-
+function metricCard(
+  label: string,
+  value: string,
+  hint: string,
+  tone?: React.CSSProperties,
+) {
   return (
     <div
       style={{
+        padding: 12,
+        borderRadius: 14,
+        border: tone?.border || "1px solid rgba(255,255,255,0.08)",
+        background: tone?.background || "rgba(255,255,255,0.04)",
         display: "grid",
-        gap: 8,
-        borderTop: "1px solid rgba(255,255,255,0.08)",
-        paddingTop: 12,
+        gap: 4,
       }}
     >
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "1.2fr 1fr 1fr auto",
-          gap: 8,
           fontSize: 11,
           fontWeight: 800,
           letterSpacing: "0.08em",
@@ -508,49 +612,415 @@ function MatrixTable({ rows }: { rows: CompetitorCompareMatrixRow[] }) {
           color: "rgba(255,255,255,0.52)",
         }}
       >
-        <div>Feature</div>
-        <div>Competitor</div>
-        <div>WyreStorm</div>
-        <div>Status</div>
+        {label}
       </div>
+      <div style={{ fontSize: 18, fontWeight: 900, color: tone?.color || "#f8fafc" }}>
+        {value}
+      </div>
+      <div style={{ fontSize: 12, lineHeight: 1.4, color: "rgba(255,255,255,0.66)" }}>
+        {hint}
+      </div>
+    </div>
+  );
+}
 
-      {rows.map((row) => (
-        <div
-          key={row.id}
+function optionRowsForMatrix(
+  candidate: CompetitorCompareCandidate,
+  selectedOption: CompetitorCompareOption | undefined,
+): CompetitorCompareOption[] {
+  if (!selectedOption) return candidate.options.slice(0, 3);
+
+  const ordered = [
+    selectedOption,
+    ...candidate.options.filter((option) => option.id !== selectedOption.id),
+  ];
+  return ordered.slice(0, 3);
+}
+
+function matrixHasSignal(value: string | undefined): boolean {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  return !["", "-", "0", "no"].includes(normalized);
+}
+
+function matrixRowsForOptions(
+  options: CompetitorCompareOption[],
+): CompetitorCompareMatrixRow[] {
+  const orderedRows: CompetitorCompareMatrixRow[] = [];
+  const seen = new Set<string>();
+
+  for (const option of options) {
+    for (const row of option.matrix) {
+      if (seen.has(row.id)) continue;
+      seen.add(row.id);
+      orderedRows.push(row);
+    }
+  }
+
+  const alwaysVisible = new Set(["primary-role", "transport", "inputs", "outputs"]);
+  return orderedRows.filter((row) => {
+    if (alwaysVisible.has(row.id)) return true;
+    const values = [
+      row.competitorValue,
+      ...options.map(
+        (option) =>
+          option.matrix.find((matrixRow) => matrixRow.id === row.id)?.wyrestormValue || "",
+      ),
+    ];
+    return values.some((value) => matrixHasSignal(value));
+  });
+}
+
+function ComparisonOptionMatrix(props: {
+  candidate: CompetitorCompareCandidate;
+  options: CompetitorCompareOption[];
+  selectedOptionId?: string;
+  onSelectOption: (
+    candidate: CompetitorCompareCandidate,
+    option: CompetitorCompareOption,
+  ) => void;
+}) {
+  const { candidate, options, selectedOptionId, onSelectOption } = props;
+  if (!options.length) return null;
+
+  const activeOption =
+    options.find((option) => option.id === selectedOptionId) || options[0];
+  const baseRows = matrixRowsForOptions(options);
+  const positiveItems = Array.from(
+    new Set([
+      ...(activeOption?.highlights.matches ?? []),
+      ...(activeOption?.highlights.extras ?? []),
+    ]),
+  ).slice(0, 6);
+  const negativeItems = Array.from(
+    new Set([
+      ...(activeOption?.highlights.gaps ?? []),
+      ...(activeOption?.highlights.reviews ?? []),
+      ...(activeOption?.cautions ?? []),
+    ]),
+  ).slice(0, 6);
+  const template = `minmax(160px, 0.95fr) minmax(96px, 0.55fr) repeat(${options.length}, minmax(120px, 0.7fr))`;
+
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ display: "grid", gap: 4 }}>
+          <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.52)" }}>
+            Comparison matrix
+          </div>
+          <div style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", lineHeight: 1.45 }}>
+            Compare the competitor baseline against the closest WyreStorm options side by side.
+          </div>
+        </div>
+
+        <span
           style={{
-            display: "grid",
-            gridTemplateColumns: "1.2fr 1fr 1fr auto",
-            gap: 8,
-            alignItems: "start",
-            padding: "10px 12px",
-            borderRadius: 12,
-            border: "1px solid rgba(255,255,255,0.06)",
-            background: "rgba(255,255,255,0.03)",
+            ...pillStyle(),
+            color: "#cbd5e1",
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.08)",
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700 }}>{row.label}</div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.84)" }}>{row.competitorValue}</div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.84)" }}>{row.wyrestormValue}</div>
-          <div>
-            <span style={{ ...pillStyle(), ...matrixTone(row.status), height: 26 }}>
-              {row.status}
-            </span>
-          </div>
-          {row.note ? (
+          {options.length} close match{options.length === 1 ? "" : "es"}
+        </span>
+      </div>
+
+      <div style={{ overflowX: "auto" }}>
+        <div style={{ minWidth: 760, display: "grid", gap: 8 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: template,
+              gap: 8,
+            }}
+          >
             <div
               style={{
-                gridColumn: "1 / -1",
-                fontSize: 12,
-                color: "rgba(255,255,255,0.62)",
-                lineHeight: 1.45,
-                marginTop: 2,
+                padding: 10,
+                borderRadius: 14,
+                border: "1px solid rgba(255,255,255,0.06)",
+                background: "rgba(255,255,255,0.03)",
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.52)",
               }}
             >
-              {row.note}
+              Feature
             </div>
-          ) : null}
+            <div
+              style={{
+                padding: 10,
+                borderRadius: 14,
+                border: "1px solid rgba(255,255,255,0.06)",
+                background: "rgba(255,255,255,0.03)",
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.52)",
+              }}
+            >
+              Competitor baseline
+            </div>
+            {options.map((option) => {
+              const active = option.id === selectedOptionId;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => onSelectOption(candidate, option)}
+                  style={{
+                    padding: 12,
+                    borderRadius: 14,
+                    border: active
+                      ? "1px solid rgba(74,222,128,0.28)"
+                      : "1px solid rgba(255,255,255,0.08)",
+                    background: active
+                      ? "linear-gradient(180deg, rgba(8,26,20,0.96), rgba(5,18,15,0.96))"
+                      : "rgba(255,255,255,0.04)",
+                    color: "#fff",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    display: "grid",
+                    gap: 6,
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "start" }}>
+                    <div style={{ display: "grid", gap: 4 }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.52)" }}>
+                        {option.label}
+                      </div>
+                      <div style={{ fontSize: 18, lineHeight: 1.1, fontWeight: 900 }}>
+                        {option.wyrestormSku}
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 20, lineHeight: 1, fontWeight: 900 }}>
+                      {formatPercent(option.fitScore)}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    <span style={{ ...pillStyle(), ...matchMethodTone(option.matchBasis.method), height: 26 }}>
+                      {matchMethodLabel(option.matchBasis.method)}
+                    </span>
+                    <span
+                      style={{
+                        ...pillStyle(),
+                        color: "#cbd5e1",
+                        background: "rgba(255,255,255,0.05)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        height: 26,
+                      }}
+                    >
+                      I/O {coverageLevelLabel(option.ioBreakdown.overallParity)}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {baseRows.map((baseRow) => (
+            <div
+              key={baseRow.id}
+              style={{
+                display: "grid",
+                gridTemplateColumns: template,
+                gap: 8,
+                alignItems: "stretch",
+              }}
+            >
+              <div
+                style={{
+                  padding: "12px 10px",
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "rgba(255,255,255,0.03)",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <div style={{ fontSize: 13, fontWeight: 800 }}>{baseRow.label}</div>
+              </div>
+
+              <div
+                style={{
+                  padding: "12px 10px",
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "rgba(255,255,255,0.03)",
+                  fontSize: 14,
+                  fontWeight: 800,
+                  color: "#f8fafc",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textAlign: "center",
+                }}
+              >
+                {baseRow.competitorValue}
+              </div>
+
+              {options.map((option) => {
+                const row =
+                  option.matrix.find((matrixRow) => matrixRow.id === baseRow.id) ||
+                  baseRow;
+                return (
+                  <div
+                    key={`${option.id}:${baseRow.id}`}
+                    style={{
+                      padding: "12px 10px",
+                      borderRadius: 14,
+                      ...matrixTone(row.status),
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textAlign: "center",
+                    }}
+                  >
+                    <div style={{ fontSize: 14, fontWeight: 800, lineHeight: 1.3 }}>
+                      {row.wyrestormValue}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gap: 12,
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+        }}
+      >
+        <div
+          style={{
+            padding: 12,
+            borderRadius: 14,
+            color: "#bbf7d0",
+            background: "rgba(34,197,94,0.10)",
+            border: "1px solid rgba(34,197,94,0.22)",
+            display: "grid",
+            gap: 8,
+          }}
+        >
+          <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            Positive differences
+          </div>
+          <div style={{ display: "grid", gap: 6 }}>
+            {(positiveItems.length > 0
+              ? positiveItems
+              : ["No major positive differences were captured for this option."]).map((item) => (
+              <div key={item} style={{ fontSize: 13, lineHeight: 1.45 }}>
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div
+          style={{
+            padding: 12,
+            borderRadius: 14,
+            color: "#fecaca",
+            background: "rgba(239,68,68,0.10)",
+            border: "1px solid rgba(239,68,68,0.22)",
+            display: "grid",
+            gap: 8,
+          }}
+        >
+          <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            Negative differences
+          </div>
+          <div style={{ display: "grid", gap: 6 }}>
+            {(negativeItems.length > 0
+              ? negativeItems
+              : ["No major negative differences were captured for this option."]).map((item) => (
+              <div key={item} style={{ fontSize: 13, lineHeight: 1.45 }}>
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function IoDeltaGroup(props: {
+  title: string;
+  coverage: number;
+  parity: CompetitorCompareCoverageLevel;
+  competitorTotal: number;
+  wyrestormTotal: number;
+  deltas: CompetitorComparePortDelta[];
+}) {
+  const { title, coverage, parity, competitorTotal, wyrestormTotal, deltas } = props;
+  const visibleDeltas = deltas.filter(
+    (delta) => delta.competitorCount > 0 || delta.wyrestormCount > 0,
+  );
+
+  return (
+    <div
+      style={{
+        padding: 12,
+        borderRadius: 14,
+        border: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(255,255,255,0.04)",
+        display: "grid",
+        gap: 10,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
+        <div style={{ display: "grid", gap: 4 }}>
+          <div style={{ fontSize: 14, fontWeight: 900 }}>{title}</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.64)" }}>
+            Competitor {competitorTotal} · WyreStorm {wyrestormTotal}
+          </div>
+        </div>
+        <span style={{ ...pillStyle(), ...coverageLevelTone(parity), height: 26 }}>
+          {coverage}% · {coverageLevelLabel(parity)}
+        </span>
+      </div>
+
+      {visibleDeltas.length > 0 ? (
+        <div style={{ display: "grid", gap: 8 }}>
+          {visibleDeltas.map((delta) => (
+            <div
+              key={`${title}:${delta.type}`}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "minmax(0, 1fr) auto auto",
+                gap: 8,
+                alignItems: "center",
+                padding: "8px 10px",
+                borderRadius: 12,
+                ...portDeltaTone(delta.state),
+              }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 700 }}>{delta.type.toUpperCase()}</div>
+              <div style={{ fontSize: 12 }}>Competitor {delta.competitorCount}</div>
+              <div style={{ fontSize: 12 }}>WyreStorm {delta.wyrestormCount}</div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.62)", lineHeight: 1.45 }}>
+          No explicit {title.toLowerCase()} were captured on the competitor record.
+        </div>
+      )}
     </div>
   );
 }
@@ -566,7 +1036,6 @@ function ResultCard(props: {
     candidate: CompetitorCompareCandidate,
     option: CompetitorCompareOption,
   ) => void;
-  onVerifyCandidate: (candidate: CompetitorCompareCandidate) => void;
   onAskWyreStorm?: (
     candidate: CompetitorCompareCandidate,
     option: CompetitorCompareOption | undefined,
@@ -580,7 +1049,6 @@ function ResultCard(props: {
     showAskWyreStorm,
     onSelectCandidate,
     onSelectOption,
-    onVerifyCandidate,
     onAskWyreStorm,
   } = props;
 
@@ -588,6 +1056,7 @@ function ResultCard(props: {
     candidate.options.find((option) => option.id === selectedOptionId) ||
     candidate.primaryOption ||
     candidate.options[0];
+  const matrixOptions = optionRowsForMatrix(candidate, selectedOption);
 
   const score =
     selectedOption?.fitScore ??
@@ -595,7 +1064,14 @@ function ResultCard(props: {
     liveResult?.record?.matchScore ??
     0;
 
-  const decisionSummary = decisionSummaryFor(candidate, selectedOption, liveResult, score);
+  const decisionSummary = decisionSummaryFor(candidate, selectedOption, liveResult);
+  const transportStep = selectedOption?.decisionWorkflow.find(
+    (step) => step.id === "transport",
+  );
+  const workflowStep = selectedOption?.decisionWorkflow.find(
+    (step) => step.id === "workflow",
+  );
+  const specStep = selectedOption?.decisionWorkflow.find((step) => step.id === "specs");
 
   return (
     <div
@@ -613,9 +1089,11 @@ function ResultCard(props: {
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start" }}>
-        <div style={{ display: "grid", gap: 6, minWidth: 0 }}>
+        <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            <span style={{ ...pillStyle(), ...bandTone(score) }}>{bandLabel(score)}</span>
+            <span style={{ ...pillStyle(), ...matchMethodTone(selectedOption?.matchBasis.method) }}>
+              {matchMethodLabel(selectedOption?.matchBasis.method)}
+            </span>
             <span
               style={{
                 ...pillStyle(),
@@ -623,9 +1101,9 @@ function ResultCard(props: {
                 background: "rgba(255,255,255,0.05)",
                 border: "1px solid rgba(255,255,255,0.08)",
               }}
-            >
+              >
                 Confidence {confidenceLabel(score)}
-              </span>
+            </span>
             <span
               style={{
                 ...pillStyle(),
@@ -647,13 +1125,21 @@ function ResultCard(props: {
                 }}
               >
                 <ShieldCheck size={13} style={{ marginRight: 6 }} />
-                Live verified
+                Live lookup
               </span>
             ) : null}
           </div>
 
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.68)", fontWeight: 700 }}>
-            {candidate.comparison.brand} {candidate.comparison.competitorSku}
+          <div style={{ display: "grid", gap: 6 }}>
+            <div style={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.52)", fontWeight: 800 }}>
+              Competitor SKU
+            </div>
+            <div style={{ fontSize: 16, lineHeight: 1.2, fontWeight: 900 }}>
+              {candidate.comparison.brand} {candidate.comparison.competitorSku}
+            </div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.68)", lineHeight: 1.45 }}>
+              {candidate.comparison.competitorName || candidate.comparison.summary || "Competitor baseline selected for comparison."}
+            </div>
           </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -669,12 +1155,15 @@ function ResultCard(props: {
             </span>
           </div>
 
-          <div style={{ fontSize: 22, lineHeight: 1.1, fontWeight: 900 }}>
+          <div style={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.52)", fontWeight: 800 }}>
+            Selected WyreStorm option
+          </div>
+          <div style={{ fontSize: 24, lineHeight: 1.1, fontWeight: 900 }}>
             {selectedOption?.wyrestormSku || candidate.comparison.wyrestormSku || "No mapped SKU"}
           </div>
 
           <div style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", lineHeight: 1.45 }}>
-            {selectedOption?.label || "Best WyreStorm fit"}
+            {selectedOption?.wyrestormName || selectedOption?.label || "Best WyreStorm fit"}
           </div>
         </div>
 
@@ -697,7 +1186,7 @@ function ResultCard(props: {
 
       <div style={{ display: "grid", gap: 8 }}>
         <div style={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.52)", fontWeight: 800 }}>
-          Why this won
+          Summary
         </div>
         <div
           style={{
@@ -752,6 +1241,45 @@ function ResultCard(props: {
       <div
         style={{
           display: "grid",
+          gap: 10,
+          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+        }}
+      >
+        {metricCard(
+          "Method",
+          matchMethodLabel(selectedOption?.matchBasis.method),
+          selectedOption?.label || "Current candidate label",
+          matchMethodTone(selectedOption?.matchBasis.method),
+        )}
+        {metricCard(
+          "Transport",
+          selectedOption?.matchBasis.transportAlignment ? "Aligned" : "Review",
+          transportStep?.summary || "Transport not fully captured",
+          decisionTone(transportStep?.status || "warn"),
+        )}
+        {metricCard(
+          "I/O parity",
+          coverageLevelLabel(selectedOption?.ioBreakdown.overallParity),
+          `${selectedOption?.ioBreakdown.ioCoveragePercent ?? 0}% of captured I/O covered`,
+          coverageLevelTone(selectedOption?.ioBreakdown.overallParity),
+        )}
+        {metricCard(
+          "Workflow",
+          `${selectedOption?.matchBasis.workflowCoveragePercent ?? 0}%`,
+          workflowStep?.summary || "Workflow baseline not fully captured",
+          decisionTone(workflowStep?.status || "warn"),
+        )}
+        {metricCard(
+          "Specs",
+          `${selectedOption?.matchBasis.specCoveragePercent ?? 0}%`,
+          specStep?.summary || "Spec baseline not fully captured",
+          decisionTone(specStep?.status || "warn"),
+        )}
+      </div>
+
+      <div
+        style={{
+          display: "grid",
           gap: 8,
           padding: 12,
           borderRadius: 14,
@@ -786,44 +1314,119 @@ function ResultCard(props: {
         </div>
       </div>
 
-      <MatrixTable rows={selectedOption?.matrix ?? []} />
+      <ComparisonOptionMatrix
+        candidate={candidate}
+        options={matrixOptions}
+        selectedOptionId={selectedOption?.id}
+        onSelectOption={onSelectOption}
+      />
 
-      {candidate.options.length > 1 ? (
-        <div style={{ display: "grid", gap: 8 }}>
+      <div
+        style={{
+          display: "grid",
+          gap: 12,
+          gridTemplateColumns: "minmax(0, 1.1fr) minmax(0, 0.9fr)",
+          alignItems: "start",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gap: 10,
+            padding: 12,
+            borderRadius: 14,
+            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(255,255,255,0.04)",
+          }}
+        >
           <div style={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.52)", fontWeight: 800 }}>
-            Other WyreStorm options
+            Decision workflow
           </div>
+          <div style={{ display: "grid", gap: 10 }}>
+            {(selectedOption?.decisionWorkflow ?? []).map((step) => (
+              <div
+                key={step.id}
+                style={{
+                  padding: "10px 12px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "rgba(255,255,255,0.03)",
+                  display: "grid",
+                  gap: 8,
+                }}
+              >
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                    <div style={{ fontSize: 14, fontWeight: 900 }}>{step.title}</div>
+                    <span style={{ ...pillStyle(), ...decisionTone(step.status), height: 24 }}>
+                      {step.status}
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      ...pillStyle(),
+                      color: "#cbd5e1",
+                      background: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      height: 24,
+                    }}
+                  >
+                    {step.weight}% weight
+                  </span>
+                </div>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {candidate.options.map((option) => {
-              const isActive = option.id === selectedOption?.id;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => onSelectOption(candidate, option)}
-                  style={{
-                    height: 34,
-                    padding: "0 12px",
-                    borderRadius: 10,
-                    border: isActive
-                      ? "1px solid rgba(74,222,128,0.26)"
-                      : "1px solid rgba(255,255,255,0.08)",
-                    background: isActive
-                      ? "rgba(34,197,94,0.10)"
-                      : "rgba(255,255,255,0.04)",
-                    color: "#fff",
-                    fontWeight: 800,
-                    cursor: "pointer",
-                  }}
-                >
-                  {option.wyrestormSku} · {formatPercent(option.fitScore)}
-                </button>
-              );
-            })}
+                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.84)", lineHeight: 1.45 }}>
+                  {step.summary}
+                </div>
+                {step.detail ? (
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.62)", lineHeight: 1.45 }}>
+                    {step.detail}
+                  </div>
+                ) : null}
+              </div>
+            ))}
           </div>
         </div>
-      ) : null}
+
+        <div style={{ display: "grid", gap: 12 }}>
+          <div
+            style={{
+              display: "grid",
+              gap: 10,
+              padding: 12,
+              borderRadius: 14,
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.04)",
+            }}
+          >
+            <div style={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.52)", fontWeight: 800 }}>
+              I/O parity
+            </div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.74)", lineHeight: 1.45 }}>
+              {selectedOption?.ioBreakdown.summary}
+            </div>
+
+            <div style={{ display: "grid", gap: 10 }}>
+              <IoDeltaGroup
+                title="Inputs"
+                coverage={selectedOption?.ioBreakdown.inputCoveragePercent ?? 0}
+                parity={selectedOption?.ioBreakdown.inputParity || "unknown"}
+                competitorTotal={selectedOption?.ioBreakdown.competitorInputTotal ?? 0}
+                wyrestormTotal={selectedOption?.ioBreakdown.wyrestormInputTotal ?? 0}
+                deltas={selectedOption?.ioBreakdown.inputs ?? []}
+              />
+              <IoDeltaGroup
+                title="Outputs"
+                coverage={selectedOption?.ioBreakdown.outputCoveragePercent ?? 0}
+                parity={selectedOption?.ioBreakdown.outputParity || "unknown"}
+                competitorTotal={selectedOption?.ioBreakdown.competitorOutputTotal ?? 0}
+                wyrestormTotal={selectedOption?.ioBreakdown.wyrestormOutputTotal ?? 0}
+                deltas={selectedOption?.ioBreakdown.outputs ?? []}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         <button
@@ -841,27 +1444,6 @@ function ResultCard(props: {
           }}
         >
           {selected ? "Selected" : "Use this result"}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onVerifyCandidate(candidate)}
-          style={{
-            height: 36,
-            padding: "0 12px",
-            borderRadius: 10,
-            border: "1px solid rgba(96,165,250,0.22)",
-            background: "rgba(59,130,246,0.10)",
-            color: "#bfdbfe",
-            fontWeight: 800,
-            cursor: "pointer",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
-          <RefreshCw size={14} />
-          Verify live
         </button>
 
         {showAskWyreStorm && onAskWyreStorm ? (
@@ -913,7 +1495,6 @@ export default function CompetitorComparePage() {
     feedbackSummaryText(getCompetitorCompareFeedbackSummary()),
   );
   const localLookupTimer = React.useRef<number | null>(null);
-  const autoVerifyKey = React.useRef("");
 
   const effectiveResult = React.useMemo(
     () => ensureLiveCandidateInResult(searchResult, liveResult),
@@ -952,18 +1533,29 @@ export default function CompetitorComparePage() {
   );
 
   const trace = React.useMemo(
-    () => traceFor(effectiveResult, selectedCandidate, selectedOption, liveResult),
-    [effectiveResult, selectedCandidate, selectedOption, liveResult],
+    () => traceFor(searchResult, selectedCandidate, selectedOption, liveResult),
+    [searchResult, selectedCandidate, selectedOption, liveResult],
   );
 
   const modeLabel = React.useMemo(
-    () => modeLabelFor(effectiveResult, liveResult, running),
-    [effectiveResult, liveResult, running],
+    () => modeLabelFor(searchResult, liveResult, running),
+    [searchResult, liveResult, running],
   );
 
   const localMatches = React.useMemo(
-    () => finderSuggestions(effectiveResult),
-    [effectiveResult],
+    () => finderSuggestions(searchResult),
+    [searchResult],
+  );
+  const hasExactLocalMatch = React.useMemo(
+    () =>
+      searchResult.candidates.some(
+        (candidate) =>
+          candidate.exactSku &&
+          candidate.comparison.brand.trim().toLowerCase() === brand.trim().toLowerCase() &&
+          candidate.comparison.competitorSku.trim().toUpperCase() ===
+            sku.trim().toUpperCase(),
+      ),
+    [brand, searchResult, sku],
   );
 
   const hasCompareActivity =
@@ -1065,7 +1657,6 @@ export default function CompetitorComparePage() {
     }
 
     if (!nextBrand || !nextSku) {
-      autoVerifyKey.current = "";
       setSearchResult(searchCompetitorComparisons("", ""));
       setSelectedCandidateId(undefined);
       setSelectedOptionId(undefined);
@@ -1087,26 +1678,6 @@ export default function CompetitorComparePage() {
   }, [brand, sku, refreshSearch]);
 
   React.useEffect(() => {
-    const candidate = selectedCandidate;
-    if (!candidate || running) return;
-    if (!(candidate.exactSku || candidate.searchConfidence === "High")) return;
-
-    const key = `${brand.trim()}::${candidate.comparison.competitorSku}`;
-    if (!key.trim()) return;
-    if (autoVerifyKey.current === key) return;
-
-    const alreadyVerified =
-      liveResult?.record &&
-      liveResult.record.brand === candidate.comparison.brand &&
-      liveResult.record.competitorSku === candidate.comparison.competitorSku;
-
-    autoVerifyKey.current = key;
-    if (!alreadyVerified) {
-      void verifyLive(candidate.comparison.competitorSku);
-    }
-  }, [brand, selectedCandidate, running, liveResult, verifyLive]);
-
-  React.useEffect(() => {
     if (effectiveResult.status === "no-match" && liveResult?.record) {
       setManualPanelOpen(true);
     }
@@ -1117,7 +1688,9 @@ export default function CompetitorComparePage() {
     setSelectedOptionId(candidate.primaryOption?.id);
     setSku(candidate.comparison.competitorSku);
     setSaveMessage("");
-    void verifyLive(candidate.comparison.competitorSku);
+    if (candidate.sourceType !== "lookup") {
+      setLiveResult(null);
+    }
   }
 
   function handleSelectOption(
@@ -1181,7 +1754,7 @@ export default function CompetitorComparePage() {
           <div>
             <div className="wm-page-title">Competitor Comparison</div>
             <div className="wm-page-sub wm-compare-page__subtitle">
-              Live lookup, scored WyreStorm fit, and a clearer side-by-side feature matrix.
+              Compare stored competitor SKUs locally, and only use live lookup when the exact SKU is missing from Wingman's library.
             </div>
           </div>
         </section>
@@ -1195,15 +1768,13 @@ export default function CompetitorComparePage() {
               brand={brand}
               sku={sku}
               running={running}
-              hasLocalMatch={effectiveResult.candidates.length > 0}
+              hasLocalMatch={hasExactLocalMatch}
               localMatches={localMatches}
               onBrandChange={setBrand}
               onSkuChange={setSku}
               onRun={(mode) => {
                 if (mode === "web") {
-                  void verifyLive(
-                    selectedCandidate?.comparison.competitorSku || sku.trim(),
-                  );
+                  void verifyLive(sku.trim());
                   return;
                 }
                 refreshSearch(brand.trim(), sku.trim());
@@ -1256,7 +1827,7 @@ export default function CompetitorComparePage() {
                         }}
                       >
                         <ShieldCheck size={13} style={{ marginRight: 6 }} />
-                        Live verified
+                        Live lookup
                       </span>
                     ) : null}
 
@@ -1293,19 +1864,16 @@ export default function CompetitorComparePage() {
                             : candidate.primaryOption?.id
                         }
                       liveResult={liveResult}
-                      showAskWyreStorm={
-                        askWyreStormVisible &&
-                        candidate.id === selectedCandidate?.id
-                      }
-                      onSelectCandidate={handleSelectCandidate}
-                      onSelectOption={handleSelectOption}
-                      onVerifyCandidate={(nextCandidate) =>
-                        void verifyLive(nextCandidate.comparison.competitorSku)
-                      }
-                      onAskWyreStorm={handleAskWyreStorm}
-                    />
-                  ))}
-                </div>
+                        showAskWyreStorm={
+                          askWyreStormVisible &&
+                          candidate.id === selectedCandidate?.id
+                        }
+                        onSelectCandidate={handleSelectCandidate}
+                        onSelectOption={handleSelectOption}
+                        onAskWyreStorm={handleAskWyreStorm}
+                      />
+                    ))}
+                  </div>
                 ) : null}
               </div>
 
@@ -1324,7 +1892,7 @@ export default function CompetitorComparePage() {
                     modeLabel={modeLabel}
                     running={running}
                     title="Lookup status"
-                    subtitle="See what came from the local comparison library, what was verified live, and whether the match still needs clarification."
+                    subtitle="See what came from the local comparison library, what was pulled in by live lookup, and whether the match still needs clarification."
                     insight={
                       selectedCandidate
                         ? `${stateLabelForCandidate(selectedCandidate)}. ${comparisonClassWarning(selectedCandidate)}`
@@ -1449,7 +2017,7 @@ export default function CompetitorComparePage() {
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                      <div style={{ fontSize: 14, fontWeight: 900 }}>Verified source</div>
+                      <div style={{ fontSize: 14, fontWeight: 900 }}>Lookup source</div>
                       <ExternalLink size={15} />
                     </div>
                     <div style={{ fontSize: 12, color: "rgba(255,255,255,0.70)", lineHeight: 1.45 }}>
@@ -1458,7 +2026,7 @@ export default function CompetitorComparePage() {
                   </a>
                 ) : null}
 
-                {effectiveResult.status === "no-match" ? (
+                {searchResult.status === "no-match" && !liveResult?.record ? (
                   <div
                     className="wm-card"
                     style={{
@@ -1471,10 +2039,10 @@ export default function CompetitorComparePage() {
                   >
                     <div style={{ display: "flex", gap: 8, alignItems: "center", color: "#fecaca", fontWeight: 900 }}>
                       <XCircle size={16} />
-                      No clean local match
+                      SKU not stored locally
                     </div>
                     <div style={{ color: "rgba(255,255,255,0.72)", fontSize: 13, lineHeight: 1.5 }}>
-                      Use manual override to save a known replacement or run live verification again after refining the SKU.
+                      Use Look up SKU to scrape the live product page, then save a local override if this is a repeat comparison.
                     </div>
                     {askWyreStormVisible ? (
                       <button
@@ -1529,7 +2097,7 @@ export default function CompetitorComparePage() {
                 </span>
 
                 <span style={{ color: "rgba(255,255,255,0.78)", lineHeight: 1.5 }}>
-                  Start typing a competitor SKU or model to shortlist likely WyreStorm fits.
+                  Pick a stored competitor SKU to compare locally, or type a missing SKU and use Look up SKU to pull live specs into the matrix.
                 </span>
               </div>
             </div>

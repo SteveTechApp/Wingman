@@ -182,8 +182,8 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
   );
   const localMatchState = hasLocalMatch || derivedHasLocalMatch;
   const noLocalMatch = brand !== "" && hasTypedQuery && !localMatchState;
-  const canSearchWeb = brand !== "" && hasTypedQuery && !running;
-  const searchWebHighlighted = noLocalMatch;
+  const canSearchWeb = noLocalMatch && !running;
+  const searchWebHighlighted = noLocalMatch && !running;
 
   function handleBrandChange(value: string) {
     fireSetter(onBrandChange, value);
@@ -201,7 +201,11 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
   }
 
   function handleSearchWeb() {
-    if (onRun && sku.trim()) {
+    if (!noLocalMatch || !sku.trim()) {
+      return;
+    }
+
+    if (onRun) {
       onRun("web");
       return;
     }
@@ -219,7 +223,7 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
       <div style={{ display: "grid", gap: 6 }}>
         <div style={{ fontSize: 18, fontWeight: 800 }}>Competitor comparison</div>
         <div style={{ fontSize: 13, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
-          Pick a competitor brand, choose a stored SKU, or type a missing one and search the web to pull it into the compare flow.
+          Pick a competitor brand and compare a stored SKU locally. If the exact SKU is missing, use Look up SKU to scrape the live product page and feed the compare matrix.
         </div>
       </div>
 
@@ -344,28 +348,30 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
                     lineHeight: 1.45,
                   }}
                 >
-                  No stored SKU matches yet. Search the web for this model.
+                  No stored SKU matches yet. Use Look up SKU for this model.
                 </div>
               )}
 
-              <button
-                type="button"
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={handleSearchWeb}
-                style={{
-                  width: "100%",
-                  textAlign: "left",
-                  padding: "12px 14px",
-                  border: "none",
-                  borderTop: "1px solid rgba(255,255,255,0.08)",
-                  background: "rgba(59,130,246,0.10)",
-                  color: "#dbeafe",
-                  cursor: "pointer",
-                  fontWeight: 800,
-                }}
-              >
-                {hasTypedQuery ? `Search the web for "${sku.trim()}"` : "Search the web"}
-              </button>
+              {noLocalMatch ? (
+                <button
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={handleSearchWeb}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "12px 14px",
+                    border: "none",
+                    borderTop: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(59,130,246,0.10)",
+                    color: "#dbeafe",
+                    cursor: "pointer",
+                    fontWeight: 800,
+                  }}
+                >
+                  {hasTypedQuery ? `Look up SKU "${sku.trim()}"` : "Look up SKU"}
+                </button>
+              ) : null}
             </div>
           ) : null}
 
@@ -376,17 +382,19 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
               </span>
             ) : noLocalMatch ? (
               <span style={{ color: "rgba(255,190,92,0.92)" }}>
-                This SKU is not in the stored list. Search the web, confirm it, then save it into the comparison library.
+                This exact SKU is not in the local library. Use Look up SKU to scrape the live spec page, then compare the returned match.
               </span>
             ) : skuOptions.length === 0 ? (
               <span style={{ color: "rgba(255,255,255,0.45)" }}>
-                No stored products for this brand yet. Type a SKU and search the web.
+                No stored products for this brand yet. Type a SKU and use Look up SKU.
               </span>
             ) : hasTypedQuery && localMatchState ? (
-              <span style={{ color: "rgba(122,236,160,0.88)" }}>Stored product selected.</span>
+              <span style={{ color: "rgba(122,236,160,0.88)" }}>
+                Stored SKU found. Wingman will compare it locally.
+              </span>
             ) : (
               <span style={{ color: "rgba(255,255,255,0.45)" }}>
-                Pick a stored model or type a missing SKU to search the web.
+                Pick a stored model, or type a missing SKU to unlock live lookup.
               </span>
             )}
           </div>
@@ -394,7 +402,7 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
 
         <div style={{ display: "grid", gap: 8 }}>
           <label style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.3, opacity: 0.9 }}>
-            Search
+            Lookup
           </label>
           <button
             type="button"
@@ -418,7 +426,11 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
               boxShadow: searchWebHighlighted ? "0 0 0 3px rgba(255,190,92,0.10)" : "none",
             }}
           >
-            {running ? "Verifying..." : "Verify Live"}
+            {running
+              ? "Looking up..."
+              : localMatchState
+                ? "Stored locally"
+                : "Look up SKU"}
           </button>
         </div>
       </div>

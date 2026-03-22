@@ -610,41 +610,6 @@ const STEP_SHORT_LABELS: Record<GuidedProjectStep, string> = {
   3: "Checks",
 };
 
-const TOP_BAR_RESOLUTION_OPTIONS = [
-  { value: "1080p", shortLabel: "1080p", detail: "Full HD" },
-  { value: "4K 30Hz 4:4:4", shortLabel: "4K30", detail: "Entry 4K" },
-  { value: "4K 60Hz 4:4:4", shortLabel: "4K60", detail: "Standard 4K" },
-  { value: "5K", shortLabel: "5K", detail: "Ultra-wide" },
-  { value: "8K", shortLabel: "8K", detail: "High-end" },
-  { value: "Custom", shortLabel: "Mixed", detail: "Custom mix" },
-] as const;
-
-const TOP_BAR_RESOLUTION_VALUES = new Set(
-  TOP_BAR_RESOLUTION_OPTIONS.map((option) => option.value),
-);
-
-function getTopBarResolutionValue(signalFormats: string | undefined) {
-  const selected = parseGuidedProjectSelections(signalFormats).filter((item) =>
-    TOP_BAR_RESOLUTION_VALUES.has(item as (typeof TOP_BAR_RESOLUTION_OPTIONS)[number]["value"]),
-  );
-
-  if (selected.length === 1 && selected[0] !== "Custom") {
-    return selected[0];
-  }
-
-  if (selected.length > 0) {
-    return "Custom";
-  }
-
-  return "";
-}
-
-function getTopBarResolutionHint(selectedResolution: string) {
-  if (!selectedResolution) return "Set the target display format early.";
-  if (selectedResolution === "Custom") return "Mixed or custom display formats are in play.";
-  return `${selectedResolution} is the active display target.`;
-}
-
 const COMPACT_STEP_ONE_SUMMARY_IDS: Array<keyof GuidedProjectRecord> = [
   "matrixIoPreset",
   "sourceCount",
@@ -868,8 +833,6 @@ export default function DiscoveryWizardPage() {
     : draftSavedAt
       ? `Draft saved ${draftSavedAt}`
       : `Progress ${totalDone}/${totalFields}`;
-  const selectedTopBarResolution = getTopBarResolutionValue(record.signalFormats);
-  const topBarResolutionHint = getTopBarResolutionHint(selectedTopBarResolution);
   const switchDecisionHint =
     activeMatrixPreset == null && record.switchSolutionType.toLowerCase().includes("matrix")
       ? "Next up: lock the preset I/O layout, then label each source in order."
@@ -1399,7 +1362,7 @@ export default function DiscoveryWizardPage() {
               <button className="wm-ui__btn wm-ui__btn--ghost" onClick={reset}>
                 Start blank
               </button>
-              <button className="wm-ui__btn" onClick={() => navigate(WM_ROUTES.newProject)}>
+              <button className="wm-ui__btn" onClick={() => navigate(WM_ROUTES.projectLauncher)}>
                 Project launcher
               </button>
             </div>
@@ -1426,26 +1389,6 @@ export default function DiscoveryWizardPage() {
                   </span>
                 </button>
               ))}
-            </div>
-            <div className="wm-guided-project-page__resolutionRail">
-              <div className="wm-guided-project-page__resolutionHead">
-                <span className="wm-guided-project-page__resolutionLabel">Output resolution</span>
-                <span className="wm-guided-project-page__resolutionHint">{topBarResolutionHint}</span>
-              </div>
-              <div className="wm-guided-project-page__resolutionTabs">
-                {TOP_BAR_RESOLUTION_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={`wm-guided-project-page__resolutionTab${selectedTopBarResolution === option.value ? " is-active" : ""}`}
-                    onClick={() => updateField("signalFormats", option.value)}
-                    aria-pressed={selectedTopBarResolution === option.value}
-                  >
-                    <span className="wm-guided-project-page__resolutionTabValue">{option.shortLabel}</span>
-                    <span className="wm-guided-project-page__resolutionTabDetail">{option.detail}</span>
-                  </button>
-                ))}
-              </div>
             </div>
             <div className="wm-guided-project-page__workflowMeta">
               <span className="wm-guided-project-page__quickPill">Step {activeStep + 1} of {GUIDED_PROJECT_STEPS.length}</span>

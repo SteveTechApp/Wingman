@@ -40,6 +40,81 @@ export type CompetitorCompareMatrixRow = {
   note?: string;
 };
 
+export type CompetitorCompareDecisionStatus = "pass" | "warn" | "fail";
+
+export type CompetitorCompareCoverageLevel =
+  | "exact"
+  | "covers"
+  | "partial"
+  | "missing"
+  | "unknown";
+
+export type CompetitorComparePortDeltaState =
+  | "match"
+  | "extra"
+  | "short"
+  | "unknown";
+
+export type CompetitorComparePortDelta = {
+  type: string;
+  competitorCount: number;
+  wyrestormCount: number;
+  state: CompetitorComparePortDeltaState;
+};
+
+export type CompetitorCompareIoBreakdown = {
+  competitorInputTotal: number;
+  wyrestormInputTotal: number;
+  competitorOutputTotal: number;
+  wyrestormOutputTotal: number;
+  inputCoveragePercent: number;
+  outputCoveragePercent: number;
+  ioCoveragePercent: number;
+  inputParity: CompetitorCompareCoverageLevel;
+  outputParity: CompetitorCompareCoverageLevel;
+  overallParity: CompetitorCompareCoverageLevel;
+  inputs: CompetitorComparePortDelta[];
+  outputs: CompetitorComparePortDelta[];
+  summary: string;
+};
+
+export type CompetitorCompareDecisionStep = {
+  id: string;
+  title: string;
+  weight: number;
+  status: CompetitorCompareDecisionStatus;
+  summary: string;
+  detail?: string;
+};
+
+export type CompetitorCompareMatchMethod =
+  | "direct-replacement"
+  | "covers-brief"
+  | "functional-alternative"
+  | "manual-review";
+
+export type CompetitorCompareMatchBasis = {
+  method: CompetitorCompareMatchMethod;
+  classAlignment: boolean;
+  transportAlignment: boolean;
+  inputParity: CompetitorCompareCoverageLevel;
+  outputParity: CompetitorCompareCoverageLevel;
+  ioCoveragePercent: number;
+  workflowCoveragePercent: number;
+  specCoveragePercent: number;
+  blockerCount: number;
+  blockers: string[];
+  warningCount: number;
+  summary: string;
+};
+
+export type CompetitorCompareHighlights = {
+  matches: string[];
+  gaps: string[];
+  extras: string[];
+  reviews: string[];
+};
+
 export type CompetitorCompareOption = {
   id: string;
   label: string;
@@ -54,6 +129,10 @@ export type CompetitorCompareOption = {
   positioningReasons: string[];
   salesStory: string[];
   matrix: CompetitorCompareMatrixRow[];
+  decisionWorkflow: CompetitorCompareDecisionStep[];
+  ioBreakdown: CompetitorCompareIoBreakdown;
+  matchBasis: CompetitorCompareMatchBasis;
+  highlights: CompetitorCompareHighlights;
   sourceType: CompetitorCompareOptionSource;
 };
 
@@ -63,9 +142,37 @@ type RankedCandidate = {
   reasons: string[];
   notes: string[];
   ioSummary: string;
+  matrix: CompetitorCompareMatrixRow[];
+  decisionWorkflow: CompetitorCompareDecisionStep[];
+  ioBreakdown: CompetitorCompareIoBreakdown;
+  matchBasis: CompetitorCompareMatchBasis;
+  highlights: CompetitorCompareHighlights;
 };
 
-const MINIMUM_AUTOMATIC_MATCH_SCORE = 75;
+type PortSetAnalysis = {
+  deltas: CompetitorComparePortDelta[];
+  competitorTotal: number;
+  wyrestormTotal: number;
+  matchedTotal: number;
+  coverage: number;
+  level: CompetitorCompareCoverageLevel;
+  exact: boolean;
+  coversAll: boolean;
+  shortfalls: string[];
+  extras: string[];
+};
+
+type RequirementCoverage = {
+  label: string;
+  relevant: boolean;
+  ratio: number;
+  matched: string[];
+  missing: string[];
+  better?: boolean;
+  summary: string;
+};
+
+const MINIMUM_AUTOMATIC_MATCH_SCORE = 60;
 
 function tidy(value: unknown): string {
   return String(value ?? "").trim();
@@ -119,38 +226,91 @@ function normalizeFamilies(value: unknown): DiscoveryProductFamily[] {
 }
 
 function inferRecommendedFamilies(product: CatalogProduct): DiscoveryProductFamily[] {
-  const families: DiscoveryProductFamily[] = [];
+  const families = new Set<DiscoveryProductFamily>();
+  const classification = classifyCatalogProduct(product);
   const textBlob = [
     product.family,
     product.category,
     product.subcategory,
+    product.summary,
     product.transport,
     ...(product.features ?? []),
-  ]
-    .join(" ")
-    .toLowerCase();
+  ].join(" ").toLowerCase();
 
   if (
-    textBlob.includes("apollo") ||
-    textBlob.includes("presentation") ||
-    textBlob.includes("byod")
+    classification.group === "uc" ||
+    classification.primaryType.startsWith("uc-") ||
+    textBlob.includes("apollo")
   ) {
-    families.push("Apollo");
+    families.add("Apollo");
   }
-  if (textBlob.includes("hdbaset")) families.push("HDBaseT");
+  if (classification.group === "extender" || textBlob.includes("hdbaset")) {
+    families.add("HDBaseT");
+  }
   if (
+    classification.group === "avoip" ||
     textBlob.includes("avoip") ||
-    textBlob.includes("networkhd") ||
-    textBlob.includes("ip")
+    textBlob.includes("networkhd")
   ) {
-    families.push("AVoIP");
+    families.add("AVoIP");
   }
-  if (textBlob.includes("matrix")) families.push("Matrix");
-  if (textBlob.includes("usb")) families.push("USB Extension");
-  if (textBlob.includes("video wall")) families.push("Video Wall");
+  if (classification.group === "matrix" || textBlob.includes("matrix")) {
+    families.add("Matrix");
+  }
+  if (
+    classification.primaryType.includes("usb") ||
+    (classification.group === "extender" && textBlob.includes("usb")) ||
+    textBlob.includes("usb extension")
+  ) {
+    families.add("USB Extension");
+  }
+  if (
+    classification.group === "videowall" ||
+    textBlob.includes("video wall") ||
+    textBlob.includes("videowall")
+  ) {
+    families.add("Video Wall");
+  }
 
-  const deduped = Array.from(new Set(families));
-  return deduped.length > 0 ? deduped : ["Apollo"];
+  return Array.from(families);
+}
+
+function familyHintScore(
+  product: CatalogProduct,
+  families: DiscoveryProductFamily[],
+): number {
+  if (families.length === 0) return 0;
+  const text = normalizeId(
+    [
+      product.family,
+      product.category,
+      product.subcategory,
+      product.summary,
+      ...(product.features ?? []),
+    ].join(" "),
+  );
+
+  return families.reduce((score, family) => {
+    const token = normalizeId(family);
+    if (!token) return score;
+    if (normalizeId(product.family) === token) return score + 4;
+    if (text.includes(token)) return score + 2;
+    return score;
+  }, 0);
+}
+
+const WORKFLOW_PORT_TYPES = new Set([
+  "wirelesspresentation",
+  "wirelessconference",
+  "wirelesscasting",
+  "usbhost",
+  "usbdevice",
+  "usbperipheral",
+  "usbhub",
+]);
+
+function isWorkflowPortType(value: unknown): boolean {
+  return WORKFLOW_PORT_TYPES.has(normalizeId(value));
 }
 
 function asPortMap(ports?: CatalogPortCount[]): Map<string, number> {
@@ -163,10 +323,413 @@ function asPortMap(ports?: CatalogPortCount[]): Map<string, number> {
   return map;
 }
 
+function asComparablePortMap(ports?: CatalogPortCount[]): Map<string, number> {
+  const map = new Map<string, number>();
+  for (const port of ports ?? []) {
+    const type = normalizeId(port.type);
+    if (!type || isWorkflowPortType(type)) continue;
+    map.set(type, (map.get(type) ?? 0) + Math.max(0, Number(port.count) || 0));
+  }
+  return map;
+}
+
+function workflowPortLabels(ports?: CatalogPortCount[]): string[] {
+  return dedupeStrings(
+    (ports ?? [])
+      .filter((port) => isWorkflowPortType(port.type))
+      .map((port) => prettyPortType(port.type)),
+    4,
+  );
+}
+
+function joinNotes(parts: Array<string | undefined>): string | undefined {
+  const values = parts.map((part) => tidy(part)).filter(Boolean);
+  return values.length > 0 ? values.join(" ") : undefined;
+}
+
+function workflowPortNote(ports?: CatalogPortCount[]): string | undefined {
+  const labels = workflowPortLabels(ports);
+  if (labels.length === 0) return undefined;
+  return `${labels.join(", ")} are scored under workflow features rather than physical I/O parity.`;
+}
+
 function totalCount(map: Map<string, number>): number {
   let total = 0;
   for (const value of map.values()) total += value;
   return total;
+}
+
+function percentFromRatio(value: number): number {
+  return Math.round(clamp01(value) * 100);
+}
+
+function prettyPortType(value: string): string {
+  const text = tidy(value);
+  return text ? text.toUpperCase() : "Unknown";
+}
+
+function formatPortDeltaCounts(delta: CompetitorComparePortDelta): string {
+  return `${prettyPortType(delta.type)} ${delta.wyrestormCount}/${delta.competitorCount}`;
+}
+
+function levelForPortAnalysis(analysis: PortSetAnalysis): CompetitorCompareCoverageLevel {
+  if (analysis.competitorTotal === 0) return "unknown";
+  if (analysis.coversAll && analysis.exact) return "exact";
+  if (analysis.coversAll) return "covers";
+  if (analysis.matchedTotal <= 0) return "missing";
+  return "partial";
+}
+
+function combineCoverageLevels(
+  inputLevel: CompetitorCompareCoverageLevel,
+  outputLevel: CompetitorCompareCoverageLevel,
+): CompetitorCompareCoverageLevel {
+  const levels = [inputLevel, outputLevel];
+  const knownLevels = levels.filter((level) => level !== "unknown");
+  if (knownLevels.length === 0) return "unknown";
+  if (knownLevels.some((level) => level === "missing")) return "missing";
+  if (knownLevels.some((level) => level === "partial")) return "partial";
+  if (knownLevels.every((level) => level === "exact")) return "exact";
+  return "covers";
+}
+
+function describePortAnalysis(label: string, analysis: PortSetAnalysis): string {
+  if (analysis.level === "unknown") {
+    return `${label} requirements are not captured on the competitor record.`;
+  }
+  if (analysis.level === "exact") {
+    return `Exact ${label.toLowerCase()} parity.`;
+  }
+  if (analysis.level === "covers") {
+    if (analysis.extras.length > 0) {
+      return `${label} are fully covered with extra ${analysis.extras
+        .slice(0, 2)
+        .join(", ")}.`;
+    }
+    return `${label} are fully covered.`;
+  }
+  if (analysis.level === "partial") {
+    return `${label} shortfall on ${analysis.shortfalls.slice(0, 2).join(", ")}.`;
+  }
+  return `${label} do not cover the competitor requirement.`;
+}
+
+function analyzePortSet(
+  competitorPorts: CatalogPortCount[] | undefined,
+  wyrestormPorts: CatalogPortCount[] | undefined,
+): PortSetAnalysis {
+  const competitorMap = asComparablePortMap(competitorPorts);
+  const wyrestormMap = asComparablePortMap(wyrestormPorts);
+  const keys = Array.from(
+    new Set([...competitorMap.keys(), ...wyrestormMap.keys()]),
+  ).sort();
+
+  const deltas: CompetitorComparePortDelta[] = [];
+  const shortfalls: string[] = [];
+  const extras: string[] = [];
+  let matchedTotal = 0;
+  let exact = true;
+  let coversAll = true;
+
+  for (const type of keys) {
+    const competitorCount = competitorMap.get(type) ?? 0;
+    const wyrestormCount = wyrestormMap.get(type) ?? 0;
+    matchedTotal += Math.min(competitorCount, wyrestormCount);
+
+    let state: CompetitorComparePortDeltaState = "unknown";
+    if (competitorCount > 0 && wyrestormCount === competitorCount) {
+      state = "match";
+    } else if (competitorCount > 0 && wyrestormCount > competitorCount) {
+      state = "extra";
+      exact = false;
+      extras.push(formatPortDeltaCounts({ type, competitorCount, wyrestormCount, state }));
+    } else if (competitorCount > 0 && wyrestormCount > 0) {
+      state = "short";
+      exact = false;
+      coversAll = false;
+      shortfalls.push(formatPortDeltaCounts({ type, competitorCount, wyrestormCount, state }));
+    } else if (competitorCount > 0) {
+      state = "short";
+      exact = false;
+      coversAll = false;
+      shortfalls.push(formatPortDeltaCounts({ type, competitorCount, wyrestormCount, state }));
+    } else if (wyrestormCount > 0) {
+      state = "extra";
+      exact = false;
+      extras.push(formatPortDeltaCounts({ type, competitorCount, wyrestormCount, state }));
+    }
+
+    deltas.push({
+      type,
+      competitorCount,
+      wyrestormCount,
+      state,
+    });
+  }
+
+  const competitorTotal = totalCount(competitorMap);
+  const coverage =
+    competitorTotal > 0 ? clamp01(matchedTotal / competitorTotal) : 0;
+
+  const analysis: PortSetAnalysis = {
+    deltas,
+    competitorTotal,
+    wyrestormTotal: totalCount(wyrestormMap),
+    matchedTotal,
+    coverage,
+    level: "unknown",
+    exact,
+    coversAll,
+    shortfalls,
+    extras,
+  };
+  analysis.level = levelForPortAnalysis(analysis);
+  return analysis;
+}
+
+function analyzeFlagRequirement<T extends object>(
+  label: string,
+  competitorProfile: T | undefined,
+  wyrestormProfile: T | undefined,
+  definitions: ReadonlyArray<{ key: keyof T; label: string }>,
+): RequirementCoverage {
+  const needed = enabledCapabilityLabels(competitorProfile, definitions);
+  if (needed.length === 0) {
+    return {
+      label,
+      relevant: false,
+      ratio: 0,
+      matched: [],
+      missing: [],
+      summary: `${label} is not captured on the competitor record.`,
+    };
+  }
+
+  const available = enabledCapabilityLabels(wyrestormProfile, definitions);
+  const availableSet = new Set(available.map((value) => normalizeId(value)));
+  const matched = needed.filter((value) => availableSet.has(normalizeId(value)));
+  const missing = needed.filter((value) => !availableSet.has(normalizeId(value)));
+  const ratio = clamp01(matched.length / needed.length);
+
+  let summary = `${label} coverage ${percentFromRatio(ratio)}%.`;
+  if (missing.length > 0) {
+    summary = `${label} gap: ${missing.slice(0, 3).join(", ")}.`;
+  } else if (available.length > matched.length) {
+    summary = `${label} covers the requirement with extra capability.`;
+  }
+
+  return {
+    label,
+    relevant: true,
+    ratio,
+    matched,
+    missing,
+    better: available.length > matched.length && missing.length === 0,
+    summary,
+  };
+}
+
+function analyzeListRequirement(
+  label: string,
+  competitorValues: string[] | undefined,
+  wyrestormValues: string[] | undefined,
+): RequirementCoverage {
+  const needed = dedupeStrings(competitorValues ?? [], 12);
+  if (needed.length === 0) {
+    return {
+      label,
+      relevant: false,
+      ratio: 0,
+      matched: [],
+      missing: [],
+      summary: `${label} is not captured on the competitor record.`,
+    };
+  }
+
+  const available = dedupeStrings(wyrestormValues ?? [], 12);
+  const availableSet = new Set(available.map((value) => normalizeId(value)));
+  const matched = needed.filter((value) => availableSet.has(normalizeId(value)));
+  const missing = needed.filter((value) => !availableSet.has(normalizeId(value)));
+  const ratio = clamp01(matched.length / needed.length);
+
+  return {
+    label,
+    relevant: true,
+    ratio,
+    matched,
+    missing,
+    better: missing.length === 0 && available.length > matched.length,
+    summary:
+      missing.length > 0
+        ? `${label} gap: ${missing.slice(0, 3).join(", ")}.`
+        : `${label} overlap ${percentFromRatio(ratio)}%.`,
+  };
+}
+
+function analyzeNumericRequirement(
+  label: string,
+  competitorValue: number | undefined,
+  wyrestormValue: number | undefined,
+  unit = "",
+): RequirementCoverage {
+  const needed = Number(competitorValue) || 0;
+  if (needed <= 0) {
+    return {
+      label,
+      relevant: false,
+      ratio: 0,
+      matched: [],
+      missing: [],
+      summary: `${label} is not captured on the competitor record.`,
+    };
+  }
+
+  const available = Number(wyrestormValue) || 0;
+  const ratio = clamp01(available / needed);
+  const suffix = unit ? ` ${unit}` : "";
+
+  if (available >= needed) {
+    return {
+      label,
+      relevant: true,
+      ratio: 1,
+      matched: [`${available}${suffix}`],
+      missing: [],
+      better: available > needed,
+      summary: `${label} aligns at ${available}${suffix}.`,
+    };
+  }
+
+  return {
+    label,
+    relevant: true,
+    ratio,
+    matched: available > 0 ? [`${available}${suffix}`] : [],
+    missing: [`${needed}${suffix} required`],
+    summary:
+      available > 0
+        ? `${label} is below the competitor baseline (${available}${suffix} vs ${needed}${suffix}).`
+        : `${label} is missing (${needed}${suffix} required).`,
+  };
+}
+
+function analyzeRankedRequirement(
+  label: string,
+  competitorRank: number,
+  wyrestormRank: number,
+  competitorValue: string | undefined,
+  wyrestormValue: string | undefined,
+): RequirementCoverage {
+  if (competitorRank <= 0) {
+    return {
+      label,
+      relevant: false,
+      ratio: 0,
+      matched: [],
+      missing: [],
+      summary: `${label} is not captured on the competitor record.`,
+    };
+  }
+
+  if (wyrestormRank >= competitorRank && wyrestormRank > 0) {
+    return {
+      label,
+      relevant: true,
+      ratio: 1,
+      matched: [tidy(wyrestormValue) || "supported"],
+      missing: [],
+      better: wyrestormRank > competitorRank,
+      summary: `${label} aligns (${tidy(wyrestormValue) || "supported"}).`,
+    };
+  }
+
+  const ratio =
+    wyrestormRank > 0 ? clamp01(wyrestormRank / competitorRank) : 0;
+  return {
+    label,
+    relevant: true,
+    ratio,
+    matched: wyrestormRank > 0 ? [tidy(wyrestormValue) || "supported"] : [],
+    missing: [tidy(competitorValue) || "required"],
+    summary:
+      wyrestormRank > 0
+        ? `${label} trails the competitor baseline (${tidy(wyrestormValue) || "unknown"} vs ${tidy(competitorValue) || "required"}).`
+        : `${label} is missing (${tidy(competitorValue) || "required"}).`,
+  };
+}
+
+function analyzeBooleanRequirement(
+  label: string,
+  competitorValue: boolean | undefined,
+  wyrestormValue: boolean | undefined,
+): RequirementCoverage {
+  if (!competitorValue) {
+    return {
+      label,
+      relevant: false,
+      ratio: 0,
+      matched: [],
+      missing: [],
+      summary: `${label} is not captured on the competitor record.`,
+    };
+  }
+
+  return {
+    label,
+    relevant: true,
+    ratio: wyrestormValue ? 1 : 0,
+    matched: wyrestormValue ? [label] : [],
+    missing: wyrestormValue ? [] : [label],
+    summary: wyrestormValue
+      ? `${label} is covered.`
+      : `${label} is missing.`,
+  };
+}
+
+function averageRelevant(
+  items: RequirementCoverage[],
+  fallback = 0.6,
+): number {
+  const relevant = items.filter((item) => item.relevant);
+  if (relevant.length === 0) return fallback;
+  return clamp01(
+    relevant.reduce((total, item) => total + item.ratio, 0) / relevant.length,
+  );
+}
+
+function pickRequirementIssues(
+  items: RequirementCoverage[],
+  limit = 3,
+): string[] {
+  return items
+    .filter((item) => item.relevant && item.missing.length > 0)
+    .map((item) => item.summary)
+    .slice(0, limit);
+}
+
+function statusForCoverageLevel(
+  level: CompetitorCompareCoverageLevel,
+): CompetitorCompareDecisionStatus {
+  switch (level) {
+    case "exact":
+    case "covers":
+      return "pass";
+    case "partial":
+    case "unknown":
+      return "warn";
+    default:
+      return "fail";
+  }
+}
+
+function statusForCoverageRatio(
+  ratio: number,
+  hasRelevantRequirements: boolean,
+): CompetitorCompareDecisionStatus {
+  if (!hasRelevantRequirements) return "warn";
+  if (ratio >= 0.98) return "pass";
+  if (ratio >= 0.45) return "warn";
+  return "fail";
 }
 
 function scorePortCoverage(
@@ -539,6 +1102,19 @@ function formatPorts(ports?: CatalogPortCount[]): string {
   return values.length > 0 ? values.join(", ") : "-";
 }
 
+function formatComparablePorts(ports?: CatalogPortCount[]): string {
+  const values = (ports ?? [])
+    .filter((port) => !isWorkflowPortType(port.type))
+    .map((port) => {
+      const type = tidy(port.type);
+      const count = Math.max(0, Number(port.count) || 0);
+      if (!type) return "";
+      return `${type} x${count || 1}`;
+    })
+    .filter(Boolean);
+  return values.length > 0 ? values.join(", ") : "-";
+}
+
 function formatVideo(product: CatalogProduct): string {
   const parts = [
     tidy(product.video?.maxResolution),
@@ -566,10 +1142,20 @@ function statusForPortCoverage(
   competitor: CatalogPortCount[] | undefined,
   wyrestorm: CatalogPortCount[] | undefined,
 ): { status: CompetitorCompareMatrixStatus; note?: string } {
-  const competitorMap = asPortMap(competitor);
-  const wyrestormMap = asPortMap(wyrestorm);
+  const competitorMap = asComparablePortMap(competitor);
+  const wyrestormMap = asComparablePortMap(wyrestorm);
   const competitorTotal = totalCount(competitorMap);
-  if (competitorTotal === 0) return { status: "review", note: "Competitor I/O not fully captured." };
+  const workflowNote = joinNotes([
+    workflowPortNote(competitor),
+    workflowPortNote(wyrestorm),
+  ]);
+  if (competitorTotal === 0) {
+    return {
+      status: "review",
+      note:
+        workflowNote || "Competitor physical I/O is not fully captured.",
+    };
+  }
 
   let matched = 0;
   let shortfalls = 0;
@@ -587,12 +1173,28 @@ function statusForPortCoverage(
   if (coversAll && totalCount(wyrestormMap) > competitorTotal) {
     return {
       status: "better",
-      note: "WyreStorm offers additional visible I/O beyond the captured competitor profile.",
+      note: joinNotes([
+        "WyreStorm offers additional visible I/O beyond the captured competitor profile.",
+        workflowNote,
+      ]),
     };
   }
-  if (coverage >= 1 && shortfalls === 0) return { status: "match" };
-  if (coverage >= 0.75) return { status: "review", note: "Some I/O is close but not exact." };
-  return { status: "gap", note: "Visible I/O shortfall against the competitor profile." };
+  if (coverage >= 1 && shortfalls === 0) {
+    return { status: "match", note: workflowNote };
+  }
+  if (coverage >= 0.75) {
+    return {
+      status: "review",
+      note: joinNotes(["Some I/O is close but not exact.", workflowNote]),
+    };
+  }
+  return {
+    status: "gap",
+    note: joinNotes([
+      "Visible I/O shortfall against the competitor profile.",
+      workflowNote,
+    ]),
+  };
 }
 
 function statusForVideo(
@@ -663,67 +1265,498 @@ function statusForDistance(
   return { status: "gap", note: "WyreStorm distance trails the captured competitor number." };
 }
 
+function matrixRowSummary(row: CompetitorCompareMatrixRow): string {
+  if (row.note) return row.note;
+  if (row.status === "better") {
+    return `${row.label} is stronger on the WyreStorm side.`;
+  }
+  if (row.status === "match") {
+    return `${row.label} aligns.`;
+  }
+  if (row.status === "gap") {
+    return row.note || `${row.label} trails the competitor baseline.`;
+  }
+  return row.note || `${row.label} needs manual review.`;
+}
+
+function productTextBlob(product: CatalogProduct): string {
+  return [
+    product.sku,
+    product.name,
+    product.family,
+    product.category,
+    product.subcategory,
+    product.summary,
+    product.technology,
+    product.topology,
+    product.role,
+    product.directionality,
+    product.outputBehavior,
+    product.transport,
+    product.notes,
+    ...(product.features ?? []),
+    ...(product.audio ?? []),
+    ...(product.control ?? []),
+    ...(product.normalizedTags ?? []),
+    ...(product.matchKeywords ?? []),
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
+function displayPortType(value: string): string {
+  const normalized = normalizeId(value);
+  if (normalized === "usbc") return "USB-C";
+  if (normalized === "displayport" || normalized === "dp") return "DisplayPort";
+  if (normalized === "rj45" || normalized === "ethernet" || normalized === "lan") return "RJ45";
+  if (normalized === "hdbaset") return "HDBaseT";
+  if (normalized === "mic" || normalized === "mics") return "Mic";
+  return prettyPortType(value);
+}
+
+function orderedPortTypes(values: Iterable<string>): string[] {
+  const priority = ["hdmi", "usbc", "displayport", "hdbaset", "rj45", "usb", "audio", "mic"];
+  const out = Array.from(
+    new Set(Array.from(values).map((value) => normalizeId(value)).filter(Boolean)),
+  );
+
+  return out.sort((left, right) => {
+    const leftPriority = priority.indexOf(left);
+    const rightPriority = priority.indexOf(right);
+    if (leftPriority >= 0 || rightPriority >= 0) {
+      if (leftPriority < 0) return 1;
+      if (rightPriority < 0) return -1;
+      if (leftPriority !== rightPriority) return leftPriority - rightPriority;
+    }
+    return displayPortType(left).localeCompare(displayPortType(right));
+  });
+}
+
+function numericCellValue(value: number): string {
+  return String(Math.max(0, Math.round(Number(value) || 0)));
+}
+
+function yesNoCellValue(value: boolean): string {
+  return value ? "Yes" : "No";
+}
+
+function countPhrase(count: number, label: string): string {
+  return `${count} ${label}${count === 1 ? "" : "s"}`;
+}
+
+function numericMatrixRow(input: {
+  id: string;
+  label: string;
+  competitorValue: number;
+  wyrestormValue: number;
+  thingLabel: string;
+  zeroNote?: string;
+}): CompetitorCompareMatrixRow {
+  const competitorValue = Math.max(0, Math.round(Number(input.competitorValue) || 0));
+  const wyrestormValue = Math.max(0, Math.round(Number(input.wyrestormValue) || 0));
+
+  if (competitorValue <= 0 && wyrestormValue <= 0) {
+    return {
+      id: input.id,
+      label: input.label,
+      competitorValue: "0",
+      wyrestormValue: "0",
+      status: "review",
+      note: input.zeroNote || `${input.label} is not fully captured on either product.`,
+    };
+  }
+
+  if (competitorValue <= 0) {
+    return {
+      id: input.id,
+      label: input.label,
+      competitorValue: "0",
+      wyrestormValue: numericCellValue(wyrestormValue),
+      status: "better",
+      note: `WyreStorm shows ${countPhrase(wyrestormValue, input.thingLabel)} while the competitor baseline shows none.`,
+    };
+  }
+
+  if (wyrestormValue > competitorValue) {
+    return {
+      id: input.id,
+      label: input.label,
+      competitorValue: numericCellValue(competitorValue),
+      wyrestormValue: numericCellValue(wyrestormValue),
+      status: "better",
+      note: `WyreStorm adds ${countPhrase(wyrestormValue - competitorValue, input.thingLabel)} beyond the competitor baseline.`,
+    };
+  }
+
+  if (wyrestormValue === competitorValue) {
+    return {
+      id: input.id,
+      label: input.label,
+      competitorValue: numericCellValue(competitorValue),
+      wyrestormValue: numericCellValue(wyrestormValue),
+      status: "match",
+      note: `${input.label} count is aligned.`,
+    };
+  }
+
+  if (wyrestormValue > 0) {
+    return {
+      id: input.id,
+      label: input.label,
+      competitorValue: numericCellValue(competitorValue),
+      wyrestormValue: numericCellValue(wyrestormValue),
+      status: "gap",
+      note: `WyreStorm is short by ${countPhrase(competitorValue - wyrestormValue, input.thingLabel)} against the competitor baseline.`,
+    };
+  }
+
+  return {
+    id: input.id,
+    label: input.label,
+    competitorValue: numericCellValue(competitorValue),
+    wyrestormValue: "0",
+    status: "gap",
+    note: `${input.label} is missing on the WyreStorm option.`,
+  };
+}
+
+function booleanMatrixRow(input: {
+  id: string;
+  label: string;
+  competitorValue: boolean;
+  wyrestormValue: boolean;
+  betterNote?: string;
+  gapNote?: string;
+}): CompetitorCompareMatrixRow {
+  if (!input.competitorValue && !input.wyrestormValue) {
+    return {
+      id: input.id,
+      label: input.label,
+      competitorValue: "No",
+      wyrestormValue: "No",
+      status: "review",
+      note: `${input.label} is not captured on either product.`,
+    };
+  }
+
+  if (!input.competitorValue && input.wyrestormValue) {
+    return {
+      id: input.id,
+      label: input.label,
+      competitorValue: "No",
+      wyrestormValue: "Yes",
+      status: "better",
+      note: input.betterNote || `WyreStorm adds ${input.label.toLowerCase()}.`,
+    };
+  }
+
+  if (input.competitorValue && input.wyrestormValue) {
+    return {
+      id: input.id,
+      label: input.label,
+      competitorValue: "Yes",
+      wyrestormValue: "Yes",
+      status: "match",
+      note: `${input.label} is available on both products.`,
+    };
+  }
+
+  return {
+    id: input.id,
+    label: input.label,
+    competitorValue: "Yes",
+    wyrestormValue: "No",
+    status: "gap",
+    note:
+      input.gapNote ||
+      `${input.label} is present on the competitor product but not on this WyreStorm option.`,
+  };
+}
+
+function hasWirelessPresentation(product: CatalogProduct): boolean {
+  const text = productTextBlob(product);
+  return Boolean(
+    product.wireless?.wirelessPresentation ||
+      product.wireless?.airplay ||
+      product.wireless?.miracast ||
+      /\bwireless presentation\b|airplay|miracast/.test(text),
+  );
+}
+
+function hasWirelessConference(product: CatalogProduct): boolean {
+  const text = productTextBlob(product);
+  return Boolean(
+    product.wireless?.wirelessConference ||
+      product.wireless?.byod ||
+      product.wireless?.byom ||
+      /\bwireless conference\b|\bbyod\b|\bbyom\b/.test(text),
+  );
+}
+
+function hasMst(product: CatalogProduct): boolean {
+  return Boolean(product.wireless?.mst || /\bmst\b/.test(productTextBlob(product)));
+}
+
+function hasMultiview(product: CatalogProduct): boolean {
+  return Boolean(
+    product.video?.multiview || /\bmultiview\b|\bdual[- ]view\b|\bquad view\b/.test(productTextBlob(product)),
+  );
+}
+
+function hasScaling(product: CatalogProduct): boolean {
+  const text = productTextBlob(product);
+  return Boolean(
+    product.video?.scaling ||
+      product.video?.downscaling ||
+      product.video?.upscaling ||
+      /\bscal(?:e|ing|er)\b|\bdown-?scal(?:e|ing)\b|\bup-?scal(?:e|ing)\b/.test(text),
+  );
+}
+
+function hasVideoWallFeature(product: CatalogProduct): boolean {
+  const text = productTextBlob(product);
+  return Boolean(
+    classifyCatalogProduct(product).group === "videowall" ||
+      /\bvideo wall\b|\bvideowall\b/.test(text),
+  );
+}
+
+function hasBuiltInMicrophones(product: CatalogProduct): boolean {
+  return /\bmicrophones?\b|\bspeakerphone\b|\b\d+xmics?\b|\bomni-direction\b/.test(productTextBlob(product));
+}
+
+function hasBuiltInSpeakers(product: CatalogProduct): boolean {
+  return /\bspeakers?\b|\bsoundbar\b|\bspeakerphone\b/.test(productTextBlob(product));
+}
+
+function buildIoBreakdown(
+  inputAnalysis: PortSetAnalysis,
+  outputAnalysis: PortSetAnalysis,
+): CompetitorCompareIoBreakdown {
+  const coverageValues = [inputAnalysis, outputAnalysis]
+    .filter((analysis) => analysis.competitorTotal > 0)
+    .map((analysis) => analysis.coverage);
+  const ioCoverage =
+    coverageValues.length > 0
+      ? clamp01(
+          coverageValues.reduce((total, value) => total + value, 0) /
+            coverageValues.length,
+        )
+      : 0.6;
+  const overallParity = combineCoverageLevels(
+    inputAnalysis.level,
+    outputAnalysis.level,
+  );
+
+  return {
+    competitorInputTotal: inputAnalysis.competitorTotal,
+    wyrestormInputTotal: inputAnalysis.wyrestormTotal,
+    competitorOutputTotal: outputAnalysis.competitorTotal,
+    wyrestormOutputTotal: outputAnalysis.wyrestormTotal,
+    inputCoveragePercent: percentFromRatio(inputAnalysis.coverage),
+    outputCoveragePercent: percentFromRatio(outputAnalysis.coverage),
+    ioCoveragePercent: percentFromRatio(ioCoverage),
+    inputParity: inputAnalysis.level,
+    outputParity: outputAnalysis.level,
+    overallParity,
+    inputs: inputAnalysis.deltas,
+    outputs: outputAnalysis.deltas,
+    summary: dedupeStrings(
+      [
+        describePortAnalysis("Inputs", inputAnalysis),
+        describePortAnalysis("Outputs", outputAnalysis),
+      ],
+      2,
+    ).join(" "),
+  };
+}
+
+function chooseMatchMethod(input: {
+  classAlignment: boolean;
+  transportCoverage: number;
+  inputLevel: CompetitorCompareCoverageLevel;
+  outputLevel: CompetitorCompareCoverageLevel;
+  ioCoverage: number;
+  workflowCoverage: number;
+  specCoverage: number;
+  warningCount: number;
+}): CompetitorCompareMatchMethod {
+  const coversInputs =
+    input.inputLevel === "exact" || input.inputLevel === "covers";
+  const coversOutputs =
+    input.outputLevel === "exact" || input.outputLevel === "covers";
+  const inputKnown = input.inputLevel !== "unknown";
+  const outputKnown = input.outputLevel !== "unknown";
+  const inputSufficient = coversInputs || !inputKnown;
+  const outputSufficient = coversOutputs || !outputKnown;
+
+  if (
+    !input.classAlignment ||
+    (inputKnown && outputKnown && input.ioCoverage < 0.35)
+  ) {
+    return "manual-review";
+  }
+
+  if (!inputSufficient || !outputSufficient) {
+    return input.ioCoverage >= 0.55 ||
+      (input.transportCoverage >= 0.65 &&
+        input.workflowCoverage >= 0.6 &&
+        input.specCoverage >= 0.45)
+      ? "functional-alternative"
+      : "manual-review";
+  }
+
+  if (
+    input.inputLevel === "exact" &&
+    input.outputLevel === "exact" &&
+    input.transportCoverage >= 0.98 &&
+    input.workflowCoverage >= 0.72 &&
+    input.specCoverage >= 0.65 &&
+    input.warningCount === 0
+  ) {
+    return "direct-replacement";
+  }
+
+  if (
+    input.transportCoverage >= 0.6 &&
+    input.workflowCoverage >= 0.5 &&
+    input.specCoverage >= 0.45
+  ) {
+    return "covers-brief";
+  }
+
+  return "functional-alternative";
+}
+
+function matchBasisSummary(
+  method: CompetitorCompareMatchMethod,
+  ioBreakdown: CompetitorCompareIoBreakdown,
+  workflowCoverage: number,
+  specCoverage: number,
+): string {
+  switch (method) {
+    case "direct-replacement":
+      return `Direct replacement: exact I/O parity with aligned transport, workflow, and spec headroom.`;
+    case "covers-brief":
+      return `Covers the brief: required I/O is covered and the main workflow fit is intact.`;
+    case "functional-alternative":
+      return `Functional alternative: some parity exists, but at least one area needs a closer review before quoting.`;
+    default:
+      return `Manual review recommended: captured parity is not strong enough yet for a confident replacement call.`;
+  }
+}
+
+function buildHighlights(
+  matrix: CompetitorCompareMatrixRow[],
+  ioBreakdown: CompetitorCompareIoBreakdown,
+): CompetitorCompareHighlights {
+  const matches = matrix
+    .filter((row) => row.status === "match")
+    .map((row) => matrixRowSummary(row))
+    .slice(0, 4);
+  const extras = dedupeStrings(
+    [
+      ...matrix
+        .filter((row) => row.status === "better")
+        .map((row) => matrixRowSummary(row)),
+      ...(ioBreakdown.inputParity === "covers"
+        ? ["Inputs are covered with additional visible WyreStorm I/O."]
+        : []),
+      ...(ioBreakdown.outputParity === "covers"
+        ? ["Outputs are covered with additional visible WyreStorm I/O."]
+        : []),
+    ],
+    4,
+  );
+  const gaps = dedupeStrings(
+    [
+      ...matrix
+        .filter((row) => row.status === "gap")
+        .map((row) => matrixRowSummary(row)),
+      ...(ioBreakdown.inputParity === "partial" ||
+      ioBreakdown.inputParity === "missing"
+        ? [describePortAnalysis("Inputs", analyzePortSet(
+            ioBreakdown.inputs.map((delta) => ({
+              type: delta.type,
+              count: delta.competitorCount,
+            })),
+            ioBreakdown.inputs.map((delta) => ({
+              type: delta.type,
+              count: delta.wyrestormCount,
+            })),
+          ))]
+        : []),
+      ...(ioBreakdown.outputParity === "partial" ||
+      ioBreakdown.outputParity === "missing"
+        ? [describePortAnalysis("Outputs", analyzePortSet(
+            ioBreakdown.outputs.map((delta) => ({
+              type: delta.type,
+              count: delta.competitorCount,
+            })),
+            ioBreakdown.outputs.map((delta) => ({
+              type: delta.type,
+              count: delta.wyrestormCount,
+            })),
+          ))]
+        : []),
+    ],
+    4,
+  );
+  const reviews = matrix
+    .filter((row) => row.status === "review")
+    .map((row) => matrixRowSummary(row))
+    .slice(0, 4);
+
+  return { matches, gaps, extras, reviews };
+}
+
 function comparisonMatrix(
   competitor: CatalogProduct,
   wyrestorm: CatalogProduct,
 ): CompetitorCompareMatrixRow[] {
-  const inputStatus = statusForPortCoverage(competitor.inputs, wyrestorm.inputs);
-  const outputStatus = statusForPortCoverage(competitor.outputs, wyrestorm.outputs);
-  const videoStatus = statusForVideo(competitor, wyrestorm);
-  const controlStatus = statusForControl(competitor, wyrestorm);
-  const distanceStatus = statusForDistance(competitor, wyrestorm);
-  const collaborationStatus = statusForCapabilityFlags(
-    competitor.wireless,
-    wyrestorm.wireless,
-    WIRELESS_FLAG_DEFS,
-    "Collaboration feature set",
-  );
-  const usbStatus = statusForCapabilityFlags(
-    competitor.usb,
-    wyrestorm.usb,
-    USB_FLAG_DEFS,
-    "USB workflow",
-  );
-  const videoWorkflowStatus = statusForCapabilityFlags(
-    competitor.video,
-    wyrestorm.video,
-    VIDEO_FLAG_DEFS,
-    "Advanced video workflow",
-  );
-  const integrationStatus = statusForCapabilityFlags(
-    competitor.integration,
-    wyrestorm.integration,
-    INTEGRATION_FLAG_DEFS,
-    "Integration feature set",
-  );
-  const usbHostStatus = statusForNumericCapability(
-    competitor.usb?.hostPorts,
-    wyrestorm.usb?.hostPorts,
-    "USB host port count",
-  );
-  const transportDetailStatus = statusForTransportDetail(competitor, wyrestorm);
+  const competitorType = classifyCatalogProduct(competitor);
+  const wyrestormType = classifyCatalogProduct(wyrestorm);
+  const competitorInputs = asComparablePortMap(competitor.inputs);
+  const wyrestormInputs = asComparablePortMap(wyrestorm.inputs);
+  const competitorOutputs = asComparablePortMap(competitor.outputs);
+  const wyrestormOutputs = asComparablePortMap(wyrestorm.outputs);
+  const inputTypes = orderedPortTypes([
+    ...competitorInputs.keys(),
+    ...wyrestormInputs.keys(),
+  ]);
+  const outputTypes = orderedPortTypes([
+    ...competitorOutputs.keys(),
+    ...wyrestormOutputs.keys(),
+  ]);
+
+  const roleStatus: CompetitorCompareMatrixStatus =
+    competitorType.primaryType === wyrestormType.primaryType
+      ? "match"
+      : areProductTypesCompatible(competitorType, wyrestormType)
+        ? "review"
+        : "gap";
 
   const transportStatus: CompetitorCompareMatrixStatus =
-    normalizeId(competitor.transport) && normalizeId(competitor.transport) === normalizeId(wyrestorm.transport)
+    normalizeId(competitor.transport) &&
+    normalizeId(competitor.transport) === normalizeId(wyrestorm.transport)
       ? "match"
-      : normalizeId(wyrestorm.transport)
-      ? "gap"
-      : "review";
+      : normalizeId(competitor.transport) && normalizeId(wyrestorm.transport)
+        ? "gap"
+        : "review";
 
-  return [
+  const rows: CompetitorCompareMatrixRow[] = [
     {
-      id: "category",
-      label: "Category",
-      competitorValue: tidy(competitor.category) || "Unknown",
-      wyrestormValue: tidy(wyrestorm.category) || "Unknown",
-      status:
-        areProductTypesCompatible(
-          classifyCatalogProduct(competitor),
-          classifyCatalogProduct(wyrestorm),
-        )
-          ? "match"
-          : "gap",
-      note: tidy(competitor.subcategory) || tidy(wyrestorm.subcategory) || undefined,
+      id: "primary-role",
+      label: "Primary role",
+      competitorValue: competitorType.label,
+      wyrestormValue: wyrestormType.label,
+      status: roleStatus,
+      note:
+        roleStatus === "match"
+          ? `Both products are positioned as ${competitorType.label.toLowerCase()}.`
+          : roleStatus === "review"
+            ? `Primary role is close, but the competitor is a ${competitorType.label.toLowerCase()} while the WyreStorm option is a ${wyrestormType.label.toLowerCase()}.`
+            : `Primary role differs: the competitor is a ${competitorType.label.toLowerCase()} while the WyreStorm option is a ${wyrestormType.label.toLowerCase()}.`,
     },
     {
       id: "transport",
@@ -732,99 +1765,187 @@ function comparisonMatrix(
       wyrestormValue: tidy(wyrestorm.transport) || "-",
       status: transportStatus,
       note:
-        transportStatus === "gap"
-          ? "Transport path differs and should be checked before quoting."
-          : undefined,
+        transportStatus === "match"
+          ? `Both products use ${tidy(competitor.transport) || "the same transport"}.`
+          : transportStatus === "gap"
+            ? `Transport path differs: competitor uses ${tidy(competitor.transport) || "unknown"} while WyreStorm uses ${tidy(wyrestorm.transport) || "unknown"}.`
+            : "Transport details need a closer check before final sign-off.",
     },
-    {
+    numericMatrixRow({
       id: "inputs",
       label: "Inputs",
-      competitorValue: formatPorts(competitor.inputs),
-      wyrestormValue: formatPorts(wyrestorm.inputs),
-      status: inputStatus.status,
-      note: inputStatus.note,
-    },
-    {
+      competitorValue: totalCount(competitorInputs),
+      wyrestormValue: totalCount(wyrestormInputs),
+      thingLabel: "visible physical input",
+      zeroNote: "Visible physical input counts are not fully captured on either product.",
+    }),
+    numericMatrixRow({
       id: "outputs",
       label: "Outputs",
-      competitorValue: formatPorts(competitor.outputs),
-      wyrestormValue: formatPorts(wyrestorm.outputs),
-      status: outputStatus.status,
-      note: outputStatus.note,
-    },
-    {
-      id: "video",
-      label: "Video",
-      competitorValue: formatVideo(competitor),
-      wyrestormValue: formatVideo(wyrestorm),
-      status: videoStatus.status,
-      note: videoStatus.note,
-    },
-    {
-      id: "control",
-      label: "Control",
-      competitorValue: formatControl(competitor.control),
-      wyrestormValue: formatControl(wyrestorm.control),
-      status: controlStatus.status,
-      note: controlStatus.note,
-    },
-    {
-      id: "collaboration",
-      label: "Collaboration",
-      competitorValue: formatCapabilityFlags(competitor.wireless, WIRELESS_FLAG_DEFS),
-      wyrestormValue: formatCapabilityFlags(wyrestorm.wireless, WIRELESS_FLAG_DEFS),
-      status: collaborationStatus.status,
-      note: collaborationStatus.note,
-    },
-    {
-      id: "usb",
-      label: "USB Workflow",
-      competitorValue: formatCapabilityFlags(competitor.usb, USB_FLAG_DEFS),
-      wyrestormValue: formatCapabilityFlags(wyrestorm.usb, USB_FLAG_DEFS),
-      status: usbStatus.status,
-      note: usbStatus.note,
-    },
-    {
-      id: "usb-host-ports",
-      label: "USB Host Ports",
-      competitorValue: formatNumericCapability(competitor.usb?.hostPorts),
-      wyrestormValue: formatNumericCapability(wyrestorm.usb?.hostPorts),
-      status: usbHostStatus.status,
-      note: usbHostStatus.note,
-    },
-    {
-      id: "video-workflow",
-      label: "Video Workflow",
-      competitorValue: formatCapabilityFlags(competitor.video, VIDEO_FLAG_DEFS),
-      wyrestormValue: formatCapabilityFlags(wyrestorm.video, VIDEO_FLAG_DEFS),
-      status: videoWorkflowStatus.status,
-      note: videoWorkflowStatus.note,
-    },
-    {
-      id: "integration",
-      label: "Integration",
-      competitorValue: formatCapabilityFlags(competitor.integration, INTEGRATION_FLAG_DEFS),
-      wyrestormValue: formatCapabilityFlags(wyrestorm.integration, INTEGRATION_FLAG_DEFS),
-      status: integrationStatus.status,
-      note: integrationStatus.note,
-    },
-    {
-      id: "distance",
-      label: "Distance",
-      competitorValue: formatDistance(competitor),
-      wyrestormValue: formatDistance(wyrestorm),
-      status: distanceStatus.status,
-      note: distanceStatus.note,
-    },
-    {
-      id: "transport-detail",
-      label: "Transport Detail",
-      competitorValue: formatTransportDetail(competitor),
-      wyrestormValue: formatTransportDetail(wyrestorm),
-      status: transportDetailStatus.status,
-      note: transportDetailStatus.note,
-    },
+      competitorValue: totalCount(competitorOutputs),
+      wyrestormValue: totalCount(wyrestormOutputs),
+      thingLabel: "visible physical output",
+      zeroNote: "Visible physical output counts are not fully captured on either product.",
+    }),
   ];
+
+  inputTypes.forEach((type) => {
+    rows.push(
+      numericMatrixRow({
+        id: `input:${type}`,
+        label: `${displayPortType(type)} In`,
+        competitorValue: competitorInputs.get(type) ?? 0,
+        wyrestormValue: wyrestormInputs.get(type) ?? 0,
+        thingLabel: `${displayPortType(type)} input`,
+      }),
+    );
+  });
+
+  outputTypes.forEach((type) => {
+    rows.push(
+      numericMatrixRow({
+        id: `output:${type}`,
+        label: `${displayPortType(type)} Out`,
+        competitorValue: competitorOutputs.get(type) ?? 0,
+        wyrestormValue: wyrestormOutputs.get(type) ?? 0,
+        thingLabel: `${displayPortType(type)} output`,
+      }),
+    );
+  });
+
+  const competitorWirelessPresentation = hasWirelessPresentation(competitor);
+  const wyrestormWirelessPresentation = hasWirelessPresentation(wyrestorm);
+  if (competitorWirelessPresentation || wyrestormWirelessPresentation) {
+    rows.push(
+      booleanMatrixRow({
+        id: "wireless-presentation",
+        label: "Wireless Present",
+        competitorValue: competitorWirelessPresentation,
+        wyrestormValue: wyrestormWirelessPresentation,
+      }),
+    );
+  }
+
+  const competitorWirelessConference = hasWirelessConference(competitor);
+  const wyrestormWirelessConference = hasWirelessConference(wyrestorm);
+  if (competitorWirelessConference || wyrestormWirelessConference) {
+    rows.push(
+      booleanMatrixRow({
+        id: "wireless-conference",
+        label: "Wireless Conf",
+        competitorValue: competitorWirelessConference,
+        wyrestormValue: wyrestormWirelessConference,
+      }),
+    );
+  }
+
+  const competitorUsbHostPorts = Number(competitor.usb?.hostPorts) || 0;
+  const wyrestormUsbHostPorts = Number(wyrestorm.usb?.hostPorts) || 0;
+  if (competitorUsbHostPorts > 0 || wyrestormUsbHostPorts > 0) {
+    rows.push(
+      numericMatrixRow({
+        id: "usb-host-ports",
+        label: "USB Host",
+        competitorValue: competitorUsbHostPorts,
+        wyrestormValue: wyrestormUsbHostPorts,
+        thingLabel: "USB host port",
+      }),
+    );
+  }
+
+  const competitorUsbDevicePorts = Number(competitor.usb?.devicePorts) || 0;
+  const wyrestormUsbDevicePorts = Number(wyrestorm.usb?.devicePorts) || 0;
+  if (competitorUsbDevicePorts > 0 || wyrestormUsbDevicePorts > 0) {
+    rows.push(
+      numericMatrixRow({
+        id: "usb-device-ports",
+        label: "USB Device",
+        competitorValue: competitorUsbDevicePorts,
+        wyrestormValue: wyrestormUsbDevicePorts,
+        thingLabel: "USB device port",
+      }),
+    );
+  }
+
+  const competitorMst = hasMst(competitor);
+  const wyrestormMst = hasMst(wyrestorm);
+  if (competitorMst || wyrestormMst) {
+    rows.push(
+      booleanMatrixRow({
+        id: "mst",
+        label: "MST",
+        competitorValue: competitorMst,
+        wyrestormValue: wyrestormMst,
+      }),
+    );
+  }
+
+  const competitorMultiview = hasMultiview(competitor);
+  const wyrestormMultiview = hasMultiview(wyrestorm);
+  if (competitorMultiview || wyrestormMultiview) {
+    rows.push(
+      booleanMatrixRow({
+        id: "multiview",
+        label: "Multiview",
+        competitorValue: competitorMultiview,
+        wyrestormValue: wyrestormMultiview,
+      }),
+    );
+  }
+
+  const competitorScaling = hasScaling(competitor);
+  const wyrestormScaling = hasScaling(wyrestorm);
+  if (competitorScaling || wyrestormScaling) {
+    rows.push(
+      booleanMatrixRow({
+        id: "scaling",
+        label: "Scaling",
+        competitorValue: competitorScaling,
+        wyrestormValue: wyrestormScaling,
+      }),
+    );
+  }
+
+  const competitorVideoWall = hasVideoWallFeature(competitor);
+  const wyrestormVideoWall = hasVideoWallFeature(wyrestorm);
+  if (competitorVideoWall || wyrestormVideoWall) {
+    rows.push(
+      booleanMatrixRow({
+        id: "video-wall",
+        label: "Video Wall",
+        competitorValue: competitorVideoWall,
+        wyrestormValue: wyrestormVideoWall,
+      }),
+    );
+  }
+
+  const competitorMicrophones = hasBuiltInMicrophones(competitor);
+  const wyrestormMicrophones = hasBuiltInMicrophones(wyrestorm);
+  if (competitorMicrophones || wyrestormMicrophones) {
+    rows.push(
+      booleanMatrixRow({
+        id: "microphones",
+        label: "Microphones",
+        competitorValue: competitorMicrophones,
+        wyrestormValue: wyrestormMicrophones,
+      }),
+    );
+  }
+
+  const competitorSpeakers = hasBuiltInSpeakers(competitor);
+  const wyrestormSpeakers = hasBuiltInSpeakers(wyrestorm);
+  if (competitorSpeakers || wyrestormSpeakers) {
+    rows.push(
+      booleanMatrixRow({
+        id: "speakers",
+        label: "Speakers",
+        competitorValue: competitorSpeakers,
+        wyrestormValue: wyrestormSpeakers,
+      }),
+    );
+  }
+
+  return rows;
 }
 
 function buildSalesStory(
@@ -891,25 +2012,99 @@ function computeCandidateScore(
   competitor: CompetitorProduct,
   wyrestorm: CatalogProduct,
 ): RankedCandidate {
-  const reasons: string[] = [];
-  const notes: string[] = [];
-  let score = 0;
   const competitorType = classifyCatalogProduct(competitor);
   const wyrestormType = classifyCatalogProduct(wyrestorm);
+  const matrix = comparisonMatrix(competitor, wyrestorm);
+  const inputAnalysis = analyzePortSet(competitor.inputs, wyrestorm.inputs);
+  const outputAnalysis = analyzePortSet(competitor.outputs, wyrestorm.outputs);
+  const ioBreakdown = buildIoBreakdown(inputAnalysis, outputAnalysis);
 
-  if (areProductTypesCompatible(competitorType, wyrestormType)) {
-    score += 12;
-    reasons.push(`Type alignment (${wyrestormType.label}).`);
-  } else {
+  const rejectCandidate = (
+    rejectionReason: string,
+    blockers: string[],
+  ): RankedCandidate => {
+    const decisionWorkflow: CompetitorCompareDecisionStep[] = [
+      {
+        id: "role",
+        title: "Product role",
+        weight: 15,
+        status: "fail",
+        summary: rejectionReason,
+        detail: blockers[0],
+      },
+      {
+        id: "transport",
+        title: "Transport",
+        weight: 15,
+        status: "warn",
+        summary: "Comparison stopped before a valid transport match could be established.",
+      },
+      {
+        id: "inputs",
+        title: "Inputs",
+        weight: 20,
+        status: statusForCoverageLevel(ioBreakdown.inputParity),
+        summary: describePortAnalysis("Inputs", inputAnalysis),
+      },
+      {
+        id: "outputs",
+        title: "Outputs",
+        weight: 15,
+        status: statusForCoverageLevel(ioBreakdown.outputParity),
+        summary: describePortAnalysis("Outputs", outputAnalysis),
+      },
+      {
+        id: "workflow",
+        title: "Workflow fit",
+        weight: 20,
+        status: "warn",
+        summary: "Workflow fit was not scored because the base comparison was rejected.",
+      },
+      {
+        id: "specs",
+        title: "Spec headroom",
+        weight: 15,
+        status: "warn",
+        summary: "Spec headroom was not scored because the base comparison was rejected.",
+      },
+    ];
+    const matchBasis: CompetitorCompareMatchBasis = {
+      method: "manual-review",
+      classAlignment: false,
+      transportAlignment: false,
+      inputParity: ioBreakdown.inputParity,
+      outputParity: ioBreakdown.outputParity,
+      ioCoveragePercent: ioBreakdown.ioCoveragePercent,
+      workflowCoveragePercent: 0,
+      specCoveragePercent: 0,
+      blockerCount: blockers.length,
+      blockers,
+      warningCount: 0,
+      summary:
+        blockers[0] ||
+        "Manual review recommended because the product roles do not align cleanly.",
+    };
+
     return {
       product: wyrestorm,
       score: 0,
-      reasons: ["Type mismatch"],
-      notes: [
-        `Rejected because ${wyrestorm.sku} is ${wyrestormType.label}, not ${competitorType.label}.`,
-      ],
-      ioSummary: "I/O coverage 0%",
+      reasons: [rejectionReason],
+      notes: blockers.slice(0, 6),
+      ioSummary: `I/O coverage ${ioBreakdown.ioCoveragePercent}%`,
+      matrix,
+      decisionWorkflow,
+      ioBreakdown,
+      matchBasis,
+      highlights: buildHighlights(matrix, ioBreakdown),
     };
+  };
+
+  if (areProductTypesCompatible(competitorType, wyrestormType)) {
+    // Continue: scoring is driven by visible workflow steps below.
+  } else {
+    return rejectCandidate("Product role mismatch.", [
+      `Rejected because ${wyrestorm.sku} is ${wyrestormType.label}, not ${competitorType.label}.`,
+    ]);
   }
 
   const avAssessment = evaluateAvCompatibility(
@@ -918,43 +2113,7 @@ function computeCandidateScore(
   );
 
   if (!avAssessment.compatible) {
-    return {
-      product: wyrestorm,
-      score: 0,
-      reasons: ["AV rule mismatch"],
-      notes: avAssessment.blockers,
-      ioSummary: "I/O coverage 0%",
-    };
-  }
-
-  score += avAssessment.scoreDelta;
-  reasons.push(...avAssessment.reasons);
-  notes.push(...avAssessment.warnings);
-
-  if (
-    normalizeId(competitor.family) === normalizeId(wyrestorm.family) &&
-    tidy(competitor.family)
-  ) {
-    score += 6;
-    reasons.push(`Family alignment (${wyrestorm.family}).`);
-  }
-
-  if (
-    normalizeId(competitor.category) === normalizeId(wyrestorm.category) &&
-    tidy(competitor.category)
-  ) {
-    score += 4;
-    reasons.push(`Category alignment (${wyrestorm.category}).`);
-  }
-
-  if (
-    normalizeId(competitor.transport) &&
-    normalizeId(competitor.transport) === normalizeId(wyrestorm.transport)
-  ) {
-    score += 16;
-    reasons.push(`Transport alignment (${wyrestorm.transport}).`);
-  } else if (normalizeId(competitor.transport)) {
-    notes.push(`Transport differs (${competitor.transport || "unknown"} vs ${wyrestorm.transport || "unknown"}).`);
+    return rejectCandidate("AV transport or endpoint role mismatch.", avAssessment.blockers);
   }
 
   const competitorTags = tagsFor(competitor);
@@ -963,233 +2122,363 @@ function computeCandidateScore(
   competitorTags.forEach((tag) => {
     if (wyrestormTags.has(tag)) overlap += 1;
   });
-
   const featureCoverage = clamp01(overlap / Math.max(1, competitorTags.size));
-  score += Math.round(featureCoverage * 8);
-  reasons.push(`Feature overlap ${Math.round(featureCoverage * 100)}%.`);
 
-  const inputCoverage = scorePortCoverage(
-    asPortMap(competitor.inputs),
-    asPortMap(wyrestorm.inputs),
-    "Input",
-    reasons,
-    notes,
-  );
-  const outputCoverage = scorePortCoverage(
-    asPortMap(competitor.outputs),
-    asPortMap(wyrestorm.outputs),
-    "Output",
-    reasons,
-    notes,
-  );
+  const competitorTransport = normalizeId(competitor.transport);
+  const wyrestormTransport = normalizeId(wyrestorm.transport);
+  let transportCoverage = 0.6;
+  let transportStatus: CompetitorCompareDecisionStatus = "warn";
+  let transportSummary =
+    "Transport is not fully captured on the competitor record.";
+  let transportDetail: string | undefined;
 
-  const ioCoverage = clamp01((inputCoverage + outputCoverage) / 2);
-  score += Math.round(ioCoverage * 36);
+  if (competitorTransport && wyrestormTransport) {
+    if (competitorTransport === wyrestormTransport) {
+      transportCoverage = 1;
+      transportStatus = "pass";
+      transportSummary = `Transport aligns on ${wyrestorm.transport}.`;
+      transportDetail = avAssessment.reasons[0];
+    } else {
+      transportCoverage = 0;
+      transportStatus = "fail";
+      transportSummary = `Transport differs (${competitor.transport || "unknown"} vs ${wyrestorm.transport || "unknown"}).`;
+      transportDetail = "Transport mismatch should not be quoted as like-for-like.";
+    }
+  } else if (competitorTransport) {
+    transportCoverage = 0.55;
+    transportSummary = `Competitor transport is ${competitor.transport}, but WyreStorm transport is not fully captured.`;
+  } else if (wyrestormTransport) {
+    transportCoverage = 0.62;
+    transportSummary = `Competitor transport is not fully captured; candidate transport is ${wyrestorm.transport}.`;
+  }
 
-  score += scoreCapabilityFlags(
-    "Wireless / collaboration",
+  const wirelessAnalysis = analyzeFlagRequirement(
+    "Collaboration feature set",
     competitor.wireless,
     wyrestorm.wireless,
     WIRELESS_FLAG_DEFS,
-    4,
-    reasons,
-    notes,
   );
-  score += scoreCapabilityFlags(
+  const usbAnalysis = analyzeFlagRequirement(
     "USB workflow",
     competitor.usb,
     wyrestorm.usb,
     USB_FLAG_DEFS,
-    4,
-    reasons,
-    notes,
   );
-  score += scoreCapabilityFlags(
+  const videoWorkflowAnalysis = analyzeFlagRequirement(
     "Advanced video workflow",
     competitor.video,
     wyrestorm.video,
     VIDEO_FLAG_DEFS,
-    3,
-    reasons,
-    notes,
   );
-  score += scoreCapabilityFlags(
-    "Integration depth",
+  const integrationAnalysis = analyzeFlagRequirement(
+    "Integration feature set",
     competitor.integration,
     wyrestorm.integration,
     INTEGRATION_FLAG_DEFS,
-    3,
-    reasons,
-    notes,
   );
-  score += scoreNumericRequirement(
-    "USB host ports",
+  const usbHostAnalysis = analyzeNumericRequirement(
+    "USB host port count",
     competitor.usb?.hostPorts,
     wyrestorm.usb?.hostPorts,
-    2,
-    reasons,
-    notes,
   );
-  score += scoreNumericRequirement(
-    "USB device ports",
+  const usbDeviceAnalysis = analyzeNumericRequirement(
+    "USB device port count",
     competitor.usb?.devicePorts,
     wyrestorm.usb?.devicePorts,
-    2,
-    reasons,
-    notes,
   );
-  score += scoreNumericRequirement(
+  const usbChargingAnalysis = analyzeNumericRequirement(
     "USB-C charging",
     competitor.usb?.usbCChargingWatts,
     wyrestorm.usb?.usbCChargingWatts,
-    2,
-    reasons,
-    notes,
     "W",
   );
-  score += scoreNumericRequirement(
+  const relayAnalysis = analyzeNumericRequirement(
     "Relay count",
     competitor.integration?.relayCount,
     wyrestorm.integration?.relayCount,
-    1,
-    reasons,
-    notes,
   );
-  score += scoreNumericRequirement(
+  const gpioAnalysis = analyzeNumericRequirement(
     "GPIO count",
     competitor.integration?.gpioCount,
     wyrestorm.integration?.gpioCount,
-    1,
-    reasons,
-    notes,
+  );
+  const controlAnalysis = analyzeListRequirement(
+    "Control interfaces",
+    competitor.control,
+    wyrestorm.control,
+  );
+  const audioAnalysis = analyzeListRequirement(
+    "Audio interfaces",
+    competitor.audio,
+    wyrestorm.audio,
   );
 
-  const controlCoverage = overlapRatio(competitor.control ?? [], wyrestorm.control ?? []);
-  if ((competitor.control ?? []).length > 0) {
-    score += Math.round(controlCoverage * 6);
-    if (controlCoverage > 0) {
-      reasons.push(`Control overlap ${Math.round(controlCoverage * 100)}%.`);
-    } else {
-      notes.push("Control interfaces do not clearly align.");
-    }
-  }
-
-  const audioCoverage = overlapRatio(competitor.audio ?? [], wyrestorm.audio ?? []);
-  if ((competitor.audio ?? []).length > 0) {
-    score += Math.round(audioCoverage * 4);
-    if (audioCoverage > 0) {
-      reasons.push(`Audio feature overlap ${Math.round(audioCoverage * 100)}%.`);
-    } else {
-      notes.push("Audio connectivity does not clearly align.");
-    }
-  }
-
-  const competitorResolution = parseResolutionRank(competitor.video?.maxResolution);
-  const wyrestormResolution = parseResolutionRank(wyrestorm.video?.maxResolution);
-  if (competitorResolution > 0 && wyrestormResolution > 0) {
-    if (wyrestormResolution >= competitorResolution) {
-      score += 6;
-      reasons.push(
-        `Video ceiling aligns (${wyrestorm.video?.maxResolution || "N/A"}).`,
+  const workflowAnalyses = [
+    wirelessAnalysis,
+    usbAnalysis,
+    videoWorkflowAnalysis,
+    integrationAnalysis,
+    usbHostAnalysis,
+    usbDeviceAnalysis,
+    usbChargingAnalysis,
+    relayAnalysis,
+    gpioAnalysis,
+    controlAnalysis,
+    audioAnalysis,
+  ];
+  const workflowCoverage = averageRelevant(workflowAnalyses, Math.max(0.55, featureCoverage));
+  const workflowIssues = dedupeStrings(
+    [...pickRequirementIssues(workflowAnalyses, 4), ...avAssessment.warnings],
+    4,
+  );
+  const workflowStatus = avAssessment.warnings.length
+    ? "warn"
+    : statusForCoverageRatio(
+        workflowCoverage,
+        workflowAnalyses.some((item) => item.relevant),
       );
-    } else {
-      const penalty = Math.min(
-        5,
-        Math.max(2, competitorResolution - wyrestormResolution),
-      );
-      score += 6 - penalty;
-      notes.push(
-        `Video ceiling below competitor baseline (${wyrestorm.video?.maxResolution || "N/A"}).`,
-      );
-    }
-  } else {
-    notes.push("Video specs incomplete; no score credit awarded.");
-  }
+  const workflowSummary = workflowAnalyses.some((item) => item.relevant)
+    ? `Workflow coverage ${percentFromRatio(workflowCoverage)}% across the captured collaboration, USB, control, and integration requirements.`
+    : "Workflow-specific requirements are not fully captured on the competitor record.";
 
-  if (competitor.video?.hdr && wyrestorm.video?.hdr) {
-    score += 2;
-    reasons.push("HDR support aligns.");
-  } else if (competitor.video?.hdr && !wyrestorm.video?.hdr) {
-    notes.push("Competitor lists HDR but candidate does not.");
-  }
-
-  const competitorBandwidth = parseBandwidth(competitor.video?.bandwidthGbps);
-  const wyrestormBandwidth = parseBandwidth(wyrestorm.video?.bandwidthGbps);
-  if (competitorBandwidth > 0 && wyrestormBandwidth > 0) {
-    if (wyrestormBandwidth >= competitorBandwidth) {
-      score += 3;
-      reasons.push(`Bandwidth class aligns (${wyrestormBandwidth} Gbps).`);
-    } else {
-      notes.push(
-        `Bandwidth below competitor baseline (${wyrestormBandwidth} vs ${competitorBandwidth} Gbps).`,
-      );
-    }
-  }
-
-  const competitorHdmi = parseHdmiRank(competitor.video?.hdmi);
-  const wyrestormHdmi = parseHdmiRank(wyrestorm.video?.hdmi);
-  if (competitorHdmi > 0 && wyrestormHdmi > 0) {
-    if (wyrestormHdmi >= competitorHdmi) {
-      score += 3;
-      reasons.push(`HDMI generation aligns (${wyrestorm.video?.hdmi || "N/A"}).`);
-    } else {
-      notes.push(
-        `HDMI generation below competitor baseline (${wyrestorm.video?.hdmi || "N/A"}).`,
-      );
-    }
-  }
-
-  score += scoreRankedRequirement(
+  const resolutionAnalysis = analyzeRankedRequirement(
+    "Video ceiling",
+    parseResolutionRank(competitor.video?.maxResolution),
+    parseResolutionRank(wyrestorm.video?.maxResolution),
+    competitor.video?.maxResolution,
+    wyrestorm.video?.maxResolution,
+  );
+  const bandwidthAnalysis = analyzeNumericRequirement(
+    "Bandwidth class",
+    competitor.video?.bandwidthGbps,
+    wyrestorm.video?.bandwidthGbps,
+    "Gbps",
+  );
+  const hdrAnalysis = analyzeBooleanRequirement(
+    "HDR",
+    competitor.video?.hdr,
+    wyrestorm.video?.hdr,
+  );
+  const hdmiAnalysis = analyzeRankedRequirement(
+    "HDMI generation",
+    parseHdmiRank(competitor.video?.hdmi),
+    parseHdmiRank(wyrestorm.video?.hdmi),
+    competitor.video?.hdmi,
+    wyrestorm.video?.hdmi,
+  );
+  const hdcpAnalysis = analyzeRankedRequirement(
     "HDCP generation",
     parseHdcpRank(competitor.video?.hdcpVersion),
     parseHdcpRank(wyrestorm.video?.hdcpVersion),
     competitor.video?.hdcpVersion,
     wyrestorm.video?.hdcpVersion,
-    2,
-    reasons,
-    notes,
   );
-  score += scoreRankedRequirement(
+  const networkAnalysis = analyzeRankedRequirement(
     "AVoIP network speed",
     parseNetworkSpeedRank(competitor.distance?.networkSpeed),
     parseNetworkSpeedRank(wyrestorm.distance?.networkSpeed),
     competitor.distance?.networkSpeed,
     wyrestorm.distance?.networkSpeed,
-    2,
-    reasons,
-    notes,
   );
-  score += scoreRankedRequirement(
+  const hdbasetAnalysis = analyzeRankedRequirement(
     "HDBaseT class",
     parseHdbasetClassRank(competitor.distance?.hdbasetClass),
     parseHdbasetClassRank(wyrestorm.distance?.hdbasetClass),
     competitor.distance?.hdbasetClass,
     wyrestorm.distance?.hdbasetClass,
-    2,
-    reasons,
-    notes,
+  );
+  const distanceAnalysis = analyzeNumericRequirement(
+    "Distance",
+    competitor.distance?.meters,
+    wyrestorm.distance?.meters,
+    "m",
+  );
+  const latencyAnalysis = analyzeRankedRequirement(
+    "Latency class",
+    parseLatencyRank(competitor.latency),
+    parseLatencyRank(wyrestorm.latency),
+    competitor.latency,
+    wyrestorm.latency,
   );
 
-  const competitorLatency = parseLatencyRank(competitor.latency);
-  const wyrestormLatency = parseLatencyRank(wyrestorm.latency);
-  if (competitorLatency > 0 && wyrestormLatency > 0) {
-    if (wyrestormLatency >= competitorLatency) {
-      score += 2;
-      reasons.push(`Latency class aligns (${wyrestorm.latency}).`);
-    } else {
-      notes.push(
-        `Latency class trails competitor baseline (${wyrestorm.latency || "N/A"}).`,
-      );
-    }
+  const specAnalyses = [
+    resolutionAnalysis,
+    bandwidthAnalysis,
+    hdrAnalysis,
+    hdmiAnalysis,
+    hdcpAnalysis,
+    networkAnalysis,
+    hdbasetAnalysis,
+    distanceAnalysis,
+    latencyAnalysis,
+  ];
+  const specCoverage = averageRelevant(specAnalyses, 0.6);
+  const specIssues = pickRequirementIssues(specAnalyses, 4);
+  const specStatus = statusForCoverageRatio(
+    specCoverage,
+    specAnalyses.some((item) => item.relevant),
+  );
+  const specSummary = specAnalyses.some((item) => item.relevant)
+    ? `Spec headroom ${percentFromRatio(specCoverage)}% against the captured video, distance, and transport-detail baseline.`
+    : "Spec ceiling is not fully captured on the competitor record.";
+
+  const classAlignment = true;
+  const matchMethod = chooseMatchMethod({
+    classAlignment,
+    transportCoverage,
+    inputLevel: ioBreakdown.inputParity,
+    outputLevel: ioBreakdown.outputParity,
+    ioCoverage: ioBreakdown.ioCoveragePercent / 100,
+    workflowCoverage,
+    specCoverage,
+    warningCount: avAssessment.warnings.length,
+  });
+
+  let score = 0;
+  score += 18;
+  score += Math.round(14 * transportCoverage);
+  score += Math.round(36 * (ioBreakdown.ioCoveragePercent / 100));
+  score += Math.round(16 * workflowCoverage);
+  score += Math.round(12 * specCoverage);
+  score += Math.round(featureCoverage * 4);
+
+  if (ioBreakdown.inputParity === "exact") score += 2;
+  if (ioBreakdown.outputParity === "exact") score += 2;
+  if (ioBreakdown.inputParity === "covers") score += 1;
+  if (ioBreakdown.outputParity === "covers") score += 1;
+  score -= Math.min(9, avAssessment.warnings.length * 3);
+
+  if (matchMethod === "direct-replacement") {
+    score = Math.max(score, 86);
+  } else if (matchMethod === "covers-brief") {
+    score = Math.max(score, 75);
+  } else if (matchMethod === "functional-alternative") {
+    score = Math.max(score, 60);
+    score = Math.min(score, 84);
+  } else {
+    score = Math.min(score, 69);
   }
 
   const bounded = Math.max(0, Math.min(100, score));
+  const decisionWorkflow: CompetitorCompareDecisionStep[] = [
+    {
+      id: "role",
+      title: "Product role",
+      weight: 15,
+      status: "pass",
+      summary: `${competitorType.label} compared against ${wyrestormType.label}.`,
+      detail:
+        normalizeId(competitor.category) === normalizeId(wyrestorm.category) &&
+        tidy(competitor.category)
+          ? `Category aligns on ${wyrestorm.category}.`
+          : `Type gate passed even though category naming differs.`,
+    },
+    {
+      id: "transport",
+      title: "Transport",
+      weight: 15,
+      status: transportStatus,
+      summary: transportSummary,
+      detail: transportDetail,
+    },
+    {
+      id: "inputs",
+      title: "Inputs",
+      weight: 20,
+      status: statusForCoverageLevel(ioBreakdown.inputParity),
+      summary: describePortAnalysis("Inputs", inputAnalysis),
+      detail:
+        inputAnalysis.shortfalls.length > 0
+          ? `Shortfall: ${inputAnalysis.shortfalls.slice(0, 3).join(", ")}.`
+          : inputAnalysis.extras.length > 0
+            ? `Extras: ${inputAnalysis.extras.slice(0, 3).join(", ")}.`
+            : undefined,
+    },
+    {
+      id: "outputs",
+      title: "Outputs",
+      weight: 15,
+      status: statusForCoverageLevel(ioBreakdown.outputParity),
+      summary: describePortAnalysis("Outputs", outputAnalysis),
+      detail:
+        outputAnalysis.shortfalls.length > 0
+          ? `Shortfall: ${outputAnalysis.shortfalls.slice(0, 3).join(", ")}.`
+          : outputAnalysis.extras.length > 0
+            ? `Extras: ${outputAnalysis.extras.slice(0, 3).join(", ")}.`
+            : undefined,
+    },
+    {
+      id: "workflow",
+      title: "Workflow fit",
+      weight: 20,
+      status: workflowStatus,
+      summary: workflowSummary,
+      detail: workflowIssues[0],
+    },
+    {
+      id: "specs",
+      title: "Spec headroom",
+      weight: 15,
+      status: specStatus,
+      summary: specSummary,
+      detail: specIssues[0],
+    },
+  ];
+
+  const matchBasis: CompetitorCompareMatchBasis = {
+    method: matchMethod,
+    classAlignment,
+    transportAlignment: transportStatus === "pass",
+    inputParity: ioBreakdown.inputParity,
+    outputParity: ioBreakdown.outputParity,
+    ioCoveragePercent: ioBreakdown.ioCoveragePercent,
+    workflowCoveragePercent: percentFromRatio(workflowCoverage),
+    specCoveragePercent: percentFromRatio(specCoverage),
+    blockerCount: avAssessment.blockers.length,
+    blockers: avAssessment.blockers,
+    warningCount: avAssessment.warnings.length,
+    summary: matchBasisSummary(
+      matchMethod,
+      ioBreakdown,
+      workflowCoverage,
+      specCoverage,
+    ),
+  };
+
+  const reasons = dedupeStrings(
+    [
+      decisionWorkflow[0].summary,
+      decisionWorkflow[1].status === "pass" ? decisionWorkflow[1].summary : "",
+      decisionWorkflow[2].status === "pass" ? decisionWorkflow[2].summary : "",
+      decisionWorkflow[3].status === "pass" ? decisionWorkflow[3].summary : "",
+      workflowCoverage >= 0.65 ? decisionWorkflow[4].summary : "",
+      specCoverage >= 0.65 ? decisionWorkflow[5].summary : "",
+      `Feature overlap ${percentFromRatio(featureCoverage)}%.`,
+      ...avAssessment.reasons,
+    ],
+    6,
+  );
+  const notes = dedupeStrings(
+    [
+      ...decisionWorkflow
+        .filter((step) => step.status !== "pass")
+        .flatMap((step) => [step.summary, step.detail ?? ""]),
+      ...avAssessment.warnings,
+    ],
+    6,
+  );
+
   return {
     product: wyrestorm,
     score: bounded,
-    reasons: reasons.slice(0, 6),
-    notes: notes.slice(0, 6),
-    ioSummary: `I/O coverage ${Math.round(ioCoverage * 100)}%`,
+    reasons,
+    notes,
+    ioSummary: `I/O coverage ${ioBreakdown.ioCoveragePercent}%`,
+    matrix,
+    decisionWorkflow,
+    ioBreakdown,
+    matchBasis,
+    highlights: buildHighlights(matrix, ioBreakdown),
   };
 }
 
@@ -1202,11 +2491,100 @@ function rankWyrestormCandidates(competitor: CompetitorProduct): RankedCandidate
       areProductTypesCompatible(competitorType, classifyCatalogProduct(product)),
     )
     .map((product) => computeCandidateScore(competitor, product))
-    .filter((candidate) => candidate.score >= MINIMUM_AUTOMATIC_MATCH_SCORE)
+    .filter(
+      (candidate) =>
+        candidate.score >= MINIMUM_AUTOMATIC_MATCH_SCORE &&
+        candidate.matchBasis.method !== "manual-review",
+    )
     .sort(
       (left, right) =>
         right.score - left.score || left.product.sku.localeCompare(right.product.sku),
     );
+}
+
+function reviewWyrestormCandidates(competitor: CompetitorProduct): RankedCandidate[] {
+  const catalog = getCatalogProducts();
+  const competitorType = classifyCatalogProduct(competitor);
+
+  return catalog
+    .filter((product) =>
+      areProductTypesCompatible(competitorType, classifyCatalogProduct(product)),
+    )
+    .map((product) => computeCandidateScore(competitor, product))
+    .filter((candidate) => candidate.score > 0)
+    .sort(
+      (left, right) =>
+        right.score - left.score || left.product.sku.localeCompare(right.product.sku),
+    );
+}
+
+function familyHintCandidates(
+  record: CompetitorComparisonRecord,
+  competitor: CompetitorProduct,
+): RankedCandidate[] {
+  const families = normalizeFamilies(record.recommendedFamilies);
+  if (families.length === 0) return [];
+
+  return getCatalogProducts()
+    .map((product) => {
+      const hintScore = familyHintScore(product, families);
+      if (hintScore <= 0) return null;
+
+      const base = computeCandidateScore(competitor, product);
+      if (!base.matchBasis.classAlignment) {
+        return null;
+      }
+      const floor = 34 + hintScore * 4;
+      return {
+        ...base,
+        score: Math.max(base.score, floor),
+        reasons: dedupeStrings(
+          [
+            `Family-direction hint aligns with ${product.family || product.category}.`,
+            ...base.reasons,
+          ],
+          6,
+        ),
+        notes: dedupeStrings(
+          [
+            ...base.notes,
+            `This candidate comes from the stored ${families.join(", ")} direction and still needs a detailed parity check.`,
+          ],
+          6,
+        ),
+        matchBasis: {
+          ...base.matchBasis,
+          method: "manual-review",
+          summary: `Closest ${product.family || product.category} family option from the stored comparison direction. Verify detailed parity before quoting.`,
+        },
+      };
+    })
+    .filter((candidate): candidate is RankedCandidate => Boolean(candidate))
+    .sort(
+      (left, right) =>
+        right.score - left.score || left.product.sku.localeCompare(right.product.sku),
+    )
+    .slice(0, 6);
+}
+
+function labelForRankedCandidate(
+  candidate: RankedCandidate,
+  index: number,
+): string {
+  if (index > 0 && candidate.matchBasis.method === "direct-replacement") {
+    return "Also consider";
+  }
+
+  switch (candidate.matchBasis.method) {
+    case "direct-replacement":
+      return "Direct replacement";
+    case "covers-brief":
+      return "Covers the brief";
+    case "functional-alternative":
+      return "Functional alternative";
+    default:
+      return index === 0 ? "Closest available" : "Also review";
+  }
 }
 
 function optionId(
@@ -1219,13 +2597,11 @@ function optionId(
 function buildOption(
   record: CompetitorComparisonRecord,
   competitor: CompetitorProduct,
-  wyrestorm: CatalogProduct,
+  candidate: RankedCandidate,
   label: string,
-  score: number,
-  reasons: string[],
-  cautions: string[],
   sourceType: CompetitorCompareOptionSource,
 ): CompetitorCompareOption {
+  const wyrestorm = candidate.product;
   const positioning = explainWyreStormAdvantage(wyrestorm, competitor);
   return {
     id: optionId(record, wyrestorm.sku),
@@ -1233,21 +2609,25 @@ function buildOption(
     wyrestormSku: wyrestorm.sku,
     wyrestormName: tidy(wyrestorm.name) || undefined,
     wyrestormCategory: formatWyrestormCategory(wyrestorm),
-    fitScore: score,
-    fitConfidence: scoreToConfidence(score),
-    reasons,
-    cautions,
+    fitScore: candidate.score,
+    fitConfidence: scoreToConfidence(candidate.score),
+    reasons: candidate.reasons,
+    cautions: candidate.notes,
     positioningSummary: positioning.summary,
     positioningReasons: positioning.reasons.slice(0, 4),
     salesStory: buildSalesStory(
       label,
       record.competitorSku,
       wyrestorm.sku,
-      reasons,
-      cautions,
+      candidate.reasons,
+      candidate.notes,
       positioning.reasons,
     ),
-    matrix: comparisonMatrix(competitor, wyrestorm),
+    matrix: candidate.matrix,
+    decisionWorkflow: candidate.decisionWorkflow,
+    ioBreakdown: candidate.ioBreakdown,
+    matchBasis: candidate.matchBasis,
+    highlights: candidate.highlights,
     sourceType,
   };
 }
@@ -1259,20 +2639,34 @@ function fallbackOption(
   const product = findCatalogProductBySku(record.wyrestormSku);
   const competitor = resolveCompetitor(record);
   if (product) {
+    const ranked = computeCandidateScore(competitor, product);
     return buildOption(
       record,
       competitor,
-      product,
+      {
+        ...ranked,
+        score:
+          Number(record.matchScore) ||
+          ranked.score ||
+          (record.confidence === "High"
+            ? 82
+            : record.confidence === "Medium"
+              ? 62
+              : 38),
+        reasons: dedupeStrings(
+          [
+            tidy(record.rationale),
+            `${product.sku} is the currently stored WyreStorm mapping.`,
+            ...ranked.reasons,
+          ],
+          6,
+        ),
+        notes: dedupeStrings(
+          [...(record.notes ?? []), ...ranked.notes],
+          6,
+        ),
+      },
       sourceType === "manual" ? "Saved fallback" : "Current mapping",
-      Number(record.matchScore) || (record.confidence === "High" ? 82 : record.confidence === "Medium" ? 62 : 38),
-      dedupeStrings(
-        [
-          tidy(record.rationale),
-          `${product.sku} is the currently stored WyreStorm mapping.`,
-        ],
-        4,
-      ),
-      dedupeStrings(record.notes ?? [], 4),
       sourceType,
     );
   }
@@ -1307,6 +2701,52 @@ function fallbackOption(
         note: "Stored mapping needs a verified catalog comparison matrix.",
       },
     ],
+    decisionWorkflow: [
+      {
+        id: "role",
+        title: "Product role",
+        weight: 15,
+        status: "warn",
+        summary: "Stored mapping exists, but the live comparison data is incomplete.",
+        detail: "Verify the competitor SKU and the WyreStorm SKU before treating this as a like-for-like result.",
+      },
+    ],
+    ioBreakdown: {
+      competitorInputTotal: 0,
+      wyrestormInputTotal: 0,
+      competitorOutputTotal: 0,
+      wyrestormOutputTotal: 0,
+      inputCoveragePercent: 0,
+      outputCoveragePercent: 0,
+      ioCoveragePercent: 0,
+      inputParity: "unknown",
+      outputParity: "unknown",
+      overallParity: "unknown",
+      inputs: [],
+      outputs: [],
+      summary: "Competitor I/O is not captured on this stored mapping.",
+    },
+    matchBasis: {
+      method: "manual-review",
+      classAlignment: false,
+      transportAlignment: false,
+      inputParity: "unknown",
+      outputParity: "unknown",
+      ioCoveragePercent: 0,
+      workflowCoveragePercent: 0,
+      specCoveragePercent: 0,
+      blockerCount: 1,
+      blockers: ["Stored mapping needs a verified catalog comparison before it can be trusted."],
+      warningCount: 1,
+      summary:
+        "Stored fallback only. Verify the SKU pair before presenting this as a valid replacement.",
+    },
+    highlights: {
+      matches: [],
+      gaps: ["Stored mapping needs a verified catalog comparison matrix."],
+      extras: [],
+      reviews: ["Competitor data is incomplete, so this result is a manual fallback only."],
+    },
     sourceType,
   };
 }
@@ -1317,6 +2757,8 @@ export function buildComparisonOptions(
 ): CompetitorCompareOption[] {
   const competitor = resolveCompetitor(record);
   const ranked = rankWyrestormCandidates(competitor);
+  const reviewRanked = reviewWyrestormCandidates(competitor);
+  const familyRanked = familyHintCandidates(record, competitor);
   const out: CompetitorCompareOption[] = [];
   const seen = new Set<string>();
 
@@ -1331,21 +2773,49 @@ export function buildComparisonOptions(
     pushOption(fallbackOption(record, sourceType));
   }
 
-  const rankedLabels = ["Best fit", "Closest parity", "Alternate path"];
   ranked.slice(0, 4).forEach((candidate, index) => {
     pushOption(
       buildOption(
         record,
         competitor,
-        candidate.product,
-        rankedLabels[Math.min(index, rankedLabels.length - 1)],
-        candidate.score,
-        candidate.reasons,
-        dedupeStrings(candidate.notes, 4),
+        candidate,
+        labelForRankedCandidate(candidate, index),
         sourceType === "lookup" ? "lookup" : "curated",
       ),
     );
   });
+
+  if (out.length < 3) {
+    familyRanked.forEach((candidate, index) => {
+      if (out.length >= 3) return;
+      pushOption(
+        buildOption(
+          record,
+          competitor,
+          candidate,
+          index === 0 ? "Closest family option" : "Family fallback",
+          sourceType === "lookup" ? "lookup" : "curated",
+        ),
+      );
+    });
+  }
+
+  if (out.length < 3) {
+    reviewRanked
+      .filter((candidate) => candidate.matchBasis.method === "manual-review")
+      .forEach((candidate, index) => {
+        if (out.length >= 3) return;
+        pushOption(
+          buildOption(
+            record,
+            competitor,
+            candidate,
+            labelForRankedCandidate(candidate, ranked.length + familyRanked.length + index),
+            sourceType === "lookup" ? "lookup" : "curated",
+          ),
+        );
+      });
+  }
 
   if (out.length === 0) {
     pushOption(fallbackOption(record, sourceType));

@@ -215,16 +215,16 @@ function salesAdvice(
 ): string[] {
   if (candidates.length === 0) {
     return [
-      "Ask for one more identifier such as the full SKU, product URL, or product family.",
-      "If the customer only has a partial SKU, confirm whether it is TX/RX, encoder/decoder, or switcher/matrix.",
-      "Use live verification once the target competitor SKU is narrowed down.",
+      "If the SKU is not already in Wingman's local competitor library, use Look up SKU to scrape the live product page and capture its specs.",
+      "Ask for one more identifier such as the full SKU, product URL, or product family if the lookup still needs help.",
+      "Once the live scrape returns, compare the captured specs against the WyreStorm shortlist in the matrix.",
     ];
   }
 
   const best = candidates[0];
   const primary = best.primaryOption;
   const out = [
-    "Search confidence tells you how sure Wingman is about the competitor SKU identification before live verification.",
+    "Search confidence tells you how sure Wingman is about the competitor SKU identification inside the local Wingman library.",
     primary
       ? `Lead with ${primary.wyrestormSku} as the ${primary.label.toLowerCase()} for ${best.comparison.competitorSku}.`
       : `Lead with ${best.comparison.wyrestormSku} as the nearest WyreStorm fit for ${best.comparison.competitorSku}.`,
@@ -291,12 +291,12 @@ export function searchCompetitorComparisons(
       query: cleanQuery,
       status: "idle",
       summary:
-        "Start typing a competitor SKU or model to shortlist likely WyreStorm fits.",
+        "Pick a stored competitor SKU to compare locally, or type an unknown SKU and use Look up SKU to scrape it live.",
       candidates: [],
       suggestedWyrestormSkus: [],
       clarifyingQuestions: [],
       salesAdvice: [
-        "Use at least two characters from the competitor SKU or model to begin searching.",
+        "Use at least two characters from the competitor SKU or model to begin searching the local library.",
       ],
     };
   }
@@ -325,10 +325,13 @@ export function searchCompetitorComparisons(
       brand: cleanBrand,
       query: cleanQuery,
       status: "no-match",
-      summary: "No local comparison match found yet. Add more detail or verify live.",
+      summary:
+        "This SKU is not in Wingman's local competitor library yet. Use Look up SKU to scrape the live product page and build a comparison.",
       candidates: [],
       suggestedWyrestormSkus: [],
-      clarifyingQuestions: ["Ask for the full SKU, product page URL, or product family."],
+      clarifyingQuestions: [
+        "Ask for the full SKU, product page URL, or product family if the live lookup needs more context.",
+      ],
       salesAdvice: salesAdvice("no-match", []),
     };
   }
@@ -357,7 +360,9 @@ export function searchCompetitorComparisons(
     summary:
       status === "ambiguous"
         ? `Multiple competitor matches fit "${cleanQuery}". Confirm the exact SKU before sharing a final replacement.`
-        : `Nearest local match: ${top.comparison.competitorSku} -> ${top.primaryOption?.wyrestormSku || top.comparison.wyrestormSku}.`,
+        : top.exactSku
+          ? `Stored local SKU found: ${top.comparison.competitorSku} -> ${top.primaryOption?.wyrestormSku || top.comparison.wyrestormSku}.`
+          : `Nearest local match: ${top.comparison.competitorSku} -> ${top.primaryOption?.wyrestormSku || top.comparison.wyrestormSku}.`,
     candidates,
     bestCandidate: top,
     suggestedWyrestormSkus,
@@ -383,7 +388,7 @@ export async function verifyCompetitorComparisonLive(
         sourceType: "lookup",
         sourceLabel: record.provenance?.label || result.lookup.provenance.label,
         searchReasons: [
-          "Live verification returned a competitor comparison record.",
+          "Live lookup returned a competitor comparison record.",
         ],
       })
     : undefined;
