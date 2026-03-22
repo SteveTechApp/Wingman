@@ -135,6 +135,8 @@ export type ProjectDiscovery = {
   displayLocation?: string;
   sourceLocation?: string;
   rackLocation?: string;
+  sourceToRackDistanceM?: string;
+  rackToDisplayDistanceM?: string;
   cableDistanceM?: string;
   transportDistanceBand?: string;
   transportCableType?: string;

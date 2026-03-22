@@ -1,7 +1,8 @@
 export const WM_ROUTES = {
   dashboard: "/app/dashboard",
   projects: "/app/projects",
-  newProject: "/app/projects/new",
+  projectLauncher: "/app/projects/new",
+  newProject: "/app/tools/room-wizard/new",
   tools: "/app/tools",
   navigator: "/app/tools/navigator",
   discovery: "/app/tools/discovery",

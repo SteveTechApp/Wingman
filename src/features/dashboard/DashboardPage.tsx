@@ -24,11 +24,11 @@ const workflowCards: WorkflowCard[] = [
     eyebrow: "Discovery",
     title: "Start a new project",
     description:
-      "Set up a clean project shell and move straight into discovery.",
+      "Open a blank manual designer and capture the room, routing, and I/O from scratch.",
     supportingPoints: [
-      "Capture the basics",
-      "Shape the room scope",
-      "Start guided design",
+      "Map the room envelope",
+      "Capture route distances",
+      "Specify the technology fit",
     ],
     to: WM_ROUTES.newProject,
     accentRgb: "115, 231, 255",

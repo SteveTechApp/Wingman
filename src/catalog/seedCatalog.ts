@@ -175,7 +175,7 @@ function pickFamilyLabel(familyCode: string, sku: string): string {
 
 function pickFeatures(description: string): string[] {
   const segments = splitDescription(description);
-  const features = segments.slice(1, 7);
+  const features = segments.slice(1, 10);
 
   if (features.length > 0) return features;
 
@@ -183,7 +183,7 @@ function pickFeatures(description: string): string[] {
     .split(",")
     .map((item) => cleanText(item))
     .filter(Boolean)
-    .slice(1, 7);
+    .slice(1, 10);
 }
 
 function toDerivedCatalogProduct(row: MasterSkuRow): CatalogProduct | null {
@@ -210,6 +210,7 @@ function toDerivedCatalogProduct(row: MasterSkuRow): CatalogProduct | null {
     subcategory: classification.label,
     status: "active",
     summary,
+    role: classification.label,
     inputs: ports.inputs,
     outputs: ports.outputs,
     control: /\bcec\b|\brs-?232\b|\bir\b|\bweb ui\b/i.test(description) ? ["Control"] : [],
@@ -218,7 +219,9 @@ function toDerivedCatalogProduct(row: MasterSkuRow): CatalogProduct | null {
     transport: pickTransport(familyCode, description),
     distance: pickDistance(description),
     features: pickFeatures(description),
-    notes: `Expanded from ${cleanText(WYRESTORM_SKU_CATALOG_SOURCE) || "WyreStorm SKU master"}.`,
+    notes: description
+      ? `${description} Source: ${cleanText(WYRESTORM_SKU_CATALOG_SOURCE) || "WyreStorm SKU master"}.`
+      : `Expanded from ${cleanText(WYRESTORM_SKU_CATALOG_SOURCE) || "WyreStorm SKU master"}.`,
   };
 }
 

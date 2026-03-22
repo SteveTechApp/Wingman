@@ -111,9 +111,9 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
   {
     id: "start-project",
     title: "Start New Project",
-    description: "Create a project and choose the best starting path for the opportunity.",
+    description: "Open a blank designer to capture the room, routing, and I/O before choosing the technology.",
     kind: "feature",
-    to: "/app/projects/new",
+    to: "/app/tools/room-wizard/new",
     tag: "Primary",
     highlight: "Best place to start",
     accentRgb: "96,165,250",
@@ -144,7 +144,7 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
   {
     id: "room-designer",
     title: "Room Designer",
-    description: "Build a more tailored design when the project needs a custom approach.",
+    description: "Build a tailored design by mapping room geometry, routes, and point-to-point transport distances.",
     kind: "feature",
     to: "/app/tools/room-wizard",
     tag: "Workflow",

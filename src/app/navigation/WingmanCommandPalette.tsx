@@ -263,11 +263,11 @@ export default function WingmanCommandPalette({
     {
       id: "new-project",
       label: "Start New Project",
-      description: "Open the project launcher with guided, template, and import starting methods.",
+      description: "Open the blank project designer to capture room detail, routing, and I/O manually.",
       group: "Start",
       kind: "create",
-      badge: "Launcher",
-      keywords: ["launcher", "project", "guided", "template", "import"],
+      badge: "Designer",
+      keywords: ["designer", "project", "blank", "room", "routing", "io"],
       run: () => {
         onClose();
         navigate(WM_ROUTES.newProject);

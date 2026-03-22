@@ -1,0 +1,324 @@
+Set-Location C:\Users\steve\wingman
+$ErrorActionPreference = "Stop"
+
+function Save-Utf8NoBom {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$Content
+  )
+  $dir = Split-Path $Path -Parent
+  if ($dir -and -not (Test-Path $dir)) {
+    New-Item -ItemType Directory -Force -Path $dir | Out-Null
+  }
+  $utf8 = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($Path, $Content, $utf8)
+}
+
+function Backup-File {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$BackupRoot
+  )
+  if (-not (Test-Path $Path)) { return }
+  $full = [System.IO.Path]::GetFullPath($Path)
+  $root = [System.IO.Path]::GetFullPath((Get-Location).Path)
+  $relative = $full.Substring($root.Length).TrimStart('\' , '/')
+  $dest = Join-Path $BackupRoot $relative
+  $destDir = Split-Path $dest -Parent
+  New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+  Copy-Item $Path $dest -Force
+}
+
+$root = (Get-Location).Path
+$stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$backupRoot = Join-Path $root "_RESCUE\video-wall-next-pass-$stamp"
+New-Item -ItemType Directory -Force -Path $backupRoot | Out-Null
+
+$pagePath = Join-Path $root "src\features\misc\VideoWallPlannerPage.tsx"
+$hostBlockPath = Join-Path $root "src\features\misc\videoWall\VideoWallShellHostBlock.tsx.txt"
+$migrationGuidePath = Join-Path $root "src\features\misc\videoWall\VIDEO-WALL-RETURN-MIGRATION.md"
+
+if (-not (Test-Path $pagePath)) {
+  throw "Could not find $pagePath"
+}
+
+Backup-File -Path $pagePath -BackupRoot $backupRoot
+$page = Get-Content $pagePath -Raw
+
+if ($page -notmatch 'VideoWallSolutionShell') {
+  throw "VideoWallSolutionShell import not found. Run the first pass script first."
+}
+
+if ($page -notmatch 'VideoWallStepSection') {
+  throw "VideoWallStepSection import not found. Run the first pass script first."
+}
+
+if ($page -notmatch 'const \[activeTab,\s*setActiveTab\]') {
+  throw "activeTab state not found. Run the first pass script first."
+}
+
+$hostBlock = @'
+return (
+  <VideoWallSolutionShell
+    title="Faster wall design workflow"
+    subtitle="Guide the user to the right wall architecture first, then expose the detail needed to validate the design and build the bill of materials."
+    recommendationTitle={recommendedSolutionTitle}
+    recommendationSummary={recommendedSolutionSummary}
+    recommendationMeta={
+      <div style={{ display: "grid", gap: 10 }}>
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 800,
+            color: "rgba(167,201,255,0.76)",
+            textTransform: "uppercase",
+            letterSpacing: 0.6,
+          }}
+        >
+          System fit
+        </div>
+
+        <div style={{ display: "grid", gap: 8 }}>
+          <RecommendationPill label="System type" value={systemTypeLabel} />
+          <RecommendationPill label="Complexity" value={complexityLabel} />
+          <RecommendationPill label="Cost band" value={costBandLabel} />
+          <RecommendationPill label="Best for" value={useCaseLabel} />
+        </div>
+      </div>
+    }
+    recommendationWhy={
+      <div style={{ display: "grid", gap: 8 }}>
+        <div style={{ fontWeight: 800, color: "#fff" }}>Why this works</div>
+        <ul style={{ margin: 0, paddingLeft: 18, color: "rgba(226,238,255,0.86)", lineHeight: 1.5 }}>
+          {recommendationReasons.map((reason) => (
+            <li key={reason}>{reason}</li>
+          ))}
+        </ul>
+      </div>
+    }
+    rightRail={
+      <div style={{ display: "grid", gap: 10 }}>
+        <div style={{ fontWeight: 800, color: "#fff" }}>Alternative architectures</div>
+        <div style={{ display: "grid", gap: 8 }}>
+          {architectureAlternatives.map((item) => (
+            <div
+              key={item.title}
+              style={{
+                border: "1px solid rgba(100,180,255,0.14)",
+                borderRadius: 12,
+                padding: 10,
+                background: "rgba(255,255,255,0.02)",
+              }}
+            >
+              <div style={{ fontWeight: 800, color: "#fff" }}>{item.title}</div>
+              <div style={{ fontSize: 12, color: "rgba(220,233,255,0.74)", lineHeight: 1.45 }}>
+                {item.summary}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    }
+    controls={
+      <div style={{ display: "grid", gap: 12 }}>
+        <VideoWallStepSection
+          title="Wall format"
+          subtitle="Define the physical wall first."
+          defaultOpen
+        >
+          {renderWallFormatControls()}
+        </VideoWallStepSection>
+
+        <VideoWallStepSection
+          title="Content and sources"
+          subtitle="How many sources and how flexible the layout must be."
+          defaultOpen
+        >
+          {renderContentControls()}
+        </VideoWallStepSection>
+
+        <VideoWallStepSection
+          title="Performance"
+          subtitle="Resolution, latency and display strategy."
+          defaultOpen
+        >
+          {renderPerformanceControls()}
+        </VideoWallStepSection>
+
+        <VideoWallStepSection
+          title="Advanced options"
+          subtitle="Technical detail for engineers."
+          defaultOpen={false}
+        >
+          {renderAdvancedControls()}
+        </VideoWallStepSection>
+      </div>
+    }
+    preview={
+      <div style={{ display: "grid", gap: 14, height: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ display: "grid", gap: 4 }}>
+            <div
+              style={{
+                fontSize: 11,
+                textTransform: "uppercase",
+                letterSpacing: 0.6,
+                color: "rgba(167,201,255,0.76)",
+                fontWeight: 800,
+              }}
+            >
+              Wall preview
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: "#fff" }}>
+              {previewTitle}
+            </div>
+            <div style={{ fontSize: 13, color: "rgba(220,233,255,0.74)" }}>
+              {previewSubtitle}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {renderPreviewToggles()}
+          </div>
+        </div>
+
+        <div
+          style={{
+            flex: 1,
+            minHeight: 460,
+            border: "1px solid rgba(100,180,255,0.14)",
+            borderRadius: 14,
+            background: "radial-gradient(circle at top, rgba(18,58,110,0.22), rgba(5,12,24,0.94))",
+            padding: 18,
+            display: "grid",
+            placeItems: "center",
+          }}
+        >
+          {renderWallPreview()}
+        </div>
+      </div>
+    }
+    tabs={[
+      { key: "overview", label: "System Overview" },
+      { key: "bom", label: "Bill of Materials" },
+      { key: "signal", label: "Signal Path" },
+      { key: "technical", label: "Technical" },
+    ]}
+    activeTab={activeTab}
+    onTabChange={setActiveTab}
+    tabContent={
+      activeTab === "overview" ? (
+        renderOverviewTab()
+      ) : activeTab === "bom" ? (
+        renderBomTab()
+      ) : activeTab === "signal" ? (
+        renderSignalTab()
+      ) : (
+        renderTechnicalTab()
+      )
+    }
+  />
+);
+'@
+
+$migrationGuide = @'
+# Video Wall Planner - Return Migration
+
+## Objective
+Replace the current large return block inside VideoWallPlannerPage.tsx with the shell host block.
+
+## File generated
+- src/features/misc/videoWall/VideoWallShellHostBlock.tsx.txt
+
+## Safer migration method
+
+1. Open src/features/misc/VideoWallPlannerPage.tsx
+2. Open src/features/misc/videoWall/VideoWallShellHostBlock.tsx.txt
+3. Replace only the main return block with the host block file content
+4. Run npm run typecheck
+'@
+
+Save-Utf8NoBom -Path $hostBlockPath -Content $hostBlock
+Save-Utf8NoBom -Path $migrationGuidePath -Content $migrationGuide
+
+if ($page -notmatch 'const recommendedSolutionTitle =') {
+  $insertBlock = @'
+
+  const recommendedSolutionTitle = recommendation?.title ?? "Recommended video wall solution";
+  const recommendedSolutionSummary =
+    recommendation?.summary ??
+    "Wingman has selected the best-fit wall architecture based on scale, source flexibility and deployment intent.";
+
+  const recommendationReasons =
+    recommendation?.reasons?.length
+      ? recommendation.reasons
+      : [
+          `${rows}x${cols} wall format selected`,
+          `${sourceCount} source${sourceCount === 1 ? "" : "s"} in scope`,
+          "Architecture selected for fit, scalability and deployment simplicity",
+        ];
+
+  const systemTypeLabel = recommendation?.architectureLabel ?? "AV architecture";
+  const complexityLabel = recommendation?.complexityLabel ?? "Medium";
+  const costBandLabel = recommendation?.costBandLabel ?? "Mid-range";
+  const useCaseLabel = recommendation?.useCaseLabel ?? "Corporate / signage";
+
+  const architectureAlternatives =
+    recommendation?.alternatives?.length
+      ? recommendation.alternatives
+      : [
+          {
+            title: "Processor-based wall",
+            summary: "Best for fixed-format deployments where full AVoIP flexibility is not required.",
+          },
+          {
+            title: "Matrix-based distribution",
+            summary: "Suitable for simpler systems, but less scalable for larger multi-source wall designs.",
+          },
+        ];
+
+  const previewTitle = `${rows} x ${cols} ${wallType === "led" ? "LED" : "LCD"} wall`;
+  const previewSubtitle = `${systemTypeLabel} â€¢ ${useCaseLabel}`;
+'@
+
+  $anchor = 'const \[activeTab,\s*setActiveTab\]\s*=\s*React\.useState<VideoWallTabKey>\("overview"\);'
+  if ([regex]::IsMatch($page, $anchor)) {
+    $page = [regex]::Replace(
+      $page,
+      $anchor,
+      {
+        param($m)
+        $m.Value + $insertBlock
+      },
+      1
+    )
+  }
+}
+
+Save-Utf8NoBom -Path $pagePath -Content $page
+
+Write-Host ""
+Write-Host "Created:"
+Write-Host " - $hostBlockPath"
+Write-Host " - $migrationGuidePath"
+Write-Host ""
+Write-Host "Updated:"
+Write-Host " - $pagePath"
+Write-Host ""
+Write-Host "Backed up:"
+Write-Host " - $backupRoot"
+Write-Host ""
+Write-Host "Next manual step:"
+Write-Host "  1. Open VideoWallPlannerPage.tsx"
+Write-Host "  2. Open VideoWallShellHostBlock.tsx.txt"
+Write-Host "  3. Replace the page return block with the host block"
+Write-Host "  4. Move existing JSX sections into the helper functions"
+Write-Host "  5. Run npm run typecheck"

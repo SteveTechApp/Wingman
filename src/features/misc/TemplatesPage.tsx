@@ -19,7 +19,7 @@ import {
 const TEMPLATE_SEED_KEY = "wm_template_seed";
 
 const TOOL_LABELS: Record<string, string> = {
-  "/app/tools/room-wizard": "Room Wizard",
+  "/app/tools/room-wizard": "Room Designer",
   "/app/tools/proposal": "Proposal Builder",
   "/app/tools/catalog": "Product Catalogue",
   "/app/tools/video-wall": "Video Wall Planner",
@@ -724,7 +724,7 @@ export default function TemplatesPage() {
       sessionStorage.setItem(TEMPLATE_SEED_KEY, JSON.stringify(payload, null, 2));
     } catch {}
 
-    nav(WM_ROUTES.newProject);
+    nav(WM_ROUTES.projectLauncher);
   }
 
   function goToRecommendedTool() {

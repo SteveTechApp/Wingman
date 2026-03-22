@@ -96,8 +96,11 @@ export type DiscoverySeed = {
   displayLocation?: string;
   sourceLocation?: string;
   rackLocation?: string;
+  sourceToRackDistanceM?: string;
+  rackToDisplayDistanceM?: string;
   cableDistanceM?: string;
   transportDistanceBand?: string;
+  transportCableType?: string;
   displayCount?: string;
   sourceCount?: string;
   sourceTypes?: string;

@@ -1,0 +1,169 @@
+return (
+  <VideoWallSolutionShell
+    title="Faster wall design workflow"
+    subtitle="Guide the user to the right wall architecture first, then expose the detail needed to validate the design and build the bill of materials."
+    recommendationTitle={recommendedSolutionTitle}
+    recommendationSummary={recommendedSolutionSummary}
+    recommendationMeta={
+      <div style={{ display: "grid", gap: 10 }}>
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 800,
+            color: "rgba(167,201,255,0.76)",
+            textTransform: "uppercase",
+            letterSpacing: 0.6,
+          }}
+        >
+          System fit
+        </div>
+
+        <div style={{ display: "grid", gap: 8 }}>
+          <RecommendationPill label="System type" value={systemTypeLabel} />
+          <RecommendationPill label="Complexity" value={complexityLabel} />
+          <RecommendationPill label="Cost band" value={costBandLabel} />
+          <RecommendationPill label="Best for" value={useCaseLabel} />
+        </div>
+      </div>
+    }
+    recommendationWhy={
+      <div style={{ display: "grid", gap: 8 }}>
+        <div style={{ fontWeight: 800, color: "#fff" }}>Why this works</div>
+        <ul style={{ margin: 0, paddingLeft: 18, color: "rgba(226,238,255,0.86)", lineHeight: 1.5 }}>
+          {recommendationReasons.map((reason) => (
+            <li key={reason}>{reason}</li>
+          ))}
+        </ul>
+      </div>
+    }
+    rightRail={
+      <div style={{ display: "grid", gap: 10 }}>
+        <div style={{ fontWeight: 800, color: "#fff" }}>Alternative architectures</div>
+        <div style={{ display: "grid", gap: 8 }}>
+          {architectureAlternatives.map((item) => (
+            <div
+              key={item.title}
+              style={{
+                border: "1px solid rgba(100,180,255,0.14)",
+                borderRadius: 12,
+                padding: 10,
+                background: "rgba(255,255,255,0.02)",
+              }}
+            >
+              <div style={{ fontWeight: 800, color: "#fff" }}>{item.title}</div>
+              <div style={{ fontSize: 12, color: "rgba(220,233,255,0.74)", lineHeight: 1.45 }}>
+                {item.summary}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    }
+    controls={
+      <div style={{ display: "grid", gap: 12 }}>
+        <VideoWallStepSection
+          title="Wall format"
+          subtitle="Define the physical wall first."
+          defaultOpen
+        >
+          {renderWallFormatControls()}
+        </VideoWallStepSection>
+
+        <VideoWallStepSection
+          title="Content and sources"
+          subtitle="How many sources and how flexible the layout must be."
+          defaultOpen
+        >
+          {renderContentControls()}
+        </VideoWallStepSection>
+
+        <VideoWallStepSection
+          title="Performance"
+          subtitle="Resolution, latency and display strategy."
+          defaultOpen
+        >
+          {renderPerformanceControls()}
+        </VideoWallStepSection>
+
+        <VideoWallStepSection
+          title="Advanced options"
+          subtitle="Technical detail for engineers."
+          defaultOpen={false}
+        >
+          {renderAdvancedControls()}
+        </VideoWallStepSection>
+      </div>
+    }
+    preview={
+      <div style={{ display: "grid", gap: 14, height: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ display: "grid", gap: 4 }}>
+            <div
+              style={{
+                fontSize: 11,
+                textTransform: "uppercase",
+                letterSpacing: 0.6,
+                color: "rgba(167,201,255,0.76)",
+                fontWeight: 800,
+              }}
+            >
+              Wall preview
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: "#fff" }}>
+              {previewTitle}
+            </div>
+            <div style={{ fontSize: 13, color: "rgba(220,233,255,0.74)" }}>
+              {previewSubtitle}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {renderPreviewToggles()}
+          </div>
+        </div>
+
+        <div
+          style={{
+            flex: 1,
+            minHeight: 460,
+            border: "1px solid rgba(100,180,255,0.14)",
+            borderRadius: 14,
+            background: "radial-gradient(circle at top, rgba(18,58,110,0.22), rgba(5,12,24,0.94))",
+            padding: 18,
+            display: "grid",
+            placeItems: "center",
+          }}
+        >
+          {renderWallPreview()}
+        </div>
+      </div>
+    }
+    tabs={[
+      { key: "overview", label: "System Overview" },
+      { key: "bom", label: "Bill of Materials" },
+      { key: "signal", label: "Signal Path" },
+      { key: "technical", label: "Technical" },
+    ]}
+    activeTab={activeTab}
+    onTabChange={setActiveTab}
+    tabContent={
+      activeTab === "overview" ? (
+        renderOverviewTab()
+      ) : activeTab === "bom" ? (
+        renderBomTab()
+      ) : activeTab === "signal" ? (
+        renderSignalTab()
+      ) : (
+        renderTechnicalTab()
+      )
+    }
+  />
+);
