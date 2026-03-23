@@ -20,6 +20,7 @@ import {
   RECENT_TEXT_HISTORY_KEYS,
   rememberRecentTextEntry,
 } from "@/features/inputs/recentTextEntries";
+import type { ProjectDevice } from "@/features/systemDesign/designTypes";
 
 export type DiscoveryProductFamily =
   | "Apollo"
@@ -37,9 +38,15 @@ export type ProjectTemplateContext = {
   market: string;
   application: string;
   tier: ProjectTemplateTier;
+  templateId?: string;
   summary?: string;
+  solutionSummary?: string;
   recommendedFamilies?: DiscoveryProductFamily[];
   assumptions?: string[];
+  includedSystems?: string[];
+  uplift?: string[];
+  nextTool?: string;
+  starterDevices?: ProjectDevice[];
   createdAt?: string;
 };
 
@@ -117,6 +124,20 @@ export type ProjectCompareRecord = {
   createdAt?: string;
 };
 
+export type ProjectDiscoveryInputDetail = {
+  sourceType?: string;
+  connectionType?: string;
+  cableType?: string;
+  route?: string;
+  sourceLocation?: string;
+};
+
+export type ProjectDiscoveryOutputDetail = {
+  outputType?: string;
+  route?: string;
+  displayLocation?: string;
+};
+
 export type ProjectDiscovery = {
   customer: string;
   site: string;
@@ -131,6 +152,8 @@ export type ProjectDiscovery = {
   roomLengthM?: string;
   roomWidthM?: string;
   roomHeightM?: string;
+  floorType?: string;
+  ceilingType?: string;
   installationPath?: string;
   displayLocation?: string;
   sourceLocation?: string;
@@ -164,14 +187,25 @@ export type ProjectDiscovery = {
   passthroughNeeds?: string;
   budgetBand?: string;
   urgency?: string;
+  inputDetails?: ProjectDiscoveryInputDetail[];
+  outputDetails?: ProjectDiscoveryOutputDetail[];
   notes?: string;
   recommendedFamilies?: DiscoveryProductFamily[];
   recommendedNextTool?: string;
   createdAt?: string;
 };
 
+export type ProjectCatalogBomItem = {
+  sku: string;
+  quantity: number;
+  role: string;
+  description: string;
+  notes?: string;
+};
+
 export type ProjectCatalog = {
   skus?: string[];
+  bomItems?: ProjectCatalogBomItem[];
   selectedBrand?: string;
   notes?: string;
 };
@@ -381,6 +415,65 @@ function normalizeRecommendedFamilies(value: unknown): DiscoveryProductFamily[] 
   );
 }
 
+function normalizeTemplateDevices(value: unknown): ProjectDevice[] {
+  if (!Array.isArray(value)) return [];
+  const devices: ProjectDevice[] = [];
+  for (const device of value) {
+    const item = device as ProjectDevice | undefined;
+    const id = String(item?.id ?? "").trim();
+    const name = String(item?.name ?? "").trim();
+    const role = item?.role;
+    if (!id || !name || !role) continue;
+
+    const ports = Array.isArray(item?.ports)
+      ? item.ports.flatMap((port) => {
+          const portId = String(port?.id ?? "").trim();
+          const portName = String(port?.name ?? "").trim();
+          if (!portId || !portName || !port?.kind || !port?.direction) return [];
+          return [{
+            id: portId,
+            name: portName,
+            kind: port.kind,
+            direction: port.direction,
+          }];
+        })
+      : undefined;
+
+    devices.push({
+      id,
+      name,
+      role,
+      manufacturer: typeof item?.manufacturer === "string" ? item.manufacturer.trim() : undefined,
+      family: typeof item?.family === "string" ? item.family.trim() : undefined,
+      sku: typeof item?.sku === "string" ? item.sku.trim().toUpperCase() : undefined,
+      location: typeof item?.location === "string" ? item.location.trim() : undefined,
+      ports,
+    });
+  }
+  return devices;
+}
+
+function normalizeCatalogBomItems(value: unknown): ProjectCatalogBomItem[] {
+  if (!Array.isArray(value)) return [];
+  const items: ProjectCatalogBomItem[] = [];
+  for (const rawItem of value) {
+    const item = rawItem as ProjectCatalogBomItem | undefined;
+    const sku = String(item?.sku ?? "").trim().toUpperCase();
+    const description = String(item?.description ?? "").trim();
+    const role = String(item?.role ?? "").trim();
+    if (!sku || !description || !role) continue;
+
+    items.push({
+      sku,
+      quantity: Math.max(1, Number(item?.quantity) || 1),
+      role,
+      description,
+      notes: typeof item?.notes === "string" ? item.notes.trim() : undefined,
+    });
+  }
+  return items;
+}
+
 function normalizeDiscovery(discovery?: ProjectDiscovery): ProjectDiscovery | undefined {
   if (!discovery) return undefined;
   return {
@@ -395,6 +488,8 @@ function normalizeDiscovery(discovery?: ProjectDiscovery): ProjectDiscovery | un
     matrixIoPreset: discovery.matrixIoPreset ?? "",
     featureRequirements: discovery.featureRequirements ?? "",
     notes: discovery.notes ?? "",
+    floorType: discovery.floorType ?? "",
+    ceilingType: discovery.ceilingType ?? "",
     installationPath: discovery.installationPath ?? "",
     transportDistanceBand: discovery.transportDistanceBand ?? "",
     transportCableType: discovery.transportCableType ?? "",
@@ -415,6 +510,22 @@ function normalizeDiscovery(discovery?: ProjectDiscovery): ProjectDiscovery | un
     powerPreference: discovery.powerPreference ?? "",
     passthroughNeeds: discovery.passthroughNeeds ?? "",
     usbStandards: discovery.usbStandards ?? "",
+    inputDetails: Array.isArray(discovery.inputDetails)
+      ? discovery.inputDetails.map((detail) => ({
+          sourceType: detail?.sourceType ?? "",
+          connectionType: detail?.connectionType ?? "",
+          cableType: detail?.cableType ?? "",
+          route: detail?.route ?? "",
+          sourceLocation: detail?.sourceLocation ?? "",
+        }))
+      : [],
+    outputDetails: Array.isArray(discovery.outputDetails)
+      ? discovery.outputDetails.map((detail) => ({
+          outputType: detail?.outputType ?? "",
+          route: detail?.route ?? "",
+          displayLocation: detail?.displayLocation ?? "",
+        }))
+      : [],
     recommendedFamilies: normalizeRecommendedFamilies(discovery.recommendedFamilies),
   };
 }
@@ -423,11 +534,36 @@ function normalizeTemplate(template?: ProjectTemplateContext): ProjectTemplateCo
   if (!template) return undefined;
   return {
     ...template,
+    templateId: typeof template.templateId === "string" ? template.templateId.trim() : undefined,
     market: template.market ?? "",
     application: template.application ?? "",
     tier: template.tier ?? "Bronze",
+    summary: typeof template.summary === "string" ? template.summary.trim() : undefined,
+    solutionSummary: typeof template.solutionSummary === "string" ? template.solutionSummary.trim() : undefined,
     recommendedFamilies: normalizeRecommendedFamilies(template.recommendedFamilies),
     assumptions: Array.isArray(template.assumptions) ? template.assumptions.filter((x): x is string => typeof x === "string") : [],
+    includedSystems: Array.isArray(template.includedSystems)
+      ? template.includedSystems.filter((x): x is string => typeof x === "string")
+      : [],
+    uplift: Array.isArray(template.uplift) ? template.uplift.filter((x): x is string => typeof x === "string") : [],
+    nextTool: typeof template.nextTool === "string" ? template.nextTool.trim() : undefined,
+    starterDevices: normalizeTemplateDevices(template.starterDevices),
+  };
+}
+
+function normalizeCatalog(catalog?: ProjectCatalog): ProjectCatalog | undefined {
+  if (!catalog) return undefined;
+  const skus = Array.isArray(catalog.skus)
+    ? catalog.skus
+        .map((item) => String(item ?? "").trim().toUpperCase())
+        .filter(Boolean)
+    : [];
+
+  return {
+    skus,
+    bomItems: normalizeCatalogBomItems(catalog.bomItems),
+    selectedBrand: typeof catalog.selectedBrand === "string" ? catalog.selectedBrand.trim() : undefined,
+    notes: typeof catalog.notes === "string" ? catalog.notes.trim() : undefined,
   };
 }
 
@@ -711,6 +847,7 @@ function normalizeProject(project: StoredProject): StoredProject {
   const template = normalizeTemplate(project.template);
   const videowall = normalizeVideoWall(project.videowall);
   const compare = normalizeCompare(project.compare);
+  const catalog = normalizeCatalog(project.catalog);
   return {
     ...project,
     customer: project.customer ?? discovery?.customer ?? "",
@@ -721,7 +858,7 @@ function normalizeProject(project: StoredProject): StoredProject {
     template,
     videowall,
     compare,
-    catalog: project.catalog ?? { skus: [] },
+    catalog: catalog ?? { skus: [], bomItems: [] },
     proposal: project.proposal,
     attachments: normalizeAttachments(project.attachments),
     comments: normalizeComments(project.comments),
@@ -934,6 +1071,7 @@ export function createProject(partial?: Partial<StoredProject>): StoredProject {
   const template = normalizeTemplate(partial?.template);
   const videowall = normalizeVideoWall(partial?.videowall);
   const compare = normalizeCompare(partial?.compare);
+  const catalog = normalizeCatalog(partial?.catalog);
 
   const project: StoredProject = normalizeProject({
     id: partial?.id ?? makeId(),
@@ -952,7 +1090,7 @@ export function createProject(partial?: Partial<StoredProject>): StoredProject {
     template,
     videowall,
     compare,
-    catalog: partial?.catalog ?? { skus: [] },
+    catalog: catalog ?? { skus: [], bomItems: [] },
     proposal: partial?.proposal,
     attachments: partial?.attachments ?? [],
     comments: partial?.comments ?? [],
@@ -980,6 +1118,7 @@ export function updateProject(id: string, patch: Partial<StoredProject>): Stored
 
   const next = projects.map((project) => {
     if (project.id !== id) return project;
+    const catalog = normalizeCatalog(patch.catalog ?? project.catalog);
     updated = normalizeProject({
       ...project,
       ...patch,
@@ -990,7 +1129,7 @@ export function updateProject(id: string, patch: Partial<StoredProject>): Stored
       template: patch.template ? normalizeTemplate(patch.template) : project.template,
       videowall: patch.videowall ? normalizeVideoWall(patch.videowall) : project.videowall,
       compare: patch.compare ? normalizeCompare(patch.compare) : project.compare,
-      catalog: patch.catalog ?? project.catalog,
+      catalog: catalog ?? { skus: [], bomItems: [] },
       proposal: patch.proposal ?? project.proposal,
       attachments: patch.attachments ? normalizeAttachments(patch.attachments) : project.attachments,
       comments: patch.comments ? normalizeComments(patch.comments) : project.comments,

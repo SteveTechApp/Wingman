@@ -12,6 +12,7 @@ import {
   type StoredProject,
 } from "@/features/projects/projectStore";
 import { recommendFamilies } from "@/features/discovery/discoveryStore";
+import { buildDesignTemplateSeedFromProject } from "@/features/templates/templateProjectBuilder";
 import { readDesignSeeds } from "@/features/systemDesign/designSeed";
 import { designRoom } from "@/services/roomDesignerService";
 import { analyzeProject } from "@/services/projectAnalysisService";
@@ -152,6 +153,7 @@ function valueOrFallback(primary: string | undefined, secondary: string | undefi
 function buildDesignInput(project: StoredProject) {
   const seeds = readDesignSeeds();
   const discovery = project.discovery;
+  const projectTemplateSeed = buildDesignTemplateSeedFromProject(project);
 
   return {
     projectName: project.name,
@@ -165,6 +167,8 @@ function buildDesignInput(project: StoredProject) {
       roomLengthM: valueOrFallback(discovery?.roomLengthM, seeds.discovery.roomLengthM),
       roomWidthM: valueOrFallback(discovery?.roomWidthM, seeds.discovery.roomWidthM),
       roomHeightM: valueOrFallback(discovery?.roomHeightM, seeds.discovery.roomHeightM),
+      floorType: valueOrFallback(discovery?.floorType, seeds.discovery.floorType),
+      ceilingType: valueOrFallback(discovery?.ceilingType, seeds.discovery.ceilingType),
       displayLocation: valueOrFallback(discovery?.displayLocation, seeds.discovery.displayLocation),
       sourceLocation: valueOrFallback(discovery?.sourceLocation, seeds.discovery.sourceLocation),
       rackLocation: valueOrFallback(discovery?.rackLocation, seeds.discovery.rackLocation),
@@ -189,11 +193,13 @@ function buildDesignInput(project: StoredProject) {
       controlNeeds: valueOrFallback(discovery?.controlNeeds, seeds.discovery.controlNeeds),
       budgetBand: valueOrFallback(discovery?.budgetBand, seeds.discovery.budgetBand),
       urgency: valueOrFallback(discovery?.urgency, seeds.discovery.urgency),
+      inputDetails: Array.isArray(discovery?.inputDetails) ? discovery.inputDetails : seeds.discovery.inputDetails,
+      outputDetails: Array.isArray(discovery?.outputDetails) ? discovery.outputDetails : seeds.discovery.outputDetails,
       notes: valueOrFallback(discovery?.notes, project.notes),
       recommendedFamilies: discovery?.recommendedFamilies ?? seeds.discovery.recommendedFamilies,
       recommendedNextTool: valueOrFallback(discovery?.recommendedNextTool, seeds.discovery.recommendedNextTool, "/app/tools/catalog"),
     },
-    template: seeds.template,
+    template: projectTemplateSeed ?? seeds.template,
     videoWall: seeds.videoWall,
   };
 }
@@ -344,6 +350,8 @@ export function GenerationProvider(props: { children: React.ReactNode }) {
       roomLengthM: valueOrFallback(result.bundle.discovery.roomLengthM, activeProject.discovery?.roomLengthM),
       roomWidthM: valueOrFallback(result.bundle.discovery.roomWidthM, activeProject.discovery?.roomWidthM),
       roomHeightM: valueOrFallback(result.bundle.discovery.roomHeightM, activeProject.discovery?.roomHeightM),
+      floorType: valueOrFallback(result.bundle.discovery.floorType, activeProject.discovery?.floorType),
+      ceilingType: valueOrFallback(result.bundle.discovery.ceilingType, activeProject.discovery?.ceilingType),
       displayLocation: valueOrFallback(result.bundle.discovery.displayLocation, activeProject.discovery?.displayLocation),
       sourceLocation: valueOrFallback(result.bundle.discovery.sourceLocation, activeProject.discovery?.sourceLocation),
       rackLocation: valueOrFallback(result.bundle.discovery.rackLocation, activeProject.discovery?.rackLocation),
@@ -355,6 +363,14 @@ export function GenerationProvider(props: { children: React.ReactNode }) {
       controlNeeds: valueOrFallback(result.bundle.discovery.controlNeeds, activeProject.discovery?.controlNeeds),
       budgetBand: valueOrFallback(result.bundle.discovery.budgetBand, activeProject.discovery?.budgetBand),
       urgency: valueOrFallback(result.bundle.discovery.urgency, activeProject.discovery?.urgency),
+      inputDetails:
+        Array.isArray(result.bundle.discovery.inputDetails) && result.bundle.discovery.inputDetails.length > 0
+          ? result.bundle.discovery.inputDetails
+          : activeProject.discovery?.inputDetails,
+      outputDetails:
+        Array.isArray(result.bundle.discovery.outputDetails) && result.bundle.discovery.outputDetails.length > 0
+          ? result.bundle.discovery.outputDetails
+          : activeProject.discovery?.outputDetails,
       notes: mergedNotes,
       recommendedFamilies,
       recommendedNextTool: result.nextTool,
@@ -368,9 +384,11 @@ export function GenerationProvider(props: { children: React.ReactNode }) {
       catalog: {
         ...(activeProject.catalog ?? {}),
         skus: catalogSkus,
+        bomItems: result.suggestedBom,
         notes: [
           activeProject.catalog?.notes?.trim(),
           `Design families: ${recommendedFamilies.join(", ") || "Apollo"}.`,
+          `Structured BOM lines: ${result.suggestedBom.length}.`,
           `Bundle counts: ${result.bundle.devices.length} devices, ${result.bundle.cables.length} cables.`,
         ].filter(Boolean).join("\n"),
       },

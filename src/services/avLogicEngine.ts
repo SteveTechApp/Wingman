@@ -68,6 +68,23 @@ function inferTransportDomain(text: string): AvTransportDomain {
   return "unknown";
 }
 
+function transportDomainFromCatalogTransport(
+  transport: CatalogProduct["transport"] | undefined,
+): AvTransportDomain | null {
+  switch (String(transport || "").trim().toLowerCase()) {
+    case "hdbaset":
+      return "hdbaset";
+    case "avoip":
+      return "avoip";
+    case "usb extension":
+      return "usb-extension";
+    case "local":
+      return "local";
+    default:
+      return null;
+  }
+}
+
 function inferCodec(text: string): AvCodecDomain {
   if (has(text, /\bsdvoe\b|\buncompressed\b/)) return "sdvoe";
   if (has(text, /\bjpeg[- ]?xs\b/)) return "jpeg-xs";
@@ -125,7 +142,6 @@ function buildProfileText(product: AvProductLike): string {
     product.audio,
     portTypes,
     product.distance?.notes,
-    product.notes,
   );
 }
 
@@ -133,7 +149,9 @@ export function buildAvSignalProfile(product: AvProductLike): AvSignalProfile {
   const text = buildProfileText(product);
   const sku = tidy(product.sku).toUpperCase();
   const role = inferRole(text);
-  const transport = inferTransportDomain(text);
+  const transport =
+    transportDomainFromCatalogTransport(product.transport) ||
+    inferTransportDomain(text);
   const codecFromText = inferCodec(text);
   const codec = codecFromText !== "unknown" ? codecFromText : inferCodecFromSku(sku);
   const networkClass = inferNetworkClass(text);
@@ -247,4 +265,3 @@ export function evaluateAvCompatibility(
     blockers,
   };
 }
-

@@ -181,6 +181,10 @@ const ROOM_NARRATIVES: Record<string, RoomNarrative> = {
     story: "A company broadcast room for all-hands updates, mixed media cues, and leadership messaging that needs to scale beyond a simple meeting room.",
     designPurpose: "Designed for presentation-led corporate communications, hybrid briefings, and large internal events where room visibility, coverage, and operational polish are critical.",
   },
+  "corporate-divisible": {
+    story: "A flexible suite that opens up for larger sessions and folds back into smaller meeting zones without forcing a redesign each time the layout changes.",
+    designPurpose: "Designed for divisible corporate meeting and training environments where partitioned operation, flexible routing, and future-proof room behaviour all matter.",
+  },
   "education-classroom": {
     story: "A daily teaching room built for first bell to last bell, where teachers need the same dependable routine every period.",
     designPurpose: "Designed for standard classroom instruction with simple presenter control, reliable front-of-room display, and supportable campus-wide repeatability.",
@@ -197,6 +201,10 @@ const ROOM_NARRATIVES: Record<string, RoomNarrative> = {
     story: "A discussion-focused room where conversation, shared content, and tutor-led interaction need to coexist without the space feeling over-engineered.",
     designPurpose: "Designed for collaborative higher-education seminars and small-group teaching where balanced presentation and discussion workflow are the priority.",
   },
+  "education-active-learning": {
+    story: "A student-centred room where the tutor moves between explanation, group work, and shared content without the technology becoming the limiting factor.",
+    designPurpose: "Designed for active-learning education spaces that need flexible source sharing, multiple viewpoints, and a clear path from instructor control to group collaboration.",
+  },
   "hospitality-suite": {
     story: "A premium guest suite where the AV needs to feel effortless, discreet, and polished for sponsors, VIPs, or private hosts.",
     designPurpose: "Designed for hospitality lounges and suites where guest experience, presentation polish, and flexible entertainment carry commercial value.",
@@ -212,6 +220,10 @@ const ROOM_NARRATIVES: Record<string, RoomNarrative> = {
   "hospitality-ballroom": {
     story: "A divisible event suite that has to support banqueting, presentations, and live moments while the room layout changes around it.",
     designPurpose: "Designed for large-format hospitality events, banqueting, and conference use where scalable distribution, zone control, and premium room confidence are essential.",
+  },
+  "hospitality-meeting-suite": {
+    story: "A premium meeting room inside a hospitality venue where the system needs to feel polished enough for clients but simple enough for venue teams to run every day.",
+    designPurpose: "Designed for guest-bookable hospitality meeting suites that blend presentation credibility, room-service practicality, and repeatable commercial deployment.",
   },
   "retail-showroom": {
     story: "A display-led retail bay where the screens help the product tell its story before a salesperson even starts the conversation.",
@@ -245,6 +257,10 @@ const ROOM_NARRATIVES: Record<string, RoomNarrative> = {
     story: "A coordination room where multidisciplinary teams review cases, compare information, and make time-sensitive decisions together.",
     designPurpose: "Designed for clinical operations, MDT reviews, and planning meetings that require secure collaboration, multi-source confidence, and high room credibility.",
   },
+  "healthcare-telemedicine": {
+    story: "A clinical room where the camera, microphones, and display need to support confident remote consultations without making the clinician think like an AV operator.",
+    designPurpose: "Designed for telemedicine and remote-care workflows where low-friction collaboration, dependable USB/video behaviour, and patient confidence are essential.",
+  },
   "government-meeting": {
     story: "A dependable civic workspace for routine department meetings where value, consistency, and ease of use matter every day.",
     designPurpose: "Designed for standard public-sector collaboration with clear presentation workflow, sensible cost control, and repeatable deployment standards.",
@@ -260,6 +276,10 @@ const ROOM_NARRATIVES: Record<string, RoomNarrative> = {
   "government-eoc": {
     story: "A mission-critical room where teams coordinate live information under pressure and the system has to stay ahead of the situation.",
     designPurpose: "Designed for emergency response and command-style government operations where resilience, visibility, and rapid decision support are fundamental.",
+  },
+  "government-hearing": {
+    story: "A formal hearing environment where proceedings, evidence display, and public accountability all depend on the room behaving predictably.",
+    designPurpose: "Designed for court, hearing, and tribunal-style government spaces where multiple viewpoints, disciplined control, and strong presentational confidence are required.",
   },
   "leisure-studio": {
     story: "A class-based space where instructors need media, microphones, and displays to work instantly as the session starts.",
@@ -292,6 +312,10 @@ const ROOM_NARRATIVES: Record<string, RoomNarrative> = {
   "residential-outdoor": {
     story: "A terrace or garden extension where AV adds atmosphere for hosting without pretending the space is an indoor cinema.",
     designPurpose: "Designed for outdoor residential viewing and entertaining where practical scope, weather-aware distribution, and lifestyle-led usability are the right goals.",
+  },
+  "residential-home-office": {
+    story: "A focused home work space where video calls, screen sharing, and day-to-day productivity need to feel professional without overcomplicating the room.",
+    designPurpose: "Designed for residential home-office and study spaces where collaboration, display clarity, and neat integrated connectivity support daily hybrid work.",
   },
 };
 
@@ -457,6 +481,7 @@ export const MARKETS: MarketTemplate[] = [
       room("corporate-boardroom", "Boardroom", "Premium multi-source room with stronger switching and presentation demands.", ["Leadership meetings", "Client presentations", "Executive use"], "silver", meetingTiers, ["boardroom", "executive", "presentation", "multi-source"], "meeting", "balanced", ["Apollo", "Matrix", "HDBaseT"], "/app/tools/proposal"),
       room("corporate-training", "Training Room", "Instructor-led corporate room with repeatable delivery workflow.", ["Staff training", "Sales enablement", "Instructor-led sessions"], "silver", trainingTiers, ["training", "instructor", "learning", "presentation"], "training", "balanced", ["Matrix", "Apollo"], "/app/tools/room-wizard"),
       room("corporate-townhall", "Town Hall / All Hands", "Larger briefing and broadcast-style room for company updates and stakeholder sessions.", ["All-hands meetings", "Quarterly updates", "Leadership broadcasts"], "gold", trainingTiers, ["town hall", "all hands", "briefing", "broadcast"], "meeting", "premium", ["AVoIP", "Matrix", "Apollo"], "/app/tools/proposal"),
+      room("corporate-divisible", "Divisible Meeting Suite", "Flexible divisible room balancing formal meetings, training, and overflow sessions.", ["Divisible meetings", "Training crossover", "Multi-mode collaboration"], "gold", trainingTiers, ["divisible", "suite", "partition", "overflow"], "training", "premium", ["AVoIP", "Matrix", "Apollo"], "/app/tools/proposal"),
     ],
   },
   {
@@ -470,6 +495,7 @@ export const MARKETS: MarketTemplate[] = [
       room("education-training", "Training Lab", "Instructor-led practical room with stronger source and display needs.", ["Hands-on training", "Lecturer-led delivery", "Mixed device use"], "silver", trainingTiers, ["lab", "training", "mixed devices", "hands-on"], "training", "balanced", ["Matrix", "HDBaseT"], "/app/tools/room-wizard"),
       room("education-lecture", "Lecture Space", "Larger teaching space with stronger presentation confidence requirements.", ["Lecture delivery", "Campus presentations", "Formal instruction"], "silver", meetingTiers, ["lecture", "hall", "presentation", "audience"], "meeting", "balanced", ["Matrix", "AVoIP"], "/app/tools/proposal"),
       room("education-seminar", "Seminar Room", "Discussion-led teaching space for smaller cohorts needing balanced presentation and collaboration.", ["Seminars", "Tutor-led sessions", "Discussion rooms"], "silver", meetingTiers, ["seminar", "discussion", "small cohort"], "collaboration", "balanced", ["Apollo", "HDBaseT"], "/app/tools/room-wizard"),
+      room("education-active-learning", "Active Learning Space", "Flexible teaching room built around group work, shared content, and instructor mobility.", ["Active learning", "Group collaboration", "Student-led participation"], "silver", trainingTiers, ["active learning", "group work", "collaboration", "student-led"], "collaboration", "balanced", ["Apollo", "Matrix", "HDBaseT"], "/app/tools/room-wizard"),
     ],
   },
   {
@@ -483,6 +509,7 @@ export const MARKETS: MarketTemplate[] = [
       room("hospitality-bar", "Sports Bar / Multi-Screen Zone", "Multi-display space requiring reliable routing and strong content distribution.", ["Sports viewing", "Live feed distribution", "Guest engagement"], "bronze", signageTiers, ["sports bar", "multi-screen", "distribution", "tv wall"], "signage", "balanced", ["AVoIP", "Matrix"], "/app/tools/video-wall"),
       room("hospitality-event", "Event Lounge", "Flexible guest event space with changing source and display requirements.", ["Events", "Private hire", "Flexible entertainment"], "silver", signageTiers, ["event", "lounge", "hire", "flexible"], "entertainment", "balanced", ["AVoIP", "Matrix"], "/app/tools/proposal"),
       room("hospitality-ballroom", "Ballroom / Banqueting Suite", "Divisible hospitality event room with staging, presentation, and changing layout demands.", ["Banqueting", "Weddings", "Conference events"], "gold", trainingTiers, ["ballroom", "banqueting", "divisible", "conference"], "training", "premium", ["AVoIP", "Matrix"], "/app/tools/proposal"),
+      room("hospitality-meeting-suite", "Meeting Suite", "Guest-bookable meeting room blending presentation confidence with simple venue operation.", ["Client meetings", "Private bookings", "Presentation-led hospitality"], "silver", meetingTiers, ["meeting suite", "booking", "client", "presentation"], "meeting", "balanced", ["Apollo", "HDBaseT", "Matrix"], "/app/tools/proposal"),
     ],
   },
   {
@@ -509,6 +536,7 @@ export const MARKETS: MarketTemplate[] = [
       room("healthcare-training", "Clinical Training Room", "Staff learning space with structured content delivery and instructor workflow.", ["Clinical training", "Internal learning", "Workshop delivery"], "silver", trainingTiers, ["training", "clinical", "staff"], "training", "balanced", ["Matrix", "Apollo"], "/app/tools/room-wizard"),
       room("healthcare-waiting", "Waiting Area Display Zone", "Customer-facing display area for information and engagement content.", ["Information display", "Queue communications", "Patient messaging"], "bronze", signageTiers, ["waiting area", "messaging", "display"], "signage", "cost", ["AVoIP", "HDBaseT"], "/app/tools/catalog"),
       room("healthcare-operations", "Operations / MDT Room", "Decision-making room for multidisciplinary review, planning, and secure collaboration.", ["MDT reviews", "Operations planning", "Clinical coordination"], "gold", meetingTiers, ["operations", "mdt", "review", "coordination"], "meeting", "premium", ["Matrix", "AVoIP", "Apollo"], "/app/tools/proposal"),
+      room("healthcare-telemedicine", "Telemedicine Room", "Remote-care room supporting clinician workflow, camera coverage, and patient confidence.", ["Telemedicine", "Remote consultation", "Hybrid clinical review"], "silver", meetingTiers, ["telemedicine", "remote care", "camera", "consultation"], "collaboration", "balanced", ["Apollo", "HDBaseT", "USB Extension"], "/app/tools/room-wizard"),
     ],
   },
   {
@@ -522,6 +550,7 @@ export const MARKETS: MarketTemplate[] = [
       room("government-briefing", "Briefing Room", "Formal room with stronger presenter confidence and structured delivery.", ["Briefings", "Leadership updates", "Structured presentations"], "silver", meetingTiers, ["briefing", "formal", "presentation"], "meeting", "balanced", ["Matrix", "Apollo"], "/app/tools/proposal"),
       room("government-chamber", "Council Chamber", "Formal civic environment where room confidence and workflow polish matter.", ["Council meetings", "Public proceedings", "Formal presentations"], "silver", meetingTiers, ["council", "chamber", "public"], "meeting", "premium", ["Matrix", "AVoIP"], "/app/tools/proposal"),
       room("government-eoc", "Emergency Operations Room", "Critical-response coordination room with resilient briefing and decision support expectations.", ["Emergency response", "Crisis coordination", "Command briefings"], "gold", trainingTiers, ["eoc", "operations", "command", "response"], "meeting", "premium", ["AVoIP", "Matrix"], "/app/tools/proposal"),
+      room("government-hearing", "Hearing / Courtroom", "Formal proceedings room requiring structured evidence display and reliable session control.", ["Hearings", "Court support", "Tribunal sessions"], "gold", meetingTiers, ["hearing", "courtroom", "tribunal", "evidence"], "meeting", "premium", ["Matrix", "AVoIP", "Apollo"], "/app/tools/proposal"),
     ],
   },
   {
@@ -548,6 +577,7 @@ export const MARKETS: MarketTemplate[] = [
       room("residential-lounge", "Smart Lounge", "Daily-use home living space with simple premium AV expectations.", ["Daily TV", "Casual entertainment", "Lifestyle control"], "bronze", meetingTiers, ["lounge", "smart home", "tv"], "entertainment", "balanced", ["Apollo", "HDBaseT"], "/app/tools/room-wizard"),
       room("residential-multiroom", "Multiroom Media Zone", "Flexible zone requiring dependable distribution and simple operation.", ["Distributed media", "Whole-home zones", "Shared content use"], "silver", signageTiers, ["multiroom", "distributed media", "zones"], "signage", "premium", ["AVoIP", "Matrix"], "/app/tools/catalog"),
       room("residential-outdoor", "Outdoor Entertainment Zone", "Garden or terrace space needing credible AV distribution with practical system scope.", ["Outdoor viewing", "Entertaining", "Lifestyle extension"], "bronze", signageTiers, ["outdoor", "garden", "terrace"], "entertainment", "balanced", ["HDBaseT", "AVoIP"], "/app/tools/proposal"),
+      room("residential-home-office", "Home Office / Study", "Focused hybrid-work room needing professional collaboration without domestic complexity.", ["Hybrid work", "Video calls", "Focused study"], "silver", meetingTiers, ["home office", "study", "hybrid work", "video calls"], "collaboration", "balanced", ["Apollo", "HDBaseT", "USB Extension"], "/app/tools/room-wizard"),
     ],
   },
 ];

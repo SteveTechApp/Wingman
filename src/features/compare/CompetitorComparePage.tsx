@@ -14,6 +14,7 @@ import {
 import CompetitorMatchFinderPanel from "@/components/competitor/CompetitorMatchFinderPanel";
 import CompetitorLookupStatusPanel from "@/components/competitor/CompetitorLookupStatusPanel";
 import CompetitorManualComparisonPanel from "@/components/competitor/CompetitorManualComparisonPanel";
+import { mainCategoryLabelForComparison } from "@/competitor/mainCategory";
 import type { CompetitorLookupTrace } from "@/competitor/types";
 import type {
   CompetitorCompareCoverageLevel,
@@ -188,6 +189,7 @@ function finderSuggestions(
 
 function formatPercent(value: number | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  if (value > 100) return "100%+";
   return `${Math.round(value)}%`;
 }
 
@@ -437,6 +439,63 @@ function labelForComparisonUseCase(value?: string): string {
   }
 }
 
+function fallbackComparisonClass(candidate: CompetitorCompareCandidate): {
+  state: string;
+  label: string;
+  warning: string;
+} {
+  const text = [
+    candidate.comparison.category,
+    candidate.comparison.summary,
+    ...(candidate.comparison.features ?? []),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  if (text.includes("distribution") || text.includes("splitter")) {
+    return {
+      state: "Distribution path",
+      label: "Distribution · Splitter",
+      warning:
+        "Treat this as a splitter/distribution product: one source to multiple local outputs is the primary job.",
+    };
+  }
+
+  if (text.includes("presentation") || text.includes("switcher") || text.includes("switch")) {
+    return {
+      state: "Presentation system",
+      label: "Presentation · Routing",
+      warning:
+        "Treat this as a presentation-routing product: source selection comes before any secondary features.",
+    };
+  }
+
+  if (text.includes("matrix")) {
+    return {
+      state: "Matrix system",
+      label: "Matrix · Routing",
+      warning:
+        "Treat this as a matrix-routing product: route count and signal path come before bonus features.",
+    };
+  }
+
+  if (text.includes("extender") || text.includes("hdbaset")) {
+    return {
+      state: "Extender path",
+      label: "Extender · Point to point",
+      warning:
+        "Treat this as an extender path: point-to-point signal reach matters more than extra local features.",
+    };
+  }
+
+  return {
+    state: "Core AV product",
+    label: candidate.comparison.category || "Core AV product",
+    warning:
+      "Treat this as a core AV product and compare the primary signal-routing job before any bonus capability.",
+  };
+}
+
 function stateLabelForCandidate(candidate: CompetitorCompareCandidate): string {
   const domain = candidate.comparison.comparisonDomain;
   const useCase = candidate.comparison.comparisonUseCase;
@@ -455,7 +514,7 @@ function stateLabelForCandidate(candidate: CompetitorCompareCandidate): string {
     case "CONTROL":
       return "Control appliance";
     default:
-      return "Unknown state";
+      return fallbackComparisonClass(candidate).state;
   }
 }
 
@@ -463,7 +522,7 @@ function comparisonClassWarning(candidate: CompetitorCompareCandidate): string {
   const domain = candidate.comparison.comparisonDomain;
   const useCase = candidate.comparison.comparisonUseCase;
   if (!domain || domain === "UNKNOWN") {
-    return "Product class is not fully captured yet, so treat the shortlist carefully.";
+    return fallbackComparisonClass(candidate).warning;
   }
 
   if (domain === "PRESENTATION") {
@@ -492,7 +551,9 @@ function comparisonClassWarning(candidate: CompetitorCompareCandidate): string {
 function comparisonClassLabel(candidate: CompetitorCompareCandidate): string {
   const domain = labelForComparisonDomain(candidate.comparison.comparisonDomain);
   const useCase = labelForComparisonUseCase(candidate.comparison.comparisonUseCase);
-  if (domain === "Unknown" && useCase === "Unknown") return "Class unknown";
+  if (domain === "Unknown" && useCase === "Unknown") {
+    return fallbackComparisonClass(candidate).label;
+  }
   return `${domain} · ${useCase}`;
 }
 
@@ -1142,11 +1203,21 @@ function ResultCard(props: {
             </div>
           </div>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            <span
-              style={{
-                ...pillStyle(),
-                color: "#fde68a",
+	          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+	            <span
+	              style={{
+	                ...pillStyle(),
+	                color: "#fef3c7",
+	                background: "rgba(180,83,9,0.18)",
+	                border: "1px solid rgba(251,191,36,0.24)",
+	              }}
+	            >
+	              Main category: {candidate.mainCategory || mainCategoryLabelForComparison(candidate.comparison)}
+	            </span>
+	            <span
+	              style={{
+	                ...pillStyle(),
+	                color: "#fde68a",
                 background: "rgba(245,158,11,0.12)",
                 border: "1px solid rgba(245,158,11,0.22)",
               }}

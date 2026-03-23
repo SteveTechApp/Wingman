@@ -2,6 +2,7 @@ import rawCompetitors from "@/data/catalog/competitorCatalog";
 import { enrichCatalogProduct } from "@/catalog/enrich";
 import { rankCatalogMatches } from "@/catalog/match";
 import { filterCatalog, normalizeCatalogProduct } from "@/catalog/normalize";
+import { sanitizeCompetitorForMatching } from "@/competitor/matchingSupport";
 import type {
   CatalogFilters,
   CatalogMatchRequest,
@@ -20,7 +21,11 @@ export type CompetitorProduct = CatalogProduct & {
 
 const SEEDED_COMPETITORS: CompetitorProduct[] = (Array.isArray(rawCompetitors) ? rawCompetitors : [])
   .map((item) => normalizeCatalogProduct(item as CompetitorProduct))
-  .map((item) => enrichCatalogProduct(item as CompetitorProduct) as CompetitorProduct);
+  .map((item) =>
+    sanitizeCompetitorForMatching(
+      enrichCatalogProduct(item as CompetitorProduct) as CompetitorProduct,
+    ),
+  );
 
 let resolvedCompetitorToken = "";
 let resolvedCompetitorCache: CompetitorProduct[] = SEEDED_COMPETITORS;
@@ -52,10 +57,12 @@ function getResolvedCompetitors(): CompetitorProduct[] {
   if (token === resolvedCompetitorToken) return resolvedCompetitorCache;
 
   resolvedCompetitorToken = token;
-  const liveCompetitors = getLiveProductDataRecords("competitor").map((record) => ({
-    ...mapProductIntelligenceRecordToCatalogProduct(record),
-    brand: record.brand,
-  }));
+  const liveCompetitors = getLiveProductDataRecords("competitor").map((record) =>
+    sanitizeCompetitorForMatching({
+      ...mapProductIntelligenceRecordToCatalogProduct(record),
+      brand: record.brand,
+    }),
+  );
   resolvedCompetitorCache = mergeCompetitorProducts(SEEDED_COMPETITORS, liveCompetitors);
   return resolvedCompetitorCache;
 }

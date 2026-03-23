@@ -51,7 +51,9 @@ export function buildCustomerSafeSummary(project: StoredProject): CustomerSummar
   ]).slice(0, 5);
 
   const openRisks = unique([
-    tidy(discovery?.installationPath) ? "" : "Installed route still needs confirmation.",
+    tidy(discovery?.floorType) && tidy(discovery?.ceilingType)
+      ? ""
+      : "Floor and ceiling construction still need confirmation.",
     tidy(discovery?.sourceConnectionType) ? "" : "Source-side transport still needs confirmation.",
     tidy(discovery?.displayConnectionType) ? "" : "Display-side transport still needs confirmation.",
     tidy(discovery?.networkEnvironment) || !tidy(discovery?.displayConnectionType).toLowerCase().includes("avoip")

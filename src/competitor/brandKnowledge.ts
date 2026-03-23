@@ -2,6 +2,8 @@ import type { CatalogProduct } from "@/catalog/types";
 import type { ComparisonDomain, ComparisonUseCase } from "@/competitor/fit/comparisonRules";
 import type { DiscoveryProductFamily } from "@/features/projects/projectStore";
 
+import { sanitizeCompetitorForMatching } from "./matchingSupport";
+
 export type CompetitorKnowledgeState =
   | "presentation-switcher"
   | "matrix"
@@ -42,7 +44,6 @@ function textBlob(product: CompetitorLike): string {
     product.subcategory,
     product.summary,
     product.transport,
-    product.notes,
     ...(product.features ?? []),
     ...(product.control ?? []),
     ...(product.audio ?? []),
@@ -467,14 +468,15 @@ function barcoProfile(product: CompetitorLike): CompetitorKnowledgeProfile {
 }
 
 export function inferCompetitorKnowledgeProfile(product: CompetitorLike): CompetitorKnowledgeProfile {
-  const brand = tidy(product.brand).toLowerCase();
+  const sanitizedProduct = sanitizeCompetitorForMatching(product);
+  const brand = tidy(sanitizedProduct.brand).toLowerCase();
 
-  if (brand.includes("extron")) return extronProfile(product);
-  if (brand.includes("crestron")) return crestronProfile(product);
-  if (brand.includes("kramer")) return kramerProfile(product);
-  if (brand.includes("lightware")) return lightwareProfile(product);
-  if (brand.includes("atlona")) return atlonaProfile(product);
-  if (brand.includes("barco")) return barcoProfile(product);
+  if (brand.includes("extron")) return extronProfile(sanitizedProduct);
+  if (brand.includes("crestron")) return crestronProfile(sanitizedProduct);
+  if (brand.includes("kramer")) return kramerProfile(sanitizedProduct);
+  if (brand.includes("lightware")) return lightwareProfile(sanitizedProduct);
+  if (brand.includes("atlona")) return atlonaProfile(sanitizedProduct);
+  if (brand.includes("barco")) return barcoProfile(sanitizedProduct);
 
-  return genericProfile(product);
+  return genericProfile(sanitizedProduct);
 }

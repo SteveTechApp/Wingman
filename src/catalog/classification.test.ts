@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  classifyProductType,
   classifyCatalogProduct,
   findCatalogProductBySku,
 } from "@/catalog";
@@ -63,5 +64,24 @@ describe("WyreStorm catalog classification", () => {
     expect(options.length).toBeGreaterThan(0);
     expect(optionTypes).not.toContain("uc-appliance");
     expect(optionTypes).toContain("presentation-switcher");
+  });
+
+  it("ignores comparison-guidance notes when classifying competitor products", () => {
+    const classification = classifyProductType({
+      sku: "AT-OME-MS42",
+      category: "Switcher",
+      summary:
+        "Four-input presentation switcher with wireless presentation, USB-C connectivity, and dual HDMI outputs.",
+      features: [
+        "Presentation switching",
+        "Wireless presentation",
+        "USB-C",
+      ],
+      notes:
+        "Closest WyreStorm fit is a matrix direction. Check expected number of inputs before quoting.",
+    });
+
+    expect(classification.primaryType).toBe("presentation-switcher");
+    expect(classification.group).toBe("switcher");
   });
 });

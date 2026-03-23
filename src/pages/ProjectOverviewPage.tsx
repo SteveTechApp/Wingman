@@ -149,7 +149,8 @@ export default function ProjectOverviewPage() {
     { label: "Display delivery", value: project.discovery?.displayConnectionPath || "-" },
     { label: "Display transport", value: project.discovery?.displayConnectionType || "-" },
     { label: "Display cable", value: project.discovery?.displayCableType || "-" },
-    { label: "Installed route", value: project.discovery?.installationPath || "-" },
+    { label: "Floor type", value: project.discovery?.floorType || "-" },
+    { label: "Ceiling", value: project.discovery?.ceilingType || "-" },
     { label: "Network", value: project.discovery?.networkEnvironment || "-" },
   ];
 

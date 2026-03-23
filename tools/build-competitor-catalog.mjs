@@ -7,6 +7,9 @@ const compareSeedFile = path.join(rootDir, "src", "data", "catalog", "competitor
 const legacyCompetitorFile = path.join(rootDir, "src", "competitor", "competitors.json");
 const productIntelligenceFile = path.join(rootDir, "data", "product-intelligence-db.json");
 const outputFile = path.join(rootDir, "src", "data", "catalog", "competitor-catalog.phase4.json");
+const COMPETITOR_SOURCE_EXCLUDE = new Set([
+  "family-intelligence.json",
+]);
 
 const BRAND_NAME_BY_KEY = {
   atlona: "Atlona",
@@ -310,15 +313,45 @@ function sourceUrlFor(brand, sku) {
   return normalizeUrl(url);
 }
 
+const CONTAMINATED_SEED_FEATURES = new Set([
+  "apollo",
+  "avoip",
+  "hdbaset",
+  "matrix",
+  "videowall",
+  "usbextension",
+]);
+
+function splitNoteSegments(value) {
+  return tidy(value)
+    .split("|")
+    .map((segment) => tidy(segment))
+    .filter(Boolean);
+}
+
+function sanitizeCanonicalCompetitorNotes(value) {
+  const cleaned = dedupeStrings(
+    splitNoteSegments(value).filter((segment) => {
+      if (/\bwingman\b|\bwyrestorm\b|\bdirection\b/i.test(segment)) return false;
+      if (/^(confirm|check|review|assess|validate|ask)\b/i.test(segment)) return false;
+      return true;
+    }),
+    20,
+  );
+  return cleaned.join(" | ");
+}
+
 function combineNotes(...values) {
   const notes = dedupeStrings(
     values.flatMap((value) => {
-      if (Array.isArray(value)) return value;
+      if (Array.isArray(value)) {
+        return value.flatMap((item) => splitNoteSegments(sanitizeCanonicalCompetitorNotes(item)));
+      }
       return tidy(value) ? [value] : [];
     }),
     12,
   );
-  return notes.join(" | ");
+  return sanitizeCanonicalCompetitorNotes(notes.join(" | "));
 }
 
 function normalizePrimaryCatalogRecord(record, sourceName) {
@@ -367,10 +400,10 @@ function normalizeCompareSeedRecord(record, sourceName) {
   const categoryDetail = firstNonEmpty(record.category, "Competitor");
   const category = normalizeCategory(categoryDetail) || "Uncategorized";
   const summary = tidy(record.summary) || `${sku} comparison seed record.`;
-  const features = dedupeStrings([
-    ...toArray(record.features),
-    ...toArray(record.recommendedFamilies),
-  ], 24);
+  const features = dedupeStrings(toArray(record.features), 24).filter((feature) => {
+    const normalized = normalizeId(feature);
+    return normalized && !CONTAMINATED_SEED_FEATURES.has(normalized);
+  });
 
   return {
     brand,
@@ -390,7 +423,8 @@ function normalizeCompareSeedRecord(record, sourceName) {
     audio: [],
     video: undefined,
     features,
-    notes: combineNotes(record.rationale, record.notes, `${sourceName} merged into deployed competitor catalog.`) || undefined,
+    notes:
+      combineNotes(`${sourceName} merged into deployed competitor catalog.`) || undefined,
     priority: 2,
   };
 }
@@ -561,7 +595,7 @@ function readJson(filePath, fallback) {
 
 function buildMergedCatalog() {
   const files = fs.readdirSync(competitorSourceDir)
-    .filter((file) => file.endsWith(".json"))
+    .filter((file) => file.endsWith(".json") && !COMPETITOR_SOURCE_EXCLUDE.has(file))
     .sort();
 
   if (files.length === 0) {
@@ -752,7 +786,13 @@ function syncProductIntelligenceDatabase(catalogRows) {
         ...buildTags(record),
         ...toArray(current.tags),
       ], 20),
-      notes: pickBetterText(current.notes, record.notes, 3, 4) || undefined,
+      notes:
+        pickBetterText(
+          sanitizeCanonicalCompetitorNotes(current.notes),
+          sanitizeCanonicalCompetitorNotes(record.notes),
+          3,
+          4,
+        ) || undefined,
       createdAt: tidy(current.createdAt) || capturedAt,
       updatedAt: capturedAt,
       lastCapturedAt: capturedAt,

@@ -1,4 +1,5 @@
 import * as React from "react";
+import type { ProjectDevice } from "@/features/systemDesign/designTypes";
 
 export type TierKey = "bronze" | "silver" | "gold";
 
@@ -13,6 +14,8 @@ export type TemplateSeed = {
     id: string;
     name: string;
     summary: string;
+    story?: string;
+    designPurpose?: string;
     useCases: string[];
   };
   tier: {
@@ -28,6 +31,15 @@ export type TemplateSeed = {
   assumptions?: string[];
   recommendedFamilies?: string[];
   recommendedTool?: string;
+  solutionSummary?: string;
+  ioProfile?: {
+    sources?: string;
+    outputs?: string;
+    operators?: string;
+    sourceCount?: number;
+    displayCount?: number;
+  };
+  starterDevices?: ProjectDevice[];
   projectName: string;
   createdAt: string;
 };

@@ -3,6 +3,10 @@ import type {
   CompetitorComparisonRecord,
 } from "@/services/competitorComparisonService";
 import {
+  mainCategoryLabelForComparison,
+  type MainProductCategory,
+} from "@/competitor/mainCategory";
+import {
   getComparisonRecords,
   lookupAndCompare,
   mergeComparisonRecords,
@@ -21,6 +25,7 @@ import {
 export type CompetitorCompareCandidate = {
   id: string;
   comparison: CompetitorComparisonRecord;
+  mainCategory: MainProductCategory;
   searchScore: number;
   searchConfidence: "High" | "Medium" | "Low";
   exactSku: boolean;
@@ -198,11 +203,11 @@ function clarifyingQuestions(candidates: CompetitorCompareCandidate[]): string[]
   }
 
   const categories = Array.from(
-    new Set(candidates.slice(0, 3).map((candidate) => candidate.comparison.category)),
+    new Set(candidates.slice(0, 3).map((candidate) => candidate.mainCategory)),
   );
   if (categories.length > 1) {
     out.push(
-      "Confirm the product type before quoting: switcher, matrix, extender, or AVoIP endpoint.",
+      `Confirm the main product category before quoting: ${categories.join(", ")}.`,
     );
   }
 
@@ -262,6 +267,7 @@ export function buildCandidateFromComparisonRecord(
   return {
     id: comparisonId(record),
     comparison: record,
+    mainCategory: mainCategoryLabelForComparison(record),
     searchScore: Number(options.searchScore) || 100,
     searchConfidence: toSearchConfidence(
       Number(options.searchScore) || 100,

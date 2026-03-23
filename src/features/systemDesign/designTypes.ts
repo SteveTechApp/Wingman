@@ -93,6 +93,8 @@ export type DiscoverySeed = {
   roomLengthM?: string;
   roomWidthM?: string;
   roomHeightM?: string;
+  floorType?: string;
+  ceilingType?: string;
   displayLocation?: string;
   sourceLocation?: string;
   rackLocation?: string;
@@ -120,6 +122,18 @@ export type DiscoverySeed = {
   controlNeeds?: string;
   budgetBand?: string;
   urgency?: string;
+  inputDetails?: Array<{
+    sourceType?: string;
+    connectionType?: string;
+    cableType?: string;
+    route?: string;
+    sourceLocation?: string;
+  }>;
+  outputDetails?: Array<{
+    outputType?: string;
+    route?: string;
+    displayLocation?: string;
+  }>;
   notes?: string;
   recommendedFamilies?: string[];
   recommendedNextTool?: string;

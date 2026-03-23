@@ -2236,6 +2236,150 @@
   line-height: 1.45;
 }
 
+.wm-room-designer-page__section {
+  gap: 10px;
+}
+
+.wm-room-designer-page__detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 8px;
+}
+
+.wm-room-designer-page .wm-work-card.wm-room-designer-page__detail-card {
+  padding: 10px !important;
+  border-radius: 12px;
+}
+
+.wm-room-designer-page__detail-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wm-room-designer-page__detail-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  align-items: start;
+}
+
+.wm-room-designer-page .wm-form-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px 8px;
+}
+
+.wm-room-designer-page .wm-form-field {
+  gap: 4px;
+}
+
+.wm-room-designer-page .wm-form-input,
+.wm-room-designer-page .wm-form-textarea {
+  padding: 8px 10px;
+}
+
+.wm-room-designer-page__compact-field--wide,
+.wm-room-designer-page__radio-group--wide {
+  grid-column: 1 / -1;
+}
+
+.wm-room-designer-page .wm-form-input.wm-room-designer-page__compact-input {
+  min-height: 30px;
+  height: 30px;
+  padding: 5px 8px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.wm-room-designer-page__radio-group {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.wm-room-designer-page__radio-group legend {
+  margin: 0;
+}
+
+.wm-room-designer-page__radio-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.wm-room-designer-page__radio-chip {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.wm-room-designer-page__radio-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.wm-room-designer-page__radio-chip span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: rgba(14, 25, 38, 0.92);
+  color: rgba(224, 236, 250, 0.88);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+
+.wm-room-designer-page__radio-chip span::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(160, 184, 210, 0.72);
+  box-sizing: border-box;
+}
+
+.wm-room-designer-page__radio-chip input:checked + span {
+  border-color: rgba(115, 231, 255, 0.4);
+  background: linear-gradient(180deg, rgba(20, 46, 70, 0.98), rgba(13, 29, 45, 0.98));
+  color: rgba(245, 250, 255, 0.98);
+  box-shadow: 0 0 0 1px rgba(115, 231, 255, 0.08);
+}
+
+.wm-room-designer-page__radio-chip input:checked + span::before {
+  border-color: rgba(115, 231, 255, 0.92);
+  background: rgba(115, 231, 255, 0.92);
+  box-shadow: inset 0 0 0 2px rgba(9, 18, 29, 0.95);
+}
+
+@media (max-width: 1180px) {
+  .wm-room-designer-page .wm-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-room-designer-page .wm-form-grid,
+  .wm-room-designer-page__detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-room-designer-page__detail-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .wm-save-pill {
   display: inline-flex;
   align-items: center;

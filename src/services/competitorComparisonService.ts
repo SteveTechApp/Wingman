@@ -1,4 +1,8 @@
 import { compareStructuredCompetitor } from "@/competitor/fit";
+import {
+  buildStructuredFitMap,
+  sanitizeCompetitorForMatching,
+} from "@/competitor/matchingSupport";
 import compareSeed from "@/data/catalog/competitorCompareSeed";
 import {
   areProductTypesCompatible,
@@ -118,6 +122,7 @@ type SeedRecord = {
 };
 
 const MINIMUM_AUTOMATIC_MATCH_SCORE = 75;
+const MINIMUM_STRUCTURED_AUTOMATIC_SCORE = 45;
 
 let cachedCuratedRecords: CompetitorComparisonRecord[] | null = null;
 let cachedCuratedRecordsToken = "";
@@ -132,6 +137,23 @@ function normalizeId(value: unknown): string {
 
 function normalizeSku(value: unknown): string {
   return tidy(value).toUpperCase();
+}
+
+function dedupeStrings(values: unknown[], limit = 8): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+
+  for (const value of values) {
+    const text = tidy(value);
+    if (!text) continue;
+    const key = text.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(text);
+    if (out.length >= limit) break;
+  }
+
+  return out;
 }
 
 function formatWyrestormCategory(product: CatalogProduct): string {
@@ -577,6 +599,13 @@ function scoreToConfidence(score: number): CompareConfidence {
   return "Low";
 }
 
+function structuredLaneAdjustment(score: number): number {
+  if (score >= 85) return 8;
+  if (score >= 70) return 4;
+  if (score >= 55) return 1;
+  return -6;
+}
+
 function computeCandidateScore(competitor: CatalogProduct, wyrestorm: CatalogProduct): RankedCandidate {
   const reasons: string[] = [];
   const notes: string[] = [];
@@ -857,11 +886,40 @@ function computeCandidateScore(competitor: CatalogProduct, wyrestorm: CatalogPro
 }
 
 function rankWyrestormCandidates(competitor: CatalogProduct): RankedCandidate[] {
+  const sanitizedCompetitor = sanitizeCompetitorForMatching(competitor);
   const catalog = getCatalogProducts();
-  const competitorType = classifyCatalogProduct(competitor);
+  const competitorType = classifyCatalogProduct(sanitizedCompetitor);
+  const structuredFits = buildStructuredFitMap(sanitizedCompetitor, catalog);
   return catalog
     .filter((product) => areProductTypesCompatible(competitorType, classifyCatalogProduct(product)))
-    .map((product) => computeCandidateScore(competitor, product))
+    .map((product) => {
+      const structured = structuredFits.get(product.sku);
+      if (!structured || structured.score < MINIMUM_STRUCTURED_AUTOMATIC_SCORE) return null;
+
+      const candidate = computeCandidateScore(sanitizedCompetitor, product);
+      return {
+        ...candidate,
+        score: Math.max(
+          0,
+          Math.min(100, candidate.score + structuredLaneAdjustment(structured.score)),
+        ),
+        reasons:
+          structured.score >= 70
+            ? candidate.reasons
+            : dedupeStrings(
+                [
+                  ...candidate.reasons,
+                  "Structured comparison lane is only a fallback fit.",
+                ],
+                6,
+              ),
+        notes:
+          structured.score < 70
+            ? dedupeStrings([...candidate.notes, ...structured.reasons.slice(0, 2)], 6)
+            : candidate.notes,
+      };
+    })
+    .filter((candidate): candidate is RankedCandidate => Boolean(candidate))
     .filter((candidate) => candidate.score >= MINIMUM_AUTOMATIC_MATCH_SCORE)
     .sort((a, b) => b.score - a.score || a.product.sku.localeCompare(b.product.sku));
 }
@@ -1005,21 +1063,20 @@ function structuredSuggestionSkus(
   competitor: CompetitorProduct,
   limit = 3,
 ): CatalogProduct[] {
+  const sanitizedCompetitor = sanitizeCompetitorForMatching(competitor);
   const ranked = structuredFitRank(
     {
-      sku: competitor.sku,
-      name: competitor.name,
-      summary: competitor.summary,
-      description: competitor.notes,
-      category: competitor.category,
-      technology: competitor.technology,
-      features: competitor.features,
+      sku: sanitizedCompetitor.sku,
+      name: sanitizedCompetitor.name,
+      summary: sanitizedCompetitor.summary,
+      category: sanitizedCompetitor.category,
+      technology: sanitizedCompetitor.technology,
+      features: sanitizedCompetitor.features,
     },
     getCatalogProducts().map((candidate) => ({
       sku: candidate.sku,
       name: candidate.name,
       summary: candidate.summary,
-      description: candidate.notes,
       category: candidate.category,
       technology: candidate.technology,
       features: candidate.features,
