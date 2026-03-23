@@ -59,8 +59,34 @@ function displayRouteLength(discovery: DiscoverySeed): number {
   return 12;
 }
 
+function normalizeDevice(
+  device: ProjectDevice | undefined,
+  fallback: ProjectDevice,
+): ProjectDevice {
+  if (!device) return fallback;
+  return {
+    ...fallback,
+    ...device,
+    id: fallback.id,
+    name: text(device.name, fallback.name),
+    manufacturer: device.manufacturer?.trim() || fallback.manufacturer,
+    family: device.family?.trim() || fallback.family,
+    sku: device.sku?.trim() || fallback.sku,
+    location: text(device.location, fallback.location ?? "-"),
+    ports: Array.isArray(device.ports) && device.ports.length > 0 ? device.ports : fallback.ports,
+  };
+}
+
 function makeDevices(discovery: DiscoverySeed, template?: TemplateSeed | null, videoWall?: VideoWallSeed | null) {
-  const sourceCount = Math.max(1, n(discovery.sourceCount, template ? template.starterDevices.filter(x => x.role === "source").length : 1));
+  const templateSources = template?.starterDevices.filter((x) => x.role === "source") ?? [];
+  const templateDisplays = template?.starterDevices.filter((x) => x.role === "display") ?? [];
+  const templateNetwork = template?.starterDevices.find((x) => x.role === "network" || (x.family ?? "").toLowerCase().includes("avoip"));
+  const templateCore = template?.starterDevices.find((x) => x.role === "switcher");
+  const templateProcessor = template?.starterDevices.find((x) => x.role === "processor");
+  const templateUsb = template?.starterDevices.find((x) => x.role === "usb");
+  const templateAudio = template?.starterDevices.find((x) => x.role === "audio");
+  const templateControl = template?.starterDevices.find((x) => x.role === "control");
+  const sourceCount = Math.max(1, n(discovery.sourceCount, templateSources.length || 1));
   const templateDisplayCount = template ? template.starterDevices.filter((x) => x.role === "display").length : 1;
   const videoWallDisplayCount = videoWall
     ? videoWall.displayType === "LED"
@@ -72,27 +98,27 @@ function makeDevices(discovery: DiscoverySeed, template?: TemplateSeed | null, v
   const devices: ProjectDevice[] = [];
 
   for (let i = 1; i <= sourceCount; i++) {
-    devices.push({
+    devices.push(normalizeDevice(templateSources[i - 1], {
       id: id("src", i),
       name: `Source ${i}`,
       role: "source",
       location: text(discovery.sourceLocation, "Table / Rack"),
       ports: [{ id: "hdmi-out", name: "HDMI Out", kind: "HDMI", direction: "out" }],
-    });
+    }));
   }
 
   for (let i = 1; i <= displayCount; i++) {
-    devices.push({
+    devices.push(normalizeDevice(templateDisplays[i - 1], {
       id: id("disp", i),
       name: displayCount === 1 ? "Primary Display" : `Display ${i}`,
       role: "display",
       location: text(discovery.displayLocation, "Display Wall"),
       ports: [{ id: "video-in", name: "Video In", kind: "HDMI", direction: "in" }],
-    });
+    }));
   }
 
   if (families.includes("AVoIP")) {
-    devices.push({
+    devices.push(normalizeDevice(templateNetwork, {
       id: "net-1",
       name: "AV Network Switch",
       role: "network",
@@ -100,9 +126,9 @@ function makeDevices(discovery: DiscoverySeed, template?: TemplateSeed | null, v
       family: "AVoIP",
       location: "Rack",
       ports: [{ id: "lan", name: "LAN", kind: "LAN", direction: "bidirectional" }],
-    });
+    }));
   } else {
-    devices.push({
+    devices.push(normalizeDevice(templateCore, {
       id: "core-1",
       name: families.includes("Apollo") ? "Apollo Core" : families.includes("Matrix") ? "Matrix Core" : "Switching Core",
       role: "switcher",
@@ -113,49 +139,49 @@ function makeDevices(discovery: DiscoverySeed, template?: TemplateSeed | null, v
         { id: "hdmi-in", name: "HDMI In", kind: "HDMI", direction: "in" },
         { id: "video-out", name: "Video Out", kind: families.includes("HDBaseT") ? "HDBaseT" : "HDMI", direction: "out" },
       ],
-    });
+    }));
   }
 
-  if (videoWall && (videoWall.displayType === "LED" || videoWall.rows * videoWall.columns > 1)) {
-    devices.push({
+  if (templateProcessor || (videoWall && (videoWall.displayType === "LED" || videoWall.rows * videoWall.columns > 1))) {
+    devices.push(normalizeDevice(templateProcessor, {
       id: "vw-1",
-      name: videoWall.displayType === "LED" ? "LED Wall Processor" : "Video Wall Processor",
+      name: videoWall?.displayType === "LED" ? "LED Wall Processor" : "Video Wall Processor",
       role: "processor",
       manufacturer: "WyreStorm / 3rd Party",
       family: "Video Wall",
       location: "Rack",
       ports: [{ id: "video-in", name: "Video In", kind: "HDMI", direction: "in" }],
-    });
+    }));
   }
 
   if ((discovery.usbNeeds ?? "").toLowerCase().includes("usb")) {
-    devices.push({
+    devices.push(normalizeDevice(templateUsb, {
       id: "usb-1",
       name: "USB Peripheral Group",
       role: "usb",
       location: "Table / Display",
       ports: [{ id: "usb", name: "USB", kind: "USB 3.x", direction: "bidirectional" }],
-    });
+    }));
   }
 
   if ((discovery.audioNeeds ?? "").toLowerCase().includes("dante") || (discovery.audioNeeds ?? "").toLowerCase().includes("micro")) {
-    devices.push({
+    devices.push(normalizeDevice(templateAudio, {
       id: "audio-1",
       name: "Audio / DSP Endpoint",
       role: "audio",
       location: "Rack / Room",
       ports: [{ id: "audio", name: "Audio", kind: "Audio", direction: "bidirectional" }],
-    });
+    }));
   }
 
   if ((discovery.controlNeeds ?? "").toLowerCase() !== "none" && (discovery.controlNeeds ?? "").trim()) {
-    devices.push({
+    devices.push(normalizeDevice(templateControl, {
       id: "ctrl-1",
       name: "Control Endpoint",
       role: "control",
       location: "Rack / Table",
       ports: [{ id: "control", name: "Control", kind: "RS-232", direction: "bidirectional" }],
-    });
+    }));
   }
 
   return { devices, families, sourceCount, displayCount };

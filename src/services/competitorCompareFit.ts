@@ -7,7 +7,18 @@ import {
   normalizeCatalogProduct,
   type CatalogPortCount,
   type CatalogProduct,
+  type ProductTypeClassification,
 } from "@/catalog";
+import {
+  allowedMainCategoriesForComparison,
+  mainCategoryForCatalogProduct,
+  type MainProductCategory,
+} from "@/competitor/mainCategory";
+import {
+  buildStructuredFitMap,
+  sanitizeCompetitorForMatching,
+  type StructuredSkuFit,
+} from "@/competitor/matchingSupport";
 import { explainWyreStormAdvantage } from "@/competitor/positioning";
 import {
   getCompetitorProducts,
@@ -139,6 +150,9 @@ export type CompetitorCompareOption = {
 type RankedCandidate = {
   product: CatalogProduct;
   score: number;
+  sortPriority: number;
+  parityPriority: number;
+  extraPortPenalty: number;
   reasons: string[];
   notes: string[];
   ioSummary: string;
@@ -148,6 +162,8 @@ type RankedCandidate = {
   matchBasis: CompetitorCompareMatchBasis;
   highlights: CompetitorCompareHighlights;
 };
+
+type StructuredFitLookup = Map<string, StructuredSkuFit>;
 
 type PortSetAnalysis = {
   deltas: CompetitorComparePortDelta[];
@@ -173,6 +189,229 @@ type RequirementCoverage = {
 };
 
 const MINIMUM_AUTOMATIC_MATCH_SCORE = 60;
+const MINIMUM_STRUCTURED_AUTOMATIC_SCORE = 45;
+const MINIMUM_STRUCTURED_FAMILY_SCORE = 35;
+
+type ComparisonProfileId =
+  | "io-first"
+  | "balanced"
+  | "workflow-first"
+  | "transport-first";
+
+type ComparisonImportanceProfile = {
+  id: ComparisonProfileId;
+  stepWeights: {
+    role: number;
+    transport: number;
+    inputs: number;
+    outputs: number;
+    workflow: number;
+    specs: number;
+    feature: number;
+  };
+  scoring: {
+    compatibleRoleRatio: number;
+    coversRatio: number;
+    partialCap: number;
+    unknownRatio: number;
+    extraPortPenalty: number;
+    warningPenalty: number;
+    warningPenaltyCap: number;
+    exactInputBonus: number;
+    exactOutputBonus: number;
+    directReplacementFloor: number;
+    directUpgradeCap: number;
+    coversBriefFloor: number;
+    functionalAlternativeFloor: number;
+    functionalAlternativeCap: number;
+  };
+  directReplacement: {
+    requirePrimaryTypeExact: boolean;
+    requireExactInputs: boolean;
+    requireExactOutputs: boolean;
+    transportThreshold: number;
+    workflowThreshold: number;
+    specThreshold: number;
+    maxWarnings: number;
+  };
+  coversBrief: {
+    transportThreshold: number;
+    workflowThreshold: number;
+    specThreshold: number;
+  };
+};
+
+const IO_FIRST_PROFILE: ComparisonImportanceProfile = {
+  id: "io-first",
+  stepWeights: {
+    role: 18,
+    transport: 16,
+    inputs: 22,
+    outputs: 26,
+    workflow: 6,
+    specs: 8,
+    feature: 4,
+  },
+  scoring: {
+    compatibleRoleRatio: 0.78,
+    coversRatio: 0.76,
+    partialCap: 0.55,
+    unknownRatio: 0.4,
+    extraPortPenalty: 4,
+    warningPenalty: 4,
+    warningPenaltyCap: 12,
+    exactInputBonus: 3,
+    exactOutputBonus: 5,
+    directReplacementFloor: 100,
+    directUpgradeCap: 5,
+    coversBriefFloor: 75,
+    functionalAlternativeFloor: 60,
+    functionalAlternativeCap: 84,
+  },
+  directReplacement: {
+    requirePrimaryTypeExact: true,
+    requireExactInputs: true,
+    requireExactOutputs: true,
+    transportThreshold: 0.98,
+    workflowThreshold: 0.5,
+    specThreshold: 0.45,
+    maxWarnings: 0,
+  },
+  coversBrief: {
+    transportThreshold: 0.65,
+    workflowThreshold: 0.45,
+    specThreshold: 0.45,
+  },
+};
+
+const BALANCED_PROFILE: ComparisonImportanceProfile = {
+  id: "balanced",
+  stepWeights: {
+    role: 18,
+    transport: 16,
+    inputs: 20,
+    outputs: 18,
+    workflow: 14,
+    specs: 10,
+    feature: 4,
+  },
+  scoring: {
+    compatibleRoleRatio: 0.8,
+    coversRatio: 0.82,
+    partialCap: 0.62,
+    unknownRatio: 0.5,
+    extraPortPenalty: 3,
+    warningPenalty: 3,
+    warningPenaltyCap: 9,
+    exactInputBonus: 3,
+    exactOutputBonus: 3,
+    directReplacementFloor: 100,
+    directUpgradeCap: 5,
+    coversBriefFloor: 75,
+    functionalAlternativeFloor: 60,
+    functionalAlternativeCap: 84,
+  },
+  directReplacement: {
+    requirePrimaryTypeExact: true,
+    requireExactInputs: true,
+    requireExactOutputs: true,
+    transportThreshold: 0.98,
+    workflowThreshold: 0.65,
+    specThreshold: 0.55,
+    maxWarnings: 0,
+  },
+  coversBrief: {
+    transportThreshold: 0.6,
+    workflowThreshold: 0.55,
+    specThreshold: 0.5,
+  },
+};
+
+const WORKFLOW_FIRST_PROFILE: ComparisonImportanceProfile = {
+  id: "workflow-first",
+  stepWeights: {
+    role: 20,
+    transport: 10,
+    inputs: 14,
+    outputs: 12,
+    workflow: 28,
+    specs: 10,
+    feature: 6,
+  },
+  scoring: {
+    compatibleRoleRatio: 0.78,
+    coversRatio: 0.85,
+    partialCap: 0.68,
+    unknownRatio: 0.55,
+    extraPortPenalty: 2,
+    warningPenalty: 3,
+    warningPenaltyCap: 9,
+    exactInputBonus: 2,
+    exactOutputBonus: 2,
+    directReplacementFloor: 100,
+    directUpgradeCap: 5,
+    coversBriefFloor: 75,
+    functionalAlternativeFloor: 60,
+    functionalAlternativeCap: 84,
+  },
+  directReplacement: {
+    requirePrimaryTypeExact: true,
+    requireExactInputs: false,
+    requireExactOutputs: false,
+    transportThreshold: 0.75,
+    workflowThreshold: 0.78,
+    specThreshold: 0.55,
+    maxWarnings: 0,
+  },
+  coversBrief: {
+    transportThreshold: 0.55,
+    workflowThreshold: 0.62,
+    specThreshold: 0.45,
+  },
+};
+
+const TRANSPORT_FIRST_PROFILE: ComparisonImportanceProfile = {
+  id: "transport-first",
+  stepWeights: {
+    role: 18,
+    transport: 24,
+    inputs: 16,
+    outputs: 14,
+    workflow: 10,
+    specs: 14,
+    feature: 4,
+  },
+  scoring: {
+    compatibleRoleRatio: 0.78,
+    coversRatio: 0.8,
+    partialCap: 0.6,
+    unknownRatio: 0.48,
+    extraPortPenalty: 3,
+    warningPenalty: 4,
+    warningPenaltyCap: 12,
+    exactInputBonus: 3,
+    exactOutputBonus: 3,
+    directReplacementFloor: 100,
+    directUpgradeCap: 5,
+    coversBriefFloor: 75,
+    functionalAlternativeFloor: 60,
+    functionalAlternativeCap: 84,
+  },
+  directReplacement: {
+    requirePrimaryTypeExact: true,
+    requireExactInputs: true,
+    requireExactOutputs: true,
+    transportThreshold: 0.98,
+    workflowThreshold: 0.55,
+    specThreshold: 0.65,
+    maxWarnings: 0,
+  },
+  coversBrief: {
+    transportThreshold: 0.72,
+    workflowThreshold: 0.5,
+    specThreshold: 0.55,
+  },
+};
 
 function tidy(value: unknown): string {
   return String(value ?? "").trim();
@@ -211,6 +450,109 @@ function scoreToConfidence(score: number): CompareConfidence {
   if (score >= 75) return "High";
   if (score >= 60) return "Medium";
   return "Low";
+}
+
+function comparisonProfileForProductType(
+  type: ProductTypeClassification,
+): ComparisonImportanceProfile {
+  switch (type.primaryType) {
+    case "splitter":
+    case "matrix-switch":
+    case "matrix-dock":
+    case "matrix-kit":
+    case "advanced-matrix":
+      return IO_FIRST_PROFILE;
+    case "uc-appliance":
+    case "uc-soundbar":
+    case "speakerphone":
+    case "usb-microphone":
+      return WORKFLOW_FIRST_PROFILE;
+    case "extender-kit":
+    case "extender-transmitter":
+    case "extender-receiver":
+    case "avoip-encoder":
+    case "avoip-decoder":
+    case "avoip-endpoint":
+    case "avoip-controller":
+      return TRANSPORT_FIRST_PROFILE;
+    default:
+      return BALANCED_PROFILE;
+  }
+}
+
+function coveragePriority(level: CompetitorCompareCoverageLevel): number {
+  switch (level) {
+    case "exact":
+      return 4;
+    case "covers":
+      return 3;
+    case "partial":
+      return 2;
+    case "unknown":
+      return 1;
+    default:
+      return 0;
+  }
+}
+
+function coverageRatioForProfile(
+  level: CompetitorCompareCoverageLevel,
+  rawCoverage: number,
+  profile: ComparisonImportanceProfile,
+): number {
+  switch (level) {
+    case "exact":
+      return 1;
+    case "covers":
+      return profile.scoring.coversRatio;
+    case "partial":
+      return Math.min(profile.scoring.partialCap, Math.max(0.25, rawCoverage));
+    case "unknown":
+      return profile.scoring.unknownRatio;
+    default:
+      return 0;
+  }
+}
+
+function matchMethodPriority(method: CompetitorCompareMatchMethod): number {
+  switch (method) {
+    case "direct-replacement":
+      return 4;
+    case "covers-brief":
+      return 3;
+    case "functional-alternative":
+      return 2;
+    default:
+      return 1;
+  }
+}
+
+function extraPortPenaltyForAnalysis(
+  analysis: PortSetAnalysis,
+  profile: ComparisonImportanceProfile,
+): number {
+  return Math.max(0, analysis.wyrestormTotal - analysis.competitorTotal) *
+    profile.scoring.extraPortPenalty;
+}
+
+function compareRankedCandidates(
+  left: RankedCandidate,
+  right: RankedCandidate,
+): number {
+  return (
+    right.sortPriority - left.sortPriority ||
+    right.parityPriority - left.parityPriority ||
+    left.extraPortPenalty - right.extraPortPenalty ||
+    right.score - left.score ||
+    left.product.sku.localeCompare(right.product.sku)
+  );
+}
+
+function structuredLaneAdjustment(score: number): number {
+  if (score >= 85) return 8;
+  if (score >= 70) return 4;
+  if (score >= 55) return 1;
+  return -6;
 }
 
 function formatWyrestormCategory(product: CatalogProduct): string {
@@ -564,6 +906,107 @@ function analyzeListRequirement(
         ? `${label} gap: ${missing.slice(0, 3).join(", ")}.`
         : `${label} overlap ${percentFromRatio(ratio)}%.`,
   };
+}
+
+function meaningfulControlValues(values: string[] | undefined): string[] {
+  const out = new Set<string>();
+
+  for (const value of dedupeStrings(values ?? [], 12)) {
+    const token = normalizeId(value);
+    if (!token || token === "control" || token === "edid" || token === "edidmanagement") {
+      continue;
+    }
+    if (token.includes("rs232") || token.includes("serial")) {
+      out.add("RS-232");
+      continue;
+    }
+    if (token === "ir" || token.includes("infrared")) {
+      out.add("IR");
+      continue;
+    }
+    if (token.includes("api")) {
+      out.add("API");
+      continue;
+    }
+    if (token.includes("webui") || token.includes("browser")) {
+      out.add("Web UI");
+      continue;
+    }
+    if (token.includes("cec")) {
+      out.add("CEC");
+      continue;
+    }
+    if (token.includes("gpio")) {
+      out.add("GPIO");
+      continue;
+    }
+    if (token.includes("relay")) {
+      out.add("Relay");
+      continue;
+    }
+    if (token.includes("lan") || token.includes("ethernet") || token.includes("network")) {
+      out.add("LAN");
+    }
+  }
+
+  return Array.from(out);
+}
+
+function meaningfulAudioValues(values: string[] | undefined): string[] {
+  const out = new Set<string>();
+
+  for (const value of dedupeStrings(values ?? [], 12)) {
+    const token = normalizeId(value);
+    if (
+      !token ||
+      token === "audio" ||
+      token === "embeddedaudio" ||
+      token === "audioembedded"
+    ) {
+      continue;
+    }
+    if (token.includes("dante")) {
+      out.add("Dante");
+      continue;
+    }
+    if (token.includes("aes67")) {
+      out.add("AES67");
+      continue;
+    }
+    if (token.includes("deembed")) {
+      out.add("Audio De-embed");
+      continue;
+    }
+    if (token.includes("mic")) {
+      out.add("Microphone");
+      continue;
+    }
+    if (token.includes("speakerphone")) {
+      out.add("Speakerphone");
+      continue;
+    }
+    if (token.includes("speaker")) {
+      out.add("Speaker");
+      continue;
+    }
+    if (token.includes("amp")) {
+      out.add("Amplifier");
+      continue;
+    }
+    if (token.includes("linein")) {
+      out.add("Line In");
+      continue;
+    }
+    if (token.includes("lineout")) {
+      out.add("Line Out");
+      continue;
+    }
+    if (token.includes("analog")) {
+      out.add("Analog Audio");
+    }
+  }
+
+  return Array.from(out);
 }
 
 function analyzeNumericRequirement(
@@ -1572,7 +2015,9 @@ function buildIoBreakdown(
 }
 
 function chooseMatchMethod(input: {
+  primaryTypeExact: boolean;
   classAlignment: boolean;
+  profile: ComparisonImportanceProfile;
   transportCoverage: number;
   inputLevel: CompetitorCompareCoverageLevel;
   outputLevel: CompetitorCompareCoverageLevel;
@@ -1606,21 +2051,30 @@ function chooseMatchMethod(input: {
       : "manual-review";
   }
 
+  const directInputOk = input.profile.directReplacement.requireExactInputs
+    ? input.inputLevel === "exact"
+    : coversInputs;
+  const directOutputOk = input.profile.directReplacement.requireExactOutputs
+    ? input.outputLevel === "exact"
+    : coversOutputs;
+
   if (
-    input.inputLevel === "exact" &&
-    input.outputLevel === "exact" &&
-    input.transportCoverage >= 0.98 &&
-    input.workflowCoverage >= 0.72 &&
-    input.specCoverage >= 0.65 &&
-    input.warningCount === 0
+    (!input.profile.directReplacement.requirePrimaryTypeExact ||
+      input.primaryTypeExact) &&
+    directInputOk &&
+    directOutputOk &&
+    input.transportCoverage >= input.profile.directReplacement.transportThreshold &&
+    input.workflowCoverage >= input.profile.directReplacement.workflowThreshold &&
+    input.specCoverage >= input.profile.directReplacement.specThreshold &&
+    input.warningCount <= input.profile.directReplacement.maxWarnings
   ) {
     return "direct-replacement";
   }
 
   if (
-    input.transportCoverage >= 0.6 &&
-    input.workflowCoverage >= 0.5 &&
-    input.specCoverage >= 0.45
+    input.transportCoverage >= input.profile.coversBrief.transportThreshold &&
+    input.workflowCoverage >= input.profile.coversBrief.workflowThreshold &&
+    input.specCoverage >= input.profile.coversBrief.specThreshold
   ) {
     return "covers-brief";
   }
@@ -1998,14 +2452,37 @@ function pseudoCompetitorFromRecord(record: CompetitorComparisonRecord): Competi
   );
 
   return {
-    ...product,
+    ...sanitizeCompetitorForMatching(product),
     brand: tidy(record.brand) || "Unknown",
   };
 }
 
 function resolveCompetitor(record: CompetitorComparisonRecord): CompetitorProduct {
   const key = `${normalizeId(record.brand)}::${normalizeSku(record.competitorSku)}`;
-  return competitorMap().get(key) || pseudoCompetitorFromRecord(record);
+  return sanitizeCompetitorForMatching(
+    competitorMap().get(key) || pseudoCompetitorFromRecord(record),
+  );
+}
+
+function shortlistMainCategories(
+  record: CompetitorComparisonRecord,
+): Set<MainProductCategory> {
+  return new Set(allowedMainCategoriesForComparison(record));
+}
+
+function isShortlistCategoryCompatible(
+  allowedCategories: Set<MainProductCategory>,
+  product: CatalogProduct,
+): boolean {
+  if (allowedCategories.size === 0) return true;
+  return allowedCategories.has(mainCategoryForCatalogProduct(product));
+}
+
+function structuredFitLookup(competitor: CompetitorProduct): StructuredFitLookup {
+  return buildStructuredFitMap(
+    sanitizeCompetitorForMatching(competitor),
+    getCatalogProducts(),
+  );
 }
 
 function computeCandidateScore(
@@ -2014,6 +2491,9 @@ function computeCandidateScore(
 ): RankedCandidate {
   const competitorType = classifyCatalogProduct(competitor);
   const wyrestormType = classifyCatalogProduct(wyrestorm);
+  const profile = comparisonProfileForProductType(competitorType);
+  const primaryTypeExact =
+    competitorType.primaryType === wyrestormType.primaryType;
   const matrix = comparisonMatrix(competitor, wyrestorm);
   const inputAnalysis = analyzePortSet(competitor.inputs, wyrestorm.inputs);
   const outputAnalysis = analyzePortSet(competitor.outputs, wyrestorm.outputs);
@@ -2027,7 +2507,7 @@ function computeCandidateScore(
       {
         id: "role",
         title: "Product role",
-        weight: 15,
+        weight: profile.stepWeights.role,
         status: "fail",
         summary: rejectionReason,
         detail: blockers[0],
@@ -2035,35 +2515,35 @@ function computeCandidateScore(
       {
         id: "transport",
         title: "Transport",
-        weight: 15,
+        weight: profile.stepWeights.transport,
         status: "warn",
         summary: "Comparison stopped before a valid transport match could be established.",
       },
       {
         id: "inputs",
         title: "Inputs",
-        weight: 20,
+        weight: profile.stepWeights.inputs,
         status: statusForCoverageLevel(ioBreakdown.inputParity),
         summary: describePortAnalysis("Inputs", inputAnalysis),
       },
       {
         id: "outputs",
         title: "Outputs",
-        weight: 15,
+        weight: profile.stepWeights.outputs,
         status: statusForCoverageLevel(ioBreakdown.outputParity),
         summary: describePortAnalysis("Outputs", outputAnalysis),
       },
       {
         id: "workflow",
         title: "Workflow fit",
-        weight: 20,
+        weight: profile.stepWeights.workflow,
         status: "warn",
         summary: "Workflow fit was not scored because the base comparison was rejected.",
       },
       {
         id: "specs",
         title: "Spec headroom",
-        weight: 15,
+        weight: profile.stepWeights.specs,
         status: "warn",
         summary: "Spec headroom was not scored because the base comparison was rejected.",
       },
@@ -2088,6 +2568,9 @@ function computeCandidateScore(
     return {
       product: wyrestorm,
       score: 0,
+      sortPriority: 0,
+      parityPriority: 0,
+      extraPortPenalty: 0,
       reasons: [rejectionReason],
       notes: blockers.slice(0, 6),
       ioSummary: `I/O coverage ${ioBreakdown.ioCoveragePercent}%`,
@@ -2204,13 +2687,13 @@ function computeCandidateScore(
   );
   const controlAnalysis = analyzeListRequirement(
     "Control interfaces",
-    competitor.control,
-    wyrestorm.control,
+    meaningfulControlValues(competitor.control),
+    meaningfulControlValues(wyrestorm.control),
   );
   const audioAnalysis = analyzeListRequirement(
     "Audio interfaces",
-    competitor.audio,
-    wyrestorm.audio,
+    meaningfulAudioValues(competitor.audio),
+    meaningfulAudioValues(wyrestorm.audio),
   );
 
   const workflowAnalyses = [
@@ -2226,20 +2709,22 @@ function computeCandidateScore(
     controlAnalysis,
     audioAnalysis,
   ];
-  const workflowCoverage = averageRelevant(workflowAnalyses, Math.max(0.55, featureCoverage));
+  const hasWorkflowRequirements = workflowAnalyses.some((item) => item.relevant);
+  const workflowCoverage = hasWorkflowRequirements
+    ? averageRelevant(workflowAnalyses, Math.max(0.55, featureCoverage))
+    : 1;
   const workflowIssues = dedupeStrings(
     [...pickRequirementIssues(workflowAnalyses, 4), ...avAssessment.warnings],
     4,
   );
   const workflowStatus = avAssessment.warnings.length
     ? "warn"
-    : statusForCoverageRatio(
-        workflowCoverage,
-        workflowAnalyses.some((item) => item.relevant),
-      );
-  const workflowSummary = workflowAnalyses.some((item) => item.relevant)
+    : hasWorkflowRequirements
+      ? statusForCoverageRatio(workflowCoverage, true)
+      : "pass";
+  const workflowSummary = hasWorkflowRequirements
     ? `Workflow coverage ${percentFromRatio(workflowCoverage)}% across the captured collaboration, USB, control, and integration requirements.`
-    : "Workflow-specific requirements are not fully captured on the competitor record.";
+    : "No workflow-specific requirements are captured on the competitor record, so workflow is treated as neutral.";
 
   const resolutionAnalysis = analyzeRankedRequirement(
     "Video ceiling",
@@ -2312,19 +2797,21 @@ function computeCandidateScore(
     distanceAnalysis,
     latencyAnalysis,
   ];
-  const specCoverage = averageRelevant(specAnalyses, 0.6);
+  const hasSpecRequirements = specAnalyses.some((item) => item.relevant);
+  const specCoverage = hasSpecRequirements ? averageRelevant(specAnalyses, 0.6) : 1;
   const specIssues = pickRequirementIssues(specAnalyses, 4);
-  const specStatus = statusForCoverageRatio(
-    specCoverage,
-    specAnalyses.some((item) => item.relevant),
-  );
-  const specSummary = specAnalyses.some((item) => item.relevant)
+  const specStatus = hasSpecRequirements
+    ? statusForCoverageRatio(specCoverage, true)
+    : "pass";
+  const specSummary = hasSpecRequirements
     ? `Spec headroom ${percentFromRatio(specCoverage)}% against the captured video, distance, and transport-detail baseline.`
-    : "Spec ceiling is not fully captured on the competitor record.";
+    : "No higher-order spec ceiling is captured on the competitor record, so spec comparison is treated as neutral.";
 
   const classAlignment = true;
   const matchMethod = chooseMatchMethod({
+    primaryTypeExact,
     classAlignment,
+    profile,
     transportCoverage,
     inputLevel: ioBreakdown.inputParity,
     outputLevel: ioBreakdown.outputParity,
@@ -2333,50 +2820,86 @@ function computeCandidateScore(
     specCoverage,
     warningCount: avAssessment.warnings.length,
   });
+  const positiveUpgradeCount = matrix.filter((row) => row.status === "better").length;
+  const roleRatio = primaryTypeExact
+    ? 1
+    : profile.scoring.compatibleRoleRatio;
+  const inputRatio = coverageRatioForProfile(
+    ioBreakdown.inputParity,
+    inputAnalysis.coverage,
+    profile,
+  );
+  const outputRatio = coverageRatioForProfile(
+    ioBreakdown.outputParity,
+    outputAnalysis.coverage,
+    profile,
+  );
+  const extraPortPenalty =
+    extraPortPenaltyForAnalysis(inputAnalysis, profile) +
+    extraPortPenaltyForAnalysis(outputAnalysis, profile);
+  const parityPriority =
+    coveragePriority(ioBreakdown.inputParity) * profile.stepWeights.inputs +
+    coveragePriority(ioBreakdown.outputParity) * profile.stepWeights.outputs;
 
   let score = 0;
-  score += 18;
-  score += Math.round(14 * transportCoverage);
-  score += Math.round(36 * (ioBreakdown.ioCoveragePercent / 100));
-  score += Math.round(16 * workflowCoverage);
-  score += Math.round(12 * specCoverage);
-  score += Math.round(featureCoverage * 4);
+  score += Math.round(profile.stepWeights.role * roleRatio);
+  score += Math.round(profile.stepWeights.transport * transportCoverage);
+  score += Math.round(profile.stepWeights.inputs * inputRatio);
+  score += Math.round(profile.stepWeights.outputs * outputRatio);
+  score += Math.round(profile.stepWeights.workflow * workflowCoverage);
+  score += Math.round(profile.stepWeights.specs * specCoverage);
+  score += Math.round(profile.stepWeights.feature * featureCoverage);
 
-  if (ioBreakdown.inputParity === "exact") score += 2;
-  if (ioBreakdown.outputParity === "exact") score += 2;
-  if (ioBreakdown.inputParity === "covers") score += 1;
-  if (ioBreakdown.outputParity === "covers") score += 1;
-  score -= Math.min(9, avAssessment.warnings.length * 3);
+  if (ioBreakdown.inputParity === "exact") {
+    score += profile.scoring.exactInputBonus;
+  }
+  if (ioBreakdown.outputParity === "exact") {
+    score += profile.scoring.exactOutputBonus;
+  }
+  score -= extraPortPenalty;
+  score -= Math.min(
+    profile.scoring.warningPenaltyCap,
+    avAssessment.warnings.length * profile.scoring.warningPenalty,
+  );
 
   if (matchMethod === "direct-replacement") {
-    score = Math.max(score, 86);
+    score = Math.max(score, profile.scoring.directReplacementFloor);
+    if (positiveUpgradeCount > 0) {
+      score = Math.max(
+        score,
+        profile.scoring.directReplacementFloor +
+          Math.min(profile.scoring.directUpgradeCap, positiveUpgradeCount),
+      );
+    }
   } else if (matchMethod === "covers-brief") {
-    score = Math.max(score, 75);
+    score = Math.max(score, profile.scoring.coversBriefFloor);
   } else if (matchMethod === "functional-alternative") {
-    score = Math.max(score, 60);
-    score = Math.min(score, 84);
+    score = Math.max(score, profile.scoring.functionalAlternativeFloor);
+    score = Math.min(score, profile.scoring.functionalAlternativeCap);
   } else {
     score = Math.min(score, 69);
   }
 
-  const bounded = Math.max(0, Math.min(100, score));
+  const bounded = Math.max(0, Math.min(105, score));
   const decisionWorkflow: CompetitorCompareDecisionStep[] = [
     {
       id: "role",
       title: "Product role",
-      weight: 15,
-      status: "pass",
+      weight: profile.stepWeights.role,
+      status: primaryTypeExact ? "pass" : "warn",
       summary: `${competitorType.label} compared against ${wyrestormType.label}.`,
       detail:
-        normalizeId(competitor.category) === normalizeId(wyrestorm.category) &&
-        tidy(competitor.category)
-          ? `Category aligns on ${wyrestorm.category}.`
-          : `Type gate passed even though category naming differs.`,
+        primaryTypeExact
+          ? normalizeId(competitor.category) === normalizeId(wyrestorm.category) &&
+            tidy(competitor.category)
+            ? `Category aligns on ${wyrestorm.category}.`
+            : `Primary role aligns even though catalog naming differs.`
+          : `Compatible family, but ${wyrestorm.sku} is a broader ${wyrestormType.label.toLowerCase()} rather than a pure ${competitorType.label.toLowerCase()}.`,
     },
     {
       id: "transport",
       title: "Transport",
-      weight: 15,
+      weight: profile.stepWeights.transport,
       status: transportStatus,
       summary: transportSummary,
       detail: transportDetail,
@@ -2384,7 +2907,7 @@ function computeCandidateScore(
     {
       id: "inputs",
       title: "Inputs",
-      weight: 20,
+      weight: profile.stepWeights.inputs,
       status: statusForCoverageLevel(ioBreakdown.inputParity),
       summary: describePortAnalysis("Inputs", inputAnalysis),
       detail:
@@ -2397,7 +2920,7 @@ function computeCandidateScore(
     {
       id: "outputs",
       title: "Outputs",
-      weight: 15,
+      weight: profile.stepWeights.outputs,
       status: statusForCoverageLevel(ioBreakdown.outputParity),
       summary: describePortAnalysis("Outputs", outputAnalysis),
       detail:
@@ -2410,7 +2933,7 @@ function computeCandidateScore(
     {
       id: "workflow",
       title: "Workflow fit",
-      weight: 20,
+      weight: profile.stepWeights.workflow,
       status: workflowStatus,
       summary: workflowSummary,
       detail: workflowIssues[0],
@@ -2418,7 +2941,7 @@ function computeCandidateScore(
     {
       id: "specs",
       title: "Spec headroom",
-      weight: 15,
+      weight: profile.stepWeights.specs,
       status: specStatus,
       summary: specSummary,
       detail: specIssues[0],
@@ -2471,6 +2994,12 @@ function computeCandidateScore(
   return {
     product: wyrestorm,
     score: bounded,
+    sortPriority:
+      matchMethodPriority(matchMethod) * 1000 +
+      (primaryTypeExact ? 120 : 0) +
+      (transportStatus === "pass" ? 40 : transportStatus === "warn" ? 15 : 0),
+    parityPriority,
+    extraPortPenalty,
     reasons,
     notes,
     ioSummary: `I/O coverage ${ioBreakdown.ioCoveragePercent}%`,
@@ -2482,62 +3011,114 @@ function computeCandidateScore(
   };
 }
 
-function rankWyrestormCandidates(competitor: CompetitorProduct): RankedCandidate[] {
+function rankWyrestormCandidates(
+  competitor: CompetitorProduct,
+  structuredFits: StructuredFitLookup,
+): RankedCandidate[] {
+  const sanitizedCompetitor = sanitizeCompetitorForMatching(competitor);
   const catalog = getCatalogProducts();
-  const competitorType = classifyCatalogProduct(competitor);
+  const competitorType = classifyCatalogProduct(sanitizedCompetitor);
 
   return catalog
     .filter((product) =>
       areProductTypesCompatible(competitorType, classifyCatalogProduct(product)),
     )
-    .map((product) => computeCandidateScore(competitor, product))
+    .map((product) => {
+      const structured = structuredFits.get(product.sku);
+      if (!structured || structured.score < MINIMUM_STRUCTURED_AUTOMATIC_SCORE) {
+        return null;
+      }
+
+      const candidate = computeCandidateScore(sanitizedCompetitor, product);
+      return {
+        ...candidate,
+        score: Math.max(
+          0,
+          Math.min(105, candidate.score + structuredLaneAdjustment(structured.score)),
+        ),
+        notes:
+          structured.score < 70
+            ? dedupeStrings([...candidate.notes, ...structured.reasons.slice(0, 2)], 6)
+            : candidate.notes,
+      };
+    })
+    .filter((candidate): candidate is RankedCandidate => Boolean(candidate))
     .filter(
       (candidate) =>
         candidate.score >= MINIMUM_AUTOMATIC_MATCH_SCORE &&
         candidate.matchBasis.method !== "manual-review",
     )
-    .sort(
-      (left, right) =>
-        right.score - left.score || left.product.sku.localeCompare(right.product.sku),
-    );
+    .sort(compareRankedCandidates);
 }
 
-function reviewWyrestormCandidates(competitor: CompetitorProduct): RankedCandidate[] {
+function reviewWyrestormCandidates(
+  competitor: CompetitorProduct,
+  structuredFits: StructuredFitLookup,
+): RankedCandidate[] {
+  const sanitizedCompetitor = sanitizeCompetitorForMatching(competitor);
   const catalog = getCatalogProducts();
-  const competitorType = classifyCatalogProduct(competitor);
+  const competitorType = classifyCatalogProduct(sanitizedCompetitor);
 
   return catalog
     .filter((product) =>
       areProductTypesCompatible(competitorType, classifyCatalogProduct(product)),
     )
-    .map((product) => computeCandidateScore(competitor, product))
+    .map((product) => {
+      const structured = structuredFits.get(product.sku);
+      if (!structured || structured.score <= 0) return null;
+
+      const candidate = computeCandidateScore(sanitizedCompetitor, product);
+      return {
+        ...candidate,
+        score: Math.max(
+          0,
+          Math.min(105, candidate.score + structuredLaneAdjustment(structured.score)),
+        ),
+        notes:
+          structured.score < 70
+            ? dedupeStrings([...candidate.notes, ...structured.reasons.slice(0, 2)], 6)
+            : candidate.notes,
+      };
+    })
+    .filter((candidate): candidate is RankedCandidate => Boolean(candidate))
     .filter((candidate) => candidate.score > 0)
-    .sort(
-      (left, right) =>
-        right.score - left.score || left.product.sku.localeCompare(right.product.sku),
-    );
+    .sort(compareRankedCandidates);
 }
 
 function familyHintCandidates(
   record: CompetitorComparisonRecord,
   competitor: CompetitorProduct,
+  structuredFits: StructuredFitLookup,
 ): RankedCandidate[] {
   const families = normalizeFamilies(record.recommendedFamilies);
   if (families.length === 0) return [];
+  const sanitizedCompetitor = sanitizeCompetitorForMatching(competitor);
 
   return getCatalogProducts()
     .map((product) => {
+      const structured = structuredFits.get(product.sku);
+      if (!structured || structured.score < MINIMUM_STRUCTURED_FAMILY_SCORE) {
+        return null;
+      }
+
       const hintScore = familyHintScore(product, families);
       if (hintScore <= 0) return null;
 
-      const base = computeCandidateScore(competitor, product);
+      const base = computeCandidateScore(sanitizedCompetitor, product);
       if (!base.matchBasis.classAlignment) {
         return null;
       }
       const floor = 34 + hintScore * 4;
       return {
         ...base,
-        score: Math.max(base.score, floor),
+        score: Math.min(
+          105,
+          Math.max(
+            Math.max(base.score, floor),
+            base.score + structuredLaneAdjustment(structured.score),
+          ),
+        ),
+        sortPriority: base.sortPriority + Math.round(hintScore * 10),
         reasons: dedupeStrings(
           [
             `Family-direction hint aligns with ${product.family || product.category}.`,
@@ -2548,6 +3129,7 @@ function familyHintCandidates(
         notes: dedupeStrings(
           [
             ...base.notes,
+            ...structured.reasons.slice(0, 2),
             `This candidate comes from the stored ${families.join(", ")} direction and still needs a detailed parity check.`,
           ],
           6,
@@ -2560,10 +3142,7 @@ function familyHintCandidates(
       };
     })
     .filter((candidate): candidate is RankedCandidate => Boolean(candidate))
-    .sort(
-      (left, right) =>
-        right.score - left.score || left.product.sku.localeCompare(right.product.sku),
-    )
+    .sort(compareRankedCandidates)
     .slice(0, 6);
 }
 
@@ -2756,9 +3335,17 @@ export function buildComparisonOptions(
   sourceType: CompetitorCompareOptionSource,
 ): CompetitorCompareOption[] {
   const competitor = resolveCompetitor(record);
-  const ranked = rankWyrestormCandidates(competitor);
-  const reviewRanked = reviewWyrestormCandidates(competitor);
-  const familyRanked = familyHintCandidates(record, competitor);
+  const structuredFits = structuredFitLookup(competitor);
+  const allowedCategories = shortlistMainCategories(record);
+  const ranked = rankWyrestormCandidates(competitor, structuredFits).filter((candidate) =>
+    isShortlistCategoryCompatible(allowedCategories, candidate.product),
+  );
+  const reviewRanked = reviewWyrestormCandidates(competitor, structuredFits).filter(
+    (candidate) => isShortlistCategoryCompatible(allowedCategories, candidate.product),
+  );
+  const familyRanked = familyHintCandidates(record, competitor, structuredFits).filter(
+    (candidate) => isShortlistCategoryCompatible(allowedCategories, candidate.product),
+  );
   const out: CompetitorCompareOption[] = [];
   const seen = new Set<string>();
 

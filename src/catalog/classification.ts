@@ -108,7 +108,6 @@ export function classifyProductType(input: ProductTypeInput): ProductTypeClassif
     input.features,
     input.audio,
     input.control,
-    input.notes,
     input.normalizedTags,
     input.matchKeywords,
   );

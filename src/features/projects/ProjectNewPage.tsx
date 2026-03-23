@@ -29,6 +29,7 @@ import {
   type StoredProject,
 } from "@/features/projects/projectStore";
 import { getProjectResumeAction } from "@/features/projects/projectProductivity";
+import { createReadyMadeProjectFromWorkbenchTemplate } from "@/features/templates/templateProjectBuilder";
 import CollapsibleCard from "@/ui2/components/CollapsibleCard";
 
 type StartMethod = {
@@ -147,6 +148,7 @@ export default function ProjectNewPage() {
   const [customer, setCustomer] = React.useState("");
   const [site, setSite] = React.useState("");
   const [activeFlowStep, setActiveFlowStep] = React.useState<ProjectFlowStep>("details");
+  const [startingTemplate, setStartingTemplate] = React.useState(false);
   const detailsRef = React.useRef<HTMLElement | null>(null);
   const reuseRef = React.useRef<HTMLElement | null>(null);
   const [templateSeed, setTemplateSeed] = React.useState<WorkbenchTemplateSeed | null>(() =>
@@ -250,9 +252,23 @@ export default function ProjectNewPage() {
     nav(method.to);
   }
 
-  function startFromSelectedTemplate() {
+  async function startFromSelectedTemplate() {
+    if (!templateSeed || startingTemplate) return;
+    setStartingTemplate(true);
+    try {
+      const project = await createReadyMadeProjectFromWorkbenchTemplate(templateSeed, {
+        name: name.trim() || templateSeed.projectName,
+        customer: customer.trim(),
+        site: site.trim(),
+      });
+      clearTemplateSeed();
+      setTemplateSeed(null);
+      nav(`/app/projects/${encodeURIComponent(project.id)}`);
+      return;
+    } catch {}
+
     createShell("Template");
-    nav(templateSeed?.recommendedTool || WM_ROUTES.discovery);
+    nav(templateSeed.recommendedTool || WM_ROUTES.discovery);
   }
 
   function discardSelectedTemplate() {
@@ -323,9 +339,10 @@ export default function ProjectNewPage() {
               <button
                 type="button"
                 className="wm-btn wm-btn-primary"
-                onClick={startFromSelectedTemplate}
+                onClick={() => void startFromSelectedTemplate()}
+                disabled={startingTemplate}
               >
-                Open {getToolLabel(templateSeed.recommendedTool)} with this starter
+                {startingTemplate ? "Building ready-made room solution..." : "Create ready-made room solution"}
               </button>
               <button type="button" className="wm-btn" onClick={discardSelectedTemplate}>
                 Clear starter

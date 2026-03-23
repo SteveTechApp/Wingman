@@ -1,4 +1,5 @@
 import { recommendSkusForFamilies, type SolutionRecommendationTier } from "@/catalog/serviceRecommendations";
+import { buildDesignBom, type DesignBomItem } from "@/features/systemDesign/designBom";
 import { buildDesignBundle } from "@/features/systemDesign/cableScheduleEngine";
 import { summariseDesignBundle, writeDesignBundle } from "@/features/systemDesign/designBundleStore";
 import type {
@@ -24,6 +25,7 @@ export type RoomDesignerResponse = {
   roomId?: string;
   recommendedFamilies: string[];
   suggestedSkus: string[];
+  suggestedBom: DesignBomItem[];
   nextTool: string;
   summary: {
     templateSummary: string;
@@ -64,6 +66,8 @@ function normalizeDiscovery(value: DiscoverySeed | null | undefined): DiscoveryS
     roomLengthM: normalizeText(value.roomLengthM),
     roomWidthM: normalizeText(value.roomWidthM),
     roomHeightM: normalizeText(value.roomHeightM),
+    floorType: normalizeText(value.floorType),
+    ceilingType: normalizeText(value.ceilingType),
     displayLocation: normalizeText(value.displayLocation),
     sourceLocation: normalizeText(value.sourceLocation),
     rackLocation: normalizeText(value.rackLocation),
@@ -89,6 +93,22 @@ function normalizeDiscovery(value: DiscoverySeed | null | undefined): DiscoveryS
     usbStandards: normalizeText(value.usbStandards),
     audioNeeds: normalizeText(value.audioNeeds),
     controlNeeds: normalizeText(value.controlNeeds),
+    inputDetails: Array.isArray(value.inputDetails)
+      ? value.inputDetails.map((detail) => ({
+          sourceType: normalizeText(detail?.sourceType),
+          connectionType: normalizeText(detail?.connectionType),
+          cableType: normalizeText(detail?.cableType),
+          route: normalizeText(detail?.route),
+          sourceLocation: normalizeText(detail?.sourceLocation),
+        }))
+      : [],
+    outputDetails: Array.isArray(value.outputDetails)
+      ? value.outputDetails.map((detail) => ({
+          outputType: normalizeText(detail?.outputType),
+          route: normalizeText(detail?.route),
+          displayLocation: normalizeText(detail?.displayLocation),
+        }))
+      : [],
     notes: normalizeText(value.notes),
     recommendedFamilies: Array.isArray(value.recommendedFamilies)
       ? value.recommendedFamilies.map((item) => normalizeText(item)).filter(Boolean)
@@ -203,7 +223,25 @@ export async function designRoom(input: RoomDesignerInput): Promise<RoomDesigner
 
   const families = inferFamilies(discovery, template, videoWall, bundle);
   const tier = pickTier(input);
-  const suggestedSkus = inferSkus(families, tier);
+  const sourceCount = Math.max(1, bundle.devices.filter((device) => device.role === "source").length || Number(discovery.sourceCount) || 1);
+  const displayCount = Math.max(1, bundle.devices.filter((device) => device.role === "display").length || Number(discovery.displayCount) || 1);
+  const suggestedBom = buildDesignBom({
+    families,
+    tier,
+    sourceCount,
+    displayCount,
+    applicationType: discovery.applicationType,
+    roomTypeId: template?.id,
+    usbNeeds: discovery.usbNeeds,
+    audioNeeds: discovery.audioNeeds,
+    controlNeeds: discovery.controlNeeds,
+  });
+  const suggestedSkus = uniqueOrdered([
+    ...suggestedBom
+      .filter((item) => !item.sku.startsWith("3P-"))
+      .map((item) => item.sku),
+    ...inferSkus(families, tier),
+  ]);
   const nextTool = inferNextTool(families);
   const summary = summariseDesignBundle(bundle);
 
@@ -221,6 +259,7 @@ export async function designRoom(input: RoomDesignerInput): Promise<RoomDesigner
     roomId: input.roomId,
     recommendedFamilies: families,
     suggestedSkus,
+    suggestedBom,
     nextTool,
     summary,
     notes,

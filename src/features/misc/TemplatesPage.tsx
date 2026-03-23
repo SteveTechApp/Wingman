@@ -2,6 +2,7 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import CollapsibleCard from "@/ui2/components/CollapsibleCard";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
+import { createReadyMadeProjectFromWorkbenchTemplate } from "@/features/templates/templateProjectBuilder";
 import {
   BUDGET_BIASES,
   MARKETS,
@@ -515,6 +516,7 @@ export default function TemplatesPage() {
   const [marketId, setMarketId] = React.useState<string>(MARKETS[0].id);
   const [roomId, setRoomId] = React.useState<string>(MARKETS[0].roomTypes[0].id);
   const [tier, setTier] = React.useState<TierKey>(MARKETS[0].roomTypes[0].defaultTier);
+  const [launchingTemplate, setLaunchingTemplate] = React.useState(false);
   const totalRoomProfiles = React.useMemo(
     () => MARKETS.reduce((sum, market) => sum + market.roomTypes.length, 0),
     [],
@@ -687,9 +689,10 @@ export default function TemplatesPage() {
     setActiveStep(3);
   }
 
-  function seedTemplateIntoProject() {
+  async function seedTemplateIntoProject() {
+    if (launchingTemplate) return;
     const payload = {
-      source: "template-workbench",
+      source: "template-workbench" as const,
       verticalMarket: {
         id: market.id,
         name: market.name,
@@ -716,15 +719,29 @@ export default function TemplatesPage() {
       assumptions: scenarioDetail.roomAssumptions,
       recommendedFamilies: room.recommendedFamilies,
       recommendedTool: room.nextTool,
+      solutionSummary: scenarioDetail.headline,
+      customerScenario: scenarioDetail.customerScenario,
+      sourceOutput: scenarioDetail.sourceOutput,
+      tierFit: scenarioDetail.tierFit,
+      baseline: scenarioDetail.baseline,
+      operationalPriorities: scenarioDetail.operationalPriorities,
       projectName: market.name + " - " + room.name + " (" + tierProfile.label + ")",
       createdAt: new Date().toISOString(),
     };
+
+    setLaunchingTemplate(true);
+    try {
+      const project = await createReadyMadeProjectFromWorkbenchTemplate(payload);
+      nav(`/app/projects/${encodeURIComponent(project.id)}`);
+      return;
+    } catch {}
 
     try {
       sessionStorage.setItem(TEMPLATE_SEED_KEY, JSON.stringify(payload, null, 2));
     } catch {}
 
     nav(WM_ROUTES.projectLauncher);
+    setLaunchingTemplate(false);
   }
 
   function goToRecommendedTool() {
@@ -989,9 +1006,10 @@ export default function TemplatesPage() {
                   type="button"
                   className="wm-btn wm-btn-primary"
                   style={{ height: 40, padding: "0 16px" }}
-                  onClick={seedTemplateIntoProject}
+                  onClick={() => void seedTemplateIntoProject()}
+                  disabled={launchingTemplate}
                 >
-                  Start a project from this template
+                  {launchingTemplate ? "Building ready-made room solution..." : "Launch ready-made room solution"}
                 </button>
 
 

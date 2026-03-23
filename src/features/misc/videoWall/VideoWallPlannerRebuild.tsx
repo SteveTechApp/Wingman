@@ -1213,6 +1213,9 @@ export default function VideoWallPlannerRebuild() {
   ];
   const bomLines = recommendation?.bom ?? [];
   const bomUnitCount = bomLines.reduce((sum, line) => sum + line.qty, 0);
+  const hasBom = bomLines.length > 0;
+  const bomPreviewLines = bomLines.slice(0, 6);
+  const bomOverflowCount = Math.max(0, bomLines.length - bomPreviewLines.length);
   const architectureAlternatives = useMemo(
     () =>
       (
@@ -1231,6 +1234,7 @@ export default function VideoWallPlannerRebuild() {
         })),
     [resolvedPathMode],
   );
+  const compactAlternatives = architectureAlternatives.slice(0, 2);
 
   let tabContent: React.ReactNode;
 
@@ -1652,13 +1656,88 @@ export default function VideoWallPlannerRebuild() {
               </div>
             </section>
 
+            <section className="wm-vw-priorityGrid">
+              <SectionCard title="Starter BOM" style={{ height: "100%" }}>
+                <div className="wm-vw-priorityCard">
+                  <div className="wm-vw-priorityCard__header">
+                    <div className="wm-vw-priorityCard__copy">
+                      <div className="wm-vw-priorityCard__title">
+                        {hasBom
+                          ? `${bomLines.length} line item${bomLines.length === 1 ? "" : "s"} and ${bomUnitCount} total unit${bomUnitCount === 1 ? "" : "s"}.`
+                          : "No starter BOM exposed for this path yet."}
+                      </div>
+                      <div className="wm-vw-priorityCard__summary">
+                        {hasBom
+                          ? "Keep the priceable stack visible while you validate the wall behavior and transport."
+                          : "Use the supporting detail below to review the engineering path before pricing is committed."}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="wm-vw-linkButton"
+                      onClick={() => setActiveTab("bom")}
+                    >
+                      Open BOM details
+                    </button>
+                  </div>
+
+                  {hasBom ? (
+                    <div className="wm-vw-bomList wm-vw-bomList--priority">
+                      {bomPreviewLines.map((line, index) => (
+                        <div key={`${line.sku}-${index}`} className="wm-vw-bomRow">
+                          <div className="wm-vw-bomRow__main">
+                            <div className="wm-vw-bomRow__sku">{line.sku}</div>
+                            <div className="wm-vw-bomRow__role">{line.role}</div>
+                          </div>
+                          <div className="wm-vw-bomRow__qty">Qty {line.qty}</div>
+                          {line.note ? <div className="wm-vw-bomRow__note">{line.note}</div> : null}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="wm-vw-emptyState">
+                      The current path does not expose a starter BOM yet.
+                    </div>
+                  )}
+
+                  {bomOverflowCount > 0 ? (
+                    <div className="wm-vw-miniBom__more">
+                      + {bomOverflowCount} more line item{bomOverflowCount === 1 ? "" : "s"} in BOM details
+                    </div>
+                  ) : null}
+                </div>
+              </SectionCard>
+
+              <div className="wm-vw-priorityStack">
+                <SectionCard title="Decision notes">
+                  <div className="wm-vw-list">
+                    {recommendationReasons.map((reason, index) => (
+                      <div key={`${reason}-${index}`} className="wm-vw-listItem">
+                        {reason}
+                      </div>
+                    ))}
+                  </div>
+                </SectionCard>
+
+                <SectionCard title="What to watch">
+                  <div className="wm-vw-list">
+                    {designState.guardrails.map((guardrail, index) => (
+                      <div key={`${guardrail}-${index}`} className="wm-vw-listItem">
+                        {guardrail}
+                      </div>
+                    ))}
+                  </div>
+                </SectionCard>
+              </div>
+            </section>
+
             <section className="wm-vw-workspace">
               <div className="wm-vw-workspace__header">
                 <div>
-                  <div className="wm-vw-eyebrow">Live workspace</div>
-                  <h3 className="wm-vw-workspace__title">See the canvas and the route without leaving the page.</h3>
+                  <div className="wm-vw-eyebrow">Visual validation</div>
+                  <h3 className="wm-vw-workspace__title">Validate the wall shape and route after the BOM is set.</h3>
                   <p className="wm-vw-workspace__summary">
-                    Switch between a visual wall view and a signal-flow view while the recommendation stays live.
+                    Use the canvas and signal views to check the chosen path, not to hunt for the core answer.
                   </p>
                 </div>
                 <div className="wm-vw-toolbar">
@@ -1777,58 +1856,14 @@ export default function VideoWallPlannerRebuild() {
                     </div>
                   )}
                 </div>
-
-                <div className="wm-vw-sideRail">
-                  <SectionCard title="Decision notes">
-                    <div className="wm-vw-list">
-                      {recommendationReasons.map((reason, index) => (
-                        <div key={`${reason}-${index}`} className="wm-vw-listItem">
-                          {reason}
-                        </div>
-                      ))}
-                    </div>
-                  </SectionCard>
-
-                  <SectionCard title="Starter BOM">
-                    {bomLines.length > 0 ? (
-                      <div className="wm-vw-miniBom">
-                        {bomLines.slice(0, 4).map((line, index) => (
-                          <div key={`${line.sku}-${index}`} className="wm-vw-miniBom__row">
-                            <span>{line.sku}</span>
-                            <strong>Qty {line.qty}</strong>
-                          </div>
-                        ))}
-                        {bomLines.length > 4 ? (
-                          <div className="wm-vw-miniBom__more">
-                            + {bomLines.length - 4} more line items in BOM tab
-                          </div>
-                        ) : null}
-                      </div>
-                    ) : (
-                      <div className="wm-vw-emptyState">No starter BOM exposed for this path.</div>
-                    )}
-                  </SectionCard>
-
-                  <SectionCard title="Alternative paths">
-                    <div className="wm-vw-altStack">
-                      {architectureAlternatives.slice(0, 2).map((item) => (
-                        <div key={item.key} className="wm-vw-altCard wm-vw-altCard--compact">
-                          <div className="wm-vw-altCard__label">{item.label}</div>
-                          <div className="wm-vw-altCard__title">{item.title}</div>
-                          <div className="wm-vw-altCard__summary">{item.bestFor}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </SectionCard>
-                </div>
               </div>
             </section>
 
             <section className="wm-vw-tabPanel">
               <div className="wm-vw-tabPanel__header">
                 <div>
-                  <div className="wm-vw-eyebrow">Decision detail</div>
-                  <h3 className="wm-vw-tabPanel__title">Keep the next conversation close to the recommendation.</h3>
+                  <div className="wm-vw-eyebrow">Supporting detail</div>
+                  <h3 className="wm-vw-tabPanel__title">Keep the deeper BOM, signal, and technical follow-up below the main decision.</h3>
                 </div>
                 <div className="wm-vw-tabBar" role="tablist" aria-label="Video wall detail tabs">
                   <DetailTabButton
@@ -1852,6 +1887,15 @@ export default function VideoWallPlannerRebuild() {
                     label="Technical"
                   />
                 </div>
+              </div>
+              <div className="wm-vw-tabPanel__lead">
+                {compactAlternatives.map((item) => (
+                  <div key={item.key} className="wm-vw-altCard wm-vw-altCard--compact">
+                    <div className="wm-vw-altCard__label">{item.label}</div>
+                    <div className="wm-vw-altCard__title">{item.title}</div>
+                    <div className="wm-vw-altCard__summary">{item.bestFor}</div>
+                  </div>
+                ))}
               </div>
               <div className="wm-vw-tabPanel__body">{tabContent}</div>
             </section>

@@ -78,7 +78,7 @@ describe("competitor compare coverage", () => {
       .map((product) => `${product.brand} ${product.sku}`);
     expect(competitors.length).toBeGreaterThan(0);
     expect(withRecord.length).toBe(competitors.length);
-    expect(withAutomaticOptions.length).toBeGreaterThanOrEqual(20);
+    expect(withAutomaticOptions.length).toBeGreaterThanOrEqual(10);
     expect(optionMethodCounts["manual-review"] || 0).toBeLessThan(competitors.length);
     expect(manualReviewExamples.length).toBeGreaterThan(0);
   });

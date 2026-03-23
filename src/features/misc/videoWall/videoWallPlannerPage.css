@@ -218,6 +218,65 @@
   padding: 20px;
 }
 
+.wm-vw-priorityGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  gap: 14px;
+}
+
+.wm-vw-priorityStack {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-vw-priorityCard,
+.wm-vw-priorityCard__copy {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-vw-priorityCard__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+  flex-wrap: wrap;
+}
+
+.wm-vw-priorityCard__title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.wm-vw-priorityCard__summary {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(210, 227, 248, 0.8);
+}
+
+.wm-vw-linkButton {
+  border-radius: 999px;
+  border: 1px solid rgba(129, 195, 255, 0.26);
+  background: rgba(9, 24, 45, 0.84);
+  color: #f4f9ff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease,
+    transform 120ms ease;
+}
+
+.wm-vw-linkButton:hover {
+  transform: translateY(-1px);
+  border-color: rgba(146, 209, 255, 0.38);
+  background: rgba(13, 34, 63, 0.92);
+}
+
 .wm-vw-spotlight__product {
   font-size: 20px;
   font-weight: 900;
@@ -264,7 +323,7 @@
 
 .wm-vw-workspace__body {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.8fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   align-items: start;
 }
@@ -467,6 +526,12 @@
   display: grid;
 }
 
+.wm-vw-tabPanel__lead {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
 .wm-vw-tabGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -514,6 +579,10 @@
 .wm-vw-bomList {
   display: grid;
   gap: 10px;
+}
+
+.wm-vw-bomList--priority {
+  margin-top: 4px;
 }
 
 .wm-vw-bomRow {
@@ -605,6 +674,7 @@
 @media (max-width: 1420px) {
   .wm-vw-hero,
   .wm-vw-spotlight,
+  .wm-vw-priorityGrid,
   .wm-vw-workspace__body,
   .wm-vw-altGrid {
     grid-template-columns: 1fr;
@@ -613,6 +683,7 @@
 
 @media (max-width: 1200px) {
   .wm-vw-shell,
+  .wm-vw-tabPanel__lead,
   .wm-vw-tabGrid,
   .wm-vw-signalFlow {
     grid-template-columns: 1fr;

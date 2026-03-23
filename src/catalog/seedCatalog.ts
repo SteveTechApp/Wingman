@@ -115,6 +115,43 @@ function normalizePortType(value: string): string {
   return value.toUpperCase() === "HDMI" ? "HDMI" : cleanText(value);
 }
 
+function pushPort(target: CatalogPortCount[], type: string, count: number): void {
+  const safeCount = Math.max(0, Number(count) || 0);
+  if (!type || safeCount <= 0) return;
+
+  const existing = target.find((port) => port.type === type);
+  if (existing) {
+    existing.count += safeCount;
+    return;
+  }
+
+  target.push({ type, count: safeCount });
+}
+
+function inferMatrixLikePorts(text: string): {
+  inputs: CatalogPortCount[];
+  outputs: CatalogPortCount[];
+} | null {
+  const topologyMatch = text.match(
+    /(\d+)\s*x\s*(\d+)\s*(hdmi|usb-c|usb|displayport|dp|rj45|lan|ethernet)\b/i,
+  );
+  if (!topologyMatch) return null;
+
+  const topologyHint = /\b(splitter|distribution amplifier|distribution amp|switcher|switch|matrix|presentation)\b/i;
+  if (!topologyHint.test(text)) return null;
+
+  const inputCount = Math.max(0, Number(topologyMatch[1]) || 0);
+  const outputCount = Math.max(0, Number(topologyMatch[2]) || 0);
+  const type = normalizePortType(topologyMatch[3]);
+
+  if (!type || inputCount <= 0 || outputCount <= 0) return null;
+
+  return {
+    inputs: [{ type, count: inputCount }],
+    outputs: [{ type, count: outputCount }],
+  };
+}
+
 function pickPorts(text: string): {
   inputs: CatalogPortCount[];
   outputs: CatalogPortCount[];
@@ -128,17 +165,30 @@ function pickPorts(text: string): {
     const type = normalizePortType(match[2]);
     const direction = match[3].toLowerCase();
     const target = direction.startsWith("input") ? inputs : outputs;
-    target.push({ type, count });
+    pushPort(target, type, count);
+  }
+
+  const inferred = inferMatrixLikePorts(text);
+  if (inferred) {
+    if (inputs.length === 0) {
+      inferred.inputs.forEach((port) => pushPort(inputs, port.type, port.count));
+    }
+    if (outputs.length === 0) {
+      inferred.outputs.forEach((port) => pushPort(outputs, port.type, port.count));
+    }
   }
 
   return { inputs, outputs };
 }
 
-function pickTransport(familyCode: string, text: string): CatalogTransport {
-  const normalizedFamily = normalizeKey(familyCode);
+function pickTransport(familyCode: string, sku: string, text: string): CatalogTransport {
+  const normalizedSku = normalizeKey(sku);
   const normalizedText = text.toLowerCase();
+  const localTopology =
+    /\b(splitter|distribution amplifier|distribution amp|switcher|switch|matrix|presentation)\b/i.test(
+      text,
+    );
 
-  if (normalizedText.includes("hdbaset") || /^EX|^TX|^RX/.test(normalizedFamily)) return "HDBaseT";
   if (
     normalizedText.includes("networkhd") ||
     normalizedText.includes("avoip") ||
@@ -147,7 +197,19 @@ function pickTransport(familyCode: string, text: string): CatalogTransport {
   ) {
     return "AVoIP";
   }
-  if (normalizedText.includes("usb")) return "USB Extension";
+
+  if (normalizedText.includes("hdbaset")) return "HDBaseT";
+
+  if (localTopology) {
+    return "Local";
+  }
+
+  if (/^(EX|EX3|EXA|EXF|TX|TX3|RX|RX3|RXF)\b/.test(normalizedSku)) {
+    return "HDBaseT";
+  }
+  if (/^(USB|EXP-USB)\b/.test(normalizedSku) || normalizedText.includes("usb extension")) {
+    return "USB Extension";
+  }
   if (
     normalizedText.includes("switcher") ||
     normalizedText.includes("matrix") ||
@@ -156,6 +218,7 @@ function pickTransport(familyCode: string, text: string): CatalogTransport {
   ) {
     return "Local";
   }
+  if (normalizedText.includes("usb")) return "USB Extension";
   return "Unknown";
 }
 
@@ -170,7 +233,12 @@ function inferFamilyLabelFromSku(sku: string): string {
 
 function pickFamilyLabel(familyCode: string, sku: string): string {
   const key = normalizeKey(familyCode);
-  return FAMILY_LABELS[key] || inferFamilyLabelFromSku(sku) || cleanText(familyCode) || "Unknown";
+  return (
+    FAMILY_LABELS[key] ||
+    cleanText(familyCode) ||
+    inferFamilyLabelFromSku(sku) ||
+    "Unknown"
+  );
 }
 
 function pickFeatures(description: string): string[] {
@@ -216,7 +284,7 @@ function toDerivedCatalogProduct(row: MasterSkuRow): CatalogProduct | null {
     control: /\bcec\b|\brs-?232\b|\bir\b|\bweb ui\b/i.test(description) ? ["Control"] : [],
     audio: /\baudio\b|\bspeaker\b|\bmic\b|\bdsp\b|\bdante\b/i.test(description) ? ["Audio"] : [],
     video: pickVideoProfile(description),
-    transport: pickTransport(familyCode, description),
+    transport: pickTransport(familyCode, sku, description),
     distance: pickDistance(description),
     features: pickFeatures(description),
     notes: description

@@ -38,11 +38,22 @@ function buildBom(project: StoredProject | null): ProposalBomItem[] {
     notes: item.role,
   }));
 
+  const fromStructuredCatalog = (project.catalog?.bomItems ?? []).map((item) => ({
+    qty: item.quantity || 1,
+    sku: item.sku,
+    description: item.description || item.role || item.sku,
+    notes: item.notes || item.role,
+  }));
+
   const fromCatalog = (project.catalog?.skus ?? []).map((sku) => ({
     qty: 1,
     sku,
     description: sku,
   }));
+
+  if (fromStructuredCatalog.length > 0) {
+    return fromStructuredCatalog;
+  }
 
   return [...fromVideoWall, ...fromCatalog];
 }
