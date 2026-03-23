@@ -17,6 +17,7 @@ export type CatalogueProduct = {
   technology: CatalogueTechnology;
   technologyTags: CatalogueTechnology[];
   category: string;
+  subType: string;
   summary: string;
   status: CatalogueStatus;
   applications: string[];
@@ -30,12 +31,20 @@ export type CatalogueFilters = {
   search: string;
   technology: CatalogueTechnology[];
   category: string[];
+  subType: string[];
   featureTags: string[];
   status: CatalogueStatus[];
 };
 
 export type ProductCardView = CatalogueProduct & {
   score?: number;
+};
+
+export type CatalogueFilterGroup = {
+  key: string;
+  title: string;
+  subtitle?: string;
+  items: string[];
 };
 
 export const TECHNOLOGY_OPTIONS: CatalogueTechnology[] = [

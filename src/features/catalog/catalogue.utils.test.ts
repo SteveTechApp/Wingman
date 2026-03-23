@@ -7,11 +7,12 @@ const BASE_FILTERS = {
   search: "",
   technology: [],
   category: [],
+  subType: [],
   featureTags: [],
   status: [],
 };
 
-function makeProduct(input: Partial<CatalogueProduct> & Pick<CatalogueProduct, "sku" | "name" | "technology" | "technologyTags" | "category" | "summary" | "status" | "applications" | "featureTags">): CatalogueProduct {
+function makeProduct(input: Partial<CatalogueProduct> & Pick<CatalogueProduct, "sku" | "name" | "technology" | "technologyTags" | "category" | "subType" | "summary" | "status" | "applications" | "featureTags">): CatalogueProduct {
   return {
     resolution: undefined,
     distance: undefined,
@@ -29,6 +30,7 @@ describe("filterProducts", () => {
         technology: "Cameras / Video Bars",
         technologyTags: ["Cameras / Video Bars", "USB / KVM", "Presentation / UC"],
         category: "Camera",
+        subType: "PTZ Camera",
         summary: "PTZ camera with USB 3.0 streaming support",
         status: "Current",
         applications: ["Meeting Rooms"],
@@ -39,7 +41,8 @@ describe("filterProducts", () => {
         name: "AVoIP Encoder",
         technology: "AV over IP",
         technologyTags: ["AV over IP", "USB / KVM"],
-        category: "Encoder",
+        category: "AVoIP",
+        subType: "AVoIP Encoder",
         summary: "Encoder with USB 2.0 routing",
         status: "Current",
         applications: ["Corporate"],
@@ -51,6 +54,7 @@ describe("filterProducts", () => {
         technology: "Audio",
         technologyTags: ["Audio"],
         category: "Amplifier",
+        subType: "Dante Amplifier",
         summary: "Audio amplifier",
         status: "Current",
         applications: ["Hospitality"],
@@ -75,6 +79,7 @@ describe("filterProducts", () => {
         technology: "Cameras / Video Bars",
         technologyTags: ["Cameras / Video Bars", "USB / KVM", "Presentation / UC"],
         category: "Camera",
+        subType: "PTZ Camera",
         summary: "PTZ camera with USB 3.0 streaming support",
         status: "Current",
         applications: ["Meeting Rooms"],
@@ -85,7 +90,8 @@ describe("filterProducts", () => {
         name: "USB Hub",
         technology: "USB / KVM",
         technologyTags: ["USB / KVM", "Accessories"],
-        category: "Hub",
+        category: "Accessory",
+        subType: "USB Hub",
         summary: "USB hub",
         status: "Current",
         applications: ["Collaboration"],
@@ -100,5 +106,42 @@ describe("filterProducts", () => {
     );
 
     expect(results.map((product) => product.sku)).toEqual(["CAM-210-PTZ"]);
+  });
+
+  it("supports narrowing by subtype after selecting a broader product type", () => {
+    const products: CatalogueProduct[] = [
+      makeProduct({
+        sku: "NHD-500-TX",
+        name: "AVoIP Encoder",
+        technology: "AV over IP",
+        technologyTags: ["AV over IP"],
+        category: "AVoIP",
+        subType: "AVoIP Encoder",
+        summary: "Encoder",
+        status: "Current",
+        applications: ["Corporate"],
+        featureTags: ["encoder"],
+      }),
+      makeProduct({
+        sku: "NHD-500-RX",
+        name: "AVoIP Decoder",
+        technology: "AV over IP",
+        technologyTags: ["AV over IP"],
+        category: "AVoIP",
+        subType: "AVoIP Decoder",
+        summary: "Decoder",
+        status: "Current",
+        applications: ["Corporate"],
+        featureTags: ["decoder"],
+      }),
+    ];
+
+    const results = filterProducts(
+      products,
+      { ...BASE_FILTERS, category: ["AVoIP"], subType: ["AVoIP Decoder"] },
+      "relevance"
+    );
+
+    expect(results.map((product) => product.sku)).toEqual(["NHD-500-RX"]);
   });
 });

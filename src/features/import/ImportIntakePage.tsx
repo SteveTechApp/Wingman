@@ -305,23 +305,25 @@ function toggleButtonStyle(active: boolean): React.CSSProperties {
   return {
     borderRadius: 999,
     border: `1px solid ${active ? "rgba(120,208,189,0.44)" : "rgba(255,255,255,0.1)"}`,
-    background: active ? "rgba(25,103,82,0.34)" : "rgba(255,255,255,0.03)",
+    background: active
+      ? "linear-gradient(180deg, rgba(27,96,82,0.24), rgba(15,50,42,0.18))"
+      : "rgba(255,255,255,0.03)",
     color: active ? "rgba(226,255,248,0.98)" : "rgba(255,255,255,0.82)",
-    padding: "10px 14px",
+    padding: "8px 12px",
     fontSize: 11,
-    fontWeight: 700,
+    fontWeight: 600,
     letterSpacing: "0.02em",
   };
 }
 
 function heroMetricStyle(accent: string): React.CSSProperties {
   return {
-    borderRadius: 12,
+    borderRadius: 18,
     border: `1px solid ${accent}`,
-    background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
-    padding: 16,
+    background: "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))",
+    padding: 13,
     display: "grid",
-    gap: 8,
+    gap: 6,
     alignContent: "start",
     minHeight: 0,
   };
@@ -329,10 +331,10 @@ function heroMetricStyle(accent: string): React.CSSProperties {
 
 function sourceCardStyle(tint: string): React.CSSProperties {
   return {
-    borderRadius: 14,
+    borderRadius: 18,
     border: `1px solid ${tint}`,
-    background: "rgba(255,255,255,0.03)",
-    padding: 16,
+    background: "linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02))",
+    padding: 14,
     display: "grid",
     gap: 8,
     alignContent: "start",
@@ -351,8 +353,8 @@ function checklistItemStyle(active: boolean, tier: "required" | "recommended" | 
     display: "flex",
     alignItems: "flex-start",
     gap: 8,
-    padding: 12,
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 14,
     border: active ? `1px solid rgba(${tint},0.34)` : "1px solid rgba(255,255,255,0.08)",
     background: active
       ? `linear-gradient(180deg, rgba(${tint},0.14), rgba(${tint},0.05))`
@@ -364,27 +366,27 @@ function launchPanelStyle(): React.CSSProperties {
   return {
     ...cardStyle(),
     background:
-      "linear-gradient(155deg, rgba(var(--wm-page-accent-rgb, 108,196,255),0.24) 0%, rgba(14,24,39,0.94) 42%, rgba(95,223,194,0.16) 100%)",
+      "linear-gradient(160deg, rgba(var(--wm-page-accent-rgb, 108,196,255),0.18) 0%, rgba(18,20,27,0.96) 38%, rgba(95,223,194,0.12) 100%)",
   };
 }
 
 function miniCardStyle(): React.CSSProperties {
   return {
-    borderRadius: 12,
+    borderRadius: 16,
     border: "1px solid rgba(255,255,255,0.08)",
     background: "rgba(255,255,255,0.03)",
-    padding: 14,
+    padding: 12,
     display: "grid",
-    gap: 8,
+    gap: 6,
   };
 }
 
 function reviewCardStyle(accent: string): React.CSSProperties {
   return {
-    borderRadius: 14,
+    borderRadius: 18,
     border: `1px solid ${accent}`,
-    background: "linear-gradient(180deg, rgba(11,26,36,0.94), rgba(7,18,28,0.94))",
-    padding: 16,
+    background: "linear-gradient(180deg, rgba(19,22,30,0.94), rgba(13,16,23,0.96))",
+    padding: 14,
     display: "grid",
     gap: 8,
   };
@@ -393,8 +395,8 @@ function reviewCardStyle(accent: string): React.CSSProperties {
 function smallLabelStyle(): React.CSSProperties {
   return {
     fontSize: 11,
-    fontWeight: 800,
-    letterSpacing: "0.12em",
+    fontWeight: 700,
+    letterSpacing: "0.1em",
     textTransform: "uppercase",
     color: "rgba(255,255,255,0.6)",
   };
@@ -433,8 +435,8 @@ function drawerPanelStyle(): React.CSSProperties {
 function helperTextStyle(): React.CSSProperties {
   return {
     fontSize: 11,
-    lineHeight: 1.5,
-    color: "rgba(255,255,255,0.7)",
+    lineHeight: 1.42,
+    color: "rgba(255,255,255,0.68)",
   };
 }
 
@@ -1130,9 +1132,9 @@ export default function ImportIntakePage() {
             }
           />
 
-          <section style={cardStyle()}>
+          <section className="wm-import-intake-page__hero-shell" style={cardStyle()}>
             <div className="wm-import-intake-page__hero-grid">
-              <article style={heroMetricStyle("rgba(95,223,194,0.24)")}>
+              <article className="wm-import-intake-page__hero-metric" style={heroMetricStyle("rgba(95,223,194,0.24)")}>
                 <div style={smallLabelStyle()}>Start mode</div>
                 <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
                   {intakeMode === "diagram" ? "Diagram-first" : "Brief-first"}
@@ -1140,7 +1142,7 @@ export default function ImportIntakePage() {
                 <div style={helperTextStyle()}>{intakeModeHelper}</div>
               </article>
 
-              <article style={heroMetricStyle("rgba(99,160,224,0.24)")}>
+              <article className="wm-import-intake-page__hero-metric" style={heroMetricStyle("rgba(99,160,224,0.24)")}>
                 <div style={smallLabelStyle()}>Signals</div>
                 <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
                   {sourceSignalCount} intake signal{sourceSignalCount === 1 ? "" : "s"}
@@ -1148,7 +1150,7 @@ export default function ImportIntakePage() {
                 <div style={helperTextStyle()}>{sourceCoverage}</div>
               </article>
 
-              <article style={heroMetricStyle("rgba(244,196,114,0.24)")}>
+              <article className="wm-import-intake-page__hero-metric" style={heroMetricStyle("rgba(244,196,114,0.24)")}>
                 <div style={smallLabelStyle()}>Readout confidence</div>
                 <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
                   {confidencePct}%
@@ -1158,7 +1160,7 @@ export default function ImportIntakePage() {
                 </div>
               </article>
 
-              <article style={heroMetricStyle("rgba(129,163,255,0.24)")}>
+              <article className="wm-import-intake-page__hero-metric" style={heroMetricStyle("rgba(129,163,255,0.24)")}>
                 <div style={smallLabelStyle()}>Next tool</div>
                 <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>
                   {analysis?.nextToolLabel ?? "Guided Project"}
@@ -1173,7 +1175,7 @@ export default function ImportIntakePage() {
           </section>
 
           <div className="wm-import-intake-page__layout">
-            <div style={stackStyle(14)}>
+            <div className="wm-import-intake-page__main" style={stackStyle(14)}>
               <div style={{ order: 2 }}>
                 <div style={{ height: 4, borderRadius: 999, background: "linear-gradient(90deg, rgba(103,232,249,0.8), rgba(74,222,128,0.72), rgba(251,191,36,0.72))", marginBottom: 10 }} />
                 <div style={importWizardStyles.dividerCyan} />
@@ -1497,7 +1499,7 @@ export default function ImportIntakePage() {
             </div>
 
             <aside className="wm-import-intake-page__rail" style={{ display: "grid", gap: 10, alignContent: "start" }}>
-              <section style={launchPanelStyle()}>
+              <section className="wm-import-intake-page__launch-panel" style={launchPanelStyle()}>
                 <div style={smallLabelStyle()}>Launch this intake</div>
                 <div style={{ marginTop: 8, fontSize: 28, fontWeight: 900, letterSpacing: "-0.05em" }}>
                   {projectShellName}
@@ -1509,6 +1511,7 @@ export default function ImportIntakePage() {
                 </div>
 
                 <div
+                  className="wm-import-intake-page__launch-actions"
                   style={{
                     marginTop: 14,
                     display: "grid",

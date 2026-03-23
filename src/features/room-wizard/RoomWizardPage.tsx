@@ -17,6 +17,7 @@ import {
 } from "@/features/projects/projectStore";
 import { buildDesignTemplateSeedFromProject } from "@/features/templates/templateProjectBuilder";
 import { designRoom, type RoomDesignerResponse } from "@/services/roomDesignerService";
+import MoreInformationPanel from "@/ui2/components/MoreInformationPanel";
 
 const BOOTSTRAP_KEY = "wm_room_designer_bootstrap_v1";
 const FAMILY_OPTIONS: DiscoveryProductFamily[] = [
@@ -462,6 +463,33 @@ const NOTES_FIELDS: Field[] = [
   },
 ];
 
+const ROOM_WIZARD_MORE_INFO_ITEMS = [
+  {
+    title: "How to use the designer",
+    body:
+      "Capture the room from physical reality first, then refresh the technology fit. The recommendation works best when the geometry, source routes, output behavior, and real cable distances are already grounded in the survey.",
+  },
+  {
+    title: "Section guide",
+    body: (
+      <div style={{ display: "grid", gap: 6 }}>
+        <div><strong>1. Opportunity context.</strong> Set the project shell and application type.</div>
+        <div><strong>2. Room envelope.</strong> Capture room size, structure, and rack position.</div>
+        <div><strong>3. Source inputs.</strong> Define each input path, cable type, and source location.</div>
+        <div><strong>4. Outputs.</strong> Capture destination behavior, output type, and per-display routing.</div>
+        <div><strong>5. Routing distances.</strong> Use the installed path length, not just room dimensions.</div>
+        <div><strong>6. Engineering notes.</strong> Store survey details that can change the transport choice.</div>
+        <div><strong>7. Recommendation.</strong> Refresh the fit only after the intake reflects the current room.</div>
+      </div>
+    ),
+  },
+  {
+    title: "What stays visible",
+    body:
+      "The live recommendation, suggested families, candidate SKUs, and technology outputs stay in the main workspace. This panel is only for the longer guidance and survey framing.",
+  },
+] as const;
+
 export default function RoomWizardPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -634,14 +662,13 @@ export default function RoomWizardPage() {
     );
   }
 
-  function renderSection(index: number, title: string, copy: string, body: React.ReactNode) {
+  function renderSection(index: number, title: string, body: React.ReactNode) {
     return (
       <section className="wm-section wm-section--compact wm-room-designer-page__section">
         <div className="wm-section__head">
           <div className="wm-section__titles">
             <div className="wm-kicker">{String(index).padStart(2, "0")} / Manual intake</div>
             <h2>{title}</h2>
-            <p>{copy}</p>
           </div>
         </div>
         <div className="wm-section__body">{body}</div>
@@ -884,7 +911,7 @@ export default function RoomWizardPage() {
           <div className="wm-kicker">Blank Project Designer</div>
           <div className="wm-title-xl">Capture the room before choosing the transport.</div>
           <div className="wm-page-lead" style={{ maxWidth: 900 }}>
-            Build the project from physical reality: room size, room construction, per-input source paths, per-output routes, and point-to-point distances. Wingman narrows the right technology family from those constraints.
+            Build from live room data first, then refresh the fit.
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {["01 Project shell", "02 Room envelope", "03 Inputs", "04 Outputs", "05 Routing", "06 Recommendation"].map((item) => (
@@ -909,14 +936,20 @@ export default function RoomWizardPage() {
       </section>
 
       <div style={{ display: "grid", gap: 16 }}>
-        {renderSection(1, "Opportunity context", "Set the project identity and describe the kind of room you are designing.", <div className="wm-form-grid">{PROJECT_FIELDS.map(renderField)}</div>)}
+        <MoreInformationPanel
+          id="room-designer-more-information"
+          summary={<span className="wm-chip">7-stage guide</span>}
+          subtitle="Open when you need the intake guidance. The sections below stay focused on live room data and recommendation outputs."
+          items={ROOM_WIZARD_MORE_INFO_ITEMS}
+        />
 
-        {renderSection(2, "Room envelope and device positions", "Describe the physical space and its construction so the transport path is grounded in actual geometry.", <div className="wm-form-grid">{ENVELOPE_FIELDS.map(renderField)}</div>)}
+        {renderSection(1, "Opportunity context", <div className="wm-form-grid">{PROJECT_FIELDS.map(renderField)}</div>)}
+
+        {renderSection(2, "Room envelope and device positions", <div className="wm-form-grid">{ENVELOPE_FIELDS.map(renderField)}</div>)}
 
         {renderSection(
           3,
           "Source inputs",
-          "Set the source input count, then capture the source, connection type, cable type, route, and source location for each input.",
           <div style={{ display: "grid", gap: 16 }}>
             <div className="wm-form-grid">
               {renderField({ key: "sourceCount", label: "Source input count", type: "number", placeholder: "e.g. 4" })}
@@ -936,7 +969,6 @@ export default function RoomWizardPage() {
         {renderSection(
           4,
           "Outputs and room behavior",
-          "Capture the room behavior, then use a separate process to define the display location, output type, and route for each destination.",
           <div style={{ display: "grid", gap: 16 }}>
             <div className="wm-form-grid">{OUTPUT_BEHAVIOUR_FIELDS.map(renderField)}</div>
             <div className="wm-room-designer-page__detail-grid">
@@ -951,16 +983,13 @@ export default function RoomWizardPage() {
           </div>,
         )}
 
-        {renderSection(5, "Routing and point-to-point distances", "Capture the practical route lengths so the technology choice matches the real installed path.", <div className="wm-form-grid">{ROUTING_FIELDS.map(renderField)}</div>)}
+        {renderSection(5, "Routing and point-to-point distances", <div className="wm-form-grid">{ROUTING_FIELDS.map(renderField)}</div>)}
 
-        {renderSection(6, "Assumptions and engineering notes", "Store anything survey-driven that should shape the technology choice.", <div className="wm-form-grid">{NOTES_FIELDS.map(renderField)}</div>)}
+        {renderSection(6, "Assumptions and engineering notes", <div className="wm-form-grid">{NOTES_FIELDS.map(renderField)}</div>)}
 
         {renderSection(
           7,
           "Technology recommendation",
-          stale
-            ? "Inputs changed since the last fit. Refresh the recommendation when you are ready."
-            : "Run technology fit to narrow the transport family from the latest intake.",
           <div style={{ display: "grid", gap: 14 }}>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {families.length > 0 ? families.map((family) => <span key={family} className="wm-chip">{family}</span>) : <span className="wm-body-sm">Run technology fit to populate the recommendation.</span>}

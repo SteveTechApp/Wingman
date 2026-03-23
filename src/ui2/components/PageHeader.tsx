@@ -13,7 +13,7 @@ export default function PageHeader({
   eyebrow,
   title,
   description,
-  minHeight = 180,
+  minHeight = 152,
   children,
   style,
 }: PageHeaderProps) {
@@ -24,14 +24,14 @@ export default function PageHeader({
         width: "100%",
         minHeight,
         borderRadius: 24,
-        padding: "28px 32px 32px 32px",
+        padding: "20px 22px 22px 22px",
         display: "flex",
         alignItems: "center",
         overflow: "hidden",
         background:
-          "linear-gradient(90deg, rgba(17,56,84,0.96) 0%, rgba(0,24,58,0.98) 42%, rgba(4,37,66,0.95) 100%)",
-        border: "1px solid rgba(118, 190, 255, 0.16)",
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+          "radial-gradient(circle at top left, rgba(110, 160, 255, 0.1), transparent 30%), linear-gradient(180deg, rgba(24,24,31,0.84) 0%, rgba(15,15,21,0.95) 100%)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 16px 32px rgba(0,0,0,0.14)",
         ...style,
       }}
     >
@@ -41,7 +41,7 @@ export default function PageHeader({
           inset: 0,
           pointerEvents: "none",
           background:
-            "linear-gradient(90deg, rgba(73,164,255,0.10) 0%, rgba(0,0,0,0) 30%, rgba(57,177,255,0.08) 100%)",
+            "linear-gradient(110deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0) 36%, rgba(118,128,255,0.08) 100%)",
         }}
       />
 
@@ -50,20 +50,20 @@ export default function PageHeader({
           position: "relative",
           zIndex: 1,
           width: "100%",
-          maxWidth: 980,
+          maxWidth: 860,
           display: "grid",
-          gap: 14,
+          gap: 12,
         }}
       >
         {eyebrow ? (
           <div
             style={{
-              fontSize: 13,
+              fontSize: 11,
               lineHeight: 1,
-              letterSpacing: "0.12em",
+              letterSpacing: "0.1em",
               textTransform: "uppercase",
-              fontWeight: 800,
-              color: "rgba(255,255,255,0.88)",
+              fontWeight: 700,
+              color: "rgba(211, 206, 224, 0.66)",
             }}
           >
             {eyebrow}
@@ -73,11 +73,11 @@ export default function PageHeader({
         <h1
           style={{
             margin: 0,
-            fontSize: "clamp(32px, 3.2vw, 52px)",
+            fontSize: "clamp(28px, 2.6vw, 38px)",
             lineHeight: 1.06,
-            fontWeight: 900,
+            fontWeight: 620,
             letterSpacing: "-0.03em",
-            color: "#ffffff",
+            color: "#f5f2fa",
           }}
         >
           {title}
@@ -87,10 +87,10 @@ export default function PageHeader({
           <div
             style={{
               margin: 0,
-              maxWidth: 940,
-              fontSize: 15,
-              lineHeight: 1.6,
-              color: "rgba(230,238,248,0.88)",
+              maxWidth: 680,
+              fontSize: 14,
+              lineHeight: 1.5,
+              color: "rgba(229, 225, 237, 0.72)",
             }}
           >
             {description}
@@ -102,8 +102,8 @@ export default function PageHeader({
             style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: 12,
-              paddingTop: 4,
+              gap: 10,
+              paddingTop: 2,
             }}
           >
             {children}

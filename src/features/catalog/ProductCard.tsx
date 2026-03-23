@@ -16,7 +16,7 @@ export default function ProductCard({
   onToggleCompare,
   onViewDetails,
 }: ProductCardProps) {
-  const accentStyle = buildAccentCardStyle(`${product.technology} ${product.category}`);
+  const accentStyle = buildAccentCardStyle(`${product.technology} ${product.category} ${product.subType}`);
   const factItems = [
     product.resolution ? `Resolution: ${product.resolution}` : null,
     product.distance ? `Distance: ${product.distance}` : null,
@@ -24,6 +24,7 @@ export default function ProductCard({
   ].filter(Boolean) as string[];
   const visibleTags = product.featureTags.slice(0, 3);
   const hiddenTagCount = Math.max(product.featureTags.length - visibleTags.length, 0);
+  const showSubType = product.subType && product.subType !== product.category;
   const cardStyle = {
     border: accentStyle.border,
     background: accentStyle.background,
@@ -46,6 +47,7 @@ export default function ProductCard({
       <div className="wm-cat2__badge-row">
         <span className="wm-cat2__tech-badge">{product.technology}</span>
         <span className="wm-cat2__mini-badge">{product.category}</span>
+        {showSubType ? <span className="wm-cat2__mini-badge">{product.subType}</span> : null}
       </div>
 
       <p className="wm-cat2__summary">{product.summary}</p>

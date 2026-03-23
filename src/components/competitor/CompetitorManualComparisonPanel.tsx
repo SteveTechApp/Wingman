@@ -55,19 +55,19 @@ function formFromSelection(
 
 function inputStyle(multiline = false): React.CSSProperties {
   return {
-    minHeight: multiline ? 96 : 42,
-    borderRadius: 12,
+    minHeight: multiline ? 84 : 38,
+    borderRadius: 14,
     border: "1px solid rgba(115,231,255,0.26)",
     background:
-      "radial-gradient(circle at 12% 14%, rgba(115,231,255,0.12), transparent 34%), linear-gradient(180deg, rgba(13,26,42,0.98), rgba(9,19,32,0.99))",
+      "radial-gradient(circle at 12% 14%, rgba(115,231,255,0.08), transparent 30%), linear-gradient(180deg, rgba(18,20,28,0.94), rgba(12,14,20,0.96))",
     color: "#eef5ff",
-    padding: multiline ? "10px 12px" : "0 12px",
+    padding: multiline ? "10px 12px" : "0 11px",
     outline: "none",
     resize: multiline ? "vertical" : "none",
     fontFamily: "inherit",
-    fontSize: 13,
+    fontSize: 12,
     boxShadow:
-      "inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.018), 0 10px 24px rgba(3,12,22,0.16)",
+      "inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 1px rgba(255,255,255,0.014), 0 10px 20px rgba(3,12,22,0.12)",
   };
 }
 
@@ -112,19 +112,20 @@ export default function CompetitorManualComparisonPanel(
   }
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
+    <div className="wm-compare-manual" style={{ display: "grid", gap: 14 }}>
       <div style={{ display: "grid", gap: 4 }}>
-        <div style={{ fontSize: 16, fontWeight: 800 }}>Manual fallback mapping</div>
+        <div style={{ fontSize: 15, fontWeight: 800 }}>Manual fallback mapping</div>
         <div style={{ fontSize: 12, color: "rgba(255,255,255,0.64)", lineHeight: 1.5 }}>
           Save a competitor-to-WyreStorm comparison when live or seeded data is incomplete. Stored mappings are searchable in future compare sessions.
         </div>
       </div>
 
       <div
+        className="wm-compare-manual__grid"
         style={{
           display: "grid",
-          gap: 12,
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: 10,
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
         }}
       >
         <div style={{ display: "grid", gap: 6 }}>
@@ -219,9 +220,9 @@ export default function CompetitorManualComparisonPanel(
           onClick={handleSave}
           disabled={!brand || !form.competitorSku || !form.wyrestormSku}
           style={{
-            height: 40,
+            height: 38,
             padding: "0 14px",
-            borderRadius: 10,
+            borderRadius: 12,
             border: "1px solid rgba(92,225,230,0.24)",
             background: "rgba(92,225,230,0.12)",
             color: "#dffcff",
@@ -238,9 +239,9 @@ export default function CompetitorManualComparisonPanel(
             type="button"
             onClick={handleDelete}
             style={{
-              height: 40,
+              height: 38,
               padding: "0 14px",
-              borderRadius: 10,
+              borderRadius: 12,
               border: "1px solid rgba(255,190,92,0.26)",
               background: "rgba(255,190,92,0.10)",
               color: "#ffe6b7",

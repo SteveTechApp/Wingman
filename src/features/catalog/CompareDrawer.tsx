@@ -12,7 +12,6 @@ export default function CompareDrawer({ products, onRemove }: CompareDrawerProps
     <aside className="wm-work-card wm-cat2__compare">
       <div className="wm-cat2__compare-head">
         <h2>Compare</h2>
-        <span className="wm-cat2__meta-pill">{products.length}/4</span>
       </div>
 
       {products.length === 0 ? (

@@ -8,6 +8,10 @@ import type { WingmanItem } from "@/features/tools/toolFeatureModel";
 const CORE_TOOL_IDS = ["navigator", "guru", "catalogue", "competitor-compare", "videowall", "product-intelligence"];
 const ADMIN_TOOL_IDS = ["competitor-lookup-diagnostics"];
 const ENABLEMENT_FEATURE_IDS = ["training"];
+const GUIDANCE_TOOL_IDS = ["navigator", "guru"];
+const DESIGN_REFERENCE_TOOL_IDS = ["videowall", "catalogue", "product-intelligence"];
+const POSITIONING_TOOL_IDS = ["competitor-compare"];
+const SUPPORT_TOOL_IDS = ["training", "competitor-lookup-diagnostics"];
 
 type ItemCopyOverride = Partial<Pick<WingmanItem, "title" | "description" | "tag" | "highlight">>;
 
@@ -71,21 +75,23 @@ function itemTone(accentRgb: string) {
 function CompactRow({
   item,
   onOpen,
+  featured = false,
 }: {
   item: WingmanItem;
   onOpen: (to: string) => void;
+  featured?: boolean;
 }) {
   const Icon = item.Icon;
   const tone = itemTone(item.accentRgb);
 
   return (
     <article
-      className="wm-work-card wm-tool-hub__tool-card"
-      style={{
-        border: tone.border,
-        background: "rgba(8,14,24,0.78)",
-        boxShadow: "none",
-      }}
+      className={`wm-work-card wm-tool-hub__tool-card${featured ? " wm-tool-hub__tool-card--featured" : ""}`}
+      style={
+        {
+          "--wm-tool-tone-rgb": item.accentRgb,
+        } as React.CSSProperties
+      }
     >
       <div className="wm-tool-hub__tool-head">
         <span
@@ -147,8 +153,8 @@ function CompactRow({
 
       <button
         type="button"
-          className="wm-btn wm-tool-hub__tool-open"
-          onClick={() => onOpen(item.to)}
+        className="wm-btn wm-tool-hub__tool-open"
+        onClick={() => onOpen(item.to)}
         style={{ whiteSpace: "nowrap" }}
       >
         Open
@@ -175,6 +181,38 @@ function selectItemsInOrder(
 
     return acc;
   }, []);
+}
+
+function pickItemsInOrder(items: WingmanItem[], ids: string[]) {
+  const itemMap = new Map(items.map((item) => [item.id, item]));
+
+  return ids.reduce<WingmanItem[]>((acc, id) => {
+    const item = itemMap.get(id);
+    if (!item) return acc;
+
+    acc.push(item);
+    return acc;
+  }, []);
+}
+
+function ToolSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="wm-tool-hub__cluster">
+      <div className="wm-tool-hub__cluster-head">
+        <div className="wm-tool-hub__cluster-title">{title}</div>
+        <div className="wm-tool-hub__cluster-copy">{description}</div>
+      </div>
+      {children}
+    </section>
+  );
 }
 
 export default function ToolHubPage() {
@@ -205,39 +243,144 @@ export default function ToolHubPage() {
     () => [...coreTools, ...adminTools, ...enablementTools],
     [adminTools, coreTools, enablementTools],
   );
+  const guidanceTools = React.useMemo(
+    () => pickItemsInOrder(boardTools, GUIDANCE_TOOL_IDS),
+    [boardTools],
+  );
+  const designReferenceTools = React.useMemo(
+    () => pickItemsInOrder(boardTools, DESIGN_REFERENCE_TOOL_IDS),
+    [boardTools],
+  );
+  const positioningTools = React.useMemo(
+    () => pickItemsInOrder(boardTools, POSITIONING_TOOL_IDS),
+    [boardTools],
+  );
+  const supportTools = React.useMemo(
+    () => pickItemsInOrder(boardTools, SUPPORT_TOOL_IDS),
+    [boardTools],
+  );
 
   const reservedSlots = Math.max(0, 8 - boardTools.length);
+  const heroMetrics = [
+    { label: "Live tools", value: String(boardTools.length) },
+    { label: "Guidance", value: String(guidanceTools.length) },
+    { label: "Reference", value: String(designReferenceTools.length) },
+    { label: "Support", value: String(supportTools.length) },
+  ].filter((metric) => metric.value !== "0");
 
   return (
     <div className="wm-page wm-tool-hub-page">
       <section className="wm-hero wm-tool-hub__hero">
-        <div className="wm-tool-hub__hero-copy">
-          <div className="wm-tool-hub__eyebrow">Toolbox</div>
-          <div className="wm-title-xl">Open a tool. Keep moving.</div>
-          <div className="wm-body-sm wm-page-subtitle-muted">
-            Direct access to the core Wingman tools, with space held for what comes next.
+        <div className="wm-tool-hub__hero-shell">
+          <div className="wm-tool-hub__hero-copy">
+            <div className="wm-tool-hub__eyebrow">Tool library</div>
+            <div className="wm-title-xl">Open the right tool without losing pace.</div>
+            <div className="wm-body-sm wm-page-subtitle-muted">
+              Guidance, design, evidence, and enablement tools grouped by the job you are trying
+              to do.
+            </div>
+          </div>
+
+          <div className="wm-tool-hub__hero-panel">
+            <div className="wm-tool-hub__hero-panel-label">At a glance</div>
+            <div className="wm-tool-hub__hero-panel-title">
+              {boardTools.length} live tools in the current workspace.
+            </div>
+            <div className="wm-tool-hub__hero-panel-copy">
+              Start with guidance when the conversation is still forming, then move into reference,
+              design, or comparison once the job is clearer.
+            </div>
+
+            <div className="wm-tool-hub__hero-metrics">
+              {heroMetrics.map((metric) => (
+                <div key={metric.label} className="wm-tool-hub__hero-metric">
+                  <span className="wm-tool-hub__hero-metric-value">{metric.value}</span>
+                  <span className="wm-tool-hub__hero-metric-label">{metric.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="wm-section wm-section--tone-cyan">
-        <div className="wm-tool-hub__grid">
-          {boardTools.map((item) => (
-            <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
-          ))}
+      <section className="wm-section wm-section--tone-cyan wm-tool-hub__board-section">
+        <div className="wm-tool-hub__board">
+          <div className="wm-tool-hub__board-main">
+            {guidanceTools.length ? (
+              <ToolSection
+                title="Quick guidance"
+                description="Use these when you need a steer fast and do not want to leave the workspace."
+              >
+                <div className="wm-tool-hub__cluster-grid wm-tool-hub__cluster-grid--split">
+                  {guidanceTools.map((item) => (
+                    <CompactRow
+                      key={item.id}
+                      item={item}
+                      featured
+                      onOpen={(to) => navigate(to)}
+                    />
+                  ))}
+                </div>
+              </ToolSection>
+            ) : null}
 
-          {Array.from({ length: reservedSlots }).map((_, index) => (
-            <article key={`future-slot-${index + 1}`} className="wm-work-card wm-tool-hub__tool-card wm-tool-hub__tool-card--future">
-              <div className="wm-tool-hub__future-label">Future upgrade</div>
-              <div className="wm-tool-hub__future-title">Reserved slot {index + 1}</div>
-              <div className="wm-body-sm wm-tool-hub__future-copy">
-                Held for the next tool.
-              </div>
-              <button type="button" className="wm-btn wm-tool-hub__tool-open" disabled>
-                Coming soon
-              </button>
-            </article>
-          ))}
+            {designReferenceTools.length ? (
+              <ToolSection
+                title="Design and reference"
+                description="Move from early thinking into specifications, product context, and canvas planning."
+              >
+                <div className="wm-tool-hub__cluster-grid">
+                  {designReferenceTools.map((item) => (
+                    <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
+                  ))}
+                </div>
+              </ToolSection>
+            ) : null}
+          </div>
+
+          <div className="wm-tool-hub__board-side">
+            {positioningTools.length ? (
+              <ToolSection
+                title="Sales and positioning"
+                description="Keep commercial answers close when the conversation turns competitive."
+              >
+                <div className="wm-tool-hub__cluster-grid">
+                  {positioningTools.map((item) => (
+                    <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
+                  ))}
+                </div>
+              </ToolSection>
+            ) : null}
+
+            {supportTools.length ? (
+              <ToolSection
+                title="Support and learning"
+                description="Use these to stay confident, verify the data, and keep moving."
+              >
+                <div className="wm-tool-hub__cluster-grid">
+                  {supportTools.map((item) => (
+                    <CompactRow key={item.id} item={item} onOpen={(to) => navigate(to)} />
+                  ))}
+                </div>
+              </ToolSection>
+            ) : null}
+
+            {reservedSlots > 0 ? (
+              <section className="wm-tool-hub__future-panel">
+                <div className="wm-tool-hub__future-title">Reserved space</div>
+                <div className="wm-tool-hub__future-copy">
+                  Room is held for the next tool without crowding the current workspace.
+                </div>
+                <div className="wm-tool-hub__future-strip">
+                  {Array.from({ length: reservedSlots }).map((_, index) => (
+                    <span key={`future-slot-${index + 1}`} className="wm-tool-hub__future-chip">
+                      Reserved slot {index + 1}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+          </div>
         </div>
       </section>
     </div>

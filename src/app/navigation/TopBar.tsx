@@ -86,6 +86,7 @@ export default function TopBar({
         aria-label={`Active project: ${activeProjectName}`}
         
       >
+        <span className="wm-topbar__project-label">Active project</span>
         <strong
           className="wm-topbar__project-text"
         >
@@ -94,20 +95,9 @@ export default function TopBar({
       </div>
 
       <div className="wm-topbar__actions">
-        <button
-          type="button"
-          onClick={onOpenCommandPalette}
-          className="wm-btn-nav wm-topbar__command-btn"
-          aria-label="Open command palette"
-          
-        >
-          <Search size={14} />
-          <span>Quick Find</span>
-          {!showMobileMenu ? <kbd className="wm-topbar__command-kbd">Ctrl+K</kbd> : null}
-        </button>
-
-        {!showMobileMenu
-          ? navItems.map((item) => {
+        {!showMobileMenu ? (
+          <div className="wm-topbar__nav-cluster" aria-label="Primary navigation">
+            {navItems.map((item) => {
               const active = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
               return (
                 <button
@@ -120,17 +110,32 @@ export default function TopBar({
                   {item.label}
                 </button>
               );
-            })
-          : null}
+            })}
+          </div>
+        ) : null}
 
-        <button
-          type="button"
-          onClick={() => navigate(WM_ROUTES.newProject)}
-          className="wm-btn-nav wm-btn-nav--primary"
-          
-        >
-          + New Project
-        </button>
+        <div className="wm-topbar__action-cluster">
+          <button
+            type="button"
+            onClick={onOpenCommandPalette}
+            className="wm-btn-nav wm-topbar__command-btn"
+            aria-label="Open command palette"
+            
+          >
+            <Search size={14} />
+            <span>Quick Find</span>
+            {!showMobileMenu ? <kbd className="wm-topbar__command-kbd">Ctrl+K</kbd> : null}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate(WM_ROUTES.newProject)}
+            className="wm-btn-nav wm-btn-nav--primary"
+            
+          >
+            + New Project
+          </button>
+        </div>
       </div>
     </header>
   );

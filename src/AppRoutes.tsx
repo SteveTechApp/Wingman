@@ -28,7 +28,9 @@ const RoomWizardPage = React.lazy(() => import("@/features/room-wizard/RoomWizar
 const ProposalBuilderPage = React.lazy(() => import("@/features/proposal/ProposalPage"));
 const ImportIntakePage = React.lazy(() => import("@/features/import/ImportIntakePage"));
 const TrainingHubPage = React.lazy(() => import("@/features/misc/TrainingHubPage"));
-const VideoWallPlannerPage = React.lazy(() => import("@/features/misc/VideoWallPlannerPage"));
+const VideoWallPlannerPage = React.lazy(
+  () => import("@/features/misc/videoWall/VideoWallPlannerRebuild"),
+);
 const TemplatesPage = React.lazy(() => import("@/features/templates/TemplatesPage"));
 const GuruToolHostPage = React.lazy(() => import("@/features/guru/GuruToolHostPage"));
 const ProductIntelligencePage = React.lazy(() => import("@/features/support/ProductIntelligencePage"));
