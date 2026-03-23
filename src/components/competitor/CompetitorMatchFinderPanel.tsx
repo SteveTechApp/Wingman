@@ -219,19 +219,20 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
   }
 
   return (
-    <div style={{ display: "grid", gap: 18, position: "relative", zIndex: 2 }}>
+    <div className="wm-compare-finder" style={{ display: "grid", gap: 14, position: "relative", zIndex: 2 }}>
       <div style={{ display: "grid", gap: 6 }}>
-        <div style={{ fontSize: 18, fontWeight: 800 }}>Competitor comparison</div>
-        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
+        <div style={{ fontSize: 16, fontWeight: 800 }}>Competitor comparison</div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
           Pick a competitor brand and compare a stored SKU locally. If the exact SKU is missing, use Look up SKU to scrape the live product page and feed the compare matrix.
         </div>
       </div>
 
       <div
+        className="wm-compare-finder__grid"
         style={{
           display: "grid",
-          gap: 16,
-          gridTemplateColumns: "minmax(220px, 280px) minmax(320px, 1fr) auto",
+          gap: 14,
+          gridTemplateColumns: "minmax(190px, 240px) minmax(260px, 1fr) auto",
           alignItems: "start",
         }}
       >
@@ -243,12 +244,12 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
             value={brand}
             onChange={(event) => handleBrandChange(event.target.value)}
             style={{
-              height: 44,
-              borderRadius: 12,
+              height: 40,
+              borderRadius: 14,
               border: "1px solid rgba(255,255,255,0.14)",
               background: "rgba(255,255,255,0.04)",
               color: brand ? "#eef5ff" : "rgba(255,255,255,0.52)",
-              padding: "0 14px",
+              padding: "0 12px",
               outline: "none",
             }}
           >
@@ -283,14 +284,14 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
             onChange={(event) => handleSkuChange(event.target.value)}
             placeholder={brand ? "Pick or type competitor SKU / model" : "Choose a brand first"}
             style={{
-              height: 44,
-              borderRadius: 12,
+              height: 40,
+              borderRadius: 14,
               border: noLocalMatch
                 ? "1px solid rgba(255,190,92,0.55)"
                 : "1px solid rgba(255,255,255,0.14)",
               background: brand ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.02)",
               color: sku ? "#eef5ff" : "rgba(255,255,255,0.52)",
-              padding: "0 14px",
+              padding: "0 12px",
               outline: "none",
               boxShadow: noLocalMatch ? "0 0 0 3px rgba(255,190,92,0.10)" : "none",
             }}
@@ -298,18 +299,19 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
 
           {focused && brand ? (
             <div
+              className="wm-compare-finder__suggestions"
               style={{
                 position: "absolute",
-                top: 74,
+                top: 70,
                 left: 0,
                 right: 0,
                 zIndex: 120,
-                borderRadius: 14,
+                borderRadius: 16,
                 border: "1px solid rgba(255,255,255,0.10)",
                 background: "rgba(9,12,20,0.98)",
                 boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
                 overflow: "hidden",
-                maxHeight: 320,
+                maxHeight: 280,
                 overflowY: "auto",
                 overscrollBehavior: "contain",
               }}
@@ -324,7 +326,7 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
                     style={{
                       width: "100%",
                       textAlign: "left",
-                      padding: "12px 14px",
+                      padding: "10px 12px",
                       border: "none",
                       borderTop: "1px solid rgba(255,255,255,0.06)",
                       background: "transparent",
@@ -342,7 +344,7 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
               ) : (
                 <div
                   style={{
-                    padding: "12px 14px",
+                    padding: "10px 12px",
                     color: "rgba(255,255,255,0.62)",
                     fontSize: 12,
                     lineHeight: 1.45,
@@ -360,7 +362,7 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
                   style={{
                     width: "100%",
                     textAlign: "left",
-                    padding: "12px 14px",
+                    padding: "10px 12px",
                     border: "none",
                     borderTop: "1px solid rgba(255,255,255,0.08)",
                     background: "rgba(59,130,246,0.10)",
@@ -375,7 +377,7 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
             </div>
           ) : null}
 
-          <div style={{ minHeight: 20, fontSize: 12 }}>
+          <div style={{ minHeight: 18, fontSize: 12 }}>
             {!brand ? (
               <span style={{ color: "rgba(255,255,255,0.45)" }}>
                 Select a brand to load its stored products.
@@ -409,9 +411,9 @@ export default function CompetitorMatchFinderPanel(props: CompetitorMatchFinderP
             onClick={handleSearchWeb}
             disabled={!canSearchWeb}
             style={{
-              height: 44,
-              minWidth: 148,
-              borderRadius: 12,
+              height: 40,
+              minWidth: 132,
+              borderRadius: 14,
               border: searchWebHighlighted
                 ? "1px solid rgba(255,190,92,0.65)"
                 : "1px solid rgba(255,255,255,0.14)",

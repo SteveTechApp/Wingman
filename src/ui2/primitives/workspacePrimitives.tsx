@@ -33,24 +33,24 @@ export function useWindowWidth(): number {
 function toneAccent(tone: Tone): string {
   switch (tone) {
     case "primary":
-      return "rgba(76,224,211,0.24)";
+      return "rgba(107,97,255,0.18)";
     case "design":
-      return "rgba(72,208,255,0.24)";
+      return "rgba(106,144,255,0.18)";
     case "product":
-      return "rgba(119,156,255,0.24)";
+      return "rgba(132,141,255,0.18)";
     case "sales":
-      return "rgba(70,220,190,0.24)";
+      return "rgba(105,214,196,0.18)";
     default:
-      return "rgba(140,190,255,0.14)";
+      return "rgba(255,255,255,0.08)";
   }
 }
 
 function toneBackground(tone: Tone): string {
   switch (tone) {
     case "primary":
-      return "linear-gradient(135deg, rgba(10,80,83,0.88), rgba(10,48,90,0.82))";
+      return "radial-gradient(circle at top left, rgba(106,118,255,0.14), transparent 28%), linear-gradient(180deg, rgba(28,28,36,0.92), rgba(17,17,24,0.98))";
     default:
-      return "linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018))";
+      return "linear-gradient(180deg, rgba(24,24,31,0.76), rgba(15,15,20,0.9))";
   }
 }
 
@@ -69,7 +69,8 @@ export function WmPage({
         minHeight: "100%",
         width: "100%",
         display: "grid",
-        gap: 12, padding: "4px 4px 8px",
+        gap: 14,
+        padding: "2px 2px 6px",
       }}
     >
       {children}
@@ -89,7 +90,7 @@ export function WmHeroGrid({
   right: React.ReactNode;
 }) {
   const width = useWindowWidth();
-  const stack = width < 1180;
+  const stack = width < 1100;
 
   return (
     <section
@@ -97,8 +98,9 @@ export function WmHeroGrid({
         display: "grid",
         gridTemplateColumns: stack
           ? "minmax(0,1fr)"
-          : "minmax(0,1.45fr) minmax(320px,0.7fr)",
-        gap: 12, alignItems: "start",
+          : "minmax(0,1.35fr) minmax(300px,0.78fr)",
+        gap: 16,
+        alignItems: "start",
       }}
     >
       {left}
@@ -117,11 +119,12 @@ export function WmHeroCard({
   return (
     <div
       style={{
-        border: "1px solid rgba(140,190,255,0.12)",
-        borderRadius: 18, padding: compact ? 10 : 12,
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderRadius: 24,
+        padding: compact ? 12 : 14,
         background:
-          "linear-gradient(135deg, rgba(8,18,35,0.95), rgba(8,26,58,0.78))",
-        boxShadow: "0 14px 28px rgba(0,0,0,0.20)",
+          "radial-gradient(circle at top left, rgba(109, 182, 255, 0.08), transparent 28%), linear-gradient(180deg, rgba(23,23,29,0.84), rgba(14,14,19,0.96))",
+        boxShadow: "0 16px 30px rgba(0,0,0,0.14)",
       }}
     >
       {children}
@@ -136,7 +139,7 @@ export function WmHeroCard({
 export function WmCard({
   children,
   tone = "default",
-  padding = 18,
+  padding = 16,
 }: {
   children: React.ReactNode;
   tone?: Tone;
@@ -147,11 +150,12 @@ export function WmCard({
       style={{
         border:
           tone === "primary"
-            ? "1px solid rgba(76,224,211,0.20)"
-            : "1px solid rgba(140,190,255,0.12)",
-        borderRadius: 18, padding,
+            ? "1px solid rgba(132,141,255,0.18)"
+            : "1px solid rgba(255,255,255,0.07)",
+        borderRadius: 20,
+        padding,
         background: toneBackground(tone),
-        boxShadow: "0 8px 20px rgba(0,0,0,0.14)",
+        boxShadow: "0 12px 24px rgba(0,0,0,0.11)",
       }}
     >
       {children}
@@ -169,9 +173,10 @@ export function WmInset({
   return (
     <div
       style={{
-        border: "1px solid rgba(140,190,255,0.10)",
-        borderRadius: 16, padding: compact ? 10 : 12,
-        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(255,255,255,0.06)",
+        borderRadius: 16,
+        padding: compact ? 10 : 12,
+        background: "rgba(255,255,255,0.022)",
         display: "grid",
         gap: compact ? 10 : 12,
       }}
@@ -200,17 +205,17 @@ export function WmSectionHeader({
         display: "flex",
         alignItems: "end",
         justifyContent: "space-between",
-        gap: 12,
+        gap: 10,
         flexWrap: "wrap",
-        marginBottom: 10,
+        marginBottom: 8,
       }}
     >
       <div>
         <div
           style={{
-            fontSize: 17,
-            fontWeight: 900,
-            color: "#f5fbff",
+            fontSize: 16,
+            fontWeight: 620,
+            color: "#f5f2fa",
           }}
         >
           {title}
@@ -220,8 +225,8 @@ export function WmSectionHeader({
           <div
             style={{
               marginTop: 4,
-              fontSize: 13,
-              color: "rgba(220,230,245,0.70)",
+              fontSize: 12.5,
+              color: "rgba(229,225,237,0.68)",
             }}
           >
             {subtitle}
@@ -251,7 +256,7 @@ export function WmHeroHeader({
         display: "flex",
         alignItems: "start",
         justifyContent: "space-between",
-        gap: 14,
+        gap: 12,
         flexWrap: "wrap",
         marginBottom: compact ? 10 : 12,
       }}
@@ -259,9 +264,9 @@ export function WmHeroHeader({
       <div>
         <div
           style={{
-            fontSize: compact ? 20 : 22,
-            fontWeight: 900,
-            color: "#f6fbff",
+            fontSize: compact ? 19 : 21,
+            fontWeight: 620,
+            color: "#f5f2fa",
           }}
         >
           {title}
@@ -269,9 +274,9 @@ export function WmHeroHeader({
 
         <div
           style={{
-            marginTop: 6,
-            fontSize: compact ? 13 : 14,
-            color: "rgba(220,230,245,0.74)",
+            marginTop: 5,
+            fontSize: compact ? 12.5 : 13.5,
+            color: "rgba(229,225,237,0.68)",
           }}
         >
           {subtitle}
@@ -297,17 +302,10 @@ export function WmMetaPill({
   return (
     <span
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        minHeight: 20,
-        padding: compact ? "0 7px" : "0 8px",
-        borderRadius: 999,
-        border: "1px solid rgba(150,190,255,0.14)",
-        background: "rgba(255,255,255,0.045)",
-        color: "rgba(232,239,248,0.92)",
-        fontSize: 11,
-        fontWeight: 700,
-        whiteSpace: "nowrap",
+        display: "inline-block",
+        color: "rgba(232,239,248,0.68)",
+        fontSize: compact ? 10 : 11,
+        fontWeight: 520,
       }}
     >
       {children}
@@ -343,20 +341,21 @@ export function WmButton({
         width: full ? "100%" : undefined,
         alignItems: "center",
         justifyContent: "center",
-        gap: 8,
-        minHeight: compact ? 34 : 38,
-        padding: compact ? "0 10px" : "0 12px",
-        borderRadius: 10,
+        gap: 7,
+        minHeight: compact ? 30 : 34,
+        padding: compact ? "0 11px" : "0 13px",
+        borderRadius: 999,
         border: primary
-          ? "1px solid rgba(76,224,211,0.34)"
-          : "1px solid rgba(150,190,255,0.14)",
+          ? "1px solid rgba(132,141,255,0.2)"
+          : "1px solid rgba(255,255,255,0.08)",
         background: primary
-          ? "linear-gradient(135deg, rgba(10,121,117,0.95), rgba(16,78,136,0.92))"
-          : "rgba(255,255,255,0.05)",
-        color: "#eef6ff",
+          ? "linear-gradient(135deg, rgba(107,97,255,0.92), rgba(88,120,255,0.88))"
+          : "rgba(255,255,255,0.03)",
+        color: "#f5f2fa",
         fontSize: compact ? 11 : 12,
-        fontWeight: 800,
+        fontWeight: 600,
         cursor: "pointer",
+        boxShadow: primary ? "0 10px 20px rgba(82, 91, 210, 0.16)" : "inset 0 1px 0 rgba(255,255,255,0.03)",
       }}
     >
       {Icon && <Icon size={compact ? 14 : 15} />}
@@ -381,12 +380,12 @@ export function WmStatCard({
   return (<WmCard padding={12}>
       <div
         style={{
-          fontSize: 12,
-          fontWeight: 800,
-          letterSpacing: "0.04em",
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: "0.08em",
           textTransform: "uppercase",
-          color: "rgba(190,205,225,0.60)",
-          marginBottom: 8,
+          color: "rgba(198,191,214,0.62)",
+          marginBottom: 6,
         }}
       >
         {label}
@@ -394,10 +393,10 @@ export function WmStatCard({
 
       <div
         style={{
-          fontSize: 24,
-          fontWeight: 900,
-          color: "#f5fbff",
-          marginBottom: 8,
+          fontSize: 22,
+          fontWeight: 640,
+          color: "#f5f2fa",
+          marginBottom: 6,
         }}
       >
         {value}
@@ -405,8 +404,8 @@ export function WmStatCard({
 
       <div
         style={{
-          fontSize: 13,
-          color: "rgba(221,230,242,0.74)",
+          fontSize: 12.5,
+          color: "rgba(229,225,237,0.68)",
         }}
       >
         {hint}
@@ -426,7 +425,7 @@ export function WmTile({
   Icon,
   tag,
   onOpen,
-  minHeight = 84,
+  minHeight = 76,
   compact = false,
 }: {
   title: string;
@@ -448,10 +447,11 @@ export function WmTile({
         width: "100%",
         textAlign: "left",
         border: "1px solid rgba(140,190,255,0.12)",
-        borderRadius: 16, padding: compact ? 12 : 14,
+        borderRadius: 18,
+        padding: compact ? 12 : 13,
         background: toneBackground(tone),
         cursor: "pointer",
-        boxShadow: "0 8px 20px rgba(0,0,0,0.14)",
+        boxShadow: "0 8px 18px rgba(0,0,0,0.12)",
         minHeight,
       }}
     >
@@ -466,8 +466,8 @@ export function WmTile({
           {Icon && (
             <div
               style={{
-                width: compact ? 36 : 40,
-                height: compact ? 36 : 40,
+                width: compact ? 34 : 38,
+                height: compact ? 34 : 38,
                 borderRadius: 10,
                 display: "flex",
                 alignItems: "center",
@@ -476,7 +476,7 @@ export function WmTile({
                 border: `1px solid ${accent}`,
               }}
             >
-              <Icon size={compact ? 16 : 18} />
+              <Icon size={compact ? 15 : 17} />
             </div>
           )}
 
@@ -486,10 +486,10 @@ export function WmTile({
 
       <div
         style={{
-          fontSize: compact ? 14 : 16,
-          fontWeight: 900,
+          fontSize: compact ? 13.5 : 15,
+          fontWeight: 780,
           color: "#f5fbff",
-          marginBottom: 6,
+          marginBottom: 5,
         }}
       >
         {title}
@@ -498,7 +498,8 @@ export function WmTile({
       <div
         style={{
           fontSize: compact ? 11 : 12,
-          color: "rgba(221,230,242,0.76)",
+          color: "rgba(221,230,242,0.72)",
+          lineHeight: 1.45,
         }}
       >
         {desc}
@@ -529,8 +530,8 @@ export function WmTextLinkButton({
         border: "none",
         background: "transparent",
         color: "#7ce8df",
-        fontWeight: 800,
-        fontSize: 13,
+        fontWeight: 700,
+        fontSize: 12,
         cursor: "pointer",
       }}
     >
@@ -558,16 +559,16 @@ export function WmEmptyState({
       style={{
         border: "1px dashed rgba(140,190,255,0.20)",
         borderRadius: 18,
-        padding: 18,
+        padding: 16,
         background: "rgba(255,255,255,0.025)",
         display: "grid",
-        gap: 12,
+        gap: 10,
       }}
     >
       <div
         style={{
-          fontSize: 16,
-          fontWeight: 900,
+          fontSize: 15,
+          fontWeight: 780,
           color: "#f5fbff",
         }}
       >
@@ -576,8 +577,9 @@ export function WmEmptyState({
 
       <div
         style={{
-          fontSize: 14,
-          color: "rgba(221,230,242,0.76)",
+          fontSize: 13,
+          color: "rgba(221,230,242,0.72)",
+          lineHeight: 1.5,
         }}
       >
         {body}

@@ -33,6 +33,19 @@ function firstNonEmpty(values: unknown[]): string {
   return "";
 }
 
+function isGenericLabel(value: unknown): boolean {
+  const text = tidyLower(value);
+  return text === "" || text === "other" || text === "product" || text === "products";
+}
+
+function firstSpecific(values: unknown[]): string {
+  for (const value of values) {
+    const text = tidy(value);
+    if (text && !isGenericLabel(text)) return text;
+  }
+  return "";
+}
+
 function includesOne(blob: string, needles: string[]): boolean {
   const haystack = blob.toLowerCase();
   return needles.some((needle) => haystack.includes(needle.toLowerCase()));
@@ -271,13 +284,16 @@ function mapFeatureTags(product: CatalogProduct): string[] {
 export function toCatalogueProduct(product: CatalogProduct): CatalogueProduct {
   const technologyTags = deriveTechnologyTags(product);
   const technology = technologyTags[0] ?? "Accessories";
+  const category = firstSpecific([product.category, product.family]) || technology || "Product";
+  const subType = firstSpecific([product.subcategory, product.category, product.family]) || category;
 
   return {
     sku: product.sku,
     name: firstNonEmpty([product.name, product.summary, product.sku]),
     technology,
     technologyTags,
-    category: firstNonEmpty([product.subcategory, product.category, product.family, "Product"]),
+    category,
+    subType,
     summary: firstNonEmpty([product.summary, product.name, product.sku]),
     status: mapStatus(product.status),
     applications: mapApplications(technology),

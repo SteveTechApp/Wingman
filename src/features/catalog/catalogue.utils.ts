@@ -1,4 +1,10 @@
-import type { CatalogueFilters, CatalogueTechnology, CatalogueProduct, ProductCardView } from "./catalogue.types";
+import type {
+  CatalogueFilterGroup,
+  CatalogueFilters,
+  CatalogueTechnology,
+  CatalogueProduct,
+  ProductCardView,
+} from "./catalogue.types";
 
 function normalise(value: string): string {
   return value.toLowerCase().replace(/[\s/_-]+/g, "");
@@ -12,6 +18,7 @@ function scoreProduct(product: CatalogueProduct, search: string): number {
   const name = normalise(product.name);
   const tech = product.technologyTags.map(normalise).join(" ");
   const category = normalise(product.category);
+  const subType = normalise(product.subType);
   const summary = normalise(product.summary);
   const tags = product.featureTags.map(normalise);
   const apps = product.applications.map(normalise);
@@ -23,6 +30,7 @@ function scoreProduct(product: CatalogueProduct, search: string): number {
   if (name.includes(q)) score += 25;
   if (tech.includes(q)) score += 20;
   if (category.includes(q)) score += 15;
+  if (subType.includes(q)) score += 14;
   if (summary.includes(q)) score += 10;
   if (tags.some((tag) => tag.includes(q))) score += 18;
   if (apps.some((app) => app.includes(q))) score += 8;
@@ -104,6 +112,7 @@ export type CatalogueProductGroup = {
   title: CatalogueTechnology;
   items: ProductCardView[];
   categories: string[];
+  subTypes: string[];
 };
 
 export function filterProducts(
@@ -120,6 +129,7 @@ export function filterProducts(
       const technologyMatch = matchesOneOf(filters.technology, product.technology);
       const technologyTagMatch = matchesTechnology(filters.technology, product.technologyTags);
       const categoryMatch = matchesOneOf(filters.category, product.category);
+      const subTypeMatch = matchesOneOf(filters.subType, product.subType);
       const statusMatch = matchesOneOf(filters.status, product.status);
       const featureMatch = matchesAnyTag(filters.featureTags, product.featureTags);
 
@@ -128,6 +138,10 @@ export function filterProducts(
       }
 
       if (!categoryMatch) {
+        return false;
+      }
+
+      if (!subTypeMatch) {
         return false;
       }
 
@@ -195,6 +209,9 @@ export function groupProductsByTechnology(products: ProductCardView[]): Catalogu
       if (product.category && !existing.categories.includes(product.category)) {
         existing.categories.push(product.category);
       }
+      if (product.subType && !existing.subTypes.includes(product.subType)) {
+        existing.subTypes.push(product.subType);
+      }
       continue;
     }
 
@@ -203,8 +220,54 @@ export function groupProductsByTechnology(products: ProductCardView[]): Catalogu
       title: product.technology,
       items: [product],
       categories: product.category ? [product.category] : [],
+      subTypes: product.subType ? [product.subType] : [],
     });
   }
 
   return Array.from(groups.values());
+}
+
+function formatSubTypeSummary(subTypes: string[]): string | undefined {
+  if (subTypes.length === 0) return undefined;
+  const preview = subTypes.slice(0, 3).join(" · ");
+  const extraCount = Math.max(subTypes.length - 3, 0);
+  return extraCount > 0 ? `${preview} +${extraCount} more` : preview;
+}
+
+export function buildFilterGroups(
+  products: CatalogueProduct[],
+  mode: "subType" | "feature"
+): CatalogueFilterGroup[] {
+  const groups = new Map<string, { items: Set<string>; subTypes: Set<string> }>();
+
+  for (const product of products) {
+    const title = product.category || "Product";
+    const existing = groups.get(title) ?? { items: new Set<string>(), subTypes: new Set<string>() };
+
+    if (product.subType) {
+      existing.subTypes.add(product.subType);
+    }
+
+    if (mode === "subType") {
+      if (product.subType) {
+        existing.items.add(product.subType);
+      }
+    } else {
+      for (const tag of product.featureTags) {
+        if (tag) existing.items.add(tag);
+      }
+    }
+
+    groups.set(title, existing);
+  }
+
+  return Array.from(groups.entries())
+    .map(([title, group]) => ({
+      key: normalise(title) || title,
+      title,
+      subtitle: mode === "feature" ? formatSubTypeSummary(Array.from(group.subTypes).sort()) : undefined,
+      items: Array.from(group.items).sort((left, right) => left.localeCompare(right)),
+    }))
+    .filter((group) => group.items.length > 0)
+    .sort((left, right) => left.title.localeCompare(right.title));
 }

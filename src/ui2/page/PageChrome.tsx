@@ -85,9 +85,7 @@ export function fieldLabelStyle(): React.CSSProperties {
 }
 
 export function PageHeader({
-  eyebrow = "TOOL",
   title,
-  description,
   actions,
 }: {
   eyebrow?: string;
@@ -104,11 +102,7 @@ export function PageHeader({
       }}
     >
       <div className="wm-page-intro__main">
-        <div className="wm-page-eyebrow">{eyebrow}</div>
         <h1 className="wm-page-intro__title">{title}</h1>
-        {description ? (
-          <div className="wm-page-intro__copy">{description}</div>
-        ) : null}
       </div>
 
       {actions ? (

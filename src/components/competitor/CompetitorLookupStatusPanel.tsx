@@ -98,18 +98,19 @@ export default function CompetitorLookupStatusPanel(props: CompetitorLookupStatu
 
   return (
     <div
+      className="wm-compare-status"
       style={{
         display: "grid",
-        gap: 14,
-        padding: 16,
-        borderRadius: 16,
+        gap: 12,
+        padding: 14,
+        borderRadius: 18,
         border: "1px solid rgba(255,255,255,0.08)",
         background: "rgba(255,255,255,0.03)",
       }}
     >
       <div style={{ display: "grid", gap: 4 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <div style={{ fontSize: 16, fontWeight: 800 }}>{title}</div>
+          <div style={{ fontSize: 15, fontWeight: 800 }}>{title}</div>
           <div
             style={{
               fontSize: 12,
@@ -120,7 +121,7 @@ export default function CompetitorLookupStatusPanel(props: CompetitorLookupStatu
             {running ? "Running" : modeLabel || "Idle"}
           </div>
         </div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.64)", lineHeight: 1.5 }}>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.64)", lineHeight: 1.45 }}>
           {subtitle}
         </div>
       </div>
@@ -128,8 +129,8 @@ export default function CompetitorLookupStatusPanel(props: CompetitorLookupStatu
       {insight ? (
         <div
           style={{
-            padding: "10px 12px",
-            borderRadius: 12,
+            padding: "9px 11px",
+            borderRadius: 14,
             border: "1px solid rgba(245,158,11,0.18)",
             background: "rgba(245,158,11,0.08)",
             color: "#fde68a",
@@ -145,8 +146,8 @@ export default function CompetitorLookupStatusPanel(props: CompetitorLookupStatu
       {rows.length === 0 ? (
         <div
           style={{
-            padding: 14,
-            borderRadius: 12,
+            padding: 12,
+            borderRadius: 14,
             border: "1px dashed rgba(255,255,255,0.10)",
             color: "rgba(255,255,255,0.48)",
             fontSize: 13,
@@ -167,8 +168,8 @@ export default function CompetitorLookupStatusPanel(props: CompetitorLookupStatu
                 style={{
                   display: "grid",
                   gap: 4,
-                  padding: "12px 14px",
-                  borderRadius: 12,
+                  padding: "11px 12px",
+                  borderRadius: 14,
                   border: active
                     ? "1px solid rgba(92,225,230,0.24)"
                     : "1px solid rgba(255,255,255,0.08)",

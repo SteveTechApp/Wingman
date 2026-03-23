@@ -753,7 +753,7 @@ export default function TemplatesPage() {
       className="wm-page wm-animate-in wm-templates-page"
       style={{ width: "100%", margin: "0 auto", minWidth: 0, zoom: 1 }}
     >
-      <div style={{ display: "grid", gap: 18 }}>
+      <div className="wm-templates-page__stack" style={{ display: "grid", gap: 18 }}>
         <section className="wm-hero">
           <div className="wm-page-eyebrow">WORKFLOW TEMPLATES</div>
           <h1 className="wm-page-title" style={{ marginBottom: 8 }}>
@@ -771,13 +771,7 @@ export default function TemplatesPage() {
           subtitle="Optional filters for narrowing templates before selection."
           defaultCollapsed
         >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: 14,
-            }}
-          >
+          <div className="wm-templates-page__filters-grid">
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -810,14 +804,7 @@ export default function TemplatesPage() {
             </select>
           </div>
 
-          <div
-            style={{
-              marginTop: 14,
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: 12,
-            }}
-          >
+          <div className="wm-templates-page__stats-grid" style={{ marginTop: 14 }}>
             {[
               `${MARKETS.length} vertical markets`,
               `${totalRoomProfiles} room scenarios`,
@@ -843,28 +830,14 @@ export default function TemplatesPage() {
           <div className={flowEyebrowClassName(1)}>
             Step 1{activeStep === 1 ? " / Current position" : ""}
           </div>
-          <div style={{ marginTop: 6, fontWeight: 900, fontSize: 20 }}>
+          <div className="wm-templates-page__step-title">
             Choose the market
           </div>
-          <div
-            style={{
-              marginTop: 6,
-              fontSize: 14,
-              color: "rgba(255,255,255,0.82)",
-              lineHeight: 1.55,
-            }}
-          >
+          <div className="wm-templates-page__step-copy">
             Start with the market so the room options match the kind of customer and application you are designing for.
           </div>
 
-          <div
-            style={{
-              marginTop: 14,
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-              gap: 12,
-            }}
-          >
+          <div className="wm-templates-page__market-grid">
             {MARKETS.map((item) => (
               <SelectCard
                 key={item.id}
@@ -889,28 +862,14 @@ export default function TemplatesPage() {
           <div className={flowEyebrowClassName(2)}>
             Step 2{activeStep === 2 ? " / Current position" : ""}
           </div>
-          <div style={{ marginTop: 6, fontWeight: 900, fontSize: 20 }}>
+          <div className="wm-templates-page__step-title">
             Choose the room
           </div>
-          <div
-            style={{
-              marginTop: 6,
-              fontSize: 14,
-              color: "rgba(255,255,255,0.82)",
-              lineHeight: 1.55,
-            }}
-          >
+          <div className="wm-templates-page__step-copy">
             These are ready-made room patterns. Each one tells you what the room is for and why the design fits that market.
           </div>
 
-          <div
-            style={{
-              marginTop: 14,
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: 12,
-            }}
-          >
+          <div className="wm-templates-page__room-grid">
             {visibleRooms.map((item) => (
               <SelectCard
                 key={item.id}
@@ -928,80 +887,90 @@ export default function TemplatesPage() {
         </section>
 
         <section
+          ref={step3Ref}
+          className={flowSectionClassName(3)}
+          style={{ "--wm-flow-accent-rgb": FLOW_ACTIVE_RGB } as React.CSSProperties}
+        >
+          <div className={flowEyebrowClassName(3)}>
+            Step 3{activeStep === 3 ? " / Current position" : ""}
+          </div>
+          <div className="wm-templates-page__step-title">
+            Choose the tier
+          </div>
+          <div className="wm-templates-page__step-copy">
+            Pick the commercial and capability level that best matches the room pressure, operator expectation, and future headroom.
+          </div>
+
+          <div className="wm-templates-page__tier-grid">
+            {TIER_ORDER.map((item) => {
+              const option = room.tiers[item];
+              const accent = TIER_ACCENTS[item];
+              return (
+                <SelectCard
+                  key={item}
+                  eyebrow={accent.label}
+                  title={option.label}
+                  text={option.summary}
+                  detail={option.commercialNote}
+                  meta={option.includedSystems.slice(0, 2).join(" + ") || "Template path"}
+                  active={item === tier}
+                  accentRgb={accent.rgb}
+                  onClick={() => {
+                    setTier(item);
+                    setActiveStep(4);
+                  }}
+                />
+              );
+            })}
+          </div>
+        </section>
+
+        <section
           ref={step4Ref}
           className={flowSectionClassName(4)}
           style={{ "--wm-flow-accent-rgb": FLOW_ACTIVE_RGB } as React.CSSProperties}
         >
           <div className={flowEyebrowClassName(4)}>Step 4{activeStep === 4 ? " / Current position" : ""}</div>
-          <div style={{ fontWeight: 900, fontSize: 20 }}>Review the template</div>
+          <div className="wm-templates-page__step-title">Review the template</div>
 
-          <div
-            style={{
-              marginTop: 12,
-              borderRadius: 16,
-              border: `1px solid rgba(${tierAccent.rgb},0.22)`,
-              background: `linear-gradient(180deg, rgba(${tierAccent.rgb},0.12) 0%, rgba(${tierAccent.rgb},0.05) 100%)`,
-              padding: 16,
-              display: "grid",
-              gap: 16,
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-start",
-                alignItems: "flex-start",
-                gap: 16,
-                flexWrap: "wrap",
-              }}
-            >
-              <div style={{ display: "grid", gap: 8, minWidth: "min(100%, 420px)", flex: "1 1 420px" }}>
+          <div className="wm-templates-page__review-shell" style={{
+            border: `1px solid rgba(${tierAccent.rgb},0.22)`,
+            background: `linear-gradient(180deg, rgba(${tierAccent.rgb},0.12) 0%, rgba(${tierAccent.rgb},0.05) 100%)`,
+          }}>
+            <div className="wm-templates-page__review-top">
+              <div className="wm-templates-page__review-copy">
                 <div
-                  style={{
-                    fontSize: 12,
-                    letterSpacing: "0.12em",
-                    color: "rgba(255,255,255,0.72)",
-                    textTransform: "uppercase",
-                  }}
-                  >
+                  className="wm-templates-page__review-eyebrow"
+                >
                   Template selected
                 </div>
 
-                <div style={{ fontWeight: 900, fontSize: 20 }}>
+                <div className="wm-templates-page__review-title">
                   {market.name} / {room.name} / {tierProfile.label}
                 </div>
 
-                <div style={{ fontSize: 15, color: "rgba(255,255,255,0.92)", lineHeight: 1.6 }}>
+                <div className="wm-templates-page__review-headline">
                   {scenarioDetail.headline}
                 </div>
 
-                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.88)", lineHeight: 1.6 }}>
+                <div className="wm-templates-page__review-text">
                   <strong>Story:</strong> {scenarioDetail.story}
                 </div>
 
-                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.84)", lineHeight: 1.55 }}>
+                <div className="wm-templates-page__review-text">
                   <strong>Built for:</strong> {scenarioDetail.designPurpose}
                 </div>
 
-                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.84)", lineHeight: 1.55 }}>
+                <div className="wm-templates-page__review-meta">
                   <strong>Recommended families:</strong> {room.recommendedFamilies.join(", ")}
                 </div>
 
-                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.84)", lineHeight: 1.55 }}>
+                <div className="wm-templates-page__review-meta">
                   <strong>Recommended next tool:</strong> {getToolLabel(room.nextTool)}
                 </div>
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  flexWrap: "wrap",
-                  justifyContent: "flex-start",
-                  alignItems: "center",
-                  
-                }}
-              >
+              <div className="wm-templates-page__review-actions">
                 <button
                   type="button"
                   className="wm-btn wm-btn-primary"
@@ -1011,110 +980,63 @@ export default function TemplatesPage() {
                 >
                   {launchingTemplate ? "Building ready-made room solution..." : "Launch ready-made room solution"}
                 </button>
-
+                <button
+                  type="button"
+                  className="wm-btn"
+                  onClick={goToRecommendedTool}
+                >
+                  Open {getToolLabel(room.nextTool)}
+                </button>
 
               </div>
             </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "minmax(0, 1fr)",
-                  gap: 14,
-                }}
-              >
-
-
-              <div
-                style={{
-                  borderRadius: 14,
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(255,255,255,0.03)",
-                  padding: 14,
-                  display: "grid",
-                  gap: 12,
-                }}
-              >
-                <div style={{ fontWeight: 800, fontSize: 14 }}>Best fit</div>
-                <div style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>
+            <div className="wm-templates-page__review-main">
+              <div className="wm-templates-page__panel wm-templates-page__panel--primary">
+                <div className="wm-templates-page__panel-title">Best fit</div>
+                <div className="wm-templates-page__panel-copy">
                   <strong>Use:</strong> {scenarioDetail.customerScenario}
                 </div>
-                <div style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>
+                <div className="wm-templates-page__panel-copy">
                   <strong>Scope:</strong> {scenarioDetail.sourceOutput}
                 </div>
-                <div style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.88)" }}>
+                <div className="wm-templates-page__panel-copy">
                   <strong>Tier fit:</strong> {scenarioDetail.tierFit}
                 </div>
-                <div style={{ fontWeight: 800, fontSize: 13, marginTop: 2 }}>Key points</div>
+                <div className="wm-templates-page__panel-kicker">Key points</div>
                 <BulletList items={scenarioDetail.baseline} accentRgb={tierAccent.rgb} />
               </div>
-            </div>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-                gap: 12,
-              }}
-            >
-              <div
-                style={{
-                  borderRadius: 14,
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(255,255,255,0.03)",
-                  padding: 14,
-                  display: "grid",
-                  gap: 12,
-                }}
-              >
-                <div style={{ fontWeight: 800, fontSize: 14 }}>Keep these true</div>
+              <div className="wm-templates-page__panel-grid">
+                <div className="wm-templates-page__panel">
+                  <div className="wm-templates-page__panel-title">Keep these true</div>
                 <BulletList items={scenarioDetail.operationalPriorities} accentRgb={market.accentRgb} />
-              </div>
+                </div>
 
-              <div
-                style={{
-                  borderRadius: 14,
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(255,255,255,0.03)",
-                  padding: 14,
-                  display: "grid",
-                  gap: 12,
-                }}
-              >
-                <div style={{ fontWeight: 800, fontSize: 14 }}>Room setup</div>
-                <BulletList items={scenarioDetail.roomAssumptions} accentRgb={tierAccent.rgb} />
-              </div>
-              <div
-                style={{
-                  borderRadius: 14,
-                  border: `1px solid rgba(${tierAccent.rgb},0.20)`,
-                  background: `linear-gradient(180deg, rgba(${tierAccent.rgb},0.10) 0%, rgba(${tierAccent.rgb},0.04) 100%)`,
-                  padding: 14,
-                  display: "grid",
-                  gap: 12,
-                }}
-              >
-                <div style={{ fontWeight: 800, fontSize: 14 }}>Solution tier</div>
+                <div className="wm-templates-page__panel">
+                  <div className="wm-templates-page__panel-title">Room setup</div>
+                  <BulletList items={scenarioDetail.roomAssumptions} accentRgb={tierAccent.rgb} />
+                </div>
                 <div
+                  className="wm-templates-page__panel wm-templates-page__panel--accent"
                   style={{
-                    fontSize: 13,
-                    color: "rgba(255,255,255,0.82)",
-                    lineHeight: 1.55,
+                    border: `1px solid rgba(${tierAccent.rgb},0.20)`,
+                    background: `linear-gradient(180deg, rgba(${tierAccent.rgb},0.10) 0%, rgba(${tierAccent.rgb},0.04) 100%)`,
                   }}
+                >
+                  <div className="wm-templates-page__panel-title">Solution tier</div>
+                <div
+                  className="wm-templates-page__panel-copy"
                 >
                   Match the tier to the real source count, output count, and how demanding the room will be to operate.
                 </div>
                 <div
-                  style={{
-                    fontSize: 13,
-                    color: "rgba(255,255,255,0.78)",
-                    lineHeight: 1.55,
-                  }}
+                  className="wm-templates-page__panel-copy"
                 >
                   {scenarioDetail.tierChoice}
                 </div>
 
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <div className="wm-templates-page__tier-row">
                   {TIER_ORDER.map((item) => (
                     <TierButton
                       key={item}
@@ -1129,45 +1051,28 @@ export default function TemplatesPage() {
                 </div>
               </div>
             </div>
+            </div>
 
-            <div
-                style={{
-                  borderRadius: 14,
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(255,255,255,0.03)",
-                  padding: 14,
-                  display: "grid",
-                  gap: 12,
-                }}
-              >
-              <div style={{ fontWeight: 900, fontSize: 15 }}>Alternative tiers</div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.80)", lineHeight: 1.55 }}>
+            <div className="wm-templates-page__panel">
+              <div className="wm-templates-page__panel-title">Alternative tiers</div>
+              <div className="wm-templates-page__panel-copy">
                 If you move tier, this is what changes.
               </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-                  gap: 12,
-                }}
-              >
+              <div className="wm-templates-page__alt-grid">
                 {alternativeTiers.map((option) => (
                   <div
                     key={option.tierKey}
+                    className="wm-templates-page__alt-tier-card"
                     style={{
-                      borderRadius: 12,
                       border: `1px solid rgba(${option.accent.rgb},0.24)`,
                       background: `linear-gradient(180deg, rgba(${option.accent.rgb},0.11) 0%, rgba(${option.accent.rgb},0.04) 100%)`,
-                      padding: 14,
-                      display: "grid",
-                      gap: 10,
                     }}
                   >
-                    <div style={{ fontWeight: 800, fontSize: 14 }}>
+                    <div className="wm-templates-page__panel-title">
                       {option.accent.label} option
                     </div>
-                    <div style={{ fontSize: 14, color: "rgba(255,255,255,0.90)", lineHeight: 1.55 }}>
+                    <div className="wm-templates-page__panel-copy">
                       {option.profile.summary}
                     </div>
                     <BulletList items={option.summaryLines} accentRgb={option.accent.rgb} />

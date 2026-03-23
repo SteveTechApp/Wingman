@@ -31,7 +31,7 @@ type WallGoal = "single" | "grid" | "pip" | "custom";
 type BuildMethod = "tile-mode" | "per-display";
 type BezelPreset = "none" | "thin" | "standard" | "thick";
 type WallBehavior = "single-canvas" | "multiview" | "addressed-panels";
-type DetailTabKey = "overview" | "bom" | "signal" | "technical";
+type DetailTabKey = "overview" | "bom" | "signal" | "moreInfo";
 type PreviewMode = "canvas" | "signal";
 
 const bezelValues: Record<BezelPreset, number> = {
@@ -1173,6 +1173,31 @@ export default function VideoWallPlannerRebuild() {
       detail: sourceLandingCopy[sourceLandingStyle].label,
     },
   ];
+  const designSnapshotPills = [
+    {
+      label: "Wall format",
+      value: `${rows} x ${cols}`,
+      detail: wallBehaviorCopy[wallBehavior].label,
+    },
+    {
+      label: "Outputs",
+      value: endpointSummary,
+      detail: pathModeCopy[resolvedPathMode].label,
+    },
+    {
+      label: "Sources",
+      value:
+        displayedSourceCount === 1
+          ? "1 live source"
+          : `${displayedSourceCount} live sources`,
+      detail: sourceProfileCopy[sourceProfile].label,
+    },
+    {
+      label: "Add-ons",
+      value: addonSummary,
+      detail: recommendation.windowModeSummary,
+    },
+  ];
   const recommendationReasons = [
     recommendation.reason,
     recommendation.sourceSummary,
@@ -1305,9 +1330,18 @@ export default function VideoWallPlannerRebuild() {
         </InsightCard>
       </div>
     );
-  } else if (activeTab === "technical") {
+  } else if (activeTab === "moreInfo") {
     tabContent = (
       <div className="wm-vw-tabGrid">
+        <InsightCard title="Why this path fits">
+          <div className="wm-vw-list">
+            {recommendationReasons.map((reason, index) => (
+              <div key={`${reason}-${index}`} className="wm-vw-listItem">
+                {reason}
+              </div>
+            ))}
+          </div>
+        </InsightCard>
         <InsightCard title="Engineering notes" className="wm-vw-detailCard--span-2">
           <div className="wm-vw-list">
             {mountingNotes.map((note, index) => (
@@ -1360,15 +1394,6 @@ export default function VideoWallPlannerRebuild() {
           {wallBehavior === "multiview" ? (
             <p>{multiviewStyleCopy[multiviewStyle].sublabel}</p>
           ) : null}
-        </InsightCard>
-        <InsightCard title="What to watch" className="wm-vw-detailCard--span-2">
-          <div className="wm-vw-list">
-            {designState.guardrails.map((guardrail, index) => (
-              <div key={`${guardrail}-${index}`} className="wm-vw-listItem">
-                {guardrail}
-              </div>
-            ))}
-          </div>
         </InsightCard>
       </div>
     );
@@ -1709,23 +1734,25 @@ export default function VideoWallPlannerRebuild() {
               </SectionCard>
 
               <div className="wm-vw-priorityStack">
-                <SectionCard title="Decision notes">
-                  <div className="wm-vw-list">
-                    {recommendationReasons.map((reason, index) => (
-                      <div key={`${reason}-${index}`} className="wm-vw-listItem">
-                        {reason}
-                      </div>
-                    ))}
-                  </div>
-                </SectionCard>
-
-                <SectionCard title="What to watch">
-                  <div className="wm-vw-list">
-                    {designState.guardrails.map((guardrail, index) => (
-                      <div key={`${guardrail}-${index}`} className="wm-vw-listItem">
-                        {guardrail}
-                      </div>
-                    ))}
+                <SectionCard title="Design snapshot">
+                  <div className="wm-vw-panelStack">
+                    <div className="wm-vw-pillGrid wm-vw-pillGrid--tight">
+                      {designSnapshotPills.map((item) => (
+                        <RecommendationPill
+                          key={item.label}
+                          label={item.label}
+                          value={item.value}
+                          detail={item.detail}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className="wm-vw-linkButton"
+                      onClick={() => setActiveTab("moreInfo")}
+                    >
+                      Open more information
+                    </button>
                   </div>
                 </SectionCard>
               </div>
@@ -1863,7 +1890,7 @@ export default function VideoWallPlannerRebuild() {
               <div className="wm-vw-tabPanel__header">
                 <div>
                   <div className="wm-vw-eyebrow">Supporting detail</div>
-                  <h3 className="wm-vw-tabPanel__title">Keep the deeper BOM, signal, and technical follow-up below the main decision.</h3>
+                  <h3 className="wm-vw-tabPanel__title">Keep BOM, signal, and more information below the main design decision.</h3>
                 </div>
                 <div className="wm-vw-tabBar" role="tablist" aria-label="Video wall detail tabs">
                   <DetailTabButton
@@ -1882,9 +1909,9 @@ export default function VideoWallPlannerRebuild() {
                     label="Signal"
                   />
                   <DetailTabButton
-                    active={activeTab === "technical"}
-                    onClick={() => setActiveTab("technical")}
-                    label="Technical"
+                    active={activeTab === "moreInfo"}
+                    onClick={() => setActiveTab("moreInfo")}
+                    label="More information"
                   />
                 </div>
               </div>

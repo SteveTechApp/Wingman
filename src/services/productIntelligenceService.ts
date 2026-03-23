@@ -2,7 +2,6 @@ import competitorCatalog from "@/data/catalog/competitorCatalog";
 import { buildWyrestormSeedCatalogProducts } from "@/catalog/seedCatalog";
 import { classifyProductType, type ProductTypeGroup } from "@/catalog/classification";
 import { inferCatalogMetadata } from "@/catalog/metadataInference";
-import committedProductIntelligenceDb from "../../data/product-intelligence-db.json";
 import type { CatalogDistance,
   CatalogIntegrationProfile,
   CatalogPowerProfile,
@@ -228,6 +227,10 @@ const EXPLICIT_ENDPOINT = String(import.meta.env.VITE_PRODUCT_INTELLIGENCE_ENDPO
 const EXPLICIT_HEALTH_ENDPOINT = String(import.meta.env.VITE_PRODUCT_INTELLIGENCE_HEALTH_ENDPOINT ?? "").trim();
 const LOOKUP_ENDPOINT = String(import.meta.env.VITE_COMPETITOR_LOOKUP_ENDPOINT ?? "").trim();
 const LOCAL_ADMIN_RECORDS_KEY = "wm_product_intelligence_admin_records_v1";
+const COMMITTED_PRODUCT_INTELLIGENCE_DB_URL = new URL("../../data/product-intelligence-db.json", import.meta.url).href;
+
+let committedProductIntelligenceRecordsPromise: Promise<ProductIntelligenceRecord[]> | null = null;
+let localFallbackRecordsPromise: Promise<ProductIntelligenceRecord[]> | null = null;
 
 const BRAND_SOURCE_URLS: Record<string, string> = {
   wyrestorm: "https://www.wyrestorm.com/",
@@ -503,19 +506,19 @@ function findLocalAdminRecord(vendorType: ProductVendorType | undefined, brand: 
   return readLocalAdminRecords().find((record) => record.id === id) || null;
 }
 
-function baseRecordForMutation(
+async function baseRecordForMutation(
   payload: {
     vendorType?: ProductVendorType;
     brand: string;
     sku: string;
     record?: Partial<ProductIntelligenceRecord>;
   },
-): ProductIntelligenceRecord {
+): Promise<ProductIntelligenceRecord> {
   const localRecord = findLocalAdminRecord(payload.vendorType, payload.brand, payload.sku);
   if (localRecord) return localRecord;
 
   const recordId = toRecordId(inferVendorType(payload.vendorType, payload.brand), payload.brand, payload.sku);
-  const fallback = buildLocalFallbackRecords().find((record) => record.id === recordId);
+  const fallback = (await getLocalFallbackRecords()).find((record) => record.id === recordId);
   if (fallback) return fallback;
 
   const partial = payload.record ?? {};
@@ -1061,32 +1064,62 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
   };
 }
 
-function buildLocalFallbackRecords(): ProductIntelligenceRecord[] {
-  const out: ProductIntelligenceRecord[] = [];
-  for (const row of buildWyrestormSeedCatalogProducts()) {
-    const mapped = makeCatalogRecord(row as unknown as Record<string, unknown>, "wyrestorm");
-    if (mapped) out.push(mapped);
-  }
-  for (const row of asArray<Record<string, unknown>>(competitorCatalog)) {
-    const mapped = makeCatalogRecord(row, "competitor");
-    if (mapped) out.push(mapped);
-  }
-  const committedRecords = asArray<ProductIntelligenceRecord>(
-    ((committedProductIntelligenceDb as unknown) as CommittedProductIntelligenceDb)?.records,
-  ).map((record) =>
-    sanitizeRecord({
-      ...record,
-      vendorType: inferVendorType(record.vendorType, record.brand),
-    }),
-  );
+async function loadCommittedProductIntelligenceRecords(): Promise<ProductIntelligenceRecord[]> {
+  if (!committedProductIntelligenceRecordsPromise) {
+    committedProductIntelligenceRecordsPromise = fetch(COMMITTED_PRODUCT_INTELLIGENCE_DB_URL)
+      .then(async (response) => {
+        if (!response.ok) return [];
 
-  return mergeRecordsById([...out, ...committedRecords]).sort((a, b) => {
-    const vendorCmp = a.vendorType.localeCompare(b.vendorType);
-    if (vendorCmp !== 0) return vendorCmp;
-    const brandCmp = a.brand.localeCompare(b.brand);
-    if (brandCmp !== 0) return brandCmp;
-    return a.sku.localeCompare(b.sku);
-  });
+        const parsed = (await response.json()) as CommittedProductIntelligenceDb;
+        return asArray<ProductIntelligenceRecord>(parsed?.records).map((record) =>
+          sanitizeRecord({
+            ...record,
+            vendorType: inferVendorType(record.vendorType, record.brand),
+          }),
+        );
+      })
+      .catch(() => []);
+  }
+
+  return committedProductIntelligenceRecordsPromise;
+}
+
+async function getLocalFallbackRecords(): Promise<ProductIntelligenceRecord[]> {
+  if (!localFallbackRecordsPromise) {
+    localFallbackRecordsPromise = (async () => {
+      const out: ProductIntelligenceRecord[] = [];
+
+      for (const row of buildWyrestormSeedCatalogProducts()) {
+        const mapped = makeCatalogRecord(row as unknown as Record<string, unknown>, "wyrestorm");
+        if (mapped) out.push(mapped);
+      }
+
+      for (const row of asArray<Record<string, unknown>>(competitorCatalog)) {
+        const mapped = makeCatalogRecord(row, "competitor");
+        if (mapped) out.push(mapped);
+      }
+
+      const committedRecords = await loadCommittedProductIntelligenceRecords();
+
+      return mergeRecordsById([...out, ...committedRecords]).sort((a, b) => {
+        const vendorCmp = a.vendorType.localeCompare(b.vendorType);
+        if (vendorCmp !== 0) return vendorCmp;
+        const brandCmp = a.brand.localeCompare(b.brand);
+        if (brandCmp !== 0) return brandCmp;
+        return a.sku.localeCompare(b.sku);
+      });
+    })();
+  }
+
+  return localFallbackRecordsPromise;
+}
+
+async function getResolvedFallbackRecords(): Promise<ProductIntelligenceRecord[]> {
+  return applyLocalAdminRecords(await getLocalFallbackRecords());
+}
+
+async function getResolvedFallbackSummary(): Promise<ProductIntelligenceSummary> {
+  return summarizeRecords(await getResolvedFallbackRecords());
 }
 
 function summarizeRecords(records: ProductIntelligenceRecord[]): ProductIntelligenceSummary {
@@ -1306,7 +1339,7 @@ export function getProductIntelligenceContractSummary(): string {
 }
 
 export async function fetchProductIntelligenceRecords(query: ProductIntelligenceQuery = {}): Promise<ProductIntelligenceQueryResult> {
-  const fallbackRecords = applyLocalAdminRecords(buildLocalFallbackRecords());
+  const fallbackRecords = await getResolvedFallbackRecords();
   const filteredFallback = applyFilters(fallbackRecords, query);
   const limit = Math.max(1, Math.min(1000, Number(query.limit) || 250));
 
@@ -1374,7 +1407,7 @@ export async function fetchProductIntelligenceRecords(query: ProductIntelligence
 }
 
 export async function fetchProductIntelligenceHealth(): Promise<ProductIntelligenceHealthResult> {
-  const fallback = summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords()));
+  const fallback = await getResolvedFallbackSummary();
   if (!PRODUCT_INTELLIGENCE_HEALTH_ENDPOINT) {
     return {
       ok: true,
@@ -1525,8 +1558,8 @@ function buildRecordFromUpsertPayload(
   });
 }
 
-function upsertLocalMutationRecord(payload: ProductIntelligenceUpsertPayload): ProductIntelligenceRecord {
-  const existing = baseRecordForMutation(payload);
+async function upsertLocalMutationRecord(payload: ProductIntelligenceUpsertPayload): Promise<ProductIntelligenceRecord> {
+  const existing = await baseRecordForMutation(payload);
   const nextRecord = buildRecordFromUpsertPayload(payload, existing);
   return saveLocalAdminRecord(nextRecord);
 }
@@ -1566,7 +1599,7 @@ export async function refreshProductIntelligenceCatalogSeed(): Promise<ProductIn
 }
 
 export async function upsertProductIntelligenceRecord(payload: ProductIntelligenceUpsertPayload): Promise<ProductIntelligenceMutationResult> {
-  const localRecord = upsertLocalMutationRecord(payload);
+  const localRecord = await upsertLocalMutationRecord(payload);
   const endpoint = PRODUCT_INTELLIGENCE_ENDPOINT ? `${PRODUCT_INTELLIGENCE_ENDPOINT.replace(/\/$/, "")}/upsert` : "";
   const response = await postJson<{ record?: Record<string, unknown>; summary?: ProductIntelligenceSummary; warnings?: string[] }>(endpoint, payload);
   if (!endpoint) {
@@ -1578,7 +1611,7 @@ export async function upsertProductIntelligenceRecord(payload: ProductIntelligen
       message: `Saved ${localRecord.brand} ${localRecord.sku} locally for admin review.`,
       warnings: ["Product intelligence endpoint is not configured; changes are stored locally."],
       record: localRecord,
-      summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+      summary: await getResolvedFallbackSummary(),
     };
   }
   if (!response.ok || !response.data) {
@@ -1590,7 +1623,7 @@ export async function upsertProductIntelligenceRecord(payload: ProductIntelligen
       message: `Saved ${localRecord.brand} ${localRecord.sku} locally; endpoint sync failed.`,
       warnings: [`Upsert endpoint returned HTTP ${response.status || 0}; local copy retained.`],
       record: localRecord,
-      summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+      summary: await getResolvedFallbackSummary(),
     };
   }
 
@@ -1603,12 +1636,12 @@ export async function upsertProductIntelligenceRecord(payload: ProductIntelligen
     message: `Saved ${savedRecord.brand} ${savedRecord.sku}.`,
     warnings: dedupeStrings(asArray<string>(response.data.warnings), 12),
     record: savedRecord,
-    summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+    summary: await getResolvedFallbackSummary(),
   };
 }
 
 export async function updateProductIntelligenceStatus(payload: ProductIntelligenceStatusPayload): Promise<ProductIntelligenceMutationResult> {
-  const existing = baseRecordForMutation(payload);
+  const existing = await baseRecordForMutation(payload);
   const localRecord = saveLocalAdminRecord({
     ...existing,
     status: payload.status,
@@ -1628,7 +1661,7 @@ export async function updateProductIntelligenceStatus(payload: ProductIntelligen
       message: `Status updated to ${payload.status} for ${localRecord.brand} ${localRecord.sku} locally.`,
       warnings: ["Product intelligence endpoint is not configured; status is stored locally."],
       record: localRecord,
-      summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+      summary: await getResolvedFallbackSummary(),
     };
   }
   if (!response.ok || !response.data) {
@@ -1640,7 +1673,7 @@ export async function updateProductIntelligenceStatus(payload: ProductIntelligen
       message: `Status updated locally for ${localRecord.brand} ${localRecord.sku}; endpoint sync failed.`,
       warnings: [`Status endpoint returned HTTP ${response.status || 0}; local copy retained.`],
       record: localRecord,
-      summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+      summary: await getResolvedFallbackSummary(),
     };
   }
 
@@ -1653,12 +1686,12 @@ export async function updateProductIntelligenceStatus(payload: ProductIntelligen
     message: `Status updated to ${payload.status} for ${savedRecord.brand} ${savedRecord.sku}.`,
     warnings: dedupeStrings(asArray<string>(response.data.warnings), 12),
     record: savedRecord,
-    summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+    summary: await getResolvedFallbackSummary(),
   };
 }
 
 export async function addProductIntelligenceEvidence(payload: ProductIntelligenceEvidencePayload): Promise<ProductIntelligenceMutationResult> {
-  const existing = baseRecordForMutation(payload);
+  const existing = await baseRecordForMutation(payload);
   const evidenceEntry: ProductEvidenceEntry = {
     id: `ev_${normalizeId(payload.brand)}_${normalizeId(payload.sku)}_${Math.random().toString(36).slice(2, 8)}`,
     type: payload.type,
@@ -1685,7 +1718,7 @@ export async function addProductIntelligenceEvidence(payload: ProductIntelligenc
       message: `Evidence added for ${localRecord.brand} ${localRecord.sku} locally.`,
       warnings: ["Product intelligence endpoint is not configured; evidence is stored locally."],
       record: localRecord,
-      summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+      summary: await getResolvedFallbackSummary(),
     };
   }
   if (!response.ok || !response.data) {
@@ -1697,7 +1730,7 @@ export async function addProductIntelligenceEvidence(payload: ProductIntelligenc
       message: `Evidence added locally for ${localRecord.brand} ${localRecord.sku}; endpoint sync failed.`,
       warnings: [`Evidence endpoint returned HTTP ${response.status || 0}; local copy retained.`],
       record: localRecord,
-      summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+      summary: await getResolvedFallbackSummary(),
     };
   }
 
@@ -1710,12 +1743,12 @@ export async function addProductIntelligenceEvidence(payload: ProductIntelligenc
     message: `Evidence added for ${savedRecord.brand} ${savedRecord.sku}.`,
     warnings: dedupeStrings(asArray<string>(response.data.warnings), 12),
     record: savedRecord,
-    summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+    summary: await getResolvedFallbackSummary(),
   };
 }
 
 export async function flagProductIntelligenceRecord(payload: ProductIntelligenceFlagPayload): Promise<ProductIntelligenceMutationResult> {
-  const existing = baseRecordForMutation(payload);
+  const existing = await baseRecordForMutation(payload);
   const now = nowIso();
   const flag: ProductReviewFlag = sanitizeReviewFlag({
     id: `flag_${normalizeId(payload.brand)}_${normalizeId(payload.sku)}_${Math.random().toString(36).slice(2, 8)}`,
@@ -1744,14 +1777,14 @@ export async function flagProductIntelligenceRecord(payload: ProductIntelligence
       ? ["Review flags are stored locally until a backend review workflow is added."]
       : ["Review flags are stored locally in this workspace."],
     record: localRecord,
-    summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+    summary: await getResolvedFallbackSummary(),
   };
 }
 
 export async function updateProductIntelligenceFlagStatus(
   payload: ProductIntelligenceFlagStatusPayload,
 ): Promise<ProductIntelligenceMutationResult> {
-  const existing = baseRecordForMutation(payload);
+  const existing = await baseRecordForMutation(payload);
   const nextFlags = existing.reviewFlags.map((flag) =>
     flag.id !== payload.flagId
       ? flag
@@ -1780,14 +1813,14 @@ export async function updateProductIntelligenceFlagStatus(
       ? ["Flag status is stored locally until a backend review workflow is added."]
       : ["Flag status is stored locally in this workspace."],
     record: localRecord,
-    summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+    summary: await getResolvedFallbackSummary(),
   };
 }
 
 export async function setProductIntelligenceRecordArchived(
   payload: ProductIntelligenceArchivePayload,
 ): Promise<ProductIntelligenceMutationResult> {
-  const existing = baseRecordForMutation(payload);
+  const existing = await baseRecordForMutation(payload);
   const localRecord = saveLocalAdminRecord({
     ...existing,
     archived: payload.archived,
@@ -1809,6 +1842,6 @@ export async function setProductIntelligenceRecordArchived(
       ? ["Archive state is stored locally until a backend delete/archive endpoint is added."]
       : ["Archive state is stored locally in this workspace."],
     record: localRecord,
-    summary: summarizeRecords(applyLocalAdminRecords(buildLocalFallbackRecords())),
+    summary: await getResolvedFallbackSummary(),
   };
 }

@@ -76,12 +76,12 @@ const HISTORY_STORAGE_KEY = "wm_guru_history_v1";
 const PANEL_LAYOUT_KEY = "wm_guru_panel_layout_v1";
 const PANEL_POSITION_KEY = "wm_guru_panel_position_v1";
 const LAUNCHER_POSITION_KEY = "wm_guru_launcher_position_v1";
-const DEFAULT_PANEL_LAYOUT: GuruPanelLayout = { width: 520, height: 680 };
-const DEFAULT_ROUTE_PANEL_LAYOUT: GuruPanelLayout = { width: 960, height: 780 };
-const PANEL_MIN_WIDTH = 360;
-const PANEL_MIN_HEIGHT = 420;
+const DEFAULT_PANEL_LAYOUT: GuruPanelLayout = { width: 448, height: 580 };
+const DEFAULT_ROUTE_PANEL_LAYOUT: GuruPanelLayout = { width: 720, height: 680 };
+const PANEL_MIN_WIDTH = 320;
+const PANEL_MIN_HEIGHT = 392;
 const PANEL_VIEWPORT_MARGIN = 6;
-const LAUNCHER_SIZE = 54;
+const LAUNCHER_SIZE = 46;
 const LAUNCHER_VIEWPORT_MARGIN = 8;
 
 const MODE_DEFS: Record<GuruMode, GuruModeDef> = {
@@ -898,7 +898,300 @@ const pageStyles = `
   border-right: 1px solid rgba(158, 207, 255, 0.74);
 }
 
-@media (max-width: 720px){
+/* Modern density pass: slimmer, calmer assistant geometry. */
+.wm-guru-float-page{
+  --wm-guru-route-column: 64ch;
+}
+
+.wm-guru-float-launcher{
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(42, 48, 69, 0.96), rgba(20, 24, 35, 0.98));
+  color: rgba(243, 247, 255, 0.94);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 16px 34px rgba(0, 0, 0, 0.28);
+}
+
+.wm-guru-float-launcher.is-open{
+  border-color: rgba(132, 141, 255, 0.22);
+  background: linear-gradient(180deg, rgba(69, 74, 117, 0.96), rgba(34, 38, 59, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 18px 36px rgba(42, 46, 94, 0.24);
+}
+
+.wm-guru-float-panel{
+  width: min(460px, calc(100vw - 28px));
+  height: min(600px, calc(100dvh - 92px));
+  min-width: min(320px, calc(100vw - 28px));
+  min-height: min(392px, calc(100dvh - 28px));
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(23, 24, 31, 0.98), rgba(13, 14, 19, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 24px 56px rgba(0, 0, 0, 0.32);
+}
+
+.wm-guru-float-panel.is-route{
+  min-width: min(640px, calc(100vw - 56px));
+  min-height: min(520px, calc(100dvh - 72px));
+  max-width: calc(100vw - 48px);
+  max-height: calc(100dvh - 72px);
+}
+
+.wm-guru-float-panel__head{
+  gap: 10px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: linear-gradient(180deg, rgba(28, 30, 40, 0.98), rgba(18, 20, 28, 0.98));
+}
+
+.wm-guru-float-panel__dragzone{
+  gap: 3px;
+}
+
+.wm-guru-float-panel__title{
+  font-size: 16px;
+  font-weight: 620;
+  letter-spacing: -0.02em;
+}
+
+.wm-guru-float-panel__sub{
+  margin-top: 2px;
+  font-size: 11px;
+  color: rgba(205, 212, 224, 0.68);
+}
+
+.wm-guru-float-panel__head-actions .wm-btn{
+  min-height: 32px;
+  padding-inline: 11px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.wm-guru-float-panel__body{
+  gap: 12px;
+  padding: 12px;
+  background: linear-gradient(180deg, rgba(16, 17, 24, 0.98), rgba(12, 13, 18, 1));
+}
+
+.wm-guru-float-panel.is-route .wm-guru-float-panel__body{
+  justify-items: start;
+  padding-inline: 18px;
+  padding-bottom: 18px;
+}
+
+.wm-guru-float-panel.is-route .wm-guru-float-panel__body > *{
+  width: min(100%, var(--wm-guru-route-column));
+}
+
+.wm-guru-float-modes{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-guru-float-mode{
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(228, 239, 251, 0.8);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.wm-guru-float-mode.is-active{
+  border-color: rgba(132, 141, 255, 0.3);
+  background: linear-gradient(180deg, rgba(71, 74, 122, 0.74), rgba(43, 46, 82, 0.84));
+  color: rgba(248, 250, 255, 0.96);
+}
+
+.wm-guru-float-field{
+  gap: 5px;
+}
+
+.wm-guru-float-field label{
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(202, 207, 219, 0.76);
+}
+
+.wm-guru-float-promptHint,
+.wm-guru-float-muted{
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(195, 201, 214, 0.72);
+}
+
+.wm-guru-float-field--question .wm-guru-float-promptHint{
+  max-width: 54ch;
+}
+
+.wm-guru-float-input{
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.wm-guru-float-field--question .wm-guru-float-input{
+  min-height: 74px;
+}
+
+.wm-guru-float-field--context .wm-guru-float-input{
+  min-height: 92px;
+}
+
+.wm-guru-float-actions{
+  gap: 8px;
+}
+
+.wm-guru-float-actions--primary{
+  align-items: flex-start;
+}
+
+.wm-guru-float-actions--support{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.wm-guru-float-actions--support .wm-guru-float-muted{
+  width: 100%;
+  margin-top: 2px;
+  text-align: left;
+}
+
+.wm-guru-float-quickasks{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-guru-float-chip{
+  min-height: 30px;
+  width: auto;
+  max-width: 100%;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.wm-guru-submit{
+  width: fit-content;
+  min-width: 132px;
+  min-height: 36px !important;
+  padding-inline: 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(107, 97, 255, 0.92), rgba(88, 120, 255, 0.88)) !important;
+  color: #f9f7ff !important;
+  text-shadow: none;
+  box-shadow: 0 12px 24px rgba(81, 92, 210, 0.22) !important;
+}
+
+.wm-guru-float-answer{
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.028);
+  padding: 12px 13px;
+  font-size: 13px;
+}
+
+.wm-guru-float-disclosure{
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.022);
+  padding: 12px;
+}
+
+.wm-guru-float-disclosure__summary{
+  list-style: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.wm-guru-float-disclosure__summary::-webkit-details-marker{
+  display: none;
+}
+
+.wm-guru-float-disclosure__title{
+  display: grid;
+  gap: 2px;
+}
+
+.wm-guru-float-disclosure__label{
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(206, 212, 224, 0.78);
+}
+
+.wm-guru-float-disclosure__hint{
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(190, 197, 210, 0.68);
+}
+
+.wm-guru-float-disclosure__summary::after{
+  content: "Expand";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(243, 247, 255, 0.86);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.wm-guru-float-disclosure[open] .wm-guru-float-disclosure__summary::after{
+  content: "Collapse";
+}
+
+.wm-guru-float-disclosure__body{
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.wm-guru-float-explain-grid{
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.wm-guru-float-explain-card{
+  border-radius: 16px;
+  padding: 10px;
+}
+
+.wm-guru-float-history{
+  gap: 10px;
+}
+
+.wm-guru-float-historyItem{
+  border-radius: 16px;
+  padding: 10px 11px;
+}
+
+@media (max-width: 900px){
   .wm-guru-float-modes,
   .wm-guru-float-quickasks,
   .wm-guru-float-actions--support{
@@ -915,14 +1208,14 @@ const pageStyles = `
   }
 
   .wm-guru-float-panel{
-    left: 10px;
-    right: 10px;
+    left: 12px;
+    right: 12px;
     width: auto;
-    height: min(74vh, 640px);
+    height: min(72dvh, 560px);
     min-width: 0;
     min-height: 360px;
     max-width: none;
-    bottom: 10px;
+    bottom: 12px;
   }
 
   .wm-guru-float-panel__dragzone{
@@ -934,20 +1227,32 @@ const pageStyles = `
   }
 
   .wm-guru-float-panel.is-route{
-    left: 10px;
-    right: 10px;
-    top: 82px;
+    left: 12px;
+    right: 12px;
+    top: 78px;
     bottom: auto;
     width: auto;
-    height: calc(100dvh - 112px);
+    height: calc(100dvh - 96px);
     max-width: none;
-    max-height: calc(100dvh - 92px);
+    max-height: calc(100dvh - 84px);
     transform: none;
   }
 
+  .wm-guru-float-panel.is-route .wm-guru-float-panel__body{
+    padding-inline: 12px;
+  }
+
+  .wm-guru-float-panel.is-route .wm-guru-float-panel__body > *{
+    width: 100%;
+  }
+
+  .wm-guru-submit{
+    width: 100%;
+  }
+
   .wm-guru-float-launcher{
-    right: 10px;
-    bottom: 10px;
+    right: 12px;
+    bottom: 12px;
   }
 }
 `;
@@ -1096,7 +1401,7 @@ export default function GuruPage() {
     readLauncherPosition(),
   );
   const [isCompactViewport, setIsCompactViewport] = React.useState(() =>
-    typeof window !== "undefined" ? window.innerWidth <= 720 : false,
+    typeof window !== "undefined" ? window.innerWidth <= 900 : false,
   );
   const dragRef = React.useRef<null | {
     startX: number;
@@ -1150,7 +1455,7 @@ export default function GuruPage() {
   React.useEffect(() => {
     if (typeof window === "undefined") return undefined;
     const handleResize = () => {
-      const compact = window.innerWidth <= 720;
+      const compact = window.innerWidth <= 900;
       setIsCompactViewport(compact);
       setPanelLayout((currentLayout) => {
         const nextLayout = clampLayoutToViewport(currentLayout);
@@ -1298,6 +1603,12 @@ export default function GuruPage() {
   const hasContent = question.trim().length > 0 || context.trim().length > 0;
   const suggestedSkus = React.useMemo(() => normalizeSuggestedSkus(answer), [answer]);
   const explanation = answer?.explanation ?? null;
+  const answerSources = answer?.sources ?? [];
+  const hasMoreInformation = Boolean(
+    explanation
+    || answerSources.length > 0
+    || suggestedSkus.length > 0,
+  );
   const activeDiscoverySignature = React.useMemo(
     () => buildDiscoverySignature(activeProject),
     [activeProject],
@@ -1337,6 +1648,7 @@ export default function GuruPage() {
     setMode(entry.mode);
     setQuestion(entry.question);
     setContext(entry.context);
+    setContextOpen(Boolean(entry.context.trim()));
     setAnswer(entry.answer);
     setAnsweredAt(entry.answeredAt);
     setAnswerStatus(entry.status);
@@ -1632,12 +1944,12 @@ export default function GuruPage() {
               ))}
             </div>
 
-            <div className="wm-guru-float-field">
+            <div className="wm-guru-float-field wm-guru-float-field--question">
               <label>Ask Guru</label>
               <textarea
                 className="wm-guru-float-input"
                 value={question}
-                rows={isGuruRoute ? 5 : 4}
+                rows={isGuruRoute ? 3 : 2}
                 onChange={(event) => setQuestion(event.target.value)}
                 onKeyDown={handleQuestionKeyDown}
                 placeholder={def.placeholder}
@@ -1687,12 +1999,12 @@ export default function GuruPage() {
             </div>
 
             {contextOpen ? (
-              <div className="wm-guru-float-field">
+              <div className="wm-guru-float-field wm-guru-float-field--context">
                 <label>Optional context</label>
                 <textarea
                   className="wm-guru-float-input"
                   value={context}
-                  rows={5}
+                  rows={4}
                   onChange={(event) => setContext(event.target.value)}
                   placeholder="Paste room notes, customer requirements, constraints, existing kit, or other context."
                 />
@@ -1715,134 +2027,159 @@ export default function GuruPage() {
               )}
             </div>
 
-            {answer && explanation ? (
-              <div className="wm-guru-float-explain">
-                <div className="wm-guru-float-explain-grid">
-                  <article className="wm-guru-float-explain-card wm-guru-float-explain-card--confidence">
-                    <div className="wm-guru-float-explain-label">Confidence</div>
-                    <div className="wm-guru-float-explain-headline">
-                      {confidenceLabel(answer.confidence)}
-                    </div>
-                    {explanation.headline ? (
-                      <div className="wm-guru-float-muted">{explanation.headline}</div>
-                    ) : null}
-                  </article>
+            {hasMoreInformation ? (
+              <details className="wm-guru-float-disclosure">
+                <summary className="wm-guru-float-disclosure__summary">
+                  <span className="wm-guru-float-disclosure__title">
+                    <span className="wm-guru-float-disclosure__label">More information</span>
+                    <span className="wm-guru-float-disclosure__hint">
+                      Supporting reasoning, follow-up links, and next-step actions.
+                    </span>
+                  </span>
+                </summary>
 
-                  {explanation.why && explanation.why.length > 0 ? (
-                    <article className="wm-guru-float-explain-card wm-guru-float-explain-card--why">
-                      <div className="wm-guru-float-explain-label">Why This Answer</div>
-                      <ul className="wm-guru-float-explain-list">
-                        {explanation.why.map((item) => (
-                          <li key={item}>{item}</li>
-                        ))}
-                      </ul>
-                    </article>
+                <div className="wm-guru-float-disclosure__body">
+                  {answer && explanation ? (
+                    <div className="wm-guru-float-explain">
+                      <div className="wm-guru-float-explain-grid">
+                        <article className="wm-guru-float-explain-card wm-guru-float-explain-card--confidence">
+                          <div className="wm-guru-float-explain-label">Confidence</div>
+                          <div className="wm-guru-float-explain-headline">
+                            {confidenceLabel(answer.confidence)}
+                          </div>
+                          {explanation.headline ? (
+                            <div className="wm-guru-float-muted">{explanation.headline}</div>
+                          ) : null}
+                        </article>
+
+                        {explanation.why && explanation.why.length > 0 ? (
+                          <article className="wm-guru-float-explain-card wm-guru-float-explain-card--why">
+                            <div className="wm-guru-float-explain-label">Why This Answer</div>
+                            <ul className="wm-guru-float-explain-list">
+                              {explanation.why.map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                            </ul>
+                          </article>
+                        ) : null}
+
+                        {explanation.whatsMissing && explanation.whatsMissing.length > 0 ? (
+                          <article className="wm-guru-float-explain-card wm-guru-float-explain-card--missing">
+                            <div className="wm-guru-float-explain-label">What&apos;s Still Missing</div>
+                            <ul className="wm-guru-float-explain-list">
+                              {explanation.whatsMissing.map((item) => (
+                                <li key={item}>{item}</li>
+                              ))}
+                            </ul>
+                            {explanation.handoffItems && explanation.handoffItems.length > 0 ? (
+                              <div className="wm-guru-float-explain-actions">
+                                {explanation.handoffItems.map((item) => (
+                                  <button
+                                    key={`${item.step}:${item.questionId}`}
+                                    type="button"
+                                    className="wm-guru-float-chip"
+                                    onClick={() => openDiscoveryHandoff(item)}
+                                  >
+                                    Open Step {item.step + 1}: {item.label}
+                                  </button>
+                                ))}
+                              </div>
+                            ) : null}
+                          </article>
+                        ) : null}
+                      </div>
+                    </div>
                   ) : null}
 
-                  {explanation.whatsMissing && explanation.whatsMissing.length > 0 ? (
-                    <article className="wm-guru-float-explain-card wm-guru-float-explain-card--missing">
-                      <div className="wm-guru-float-explain-label">What&apos;s Still Missing</div>
-                      <ul className="wm-guru-float-explain-list">
-                        {explanation.whatsMissing.map((item) => (
-                          <li key={item}>{item}</li>
-                        ))}
-                      </ul>
-                      {explanation.handoffItems && explanation.handoffItems.length > 0 ? (
-                        <div className="wm-guru-float-explain-actions">
-                          {explanation.handoffItems.map((item) => (
+                  {answerSources.length > 0 ? (
+                    <div className="wm-guru-float-field">
+                      <label>Supporting links</label>
+                      <div className="wm-guru-float-quickasks">
+                        {answerSources.map((source) => (
+                          source.to ? (
                             <button
-                              key={`${item.step}:${item.questionId}`}
+                              key={`${source.title}_${source.to}`}
                               type="button"
                               className="wm-guru-float-chip"
-                              onClick={() => openDiscoveryHandoff(item)}
+                              onClick={() => navigate(source.to || "/app/tools")}
                             >
-                              Open Step {item.step + 1}: {item.label}
+                              {source.title}
                             </button>
-                          ))}
-                        </div>
-                      ) : null}
-                    </article>
+                          ) : source.url ? (
+                            <a
+                              key={`${source.title}_${source.url}`}
+                              className="wm-guru-float-chip"
+                              href={source.url}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {source.title}
+                            </a>
+                          ) : null
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {suggestedSkus.length > 0 ? (
+                    <div className="wm-guru-float-field">
+                      <label>Detected WyreStorm SKUs</label>
+                      <div className="wm-guru-float-quickasks">
+                        {suggestedSkus.map((item) => (
+                          <span key={item.sku} className="wm-guru-float-chip">{item.sku}</span>
+                        ))}
+                      </div>
+                      <div className="wm-guru-float-actions">
+                        <button type="button" className="wm-btn wm-btn-primary" onClick={sendSuggestedSkusToProject}>
+                          Send to active project
+                        </button>
+                        <button type="button" className="wm-btn" onClick={sendSuggestedSkusToProposal}>
+                          Send to proposal BOM
+                        </button>
+                      </div>
+                    </div>
                   ) : null}
                 </div>
-              </div>
-            ) : null}
-
-            {answer?.sources && answer.sources.length > 0 ? (
-              <div className="wm-guru-float-quickasks">
-                {answer.sources.map((source) => (
-                  source.to ? (
-                    <button
-                      key={`${source.title}_${source.to}`}
-                      type="button"
-                      className="wm-guru-float-chip"
-                      onClick={() => navigate(source.to || "/app/tools")}
-                    >
-                      {source.title}
-                    </button>
-                  ) : source.url ? (
-                    <a
-                      key={`${source.title}_${source.url}`}
-                      className="wm-guru-float-chip"
-                      href={source.url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {source.title}
-                    </a>
-                  ) : null
-                ))}
-              </div>
-            ) : null}
-
-            {suggestedSkus.length > 0 ? (
-              <>
-                <div className="wm-guru-float-muted">Detected WyreStorm SKUs:</div>
-                <div className="wm-guru-float-quickasks">
-                  {suggestedSkus.map((item) => (
-                    <span key={item.sku} className="wm-guru-float-chip">{item.sku}</span>
-                  ))}
-                </div>
-                <div className="wm-guru-float-actions">
-                  <button type="button" className="wm-btn wm-btn-primary" onClick={sendSuggestedSkusToProject}>
-                    Send to active project
-                  </button>
-                  <button type="button" className="wm-btn" onClick={sendSuggestedSkusToProposal}>
-                    Send to proposal BOM
-                  </button>
-                </div>
-              </>
+              </details>
             ) : null}
 
             {transferMessage ? <div className="wm-guru-float-muted">{transferMessage}</div> : null}
 
             {historyEntries.length > 0 ? (
-              <div className="wm-guru-float-history">
-                <div className="wm-guru-float-historyHead">
-                  <div className="wm-guru-float-explain-label">Recent Guru History</div>
-                  <div className="wm-guru-float-muted">
-                    {activeProject?.name ? `Project: ${activeProject.name}` : "General context"}
+              <details className="wm-guru-float-disclosure">
+                <summary className="wm-guru-float-disclosure__summary">
+                  <span className="wm-guru-float-disclosure__title">
+                    <span className="wm-guru-float-disclosure__label">Recent history</span>
+                    <span className="wm-guru-float-disclosure__hint">
+                      {activeProject?.name ? `Project: ${activeProject.name}` : "General context"}
+                    </span>
+                  </span>
+                </summary>
+
+                <div className="wm-guru-float-disclosure__body">
+                  <div className="wm-guru-float-history">
+                    <div className="wm-guru-float-historyList">
+                      {historyEntries.slice(0, 5).map((entry) => (
+                        <button
+                          key={entry.id}
+                          type="button"
+                          className="wm-guru-float-historyItem"
+                          onClick={() => restoreHistoryEntry(entry)}
+                        >
+                          <div className="wm-guru-float-historyMeta">
+                            <span>{entry.answeredAt}</span>
+                            <span>{confidenceLabel(entry.answer.confidence)}</span>
+                          </div>
+                          <div className="wm-guru-float-historyQuestion">{entry.question || "Context-led Guru answer"}</div>
+                          <div className="wm-guru-float-historySummary">
+                            {entry.status || entry.answer.explanation?.headline || entry.answer.text.split("\n")[0]}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className="wm-guru-float-historyList">
-                  {historyEntries.slice(0, 5).map((entry) => (
-                    <button
-                      key={entry.id}
-                      type="button"
-                      className="wm-guru-float-historyItem"
-                      onClick={() => restoreHistoryEntry(entry)}
-                    >
-                      <div className="wm-guru-float-historyMeta">
-                        <span>{entry.answeredAt}</span>
-                        <span>{confidenceLabel(entry.answer.confidence)}</span>
-                      </div>
-                      <div className="wm-guru-float-historyQuestion">{entry.question || "Context-led Guru answer"}</div>
-                      <div className="wm-guru-float-historySummary">
-                        {entry.status || entry.answer.explanation?.headline || entry.answer.text.split("\n")[0]}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              </details>
             ) : null}
           </div>
           <>

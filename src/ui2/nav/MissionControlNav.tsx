@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import {
   getMissionControlStage,
   isMissionControlItemActive,
@@ -98,7 +99,7 @@ export default function MissionControlNav({
             aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
             title={collapsed ? "Expand navigation" : "Collapse navigation"}
           >
-            {collapsed ? ">>" : "<<"}
+            {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
           </button>
         ) : null}
       </div>

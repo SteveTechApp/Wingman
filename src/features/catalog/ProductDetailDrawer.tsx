@@ -13,6 +13,11 @@ export default function ProductDetailDrawer({
 }: ProductDetailDrawerProps) {
   if (!product) return null;
 
+  const detailTrail = [product.technology, product.category];
+  if (product.subType && product.subType !== product.category) {
+    detailTrail.push(product.subType);
+  }
+
   return (
     <div className="wm-cat2__detail-backdrop" onClick={onClose}>
       <aside
@@ -24,7 +29,7 @@ export default function ProductDetailDrawer({
           <div>
             <p className="wm-cat2__sku">{product.sku}</p>
             <h2 className="wm-cat2__detail-title">{product.name}</h2>
-            <p className="wm-cat2__detail-subtitle">{product.technology} / {product.category}</p>
+            <p className="wm-cat2__detail-subtitle">{detailTrail.join(" / ")}</p>
           </div>
 
           <button type="button" className="wm-cat2__icon-btn" onClick={onClose} aria-label="Close details">
@@ -41,6 +46,10 @@ export default function ProductDetailDrawer({
           <h3>Key metadata</h3>
           <div className="wm-cat2__detail-meta">
             <span className="wm-cat2__mini-badge">Status: {product.status}</span>
+            <span className="wm-cat2__mini-badge">Type: {product.category}</span>
+            {product.subType && product.subType !== product.category ? (
+              <span className="wm-cat2__mini-badge">Sub-type: {product.subType}</span>
+            ) : null}
             {product.resolution ? <span className="wm-cat2__mini-badge">Resolution: {product.resolution}</span> : null}
             {product.distance ? <span className="wm-cat2__mini-badge">Distance: {product.distance}</span> : null}
             {product.transport ? <span className="wm-cat2__mini-badge">Transport: {product.transport}</span> : null}

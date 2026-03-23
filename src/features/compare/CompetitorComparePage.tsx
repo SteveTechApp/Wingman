@@ -390,11 +390,12 @@ function pillStyle(): React.CSSProperties {
   return {
     display: "inline-flex",
     alignItems: "center",
-    height: 28,
-    padding: "0 10px",
+    height: 26,
+    padding: "0 9px",
     borderRadius: 999,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 800,
+    letterSpacing: "0.01em",
     whiteSpace: "nowrap",
   };
 }
@@ -655,18 +656,19 @@ function metricCard(
 ) {
   return (
     <div
+      className="wm-compare-page__metric-card"
       style={{
-        padding: 12,
-        borderRadius: 14,
+        padding: 11,
+        borderRadius: 16,
         border: tone?.border || "1px solid rgba(255,255,255,0.08)",
         background: tone?.background || "rgba(255,255,255,0.04)",
         display: "grid",
-        gap: 4,
+        gap: 3,
       }}
     >
       <div
         style={{
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 800,
           letterSpacing: "0.08em",
           textTransform: "uppercase",
@@ -675,10 +677,10 @@ function metricCard(
       >
         {label}
       </div>
-      <div style={{ fontSize: 18, fontWeight: 900, color: tone?.color || "#f8fafc" }}>
+      <div style={{ fontSize: 17, fontWeight: 900, color: tone?.color || "#f8fafc" }}>
         {value}
       </div>
-      <div style={{ fontSize: 12, lineHeight: 1.4, color: "rgba(255,255,255,0.66)" }}>
+      <div style={{ fontSize: 11, lineHeight: 1.4, color: "rgba(255,255,255,0.66)" }}>
         {hint}
       </div>
     </div>
@@ -762,7 +764,7 @@ function ComparisonOptionMatrix(props: {
   const template = `minmax(160px, 0.95fr) minmax(96px, 0.55fr) repeat(${options.length}, minmax(120px, 0.7fr))`;
 
   return (
-    <div style={{ display: "grid", gap: 12 }}>
+    <div className="wm-compare-page__matrix" style={{ display: "grid", gap: 12 }}>
       <div
         style={{
           display: "flex",
@@ -793,8 +795,8 @@ function ComparisonOptionMatrix(props: {
         </span>
       </div>
 
-      <div style={{ overflowX: "auto" }}>
-        <div style={{ minWidth: 760, display: "grid", gap: 8 }}>
+      <div className="wm-compare-page__matrix-scroll" style={{ overflowX: "auto" }}>
+        <div className="wm-compare-page__matrix-grid" style={{ minWidth: 760, display: "grid", gap: 8 }}>
           <div
             style={{
               display: "grid",
@@ -1136,7 +1138,7 @@ function ResultCard(props: {
 
   return (
     <div
-      className="wm-card"
+      className={selected ? "wm-card wm-compare-page__result-card is-selected" : "wm-card wm-compare-page__result-card"}
       style={{
         padding: 14,
         display: "grid",
@@ -1238,10 +1240,11 @@ function ResultCard(props: {
           </div>
         </div>
 
-        <div
-          style={{
-            minWidth: 92,
-            textAlign: "right",
+          <div
+            className="wm-compare-page__score-chip"
+            style={{
+              minWidth: 92,
+              textAlign: "right",
             padding: "8px 10px",
             borderRadius: 14,
             border: "1px solid rgba(255,255,255,0.08)",
@@ -1832,7 +1835,7 @@ export default function CompetitorComparePage() {
 
         <div className="wm-page-body wm-compare-page__body" style={{ display: "grid", gap: 12 }}>
           <div
-            className="wm-card"
+            className="wm-card wm-compare-page__finder-card"
             style={{ padding: 10, overflow: "visible", position: "relative", zIndex: 40 }}
           >
             <CompetitorMatchFinderPanel
@@ -1855,6 +1858,7 @@ export default function CompetitorComparePage() {
 
           {hasCompareActivity ? (
             <div
+              className="wm-compare-page__workspace"
               style={{
                 display: "grid",
                 gap: 12,
@@ -1862,9 +1866,9 @@ export default function CompetitorComparePage() {
                 alignItems: "start",
               }}
             >
-              <div style={{ display: "grid", gap: 12 }}>
+              <div className="wm-compare-page__results-stack" style={{ display: "grid", gap: 12 }}>
                 <div
-                  className="wm-card"
+                  className="wm-card wm-compare-page__summary-card"
                   style={{
                     padding: 14,
                     display: "grid",
@@ -1923,7 +1927,7 @@ export default function CompetitorComparePage() {
                 </div>
 
                 {effectiveResult.candidates.length > 0 ? (
-                  <div style={{ display: "grid", gap: 12 }}>
+                  <div className="wm-compare-page__candidate-stack" style={{ display: "grid", gap: 12 }}>
                     {effectiveResult.candidates.map((candidate) => (
                       <ResultCard
                         key={candidate.id}
@@ -1949,6 +1953,7 @@ export default function CompetitorComparePage() {
               </div>
 
               <div
+                className="wm-compare-page__inspector"
                 style={{
                   display: "grid",
                   gap: 10,
@@ -1973,7 +1978,7 @@ export default function CompetitorComparePage() {
                   />
                 </div>
 
-                <div className="wm-card" style={{ padding: 12, opacity: 0.96, display: "grid", gap: 10 }}>
+                <div className="wm-card wm-compare-page__manual-card" style={{ padding: 12, opacity: 0.96, display: "grid", gap: 10 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
                     <div style={{ display: "grid", gap: 4 }}>
                       <div style={{ fontSize: 14, fontWeight: 900 }}>Manual overrides</div>
@@ -2078,7 +2083,7 @@ export default function CompetitorComparePage() {
                     href={liveResult.sourceUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="wm-card"
+                    className="wm-card wm-compare-page__source-card"
                     style={{
                       padding: 12,
                       textDecoration: "none",
@@ -2099,7 +2104,7 @@ export default function CompetitorComparePage() {
 
                 {searchResult.status === "no-match" && !liveResult?.record ? (
                   <div
-                    className="wm-card"
+                    className="wm-card wm-compare-page__missing-card"
                     style={{
                       padding: 12,
                       display: "grid",
@@ -2144,7 +2149,7 @@ export default function CompetitorComparePage() {
             </div>
           ) : (
             <div
-              className="wm-card"
+              className="wm-card wm-compare-page__ready-card"
               style={{
                 padding: 14,
                 display: "flex",
