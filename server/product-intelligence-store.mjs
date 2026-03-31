@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import path from "node:path";
 import {
   COMPETITOR_CATALOG_FILE,
   PRODUCT_INTELLIGENCE_DB_FILE,

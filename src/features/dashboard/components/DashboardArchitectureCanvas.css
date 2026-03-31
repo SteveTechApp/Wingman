@@ -1,0 +1,60 @@
+.se-shell {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 16px;
+}
+
+.se-board {
+  position: relative;
+  height: 700px;
+  background: #020617;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.se-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.se-line {
+  stroke: #64748b;
+  stroke-width: 2;
+  fill: none;
+  cursor: pointer;
+  opacity: 0.4;
+}
+
+.se-line.active {
+  stroke: #3b82f6;
+  opacity: 1;
+  stroke-width: 3;
+}
+
+.se-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 8px 12px;
+  background: #1e293b;
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid #334155;
+}
+
+.se-node.active {
+  background: #3b82f6;
+}
+
+.se-node.source { background: #0f172a; }
+.se-node.display { background: #020617; }
+.se-node.core { background: #1e40af; }
+.se-node.rx { background: #0ea5e9; }
+
+.se-panel {
+  background: #020617;
+  border-radius: 16px;
+  padding: 16px;
+}

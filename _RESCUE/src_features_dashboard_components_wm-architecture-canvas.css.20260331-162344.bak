@@ -1,0 +1,57 @@
+.wm-arch {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+}
+
+.wm-chain {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.wm-grid {
+  display: grid;
+  grid-template-columns: 180px 1fr 180px;
+  gap: 20px;
+}
+
+.wm-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wm-label {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.wm-node {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  cursor: pointer;
+  text-align: center;
+}
+
+.wm-node.core {
+  background: rgba(59,130,246,0.2);
+}
+
+.wm-node.active {
+  border: 1px solid #3b82f6;
+  background: rgba(59,130,246,0.3);
+}
+
+.wm-lines {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.wm-line {
+  font-size: 12px;
+  color: #60a5fa;
+}

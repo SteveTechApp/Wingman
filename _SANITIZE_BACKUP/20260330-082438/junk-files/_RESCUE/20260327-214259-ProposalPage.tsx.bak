@@ -1,0 +1,107 @@
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
+import GlowGuide from "@/ui2/page/GlowGuide";
+import { loadActiveProjectSnapshot } from "@/app/logic/wingmanProjectState";
+
+type ProposalTone = "Standard" | "Concise" | "Executive";
+
+export default function ProposalPage() {
+  const navigate = useNavigate();
+  const snapshot = useMemo(() => loadActiveProjectSnapshot(), []);
+
+  const [projectName, setProjectName] = useState("New Wingman Project");
+  const [customerName, setCustomerName] = useState("");
+  const [proposalTone, setProposalTone] = useState<ProposalTone>("Standard");
+  const [scopeSummary, setScopeSummary] = useState("");
+
+  useEffect(() => {
+    if (!snapshot) return;
+
+    setProjectName(snapshot.project.name || "New Wingman Project");
+    setCustomerName(snapshot.project.customer || "");
+
+    setScopeSummary(
+      `Recommended architecture: ${snapshot.decision.architecture}. ` +
+      `Primary products: ${snapshot.decision.primaryProducts.join(", ")}.`
+    );
+  }, [snapshot]);
+
+  const executiveSummary = useMemo(() => {
+    if (!snapshot) return "No recommendation yet.";
+
+    return (
+      `Architecture: ${snapshot.decision.architecture}. ` +
+      `Products: ${snapshot.decision.primaryProducts.join(", ")}.`
+    );
+  }, [snapshot]);
+
+  return (
+    <div className="wm-fit-page wmu-adopt">
+
+      <section className="wm-surface-card wm-fit-page__hero">
+        <div>
+          <div className="wm-page-title">Proposal Builder</div>
+        </div>
+
+        <GlowGuide
+          title="Next step"
+          activeIndex={1}
+          steps={[
+            { title: "Set frame", copy: "Define basics" },
+            { title: "Review output", copy: "Validate system" },
+          ]}
+        />
+      </section>
+
+      <section className="wm-fit-page__body wm-grid-2">
+
+        <aside className="wm-surface-card" style={{ padding: 16 }}>
+          <div className="wm-section-title">Settings</div>
+
+          <input
+            className="wm-input-dark"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+          />
+
+          <input
+            className="wm-input-dark"
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+          />
+        </aside>
+
+        <section className="wm-surface-card" style={{ padding: 16 }}>
+
+          <div className="wm-section-title">Output</div>
+
+          <div className="wm-product-card">
+            <div className="wm-product-card__title">Summary</div>
+            <div>{scopeSummary}</div>
+          </div>
+
+          <div className="wm-product-card">
+            <div className="wm-product-card__title">Executive</div>
+            <div>{executiveSummary}</div>
+          </div>
+
+          {snapshot && (
+            <div className="wm-product-card">
+              <div className="wm-product-card__title">BOM</div>
+
+              {snapshot.pipeline.bom.map((b, i) => (
+                <div key={i}>
+                  {b.sku} x {b.qty}
+                </div>
+              ))}
+            </div>
+          )}
+
+        </section>
+
+      </section>
+
+    </div>
+  );
+}

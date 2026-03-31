@@ -1,0 +1,272 @@
+import { useNavigate } from "react-router-dom";
+import WingmanToolFrame from "@/components/layout/WingmanToolFrame";
+import { useProjectContext } from "@/context/ProjectContext";
+import { WingmanWorkflowShell } from "@/features/wingmanUx/WingmanWorkflowShell";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
+
+function toNumber(value: unknown): number {
+  const n = Number(value ?? 0);
+  return Number.isFinite(n) ? n : 0;
+}
+
+export default function DashboardPage() {
+  const navigate = useNavigate();
+  const { projectData } = useProjectContext();
+  const project = projectData.activeProject;
+
+  const sourceCount = toNumber(
+    project?.discovery?.sources ?? project?.discovery?.sourceCount ?? 0,
+  );
+  const displayCount = toNumber(
+    project?.discovery?.displays ?? project?.discovery?.displayCount ?? 0,
+  );
+  const distanceM = toNumber(
+    project?.discovery?.distanceM ?? project?.discovery?.distance ?? project?.distanceM ?? 0,
+  );
+
+  const hasProject = Boolean(project);
+  const hasDiscovery = hasProject && (sourceCount > 0 || displayCount > 0 || distanceM > 0);
+  const isVideoWall = Boolean(project?.discovery?.videoWall);
+  const isNetworkReady = Boolean(project?.discovery?.networkReady);
+  const hasUsb = Boolean(project?.discovery?.usbRequired);
+
+  const recommendedNextAction = !hasProject
+    ? "Create or open a project"
+    : !hasDiscovery
+      ? "Complete discovery first"
+      : isVideoWall
+        ? "Open Video Wall planning"
+        : "Move into proposal and architecture review";
+
+  const systemType = !hasProject
+    ? "No active project"
+    : isVideoWall
+      ? "Video Wall"
+      : isNetworkReady
+        ? "Network-capable design"
+        : "In qualification";
+
+  const qualificationGaps: string[] = [];
+  if (!hasProject) qualificationGaps.push("No active project is selected.");
+  if (hasProject && sourceCount <= 0) qualificationGaps.push("Source count is not defined.");
+  if (hasProject && displayCount <= 0) qualificationGaps.push("Display count is not defined.");
+  if (hasProject && distanceM <= 0) qualificationGaps.push("Distance is not defined.");
+  if (hasProject && !project?.discovery?.networkReady && !project?.discovery?.videoWall) {
+    qualificationGaps.push("Managed AV network readiness is not confirmed.");
+  }
+
+  const deliverables = [
+    hasDiscovery ? "Discovery data captured" : "Discovery not yet captured",
+    hasProject ? "Project active" : "No active project",
+    hasUsb ? "USB/BYOD requirement present" : "No USB requirement captured",
+  ];
+
+  const rightRail = (
+    <>
+      <section className="wmx-right-panel">
+        <div className="wmx-right-title">Recommended Action</div>
+        <div className="wmx-summary-metric">
+          <span>Current next step</span>
+          <strong>{recommendedNextAction}</strong>
+        </div>
+      </section>
+
+      <section className="wmx-right-panel">
+        <div className="wmx-right-title">Qualification Gaps</div>
+        <div className="wmx-alert-list">
+          {qualificationGaps.length > 0 ? (
+            qualificationGaps.map((item, index) => (
+              <div key={`${item}-${index}`} className="wmx-alert-item">
+                <div className="wmx-alert-dot wmx-alert-dot--warn" />
+                <div className="wmx-alert-copy">
+                  <strong>Needs confirmation</strong>
+                  <span>{item}</span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="wmx-alert-item">
+              <div className="wmx-alert-dot wmx-alert-dot--good" />
+              <div className="wmx-alert-copy">
+                <strong>Qualified</strong>
+                <span>Discovery data is sufficient for the next workflow step.</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="wmx-right-panel">
+        <div className="wmx-right-title">Current Deliverables</div>
+        {deliverables.map((item, index) => (
+          <div key={`${item}-${index}`} className="wmx-summary-metric">
+            <span>Status</span>
+            <strong>{item}</strong>
+          </div>
+        ))}
+      </section>
+    </>
+  );
+
+  return (
+    <WingmanToolFrame
+      title="Dashboard"
+      subtitle="Mission control for opportunity-to-proposal workflow."
+      steps={[
+        { title: "Review project", copy: "Check active project and current state." },
+        { title: "Resume workflow", copy: "Continue discovery, design, or proposal." },
+        { title: "Deliver output", copy: "Drive architecture, BOM, and proposal." },
+      ]}
+    >
+      <WingmanWorkflowShell
+        activeStage="discovery"
+        projectName={project?.name ?? "No active project"}
+        sourceCount={sourceCount}
+        displayCount={displayCount}
+        distanceM={distanceM}
+        systemType={systemType}
+        rightRail={rightRail}
+      >
+        <section className="wmx-section">
+          <div className="wmx-section-header">
+            <h1>Structured AV workflow for sales and pre-sales</h1>
+            <p>
+              Move from opportunity discovery to system design and proposal using one
+              continuous workflow language across the app.
+            </p>
+          </div>
+
+          <div className="wmx-panel-action" style={{ justifyContent: "flex-start", padding: 0 }}>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <button
+                type="button"
+                className="wmx-primary-btn"
+                style={{ minWidth: 220 }}
+                onClick={() => navigate(WM_ROUTES.discovery)}
+              >
+                Continue Discovery
+              </button>
+
+              <button
+                type="button"
+                className="wmx-primary-btn"
+                style={{
+                  minWidth: 220,
+                  background: "linear-gradient(180deg, #1b2434 0%, #121a28 100%)",
+                  borderColor: "rgba(125, 156, 210, 0.28)",
+                  boxShadow: "none",
+                }}
+                onClick={() => navigate(WM_ROUTES.projects)}
+              >
+                Open Projects
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="wmx-section">
+          <div className="wmx-card-row">
+            <article className="wmx-config-card">
+              <div className="wmx-config-title">Active Project</div>
+              <div className="wmx-config-copy">
+                {project?.name ?? "No active project"}
+              </div>
+              <div className="wmx-config-stats">
+                <span>{project?.customer || "No customer set"}</span>
+                <span>{project?.application || "No application set"}</span>
+              </div>
+            </article>
+
+            <article className="wmx-config-card">
+              <div className="wmx-config-title">Workflow</div>
+              <div className="wmx-config-copy">
+                Discovery → Design → Proposal
+              </div>
+              <div className="wmx-config-stats">
+                <span>{hasDiscovery ? "Discovery ready" : "Discovery pending"}</span>
+                <span>{isNetworkReady ? "Network aware" : "Local qualification"}</span>
+              </div>
+            </article>
+
+            <article className="wmx-config-card">
+              <div className="wmx-config-title">Current Focus</div>
+              <div className="wmx-config-copy">
+                {recommendedNextAction}
+              </div>
+              <div className="wmx-config-stats">
+                <span>{sourceCount} sources</span>
+                <span>{displayCount} displays</span>
+                <span>{distanceM}m</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section className="wmx-section">
+          <div className="wmx-section-header">
+            <h2>Opportunity Path</h2>
+            <p>Resume the correct workflow stage from one shared mission-control layout</p>
+          </div>
+
+          <div className="wmx-card-row">
+            <article className="wmx-config-card">
+              <div className="wmx-config-title">Step 01</div>
+              <div className="wmx-config-subtitle">Discovery</div>
+              <div className="wmx-config-copy">
+                Capture room type, sources, displays, distance, USB, and network readiness.
+              </div>
+              <div className="wmx-panel-action" style={{ padding: 0, justifyContent: "flex-start" }}>
+                <button
+                  type="button"
+                  className="wmx-primary-btn"
+                  style={{ minWidth: 180 }}
+                  onClick={() => navigate(WM_ROUTES.discovery)}
+                >
+                  Open Discovery
+                </button>
+              </div>
+            </article>
+
+            <article className="wmx-config-card">
+              <div className="wmx-config-title">Step 02</div>
+              <div className="wmx-config-subtitle">System Design</div>
+              <div className="wmx-config-copy">
+                Shape switching method, transport architecture, and design direction.
+              </div>
+              <div className="wmx-panel-action" style={{ padding: 0, justifyContent: "flex-start" }}>
+                <button
+                  type="button"
+                  className="wmx-primary-btn"
+                  style={{ minWidth: 180 }}
+                  onClick={() =>
+                    navigate(isVideoWall ? WM_ROUTES.videoWall : WM_ROUTES.catalog)
+                  }
+                >
+                  {isVideoWall ? "Open Video Wall" : "Build Design"}
+                </button>
+              </div>
+            </article>
+
+            <article className="wmx-config-card">
+              <div className="wmx-config-title">Step 03</div>
+              <div className="wmx-config-subtitle">Proposal</div>
+              <div className="wmx-config-copy">
+                Review architecture, BOM, and customer-facing proposal output.
+              </div>
+              <div className="wmx-panel-action" style={{ padding: 0, justifyContent: "flex-start" }}>
+                <button
+                  type="button"
+                  className="wmx-primary-btn"
+                  style={{ minWidth: 180 }}
+                  onClick={() => navigate(WM_ROUTES.proposal)}
+                >
+                  Create Proposal
+                </button>
+              </div>
+            </article>
+          </div>
+        </section>
+      </WingmanWorkflowShell>
+    </WingmanToolFrame>
+  );
+}

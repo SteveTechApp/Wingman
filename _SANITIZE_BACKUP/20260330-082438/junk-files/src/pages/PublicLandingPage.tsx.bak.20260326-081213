@@ -1,0 +1,585 @@
+import { Link } from "react-router-dom";
+
+const primaryCta = "/login";
+const secondaryCta = "/signup";
+
+const valueCards = [
+  {
+    title: "Guide sales conversations",
+    text: "Translate customer needs into the right WyreStorm solution quickly and clearly.",
+  },
+  {
+    title: "Build system confidence",
+    text: "Turn requirements into practical recommendations, layouts, and proposal-ready outputs.",
+  },
+  {
+    title: "Reduce internal dependency",
+    text: "Give sales teams a faster self-serve path without losing technical quality.",
+  },
+];
+
+const proofPoints = [
+  "Faster discovery",
+  "Clearer recommendations",
+  "Cleaner proposal workflow",
+  "Less internal back-and-forth",
+];
+
+const steps = [
+  {
+    k: "01",
+    t: "Discover",
+    d: "Capture the customer need clearly and structure the brief.",
+  },
+  {
+    k: "02",
+    t: "Recommend",
+    d: "Match the application to the right products and topology.",
+  },
+  {
+    k: "03",
+    t: "Deliver",
+    d: "Support proposal creation with more confidence and speed.",
+  },
+];
+
+export default function PublicLandingPage() {
+  return (
+    <div className="wm-landing">
+      <style>
+        {`
+          .wm-landing {
+            --wm-page-pad: 18px;
+            --wm-shell-gap: 18px;
+            --wm-panel-pad-y: 24px;
+            --wm-panel-pad-x: 26px;
+            --wm-panel-radius: 28px;
+            --wm-card-radius: 18px;
+            --wm-block-gap: 14px;
+            --wm-grid-gap: 12px;
+            --wm-step-gap: 12px;
+            --wm-title-size: clamp(2.2rem, 3.6vw, 4rem);
+            --wm-body-size: 1.02rem;
+            --wm-small-size: 14px;
+            --wm-card-title: 16px;
+            --wm-step-title: 16px;
+            --wm-btn-h: 46px;
+            --wm-btn-min-w: 152px;
+            --wm-chip-h: 32px;
+            --wm-step-num-size: 48px;
+            --wm-step-cols: 48px 1fr;
+            --wm-proof-display: flex;
+            --wm-proof-opacity: 1;
+            --wm-card-columns: repeat(3, minmax(0, 1fr));
+            --wm-hero-max-width: 760px;
+            --wm-copy-max-width: 720px;
+            --wm-right-copy-display: block;
+            --wm-footnote-display: block;
+            --wm-card-text-lines: unset;
+            --wm-step-text-lines: unset;
+
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+            background:
+              radial-gradient(circle at top left, rgba(59,130,246,0.14), transparent 32%),
+              radial-gradient(circle at top right, rgba(14,165,233,0.10), transparent 26%),
+              linear-gradient(180deg, #f7fafc 0%, #eef4fb 100%);
+            color: #0f172a;
+          }
+
+          .wm-landing *,
+          .wm-landing *::before,
+          .wm-landing *::after {
+            box-sizing: border-box;
+          }
+
+          .wm-landing__root {
+            width: 100%;
+            height: 100%;
+            padding: var(--wm-page-pad);
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+          }
+
+          .wm-landing__shell {
+            width: min(1240px, 100%);
+            height: 100%;
+            max-height: 100%;
+            display: grid;
+            grid-template-columns: minmax(0, 1.18fr) minmax(360px, 0.82fr);
+            gap: var(--wm-shell-gap);
+            overflow: hidden;
+          }
+
+          .wm-landing__panel {
+            min-height: 0;
+            overflow: hidden;
+            border-radius: var(--wm-panel-radius);
+          }
+
+          .wm-landing__panel--left {
+            display: grid;
+            grid-template-rows: auto auto auto 1fr auto;
+            align-content: stretch;
+            gap: var(--wm-block-gap);
+            padding: var(--wm-panel-pad-y) var(--wm-panel-pad-x);
+            background: rgba(255,255,255,0.84);
+            border: 1px solid rgba(148,163,184,0.18);
+            box-shadow: 0 24px 80px rgba(15,23,42,0.10);
+            backdrop-filter: blur(14px);
+          }
+
+          .wm-landing__panel--right {
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+            gap: var(--wm-block-gap);
+            padding: var(--wm-panel-pad-y) var(--wm-panel-pad-x);
+            background: linear-gradient(180deg, #08152f 0%, #0d2245 100%);
+            border: 1px solid rgba(51,65,85,0.34);
+            box-shadow: 0 24px 80px rgba(15,23,42,0.20);
+            color: #e2e8f0;
+          }
+
+          .wm-landing__eyebrow-pill {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(37,99,235,0.08);
+            border: 1px solid rgba(37,99,235,0.14);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            color: #1d4ed8;
+          }
+
+          .wm-landing__hero {
+            display: grid;
+            gap: 10px;
+            min-height: 0;
+          }
+
+          .wm-landing__title {
+            margin: 0;
+            max-width: var(--wm-hero-max-width);
+            font-size: var(--wm-title-size);
+            line-height: 1.02;
+            letter-spacing: -0.045em;
+            font-weight: 800;
+            color: #f8fafc;
+            color: #0f172a;
+          }
+
+          .wm-landing__copy {
+            margin: 0;
+            max-width: var(--wm-copy-max-width);
+            font-size: var(--wm-body-size);
+            line-height: 1.45;
+            color: #475569;
+          }
+
+          .wm-landing__cta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+          }
+
+          .wm-landing__btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: var(--wm-btn-min-w);
+            height: var(--wm-btn-h);
+            padding: 0 18px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+          }
+
+          .wm-landing__btn--primary {
+            background: linear-gradient(135deg, #2563eb, #0ea5e9);
+            color: #ffffff;
+            box-shadow: 0 16px 40px rgba(37,99,235,0.22);
+          }
+
+          .wm-landing__btn--secondary {
+            border: 1px solid rgba(148,163,184,0.28);
+            background: rgba(255,255,255,0.72);
+            color: #0f172a;
+          }
+
+          .wm-landing__cards {
+            min-height: 0;
+            display: grid;
+            grid-template-columns: var(--wm-card-columns);
+            gap: var(--wm-grid-gap);
+            align-content: start;
+          }
+
+          .wm-landing__card {
+            min-height: 0;
+            display: grid;
+            align-content: start;
+            gap: 8px;
+            padding: 14px;
+            border-radius: var(--wm-card-radius);
+            background: rgba(248,250,252,0.92);
+            border: 1px solid rgba(148,163,184,0.18);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+          }
+
+          .wm-landing__card h2 {
+            margin: 0;
+            font-size: var(--wm-card-title);
+            line-height: 1.2;
+            font-weight: 700;
+            color: #0f172a;
+          }
+
+          .wm-landing__card p {
+            margin: 0;
+            font-size: var(--wm-small-size);
+            line-height: 1.45;
+            color: #475569;
+            display: -webkit-box;
+            -webkit-line-clamp: var(--wm-card-text-lines);
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+
+          .wm-landing__proof {
+            display: var(--wm-proof-display);
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: auto;
+            opacity: var(--wm-proof-opacity);
+          }
+
+          .wm-landing__proof-chip {
+            display: inline-flex;
+            align-items: center;
+            height: var(--wm-chip-h);
+            padding: 0 12px;
+            border-radius: 999px;
+            background: rgba(15,23,42,0.04);
+            border: 1px solid rgba(148,163,184,0.18);
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            white-space: nowrap;
+          }
+
+          .wm-landing__right-head {
+            display: grid;
+            gap: 8px;
+            min-height: 0;
+          }
+
+          .wm-landing__right-eyebrow {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #7dd3fc;
+          }
+
+          .wm-landing__right-title {
+            margin: 0;
+            font-size: clamp(1.7rem, 2.2vw, 2.5rem);
+            line-height: 1.08;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #f8fafc;
+          }
+
+          .wm-landing__right-copy {
+            display: var(--wm-right-copy-display);
+            margin: 0;
+            font-size: var(--wm-small-size);
+            line-height: 1.5;
+            color: rgba(226,232,240,0.78);
+          }
+
+          .wm-landing__steps {
+            min-height: 0;
+            display: grid;
+            gap: var(--wm-step-gap);
+            align-content: start;
+          }
+
+          .wm-landing__step {
+            min-height: 0;
+            display: grid;
+            grid-template-columns: var(--wm-step-cols);
+            gap: 14px;
+            padding: 12px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(148,163,184,0.14);
+          }
+
+          .wm-landing__step-num {
+            width: var(--wm-step-num-size);
+            height: var(--wm-step-num-size);
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, rgba(37,99,235,0.95), rgba(14,165,233,0.95));
+            color: white;
+            font-size: 15px;
+            font-weight: 800;
+          }
+
+          .wm-landing__step-body {
+            min-width: 0;
+            display: grid;
+            gap: 5px;
+          }
+
+          .wm-landing__step-body h3 {
+            margin: 0;
+            font-size: var(--wm-step-title);
+            line-height: 1.18;
+            font-weight: 700;
+            color: #f8fafc;
+          }
+
+          .wm-landing__step-body p {
+            margin: 0;
+            font-size: var(--wm-small-size);
+            line-height: 1.45;
+            color: rgba(226,232,240,0.78);
+            display: -webkit-box;
+            -webkit-line-clamp: var(--wm-step-text-lines);
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+
+          .wm-landing__footnote {
+            display: var(--wm-footnote-display);
+            padding-top: 2px;
+            font-size: 12px;
+            line-height: 1.45;
+            color: rgba(148,163,184,0.88);
+          }
+
+          /* comfort mode */
+          @media (min-height: 861px) {
+            .wm-landing {
+              --wm-page-pad: 18px;
+              --wm-shell-gap: 18px;
+              --wm-panel-pad-y: 24px;
+              --wm-panel-pad-x: 26px;
+              --wm-title-size: clamp(2.4rem, 3.7vw, 4.2rem);
+              --wm-body-size: 1.05rem;
+              --wm-card-text-lines: unset;
+              --wm-step-text-lines: unset;
+              --wm-proof-display: flex;
+              --wm-right-copy-display: block;
+              --wm-footnote-display: block;
+            }
+          }
+
+          /* compact laptop mode */
+          @media (max-height: 860px) {
+            .wm-landing {
+              --wm-page-pad: 14px;
+              --wm-shell-gap: 14px;
+              --wm-panel-pad-y: 18px;
+              --wm-panel-pad-x: 20px;
+              --wm-panel-radius: 24px;
+              --wm-card-radius: 16px;
+              --wm-block-gap: 10px;
+              --wm-grid-gap: 10px;
+              --wm-step-gap: 10px;
+              --wm-title-size: clamp(1.9rem, 3vw, 3rem);
+              --wm-body-size: 0.96rem;
+              --wm-small-size: 13px;
+              --wm-card-title: 15px;
+              --wm-step-title: 15px;
+              --wm-btn-h: 42px;
+              --wm-btn-min-w: 142px;
+              --wm-chip-h: 28px;
+              --wm-step-num-size: 44px;
+              --wm-step-cols: 44px 1fr;
+              --wm-card-text-lines: 3;
+              --wm-step-text-lines: 2;
+            }
+          }
+
+          /* tight mode */
+          @media (max-height: 760px) {
+            .wm-landing {
+              --wm-page-pad: 10px;
+              --wm-shell-gap: 10px;
+              --wm-panel-pad-y: 14px;
+              --wm-panel-pad-x: 16px;
+              --wm-panel-radius: 20px;
+              --wm-card-radius: 14px;
+              --wm-block-gap: 8px;
+              --wm-grid-gap: 8px;
+              --wm-step-gap: 8px;
+              --wm-title-size: clamp(1.55rem, 2.4vw, 2.35rem);
+              --wm-body-size: 0.92rem;
+              --wm-small-size: 12px;
+              --wm-card-title: 14px;
+              --wm-step-title: 14px;
+              --wm-btn-h: 38px;
+              --wm-btn-min-w: 132px;
+              --wm-chip-h: 24px;
+              --wm-step-num-size: 38px;
+              --wm-step-cols: 38px 1fr;
+              --wm-proof-display: none;
+              --wm-right-copy-display: none;
+              --wm-footnote-display: none;
+              --wm-card-text-lines: 2;
+              --wm-step-text-lines: 2;
+            }
+
+            .wm-landing__step {
+              gap: 10px;
+              padding: 10px;
+            }
+
+            .wm-landing__btn {
+              font-size: 14px;
+              padding: 0 14px;
+            }
+          }
+
+          /* width fallback */
+          @media (max-width: 1080px) {
+            .wm-landing {
+              height: auto;
+              max-height: none;
+              min-height: 100vh;
+              overflow: auto;
+            }
+
+            .wm-landing__root {
+              height: auto;
+              min-height: 100%;
+              overflow: visible;
+            }
+
+            .wm-landing__shell {
+              height: auto;
+              max-height: none;
+              grid-template-columns: 1fr;
+              overflow: visible;
+            }
+
+            .wm-landing__panel {
+              overflow: visible;
+            }
+          }
+
+          @media (max-width: 820px) {
+            .wm-landing {
+              --wm-card-columns: 1fr;
+            }
+          }
+
+          @media (max-width: 640px) {
+            .wm-landing {
+              --wm-page-pad: 12px;
+              --wm-panel-pad-y: 16px;
+              --wm-panel-pad-x: 16px;
+              --wm-title-size: clamp(1.7rem, 8vw, 2.4rem);
+            }
+
+            .wm-landing__cta-row {
+              gap: 8px;
+            }
+
+            .wm-landing__btn {
+              min-width: 128px;
+            }
+          }
+        `}
+      </style>
+
+      <main className="wm-landing__root">
+        <section className="wm-landing__shell">
+          <article className="wm-landing__panel wm-landing__panel--left">
+            <div className="wm-landing__eyebrow-pill">WyreStorm Wingman</div>
+
+            <div className="wm-landing__hero">
+              <h1 className="wm-landing__title">
+                AV sales enablement built to fit real-world projects.
+              </h1>
+
+              <p className="wm-landing__copy">
+                Wingman helps sales and pre-sales teams qualify applications,
+                recommend the right WyreStorm products, and move from discovery
+                to proposal with less friction.
+              </p>
+            </div>
+
+            <div className="wm-landing__cta-row">
+              <Link to={primaryCta} className="wm-landing__btn wm-landing__btn--primary">
+                Sign in
+              </Link>
+              <Link to={secondaryCta} className="wm-landing__btn wm-landing__btn--secondary">
+                Create account
+              </Link>
+            </div>
+
+            <div className="wm-landing__cards">
+              {valueCards.map((card) => (
+                <div key={card.title} className="wm-landing__card">
+                  <h2>{card.title}</h2>
+                  <p>{card.text}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="wm-landing__proof">
+              {proofPoints.map((item) => (
+                <span key={item} className="wm-landing__proof-chip">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+
+          <aside className="wm-landing__panel wm-landing__panel--right">
+            <div className="wm-landing__right-head">
+              <div className="wm-landing__right-eyebrow">Why Wingman</div>
+              <h2 className="wm-landing__right-title">
+                A cleaner route from requirement to recommendation.
+              </h2>
+            </div>
+
+            <p className="wm-landing__right-copy">
+              Built for teams that need better technical consistency without
+              forcing every user to be an integration specialist.
+            </p>
+
+            <div className="wm-landing__steps">
+              {steps.map((step) => (
+                <div key={step.k} className="wm-landing__step">
+                  <div className="wm-landing__step-num">{step.k}</div>
+                  <div className="wm-landing__step-body">
+                    <h3>{step.t}</h3>
+                    <p>{step.d}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="wm-landing__footnote">
+              Designed to stay within a single viewport on desktop so the page
+              feels immediate and controlled.
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+  );
+}

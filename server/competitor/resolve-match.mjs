@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import path from "node:path";
 import { resolveCompetitorLiveLookup } from "./live-lookup.mjs";
 import {
   WYRESTORM_PRODUCT_INTELLIGENCE_FILE,

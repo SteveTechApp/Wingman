@@ -1,3 +1,0 @@
-brand,sku,name,category,family,maxResolution,bandwidthGbps,hdcp,hdr,inputs,outputs,transport,poe,maxMeters1080p,maxMeters4k,audioFormats,analogBreakout,estimatedStreetPriceGbp,availability,notes,sourceSummary
-Extron,DTP3-T-202,Extron DTP3 T 202,Extender,DTP,4K60,18,2.3,true,HDMI,HDBaseT,DTP,false,100,70,PCM;Dolby Digital,false,795,stocked,Manufacturer-published starter row,Manufacturer website
-Kramer,TP-580T,Kramer TP-580T,Extender,TP,4K60,18,2.2,true,HDMI,HDBaseT,HDBaseT,false,100,70,PCM,false,499,stocked,Distributor import starter row,Distributor feed

@@ -1,0 +1,289 @@
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
+import GlowGuide from "@/ui2/page/GlowGuide";
+import { saveActiveProject } from "@/app/logic/wingmanProjectState";
+import { buildDiscoveryPersistedProject, upsertPersistedProject } from "@/app/logic/wingmanProjectPersistence";
+
+type OutcomePath =
+  | "Extender / point-to-point"
+  | "Splitter / one-to-many"
+  | "Matrix / presentation switching"
+  | "AV over IP distribution"
+  | "Video wall design";
+
+const outcomeOptions: { label: OutcomePath; summary: string; hints: string[] }[] = [
+  {
+    label: "Extender / point-to-point",
+    summary: "Use when a single source needs to reach a single destination over distance.",
+    hints: ["Distance-led", "Single route", "Simple transport"],
+  },
+  {
+    label: "Splitter / one-to-many",
+    summary: "Use when one source needs to be mirrored to multiple displays.",
+    hints: ["Mirrored outputs", "Simple distribution", "Fixed source"],
+  },
+  {
+    label: "Matrix / presentation switching",
+    summary: "Use when multiple sources must be switched between one or more displays.",
+    hints: ["Multiple sources", "Routing control", "Room switching"],
+  },
+  {
+    label: "AV over IP distribution",
+    summary: "Use when the site needs flexible routing over managed network infrastructure.",
+    hints: ["Network transport", "Scalable", "Multi-zone"],
+  },
+  {
+    label: "Video wall design",
+    summary: "Use when the display canvas and processing strategy are the primary design driver.",
+    hints: ["Display canvas", "Processor strategy", "Wall planning"],
+  },
+];
+
+export default function DiscoveryWizardPage() {
+  const navigate = useNavigate();
+
+  const [outcome, setOutcome] = useState<OutcomePath>("Matrix / presentation switching");
+  const [displayCount, setDisplayCount] = useState("2");
+  const [sourceCount, setSourceCount] = useState("3");
+  const [distance, setDistance] = useState("15");
+  const [usbNeeds, setUsbNeeds] = useState("No");
+  const [networkReady, setNetworkReady] = useState("No");
+  const [futureExpansion, setFutureExpansion] = useState("No");
+  const [notes, setNotes] = useState("");
+
+  const selected = useMemo(
+    () => outcomeOptions.find((item) => item.label === outcome) ?? outcomeOptions[0],
+    [outcome]
+  );
+
+  const recommendation = useMemo(() => {
+    const displays = Number(displayCount) || 0;
+    const sources = Number(sourceCount) || 0;
+    const dist = Number(distance) || 0;
+    const networkIsReady = networkReady === "Yes";
+    const expansionExpected = futureExpansion === "Yes";
+
+    const avoipScore =
+      (sources >= 3 ? 2 : 0) +
+      (displays >= 3 ? 2 : 0) +
+      (outcome === "Video wall design" ? 3 : 0) +
+      (dist > 30 ? 1 : 0) +
+      (networkIsReady ? 2 : 0) +
+      (expansionExpected ? 2 : 0);
+
+    let nextTool = "Catalogue";
+    if (outcome === "Video wall design") nextTool = "Video Wall";
+    if (outcome === "Matrix / presentation switching") nextTool = "Proposal";
+    if (outcome === "AV over IP distribution") nextTool = "Catalogue";
+
+    const architecture =
+      outcome === "AV over IP distribution" || (avoipScore >= 5 && networkIsReady)
+        ? "An AV over IP architecture is likely justified for this opportunity."
+        : outcome === "Extender / point-to-point"
+          ? "A direct transport path is the likely starting point."
+          : outcome === "Splitter / one-to-many"
+            ? "Simple mirrored distribution is the likely starting point."
+            : outcome === "Matrix / presentation switching"
+              ? "A switching-led architecture is the likely starting point."
+              : "A display-canvas-led design flow is the likely starting point.";
+
+    const transport =
+      avoipScore >= 5 && networkIsReady
+        ? "AVoIP should be considered because routing flexibility, scalability, and network readiness are present."
+        : dist > 30
+          ? "Distance suggests HDBaseT or AV over IP should be considered."
+          : "Distance appears suitable for standard room-scale transport, depending on signal requirements.";
+
+    const complexity =
+      displays >= 4 || sources >= 4
+        ? "This looks like a medium-to-higher complexity opportunity."
+        : "This looks like a compact to medium opportunity.";
+
+    return { nextTool, architecture, transport, complexity };
+  }, [outcome, displayCount, sourceCount, distance, networkReady, futureExpansion]);
+
+  const handleOpenNextTool = () => {
+    const discoveryPayload = {
+      name: "New Wingman Project",
+      customer: "",
+      application: outcome,
+      roomType: outcome,
+      discovery: {
+        sources: Number(sourceCount || 0),
+        displays: Number(displayCount || 0),
+        distanceM: Number(distance || 0),
+        usbRequired: usbNeeds === "Yes",
+        wireless: outcome === "AV over IP distribution",
+        videoWall: outcome === "Video wall design",
+        advancedMultiview: outcome === "Video wall design" && Number(displayCount || 0) >= 4,
+        hybridMeeting: usbNeeds === "Yes" && outcome === "Matrix / presentation switching",
+        networkReady: networkReady === "Yes",
+        futureExpansion: futureExpansion === "Yes",
+      },
+    };
+
+    saveActiveProject({
+      name: discoveryPayload.name,
+      customer: discoveryPayload.customer,
+      application: discoveryPayload.application,
+      roomType: discoveryPayload.roomType,
+      discovery: discoveryPayload.discovery,
+      updatedAt: new Date().toISOString(),
+    });
+
+    const persisted = buildDiscoveryPersistedProject(discoveryPayload);
+    upsertPersistedProject(persisted);
+
+    navigate(
+      recommendation.nextTool === "Video Wall"
+        ? WM_ROUTES.videoWall
+        : recommendation.nextTool === "Proposal"
+          ? WM_ROUTES.proposal
+          : WM_ROUTES.catalog
+    );
+  };
+
+  return (
+    <div className="wm-fit-page wmu-adopt">
+      <section
+        className="wm-surface-card wm-fit-page__hero"
+        style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 320px", gap: 16 }}
+      >
+        <div>
+          <div className="wm-page-kicker">Discovery Wizard</div>
+          <div className="wm-page-title">Choose the design direction first</div>
+          <div className="wm-page-copy">
+            Keep discovery focused on the main outcome. Decide what the customer is actually trying to do,
+            then shape the room, routing, and product path around that outcome.
+          </div>
+        </div>
+
+        <GlowGuide
+          title="Current priority"
+          activeIndex={0}
+          steps={[
+            { title: "Choose outcome", copy: "Start with what the customer is trying to do, not with products." },
+            { title: "Add room signals", copy: "Capture displays, sources, distance, USB relevance and network readiness." },
+            { title: "Open next tool", copy: "Move into catalogue, proposal, or video wall based on the result." },
+          ]}
+          note="Discovery should stay short and directional. Save deeper detail for the next workflow."
+        />
+      </section>
+
+      <section className="wm-fit-page__body wm-grid-2">
+        <aside className="wm-surface-card" style={{ padding: 16, display: "grid", gap: 12, alignSelf: "start" }}>
+          <div>
+            <div className="wm-section-title">Outcome type</div>
+            <div className="wm-section-copy">Pick the design intent that best matches the opportunity.</div>
+          </div>
+
+          <div className="wm-toolbar-row">
+            {outcomeOptions.map((item) => {
+              const active = item.label === outcome;
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  className={`wm-chip${active ? " wm-chip--active" : ""}`}
+                  onClick={() => setOutcome(item.label)}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="wm-surface-card--soft" style={{ padding: 12 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff", marginBottom: 6 }}>
+              Selected path
+            </div>
+            <div style={{ fontSize: 12, lineHeight: 1.45, color: "rgba(226,232,240,0.74)" }}>
+              {selected.summary}
+            </div>
+          </div>
+        </aside>
+
+        <section className="wm-surface-card" style={{ padding: 16, display: "grid", gap: 12, minHeight: 0 }}>
+          <div className="wm-toolbar-row" style={{ justifyContent: "space-between" }}>
+            <div>
+              <div className="wm-section-title">Discovery inputs</div>
+              <div className="wm-section-copy">Compact, guided capture designed to avoid full-page scrolling.</div>
+            </div>
+
+            <div className="wm-toolbar-row">
+              <button type="button" className="wm-btn-secondary" onClick={handleOpenNextTool}>
+                Save and open next tool
+              </button>
+            </div>
+          </div>
+
+          <div className="wm-fit-page__scroll" style={{ display: "grid", gap: 12 }}>
+            <div className="wm-grid-3">
+              <div className="wm-surface-card--soft" style={{ padding: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#ffffff", marginBottom: 7 }}>Display count</div>
+                <input className="wm-input-dark" type="number" value={displayCount} onChange={(event) => setDisplayCount(event.target.value)} />
+              </div>
+
+              <div className="wm-surface-card--soft" style={{ padding: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#ffffff", marginBottom: 7 }}>Source count</div>
+                <input className="wm-input-dark" type="number" value={sourceCount} onChange={(event) => setSourceCount(event.target.value)} />
+              </div>
+
+              <div className="wm-surface-card--soft" style={{ padding: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#ffffff", marginBottom: 7 }}>Longest distance (m)</div>
+                <input className="wm-input-dark" type="number" value={distance} onChange={(event) => setDistance(event.target.value)} />
+              </div>
+            </div>
+
+            <div className="wm-grid-2" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
+              <div className="wm-surface-card--soft" style={{ padding: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#ffffff", marginBottom: 7 }}>USB requirement</div>
+                <select className="wm-select-dark" value={usbNeeds} onChange={(event) => setUsbNeeds(event.target.value)}>
+                  <option>Yes</option>
+                  <option>No</option>
+                </select>
+              </div>
+
+              <div className="wm-surface-card--soft" style={{ padding: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#ffffff", marginBottom: 7 }}>Managed AV VLAN / network ready</div>
+                <select className="wm-select-dark" value={networkReady} onChange={(event) => setNetworkReady(event.target.value)}>
+                  <option>Yes</option>
+                  <option>No</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="wm-grid-2" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
+              <div className="wm-surface-card--soft" style={{ padding: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#ffffff", marginBottom: 7 }}>Future expansion expected</div>
+                <select className="wm-select-dark" value={futureExpansion} onChange={(event) => setFutureExpansion(event.target.value)}>
+                  <option>Yes</option>
+                  <option>No</option>
+                </select>
+              </div>
+
+              <div className="wm-surface-card--soft" style={{ padding: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#ffffff", marginBottom: 7 }}>Notes</div>
+                <textarea className="wm-textarea-dark" placeholder="Capture brief room notes, application detail, or priorities." value={notes} onChange={(event) => setNotes(event.target.value)} />
+              </div>
+            </div>
+
+            <div className="wm-grid-3">
+              {[
+                ["Architecture direction", recommendation.architecture],
+                ["Transport guidance", recommendation.transport],
+                ["Complexity", recommendation.complexity],
+              ].map(([title, copy]) => (
+                <article key={title} className="wm-product-card">
+                  <div className="wm-product-card__title">{title}</div>
+                  <div className="wm-product-card__copy" style={{ marginBottom: 0 }}>{copy}</div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+  );
+}

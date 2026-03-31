@@ -1,0 +1,33 @@
+
+Page                            InRoutes Refs Orphan
+----                            -------- ---- ------
+WingmanDiscoveryPage               False    0   True
+GuruPage                           False    1   True
+FloatingGuru                       False    0   True
+VideoWallPlannerRebuild             True    1  False
+TrainingHubPage                     True    1  False
+ToolHubPage                         True    1  False
+TemplatesPage                       True    1  False
+SignupPage                          True    1  False
+SalesPositioningPage                True    1  False
+RoomWizardPage                      True    1  False
+PublicLandingPage                   True    1  False
+ProposalPage                        True    1  False
+ProjectsPage                        True    1  False
+ProjectOverviewPage                 True    1  False
+ProjectNewPage                      True    1  False
+ProductIntelligencePage             True    1  False
+NotFoundPage                        True    1  False
+LoginPage                           True    1  False
+InviteAcceptancePage                True    1  False
+ImportIntakePage                    True    1  False
+GuruToolHostPage                    True    1  False
+DiscoveryWizardPage                 True    1  False
+DashboardPage                       True    1  False
+CompetitorLookupDiagnosticsPage     True    1  False
+CompetitorComparePage               True    1  False
+CatalogPage                         True    1  False
+AvNavigatorPage                     True    1  False
+
+
+

@@ -1,0 +1,57 @@
+import { Outlet, useLocation } from "react-router-dom";
+import TopBar from "@/app/navigation/TopBar";
+import MissionControlNav from "@/ui2/nav/MissionControlNav";
+
+export default function AppShell() {
+  const location = useLocation();
+  const isDashboardRoute = location.pathname === "/app/dashboard";
+
+  return (
+    <div
+      className="wm-shell-root wm-force-single-screen"
+      data-shell="wingman"
+      data-route={location.pathname}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100vh",
+        maxHeight: "100vh",
+        minHeight: 0,
+        overflow: "hidden",
+        background: "transparent",
+        color: "var(--wm-text)",
+      }}
+    >
+      <TopBar />
+
+      <div
+        className="wm-shell-content"
+        style={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: 0,
+          overflow: "hidden",
+          display: "flex",
+          width: "100%",
+        }}
+      >
+        <MissionControlNav />
+
+        <main
+          className="wm-app-main"
+          style={{
+            flex: 1,
+            minWidth: 0,
+            minHeight: 0,
+            overflowY: "hidden",
+            overflowX: "hidden",
+            width: "100%",
+          }}
+        >
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}

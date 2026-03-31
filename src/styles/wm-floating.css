@@ -1,0 +1,13 @@
+.wm-floating-guru {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg,#0ea5e9,#2563eb);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 9999;
+}

@@ -1,0 +1,27 @@
+import { Outlet, useLocation } from "react-router-dom";
+import TopBar from "@/app/navigation/TopBar";
+import MissionControlNav from "@/ui2/nav/MissionControlNav";
+
+export default function AppShell() {
+  const location = useLocation();
+  const isDashboardRoute = location.pathname === "/app/dashboard";
+
+  return (
+    <div className="wm-shell-root" data-shell="wingman" data-route={location.pathname}>
+      <TopBar />
+      <div className="wm-shell-body">
+        <aside className="wm-shell-nav">
+          <MissionControlNav />
+        </aside>
+
+        <main
+          className={isDashboardRoute ? "wm-shell-main wm-shell-main--dashboard" : "wm-shell-main"}
+        >
+          <div className="wm-shell-content">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}

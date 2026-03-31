@@ -101,7 +101,7 @@ export const FAMILY_RULES: FamilyRule[] = [
     comparisonHints: AVOIP_HINTS,
   },
   {
-    id: "wyrestorm-nhd-200-series",
+    id: "wyrestorm-AVoIP-series",
     skuPattern: /^NHD-2\d{2}/i,
     transport: "AVOIP",
     avoipSubtype: "JPEG2000",

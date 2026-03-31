@@ -1,5 +1,6 @@
 import http from "node:http";
 import fs from "node:fs/promises";
+import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import {
   COMPETITOR_APPROVALS_FILE,

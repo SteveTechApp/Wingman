@@ -1,0 +1,297 @@
+.wm-toolhub-page {
+  display: grid;
+  gap: 22px;
+  color: #eaf1ff;
+}
+
+.wm-toolhub-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  padding: 26px 28px;
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background:
+    radial-gradient(circle at 82% 18%, rgba(56,189,248,0.12), transparent 26%),
+    linear-gradient(180deg, rgba(7,16,32,0.96), rgba(4,10,22,0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 16px 36px rgba(0,0,0,0.22);
+}
+
+.wm-toolhub-hero__copy {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-toolhub-hero__eyebrow,
+.wm-toolhub-section__eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #84b6ff;
+}
+
+.wm-toolhub-hero h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #f8fbff;
+}
+
+.wm-toolhub-hero p {
+  margin: 0;
+  max-width: 70ch;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #a8bbd8;
+}
+
+.wm-toolhub-hero__actions {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wm-toolhub-btn {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: #e7efff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wm-toolhub-btn--primary {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  border-color: rgba(96,165,250,0.22);
+  box-shadow: 0 12px 22px rgba(37,99,235,0.2);
+}
+
+.wm-toolhub-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wm-toolhub-stats article,
+.wm-toolhub-section {
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background:
+    linear-gradient(180deg, rgba(7,14,28,0.94), rgba(4,9,20,0.98));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.wm-toolhub-stats article {
+  padding: 18px 20px;
+  display: grid;
+  gap: 6px;
+}
+
+.wm-toolhub-stats span {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8db3e8;
+}
+
+.wm-toolhub-stats strong {
+  font-size: 20px;
+  line-height: 1;
+  color: #f8fbff;
+}
+
+.wm-toolhub-stats p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #9cb1cf;
+}
+
+.wm-toolhub-section {
+  padding: 22px;
+  display: grid;
+  gap: 16px;
+}
+
+.wm-toolhub-section__head h2 {
+  margin: 4px 0 0;
+  font-size: 22px;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: #f8fbff;
+}
+
+.wm-toolhub-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wm-toolhub-tile {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  min-height: 176px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background:
+    linear-gradient(180deg, rgba(15,24,40,0.9), rgba(7,12,24,0.96));
+  color: #ebf2ff;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.wm-toolhub-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 82% 18%, var(--wm-tool-glow, rgba(59,130,246,0.14)), transparent 34%);
+  pointer-events: none;
+}
+
+.wm-toolhub-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--wm-tool-border, rgba(96,165,250,0.22));
+  box-shadow: 0 18px 32px var(--wm-tool-shadow, rgba(37,99,235,0.14));
+}
+
+.wm-toolhub-tile__header,
+.wm-toolhub-tile__body,
+.wm-toolhub-tile__footer {
+  position: relative;
+  z-index: 1;
+}
+
+.wm-toolhub-tile__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.wm-toolhub-tile__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  color: var(--wm-tool-icon, #bfdbfe);
+}
+
+.wm-toolhub-tile__badge {
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  font-size: 11px;
+  font-weight: 800;
+  color: #b8cae8;
+}
+
+.wm-toolhub-tile__body {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-toolhub-tile__body h3 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #f8fbff;
+}
+
+.wm-toolhub-tile__body p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #a5b8d5;
+}
+
+.wm-toolhub-tile__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  font-size: 13px;
+  font-weight: 700;
+  color: #d7e6ff;
+}
+
+.wm-toolhub-tile--blue {
+  --wm-tool-glow: rgba(59,130,246,0.18);
+  --wm-tool-border: rgba(59,130,246,0.22);
+  --wm-tool-shadow: rgba(37,99,235,0.16);
+  --wm-tool-icon: #bfdbfe;
+}
+
+.wm-toolhub-tile--cyan {
+  --wm-tool-glow: rgba(6,182,212,0.18);
+  --wm-tool-border: rgba(6,182,212,0.22);
+  --wm-tool-shadow: rgba(8,145,178,0.16);
+  --wm-tool-icon: #a5f3fc;
+}
+
+.wm-toolhub-tile--violet {
+  --wm-tool-glow: rgba(168,85,247,0.18);
+  --wm-tool-border: rgba(168,85,247,0.22);
+  --wm-tool-shadow: rgba(126,34,206,0.16);
+  --wm-tool-icon: #e9d5ff;
+}
+
+.wm-toolhub-tile--emerald {
+  --wm-tool-glow: rgba(16,185,129,0.18);
+  --wm-tool-border: rgba(16,185,129,0.22);
+  --wm-tool-shadow: rgba(5,150,105,0.16);
+  --wm-tool-icon: #a7f3d0;
+}
+
+.wm-toolhub-tile--amber {
+  --wm-tool-glow: rgba(245,158,11,0.18);
+  --wm-tool-border: rgba(245,158,11,0.22);
+  --wm-tool-shadow: rgba(217,119,6,0.16);
+  --wm-tool-icon: #fde68a;
+}
+
+.wm-toolhub-tile--rose {
+  --wm-tool-glow: rgba(244,63,94,0.18);
+  --wm-tool-border: rgba(244,63,94,0.22);
+  --wm-tool-shadow: rgba(225,29,72,0.16);
+  --wm-tool-icon: #fecdd3;
+}
+
+.wm-toolhub-tile--indigo {
+  --wm-tool-glow: rgba(99,102,241,0.18);
+  --wm-tool-border: rgba(99,102,241,0.22);
+  --wm-tool-shadow: rgba(79,70,229,0.16);
+  --wm-tool-icon: #c7d2fe;
+}
+
+@media (max-width: 1280px) {
+  .wm-toolhub-grid,
+  .wm-toolhub-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-toolhub-hero {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,170 @@
+Wingman Placeholder Wiring Audit
+Generated: 2026-03-28 09:31:33
+
+=== Routes found ===
+*
+/
+/app
+/invite
+/login
+/signup
+catalogue
+compare
+dashboard
+import
+navigator
+projects
+projects/:id
+projects/new
+settings/workspace
+survey-import
+templates
+toolhub
+tools
+tools/catalog
+tools/compare
+tools/competitor-lookup-diagnostics
+tools/discovery
+tools/guru
+tools/import-intake
+tools/navigator
+tools/product-intelligence
+tools/proposal
+tools/room-wizard
+tools/room-wizard/new
+tools/sales
+tools/templates
+tools/training
+tools/video-wall
+training
+
+=== Placeholder matches ===
+C:\Users\steve\wingman\src\app\logic\wingmanBomIntelligence.ts:14: function getPlaceholderUnitPrice(line: { sku: string; role: string }): number {
+C:\Users\steve\wingman\src\app\logic\wingmanBomIntelligence.ts:66: const unitPrice = getPlaceholderUnitPrice(line);
+C:\Users\steve\wingman\src\components\admin\ProductIntelligenceAdminGate.tsx:64: placeholder="Enter admin password"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:141: placeholder="Example: IP300UHD-RX"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:151: placeholder="Optional product title"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:161: placeholder="Switcher, AVoIP, Extender..."
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:171: placeholder="Short summary of what this competitor product does"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:181: placeholder="Comma-separated features"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:191: placeholder="Example: NHD-500-RX"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:201: placeholder="Why this is the best fit"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:211: placeholder="One note per line for caveats or talk tracks"
+C:\Users\steve\wingman\src\components\competitor\CompetitorMatchFinderPanel.tsx:287: placeholder={brand ? "Pick or type competitor SKU / model" : "Choose a brand first"}
+C:\Users\steve\wingman\src\context\ProjectContext.tsx:44: // placeholder for legacy reducers
+C:\Users\steve\wingman\src\features\catalog\CatalogPage.tsx:89: placeholder="SKU, family, feature, application"
+C:\Users\steve\wingman\src\features\compare\CompetitorComparePage.tsx:77: placeholder="Brand, model, category, WyreStorm option"
+C:\Users\steve\wingman\src\features\discovery\DiscoveryWizardPage.tsx:278: <textarea className="wm-textarea-dark" placeholder="Capture brief room notes, application detail, or priorities." value={notes} onChange={(event) => setNotes(event.target.value)} />
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:180: placeholder?: string;
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1119: placeholder: "1",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1149: placeholder: "1",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1202: placeholder: "35",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1239: placeholder: "10",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1249: placeholder: "5",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1259: placeholder: "2.8",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1279: placeholder: "Laptops, PC, camera, signage player",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1449: placeholder: "Existing cabling, consultant preferences, open questions, or unusual constraints.",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:2091: addScore("Apollo", 1, "With limited direction, a presentation-led baseline is the safest placeholder.");
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:69: placeholder: string;
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:92: placeholder:
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:107: placeholder:
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:122: placeholder:
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:137: placeholder:
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:152: placeholder:
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:1944: placeholder={def.placeholder}
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:1998: placeholder="Paste room notes, customer requirements, constraints, existing kit, or other context."
+C:\Users\steve\wingman\src\features\import\ImportIntakePage.tsx:116: <input className="wm-input-dark" type="text" placeholder="Customer / end user" value={customerName} onChange={(event) => setCustomerName(event.target.value)} />
+C:\Users\steve\wingman\src\features\import\ImportIntakePage.tsx:121: <input className="wm-input-dark" type="text" placeholder="Project / opportunity name" value={projectName} onChange={(event) => setProjectName(event.target.value)} />
+C:\Users\steve\wingman\src\features\import\ImportIntakePage.tsx:147: <textarea className="wm-textarea-dark" placeholder="Paste customer notes, consultant brief, tender extract, or opportunity summary here." value={inputText} onChange={(event) => setInputText(event.target.value)} />
+C:\Users\steve\wingman\src\features\misc\TrainingHubPage.tsx:98: placeholder="Search modules or lessons"
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:16: placeholder?: string;
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:76: placeholder: "Write the customer language here...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:92: placeholder: "Customer, site, or market sector...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:99: placeholder: "Current setup or brands in use...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:120: placeholder: "Commercial notes, sentiment, rollout patterns, buying behaviour...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:143: placeholder: "What landed well...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:164: placeholder: "Next-call coaching notes...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:491: placeholder={question.placeholder}
+C:\Users\steve\wingman\src\features\projects\ProjectNewPage.tsx:388: placeholder="e.g. Boardroom Upgrade"
+C:\Users\steve\wingman\src\features\projects\ProjectNewPage.tsx:403: placeholder="e.g. Acme Ltd"
+C:\Users\steve\wingman\src\features\projects\ProjectNewPage.tsx:418: placeholder="e.g. London HQ"
+C:\Users\steve\wingman\src\features\proposal\hooks\useProposalProjectData.ts:106: summary: "The proposal BOM is populated from saved project selections rather than fixed placeholder content.",
+C:\Users\steve\wingman\src\features\room-wizard\RoomWizardPage.tsx:136: <textarea className="wm-textarea-dark" placeholder="Brief room notes, collaboration needs, control requirements, or audio observations." value={notes} onChange={(event) => setNotes(event.target.value)} />
+C:\Users\steve\wingman\src\features\support\CompetitorLookupDiagnosticsPage.tsx:477: placeholder="mode, brand, sku, warning..."
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:414: <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="SKU, brand, category" style={{ ...inputStyle(), paddingLeft: 36 }} />
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:502: <FieldShell label="Source URL" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.sourceUrl} onChange={(event) => setField("sourceUrl", event.target.value)} placeholder="https://..." style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:506: <FieldShell label="Inputs" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.inputsText} onChange={(event) => setField("inputsText", event.target.value)} placeholder="HDMI:4, USB-C:1" style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:507: <FieldShell label="Outputs" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.outputsText} onChange={(event) => setField("outputsText", event.target.value)} placeholder="HDMI:2, HDBaseT:2" style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:508: <FieldShell label="Features" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.featuresText} onChange={(event) => setField("featuresText", event.target.value)} placeholder="wireless presentation, KVM, audio de-embed" style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:509: <FieldShell label="Control / Connectivity" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.controlText} onChange={(event) => setField("controlText", event.target.value)} placeholder="RS-232, IR, LAN, relay" style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:510: <FieldShell label="Audio" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.audioText} onChange={(event) => setField("audioText", event.target.value)} placeholder="analog audio out, de-embed" style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\templates\templateProjectBuilder.ts:613: ? `${thirdPartyCount} line${thirdPartyCount === 1 ? "" : "s"} are descriptive non-WyreStorm equipment placeholders for completion items.`
+C:\Users\steve\wingman\src\pages\InviteAcceptancePage.tsx:115: <input className="wm-form-input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" />
+C:\Users\steve\wingman\src\pages\InviteAcceptancePage.tsx:125: placeholder="Use your existing account password, or create one"
+C:\Users\steve\wingman\src\services\competitor\lookupService.ts:594: summary: "No curated or backend match was found. Synthetic placeholder created for manual review.",
+
+
+=== Files that may still contain unfinished features ===
+C:\Users\steve\wingman\src\app\logic\wingmanBomIntelligence.ts:14: function getPlaceholderUnitPrice(line: { sku: string; role: string }): number {
+C:\Users\steve\wingman\src\app\logic\wingmanBomIntelligence.ts:66: const unitPrice = getPlaceholderUnitPrice(line);
+C:\Users\steve\wingman\src\components\admin\ProductIntelligenceAdminGate.tsx:64: placeholder="Enter admin password"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:141: placeholder="Example: IP300UHD-RX"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:151: placeholder="Optional product title"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:161: placeholder="Switcher, AVoIP, Extender..."
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:171: placeholder="Short summary of what this competitor product does"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:181: placeholder="Comma-separated features"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:191: placeholder="Example: NHD-500-RX"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:201: placeholder="Why this is the best fit"
+C:\Users\steve\wingman\src\components\competitor\CompetitorManualComparisonPanel.tsx:211: placeholder="One note per line for caveats or talk tracks"
+C:\Users\steve\wingman\src\components\competitor\CompetitorMatchFinderPanel.tsx:287: placeholder={brand ? "Pick or type competitor SKU / model" : "Choose a brand first"}
+C:\Users\steve\wingman\src\context\ProjectContext.tsx:44: // placeholder for legacy reducers
+C:\Users\steve\wingman\src\features\catalog\CatalogPage.tsx:89: placeholder="SKU, family, feature, application"
+C:\Users\steve\wingman\src\features\compare\CompetitorComparePage.tsx:77: placeholder="Brand, model, category, WyreStorm option"
+C:\Users\steve\wingman\src\features\discovery\DiscoveryWizardPage.tsx:278: <textarea className="wm-textarea-dark" placeholder="Capture brief room notes, application detail, or priorities." value={notes} onChange={(event) => setNotes(event.target.value)} />
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:180: placeholder?: string;
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1119: placeholder: "1",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1149: placeholder: "1",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1202: placeholder: "35",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1239: placeholder: "10",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1249: placeholder: "5",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1259: placeholder: "2.8",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1279: placeholder: "Laptops, PC, camera, signage player",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:1449: placeholder: "Existing cabling, consultant preferences, open questions, or unusual constraints.",
+C:\Users\steve\wingman\src\features\discovery\guidedProjectEngine.ts:2091: addScore("Apollo", 1, "With limited direction, a presentation-led baseline is the safest placeholder.");
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:69: placeholder: string;
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:92: placeholder:
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:107: placeholder:
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:122: placeholder:
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:137: placeholder:
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:152: placeholder:
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:1944: placeholder={def.placeholder}
+C:\Users\steve\wingman\src\features\guru\GuruPage.tsx:1998: placeholder="Paste room notes, customer requirements, constraints, existing kit, or other context."
+C:\Users\steve\wingman\src\features\import\ImportIntakePage.tsx:116: <input className="wm-input-dark" type="text" placeholder="Customer / end user" value={customerName} onChange={(event) => setCustomerName(event.target.value)} />
+C:\Users\steve\wingman\src\features\import\ImportIntakePage.tsx:121: <input className="wm-input-dark" type="text" placeholder="Project / opportunity name" value={projectName} onChange={(event) => setProjectName(event.target.value)} />
+C:\Users\steve\wingman\src\features\import\ImportIntakePage.tsx:147: <textarea className="wm-textarea-dark" placeholder="Paste customer notes, consultant brief, tender extract, or opportunity summary here." value={inputText} onChange={(event) => setInputText(event.target.value)} />
+C:\Users\steve\wingman\src\features\misc\TrainingHubPage.tsx:98: placeholder="Search modules or lessons"
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:16: placeholder?: string;
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:76: placeholder: "Write the customer language here...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:92: placeholder: "Customer, site, or market sector...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:99: placeholder: "Current setup or brands in use...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:120: placeholder: "Commercial notes, sentiment, rollout patterns, buying behaviour...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:143: placeholder: "What landed well...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:164: placeholder: "Next-call coaching notes...",
+C:\Users\steve\wingman\src\features\navigator\AvNavigatorPage.tsx:491: placeholder={question.placeholder}
+C:\Users\steve\wingman\src\features\projects\ProjectNewPage.tsx:388: placeholder="e.g. Boardroom Upgrade"
+C:\Users\steve\wingman\src\features\projects\ProjectNewPage.tsx:403: placeholder="e.g. Acme Ltd"
+C:\Users\steve\wingman\src\features\projects\ProjectNewPage.tsx:418: placeholder="e.g. London HQ"
+C:\Users\steve\wingman\src\features\proposal\hooks\useProposalProjectData.ts:106: summary: "The proposal BOM is populated from saved project selections rather than fixed placeholder content.",
+C:\Users\steve\wingman\src\features\room-wizard\RoomWizardPage.tsx:136: <textarea className="wm-textarea-dark" placeholder="Brief room notes, collaboration needs, control requirements, or audio observations." value={notes} onChange={(event) => setNotes(event.target.value)} />
+C:\Users\steve\wingman\src\features\support\CompetitorLookupDiagnosticsPage.tsx:477: placeholder="mode, brand, sku, warning..."
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:414: <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="SKU, brand, category" style={{ ...inputStyle(), paddingLeft: 36 }} />
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:502: <FieldShell label="Source URL" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.sourceUrl} onChange={(event) => setField("sourceUrl", event.target.value)} placeholder="https://..." style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:506: <FieldShell label="Inputs" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.inputsText} onChange={(event) => setField("inputsText", event.target.value)} placeholder="HDMI:4, USB-C:1" style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:507: <FieldShell label="Outputs" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.outputsText} onChange={(event) => setField("outputsText", event.target.value)} placeholder="HDMI:2, HDBaseT:2" style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:508: <FieldShell label="Features" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.featuresText} onChange={(event) => setField("featuresText", event.target.value)} placeholder="wireless presentation, KVM, audio de-embed" style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:509: <FieldShell label="Control / Connectivity" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.controlText} onChange={(event) => setField("controlText", event.target.value)} placeholder="RS-232, IR, LAN, relay" style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\support\ProductIntelligencePage.tsx:510: <FieldShell label="Audio" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.audioText} onChange={(event) => setField("audioText", event.target.value)} placeholder="analog audio out, de-embed" style={inputStyle()} /></FieldShell>
+C:\Users\steve\wingman\src\features\templates\templateProjectBuilder.ts:613: ? `${thirdPartyCount} line${thirdPartyCount === 1 ? "" : "s"} are descriptive non-WyreStorm equipment placeholders for completion items.`
+C:\Users\steve\wingman\src\pages\InviteAcceptancePage.tsx:115: <input className="wm-form-input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" />
+C:\Users\steve\wingman\src\pages\InviteAcceptancePage.tsx:125: placeholder="Use your existing account password, or create one"
+C:\Users\steve\wingman\src\services\competitor\lookupService.ts:594: summary: "No curated or backend match was found. Synthetic placeholder created for manual review.",

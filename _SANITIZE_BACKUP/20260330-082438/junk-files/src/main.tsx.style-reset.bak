@@ -1,0 +1,74 @@
+import * as React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+
+import App from "./App";
+import "@/styles/wm-dark-enforcement.css";
+import "@/styles/wm-viewport-discipline.css";
+import "@/styles/wm-consistency-pass.css";
+import "@/styles/wm-design-system.css";
+import WingmanProviders from "@/app/providers/WingmanProviders";
+import { installRuntimeErrorReporting } from "@/app/runtime/errorReporting";
+import ErrorBoundary from "@/components/ErrorBoundary";
+
+import "@/styles/base.css";
+import "@/styles/wingman-viewport-fit.css";
+import "@/styles/layout.css";
+import "@/styles/wingman-viewport-fit.css";
+import "@/styles/typography.css";
+import "@/styles/wingman-viewport-fit.css";
+import "@/styles/components.css";
+import "@/styles/wingman-viewport-fit.css";
+import "@/styles/utilities.css";
+import "@/styles/wingman-viewport-fit.css";
+import "@/styles/wingman-global.css";
+import "@/styles/wingman-viewport-fit.css";
+import "@/design/system/tokens.css";
+import "@/styles/wingman-viewport-fit.css";
+import "@/design/system/layout.css";
+import "@/styles/wingman-viewport-fit.css";
+import "@/design/system/components.css";
+import "@/styles/wingman-viewport-fit.css";
+import "./styles/wm-dashboard-layout.css";
+import "@/styles/wingman-viewport-fit.css";
+import "./styles/wingman-saas.css";
+import "@/styles/wingman-viewport-fit.css";
+import "./styles/wm-shell-modern.css";
+import "@/styles/wingman-viewport-fit.css";
+import "./styles/wm-mission-control-refresh.css";
+import "@/styles/wingman-viewport-fit.css";
+import "./styles/wm-mission-control-phase2.css";
+import "@/styles/wingman-viewport-fit.css";
+import "./styles/wm-workspace-phase3.css";
+import "@/styles/wingman-viewport-fit.css";
+import "./styles/wm-page-system-phase4.css";
+import "@/styles/wingman-viewport-fit.css";
+import "./styles/wm-dark-shell-phase5.css";
+import "@/styles/wingman-viewport-fit.css";
+import "./styles/wm-shell-nav-footer-phase6.css";
+
+import "@/styles/wingman-viewport-fit.css";
+const root = document.getElementById("root");
+
+if (!root) {
+  throw new Error("Root element #root not found");
+}
+
+installRuntimeErrorReporting();
+
+ReactDOM.createRoot(root).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <WingmanProviders>
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      </WingmanProviders>
+    </BrowserRouter>
+  </React.StrictMode>
+);
+
+
+import "@/styles/wm-final-override.css";
+
+import "@/styles/wm-contrast-fix.css";

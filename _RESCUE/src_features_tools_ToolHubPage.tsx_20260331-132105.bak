@@ -1,0 +1,269 @@
+import {
+  ArrowRight,
+  BrainCircuit,
+  FileSpreadsheet,
+  LayoutTemplate,
+  Library,
+  Monitor,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
+  WandSparkles,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import "./tool-hub-saas.css";
+
+type ToolTone =
+  | "blue"
+  | "cyan"
+  | "violet"
+  | "emerald"
+  | "amber"
+  | "rose"
+  | "indigo";
+
+type ToolCard = {
+  id: string;
+  title: string;
+  description: string;
+  route: string;
+  badge: string;
+  icon: React.ComponentType<{ size?: string | number; strokeWidth?: string | number }>;
+  tone: ToolTone;
+};
+
+const coreTools: ToolCard[] = [
+  {
+    id: "guru",
+    title: "Guru Assistant",
+    description:
+      "Ask for product fit, system direction, next-step guidance, and quick technical support.",
+    route: "/app/tools/guru",
+    badge: "AI Copilot",
+    icon: WandSparkles,
+    tone: "violet",
+  },
+  {
+    id: "discovery",
+    title: "Discovery Wizard",
+    description:
+      "Capture the brief, priorities, and application requirements before product selection begins.",
+    route: "/app/tools/discovery",
+    badge: "Guided",
+    icon: LayoutTemplate,
+    tone: "cyan",
+  },
+  {
+    id: "catalog",
+    title: "Product Catalogue",
+    description:
+      "Search WyreStorm products by application, transport type, SKU, and feature set.",
+    route: "/app/tools/catalog",
+    badge: "Core",
+    icon: Library,
+    tone: "blue",
+  },
+  {
+    id: "proposal",
+    title: "Proposal Builder",
+    description:
+      "Move from validated design into BOM review and customer-facing output.",
+    route: "/app/tools/proposal",
+    badge: "Output",
+    icon: FileSpreadsheet,
+    tone: "emerald",
+  },
+];
+
+const specialistTools: ToolCard[] = [
+  {
+    id: "compare",
+    title: "Competitor Compare",
+    description:
+      "Position WyreStorm against competitor products and justify the recommendation clearly.",
+    route: "/app/tools/compare",
+    badge: "Sales Support",
+    icon: Trophy,
+    tone: "rose",
+  },
+  {
+    id: "video-wall",
+    title: "Video Wall Designer",
+    description:
+      "Plan layouts, transport strategy, and supporting hardware for video wall applications.",
+    route: "/app/tools/video-wall",
+    badge: "Planning",
+    icon: Monitor,
+    tone: "indigo",
+  },
+  {
+    id: "import-intake",
+    title: "Import Customer Brief",
+    description:
+      "Pull in customer notes or briefs and structure them into a usable project starting point.",
+    route: "/app/tools/import-intake",
+    badge: "Input",
+    icon: FileSpreadsheet,
+    tone: "amber",
+  },
+  {
+    id: "product-intelligence",
+    title: "Product Intelligence",
+    description:
+      "Inspect enrichment, product data quality, and supporting intelligence for recommendations.",
+    route: "/app/tools/product-intelligence",
+    badge: "Admin",
+    icon: ShieldCheck,
+    tone: "emerald",
+  },
+  {
+    id: "sales",
+    title: "Sales Positioning",
+    description:
+      "Guide conversations around fit, alternatives, objections, and recommended next moves.",
+    route: "/app/tools/sales",
+    badge: "Enablement",
+    icon: BrainCircuit,
+    tone: "blue",
+  },
+  {
+    id: "training",
+    title: "Training Hub",
+    description:
+      "Open structured enablement content for product, application, and positioning confidence.",
+    route: "/app/tools/training",
+    badge: "Learning",
+    icon: Sparkles,
+    tone: "cyan",
+  },
+];
+
+function ToolCardTile({ tool }: { tool: ToolCard }) {
+  const navigate = useNavigate();
+  const Icon = tool.icon;
+
+  return (
+    <button
+      type="button"
+      className={`wm-toolhub-tile wm-toolhub-tile--${tool.tone}`}
+      onClick={() => navigate(tool.route)}
+    >
+      <div className="wm-toolhub-tile__header">
+        <span className="wm-toolhub-tile__icon">
+          <Icon size={20} strokeWidth={1.9} />
+        </span>
+        <span className="wm-toolhub-tile__badge">{tool.badge}</span>
+      </div>
+
+      <div className="wm-toolhub-tile__body">
+        <h3>{tool.title}</h3>
+        <p>{tool.description}</p>
+      </div>
+
+      <div className="wm-toolhub-tile__footer">
+        <span>Open tool</span>
+        <ArrowRight size={16} strokeWidth={2} />
+      </div>
+    </button>
+  );
+}
+
+function ToolSection({
+  title,
+  subtitle,
+  tools,
+}: {
+  title: string;
+  subtitle: string;
+  tools: ToolCard[];
+}) {
+  return (
+    <section className="wm-toolhub-section">
+      <div className="wm-toolhub-section__head">
+        <div>
+          <div className="wm-toolhub-section__eyebrow">{title}</div>
+          <h2>{subtitle}</h2>
+        </div>
+      </div>
+
+      <div className="wm-toolhub-grid">
+        {tools.map((tool) => (
+          <ToolCardTile key={tool.id} tool={tool} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export default function ToolHubPage() {
+  const navigate = useNavigate();
+
+  return (
+    <div className="wm-toolhub-page">
+      <header className="wm-toolhub-hero">
+        <div className="wm-toolhub-hero__copy">
+          <div className="wm-toolhub-hero__eyebrow">Wingman Workspace</div>
+          <h1>The fastest route from customer need to WyreStorm solution.</h1>
+          <p>
+            Start with discovery, move into product selection, validate the recommendation,
+            then finish with a proposal.
+          </p>
+        </div>
+
+        <div className="wm-toolhub-hero__actions">
+          <button
+            type="button"
+            className="wm-toolhub-btn wm-toolhub-btn--primary"
+            onClick={() => navigate("/app/tools/discovery")}
+          >
+            Start with Discovery
+          </button>
+          <button
+            type="button"
+            className="wm-toolhub-btn"
+            onClick={() => navigate("/app/projects")}
+          >
+            Open Projects
+          </button>
+          <button
+            type="button"
+            className="wm-toolhub-btn"
+            onClick={() => navigate("/app/tools/proposal")}
+          >
+            Jump to Proposal
+          </button>
+        </div>
+      </header>
+
+      <section className="wm-toolhub-stats">
+        <article>
+          <span>Workflow stages</span>
+          <strong>7</strong>
+          <p>Capture, qualify, select, design, validate, BOM, and proposal.</p>
+        </article>
+        <article>
+          <span>Available tools</span>
+          <strong>10</strong>
+          <p>Core, specialist, and support workflows in one workspace.</p>
+        </article>
+        <article>
+          <span>Recommended start</span>
+          <strong>Guru â†’ Discovery</strong>
+          <p>Use Guru first when you need direction, then move into guided capture.</p>
+        </article>
+      </section>
+
+      <ToolSection
+        title="Core workflow"
+        subtitle="Start, shape, and finish the main pre-sales journey."
+        tools={coreTools}
+      />
+
+      <ToolSection
+        title="Specialist tools"
+        subtitle="Open planning, analysis, and sales support tools when needed."
+        tools={specialistTools}
+      />
+    </div>
+  );
+}
