@@ -1,0 +1,20 @@
+[
+  {
+    "id": "crestron:dm-nvx-384",
+    "vendor": "Crestron",
+    "model": "DM-NVX-384",
+    "category": "av_over_ip_transceiver",
+    "wyrestorm_match": {
+      "primary_sku": "",
+      "secondary_skus": [],
+      "confidence": 0.0,
+      "match_type": "",
+      "reason": ""
+    },
+    "wingman": {
+      "application_fit": [],
+      "tier_fit": [],
+      "complexity_band": "high"
+    }
+  }
+]

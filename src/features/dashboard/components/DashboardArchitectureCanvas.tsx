@@ -1,0 +1,382 @@
+import { useMemo, useState } from "react";
+import "./wm-architecture-canvas.css";
+import {
+  resolveCatalogueRecommendations,
+  type CatalogueMode,
+  type ResolvedRecommendation,
+} from "@/features/dashboard/services/catalogueRecommendationResolver";
+
+type Props = {
+  title?: string;
+  mode?: CatalogueMode;
+  sourceCount?: number;
+  displayCount?: number;
+  distanceLabel?: string;
+  primarySku?: string;
+  secondarySku?: string;
+  status?: string;
+};
+
+type BomItem = {
+  sku: string;
+  description: string;
+  qty: number;
+};
+
+type ValidationState = "idle" | "ok" | "warn" | "error";
+
+function parseDistanceMeters(label: string): number {
+  const match = label.match(/(\d+)/);
+  if (!match) return 0;
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function titleSuggestsMultiview(title: string): boolean {
+  return /multiview|multi-view|operations|monitoring/i.test(title);
+}
+
+export default function DashboardArchitectureCanvas({
+  title = "AVoIP Network Layout",
+  mode = "avoip",
+  sourceCount = 4,
+  displayCount = 6,
+  distanceLabel = "50m validated",
+  primarySku = "",
+  secondarySku = "",
+  status = "Ready for proposal",
+}: Props) {
+  const [activeMode, setActiveMode] = useState<CatalogueMode>(mode);
+  const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
+  const [routes, setRoutes] = useState<Record<string, string[]>>({});
+
+  const sources = useMemo(
+    () => Array.from({ length: sourceCount }, (_, index) => `S${index + 1}`),
+    [sourceCount],
+  );
+
+  const displays = useMemo(
+    () => Array.from({ length: displayCount }, (_, index) => `D${index + 1}`),
+    [displayCount],
+  );
+
+  function toggleRoute(sourceId: string, displayId: string) {
+    setRoutes((previous) => {
+      const current = previous[sourceId] ?? [];
+
+      if (current.includes(displayId)) {
+        return {
+          ...previous,
+          [sourceId]: current.filter((item) => item !== displayId),
+        };
+      }
+
+      if (activeMode === "matrix") {
+        return {
+          ...previous,
+          [sourceId]: [displayId],
+        };
+      }
+
+      return {
+        ...previous,
+        [sourceId]: [...current, displayId],
+      };
+    });
+  }
+
+  const flattenedRoutes = useMemo(
+    () =>
+      Object.entries(routes).flatMap(([sourceId, displayIds]) =>
+        displayIds.map((displayId) => ({
+          id: `${sourceId}-${displayId}`,
+          sourceId,
+          displayId,
+        })),
+      ),
+    [routes],
+  );
+
+  const distanceM = useMemo(() => parseDistanceMeters(distanceLabel), [distanceLabel]);
+  const multiview = useMemo(() => titleSuggestsMultiview(title), [title]);
+
+  const resolvedRecommendations = useMemo<ResolvedRecommendation[]>(() => {
+    const items = resolveCatalogueRecommendations({
+      mode: activeMode,
+      sourceCount,
+      displayCount,
+      distanceM,
+      multiview,
+    });
+
+    const pinned: ResolvedRecommendation[] = [];
+
+    if (primarySku) {
+      pinned.push({
+        sku: primarySku,
+        name: "Primary selection override",
+        role: "Pinned by dashboard",
+        qty: 1,
+        reason: "Explicitly passed from the dashboard.",
+        source: "fallback",
+      });
+    }
+
+    if (secondarySku) {
+      pinned.push({
+        sku: secondarySku,
+        name: "Secondary selection override",
+        role: "Pinned by dashboard",
+        qty: 1,
+        reason: "Explicitly passed from the dashboard.",
+        source: "fallback",
+      });
+    }
+
+    return [...pinned, ...items];
+  }, [activeMode, sourceCount, displayCount, distanceM, multiview, primarySku, secondarySku]);
+
+  const bomItems = useMemo<BomItem[]>(() => {
+    const items: BomItem[] = resolvedRecommendations.map((item) => ({
+      sku: item.sku,
+      description: `${item.name} (${item.role})`,
+      qty: item.qty,
+    }));
+
+    if (flattenedRoutes.length > 0) {
+      items.push({
+        sku: "COMMISSIONING",
+        description: "Programming / setup / commissioning allowance",
+        qty: 1,
+      });
+    }
+
+    return items;
+  }, [resolvedRecommendations, flattenedRoutes.length]);
+
+  const validation = useMemo(() => {
+    const routeCount = flattenedRoutes.length;
+
+    if (routeCount === 0) {
+      return {
+        state: "idle" as ValidationState,
+        title: "No routing configured",
+        detail: "Select a source, then click one or more displays to create routes.",
+      };
+    }
+
+    if (activeMode === "matrix") {
+      const oversubscribed = Object.values(routes).some((assignedDisplays) => assignedDisplays.length > 1);
+      if (oversubscribed) {
+        return {
+          state: "error" as ValidationState,
+          title: "Matrix rule violated",
+          detail: "Matrix mode only allows one display assignment per source.",
+        };
+      }
+    }
+
+    if (distanceM > 100 && activeMode !== "matrix") {
+      return {
+        state: "warn" as ValidationState,
+        title: "Long-reach transport review",
+        detail: "Current distance pushes this design toward premium transport.",
+      };
+    }
+
+    if (distanceM > 70) {
+      return {
+        state: "warn" as ValidationState,
+        title: "Distance warning",
+        detail: "Check extension or transport fit before freezing the BOM.",
+      };
+    }
+
+    return {
+      state: "ok" as ValidationState,
+      title: "System valid",
+      detail: "Topology, route count, and current distance are within expected limits.",
+    };
+  }, [activeMode, distanceM, flattenedRoutes.length, routes]);
+
+  return (
+    <div className="wm-arch">
+      <div className="wm-arch__header">
+        <div className="wm-arch__title-group">
+          <div className="wm-arch__eyebrow">Architecture Layout</div>
+          <h3 className="wm-arch__title">{title}</h3>
+          <div className="wm-arch__headline">Catalogue-backed recommendation engine</div>
+        </div>
+
+        <div className="wm-arch__controls">
+          <button
+            type="button"
+            className={activeMode === "avoip" ? "active" : ""}
+            onClick={() => setActiveMode("avoip")}
+          >
+            AVoIP
+          </button>
+          <button
+            type="button"
+            className={activeMode === "matrix" ? "active" : ""}
+            onClick={() => setActiveMode("matrix")}
+          >
+            Matrix
+          </button>
+          <button
+            type="button"
+            className={activeMode === "video-wall" ? "active" : ""}
+            onClick={() => setActiveMode("video-wall")}
+          >
+            Video Wall
+          </button>
+        </div>
+
+        <div className={`wm-arch__status wm-arch__status--${validation.state}`}>
+          {validation.title}
+        </div>
+      </div>
+
+      <div className="wm-arch__meta-row">
+        <div className="wm-arch__meta-card">
+          <strong>Validation</strong>
+          <span>{validation.detail}</span>
+          <span>Distance: {distanceLabel}</span>
+          <span>Status: {status}</span>
+        </div>
+
+        <div className="wm-arch__meta-card">
+          <strong>Recommendation source</strong>
+          <span>Products resolve from the local catalogue first.</span>
+          <span>Fallbacks are only used where no catalogue match is available.</span>
+        </div>
+      </div>
+
+      <div className="wm-arch__diagram">
+        <div className="wm-arch__lane">
+          <div className="wm-arch__lane-title">Sources</div>
+          <div className="wm-arch__stack">
+            {sources.map((sourceId) => (
+              <button
+                key={sourceId}
+                type="button"
+                className={`wm-node wm-node--source${selectedSourceId === sourceId ? " is-active" : ""}`}
+                onClick={() => setSelectedSourceId(sourceId)}
+              >
+                {sourceId}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="wm-arch__lane wm-arch__lane--core">
+          <div className="wm-arch__core-row">
+            <div className="wm-node wm-node--core">
+              {activeMode === "matrix" ? "Matrix Core" : "TX Layer"}
+            </div>
+            <div className="wm-node wm-node--core">
+              {activeMode === "matrix" ? "Direct Routing" : "Network Switch"}
+            </div>
+            <div className="wm-node wm-node--core">
+              {activeMode === "matrix" ? "Display Path" : "RX Layer"}
+            </div>
+          </div>
+
+          <div className="wm-arch__routing-panel">
+            <div className="wm-arch__routing-title">
+              {selectedSourceId ? `Assigning ${selectedSourceId}` : "Select a source"}
+            </div>
+
+            {flattenedRoutes.length === 0 ? (
+              <div className="wm-empty">
+                <strong>No topology yet</strong>
+                <span>Adjust sources / displays to generate routing</span>
+              </div>
+            ) : (
+              <div className="wm-routing-list">
+                {flattenedRoutes.map((route) => (
+                  <div key={route.id} className="wm-link">
+                    {route.sourceId} → {route.displayId}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="wm-arch__lane">
+          <div className="wm-arch__lane-title">Displays</div>
+          <div className="wm-arch__stack">
+            {displays.map((displayId) => {
+              const assigned =
+                selectedSourceId !== null && (routes[selectedSourceId] ?? []).includes(displayId);
+
+              return (
+                <button
+                  key={displayId}
+                  type="button"
+                  className={`wm-node wm-node--display${assigned ? " is-active" : ""}`}
+                  onClick={() => {
+                    if (!selectedSourceId) return;
+                    toggleRoute(selectedSourceId, displayId);
+                  }}
+                >
+                  {displayId}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="wm-arch__commercial-grid">
+        <section className="wm-arch__panel">
+          <div className="wm-arch__panel-title">Recommended products</div>
+          <div className="wm-product-list">
+            {resolvedRecommendations.map((item) => (
+              <article key={`${item.sku}-${item.role}`} className="wm-product-card">
+                <div className="wm-product-card__top">
+                  <strong>{item.sku}</strong>
+                  <span>x{item.qty}</span>
+                </div>
+                <div className="wm-product-card__name">{item.name}</div>
+                <div className="wm-product-card__role">{item.role}</div>
+                <div className="wm-product-card__source">
+                  {item.source === "catalogue" ? "Catalogue match" : "Fallback"}
+                </div>
+                <p>{item.reason}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="wm-arch__panel">
+          <div className="wm-arch__panel-title">BOM preview</div>
+          <div className="wm-bom-list">
+            {bomItems.map((item) => (
+              <div key={`${item.sku}-${item.description}`} className="wm-bom-row">
+                <div>
+                  <strong>{item.sku}</strong>
+                  <span>{item.description}</span>
+                </div>
+                <b>{item.qty}</b>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <div className="wm-arch__footer">
+        <div className="wm-arch__footer-meta">
+          <div>Distance: {distanceLabel}</div>
+          <div>Status: {status}</div>
+          <div>Mode: {activeMode.toUpperCase()}</div>
+        </div>
+
+        <button type="button" className="wm-arch__bom-button">
+          Generate Bill of Materials
+        </button>
+      </div>
+    </div>
+  );
+}

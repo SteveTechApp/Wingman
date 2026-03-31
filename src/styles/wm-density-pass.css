@@ -1,0 +1,478 @@
+:root {
+  --wm-density-sidebar-width: 208px;
+  --wm-density-topbar-height: 56px;
+  --wm-density-panel-radius: 14px;
+  --wm-density-panel-padding: 14px;
+  --wm-density-panel-padding-tight: 10px;
+  --wm-density-gap: 12px;
+  --wm-density-gap-tight: 8px;
+  --wm-density-border: rgba(152, 168, 255, 0.14);
+  --wm-density-border-strong: rgba(152, 168, 255, 0.22);
+  --wm-density-bg: rgba(14, 18, 37, 0.84);
+  --wm-density-bg-soft: rgba(17, 22, 44, 0.72);
+  --wm-density-bg-strong: rgba(20, 26, 52, 0.92);
+  --wm-density-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+  --wm-density-text: rgba(239, 242, 255, 0.94);
+  --wm-density-text-muted: rgba(177, 187, 220, 0.78);
+  --wm-density-accent: rgba(94, 130, 255, 0.9);
+  --wm-density-danger: rgba(232, 87, 87, 0.92);
+}
+
+html,
+body,
+#root {
+  background:
+    radial-gradient(circle at top, rgba(39, 55, 120, 0.22), transparent 42%),
+    linear-gradient(180deg, #060916 0%, #090d1c 48%, #070a14 100%);
+}
+
+body {
+  color: var(--wm-density-text);
+}
+
+.wm-shell-root,
+.wm-app-shell,
+[class*="wm-shell-root"],
+[class*="wm-app-shell"] {
+  background:
+    radial-gradient(circle at top, rgba(39, 55, 120, 0.18), transparent 38%),
+    linear-gradient(180deg, #060916 0%, #090d1c 48%, #070a14 100%) !important;
+}
+
+/* ---------------------------
+   Left rail / mission control
+   --------------------------- */
+.wm-shell-root aside,
+.wm-app-shell aside,
+.wmx-sidebar,
+.wm-mission-control,
+.wm-left-rail,
+[class*="MissionControlNav"],
+[class*="mission-control"],
+[class*="wm-nav-rail"] {
+  width: var(--wm-density-sidebar-width) !important;
+  min-width: var(--wm-density-sidebar-width) !important;
+  max-width: var(--wm-density-sidebar-width) !important;
+  padding: 12px !important;
+  gap: 8px !important;
+  background:
+    linear-gradient(180deg, rgba(13, 17, 34, 0.96) 0%, rgba(9, 13, 27, 0.96) 100%) !important;
+  border-right: 1px solid rgba(126, 142, 214, 0.14) !important;
+  box-shadow: inset -1px 0 0 rgba(255,255,255,0.03) !important;
+}
+
+.wm-shell-root aside button,
+.wm-shell-root aside a,
+.wm-app-shell aside button,
+.wm-app-shell aside a,
+.wmx-sidebar button,
+.wmx-sidebar a,
+[class*="mission-control"] button,
+[class*="mission-control"] a,
+[class*="wm-nav-rail"] button,
+[class*="wm-nav-rail"] a {
+  min-height: 40px !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.wm-shell-root aside h1,
+.wm-shell-root aside h2,
+.wm-shell-root aside h3,
+.wm-app-shell aside h1,
+.wm-app-shell aside h2,
+.wm-app-shell aside h3,
+.wmx-sidebar h1,
+.wmx-sidebar h2,
+.wmx-sidebar h3 {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+}
+
+.wm-shell-root aside small,
+.wm-shell-root aside .muted,
+.wm-app-shell aside small,
+.wm-app-shell aside .muted,
+.wmx-sidebar small,
+.wmx-sidebar .muted {
+  color: var(--wm-density-text-muted) !important;
+}
+
+/* ---------------------------
+   Global page density
+   --------------------------- */
+main,
+.wm-page,
+.wm-page-frame,
+.wm-page-shell,
+.wmx-page,
+[class*="wm-page"] {
+  gap: var(--wm-density-gap) !important;
+}
+
+.wm-page-frame,
+.wm-page,
+.wm-page-shell,
+.wmx-page,
+[class*="wm-page-frame"] {
+  padding: 14px 16px !important;
+}
+
+h1,
+.wm-page-title,
+.wmx-page-title,
+[class*="page-title"] {
+  font-size: clamp(1.35rem, 1.15rem + 0.5vw, 1.8rem) !important;
+  line-height: 1.1 !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
+}
+
+h2,
+.wm-section-title,
+.wmx-section-title,
+[class*="section-title"] {
+  font-size: 1.08rem !important;
+  line-height: 1.15 !important;
+  font-weight: 500 !important;
+}
+
+p,
+label,
+span,
+div,
+button,
+input,
+select,
+textarea,
+li,
+td,
+th {
+  letter-spacing: 0 !important;
+}
+
+small,
+.muted,
+.subtle,
+[class*="muted"],
+[class*="subtitle"] {
+  color: var(--wm-density-text-muted) !important;
+}
+
+/* ---------------------------
+   Panels / cards / shells
+   --------------------------- */
+.wm-card,
+.wm-panel,
+.wm-surface,
+.wmx-card,
+.wmx-panel,
+[class*="card"],
+[class*="panel"],
+[class*="surface"] {
+  border-radius: var(--wm-density-panel-radius) !important;
+  border: 1px solid var(--wm-density-border) !important;
+  background:
+    linear-gradient(180deg, rgba(18, 23, 46, 0.84) 0%, rgba(11, 15, 31, 0.84) 100%) !important;
+  box-shadow: var(--wm-density-shadow) !important;
+}
+
+.wm-card,
+.wm-panel,
+.wm-surface,
+.wmx-card,
+.wmx-panel,
+[class*="card"],
+[class*="panel"],
+[class*="surface"] {
+  padding: var(--wm-density-panel-padding) !important;
+}
+
+.wm-card > :first-child,
+.wm-panel > :first-child,
+.wmx-card > :first-child,
+.wmx-panel > :first-child {
+  margin-top: 0 !important;
+}
+
+.wm-card > :last-child,
+.wm-panel > :last-child,
+.wmx-card > :last-child,
+.wmx-panel > :last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ---------------------------
+   Buttons / controls
+   --------------------------- */
+button,
+.wm-button,
+.wmx-button,
+[class*="button"] {
+  min-height: 36px !important;
+  padding: 8px 12px !important;
+  border-radius: 10px !important;
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+input,
+select,
+textarea,
+.wm-input,
+.wmx-input,
+[class*="input"],
+[class*="select"] {
+  min-height: 36px !important;
+  padding: 8px 10px !important;
+  border-radius: 10px !important;
+  font-size: 0.92rem !important;
+  border: 1px solid var(--wm-density-border) !important;
+  background: rgba(9, 12, 24, 0.78) !important;
+}
+
+button:hover,
+.wm-button:hover,
+.wmx-button:hover {
+  border-color: var(--wm-density-border-strong) !important;
+}
+
+/* ---------------------------
+   Top toolbars / action rows
+   --------------------------- */
+.wm-topbar,
+.wmx-topbar,
+.wm-toolbar,
+.wmx-toolbar,
+[class*="topbar"],
+[class*="toolbar"] {
+  min-height: var(--wm-density-topbar-height) !important;
+  padding: 8px 12px !important;
+  gap: 8px !important;
+}
+
+.wm-topbar-pill,
+.wmx-topbar-pill,
+[class*="toolbar-pill"],
+[class*="topbar-pill"] {
+  min-height: 34px !important;
+  padding: 6px 10px !important;
+  border-radius: 999px !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  background: rgba(19, 24, 46, 0.9) !important;
+  border: 1px solid var(--wm-density-border) !important;
+}
+
+/* ---------------------------
+   Workspace layout emphasis
+   --------------------------- */
+.wm-workspace-grid,
+.wmx-workspace-grid,
+[class*="workspace-grid"],
+[class*="system-layout"],
+[class*="planner-layout"] {
+  gap: 12px !important;
+}
+
+@media (min-width: 1180px) {
+  .wm-workspace-grid,
+  .wmx-workspace-grid,
+  [class*="workspace-grid"],
+  [class*="system-layout"],
+  [class*="planner-layout"] {
+    grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.82fr) !important;
+    align-items: start !important;
+  }
+}
+
+/* ---------------------------
+   Visualization canvas priority
+   --------------------------- */
+.wm-visualization,
+.wmx-visualization,
+.wm-visualizer,
+.wmx-visualizer,
+[class*="visualization"],
+[class*="visualizer"],
+[class*="diagram-canvas"],
+[class*="schematic-canvas"] {
+  min-height: 420px !important;
+  padding: 12px !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at top, rgba(61, 82, 168, 0.18), transparent 40%),
+    linear-gradient(180deg, rgba(19, 24, 46, 0.88) 0%, rgba(10, 14, 28, 0.92) 100%) !important;
+  border: 1px solid rgba(137, 155, 231, 0.18) !important;
+}
+
+@media (min-width: 1400px) {
+  .wm-visualization,
+  .wmx-visualization,
+  .wm-visualizer,
+  .wmx-visualizer,
+  [class*="visualization"],
+  [class*="visualizer"],
+  [class*="diagram-canvas"],
+  [class*="schematic-canvas"] {
+    min-height: 500px !important;
+  }
+}
+
+/* ---------------------------
+   Right support rail density
+   --------------------------- */
+.wm-bom-panel,
+.wm-validation-panel,
+.wmx-bom-panel,
+.wmx-validation-panel,
+[class*="bom-panel"],
+[class*="validation-panel"],
+[class*="bill-of-material"],
+[class*="validation-status"] {
+  padding: 12px !important;
+  border-radius: 14px !important;
+}
+
+.wm-bom-panel h2,
+.wm-validation-panel h2,
+.wmx-bom-panel h2,
+.wmx-validation-panel h2,
+[class*="bom-panel"] h2,
+[class*="validation-panel"] h2,
+[class*="bill-of-material"] h2,
+[class*="validation-status"] h2 {
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+}
+
+.wm-bom-panel table,
+.wm-validation-panel table,
+.wmx-bom-panel table,
+.wmx-validation-panel table,
+[class*="bom-panel"] table,
+[class*="validation-panel"] table {
+  font-size: 0.88rem !important;
+}
+
+.wm-bom-panel tr,
+.wm-validation-panel tr,
+.wmx-bom-panel tr,
+.wmx-validation-panel tr,
+[class*="bom-panel"] tr,
+[class*="validation-panel"] tr {
+  height: 34px !important;
+}
+
+/* ---------------------------
+   Alert treatment
+   --------------------------- */
+.wm-alert,
+.wm-warning,
+.wm-error,
+.wmx-alert,
+.wmx-warning,
+.wmx-error,
+[class*="alert"],
+[class*="warning"],
+[class*="error"] {
+  border-radius: 12px !important;
+}
+
+[class*="validation-status"] [class*="error"],
+[class*="validation-status"] [class*="warning"],
+.wm-validation-panel .wm-error,
+.wm-validation-panel .wm-warning,
+.wmx-validation-panel .wm-error,
+.wmx-validation-panel .wm-warning {
+  padding: 10px 12px !important;
+  background: linear-gradient(180deg, rgba(88, 20, 28, 0.82) 0%, rgba(64, 13, 19, 0.82) 100%) !important;
+  border: 1px solid rgba(229, 90, 90, 0.3) !important;
+  box-shadow: none !important;
+}
+
+[class*="validation-status"] [class*="error"] h3,
+[class*="validation-status"] [class*="warning"] h3 {
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+}
+
+/* ---------------------------
+   Forms / rows / system builder
+   --------------------------- */
+.wm-form-grid,
+.wmx-form-grid,
+[class*="form-grid"],
+[class*="builder-grid"],
+[class*="system-builder"] {
+  gap: 10px !important;
+}
+
+[class*="source-row"],
+[class*="output-row"],
+[class*="toggle-row"],
+[class*="connection-row"],
+[class*="bom-row"] {
+  min-height: 38px !important;
+  padding: 6px 8px !important;
+  border-radius: 10px !important;
+}
+
+/* ---------------------------
+   Tables / list density
+   --------------------------- */
+table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+th,
+td {
+  padding: 8px 10px !important;
+  font-size: 0.88rem !important;
+}
+
+th {
+  font-weight: 500 !important;
+  color: var(--wm-density-text-muted) !important;
+}
+
+/* ---------------------------
+   Utility polish
+   --------------------------- */
+hr {
+  border-color: rgba(130, 144, 203, 0.12) !important;
+}
+
+img,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+[class*="hero"],
+[class*="workspace-main"],
+[class*="planner-main"] {
+  overflow: hidden !important;
+}
+
+/* Tighten extremely oversized blocks */
+[class*="dashboard-card"],
+[class*="tool-card"],
+[class*="start-card"],
+[class*="summary-card"] {
+  min-height: unset !important;
+  padding: 12px !important;
+}
+
+/* Ensure command areas don’t become giant stacks */
+[class*="actions-row"],
+[class*="command-row"],
+[class*="toolbar-row"] {
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}

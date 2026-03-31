@@ -1,0 +1,142 @@
+.wm-architecture-preview {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: calc(100vh - 220px);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(43, 89, 201, 0.20), transparent 38%),
+    linear-gradient(180deg, rgba(4, 10, 24, 0.92), rgba(4, 10, 24, 0.98));
+}
+
+.wm-arch-info {
+  width: 320px;
+  min-width: 320px;
+  padding: 20px;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, rgba(10,18,36,0.82), rgba(8,13,28,0.92));
+}
+
+.wm-arch-kicker {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7ea6ff;
+  margin-bottom: 6px;
+}
+
+.wm-arch-title {
+  margin: 0 0 18px 0;
+  font-size: 28px;
+  line-height: 1.05;
+}
+
+.wm-arch-stat,
+.wm-arch-products {
+  margin-bottom: 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(226,232,240,0.92);
+}
+
+.wm-arch-canvas-inner {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 700px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(24,42,82,0.22), rgba(6,12,24,0.04) 18%, rgba(6,12,24,0.02) 82%, rgba(24,42,82,0.18)),
+    linear-gradient(180deg, rgba(5,10,18,0.25), rgba(5,10,18,0.55));
+}
+
+.wm-arch-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148,163,184,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.wm-architecture-preview .wm-node {
+  position: absolute;
+  z-index: 2;
+  min-width: 160px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.wm-architecture-preview .wm-node-source {
+  background: linear-gradient(180deg, rgba(37,99,235,0.85), rgba(29,78,216,0.74));
+}
+
+.wm-architecture-preview .wm-node-core {
+  background: linear-gradient(180deg, rgba(14,116,144,0.90), rgba(8,92,116,0.76));
+}
+
+.wm-architecture-preview .wm-node-display {
+  background: linear-gradient(180deg, rgba(124,58,237,0.88), rgba(109,40,217,0.72));
+}
+
+.wm-architecture-preview .wm-arch-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.wm-architecture-preview .wm-arch-lines path {
+  fill: none;
+  stroke: rgba(96,165,250,0.95);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px rgba(96,165,250,0.35));
+}
+/* ================================
+   CANVAS FULL-WIDTH FIX
+   ================================ */
+
+.wm-dashboard-canvas {
+  width: 100% !important;
+  display: flex !important;
+}
+
+.wm-dashboard-canvas__surface {
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 600px;
+  position: relative;
+}
+
+/* Make SVG scale with container */
+.wm-dashboard-canvas__lines {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Stretch nodes proportionally */
+.wm-dashboard-node {
+  transform: scale(0.95);
+  transform-origin: center;
+}
+
+/* Prevent left-heavy clustering */
+.wm-dashboard-canvas__surface {
+  display: flex;
+  justify-content: center;
+}

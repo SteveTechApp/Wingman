@@ -1,0 +1,49 @@
+/* =========================================
+   Mission Control Section Collapse
+   ========================================= */
+
+.wm-reference-nav__group-toggle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18px;
+  gap: 8px;
+  align-items: start;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wm-reference-nav__group-toggle:hover .wm-reference-nav__group-title {
+  color: #ffffff;
+}
+
+.wm-reference-nav__group-toggle:hover .wm-reference-nav__group-toggle-icon {
+  color: rgba(191, 219, 254, 0.95);
+}
+
+.wm-reference-nav__group-toggle.is-active .wm-reference-nav__group-title {
+  color: #f8fbff;
+}
+
+.wm-reference-nav__group-toggle-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  color: rgba(148, 163, 184, 0.95);
+  transition: color 140ms ease, transform 140ms ease;
+}
+
+.wm-reference-nav__group-items {
+  display: grid;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.wm-reference-nav.is-collapsed .wm-reference-nav__group-toggle {
+  display: none;
+}

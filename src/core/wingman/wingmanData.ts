@@ -73,8 +73,8 @@ export function getCatalogueItems(): WingmanCatalogueItem[] {
   return [
     { sku: "SW-100-TX", family: "HDBaseT", title: "Transmitter", note: "Entry transport device for short-to-mid distance extension." },
     { sku: "SW-100-RX", family: "HDBaseT", title: "Receiver", note: "Matched receiver with simple room-end deployment." },
-    { sku: "NHD-200-TX", family: "AVoIP", title: "Network Encoder", note: "Flexible AVoIP encoder for scalable distribution projects." },
-    { sku: "NHD-200-RX", family: "AVoIP", title: "Network Decoder", note: "Network decoder for display endpoints and multizone viewing." },
+    { sku: "AVoIP-TX", family: "AVoIP", title: "Network Encoder", note: "Flexible AVoIP encoder for scalable distribution projects." },
+    { sku: "AVoIP-RX", family: "AVoIP", title: "Network Decoder", note: "Network decoder for display endpoints and multizone viewing." },
     { sku: "APO-DG1", family: "Apollo", title: "Collaboration Node", note: "Workspace product for USB-C and meeting room workflows." },
   ];
 }

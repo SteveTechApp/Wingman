@@ -1,0 +1,12 @@
+{
+  "mode": "file-backed",
+  "memoryCount": 0,
+  "count": 0,
+  "maxEvents": 200,
+  "warnings": [],
+  "events": [],
+  "health": {
+    "ok": true,
+    "mode": "file-backed"
+  }
+}

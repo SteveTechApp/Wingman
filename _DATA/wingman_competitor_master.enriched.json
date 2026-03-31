@@ -1,0 +1,56 @@
+[
+  {
+    "id": "crestron:dm-nvx-384",
+    "vendor": "Crestron",
+    "model": "DM-NVX-384",
+    "category": "av_over_ip_transceiver",
+    "wyrestorm_match": {
+      "primary_sku": "",
+      "secondary_skus": [],
+      "confidence": 0.35,
+      "match_type": "manual_review",
+      "reason": "High-feature AV over IP endpoint requiring architecture-level comparison."
+    },
+    "wingman": {
+      "application_fit": ["boardroom","meeting_room","control_room","hybrid_meeting"],
+      "tier_fit": ["Gold"],
+      "complexity_band": "high"
+    }
+  },
+  {
+    "id": "extron:dtp3 crosspoint 42",
+    "vendor": "Extron",
+    "model": "DTP3 CrossPoint 42",
+    "category": "matrix_switcher_scaler",
+    "wyrestorm_match": {
+      "primary_sku": "",
+      "secondary_skus": [],
+      "confidence": 0.45,
+      "match_type": "manual_review",
+      "reason": "Hybrid switching/scaling/extender device requiring architecture comparison."
+    },
+    "wingman": {
+      "application_fit": ["meeting_room","boardroom","classroom","hybrid_meeting","hybrid_teaching"],
+      "tier_fit": ["Silver","Gold"],
+      "complexity_band": "medium"
+    }
+  },
+  {
+    "id": "atlona:at-hdr-mx1616",
+    "vendor": "Atlona",
+    "model": "AT-HDR-MX1616",
+    "category": "matrix_switcher",
+    "wyrestorm_match": {
+      "primary_sku": "",
+      "secondary_skus": [],
+      "confidence": 0.4,
+      "match_type": "manual_review",
+      "reason": "Large fixed matrix; may be replaced by AVoIP architecture depending on design."
+    },
+    "wingman": {
+      "application_fit": ["lecture_theatre","training_space","digital_signage","hospitality","boardroom"],
+      "tier_fit": ["Gold"],
+      "complexity_band": "high"
+    }
+  }
+]

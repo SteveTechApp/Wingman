@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+<style>
+body { background:#0b1220; color:white }
+.brand { display:flex; gap:10px; align-items:center }
+.logo { background:#1f3a8a; padding:10px; border-radius:8px }
+</style>
+</head>
+<body>
+
+<nav class="container-fluid">
+<ul>
+<li>
+<div class="brand">
+<div class="logo">W</div>
+<strong>Wingman</strong>
+</div>
+</li>
+</ul>
+<ul>
+<li><a href="#">Discovery</a></li>
+<li><a href="#">BOM</a></li>
+<li><a href="#" role="button">Generate</a></li>
+</ul>
+</nav>
+
+<main class="container">
+<h2>Wingman System</h2>
+
+<button onclick="testAI()">Test OpenAI</button>
+<pre id="out"></pre>
+
+</main>
+
+<script>
+async function testAI(){
+ const r = await fetch('/api/health/openai');
+ const d = await r.json();
+ document.getElementById('out').innerText = JSON.stringify(d,null,2);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+import { Outlet } from "react-router-dom";
+import TopBar from "@/app/navigation/TopBar";
+import MissionControlNav from "@/ui2/nav/MissionControlNav";
+
+export default function AppShell() {
+  return (
+    <div
+      className="wm-shell-root"
+      style={{
+        display: "grid",
+        gridTemplateRows: "auto 1fr",
+        width: "100%",
+        minHeight: "100vh",
+        overflow: "hidden",
+      }}
+    >
+      <TopBar />
+
+      <div
+        className="wm-app-shell"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "280px minmax(0, 1fr)",
+          minHeight: 0,
+          overflow: "hidden",
+        }}
+      >
+        <aside
+          className="wm-app-shell__nav"
+          style={{
+            minWidth: 0,
+            minHeight: 0,
+            overflowY: "auto",
+            overflowX: "hidden",
+            borderRight: "1px solid rgba(123, 169, 234, 0.10)",
+            background:
+              "linear-gradient(180deg, rgba(7,19,33,0.96) 0%, rgba(8,17,31,0.98) 100%)",
+          }}
+        >
+          <MissionControlNav />
+        </aside>
+
+        <main
+          className="wm-app-shell__main"
+          style={{
+            minWidth: 0,
+            minHeight: 0,
+            overflow: "auto",
+          }}
+        >
+          <div
+            className="wm-shell-stage"
+            style={{
+              width: "100%",
+              maxWidth: "1680px",
+              margin: "0 auto",
+            }}
+          >
+            <Outlet />
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}

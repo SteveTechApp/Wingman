@@ -1,0 +1,93 @@
+import WingmanToolFrame from "@/components/layout/WingmanToolFrame";
+import { useProjectContext } from "@/context/ProjectContext";
+import { WingmanUxShell } from "@/features/wingmanUx/WingmanUxShell";
+
+export default function ProposalPage() {
+  const { projectData } = useProjectContext();
+  const project = projectData.activeProject;
+
+  const steps = [
+    { title: "Set context", copy: "Project and customer framing." },
+    { title: "Select tier", copy: "Define solution level." },
+    { title: "Review output", copy: "Validate BOM and summary." },
+  ];
+
+  if (!project) {
+    return (
+      <WingmanToolFrame
+        title="Proposal Builder"
+        subtitle="System-driven proposal output"
+        steps={steps}
+      >
+        <section className="wm-surface-card" style={{ padding: 16 }}>
+          <div className="wm-section-title">No active project</div>
+          <div style={{ color: "rgba(226,232,240,0.72)" }}>
+            Select or create a project before opening the proposal builder.
+          </div>
+        </section>
+      </WingmanToolFrame>
+    );
+  }
+
+  const projectState = {
+    projectName: project.name ?? "New Wingman Project",
+    customer: project.customer ?? "",
+    roomType: project.roomType ?? "",
+    application: project.application ?? "",
+
+    sourceCount:
+      Number(
+        project.discovery?.sources ??
+          project.discovery?.sourceCount ??
+          0,
+      ) || 0,
+
+    displayCount:
+      Number(
+        project.discovery?.displays ??
+          project.discovery?.displayCount ??
+          0,
+      ) || 0,
+
+    distanceM:
+      Number(
+        project.discovery?.distance ??
+          project.discovery?.distanceM ??
+          project.distanceM ??
+          0,
+      ) || 0,
+
+    resolution: project.discovery?.resolution ?? project.resolution ?? "",
+    notes: project.discovery?.notes ?? project.notes ?? "",
+
+    avGuide: {
+      usb:
+        project.avGuide?.usb ||
+        (project.discovery?.usbRequired
+          ? "USB / BYOD required"
+          : "No USB requirement"),
+      audio: project.avGuide?.audio ?? "",
+      control:
+        project.avGuide?.control ||
+        (project.discovery?.networkReady
+          ? "Network-routed control likely required"
+          : ""),
+    },
+
+    videoWall: {
+      wallType:
+        project.videoWall?.wallType ||
+        (project.discovery?.videoWall ? "Video Wall" : ""),
+    },
+  };
+
+  return (
+    <WingmanToolFrame
+      title="Proposal Builder"
+      subtitle="System-driven proposal output"
+      steps={steps}
+    >
+      <WingmanUxShell projectState={projectState} />
+    </WingmanToolFrame>
+  );
+}

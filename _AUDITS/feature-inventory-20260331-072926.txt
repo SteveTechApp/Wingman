@@ -1,0 +1,153 @@
+Wingman Feature Inventory
+Generated: 2026-03-31 07:29:27
+
+FEATURE: Catalogue
+  Route linked : True
+  Nav linked   : True
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 933
+  File hits    : 76
+  Likely unused: False
+  Files        : src\AppRoutes.tsx; src\catalog\boundCatalogue.ts; src\catalog\classification.ts; src\catalog\enrich.ts; src\catalog\guruCatalog.ts; src\catalog\index.ts; src\catalog\ioInference.ts; src\catalog\match.ts; src\catalog\metadataInference.ts; src\catalog\normalize.ts; src\catalog\recommendationCatalog.ts; src\catalog\repository.ts; src\catalog\seedCatalog.ts; src\catalog\serviceRecommendations.ts; src\catalog\types.ts; src\catalog\workflowCatalog.ts; src\competitor\brandKnowledge.ts; src\competitor\mainCategory.ts; src\competitor\matchingSupport.ts; src\competitor\positioning.ts; src\competitor\repository.ts; src\context\GenerationContext.tsx; src\core\wingman\routeMap.ts; src\core\wingman\storeBridge.ts; src\core\wingman\wingmanData.ts; src\data\catalog\competitorCatalog.ts; src\data\catalog\competitorCompareSeed.ts; src\data\catalog\wyrestormSeedCatalog.ts; src\data\productService.ts; src\data\sku\wyrestormSkuCatalog.ts; src\data\techDatabase\videoWallCopy.ts; src\data\techDatabase\videoWallDecisionRules.ts; src\data\techDatabase\videoWallRecommendationEngine.ts; src\features\ai\guru\guruApi.ts; src\features\ai\guru\guruKnowledgeBase.ts; src\features\catalog\CatalogPage.tsx; src\features\discovery\discoveryStore.ts; src\features\discovery\DiscoveryWizardPage.tsx; src\features\discovery\guidedProjectEngine.ts; src\features\governance\recommendationGovernance.ts; src\features\guru\GuruPage.tsx; src\features\import\ImportIntakePage.tsx; src\features\import\importIntakeSupport.ts; src\features\misc\videoWall\VideoWallPlannerRebuild.tsx; src\features\navigator\AvNavigatorPage.tsx; src\features\projects\ProjectNewPage.tsx; src\features\projects\projectProductivity.ts; src\features\projects\projectStore.ts; src\features\proposal\hooks\useProposalProjectData.ts; src\features\room-wizard\RoomWizardPage.tsx; src\features\systemDesign\designSeed.ts; src\features\templates\templateProjectBuilder.ts; src\features\templates\TemplatesPage.tsx; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\features\wingmanUx\WingmanDiscoveryPage.tsx; src\features\wingmanUx\WingmanWorkflowShell.tsx; src\import\recommendWyrestorm.ts; src\pages\ProjectOverviewPage.tsx; src\proposal\bom\store.ts; src\services\avLogicEngine.ts; src\services\competitor\lookupService.ts; src\services\competitorCompareFit.ts; src\services\competitorComparisonService.ts; src\services\liveProductDataStore.ts; src\services\liveProductEvidenceService.ts; src\services\manualCompetitorComparisonStore.ts; src\services\productIntelligenceAdvisor.ts; src\services\productIntelligenceService.ts; src\services\productService.ts; src\services\roomDesignerService.ts; src\services\topologyEngine.ts; src\state\defaults.ts; src\state\types.ts; src\ui2\nav\MissionControlNav.tsx; src\ui2\nav\missionControlStandard.ts
+
+FEATURE: Command Palette
+  Route linked : False
+  Nav linked   : False
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 89
+  File hits    : 5
+  Likely unused: False
+  Files        : src\App.tsx; src\core\wingman\commandPalette\CommandPaletteProvider.tsx; src\features\wingmanUx\WingmanDiscoveryPage.tsx; src\features\wingmanUx\WingmanWorkflowShell.tsx; src\styles\wm-enterprise-pass.css
+
+FEATURE: Competitor Compare
+  Route linked : True
+  Nav linked   : False
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 586
+  File hits    : 46
+  Likely unused: False
+  Files        : src\AppRoutes.tsx; src\catalog\boundCatalogue.ts; src\catalog\guruCatalog.ts; src\catalog\match.ts; src\catalog\recommendationCatalog.ts; src\catalog\repository.ts; src\catalog\seedCatalog.ts; src\catalog\workflowCatalog.ts; src\competitor\brandKnowledge.ts; src\competitor\fit\familyRules.ts; src\competitor\fit\index.ts; src\competitor\fit\score.ts; src\competitor\matchingSupport.ts; src\competitor\repository.ts; src\components\competitor\CompetitorLookupStatusPanel.tsx; src\components\competitor\CompetitorManualComparisonPanel.tsx; src\components\competitor\CompetitorMatchFinderPanel.tsx; src\core\wingman\routeMap.ts; src\core\wingman\storeBridge.ts; src\data\catalog\competitorCompareSeed.ts; src\data\techDatabase\videoWallDecisionRules.ts; src\data\training\module2_hdbaset.ts; src\features\ai\guru\guruApi.ts; src\features\ai\guru\guruKnowledgeBase.ts; src\features\catalog\CatalogPage.tsx; src\features\compare\CompetitorComparePage.tsx; src\features\navigator\AvNavigatorPage.tsx; src\features\projects\projectProductivity.ts; src\features\projects\projectStore.ts; src\features\support\CompetitorLookupDiagnosticsPage.tsx; src\features\support\ProductIntelligencePage.tsx; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\features\wingmanUx\WingmanDiscoveryPage.tsx; src\import\recommendWyrestorm.ts; src\services\competitor\lookupService.ts; src\services\competitorCompareFeedbackStore.ts; src\services\competitorCompareFit.ts; src\services\competitorCompareSearch.ts; src\services\competitorComparisonService.ts; src\services\liveProductDataStore.ts; src\services\manualCompetitorComparisonStore.ts; src\services\productIntelligenceAdvisor.ts; src\services\productIntelligenceService.ts; src\styles\wm-enterprise-pass.css; src\ui2\nav\missionControlStandard.ts
+
+FEATURE: Dashboard
+  Route linked : True
+  Nav linked   : True
+  TopBar linked: True
+  Shell linked : False
+  Total refs   : 294
+  File hits    : 24
+  Likely unused: False
+  Files        : src\app\navigation\TopBar.tsx; src\app\system\NotFoundPage.tsx; src\AppRoutes.tsx; src\core\wingman\routeMap.ts; src\data\training\module10_apis.ts; src\data\training\module8b_sales_inquiry.ts; src\features\dashboard\components\DashboardArchitectureCanvas.tsx; src\features\dashboard\DashboardPage.tsx; src\features\dashboard\wingman-dashboard.css; src\features\guru\guruContext.ts; src\features\misc\TrainingHubPage.tsx; src\features\projects\ProjectsPage.tsx; src\features\projects\WingmanSavedProjectsPanel.tsx; src\pages\InviteAcceptancePage.tsx; src\pages\LoginPage.tsx; src\pages\SignupPage.tsx; src\state\types.ts; src\styles\app.css; src\styles\wingman-global.css; src\styles\wm-density-pass.css; src\styles\wm-enterprise-pass.css; src\styles\wm-unified-page-system.css; src\ui2\nav\MissionControlNav.tsx; src\ui2\nav\missionControlStandard.ts
+
+FEATURE: Discovery Wizard
+  Route linked : True
+  Nav linked   : True
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 17
+  File hits    : 13
+  Likely unused: False
+  Files        : src\AppRoutes.tsx; src\context\GenerationContext.tsx; src\features\ai\guru\guruApi.ts; src\features\ai\guru\guruKnowledgeBase.ts; src\features\discovery\DiscoveryWizardPage.tsx; src\features\guru\guruContext.ts; src\features\import\importIntakeSupport.ts; src\features\inputs\recentTextEntries.ts; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\pages\ProjectOverviewPage.tsx; src\ui2\nav\MissionControlNav.tsx; src\ui2\nav\missionControlStandard.ts
+
+FEATURE: Guru Assistant
+  Route linked : True
+  Nav linked   : False
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 1208
+  File hits    : 23
+  Likely unused: False
+  Files        : src\App.tsx; src\AppRoutes.tsx; src\catalog\guruCatalog.ts; src\catalog\index.ts; src\core\wingman\commandPalette\CommandPaletteProvider.tsx; src\core\wingman\routeMap.ts; src\features\ai\guru\guruApi.ts; src\features\ai\guru\guruKnowledgeBase.ts; src\features\guru\FloatingGuru.tsx; src\features\guru\guruContext.ts; src\features\guru\GuruPage.tsx; src\features\guru\GuruToolHostPage.tsx; src\features\navigator\AvNavigatorPage.tsx; src\features\sales\SalesPositioningPage.tsx; src\features\support\CompetitorLookupDiagnosticsPage.tsx; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\features\wingmanUx\WingmanDiscoveryPage.tsx; src\features\wingmanUx\WingmanWorkflowShell.tsx; src\styles\app.css; src\styles\wingman-global.css; src\styles\wm-enterprise-pass.css; src\styles\wm-floating.css
+
+FEATURE: Import Intake
+  Route linked : True
+  Nav linked   : False
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 41
+  File hits    : 8
+  Likely unused: False
+  Files        : src\AppRoutes.tsx; src\core\wingman\routeMap.ts; src\features\import\ImportIntakePage.tsx; src\features\import\intakeFileText.ts; src\features\inputs\recentTextEntries.ts; src\features\projects\ProjectNewPage.tsx; src\features\tools\ToolHubPage.tsx; src\styles\wm-enterprise-pass.css
+
+FEATURE: Navigator
+  Route linked : True
+  Nav linked   : True
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 47
+  File hits    : 9
+  Likely unused: False
+  Files        : src\AppRoutes.tsx; src\core\wingman\routeMap.ts; src\features\navigator\AvNavigatorPage.tsx; src\features\sales\SalesPositioningPage.tsx; src\features\support\CompetitorLookupDiagnosticsPage.tsx; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\features\wingmanUx\WingmanDiscoveryPage.tsx; src\ui2\nav\MissionControlNav.tsx
+
+FEATURE: Product Intelligence
+  Route linked : True
+  Nav linked   : False
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 410
+  File hits    : 15
+  Likely unused: False
+  Files        : src\AppRoutes.tsx; src\catalog\repository.ts; src\competitor\repository.ts; src\components\admin\ProductIntelligenceAdminGate.tsx; src\features\ai\guru\guruApi.ts; src\features\ai\guru\guruKnowledgeBase.ts; src\features\support\CompetitorLookupDiagnosticsPage.tsx; src\features\support\ProductIntelligencePage.tsx; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\services\competitorComparisonService.ts; src\services\liveProductDataStore.ts; src\services\productIntelligenceAdvisor.ts; src\services\productIntelligenceService.ts; src\styles\wm-enterprise-pass.css
+
+FEATURE: Projects
+  Route linked : True
+  Nav linked   : False
+  TopBar linked: True
+  Shell linked : False
+  Total refs   : 2669
+  File hits    : 101
+  Likely unused: False
+  Files        : src\app\api\wingmanDeploymentClient.ts; src\app\logic\wingmanBomIntelligence.ts; src\app\logic\wingmanCompetitorPositioning.ts; src\app\logic\wingmanConfidenceEngine.ts; src\app\logic\wingmanProjectPersistence.ts; src\app\logic\wingmanProjectState.ts; src\app\logic\wingmanSalesIntelligence.ts; src\app\navigation\TopBar.tsx; src\app\providers\WingmanProviders.tsx; src\app\schema\templateSeed.ts; src\AppRoutes.tsx; src\catalog\guruCatalog.ts; src\competitor\brandKnowledge.ts; src\components\ErrorBoundary.tsx; src\context\AuthContext.tsx; src\context\GenerationContext.tsx; src\context\index.ts; src\context\ProjectContext.tsx; src\core\wingman\routeMap.ts; src\core\wingman\storeBridge.ts; src\core\wingman\wingmanData.ts; src\core\workflow\projectState.ts; src\data\training\module0_terminology.ts; src\data\training\module10_apis.ts; src\data\training\module11_installation.ts; src\data\training\module12_site_survey.ts; src\data\training\module8_bant.ts; src\data\training\module8b_sales_inquiry.ts; src\features\ai\guru\guruApi.ts; src\features\ai\guru\guruKnowledgeBase.ts; src\features\compare\CompetitorComparePage.tsx; src\features\dashboard\DashboardPage.tsx; src\features\discovery\DiscoveryWizardPage.tsx; src\features\discovery\guidedProjectEngine.ts; src\features\governance\recommendationGovernance.ts; src\features\guru\guruContext.ts; src\features\guru\GuruPage.tsx; src\features\import\ImportIntakePage.tsx; src\features\import\importIntakeSupport.ts; src\features\import\intakeFileText.ts; src\features\inputs\recentTextEntries.ts; src\features\intelligence\designDirectionEngine.ts; src\features\intelligence\parser.ts; src\features\intelligence\recommendationEngine.ts; src\features\intelligence\types.ts; src\features\misc\videoWall\VideoWallPlannerRebuild.tsx; src\features\navigator\AvNavigatorPage.tsx; src\features\projects\customerSummary.ts; src\features\projects\ProjectNewPage.tsx; src\features\projects\projectProductivity.ts; src\features\projects\ProjectsPage.tsx; src\features\projects\projectStore.ts; src\features\projects\WingmanSavedProjectsPanel.tsx; src\features\proposal\components\BOMTable.tsx; src\features\proposal\components\ExecutiveSummary.tsx; src\features\proposal\components\ProposalExportPreview.tsx; src\features\proposal\hooks\useProposalProjectData.ts; src\features\proposal\proposalModel.ts; src\features\proposal\ProposalPage.tsx; src\features\recommendation\wingmanRecommendationEngine.ts; src\features\sales\SalesPositioningPage.tsx; src\features\systemDesign\cableScheduleEngine.ts; src\features\systemDesign\designBom.ts; src\features\systemDesign\designTypes.ts; src\features\templates\templateProjectBuilder.ts; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\features\wingmanUx\orchestrator.ts; src\features\wingmanUx\types.ts; src\features\wingmanUx\useWingmanUxPipeline.ts; src\features\wingmanUx\WingmanDiscoveryPage.tsx; src\features\wingmanUx\WingmanUxShell.tsx; src\features\wingmanUx\WingmanWorkflowShell.tsx; src\features\workspace\workspaceAccess.ts; src\import\extractRequirements.ts; src\pages\ProjectOverviewPage.tsx; src\pages\PublicLandingPage.tsx; src\proposal\bom\persist.ts; src\proposal\bom\pricing.ts; src\proposal\bom\store.ts; src\proposal\bom\types.ts; src\services\av-recommendation\engine.ts; src\services\av-recommendation\types.ts; src\services\competitorCompareFit.ts; src\services\competitorComparisonService.ts; src\services\manualCompetitorComparisonStore.ts; src\services\productIntelligenceAdvisor.ts; src\services\projectAnalysisService.ts; src\services\roomDesignerService.ts; src\state\defaults.ts; src\state\types.ts; src\state\wingmanStore.ts; src\styles\app.css; src\styles\wm-enterprise-pass.css; src\styles\wm-topbar-compact.css; src\training\trainingModules.ts; src\ui2\nav\missionControlStandard.ts; src\utils\types\api.ts; src\utils\types\index.ts; src\utils\types\project.ts; src\utils\types\proposal.ts
+
+FEATURE: Proposal Builder
+  Route linked : True
+  Nav linked   : True
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 426
+  File hits    : 73
+  Likely unused: False
+  Files        : src\app\logic\wingmanConfidenceEngine.ts; src\app\logic\wingmanProjectPersistence.ts; src\app\logic\wingmanSalesIntelligence.ts; src\AppRoutes.tsx; src\context\GenerationContext.tsx; src\core\wingman\routeMap.ts; src\core\wingman\storeBridge.ts; src\core\wingman\wingmanData.ts; src\data\techDatabase\part6_referenceDocs.ts; src\data\training\module8b_sales_inquiry.ts; src\features\ai\guru\guruApi.ts; src\features\ai\guru\guruKnowledgeBase.ts; src\features\catalog\CatalogPage.tsx; src\features\compare\CompetitorComparePage.tsx; src\features\dashboard\components\DashboardArchitectureCanvas.tsx; src\features\dashboard\DashboardPage.tsx; src\features\discovery\discoveryStore.ts; src\features\discovery\DiscoveryWizardPage.tsx; src\features\guru\guruContext.ts; src\features\guru\GuruPage.tsx; src\features\import\ImportIntakePage.tsx; src\features\import\importIntakeSupport.ts; src\features\intelligence\parser.ts; src\features\misc\videoWall\VideoWallPlannerRebuild.tsx; src\features\projects\customerSummary.ts; src\features\projects\ProjectNewPage.tsx; src\features\projects\projectProductivity.ts; src\features\projects\projectStore.ts; src\features\projects\WingmanSavedProjectsPanel.tsx; src\features\proposal\components\BOMTable.tsx; src\features\proposal\components\ExecutiveSummary.tsx; src\features\proposal\components\ProposalConfidencePanel.tsx; src\features\proposal\components\ProposalExportPreview.tsx; src\features\proposal\components\SystemDesign.tsx; src\features\proposal\hooks\useProposalProjectData.ts; src\features\proposal\proposalModel.ts; src\features\proposal\ProposalPage.tsx; src\features\recommendation\wingmanRecommendationEngine.ts; src\features\room-wizard\RoomWizardPage.tsx; src\features\sales\SalesPositioningPage.tsx; src\features\systemDesign\designBundleStore.ts; src\features\templates\templateProjectBuilder.ts; src\features\templates\TemplatesPage.tsx; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\features\wingmanUx\orchestrator.ts; src\features\wingmanUx\useWingmanUxPipeline.ts; src\features\wingmanUx\WingmanDiscoveryPage.tsx; src\features\wingmanUx\wingman-ux.css; src\features\wingmanUx\WingmanUxShell.tsx; src\features\wingmanUx\WingmanWorkflowShell.tsx; src\import\extractRequirements.ts; src\pages\LoginPage.tsx; src\pages\ProjectOverviewPage.tsx; src\pages\PublicLandingPage.tsx; src\proposal\bom\persist.ts; src\proposal\bom\pricing.ts; src\proposal\bom\store.ts; src\proposal\bom\types.ts; src\services\av-recommendation\engine.ts; src\services\av-recommendation\types.ts; src\services\productIntelligenceAdvisor.ts; src\services\proposalService.ts; src\services\roomDesignerService.ts; src\state\defaults.ts; src\state\types.ts; src\styles\wm-enterprise-pass.css; src\training\trainingModules.ts; src\ui2\nav\MissionControlNav.tsx; src\ui2\nav\missionControlStandard.ts; src\utils\types\index.ts; src\utils\types\project.ts; src\utils\types\proposal.ts
+
+FEATURE: Templates
+  Route linked : True
+  Nav linked   : False
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 213
+  File hits    : 18
+  Likely unused: False
+  Files        : src\app\schema\templateSeed.ts; src\AppRoutes.tsx; src\context\GenerationContext.tsx; src\core\wingman\routeMap.ts; src\features\discovery\guidedProjectEngine.ts; src\features\projects\ProjectNewPage.tsx; src\features\projects\projectProductivity.ts; src\features\systemDesign\cableScheduleEngine.ts; src\features\systemDesign\designBundleStore.ts; src\features\systemDesign\designSeed.ts; src\features\systemDesign\designTypes.ts; src\features\templates\templateCatalog.ts; src\features\templates\templateProjectBuilder.ts; src\features\templates\TemplatesPage.tsx; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\services\roomDesignerService.ts; src\styles\wm-enterprise-pass.css
+
+FEATURE: Tool Hub
+  Route linked : True
+  Nav linked   : True
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 114
+  File hits    : 20
+  Likely unused: False
+  Files        : src\app\system\NotFoundPage.tsx; src\AppRoutes.tsx; src\context\GenerationContext.tsx; src\features\ai\guru\guruApi.ts; src\features\ai\guru\guruKnowledgeBase.ts; src\features\discovery\discoveryStore.ts; src\features\guru\guruContext.ts; src\features\guru\GuruPage.tsx; src\features\import\importIntakeSupport.ts; src\features\misc\TrainingHubPage.tsx; src\features\projects\ProjectNewPage.tsx; src\features\support\CompetitorLookupDiagnosticsPage.tsx; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\pages\ProjectOverviewPage.tsx; src\services\productIntelligenceAdvisor.ts; src\services\roomDesignerService.ts; src\training\trainingModules.ts; src\ui2\nav\MissionControlNav.tsx; src\ui2\nav\missionControlStandard.ts
+
+FEATURE: Training Hub
+  Route linked : True
+  Nav linked   : False
+  TopBar linked: False
+  Shell linked : False
+  Total refs   : 250
+  File hits    : 42
+  Likely unused: False
+  Files        : src\AppRoutes.tsx; src\catalog\guruCatalog.ts; src\core\wingman\routeMap.ts; src\data\techDatabase\part6_referenceDocs.ts; src\data\training\module0_terminology.ts; src\data\training\module1_signals.ts; src\data\training\module10_apis.ts; src\data\training\module11_installation.ts; src\data\training\module12_site_survey.ts; src\data\training\module2_hdbaset.ts; src\data\training\module3_avoip.ts; src\data\training\module4_networking.ts; src\data\training\module5_datasheets.ts; src\data\training\module6_videowalls.ts; src\data\training\module7_field_guides.ts; src\data\training\module8_bant.ts; src\data\training\module8b_sales_inquiry.ts; src\data\training\module9_troubleshooting.ts; src\data\trainingContent.ts; src\features\ai\guru\guruApi.ts; src\features\ai\guru\guruKnowledgeBase.ts; src\features\discovery\guidedProjectEngine.ts; src\features\guru\GuruPage.tsx; src\features\intelligence\designDirectionEngine.ts; src\features\intelligence\parser.ts; src\features\intelligence\types.ts; src\features\misc\TrainingHubPage.tsx; src\features\projects\projectStore.ts; src\features\room-wizard\RoomWizardPage.tsx; src\features\systemDesign\designBom.ts; src\features\templates\templateCatalog.ts; src\features\templates\templateProjectBuilder.ts; src\features\templates\TemplatesPage.tsx; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\import\extractRequirements.ts; src\proposal\bom\pricing.ts; src\services\av-recommendation\engine.ts; src\styles\wm-enterprise-pass.css; src\training\trainingModules.ts; src\utils\types\index.ts; src\utils\types\training.ts
+
+FEATURE: Video Wall Designer
+  Route linked : True
+  Nav linked   : False
+  TopBar linked: True
+  Shell linked : False
+  Total refs   : 1177
+  File hits    : 83
+  Likely unused: False
+  Files        : src\app\logic\wingmanBomBuilder.ts; src\app\logic\wingmanBomIntelligence.ts; src\app\logic\wingmanCompetitorPositioning.ts; src\app\logic\wingmanConfidenceEngine.ts; src\app\logic\wingmanDecisionEngine.ts; src\app\logic\wingmanProjectPersistence.ts; src\app\logic\wingmanProjectState.ts; src\app\logic\wingmanSalesIntelligence.ts; src\app\navigation\TopBar.tsx; src\AppRoutes.tsx; src\catalog\classification.ts; src\catalog\guruCatalog.ts; src\catalog\recommendationCatalog.ts; src\catalog\seedCatalog.ts; src\catalog\serviceRecommendations.ts; src\competitor\brandKnowledge.ts; src\competitor\fit\classifier.ts; src\competitor\fit\comparisonRules.ts; src\competitor\fit\familyRules.ts; src\competitor\fit\score.ts; src\competitor\fit\types.ts; src\competitor\mainCategory.ts; src\competitor\matchingSupport.ts; src\competitor\positioning.ts; src\context\GenerationContext.tsx; src\core\wingman\routeMap.ts; src\core\wingman\wingmanData.ts; src\core\workflow\projectState.ts; src\data\techDatabase\part4_advanced.ts; src\data\techDatabase\part6_referenceDocs.ts; src\data\techDatabase\videoWallDecisionRules.ts; src\data\techDatabase\videoWallRecommendationEngine.ts; src\data\training\module10_apis.ts; src\data\training\module3_avoip.ts; src\data\training\module6_videowalls.ts; src\data\trainingContent.ts; src\features\ai\guru\guruApi.ts; src\features\ai\guru\guruKnowledgeBase.ts; src\features\compare\CompetitorComparePage.tsx; src\features\dashboard\components\DashboardArchitectureCanvas.css; src\features\dashboard\components\DashboardArchitectureCanvas.tsx; src\features\discovery\discoveryStore.ts; src\features\discovery\DiscoveryWizardPage.tsx; src\features\discovery\guidedProjectEngine.ts; src\features\guru\guruContext.ts; src\features\import\importIntakeSupport.ts; src\features\intelligence\designDirectionEngine.ts; src\features\intelligence\parser.ts; src\features\intelligence\recommendationEngine.ts; src\features\intelligence\types.ts; src\features\misc\videoWall\VideoWallPlannerRebuild.tsx; src\features\projects\ProjectNewPage.tsx; src\features\projects\projectProductivity.ts; src\features\projects\projectStore.ts; src\features\projects\WingmanSavedProjectsPanel.tsx; src\features\proposal\hooks\useProposalProjectData.ts; src\features\proposal\ProposalPage.tsx; src\features\recommendation\wingmanRecommendationEngine.ts; src\features\systemDesign\cableScheduleEngine.ts; src\features\systemDesign\designBom.ts; src\features\systemDesign\designBundleStore.ts; src\features\systemDesign\designSeed.ts; src\features\systemDesign\designTypes.ts; src\features\templates\templateCatalog.ts; src\features\templates\templateProjectBuilder.ts; src\features\tools\toolFeatureModel.ts; src\features\tools\ToolHubPage.tsx; src\features\wingmanUx\types.ts; src\features\wingmanUx\useWingmanUxPipeline.ts; src\features\wingmanUx\WingmanDiscoveryPage.tsx; src\features\wingmanUx\WingmanUxShell.tsx; src\services\av-recommendation\engine.ts; src\services\competitor\competitorLiveExtractor.ts; src\services\competitorCompareFit.ts; src\services\competitorComparisonService.ts; src\services\manualCompetitorComparisonStore.ts; src\services\productIntelligenceService.ts; src\services\projectAnalysisService.ts; src\services\roomDesignerService.ts; src\styles\wm-enterprise-pass.css; src\training\trainingModules.ts; src\ui2\nav\missionControlStandard.ts; src\utils\types\project.ts
+

@@ -1,0 +1,152 @@
+import { Link } from "react-router-dom";
+
+export default function LoginPage() {
+  return (
+    <div className="wm-login">
+      <style>
+        {`
+          .wm-login {
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+            padding: clamp(12px, 2vh, 24px);
+            background:
+              radial-gradient(circle at top left, rgba(59,130,246,0.14), transparent 32%),
+              radial-gradient(circle at top right, rgba(14,165,233,0.10), transparent 26%),
+              linear-gradient(180deg, #08152f 0%, #0d2245 100%);
+          }
+
+          .wm-login__card {
+            width: min(520px, 100%);
+            display: grid;
+            gap: clamp(14px, 1.5vh, 22px);
+            padding: clamp(18px, 2vh, 28px);
+            border-radius: 22px;
+            background: rgba(255,255,255,0.92);
+            border: 1px solid rgba(148,163,184,0.2);
+            box-shadow: 0 24px 80px rgba(15,23,42,0.25);
+          }
+
+          .wm-login__title {
+            margin: 0;
+            font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #0f172a;
+          }
+
+          .wm-login__subtitle {
+            margin: 0;
+            font-size: 14px;
+            color: #475569;
+          }
+
+          .wm-login__form {
+            display: grid;
+            gap: 12px;
+          }
+
+          .wm-login__input {
+            height: 42px;
+            padding: 0 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(148,163,184,0.3);
+            font-size: 14px;
+          }
+
+          .wm-login__actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+          }
+
+          .wm-login__btn {
+            height: 42px;
+            padding: 0 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+          }
+
+          .wm-login__btn--primary {
+            background: linear-gradient(135deg, #2563eb, #0ea5e9);
+            color: white;
+          }
+
+          .wm-login__btn--secondary {
+            background: rgba(15,23,42,0.06);
+            color: #0f172a;
+          }
+
+          .wm-login__links {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+          }
+
+          .wm-login__links a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+          }
+
+          /* compact mode */
+          @media (max-height: 700px) {
+            .wm-login__card {
+              gap: 12px;
+              padding: 16px;
+            }
+
+            .wm-login__input {
+              height: 38px;
+            }
+
+            .wm-login__btn {
+              height: 38px;
+            }
+          }
+        `}
+      </style>
+
+      <div className="wm-login__card">
+        <div>
+          <h1 className="wm-login__title">Welcome back</h1>
+          <p className="wm-login__subtitle">
+            Sign in to continue your Wingman workspace
+          </p>
+        </div>
+
+        <div className="wm-login__form">
+          <input
+            className="wm-login__input"
+            placeholder="name@company.com"
+          />
+
+          <input
+            className="wm-login__input"
+            type="password"
+            placeholder="Enter your password"
+          />
+        </div>
+
+        <div className="wm-login__actions">
+          <button className="wm-login__btn wm-login__btn--primary">
+            Sign in
+          </button>
+
+          <button className="wm-login__btn wm-login__btn--secondary">
+            Demo mode
+          </button>
+        </div>
+
+        <div className="wm-login__links">
+          <Link to="/">Back</Link>
+          <Link to="/signup">Create account</Link>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "wyrestorm-nhd-500-tx-v2",
+    "vendorType": "wyrestorm",
+    "brand": "WyreStorm",
+    "sku": "NHD-500-TX v2",
+    "name": "NHD-500-TX v2",
+    "status": "approved",
+    "summary": "4K60 4:4:4 AV over IP encoder with ultra-low latency.",
+    "topology": "encoder",
+    "role": "source",
+    "transport": "AVoIP",
+    "createdAt": "2026-03-30T00:00:00.000Z",
+    "updatedAt": "2026-03-30T00:00:00.000Z",
+    "lastCapturedAt": "2026-03-30T00:00:00.000Z",
+    "archived": false,
+    "confidence": 0.95,
+    "evidence": [],
+    "reviewFlags": [],
+    "tags": ["AVoIP", "Encoder", "4K60"]
+  },
+  {
+    "id": "wyrestorm-nhd-500-rx-v2",
+    "vendorType": "wyrestorm",
+    "brand": "WyreStorm",
+    "sku": "NHD-500-RX v2",
+    "name": "NHD-500-RX v2",
+    "status": "approved",
+    "summary": "4K60 4:4:4 AV over IP decoder with ultra-low latency.",
+    "topology": "decoder",
+    "role": "display-endpoint",
+    "transport": "AVoIP",
+    "createdAt": "2026-03-30T00:00:00.000Z",
+    "updatedAt": "2026-03-30T00:00:00.000Z",
+    "lastCapturedAt": "2026-03-30T00:00:00.000Z",
+    "archived": false,
+    "confidence": 0.95,
+    "evidence": [],
+    "reviewFlags": [],
+    "tags": ["AVoIP", "Decoder", "4K60"]
+  }
+]

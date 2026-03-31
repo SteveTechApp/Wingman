@@ -23,5 +23,5 @@ if not exist node_modules (
 )
 
 echo Starting Wingman...
-call npm run dev -- --host
+call npm run dev:full
 pause

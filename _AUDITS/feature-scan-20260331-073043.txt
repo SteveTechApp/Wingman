@@ -1,0 +1,61 @@
+
+
+Feature      : video wall
+Hits         : 65
+Route        : False
+Nav          : False
+TopBar       : True
+LikelyUnused : False
+
+Feature      : videowall
+Hits         : 56
+Route        : True
+Nav          : False
+TopBar       : True
+LikelyUnused : False
+
+Feature      : compare
+Hits         : 45
+Route        : True
+Nav          : False
+TopBar       : False
+LikelyUnused : False
+
+Feature      : competitor
+Hits         : 47
+Route        : True
+Nav          : False
+TopBar       : False
+LikelyUnused : False
+
+Feature      : guru
+Hits         : 15
+Route        : True
+Nav          : False
+TopBar       : False
+LikelyUnused : False
+
+Feature      : assistant
+Hits         : 2
+Route        : False
+Nav          : False
+TopBar       : False
+LikelyUnused : True
+
+Feature      : ToolHub
+Hits         : 2
+Route        : True
+Nav          : False
+TopBar       : False
+LikelyUnused : False
+
+Feature      : product-intelligence
+Hits         : 10
+Route        : True
+Nav          : False
+TopBar       : False
+LikelyUnused : False
+
+
+
+

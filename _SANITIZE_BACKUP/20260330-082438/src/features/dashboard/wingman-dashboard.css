@@ -1,0 +1,708 @@
+.wingman-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 18px;
+  color: var(--wm-ref-text);
+}
+
+.wingman-dashboard__main,
+.wingman-dashboard__rail {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.wingman-dashboard__header,
+.wingman-dashboard__panel,
+.wingman-dashboard__diagram-panel,
+.wingman-dashboard__rail-panel {
+  border: 1px solid rgba(191, 206, 223, 0.12);
+  background:
+    linear-gradient(180deg, rgba(24, 31, 40, 0.98), rgba(18, 24, 32, 0.98)),
+    linear-gradient(180deg, rgba(83, 133, 215, 0.04), transparent 24%);
+  box-shadow: var(--wm-ref-shadow);
+}
+
+.wingman-dashboard__header,
+.wingman-dashboard__panel,
+.wingman-dashboard__rail-panel {
+  border-radius: 22px;
+}
+
+.wingman-dashboard__header {
+  padding: 28px 30px 24px;
+}
+
+.wingman-dashboard__header h1 {
+  font-size: 46px;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
+
+.wingman-dashboard__header p {
+  margin-top: 10px;
+  max-width: 72ch;
+  color: var(--wm-ref-text-soft);
+  line-height: 1.65;
+}
+
+.wingman-dashboard__section-heading {
+  padding: 24px 28px 0;
+}
+
+.wingman-dashboard__section-heading h2,
+.wingman-dashboard__diagram-head h2,
+.wingman-dashboard__rail-header h2 {
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.wingman-dashboard__architecture-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  padding: 18px 28px 28px;
+}
+
+.wingman-dashboard__architecture-card {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(191, 206, 223, 0.16);
+  background:
+    linear-gradient(180deg, rgba(35, 42, 54, 0.78), rgba(24, 31, 41, 0.96)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 38%);
+  color: var(--wm-ref-text);
+  text-align: left;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.wingman-dashboard__architecture-card:hover,
+.wingman-dashboard__architecture-card.is-active {
+  transform: translateY(-1px);
+  border-color: rgba(91, 166, 255, 0.46);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.wingman-dashboard__architecture-copy {
+  display: grid;
+  gap: 6px;
+}
+
+.wingman-dashboard__architecture-copy strong {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.wingman-dashboard__architecture-copy span {
+  color: var(--wm-ref-text-soft);
+  font-size: 15px;
+}
+
+.wingman-dashboard__architecture-card p {
+  color: var(--wm-ref-text-muted);
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.wingman-dashboard__device-art {
+  position: relative;
+  height: 118px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 78%, rgba(0, 0, 0, 0.38), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 48%);
+  overflow: hidden;
+}
+
+.wingman-dashboard__device-shell {
+  position: absolute;
+  left: 14%;
+  right: 10%;
+  top: 34px;
+  height: 42px;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(84, 92, 106, 0.9), rgba(29, 36, 45, 0.98)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent 35%);
+  box-shadow:
+    0 18px 34px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.42);
+}
+
+.wingman-dashboard__device-lights {
+  position: absolute;
+  left: 20%;
+  top: 48px;
+  width: 56px;
+  height: 12px;
+  background:
+    radial-gradient(circle, #ff854e 0 32%, transparent 34%) 0 50% / 18px 12px repeat-x,
+    radial-gradient(circle, #79d468 0 32%, transparent 34%) 9px 50% / 18px 12px repeat-x,
+    radial-gradient(circle, #7ec6ff 0 32%, transparent 34%) 18px 50% / 18px 12px repeat-x;
+  opacity: 0.92;
+}
+
+.wingman-dashboard__device-vents {
+  position: absolute;
+  right: 18%;
+  top: 46px;
+  width: 88px;
+  height: 16px;
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(177, 194, 214, 0.26) 0,
+      rgba(177, 194, 214, 0.26) 8px,
+      transparent 8px,
+      transparent 14px
+    );
+}
+
+.wingman-dashboard__signal {
+  position: absolute;
+  width: 92px;
+  height: 3px;
+  border-radius: 999px;
+  top: 68px;
+  opacity: 0.9;
+  filter: blur(0.2px);
+}
+
+.wingman-dashboard__signal--blue {
+  left: 8%;
+  background: linear-gradient(90deg, transparent, #4ca1ff 42%, transparent);
+  transform: translateY(-18px) rotate(-10deg);
+}
+
+.wingman-dashboard__signal--orange {
+  right: 10%;
+  background: linear-gradient(90deg, transparent, #ff8044 46%, transparent);
+  transform: rotate(6deg);
+}
+
+.wingman-dashboard__recommendation {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 8px 2px 2px;
+  color: var(--wm-ref-text-soft);
+}
+
+.wingman-dashboard__recommendation span,
+.wingman-dashboard__recommendation strong {
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.wingman-dashboard__recommendation strong {
+  color: #ffffff;
+}
+
+.wingman-dashboard__recommendation small {
+  margin-left: auto;
+  color: rgba(121, 183, 255, 0.88);
+  font-size: 13px;
+  text-align: right;
+}
+
+.wingman-dashboard__diagram-panel {
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.wingman-dashboard__diagram-head,
+.wingman-dashboard__rail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid rgba(191, 206, 223, 0.12);
+}
+
+.wingman-dashboard__diagram-head p {
+  margin-top: 6px;
+  color: var(--wm-ref-text-muted);
+}
+
+.wingman-dashboard__diagram-dots,
+.wingman-dashboard__rail-header span {
+  color: var(--wm-ref-text-muted);
+  letter-spacing: 0.24em;
+}
+
+.wingman-dashboard__diagram {
+  position: relative;
+  min-height: 700px;
+  padding: 26px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(16, 22, 30, 0.95), rgba(13, 19, 26, 1));
+  background-size: 24px 24px, 24px 24px, auto;
+}
+
+.wingman-dashboard__wiring {
+  position: absolute;
+  inset: 26px;
+  width: calc(100% - 52px);
+  height: calc(100% - 52px);
+  z-index: 0;
+}
+
+.wingman-dashboard__wiring path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.95;
+}
+
+.wingman-dashboard__wiring path:nth-child(1),
+.wingman-dashboard__wiring path:nth-child(4),
+.wingman-dashboard__wiring path:nth-child(5),
+.wingman-dashboard__wiring path:nth-child(10),
+.wingman-dashboard__wiring path:nth-child(11),
+.wingman-dashboard__wiring path:nth-child(12) {
+  stroke: #3c98ff;
+}
+
+.wingman-dashboard__wiring path:nth-child(2),
+.wingman-dashboard__wiring path:nth-child(3),
+.wingman-dashboard__wiring path:nth-child(8) {
+  stroke: #ef5a4a;
+}
+
+.wingman-dashboard__wiring path:nth-child(6) {
+  stroke: #ef5a4a;
+}
+
+.wingman-dashboard__wiring path:nth-child(7),
+.wingman-dashboard__wiring path:nth-child(9) {
+  stroke: rgba(214, 223, 234, 0.75);
+}
+
+.wingman-dashboard__diagram-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 250px minmax(320px, 1fr) 260px;
+  gap: 28px;
+  min-height: 640px;
+}
+
+.wingman-dashboard__zone {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.wingman-dashboard__zone--core {
+  padding-top: 2px;
+}
+
+.wingman-dashboard__zone-label {
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(213, 226, 242, 0.18);
+  background:
+    linear-gradient(180deg, rgba(39, 48, 60, 0.92), rgba(24, 31, 39, 0.98)),
+    linear-gradient(90deg, rgba(84, 132, 210, 0.12), transparent 62%);
+  font-size: 16px;
+  font-weight: 650;
+  text-align: center;
+}
+
+.wingman-dashboard__rack-device,
+.wingman-dashboard__control-box,
+.wingman-dashboard__source-base,
+.wingman-dashboard__hero-device,
+.wingman-dashboard__controller-strip,
+.wingman-dashboard__audio-node {
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid rgba(199, 214, 232, 0.14);
+  background:
+    linear-gradient(180deg, rgba(78, 87, 100, 0.92), rgba(28, 34, 42, 0.98)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05), transparent 42%);
+  box-shadow:
+    0 18px 28px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.34);
+}
+
+.wingman-dashboard__rack-device::before,
+.wingman-dashboard__control-box::before,
+.wingman-dashboard__source-base::before,
+.wingman-dashboard__hero-device::before,
+.wingman-dashboard__controller-strip::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  width: 72px;
+  height: 12px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  background:
+    radial-gradient(circle, #7ec6ff 0 28%, transparent 30%) 0 50% / 18px 12px repeat-x,
+    radial-gradient(circle, #7bdc73 0 28%, transparent 30%) 8px 50% / 18px 12px repeat-x,
+    radial-gradient(circle, #ff874a 0 28%, transparent 30%) 16px 50% / 18px 12px repeat-x;
+  opacity: 0.92;
+}
+
+.wingman-dashboard__rack-device {
+  height: 54px;
+}
+
+.wingman-dashboard__control-box {
+  width: 74%;
+  height: 72px;
+  justify-self: end;
+}
+
+.wingman-dashboard__source-base {
+  width: 94%;
+  height: 60px;
+  margin-top: 18px;
+}
+
+.wingman-dashboard__hero-device {
+  min-height: 84px;
+}
+
+.wingman-dashboard__hero-device--core {
+  margin-top: 6px;
+}
+
+.wingman-dashboard__hero-device--tx {
+  min-height: 64px;
+  display: grid;
+  place-items: center;
+  color: #edf4ff;
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.wingman-dashboard__controller-strip {
+  height: 78px;
+  width: 72%;
+  justify-self: center;
+  margin-top: 40px;
+}
+
+.wingman-dashboard__display-stack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 14px;
+}
+
+.wingman-dashboard__display-tile {
+  position: relative;
+  aspect-ratio: 1.32;
+  border-radius: 14px;
+  border: 1px solid rgba(199, 214, 232, 0.14);
+  background:
+    linear-gradient(180deg, rgba(45, 54, 65, 0.94), rgba(23, 29, 37, 0.98)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent 42%);
+  box-shadow:
+    0 16px 28px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.wingman-dashboard__display-tile::before {
+  content: "";
+  position: absolute;
+  inset: 16px 16px 22px;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(169, 204, 255, 0.5), transparent 32%),
+    linear-gradient(180deg, #8fb8ff 0%, #4870a7 40%, #1c2d47 100%);
+  box-shadow: inset 0 0 24px rgba(209, 228, 255, 0.18);
+}
+
+.wingman-dashboard__display-tile::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  width: 34px;
+  height: 5px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: rgba(214, 223, 234, 0.4);
+}
+
+.wingman-dashboard__audio-node {
+  min-height: 102px;
+  display: grid;
+  place-items: center;
+  margin-top: 8px;
+  color: #edf4ff;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.wingman-dashboard__audio-node::before {
+  content: none;
+}
+
+.wingman-dashboard__diagram-actions {
+  display: flex;
+  justify-content: center;
+  padding: 0 24px 28px;
+}
+
+.wingman-dashboard__primary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 0 28px;
+  border-radius: 12px;
+  border: 1px solid rgba(93, 151, 230, 0.64);
+  background:
+    linear-gradient(180deg, #316fcb 0%, #2759a3 100%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent 40%);
+  color: #eff5ff;
+  font-size: 16px;
+  font-weight: 650;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 18px 30px rgba(31, 72, 133, 0.28);
+}
+
+.wingman-dashboard__primary-button:hover {
+  filter: brightness(1.04);
+}
+
+.wingman-dashboard__rail {
+  position: sticky;
+  top: 94px;
+}
+
+.wingman-dashboard__rail-panel {
+  overflow: hidden;
+}
+
+.wingman-dashboard__rail-subheading {
+  padding: 18px 24px 0;
+  color: var(--wm-ref-text-soft);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.wingman-dashboard__product-list,
+.wingman-dashboard__alert-stack {
+  display: grid;
+  gap: 14px;
+  padding: 16px 24px 24px;
+}
+
+.wingman-dashboard__product-card,
+.wingman-dashboard__alert-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(191, 206, 223, 0.12);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.wingman-dashboard__product-card {
+  grid-template-columns: 92px minmax(0, 1fr);
+  align-items: center;
+}
+
+.wingman-dashboard__product-thumb {
+  position: relative;
+  height: 54px;
+  border-radius: 10px;
+  border: 1px solid rgba(199, 214, 232, 0.14);
+  background:
+    linear-gradient(180deg, rgba(80, 88, 101, 0.92), rgba(28, 34, 42, 0.98)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05), transparent 42%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 12px 22px rgba(0, 0, 0, 0.22);
+}
+
+.wingman-dashboard__product-thumb::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 44px;
+  height: 10px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, #7ec6ff 0 28%, transparent 30%) 0 50% / 14px 10px repeat-x,
+    radial-gradient(circle, #7bdc73 0 28%, transparent 30%) 7px 50% / 14px 10px repeat-x,
+    radial-gradient(circle, #ff874a 0 28%, transparent 30%) 14px 50% / 14px 10px repeat-x;
+}
+
+.wingman-dashboard__product-card strong,
+.wingman-dashboard__alert-title strong,
+.wingman-dashboard__mini-stat strong {
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.wingman-dashboard__product-card span,
+.wingman-dashboard__alert-status,
+.wingman-dashboard__mini-stat span {
+  color: var(--wm-ref-text-soft);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.wingman-dashboard__alert-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wingman-dashboard__alert-status--good {
+  color: #8fe49e;
+}
+
+.wingman-dashboard__alert-status--warn {
+  color: #ffd06f;
+}
+
+.wingman-dashboard__alert-status--info {
+  color: #87c6ff;
+}
+
+.wingman-dashboard__rail-panel--summary {
+  padding: 20px 24px 24px;
+}
+
+.wingman-dashboard__mini-stat {
+  display: grid;
+  gap: 4px;
+}
+
+.wingman-dashboard__mini-stat + .wingman-dashboard__mini-stat {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(191, 206, 223, 0.12);
+}
+
+.wingman-dashboard__rail-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.wingman-dashboard__rail-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(191, 206, 223, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--wm-ref-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wingman-dashboard__rail-actions button:last-child {
+  background: rgba(61, 132, 222, 0.16);
+  border-color: rgba(91, 166, 255, 0.32);
+}
+
+@media (max-width: 1440px) {
+  .wingman-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .wingman-dashboard__rail {
+    position: static;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: grid;
+  }
+}
+
+@media (max-width: 1180px) {
+  .wingman-dashboard__architecture-grid,
+  .wingman-dashboard__diagram-grid,
+  .wingman-dashboard__rail {
+    grid-template-columns: 1fr;
+  }
+
+  .wingman-dashboard__diagram {
+    min-height: 0;
+  }
+
+  .wingman-dashboard__wiring {
+    display: none;
+  }
+
+  .wingman-dashboard__controller-strip,
+  .wingman-dashboard__control-box,
+  .wingman-dashboard__source-base {
+    width: 100%;
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 900px) {
+  .wingman-dashboard__architecture-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wingman-dashboard__header {
+    padding: 22px 20px;
+  }
+
+  .wingman-dashboard__header h1 {
+    font-size: 36px;
+  }
+
+  .wingman-dashboard__section-heading,
+  .wingman-dashboard__diagram-head,
+  .wingman-dashboard__rail-header,
+  .wingman-dashboard__rail-subheading {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .wingman-dashboard__architecture-grid,
+  .wingman-dashboard__diagram,
+  .wingman-dashboard__product-list,
+  .wingman-dashboard__alert-stack,
+  .wingman-dashboard__rail-panel--summary {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .wingman-dashboard__recommendation {
+    display: grid;
+    gap: 4px;
+  }
+
+  .wingman-dashboard__recommendation small {
+    margin-left: 0;
+    text-align: left;
+  }
+}

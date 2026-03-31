@@ -1,42 +1,27 @@
-import "./styles/app.css";
-import "@/styles/wm-visual-calm-pass.css";
-import "@/styles/wm-shell-normalize.css";
-import "@/styles/utilities.css";
-import "@/styles/components.css";
-import "@/styles/layout.css";
-import "@/styles/base.css";
-import "@/styles/typography.css";
-import "@/styles/wingman-global.css";
-import "@/design/system/tokens.css";
-import "@/design/system/layout.css";
-import "@/design/system/components.css";
-import "@/styles/wm-export.css";
-import "@/styles/wm-consistency-pass.css";
-import "@/styles/wm-enterprise-pass.css";
-
-import * as React from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
-import WingmanProviders from "@/app/providers/WingmanProviders";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import { installRuntimeErrorReporting } from "@/app/runtime/errorReporting";
 
-const root = document.getElementById("root");
+import "./features/wingmanUx/wingman-ux.css";
+import "./styles/wm-enterprise-pass.css";
+import "./styles/app.css";
+import "./styles/wm-reference-shell.css";
+import "./styles/wm-architecture-canvas.css";
+import "./styles/wm-layout-v2.css";
+import "./styles/wm-topbar-compact.css";
+import "./styles/wm-mission-control-compact.css";
+import "./styles/wm-mission-control-feature-flash.css";
+import "./styles/wm-mission-control-sections.css";
+import "./styles/wm-layout-overrides.css";
 
-if (!root) {
-  throw new Error("Root element #root not found");
-}
+import WingmanProviders from "./app/providers/WingmanProviders";
 
-installRuntimeErrorReporting();
-
-ReactDOM.createRoot(root).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <WingmanProviders>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
+        <App />
       </WingmanProviders>
     </BrowserRouter>
   </React.StrictMode>

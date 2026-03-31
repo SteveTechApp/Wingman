@@ -162,6 +162,6 @@ export function getBoundCatalogue(): StoreCatalogueItem[] {
   return [
     { sku: "SW-100-TX", family: "HDBaseT", title: "Transmitter", note: "Fallback catalogue item until live SKU source is bound." },
     { sku: "SW-100-RX", family: "HDBaseT", title: "Receiver", note: "Fallback catalogue item until live SKU source is bound." },
-    { sku: "NHD-200-TX", family: "AVoIP", title: "Network Encoder", note: "Fallback catalogue item until live SKU source is bound." },
+    { sku: "AVoIP-TX", family: "AVoIP", title: "Network Encoder", note: "Fallback catalogue item until live SKU source is bound." },
   ];
 }
