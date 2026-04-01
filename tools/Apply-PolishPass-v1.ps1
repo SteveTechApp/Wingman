@@ -1,0 +1,383 @@
+Set-Location C:\Users\steve\wingman
+$ErrorActionPreference = "Stop"
+
+function Save-Utf8NoBom {
+  param(
+    [Parameter(Mandatory = $true)][string]$RelativePath,
+    [Parameter(Mandatory = $true)][string]$Content
+  )
+
+  $root = (Get-Location).Path
+  $fullPath = Join-Path $root $RelativePath
+  $dir = Split-Path $fullPath -Parent
+
+  if ($dir -and -not (Test-Path $dir)) {
+    New-Item -ItemType Directory -Force -Path $dir | Out-Null
+  }
+
+  $rescueRoot = Join-Path $root "_RESCUE"
+  if (-not (Test-Path $rescueRoot)) {
+    New-Item -ItemType Directory -Force -Path $rescueRoot | Out-Null
+  }
+
+  if (Test-Path $fullPath) {
+    $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+    $safeName = $RelativePath -replace '[\\/:*?"<>|]', '_'
+    Copy-Item $fullPath (Join-Path $rescueRoot "$safeName.$stamp.bak") -Force
+  }
+
+  $utf8 = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($fullPath, $Content, $utf8)
+  Write-Host "Written: $RelativePath" -ForegroundColor Green
+}
+
+$polishCss = @'
+/* ==========================================
+   Wingman Polish Pass v1
+   Premium spacing / surfaces / typography
+   ========================================== */
+
+:root {
+  --wm-polish-radius-card: 18px;
+  --wm-polish-radius-control: 12px;
+  --wm-polish-radius-pill: 999px;
+
+  --wm-polish-shadow-card:
+    0 14px 34px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+
+  --wm-polish-shadow-soft:
+    0 8px 18px rgba(0, 0, 0, 0.12);
+
+  --wm-polish-border-soft: rgba(255, 255, 255, 0.06);
+  --wm-polish-border-strong: rgba(255, 255, 255, 0.1);
+
+  --wm-polish-text-main: #eef4ff;
+  --wm-polish-text-soft: #a8bad8;
+  --wm-polish-text-muted: #7f94b6;
+
+  --wm-polish-surface-1: rgba(11, 19, 34, 0.94);
+  --wm-polish-surface-2: rgba(13, 23, 40, 0.86);
+  --wm-polish-surface-3: rgba(17, 28, 46, 0.74);
+}
+
+/* Global text refinement */
+body,
+button,
+input,
+select,
+textarea {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Main content should feel slightly denser */
+.wm-reference-shell__stage,
+.wmx-workflow-shell__main,
+.wm-page-frame,
+.wm-canvas,
+.wm-canvas-inner {
+  min-width: 0;
+}
+
+/* Headings */
+h1,
+.wm-page-title,
+.wmx-workflow-shell__title {
+  letter-spacing: -0.035em !important;
+  line-height: 1.04 !important;
+  color: var(--wm-polish-text-main) !important;
+}
+
+h2,
+h3,
+.wm-arch__title {
+  letter-spacing: -0.028em !important;
+  line-height: 1.08 !important;
+  color: var(--wm-polish-text-main) !important;
+}
+
+p,
+label,
+small,
+.wm-arch__headline,
+.wmx-workflow-shell__meta,
+.wm-page-subtitle {
+  color: var(--wm-polish-text-soft) !important;
+}
+
+/* Card system */
+.wm-card,
+.wmx-card,
+.wm-arch__panel,
+.wm-arch__meta-card,
+.wm-arch__stat-card,
+.wm-arch__routing-panel,
+.wm-product-card,
+.wm-bom-row,
+.wm-empty,
+.wm-tool-card,
+.wm-toolhub-tile,
+.wm-guru-fab__panel,
+.wm-sidebar-card,
+.wm-shell-card {
+  border-radius: var(--wm-polish-radius-card) !important;
+  border: 1px solid var(--wm-polish-border-soft) !important;
+  background:
+    linear-gradient(180deg, rgba(13, 22, 39, 0.94), rgba(8, 14, 26, 0.98)) !important;
+  box-shadow: var(--wm-polish-shadow-card) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* Panels that were too glowy */
+.wm-arch__diagram,
+.wmx-workflow-shell,
+.wm-toolhub-hero,
+.wm-dashboard-hero,
+.wm-page-hero {
+  border-radius: 22px !important;
+  border: 1px solid rgba(255, 255, 255, 0.055) !important;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(59, 130, 246, 0.08), transparent 24%),
+    radial-gradient(circle at 82% 18%, rgba(99, 102, 241, 0.06), transparent 24%),
+    linear-gradient(180deg, rgba(8, 15, 29, 0.96), rgba(4, 10, 21, 0.985)) !important;
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+}
+
+/* Buttons */
+button,
+.wm-btn,
+.wm-btn-primary,
+.wm-btn-secondary,
+.wm-arch__bom-button,
+.wm-toolhub-btn,
+.wm-guru-fab__open {
+  border-radius: var(--wm-polish-radius-control) !important;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease !important;
+}
+
+button:hover,
+.wm-btn:hover,
+.wm-arch__bom-button:hover,
+.wm-toolhub-btn:hover,
+.wm-guru-fab__open:hover {
+  transform: translateY(-1px);
+}
+
+.wm-btn-primary,
+.wm-arch__bom-button,
+.wm-toolhub-btn--primary,
+.wm-guru-fab__open {
+  box-shadow:
+    0 12px 24px rgba(37, 99, 235, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+.wm-btn-secondary,
+button:not(.wm-btn-primary):not(.wm-arch__bom-button):not(.wm-toolhub-btn--primary):not(.wm-guru-fab__open) {
+  box-shadow: none;
+}
+
+/* Inputs / selects / textareas */
+input,
+select,
+textarea {
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(5, 12, 24, 0.9) !important;
+  color: var(--wm-polish-text-main) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--wm-polish-text-muted) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: rgba(96, 165, 250, 0.45) !important;
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+}
+
+/* Workflow shell refinement */
+.wmx-workflow-shell__header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.wmx-workflow-shell__eyebrow,
+.wm-arch__eyebrow,
+.wm-toolhub-section__eyebrow,
+.wm-toolhub-hero__eyebrow {
+  color: #8fb8ff !important;
+  letter-spacing: 0.13em !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+
+.wmx-workflow-shell__summary {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+  color: #dce9ff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wmx-workflow-shell__stage {
+  border-radius: 14px !important;
+  border: 1px solid rgba(255, 255, 255, 0.045) !important;
+  background:
+    linear-gradient(180deg, rgba(10, 18, 32, 0.96), rgba(6, 12, 22, 0.98)) !important;
+  padding: 12px 14px !important;
+}
+
+.wmx-workflow-shell__stage.is-active {
+  border-color: rgba(72, 170, 255, 0.34) !important;
+  box-shadow:
+    0 12px 24px rgba(37, 99, 235, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+.wmx-workflow-shell__stage-index {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e7f1ff;
+}
+
+.wmx-workflow-shell__stage-copy strong {
+  color: #eef5ff;
+  font-size: 13px;
+}
+
+.wmx-workflow-shell__stage-copy small {
+  color: var(--wm-polish-text-soft);
+  line-height: 1.35;
+}
+
+/* Topbar refinement */
+.wm-topbar-v4,
+.wm-topbar-v3,
+[class*="wm-topbar"] {
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.wm-topbar-v4__section,
+.wm-topbar-v3__section {
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.018) !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+.wm-topbar-v4__label,
+.wm-topbar-v3__label {
+  color: var(--wm-polish-text-muted) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}
+
+.wm-topbar-v4__value,
+.wm-topbar-v3__value {
+  color: #eef4ff !important;
+  font-weight: 700 !important;
+}
+
+/* Product cards / BOM */
+.wm-product-card__name,
+.wm-bom-row strong {
+  color: #f5f9ff !important;
+}
+
+.wm-product-card__role,
+.wm-product-card__source,
+.wm-bom-row span {
+  color: #94aad0 !important;
+}
+
+.wm-product-card p {
+  color: #b2c2dc !important;
+  line-height: 1.5;
+}
+
+/* Guru button */
+.wm-guru-fab__trigger,
+.wm-guru-fab__open {
+  border-radius: 999px !important;
+}
+
+/* Reduce oversized empty vertical feel */
+.wm-arch,
+.wmx-workflow-shell__main > *:first-child,
+.wm-toolhub-page,
+.wm-dashboard-page {
+  gap: 14px !important;
+}
+
+/* Responsive tightening */
+@media (max-width: 1200px) {
+  .wm-page-frame,
+  .wm-reference-shell__stage,
+  .wmx-workflow-shell__main {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  h1,
+  .wm-page-title,
+  .wmx-workflow-shell__title {
+    font-size: clamp(32px, 4vw, 44px) !important;
+  }
+
+  h2,
+  h3,
+  .wm-arch__title {
+    font-size: clamp(20px, 2.4vw, 28px) !important;
+  }
+
+  .wm-arch__diagram,
+  .wmx-workflow-shell,
+  .wm-toolhub-hero {
+    border-radius: 18px !important;
+  }
+}
+'@
+
+Save-Utf8NoBom -RelativePath "src\styles\wm-polish-pass-v1.css" -Content $polishCss
+
+$mainPath = "src\main.tsx"
+$main = Get-Content $mainPath -Raw
+
+if ($main -notmatch 'wm-polish-pass-v1\.css') {
+  $main = $main -replace 'import "\.\/styles\/wm-mission-control-sections\.css";', 'import "./styles/wm-mission-control-sections.css";' + "`r`n" + 'import "./styles/wm-polish-pass-v1.css";'
+  Save-Utf8NoBom -RelativePath $mainPath -Content $main
+} else {
+  Write-Host "main.tsx already imports wm-polish-pass-v1.css" -ForegroundColor Yellow
+}
+
+npm run typecheck

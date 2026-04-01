@@ -9,10 +9,10 @@ function toNumber(value: unknown): number {
 }
 
 function inferSystemType(project: any): string {
-  if (!project) return "In Qualification";
-  if (project?.discovery?.videoWall) return "Video Wall Processor";
-  if (project?.discovery?.networkReady) return "AVoIP Network";
-  return "Matrix Switch";
+  if (!project) return "Workspace overview";
+  if (project?.discovery?.videoWall) return "Video Wall";
+  if (project?.discovery?.networkReady) return "AVoIP";
+  return "Matrix";
 }
 
 export default function TopBar() {
@@ -29,53 +29,51 @@ export default function TopBar() {
   const distanceM = toNumber(
     project?.discovery?.distanceM ?? project?.discovery?.distance ?? project?.distanceM ?? 0,
   );
-  const systemType = inferSystemType(project);
+
+  const summaryBits = [
+    inferSystemType(project),
+    sourceCount > 0 ? `${sourceCount} src` : "",
+    displayCount > 0 ? `${displayCount} dsp` : "",
+    distanceM > 0 ? `${distanceM}m` : "",
+  ].filter(Boolean);
 
   return (
-    <header className="wm-topbar-v4">
+    <header className="wm-topbar-lite">
       <button
         type="button"
         onClick={() => navigate("/app/dashboard")}
-        className="wm-topbar-v4__brand"
+        className="wm-topbar-lite__brand"
         aria-label="Go to dashboard"
       >
-        <div className="wm-topbar-v4__brand-mark wm-topbar-v4__brand-mark--free">          
         <img
-            src={brand.logo}
-            alt={brand.fullName}
-            className="wm-topbar-v4__logo"
-          />
-        </div>
+          src={brand.logo}
+          alt={brand.fullName}
+          className="wm-topbar-lite__logo"
+        />
       </button>
 
-      <section className="wm-topbar-v4__section" aria-label="Current project">
-        <div className="wm-topbar-v4__label">Current Project</div>
-        <div className="wm-topbar-v4__value wm-topbar-v4__value--project">
-          {project?.name ?? "Corporate HQ Installation"}
+      <div className="wm-topbar-lite__context">
+        <div className="wm-topbar-lite__title">
+          {project?.name?.trim() || "Wingman workspace"}
         </div>
-      </section>
-
-      <section className="wm-topbar-v4__section" aria-label="System summary">
-        <div className="wm-topbar-v4__label">System Summary</div>
-        <div className="wm-topbar-v4__value">
-          {sourceCount || 4} Sources → {displayCount || 6} Displays → {distanceM || 50}m
+        <div className="wm-topbar-lite__meta">
+          {summaryBits.join(" • ") || "Ready to start a new project"}
         </div>
-      </section>
+      </div>
 
-      <section className="wm-topbar-v4__section" aria-label="System type">
-        <div className="wm-topbar-v4__label">System Type</div>
-        <div className="wm-topbar-v4__value">{systemType}</div>
-      </section>
+      <div className="wm-topbar-lite__status" title="Current project status">
+        {project?.status?.trim() || "In Qualification"}
+      </div>
 
-      <div className="wm-topbar-v4__actions" aria-label="Workspace actions">
-        <button type="button" className="wm-topbar-v4__icon" aria-label="Notifications">
-          <Bell size={17} strokeWidth={1.9} />
+      <div className="wm-topbar-lite__actions" aria-label="Workspace actions">
+        <button type="button" className="wm-topbar-lite__icon" aria-label="Notifications" title="Notifications">
+          <Bell size={16} strokeWidth={1.9} />
         </button>
-        <button type="button" className="wm-topbar-v4__icon" aria-label="History">
-          <Clock3 size={17} strokeWidth={1.9} />
+        <button type="button" className="wm-topbar-lite__icon" aria-label="History" title="Recent activity">
+          <Clock3 size={16} strokeWidth={1.9} />
         </button>
-        <button type="button" className="wm-topbar-v4__icon" aria-label="Settings">
-          <Settings size={17} strokeWidth={1.9} />
+        <button type="button" className="wm-topbar-lite__icon" aria-label="Settings" title="Settings">
+          <Settings size={16} strokeWidth={1.9} />
         </button>
       </div>
     </header>
