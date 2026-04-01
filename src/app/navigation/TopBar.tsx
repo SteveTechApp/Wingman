@@ -1,80 +1,47 @@
-import { Bell, Clock3, Settings } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { brand } from "@/branding/brand";
-import { useProjectContext } from "@/context/ProjectContext";
+import { useMemo } from "react";
+import { useLocation } from "react-router-dom";
+import WingmanBrand from "@/app/branding/WingmanBrand";
 
-function toNumber(value: unknown): number {
-  const parsed = Number(value ?? 0);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function inferSystemType(project: any): string {
-  if (!project) return "Workspace overview";
-  if (project?.discovery?.videoWall) return "Video Wall";
-  if (project?.discovery?.networkReady) return "AVoIP";
-  return "Matrix";
-}
+const titleMap: Record<string, { title: string; subtitle: string }> = {
+  "/app/dashboard": {
+    title: "Mission Control",
+    subtitle: "Clear inputs, live outputs, and visual decision support.",
+  },
+  "/app/projects": {
+    title: "Projects",
+    subtitle: "Active work, recent proposals, and next actions.",
+  },
+  "/app/tools": {
+    title: "Tools",
+    subtitle: "Compact workspace with visible input, output, and guidance.",
+  },
+  "/app/tools/guru": {
+    title: "Guru",
+    subtitle: "Question on the left. Answer on the right.",
+  },
+};
 
 export default function TopBar() {
-  const navigate = useNavigate();
-  const { projectData } = useProjectContext();
-  const project = projectData.activeProject;
+  const location = useLocation();
 
-  const sourceCount = toNumber(
-    project?.discovery?.sources ?? project?.discovery?.sourceCount ?? 0,
-  );
-  const displayCount = toNumber(
-    project?.discovery?.displays ?? project?.discovery?.displayCount ?? 0,
-  );
-  const distanceM = toNumber(
-    project?.discovery?.distanceM ?? project?.discovery?.distance ?? project?.distanceM ?? 0,
-  );
-
-  const summaryBits = [
-    inferSystemType(project),
-    sourceCount > 0 ? `${sourceCount} src` : "",
-    displayCount > 0 ? `${displayCount} dsp` : "",
-    distanceM > 0 ? `${distanceM}m` : "",
-  ].filter(Boolean);
+  const meta = useMemo(() => {
+    return (
+      titleMap[location.pathname] ?? {
+        title: "Wingman Workspace",
+        subtitle: "Clear inputs, live outputs, and visual decision support.",
+      }
+    );
+  }, [location.pathname]);
 
   return (
-    <header className="wm-topbar-lite">
-      <button
-        type="button"
-        onClick={() => navigate("/app/dashboard")}
-        className="wm-topbar-lite__brand"
-        aria-label="Go to dashboard"
-      >
-        <img
-          src={brand.logo}
-          alt={brand.fullName}
-          className="wm-topbar-lite__logo"
-        />
-      </button>
-
-      <div className="wm-topbar-lite__context">
-        <div className="wm-topbar-lite__title">
-          {project?.name?.trim() || "Wingman workspace"}
-        </div>
-        <div className="wm-topbar-lite__meta">
-          {summaryBits.join(" • ") || "Ready to start a new project"}
-        </div>
+    <header className="wm-topbar wm-topbar--compact">
+      <div className="wm-topbar__brand-slot">
+        <WingmanBrand compact={false} subtitle={meta.subtitle} />
       </div>
 
-      <div className="wm-topbar-lite__status" title="Current project status">
-        {project?.status?.trim() || "In Qualification"}
-      </div>
-
-      <div className="wm-topbar-lite__actions" aria-label="Workspace actions">
-        <button type="button" className="wm-topbar-lite__icon" aria-label="Notifications" title="Notifications">
-          <Bell size={16} strokeWidth={1.9} />
-        </button>
-        <button type="button" className="wm-topbar-lite__icon" aria-label="History" title="Recent activity">
-          <Clock3 size={16} strokeWidth={1.9} />
-        </button>
-        <button type="button" className="wm-topbar-lite__icon" aria-label="Settings" title="Settings">
-          <Settings size={16} strokeWidth={1.9} />
-        </button>
+      <div className="wm-topbar__heading">
+        <div className="wm-topbar__kicker">Workspace</div>
+        <h1 className="wm-topbar__title">{meta.title}</h1>
       </div>
     </header>
   );

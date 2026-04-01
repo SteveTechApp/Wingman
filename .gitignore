@@ -78,6 +78,8 @@ _WORK/
 _RESCUE/
 _QUARANTINE/
 _AUDITS/
+_release/
+release/
 
 # --- Nested duplicate project protection ---
 wingman/node_modules/

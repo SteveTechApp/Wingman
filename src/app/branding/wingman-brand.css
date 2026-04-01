@@ -1,0 +1,47 @@
+.wm-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.wm-brand__logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  object-fit: contain;
+  box-shadow:
+    0 10px 30px rgba(6, 64, 182, 0.35),
+    0 0 0 1px rgba(148, 163, 184, 0.18);
+}
+
+.wm-brand--compact .wm-brand__logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+
+.wm-brand__copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.wm-brand__title {
+  color: #f8fafc;
+  font-size: 1.45rem;
+  line-height: 1;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+.wm-brand--compact .wm-brand__title {
+  font-size: 1.18rem;
+}
+
+.wm-brand__subtitle {
+  color: rgba(191, 219, 254, 0.82);
+  font-size: 0.74rem;
+  line-height: 1.1;
+  letter-spacing: 0.015em;
+}
