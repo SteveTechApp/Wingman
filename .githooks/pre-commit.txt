@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+echo "Running Wingman pre-commit checks..."
+
+npm run typecheck
+if [ $? -ne 0 ]; then
+  echo "Typecheck failed. Commit blocked."
+  exit 1
+fi
+
+npm run build
+if [ $? -ne 0 ]; then
+  echo "Build failed. Commit blocked."
+  exit 1
+fi
+
+echo "Pre-commit checks passed."
+exit 0
