@@ -141,11 +141,19 @@ function groupSignalLinks(links: Array<{ from: string; to: string }>) {
 
 export type WingmanUxShellProps = {
   projectState: WingmanShellInput;
+  initialStage?: WingmanStage;
 };
 
-export function WingmanUxShell({ projectState }: WingmanUxShellProps) {
-  const [stage, setStage] = React.useState<WingmanStage>("architecture");
+export function WingmanUxShell({
+  projectState,
+  initialStage = "architecture",
+}: WingmanUxShellProps) {
+  const [stage, setStage] = React.useState<WingmanStage>(initialStage);
   const data = useWingmanUxPipeline(projectState);
+
+  React.useEffect(() => {
+    setStage(initialStage);
+  }, [initialStage]);
 
   if (!data) {
     return (

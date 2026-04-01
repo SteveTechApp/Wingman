@@ -1,239 +1,205 @@
-import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import type { ReactNode } from "react";
+import { useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
-import { useCommandPalette } from "@/core/wingman/commandPalette/CommandPaletteProvider";
-import "./wingman-ux.css";
 
-export type WingmanWorkflowStage =
+type WorkflowStageId =
   | "discovery"
   | "room-definition"
-  | "technology"
   | "product-selection"
-  | "architecture"
+  | "system-architecture"
   | "bom"
   | "proposal";
 
-type DensityMode = "comfortable" | "compact" | "pro";
-
-type StageItem = {
-  id: WingmanWorkflowStage;
+type WorkflowStage = {
+  id: WorkflowStageId;
   label: string;
-  route?: string;
+  route: string;
+  description: string;
 };
 
-const STAGES: StageItem[] = [
-  { id: "discovery", label: "Discovery", route: WM_ROUTES.discovery },
-  { id: "room-definition", label: "Room Definition" },
-  { id: "technology", label: "Tech Selection" },
-  { id: "product-selection", label: "Product Selection", route: WM_ROUTES.catalog },
-  { id: "architecture", label: "System Architecture", route: WM_ROUTES.proposal },
-  { id: "bom", label: "Bill of Materials", route: WM_ROUTES.proposal },
-  { id: "proposal", label: "Proposal Output", route: WM_ROUTES.proposal },
-];
-
-const DENSITY_STORAGE_KEY = "wingman-ui-density";
-
-export function WingmanWorkflowShell(props: {
-  activeStage: WingmanWorkflowStage;
+type WingmanWorkflowShellProps = {
+  children?: ReactNode;
+  activeStage?: string;
   projectName?: string;
   sourceCount?: number;
   displayCount?: number;
   distanceM?: number;
   systemType?: string;
-  rightRail?: React.ReactNode;
-  children: React.ReactNode;
+  rightRail?: ReactNode;
+
   onSave?: () => void;
   onOpenCommandPalette?: () => void;
   onOpenHistory?: () => void;
   onOpenNotifications?: () => void;
   onOpenSettings?: () => void;
-}) {
-  const {
-    activeStage,
-    projectName,
-    sourceCount = 0,
-    displayCount = 0,
-    distanceM = 0,
-    systemType,
-    rightRail,
-    children,
-    onSave,
-    onOpenCommandPalette,
-    onOpenHistory,
-    onOpenNotifications,
-    onOpenSettings,
-  } = props;
+};
 
+const STAGES: WorkflowStage[] = [
+  {
+    id: "discovery",
+    label: "Discovery",
+    route: WM_ROUTES.discovery,
+    description: "Capture project goals, sources, displays, and constraints.",
+  },
+  {
+    id: "room-definition",
+    label: "Room Definition",
+    route: WM_ROUTES.roomWizard,
+    description: "Define the space, layout, and room constraints.",
+  },
+  {
+    id: "product-selection",
+    label: "Product Selection",
+    route: WM_ROUTES.catalog,
+    description: "Review recommended products and compare fit.",
+  },
+  {
+    id: "system-architecture",
+    label: "System Architecture",
+    route: WM_ROUTES.architecture,
+    description: "Validate routing, topology, and system structure.",
+  },
+  {
+    id: "bom",
+    label: "Bill of Materials",
+    route: WM_ROUTES.bom,
+    description: "Review quantities, supporting parts, and commercial scope.",
+  },
+  {
+    id: "proposal",
+    label: "Proposal Output",
+    route: WM_ROUTES.proposal,
+    description: "Prepare the final client-facing proposal output.",
+  },
+];
+
+function getStageIndexFromRoute(pathname: string, search: string): number {
+  const params = new URLSearchParams(search);
+  const proposalStage = params.get("stage");
+
+  if (pathname.startsWith(WM_ROUTES.discovery)) return 0;
+  if (pathname.startsWith(WM_ROUTES.roomWizard)) return 1;
+  if (pathname.startsWith(WM_ROUTES.catalog) || pathname.startsWith(WM_ROUTES.catalogue)) return 2;
+  if (pathname === "/app/tools/proposal" && proposalStage === "architecture") return 3;
+  if (pathname === "/app/tools/proposal" && proposalStage === "bom") return 4;
+  if (pathname === "/app/tools/proposal" && proposalStage === "proposal") return 5;
+  if (pathname === "/app/tools/proposal") return 3;
+  if (pathname.startsWith(WM_ROUTES.dashboard)) return 0;
+  return 0;
+}
+
+function getStageIndexFromId(activeStage?: string): number {
+  if (!activeStage) return -1;
+
+  const normalized = activeStage.trim().toLowerCase();
+
+  const lookup: Record<string, number> = {
+    "discovery": 0,
+    "room-definition": 1,
+    "room definition": 1,
+    "product-selection": 2,
+    "product selection": 2,
+    "system-architecture": 3,
+    "system architecture": 3,
+    "architecture": 3,
+    "bom": 4,
+    "bill-of-materials": 4,
+    "bill of materials": 4,
+    "proposal": 5,
+    "proposal-output": 5,
+    "proposal output": 5,
+  };
+
+  return lookup[normalized] ?? -1;
+}
+
+export function WingmanWorkflowShell({
+  children,
+  activeStage,
+  projectName,
+  sourceCount,
+  displayCount,
+  distanceM,
+  systemType,
+  rightRail,
+}: WingmanWorkflowShellProps) {
   const navigate = useNavigate();
-  const { open } = useCommandPalette();
+  const location = useLocation();
 
-  const [density, setDensity] = React.useState<DensityMode>(() => {
-    if (typeof window === "undefined") return "pro";
-    const stored = window.localStorage.getItem(DENSITY_STORAGE_KEY);
-    return stored === "comfortable" || stored === "compact" || stored === "pro"
-      ? stored
-      : "pro";
-  });
+  const activeStageIndex = useMemo(() => {
+    const explicitIndex = getStageIndexFromId(activeStage);
+    if (explicitIndex >= 0) return explicitIndex;
+    return getStageIndexFromRoute(location.pathname, location.search);
+  }, [activeStage, location.pathname, location.search]);
 
-  React.useEffect(() => {
-    window.localStorage.setItem(DENSITY_STORAGE_KEY, density);
-  }, [density]);
-
-  React.useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      const isMeta = event.metaKey || event.ctrlKey;
-      const key = event.key.toLowerCase();
-
-      if (isMeta && key === "s") {
-        event.preventDefault();
-        onSave?.();
-      }
-
-      if (isMeta && key === "k") {
-        event.preventDefault();
-        if (onOpenCommandPalette) onOpenCommandPalette();
-        else open();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onSave, onOpenCommandPalette, open]);
+  const safeProjectName = projectName || "Active Project";
+  const safeSourceCount = sourceCount ?? 0;
+  const safeDisplayCount = displayCount ?? 0;
+  const safeDistanceM = distanceM ?? 0;
+  const safeSystemType = systemType || "System Design";
 
   return (
-    <div className={`wmx-app wmx-density-${density}`}>
-      <header className="wmx-topbar">
-        <div className="wmx-brand">
-          <div className="wmx-brand-logoWrap">
-            <div className="wmx-brand-mark">◆</div>
-          </div>
-
-          <div className="wmx-brand-copy">
-            <div className="wmx-brand-kicker">WYRESTORM</div>
-            <div className="wmx-brand-name">Wingman</div>
-            <div className="wmx-brand-subtitle">Guided AV design and sales support</div>
-          </div>
-        </div>
-
-        <div className="wmx-topbar-meta">
-          <div className="wmx-topbar-pill">
-            <span className="wmx-topbar-label">Project</span>
-            <strong>{projectName || "Untitled Project"}</strong>
-          </div>
-
-          <div className="wmx-topbar-pill">
-            <strong>
-              {sourceCount} Sources {"→"} {displayCount} Displays {"→"} {distanceM}m
-            </strong>
-          </div>
-
-          <div className="wmx-topbar-pill">
-            <span className="wmx-topbar-label">System Type</span>
-            <strong>{systemType || "In qualification"}</strong>
+    <section className="wmx-workflow-shell">
+      <header className="wmx-workflow-shell__header">
+        <div className="wmx-workflow-shell__header-left">
+          <div className="wmx-workflow-shell__eyebrow">Guided Workflow</div>
+          <h2 className="wmx-workflow-shell__title">{safeProjectName}</h2>
+          <div className="wmx-workflow-shell__meta">
+            <span>{safeSourceCount} Sources</span>
+            <span>{safeDisplayCount} Displays</span>
+            <span>{safeDistanceM}m</span>
+            <span>{safeSystemType}</span>
           </div>
         </div>
 
-        <div className="wmx-topbar-tools">
-          <div className="wmx-density-switch" role="group" aria-label="Interface density">
-            <button
-              type="button"
-              className={`wmx-density-btn ${density === "comfortable" ? "is-active" : ""}`}
-              onClick={() => setDensity("comfortable")}
-            >
-              Comfortable
-            </button>
-            <button
-              type="button"
-              className={`wmx-density-btn ${density === "compact" ? "is-active" : ""}`}
-              onClick={() => setDensity("compact")}
-            >
-              Compact
-            </button>
-            <button
-              type="button"
-              className={`wmx-density-btn ${density === "pro" ? "is-active" : ""}`}
-              onClick={() => setDensity("pro")}
-            >
-              Pro
-            </button>
-          </div>
-
-          <button
-            type="button"
-            className="wmx-icon-btn"
-            aria-label="Open command palette"
-            onClick={onOpenCommandPalette ?? open}
-          >
-            Cmd+K
-          </button>
-
-          <button type="button" className="wmx-icon-btn" onClick={onOpenNotifications}>
-            N
-          </button>
-          <button type="button" className="wmx-icon-btn" onClick={onOpenHistory}>
-            H
-          </button>
-          <button type="button" className="wmx-icon-btn" onClick={onOpenSettings}>
-            S
-          </button>
+        <div className="wmx-workflow-shell__summary">
+          Step {activeStageIndex + 1} of {STAGES.length}
         </div>
       </header>
 
-      <div className="wmx-layout">
-        <aside className="wmx-sidebar">
-          <div className="wmx-sidebar-section">
-            <div className="wmx-sidebar-title">Workflow</div>
+      <div className="wmx-workflow-shell__rail">
+        {STAGES.map((stage, index) => {
+          const isActive = index === activeStageIndex;
+          const isComplete = index < activeStageIndex;
 
-            {STAGES.map((item) => {
-              const active = item.id === activeStage;
-              const clickable = Boolean(item.route);
-
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={`wmx-nav-item ${active ? "is-active" : ""} ${!clickable ? "is-disabled" : ""}`}
-                  onClick={() => {
-                    if (item.route) navigate(item.route);
-                  }}
-                  disabled={!clickable}
-                >
-                  <span className="wmx-nav-text">{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="wmx-sidebar-section">
-            <div className="wmx-sidebar-title">Actions</div>
-            <button type="button" className="wmx-secondary-btn" onClick={onSave}>
-              Save Draft
-            </button>
+          return (
             <button
+              key={stage.id}
               type="button"
-              className="wmx-secondary-btn"
-              onClick={onOpenCommandPalette ?? open}
+              className={[
+                "wmx-workflow-shell__stage",
+                isActive ? "is-active" : "",
+                isComplete ? "is-complete" : "",
+              ].join(" ").trim()}
+              onClick={() => navigate(stage.route)}
             >
-              Open Command Palette
-            </button>
-          </div>
-        </aside>
+              <span className="wmx-workflow-shell__stage-index">
+                {index + 1}
+              </span>
 
-        <main className="wmx-main">
-          <div className="wmx-page-surface">{children}</div>
+              <span className="wmx-workflow-shell__stage-copy">
+                <strong>{stage.label}</strong>
+                <small>{stage.description}</small>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="wmx-workflow-shell__body">
+        <main className="wmx-workflow-shell__main">
+          {children}
         </main>
 
-        <aside className="wmx-rightbar">
-          {rightRail ?? (
-            <div className="wmx-rightbar-empty">
-              <div className="wmx-rightbar-title">Decision Rail</div>
-              <div className="wmx-rightbar-copy">
-                Contextual guidance, recommendations and risks will appear here.
-              </div>
-            </div>
-          )}
-        </aside>
+        {rightRail ? (
+          <aside className="wmx-workflow-shell__right-rail">
+            {rightRail}
+          </aside>
+        ) : null}
       </div>
-    </div>
+    </section>
   );
 }
+
+export default WingmanWorkflowShell;

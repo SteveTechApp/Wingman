@@ -13,6 +13,7 @@ import "./styles/wm-topbar-compact.css";
 import "./styles/wm-mission-control-compact.css";
 import "./styles/wm-mission-control-feature-flash.css";
 import "./styles/wm-mission-control-sections.css";
+import "./styles/wm-polish-pass-v1.css";
 import "./styles/wm-layout-overrides.css";
 
 import WingmanProviders from "./app/providers/WingmanProviders";

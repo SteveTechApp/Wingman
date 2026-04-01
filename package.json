@@ -1,32 +1,34 @@
 {
-  "name": "wyrestorm-wingman",
-  "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit"
-  },
-  "dependencies": {
-    "cors": "^2.8.6",
-    "lucide-react": "^0.511.0",
-    "mammoth": "^1.12.0",
-    "pdfjs-dist": "^4.10.38",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.1",
-    "zod": "^3.24.1"
-  },
-  "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^6.0.1",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.6.3",
-    "vite": "^8.0.3"
-  }
+    "name":  "wyrestorm-wingman",
+    "private":  true,
+    "version":  "0.1.0",
+    "type":  "module",
+    "scripts":  {
+                    "dev":  "vite",
+                    "build":  "vite build",
+                    "preview":  "vite preview",
+                    "typecheck":  "tsc -p tsconfig.typecheck.json --noEmit",
+                    "check:routes":  "node tools/route-smoke-check.mjs",
+                    "verify":  "npm run typecheck \u0026\u0026 npm run build \u0026\u0026 npm run check:routes"
+                },
+    "dependencies":  {
+                         "cors":  "^2.8.6",
+                         "lucide-react":  "^0.511.0",
+                         "mammoth":  "^1.12.0",
+                         "pdfjs-dist":  "^4.10.38",
+                         "react":  "^18.3.1",
+                         "react-dom":  "^18.3.1",
+                         "react-router-dom":  "^6.30.1",
+                         "zod":  "^3.24.1"
+                     },
+    "devDependencies":  {
+                            "@types/react":  "^18.3.12",
+                            "@types/react-dom":  "^18.3.1",
+                            "@vitejs/plugin-react":  "^6.0.1",
+                            "autoprefixer":  "^10.4.20",
+                            "postcss":  "^8.4.49",
+                            "tailwindcss":  "^3.4.17",
+                            "typescript":  "^5.6.3",
+                            "vite":  "^8.0.3"
+                        }
 }

@@ -1,3 +1,91 @@
+# =========================
+# Wingman Core Ignore File
+# =========================
+
+# --- Node / Vite ---
 node_modules/
-.env
+dist/
+build/
+.vite/
+.cache/
+coverage/
+
+# --- Logs ---
+*.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Environment ---
+.env
+.env.*
+!.env.example
+
+# --- OS Junk (Windows) ---
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# --- Temporary / Backup Files ---
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+*~
+New Text Document.txt
+
+# --- PowerShell artifacts ---
+*.ps1.bak
+
+# --- TypeScript ---
+*.tsbuildinfo
+
+# --- Local Data (CRITICAL: prevent committing runtime data) ---
+data/*.json
+!data/.gitkeep
+
+# If you want to selectively track specific seed files, whitelist like this:
+!data/wyrestorm-product-intelligence.json
+
+# --- Server runtime files ---
+server/*.db
+server/*.sqlite
+server/*.sqlite3
+
+# --- Uploads / Generated content ---
+uploads/
+exports/
+
+# --- Wingman Internal Work Folders ---
+_WORK/
+_RESCUE/
+_QUARANTINE/
+_AUDITS/
+
+# --- Duplicate project protection (VERY IMPORTANT for you) ---
+wingman/node_modules/
+wingman/dist/
+wingman/.vite/
+wingman/package-lock.json
+
+# --- Misc ---
+*.zip
+*.tar
+*.gz
+
+# --- CSS build artifacts (if any tooling generates these) ---
+*.css.map
+
+# --- Vite specific ---
+vite.config.ts.timestamp-*

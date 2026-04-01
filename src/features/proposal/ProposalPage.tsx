@@ -1,9 +1,11 @@
 import { useProjectContext } from "@/context/ProjectContext";
 import { WingmanUxShell } from "@/features/wingmanUx/WingmanUxShell";
+import { useSearchParams } from "react-router-dom";
 
 export default function ProposalPage() {
   const { projectData } = useProjectContext();
   const project = projectData.activeProject;
+  const [searchParams] = useSearchParams();
 
   if (!project) {
     return (
@@ -68,5 +70,13 @@ export default function ProposalPage() {
     },
   };
 
-  return <WingmanUxShell projectState={projectState} />;
+  const stageParam = searchParams.get("stage");
+  const initialStage =
+    stageParam === "architecture" ||
+    stageParam === "bom" ||
+    stageParam === "proposal"
+      ? stageParam
+      : "architecture";
+
+  return <WingmanUxShell projectState={projectState} initialStage={initialStage} />;
 }
