@@ -41,6 +41,8 @@ export type AppRouteValue =
   | (typeof routeMap.app)[keyof typeof routeMap.app];
 
 const legacyRouteRedirects: Record<string, AppRouteValue> = {
+  "/app/tools/proposal": routeMap.app.architecture,
+  "/app/tools/proposal?tab=bom": routeMap.app.bom,
   "/wingman/dashboard": routeMap.app.dashboard,
   "/wingman/projects": routeMap.app.projects,
   "/wingman/project-launcher": routeMap.app.projectLauncher,

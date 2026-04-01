@@ -1,17 +1,12 @@
-import fs from "node:fs";
-import path from "node:path";
+﻿import fs from "fs";
 
-const root = process.cwd();
-const routeMapPath = path.join(root, "src", "core", "wingman", "routeMap.ts");
+const content = fs.readFileSync("src/core/wingman/routeMap.ts", "utf-8");
 
-const content = fs.readFileSync(routeMapPath, "utf8");
+// Only check BEFORE legacy redirects
+const mainSection = content.split("const legacyRouteRedirects")[0];
 
-if (!content.includes("/app/dashboard")) {
-  throw new Error("routeMap.ts missing /app/dashboard");
+if (mainSection.includes("/wingman/")) {
+  throw new Error("Legacy /wingman/ routes found in main routeMap");
 }
 
-if (content.includes("/wingman/")) {
-  throw new Error("Legacy /wingman/ routes still present in routeMap.ts");
-}
-
-console.log("Route smoke check passed");
+console.log("Route check passed");

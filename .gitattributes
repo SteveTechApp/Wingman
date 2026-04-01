@@ -2,6 +2,13 @@
 * text=auto eol=lf
 
 # Treat common binaries as binary (no line ending conversion)
+
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
 *.png binary
 *.jpg binary
 *.jpeg binary
@@ -9,6 +16,8 @@
 *.webp binary
 *.ico binary
 *.pdf binary
+*.zip binary
+*.7z binary
 
 # Keep SVG as text (diff-friendly)
 *.svg text eol=lf
