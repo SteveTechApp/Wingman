@@ -6,6 +6,8 @@ import App from "./App";
 import "./features/wingmanUx/wingman-ux.css";
 import "./styles/wm-enterprise-pass.css";
 import "./styles/app.css";
+import "./styles/wm-split-workspace.css";
+import "./styles/wm-graphical-uplift.css";
 import "./styles/wm-reference-shell.css";
 import "./styles/wm-architecture-canvas.css";
 import "./styles/wm-layout-v2.css";

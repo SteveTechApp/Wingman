@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "package:release": "powershell -ExecutionPolicy Bypass -File ./scripts/create-release-package.ps1",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
     "check:routes": "node tools/route-smoke-check.mjs",
