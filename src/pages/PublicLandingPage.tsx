@@ -15,11 +15,15 @@ export default function PublicLandingPage() {
         <div className="wm-public-landing-page__layout">
           <section className="wm-public-landing-page__panel">
             <div className="wm-public-landing-page__brand">
-              <img
-                className="wm-public-landing-page__brand-logo"
-                src={brand.logo}
-                alt={brand.fullName}
-              />
+              <div className="wm-public-landing-page__brand-lockup" aria-label={brand.fullName}>
+                <span className="wm-public-landing-page__brand-mark" aria-hidden="true">
+                  {brand.monogram}
+                </span>
+                <div>
+                  <div className="wm-public-landing-page__brand-title">{brand.appName}</div>
+                  <div className="wm-public-landing-page__brand-subtitle">{brand.tagline}</div>
+                </div>
+              </div>
             </div>
 
             <h1 className="wm-public-landing-page__title">

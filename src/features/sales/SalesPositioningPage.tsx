@@ -1,670 +1,829 @@
-import { useEffect, useMemo, useState } from "react";
-import type { CSSProperties } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { Link } from "react-router-dom";
+import { getCatalogProducts } from "@/catalog/repository";
+import type { CatalogProduct } from "@/catalog/types";
+import SplitWorkspaceFrame from "@/components/workspace/SplitWorkspaceFrame";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
+import { getActiveProject, subscribeProjects } from "@/features/projects/projectStore";
 import {
-  generateRecommendation,
-  type DiscoverySnapshot,
-  type RecommendationResult,
-} from "@/features/recommendation/wingmanRecommendationEngine";
+  SALES_CONVERSATION_CARDS,
+  SALES_PITCH_MODULES,
+  buildProductPositioningGuide,
+} from "./salesPositioningContent";
+import "./sales-positioning-page.css";
 
-const FALLBACK_DISCOVERY: DiscoverySnapshot = {
-  projectName: "No active project selected",
-  projectId: "Not set",
-  application: "General AV distribution",
-  roomType: "Meeting space",
-  displayCount: 1,
-  sourceCount: 1,
-  maxDistanceMeters: 10,
-  usbRequired: false,
-  controlRequired: false,
-  audioRequired: false,
-  notes: "",
-};
+type SalesWorkspaceMode = "product" | "flashcards" | "brand";
 
-function toText(value: unknown): string {
-  if (typeof value === "string") return value.trim();
-  if (typeof value === "number") return String(value);
-  if (typeof value === "boolean") return value ? "true" : "false";
-  return "";
+function tidy(value: unknown): string {
+  return String(value ?? "").trim();
 }
 
-function toNumber(value: unknown, fallback = 0): number {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string") {
-    const cleaned = value.replace(/[^0-9.]/g, "");
-    const parsed = Number(cleaned);
-    if (Number.isFinite(parsed)) return parsed;
-  }
-  return fallback;
+function buildSearchBlob(product: CatalogProduct): string {
+  return [
+    product.sku,
+    product.name,
+    product.family,
+    product.category,
+    product.subcategory,
+    product.summary,
+    product.technology,
+    product.transport,
+    ...(product.features || []),
+    ...(product.normalizedTags || []),
+    ...(product.matchKeywords || []),
+    ...(product.control || []),
+    ...(product.audio || []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
 }
 
-function toBoolean(value: unknown): boolean {
-  if (typeof value === "boolean") return value;
-  if (typeof value === "number") return value > 0;
-  if (typeof value === "string") {
-    const v = value.trim().toLowerCase();
-    return ["true", "yes", "y", "required", "1", "enabled"].includes(v);
-  }
-  return false;
+function buildMetricLabel(product: CatalogProduct): string {
+  const parts = [product.family, product.category, product.transport].map((value) => tidy(value)).filter(Boolean);
+  return parts.slice(0, 3).join(" | ");
 }
 
-function parseJsonSafe(value: string): unknown {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return null;
-  }
+function joinParagraphs(lines: string[]): string {
+  return lines.filter(Boolean).join("\n");
 }
 
-function asRecord(value: unknown): Record<string, unknown> | null {
-  if (value && typeof value === "object" && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-  return null;
-}
+function uniqueStrings(values: Array<string | undefined | null>, limit = 6): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
 
-function getFirstRecordCandidate(input: unknown): Record<string, unknown> | null {
-  const direct = asRecord(input);
-  if (direct) return direct;
-
-  if (Array.isArray(input)) {
-    for (const item of input) {
-      const found = asRecord(item);
-      if (found) return found;
-    }
+  for (const value of values) {
+    const text = tidy(value);
+    if (!text) continue;
+    const key = text.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(text);
+    if (out.length >= limit) break;
   }
 
-  return null;
-}
-
-function findNestedRecord(root: Record<string, unknown>, keys: string[]): Record<string, unknown> | null {
-  for (const key of keys) {
-    const direct = getFirstRecordCandidate(root[key]);
-    if (direct) return direct;
-  }
-
-  for (const value of Object.values(root)) {
-    const rec = asRecord(value);
-    if (!rec) continue;
-
-    for (const key of keys) {
-      const nested = getFirstRecordCandidate(rec[key]);
-      if (nested) return nested;
-    }
-  }
-
-  return null;
-}
-
-function readAllLocalStorageRecords(): Record<string, unknown>[] {
-  if (typeof window === "undefined") return [];
-
-  const records: Record<string, unknown>[] = [];
-
-  for (let i = 0; i < window.localStorage.length; i += 1) {
-    const key = window.localStorage.key(i);
-    if (!key) continue;
-
-    const raw = window.localStorage.getItem(key);
-    if (!raw) continue;
-
-    const parsed = parseJsonSafe(raw);
-    const rec = asRecord(parsed);
-
-    if (rec) {
-      records.push(rec);
-    }
-  }
-
-  return records;
-}
-
-function extractDiscoverySnapshot(): DiscoverySnapshot {
-  const records = readAllLocalStorageRecords();
-
-  let bestProject: Record<string, unknown> | null = null;
-  let bestDiscovery: Record<string, unknown> | null = null;
-
-  for (const record of records) {
-    const projectCandidate =
-      findNestedRecord(record, ["activeProject", "project", "currentProject"]) ??
-      (toText(record["name"]) || toText(record["projectName"]) ? record : null);
-
-    if (!bestProject && projectCandidate) {
-      bestProject = projectCandidate;
-    }
-
-    const discoveryCandidate =
-      findNestedRecord(record, [
-        "discovery",
-        "discoveryAnswers",
-        "discoveryData",
-        "brief",
-        "wizard",
-        "guidedProject",
-      ]) ?? null;
-
-    if (!bestDiscovery && discoveryCandidate) {
-      bestDiscovery = discoveryCandidate;
-    }
-  }
-
-  const project = bestProject ?? {};
-  const discovery = bestDiscovery ?? project;
-
-  return {
-    projectName:
-      toText(project["name"]) ||
-      toText(project["projectName"]) ||
-      toText(discovery["projectName"]) ||
-      FALLBACK_DISCOVERY.projectName,
-    projectId:
-      toText(project["id"]) ||
-      toText(project["projectId"]) ||
-      FALLBACK_DISCOVERY.projectId,
-    application:
-      toText(discovery["application"]) ||
-      toText(discovery["applicationType"]) ||
-      toText(discovery["useCase"]) ||
-      toText(discovery["roomPurpose"]) ||
-      FALLBACK_DISCOVERY.application,
-    roomType:
-      toText(discovery["roomType"]) ||
-      toText(discovery["spaceType"]) ||
-      toText(discovery["roomCategory"]) ||
-      FALLBACK_DISCOVERY.roomType,
-    displayCount:
-      toNumber(discovery["displayCount"], 0) ||
-      toNumber(discovery["displays"], 0) ||
-      toNumber(discovery["screenCount"], 0) ||
-      FALLBACK_DISCOVERY.displayCount,
-    sourceCount:
-      toNumber(discovery["sourceCount"], 0) ||
-      toNumber(discovery["sources"], 0) ||
-      toNumber(discovery["inputCount"], 0) ||
-      FALLBACK_DISCOVERY.sourceCount,
-    maxDistanceMeters:
-      toNumber(discovery["maxDistanceMeters"], 0) ||
-      toNumber(discovery["distanceMeters"], 0) ||
-      toNumber(discovery["signalDistance"], 0) ||
-      toNumber(discovery["longestRun"], 0) ||
-      FALLBACK_DISCOVERY.maxDistanceMeters,
-    usbRequired:
-      toBoolean(discovery["usbRequired"]) ||
-      toBoolean(discovery["usbNeeds"]) ||
-      toBoolean(discovery["usb"]),
-    controlRequired:
-      toBoolean(discovery["controlRequired"]) ||
-      toBoolean(discovery["controlNeeds"]) ||
-      toBoolean(discovery["control"]),
-    audioRequired:
-      toBoolean(discovery["audioRequired"]) ||
-      toBoolean(discovery["audioNeeds"]) ||
-      toBoolean(discovery["audio"]),
-    notes:
-      toText(discovery["notes"]) ||
-      toText(discovery["projectNotes"]) ||
-      toText(discovery["brief"]) ||
-      "",
-  };
+  return out;
 }
 
 export default function SalesPositioningPage() {
-  const [discovery, setDiscovery] = useState<DiscoverySnapshot>(FALLBACK_DISCOVERY);
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    setDiscovery(extractDiscoverySnapshot());
-  }, []);
-
-  const recommendation: RecommendationResult = useMemo(
-    () => generateRecommendation(discovery),
-    [discovery]
+  const activeProject = useSyncExternalStore(subscribeProjects, getActiveProject, () => undefined);
+  const products = useMemo(
+    () => getCatalogProducts().filter((product) => product.status !== "legacy"),
+    [],
+  );
+  const families = useMemo(
+    () => ["All", ...Array.from(new Set(products.map((product) => tidy(product.family)).filter(Boolean))).sort()],
+    [products],
+  );
+  const defaultSku = useMemo(
+    () => products.find((product) => product.sku === "NHD-500-TX")?.sku || products[0]?.sku || "",
+    [products],
   );
 
-  async function handleCopy(): Promise<void> {
+  const [mode, setMode] = useState<SalesWorkspaceMode>("product");
+  const [query, setQuery] = useState("");
+  const [family, setFamily] = useState("All");
+  const [selectedSku, setSelectedSku] = useState(defaultSku);
+  const [selectedFlashCardId, setSelectedFlashCardId] = useState(SALES_CONVERSATION_CARDS[0]?.id || "");
+  const [selectedPitchId, setSelectedPitchId] = useState(SALES_PITCH_MODULES[0]?.id || "wyrestorm");
+  const [status, setStatus] = useState("");
+
+  const deferredQuery = useDeferredValue(query);
+  const normalizedFamilyOptions = useMemo(
+    () => new Map(families.map((item) => [tidy(item).toLowerCase(), item])),
+    [families],
+  );
+
+  const filteredProducts = useMemo(() => {
+    const familyKey = tidy(family).toLowerCase();
+    const q = tidy(deferredQuery).toLowerCase();
+
+    return products.filter((product) => {
+      const matchesFamily = familyKey === "all" || tidy(product.family).toLowerCase() === familyKey;
+      if (!matchesFamily) return false;
+      if (!q) return true;
+      return buildSearchBlob(product).includes(q);
+    });
+  }, [deferredQuery, family, products]);
+
+  useEffect(() => {
+    if (!filteredProducts.length) return;
+    if (!filteredProducts.some((product) => product.sku === selectedSku)) {
+      setSelectedSku(filteredProducts[0].sku);
+    }
+  }, [filteredProducts, selectedSku]);
+
+  useEffect(() => {
+    if (!selectedSku && defaultSku) {
+      setSelectedSku(defaultSku);
+    }
+  }, [defaultSku, selectedSku]);
+
+  const selectedProduct = useMemo(() => {
+    if (filteredProducts.length === 0) return null;
+    return filteredProducts.find((product) => product.sku === selectedSku) || filteredProducts[0] || null;
+  }, [filteredProducts, selectedSku]);
+
+  const productGuide = useMemo(
+    () => (selectedProduct ? buildProductPositioningGuide(selectedProduct) : null),
+    [selectedProduct],
+  );
+  const selectedProductTags = useMemo(
+    () =>
+      selectedProduct
+        ? uniqueStrings([
+            ...(selectedProduct.features || []),
+            ...(selectedProduct.normalizedTags || []),
+            ...(selectedProduct.matchKeywords || []),
+          ])
+        : [],
+    [selectedProduct],
+  );
+  const visibleProducts = useMemo(() => {
+    if (filteredProducts.length <= 12) return filteredProducts;
+
+    const topProducts = filteredProducts.slice(0, 12);
+    if (!selectedSku || topProducts.some((product) => product.sku === selectedSku)) {
+      return topProducts;
+    }
+
+    const selectedMatch = filteredProducts.find((product) => product.sku === selectedSku);
+    return selectedMatch ? [...topProducts.slice(0, 11), selectedMatch] : topProducts;
+  }, [filteredProducts, selectedSku]);
+
+  const selectedFlashCard = useMemo(
+    () =>
+      SALES_CONVERSATION_CARDS.find((card) => card.id === selectedFlashCardId) ||
+      SALES_CONVERSATION_CARDS[0] ||
+      null,
+    [selectedFlashCardId],
+  );
+
+  const selectedPitch = useMemo(
+    () =>
+      SALES_PITCH_MODULES.find((pitch) => pitch.id === selectedPitchId) ||
+      SALES_PITCH_MODULES[0] ||
+      null,
+    [selectedPitchId],
+  );
+
+  function focusSku(sku: string) {
+    startTransition(() => {
+      setMode("product");
+      setFamily("All");
+      setQuery(sku);
+      setSelectedSku(sku);
+    });
+  }
+
+  function focusFamily(targetFamily: string) {
+    const resolvedFamily = normalizedFamilyOptions.get(tidy(targetFamily).toLowerCase());
+
+    startTransition(() => {
+      setMode("product");
+      if (resolvedFamily && resolvedFamily !== "All") {
+        setFamily(resolvedFamily);
+        setQuery("");
+        return;
+      }
+
+      setFamily("All");
+      setQuery(targetFamily);
+    });
+  }
+
+  function openFlashCard(cardId: string) {
+    setMode("flashcards");
+    setSelectedFlashCardId(cardId);
+  }
+
+  function openPitch(pitchId: string) {
+    setMode("brand");
+    setSelectedPitchId(pitchId);
+  }
+
+  async function copyText(label: string, text: string) {
     try {
-      await navigator.clipboard.writeText(recommendation.proposalSummary);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      setCopied(false);
+      if (!navigator.clipboard) {
+        throw new Error("Clipboard access is not available in this browser.");
+      }
+      await navigator.clipboard.writeText(text);
+      setStatus(`${label} copied to the clipboard.`);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : `Could not copy ${label.toLowerCase()}.`);
     }
   }
 
-  return (
-    <main style={pageStyle}>
-      <section style={heroStyle}>
-        <div style={stack10Style}>
-          <div style={eyebrowStyle}>Recommendation Engine</div>
-          <h1 style={heroTitleStyle}>Discovery to architecture and tiered BOM</h1>
-          <p style={heroTextStyle}>
-            This page converts discovery answers into a rules-based architecture recommendation,
-            suggested WyreStorm product families and tiered BOM guidance.
+  const left = (
+    <div className="wm-workspace-stack wm-sales-page__column">
+      <div className="wm-start-step">
+        Build the story before the customer call. Search a SKU when you already know the product,
+        use flash cards when you need an outcome-led opener, or pull a WyreStorm elevator pitch to
+        start the conversation with more confidence.
+      </div>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Enablement view</h3>
+          <p className="wm-workspace-card__copy">
+            Move between product talk tracks, guided flash cards, and the wider WyreStorm story
+            without leaving the workspace.
           </p>
         </div>
+
+        <div className="wm-workspace-tab-row">
+          <button
+            type="button"
+            className={`wm-workspace-tab${mode === "product" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setMode("product")}
+          >
+            Product positioning
+          </button>
+          <button
+            type="button"
+            className={`wm-workspace-tab${mode === "flashcards" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setMode("flashcards")}
+          >
+            Flash cards
+          </button>
+          <button
+            type="button"
+            className={`wm-workspace-tab${mode === "brand" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setMode("brand")}
+          >
+            Position WyreStorm
+          </button>
+        </div>
       </section>
 
-      <section style={summaryGridStyle}>
-        <div style={panelStyle}>
-          <div style={sectionLabelStyle}>Project</div>
-          <div style={sectionValueStyle}>{discovery.projectName}</div>
+      <section className="wm-workspace-card wm-sales-page__project-context">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Current context</h3>
+          <p className="wm-workspace-card__copy">
+            The sales workspace works without an active project, but it can still sit alongside the
+            live opportunity when one is open.
+          </p>
         </div>
-        <div style={panelStyle}>
-          <div style={sectionLabelStyle}>Application</div>
-          <div style={sectionValueStyle}>{discovery.application}</div>
-        </div>
-        <div style={panelStyle}>
-          <div style={sectionLabelStyle}>Room Type</div>
-          <div style={sectionValueStyle}>{discovery.roomType}</div>
-        </div>
-        <div style={panelStyle}>
-          <div style={sectionLabelStyle}>Recommended Tier</div>
-          <div style={tierPillStyle(recommendation.tier)}>{recommendation.tier}</div>
-        </div>
+
+        {activeProject ? (
+          <div className="wm-workspace-list-item">
+            <span className="wm-workspace-list-item__eyebrow">Active project</span>
+            <span className="wm-workspace-list-item__title">{activeProject.name}</span>
+            <span className="wm-workspace-list-item__copy">
+              {activeProject.customer ? `${activeProject.customer} | ` : ""}
+              {tidy(activeProject.discovery?.applicationType) ||
+                tidy(activeProject.discovery?.workflowTrack) ||
+                "General AV opportunity"}
+            </span>
+          </div>
+        ) : (
+          <div className="wm-workspace-empty">
+            No active project is linked right now. Use this page as a stand-alone sales coach, then
+            jump into Compare, Product Intelligence, or Proposal when the conversation is ready.
+          </div>
+        )}
       </section>
 
-      <section style={twoColumnStyle}>
-        <div style={leftColumnStyle}>
-          <section style={panelStyle}>
-            <div style={sectionTitleStyle}>Discovery Summary</div>
-            <div style={factsGridStyle}>
-              <div style={factCardStyle}>
-                <div style={factLabelStyle}>Displays</div>
-                <div style={factValueStyle}>{discovery.displayCount}</div>
+      {mode === "product" ? (
+        <>
+          <section className="wm-workspace-card">
+            <div className="wm-workspace-card__header">
+              <h3 className="wm-workspace-card__title">Find a WyreStorm SKU</h3>
+              <p className="wm-workspace-card__copy">
+                Search by SKU, family, or outcome, then use the right-hand panel as the live talk
+                track for the customer conversation.
+              </p>
+            </div>
+
+            <div className="wm-workspace-form">
+              <div className="wm-workspace-field">
+                <label htmlFor="sales-positioning-query">Search</label>
+                <input
+                  id="sales-positioning-query"
+                  className="wm-input-dark"
+                  type="text"
+                  placeholder="SKU, range, feature, use case"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
               </div>
-              <div style={factCardStyle}>
-                <div style={factLabelStyle}>Sources</div>
-                <div style={factValueStyle}>{discovery.sourceCount}</div>
+
+              <div className="wm-workspace-grid-2">
+                <div className="wm-workspace-field">
+                  <label htmlFor="sales-positioning-family">Family</label>
+                  <select
+                    id="sales-positioning-family"
+                    className="wm-input-dark"
+                    value={family}
+                    onChange={(event) => setFamily(event.target.value)}
+                  >
+                    {families.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="wm-workspace-metric">
+                  <span>Matches</span>
+                  <strong>{filteredProducts.length}</strong>
+                </div>
               </div>
-              <div style={factCardStyle}>
-                <div style={factLabelStyle}>Longest Run</div>
-                <div style={factValueStyle}>{discovery.maxDistanceMeters}m</div>
-              </div>
-              <div style={factCardStyle}>
-                <div style={factLabelStyle}>USB</div>
-                <div style={factValueStyle}>{discovery.usbRequired ? "Yes" : "No"}</div>
-              </div>
-              <div style={factCardStyle}>
-                <div style={factLabelStyle}>Control</div>
-                <div style={factValueStyle}>{discovery.controlRequired ? "Yes" : "No"}</div>
-              </div>
-              <div style={factCardStyle}>
-                <div style={factLabelStyle}>Audio</div>
-                <div style={factValueStyle}>{discovery.audioRequired ? "Yes" : "No"}</div>
-              </div>
+            </div>
+
+            <div className="wm-next-step">
+              Search by exact SKU when the customer already has a model in mind. Search by family or
+              outcome when you are still helping them understand what category of WyreStorm solution
+              fits the opportunity.
             </div>
           </section>
 
-          <section style={panelStyle}>
-            <div style={sectionTitleStyle}>Recommended Architecture</div>
-            <div style={sectionValueStyle}>{recommendation.architecture}</div>
-            <div style={bodyTextStyle}>{recommendation.architectureReason}</div>
+          <section className="wm-workspace-card">
+            <div className="wm-workspace-card__header">
+              <h3 className="wm-workspace-card__title">Shortlist</h3>
+              <p className="wm-workspace-card__copy">
+                Pick the product you want to talk through. The first twelve matching products stay in
+                view so the list remains easy to scan during a call.
+              </p>
+            </div>
+
+            {visibleProducts.length > 0 ? (
+              <div className="wm-workspace-list wm-sales-page__selector-list">
+                {visibleProducts.map((product) => (
+                  <button
+                    key={product.sku}
+                    type="button"
+                    className={`wm-workspace-list-item wm-sales-page__selector-item${selectedProduct?.sku === product.sku ? " wm-workspace-list-item--active" : ""}`}
+                    aria-pressed={selectedProduct?.sku === product.sku}
+                    onClick={() => setSelectedSku(product.sku)}
+                  >
+                    <span className="wm-workspace-list-item__eyebrow">{product.sku}</span>
+                    <span className="wm-workspace-list-item__title">{product.name}</span>
+                    <span className="wm-workspace-list-item__copy">{buildMetricLabel(product)}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="wm-workspace-empty">
+                No WyreStorm products matched that search. Try a broader family, clear the query, or
+                search by a simpler customer outcome.
+              </div>
+            )}
+          </section>
+        </>
+      ) : null}
+
+      {mode === "flashcards" ? (
+        <>
+          <section className="wm-workspace-card">
+            <div className="wm-workspace-card__header">
+              <h3 className="wm-workspace-card__title">Conversation starters</h3>
+              <p className="wm-workspace-card__copy">
+                Start with the customer outcome before you narrow into product. This keeps the sales
+                conversation confident even when the person using Wingman is not the AV expert.
+              </p>
+            </div>
+            <div className="wm-next-step">
+              Pick the outcome the customer is describing. Use the right-hand coaching panel to ask
+              better questions, then jump back into Product Positioning when a family or SKU becomes
+              obvious.
+            </div>
           </section>
 
-          <section style={panelStyle}>
-            <div style={sectionTitleStyle}>Tier Guidance</div>
-            <div style={bodyTextStyle}>{recommendation.tierReason}</div>
-          </section>
-
-          <section style={panelStyle}>
-            <div style={sectionTitleStyle}>Tiered BOM Guidance</div>
-            <div style={listWrapStyle}>
-              {recommendation.tieredBom.map((item) => (
-                <div key={item.role + item.guidance} style={bulletRowStyle}>
-                  <div style={bulletDotStyle}>•</div>
-                  <div style={listTextStyle}>
-                    <strong>{item.tier}</strong> — {item.role}: {item.guidance}
-                  </div>
-                </div>
+          <section className="wm-workspace-card">
+            <div className="wm-workspace-list wm-sales-page__selector-list">
+              {SALES_CONVERSATION_CARDS.map((card) => (
+                <button
+                  key={card.id}
+                  type="button"
+                  className={`wm-workspace-list-item wm-sales-page__selector-item${selectedFlashCard?.id === card.id ? " wm-workspace-list-item--active" : ""}`}
+                  aria-pressed={selectedFlashCard?.id === card.id}
+                  onClick={() => setSelectedFlashCardId(card.id)}
+                >
+                  <span className="wm-workspace-list-item__eyebrow">{card.outcome}</span>
+                  <span className="wm-workspace-list-item__title">{card.title}</span>
+                  <span className="wm-workspace-list-item__copy">{card.opener}</span>
+                </button>
               ))}
             </div>
           </section>
+        </>
+      ) : null}
 
-          <section style={panelStyle}>
-            <div style={sectionTitleStyle}>Proposal Summary</div>
-            <textarea style={textAreaStyle} value={recommendation.proposalSummary} readOnly />
-            <div style={buttonRowStyle}>
-              <button type="button" style={primaryButtonStyle} onClick={handleCopy}>
-                {copied ? "Copied" : "Copy Summary"}
+      {mode === "brand" ? (
+        <>
+          <section className="wm-workspace-card">
+            <div className="wm-workspace-card__header">
+              <h3 className="wm-workspace-card__title">Position WyreStorm</h3>
+              <p className="wm-workspace-card__copy">
+                Use this when you need a cleaner opening story for the company, the platform, or one
+                of the core ranges before you drop into product-level detail.
+              </p>
+            </div>
+            <div className="wm-next-step">
+              Open with the range story, earn the customer&apos;s confidence, then narrow into the
+              right product family and SKU once the need is better defined.
+            </div>
+          </section>
+
+          <section className="wm-workspace-card">
+            <div className="wm-workspace-list wm-sales-page__selector-list">
+              {SALES_PITCH_MODULES.map((pitch) => (
+                <button
+                  key={pitch.id}
+                  type="button"
+                  className={`wm-workspace-list-item wm-sales-page__selector-item${selectedPitch?.id === pitch.id ? " wm-workspace-list-item--active" : ""}`}
+                  aria-pressed={selectedPitch?.id === pitch.id}
+                  onClick={() => setSelectedPitchId(pitch.id)}
+                >
+                  <span className="wm-workspace-list-item__eyebrow">{pitch.eyebrow}</span>
+                  <span className="wm-workspace-list-item__title">{pitch.title}</span>
+                  <span className="wm-workspace-list-item__copy">{pitch.elevatorPitch}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </>
+      ) : null}
+    </div>
+  );
+
+  const right = mode === "product" ? (
+    selectedProduct && productGuide ? (
+      <div className="wm-workspace-stack wm-sales-page__column wm-sales-page__column--output">
+        <section className="wm-workspace-card wm-workspace-card--muted wm-sales-page__hero-card">
+          <div className="wm-workspace-card__header">
+            <span className="wm-workspace-list-item__eyebrow">{selectedProduct.sku}</span>
+            <h3 className="wm-workspace-card__title">{selectedProduct.name}</h3>
+            <p className="wm-workspace-card__copy">{productGuide.headline}</p>
+          </div>
+
+          <div className="wm-workspace-prose">{productGuide.elevatorPitch}</div>
+
+          <div className="wm-workspace-grid-3 wm-sales-page__meta-grid">
+            <div className="wm-workspace-metric">
+              <span>Family</span>
+              <strong>{selectedProduct.family}</strong>
+            </div>
+            <div className="wm-workspace-metric">
+              <span>Category</span>
+              <strong>{selectedProduct.category}</strong>
+            </div>
+            <div className="wm-workspace-metric">
+              <span>Transport</span>
+              <strong>{tidy(selectedProduct.transport) || "General AV"}</strong>
+            </div>
+          </div>
+
+          <div className="wm-workspace-tag-row">
+            {selectedProductTags.map((tag) => (
+              <span key={tag} className="wm-workspace-tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          <div className="wm-workspace-action-row">
+            <button
+              type="button"
+              className="wm-btn-primary"
+              onClick={() =>
+                void copyText(
+                  `${selectedProduct.sku} positioning pitch`,
+                  joinParagraphs([
+                    `${selectedProduct.sku} | ${selectedProduct.name}`,
+                    productGuide.elevatorPitch,
+                    "How to position it:",
+                    ...productGuide.positioningHighlights.map((item) => `- ${item}`),
+                    "Questions to ask:",
+                    ...productGuide.discoveryQuestions.map((item) => `- ${item}`),
+                  ]),
+                )
+              }
+            >
+              Copy talk track
+            </button>
+            <button
+              type="button"
+              className="wm-btn-secondary"
+              onClick={() => openFlashCard(productGuide.recommendedFlashCardId)}
+            >
+              Open matching flash card
+            </button>
+            <button
+              type="button"
+              className="wm-btn-secondary"
+              onClick={() => openPitch(productGuide.recommendedPitchId)}
+            >
+              Open range pitch
+            </button>
+            <Link to={WM_ROUTES.COMPARE} className="wm-btn">
+              Compare against competition
+            </Link>
+            <Link to={WM_ROUTES.PRODUCT_INTELLIGENCE} className="wm-btn">
+              Product intelligence
+            </Link>
+            {selectedProduct.sourceUrl ? (
+              <a href={selectedProduct.sourceUrl} target="_blank" rel="noreferrer" className="wm-btn">
+                Manufacturer page
+              </a>
+            ) : null}
+          </div>
+        </section>
+
+        <div className="wm-sales-page__support-grid">
+          <section className="wm-workspace-card">
+            <div className="wm-workspace-card__header">
+              <h3 className="wm-workspace-card__title">How to position it</h3>
+              <p className="wm-workspace-card__copy">
+                Use these lines to translate the spec sheet into customer language.
+              </p>
+            </div>
+            <ul className="wm-sales-page__bullet-list">
+              {productGuide.positioningHighlights.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="wm-workspace-card">
+            <div className="wm-workspace-card__header">
+              <h3 className="wm-workspace-card__title">Questions to ask next</h3>
+              <p className="wm-workspace-card__copy">
+                Keep the conversation moving toward a better-fit WyreStorm recommendation.
+              </p>
+            </div>
+            <ul className="wm-sales-page__bullet-list">
+              {productGuide.discoveryQuestions.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+        </div>
+
+        <section className="wm-workspace-card">
+          <div className="wm-workspace-card__header">
+            <h3 className="wm-workspace-card__title">Proof points to promote</h3>
+            <p className="wm-workspace-card__copy">{productGuide.rangeConnection}</p>
+          </div>
+          <ul className="wm-sales-page__bullet-list">
+            {productGuide.proofPoints.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    ) : (
+      <div className="wm-workspace-empty">
+        No product matches the current search. Clear the query or switch to a broader family to get
+        back to a usable sales story.
+      </div>
+    )
+  ) : mode === "flashcards" ? (
+    selectedFlashCard ? (
+      <div className="wm-workspace-stack wm-sales-page__column wm-sales-page__column--output">
+        <section className="wm-workspace-card wm-workspace-card--muted wm-sales-page__hero-card">
+          <div className="wm-workspace-card__header">
+            <span className="wm-workspace-list-item__eyebrow">{selectedFlashCard.outcome}</span>
+            <h3 className="wm-workspace-card__title">{selectedFlashCard.title}</h3>
+            <p className="wm-workspace-card__copy">{selectedFlashCard.opener}</p>
+          </div>
+
+          <div className="wm-workspace-action-row">
+            <button
+              type="button"
+              className="wm-btn-primary"
+              onClick={() =>
+                void copyText(
+                  `${selectedFlashCard.title} flash card`,
+                  joinParagraphs([
+                    selectedFlashCard.title,
+                    selectedFlashCard.opener,
+                    "Qualification questions:",
+                    ...selectedFlashCard.qualificationQuestions.map((item) => `- ${item}`),
+                    "How to position WyreStorm:",
+                    ...selectedFlashCard.wyrestormAngles.map((item) => `- ${item}`),
+                  ]),
+                )
+              }
+            >
+              Copy flash card
+            </button>
+            <Link to={selectedFlashCard.route} className="wm-btn-secondary">
+              Open recommended tool
+            </Link>
+          </div>
+        </section>
+
+        <div className="wm-sales-page__support-grid">
+          <section className="wm-workspace-card">
+            <div className="wm-workspace-card__header">
+              <h3 className="wm-workspace-card__title">Questions to ask</h3>
+              <p className="wm-workspace-card__copy">
+                Use these to qualify the customer need before you jump to product.
+              </p>
+            </div>
+            <ul className="wm-sales-page__bullet-list">
+              {selectedFlashCard.qualificationQuestions.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="wm-workspace-card">
+            <div className="wm-workspace-card__header">
+              <h3 className="wm-workspace-card__title">How to position WyreStorm</h3>
+              <p className="wm-workspace-card__copy">
+                Keep the conversation outcome-led, then let the product family support the story.
+              </p>
+            </div>
+            <ul className="wm-sales-page__bullet-list">
+              {selectedFlashCard.wyrestormAngles.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+        </div>
+
+        <section className="wm-workspace-card">
+          <div className="wm-workspace-card__header">
+            <h3 className="wm-workspace-card__title">Keep the conversation going</h3>
+            <p className="wm-workspace-card__copy">
+              Use these bridges to move from the opener into the right product family or next tool.
+            </p>
+          </div>
+
+          <ul className="wm-sales-page__bullet-list">
+            {selectedFlashCard.keepConversationMoving.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+
+          <div className="wm-sales-page__chip-group">
+            {selectedFlashCard.recommendedFamilies.map((item) => (
+              <button
+                key={item}
+                type="button"
+                className="wm-workspace-tag wm-sales-page__chip-button"
+                onClick={() => focusFamily(item)}
+              >
+                {item}
               </button>
-            </div>
-          </section>
+            ))}
+          </div>
+
+          <div className="wm-sales-page__chip-group">
+            {selectedFlashCard.sampleSkus.map((sku) => (
+              <button
+                key={sku}
+                type="button"
+                className="wm-workspace-tag wm-sales-page__chip-button"
+                onClick={() => focusSku(sku)}
+              >
+                {sku}
+              </button>
+            ))}
+          </div>
+        </section>
+      </div>
+    ) : null
+  ) : selectedPitch ? (
+    <div className="wm-workspace-stack wm-sales-page__column wm-sales-page__column--output">
+      <section className="wm-workspace-card wm-workspace-card--muted wm-sales-page__hero-card">
+        <div className="wm-workspace-card__header">
+          <span className="wm-workspace-list-item__eyebrow">{selectedPitch.eyebrow}</span>
+          <h3 className="wm-workspace-card__title">{selectedPitch.title}</h3>
+          <p className="wm-workspace-card__copy">{selectedPitch.elevatorPitch}</p>
         </div>
 
-        <div style={rightColumnStyle}>
-          <section style={panelStyle}>
-            <div style={sectionTitleStyle}>Recommended WyreStorm Families</div>
-            <div style={listWrapStyle}>
-              {recommendation.recommendedFamilies.map((item) => (
-                <div key={item.family + item.priority} style={familyCardStyle}>
-                  <div style={familyHeaderStyle}>
-                    <div style={familyNameStyle}>{item.family}</div>
-                    <div style={priorityPillStyle(item.priority)}>{item.priority}</div>
-                  </div>
-                  <div style={bodyTextStyle}>{item.rationale}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section style={guruPanelStyle}>
-            <div style={guruIconStyle}>G</div>
-            <div style={stack6Style}>
-              <div style={sectionTitleStyle}>Wingman Guru</div>
-              <div style={bodyTextStyle}>
-                This recommendation engine is rules-based first. Once your product and match data mature,
-                the same output can drive product selection, BOM assembly and proposal text automatically.
-              </div>
-            </div>
-          </section>
-
-          <section style={panelStyle}>
-            <div style={sectionTitleStyle}>Checks Before Issue</div>
-            <div style={listWrapStyle}>
-              {recommendation.risks.map((item) => (
-                <div key={item} style={bulletRowStyle}>
-                  <div style={bulletDotStyle}>•</div>
-                  <div style={listTextStyle}>{item}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section style={panelStyle}>
-            <div style={sectionTitleStyle}>Next Steps</div>
-            <div style={listWrapStyle}>
-              {recommendation.nextSteps.map((item) => (
-                <div key={item} style={bulletRowStyle}>
-                  <div style={bulletDotStyle}>•</div>
-                  <div style={listTextStyle}>{item}</div>
-                </div>
-              ))}
-            </div>
-          </section>
+        <div className="wm-workspace-action-row">
+          <button
+            type="button"
+            className="wm-btn-primary"
+            onClick={() =>
+              void copyText(
+                `${selectedPitch.title} elevator pitch`,
+                joinParagraphs([
+                  selectedPitch.title,
+                  selectedPitch.elevatorPitch,
+                  "Lead with:",
+                  ...selectedPitch.leadWith.map((item) => `- ${item}`),
+                  "Proof points:",
+                  ...selectedPitch.proofPoints.map((item) => `- ${item}`),
+                ]),
+              )
+            }
+          >
+            Copy elevator pitch
+          </button>
+          <Link to={selectedPitch.route} className="wm-btn-secondary">
+            Open supporting tool
+          </Link>
         </div>
       </section>
-    </main>
+
+      <div className="wm-sales-page__support-grid">
+        <section className="wm-workspace-card">
+          <div className="wm-workspace-card__header">
+            <h3 className="wm-workspace-card__title">Lead with</h3>
+            <p className="wm-workspace-card__copy">
+              These points help the salesperson open the conversation with confidence.
+            </p>
+          </div>
+          <ul className="wm-sales-page__bullet-list">
+            {selectedPitch.leadWith.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="wm-workspace-card">
+          <div className="wm-workspace-card__header">
+            <h3 className="wm-workspace-card__title">Keep the conversation moving</h3>
+            <p className="wm-workspace-card__copy">
+              Use these bridges when the customer wants more depth without losing the simple story.
+            </p>
+          </div>
+          <ul className="wm-sales-page__bullet-list">
+            {selectedPitch.keepConversationMoving.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      </div>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Proof points and next moves</h3>
+          <p className="wm-workspace-card__copy">
+            Use these to support the elevator pitch once the customer asks for a little more.
+          </p>
+        </div>
+
+        <ul className="wm-sales-page__bullet-list">
+          {selectedPitch.proofPoints.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+
+        <div className="wm-sales-page__chip-group">
+          {selectedPitch.relatedFamilies.map((item) => (
+            <button
+              key={item}
+              type="button"
+              className="wm-workspace-tag wm-sales-page__chip-button"
+              onClick={() => focusFamily(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        <div className="wm-sales-page__chip-group">
+          {selectedPitch.sampleSkus.map((sku) => (
+            <button
+              key={sku}
+              type="button"
+              className="wm-workspace-tag wm-sales-page__chip-button"
+              onClick={() => focusSku(sku)}
+            >
+              {sku}
+            </button>
+          ))}
+        </div>
+      </section>
+    </div>
+  ) : null;
+
+  return (
+    <SplitWorkspaceFrame
+      title="Sales Positioning"
+      subtitle="Wingman is here to give the salesperson an AV expert on demand: open the conversation with confidence, move into the right WyreStorm range, and keep enough supporting detail in front of you to sell against the competition."
+      leftTitle="Enablement Controls"
+      rightTitle="Sales Support"
+      left={left}
+      right={right}
+      top={
+        <div className="wm-workspace-action-row wm-sales-page__top-actions">
+          <Link to={WM_ROUTES.COMPARE} className="wm-btn-secondary">
+            Competitor Compare
+          </Link>
+          <Link to={WM_ROUTES.PRODUCT_INTELLIGENCE} className="wm-btn-secondary">
+            Product Intelligence
+          </Link>
+          <Link to={WM_ROUTES.TRAINING} className="wm-btn">
+            Training Hub
+          </Link>
+          <Link to={WM_ROUTES.PROPOSAL} className="wm-btn">
+            Proposal Builder
+          </Link>
+          <span className="wm-workspace-tag wm-sales-page__project-pill">
+            {activeProject ? `Active project: ${activeProject.name}` : "Works with or without a live project"}
+          </span>
+        </div>
+      }
+      bottom={status ? <div className="wm-workspace-empty">{status}</div> : null}
+    />
   );
 }
-
-const pageStyle: CSSProperties = {
-  display: "grid",
-  gap: 20,
-  padding: 24,
-  width: "100%",
-  maxWidth: 1480,
-  margin: "0 auto",
-};
-
-const heroStyle: CSSProperties = {
-  padding: 24,
-  borderRadius: 18,
-  background: "linear-gradient(180deg, rgba(15,23,42,0.94), rgba(8,15,28,0.98))",
-  border: "1px solid rgba(255,255,255,0.08)",
-};
-
-const summaryGridStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-  gap: 16,
-};
-
-const twoColumnStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "minmax(0, 1.5fr) minmax(320px, 1fr)",
-  gap: 20,
-  alignItems: "start",
-};
-
-const leftColumnStyle: CSSProperties = {
-  display: "grid",
-  gap: 20,
-  minWidth: 0,
-};
-
-const rightColumnStyle: CSSProperties = {
-  display: "grid",
-  gap: 20,
-  minWidth: 0,
-};
-
-const panelStyle: CSSProperties = {
-  display: "grid",
-  gap: 12,
-  padding: 20,
-  borderRadius: 18,
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.08)",
-};
-
-const guruPanelStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "56px 1fr",
-  gap: 14,
-  alignItems: "start",
-  padding: 20,
-  borderRadius: 18,
-  background: "linear-gradient(135deg, rgba(249,115,22,0.18), rgba(15,23,42,0.96))",
-  border: "1px solid rgba(249,115,22,0.24)",
-};
-
-const factsGridStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-  gap: 12,
-};
-
-const factCardStyle: CSSProperties = {
-  display: "grid",
-  gap: 6,
-  padding: 14,
-  borderRadius: 14,
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.06)",
-};
-
-const familyCardStyle: CSSProperties = {
-  display: "grid",
-  gap: 8,
-  padding: 14,
-  borderRadius: 14,
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.06)",
-};
-
-const familyHeaderStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 12,
-};
-
-const familyNameStyle: CSSProperties = {
-  color: "#ffffff",
-  fontSize: 15,
-  fontWeight: 800,
-};
-
-function priorityPillStyle(priority: "primary" | "secondary"): CSSProperties {
-  return {
-    padding: "6px 10px",
-    borderRadius: 999,
-    fontSize: 11,
-    fontWeight: 800,
-    textTransform: "uppercase",
-    color: "#ffffff",
-    background: priority === "primary"
-      ? "rgba(249,115,22,0.24)"
-      : "rgba(255,255,255,0.10)",
-    border: priority === "primary"
-      ? "1px solid rgba(249,115,22,0.34)"
-      : "1px solid rgba(255,255,255,0.12)",
-  };
-}
-
-const factLabelStyle: CSSProperties = {
-  color: "rgba(255,255,255,0.62)",
-  fontSize: 11,
-  fontWeight: 700,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
-};
-
-const factValueStyle: CSSProperties = {
-  color: "#ffffff",
-  fontSize: 18,
-  fontWeight: 800,
-};
-
-const stack10Style: CSSProperties = {
-  display: "grid",
-  gap: 10,
-};
-
-const stack6Style: CSSProperties = {
-  display: "grid",
-  gap: 6,
-};
-
-const eyebrowStyle: CSSProperties = {
-  fontSize: 11,
-  fontWeight: 800,
-  letterSpacing: "0.14em",
-  textTransform: "uppercase",
-  color: "rgba(255,255,255,0.64)",
-};
-
-const heroTitleStyle: CSSProperties = {
-  color: "#ffffff",
-  fontSize: 32,
-  fontWeight: 800,
-  lineHeight: 1.08,
-  margin: 0,
-};
-
-const heroTextStyle: CSSProperties = {
-  color: "rgba(255,255,255,0.86)",
-  fontSize: 15,
-  lineHeight: 1.6,
-  margin: 0,
-  maxWidth: 900,
-};
-
-const sectionLabelStyle: CSSProperties = {
-  color: "rgba(255,255,255,0.62)",
-  fontSize: 11,
-  fontWeight: 800,
-  letterSpacing: "0.10em",
-  textTransform: "uppercase",
-};
-
-const sectionValueStyle: CSSProperties = {
-  color: "#ffffff",
-  fontSize: 18,
-  fontWeight: 800,
-};
-
-const sectionTitleStyle: CSSProperties = {
-  color: "#ffffff",
-  fontSize: 18,
-  fontWeight: 800,
-  lineHeight: 1.2,
-};
-
-const bodyTextStyle: CSSProperties = {
-  color: "rgba(255,255,255,0.88)",
-  fontSize: 14,
-  lineHeight: 1.65,
-};
-
-const listWrapStyle: CSSProperties = {
-  display: "grid",
-  gap: 10,
-};
-
-const bulletRowStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "16px 1fr",
-  gap: 8,
-  alignItems: "start",
-};
-
-const bulletDotStyle: CSSProperties = {
-  color: "#fb923c",
-  fontSize: 16,
-  lineHeight: 1.2,
-};
-
-const listTextStyle: CSSProperties = {
-  color: "rgba(255,255,255,0.88)",
-  fontSize: 14,
-  lineHeight: 1.6,
-};
-
-const textAreaStyle: CSSProperties = {
-  width: "100%",
-  minHeight: 260,
-  resize: "vertical",
-  borderRadius: 14,
-  border: "1px solid rgba(255,255,255,0.08)",
-  background: "rgba(5,10,20,0.8)",
-  color: "#ffffff",
-  padding: 14,
-  fontSize: 13,
-  lineHeight: 1.55,
-};
-
-const buttonRowStyle: CSSProperties = {
-  display: "flex",
-  justifyContent: "flex-end",
-};
-
-const primaryButtonStyle: CSSProperties = {
-  padding: "12px 16px",
-  borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.12)",
-  background: "linear-gradient(135deg, #fb923c 0%, #ea580c 100%)",
-  color: "#ffffff",
-  fontWeight: 800,
-  cursor: "pointer",
-};
-
-function tierPillStyle(tier: "Bronze" | "Silver" | "Gold"): CSSProperties {
-  const bg =
-    tier === "Bronze"
-      ? "rgba(120,113,108,0.30)"
-      : tier === "Silver"
-      ? "rgba(148,163,184,0.26)"
-      : "rgba(249,115,22,0.24)";
-
-  const border =
-    tier === "Bronze"
-      ? "1px solid rgba(168,162,158,0.32)"
-      : tier === "Silver"
-      ? "1px solid rgba(148,163,184,0.32)"
-      : "1px solid rgba(249,115,22,0.34)";
-
-  return {
-    display: "inline-flex",
-    width: "fit-content",
-    padding: "8px 12px",
-    borderRadius: 999,
-    color: "#ffffff",
-    fontSize: 13,
-    fontWeight: 800,
-    background: bg,
-    border,
-  };
-}
-
-const guruIconStyle: CSSProperties = {
-  width: 56,
-  height: 56,
-  borderRadius: 16,
-  display: "grid",
-  placeItems: "center",
-  background: "linear-gradient(135deg, #fb923c 0%, #ea580c 100%)",
-  color: "#ffffff",
-  fontSize: 22,
-  fontWeight: 800,
-};

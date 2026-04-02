@@ -1,7 +1,6 @@
 import http from "node:http";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { createClient } from "@supabase/supabase-js";
 import {
   COMPETITOR_APPROVALS_FILE,
   COMPETITOR_CATALOG_FILE,
@@ -41,6 +40,12 @@ import {
 } from "./wingman-app-store.mjs";
 import { resolveCompetitorMatch } from "./competitor/resolve-match.mjs";
 import { resolveCompetitorLiveLookup } from "./competitor/live-lookup.mjs";
+
+let createSupabaseClient = null;
+try {
+  ({ createClient: createSupabaseClient } = await import("@supabase/supabase-js"));
+} catch {
+}
 
 const PORT = Number(process.env.PORT || 8787);
 const HOST = process.env.HOST || "127.0.0.1";
@@ -231,9 +236,10 @@ async function getCompetitorCatalog() {
 function getSupabaseClient() {
   if (!SUPABASE_APPROVALS_ENABLED) return null;
   if (supabaseClient) return supabaseClient;
+  if (typeof createSupabaseClient !== "function") return null;
 
   try {
-    supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    supabaseClient = createSupabaseClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
     return supabaseClient;

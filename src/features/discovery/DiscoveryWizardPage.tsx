@@ -1,12 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router-dom";
+import SplitWorkspaceFrame from "@/components/workspace/SplitWorkspaceFrame";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
-import { saveActiveProject } from "@/app/logic/wingmanProjectState";
 import {
-  buildDiscoveryPersistedProject,
-  upsertPersistedProject,
-} from "@/app/logic/wingmanProjectPersistence";
-import { WingmanWorkflowShell } from "@/features/wingmanUx/WingmanWorkflowShell";
+  ensureActiveProject,
+  getActiveProject,
+  setActiveProjectId,
+  subscribeProjects,
+  updateProjectDiscovery,
+  type DiscoveryProductFamily,
+} from "@/features/projects/projectStore";
+import "./discovery-wizard-page.css";
 
 type OutcomePath =
   | "Extender / point-to-point"
@@ -15,338 +19,584 @@ type OutcomePath =
   | "AV over IP distribution"
   | "Video wall design";
 
-const outcomeOptions: { label: OutcomePath; summary: string; hints: string[] }[] = [
+type DiscoveryPanel = "direction" | "next";
+
+type OutcomeOption = {
+  label: OutcomePath;
+  summary: string;
+  hints: string[];
+};
+
+const OUTCOME_OPTIONS: OutcomeOption[] = [
   {
     label: "Extender / point-to-point",
-    summary: "Use when a single source needs to reach a single destination over distance.",
+    summary: "Use when one source needs to reach one destination cleanly over distance.",
     hints: ["Distance-led", "Single route", "Simple transport"],
   },
   {
     label: "Splitter / one-to-many",
-    summary: "Use when one source needs to be mirrored to multiple displays.",
+    summary: "Use when one source needs to mirror to multiple displays without flexible switching.",
     hints: ["Mirrored outputs", "Simple distribution", "Fixed source"],
   },
   {
     label: "Matrix / presentation switching",
-    summary: "Use when multiple sources must be switched between one or more displays.",
+    summary: "Use when multiple sources need to switch between one or more displays.",
     hints: ["Multiple sources", "Routing control", "Room switching"],
   },
   {
     label: "AV over IP distribution",
-    summary: "Use when the site needs flexible routing over managed network infrastructure.",
+    summary: "Use when the site needs scalable routing over a managed network.",
     hints: ["Network transport", "Scalable", "Multi-zone"],
   },
   {
     label: "Video wall design",
-    summary: "Use when the display canvas and processing strategy are the primary design driver.",
+    summary: "Use when the display canvas and processor strategy are the main design driver.",
     hints: ["Display canvas", "Processor strategy", "Wall planning"],
   },
 ];
 
+function normalizeOutcome(value?: string | null): OutcomePath {
+  const text = String(value ?? "").trim().toLowerCase();
+  if (text.includes("video wall") || text.includes("videowall") || text.includes("wall")) {
+    return "Video wall design";
+  }
+  if (text.includes("av over ip") || text.includes("avoip") || text.includes("network")) {
+    return "AV over IP distribution";
+  }
+  if (text.includes("extender") || text.includes("point-to-point") || text.includes("extend")) {
+    return "Extender / point-to-point";
+  }
+  if (text.includes("splitter") || text.includes("one-to-many") || text.includes("duplicate")) {
+    return "Splitter / one-to-many";
+  }
+  return "Matrix / presentation switching";
+}
+
+function yesNoFromValue(value?: string | null): "Yes" | "No" {
+  const text = String(value ?? "").trim().toLowerCase();
+  return text === "yes" || text.includes("ready") || text.includes("managed") || text.includes("future")
+    ? "Yes"
+    : "No";
+}
+
+function getRouteLabel(route: string): string {
+  if (route === WM_ROUTES.videoWall) return "Video Wall";
+  if (route === WM_ROUTES.proposal) return "Proposal";
+  if (route === WM_ROUTES.catalog) return "Product Catalogue";
+  if (route === WM_ROUTES.roomWizard) return "Room Wizard";
+  return "Next Tool";
+}
+
+function getTransportDistanceBand(distance: number): string {
+  if (distance > 100) return "More than 100m";
+  if (distance > 70) return "Up to 100m";
+  if (distance > 40) return "Up to 70m";
+  if (distance > 0) return "Up to 40m";
+  return "";
+}
+
+function buildRecommendedFamilies(
+  outcome: OutcomePath,
+  displays: number,
+  sources: number,
+  distance: number,
+  usbNeeds: string,
+  networkReady: boolean,
+  futureExpansion: boolean,
+): DiscoveryProductFamily[] {
+  const families = new Set<DiscoveryProductFamily>();
+
+  if (outcome === "Video wall design") {
+    families.add("Video Wall");
+    if (networkReady || displays >= 4) families.add("AVoIP");
+  } else if (outcome === "AV over IP distribution") {
+    families.add("AVoIP");
+    families.add("Matrix");
+  } else if (outcome === "Matrix / presentation switching") {
+    families.add("Apollo");
+    families.add("Matrix");
+  } else if (outcome === "Splitter / one-to-many") {
+    families.add("HDBaseT");
+    families.add("Apollo");
+  } else {
+    families.add(distance > 30 ? "HDBaseT" : "Apollo");
+  }
+
+  if (usbNeeds === "Yes") families.add("USB Extension");
+  if ((networkReady || futureExpansion) && outcome !== "Video wall design") families.add("AVoIP");
+  if (sources >= 4 || displays >= 4) families.add("Matrix");
+  if (families.size === 0) families.add("Apollo");
+
+  return Array.from(families);
+}
+
+function getPrimaryRoute(outcome: OutcomePath): string {
+  if (outcome === "Video wall design") return WM_ROUTES.videoWall;
+  if (outcome === "Matrix / presentation switching") return WM_ROUTES.proposal;
+  return WM_ROUTES.catalog;
+}
+
+function getSecondaryRoute(primaryRoute: string): string {
+  if (primaryRoute === WM_ROUTES.videoWall) return WM_ROUTES.proposal;
+  if (primaryRoute === WM_ROUTES.proposal) return WM_ROUTES.catalog;
+  return WM_ROUTES.roomWizard;
+}
+
 export default function DiscoveryWizardPage() {
   const navigate = useNavigate();
+  const activeProject = useSyncExternalStore(subscribeProjects, getActiveProject, () => undefined);
+  const [panel, setPanel] = useState<DiscoveryPanel>("direction");
+  const [outcome, setOutcome] = useState<OutcomePath>(() =>
+    normalizeOutcome(activeProject?.discovery?.workflowTrack ?? activeProject?.discovery?.applicationType),
+  );
+  const [displayCount, setDisplayCount] = useState(() => activeProject?.discovery?.displayCount || "2");
+  const [sourceCount, setSourceCount] = useState(() => activeProject?.discovery?.sourceCount || "3");
+  const [distance, setDistance] = useState(() => activeProject?.discovery?.cableDistanceM || "15");
+  const [usbNeeds, setUsbNeeds] = useState<"Yes" | "No">(() =>
+    yesNoFromValue(activeProject?.discovery?.usbNeeds),
+  );
+  const [networkReady, setNetworkReady] = useState<"Yes" | "No">(() =>
+    yesNoFromValue(activeProject?.discovery?.networkEnvironment),
+  );
+  const [futureExpansion, setFutureExpansion] = useState<"Yes" | "No">(() =>
+    yesNoFromValue(activeProject?.discovery?.controlNeeds),
+  );
+  const [notes, setNotes] = useState(() => activeProject?.discovery?.notes ?? activeProject?.notes ?? "");
 
-  const [outcome, setOutcome] = useState<OutcomePath>("Matrix / presentation switching");
-  const [displayCount, setDisplayCount] = useState("2");
-  const [sourceCount, setSourceCount] = useState("3");
-  const [distance, setDistance] = useState("15");
-  const [usbNeeds, setUsbNeeds] = useState("No");
-  const [networkReady, setNetworkReady] = useState("No");
-  const [futureExpansion, setFutureExpansion] = useState("No");
-  const [notes, setNotes] = useState("");
+  useEffect(() => {
+    const discovery = activeProject?.discovery;
+    setOutcome(normalizeOutcome(discovery?.workflowTrack ?? discovery?.applicationType));
+    setDisplayCount(discovery?.displayCount || "2");
+    setSourceCount(discovery?.sourceCount || "3");
+    setDistance(discovery?.cableDistanceM || "15");
+    setUsbNeeds(yesNoFromValue(discovery?.usbNeeds));
+    setNetworkReady(yesNoFromValue(discovery?.networkEnvironment));
+    setFutureExpansion(yesNoFromValue(discovery?.controlNeeds));
+    setNotes(discovery?.notes ?? activeProject?.notes ?? "");
+  }, [activeProject?.id]);
 
   const recommendation = useMemo(() => {
     const displays = Number(displayCount) || 0;
     const sources = Number(sourceCount) || 0;
-    const dist = Number(distance) || 0;
+    const distanceM = Number(distance) || 0;
     const networkIsReady = networkReady === "Yes";
     const expansionExpected = futureExpansion === "Yes";
-
-    const avoipScore =
-      (sources >= 3 ? 2 : 0) +
-      (displays >= 3 ? 2 : 0) +
-      (outcome === "Video wall design" ? 3 : 0) +
-      (dist > 30 ? 1 : 0) +
-      (networkIsReady ? 2 : 0) +
-      (expansionExpected ? 2 : 0);
-
-    let nextTool = "Catalogue";
-    if (outcome === "Video wall design") nextTool = "Video Wall";
-    if (outcome === "Matrix / presentation switching") nextTool = "Proposal";
-    if (outcome === "AV over IP distribution") nextTool = "Catalogue";
+    const nextRoute = getPrimaryRoute(outcome);
+    const alternateRoute = getSecondaryRoute(nextRoute);
+    const recommendedFamilies = buildRecommendedFamilies(
+      outcome,
+      displays,
+      sources,
+      distanceM,
+      usbNeeds,
+      networkIsReady,
+      expansionExpected,
+    );
 
     const architecture =
-      outcome === "AV over IP distribution" || (avoipScore >= 5 && networkIsReady)
-        ? "An AV over IP architecture is likely justified for this opportunity."
-        : outcome === "Extender / point-to-point"
-          ? "A direct transport path is the likely starting point."
-          : outcome === "Splitter / one-to-many"
-            ? "Simple mirrored distribution is the likely starting point."
-            : outcome === "Matrix / presentation switching"
-              ? "A switching-led architecture is the likely starting point."
-              : "A display-canvas-led design flow is the likely starting point.";
+      outcome === "Video wall design"
+        ? "The display canvas is driving this project, so the processor and wall topology should stay in focus."
+        : outcome === "AV over IP distribution" || ((sources >= 3 || displays >= 3) && networkIsReady)
+          ? "A scalable network-routed architecture is likely justified for this opportunity."
+          : outcome === "Extender / point-to-point"
+            ? "A direct transport path is the cleanest starting point for this brief."
+            : outcome === "Splitter / one-to-many"
+              ? "A fixed distribution workflow is the likely starting point."
+              : "A switching-led room architecture is the most likely starting point.";
 
     const transport =
-      avoipScore >= 5 && networkIsReady
-        ? "AVoIP should be considered because routing flexibility, scalability, and network readiness are present."
-        : dist > 30
-          ? "Distance suggests HDBaseT or AV over IP should be considered."
-          : "Distance appears suitable for standard room-scale transport, depending on signal requirements.";
+      outcome === "AV over IP distribution" || ((sources >= 3 || displays >= 3) && networkIsReady)
+        ? "AV over IP is credible here because routing flexibility, scale, or network readiness are already present."
+        : distanceM > 30
+          ? "The transport distance is long enough that HDBaseT or AV over IP should be treated as the baseline."
+          : "The cable distance looks manageable for a compact room workflow, subject to final signal and USB needs.";
 
     const complexity =
-      displays >= 4 || sources >= 4
-        ? "This looks like a medium-to-higher complexity opportunity."
-        : "This looks like a compact to medium opportunity.";
+      displays >= 4 || sources >= 4 || outcome === "Video wall design"
+        ? "Medium-to-higher complexity opportunity."
+        : "Compact-to-medium opportunity.";
 
-    return { nextTool, architecture, transport, complexity };
-  }, [outcome, displayCount, sourceCount, distance, networkReady, futureExpansion]);
-
-  const handleOpenNextTool = () => {
-    const numericSources = Number(sourceCount || 0);
-    const numericDisplays = Number(displayCount || 0);
-    const numericDistance = Number(distance || 0);
-
-    const isUsbRequired = usbNeeds === "Yes";
-    const isNetworkReady = networkReady === "Yes";
-    const isFutureExpansion = futureExpansion === "Yes";
-    const isVideoWall = outcome === "Video wall design";
-    const isWireless = outcome === "AV over IP distribution";
-
-    const discoveryPayload = {
-      name: "New Wingman Project",
-      customer: "",
-      application: outcome,
-      roomType: outcome,
-      notes,
-      avGuide: {
-        usb: isUsbRequired ? "USB / BYOD required" : "No USB requirement",
-        audio: "",
-        control:
-          outcome === "Matrix / presentation switching"
-            ? "Room switching control required"
-            : outcome === "AV over IP distribution"
-              ? "Network-routed control likely required"
-              : "",
-      },
-      videoWall: {
-        wallType: isVideoWall ? "Video Wall" : "",
-      },
-      discovery: {
-        sources: numericSources,
-        sourceCount: numericSources,
-        displays: numericDisplays,
-        displayCount: numericDisplays,
-        distanceM: numericDistance,
-        distance: numericDistance,
-        resolution: "",
-        notes,
-        usbRequired: isUsbRequired,
-        wireless: isWireless,
-        videoWall: isVideoWall,
-        advancedMultiview: isVideoWall && numericDisplays >= 4,
-        hybridMeeting: isUsbRequired && outcome === "Matrix / presentation switching",
-        networkReady: isNetworkReady,
-        futureExpansion: isFutureExpansion,
-      },
+    return {
+      displays,
+      sources,
+      distanceM,
+      nextRoute,
+      alternateRoute,
+      architecture,
+      transport,
+      complexity,
+      transportBand: getTransportDistanceBand(distanceM),
+      recommendedFamilies,
     };
+  }, [displayCount, distance, futureExpansion, networkReady, outcome, sourceCount, usbNeeds]);
 
-    saveActiveProject({
-      name: discoveryPayload.name,
-      customer: discoveryPayload.customer,
-      application: discoveryPayload.application,
-      roomType: discoveryPayload.roomType,
-      discovery: discoveryPayload.discovery,
-      updatedAt: new Date().toISOString(),
+  function persistAndNavigate(route: string) {
+    const nextNotes = notes.trim() || activeProject?.notes?.trim() || "";
+    const nextName =
+      activeProject?.name?.trim() && activeProject.name.trim() !== "New Project"
+        ? activeProject.name.trim()
+        : `${outcome} Project`;
+    const nextCustomer = activeProject?.customer?.trim() || "";
+    const nextRoomName = activeProject?.roomName?.trim() || outcome;
+
+    const project = ensureActiveProject({
+      name: nextName,
+      customer: nextCustomer,
+      roomName: nextRoomName,
+      stage: "Discovery",
+      status: "Draft",
+      notes: nextNotes,
     });
 
-    const persisted = buildDiscoveryPersistedProject(discoveryPayload);
-    upsertPersistedProject(persisted);
+    setActiveProjectId(project.id);
+    updateProjectDiscovery(project.id, {
+      customer: nextCustomer,
+      roomName: nextRoomName,
+      workflowTrack: outcome,
+      projectScope: recommendation.complexity,
+      customerOutcome: recommendation.architecture,
+      switchSolutionType: outcome,
+      matrixIoPreset: `${recommendation.sources}x${recommendation.displays}`,
+      featureRequirements: [
+        usbNeeds === "Yes" ? "USB / BYOD required" : "",
+        recommendation.transport,
+      ].filter(Boolean).join(" | "),
+      applicationType: outcome,
+      displayCount,
+      sourceCount,
+      cableDistanceM: distance,
+      transportDistanceBand: recommendation.transportBand,
+      usbNeeds,
+      networkEnvironment:
+        networkReady === "Yes" ? "Managed AV network available" : "Network not confirmed",
+      controlNeeds:
+        futureExpansion === "Yes" ? "Future expansion expected" : "Current scope only",
+      notes: nextNotes,
+      recommendedFamilies: recommendation.recommendedFamilies,
+      recommendedNextTool: route,
+      createdAt: project.discovery?.createdAt ?? new Date().toISOString(),
+    });
 
-    navigate(
-      recommendation.nextTool === "Video Wall"
-        ? WM_ROUTES.videoWall
-        : recommendation.nextTool === "Proposal"
-          ? WM_ROUTES.proposal
-          : WM_ROUTES.catalog,
-    );
-  };
+    navigate(route);
+  }
 
-  const rightRail = (
-    <>
-      <section className="wmx-right-panel">
-        <div className="wmx-right-title">Design Direction</div>
-        <div className="wmx-alert-list">
-          <div className="wmx-alert-item">
-            <div className="wmx-alert-dot wmx-alert-dot--info" />
-            <div className="wmx-alert-copy">
-              <strong>Architecture</strong>
-              <span>{recommendation.architecture}</span>
+  const left = (
+    <div className="wm-discovery-page__pane wm-workspace-stack">
+      <div className="wm-start-step">
+        Capture the system intent on the left, then keep the architectural readout and next move visible on the right.
+      </div>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">System intent</h3>
+          <p className="wm-workspace-card__copy">Choose the dominant workflow first so the rest of discovery stays focused.</p>
+        </div>
+
+        <div className="wm-workspace-list">
+          {OUTCOME_OPTIONS.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              aria-pressed={item.label === outcome}
+              className={`wm-workspace-list-item${item.label === outcome ? " wm-workspace-list-item--active" : ""}`}
+              onClick={() => setOutcome(item.label)}
+            >
+              <span className="wm-workspace-list-item__title">{item.label}</span>
+              <span className="wm-workspace-list-item__copy">{item.summary}</span>
+              <span className="wm-workspace-tag-row">
+                {item.hints.map((hint) => (
+                  <span key={hint} className="wm-workspace-tag">
+                    {hint}
+                  </span>
+                ))}
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Discovery inputs</h3>
+          <p className="wm-workspace-card__copy">Keep the counts and constraints compact so the next step stays obvious.</p>
+        </div>
+
+        <div className="wm-workspace-form">
+          <div className="wm-workspace-grid-3">
+            <div className="wm-workspace-field">
+              <label htmlFor="discovery-displays" className="wm-workspace-label">
+                Displays
+              </label>
+              <input
+                id="discovery-displays"
+                className="wm-input-dark"
+                type="number"
+                min="0"
+                value={displayCount}
+                onChange={(event) => setDisplayCount(event.target.value)}
+              />
+            </div>
+
+            <div className="wm-workspace-field">
+              <label htmlFor="discovery-sources" className="wm-workspace-label">
+                Sources
+              </label>
+              <input
+                id="discovery-sources"
+                className="wm-input-dark"
+                type="number"
+                min="0"
+                value={sourceCount}
+                onChange={(event) => setSourceCount(event.target.value)}
+              />
+            </div>
+
+            <div className="wm-workspace-field">
+              <label htmlFor="discovery-distance" className="wm-workspace-label">
+                Longest run (m)
+              </label>
+              <input
+                id="discovery-distance"
+                className="wm-input-dark"
+                type="number"
+                min="0"
+                value={distance}
+                onChange={(event) => setDistance(event.target.value)}
+              />
             </div>
           </div>
-          <div className="wmx-alert-item">
-            <div className="wmx-alert-dot wmx-alert-dot--info" />
-            <div className="wmx-alert-copy">
-              <strong>Transport</strong>
-              <span>{recommendation.transport}</span>
+
+          <div className="wm-workspace-grid-3">
+            <div className="wm-workspace-field">
+              <label htmlFor="discovery-usb" className="wm-workspace-label">
+                USB
+              </label>
+              <select
+                id="discovery-usb"
+                className="wm-select-dark"
+                value={usbNeeds}
+                onChange={(event) => setUsbNeeds(event.target.value as "Yes" | "No")}
+              >
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </div>
+
+            <div className="wm-workspace-field">
+              <label htmlFor="discovery-network" className="wm-workspace-label">
+                Network ready
+              </label>
+              <select
+                id="discovery-network"
+                className="wm-select-dark"
+                value={networkReady}
+                onChange={(event) => setNetworkReady(event.target.value as "Yes" | "No")}
+              >
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </div>
+
+            <div className="wm-workspace-field">
+              <label htmlFor="discovery-expansion" className="wm-workspace-label">
+                Future expansion
+              </label>
+              <select
+                id="discovery-expansion"
+                className="wm-select-dark"
+                value={futureExpansion}
+                onChange={(event) => setFutureExpansion(event.target.value as "Yes" | "No")}
+              >
+                <option>Yes</option>
+                <option>No</option>
+              </select>
             </div>
           </div>
-          <div className="wmx-alert-item">
-            <div className="wmx-alert-dot wmx-alert-dot--good" />
-            <div className="wmx-alert-copy">
-              <strong>Complexity</strong>
-              <span>{recommendation.complexity}</span>
-            </div>
+
+          <div className="wm-workspace-field">
+            <label htmlFor="discovery-notes" className="wm-workspace-label">
+              Notes
+            </label>
+            <textarea
+              id="discovery-notes"
+              className="wm-textarea-dark"
+              placeholder="Capture the project signals, user outcome, and any design constraints that change the recommendation."
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+            />
           </div>
         </div>
       </section>
 
-      <section className="wmx-right-panel">
-        <div className="wmx-right-title">Next Tool</div>
-        <div className="wmx-summary-metric">
-          <span>Recommended handoff</span>
-          <strong>{recommendation.nextTool}</strong>
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-grid-3">
+          <div className="wm-workspace-metric">
+            <span>Displays</span>
+            <strong>{recommendation.displays}</strong>
+          </div>
+          <div className="wm-workspace-metric">
+            <span>Sources</span>
+            <strong>{recommendation.sources}</strong>
+          </div>
+          <div className="wm-workspace-metric">
+            <span>Distance band</span>
+            <strong>{recommendation.transportBand || "Not set"}</strong>
+          </div>
+        </div>
+
+        <div className="wm-next-step">
+          Save discovery before leaving the page so the next tool opens with the same design direction already attached to the active project.
         </div>
       </section>
-    </>
+    </div>
+  );
+
+  const right = (
+    <div className="wm-discovery-page__pane wm-workspace-stack">
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-tab-row">
+          <button
+            type="button"
+            className={`wm-workspace-tab${panel === "direction" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setPanel("direction")}
+          >
+            Design direction
+          </button>
+          <button
+            type="button"
+            className={`wm-workspace-tab${panel === "next" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setPanel("next")}
+          >
+            Next steps
+          </button>
+        </div>
+
+        {panel === "direction" ? (
+          <div className="wm-workspace-tabpanel">
+            <div className="wm-discovery-page__direction-summary">
+              <div className="wm-workspace-card__header">
+                <span className="wm-discovery-page__direction-kicker">{outcome}</span>
+                <h3 className="wm-workspace-card__title">Current direction</h3>
+                <p className="wm-workspace-card__copy">
+                  Keep the interpretation on the right so the left side can stay focused on the brief.
+                </p>
+              </div>
+
+              <div className="wm-workspace-grid-3">
+                <div className="wm-workspace-metric">
+                  <span>Primary next tool</span>
+                  <strong>{getRouteLabel(recommendation.nextRoute)}</strong>
+                </div>
+                <div className="wm-workspace-metric">
+                  <span>Complexity</span>
+                  <strong>{recommendation.complexity}</strong>
+                </div>
+                <div className="wm-workspace-metric">
+                  <span>USB</span>
+                  <strong>{usbNeeds}</strong>
+                </div>
+              </div>
+
+              <div className="wm-workspace-tag-row">
+                {recommendation.recommendedFamilies.map((family) => (
+                  <span key={family} className="wm-workspace-tag">
+                    {family}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="wm-discovery-page__support-list">
+              <div className="wm-discovery-page__support-item">
+                <span className="wm-workspace-list-item__title">Architecture</span>
+                <span className="wm-workspace-list-item__copy">{recommendation.architecture}</span>
+              </div>
+              <div className="wm-discovery-page__support-item">
+                <span className="wm-workspace-list-item__title">Transport</span>
+                <span className="wm-workspace-list-item__copy">{recommendation.transport}</span>
+              </div>
+              <div className="wm-discovery-page__support-item">
+                <span className="wm-workspace-list-item__title">Active project</span>
+                <span className="wm-workspace-list-item__copy">
+                  {activeProject ? activeProject.name : "A project shell will be created when you continue."}
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="wm-workspace-tabpanel">
+            <div className="wm-discovery-page__next-summary">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Recommended next move</h3>
+                <p className="wm-workspace-card__copy">
+                  {getRouteLabel(recommendation.nextRoute)} is the cleanest next step for the current discovery pattern.
+                </p>
+              </div>
+
+              <div className="wm-workspace-action-row">
+                <button
+                  type="button"
+                  className="wm-btn-primary"
+                  onClick={() => persistAndNavigate(recommendation.nextRoute)}
+                >
+                  Save and open {getRouteLabel(recommendation.nextRoute)}
+                </button>
+                <button
+                  type="button"
+                  className="wm-btn-secondary"
+                  onClick={() => persistAndNavigate(recommendation.alternateRoute)}
+                >
+                  Save and open {getRouteLabel(recommendation.alternateRoute)}
+                </button>
+              </div>
+            </div>
+
+            <div className="wm-discovery-page__support-list">
+              <div className="wm-discovery-page__support-item">
+                <span className="wm-workspace-list-item__title">What gets saved</span>
+                <span className="wm-workspace-list-item__copy">
+                  Outcome path, source and display counts, distance band, USB, network readiness, future expansion, notes, and the recommended next tool.
+                </span>
+              </div>
+              <div className="wm-discovery-page__support-item">
+                <span className="wm-workspace-list-item__title">Why the layout changed</span>
+                <span className="wm-workspace-list-item__copy">
+                  The discovery questions stay visible on the left while the user reviews the recommendation and next action on the right.
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+    </div>
   );
 
   return (
-    <WingmanWorkflowShell
-      activeStage="discovery"
-      projectName="New Wingman Project"
-      sourceCount={Number(sourceCount || 0)}
-      displayCount={Number(displayCount || 0)}
-      distanceM={Number(distance || 0)}
-      systemType={recommendation.nextTool}
-      rightRail={rightRail}
-    >
-      <section className="wmx-section">
-        <div className="wmx-section-header">
-          <h1>System Intent</h1>
-          <p>Select the primary design outcome</p>
-        </div>
-
-        <div className="wmx-card-row">
-          {outcomeOptions.map((item) => {
-            const active = item.label === outcome;
-            return (
-              <article
-                key={item.label}
-                className={`wmx-config-card${active ? " is-selected" : ""}`}
-                onClick={() => setOutcome(item.label)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="wmx-config-title">{item.label}</div>
-                <div className="wmx-config-copy">{item.summary}</div>
-                <div className="wmx-config-stats">
-                  {item.hints.map((h) => (
-                    <span key={h}>{h}</span>
-                  ))}
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="wmx-section">
-        <div className="wmx-section-header">
-          <h2>System Signals</h2>
-          <p>Define scale, distance, and constraints</p>
-        </div>
-
-        <div className="wmx-card-row">
-          <div className="wmx-config-card">
-            <div className="wmx-config-title">Displays</div>
-            <input
-              className="wm-input-dark"
-              type="number"
-              value={displayCount}
-              onChange={(e) => setDisplayCount(e.target.value)}
-            />
-          </div>
-
-          <div className="wmx-config-card">
-            <div className="wmx-config-title">Sources</div>
-            <input
-              className="wm-input-dark"
-              type="number"
-              value={sourceCount}
-              onChange={(e) => setSourceCount(e.target.value)}
-            />
-          </div>
-
-          <div className="wmx-config-card">
-            <div className="wmx-config-title">Distance (m)</div>
-            <input
-              className="wm-input-dark"
-              type="number"
-              value={distance}
-              onChange={(e) => setDistance(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className="wmx-card-row">
-          <div className="wmx-config-card">
-            <div className="wmx-config-title">USB</div>
-            <select
-              className="wm-select-dark"
-              value={usbNeeds}
-              onChange={(e) => setUsbNeeds(e.target.value)}
-            >
-              <option>Yes</option>
-              <option>No</option>
-            </select>
-          </div>
-
-          <div className="wmx-config-card">
-            <div className="wmx-config-title">Network Ready</div>
-            <select
-              className="wm-select-dark"
-              value={networkReady}
-              onChange={(e) => setNetworkReady(e.target.value)}
-            >
-              <option>Yes</option>
-              <option>No</option>
-            </select>
-          </div>
-
-          <div className="wmx-config-card">
-            <div className="wmx-config-title">Future Expansion</div>
-            <select
-              className="wm-select-dark"
-              value={futureExpansion}
-              onChange={(e) => setFutureExpansion(e.target.value)}
-            >
-              <option>Yes</option>
-              <option>No</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="wmx-data-panel">
-          <div className="wmx-panel-title">Notes</div>
-          <textarea
-            className="wm-textarea-dark"
-            placeholder="Capture room notes, application detail, or priorities."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
-      </section>
-
-      <section className="wmx-section">
-        <div className="wmx-panel-action">
+    <SplitWorkspaceFrame
+      title="Discovery"
+      subtitle="Lead with the project intent on the left and keep the design readout on the right so the next workflow step is always visible."
+      leftTitle="Discovery Input"
+      rightTitle="Direction"
+      left={left}
+      right={right}
+      top={
+        <div className="wm-workspace-action-row">
           <button
             type="button"
-            className="wmx-primary-btn"
-            onClick={handleOpenNextTool}
+            className="wm-btn-secondary"
+            onClick={() => persistAndNavigate(recommendation.alternateRoute)}
           >
-            Continue to {recommendation.nextTool}
+            Save and open {getRouteLabel(recommendation.alternateRoute)}
+          </button>
+          <button
+            type="button"
+            className="wm-btn-primary"
+            onClick={() => persistAndNavigate(recommendation.nextRoute)}
+          >
+            Save and open {getRouteLabel(recommendation.nextRoute)}
           </button>
         </div>
-      </section>
-    </WingmanWorkflowShell>
+      }
+    />
   );
 }

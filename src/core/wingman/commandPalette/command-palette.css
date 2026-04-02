@@ -1,0 +1,132 @@
+:root {
+  --wmx-command-line: rgba(120, 180, 255, 0.24);
+  --wmx-command-line-strong: rgba(120, 180, 255, 0.34);
+  --wmx-command-text: #eef4ff;
+  --wmx-command-muted: rgba(216, 227, 245, 0.72);
+  --wmx-command-subtle: rgba(216, 227, 245, 0.56);
+  --wmx-command-glow: 0 0 0 1px rgba(74, 163, 255, 0.15), 0 0 22px rgba(74, 163, 255, 0.08);
+}
+
+.wmx-command-overlay,
+.wmx-command-overlay * {
+  box-sizing: border-box;
+}
+
+.wmx-command-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: start center;
+  padding: 80px 16px 16px;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.wmx-command {
+  width: min(760px, calc(100vw - 32px));
+  max-height: min(78vh, 720px);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--wmx-command-line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(19, 33, 57, 0.98), rgba(11, 21, 38, 1));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.wmx-command-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wmx-command-title {
+  color: var(--wmx-command-text);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.wmx-command-hint {
+  color: var(--wmx-command-subtle);
+  font-size: 0.82rem;
+}
+
+.wmx-command-body {
+  overflow: auto;
+  display: grid;
+  gap: 12px;
+  padding-right: 2px;
+}
+
+.wmx-command-list {
+  display: grid;
+  gap: 8px;
+}
+
+.wmx-command-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid rgba(125, 156, 210, 0.18);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--wmx-command-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.wmx-command-item:hover,
+.wmx-command-item.is-active {
+  border-color: var(--wmx-command-line-strong);
+  background: linear-gradient(180deg, rgba(21, 41, 73, 0.98), rgba(14, 28, 50, 1));
+  box-shadow: var(--wmx-command-glow);
+}
+
+.wmx-command-itemMain {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.wmx-command-itemLabel {
+  font-weight: 700;
+}
+
+.wmx-command-itemSubtitle {
+  color: var(--wmx-command-muted);
+  font-size: 0.9rem;
+}
+
+.wmx-command-itemMetaWrap {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.wmx-command-shortcut {
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  color: var(--wmx-command-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wmx-command-itemMeta {
+  color: var(--wmx-command-subtle);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.wmx-command-empty {
+  padding: 16px 4px;
+  color: var(--wmx-command-muted);
+}

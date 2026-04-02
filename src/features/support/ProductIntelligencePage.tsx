@@ -1,6 +1,8 @@
 import * as React from "react";
 import { CheckCircle2, RefreshCw, Save, Search } from "lucide-react";
-
+import { Link } from "react-router-dom";
+import SplitWorkspaceFrame from "@/components/workspace/SplitWorkspaceFrame";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
 import {
   addProductIntelligenceEvidence,
   fetchProductIntelligenceRecords,
@@ -8,21 +10,11 @@ import {
   upsertProductIntelligenceRecord,
   type ProductIntelligenceRecord,
 } from "@/services/productIntelligenceService";
-import {
-  Field,
-  PageHeader,
-  cardStyle,
-  fieldLabelStyle,
-  inputStyle,
-  pageWrapStyle,
-  sectionTextStyle,
-  sectionTitleStyle,
-  stackStyle,
-  textareaStyle,
-} from "@/ui2/page/PageChrome";
+import "./product-intelligence-page.css";
 
 type QueueFilter = "all" | "review" | "draft" | "approved";
 type MessageTone = "good" | "warn";
+type EditorTab = "core" | "specs" | "review";
 type EditorState = {
   summary: string;
   technology: string;
@@ -59,14 +51,14 @@ type EditorState = {
 };
 
 const QUEUE_FILTER_OPTIONS: Array<{ value: QueueFilter; label: string }> = [
-  { value: "review", label: "Needs review" },
+  { value: "review", label: "Needs Review" },
   { value: "draft", label: "Draft" },
   { value: "approved", label: "Approved" },
   { value: "all", label: "All" },
 ];
 
 const VENDOR_FILTER_OPTIONS = [
-  { value: "all", label: "All vendors" },
+  { value: "all", label: "All Vendors" },
   { value: "competitor", label: "Competitors" },
   { value: "wyrestorm", label: "WyreStorm" },
 ] as const;
@@ -79,6 +71,12 @@ const FEATURE_TOGGLE_OPTIONS = [
   ["ir", "IR"],
   ["lanControl", "LAN Control"],
 ] as const;
+
+const EDITOR_TABS: Array<{ id: EditorTab; label: string }> = [
+  { id: "core", label: "Core Fields" },
+  { id: "specs", label: "Specs & Evidence" },
+  { id: "review", label: "Review Context" },
+];
 
 function tidy(value: unknown): string { return String(value ?? "").trim(); }
 function parseList(value: string): string[] { return value.split(/[\n,;]+/g).map((item) => tidy(item)).filter(Boolean); }
@@ -94,6 +92,9 @@ function parsePorts(value: string): Array<{ type: string; count: number }> {
     return { type: entry, count: 1 };
   }).filter((entry) => entry.type && entry.count > 0);
 }
+function isControllerRecord(record: ProductIntelligenceRecord): boolean {
+  return tidy(record.role).toLowerCase() === "controller" || tidy(record.topology).toLowerCase() === "controller" || tidy(record.category).toLowerCase() === "control";
+}
 function needsDistance(record: ProductIntelligenceRecord): boolean {
   const blob = [record.transport, record.technology, record.topology, record.role, record.directionality, record.category, record.subcategory, record.summary, ...(record.features || [])].map((item) => tidy(item).toLowerCase()).join(" ");
   return /hdbaset|avoip|encoder|decoder|transmitter|receiver|extender/.test(blob);
@@ -101,9 +102,6 @@ function needsDistance(record: ProductIntelligenceRecord): boolean {
 function needsVideo(record: ProductIntelligenceRecord): boolean {
   if (isControllerRecord(record)) return false;
   return tidy(record.transport).toLowerCase() !== "usb extension";
-}
-function isControllerRecord(record: ProductIntelligenceRecord): boolean {
-  return tidy(record.role).toLowerCase() === "controller" || tidy(record.topology).toLowerCase() === "controller" || tidy(record.category).toLowerCase() === "control";
 }
 function recordIssues(record: ProductIntelligenceRecord): string[] {
   const inputTotal = (record.inputs || []).reduce((sum, item) => sum + (Number(item.count) || 0), 0);
@@ -120,55 +118,67 @@ function recordIssues(record: ProductIntelligenceRecord): string[] {
 function priority(record: ProductIntelligenceRecord): number {
   let score = recordIssues(record).length * 10;
   if (record.status === "draft") score += 8;
-  if (record.reviewFlags.some((flag) => flag.status === "open")) score += 5;
+  if ((record.openReviewFlagCount ?? record.reviewFlags.filter((flag) => flag.status === "open").length) > 0) score += 5;
   if (record.vendorType === "competitor") score += 2;
   return score;
 }
+function evidenceCount(record: ProductIntelligenceRecord): number { return record.evidenceCount ?? record.evidence.length; }
+function openFlagCount(record: ProductIntelligenceRecord): number { return record.openReviewFlagCount ?? record.reviewFlags.filter((flag) => flag.status === "open").length; }
+
 function buildEditor(record: ProductIntelligenceRecord | null): EditorState {
   return {
-    summary: tidy(record?.summary),
-    technology: tidy(record?.technology),
-    topology: tidy(record?.topology),
-    role: tidy(record?.role),
-    directionality: tidy(record?.directionality),
-    outputBehavior: tidy(record?.outputBehavior),
-    transport: tidy(record?.transport),
-    inputsText: formatPorts(record?.inputs),
-    outputsText: formatPorts(record?.outputs),
-    featuresText: formatList(record?.features),
-    controlText: formatList(record?.control),
-    audioText: formatList(record?.audio),
-    maxResolution: tidy(record?.video?.maxResolution),
-    bandwidthGbps: record?.video?.bandwidthGbps != null ? String(record.video.bandwidthGbps) : "",
-    hdmiVersion: tidy(record?.video?.hdmiVersion || record?.video?.hdmi),
-    hdcpVersion: tidy(record?.video?.hdcpVersion),
-    meters4k: record?.distance?.meters4k != null ? String(record.distance.meters4k) : "",
-    meters1080p: record?.distance?.meters1080p != null ? String(record.distance.meters1080p) : "",
-    hdbasetClass: tidy(record?.distance?.hdbasetClass),
-    networkSpeed: tidy(record?.distance?.networkSpeed),
-    codec: tidy(record?.distance?.codec),
-    sourceUrl: tidy(record?.sourceUrls?.[0]),
-    notes: tidy(record?.notes),
-    airplay: Boolean(record?.wireless?.airplay),
-    miracast: Boolean(record?.wireless?.miracast),
-    mst: Boolean(record?.wireless?.mst),
-    rs232: Boolean(record?.integration?.rs232),
-    ir: Boolean(record?.integration?.ir),
-    lanControl: Boolean(record?.integration?.lanControl),
-    evidenceLabel: "",
-    evidenceValue: "",
-    evidenceUrl: tidy(record?.sourceUrls?.[0]),
+    summary: tidy(record?.summary), technology: tidy(record?.technology), topology: tidy(record?.topology), role: tidy(record?.role),
+    directionality: tidy(record?.directionality), outputBehavior: tidy(record?.outputBehavior), transport: tidy(record?.transport),
+    inputsText: formatPorts(record?.inputs), outputsText: formatPorts(record?.outputs), featuresText: formatList(record?.features),
+    controlText: formatList(record?.control), audioText: formatList(record?.audio), maxResolution: tidy(record?.video?.maxResolution),
+    bandwidthGbps: record?.video?.bandwidthGbps != null ? String(record.video.bandwidthGbps) : "", hdmiVersion: tidy(record?.video?.hdmiVersion || record?.video?.hdmi),
+    hdcpVersion: tidy(record?.video?.hdcpVersion), meters4k: record?.distance?.meters4k != null ? String(record.distance.meters4k) : "",
+    meters1080p: record?.distance?.meters1080p != null ? String(record.distance.meters1080p) : "", hdbasetClass: tidy(record?.distance?.hdbasetClass),
+    networkSpeed: tidy(record?.distance?.networkSpeed), codec: tidy(record?.distance?.codec), sourceUrl: tidy(record?.sourceUrls?.[0]), notes: tidy(record?.notes),
+    airplay: Boolean(record?.wireless?.airplay), miracast: Boolean(record?.wireless?.miracast), mst: Boolean(record?.wireless?.mst),
+    rs232: Boolean(record?.integration?.rs232), ir: Boolean(record?.integration?.ir), lanControl: Boolean(record?.integration?.lanControl),
+    evidenceLabel: "", evidenceValue: "", evidenceUrl: tidy(record?.sourceUrls?.[0]),
   };
 }
 
-function FieldShell(props: {
-  label: string;
-  className?: string;
-  children: React.ReactNode;
-}) {
+function formatDateTime(value?: string): string {
+  if (!value) return "Not captured";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(parsed);
+}
+
+function issueHelp(issue: string): string {
+  switch (issue) {
+    case "I/O": return "Confirm input and output counts before this record is used in automated comparisons.";
+    case "Taxonomy": return "Set technology, topology, and role so the matching engine can classify the product correctly.";
+    case "Video": return "Capture at least one dependable video capability such as max resolution or bandwidth.";
+    case "Distance": return "Add extension distance, codec, or network-speed detail so transport guidance stays trustworthy.";
+    case "Output": return "Multi-output products need clear output behavior so mirror, matrix, and wall guidance stays accurate.";
+    default: return "Capture the missing detail before approving this record.";
+  }
+}
+
+function nextStepSummary(record: ProductIntelligenceRecord | null): string {
+  if (!record) return "Choose a record from the review queue to begin editing.";
+  const issues = recordIssues(record);
+  if (issues.length === 0) return "Core fields look complete. Confirm the source evidence, then approve the record when you are comfortable with the data.";
+  return `Focus on ${issues.join(", ")} next so this record is safe for guided compare and proposal work.`;
+}
+
+function statusChipClass(status: ProductIntelligenceRecord["status"] | "issue") {
+  if (status === "approved") return "wm-product-intelligence-page__status-chip is-approved";
+  if (status === "draft") return "wm-product-intelligence-page__status-chip is-draft";
+  return "wm-product-intelligence-page__status-chip is-issue";
+}
+
+function FieldShell(props: { label: string; htmlFor: string; className?: string; hint?: string; children: React.ReactNode }) {
+  const className = ["wm-workspace-field", props.className].filter(Boolean).join(" ");
   return (
-    <div className={props.className}>
-      <Field label={props.label}>{props.children}</Field>
+    <div className={className}>
+      <label htmlFor={props.htmlFor} className="wm-workspace-label">{props.label}</label>
+      {props.hint ? <div className="wm-workspace-card__copy">{props.hint}</div> : null}
+      {props.children}
     </div>
   );
 }
@@ -181,20 +191,25 @@ export default function ProductIntelligencePage() {
   const [error, setError] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [messageTone, setMessageTone] = React.useState<MessageTone>("good");
+  const [loadWarning, setLoadWarning] = React.useState("");
   const [search, setSearch] = React.useState("");
+  const deferredSearch = React.useDeferredValue(search);
   const [queueFilter, setQueueFilter] = React.useState<QueueFilter>("review");
   const [vendorFilter, setVendorFilter] = React.useState<"all" | "competitor" | "wyrestorm">("all");
   const [selectedId, setSelectedId] = React.useState("");
+  const [editorTab, setEditorTab] = React.useState<EditorTab>("core");
   const [editor, setEditor] = React.useState<EditorState>(() => buildEditor(null));
 
   const loadRecords = React.useCallback(async (silent = false) => {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
       setError("");
-      const result = await fetchProductIntelligenceRecords({ limit: 500, includeArchived: false });
+      setLoadWarning("");
+      const result = await fetchProductIntelligenceRecords({ limit: 500, includeArchived: false }, { recordShape: "full" });
       const ordered = [...result.records].sort((left, right) => priority(right) - priority(left) || left.sku.localeCompare(right.sku));
       setRecords(ordered);
-      setSelectedId((current) => current || ordered[0]?.id || "");
+      setLoadWarning(result.warnings[0] || "");
+      setSelectedId((current) => (ordered.some((record) => record.id === current) ? current : ordered[0]?.id || ""));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load product intelligence records.");
       setRecords([]);
@@ -207,22 +222,27 @@ export default function ProductIntelligencePage() {
   React.useEffect(() => { void loadRecords(false); }, [loadRecords]);
 
   const queueRecords = React.useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const query = deferredSearch.trim().toLowerCase();
     return records.filter((record) => {
-      const matchesSearch = !q || [record.sku, record.name, record.brand, record.category, record.subcategory, record.summary].some((item) => tidy(item).toLowerCase().includes(q));
+      const matchesSearch = !query || [record.sku, record.name, record.brand, record.category, record.subcategory, record.summary].some((item) => tidy(item).toLowerCase().includes(query));
       const matchesVendor = vendorFilter === "all" || record.vendorType === vendorFilter;
-      const needsReview = recordIssues(record).length > 0 || record.status !== "approved" || record.reviewFlags.some((flag) => flag.status === "open");
+      const needsReview = recordIssues(record).length > 0 || record.status !== "approved" || openFlagCount(record) > 0;
       const matchesQueue = queueFilter === "all" || (queueFilter === "draft" && record.status === "draft") || (queueFilter === "approved" && record.status === "approved") || (queueFilter === "review" && needsReview);
       return matchesSearch && matchesVendor && matchesQueue;
     });
-  }, [queueFilter, records, search, vendorFilter]);
+  }, [deferredSearch, queueFilter, records, vendorFilter]);
 
   const selected = React.useMemo(() => queueRecords.find((record) => record.id === selectedId) ?? records.find((record) => record.id === selectedId) ?? null, [queueRecords, records, selectedId]);
+
   React.useEffect(() => { setEditor(buildEditor(selected)); }, [selected]);
-  React.useEffect(() => { if (!selectedId && queueRecords[0]) setSelectedId(queueRecords[0].id); }, [queueRecords, selectedId]);
+  React.useEffect(() => {
+    if (!queueRecords.length) return;
+    if (queueRecords.some((record) => record.id === selectedId)) return;
+    setSelectedId(queueRecords[0].id);
+  }, [queueRecords, selectedId]);
 
   const metrics = React.useMemo(() => ({
-    needsReview: records.filter((record) => recordIssues(record).length > 0 || record.status !== "approved").length,
+    needsReview: records.filter((record) => recordIssues(record).length > 0 || record.status !== "approved" || openFlagCount(record) > 0).length,
     drafts: records.filter((record) => record.status === "draft").length,
     approved: records.filter((record) => record.status === "approved").length,
     highPriority: records.filter((record) => priority(record) >= 20).length,
@@ -230,57 +250,27 @@ export default function ProductIntelligencePage() {
 
   function setField<K extends keyof EditorState>(key: K, value: EditorState[K]) { setEditor((current) => ({ ...current, [key]: value })); }
 
+  const selectedIssues = selected ? recordIssues(selected) : [];
+  const tabPanelId = (tab: EditorTab) => `product-intelligence-panel-${tab}`;
+  const tabId = (tab: EditorTab) => `product-intelligence-tab-${tab}`;
+
   async function saveCoreFields() {
     if (!selected) return;
     setSaving(true);
     setMessage("");
     try {
       const result = await upsertProductIntelligenceRecord({
-        vendorType: selected.vendorType,
-        brand: selected.brand,
-        sku: selected.sku,
-        name: selected.name,
-        family: selected.family,
-        category: selected.category,
-        subcategory: selected.subcategory,
-        group: selected.group,
-        summary: editor.summary,
-        technology: editor.technology,
-        topology: editor.topology,
-        role: editor.role,
-        directionality: editor.directionality,
-        outputBehavior: editor.outputBehavior,
-        transport: editor.transport,
-        inputs: parsePorts(editor.inputsText),
-        outputs: parsePorts(editor.outputsText),
-        features: parseList(editor.featuresText),
-        control: parseList(editor.controlText),
+        vendorType: selected.vendorType, brand: selected.brand, sku: selected.sku, name: selected.name, family: selected.family,
+        category: selected.category, subcategory: selected.subcategory, group: selected.group, summary: editor.summary,
+        technology: editor.technology, topology: editor.topology, role: editor.role, directionality: editor.directionality,
+        outputBehavior: editor.outputBehavior, transport: editor.transport, inputs: parsePorts(editor.inputsText),
+        outputs: parsePorts(editor.outputsText), features: parseList(editor.featuresText), control: parseList(editor.controlText),
         audio: parseList(editor.audioText),
-        video: {
-          maxResolution: tidy(editor.maxResolution) || undefined,
-          bandwidthGbps: toNumber(editor.bandwidthGbps),
-          hdmiVersion: tidy(editor.hdmiVersion) || undefined,
-          hdcpVersion: tidy(editor.hdcpVersion) || undefined,
-        },
-        distance: {
-          meters4k: toNumber(editor.meters4k),
-          meters1080p: toNumber(editor.meters1080p),
-          hdbasetClass: editor.hdbasetClass === "Class A" || editor.hdbasetClass === "Class B" ? editor.hdbasetClass : undefined,
-          networkSpeed: tidy(editor.networkSpeed) || undefined,
-          codec: tidy(editor.codec) || undefined,
-        },
-        wireless: {
-          airplay: editor.airplay || undefined,
-          miracast: editor.miracast || undefined,
-          mst: editor.mst || undefined,
-        },
-        integration: {
-          rs232: editor.rs232 || undefined,
-          ir: editor.ir || undefined,
-          lanControl: editor.lanControl || undefined,
-        },
-        sourceUrls: editor.sourceUrl ? [editor.sourceUrl] : selected.sourceUrls,
-        notes: editor.notes,
+        video: { maxResolution: tidy(editor.maxResolution) || undefined, bandwidthGbps: toNumber(editor.bandwidthGbps), hdmiVersion: tidy(editor.hdmiVersion) || undefined, hdcpVersion: tidy(editor.hdcpVersion) || undefined },
+        distance: { meters4k: toNumber(editor.meters4k), meters1080p: toNumber(editor.meters1080p), hdbasetClass: editor.hdbasetClass === "Class A" || editor.hdbasetClass === "Class B" ? editor.hdbasetClass : undefined, networkSpeed: tidy(editor.networkSpeed) || undefined, codec: tidy(editor.codec) || undefined },
+        wireless: { airplay: editor.airplay || undefined, miracast: editor.miracast || undefined, mst: editor.mst || undefined },
+        integration: { rs232: editor.rs232 || undefined, ir: editor.ir || undefined, lanControl: editor.lanControl || undefined },
+        sourceUrls: editor.sourceUrl ? [editor.sourceUrl] : selected.sourceUrls, notes: editor.notes,
       });
       setMessage(result.message);
       setMessageTone(result.available ? "good" : "warn");
@@ -299,13 +289,8 @@ export default function ProductIntelligencePage() {
     setMessage("");
     try {
       const result = await addProductIntelligenceEvidence({
-        vendorType: selected.vendorType,
-        brand: selected.brand,
-        sku: selected.sku,
-        type: "spec",
-        label: editor.evidenceLabel,
-        value: editor.evidenceValue,
-        sourceUrl: tidy(editor.evidenceUrl) || tidy(editor.sourceUrl) || undefined,
+        vendorType: selected.vendorType, brand: selected.brand, sku: selected.sku, type: "spec",
+        label: editor.evidenceLabel, value: editor.evidenceValue, sourceUrl: tidy(editor.evidenceUrl) || tidy(editor.sourceUrl) || undefined,
       });
       setMessage(result.message);
       setMessageTone(result.available ? "good" : "warn");
@@ -325,11 +310,7 @@ export default function ProductIntelligencePage() {
     setMessage("");
     try {
       const result = await updateProductIntelligenceStatus({
-        vendorType: selected.vendorType,
-        brand: selected.brand,
-        sku: selected.sku,
-        status,
-        reviewedBy: "wingman-admin",
+        vendorType: selected.vendorType, brand: selected.brand, sku: selected.sku, status, reviewedBy: "wingman-admin",
       });
       setMessage(result.message);
       setMessageTone(result.available ? "good" : "warn");
@@ -342,220 +323,258 @@ export default function ProductIntelligencePage() {
     }
   }
 
-  return (
-    <div
-      className="wm-page wm-product-intelligence-page"
-      style={{ ...pageWrapStyle(), ...stackStyle(18) }}
-    >
-      <PageHeader
-        eyebrow="REFERENCE"
-        title="Product Intelligence"
-        description="Work through the highest-risk records first, fill the core comparison fields, and only approve products when the data is strong enough to trust."
-        actions={
-          <button
-            className="wm-btn wm-product-intelligence-page__refresh"
-            type="button"
-            onClick={() => void loadRecords(true)}
-            disabled={refreshing || loading}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
-          >
-            <RefreshCw size={15} />
-            Refresh queue
-          </button>
-        }
-      />
+  const statusText = error
+    ? error
+    : message
+      ? message
+      : loadWarning
+        ? loadWarning
+      : loading
+        ? "Loading product intelligence records…"
+        : queueRecords.length > 0
+          ? `${queueRecords.length} records match the current queue filters.`
+          : "No records match the current queue filters.";
+  const statusClass = error ? "wm-product-intelligence-page__status-region is-error" : message ? `wm-product-intelligence-page__status-region ${messageTone === "good" ? "is-good" : "is-warn"}` : loadWarning ? "wm-product-intelligence-page__status-region is-warn" : "wm-product-intelligence-page__status-region";
 
-      <section className="wm-product-intelligence-page__metrics">
-        {[["Needs Review", metrics.needsReview], ["Drafts", metrics.drafts], ["Approved", metrics.approved], ["High Priority", metrics.highPriority]].map(([label, value]) => (
-          <div key={String(label)} className="wm-product-intelligence-page__metric">
-            <div className="wm-product-intelligence-page__metric-label">{label}</div>
-            <div className="wm-product-intelligence-page__metric-value">{value}</div>
+  const left = (
+    <div className="wm-product-intelligence-page__pane wm-workspace-stack">
+      <div className="wm-start-step">Filter the review queue on the left, then keep the selected record editor and supporting detail on the right.</div>
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Review Queue</h3>
+          <p className="wm-workspace-card__copy">Search by SKU, brand, or category, then work top-down through the riskiest records first.</p>
+        </div>
+        <FieldShell label="Search" htmlFor="product-intelligence-search">
+          <div className="wm-product-intelligence-page__search">
+            <Search size={15} aria-hidden="true" />
+            <input id="product-intelligence-search" name="product_intelligence_search" className="wm-input-dark" type="search" autoComplete="off" placeholder="SKU, brand, or category…" value={search} onChange={(event) => setSearch(event.target.value)} />
           </div>
-        ))}
+        </FieldShell>
+        <div className="wm-product-intelligence-page__filter-group">
+          <span className="wm-workspace-label">Queue</span>
+          <div className="wm-product-intelligence-page__filter-row" role="group" aria-label="Queue filter">
+            {QUEUE_FILTER_OPTIONS.map((item) => (
+              <button key={item.value} type="button" className={`wm-product-intelligence-page__filter-chip${queueFilter === item.value ? " is-active" : ""}`} aria-pressed={queueFilter === item.value} onClick={() => setQueueFilter(item.value)}>{item.label}</button>
+            ))}
+          </div>
+        </div>
+        <div className="wm-product-intelligence-page__filter-group">
+          <span className="wm-workspace-label">Vendor</span>
+          <div className="wm-product-intelligence-page__filter-row" role="group" aria-label="Vendor filter">
+            {VENDOR_FILTER_OPTIONS.map((item) => (
+              <button key={item.value} type="button" className={`wm-product-intelligence-page__filter-chip${vendorFilter === item.value ? " is-active" : ""}`} aria-pressed={vendorFilter === item.value} onClick={() => setVendorFilter(item.value)}>{item.label}</button>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {error ? (
-        <section
-          className="wm-card wm-product-intelligence-page__notice wm-product-intelligence-page__notice--error"
-          style={{ ...cardStyle(), color: "#fecaca" }}
-        >
-          {error}
-        </section>
-      ) : null}
-      {message ? (
-        <section
-          className={`wm-card wm-product-intelligence-page__notice ${
-            messageTone === "good"
-              ? "wm-product-intelligence-page__notice--good"
-              : "wm-product-intelligence-page__notice--warn"
-          }`}
-          style={{
-            ...cardStyle(),
-            color: messageTone === "good" ? "#bbf7d0" : "#fde68a",
-          }}
-        >
-          {message}
-        </section>
-      ) : null}
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-grid-2 wm-product-intelligence-page__metric-grid">
+          <div className="wm-workspace-metric"><span>Needs Review</span><strong>{metrics.needsReview}</strong></div>
+          <div className="wm-workspace-metric"><span>Drafts</span><strong>{metrics.drafts}</strong></div>
+          <div className="wm-workspace-metric"><span>Approved</span><strong>{metrics.approved}</strong></div>
+          <div className="wm-workspace-metric"><span>High Priority</span><strong>{metrics.highPriority}</strong></div>
+        </div>
+        <div className="wm-next-step">{nextStepSummary(selected)}</div>
+      </section>
 
-      <section className="wm-product-intelligence-page__workspace">
-        <aside
-          className="wm-card wm-product-intelligence-page__queue"
-          style={{ ...cardStyle(), display: "grid", gap: 14, position: "sticky", top: 16 }}
-        >
-          <div style={{ display: "grid", gap: 6 }}>
-            <div style={sectionTitleStyle()}>Review Queue</div>
-            <div style={sectionTextStyle()}>Start with records missing I/O, taxonomy, video, distance, or output behavior.</div>
-          </div>
-          <label style={{ display: "grid", gap: 6 }}>
-            <div style={fieldLabelStyle()}>Search</div>
-            <div className="wm-product-intelligence-page__search" style={{ position: "relative" }}>
-              <Search size={15} style={{ position: "absolute", left: 12, top: 13, color: "rgba(148,163,184,0.75)" }} />
-              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="SKU, brand, category" style={{ ...inputStyle(), paddingLeft: 36 }} />
-            </div>
-          </label>
-          <div className="wm-product-intelligence-page__filter-row">
-            {QUEUE_FILTER_OPTIONS.map((item) => (
-              <button
-                key={item.value}
-                className={`wm-product-intelligence-page__filter-chip${queueFilter === item.value ? " is-active" : ""}`}
-                type="button"
-                onClick={() => setQueueFilter(item.value)}
-              >
-                {item.label}
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Filtered Records</h3>
+          <p className="wm-workspace-card__copy">{queueRecords.length} visible of {records.length} total records in this workspace.</p>
+        </div>
+        <div className="wm-workspace-list wm-product-intelligence-page__queue-list">
+          {loading ? <div className="wm-workspace-empty">Loading product intelligence records…</div> : queueRecords.length === 0 ? <div className="wm-workspace-empty">No records match the current queue filters.</div> : queueRecords.map((record) => {
+            const issues = recordIssues(record);
+            const active = selectedId === record.id;
+            return (
+              <button key={record.id} type="button" className={`wm-workspace-list-item wm-product-intelligence-page__queue-item${active ? " wm-workspace-list-item--active" : ""}`} aria-pressed={active} onClick={() => setSelectedId(record.id)}>
+                <span className="wm-product-intelligence-page__queue-item-meta">{record.brand} | {record.sku}</span>
+                <span className="wm-product-intelligence-page__queue-item-title">{record.name}</span>
+                <span className="wm-product-intelligence-page__queue-item-subtitle">{record.category}{record.subcategory ? ` / ${record.subcategory}` : ""}</span>
+                <span className="wm-product-intelligence-page__queue-item-chips">
+                  <span className={statusChipClass(record.status)}>{record.status}</span>
+                  {issues.slice(0, 3).map((issue) => <span key={`${record.id}-${issue}`} className={statusChipClass("issue")}>{issue}</span>)}
+                  {openFlagCount(record) > 0 ? <span className={statusChipClass("issue")}>{openFlagCount(record)} open flags</span> : null}
+                </span>
               </button>
-            ))}
-          </div>
-          <div className="wm-product-intelligence-page__filter-row">
-            {VENDOR_FILTER_OPTIONS.map((item) => (
-              <button
-                key={item.value}
-                className={`wm-product-intelligence-page__filter-chip${vendorFilter === item.value ? " is-active" : ""}`}
-                type="button"
-                onClick={() => setVendorFilter(item.value)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-          <div className="wm-product-intelligence-page__queue-list" style={{ display: "grid", gap: 10, maxHeight: "70vh", overflowY: "auto", paddingRight: 4 }}>
-            {loading ? <div style={{ color: "rgba(226,232,240,0.76)" }}>Loading product intelligence records...</div> : queueRecords.length === 0 ? <div style={{ color: "rgba(226,232,240,0.76)" }}>No records match the current queue filter.</div> : queueRecords.map((record) => {
-              const issues = recordIssues(record);
-              return (
-                <button
-                  key={record.id}
-                  className={`wm-product-intelligence-page__queue-item${selectedId === record.id ? " is-selected" : ""}`}
-                  type="button"
-                  onClick={() => setSelectedId(record.id)}
-                  style={{ textAlign: "left", borderRadius: 16, border: selectedId === record.id ? "1px solid rgba(96,165,250,0.45)" : "1px solid rgba(255,255,255,0.08)", background: selectedId === record.id ? "linear-gradient(180deg, rgba(18,42,76,0.78), rgba(8,20,34,0.92))" : "linear-gradient(180deg, rgba(10,20,33,0.9), rgba(6,14,24,0.94))", padding: 14, display: "grid", gap: 10, cursor: "pointer" }}
-                >
-                  <div className="wm-product-intelligence-page__queue-item-meta">{record.brand} | {record.sku}</div>
-                  <div className="wm-product-intelligence-page__queue-item-title">{record.name}</div>
-                  <div className="wm-product-intelligence-page__queue-item-subtitle">{record.category} / {record.subcategory}</div>
-                  <div className="wm-product-intelligence-page__queue-item-chips">
-                    <span className={`wm-product-intelligence-page__status-chip ${record.status === "approved" ? "is-approved" : "is-draft"}`}>{record.status}</span>
-                    {issues.slice(0, 4).map((issue) => <span key={`${record.id}-${issue}`} className="wm-product-intelligence-page__status-chip is-issue">{issue}</span>)}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </aside>
-        <main
-          className="wm-card wm-product-intelligence-page__editor"
-          style={{ ...cardStyle(), display: "grid", gap: 16 }}
-        >
-          {!selected ? <div className="wm-product-intelligence-page__empty">Pick a record from the review queue to start enriching it.</div> : (
-            <>
-              <div className="wm-product-intelligence-page__record-header">
-                <div className="wm-product-intelligence-page__record-top">
-                  <div className="wm-product-intelligence-page__record-copy">
-                    <div className="wm-product-intelligence-page__queue-item-meta">{selected.brand} | {selected.vendorType}</div>
-                    <div className="wm-product-intelligence-page__record-sku">{selected.sku}</div>
-                    <div className="wm-product-intelligence-page__record-name">{selected.name}</div>
-                  </div>
-                  <div className="wm-product-intelligence-page__record-chips">
-                    {recordIssues(selected).map((issue) => <span key={issue} className="wm-product-intelligence-page__status-chip is-issue">{issue}</span>)}
-                  </div>
-                </div>
-                <div className="wm-product-intelligence-page__record-description">Fill the core comparison fields below, then approve the record once it is strong enough for automated matching.</div>
-              </div>
-
-              <div className="wm-product-intelligence-page__editor-actions">
-                <button className="wm-btn wm-btn-primary wm-product-intelligence-page__save-btn" type="button" onClick={() => void saveCoreFields()} disabled={saving} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><Save size={15} />Save core fields</button>
-                <button className="wm-btn wm-product-intelligence-page__approve-btn" type="button" onClick={() => void setStatus("approved")} disabled={saving} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><CheckCircle2 size={15} />Mark approved</button>
-                <button className="wm-btn" type="button" onClick={() => void setStatus("draft")} disabled={saving}>Keep as draft</button>
-              </div>
-
-              <section className="wm-product-intelligence-page__summary-grid">
-                <FieldShell label="Summary" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><textarea rows={4} value={editor.summary} onChange={(event) => setField("summary", event.target.value)} style={textareaStyle(4)} /></FieldShell>
-                <FieldShell label="Notes" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><textarea rows={4} value={editor.notes} onChange={(event) => setField("notes", event.target.value)} style={textareaStyle(4)} /></FieldShell>
-              </section>
-
-              <section className="wm-product-intelligence-page__taxonomy-grid">
-                <FieldShell label="Technology" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.technology} onChange={(event) => setField("technology", event.target.value)} style={inputStyle()} /></FieldShell>
-                <FieldShell label="Topology" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.topology} onChange={(event) => setField("topology", event.target.value)} style={inputStyle()} /></FieldShell>
-                <FieldShell label="Role" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.role} onChange={(event) => setField("role", event.target.value)} style={inputStyle()} /></FieldShell>
-                <FieldShell label="Directionality" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.directionality} onChange={(event) => setField("directionality", event.target.value)} style={inputStyle()} /></FieldShell>
-                <FieldShell label="Transport" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.transport} onChange={(event) => setField("transport", event.target.value)} style={inputStyle()} /></FieldShell>
-                <FieldShell label="Output Behavior" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.outputBehavior} onChange={(event) => setField("outputBehavior", event.target.value)} style={inputStyle()} /></FieldShell>
-                <FieldShell label="Source URL" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.sourceUrl} onChange={(event) => setField("sourceUrl", event.target.value)} placeholder="https://..." style={inputStyle()} /></FieldShell>
-              </section>
-
-              <section className="wm-product-intelligence-page__detail-grid">
-                <FieldShell label="Inputs" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.inputsText} onChange={(event) => setField("inputsText", event.target.value)} placeholder="HDMI:4, USB-C:1" style={inputStyle()} /></FieldShell>
-                <FieldShell label="Outputs" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.outputsText} onChange={(event) => setField("outputsText", event.target.value)} placeholder="HDMI:2, HDBaseT:2" style={inputStyle()} /></FieldShell>
-                <FieldShell label="Features" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.featuresText} onChange={(event) => setField("featuresText", event.target.value)} placeholder="wireless presentation, KVM, audio de-embed" style={inputStyle()} /></FieldShell>
-                <FieldShell label="Control / Connectivity" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.controlText} onChange={(event) => setField("controlText", event.target.value)} placeholder="RS-232, IR, LAN, relay" style={inputStyle()} /></FieldShell>
-                <FieldShell label="Audio" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.audioText} onChange={(event) => setField("audioText", event.target.value)} placeholder="analog audio out, de-embed" style={inputStyle()} /></FieldShell>
-              </section>
-
-              <section className="wm-product-intelligence-page__video-section">
-                <div style={sectionTitleStyle()}>Video and Distance</div>
-                <div className="wm-product-intelligence-page__video-grid">
-                  <FieldShell label="Max Resolution" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.maxResolution} onChange={(event) => setField("maxResolution", event.target.value)} style={inputStyle()} /></FieldShell>
-                  <FieldShell label="Bandwidth (Gbps)" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.bandwidthGbps} onChange={(event) => setField("bandwidthGbps", event.target.value)} style={inputStyle()} /></FieldShell>
-                  <FieldShell label="HDMI Version" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.hdmiVersion} onChange={(event) => setField("hdmiVersion", event.target.value)} style={inputStyle()} /></FieldShell>
-                  <FieldShell label="HDCP Version" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.hdcpVersion} onChange={(event) => setField("hdcpVersion", event.target.value)} style={inputStyle()} /></FieldShell>
-                  <FieldShell label="4K Distance (m)" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.meters4k} onChange={(event) => setField("meters4k", event.target.value)} style={inputStyle()} /></FieldShell>
-                  <FieldShell label="1080p Distance (m)" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.meters1080p} onChange={(event) => setField("meters1080p", event.target.value)} style={inputStyle()} /></FieldShell>
-                  <FieldShell label="HDBaseT Class" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><select value={editor.hdbasetClass} onChange={(event) => setField("hdbasetClass", event.target.value)} style={inputStyle()}><option value="">Not set</option><option value="Class A">Class A</option><option value="Class B">Class B</option></select></FieldShell>
-                  <FieldShell label="Network Speed" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.networkSpeed} onChange={(event) => setField("networkSpeed", event.target.value)} style={inputStyle()} /></FieldShell>
-                  <FieldShell label="Codec" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.codec} onChange={(event) => setField("codec", event.target.value)} style={inputStyle()} /></FieldShell>
-                </div>
-              </section>
-
-              <section className="wm-product-intelligence-page__toggle-section">
-                <div style={sectionTitleStyle()}>Key Feature Toggles</div>
-                <div className="wm-product-intelligence-page__toggle-grid">
-                  {FEATURE_TOGGLE_OPTIONS.map(([key, label]) => (
-                    <label key={key} className="wm-product-intelligence-page__toggle" style={{ display: "flex", alignItems: "center", gap: 8, minHeight: 42, padding: "0 12px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "#e2e8f0", fontWeight: 700 }}>
-                      <input type="checkbox" checked={editor[key]} onChange={(event) => setField(key, event.target.checked)} />
-                      {label}
-                    </label>
-                  ))}
-                </div>
-              </section>
-
-              <section
-                className="wm-card wm-product-intelligence-page__evidence"
-                style={{ ...cardStyle(), padding: 16, display: "grid", gap: 12 }}
-              >
-                <div style={{ display: "grid", gap: 4 }}>
-                  <div style={sectionTitleStyle()}>Evidence Capture</div>
-                  <div style={sectionTextStyle()}>Add a short evidence note when you confirm a key spec from a product page or datasheet.</div>
-                </div>
-                <div className="wm-product-intelligence-page__evidence-grid">
-                  <FieldShell label="Evidence Label" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--compact"><input value={editor.evidenceLabel} onChange={(event) => setField("evidenceLabel", event.target.value)} style={inputStyle()} /></FieldShell>
-                  <FieldShell label="Evidence Detail" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.evidenceValue} onChange={(event) => setField("evidenceValue", event.target.value)} style={inputStyle()} /></FieldShell>
-                  <FieldShell label="Evidence URL" className="wm-product-intelligence-page__field wm-product-intelligence-page__field--wide"><input value={editor.evidenceUrl} onChange={(event) => setField("evidenceUrl", event.target.value)} style={inputStyle()} /></FieldShell>
-                  <button className="wm-btn" type="button" onClick={() => void saveEvidence()} disabled={saving || !tidy(editor.evidenceLabel) || !tidy(editor.evidenceValue)}>Add evidence</button>
-                </div>
-              </section>
-            </>
-          )}
-        </main>
+            );
+          })}
+        </div>
       </section>
     </div>
+  );
+
+  const right = !selected ? (
+    <div className="wm-workspace-stack"><div className="wm-workspace-empty">Pick a record from the review queue to begin editing.</div></div>
+  ) : (
+    <div className="wm-product-intelligence-page__pane wm-workspace-stack">
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <span className="wm-product-intelligence-page__queue-item-meta">{selected.brand} | {selected.vendorType}</span>
+          <h3 className="wm-product-intelligence-page__record-title">{selected.sku} · {selected.name}</h3>
+          <p className="wm-workspace-card__copy">{selected.summary || "Fill the core comparison fields below, then approve the record once the evidence is strong enough to trust."}</p>
+        </div>
+        <div className="wm-product-intelligence-page__queue-item-chips">
+          <span className={statusChipClass(selected.status)}>{selected.status}</span>
+          <span className="wm-workspace-tag">{selected.group}</span>
+          <span className="wm-workspace-tag">{evidenceCount(selected)} evidence</span>
+          {selectedIssues.map((issue) => <span key={issue} className={statusChipClass("issue")}>{issue}</span>)}
+        </div>
+        <div className="wm-workspace-action-row">
+          <button type="button" className="wm-btn-primary" onClick={() => { void saveCoreFields(); }} disabled={saving}><Save size={15} aria-hidden="true" />{saving ? "Saving…" : "Save Core Fields"}</button>
+          <button type="button" className="wm-btn-secondary" onClick={() => { void setStatus("approved"); }} disabled={saving}><CheckCircle2 size={15} aria-hidden="true" />Mark Approved</button>
+          <button type="button" className="wm-btn" onClick={() => { void setStatus("draft"); }} disabled={saving}>Keep as Draft</button>
+          {selected.sourceUrls[0] ? <a className="wm-btn" href={selected.sourceUrls[0]} target="_blank" rel="noreferrer">Open Source</a> : null}
+        </div>
+      </section>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-tab-row" role="tablist" aria-label="Product intelligence editor sections">
+          {EDITOR_TABS.map((tab) => (
+            <button key={tab.id} id={tabId(tab.id)} type="button" role="tab" aria-selected={editorTab === tab.id} aria-controls={tabPanelId(tab.id)} className={`wm-workspace-tab${editorTab === tab.id ? " wm-workspace-tab--active" : ""}`} onClick={() => setEditorTab(tab.id)}>{tab.label}</button>
+          ))}
+        </div>
+
+        {editorTab === "core" ? (
+          <div id={tabPanelId("core")} role="tabpanel" aria-labelledby={tabId("core")} className="wm-workspace-tabpanel">
+            <section className="wm-workspace-card wm-workspace-card--muted">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Narrative & Taxonomy</h3>
+                <p className="wm-workspace-card__copy">Capture the language that powers compare, Guru, and proposal guidance.</p>
+              </div>
+              <div className="wm-workspace-grid-2">
+                <FieldShell label="Summary" htmlFor="pi-summary" className="wm-product-intelligence-page__field-span"><textarea id="pi-summary" name="product_intelligence_summary" className="wm-textarea-dark" rows={5} autoComplete="off" value={editor.summary} onChange={(event) => setField("summary", event.target.value)} /></FieldShell>
+                <FieldShell label="Notes" htmlFor="pi-notes" className="wm-product-intelligence-page__field-span"><textarea id="pi-notes" name="product_intelligence_notes" className="wm-textarea-dark" rows={5} autoComplete="off" value={editor.notes} onChange={(event) => setField("notes", event.target.value)} /></FieldShell>
+                <FieldShell label="Technology" htmlFor="pi-technology"><input id="pi-technology" name="product_intelligence_technology" className="wm-input-dark" autoComplete="off" value={editor.technology} onChange={(event) => setField("technology", event.target.value)} /></FieldShell>
+                <FieldShell label="Topology" htmlFor="pi-topology"><input id="pi-topology" name="product_intelligence_topology" className="wm-input-dark" autoComplete="off" value={editor.topology} onChange={(event) => setField("topology", event.target.value)} /></FieldShell>
+                <FieldShell label="Role" htmlFor="pi-role"><input id="pi-role" name="product_intelligence_role" className="wm-input-dark" autoComplete="off" value={editor.role} onChange={(event) => setField("role", event.target.value)} /></FieldShell>
+                <FieldShell label="Directionality" htmlFor="pi-directionality"><input id="pi-directionality" name="product_intelligence_directionality" className="wm-input-dark" autoComplete="off" value={editor.directionality} onChange={(event) => setField("directionality", event.target.value)} /></FieldShell>
+              </div>
+            </section>
+
+            <section className="wm-workspace-card wm-workspace-card--muted">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Positioning & I/O</h3>
+                <p className="wm-workspace-card__copy">Keep the operational details here so matching and guidance stay consistent.</p>
+              </div>
+              <div className="wm-workspace-grid-2">
+                <FieldShell label="Transport" htmlFor="pi-transport"><input id="pi-transport" name="product_intelligence_transport" className="wm-input-dark" autoComplete="off" value={editor.transport} onChange={(event) => setField("transport", event.target.value)} /></FieldShell>
+                <FieldShell label="Output Behavior" htmlFor="pi-output-behavior"><input id="pi-output-behavior" name="product_intelligence_output_behavior" className="wm-input-dark" autoComplete="off" value={editor.outputBehavior} onChange={(event) => setField("outputBehavior", event.target.value)} /></FieldShell>
+                <FieldShell label="Inputs" htmlFor="pi-inputs" hint="Example: HDMI:4, USB-C:1"><input id="pi-inputs" name="product_intelligence_inputs" className="wm-input-dark" autoComplete="off" placeholder="HDMI:4, USB-C:1…" value={editor.inputsText} onChange={(event) => setField("inputsText", event.target.value)} /></FieldShell>
+                <FieldShell label="Outputs" htmlFor="pi-outputs" hint="Example: HDMI:2, HDBaseT:2"><input id="pi-outputs" name="product_intelligence_outputs" className="wm-input-dark" autoComplete="off" placeholder="HDMI:2, HDBaseT:2…" value={editor.outputsText} onChange={(event) => setField("outputsText", event.target.value)} /></FieldShell>
+                <FieldShell label="Features" htmlFor="pi-features" hint="Example: wireless presentation, KVM, audio de-embed" className="wm-product-intelligence-page__field-span"><input id="pi-features" name="product_intelligence_features" className="wm-input-dark" autoComplete="off" placeholder="wireless presentation, KVM, audio de-embed…" value={editor.featuresText} onChange={(event) => setField("featuresText", event.target.value)} /></FieldShell>
+                <FieldShell label="Control / Connectivity" htmlFor="pi-control" hint="Example: RS-232, IR, LAN, relay"><input id="pi-control" name="product_intelligence_control" className="wm-input-dark" autoComplete="off" placeholder="RS-232, IR, LAN, relay…" value={editor.controlText} onChange={(event) => setField("controlText", event.target.value)} /></FieldShell>
+                <FieldShell label="Audio" htmlFor="pi-audio" hint="Example: analog audio out, de-embed"><input id="pi-audio" name="product_intelligence_audio" className="wm-input-dark" autoComplete="off" placeholder="analog audio out, de-embed…" value={editor.audioText} onChange={(event) => setField("audioText", event.target.value)} /></FieldShell>
+                <FieldShell label="Source URL" htmlFor="pi-source-url" className="wm-product-intelligence-page__field-span"><input id="pi-source-url" name="product_intelligence_source_url" className="wm-input-dark" type="url" inputMode="url" autoComplete="off" placeholder="https://…" value={editor.sourceUrl} onChange={(event) => setField("sourceUrl", event.target.value)} /></FieldShell>
+              </div>
+            </section>
+          </div>
+        ) : null}
+        {editorTab === "specs" ? (
+          <div id={tabPanelId("specs")} role="tabpanel" aria-labelledby={tabId("specs")} className="wm-workspace-tabpanel">
+            <section className="wm-workspace-card wm-workspace-card--muted">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Video & Distance</h3>
+                <p className="wm-workspace-card__copy">These are the fields most likely to break compare accuracy when they are missing or vague.</p>
+              </div>
+              <div className="wm-workspace-grid-3 wm-product-intelligence-page__spec-grid">
+                <FieldShell label="Max Resolution" htmlFor="pi-max-resolution"><input id="pi-max-resolution" name="product_intelligence_max_resolution" className="wm-input-dark" autoComplete="off" value={editor.maxResolution} onChange={(event) => setField("maxResolution", event.target.value)} /></FieldShell>
+                <FieldShell label="Bandwidth (Gbps)" htmlFor="pi-bandwidth"><input id="pi-bandwidth" name="product_intelligence_bandwidth" className="wm-input-dark" type="number" inputMode="decimal" autoComplete="off" value={editor.bandwidthGbps} onChange={(event) => setField("bandwidthGbps", event.target.value)} /></FieldShell>
+                <FieldShell label="HDMI Version" htmlFor="pi-hdmi-version"><input id="pi-hdmi-version" name="product_intelligence_hdmi_version" className="wm-input-dark" autoComplete="off" value={editor.hdmiVersion} onChange={(event) => setField("hdmiVersion", event.target.value)} /></FieldShell>
+                <FieldShell label="HDCP Version" htmlFor="pi-hdcp-version"><input id="pi-hdcp-version" name="product_intelligence_hdcp_version" className="wm-input-dark" autoComplete="off" value={editor.hdcpVersion} onChange={(event) => setField("hdcpVersion", event.target.value)} /></FieldShell>
+                <FieldShell label="4K Distance (m)" htmlFor="pi-distance-4k"><input id="pi-distance-4k" name="product_intelligence_distance_4k" className="wm-input-dark" type="number" inputMode="decimal" autoComplete="off" value={editor.meters4k} onChange={(event) => setField("meters4k", event.target.value)} /></FieldShell>
+                <FieldShell label="1080p Distance (m)" htmlFor="pi-distance-1080p"><input id="pi-distance-1080p" name="product_intelligence_distance_1080p" className="wm-input-dark" type="number" inputMode="decimal" autoComplete="off" value={editor.meters1080p} onChange={(event) => setField("meters1080p", event.target.value)} /></FieldShell>
+                <FieldShell label="HDBaseT Class" htmlFor="pi-hdbaset-class"><select id="pi-hdbaset-class" name="product_intelligence_hdbaset_class" className="wm-select-dark" value={editor.hdbasetClass} onChange={(event) => setField("hdbasetClass", event.target.value)}><option value="">Not set</option><option value="Class A">Class A</option><option value="Class B">Class B</option></select></FieldShell>
+                <FieldShell label="Network Speed" htmlFor="pi-network-speed"><input id="pi-network-speed" name="product_intelligence_network_speed" className="wm-input-dark" autoComplete="off" value={editor.networkSpeed} onChange={(event) => setField("networkSpeed", event.target.value)} /></FieldShell>
+                <FieldShell label="Codec" htmlFor="pi-codec"><input id="pi-codec" name="product_intelligence_codec" className="wm-input-dark" autoComplete="off" value={editor.codec} onChange={(event) => setField("codec", event.target.value)} /></FieldShell>
+              </div>
+            </section>
+
+            <section className="wm-workspace-card wm-workspace-card--muted">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Key Feature Toggles</h3>
+                <p className="wm-workspace-card__copy">Keep the high-signal yes/no capabilities visible here so review stays fast.</p>
+              </div>
+              <div className="wm-product-intelligence-page__toggle-grid">
+                {FEATURE_TOGGLE_OPTIONS.map(([key, label]) => (
+                  <label key={key} className="wm-product-intelligence-page__toggle"><input type="checkbox" checked={editor[key]} onChange={(event) => setField(key, event.target.checked)} /><span>{label}</span></label>
+                ))}
+              </div>
+            </section>
+
+            <section className="wm-workspace-card wm-workspace-card--muted">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Evidence Capture</h3>
+                <p className="wm-workspace-card__copy">Add a short evidence note whenever you confirm a critical spec from a product page or datasheet.</p>
+              </div>
+              <div className="wm-workspace-grid-2">
+                <FieldShell label="Evidence Label" htmlFor="pi-evidence-label"><input id="pi-evidence-label" name="product_intelligence_evidence_label" className="wm-input-dark" autoComplete="off" value={editor.evidenceLabel} onChange={(event) => setField("evidenceLabel", event.target.value)} /></FieldShell>
+                <FieldShell label="Evidence Detail" htmlFor="pi-evidence-value"><input id="pi-evidence-value" name="product_intelligence_evidence_value" className="wm-input-dark" autoComplete="off" value={editor.evidenceValue} onChange={(event) => setField("evidenceValue", event.target.value)} /></FieldShell>
+                <FieldShell label="Evidence URL" htmlFor="pi-evidence-url" className="wm-product-intelligence-page__field-span"><input id="pi-evidence-url" name="product_intelligence_evidence_url" className="wm-input-dark" type="url" inputMode="url" autoComplete="off" placeholder="https://…" value={editor.evidenceUrl} onChange={(event) => setField("evidenceUrl", event.target.value)} /></FieldShell>
+              </div>
+              <div className="wm-workspace-action-row"><button type="button" className="wm-btn-primary" onClick={() => { void saveEvidence(); }} disabled={saving || !tidy(editor.evidenceLabel) || !tidy(editor.evidenceValue)}>{saving ? "Saving…" : "Add Evidence"}</button></div>
+            </section>
+
+            <section className="wm-workspace-card wm-workspace-card--muted">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Captured Evidence</h3>
+                <p className="wm-workspace-card__copy">Keep the supporting notes separate from the main editor so the core fields stay easy to scan.</p>
+              </div>
+              {selected.evidence.length === 0 ? <div className="wm-workspace-empty">No structured evidence has been saved for this record yet.</div> : <div className="wm-workspace-list wm-product-intelligence-page__evidence-list">{selected.evidence.slice(0, 8).map((entry) => <div key={entry.id} className="wm-workspace-list-item"><span className="wm-workspace-list-item__eyebrow">{entry.type}</span><span className="wm-workspace-list-item__title">{entry.label}</span><span className="wm-workspace-list-item__copy">{entry.value}</span><span className="wm-product-intelligence-page__meta-note">{formatDateTime(entry.capturedAt)}{entry.sourceUrl ? ` | ${entry.sourceUrl}` : ""}</span></div>)}</div>}
+            </section>
+          </div>
+        ) : null}
+
+        {editorTab === "review" ? (
+          <div id={tabPanelId("review")} role="tabpanel" aria-labelledby={tabId("review")} className="wm-workspace-tabpanel">
+            <section className="wm-workspace-card wm-workspace-card--muted">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Review Blockers</h3>
+                <p className="wm-workspace-card__copy">These are the gaps to close before the record should drive compare or proposal outcomes.</p>
+              </div>
+              {selectedIssues.length === 0 ? <div className="wm-workspace-empty">Core blockers are clear. Review the evidence and source links, then approve when ready.</div> : <div className="wm-workspace-list wm-product-intelligence-page__issue-list">{selectedIssues.map((issue) => <div key={issue} className="wm-workspace-list-item"><span className="wm-workspace-list-item__title">{issue}</span><span className="wm-workspace-list-item__copy">{issueHelp(issue)}</span></div>)}</div>}
+            </section>
+
+            <section className="wm-workspace-card wm-workspace-card--muted">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Record Context</h3>
+                <p className="wm-workspace-card__copy">Status, freshness, and review metadata stay here instead of crowding the main form.</p>
+              </div>
+              <div className="wm-product-intelligence-page__meta-grid">
+                <div className="wm-workspace-metric"><span>Status</span><strong>{selected.status}</strong></div>
+                <div className="wm-workspace-metric"><span>Vendor Type</span><strong>{selected.vendorType}</strong></div>
+                <div className="wm-workspace-metric"><span>Confidence</span><strong>{Math.round(selected.confidence * 100)}%</strong></div>
+                <div className="wm-workspace-metric"><span>Last Captured</span><strong>{formatDateTime(selected.lastCapturedAt)}</strong></div>
+                <div className="wm-workspace-metric"><span>Family</span><strong>{selected.family}</strong></div>
+                <div className="wm-workspace-metric"><span>Open Flags</span><strong>{openFlagCount(selected)}</strong></div>
+              </div>
+            </section>
+
+            <section className="wm-workspace-card wm-workspace-card--muted">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Sources & Review Flags</h3>
+                <p className="wm-workspace-card__copy">Supporting links and review flags stay separated here so the editing flow remains clean.</p>
+              </div>
+              {selected.sourceUrls.length > 0 ? <div className="wm-workspace-list">{selected.sourceUrls.map((sourceUrl) => <a key={sourceUrl} className="wm-workspace-list-item" href={sourceUrl} target="_blank" rel="noreferrer"><span className="wm-workspace-list-item__title">Source URL</span><span className="wm-workspace-list-item__copy">{sourceUrl}</span></a>)}</div> : <div className="wm-workspace-empty">No source URLs have been saved yet.</div>}
+              {selected.reviewFlags.length > 0 ? <div className="wm-workspace-list">{selected.reviewFlags.map((flag) => <div key={flag.id} className="wm-workspace-list-item"><span className="wm-workspace-list-item__eyebrow">{flag.kind} | {flag.status}</span><span className="wm-workspace-list-item__title">{flag.message}</span><span className="wm-workspace-list-item__copy">{flag.note || "No additional note recorded."}</span></div>)}</div> : <div className="wm-workspace-empty">No open review flags are attached to this record.</div>}
+            </section>
+          </div>
+        ) : null}
+      </section>
+    </div>
+  );
+
+  return (
+    <SplitWorkspaceFrame
+      title="Product Intelligence"
+      subtitle="Keep queue management on the left, then edit core fields, evidence, and review context in separate right-side tabs."
+      leftTitle="Queue"
+      rightTitle="Editor"
+      left={left}
+      right={right}
+      top={<div className="wm-workspace-action-row"><button type="button" className="wm-btn-secondary" onClick={() => { void loadRecords(true); }} disabled={loading || refreshing}><RefreshCw size={15} aria-hidden="true" />{refreshing ? "Refreshing…" : "Refresh Queue"}</button><Link to="/app/tools/competitor-lookup-diagnostics" className="wm-btn">Lookup Diagnostics</Link><Link to={WM_ROUTES.tools} className="wm-btn">Tool Hub</Link></div>}
+      bottom={<div className={statusClass} role="status" aria-live="polite">{statusText}</div>}
+    />
   );
 }

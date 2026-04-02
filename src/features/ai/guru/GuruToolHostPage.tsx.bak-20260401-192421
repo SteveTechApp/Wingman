@@ -1,0 +1,659 @@
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { Link } from "react-router-dom";
+import SplitWorkspaceFrame from "@/components/workspace/SplitWorkspaceFrame";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
+import {
+  getActiveProject,
+  subscribeProjects,
+  type StoredProject,
+} from "@/features/projects/projectStore";
+import { addLineToSavedProposal } from "@/proposal/bom/store";
+import { askGuru, type GuruAnswer, type GuruMode as ApiGuruMode } from "@/features/ai/guru/guruApi";
+import "./guru-tool-host-page.css";
+
+type GuruMode =
+  | "general"
+  | "wyrestorm"
+  | "design"
+  | "troubleshooting"
+  | "training";
+
+type GuruPanel = "answer" | "support" | "history";
+
+type GuruWorkspaceState = {
+  mode: GuruMode;
+  question: string;
+  context: string;
+};
+
+type GuruHistoryEntry = {
+  id: string;
+  projectId: string | null;
+  mode: GuruMode;
+  question: string;
+  context: string;
+  answeredAt: string;
+  answer: GuruAnswer;
+};
+
+type GuruModeDef = {
+  id: GuruMode;
+  label: string;
+  subtitle: string;
+  placeholder: string;
+  quickAsks: string[];
+};
+
+const WORKSPACE_KEY = "wm_guru_workspace_v4";
+const HISTORY_KEY_PREFIX = "wm_guru_history_v2";
+
+const MODE_DEFS: Record<GuruMode, GuruModeDef> = {
+  general: {
+    id: "general",
+    label: "General AV advice",
+    subtitle: "Broad AV guidance, terminology, workflows, and practical best practice.",
+    placeholder: "Ask a general AV question, for example: What should I confirm before specifying a meeting room signal path?",
+    quickAsks: [
+      "What should I ask during an AV discovery call?",
+      "How do I choose between HDBaseT and AVoIP?",
+      "What are the typical pitfalls in AV system design?",
+    ],
+  },
+  wyrestorm: {
+    id: "wyrestorm",
+    label: "WyreStorm guidance",
+    subtitle: "Use this when the user wants family guidance, product fit, or positioning help.",
+    placeholder: "Ask a WyreStorm-specific question, for example: Which family best suits a small Teams room with USB-C BYOD?",
+    quickAsks: [
+      "Which WyreStorm family best suits a small meeting room?",
+      "When should I recommend Apollo instead of HDBaseT?",
+      "What discovery answers matter most before choosing WyreStorm products?",
+    ],
+  },
+  design: {
+    id: "design",
+    label: "Design support",
+    subtitle: "Use this when the user needs signal-path, room, or system-architecture advice.",
+    placeholder: "Describe the room, sources, displays, and constraints, then ask for a design recommendation.",
+    quickAsks: [
+      "Propose a signal path for a boardroom with two displays and three sources.",
+      "How should I structure USB, video, and control in a meeting room?",
+      "What inputs do I need before designing a divisible training space?",
+    ],
+  },
+  troubleshooting: {
+    id: "troubleshooting",
+    label: "Troubleshooting",
+    subtitle: "Use this for signal, USB, audio, and control fault-finding.",
+    placeholder: "Describe the fault symptoms, what is connected, and what has already been tested.",
+    quickAsks: [
+      "Help me troubleshoot intermittent HDMI sync issues.",
+      "Why might USB devices fail over extension?",
+      "What should I check when audio is missing but video is present?",
+    ],
+  },
+  training: {
+    id: "training",
+    label: "Training and explainers",
+    subtitle: "Use this for learning support, sales coaching, and simplified explainers.",
+    placeholder: "Ask Guru to explain a concept, teach a workflow, or simplify a technical topic.",
+    quickAsks: [
+      "Explain HDCP, EDID, and scaling in simple terms.",
+      "Teach me how to qualify an AV opportunity.",
+      "Summarise AVoIP for a non-technical audience.",
+    ],
+  },
+};
+
+function readWorkspaceState(): GuruWorkspaceState {
+  if (typeof window === "undefined") {
+    return { mode: "wyrestorm", question: "", context: "" };
+  }
+
+  try {
+    const raw = window.localStorage.getItem(WORKSPACE_KEY);
+    if (!raw) return { mode: "wyrestorm", question: "", context: "" };
+    const parsed = JSON.parse(raw) as Partial<GuruWorkspaceState>;
+    return {
+      mode: parsed.mode ?? "wyrestorm",
+      question: parsed.question ?? "",
+      context: parsed.context ?? "",
+    };
+  } catch {
+    return { mode: "wyrestorm", question: "", context: "" };
+  }
+}
+
+function writeWorkspaceState(state: GuruWorkspaceState) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(WORKSPACE_KEY, JSON.stringify(state));
+  } catch {
+  }
+}
+
+function historyKey(projectId: string | null): string {
+  return `${HISTORY_KEY_PREFIX}:${projectId ?? "global"}`;
+}
+
+function readHistory(projectId: string | null): GuruHistoryEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(historyKey(projectId));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as GuruHistoryEntry[];
+    return Array.isArray(parsed) ? parsed.slice(0, 8) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeHistory(projectId: string | null, history: GuruHistoryEntry[]) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(historyKey(projectId), JSON.stringify(history.slice(0, 8)));
+  } catch {
+  }
+}
+
+function makeHistoryId(): string {
+  return `guru_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function mapModeToApiMode(mode: GuruMode): ApiGuruMode {
+  if (mode === "training") return "resources";
+  if (mode === "design" || mode === "troubleshooting") return "project-check";
+  return "ask";
+}
+
+function confidenceLabel(value?: GuruAnswer["confidence"]): string {
+  if (value === "high") return "High";
+  if (value === "medium") return "Medium";
+  if (value === "low") return "Low";
+  return "Pending";
+}
+
+function buildProjectSummary(project: StoredProject | undefined): string {
+  if (!project) return "No active project. Guru can still answer general questions.";
+
+  const parts = [
+    project.roomName,
+    project.discovery?.applicationType,
+    project.customer,
+  ].filter(Boolean);
+
+  return parts.length > 0 ? parts.join(" | ") : project.name;
+}
+
+function buildProjectMetrics(project: StoredProject | undefined) {
+  return {
+    sources: Number(project?.discovery?.sourceCount ?? 0) || 0,
+    displays: Number(project?.discovery?.displayCount ?? 0) || 0,
+    distance: Number(project?.discovery?.cableDistanceM ?? 0) || 0,
+  };
+}
+
+export default function GuruToolHostPage() {
+  const project = useSyncExternalStore(subscribeProjects, getActiveProject, () => undefined);
+  const storedState = useMemo(() => readWorkspaceState(), []);
+  const [mode, setMode] = useState<GuruMode>(storedState.mode);
+  const [question, setQuestion] = useState(storedState.question);
+  const [context, setContext] = useState(storedState.context);
+  const [panel, setPanel] = useState<GuruPanel>("answer");
+  const [answer, setAnswer] = useState<GuruAnswer | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState("");
+  const [history, setHistory] = useState<GuruHistoryEntry[]>(() => readHistory(project?.id ?? null));
+
+  useEffect(() => {
+    writeWorkspaceState({ mode, question, context });
+  }, [context, mode, question]);
+
+  useEffect(() => {
+    setHistory(readHistory(project?.id ?? null));
+    setAnswer(null);
+    setStatus("");
+  }, [project?.id]);
+
+  const modeDef = MODE_DEFS[mode];
+  const projectMetrics = buildProjectMetrics(project);
+
+  async function submitGuruQuestion(nextQuestion?: string) {
+    const trimmedQuestion = String(nextQuestion ?? question).trim();
+    if (!trimmedQuestion) {
+      setStatus("Enter a question before asking Guru.");
+      return;
+    }
+
+    setIsLoading(true);
+    setStatus("");
+    setPanel("answer");
+
+    try {
+      const response = await askGuru(trimmedQuestion, {
+        mode: mapModeToApiMode(mode),
+        notes: context.trim() || project?.notes || project?.discovery?.notes,
+        discovery: project?.discovery ?? null,
+        room: project?.roomName ? { roomName: project.roomName } : undefined,
+        bom: project?.catalog,
+      });
+
+      const entry: GuruHistoryEntry = {
+        id: makeHistoryId(),
+        projectId: project?.id ?? null,
+        mode,
+        question: trimmedQuestion,
+        context,
+        answeredAt: new Date().toISOString(),
+        answer: response,
+      };
+
+      const nextHistory = [
+        entry,
+        ...history.filter((item) => !(item.question === entry.question && item.mode === entry.mode)),
+      ].slice(0, 8);
+
+      setQuestion(trimmedQuestion);
+      setAnswer(response);
+      setHistory(nextHistory);
+      writeHistory(project?.id ?? null, nextHistory);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Guru could not answer that question.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function addSkuToProposal(sku: string, name?: string) {
+    addLineToSavedProposal(
+      {
+        sku,
+        name: name || sku,
+        source: "Guru",
+      },
+      project?.id,
+    );
+    setStatus(`${sku} was added to the saved proposal lines.`);
+  }
+
+  const left = (
+    <div className="wm-guru-page__pane wm-workspace-stack">
+      <div className="wm-start-step">
+        Keep the question on the left and the answer on the right so the user can refine the ask without losing the response.
+      </div>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Guru mode</h3>
+          <p className="wm-workspace-card__copy">{modeDef.subtitle}</p>
+        </div>
+
+        <div className="wm-guru-page__mode-row wm-workspace-tag-row">
+          {Object.values(MODE_DEFS).map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={item.id === mode}
+              className={`wm-workspace-tab${item.id === mode ? " wm-workspace-tab--active" : ""}`}
+              onClick={() => setMode(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Question</h3>
+          <p className="wm-workspace-card__copy">Ask the main question here. Keep the answer visible in the right pane while you refine it.</p>
+        </div>
+
+        <div className="wm-workspace-form">
+          <div className="wm-workspace-field">
+            <label htmlFor="guru-question" className="wm-workspace-label">
+              Main question
+            </label>
+            <textarea
+              id="guru-question"
+              className="wm-textarea-dark"
+              value={question}
+              onChange={(event) => setQuestion(event.target.value)}
+              placeholder={modeDef.placeholder}
+            />
+          </div>
+
+          <div className="wm-workspace-field">
+            <label htmlFor="guru-context" className="wm-workspace-label">
+              Extra context
+            </label>
+            <textarea
+              id="guru-context"
+              className="wm-textarea-dark"
+              value={context}
+              onChange={(event) => setContext(event.target.value)}
+              placeholder="Add any extra room notes, customer priorities, or constraints that are not already in the active project."
+            />
+          </div>
+
+          <div className="wm-workspace-action-row">
+            <button
+              type="button"
+              className="wm-btn-primary"
+              onClick={() => {
+                void submitGuruQuestion();
+              }}
+              disabled={isLoading}
+            >
+              {isLoading ? "Asking Guru..." : "Ask Guru"}
+            </button>
+            <button
+              type="button"
+              className="wm-btn-secondary"
+              onClick={() => {
+                setQuestion("");
+                setContext("");
+                setStatus("");
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Starter prompts</h3>
+          <p className="wm-workspace-card__copy">Use a starter prompt when the user needs a clean way into the question.</p>
+        </div>
+
+        <div className="wm-workspace-list wm-guru-page__prompt-list">
+          {modeDef.quickAsks.map((prompt) => (
+            <button
+              key={prompt}
+              type="button"
+              className="wm-workspace-list-item"
+              onClick={() => {
+                setQuestion(prompt);
+                void submitGuruQuestion(prompt);
+              }}
+            >
+              <span className="wm-workspace-list-item__title">{prompt}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Active project context</h3>
+          <p className="wm-workspace-card__copy">Design and troubleshooting modes automatically use the active project discovery context when it exists.</p>
+        </div>
+
+        <div className="wm-workspace-grid-3">
+          <div className="wm-workspace-metric">
+            <span>Sources</span>
+            <strong>{projectMetrics.sources}</strong>
+          </div>
+          <div className="wm-workspace-metric">
+            <span>Displays</span>
+            <strong>{projectMetrics.displays}</strong>
+          </div>
+          <div className="wm-workspace-metric">
+            <span>Distance</span>
+            <strong>{projectMetrics.distance ? `${projectMetrics.distance}m` : "Not set"}</strong>
+          </div>
+        </div>
+
+        <div className="wm-next-step">
+          {buildProjectSummary(project)}
+        </div>
+      </section>
+    </div>
+  );
+
+  const right = (
+    <div className="wm-guru-page__pane wm-workspace-stack">
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-tab-row">
+          <button
+            type="button"
+            className={`wm-workspace-tab${panel === "answer" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setPanel("answer")}
+          >
+            Answer
+          </button>
+          <button
+            type="button"
+            className={`wm-workspace-tab${panel === "support" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setPanel("support")}
+          >
+            Support
+          </button>
+          <button
+            type="button"
+            className={`wm-workspace-tab${panel === "history" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setPanel("history")}
+          >
+            History
+          </button>
+        </div>
+
+        {panel === "answer" ? (
+          answer ? (
+            <div className="wm-workspace-tabpanel wm-guru-page__answer-panel">
+              <div className="wm-guru-page__answer-card wm-workspace-card wm-workspace-card--muted">
+                <div className="wm-workspace-card__header">
+                  <span className="wm-workspace-list-item__eyebrow">{MODE_DEFS[mode].label}</span>
+                  <h3 className="wm-workspace-card__title">{question || "Latest Guru answer"}</h3>
+                  <p className="wm-workspace-card__copy">The answer stays on the right so the user can keep editing the question on the left.</p>
+                </div>
+
+                <div className="wm-workspace-grid-3">
+                  <div className="wm-workspace-metric">
+                    <span>Confidence</span>
+                    <strong>{confidenceLabel(answer.confidence)}</strong>
+                  </div>
+                  <div className="wm-workspace-metric">
+                    <span>Sources</span>
+                    <strong>{answer.sources?.length || 0}</strong>
+                  </div>
+                  <div className="wm-workspace-metric">
+                    <span>Suggested SKUs</span>
+                    <strong>{answer.suggestedSkus?.length || 0}</strong>
+                  </div>
+                </div>
+
+                <div className="wm-guru-page__answer-prose wm-workspace-prose">{answer.text}</div>
+              </div>
+
+              {Array.isArray(answer.suggestedSkus) && answer.suggestedSkus.length > 0 ? (
+                <section className="wm-workspace-card">
+                  <div className="wm-workspace-card__header">
+                    <h3 className="wm-workspace-card__title">Suggested SKUs</h3>
+                    <p className="wm-workspace-card__copy">Send good candidates straight into the saved proposal lines when they are credible.</p>
+                  </div>
+
+                  <div className="wm-workspace-list">
+                    {answer.suggestedSkus.map((item) => (
+                      <div key={item.sku} className="wm-workspace-list-item">
+                        <span className="wm-workspace-list-item__title">{item.sku}</span>
+                        <span className="wm-workspace-list-item__copy">
+                          {item.reason || item.name || "Suggested by Guru."}
+                        </span>
+                        <div className="wm-workspace-inline-actions">
+                          {project ? (
+                            <button
+                              type="button"
+                              className="wm-btn-secondary"
+                              onClick={() => addSkuToProposal(item.sku, item.name)}
+                            >
+                              Add to proposal
+                            </button>
+                          ) : null}
+                          <Link to={WM_ROUTES.proposal} className="wm-btn">
+                            Open proposal
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+            </div>
+          ) : (
+            <div className="wm-workspace-empty">
+              Ask a question to populate the right pane with the answer, confidence, supporting sources, and any suggested SKUs.
+            </div>
+          )
+        ) : panel === "support" ? (
+          <div className="wm-workspace-tabpanel">
+            <section className="wm-workspace-card">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Supporting sources</h3>
+                <p className="wm-workspace-card__copy">Keep sources and follow-on actions in their own tab so the answer pane stays readable.</p>
+              </div>
+
+              <div className="wm-workspace-list">
+                {answer?.sources?.length ? (
+                  answer.sources.map((source) => (
+                    <div key={`${source.kind}-${source.to || source.url || source.title}`} className="wm-workspace-list-item">
+                      <span className="wm-workspace-list-item__title">{source.title}</span>
+                      <span className="wm-workspace-list-item__copy">{source.kind}</span>
+                      <div className="wm-workspace-inline-actions">
+                        {source.to ? (
+                          <Link to={source.to} className="wm-btn-secondary">
+                            Open tool
+                          </Link>
+                        ) : null}
+                        {source.url ? (
+                          <a href={source.url} target="_blank" rel="noreferrer" className="wm-btn">
+                            Open link
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="wm-workspace-empty">No supporting sources were returned for the latest answer.</div>
+                )}
+              </div>
+            </section>
+
+            <section className="wm-workspace-card">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Reasoning and handoff</h3>
+                <p className="wm-workspace-card__copy">Use this tab for explanation detail instead of crowding the main answer surface.</p>
+              </div>
+
+              {answer?.explanation ? (
+                <div className="wm-workspace-list">
+                  {answer.explanation.headline ? (
+                    <div className="wm-workspace-list-item">
+                      <span className="wm-workspace-list-item__title">{answer.explanation.headline}</span>
+                    </div>
+                  ) : null}
+                  {(answer.explanation.why ?? []).map((item) => (
+                    <div key={`why-${item}`} className="wm-workspace-list-item">
+                      <span className="wm-workspace-list-item__title">Why</span>
+                      <span className="wm-workspace-list-item__copy">{item}</span>
+                    </div>
+                  ))}
+                  {(answer.explanation.whatsMissing ?? []).map((item) => (
+                    <div key={`missing-${item}`} className="wm-workspace-list-item">
+                      <span className="wm-workspace-list-item__title">Still missing</span>
+                      <span className="wm-workspace-list-item__copy">{item}</span>
+                    </div>
+                  ))}
+                  {(answer.explanation.handoffItems ?? []).map((item) => (
+                    <div key={item.questionId} className="wm-workspace-list-item">
+                      <span className="wm-workspace-list-item__title">{item.label}</span>
+                      <span className="wm-workspace-list-item__copy">{item.prompt}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="wm-workspace-empty">No extended reasoning was returned for the latest answer.</div>
+              )}
+            </section>
+          </div>
+        ) : (
+          <div className="wm-workspace-tabpanel">
+            <section className="wm-workspace-card">
+              <div className="wm-workspace-card__header">
+                <h3 className="wm-workspace-card__title">Recent questions</h3>
+                <p className="wm-workspace-card__copy">History is separated into its own tab so the active answer stays clean.</p>
+              </div>
+
+              <div className="wm-workspace-list">
+                {history.length > 0 ? (
+                  history.map((entry) => (
+                    <button
+                      key={entry.id}
+                      type="button"
+                      className="wm-workspace-list-item"
+                      onClick={() => {
+                        setMode(entry.mode);
+                        setQuestion(entry.question);
+                        setContext(entry.context);
+                        setAnswer(entry.answer);
+                        setPanel("answer");
+                      }}
+                    >
+                      <span className="wm-workspace-list-item__eyebrow">
+                        {MODE_DEFS[entry.mode].label}
+                      </span>
+                      <span className="wm-workspace-list-item__title">{entry.question}</span>
+                      <span className="wm-workspace-list-item__copy">
+                        {new Date(entry.answeredAt).toLocaleString()}
+                      </span>
+                    </button>
+                  ))
+                ) : (
+                  <div className="wm-workspace-empty">No Guru history is stored for this project yet.</div>
+                )}
+              </div>
+            </section>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+
+  return (
+    <SplitWorkspaceFrame
+      title="Guru"
+      subtitle="Question and answer stay side-by-side, while sources, history, and supporting detail move into their own tabs so the main interaction stays clean."
+      leftTitle="Question"
+      rightTitle="Answer"
+      left={left}
+      right={right}
+      top={
+        <div className="wm-workspace-action-row">
+          {project ? (
+            <Link to={WM_ROUTES.proposal} className="wm-btn-secondary">
+              Open proposal
+            </Link>
+          ) : null}
+          <button
+            type="button"
+            className="wm-btn-primary"
+            onClick={() => {
+              void submitGuruQuestion();
+            }}
+            disabled={isLoading}
+          >
+            {isLoading ? "Asking Guru..." : "Ask Guru"}
+          </button>
+        </div>
+      }
+      bottom={status ? <div className="wm-workspace-empty">{status}</div> : null}
+    />
+  );
+}

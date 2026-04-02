@@ -1,190 +1,196 @@
-import { FolderKanban, Library, Network, ScanSearch, Sparkles } from "lucide-react";
-import { useMemo } from "react";
+import {
+  ArrowRight,
+  BarChart3,
+  Brain,
+  FileUp,
+  LayoutPanelTop,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
+  Wand2,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useProjectContext } from "@/context/ProjectContext";
-import { WM_ROUTES } from "@/core/wingman/routeMap";
 import "./wingman-dashboard.css";
 
-function numberFrom(value: unknown): number {
-  const parsed = Number(value ?? 0);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
+type QuickAction = {
+  title: string;
+  detail: string;
+  route: string;
+  icon: typeof Sparkles;
+};
 
-function inferDirection(project: any): string {
-  if (!project) return "Choose a path to begin";
-  if (project.discovery?.videoWall) return "Video wall workflow";
-  if (project.discovery?.networkReady) return "AVoIP workflow";
-  if (project.discovery?.recommendedNextTool) return project.discovery.recommendedNextTool;
-  return "Guided discovery";
-}
+type SignalCard = {
+  label: string;
+  value: string;
+  note: string;
+};
+
+const quickActions: QuickAction[] = [
+  {
+    title: "Open Tool Hub",
+    detail: "Jump into the full Wingman tool board and start from the correct workspace.",
+    route: "/app/tools",
+    icon: LayoutPanelTop,
+  },
+  {
+    title: "Import Customer Brief",
+    detail: "Turn rough customer requirements into a structured working brief.",
+    route: "/app/tools/import-intake",
+    icon: FileUp,
+  },
+  {
+    title: "Product Intelligence",
+    detail: "Review enriched technical guidance, match notes, and evidence.",
+    route: "/app/tools/product-intelligence",
+    icon: Brain,
+  },
+  {
+    title: "Guru",
+    detail: "Ask for solution direction, architecture support, or sales guidance.",
+    route: "/app/tools/guru",
+    icon: Wand2,
+  },
+];
+
+const signals: SignalCard[] = [
+  {
+    label: "Architecture Ready",
+    value: "AVoIP / Matrix / Video Wall",
+    note: "Start from the correct transport strategy before selecting product families.",
+  },
+  {
+    label: "Sales Support",
+    value: "Positioning + Compare",
+    note: "Support commercial decisions with competitor mapping and value framing.",
+  },
+  {
+    label: "Knowledge Access",
+    value: "Training + Guru",
+    note: "Give less technical users a guided path into product and application decisions.",
+  },
+];
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const { projectData } = useProjectContext();
-  const project = projectData.activeProject;
-  const projectCount = projectData.projects.length;
-
-  const snapshot = useMemo(() => {
-    const sources = numberFrom(project?.discovery?.sources ?? project?.discovery?.sourceCount);
-    const displays = numberFrom(project?.discovery?.displays ?? project?.discovery?.displayCount);
-    const distance = numberFrom(project?.discovery?.distanceM ?? project?.discovery?.distance);
-
-    return [
-      {
-        label: "Active project",
-        value: project?.name?.trim() || "No active project",
-      },
-      {
-        label: "Stage",
-        value: project?.stage?.trim() || "Discovery",
-      },
-      {
-        label: "System snapshot",
-        value:
-          sources > 0 || displays > 0 || distance > 0
-            ? `${sources || 0} src • ${displays || 0} dsp • ${distance || 0}m`
-            : "Brief not captured yet",
-      },
-      {
-        label: "Next focus",
-        value: inferDirection(project),
-      },
-    ];
-  }, [project]);
-
-  const quickActions = [
-    {
-      title: "Continue discovery",
-      copy: "Capture or refine the project brief without reopening every tool.",
-      icon: ScanSearch,
-      to: WM_ROUTES.discovery,
-      cta: "Open Discovery",
-    },
-    {
-      title: "Review architecture",
-      copy: "Go straight into the system architecture and routing workspace.",
-      icon: Network,
-      to: WM_ROUTES.architecture,
-      cta: "Open Architecture",
-    },
-    {
-      title: "Open proposal output",
-      copy: "Jump to the proposal surface when the design is ready to present.",
-      icon: Sparkles,
-      to: WM_ROUTES.proposal,
-      cta: "Open Proposal",
-    },
-  ];
-
-  const launchers = [
-    { title: "Projects", to: WM_ROUTES.projects, icon: FolderKanban },
-    { title: "Catalogue", to: WM_ROUTES.catalog, icon: Library },
-    { title: "Discovery", to: WM_ROUTES.discovery, icon: ScanSearch },
-    { title: "Architecture", to: WM_ROUTES.architecture, icon: Network },
-  ];
 
   return (
-    <div className="wm-dashboard-overview">
-      <section className="wm-dashboard-overview__hero">
-        <div className="wm-dashboard-overview__hero-copy">
-          <div className="wm-dashboard-overview__eyebrow">Dashboard</div>
-          <h1>Workspace overview</h1>
-          <p>
-            Keep the starting view light. Open the next job, then drop into the tool you actually need.
+    <div className="wm-dashboard-page">
+      <section className="wm-dashboard-hero">
+        <div className="wm-dashboard-hero__content">
+          <div className="wm-dashboard-hero__eyebrow">Wingman Workspace</div>
+          <h1 className="wm-dashboard-hero__title">
+            Sales engineering support, product guidance, and workflow tools in one system.
+          </h1>
+          <p className="wm-dashboard-hero__subtitle">
+            Use Wingman to qualify opportunities, compare solutions, build video wall ideas,
+            import customer briefs, and support consistent WyreStorm recommendations.
           </p>
+
+          <div className="wm-dashboard-hero__actions">
+            <button
+              type="button"
+              className="wm-dashboard-button wm-dashboard-button--primary"
+              onClick={() => navigate("/app/tools")}
+            >
+              <span>Open Tool Hub</span>
+              <ArrowRight size={16} />
+            </button>
+
+            <button
+              type="button"
+              className="wm-dashboard-button wm-dashboard-button--secondary"
+              onClick={() => navigate("/app/tools/import-intake")}
+            >
+              <span>Import Brief</span>
+            </button>
+          </div>
         </div>
 
-        <div className="wm-dashboard-overview__hero-actions">
-          <button type="button" className="wm-btn-primary" onClick={() => navigate(WM_ROUTES.projects)}>
-            Open projects
-          </button>
-          <button type="button" className="wm-btn-secondary" onClick={() => navigate(WM_ROUTES.discovery)}>
-            Start guided flow
-          </button>
+        <div className="wm-dashboard-hero__side">
+          <div className="wm-dashboard-glassCard">
+            <div className="wm-dashboard-glassCard__label">Workspace Focus</div>
+            <div className="wm-dashboard-glassCard__value">Pre-sales acceleration</div>
+            <p className="wm-dashboard-glassCard__text">
+              Structure decisions, reduce ad-hoc support load, and guide sales users toward
+              better-fit WyreStorm solutions.
+            </p>
+          </div>
+
+          <div className="wm-dashboard-miniGrid">
+            <div className="wm-dashboard-miniCard">
+              <Sparkles size={16} />
+              <span>Guided workflows</span>
+            </div>
+            <div className="wm-dashboard-miniCard">
+              <BarChart3 size={16} />
+              <span>Better qualification</span>
+            </div>
+            <div className="wm-dashboard-miniCard">
+              <ShieldCheck size={16} />
+              <span>More consistent positioning</span>
+            </div>
+            <div className="wm-dashboard-miniCard">
+              <Trophy size={16} />
+              <span>Competitive support</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="wm-dashboard-overview__snapshot">
-        {snapshot.map((item) => (
-          <article key={item.label} className="wm-dashboard-overview__metric">
-            <span>{item.label}</span>
-            <strong>{item.value}</strong>
-          </article>
-        ))}
-      </section>
-
-      <section className="wm-dashboard-overview__grid">
-        <div className="wm-dashboard-overview__panel">
-          <div className="wm-dashboard-overview__panel-head">
-            <h2>Focus now</h2>
-            <p>Three likely next steps instead of one oversized landing page.</p>
-          </div>
-
-          <div className="wm-dashboard-overview__action-list">
-            {quickActions.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.title}
-                  type="button"
-                  className="wm-dashboard-overview__action"
-                  onClick={() => navigate(item.to)}
-                >
-                  <span className="wm-dashboard-overview__action-icon">
-                    <Icon size={18} strokeWidth={1.9} />
-                  </span>
-                  <span className="wm-dashboard-overview__action-copy">
-                    <strong>{item.title}</strong>
-                    <span>{item.copy}</span>
-                  </span>
-                  <span className="wm-dashboard-overview__action-cta">{item.cta}</span>
-                </button>
-              );
-            })}
+      <section className="wm-dashboard-section">
+        <div className="wm-dashboard-section__header">
+          <div>
+            <div className="wm-dashboard-section__eyebrow">Start here</div>
+            <h2 className="wm-dashboard-section__title">Core actions</h2>
           </div>
         </div>
 
-        <div className="wm-dashboard-overview__panel">
-          <div className="wm-dashboard-overview__panel-head">
-            <h2>Workspace status</h2>
-            <p>Keep the important context visible without crowding the page.</p>
-          </div>
+        <div className="wm-dashboard-actionGrid">
+          {quickActions.map((item) => {
+            const Icon = item.icon;
 
-          <div className="wm-dashboard-overview__status-list">
-            <div className="wm-dashboard-overview__status-row">
-              <span>Saved projects</span>
-              <strong>{projectCount}</strong>
-            </div>
-            <div className="wm-dashboard-overview__status-row">
-              <span>Current stage</span>
-              <strong>{project?.stage?.trim() || "Discovery"}</strong>
-            </div>
-            <div className="wm-dashboard-overview__status-row">
-              <span>Project status</span>
-              <strong>{project?.status?.trim() || "In Qualification"}</strong>
-            </div>
-            <div className="wm-dashboard-overview__status-row">
-              <span>Recommended direction</span>
-              <strong>{inferDirection(project)}</strong>
-            </div>
-          </div>
+            return (
+              <button
+                key={item.title}
+                type="button"
+                className="wm-dashboard-actionCard"
+                onClick={() => navigate(item.route)}
+              >
+                <div className="wm-dashboard-actionCard__icon">
+                  <Icon size={18} strokeWidth={1.9} />
+                </div>
 
-          <div className="wm-dashboard-overview__launcher-grid">
-            {launchers.map((launcher) => {
-              const Icon = launcher.icon;
-              return (
-                <button
-                  key={launcher.title}
-                  type="button"
-                  className="wm-dashboard-overview__launcher"
-                  onClick={() => navigate(launcher.to)}
-                >
-                  <Icon size={16} strokeWidth={1.9} />
-                  <span>{launcher.title}</span>
-                </button>
-              );
-            })}
+                <div className="wm-dashboard-actionCard__body">
+                  <h3 className="wm-dashboard-actionCard__title">{item.title}</h3>
+                  <p className="wm-dashboard-actionCard__detail">{item.detail}</p>
+                </div>
+
+                <div className="wm-dashboard-actionCard__footer">
+                  <span>Open</span>
+                  <ArrowRight size={14} />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="wm-dashboard-section">
+        <div className="wm-dashboard-section__header">
+          <div>
+            <div className="wm-dashboard-section__eyebrow">Wingman value</div>
+            <h2 className="wm-dashboard-section__title">Operating signals</h2>
           </div>
+        </div>
+
+        <div className="wm-dashboard-signalGrid">
+          {signals.map((item) => (
+            <article key={item.label} className="wm-dashboard-signalCard">
+              <div className="wm-dashboard-signalCard__label">{item.label}</div>
+              <div className="wm-dashboard-signalCard__value">{item.value}</div>
+              <p className="wm-dashboard-signalCard__note">{item.note}</p>
+            </article>
+          ))}
         </div>
       </section>
     </div>

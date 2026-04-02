@@ -1,1 +1,1 @@
-export { default } from "@/features/guru/GuruPage";
+export { default } from "@/features/ai/guru/GuruToolHostPage";

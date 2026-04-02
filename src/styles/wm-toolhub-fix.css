@@ -1,0 +1,18 @@
+/* Let the tool hub use a wider canvas than the default app page max width. */
+
+.wm-main:has(.wm-toolhub-page) .wm-main__inner,
+.wm-main__inner:has(.wm-toolhub-page) {
+  max-width: 1980px !important;
+}
+
+.wm-toolhub-page {
+  width: 100%;
+  max-width: none;
+}
+
+@media (max-width: 1500px) {
+  .wm-main:has(.wm-toolhub-page) .wm-main__inner,
+  .wm-main__inner:has(.wm-toolhub-page) {
+    max-width: none !important;
+  }
+}

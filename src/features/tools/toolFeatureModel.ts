@@ -11,6 +11,7 @@ import {
   LayoutTemplate,
   MonitorSmartphone,
   Scale,
+  ShieldCheck,
 } from "lucide-react";
 
 export type WingmanItemKind = "tool" | "feature";
@@ -105,6 +106,17 @@ export const WINGMAN_TOOLS: WingmanItem[] = [
     accentRgb: "74,222,128",
     Icon: Boxes,
   },
+  {
+    id: "sales-positioning",
+    title: "Sales Positioning",
+    description: "Use SKU talk tracks, flash cards, and WyreStorm elevator pitches to build sales confidence.",
+    kind: "tool",
+    to: "/app/tools/sales",
+    tag: "Enablement",
+    highlight: "Coach the conversation",
+    accentRgb: "248,113,113",
+    Icon: ShieldCheck,
+  },
 ];
 
 export const WINGMAN_FEATURES: WingmanItem[] = [
@@ -168,7 +180,7 @@ export const WINGMAN_FEATURES: WingmanItem[] = [
     title: "Completion Workflow",
     description: "Run the final handoff gate, log assumptions, and mark the active project commercially ready.",
     kind: "feature",
-    to: "/app/workflow/completion",
+    to: "/app/tools/proposal?stage=proposal",
     tag: "Output",
     highlight: "Final readiness gate",
     accentRgb: "248,196,113",

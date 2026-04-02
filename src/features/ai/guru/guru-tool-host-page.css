@@ -1,0 +1,26 @@
+.wm-guru-page__pane {
+  display: grid;
+  gap: 18px;
+}
+
+.wm-guru-page__mode-row {
+  gap: 8px;
+}
+
+.wm-guru-page__prompt-list {
+  gap: 10px;
+}
+
+.wm-guru-page__answer-panel {
+  gap: 18px;
+}
+
+.wm-guru-page__answer-card {
+  gap: 14px;
+  background: linear-gradient(180deg, rgba(247, 253, 251, 0.94), rgba(255, 255, 255, 0.9)) !important;
+}
+
+.wm-guru-page__answer-prose {
+  font-size: 0.96rem;
+  line-height: 1.8;
+}
