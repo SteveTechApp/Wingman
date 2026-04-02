@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { writeTemplateSeed, type TemplateSeed, type TierKey } from "@/app/schema/templateSeed";
+import SplitWorkspaceFrame from "@/components/workspace/SplitWorkspaceFrame";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
-import GlowGuide from "@/ui2/page/GlowGuide";
 
 type TemplateView = "visual" | "bom" | "sales";
 type TemplateTier = "Bronze" | "Silver" | "Gold";
@@ -50,6 +51,58 @@ const templates: TemplateCard[] = [
   },
 ];
 
+function toTierKey(value: TemplateTier): TierKey {
+  return value.toLowerCase() as TierKey;
+}
+
+function buildRecommendedFamilies(template: TemplateCard): string[] {
+  if (template.tier === "Gold") return ["AVoIP", "Matrix"];
+  if (template.tier === "Silver") return ["Apollo", "USB Extension"];
+  return ["Apollo"];
+}
+
+function buildRecommendedTool(template: TemplateCard): string {
+  if (template.tier === "Gold") return WM_ROUTES.proposal;
+  return WM_ROUTES.roomWizard;
+}
+
+function buildTemplateSeed(template: TemplateCard): TemplateSeed {
+  return {
+    source: "template-workbench",
+    verticalMarket: {
+      id: template.application.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      name: template.application,
+      summary: `${template.application} template starting point.`,
+    },
+    roomType: {
+      id: template.id,
+      name: template.name,
+      summary: template.summary,
+      useCases: template.visual,
+    },
+    tier: {
+      id: toTierKey(template.tier),
+      label: template.tier,
+      summary: template.summary,
+      positioning: template.sales[0] ?? template.summary,
+      performance: template.visual[0] ?? template.summary,
+      commercialNote: template.sales.join("; "),
+    },
+    includedSystems: template.bom,
+    uplift: template.sales,
+    assumptions: template.visual,
+    recommendedFamilies: buildRecommendedFamilies(template),
+    recommendedTool: buildRecommendedTool(template),
+    solutionSummary: template.summary,
+    ioProfile: {
+      sourceCount: template.tier === "Gold" ? 4 : template.tier === "Silver" ? 3 : 2,
+      displayCount: template.tier === "Gold" ? 2 : 1,
+    },
+    projectName: `${template.name} Project`,
+    createdAt: new Date().toISOString(),
+  };
+}
+
 export default function TemplatesPage() {
   const navigate = useNavigate();
   const [activeTemplateId, setActiveTemplateId] = useState(templates[0].id);
@@ -57,117 +110,148 @@ export default function TemplatesPage() {
   const [tierFilter, setTierFilter] = useState<"All" | TemplateTier>("All");
 
   const visibleTemplates = useMemo(() => {
-    return templates.filter((t) => tierFilter === "All" || t.tier === tierFilter);
+    return templates.filter((template) => tierFilter === "All" || template.tier === tierFilter);
   }, [tierFilter]);
 
   const activeTemplate =
-    visibleTemplates.find((t) => t.id === activeTemplateId) ?? visibleTemplates[0];
+    visibleTemplates.find((template) => template.id === activeTemplateId) ?? visibleTemplates[0];
 
   const items =
     view === "visual"
       ? activeTemplate.visual
       : view === "bom"
-      ? activeTemplate.bom
-      : activeTemplate.sales;
+        ? activeTemplate.bom
+        : activeTemplate.sales;
 
-  return (
-    <div className="wm-fit-page wmu-adopt">
-      <section className="wm-surface-card wm-target-hero">
-        <div>
-          <div className="wm-page-kicker">Templates</div>
-          <div className="wm-page-title">Start from a structured room pattern</div>
-          <div className="wm-page-copy">
-            Keep this page lightweight. Select a template, then explore one layer of detail at a time.
-          </div>
+  function startFromTemplate() {
+    const seed = buildTemplateSeed(activeTemplate);
+    writeTemplateSeed(seed);
+    navigate(WM_ROUTES.projectLauncher);
+  }
+
+  const left = (
+    <div className="wm-workspace-stack">
+      <div className="wm-start-step">
+        Pick the closest room pattern first, then move into the launcher with the template already attached.
+      </div>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Filter by tier</h3>
+          <p className="wm-workspace-card__copy">Use a smaller list so the user only compares a few realistic starts.</p>
         </div>
 
-        <GlowGuide
-          title="Current priority"
-          activeIndex={1}
-          steps={[
-            { title: "Choose template", copy: "Pick the closest room type." },
-            { title: "Select detail view", copy: "Visual, BOM or sales." },
-            { title: "Continue workflow", copy: "Move into catalogue or proposal." },
-          ]}
-        />
+        <div className="wm-workspace-tag-row">
+          {["All", "Bronze", "Silver", "Gold"].map((tier) => (
+            <button
+              key={tier}
+              type="button"
+              className={`wm-workspace-tab${tierFilter === tier ? " wm-workspace-tab--active" : ""}`}
+              onClick={() => setTierFilter(tier as "All" | TemplateTier)}
+            >
+              {tier}
+            </button>
+          ))}
+        </div>
       </section>
 
-      <section className="wm-target-grid">
-        <aside className="wm-surface-card wm-target-panel">
-          <div className="wm-section-title">Template browser</div>
-          <div className="wm-section-copy">Filter by tier and select a room.</div>
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Template browser</h3>
+          <p className="wm-workspace-card__copy">Select one template, then keep the supporting detail in tabs on the right.</p>
+        </div>
 
-          <div className="wm-toolbar-row">
-            {["All", "Bronze", "Silver", "Gold"].map((t) => (
-              <button
-                key={t}
-                type="button"
-                className={`wm-chip${tierFilter === t ? " wm-chip--active" : ""}`}
-                onClick={() => setTierFilter(t as "All" | TemplateTier)}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-
-          <div className="wm-target-list">
-            {visibleTemplates.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                className={`wm-target-list__item${t.id === activeTemplate.id ? " wm-target-list__item--active" : ""}`}
-                onClick={() => setActiveTemplateId(t.id)}
-              >
-                <div className="wm-target-list__title">{t.name}</div>
-                <div className="wm-target-list__meta">{t.application}</div>
-              </button>
-            ))}
-          </div>
-        </aside>
-
-        <section className="wm-surface-card wm-target-panel">
-          <div className="wm-toolbar-row wm-toolbar-row--between">
-            <div>
-              <div className="wm-section-title">Detail view</div>
-              <div className="wm-section-copy">Switch between information layers.</div>
-            </div>
-
-            <div className="wm-toolbar-row">
-              <button type="button" className={`wm-chip${view === "visual" ? " wm-chip--active" : ""}`} onClick={() => setView("visual")}>
-                Visual
-              </button>
-              <button type="button" className={`wm-chip${view === "bom" ? " wm-chip--active" : ""}`} onClick={() => setView("bom")}>
-                BOM
-              </button>
-              <button type="button" className={`wm-chip${view === "sales" ? " wm-chip--active" : ""}`} onClick={() => setView("sales")}>
-                Sales
-              </button>
-            </div>
-          </div>
-
-          <div className="wm-product-card">
-            <div className="wm-product-card__title">{activeTemplate.name}</div>
-            <div className="wm-product-card__copy">{activeTemplate.summary}</div>
-          </div>
-
-          <div className="wm-target-list">
-            {items.map((item) => (
-              <div key={item} className="wm-target-list__card">
-                {item}
-              </div>
-            ))}
-          </div>
-
-          <div className="wm-toolbar-row wm-toolbar-row--end">
-            <button type="button" className="wm-btn-secondary" onClick={() => navigate(WM_ROUTES.catalog)}>
-              Open catalogue
+        <div className="wm-workspace-list">
+          {visibleTemplates.map((template) => (
+            <button
+              key={template.id}
+              type="button"
+              className={`wm-workspace-list-item${template.id === activeTemplate.id ? " wm-workspace-list-item--active" : ""}`}
+              onClick={() => setActiveTemplateId(template.id)}
+            >
+              <span className="wm-workspace-list-item__eyebrow">{template.tier}</span>
+              <span className="wm-workspace-list-item__title">{template.name}</span>
+              <span className="wm-workspace-list-item__copy">{template.application}</span>
             </button>
-            <button type="button" className="wm-btn-primary" onClick={() => navigate(WM_ROUTES.proposal)}>
-              Continue
-            </button>
-          </div>
-        </section>
+          ))}
+        </div>
       </section>
     </div>
+  );
+
+  const right = (
+    <div className="wm-workspace-stack">
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <span className="wm-workspace-list-item__eyebrow">{activeTemplate.tier}</span>
+          <h3 className="wm-workspace-card__title">{activeTemplate.name}</h3>
+          <p className="wm-workspace-card__copy">{activeTemplate.summary}</p>
+        </div>
+
+        <div className="wm-workspace-tab-row">
+          <button
+            type="button"
+            className={`wm-workspace-tab${view === "visual" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setView("visual")}
+          >
+            Visual
+          </button>
+          <button
+            type="button"
+            className={`wm-workspace-tab${view === "bom" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setView("bom")}
+          >
+            BOM
+          </button>
+          <button
+            type="button"
+            className={`wm-workspace-tab${view === "sales" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setView("sales")}
+          >
+            Sales
+          </button>
+        </div>
+
+        <div className="wm-workspace-list">
+          {items.map((item) => (
+            <div key={item} className="wm-workspace-list-item">
+              <span className="wm-workspace-list-item__title">{item}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="wm-workspace-action-row">
+          <button type="button" className="wm-btn-primary" onClick={startFromTemplate}>
+            Start from this template
+          </button>
+          <button type="button" className="wm-btn-secondary" onClick={() => navigate(WM_ROUTES.catalog)}>
+            Open catalogue
+          </button>
+        </div>
+      </section>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-metric">
+          <span>Recommended next tool</span>
+          <strong>{buildRecommendedTool(activeTemplate)}</strong>
+        </div>
+      </section>
+    </div>
+  );
+
+  return (
+    <SplitWorkspaceFrame
+      title="Templates"
+      subtitle="Keep the browser on the left and the supporting layer on the right so users can compare one template at a time without filling the page."
+      leftTitle="Template Browser"
+      rightTitle="Template Detail"
+      left={left}
+      right={right}
+      top={
+        <button type="button" className="wm-btn-primary" onClick={startFromTemplate}>
+          Start from selected template
+        </button>
+      }
+    />
   );
 }

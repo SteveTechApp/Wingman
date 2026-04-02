@@ -3,11 +3,16 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
-import { createClient } from "@supabase/supabase-js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, "..");
+
+let createSupabaseClient = null;
+try {
+  ({ createClient: createSupabaseClient } = await import("@supabase/supabase-js"));
+} catch {
+}
 
 const DB_FILE = path.join(ROOT, "data", "wingman-app-db.json");
 const GOVERNANCE_FILE = path.join(ROOT, "src", "data", "governance", "wingman-governance.json");
@@ -101,8 +106,9 @@ function getSupabaseAdmin() {
   const mode = configuredStorageMode();
   if (mode !== "supabase" && mode !== "supabase-tables") return null;
   if (supabaseAdmin) return supabaseAdmin;
+  if (typeof createSupabaseClient !== "function") return null;
   try {
-    supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    supabaseAdmin = createSupabaseClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
     return supabaseAdmin;

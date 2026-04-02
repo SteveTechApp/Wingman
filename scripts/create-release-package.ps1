@@ -47,6 +47,29 @@ function Copy-TreeWithoutNodeModules {
     }
 }
 
+function Copy-ReleaseItem {
+    param(
+        [Parameter(Mandatory = $true)][string]$SourcePath,
+        [Parameter(Mandatory = $true)][string]$DestinationPath
+    )
+
+    if (-not (Test-Path $SourcePath)) {
+        return
+    }
+
+    $destinationDir = Split-Path -Parent $DestinationPath
+    if ($destinationDir -and -not (Test-Path $destinationDir)) {
+        New-Item -ItemType Directory -Force -Path $destinationDir | Out-Null
+    }
+
+    if (Test-Path $SourcePath -PathType Container) {
+        Copy-Item -Recurse -Force -Path $SourcePath -Destination $DestinationPath
+        return
+    }
+
+    Copy-Item -LiteralPath $SourcePath -Destination $DestinationPath -Force
+}
+
 $root = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $root
 
@@ -79,14 +102,41 @@ Copy-TreeWithoutNodeModules -Source (Join-Path $root "server") -Destination (Joi
 Write-Step "Copying release essentials"
 $rootFiles = @(
     ".env.example",
-    "RUN-WINGMAN.cmd"
+    "RUN-WINGMAN.cmd",
+    "package.json",
+    "package-lock.json"
 )
 
 foreach ($relativePath in $rootFiles) {
     $sourcePath = Join-Path $root $relativePath
-    if (Test-Path $sourcePath) {
-        Copy-Item -LiteralPath $sourcePath -Destination (Join-Path $packageDir $relativePath) -Force
-    }
+    Copy-ReleaseItem -SourcePath $sourcePath -DestinationPath (Join-Path $packageDir $relativePath)
+}
+
+$scriptFiles = @(
+    "scripts\run-wingman-full.mjs",
+    "scripts\start-wingman-backend.mjs",
+    "scripts\wingman-runtime-env.mjs"
+)
+
+foreach ($relativePath in $scriptFiles) {
+    $sourcePath = Join-Path $root $relativePath
+    Copy-ReleaseItem -SourcePath $sourcePath -DestinationPath (Join-Path $packageDir $relativePath)
+}
+
+$runtimeDataFiles = @(
+    "data\competitor-approvals.json",
+    "data\product-intelligence-db.json",
+    "data\wyrestorm-product-intelligence.json",
+    "src\data\wyrestormSkuCatalog.2026.json",
+    "src\data\catalog\wyrestorm-catalog.phase1.json",
+    "src\data\catalog\competitor-catalog.phase4.json",
+    "src\data\catalog\competitor-compare.seed.json",
+    "src\data\governance\wingman-governance.json"
+)
+
+foreach ($relativePath in $runtimeDataFiles) {
+    $sourcePath = Join-Path $root $relativePath
+    Copy-ReleaseItem -SourcePath $sourcePath -DestinationPath (Join-Path $packageDir $relativePath)
 }
 
 $manifest = @"
@@ -96,6 +146,10 @@ Built: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 Contents
 - dist/ production frontend build
 - server/ backend source and package manifests
+- scripts/ local startup helpers
+- data/ runtime lookup and product intelligence stores
+- src/data/ runtime seed catalogs and governance data
+- package.json and package-lock.json for portable dependency install
 - .env.example template configuration
 
 Excluded on purpose
@@ -112,6 +166,7 @@ Compress-Archive -Path (Join-Path $packageDir "*") -DestinationPath $zipPath -Fo
 
 $distSize = [math]::Round(((Get-ChildItem (Join-Path $packageDir "dist") -Recurse -File | Measure-Object Length -Sum).Sum) / 1MB, 2)
 $serverSize = [math]::Round(((Get-ChildItem (Join-Path $packageDir "server") -Recurse -File | Measure-Object Length -Sum).Sum) / 1MB, 2)
+$dataSize = [math]::Round(((Get-ChildItem (Join-Path $packageDir "data") -Recurse -File | Measure-Object Length -Sum).Sum) / 1MB, 2)
 $zipSize = [math]::Round(((Get-Item $zipPath).Length) / 1MB, 2)
 
 Write-Host ""
@@ -120,4 +175,5 @@ Write-Host "  Folder: $packageDir"
 Write-Host "  Zip:    $zipPath"
 Write-Host "  Dist:   $distSize MB"
 Write-Host "  Server: $serverSize MB"
+Write-Host "  Data:   $dataSize MB"
 Write-Host "  Zip:    $zipSize MB"

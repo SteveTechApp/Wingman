@@ -1,0 +1,75 @@
+export type GuruMode =
+  | "general"
+  | "wyrestorm"
+  | "design"
+  | "troubleshooting"
+  | "training";
+
+export type GuruResponse = {
+  answer: string;
+  confidence: string;
+  sources: string[];
+  suggestedSkus: string[];
+  reasoning: string[];
+  followOns: string[];
+};
+
+export type AskGuruRequest = {
+  question: string;
+  extraContext?: string;
+  mode: GuruMode;
+  history?: string[];
+};
+
+function normalizeGuruResponse(raw: any): GuruResponse {
+  return {
+    answer:
+      typeof raw?.answer === "string" && raw.answer.trim()
+        ? raw.answer.trim()
+        : "No answer returned.",
+    confidence:
+      typeof raw?.confidence === "string" && raw.confidence.trim()
+        ? raw.confidence.trim()
+        : "Medium",
+    sources: Array.isArray(raw?.sources)
+      ? raw.sources.map((x: unknown) => String(x)).filter(Boolean)
+      : [],
+    suggestedSkus: Array.isArray(raw?.suggestedSkus)
+      ? raw.suggestedSkus.map((x: unknown) => String(x)).filter(Boolean)
+      : [],
+    reasoning: Array.isArray(raw?.reasoning)
+      ? raw.reasoning.map((x: unknown) => String(x)).filter(Boolean)
+      : [],
+    followOns: Array.isArray(raw?.followOns)
+      ? raw.followOns.map((x: unknown) => String(x)).filter(Boolean)
+      : [],
+  };
+}
+
+export async function askGuru(
+  payload: AskGuruRequest,
+  signal?: AbortSignal
+): Promise<GuruResponse> {
+  const response = await fetch("/api/wingman/guru/ask", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    signal,
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    let detail = "";
+    try {
+      const errorData = await response.json();
+      detail = errorData?.error ? ` ${errorData.error}` : "";
+    } catch {
+      // ignore parse failure
+    }
+    throw new Error(`Guru request failed (${response.status}).${detail}`);
+  }
+
+  const data = await response.json();
+  return normalizeGuruResponse(data);
+}

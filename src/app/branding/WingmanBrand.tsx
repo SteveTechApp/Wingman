@@ -1,4 +1,6 @@
-﻿import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { brand } from "@/branding/brand";
+import "./wingman-brand.css";
 
 type WingmanBrandProps = {
   compact?: boolean;
@@ -12,47 +14,16 @@ export default function WingmanBrand({
   return (
     <Link
       to="/app/dashboard"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        textDecoration: "none",
-        minWidth: 0,
-      }}
+      className={`wm-brand${compact ? " wm-brand--compact" : ""}`}
+      aria-label={`${brand.displayName} dashboard`}
     >
-      <img
-        src="/wingman-brand-logo.png"
-        alt="Wingman"
-        style={{
-          width: compact ? 32 : 36,
-          height: compact ? 32 : 36,
-          borderRadius: 8,
-          objectFit: "contain",
-          flex: "0 0 auto",
-        }}
-      />
-      <div style={{ minWidth: 0 }}>
-        <div
-          style={{
-            fontWeight: 600,
-            color: "white",
-            fontSize: compact ? 18 : 20,
-            lineHeight: 1,
-          }}
-        >
-          Wingman
-        </div>
-        <div
-          style={{
-            fontSize: 11,
-            color: "#94a3b8",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {subtitle}
-        </div>
+      <span className="wm-brand__mark" aria-hidden="true">
+        <span className="wm-brand__mark-core">{brand.monogram}</span>
+      </span>
+
+      <div className="wm-brand__copy">
+        <div className="wm-brand__title">{brand.appName}</div>
+        <div className="wm-brand__subtitle">{subtitle}</div>
       </div>
     </Link>
   );

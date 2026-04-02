@@ -207,7 +207,7 @@ export const MISSION_CONTROL_STAGES: MissionControlStage[] = [
         title: "Sales Positioning",
         short: "SP",
         to: WM_ROUTES.SALES,
-        description: "Guide positioning against competitor options and fit.",
+        description: "Coach product talk tracks, elevator pitches, and confidence-led sales conversations.",
         match: { pathname: WM_ROUTES.SALES, mode: "prefix" },
       },
       {

@@ -30,7 +30,7 @@ import {
 } from "@/features/projects/projectStore";
 import { getProjectResumeAction } from "@/features/projects/projectProductivity";
 import { createReadyMadeProjectFromWorkbenchTemplate } from "@/features/templates/templateProjectBuilder";
-import CollapsibleCard from "@/ui2/components/CollapsibleCard";
+import "./project-new-page.css";
 
 type StartMethod = {
   id: string;
@@ -84,8 +84,6 @@ const RECOMMENDED_FAMILIES: DiscoveryProductFamily[] = [
   "USB Extension",
   "Video Wall",
 ];
-const FLOW_ACTIVE_RGB = "96,194,132";
-type ProjectFlowStep = "details" | "reuse";
 
 function normalizeRecommendedFamilies(
   values?: string[],
@@ -147,10 +145,7 @@ export default function ProjectNewPage() {
   const [name, setName] = React.useState("");
   const [customer, setCustomer] = React.useState("");
   const [site, setSite] = React.useState("");
-  const [activeFlowStep, setActiveFlowStep] = React.useState<ProjectFlowStep>("details");
   const [startingTemplate, setStartingTemplate] = React.useState(false);
-  const detailsRef = React.useRef<HTMLElement | null>(null);
-  const reuseRef = React.useRef<HTMLElement | null>(null);
   const [templateSeed, setTemplateSeed] = React.useState<WorkbenchTemplateSeed | null>(() =>
     readTemplateSeed()
   );
@@ -165,29 +160,6 @@ export default function ProjectNewPage() {
     if (!templateSeed) return;
     setName((current) => current.trim() ? current : templateSeed.projectName);
   }, [templateSeed]);
-
-  function flowSectionClassName(step: ProjectFlowStep) {
-    return `wm-section wm-flow-section${activeFlowStep === step ? " is-active" : ""}`;
-  }
-
-  function flowEyebrowClassName(step: ProjectFlowStep) {
-    return `wm-flow-section__eyebrow${activeFlowStep === step ? " is-active" : ""}`;
-  }
-
-  React.useEffect(() => {
-    if (activeFlowStep !== "reuse" || !hasRecentProjects || typeof window === "undefined") return;
-
-    const target = reuseRef.current;
-    if (!target) return;
-
-    const rect = target.getBoundingClientRect();
-    const topPadding = 92;
-    const bottomPadding = 20;
-    const fullyVisible = rect.top >= topPadding && rect.bottom <= window.innerHeight - bottomPadding;
-    if (fullyVisible) return;
-
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [activeFlowStep, hasRecentProjects]);
 
   function createShell(methodTitle: string) {
     rememberRecentTextEntry(RECENT_TEXT_HISTORY_KEYS.roomName, name, {
@@ -280,7 +252,6 @@ export default function ProjectNewPage() {
     setName(project.roomName || project.name || "");
     setCustomer(project.customer || "");
     setSite(project.site || "");
-    setActiveFlowStep("reuse");
   }
 
   function duplicateFromProject(project: StoredProject) {
@@ -293,197 +264,200 @@ export default function ProjectNewPage() {
     }
   }
 
+  const selectedTemplateFamilies = normalizeRecommendedFamilies(templateSeed?.recommendedFamilies);
+
   return (
     <div className="wm-page wm-project-new-page">
-      <section className="wm-hero">
-        <div className="wm-grid wm-project-new-page__hero">
-          <div className="wm-kicker">Projects</div>
-          <div className="wm-title-xl">Project Launcher</div>
-          <div className="wm-page-lead">
-            Create a light project shell, then choose the right assisted starting path for the opportunity.
+      <section className="wm-project-new-page__intro">
+        <div className="wm-project-new-page__intro-copy">
+          <div className="wm-project-new-page__eyebrow">Projects</div>
+          <h1>Project launcher</h1>
+          <p>
+            Start with a light project shell, then choose the route that best matches the opportunity already in front of you.
+          </p>
+        </div>
+
+        <div className="wm-project-new-page__intro-metrics">
+          <div className="wm-project-new-page__metric">
+            <span>Starter paths</span>
+            <strong>{START_METHODS.length}</strong>
+          </div>
+          <div className="wm-project-new-page__metric">
+            <span>Recent projects</span>
+            <strong>{recentProjects.length}</strong>
+          </div>
+          <div className="wm-project-new-page__metric">
+            <span>Template starter</span>
+            <strong>{templateSeed ? "Loaded" : "Optional"}</strong>
           </div>
         </div>
       </section>
 
-      {templateSeed ? (
-        <section className="wm-section">
-          <div className="wm-section__head">
-            <div className="wm-section__titles">
-              <h2>Template starter ready</h2>
-              <p>
-                {templateSeed.verticalMarket.name} / {templateSeed.roomType.name} / {templateSeed.tier.label}
-              </p>
-            </div>
+      <section className="wm-project-new-page__board">
+        <section className="wm-project-new-page__details">
+          <div className="wm-project-new-page__section-head">
+            <h2>Project details</h2>
+            <p>Use just enough detail to name the opportunity and move into the right workflow.</p>
           </div>
 
-          <article className="wm-work-card" style={{ display: "grid", gap: 14 }}>
-            <div className="wm-body">
-              {templateSeed.tier.summary}
-            </div>
+          <div className="wm-project-new-page__form">
+            <label className="wm-workspace-field">
+              <span className="wm-workspace-label">Project name</span>
+              <RecentTextInput
+                className="wm-form-input"
+                historyKey={RECENT_TEXT_HISTORY_KEYS.roomName}
+                historyScope={RECENT_TEXT_HISTORY_SCOPES.projectNew}
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="e.g. Boardroom Upgrade"
+              />
+            </label>
 
-            <div className="wm-body-sm" style={{ opacity: 0.78 }}>
-              Next move: {getToolLabel(templateSeed.recommendedTool)}
-            </div>
+            <label className="wm-workspace-field">
+              <span className="wm-workspace-label">Customer</span>
+              <RecentTextInput
+                className="wm-form-input"
+                historyKey={RECENT_TEXT_HISTORY_KEYS.customer}
+                historyScope={RECENT_TEXT_HISTORY_SCOPES.projectNew}
+                value={customer}
+                onChange={(event) => setCustomer(event.target.value)}
+                placeholder="e.g. Acme Ltd"
+              />
+            </label>
 
-            {templateSeed.recommendedFamilies?.length ? (
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {templateSeed.recommendedFamilies.map((item) => (
-                  <span key={item} className="wm-chip">
-                    {item}
-                  </span>
-                ))}
+            <label className="wm-workspace-field">
+              <span className="wm-workspace-label">Site</span>
+              <RecentTextInput
+                className="wm-form-input"
+                historyKey={RECENT_TEXT_HISTORY_KEYS.site}
+                historyScope={RECENT_TEXT_HISTORY_SCOPES.projectNew}
+                value={site}
+                onChange={(event) => setSite(event.target.value)}
+                placeholder="e.g. London HQ"
+              />
+            </label>
+          </div>
+
+          <div className="wm-next-step">
+            Build the project shell first, then open the workflow that matches how much information already exists.
+          </div>
+
+          {templateSeed ? (
+            <div className="wm-project-new-page__template">
+              <div className="wm-project-new-page__section-head">
+                <h2>Template starter ready</h2>
+                <p>
+                  {templateSeed.verticalMarket.name} / {templateSeed.roomType.name} / {templateSeed.tier.label}
+                </p>
               </div>
-            ) : null}
 
-            <div className="wm-actions-row">
-              <button
-                type="button"
-                className="wm-btn wm-btn-primary"
-                onClick={() => void startFromSelectedTemplate()}
-                disabled={startingTemplate}
-              >
-                {startingTemplate ? "Building ready-made room solution..." : "Create ready-made room solution"}
-              </button>
-              <button type="button" className="wm-btn" onClick={discardSelectedTemplate}>
-                Clear starter
-              </button>
+              <div className="wm-project-new-page__template-summary">
+                <p>{templateSeed.tier.summary}</p>
+
+                <div className="wm-project-new-page__template-meta">
+                  <span>Next move</span>
+                  <strong>{getToolLabel(templateSeed.recommendedTool)}</strong>
+                </div>
+
+                {selectedTemplateFamilies?.length ? (
+                  <div className="wm-workspace-tag-row">
+                    {selectedTemplateFamilies.map((item) => (
+                      <span key={item} className="wm-workspace-tag">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+
+                <div className="wm-workspace-action-row">
+                  <button
+                    type="button"
+                    className="wm-btn-primary"
+                    onClick={() => void startFromSelectedTemplate()}
+                    disabled={startingTemplate}
+                  >
+                    {startingTemplate ? "Building ready-made room solution..." : "Create ready-made room solution"}
+                  </button>
+                  <button type="button" className="wm-btn-secondary" onClick={discardSelectedTemplate}>
+                    Clear starter
+                  </button>
+                </div>
+              </div>
             </div>
-          </article>
+          ) : null}
         </section>
-      ) : null}
 
-      <section
-        ref={detailsRef}
-        className={flowSectionClassName("details")}
-        style={{
-          "--wm-flow-accent-rgb": FLOW_ACTIVE_RGB,
-          width: "100%",
-          maxWidth: 980,
-          justifySelf: "start",
-        } as React.CSSProperties}
-        onClick={() => setActiveFlowStep("details")}
-      >
-        <div className="wm-section__head">
-          <div className="wm-section__titles">
-            <div className={flowEyebrowClassName("details")}>
-              Step 1 / Opportunity details{activeFlowStep === "details" ? " / Current position" : ""}
-            </div>
-            <h2>Opportunity details</h2>
-            <p>Keep this light. Add enough context to name the job and move on.</p>
-          </div>
-        </div>
-
-        <div className="wm-project-new-page__form">
-          <label className="wm-form-field">
-            <span className="wm-form-label">Project name</span>
-            <RecentTextInput
-              className="wm-form-input"
-              historyKey={RECENT_TEXT_HISTORY_KEYS.roomName}
-              historyScope={RECENT_TEXT_HISTORY_SCOPES.projectNew}
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                setActiveFlowStep("details");
-              }}
-              placeholder="e.g. Boardroom Upgrade"
-            />
-          </label>
-
-          <label className="wm-form-field">
-            <span className="wm-form-label">Customer</span>
-            <RecentTextInput
-              className="wm-form-input"
-              historyKey={RECENT_TEXT_HISTORY_KEYS.customer}
-              historyScope={RECENT_TEXT_HISTORY_SCOPES.projectNew}
-              value={customer}
-              onChange={(e) => {
-                setCustomer(e.target.value);
-                setActiveFlowStep("details");
-              }}
-              placeholder="e.g. Acme Ltd"
-            />
-          </label>
-
-          <label className="wm-form-field">
-            <span className="wm-form-label">Site</span>
-            <RecentTextInput
-              className="wm-form-input"
-              historyKey={RECENT_TEXT_HISTORY_KEYS.site}
-              historyScope={RECENT_TEXT_HISTORY_SCOPES.projectNew}
-              value={site}
-              onChange={(e) => {
-                setSite(e.target.value);
-                setActiveFlowStep("details");
-              }}
-              placeholder="e.g. London HQ"
-            />
-          </label>
-        </div>
-
-        <div className="wm-actions-row" style={{ marginTop: 16 }}>
-          <button
-            type="button"
-            className="wm-btn wm-btn-primary"
-            onClick={() => startWith(START_METHODS[0])}
-          >
-            Start Guided Project
-          </button>
-        </div>
-      </section>
-
-      {hasRecentProjects ? (
-        <section
-          ref={reuseRef}
-          className={flowSectionClassName("reuse")}
-          style={{ "--wm-flow-accent-rgb": FLOW_ACTIVE_RGB } as React.CSSProperties}
-          onClick={() => setActiveFlowStep("reuse")}
-        >
-          <div className="wm-section__head">
-            <div className="wm-section__titles">
-              <div className={flowEyebrowClassName("reuse")}>
-                Step 1 / Reuse context{activeFlowStep === "reuse" ? " / Current position" : ""}
-              </div>
-              <h2>Reuse recent project context</h2>
-              <p>Pull forward past context or duplicate a similar room to move faster.</p>
-            </div>
+        <section className="wm-project-new-page__methods">
+          <div className="wm-project-new-page__section-head">
+            <h2>Choose a starting path</h2>
+            <p>Each route creates the project shell first, then moves into the right level of guided support.</p>
           </div>
 
-          <CollapsibleCard
-            id="project-new-reuse-context"
-            title="Recent project context"
-            subtitle="Open this when you want to reuse details or duplicate a similar job."
-            defaultCollapsed
-          >
-            <div className="wm-grid-cards">
+          <div className="wm-project-new-page__method-list">
+            {START_METHODS.map((method) => {
+              const Icon = method.Icon;
+              return (
+                <button
+                  key={method.id}
+                  type="button"
+                  className="wm-project-new-page__method"
+                  onClick={() => startWith(method)}
+                >
+                  <span className="wm-project-new-page__method-icon">
+                    <Icon className="wm-project-new-page__method-icon-svg" />
+                  </span>
+
+                  <span className="wm-project-new-page__method-copy">
+                    <span className="wm-project-new-page__method-title">{method.title}</span>
+                    <span className="wm-project-new-page__method-description">{method.description}</span>
+                    <span className="wm-project-new-page__method-helper">{method.helper}</span>
+                  </span>
+
+                  <span className="wm-project-new-page__method-cta">Open</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {hasRecentProjects ? (
+          <section className="wm-project-new-page__recent">
+            <div className="wm-project-new-page__section-head">
+              <h2>Reuse recent context</h2>
+              <p>Borrow project details, duplicate a similar room, or jump back into active work.</p>
+            </div>
+
+            <div className="wm-project-new-page__recent-list">
               {recentProjects.map((project) => {
                 const resumeAction = getProjectResumeAction(project);
 
                 return (
-                  <article key={project.id} className="wm-work-card" style={{ display: "grid", gap: 12 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+                  <article key={project.id} className="wm-project-new-page__recent-item">
+                    <div className="wm-project-new-page__recent-head">
                       <div>
-                        <div className="wm-title-lg">{project.name}</div>
-                        <div className="wm-body-sm" style={{ opacity: 0.76 }}>
+                        <h3>{project.name}</h3>
+                        <p>
                           {[project.customer || "Customer not set", project.site || "Site not set", project.roomName || "Room not set"].join(" / ")}
-                        </div>
+                        </p>
                       </div>
-                      <span className="wm-chip">{resumeAction.shortLabel}</span>
+
+                      <span className="wm-workspace-tag">{resumeAction.shortLabel}</span>
                     </div>
 
-                    <div className="wm-body-sm" style={{ opacity: 0.76 }}>
+                    <div className="wm-project-new-page__recent-meta">
                       Last updated {new Date(project.updatedAt).toLocaleString()}
                     </div>
 
-                    <div className="wm-actions-row">
-                      <button type="button" className="wm-btn" onClick={() => applyProjectContext(project)}>
-                        Use details
+                    <div className="wm-workspace-action-row">
+                      <button type="button" className="wm-btn-secondary" onClick={() => applyProjectContext(project)}>
+                        Borrow details
                       </button>
-                      <button type="button" className="wm-btn" onClick={() => duplicateFromProject(project)}>
-                        Duplicate project
+                      <button type="button" className="wm-btn-secondary" onClick={() => duplicateFromProject(project)}>
+                        Duplicate
                       </button>
                       <button
                         type="button"
-                        className="wm-btn"
+                        className="wm-btn-primary"
                         onClick={() => {
                           setActiveProjectId(project.id);
                           nav(resumeAction.to);
@@ -496,9 +470,9 @@ export default function ProjectNewPage() {
                 );
               })}
             </div>
-          </CollapsibleCard>
-        </section>
-      ) : null}
+          </section>
+        ) : null}
+      </section>
     </div>
   );
 }

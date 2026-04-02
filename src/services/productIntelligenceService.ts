@@ -1,7 +1,10 @@
-import competitorCatalog from "@/data/catalog/competitorCatalog";
-import { buildWyrestormSeedCatalogProducts } from "@/catalog/seedCatalog";
 import { classifyProductType, type ProductTypeGroup } from "@/catalog/classification";
 import { inferCatalogMetadata } from "@/catalog/metadataInference";
+import {
+  resolveLookupEndpoint,
+  resolveProductIntelligenceEndpoint,
+  resolveProductIntelligenceHealthEndpoint,
+} from "@/app/api/runtimeEndpoint";
 import type { CatalogDistance,
   CatalogIntegrationProfile,
   CatalogPowerProfile,
@@ -96,6 +99,8 @@ export type ProductIntelligenceRecord = {
   lastCapturedAt: string;
   lastReviewedAt?: string;
   reviewedBy?: string;
+  evidenceCount?: number;
+  openReviewFlagCount?: number;
   evidence: ProductEvidenceEntry[];
   reviewFlags: ProductReviewFlag[];
   archived?: boolean;
@@ -220,17 +225,25 @@ type CommittedProductIntelligenceDb = {
   version?: number;
   generatedAt?: string;
   updatedAt?: string;
-  records?: ProductIntelligenceRecord[];
+  records?: Array<Record<string, unknown>>;
+};
+
+export type ProductIntelligenceRecordShape = "index" | "full";
+
+export type ProductIntelligenceFetchOptions = {
+  recordShape?: ProductIntelligenceRecordShape;
 };
 
 const EXPLICIT_ENDPOINT = String(import.meta.env.VITE_PRODUCT_INTELLIGENCE_ENDPOINT ?? "").trim();
 const EXPLICIT_HEALTH_ENDPOINT = String(import.meta.env.VITE_PRODUCT_INTELLIGENCE_HEALTH_ENDPOINT ?? "").trim();
-const LOOKUP_ENDPOINT = String(import.meta.env.VITE_COMPETITOR_LOOKUP_ENDPOINT ?? "").trim();
+const LOOKUP_ENDPOINT = resolveLookupEndpoint();
 const LOCAL_ADMIN_RECORDS_KEY = "wm_product_intelligence_admin_records_v1";
-const COMMITTED_PRODUCT_INTELLIGENCE_DB_URL = new URL("../../data/product-intelligence-db.json", import.meta.url).href;
+const COMMITTED_PRODUCT_INTELLIGENCE_INDEX_URL = new URL("../../data/product-intelligence-index.json", import.meta.url).href;
 
-let committedProductIntelligenceRecordsPromise: Promise<ProductIntelligenceRecord[]> | null = null;
-let localFallbackRecordsPromise: Promise<ProductIntelligenceRecord[]> | null = null;
+let committedProductIntelligenceIndexRecordsPromise: Promise<ProductIntelligenceRecord[]> | null = null;
+let localCatalogFallbackRecordsPromise: Promise<ProductIntelligenceRecord[]> | null = null;
+let localFallbackIndexRecordsPromise: Promise<ProductIntelligenceRecord[]> | null = null;
+let localFallbackFullRecordsPromise: Promise<ProductIntelligenceRecord[]> | null = null;
 
 const BRAND_SOURCE_URLS: Record<string, string> = {
   wyrestorm: "https://www.wyrestorm.com/",
@@ -373,6 +386,23 @@ function sanitizeRecord(record: ProductIntelligenceRecord): ProductIntelligenceR
     control: record.control,
   });
 
+  const evidence = asArray<ProductEvidenceEntry>(record.evidence).map((entry) => ({
+    ...entry,
+    id: tidy(entry.id) || `ev_${Math.random().toString(36).slice(2, 10)}`,
+    label: tidy(entry.label),
+    value: tidy(entry.value),
+    sourceUrl: normalizeUrl(entry.sourceUrl) || undefined,
+    capturedAt: tidy(entry.capturedAt) || nowIso(),
+    confidence: clampConfidence(entry.confidence, 0.65),
+    notes: tidy(entry.notes) || undefined,
+  })).filter((entry) => entry.label && entry.value);
+  const reviewFlags = asArray<ProductReviewFlag>(record.reviewFlags).map((flag) => sanitizeReviewFlag(flag));
+  const evidenceCount = Math.max(evidence.length, Math.max(0, Math.round(mapNumber(record.evidenceCount) ?? 0)));
+  const openReviewFlagCount = Math.max(
+    reviewFlags.filter((flag) => flag.status === "open").length,
+    Math.max(0, Math.round(mapNumber(record.openReviewFlagCount) ?? 0)),
+  );
+
   return {
     ...record,
     id: tidy(record.id) || toRecordId(record.vendorType, record.brand, record.sku),
@@ -437,19 +467,26 @@ function sanitizeRecord(record: ProductIntelligenceRecord): ProductIntelligenceR
     lastCapturedAt: tidy(record.lastCapturedAt) || nowIso(),
     lastReviewedAt: tidy(record.lastReviewedAt) || undefined,
     reviewedBy: tidy(record.reviewedBy) || undefined,
-    evidence: asArray<ProductEvidenceEntry>(record.evidence).map((entry) => ({
-      ...entry,
-      id: tidy(entry.id) || `ev_${Math.random().toString(36).slice(2, 10)}`,
-      label: tidy(entry.label),
-      value: tidy(entry.value),
-      sourceUrl: normalizeUrl(entry.sourceUrl) || undefined,
-      capturedAt: tidy(entry.capturedAt) || nowIso(),
-      confidence: clampConfidence(entry.confidence, 0.65),
-      notes: tidy(entry.notes) || undefined,
-    })).filter((entry) => entry.label && entry.value),
-    reviewFlags: asArray<ProductReviewFlag>(record.reviewFlags).map((flag) => sanitizeReviewFlag(flag)),
+    evidenceCount,
+    openReviewFlagCount,
+    evidence,
+    reviewFlags,
     archived: Boolean(record.archived),
   };
+}
+
+function toIndexRecord(record: ProductIntelligenceRecord): ProductIntelligenceRecord {
+  return sanitizeRecord({
+    ...record,
+    sourceUrls: record.sourceUrls.slice(0, 1),
+    tags: [],
+    notes: undefined,
+    evidenceCount: record.evidenceCount ?? record.evidence.length,
+    openReviewFlagCount:
+      record.openReviewFlagCount ?? record.reviewFlags.filter((flag) => flag.status === "open").length,
+    evidence: [],
+    reviewFlags: [],
+  });
 }
 
 function readLocalAdminRecords(): ProductIntelligenceRecord[] {
@@ -488,8 +525,11 @@ function mergeRecordsById(records: ProductIntelligenceRecord[]): ProductIntellig
   });
 }
 
-function applyLocalAdminRecords(records: ProductIntelligenceRecord[]): ProductIntelligenceRecord[] {
-  const local = readLocalAdminRecords();
+function applyLocalAdminRecords(
+  records: ProductIntelligenceRecord[],
+  recordShape: ProductIntelligenceRecordShape = "full",
+): ProductIntelligenceRecord[] {
+  const local = readLocalAdminRecords().map((record) => recordShape === "index" ? toIndexRecord(record) : record);
   if (local.length === 0) return mergeRecordsById(records);
   return mergeRecordsById([...records, ...local]);
 }
@@ -518,7 +558,7 @@ async function baseRecordForMutation(
   if (localRecord) return localRecord;
 
   const recordId = toRecordId(inferVendorType(payload.vendorType, payload.brand), payload.brand, payload.sku);
-  const fallback = (await getLocalFallbackRecords()).find((record) => record.id === recordId);
+  const fallback = (await getLocalFallbackRecords("full")).find((record) => record.id === recordId);
   if (fallback) return fallback;
 
   const partial = payload.record ?? {};
@@ -595,6 +635,7 @@ async function baseRecordForMutation(
 
 function inferEndpointFromLookup(): string {
   if (tidy(import.meta.env.MODE).toLowerCase() === "test") return "";
+  if (EXPLICIT_ENDPOINT) return EXPLICIT_ENDPOINT;
   if (!LOOKUP_ENDPOINT) return "";
   try {
     const parsed = new URL(LOOKUP_ENDPOINT);
@@ -608,10 +649,11 @@ function inferEndpointFromLookup(): string {
   }
 }
 
-const PRODUCT_INTELLIGENCE_ENDPOINT = EXPLICIT_ENDPOINT || inferEndpointFromLookup();
+const PRODUCT_INTELLIGENCE_ENDPOINT =
+  resolveProductIntelligenceEndpoint() || inferEndpointFromLookup();
 const PRODUCT_INTELLIGENCE_HEALTH_ENDPOINT =
   EXPLICIT_HEALTH_ENDPOINT ||
-  (PRODUCT_INTELLIGENCE_ENDPOINT ? `${PRODUCT_INTELLIGENCE_ENDPOINT.replace(/\/$/, "")}/health` : "");
+  resolveProductIntelligenceHealthEndpoint(PRODUCT_INTELLIGENCE_ENDPOINT);
 
 function sourceUrlForBrand(vendorType: ProductVendorType, brand: string): string {
   if (vendorType === "wyrestorm") return BRAND_SOURCE_URLS.wyrestorm;
@@ -1064,29 +1106,35 @@ function makeCatalogRecord(row: Record<string, unknown>, vendorType: ProductVend
   };
 }
 
-async function loadCommittedProductIntelligenceRecords(): Promise<ProductIntelligenceRecord[]> {
-  if (!committedProductIntelligenceRecordsPromise) {
-    committedProductIntelligenceRecordsPromise = fetch(COMMITTED_PRODUCT_INTELLIGENCE_DB_URL)
+async function loadCommittedProductIntelligenceIndexRecords(): Promise<ProductIntelligenceRecord[]> {
+  if (!committedProductIntelligenceIndexRecordsPromise) {
+    committedProductIntelligenceIndexRecordsPromise = fetch(COMMITTED_PRODUCT_INTELLIGENCE_INDEX_URL)
       .then(async (response) => {
         if (!response.ok) return [];
 
         const parsed = (await response.json()) as CommittedProductIntelligenceDb;
-        return asArray<ProductIntelligenceRecord>(parsed?.records).map((record) =>
-          sanitizeRecord({
-            ...record,
-            vendorType: inferVendorType(record.vendorType, record.brand),
-          }),
-        );
+        return asArray<Record<string, unknown>>(parsed?.records)
+          .map((record) => mapBackendRecord(record))
+          .filter((record): record is ProductIntelligenceRecord => record != null)
+          .map((record) => toIndexRecord(record));
       })
       .catch(() => []);
   }
 
-  return committedProductIntelligenceRecordsPromise;
+  return committedProductIntelligenceIndexRecordsPromise;
 }
 
-async function getLocalFallbackRecords(): Promise<ProductIntelligenceRecord[]> {
-  if (!localFallbackRecordsPromise) {
-    localFallbackRecordsPromise = (async () => {
+async function loadLocalCatalogFallbackRecords(): Promise<ProductIntelligenceRecord[]> {
+  if (!localCatalogFallbackRecordsPromise) {
+    localCatalogFallbackRecordsPromise = (async () => {
+      const [
+        { buildWyrestormSeedCatalogProducts },
+        { default: competitorCatalog },
+      ] = await Promise.all([
+        import("@/catalog/seedCatalog"),
+        import("@/data/catalog/competitorCatalog"),
+      ]);
+
       const out: ProductIntelligenceRecord[] = [];
 
       for (const row of buildWyrestormSeedCatalogProducts()) {
@@ -1099,27 +1147,51 @@ async function getLocalFallbackRecords(): Promise<ProductIntelligenceRecord[]> {
         if (mapped) out.push(mapped);
       }
 
-      const committedRecords = await loadCommittedProductIntelligenceRecords();
-
-      return mergeRecordsById([...out, ...committedRecords]).sort((a, b) => {
-        const vendorCmp = a.vendorType.localeCompare(b.vendorType);
-        if (vendorCmp !== 0) return vendorCmp;
-        const brandCmp = a.brand.localeCompare(b.brand);
-        if (brandCmp !== 0) return brandCmp;
-        return a.sku.localeCompare(b.sku);
-      });
+      return mergeRecordsById(out);
     })();
   }
 
-  return localFallbackRecordsPromise;
+  return localCatalogFallbackRecordsPromise;
 }
 
-async function getResolvedFallbackRecords(): Promise<ProductIntelligenceRecord[]> {
-  return applyLocalAdminRecords(await getLocalFallbackRecords());
+async function getLocalFallbackRecords(
+  recordShape: ProductIntelligenceRecordShape = "index",
+): Promise<ProductIntelligenceRecord[]> {
+  if (recordShape === "full") {
+    if (!localFallbackFullRecordsPromise) {
+      localFallbackFullRecordsPromise = (async () => {
+        const [catalogRecords, committedIndexRecords] = await Promise.all([
+          loadLocalCatalogFallbackRecords(),
+          loadCommittedProductIntelligenceIndexRecords(),
+        ]);
+        return mergeRecordsById([...catalogRecords, ...committedIndexRecords]);
+      })();
+    }
+
+    return localFallbackFullRecordsPromise;
+  }
+
+  if (!localFallbackIndexRecordsPromise) {
+    localFallbackIndexRecordsPromise = (async () => {
+      const [catalogRecords, committedRecords] = await Promise.all([
+        loadLocalCatalogFallbackRecords(),
+        loadCommittedProductIntelligenceIndexRecords(),
+      ]);
+      return mergeRecordsById([...catalogRecords.map((record) => toIndexRecord(record)), ...committedRecords]);
+    })();
+  }
+
+  return localFallbackIndexRecordsPromise;
+}
+
+async function getResolvedFallbackRecords(
+  recordShape: ProductIntelligenceRecordShape = "index",
+): Promise<ProductIntelligenceRecord[]> {
+  return applyLocalAdminRecords(await getLocalFallbackRecords(recordShape), recordShape);
 }
 
 async function getResolvedFallbackSummary(): Promise<ProductIntelligenceSummary> {
-  return summarizeRecords(await getResolvedFallbackRecords());
+  return summarizeRecords(await getResolvedFallbackRecords("index"));
 }
 
 function summarizeRecords(records: ProductIntelligenceRecord[]): ProductIntelligenceSummary {
@@ -1163,7 +1235,12 @@ function applyFilters(records: ProductIntelligenceRecord[], query: ProductIntell
     if (status && record.status !== status) return false;
     if (brand && normalizeId(record.brand) !== brand) return false;
     if (sku && normalizeSku(record.sku) !== sku) return false;
-    if (flaggedOnly && !record.reviewFlags.some((flag) => flag.status === "open")) return false;
+    if (
+      flaggedOnly &&
+      (record.openReviewFlagCount ?? record.reviewFlags.filter((flag) => flag.status === "open").length) === 0
+    ) {
+      return false;
+    }
     if (!text) return true;
 
     const blob = [
@@ -1178,6 +1255,7 @@ function applyFilters(records: ProductIntelligenceRecord[], query: ProductIntell
       record.summary,
       ...record.features,
       ...record.tags,
+      (record.openReviewFlagCount ?? 0) > 0 ? "flagged review" : "",
       ...record.reviewFlags.map((flag) => `${flag.kind} ${flag.message} ${flag.note || ""}`),
     ].join(" ").toLowerCase();
     return blob.includes(text);
@@ -1234,6 +1312,12 @@ function mapBackendRecord(raw: Record<string, unknown>): ProductIntelligenceReco
       return mapped;
     })
     .filter((entry): entry is ProductEvidenceEntry => entry != null);
+  const reviewFlags = asArray<ProductReviewFlag>(raw.reviewFlags).map((flag) => sanitizeReviewFlag(flag));
+  const evidenceCount = Math.max(evidence.length, Math.max(0, Math.round(mapNumber(raw.evidenceCount) ?? 0)));
+  const openReviewFlagCount = Math.max(
+    reviewFlags.filter((flag) => flag.status === "open").length,
+    Math.max(0, Math.round(mapNumber(raw.openReviewFlagCount) ?? 0)),
+  );
 
   return {
     id: tidy(raw.id) || toRecordId(vendorType, brand, sku),
@@ -1290,8 +1374,10 @@ function mapBackendRecord(raw: Record<string, unknown>): ProductIntelligenceReco
     lastCapturedAt: tidy(raw.lastCapturedAt) || nowIso(),
     lastReviewedAt: tidy(raw.lastReviewedAt) || undefined,
     reviewedBy: tidy(raw.reviewedBy) || undefined,
+    evidenceCount,
+    openReviewFlagCount,
     evidence,
-    reviewFlags: asArray<ProductReviewFlag>(raw.reviewFlags).map((flag) => sanitizeReviewFlag(flag)),
+    reviewFlags,
     archived: Boolean(raw.archived),
   };
 }
@@ -1338,8 +1424,12 @@ export function getProductIntelligenceContractSummary(): string {
   return "GET /api/product-intelligence with filters; POST /refresh, /upsert, /status, /evidence. Records include topology, role, transport, structured I/O, richer video and distance detail, source URLs, capture dates, confidence, approval status, and local review flags.";
 }
 
-export async function fetchProductIntelligenceRecords(query: ProductIntelligenceQuery = {}): Promise<ProductIntelligenceQueryResult> {
-  const fallbackRecords = await getResolvedFallbackRecords();
+export async function fetchProductIntelligenceRecords(
+  query: ProductIntelligenceQuery = {},
+  options: ProductIntelligenceFetchOptions = {},
+): Promise<ProductIntelligenceQueryResult> {
+  const recordShape: ProductIntelligenceRecordShape = options.recordShape === "full" ? "full" : "index";
+  const fallbackRecords = await getResolvedFallbackRecords(recordShape);
   const filteredFallback = applyFilters(fallbackRecords, query);
   const limit = Math.max(1, Math.min(1000, Number(query.limit) || 250));
 
@@ -1350,8 +1440,12 @@ export async function fetchProductIntelligenceRecords(query: ProductIntelligence
       available: false,
       endpoint: null,
       fetchedAt: nowIso(),
-      mode: "local-fallback",
-      warnings: ["Product intelligence endpoint is not configured; using catalog fallback data."],
+      mode: recordShape === "full" ? "local-fallback-index" : "local-fallback",
+      warnings: [
+        recordShape === "full"
+          ? "Product intelligence endpoint is not configured; using lightweight local fallback data without full review history."
+          : "Product intelligence endpoint is not configured; using catalog fallback data.",
+      ],
       total: filteredFallback.length,
       count: records.length,
       records,
@@ -1375,8 +1469,12 @@ export async function fetchProductIntelligenceRecords(query: ProductIntelligence
       available: false,
       endpoint: PRODUCT_INTELLIGENCE_ENDPOINT,
       fetchedAt: nowIso(),
-      mode: "endpoint-fallback",
-      warnings: [`Product intelligence endpoint unavailable (HTTP ${response.status || 0}); using catalog fallback data.`],
+      mode: recordShape === "full" ? "endpoint-fallback-index" : "endpoint-fallback",
+      warnings: [
+        recordShape === "full"
+          ? `Product intelligence endpoint unavailable (HTTP ${response.status || 0}); using lightweight fallback data without full review history.`
+          : `Product intelligence endpoint unavailable (HTTP ${response.status || 0}); using catalog fallback data.`,
+      ],
       total: filteredFallback.length,
       count: records.length,
       records,
@@ -1386,8 +1484,10 @@ export async function fetchProductIntelligenceRecords(query: ProductIntelligence
 
   const records = applyLocalAdminRecords(
     asArray<Record<string, unknown>>(response.data.records)
-    .map((entry) => mapBackendRecord(entry))
-    .filter((entry): entry is ProductIntelligenceRecord => entry != null),
+      .map((entry) => mapBackendRecord(entry))
+      .filter((entry): entry is ProductIntelligenceRecord => entry != null)
+      .map((entry) => recordShape === "full" ? entry : toIndexRecord(entry)),
+    recordShape,
   );
   const filteredRecords = applyFilters(records, query);
   const visibleRecords = filteredRecords.slice(0, limit);

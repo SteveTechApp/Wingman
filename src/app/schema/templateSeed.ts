@@ -114,6 +114,12 @@ export function readTemplateSeed(): TemplateSeed | null {
   }
 }
 
+export function writeTemplateSeed(seed: TemplateSeed): void {
+  try {
+    sessionStorage.setItem(TEMPLATE_SEED_KEY, JSON.stringify(seed));
+  } catch {}
+}
+
 export function clearTemplateSeed(): void {
   try {
     sessionStorage.removeItem(TEMPLATE_SEED_KEY);

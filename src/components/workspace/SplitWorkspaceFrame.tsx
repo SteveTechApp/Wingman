@@ -24,7 +24,7 @@ export default function SplitWorkspaceFrame({
   return (
     <div className="wm-split-page">
       <div className="wm-split-page__header">
-        <div>
+        <div className="wm-split-page__header-copy">
           <div className="wm-split-page__eyebrow">Workspace</div>
           <h1 className="wm-split-page__title">{title}</h1>
           {subtitle ? <p className="wm-split-page__subtitle">{subtitle}</p> : null}

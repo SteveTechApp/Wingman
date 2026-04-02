@@ -1,189 +1,422 @@
-﻿import { useMemo, useState } from "react";
-import "./guru-tool-host.css";
+import { useEffect, useMemo, useRef, useState } from "react";
+import "./guru-workspace.css";
+import { askGuru, getGuruHealth, type GuruMode, type GuruResponse } from "./guruService";
 
-const TOPICS = [
-  "General AV advice",
-  "WyreStorm guidance",
-  "Design support",
-  "Troubleshooting",
-  "Training",
+type AnswerTab = "answer" | "support" | "history";
+type HealthState = "checking" | "ready" | "down";
+
+const MODE_OPTIONS: Array<{ key: GuruMode; label: string; hint: string }> = [
+  { key: "general", label: "General AV advice", hint: "Broad guidance and first-pass recommendations." },
+  { key: "wyrestorm", label: "WyreStorm guidance", hint: "Product-family fit, positioning, and SKU direction." },
+  { key: "design", label: "Design support", hint: "Architecture logic, signal path, and system planning." },
+  { key: "troubleshooting", label: "Troubleshooting", hint: "Fault isolation, validation, and corrective actions." },
+  { key: "training", label: "Training and explainers", hint: "Simple language for internal sales enablement and sales support." },
 ];
 
-const PROMPTS = [
-  "Which WyreStorm family best suits a small meeting room?",
-  "When should I recommend Apollo instead of HDBaseT?",
-  "How do I choose between matrix switching and AV over IP?",
-  "What discovery answers matter most before product selection?",
+const STARTER_QUESTIONS = [
+  "Which WyreStorm family best suits a small Teams room with USB-C BYOD and two displays?",
+  "What is the best approach for a 3x3 video wall where the client wants flexible source layouts?",
+  "When should I position HDBaseT instead of AVoIP for a meeting room upgrade?",
+  "How do I explain multi-view capability clearly to a reseller without sounding too technical?",
 ];
 
 export default function GuruToolHostPage() {
-  const [topic, setTopic] = useState("WyreStorm guidance");
-  const [question, setQuestion] = useState(
-    "Which presentation switchers support AirPlay, and what should I confirm before recommending one?"
+  const [mode, setMode] = useState<GuruMode>("wyrestorm");
+  const [tab, setTab] = useState<AnswerTab>("answer");
+  const [question, setQuestion] = useState("");
+  const [extraContext, setExtraContext] = useState("");
+  const [history, setHistory] = useState<string[]>([]);
+  const [response, setResponse] = useState<GuruResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errorText, setErrorText] = useState("");
+  const [healthState, setHealthState] = useState<HealthState>("checking");
+  const [healthDetail, setHealthDetail] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
+
+  const activeModeMeta = useMemo(
+    () => MODE_OPTIONS.find((item) => item.key === mode) ?? MODE_OPTIONS[0],
+    [mode]
   );
-  const [lastAsked, setLastAsked] = useState(
-    "Which presentation switchers support AirPlay, and what should I confirm before recommending one?"
-  );
 
-  const answer = useMemo(() => {
-    const q = lastAsked.trim().toLowerCase();
+  useEffect(() => {
+    const controller = new AbortController();
 
-    if (!q) {
-      return "Your answer will appear here once a question has been asked.";
+    async function runHealthCheck() {
+      try {
+        setHealthState("checking");
+        setHealthDetail("");
+
+        const health = await getGuruHealth(controller.signal);
+
+        if (!health.ok) {
+          setHealthState("down");
+          setHealthDetail("Guru backend is not ready.");
+          return;
+        }
+
+        if (!health.hasKey) {
+          setHealthState("down");
+          setHealthDetail("GEMINI_API_KEY is missing on the server.");
+          return;
+        }
+
+        setHealthState("ready");
+        setHealthDetail(`Model: ${health.model}`);
+      } catch (error) {
+        if ((error as Error)?.name === "AbortError") return;
+        setHealthState("down");
+        setHealthDetail((error as Error)?.message || "Guru health check failed.");
+      }
     }
 
-    if (q.includes("airplay")) {
-      return "Start by confirming whether the requirement is native wireless presentation, simple HDMI/USB-C switching, or a broader room presentation workflow. For Wingman, surface the user outcome first, then confirm source count, display count, USB host/device needs, control expectations, and whether the client wants a guided presentation experience rather than basic switching.";
+    runHealthCheck();
+    return () => controller.abort();
+  }, []);
+
+  async function handleAskGuru() {
+    const trimmed = question.trim();
+    if (!trimmed || loading || healthState !== "ready") return;
+
+    setLoading(true);
+    setErrorText("");
+    setTab("answer");
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      const nextResponse = await askGuru(
+        {
+          question: trimmed,
+          extraContext: extraContext.trim(),
+          mode,
+          history,
+        },
+        controller.signal
+      );
+
+      setResponse(nextResponse);
+      setHistory((prev) => [trimmed, ...prev.filter((x) => x !== trimmed)].slice(0, 12));
+    } catch (error) {
+      if ((error as Error)?.name === "AbortError") return;
+      setErrorText((error as Error)?.message || "Guru request failed.");
+    } finally {
+      setLoading(false);
     }
+  }
 
-    if (q.includes("apollo")) {
-      return "Use Apollo when the room needs a more complete collaboration workflow around switching, USB, host management, and room presentation behaviour. Stay with simpler HDBaseT or switching paths when the requirement is straightforward transport and the client does not need the added workflow layer.";
-    }
+  function handleUseStarter(text: string) {
+    setQuestion(text);
+  }
 
-    if (q.includes("matrix") || q.includes("av over ip")) {
-      return "Use matrix switching when the system is more fixed, with known source-to-display relationships and limited scale. Move to AV over IP when scalability, flexible routing, video wall behaviour, distributed endpoints, or future expansion are part of the brief.";
-    }
+  function handleCancel() {
+    abortRef.current?.abort();
+    setLoading(false);
+  }
 
-    return "Start with outcome first: room type, source count, display count, transport distance, USB, audio breakout, control, switching behaviour, and future expansion. Then match the project to the most suitable WyreStorm family and explain why it fits.";
-  }, [lastAsked]);
-
-  const summary = useMemo(() => {
-    if (topic === "Design support") return "Focus on architecture, signal paths, and room behaviour.";
-    if (topic === "Troubleshooting") return "Focus on likely failure points, validation, and corrective actions.";
-    if (topic === "Training") return "Focus on explanation quality and sales confidence.";
-    if (topic === "General AV advice") return "Focus on concepts, terminology, and workflow guidance.";
-    return "Focus on WyreStorm positioning, fit, and product family selection.";
-  }, [topic]);
+  function handleRetryHealth() {
+    setHealthState("checking");
+    setHealthDetail("");
+    window.location.reload();
+  }
 
   return (
-    <div className="guru-page-shell">
+    <div className="guru-page-host">
+      <div className="guru-page">
       <section className="guru-hero">
         <div className="guru-hero__copy">
-          <div className="guru-hero__eyebrow">Guru Assistant</div>
-          <h1 className="guru-hero__title">Question in view. Answer in view. No clutter.</h1>
-          <p className="guru-hero__subtitle">
-            Keep the user input visible on the left and the answer visible on the right so changes can be reviewed immediately.
+          <div className="guru-eyebrow">Tools</div>
+          <h1 className="guru-title">Guru</h1>
+          <p className="guru-subtitle">
+            Keep the question on the left and the answer on the right so the conversation stays
+            structured, reviewable, and commercially useful.
           </p>
         </div>
 
-        <div className="guru-hero__status">
-          <div className="guru-status-card">
-            <div className="guru-status-card__label">Current mode</div>
-            <div className="guru-status-card__value">{topic}</div>
+        <div className="guru-hero__meta">
+          <div className="guru-meta-pill">
+            <span className="guru-meta-pill__label">Project</span>
+            <strong>No active project</strong>
           </div>
-          <div className="guru-status-card">
-            <div className="guru-status-card__label">Focus</div>
-            <div className="guru-status-card__value guru-status-card__value--small">{summary}</div>
+          <div className="guru-meta-pill">
+            <span className="guru-meta-pill__label">Stage</span>
+            <strong>Tools</strong>
+          </div>
+          <div className="guru-meta-pill">
+            <span className="guru-meta-pill__label">AI status</span>
+            <strong>
+              {healthState === "checking" ? "Checking..." : healthState === "ready" ? "Ready" : "Offline"}
+            </strong>
           </div>
         </div>
       </section>
 
-      <section className="guru-workspace">
+      {healthState !== "ready" ? (
+        <section className="guru-health-banner">
+          <div>
+            <div className="guru-health-banner__title">
+              {healthState === "checking" ? "Checking Guru service..." : "Guru service is unavailable"}
+            </div>
+            <div className="guru-health-banner__body">
+              {healthDetail || "Please verify the backend, route, and GEMINI_API_KEY."}
+            </div>
+          </div>
+
+          {healthState === "down" ? (
+            <button type="button" className="guru-secondary" onClick={handleRetryHealth}>
+              Retry
+            </button>
+          ) : null}
+        </section>
+      ) : null}
+
+      <section className="guru-shell">
         <div className="guru-panel guru-panel--question">
           <div className="guru-panel__header">
             <div>
               <div className="guru-panel__eyebrow">Question</div>
-              <h2 className="guru-panel__title">What does the user need?</h2>
+              <h2 className="guru-panel__title">Build the prompt properly</h2>
             </div>
-            <div className="guru-panel__badge">Input</div>
+            <div className="guru-next-pill">{healthState === "ready" ? "Live AI" : "Unavailable"}</div>
           </div>
 
-          <div className="guru-topic-row">
-            {TOPICS.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className={`guru-topic-chip ${item === topic ? "guru-topic-chip--active" : ""}`}
-                onClick={() => setTopic(item)}
-              >
-                {item}
-              </button>
-            ))}
+          <div className="guru-info">
+            Ask in a commercial or technical way. The answer stays visible on the right while you
+            refine the prompt and add extra constraints.
           </div>
 
-          <div className="guru-question-card">
-            <label className="guru-label" htmlFor="guru-question">
-              Main question
-            </label>
-
-            <textarea
-              id="guru-question"
-              className="guru-textarea"
-              value={question}
-              onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Describe room type, sources, displays, distance, USB, audio, control, and the user outcome."
-            />
-
-            <div className="guru-inline-guidance">
-              Keep the brief practical. Only add context that changes the recommendation.
-            </div>
-
-            <div className="guru-action-row">
-              <button
-                type="button"
-                className="guru-button guru-button--primary"
-                onClick={() => setLastAsked(question)}
-              >
-                Ask Guru
-              </button>
-
-              <button
-                type="button"
-                className="guru-button"
-                onClick={() => setQuestion("")}
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-
-          <div className="guru-prompt-block">
-            <div className="guru-label">Starter prompts</div>
-            <div className="guru-prompt-list">
-              {PROMPTS.map((prompt) => (
+          <div className="guru-block">
+            <label className="guru-label">Guru mode</label>
+            <div className="guru-mode-grid">
+              {MODE_OPTIONS.map((item) => (
                 <button
-                  key={prompt}
+                  key={item.key}
                   type="button"
-                  className="guru-prompt-chip"
-                  onClick={() => {
-                    setQuestion(prompt);
-                    setLastAsked(prompt);
-                  }}
+                  className={item.key === mode ? "guru-mode guru-mode--active" : "guru-mode"}
+                  onClick={() => setMode(item.key)}
                 >
-                  {prompt}
+                  <span className="guru-mode__label">{item.label}</span>
+                  <span className="guru-mode__hint">{item.hint}</span>
                 </button>
               ))}
             </div>
           </div>
+
+          <div className="guru-block">
+            <label className="guru-label">Main question</label>
+            <textarea
+              className="guru-textarea guru-textarea--main"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Ask a WyreStorm-specific question, for example: Which family best suits a small Teams room with USB-C BYOD and two displays?"
+            />
+          </div>
+
+          <div className="guru-block">
+            <label className="guru-label">Extra context</label>
+            <textarea
+              className="guru-textarea"
+              value={extraContext}
+              onChange={(e) => setExtraContext(e.target.value)}
+              placeholder="Add room notes, budget pressure, customer preferences, distances, switching needs, network constraints, or any important commercial context."
+            />
+          </div>
+
+          <div className="guru-block">
+            <div className="guru-label guru-label--row">
+              <span>Starter questions</span>
+              <span className="guru-hint">Use one as a fast prompt seed</span>
+            </div>
+
+            <div className="guru-starters">
+              {STARTER_QUESTIONS.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  className="guru-starter"
+                  onClick={() => handleUseStarter(item)}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="guru-actions">
+            <div className="guru-actions__left">
+              <button
+                type="button"
+                className="guru-primary"
+                onClick={handleAskGuru}
+                disabled={loading || healthState !== "ready"}
+              >
+                {loading ? "Thinking..." : "Ask Guru"}
+              </button>
+
+              {loading && (
+                <button type="button" className="guru-secondary" onClick={handleCancel}>
+                  Cancel
+                </button>
+              )}
+            </div>
+
+            <div className="guru-context-note">
+              {healthState === "ready" ? (
+                <>Active mode: <strong>{activeModeMeta.label}</strong> Ã‚Â· {healthDetail}</>
+              ) : (
+                <>Guru unavailable</>
+              )}
+            </div>
+          </div>
+
+          {errorText ? <div className="guru-error">{errorText}</div> : null}
         </div>
 
         <div className="guru-panel guru-panel--answer">
           <div className="guru-panel__header">
             <div>
               <div className="guru-panel__eyebrow">Answer</div>
-              <h2 className="guru-panel__title">Recommendation and reasoning</h2>
-            </div>
-            <div className="guru-panel__badge guru-panel__badge--answer">Output</div>
-          </div>
-
-          <div className="guru-answer-stage">
-            <div className="guru-answer-card">
-              <div className="guru-answer-card__topline">{topic}</div>
-              <div className="guru-answer-card__question">{lastAsked}</div>
-              <div className="guru-answer-card__body">{answer}</div>
-            </div>
-
-            <div className="guru-next-step-card">
-              <div className="guru-next-step-card__title">Next step</div>
-              <ul className="guru-next-step-card__list">
-                <li>Confirm the user outcome before selecting a family.</li>
-                <li>Keep inputs visible while reviewing the answer.</li>
-                <li>Reduce scrolling and show only decision-critical information.</li>
-              </ul>
+              <h2 className="guru-panel__title">Structured response</h2>
             </div>
           </div>
+
+          <div className="guru-tabs">
+            <button
+              type="button"
+              className={tab === "answer" ? "guru-tab guru-tab--active" : "guru-tab"}
+              onClick={() => setTab("answer")}
+            >
+              Answer
+            </button>
+            <button
+              type="button"
+              className={tab === "support" ? "guru-tab guru-tab--active" : "guru-tab"}
+              onClick={() => setTab("support")}
+            >
+              Support
+            </button>
+            <button
+              type="button"
+              className={tab === "history" ? "guru-tab guru-tab--active" : "guru-tab"}
+              onClick={() => setTab("history")}
+            >
+              History
+            </button>
+          </div>
+
+          {!response && !loading && (
+            <div className="guru-empty-state">
+              <div className="guru-empty-state__title">No answer yet</div>
+              <p>
+                Ask a question to populate the right pane with the answer, reasoning, supporting
+                references, and likely SKU direction.
+              </p>
+            </div>
+          )}
+
+          {loading && (
+            <div className="guru-loading-state">
+              <div className="guru-loading-state__title">Building response...</div>
+              <p>Guru is assembling the answer, confidence, follow-on checks, and product direction.</p>
+            </div>
+          )}
+
+          {response && tab === "answer" && (
+            <div className="guru-answer">
+              <section className="guru-answer-card">
+                <div className="guru-answer-card__eyebrow">Recommended direction</div>
+                <div className="guru-answer-card__body">{response.answer}</div>
+              </section>
+
+              <section className="guru-grid-2">
+                <div className="guru-mini-card">
+                  <div className="guru-mini-card__label">Confidence</div>
+                  <div className="guru-mini-card__value">{response.confidence}</div>
+                </div>
+                <div className="guru-mini-card">
+                  <div className="guru-mini-card__label">Mode used</div>
+                  <div className="guru-mini-card__value">{activeModeMeta.label}</div>
+                </div>
+              </section>
+
+              <section className="guru-answer-card">
+                <div className="guru-answer-card__eyebrow">Likely SKU direction</div>
+                <div className="guru-chip-row">
+                  {response.suggestedSkus.length ? (
+                    response.suggestedSkus.map((sku) => (
+                      <span key={sku} className="guru-chip">{sku}</span>
+                    ))
+                  ) : (
+                    <p className="guru-muted">No SKU suggestions returned.</p>
+                  )}
+                </div>
+              </section>
+
+              <section className="guru-answer-card">
+                <div className="guru-answer-card__eyebrow">Why this answer</div>
+                {response.reasoning.length ? (
+                  <ul className="guru-list">
+                    {response.reasoning.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="guru-muted">No reasoning notes returned.</p>
+                )}
+              </section>
+            </div>
+          )}
+
+          {response && tab === "support" && (
+            <div className="guru-answer">
+              <section className="guru-answer-card">
+                <div className="guru-answer-card__eyebrow">Support sources</div>
+                {response.sources.length ? (
+                  <ul className="guru-list">
+                    {response.sources.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="guru-muted">No support sources returned.</p>
+                )}
+              </section>
+
+              <section className="guru-answer-card">
+                <div className="guru-answer-card__eyebrow">Follow-on checks</div>
+                {response.followOns.length ? (
+                  <ul className="guru-list">
+                    {response.followOns.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="guru-muted">No follow-on checks returned.</p>
+                )}
+              </section>
+            </div>
+          )}
+
+          {tab === "history" && (
+            <div className="guru-answer">
+              <section className="guru-answer-card">
+                <div className="guru-answer-card__eyebrow">Recent questions</div>
+                {history.length === 0 ? (
+                  <p className="guru-muted">No recent questions yet.</p>
+                ) : (
+                  <ul className="guru-list">
+                    {history.map((item, index) => (
+                      <li key={item + index}>{item}</li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            </div>
+          )}
         </div>
       </section>
+    </div>
     </div>
   );
 }

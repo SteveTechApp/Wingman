@@ -1,5 +1,6 @@
 import type { StoredProject } from "@/features/projects/projectStore";
 import type { RecommendationGovernanceRulebook } from "@/features/governance/recommendationGovernance";
+import { resolveWingmanApiBase } from "@/app/api/runtimeEndpoint";
 import {
   buildWorkspacePermissions,
   type DeploymentPermissions,
@@ -136,23 +137,7 @@ function tidy(value: unknown): string {
 }
 
 function buildApiBase(): string {
-  const explicit = tidy(import.meta.env.VITE_WINGMAN_API_BASE_URL);
-  if (explicit) return explicit.replace(/\/$/, "");
-
-  const competitor = tidy(import.meta.env.VITE_COMPETITOR_LOOKUP_ENDPOINT);
-  if (competitor) {
-    try {
-      const parsed = new URL(competitor);
-      const cleanPath = parsed.pathname.replace(/\/$/, "");
-      parsed.pathname = cleanPath.endsWith("/api/competitor-lookup")
-        ? cleanPath.replace(/\/api\/competitor-lookup$/, "/api/wingman")
-        : "/api/wingman";
-      return parsed.toString().replace(/\/$/, "");
-    } catch {
-    }
-  }
-
-  return "http://127.0.0.1:8787/api/wingman";
+  return resolveWingmanApiBase();
 }
 
 const API_BASE = buildApiBase();

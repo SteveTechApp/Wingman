@@ -1,4 +1,5 @@
 import type { CompetitorLookupCacheEntrySummary } from "@/services/competitor/lookupService";
+import { resolveApprovalEndpoint } from "@/app/api/runtimeEndpoint";
 
 export type CompetitorApprovalQueueRecord = {
   id: string;
@@ -30,7 +31,7 @@ export type FlushApprovalQueueResult = {
 };
 
 const APPROVAL_QUEUE_KEY = "wm_competitor_approval_queue_v1";
-const APPROVAL_ENDPOINT = String(import.meta.env.VITE_COMPETITOR_APPROVAL_ENDPOINT ?? "").trim();
+const APPROVAL_ENDPOINT = resolveApprovalEndpoint();
 
 function nowIso(): string {
   return new Date().toISOString();

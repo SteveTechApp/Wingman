@@ -1,6 +1,7 @@
 import { resolveCompetitorRecordWithLiveFallback } from "./competitorLiveFallbackService";
 import { z } from "zod";
 import compareSeed from "@/data/catalog/competitorCompareSeed";
+import { resolveLookupEndpoint } from "@/app/api/runtimeEndpoint";
 import { getCompetitorProducts, type CompetitorProduct } from "@/competitor/repository";
 import type { CatalogPortCount, CatalogVideo } from "@/catalog/types";
 import { captureCompetitorLookupRecord } from "@/services/liveProductDataStore";
@@ -127,7 +128,7 @@ type BackendLookupAttempt = {
 
 const CACHE_KEY = "wm_competitor_lookup_cache_v1";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
-const ENDPOINT = String(import.meta.env.VITE_COMPETITOR_LOOKUP_ENDPOINT ?? "").trim();
+const ENDPOINT = resolveLookupEndpoint();
 const DIAGNOSTICS_ENDPOINT = (() => {
   if (!ENDPOINT) return "";
   try {
@@ -263,30 +264,7 @@ function resolveSourceUrl(payload: CompetitorLookupRequestPayload): string {
 }
 
 function parseQuery(query: string): { brand: string; sku: string } {
-
-
-function _mapLiveFallbackRecordToLookupRecord(record: {
-  manufacturer: string;
-  model: string;
-  productUrl?: string;
-  title?: string;
-  summary?: string;
-  category?: string;
-  technology?: string;
-  features: string[];
-}): CompetitorLookupRecord {
-  return {
-    brand: tidy(record.manufacturer),
-    sku: normalizeSku(record.model),
-    name: tidy(record.title || record.model),
-    family: tidy(record.technology || "Live lookup"),
-    category: tidy(record.category || "Unknown"),
-    summary: tidy(record.summary || "Resolved from live product page."),
-    features: Array.isArray(record.features) ? record.features : [],
-    transport: tidy(record.technology),
-    sourceUrl: tidy(record.productUrl),
-  };
-}  const raw = tidy(query);
+  const raw = tidy(query);
   if (!raw) return { brand: "", sku: "" };
 
   const parts = raw.split(/\s+/).filter(Boolean);

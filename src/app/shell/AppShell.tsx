@@ -1,26 +1,19 @@
 import { Outlet } from "react-router-dom";
 import TopBar from "@/app/navigation/TopBar";
 import MissionControlNav from "@/ui2/nav/MissionControlNav";
-import GuruFab from "@/features/ai/guru/GuruFab";
 
 export default function AppShell() {
   return (
-    <div className="wm-reference-shell">
+    <div className="wm-shell-root">
       <TopBar />
-
-      <div className="wm-reference-shell__body">
-        <aside className="wm-reference-shell__nav">
-          <MissionControlNav />
-        </aside>
-
-        <main className="wm-reference-shell__main">
-          <div className="wm-reference-shell__stage">
+      <div className="wm-shell-body">
+        <MissionControlNav />
+        <main className="wm-main" role="main">
+          <div className="wm-main__inner">
             <Outlet />
           </div>
         </main>
       </div>
-
-      <GuruFab />
     </div>
   );
 }

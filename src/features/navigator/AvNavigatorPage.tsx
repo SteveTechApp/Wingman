@@ -1,11 +1,18 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
+import SplitWorkspaceFrame from "@/components/workspace/SplitWorkspaceFrame";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
-
+import {
+  ensureActiveProject,
+  getActiveProject,
+  setActiveProjectId,
+  subscribeProjects,
+  updateProject,
+} from "@/features/projects/projectStore";
 import "./avNavigator.css";
 
 type NavigatorTrackId = "interest" | "research" | "feedback";
+type NavigatorPanel = "readout" | "followups" | "next";
 
 type NavigatorQuestion = {
   id: string;
@@ -168,7 +175,7 @@ const TRACKS: NavigatorTrack[] = [
 ];
 
 const TOOL_LABELS: Record<string, string> = {
-  [WM_ROUTES.catalogue]: "Open product catalog",
+  [WM_ROUTES.catalogue]: "Open product catalogue",
   [WM_ROUTES.competitorCompare]: "Open competitor compare",
   [WM_ROUTES.discovery]: "Open guided project",
   [WM_ROUTES.guru]: "Open Guru",
@@ -338,8 +345,58 @@ function buildNavigatorSummary(track: NavigatorTrack, answers: Record<string, st
   return buildInterestSummary(answers);
 }
 
+function countAnswers(track: NavigatorTrack, answers: Record<string, string | string[]>) {
+  return track.questions.reduce((count, question) => {
+    const value = answers[question.id];
+    return count + (question.type === "multi" ? Number(arrayValue(value).length > 0) : Number(Boolean(textValue(value).trim())));
+  }, 0);
+}
+
+function buildNavigatorSessionBlock(
+  track: NavigatorTrack,
+  answers: Record<string, string | string[]>,
+  summary: ReturnType<typeof buildNavigatorSummary>,
+) {
+  const rows = track.questions.flatMap((question) => {
+    const value = question.type === "multi" ? arrayValue(answers[question.id]).join(", ") : textValue(answers[question.id]).trim();
+    return value ? [`- ${question.prompt}: ${value}`] : [];
+  });
+
+  return [
+    `Navigator track: ${track.title}`,
+    summary.summary,
+    summary.signals.length ? `Signals: ${summary.signals.join("; ")}` : "",
+    summary.prompts.length ? `Follow-ups: ${summary.prompts.join(" | ")}` : "",
+    rows.length ? `Answers:\n${rows.join("\n")}` : "",
+  ].filter(Boolean).join("\n\n");
+}
+
+function mergeNotes(existing: string | undefined, next: string) {
+  const current = String(existing ?? "").trim();
+  const incoming = next.trim();
+  if (!current) return incoming;
+  if (!incoming || current.includes(incoming)) return current;
+  return `${current}\n\n${incoming}`;
+}
+
+function suggestProjectName(track: NavigatorTrack, answers: Record<string, string | string[]>) {
+  if (track.id === "research") {
+    return textValue(answers.customer).trim() || "Account Research";
+  }
+
+  if (track.id === "feedback") {
+    return `${textValue(answers.stage).trim() || "Customer"} Feedback`;
+  }
+
+  return `${textValue(answers.space).trim() || "AV"} Opportunity`;
+}
+
 export default function AvNavigatorPage() {
+  const navigate = useNavigate();
+  const activeProject = React.useSyncExternalStore(subscribeProjects, getActiveProject, () => undefined);
   const [trackId, setTrackId] = React.useState<NavigatorTrackId>("interest");
+  const [panel, setPanel] = React.useState<NavigatorPanel>("readout");
+  const [saveMessage, setSaveMessage] = React.useState("");
   const [answersByTrack, setAnswersByTrack] = React.useState<Record<NavigatorTrackId, Record<string, string | string[]>>>({
     interest: {},
     research: {},
@@ -351,13 +408,13 @@ export default function AvNavigatorPage() {
     [trackId]
   );
   const answers = answersByTrack[trackId];
+  const answerCount = countAnswers(activeTrack, answers);
   const firstPending = firstUnansweredIndex(activeTrack, answers);
-  const progressCount =
-    firstPending === -1 ? activeTrack.questions.length : firstPending;
   const summary = React.useMemo(
     () => buildNavigatorSummary(activeTrack, answers),
     [activeTrack, answers]
   );
+  const primaryRoute = summary.routes[0] ?? WM_ROUTES.discovery;
 
   function setAnswer(questionId: string, value: string | string[]) {
     setAnswersByTrack((previous) => ({
@@ -367,6 +424,7 @@ export default function AvNavigatorPage() {
         [questionId]: value,
       },
     }));
+    setSaveMessage("");
   }
 
   function resetTrack() {
@@ -374,169 +432,330 @@ export default function AvNavigatorPage() {
       ...previous,
       [trackId]: {},
     }));
+    setSaveMessage("");
   }
 
-  return (
-    <div className="wm-page wm-navx">
-      <section className="wm-hero wm-navx__hero">
-        <div className="wm-navx__hero-copy">
-          <p className="wm-navx__eyebrow">AV Navigator</p>
-          <h1 className="wm-navx__title">A simpler starting point for newer AV sales conversations.</h1>
-          <p className="wm-navx__subtitle">
-            Quick-fire prompts, plain English phrasing, and a clear next move when the customer does not yet know the product language.
-          </p>
+  function persistNavigator(route?: string) {
+    const nextRoute = route ?? primaryRoute;
+    const suggestedName = suggestProjectName(activeTrack, answers);
+    const customerName = activeTrack.id === "research" ? textValue(answers.customer).trim() : "";
+    const sessionBlock = buildNavigatorSessionBlock(activeTrack, answers, summary);
+    const project = ensureActiveProject({
+      name: activeProject?.name?.trim() && activeProject.name.trim() !== "New Project" ? activeProject.name : suggestedName,
+      customer: activeProject?.customer?.trim() || customerName,
+      roomName: activeProject?.roomName?.trim() || suggestedName,
+      stage: "Discovery",
+      status: activeProject?.status?.trim() || "Draft",
+      notes: activeProject?.notes?.trim() || "",
+    });
+
+    setActiveProjectId(project.id);
+
+    const mergedNotes = mergeNotes(project.notes, sessionBlock);
+    const existingDiscovery = project.discovery ?? {
+      customer: project.customer || customerName,
+      site: project.site || "",
+      roomName: project.roomName || suggestedName,
+      notes: project.notes || "",
+      createdAt: project.createdAt,
+    };
+
+    updateProject(project.id, {
+      name: project.name === "New Project" ? suggestedName : project.name,
+      customer: project.customer || customerName,
+      roomName: project.roomName || suggestedName,
+      stage: "Discovery",
+      notes: mergedNotes,
+      discovery: {
+        ...existingDiscovery,
+        customer: existingDiscovery.customer || project.customer || customerName,
+        roomName: existingDiscovery.roomName || project.roomName || suggestedName,
+        workflowTrack: activeTrack.title,
+        applicationType: activeTrack.title,
+        customerOutcome: summary.summary,
+        featureRequirements: summary.signals.join(" | "),
+        notes: mergedNotes,
+        recommendedNextTool: nextRoute,
+        createdAt: existingDiscovery.createdAt || project.createdAt,
+      },
+    });
+
+    setSaveMessage(`Navigator summary saved to ${project.name}.`);
+
+    if (route) {
+      navigate(nextRoute);
+    }
+  }
+
+  const left = (
+    <div className="wm-workspace-stack wm-navx">
+      <div className="wm-start-step">
+        Keep the customer language on the left, then review the readout and next tool on the right before you move on.
+      </div>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Navigator mode</h3>
+          <p className="wm-workspace-card__copy">Choose the kind of conversation you are trying to organise first.</p>
         </div>
-        <div className="wm-navx__hero-panel wm-work-card">
-          <div className="wm-navx__hero-stat">{progressCount}/{activeTrack.questions.length}</div>
-          <div className="wm-navx__hero-label">Questions answered in this track</div>
-          <button type="button" className="wm-cat2__btn wm-cat2__btn--ghost" onClick={resetTrack}>
+
+        <div className="wm-workspace-list">
+          {TRACKS.map((track) => {
+            const answered = countAnswers(track, answersByTrack[track.id]);
+            return (
+              <button
+                key={track.id}
+                type="button"
+                className={`wm-workspace-list-item${track.id === trackId ? " wm-workspace-list-item--active" : ""}`}
+                onClick={() => {
+                  setTrackId(track.id);
+                  setSaveMessage("");
+                }}
+              >
+                <span className="wm-workspace-list-item__eyebrow">
+                  {answered}/{track.questions.length} answered
+                </span>
+                <span className="wm-workspace-list-item__title">{track.title}</span>
+                <span className="wm-workspace-list-item__copy">{track.subtitle}</span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-card__header">
+          <h3 className="wm-workspace-card__title">Conversation prompts</h3>
+          <p className="wm-workspace-card__copy">{activeTrack.summary}</p>
+        </div>
+
+        <div className="wm-navx__question-stack">
+          {activeTrack.questions.map((question, index) => {
+            const value = answers[question.id];
+            const isAnswered = question.type === "multi" ? arrayValue(value).length > 0 : Boolean(textValue(value).trim());
+            const isCurrent = firstPending === -1 ? index === activeTrack.questions.length - 1 : index === firstPending;
+            const isVisible = isAnswered || isCurrent || index === 0;
+
+            if (!isVisible) return null;
+
+            return (
+              <section
+                key={question.id}
+                className={`wm-workspace-card wm-workspace-card--muted wm-navx__question${isCurrent ? " is-current" : ""}`}
+              >
+                <div className="wm-navx__question-head">
+                  <span className="wm-navx__question-index">Q{index + 1}</span>
+                  {isAnswered ? <span className="wm-workspace-tag">Captured</span> : null}
+                </div>
+
+                <div className="wm-workspace-card__header">
+                  <h3 className="wm-workspace-card__title">{question.prompt}</h3>
+                  <p className="wm-workspace-card__copy">{question.helper}</p>
+                </div>
+
+                {question.type === "single" ? (
+                  <div className="wm-navx__option-grid">
+                    {question.options?.map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        className={`wm-navx__option${textValue(value) === option ? " is-active" : ""}`}
+                        onClick={() => setAnswer(question.id, option)}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+
+                {question.type === "multi" ? (
+                  <div className="wm-navx__option-grid">
+                    {question.options?.map((option) => {
+                      const selected = arrayValue(value).includes(option);
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          className={`wm-navx__option${selected ? " is-active" : ""}`}
+                          onClick={() => setAnswer(question.id, toggleMultiValue(value, option))}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
+
+                {question.type === "text" ? (
+                  <textarea
+                    className="wm-navx__textarea"
+                    value={textValue(value)}
+                    placeholder={question.placeholder}
+                    onChange={(event) => setAnswer(question.id, event.target.value)}
+                  />
+                ) : null}
+              </section>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-grid-3">
+          <div className="wm-workspace-metric">
+            <span>Track</span>
+            <strong>{activeTrack.title}</strong>
+          </div>
+          <div className="wm-workspace-metric">
+            <span>Answered</span>
+            <strong>
+              {answerCount}/{activeTrack.questions.length}
+            </strong>
+          </div>
+          <div className="wm-workspace-metric">
+            <span>Active project</span>
+            <strong>{activeProject?.name?.trim() || "Will be created on save"}</strong>
+          </div>
+        </div>
+
+        {saveMessage ? <div className="wm-workspace-empty">{saveMessage}</div> : null}
+
+        <div className="wm-workspace-action-row">
+          <button type="button" className="wm-btn-secondary" onClick={resetTrack}>
             Reset this track
+          </button>
+          <button type="button" className="wm-btn-secondary" onClick={() => persistNavigator()}>
+            Save to project
+          </button>
+          <button type="button" className="wm-btn-primary" onClick={() => persistNavigator(primaryRoute)}>
+            Save and open {TOOL_LABELS[primaryRoute] ?? "next tool"}
           </button>
         </div>
       </section>
+    </div>
+  );
 
-      <section className="wm-section wm-section--tone-cyan">
-        <div className="wm-navx__layout">
-          <aside className="wm-work-card wm-navx__tracks">
-            <div className="wm-navx__section-label">Choose a helper mode</div>
-            <div className="wm-navx__track-list">
-              {TRACKS.map((track) => {
-                const answered = Object.keys(answersByTrack[track.id]).length;
-                return (
-                  <button
-                    key={track.id}
-                    type="button"
-                    className={track.id === trackId ? "wm-navx__track is-active" : "wm-navx__track"}
-                    style={{ "--wm-navx-accent-rgb": track.accentRgb } as React.CSSProperties}
-                    onClick={() => setTrackId(track.id)}
-                  >
-                    <span className="wm-navx__track-title">{track.title}</span>
-                    <span className="wm-navx__track-subtitle">{track.subtitle}</span>
-                    <span className="wm-navx__track-meta">{answered}/{track.questions.length} answered</span>
-                  </button>
-                );
-              })}
-            </div>
-          </aside>
-
-          <main className="wm-navx__main">
-            <section className="wm-work-card wm-navx__intro">
-              <div>
-                <p className="wm-navx__section-label">Current flow</p>
-                <h2>{activeTrack.title}</h2>
-                <p>{activeTrack.summary}</p>
-              </div>
-            </section>
-
-            <section className="wm-navx__question-stack">
-              {activeTrack.questions.map((question, index) => {
-                const value = answers[question.id];
-                const isAnswered = question.type === "multi" ? arrayValue(value).length > 0 : Boolean(textValue(value).trim());
-                const isCurrent = firstPending === -1 ? index === activeTrack.questions.length - 1 : index === firstPending;
-                const isVisible = isAnswered || isCurrent || index === 0;
-
-                if (!isVisible) {
-                  return null;
-                }
-
-                return (
-                  <section
-                    key={question.id}
-                    className={isCurrent ? "wm-work-card wm-navx__question is-current" : "wm-work-card wm-navx__question"}
-                  >
-                    <div className="wm-navx__question-head">
-                      <span className="wm-navx__question-index">Q{index + 1}</span>
-                      {isAnswered ? <span className="wm-navx__question-status">Captured</span> : null}
-                    </div>
-                    <h3>{question.prompt}</h3>
-                    <p>{question.helper}</p>
-
-                    {question.type === "single" ? (
-                      <div className="wm-navx__option-grid">
-                        {question.options?.map((option) => (
-                          <button
-                            key={option}
-                            type="button"
-                            className={textValue(value) === option ? "wm-navx__option is-active" : "wm-navx__option"}
-                            onClick={() => setAnswer(question.id, option)}
-                          >
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    ) : null}
-
-                    {question.type === "multi" ? (
-                      <div className="wm-navx__option-grid">
-                        {question.options?.map((option) => {
-                          const selected = arrayValue(value).includes(option);
-                          return (
-                            <button
-                              key={option}
-                              type="button"
-                              className={selected ? "wm-navx__option is-active" : "wm-navx__option"}
-                              onClick={() => setAnswer(question.id, toggleMultiValue(value, option))}
-                            >
-                              {option}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-
-                    {question.type === "text" ? (
-                      <textarea
-                        className="wm-navx__textarea"
-                        value={textValue(value)}
-                        placeholder={question.placeholder}
-                        onChange={(event) => setAnswer(question.id, event.target.value)}
-                      />
-                    ) : null}
-                  </section>
-                );
-              })}
-            </section>
-          </main>
-
-          <aside className="wm-navx__aside">
-            <section className="wm-work-card wm-navx__summary">
-              <p className="wm-navx__section-label">Navigator readout</p>
-              <h2>{summary.title}</h2>
-              <p>{summary.summary}</p>
-
-              <div className="wm-navx__chip-list">
-                {summary.signals.map((signal) => (
-                  <span key={signal} className="wm-navx__chip">
-                    {signal}
-                  </span>
-                ))}
-              </div>
-            </section>
-
-            <section className="wm-work-card wm-navx__summary">
-              <p className="wm-navx__section-label">Plain-English follow-ups</p>
-              <div className="wm-navx__prompt-list">
-                {summary.prompts.map((prompt) => (
-                  <div key={prompt} className="wm-navx__prompt">
-                    {prompt}
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <section className="wm-work-card wm-navx__summary">
-              <p className="wm-navx__section-label">Useful next tool</p>
-              <div className="wm-navx__link-list">
-                {summary.routes.map((route) => (
-                  <Link key={route} to={route} className="wm-navx__link">
-                    {TOOL_LABELS[route] ?? "Open tool"}
-                  </Link>
-                ))}
-              </div>
-            </section>
-          </aside>
+  const right = (
+    <div className="wm-workspace-stack wm-navx">
+      <section className="wm-workspace-card">
+        <div className="wm-workspace-tab-row">
+          <button
+            type="button"
+            className={`wm-workspace-tab${panel === "readout" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setPanel("readout")}
+          >
+            Readout
+          </button>
+          <button
+            type="button"
+            className={`wm-workspace-tab${panel === "followups" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setPanel("followups")}
+          >
+            Follow-ups
+          </button>
+          <button
+            type="button"
+            className={`wm-workspace-tab${panel === "next" ? " wm-workspace-tab--active" : ""}`}
+            onClick={() => setPanel("next")}
+          >
+            Next tools
+          </button>
         </div>
+
+        {panel === "readout" ? (
+          <div className="wm-workspace-tabpanel">
+            <div className="wm-workspace-card wm-workspace-card--muted">
+              <div className="wm-workspace-card__header">
+                <span className="wm-workspace-list-item__eyebrow">{activeTrack.title}</span>
+                <h3 className="wm-workspace-card__title">{summary.title}</h3>
+                <p className="wm-workspace-card__copy">{summary.summary}</p>
+              </div>
+
+              <div className="wm-workspace-grid-3">
+                <div className="wm-workspace-metric">
+                  <span>Best next tool</span>
+                  <strong>{TOOL_LABELS[primaryRoute] ?? "Guided Project"}</strong>
+                </div>
+                <div className="wm-workspace-metric">
+                  <span>Signals</span>
+                  <strong>{summary.signals.length}</strong>
+                </div>
+                <div className="wm-workspace-metric">
+                  <span>Project target</span>
+                  <strong>{activeProject?.name?.trim() || suggestProjectName(activeTrack, answers)}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="wm-workspace-tag-row">
+              {summary.signals.map((signal) => (
+                <span key={signal} className="wm-workspace-tag">
+                  {signal}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {panel === "followups" ? (
+          <div className="wm-workspace-tabpanel">
+            <div className="wm-workspace-list">
+              {summary.prompts.map((prompt) => (
+                <div key={prompt} className="wm-workspace-list-item">
+                  <span className="wm-workspace-list-item__title">Plain-English follow-up</span>
+                  <span className="wm-workspace-list-item__copy">{prompt}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {panel === "next" ? (
+          <div className="wm-workspace-tabpanel">
+            <div className="wm-next-step">
+              Save the navigator summary before leaving so the next tool opens with the current conversation direction already attached to the project.
+            </div>
+
+            <div className="wm-workspace-list">
+              {summary.routes.map((route) => (
+                <button
+                  key={route}
+                  type="button"
+                  className="wm-workspace-list-item"
+                  onClick={() => persistNavigator(route)}
+                >
+                  <span className="wm-workspace-list-item__eyebrow">Recommended route</span>
+                  <span className="wm-workspace-list-item__title">{TOOL_LABELS[route] ?? "Open tool"}</span>
+                  <span className="wm-workspace-list-item__copy">
+                    Save this readout into the active project, then move straight into the next working surface.
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </section>
     </div>
+  );
+
+  return (
+    <SplitWorkspaceFrame
+      title="AV Navigator"
+      subtitle="Use plain-English prompts to organise an early sales conversation, then save the summary into the active project before opening the next tool."
+      leftTitle="Conversation Input"
+      rightTitle="Navigator Output"
+      left={left}
+      right={right}
+      top={
+        <div className="wm-workspace-tag-row">
+          <span className="wm-workspace-tag">
+            {answerCount}/{activeTrack.questions.length} answered
+          </span>
+          <span className="wm-workspace-tag">
+            {activeProject?.name?.trim() || "No active project"}
+          </span>
+        </div>
+      }
+    />
   );
 }

@@ -1,165 +1,77 @@
-/* =========================================
-   WINGMAN TOPBAR COMPACT OVERRIDE
-   ========================================= */
-
-.wm-topbar,
-.topbar,
-header[class*="topbar"],
-header[class*="TopBar"],
-[class*="wm-topbar"],
-[class*="top-bar"] {
-  min-height: 72px !important;
-  max-height: 72px !important;
-  height: 72px !important;
-  padding: 8px 16px !important;
-  overflow: hidden !important;
-  align-items: center !important;
-  box-sizing: border-box !important;
+.wm-topbar--compact {
+  min-height: 72px;
+  padding: 10px 16px;
+  gap: 14px;
 }
 
-.wm-topbar > *,
-.topbar > *,
-header[class*="topbar"] > *,
-header[class*="TopBar"] > * {
-  min-height: 0 !important;
+.wm-topbar--compact .wm-topbar__brand-slot {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-.wm-topbar img,
-.topbar img,
-header[class*="topbar"] img,
-header[class*="TopBar"] img,
-[class*="wm-brand"] img,
-[class*="WingmanBrand"] img,
-[class*="topbar-brand"] img,
-[class*="brand"] img {
-  max-height: 44px !important;
-  height: auto !important;
-  width: auto !important;
-  max-width: 220px !important;
-  object-fit: contain !important;
-  display: block !important;
+.wm-topbar--compact .wm-topbar__heading {
+  flex: 0 1 auto;
+  min-width: 0;
+  gap: 3px;
 }
 
-.wm-topbar svg,
-.topbar svg,
-header[class*="topbar"] svg,
-header[class*="TopBar"] svg {
-  max-height: 44px !important;
-  width: auto !important;
+.wm-topbar--compact .wm-topbar__title {
+  font-size: 1.05rem;
+  line-height: 1.05;
 }
 
-.wm-topbar .wm-brand,
-.topbar .wm-brand,
-header[class*="topbar"] .wm-brand,
-header[class*="TopBar"] .wm-brand,
-[class*="WingmanBrand"],
-[class*="topbar-brand"],
-[class*="brand-lockup"] {
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  min-width: 0 !important;
-  max-height: 56px !important;
-  overflow: hidden !important;
+.wm-topbar--compact .wm-topbar__kicker {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
 }
 
-.wm-topbar h1,
-.wm-topbar h2,
-.wm-topbar h3,
-.topbar h1,
-.topbar h2,
-.topbar h3,
-header[class*="topbar"] h1,
-header[class*="topbar"] h2,
-header[class*="topbar"] h3,
-header[class*="TopBar"] h1,
-header[class*="TopBar"] h2,
-header[class*="TopBar"] h3 {
-  margin: 0 !important;
-  font-size: 18px !important;
-  line-height: 1.1 !important;
+.wm-topbar--compact .wm-brand {
+  gap: 10px;
 }
 
-.wm-topbar p,
-.wm-topbar span,
-.topbar p,
-.topbar span,
-header[class*="topbar"] p,
-header[class*="topbar"] span,
-header[class*="TopBar"] p,
-header[class*="TopBar"] span {
-  line-height: 1.2 !important;
+.wm-topbar--compact .wm-brand__logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
 }
 
-.wm-topbar .subtitle,
-.wm-topbar .tagline,
-.topbar .subtitle,
-.topbar .tagline,
-header[class*="topbar"] .subtitle,
-header[class*="topbar"] .tagline,
-header[class*="TopBar"] .subtitle,
-header[class*="TopBar"] .tagline {
-  font-size: 11px !important;
-  opacity: 0.82 !important;
+.wm-topbar--compact .wm-brand__title {
+  font-size: 1.18rem;
 }
 
-.wm-topbar button,
-.topbar button,
-header[class*="topbar"] button,
-header[class*="TopBar"] button {
-  min-height: 36px !important;
-  height: 36px !important;
-  padding: 0 12px !important;
-  border-radius: 10px !important;
-  font-size: 13px !important;
-}
-
-.wm-topbar [class*="project"],
-.wm-topbar [class*="meta"],
-.wm-topbar [class*="status"],
-.topbar [class*="project"],
-.topbar [class*="meta"],
-.topbar [class*="status"],
-header[class*="topbar"] [class*="project"],
-header[class*="topbar"] [class*="meta"],
-header[class*="topbar"] [class*="status"],
-header[class*="TopBar"] [class*="project"],
-header[class*="TopBar"] [class*="meta"],
-header[class*="TopBar"] [class*="status"] {
-  font-size: 12px !important;
-  line-height: 1.2 !important;
-}
-
-.wm-shell-root {
-  grid-template-rows: 72px minmax(0, 1fr) !important;
+.wm-topbar--compact .wm-brand__subtitle {
+  max-width: min(56vw, 520px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(148, 163, 184, 0.9);
 }
 
 @media (max-width: 900px) {
-  .wm-topbar,
-  .topbar,
-  header[class*="topbar"],
-  header[class*="TopBar"],
-  [class*="wm-topbar"],
-  [class*="top-bar"] {
-    min-height: 64px !important;
-    max-height: 64px !important;
-    height: 64px !important;
-    padding: 8px 12px !important;
+  .wm-topbar--compact {
+    min-height: 64px;
+    padding: 10px 12px;
+    align-items: center;
   }
 
-  .wm-topbar img,
-  .topbar img,
-  header[class*="topbar"] img,
-  header[class*="TopBar"] img,
-  [class*="wm-brand"] img,
-  [class*="WingmanBrand"] img,
-  [class*="topbar-brand"] img,
-  [class*="brand"] img {
-    max-height: 36px !important;
-    max-width: 180px !important;
+  .wm-topbar--compact .wm-topbar__heading {
+    justify-items: start;
   }
 
-  .wm-shell-root {
-    grid-template-rows: 64px minmax(0, 1fr) !important;
+  .wm-topbar--compact .wm-topbar__kicker {
+    display: none;
+  }
+
+  .wm-topbar--compact .wm-brand__logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .wm-topbar--compact .wm-brand__title {
+    font-size: 1.05rem;
+  }
+
+  .wm-topbar--compact .wm-brand__subtitle {
+    max-width: min(58vw, 260px);
   }
 }

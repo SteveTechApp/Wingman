@@ -401,10 +401,15 @@ p {
 .wm-btn-primary,
 .wm-btn-secondary,
 .wm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   min-height: 42px;
   padding: 11px 16px;
   border-radius: 14px;
   font-weight: 700;
+  text-decoration: none;
   transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
 }
 
@@ -426,6 +431,14 @@ p {
 .wm-btn-primary:hover,
 .wm-btn-secondary:hover {
   transform: translateY(-1px);
+}
+
+.wm-btn:focus-visible,
+.wm-btn-primary:focus-visible,
+.wm-btn-secondary:focus-visible,
+.wm-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.12);
 }
 
 .wm-chip {

@@ -1,25 +1,86 @@
 .guru-fab {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  right: 18px;
+  bottom: 18px;
   z-index: 999;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 12px;
-  background: #020617;
-  border: 1px solid rgba(96,165,250,0.3);
-  color: white;
-  cursor: grab;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.16), transparent 28%),
+    linear-gradient(180deg, rgba(5, 12, 22, 0.96), rgba(8, 17, 31, 0.94));
+  color: #eff6ff;
   user-select: none;
+  box-shadow:
+    0 18px 36px rgba(2, 8, 23, 0.4),
+    0 0 0 1px rgba(56, 189, 248, 0.08) inset;
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
 }
 
-.guru-fab:active {
-  cursor: grabbing;
+.guru-fab:hover {
+  transform: translateY(-1px);
+  border-color: rgba(125, 211, 252, 0.42);
+  box-shadow:
+    0 24px 44px rgba(2, 8, 23, 0.46),
+    0 0 0 1px rgba(56, 189, 248, 0.12) inset;
 }
 
-.guru-fab img {
-  width: 22px;
-  height: 22px;
+.guru-fab:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 4px rgba(56, 189, 248, 0.2),
+    0 20px 40px rgba(2, 8, 23, 0.45);
+}
+
+.guru-fab__icon,
+.guru-fab__spark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: #bfeaff;
+}
+
+.guru-fab__icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: rgba(59, 130, 246, 0.14);
+}
+
+.guru-fab__copy {
+  display: grid;
+  gap: 1px;
+  text-align: left;
+}
+
+.guru-fab__copy strong {
+  font-size: 0.9rem;
+  line-height: 1.05;
+}
+
+.guru-fab__copy small {
+  font-size: 0.72rem;
+  line-height: 1.15;
+  color: rgba(191, 234, 255, 0.78);
+}
+
+@media (max-width: 760px) {
+  .guru-fab {
+    right: 12px;
+    bottom: 12px;
+    padding: 10px 12px;
+  }
+
+  .guru-fab__copy small,
+  .guru-fab__spark {
+    display: none;
+  }
 }

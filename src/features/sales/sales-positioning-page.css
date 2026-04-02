@@ -1,0 +1,89 @@
+.wm-sales-page__column {
+  gap: 16px;
+}
+
+.wm-sales-page__column--output {
+  gap: 18px;
+}
+
+.wm-sales-page__top-actions {
+  align-items: center;
+}
+
+.wm-sales-page__project-pill {
+  white-space: nowrap;
+}
+
+.wm-sales-page__project-context {
+  gap: 12px;
+}
+
+.wm-sales-page__selector-list {
+  gap: 10px;
+}
+
+.wm-sales-page__selector-item {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wm-sales-page__selector-item .wm-workspace-list-item__copy {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.wm-sales-page__hero-card {
+  gap: 16px;
+}
+
+.wm-sales-page__meta-grid {
+  gap: 16px;
+}
+
+.wm-sales-page__support-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.wm-sales-page__bullet-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 10px;
+  color: var(--wm-studio-text-soft, rgba(77, 68, 60, 0.82));
+  line-height: 1.6;
+}
+
+.wm-sales-page__bullet-list li::marker {
+  color: var(--wm-studio-accent, #15c5b6);
+}
+
+.wm-sales-page__chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wm-sales-page__chip-button {
+  cursor: pointer;
+}
+
+@media (max-width: 1180px) {
+  .wm-sales-page__support-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 820px) {
+  .wm-sales-page__top-actions {
+    align-items: stretch;
+  }
+
+  .wm-sales-page__project-pill {
+    white-space: normal;
+  }
+}

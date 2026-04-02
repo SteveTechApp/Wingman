@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import "./command-palette.css";
 
 export type CommandItem = {
   id: string;
