@@ -5,8 +5,5 @@ export * from "./enrich";
 export * from "./ioInference";
 export * from "./match";
 export * from "./repository";
-export * from "./boundCatalogue";
-export * from "./workflowCatalog";
 export * from "./recommendationCatalog";
-export * from "./guruCatalog";
 export * from "./serviceRecommendations";
