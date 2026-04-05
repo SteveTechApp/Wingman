@@ -2,6 +2,17 @@
   min-width: 0;
 }
 
+.wm-navx__filter-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-navx__room-list {
+  max-height: 340px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
 .wm-navx__question-stack {
   display: grid;
   gap: 14px;
@@ -13,7 +24,7 @@
 
 .wm-navx__question.is-current {
   border-color: rgba(21, 197, 182, 0.24) !important;
-  background: linear-gradient(180deg, rgba(236, 251, 248, 0.92), rgba(255, 255, 255, 0.98)) !important;
+  background: var(--wm-surface) !important;
 }
 
 .wm-navx__question-head {
@@ -94,4 +105,10 @@
   outline: none;
   border-color: rgba(21, 197, 182, 0.28);
   box-shadow: 0 0 0 4px rgba(21, 197, 182, 0.12);
+}
+
+@media (max-width: 900px) {
+  .wm-navx__room-list {
+    max-height: none;
+  }
 }

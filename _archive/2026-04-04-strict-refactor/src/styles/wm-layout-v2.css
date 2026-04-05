@@ -1,0 +1,178 @@
+/* ===============================
+   WINGMAN LAYOUT SYSTEM V2
+   COMPACT HEADER PASS
+   =============================== */
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.wm-shell-root {
+  display: grid !important;
+  grid-template-columns: 260px minmax(0, 1fr) !important;
+  grid-template-rows: 78px minmax(0, 1fr) !important;
+  width: 100% !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  background: #020617 !important;
+  color: #e2e8f0 !important;
+  overflow: hidden !important;
+}
+
+.wm-topbar {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  min-height: 78px !important;
+  max-height: 78px !important;
+  padding: 10px 18px !important;
+  background: linear-gradient(90deg, #020617, #0f172a) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  z-index: 30 !important;
+}
+
+.wm-topbar img,
+.wm-topbar svg {
+  max-height: 52px !important;
+  width: auto !important;
+  object-fit: contain !important;
+}
+
+.wm-topbar .wm-brand,
+.wm-topbar .wingman-brand,
+.wm-topbar .topbar-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+}
+
+.wm-topbar .wm-brand img,
+.wm-topbar .wingman-brand img,
+.wm-topbar .topbar-brand img {
+  max-height: 48px !important;
+  max-width: 220px !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.wm-sidebar {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  background: #020617 !important;
+  border-right: 1px solid rgba(255,255,255,0.06) !important;
+  overflow: auto !important;
+  box-sizing: border-box !important;
+}
+
+.wm-main {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.wm-page-header {
+  flex: 0 0 auto !important;
+  padding: 12px 20px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  background: rgba(2, 6, 23, 0.76) !important;
+  backdrop-filter: blur(8px) !important;
+  box-sizing: border-box !important;
+  z-index: 5 !important;
+}
+
+.wm-canvas {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(37, 99, 235, 0.12), transparent 32%),
+    radial-gradient(circle at 75% 35%, rgba(124, 58, 237, 0.10), transparent 28%),
+    linear-gradient(180deg, #04101f 0%, #020617 100%) !important;
+  box-sizing: border-box !important;
+}
+
+.wm-canvas::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px) !important;
+  background-size: 40px 40px !important;
+  pointer-events: none !important;
+  opacity: 0.45 !important;
+}
+
+.wm-canvas-inner {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px !important;
+  box-sizing: border-box !important;
+}
+
+.wm-link {
+  stroke: #60a5fa !important;
+  stroke-width: 2.5 !important;
+  fill: none !important;
+  filter: drop-shadow(0 0 8px rgba(96,165,250,0.42)) !important;
+}
+
+.wm-link-warn {
+  stroke: #f59e0b !important;
+  stroke-width: 2.5 !important;
+  fill: none !important;
+  filter: drop-shadow(0 0 8px rgba(245,158,11,0.52)) !important;
+}
+
+.wm-device {
+  position: absolute !important;
+  background: var(--wm-surface) !important;
+  border: 1px solid rgba(148,163,184,0.18) !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.04) !important;
+  color: #dbeafe !important;
+  box-sizing: border-box !important;
+}
+
+.wm-device-title {
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.02em !important;
+  color: #cbd5f5 !important;
+}
+
+.wm-port {
+  position: absolute !important;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+  background: #60a5fa !important;
+  box-shadow: 0 0 10px rgba(96,165,250,0.6) !important;
+}

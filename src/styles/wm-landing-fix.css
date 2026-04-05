@@ -1,0 +1,82 @@
+/* ===== LANDING PAGE PROPER SCALE FIX ===== */
+
+.wm-landing {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+/* HERO GRID FIX */
+.wm-landing-hero {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 18px;
+  align-items: center;
+  min-height: auto;
+}
+
+/* LOGO FIX (BIGGEST ISSUE) */
+.wm-landing-logo {
+  max-width: 420px;
+  height: auto;
+}
+
+/* LEFT PANEL */
+.wm-landing-hero-left {
+  padding: 18px;
+}
+
+/* TITLE SCALE FIX */
+.wm-landing h1 {
+  font-size: 2.4rem;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+/* PARAGRAPH FIX */
+.wm-landing p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 520px;
+}
+
+/* RIGHT PANEL CARDS */
+.wm-landing-step {
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+/* STEP NUMBERS */
+.wm-landing-step-number {
+  width: 30px;
+  height: 30px;
+  font-size: 0.8rem;
+}
+
+/* BUTTON FIX */
+.wm-landing button {
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  border-radius: 10px;
+}
+
+/* GLOBAL DENSITY */
+.wm-landing * {
+  letter-spacing: -0.01em;
+}
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .wm-landing-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-landing-logo {
+    max-width: 280px;
+  }
+
+  .wm-landing h1 {
+    font-size: 1.8rem;
+  }
+}

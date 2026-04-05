@@ -1,0 +1,83 @@
+/* Wingman brand cleanup + Guru visibility fix */
+
+.wm-topbar :is(
+  .wm-topbar-brand-copy,
+  .wm-topbar-brand__copy,
+  .wm-topbar-brand-text,
+  .wm-brand-copy,
+  .wm-brand-text,
+  .topbar-brand-copy,
+  .topbar-brand-text
+) {
+  display: none !important;
+}
+
+.wm-topbar :is(
+  .wm-topbar-brand,
+  .wm-brand,
+  .topbar-brand,
+  .wm-brand-lockup,
+  .wm-topbar__brand
+) {
+  min-width: 220px !important;
+  gap: 0 !important;
+}
+
+.wm-topbar :is(
+  .wm-topbar-brand img,
+  .wm-brand img,
+  .topbar-brand img,
+  .wm-brand-lockup img,
+  .wm-topbar__brand img
+) {
+  width: auto !important;
+  height: 72px !important;
+  max-height: 72px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+/* Guru FAB: icon only, visible, draggable */
+.wm-guru-fab {
+  position: fixed;
+  z-index: 9999;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  outline: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.wm-guru-fab:active {
+  cursor: grabbing;
+  transform: scale(0.96);
+}
+
+.wm-guru-fab__icon,
+.wm-guru-icon {
+  width: 64px !important;
+  height: 64px !important;
+  object-fit: contain !important;
+  display: block !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+/* Remove any accidental text inside the FAB */
+.wm-guru-fab span,
+.wm-guru-fab small,
+.wm-guru-fab strong,
+.wm-guru-fab p,
+.wm-guru-fab__label,
+.wm-guru-label {
+  display: none !important;
+}

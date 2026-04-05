@@ -15,3 +15,4 @@ export default function WingmanProviders(props: { children: React.ReactNode }) {
     </AuthProvider>
   );
 }
+

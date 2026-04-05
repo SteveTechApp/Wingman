@@ -84,7 +84,7 @@
 
 .wm-dash-btn--primary {
   background: linear-gradient(135deg, #4ea1ff 0%, #2c6fff 100%);
-  color: #ffffff;
+  color: var(--wm-text);
   box-shadow: 0 10px 22px rgba(44, 111, 255, 0.28);
 }
 

@@ -90,7 +90,7 @@ function normalizeRecommendedFamilies(
 ): DiscoveryProductFamily[] | undefined {
   if (!Array.isArray(values)) return undefined;
   return values.filter((value): value is DiscoveryProductFamily =>
-    RECOMMENDED_FAMILIES.includes(value as DiscoveryProductFamily)
+    RECOMMENDED_FAMILIES.includes(value as DiscoveryProductFamily),
   );
 }
 
@@ -105,16 +105,20 @@ function getToolLabel(path?: string): string {
 
 function buildTemplateNotes(seed: WorkbenchTemplateSeed): string {
   const blocks = [
-    `${seed.verticalMarket.name} / ${seed.roomType.name} / ${seed.tier.label}`,
+    "${seed.verticalMarket.name} / ${seed.roomType.name} / ${seed.tier.label}",
+    seed.solutionSummary || "",
     seed.tier.summary,
+    seed.ioProfile?.sources ? "Inputs: ${seed.ioProfile.sources}" : "",
+    seed.ioProfile?.outputs ? "Outputs: ${seed.ioProfile.outputs}" : "",
+    seed.ioProfile?.operators ? "Operators: ${seed.ioProfile.operators}" : "",
     seed.includedSystems.length
-      ? `Included systems: ${seed.includedSystems.join("; ")}`
+      ? "Included systems: ${seed.includedSystems.join('; ')}"
       : "",
     seed.assumptions?.length
-      ? `Assumptions: ${seed.assumptions.join("; ")}`
+      ? "Assumptions: ${seed.assumptions.join('; ')}"
       : "",
     seed.uplift.length
-      ? `Commercial uplift: ${seed.uplift.join("; ")}`
+      ? "Commercial uplift: ${seed.uplift.join('; ')}"
       : "",
   ].filter(Boolean);
 
@@ -147,18 +151,20 @@ export default function ProjectNewPage() {
   const [site, setSite] = React.useState("");
   const [startingTemplate, setStartingTemplate] = React.useState(false);
   const [templateSeed, setTemplateSeed] = React.useState<WorkbenchTemplateSeed | null>(() =>
-    readTemplateSeed()
+    readTemplateSeed(),
   );
+
   const recentProjects = React.useSyncExternalStore(
     subscribeProjects,
     getRecentProjectsSnapshot,
     getRecentProjectsServerSnapshot,
   );
+
   const hasRecentProjects = recentProjects.length > 0;
 
   React.useEffect(() => {
     if (!templateSeed) return;
-    setName((current) => current.trim() ? current : templateSeed.projectName);
+    setName((current) => (current.trim() ? current : templateSeed.projectName));
   }, [templateSeed]);
 
   function createShell(methodTitle: string) {
@@ -173,8 +179,9 @@ export default function ProjectNewPage() {
     });
 
     const recommendedFamilies = normalizeRecommendedFamilies(templateSeed?.recommendedFamilies);
+
     const project = createProject({
-      name: name.trim() || templateSeed?.projectName || `${methodTitle} Project`,
+      name: name.trim() || templateSeed?.projectName || "${methodTitle} Project",
       customer: customer.trim(),
       site: site.trim(),
       roomName: name.trim() || templateSeed?.roomType.name || "",
@@ -226,16 +233,19 @@ export default function ProjectNewPage() {
 
   async function startFromSelectedTemplate() {
     if (!templateSeed || startingTemplate) return;
+
     setStartingTemplate(true);
+
     try {
       const project = await createReadyMadeProjectFromWorkbenchTemplate(templateSeed, {
         name: name.trim() || templateSeed.projectName,
         customer: customer.trim(),
         site: site.trim(),
       });
+
       clearTemplateSeed();
       setTemplateSeed(null);
-      nav(`/app/projects/${encodeURIComponent(project.id)}`);
+      nav("/app/projects/" + encodeURIComponent(project.id));
       return;
     } catch {}
 
@@ -256,53 +266,59 @@ export default function ProjectNewPage() {
 
   function duplicateFromProject(project: StoredProject) {
     const duplicate = duplicateProject(project.id, {
-      name: `${project.name} Copy`,
+      name: project.name + " Copy",
       status: "Draft",
     });
+
     if (duplicate) {
-      nav(`/app/projects/${encodeURIComponent(duplicate.id)}`);
+      nav("/app/projects/" + encodeURIComponent(duplicate.id));
     }
   }
 
   const selectedTemplateFamilies = normalizeRecommendedFamilies(templateSeed?.recommendedFamilies);
 
   return (
-    <div className="wm-page wm-project-new-page">
-      <section className="wm-project-new-page__intro">
-        <div className="wm-project-new-page__intro-copy">
-          <div className="wm-project-new-page__eyebrow">Projects</div>
-          <h1>Project launcher</h1>
-          <p>
-            Start with a light project shell, then choose the route that best matches the opportunity already in front of you.
+    <div className="wm-page-shell wm-project-new-page">
+      <section className="wm-page-header wm-page-header--split">
+        <div className="wm-page-stack">
+          <div className="wm-page-kicker">Projects</div>
+          <h1 className="wm-page-title">Project launcher</h1>
+          <p className="wm-page-subtitle">
+            Start with a light project shell, then choose the route that best matches
+            the opportunity already in front of you.
           </p>
         </div>
 
-        <div className="wm-project-new-page__intro-metrics">
-          <div className="wm-project-new-page__metric">
-            <span>Starter paths</span>
-            <strong>{START_METHODS.length}</strong>
+        <div className="wm-stat-row wm-project-new-page__hero-stats">
+          <div className="wm-stat-card">
+            <span className="wm-stat-label">Starter paths</span>
+            <span className="wm-stat-value">{START_METHODS.length}</span>
           </div>
-          <div className="wm-project-new-page__metric">
-            <span>Recent projects</span>
-            <strong>{recentProjects.length}</strong>
+          <div className="wm-stat-card">
+            <span className="wm-stat-label">Recent projects</span>
+            <span className="wm-stat-value">{recentProjects.length}</span>
           </div>
-          <div className="wm-project-new-page__metric">
-            <span>Template starter</span>
-            <strong>{templateSeed ? "Loaded" : "Optional"}</strong>
+          <div className="wm-stat-card">
+            <span className="wm-stat-label">Template starter</span>
+            <span className="wm-stat-value">{templateSeed ? "Loaded" : "Optional"}</span>
           </div>
         </div>
       </section>
 
-      <section className="wm-project-new-page__board">
-        <section className="wm-project-new-page__details">
-          <div className="wm-project-new-page__section-head">
-            <h2>Project details</h2>
-            <p>Use just enough detail to name the opportunity and move into the right workflow.</p>
+      <section className="wm-page-grid wm-page-grid--2">
+        <section className="wm-card">
+          <div className="wm-section-header">
+            <div>
+              <h2 className="wm-section-title">Project details</h2>
+              <p className="wm-section-copy">
+                Use just enough detail to name the opportunity and move into the right workflow.
+              </p>
+            </div>
           </div>
 
-          <div className="wm-project-new-page__form">
-            <label className="wm-workspace-field">
-              <span className="wm-workspace-label">Project name</span>
+          <div className="wm-project-new-form">
+            <label className="wm-project-new-field">
+              <span>Project name</span>
               <RecentTextInput
                 className="wm-form-input"
                 historyKey={RECENT_TEXT_HISTORY_KEYS.roomName}
@@ -313,8 +329,8 @@ export default function ProjectNewPage() {
               />
             </label>
 
-            <label className="wm-workspace-field">
-              <span className="wm-workspace-label">Customer</span>
+            <label className="wm-project-new-field">
+              <span>Customer</span>
               <RecentTextInput
                 className="wm-form-input"
                 historyKey={RECENT_TEXT_HISTORY_KEYS.customer}
@@ -325,8 +341,8 @@ export default function ProjectNewPage() {
               />
             </label>
 
-            <label className="wm-workspace-field">
-              <span className="wm-workspace-label">Site</span>
+            <label className="wm-project-new-field">
+              <span>Site</span>
               <RecentTextInput
                 className="wm-form-input"
                 historyKey={RECENT_TEXT_HISTORY_KEYS.site}
@@ -338,29 +354,60 @@ export default function ProjectNewPage() {
             </label>
           </div>
 
-          <div className="wm-next-step">
-            Build the project shell first, then open the workflow that matches how much information already exists.
+          <div className="wm-empty-state">
+            Build the project shell first, then open the workflow that matches how
+            much information already exists.
           </div>
 
           {templateSeed ? (
-            <div className="wm-project-new-page__template">
-              <div className="wm-project-new-page__section-head">
-                <h2>Template starter ready</h2>
-                <p>
-                  {templateSeed.verticalMarket.name} / {templateSeed.roomType.name} / {templateSeed.tier.label}
-                </p>
+            <div className="wm-project-new-template">
+              <div className="wm-section-header">
+                <div>
+                  <h2 className="wm-section-title">Template starter ready</h2>
+                  <p className="wm-section-copy">
+                    {templateSeed.verticalMarket.name} / {templateSeed.roomType.name} /{" "}
+                    {templateSeed.tier.label}
+                  </p>
+                </div>
               </div>
 
-              <div className="wm-project-new-page__template-summary">
-                <p>{templateSeed.tier.summary}</p>
+              <div className="wm-project-new-template__summary">
+                <p className="wm-section-copy">{templateSeed.tier.summary}</p>
 
-                <div className="wm-project-new-page__template-meta">
+                {templateSeed.ioProfile ? (
+                  <div className="wm-project-new-template__io">
+                    <div className="wm-project-new-template__io-item">
+                      <span>Inputs</span>
+                      <strong>{templateSeed.ioProfile.sources}</strong>
+                    </div>
+                    <div className="wm-project-new-template__io-item">
+                      <span>Outputs</span>
+                      <strong>{templateSeed.ioProfile.outputs}</strong>
+                    </div>
+                    <div className="wm-project-new-template__io-item">
+                      <span>Operators</span>
+                      <strong>{templateSeed.ioProfile.operators}</strong>
+                    </div>
+                  </div>
+                ) : null}
+
+                {templateSeed.roomType.useCases.length > 0 ? (
+                  <div className="wm-page-inline-list">
+                    {templateSeed.roomType.useCases.map((item) => (
+                      <span key={item} className="wm-workspace-tag">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+
+                <div className="wm-project-new-template__meta">
                   <span>Next move</span>
                   <strong>{getToolLabel(templateSeed.recommendedTool)}</strong>
                 </div>
 
                 {selectedTemplateFamilies?.length ? (
-                  <div className="wm-workspace-tag-row">
+                  <div className="wm-page-inline-list">
                     {selectedTemplateFamilies.map((item) => (
                       <span key={item} className="wm-workspace-tag">
                         {item}
@@ -369,16 +416,23 @@ export default function ProjectNewPage() {
                   </div>
                 ) : null}
 
-                <div className="wm-workspace-action-row">
+                <div className="wm-action-row">
                   <button
                     type="button"
                     className="wm-btn-primary"
                     onClick={() => void startFromSelectedTemplate()}
                     disabled={startingTemplate}
                   >
-                    {startingTemplate ? "Building ready-made room solution..." : "Create ready-made room solution"}
+                    {startingTemplate
+                      ? "Building ready-made room solution..."
+                      : "Create ready-made room solution"}
                   </button>
-                  <button type="button" className="wm-btn-secondary" onClick={discardSelectedTemplate}>
+
+                  <button
+                    type="button"
+                    className="wm-btn-secondary"
+                    onClick={discardSelectedTemplate}
+                  >
                     Clear starter
                   </button>
                 </div>
@@ -387,92 +441,118 @@ export default function ProjectNewPage() {
           ) : null}
         </section>
 
-        <section className="wm-project-new-page__methods">
-          <div className="wm-project-new-page__section-head">
-            <h2>Choose a starting path</h2>
-            <p>Each route creates the project shell first, then moves into the right level of guided support.</p>
+        <section className="wm-card">
+          <div className="wm-section-header">
+            <div>
+              <h2 className="wm-section-title">Choose a starting path</h2>
+              <p className="wm-section-copy">
+                Each route creates the project shell first, then moves into the right
+                level of guided support.
+              </p>
+            </div>
           </div>
 
-          <div className="wm-project-new-page__method-list">
+          <div className="wm-project-new-method-list">
             {START_METHODS.map((method) => {
               const Icon = method.Icon;
+
               return (
                 <button
                   key={method.id}
                   type="button"
-                  className="wm-project-new-page__method"
+                  className="wm-project-new-method"
                   onClick={() => startWith(method)}
                 >
-                  <span className="wm-project-new-page__method-icon">
-                    <Icon className="wm-project-new-page__method-icon-svg" />
+                  <span className="wm-project-new-method__icon">
+                    <Icon className="wm-project-new-method__icon-svg" />
                   </span>
 
-                  <span className="wm-project-new-page__method-copy">
-                    <span className="wm-project-new-page__method-title">{method.title}</span>
-                    <span className="wm-project-new-page__method-description">{method.description}</span>
-                    <span className="wm-project-new-page__method-helper">{method.helper}</span>
+                  <span className="wm-project-new-method__copy">
+                    <span className="wm-project-new-method__title">{method.title}</span>
+                    <span className="wm-project-new-method__description">
+                      {method.description}
+                    </span>
+                    <span className="wm-project-new-method__helper">{method.helper}</span>
                   </span>
 
-                  <span className="wm-project-new-page__method-cta">Open</span>
+                  <span className="wm-project-new-method__cta">Open</span>
                 </button>
               );
             })}
           </div>
         </section>
-
-        {hasRecentProjects ? (
-          <section className="wm-project-new-page__recent">
-            <div className="wm-project-new-page__section-head">
-              <h2>Reuse recent context</h2>
-              <p>Borrow project details, duplicate a similar room, or jump back into active work.</p>
-            </div>
-
-            <div className="wm-project-new-page__recent-list">
-              {recentProjects.map((project) => {
-                const resumeAction = getProjectResumeAction(project);
-
-                return (
-                  <article key={project.id} className="wm-project-new-page__recent-item">
-                    <div className="wm-project-new-page__recent-head">
-                      <div>
-                        <h3>{project.name}</h3>
-                        <p>
-                          {[project.customer || "Customer not set", project.site || "Site not set", project.roomName || "Room not set"].join(" / ")}
-                        </p>
-                      </div>
-
-                      <span className="wm-workspace-tag">{resumeAction.shortLabel}</span>
-                    </div>
-
-                    <div className="wm-project-new-page__recent-meta">
-                      Last updated {new Date(project.updatedAt).toLocaleString()}
-                    </div>
-
-                    <div className="wm-workspace-action-row">
-                      <button type="button" className="wm-btn-secondary" onClick={() => applyProjectContext(project)}>
-                        Borrow details
-                      </button>
-                      <button type="button" className="wm-btn-secondary" onClick={() => duplicateFromProject(project)}>
-                        Duplicate
-                      </button>
-                      <button
-                        type="button"
-                        className="wm-btn-primary"
-                        onClick={() => {
-                          setActiveProjectId(project.id);
-                          nav(resumeAction.to);
-                        }}
-                      >
-                        {resumeAction.label}
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-        ) : null}
       </section>
+
+      {hasRecentProjects ? (
+        <section className="wm-section">
+          <div className="wm-section-header">
+            <div>
+              <h2 className="wm-section-title">Reuse recent context</h2>
+              <p className="wm-section-copy">
+                Borrow project details, duplicate a similar room, or jump back into active work.
+              </p>
+            </div>
+          </div>
+
+          <div className="wm-page-grid wm-page-grid--2">
+            {recentProjects.map((project) => {
+              const resumeAction = getProjectResumeAction(project);
+
+              return (
+                <article key={project.id} className="wm-card wm-project-new-recent-item">
+                  <div className="wm-project-new-recent-head">
+                    <div>
+                      <h3 className="wm-card-title">{project.name}</h3>
+                      <p className="wm-card-copy">
+                        {[
+                          project.customer || "Customer not set",
+                          project.site || "Site not set",
+                          project.roomName || "Room not set",
+                        ].join(" / ")}
+                      </p>
+                    </div>
+
+                    <span className="wm-workspace-tag">{resumeAction.shortLabel}</span>
+                  </div>
+
+                  <div className="wm-project-new-recent-meta">
+                    Last updated {new Date(project.updatedAt).toLocaleString()}
+                  </div>
+
+                  <div className="wm-action-row">
+                    <button
+                      type="button"
+                      className="wm-btn-secondary"
+                      onClick={() => applyProjectContext(project)}
+                    >
+                      Borrow details
+                    </button>
+
+                    <button
+                      type="button"
+                      className="wm-btn-secondary"
+                      onClick={() => duplicateFromProject(project)}
+                    >
+                      Duplicate
+                    </button>
+
+                    <button
+                      type="button"
+                      className="wm-btn-primary"
+                      onClick={() => {
+                        setActiveProjectId(project.id);
+                        nav(resumeAction.to);
+                      }}
+                    >
+                      {resumeAction.label}
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -36,7 +36,7 @@
   padding: clamp(22px, 2.2vw, 30px);
   border-radius: 26px;
   border: 1px solid rgba(148,163,184,0.16);
-  background: linear-gradient(180deg, rgba(15,23,42,0.84), rgba(15,23,42,0.68));
+  background: var(--wm-surface);
   box-shadow:
     0 30px 80px rgba(2,8,23,0.44),
     inset 0 1px 0 rgba(255,255,255,0.04);
@@ -220,9 +220,9 @@
 .wm-auth-input:focus,
 .wm-auth-input:active,
 .wm-auth-input:hover {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-  caret-color: #ffffff !important;
+  color: var(--wm-text) !important;
+  -webkit-text-fill-color: var(--wm-text) !important;
+  caret-color: var(--wm-text) !important;
   opacity: 1 !important;
 }
 
@@ -235,8 +235,8 @@
 .wm-auth-input:-webkit-autofill:hover,
 .wm-auth-input:-webkit-autofill:focus,
 .wm-auth-input:-webkit-autofill:active {
-  -webkit-text-fill-color: #ffffff !important;
-  caret-color: #ffffff !important;
+  -webkit-text-fill-color: var(--wm-text) !important;
+  caret-color: var(--wm-text) !important;
   box-shadow: 0 0 0 1000px rgba(15,23,42,0.92) inset !important;
   -webkit-box-shadow: 0 0 0 1000px rgba(15,23,42,0.92) inset !important;
   transition: background-color 9999s ease-out 0s !important;

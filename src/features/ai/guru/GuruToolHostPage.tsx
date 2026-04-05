@@ -1,422 +1,260 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import "./guru-workspace.css";
-import { askGuru, getGuruHealth, type GuruMode, type GuruResponse } from "./guruService";
+import { useMemo, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  ArrowRight,
+  Bot,
+  CheckCircle2,
+  ClipboardList,
+  FileText,
+  Layers3,
+  MapPinned,
+  TriangleAlert,
+} from "lucide-react";
+import "./guru-shared.css";
+import "./guru-tool-host-page.css";
+import { buildGuruAdvice } from "./guruIntelligence";
+import { buildGuruInputFromProject, getGuruProjectSnapshot } from "./guruProjectBridge";
 
-type AnswerTab = "answer" | "support" | "history";
-type HealthState = "checking" | "ready" | "down";
-
-const MODE_OPTIONS: Array<{ key: GuruMode; label: string; hint: string }> = [
-  { key: "general", label: "General AV advice", hint: "Broad guidance and first-pass recommendations." },
-  { key: "wyrestorm", label: "WyreStorm guidance", hint: "Product-family fit, positioning, and SKU direction." },
-  { key: "design", label: "Design support", hint: "Architecture logic, signal path, and system planning." },
-  { key: "troubleshooting", label: "Troubleshooting", hint: "Fault isolation, validation, and corrective actions." },
-  { key: "training", label: "Training and explainers", hint: "Simple language for internal sales enablement and sales support." },
-];
-
-const STARTER_QUESTIONS = [
-  "Which WyreStorm family best suits a small Teams room with USB-C BYOD and two displays?",
-  "What is the best approach for a 3x3 video wall where the client wants flexible source layouts?",
-  "When should I position HDBaseT instead of AVoIP for a meeting room upgrade?",
-  "How do I explain multi-view capability clearly to a reseller without sounding too technical?",
+const starterBrief = [
+  "4 sources, 6 displays across two spaces, 35m max distance, central control required, audio de-embed preferred.",
+  "3x3 video wall in reception, customer wants flexible layouts and simple operation.",
+  "Meeting room with 2 sources, 2 displays, USB camera and BYOD switching.",
 ];
 
 export default function GuruToolHostPage() {
-  const [mode, setMode] = useState<GuruMode>("wyrestorm");
-  const [tab, setTab] = useState<AnswerTab>("answer");
-  const [question, setQuestion] = useState("");
-  const [extraContext, setExtraContext] = useState("");
-  const [history, setHistory] = useState<string[]>([]);
-  const [response, setResponse] = useState<GuruResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [errorText, setErrorText] = useState("");
-  const [healthState, setHealthState] = useState<HealthState>("checking");
-  const [healthDetail, setHealthDetail] = useState("");
-  const abortRef = useRef<AbortController | null>(null);
+  const location = useLocation();
+  const [brief, setBrief] = useState("");
 
-  const activeModeMeta = useMemo(
-    () => MODE_OPTIONS.find((item) => item.key === mode) ?? MODE_OPTIONS[0],
-    [mode]
+  const projectSnapshot = useMemo(() => getGuruProjectSnapshot(), []);
+  const effectiveInput = useMemo(
+    () => buildGuruInputFromProject(brief, projectSnapshot),
+    [brief, projectSnapshot],
   );
 
-  useEffect(() => {
-    const controller = new AbortController();
+  const advice = useMemo(
+    () => buildGuruAdvice(effectiveInput, location.pathname, projectSnapshot),
+    [effectiveInput, location.pathname, projectSnapshot],
+  );
 
-    async function runHealthCheck() {
-      try {
-        setHealthState("checking");
-        setHealthDetail("");
-
-        const health = await getGuruHealth(controller.signal);
-
-        if (!health.ok) {
-          setHealthState("down");
-          setHealthDetail("Guru backend is not ready.");
-          return;
-        }
-
-        if (!health.hasKey) {
-          setHealthState("down");
-          setHealthDetail("GEMINI_API_KEY is missing on the server.");
-          return;
-        }
-
-        setHealthState("ready");
-        setHealthDetail(`Model: ${health.model}`);
-      } catch (error) {
-        if ((error as Error)?.name === "AbortError") return;
-        setHealthState("down");
-        setHealthDetail((error as Error)?.message || "Guru health check failed.");
-      }
-    }
-
-    runHealthCheck();
-    return () => controller.abort();
-  }, []);
-
-  async function handleAskGuru() {
-    const trimmed = question.trim();
-    if (!trimmed || loading || healthState !== "ready") return;
-
-    setLoading(true);
-    setErrorText("");
-    setTab("answer");
-
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    try {
-      const nextResponse = await askGuru(
-        {
-          question: trimmed,
-          extraContext: extraContext.trim(),
-          mode,
-          history,
-        },
-        controller.signal
-      );
-
-      setResponse(nextResponse);
-      setHistory((prev) => [trimmed, ...prev.filter((x) => x !== trimmed)].slice(0, 12));
-    } catch (error) {
-      if ((error as Error)?.name === "AbortError") return;
-      setErrorText((error as Error)?.message || "Guru request failed.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handleUseStarter(text: string) {
-    setQuestion(text);
-  }
-
-  function handleCancel() {
-    abortRef.current?.abort();
-    setLoading(false);
-  }
-
-  function handleRetryHealth() {
-    setHealthState("checking");
-    setHealthDetail("");
-    window.location.reload();
-  }
+  const confidenceClass =
+    advice.confidence === "high"
+      ? "guru-confidence guru-confidence--high"
+      : advice.confidence === "medium"
+      ? "guru-confidence guru-confidence--medium"
+      : "guru-confidence guru-confidence--low";
 
   return (
-    <div className="guru-page-host">
-      <div className="guru-page">
+    <div className="guru-page">
       <section className="guru-hero">
-        <div className="guru-hero__copy">
-          <div className="guru-eyebrow">Tools</div>
-          <h1 className="guru-title">Guru</h1>
-          <p className="guru-subtitle">
-            Keep the question on the left and the answer on the right so the conversation stays
-            structured, reviewable, and commercially useful.
+        <div className="guru-hero-main">
+          <div className="guru-kicker">
+            <img src="/guru.png" alt="Wingman Guru" className="wm-guru-mark" />
+            <span>Wingman Guru</span>
+          </div>
+
+          <h1>Context-aware AV guidance for the next decision.</h1>
+          <p>
+            Guru now reads the active project snapshot when available, so recommendations
+            can reflect the current brief, architecture direction and selected products.
           </p>
+
+          <div className="guru-context-row">
+            <div className="guru-context-pill">
+              <MapPinned size={14} />
+              <span>Current context: {advice.contextLabel}</span>
+            </div>
+            <div className={confidenceClass}>
+              <CheckCircle2 size={14} />
+              <span>{advice.confidence} confidence</span>
+            </div>
+          </div>
         </div>
 
-        <div className="guru-hero__meta">
-          <div className="guru-meta-pill">
-            <span className="guru-meta-pill__label">Project</span>
-            <strong>No active project</strong>
-          </div>
-          <div className="guru-meta-pill">
-            <span className="guru-meta-pill__label">Stage</span>
-            <strong>Tools</strong>
-          </div>
-          <div className="guru-meta-pill">
-            <span className="guru-meta-pill__label">AI status</span>
-            <strong>
-              {healthState === "checking" ? "Checking..." : healthState === "ready" ? "Ready" : "Offline"}
-            </strong>
-          </div>
-        </div>
-      </section>
-
-      {healthState !== "ready" ? (
-        <section className="guru-health-banner">
-          <div>
-            <div className="guru-health-banner__title">
-              {healthState === "checking" ? "Checking Guru service..." : "Guru service is unavailable"}
-            </div>
-            <div className="guru-health-banner__body">
-              {healthDetail || "Please verify the backend, route, and GEMINI_API_KEY."}
-            </div>
-          </div>
-
-          {healthState === "down" ? (
-            <button type="button" className="guru-secondary" onClick={handleRetryHealth}>
-              Retry
-            </button>
-          ) : null}
-        </section>
-      ) : null}
-
-      <section className="guru-shell">
-        <div className="guru-panel guru-panel--question">
-          <div className="guru-panel__header">
-            <div>
-              <div className="guru-panel__eyebrow">Question</div>
-              <h2 className="guru-panel__title">Build the prompt properly</h2>
-            </div>
-            <div className="guru-next-pill">{healthState === "ready" ? "Live AI" : "Unavailable"}</div>
-          </div>
-
-          <div className="guru-info">
-            Ask in a commercial or technical way. The answer stays visible on the right while you
-            refine the prompt and add extra constraints.
-          </div>
-
-          <div className="guru-block">
-            <label className="guru-label">Guru mode</label>
-            <div className="guru-mode-grid">
-              {MODE_OPTIONS.map((item) => (
-                <button
-                  key={item.key}
-                  type="button"
-                  className={item.key === mode ? "guru-mode guru-mode--active" : "guru-mode"}
-                  onClick={() => setMode(item.key)}
-                >
-                  <span className="guru-mode__label">{item.label}</span>
-                  <span className="guru-mode__hint">{item.hint}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="guru-block">
-            <label className="guru-label">Main question</label>
-            <textarea
-              className="guru-textarea guru-textarea--main"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Ask a WyreStorm-specific question, for example: Which family best suits a small Teams room with USB-C BYOD and two displays?"
-            />
-          </div>
-
-          <div className="guru-block">
-            <label className="guru-label">Extra context</label>
-            <textarea
-              className="guru-textarea"
-              value={extraContext}
-              onChange={(e) => setExtraContext(e.target.value)}
-              placeholder="Add room notes, budget pressure, customer preferences, distances, switching needs, network constraints, or any important commercial context."
-            />
-          </div>
-
-          <div className="guru-block">
-            <div className="guru-label guru-label--row">
-              <span>Starter questions</span>
-              <span className="guru-hint">Use one as a fast prompt seed</span>
+        <aside className="guru-hero-side">
+          <div className="guru-side-card">
+            <div className="guru-side-head">
+              <Bot size={18} />
+              <strong>Starter briefs</strong>
             </div>
 
-            <div className="guru-starters">
-              {STARTER_QUESTIONS.map((item) => (
+            <div className="guru-starter-list">
+              {starterBrief.map((item) => (
                 <button
                   key={item}
                   type="button"
-                  className="guru-starter"
-                  onClick={() => handleUseStarter(item)}
+                  className="guru-starter-button"
+                  onClick={() => setBrief(item)}
                 >
                   {item}
                 </button>
               ))}
             </div>
           </div>
+        </aside>
+      </section>
 
-          <div className="guru-actions">
-            <div className="guru-actions__left">
-              <button
-                type="button"
-                className="guru-primary"
-                onClick={handleAskGuru}
-                disabled={loading || healthState !== "ready"}
-              >
-                {loading ? "Thinking..." : "Ask Guru"}
-              </button>
-
-              {loading && (
-                <button type="button" className="guru-secondary" onClick={handleCancel}>
-                  Cancel
-                </button>
-              )}
+      <section className="guru-workspace">
+        <div className="guru-input-panel">
+          <div className="guru-panel-head">
+            <div className="guru-panel-title">
+              <ClipboardList size={18} />
+              <strong>Project brief</strong>
             </div>
-
-            <div className="guru-context-note">
-              {healthState === "ready" ? (
-                <>Active mode: <strong>{activeModeMeta.label}</strong> Ã‚Â· {healthDetail}</>
-              ) : (
-                <>Guru unavailable</>
-              )}
-            </div>
+            <button type="button" className="guru-clear-button" onClick={() => setBrief("")}>
+              Clear
+            </button>
           </div>
 
-          {errorText ? <div className="guru-error">{errorText}</div> : null}
+          <textarea
+            className="guru-brief-input"
+            value={brief}
+            onChange={(e) => setBrief(e.target.value)}
+            placeholder="Example: 4 sources, 8 displays, 40m max distance, control system required, USB camera support, customer wants easy expansion later."
+          />
+
+          {brief.length > 0 && (
+            <div className="guru-live-indicator">Guru is analysing your brief and active project data...</div>
+          )}
+
+          <div className="guru-card guru-project-snapshot-card">
+            <div className="guru-panel-title">
+              <Layers3 size={18} />
+              <strong>Active project snapshot</strong>
+            </div>
+
+            {projectSnapshot ? (
+              <div className="guru-list">
+                {projectSnapshot.projectName ? (
+                  <div className="guru-list-row"><span>Project: {projectSnapshot.projectName}</span></div>
+                ) : null}
+                {projectSnapshot.customerName ? (
+                  <div className="guru-list-row"><span>Customer: {projectSnapshot.customerName}</span></div>
+                ) : null}
+                {projectSnapshot.application ? (
+                  <div className="guru-list-row"><span>Application: {projectSnapshot.application}</span></div>
+                ) : null}
+                {projectSnapshot.roomType ? (
+                  <div className="guru-list-row"><span>Room type: {projectSnapshot.roomType}</span></div>
+                ) : null}
+                {projectSnapshot.sourceCount !== undefined ? (
+                  <div className="guru-list-row"><span>Sources: {projectSnapshot.sourceCount}</span></div>
+                ) : null}
+                {projectSnapshot.displayCount !== undefined ? (
+                  <div className="guru-list-row"><span>Displays: {projectSnapshot.displayCount}</span></div>
+                ) : null}
+                {projectSnapshot.distanceM !== undefined ? (
+                  <div className="guru-list-row"><span>Distance: {projectSnapshot.distanceM}m</span></div>
+                ) : null}
+                {projectSnapshot.architecture ? (
+                  <div className="guru-list-row"><span>Architecture: {projectSnapshot.architecture}</span></div>
+                ) : null}
+                {projectSnapshot.selectedProducts && projectSnapshot.selectedProducts.length > 0 ? (
+                  <div className="guru-list-row"><span>Products: {projectSnapshot.selectedProducts.join(", ")}</span></div>
+                ) : null}
+              </div>
+            ) : (
+              <div className="guru-empty-state">
+                No active project snapshot found yet. Guru will still use the typed brief.
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="guru-panel guru-panel--answer">
-          <div className="guru-panel__header">
-            <div>
-              <div className="guru-panel__eyebrow">Answer</div>
-              <h2 className="guru-panel__title">Structured response</h2>
+        <div className="guru-output-panel">
+          <div className="guru-summary-card">
+            <div className="guru-panel-head">
+              <div className="guru-panel-title">
+                <Layers3 size={18} />
+                <strong>Guru recommendation</strong>
+              </div>
+            </div>
+
+            <div className="guru-architecture-pill">{advice.architecture}</div>
+            <p className="guru-summary-text">{advice.summary}</p>
+
+            <div className="guru-note-list">
+              {advice.notes.map((note) => (
+                <div key={note} className="guru-note-item">
+                  <CheckCircle2 size={16} />
+                  <span>{note}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="guru-tabs">
-            <button
-              type="button"
-              className={tab === "answer" ? "guru-tab guru-tab--active" : "guru-tab"}
-              onClick={() => setTab("answer")}
-            >
-              Answer
-            </button>
-            <button
-              type="button"
-              className={tab === "support" ? "guru-tab guru-tab--active" : "guru-tab"}
-              onClick={() => setTab("support")}
-            >
-              Support
-            </button>
-            <button
-              type="button"
-              className={tab === "history" ? "guru-tab guru-tab--active" : "guru-tab"}
-              onClick={() => setTab("history")}
-            >
-              History
-            </button>
+          <div className="guru-columns">
+            <div className="guru-card">
+              <div className="guru-panel-title">
+                <TriangleAlert size={18} />
+                <strong>Missing information</strong>
+              </div>
+
+              {advice.missingItems.length > 0 ? (
+                <div className="guru-list">
+                  {advice.missingItems.map((item) => (
+                    <div key={item} className="guru-list-row guru-list-row--warn">
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="guru-empty-state">Core inputs look reasonably complete.</div>
+              )}
+            </div>
+
+            <div className="guru-card">
+              <div className="guru-panel-title">
+                <Layers3 size={18} />
+                <strong>Product direction</strong>
+              </div>
+
+              <div className="guru-list">
+                {advice.productDirection.map((item) => (
+                  <div key={item} className="guru-list-row">
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {!response && !loading && (
-            <div className="guru-empty-state">
-              <div className="guru-empty-state__title">No answer yet</div>
-              <p>
-                Ask a question to populate the right pane with the answer, reasoning, supporting
-                references, and likely SKU direction.
-              </p>
+          <div className="guru-columns">
+            <div className="guru-card">
+              <div className="guru-panel-title">
+                <Bot size={18} />
+                <strong>Suggested prompts</strong>
+              </div>
+
+              <div className="guru-list">
+                {advice.prompts.map((item) => (
+                  <div key={item} className="guru-list-row">
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
 
-          {loading && (
-            <div className="guru-loading-state">
-              <div className="guru-loading-state__title">Building response...</div>
-              <p>Guru is assembling the answer, confidence, follow-on checks, and product direction.</p>
+            <div className="guru-card">
+              <div className="guru-panel-title">
+                <FileText size={18} />
+                <strong>Next tools</strong>
+              </div>
+
+              <div className="guru-next-step-list">
+                {advice.nextSteps.map((step) => (
+                  <Link key={step.label} to={step.href} className="guru-next-step">
+                    <div>
+                      <strong>{step.label}</strong>
+                      <p>{step.reason}</p>
+                    </div>
+                    <ArrowRight size={16} />
+                  </Link>
+                ))}
+              </div>
             </div>
-          )}
-
-          {response && tab === "answer" && (
-            <div className="guru-answer">
-              <section className="guru-answer-card">
-                <div className="guru-answer-card__eyebrow">Recommended direction</div>
-                <div className="guru-answer-card__body">{response.answer}</div>
-              </section>
-
-              <section className="guru-grid-2">
-                <div className="guru-mini-card">
-                  <div className="guru-mini-card__label">Confidence</div>
-                  <div className="guru-mini-card__value">{response.confidence}</div>
-                </div>
-                <div className="guru-mini-card">
-                  <div className="guru-mini-card__label">Mode used</div>
-                  <div className="guru-mini-card__value">{activeModeMeta.label}</div>
-                </div>
-              </section>
-
-              <section className="guru-answer-card">
-                <div className="guru-answer-card__eyebrow">Likely SKU direction</div>
-                <div className="guru-chip-row">
-                  {response.suggestedSkus.length ? (
-                    response.suggestedSkus.map((sku) => (
-                      <span key={sku} className="guru-chip">{sku}</span>
-                    ))
-                  ) : (
-                    <p className="guru-muted">No SKU suggestions returned.</p>
-                  )}
-                </div>
-              </section>
-
-              <section className="guru-answer-card">
-                <div className="guru-answer-card__eyebrow">Why this answer</div>
-                {response.reasoning.length ? (
-                  <ul className="guru-list">
-                    {response.reasoning.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="guru-muted">No reasoning notes returned.</p>
-                )}
-              </section>
-            </div>
-          )}
-
-          {response && tab === "support" && (
-            <div className="guru-answer">
-              <section className="guru-answer-card">
-                <div className="guru-answer-card__eyebrow">Support sources</div>
-                {response.sources.length ? (
-                  <ul className="guru-list">
-                    {response.sources.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="guru-muted">No support sources returned.</p>
-                )}
-              </section>
-
-              <section className="guru-answer-card">
-                <div className="guru-answer-card__eyebrow">Follow-on checks</div>
-                {response.followOns.length ? (
-                  <ul className="guru-list">
-                    {response.followOns.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="guru-muted">No follow-on checks returned.</p>
-                )}
-              </section>
-            </div>
-          )}
-
-          {tab === "history" && (
-            <div className="guru-answer">
-              <section className="guru-answer-card">
-                <div className="guru-answer-card__eyebrow">Recent questions</div>
-                {history.length === 0 ? (
-                  <p className="guru-muted">No recent questions yet.</p>
-                ) : (
-                  <ul className="guru-list">
-                    {history.map((item, index) => (
-                      <li key={item + index}>{item}</li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-            </div>
-          )}
+          </div>
         </div>
       </section>
-    </div>
     </div>
   );
 }

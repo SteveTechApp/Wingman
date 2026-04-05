@@ -2,6 +2,12 @@
 import * as React from "react";
 import { RoomData } from './project';
 
+export type ThemeMode = "system" | "light" | "dark";
+
+export interface UserPreferences {
+    theme: ThemeMode;
+}
+
 export interface DesignFeedbackItem {
     type: 'Warning' | 'Suggestion' | 'Opportunity' | 'Insight' | 'Financial';
     text: string;
@@ -32,6 +38,3 @@ export interface IncomingRequest {
     status: 'tentative' | 'confirmed';
     createdAt: number;
 }
-
-
-

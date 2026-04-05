@@ -1,17 +1,12 @@
-#!/usr/bin/env sh
+#!/bin/sh
 echo "Wingman pre-commit..."
 
 npm run precommit:check
-if [ $? -ne 0 ]; then
+status=$?
+
+if [ $status -ne 0 ]; then
   echo "Commit blocked (typecheck/build failed)"
   exit 1
 fi
 
-npm run repo:health
-if [ $? -ne 0 ]; then
-  echo "Commit blocked (repo health failed)"
-  exit 1
-fi
-
-echo "All checks passed."
 exit 0

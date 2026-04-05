@@ -6,35 +6,28 @@ import {
   type WingmanPersistedProject,
 } from "@/app/logic/wingmanProjectPersistence";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
+import "./saved-projects-panel.css";
 
-function formatDate(iso: string | undefined): string {
-  if (!iso) return "-";
-  const parsed = new Date(iso);
-  if (Number.isNaN(parsed.getTime())) return iso;
-  return parsed.toLocaleString();
+function formatDate(value?: string | null) {
+  if (!value) return "Not captured";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return String(value);
+  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(parsed);
 }
 
-function StatusPill({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        padding: "6px 10px",
-        borderRadius: 999,
-        background: "rgba(255,255,255,0.05)",
-        border: "1px solid rgba(255,255,255,0.08)",
-        fontSize: 12,
-        fontWeight: 700,
-        color: "#fff",
-      }}
-    >
-      {children}
-    </span>
-  );
+function primaryRoute(project: WingmanPersistedProject): string {
+  if (project.videoWall) return WM_ROUTES.videoWall;
+  if (project.proposal) return WM_ROUTES.proposal;
+  return WM_ROUTES.dashboard;
 }
 
-function ProjectCard({ project }: { project: WingmanPersistedProject }) {
+function primaryLabel(project: WingmanPersistedProject): string {
+  if (project.videoWall) return "Resume Video Wall";
+  if (project.proposal) return "Resume Proposal";
+  return "Open Dashboard";
+}
+
+function PersistedProjectCard({ project }: { project: WingmanPersistedProject }) {
   const navigate = useNavigate();
 
   function open(route: string) {
@@ -43,45 +36,57 @@ function ProjectCard({ project }: { project: WingmanPersistedProject }) {
   }
 
   return (
-    <article
-      className="wm-surface-card"
-      style={{
-        padding: 16,
-        display: "grid",
-        gap: 12,
-      }}
-    >
-      <div style={{ display: "grid", gap: 6 }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: "#ffffff" }}>{project.name}</div>
-        <div style={{ color: "rgba(226,232,240,0.78)" }}>
-          {project.customer || "Customer not set"} · {project.application || "Application not set"}
+    <article className="wm-saved-projects-panel__card">
+      <div className="wm-saved-projects-panel__card-top">
+        <div>
+          <h3>{project.name || "Untitled saved project"}</h3>
+          <p>
+            {[project.customer || "Customer not set", project.application || "Application not set"].join(" / ")}
+          </p>
+        </div>
+
+        <div className="wm-saved-projects-panel__tag-row">
+          {project.proposal ? <span className="wm-saved-projects-panel__tag">Proposal</span> : null}
+          {project.videoWall ? <span className="wm-saved-projects-panel__tag">Video Wall</span> : null}
+          {!project.proposal && !project.videoWall ? (
+            <span className="wm-saved-projects-panel__tag">Saved workflow</span>
+          ) : null}
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <StatusPill>{project.discovery.sources} sources</StatusPill>
-        <StatusPill>{project.discovery.displays} displays</StatusPill>
-        <StatusPill>{project.discovery.distanceM ?? 0}m</StatusPill>
-        {project.proposal ? <StatusPill>Proposal saved</StatusPill> : null}
-        {project.videoWall ? <StatusPill>Video wall saved</StatusPill> : null}
+      <div className="wm-saved-projects-panel__metrics">
+        <div className="wm-saved-projects-panel__metric">
+          <span>Inputs</span>
+          <strong>{project.discovery.sources || 0}</strong>
+        </div>
+        <div className="wm-saved-projects-panel__metric">
+          <span>Outputs</span>
+          <strong>{project.discovery.displays || 0}</strong>
+        </div>
+        <div className="wm-saved-projects-panel__metric">
+          <span>Distance</span>
+          <strong>{project.discovery.distanceM ? `${project.discovery.distanceM}m` : "Not set"}</strong>
+        </div>
+        <div className="wm-saved-projects-panel__metric">
+          <span>Updated</span>
+          <strong>{formatDate(project.updatedAt)}</strong>
+        </div>
       </div>
 
-      <div style={{ color: "rgba(226,232,240,0.72)", fontSize: 13 }}>
-        Updated {formatDate(project.updatedAt)}
-      </div>
-
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <button type="button" className="wm-btn-secondary" onClick={() => open(WM_ROUTES.dashboard)}>
-          Dashboard
+      <div className="wm-saved-projects-panel__actions">
+        <button
+          type="button"
+          className="wm-btn-primary"
+          onClick={() => open(primaryRoute(project))}
+        >
+          {primaryLabel(project)}
         </button>
-        <button type="button" className="wm-btn-secondary" onClick={() => open(WM_ROUTES.sales)}>
-          Sales
-        </button>
-        <button type="button" className="wm-btn-secondary" onClick={() => open(WM_ROUTES.proposal)}>
-          Proposal
-        </button>
-        <button type="button" className="wm-btn-primary" onClick={() => open(WM_ROUTES.videoWall)}>
-          Video Wall
+        <button
+          type="button"
+          className="wm-btn-secondary"
+          onClick={() => open(WM_ROUTES.dashboard)}
+        >
+          Open Dashboard
         </button>
       </div>
     </article>
@@ -92,21 +97,28 @@ export default function WingmanSavedProjectsPanel() {
   const projects = React.useMemo(() => loadAllPersistedProjects(), []);
 
   return (
-    <section className="wm-section wm-section--tone-cyan">
-      <div className="wm-section__head">
-        <div className="wm-section__titles">
-          <h2>Wingman saved projects</h2>
-          <p>Projects created from the new guided Wingman workflow.</p>
+    <section className="wm-saved-projects-panel">
+      <div className="wm-saved-projects-panel__head">
+        <div>
+          <div className="wm-saved-projects-panel__eyebrow">Older saved context</div>
+          <h2>Legacy Wingman saves</h2>
+          <p>
+            Older saved workflows still stay available here, but they sit behind the live project
+            store so current work remains the main focus.
+          </p>
         </div>
       </div>
 
-      {projects.length === 0 ? (
-        <div className="wm-body">No Wingman saved projects yet. Save from Proposal or Video Wall to create one.</div>
-      ) : (
-        <div style={{ display: "grid", gap: 12 }}>
+      {projects.length > 0 ? (
+        <div className="wm-saved-projects-panel__list">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <PersistedProjectCard key={project.id} project={project} />
           ))}
+        </div>
+      ) : (
+        <div className="wm-saved-projects-panel__empty">
+          <h3>No older saved workflows</h3>
+          <p>Once a project is saved from the older Proposal or Video Wall tools, it will appear here.</p>
         </div>
       )}
     </section>

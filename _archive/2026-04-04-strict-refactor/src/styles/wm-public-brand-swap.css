@@ -1,0 +1,43 @@
+/* Force landing-page / auth branding blocks to render the real logo, not the blue W tile */
+
+.wm-public-landing-page__brand-mark,
+.wm-brand__mark {
+  width: 320px !important;
+  height: 84px !important;
+  min-width: 320px !important;
+  min-height: 84px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: url("../assets/branding/wingman-brand-logo.png") no-repeat left center !important;
+  background-size: contain !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  letter-spacing: 0 !important;
+  overflow: visible !important;
+}
+
+/* hide any text lockup beside/under the mark on public/auth pages */
+.wm-public-landing-page__brand-copy,
+.wm-public-landing-page__brand-text,
+.wm-public-landing-page__brand-label,
+.wm-public-landing-page__brand-meta,
+.wm-brand__copy,
+.wm-brand__text,
+.wm-brand__label,
+.wm-brand__meta {
+  display: none !important;
+}
+
+/* make sure the surrounding wrapper allows the full logo width */
+.wm-public-landing-page__brand,
+.wm-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}

@@ -1,397 +1,510 @@
-import { useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import SplitWorkspaceFrame from "@/components/workspace/SplitWorkspaceFrame";
+import * as React from "react";
+import { ArrowRight, Search } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
+import {
+  buildReadinessLabel,
+  buildRoomWorkflowGuidance,
+  findIntakeStartPath,
+  getRouteLabel,
+  INTAKE_START_PATHS,
+  recommendImportRoutes,
+  type IntakeStartPath,
+} from "@/features/import/intakeExperience";
 import {
   ensureActiveProject,
   getActiveProject,
   setActiveProjectId,
+  subscribeProjects,
   updateProjectDiscovery,
-  type DiscoveryProductFamily,
 } from "@/features/projects/projectStore";
+import {
+  ROOM_TEMPLATE_CATEGORY_ORDER,
+  ROOM_TEMPLATE_LIBRARY,
+  type RoomTemplateCategory,
+  type RoomTemplateScenario,
+} from "@/features/templates/roomTemplateLibrary";
+import {
+  DEFAULT_ROOM_TEMPLATE_ID,
+  deriveRoomTemplateFamilies,
+  findBestRoomTemplateForProject,
+  findRoomTemplateById,
+} from "@/features/templates/roomWorkflowContext";
+import "./import-intake-page.css";
 
-type IntakeMode = "document" | "notes" | "summary" | "diagram";
-type SupportPanel = "summary" | "next";
-
-type IntakeModeConfig = {
-  label: string;
-  description: string;
-  sourceType: string;
-  nextRoute: string;
-  secondaryRoute: string;
-  supportCopy: string;
-  recommendedFamilies: DiscoveryProductFamily[];
-};
+type RoomCategoryFilter = "All Rooms" | RoomTemplateCategory;
 
 const PRIORITY_OPTIONS = ["Standard", "High priority", "Urgent"] as const;
 
-const MODE_CONFIG: Record<IntakeMode, IntakeModeConfig> = {
-  document: {
-    label: "Document",
-    description: "Bring in consultant briefs, tender sections, or structured files without making the first screen too busy.",
-    sourceType: "Imported document",
-    nextRoute: WM_ROUTES.discovery,
-    secondaryRoute: WM_ROUTES.proposal,
-    supportCopy: "Use discovery next when the brief is detailed enough to shape the workflow before product selection.",
-    recommendedFamilies: ["Apollo", "Matrix"],
-  },
-  notes: {
-    label: "Notes",
-    description: "Capture rough meeting notes first, then move into a clearer room definition workflow.",
-    sourceType: "Meeting notes",
-    nextRoute: WM_ROUTES.roomWizard,
-    secondaryRoute: WM_ROUTES.discovery,
-    supportCopy: "Use Room Wizard next when the brief is messy and the room still needs to be defined clearly.",
-    recommendedFamilies: ["Apollo", "USB Extension"],
-  },
-  summary: {
-    label: "Summary",
-    description: "Start from a short opportunity summary and push quickly toward a commercial next step.",
-    sourceType: "Opportunity summary",
-    nextRoute: WM_ROUTES.proposal,
-    secondaryRoute: WM_ROUTES.discovery,
-    supportCopy: "Use Proposal next when the scope is already agreed and the user mainly needs the commercial output.",
-    recommendedFamilies: ["Apollo"],
-  },
-  diagram: {
-    label: "Diagram",
-    description: "Start from an existing system map or sketch and move into product validation instead of repeating discovery.",
-    sourceType: "Existing system diagram",
-    nextRoute: WM_ROUTES.catalog,
-    secondaryRoute: WM_ROUTES.proposal,
-    supportCopy: "Use the catalogue next when the topology already exists and the remaining job is confirming the product fit.",
-    recommendedFamilies: ["HDBaseT", "AVoIP", "Matrix"],
-  },
-};
-
-function normalizeMode(value: string | null): IntakeMode {
-  if (value === "notes" || value === "summary" || value === "diagram") return value;
-  return "document";
+function tidy(value: unknown): string {
+  return String(value ?? "").trim();
 }
 
-function getRouteLabel(route: string): string {
-  if (route === WM_ROUTES.discovery) return "Discovery";
-  if (route === WM_ROUTES.roomWizard) return "Room Wizard";
-  if (route === WM_ROUTES.catalog) return "Product Catalogue";
-  if (route === WM_ROUTES.proposal) return "Proposal";
-  return "Next Tool";
+function dedupe(values: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+
+  for (const value of values) {
+    const text = tidy(value);
+    if (!text) continue;
+    const key = text.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(text);
+  }
+
+  return out;
 }
 
-function buildReadiness(characterCount: number): string {
-  if (characterCount > 600) return "Detailed brief";
-  if (characterCount > 220) return "Usable brief";
-  if (characterCount > 40) return "Early-stage brief";
-  return "No usable brief yet";
+function roomSearchBlob(template: RoomTemplateScenario): string {
+  return [
+    template.category,
+    template.vertical,
+    template.roomType,
+    template.summary,
+    template.story,
+    template.designPurpose,
+    ...template.useCases,
+    ...template.sourceTypes,
+    ...template.outputTypes,
+    ...template.recommendedFamilies,
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
+function PathCard(props: {
+  active: boolean;
+  path: IntakeStartPath;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`wm-import-page__path-card${props.active ? " is-active" : ""}`}
+      onClick={() => props.onSelect(props.path.id)}
+    >
+      <span className="wm-import-page__path-meta">{props.path.bias}</span>
+      <strong>{props.path.label}</strong>
+      <span>{props.path.summary}</span>
+      <div className="wm-import-page__chip-row">
+        {props.path.families.map((family) => (
+          <span key={`${props.path.id}-${family}`} className="wm-import-page__chip">
+            {family}
+          </span>
+        ))}
+      </div>
+    </button>
+  );
+}
+
+function RoomCard(props: {
+  active: boolean;
+  room: RoomTemplateScenario;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`wm-import-page__room-card${props.active ? " is-active" : ""}`}
+      onClick={() => props.onSelect(props.room.id)}
+    >
+      <span className="wm-import-page__room-meta">
+        {props.room.category} | {props.room.vertical}
+      </span>
+      <strong>{props.room.roomType}</strong>
+      <span>{props.room.summary}</span>
+    </button>
+  );
 }
 
 export default function ImportIntakePage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [customerName, setCustomerName] = useState("");
-  const [projectName, setProjectName] = useState("");
-  const [inputText, setInputText] = useState("");
-  const [priority, setPriority] = useState<(typeof PRIORITY_OPTIONS)[number]>("Standard");
-  const [panel, setPanel] = useState<SupportPanel>("summary");
+  const activeProject = React.useSyncExternalStore(subscribeProjects, getActiveProject, () => undefined);
+  const inferredRoom = React.useMemo(
+    () => findBestRoomTemplateForProject(activeProject) ?? findRoomTemplateById(DEFAULT_ROOM_TEMPLATE_ID),
+    [activeProject],
+  );
+  const [roomCategory, setRoomCategory] = React.useState<RoomCategoryFilter>("All Rooms");
+  const [roomSearch, setRoomSearch] = React.useState("");
+  const deferredRoomSearch = React.useDeferredValue(roomSearch);
+  const [selectedRoomId, setSelectedRoomId] = React.useState(inferredRoom?.id ?? DEFAULT_ROOM_TEMPLATE_ID);
+  const [customerName, setCustomerName] = React.useState("");
+  const [projectName, setProjectName] = React.useState("");
+  const [site, setSite] = React.useState("");
+  const [inputText, setInputText] = React.useState("");
+  const [priority, setPriority] = React.useState<(typeof PRIORITY_OPTIONS)[number]>("Standard");
 
-  const mode = normalizeMode(searchParams.get("mode"));
-  const modeConfig = MODE_CONFIG[mode];
+  React.useEffect(() => {
+    setCustomerName(activeProject?.customer ?? "");
+    setProjectName(activeProject?.name && activeProject.name !== "New Project" ? activeProject.name : "");
+    setSite(activeProject?.site ?? "");
+    setInputText(activeProject?.discovery?.notes ?? activeProject?.notes ?? "");
+    setSelectedRoomId((findBestRoomTemplateForProject(activeProject) ?? inferredRoom)?.id ?? DEFAULT_ROOM_TEMPLATE_ID);
+  }, [activeProject?.id, inferredRoom]);
 
-  const summary = useMemo(() => {
-    const trimmed = inputText.trim();
-    const charCount = trimmed.length;
-    const readiness = buildReadiness(charCount);
+  const selectedPath = React.useMemo(
+    () => findIntakeStartPath(searchParams.get("path")) ?? INTAKE_START_PATHS[0],
+    [searchParams],
+  );
+  const selectedRoom = React.useMemo(
+    () => findRoomTemplateById(selectedRoomId) ?? inferredRoom ?? ROOM_TEMPLATE_LIBRARY[0],
+    [inferredRoom, selectedRoomId],
+  );
+  const readiness = buildReadinessLabel(inputText.trim().length);
+  const guidance = React.useMemo(() => buildRoomWorkflowGuidance({
+    room: selectedRoom,
+    sourceCount: selectedRoom.ioProfile.sourceCount,
+    displayCount: selectedRoom.ioProfile.displayCount,
+    distanceM: 15,
+    usbNeeds: /usb|byod|byom|uc/i.test([
+      selectedRoom.summary,
+      selectedRoom.story,
+      selectedRoom.roomType,
+      selectedRoom.sourceTypes.join(" "),
+      selectedRoom.controlProfile,
+    ].join(" ")),
+    networkReady: selectedPath.bias === "validation" || selectedRoom.recommendedFamilies.includes("AVoIP"),
+    futureExpansion: selectedRoom.ioProfile.displayCount >= 4 || selectedPath.bias === "guided",
+  }), [selectedPath.bias, selectedRoom]);
+  const routeRecommendation = React.useMemo(
+    () => recommendImportRoutes({ path: selectedPath, readiness, guidance }),
+    [guidance, readiness, selectedPath],
+  );
+  const linkedFamilies = React.useMemo(
+    () => dedupe([
+      ...deriveRoomTemplateFamilies(activeProject, selectedRoom),
+      ...selectedPath.families,
+      ...guidance.recommendedFamilies,
+    ]),
+    [activeProject, guidance.recommendedFamilies, selectedPath.families, selectedRoom],
+  );
+  const saveStatusNote = activeProject
+    ? `Saving into ${activeProject.name || "the active project"} with ${priority.toLowerCase()} priority.`
+    : "No active project yet. The first save will create one and attach the imported brief.";
 
-    return {
-      charCount,
-      readiness,
-      nextStep: `${getRouteLabel(modeConfig.nextRoute)} is the cleanest next step after ${modeConfig.label.toLowerCase()} intake.`,
-      supportingRoute: getRouteLabel(modeConfig.secondaryRoute),
-    };
-  }, [inputText, modeConfig]);
+  const roomMatches = React.useMemo(() => {
+    const query = deferredRoomSearch.trim().toLowerCase();
+    return ROOM_TEMPLATE_LIBRARY.filter((template) => {
+      const matchesCategory = roomCategory === "All Rooms" || template.category === roomCategory;
+      const matchesQuery = !query || roomSearchBlob(template).includes(query);
+      return matchesCategory && matchesQuery;
+    });
+  }, [deferredRoomSearch, roomCategory]);
+
+  function handleSelectPath(id: string) {
+    setSearchParams({ path: id });
+  }
 
   function persistAndNavigate(route: string) {
-    const existing = getActiveProject();
-    const trimmedCustomer = customerName.trim();
-    const trimmedProject = projectName.trim();
-    const trimmedInput = inputText.trim();
-
-    const nextName =
-      trimmedProject ||
-      existing?.name?.trim() ||
-      `${modeConfig.label} Project`;
-    const nextCustomer = trimmedCustomer || existing?.customer?.trim() || "";
-    const nextRoomName =
-      trimmedProject ||
-      existing?.roomName?.trim() ||
-      nextName;
-    const nextNotes = trimmedInput || existing?.notes?.trim() || "";
-
-    const project = ensureActiveProject({
-      name: nextName,
-      customer: nextCustomer,
-      roomName: nextRoomName,
+    const nextProject = ensureActiveProject({
+      name:
+        tidy(projectName) ||
+        (tidy(activeProject?.name) && tidy(activeProject?.name) !== "New Project"
+          ? activeProject?.name
+          : `${selectedRoom.roomType} Opportunity`),
+      customer: tidy(customerName) || activeProject?.customer || "",
+      site: tidy(site) || activeProject?.site || "",
+      roomName: selectedRoom.roomType,
       stage: "Discovery",
-      status: "Draft",
-      notes: nextNotes,
+      status: activeProject?.status || "Draft",
+      notes: tidy(inputText) || activeProject?.notes || "",
     });
 
-    setActiveProjectId(project.id);
-    updateProjectDiscovery(project.id, {
-      customer: nextCustomer,
-      roomName: nextRoomName,
-      workflowTrack: `Import intake: ${modeConfig.label}`,
-      projectScope: summary.readiness,
-      customerOutcome: summary.nextStep,
-      sourceTypes: modeConfig.sourceType,
+    setActiveProjectId(nextProject.id);
+
+    updateProjectDiscovery(nextProject.id, {
+      customer: tidy(customerName) || nextProject.customer,
+      site: tidy(site) || nextProject.site,
+      roomName: selectedRoom.roomType,
+      workflowTrack: `Import intake / ${selectedPath.label}`,
+      projectScope: readiness,
+      customerOutcome: routeRecommendation.reasoning,
+      sourceTypes: selectedPath.sourceLabel,
+      applicationType: selectedRoom.roomType,
+      sourceCount: String(selectedRoom.ioProfile.sourceCount),
+      displayCount: String(selectedRoom.ioProfile.displayCount),
+      outputBehaviour: selectedRoom.ioProfile.outputs,
+      featureRequirements: guidance.signalSummary.join(" | "),
       urgency: priority,
-      notes: nextNotes,
-      recommendedFamilies: modeConfig.recommendedFamilies,
+      notes: tidy(inputText) || nextProject.notes || selectedRoom.summary,
+      recommendedFamilies: guidance.recommendedFamilies,
       recommendedNextTool: route,
+      createdAt: nextProject.discovery?.createdAt ?? new Date().toISOString(),
     });
 
     navigate(route);
   }
 
-  const left = (
-    <div className="wm-workspace-stack">
-      <div className="wm-start-step">
-        Capture only the baseline information here. Keep the heavy discovery, room shaping, or pricing work in the next tool.
-      </div>
+  return (
+    <div className="wm-import-page">
+      <section className="wm-import-page__hero">
+        <div className="wm-import-page__hero-copy">
+          <div className="wm-import-page__eyebrow">Import Intake</div>
+          <h1>Drop in the brief, anchor it to the right room, and route it forward quickly.</h1>
+          <p>
+            Import stays lean so the brief, room choice, and next step do the talking.
+          </p>
 
-      <section className="wm-workspace-card">
-        <div className="wm-workspace-card__header">
-          <h3 className="wm-workspace-card__title">Choose intake mode</h3>
-          <p className="wm-workspace-card__copy">{modeConfig.description}</p>
-        </div>
-
-        <div className="wm-workspace-tag-row">
-          {(Object.keys(MODE_CONFIG) as IntakeMode[]).map((value) => {
-            const active = value === mode;
-            return (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={active}
-                className={`wm-workspace-tab${active ? " wm-workspace-tab--active" : ""}`}
-                onClick={() => setSearchParams({ mode: value })}
-              >
-                {MODE_CONFIG[value].label}
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="wm-workspace-card">
-        <div className="wm-workspace-card__header">
-          <h3 className="wm-workspace-card__title">Capture project context</h3>
-          <p className="wm-workspace-card__copy">Keep the user focused on the next input, not a long scrolling intake screen.</p>
-        </div>
-
-        <div className="wm-workspace-form">
-          <div className="wm-workspace-grid-2">
-            <div className="wm-workspace-field">
-              <label htmlFor="intake-customer" className="wm-workspace-label">
-                Customer
-              </label>
-              <input
-                id="intake-customer"
-                className="wm-input-dark"
-                type="text"
-                placeholder="Customer or end user"
-                value={customerName}
-                onChange={(event) => setCustomerName(event.target.value)}
-              />
-            </div>
-
-            <div className="wm-workspace-field">
-              <label htmlFor="intake-project" className="wm-workspace-label">
-                Project name
-              </label>
-              <input
-                id="intake-project"
-                className="wm-input-dark"
-                type="text"
-                placeholder="Project or opportunity name"
-                value={projectName}
-                onChange={(event) => setProjectName(event.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="wm-workspace-field">
-            <label htmlFor="intake-priority" className="wm-workspace-label">
-              Priority
-            </label>
-            <select
-              id="intake-priority"
-              className="wm-select-dark"
-              value={priority}
-              onChange={(event) => setPriority(event.target.value as (typeof PRIORITY_OPTIONS)[number])}
+          <div className="wm-import-page__hero-actions">
+            <button
+              type="button"
+              className="wm-btn-primary"
+              onClick={() => persistAndNavigate(routeRecommendation.primaryRoute)}
             >
-              {PRIORITY_OPTIONS.map((option) => (
-                <option key={option}>{option}</option>
+              Save and open {getRouteLabel(routeRecommendation.primaryRoute)}
+              <ArrowRight size={16} />
+            </button>
+            <Link to={WM_ROUTES.discovery} className="wm-btn-secondary">
+              Open Discovery
+            </Link>
+          </div>
+
+          <p className="wm-import-page__hero-note">{saveStatusNote}</p>
+        </div>
+
+        <div className="wm-import-page__hero-metrics">
+          <div className="wm-import-page__metric">
+            <span>Readiness</span>
+            <strong>{readiness}</strong>
+          </div>
+          <div className="wm-import-page__metric">
+            <span>Selected room</span>
+            <strong>{selectedRoom.roomType}</strong>
+          </div>
+          <div className="wm-import-page__metric">
+            <span>Next tool</span>
+            <strong>{getRouteLabel(routeRecommendation.primaryRoute)}</strong>
+          </div>
+          <div className="wm-import-page__metric">
+            <span>Current project</span>
+            <strong>{activeProject?.name || "Not attached"}</strong>
+          </div>
+        </div>
+      </section>
+
+      <div className="wm-import-page__layout">
+        <aside className="wm-import-page__sidebar">
+          <section className="wm-import-page__panel wm-import-page__panel--sidebar">
+            <div className="wm-import-page__section-head">
+              <div>
+                <div className="wm-import-page__section-eyebrow">Step 1</div>
+                <h2>Choose how the opportunity is arriving</h2>
+                <p>Pick the clearest starting material.</p>
+              </div>
+            </div>
+
+            <div className="wm-import-page__path-list">
+              {INTAKE_START_PATHS.map((path) => (
+                <PathCard
+                  key={path.id}
+                  active={path.id === selectedPath.id}
+                  path={path}
+                  onSelect={handleSelectPath}
+                />
               ))}
-            </select>
-          </div>
+            </div>
+          </section>
+        </aside>
 
-          <div className="wm-workspace-field">
-            <label htmlFor="intake-text" className="wm-workspace-label">
-              Intake text
+        <main className="wm-import-page__main">
+          <section className="wm-import-page__panel wm-import-page__panel--feature">
+            <div className="wm-import-page__section-head">
+              <div>
+                <div className="wm-import-page__section-eyebrow">Selected intake path</div>
+                <h2>{selectedPath.label}</h2>
+                <p>{selectedPath.summary}</p>
+              </div>
+            </div>
+
+            <div className="wm-import-page__chip-row">
+              {linkedFamilies.map((family) => (
+                <span key={`linked-family-${family}`} className="wm-import-page__chip wm-import-page__chip--accent">
+                  {family}
+                </span>
+              ))}
+            </div>
+          </section>
+
+          <section className="wm-import-page__panel">
+            <div className="wm-import-page__section-head">
+              <div>
+                <div className="wm-import-page__section-eyebrow">Step 2</div>
+                <h2>Choose the likely room type</h2>
+                <p>Keep the brief tied to a real AV application.</p>
+              </div>
+            </div>
+
+            <div className="wm-import-page__chip-row">
+              {ROOM_TEMPLATE_CATEGORY_ORDER.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  className={`wm-import-page__filter-chip${roomCategory === category ? " is-active" : ""}`}
+                  onClick={() => setRoomCategory(category)}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+
+            <label className="wm-import-page__search">
+              <Search size={16} />
+              <input
+                type="search"
+                value={roomSearch}
+                onChange={(event) => setRoomSearch(event.target.value)}
+                placeholder="Search room type or venue"
+              />
             </label>
-            <textarea
-              id="intake-text"
-              className="wm-textarea-dark"
-              placeholder="Paste the brief, notes, summary, or system description here."
-              value={inputText}
-              onChange={(event) => setInputText(event.target.value)}
-            />
-          </div>
-        </div>
-      </section>
 
-      <section className="wm-workspace-card">
-        <div className="wm-workspace-grid-2">
-          <div className="wm-workspace-metric">
-            <span>Brief health</span>
-            <strong>{summary.readiness}</strong>
-          </div>
-          <div className="wm-workspace-metric">
-            <span>Characters</span>
-            <strong>{summary.charCount}</strong>
-          </div>
-        </div>
+            <div className="wm-import-page__room-grid">
+              {roomMatches.map((room) => (
+                <RoomCard
+                  key={room.id}
+                  active={room.id === selectedRoom.id}
+                  room={room}
+                  onSelect={setSelectedRoomId}
+                />
+              ))}
+            </div>
+          </section>
 
-        <div className="wm-next-step">
-          Save the intake before leaving the page. The next tool should open with the baseline already attached to the active project.
-        </div>
-      </section>
-    </div>
-  );
-
-  const right = (
-    <div className="wm-workspace-stack">
-      <section className="wm-workspace-card">
-        <div className="wm-workspace-tab-row">
-          <button
-            type="button"
-            className={`wm-workspace-tab${panel === "summary" ? " wm-workspace-tab--active" : ""}`}
-            onClick={() => setPanel("summary")}
-          >
-            Intake summary
-          </button>
-          <button
-            type="button"
-            className={`wm-workspace-tab${panel === "next" ? " wm-workspace-tab--active" : ""}`}
-            onClick={() => setPanel("next")}
-          >
-            Next steps
-          </button>
-        </div>
-
-        {panel === "summary" ? (
-          <div className="wm-workspace-tabpanel">
-            <div className="wm-workspace-card wm-workspace-card--muted">
-              <div className="wm-workspace-card__header">
-                <span className="wm-workspace-list-item__eyebrow">{modeConfig.label}</span>
-                <h3 className="wm-workspace-card__title">{modeConfig.sourceType}</h3>
-                <p className="wm-workspace-card__copy">{modeConfig.supportCopy}</p>
+          <section className="wm-import-page__panel wm-import-page__panel--form">
+            <div className="wm-import-page__section-head">
+              <div>
+                <div className="wm-import-page__section-eyebrow">Step 3</div>
+                <h2>Capture only the context you need</h2>
+                <p>Once this is attached properly, Discovery and the room tools can take over.</p>
               </div>
+            </div>
 
-              <div className="wm-workspace-grid-2">
-                <div className="wm-workspace-metric">
-                  <span>Priority</span>
-                  <strong>{priority}</strong>
-                </div>
-                <div className="wm-workspace-metric">
-                  <span>Recommended tool</span>
-                  <strong>{getRouteLabel(modeConfig.nextRoute)}</strong>
-                </div>
+            <div className="wm-import-page__form-grid">
+              <label className="wm-import-page__field">
+                <span>Customer</span>
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(event) => setCustomerName(event.target.value)}
+                  placeholder="Customer or end user"
+                />
+              </label>
+
+              <label className="wm-import-page__field">
+                <span>Project name</span>
+                <input
+                  type="text"
+                  value={projectName}
+                  onChange={(event) => setProjectName(event.target.value)}
+                  placeholder={`${selectedRoom.roomType} Opportunity`}
+                />
+              </label>
+
+              <label className="wm-import-page__field">
+                <span>Site</span>
+                <input
+                  type="text"
+                  value={site}
+                  onChange={(event) => setSite(event.target.value)}
+                  placeholder="Site or location"
+                />
+              </label>
+
+              <label className="wm-import-page__field wm-import-page__field--wide">
+                <span>Priority</span>
+                <select
+                  value={priority}
+                  onChange={(event) => setPriority(event.target.value as (typeof PRIORITY_OPTIONS)[number])}
+                >
+                  {PRIORITY_OPTIONS.map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label className="wm-import-page__field">
+              <span>Brief, notes, or pasted summary</span>
+              <textarea
+                value={inputText}
+                onChange={(event) => setInputText(event.target.value)}
+                placeholder="Paste the customer email, consultant brief summary, survey notes, or opportunity description here."
+              />
+            </label>
+          </section>
+        </main>
+
+        <aside className="wm-import-page__detail-rail">
+          <section className="wm-import-page__panel wm-import-page__detail-panel">
+            <div className="wm-import-page__section-head">
+              <div>
+                <div className="wm-import-page__section-eyebrow">Save preview</div>
+                <h2>Current intake readout</h2>
+                <p>{routeRecommendation.reasoning}</p>
               </div>
+            </div>
 
-              <div className="wm-workspace-tag-row">
-                {modeConfig.recommendedFamilies.map((family) => (
-                  <span key={family} className="wm-workspace-tag">
-                    {family}
+            <div className="wm-import-page__detail-grid">
+              <div className="wm-import-page__detail-card">
+                <span>Primary next tool</span>
+                <strong>{getRouteLabel(routeRecommendation.primaryRoute)}</strong>
+              </div>
+              <div className="wm-import-page__detail-card">
+                <span>Alternate path</span>
+                <strong>{getRouteLabel(routeRecommendation.secondaryRoute)}</strong>
+              </div>
+              <div className="wm-import-page__detail-card">
+                <span>Readiness</span>
+                <strong>{readiness}</strong>
+              </div>
+              <div className="wm-import-page__detail-card">
+                <span>Characters</span>
+                <strong>{inputText.trim().length}</strong>
+              </div>
+            </div>
+
+            <div className="wm-import-page__detail-block">
+              <span>Attached room assumptions</span>
+              <div className="wm-import-page__chip-row">
+                {guidance.signalSummary.map((item) => (
+                  <span key={`signal-${item}`} className="wm-import-page__chip">
+                    {item}
                   </span>
                 ))}
               </div>
             </div>
 
-            <div className="wm-workspace-card">
-              <div className="wm-workspace-card__header">
-                <h3 className="wm-workspace-card__title">Captured context</h3>
-                <p className="wm-workspace-card__copy">The right column stays supportive, so the main typing surface remains clean on the left.</p>
-              </div>
-
-              <div className="wm-workspace-list">
-                <div className="wm-workspace-list-item">
-                  <span className="wm-workspace-list-item__title">Customer</span>
-                  <span className="wm-workspace-list-item__copy">{customerName.trim() || "Not set yet"}</span>
-                </div>
-                <div className="wm-workspace-list-item">
-                  <span className="wm-workspace-list-item__title">Project</span>
-                  <span className="wm-workspace-list-item__copy">{projectName.trim() || "Will use the active project name"}</span>
-                </div>
-                <div className="wm-workspace-list-item">
-                  <span className="wm-workspace-list-item__title">Suggested path</span>
-                  <span className="wm-workspace-list-item__copy">{summary.nextStep}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="wm-workspace-tabpanel">
-            <div className="wm-workspace-card wm-workspace-card--muted">
-              <div className="wm-workspace-card__header">
-                <h3 className="wm-workspace-card__title">Recommended next tool</h3>
-                <p className="wm-workspace-card__copy">{summary.nextStep}</p>
-              </div>
-
-              <div className="wm-workspace-action-row">
-                <button type="button" className="wm-btn-primary" onClick={() => persistAndNavigate(modeConfig.nextRoute)}>
-                  Save and open {getRouteLabel(modeConfig.nextRoute)}
-                </button>
-                <button type="button" className="wm-btn-secondary" onClick={() => persistAndNavigate(modeConfig.secondaryRoute)}>
-                  Save and open {summary.supportingRoute}
-                </button>
-              </div>
+            <div className="wm-import-page__detail-block">
+              <span>What is saved</span>
+              <p>
+                Customer, site, selected room type, intake notes, source path, priority, recommended families,
+                and the next suggested tool will all be saved into the active project.
+              </p>
             </div>
 
-            <div className="wm-workspace-list">
-              <div className="wm-workspace-list-item">
-                <span className="wm-workspace-list-item__title">Why this path</span>
-                <span className="wm-workspace-list-item__copy">{modeConfig.supportCopy}</span>
-              </div>
-              <div className="wm-workspace-list-item">
-                <span className="wm-workspace-list-item__title">What is saved first</span>
-                <span className="wm-workspace-list-item__copy">Customer, project name, urgency, source type, the imported brief, and the recommended next tool.</span>
-              </div>
+            <div className="wm-import-page__detail-actions">
+              <button
+                type="button"
+                className="wm-btn-primary"
+                onClick={() => persistAndNavigate(routeRecommendation.primaryRoute)}
+              >
+                Save and open {getRouteLabel(routeRecommendation.primaryRoute)}
+              </button>
+              <button
+                type="button"
+                className="wm-btn-secondary"
+                onClick={() => persistAndNavigate(routeRecommendation.secondaryRoute)}
+              >
+                Save and open {getRouteLabel(routeRecommendation.secondaryRoute)}
+              </button>
+              <Link to={WM_ROUTES.guru} className="wm-btn-secondary">
+                Ask Guru
+              </Link>
             </div>
-          </div>
-        )}
-      </section>
+          </section>
+        </aside>
+      </div>
     </div>
-  );
-
-  return (
-    <SplitWorkspaceFrame
-      title="Import Intake"
-      subtitle="Keep capture on the left and move supporting guidance into the right pane so the page stays clean and the next action stays obvious."
-      leftTitle="Project Input"
-      rightTitle="Support"
-      left={left}
-      right={right}
-      top={
-        <div className="wm-workspace-action-row">
-          <button type="button" className="wm-btn-secondary" onClick={() => persistAndNavigate(modeConfig.secondaryRoute)}>
-            Save and open {summary.supportingRoute}
-          </button>
-          <button type="button" className="wm-btn-primary" onClick={() => persistAndNavigate(modeConfig.nextRoute)}>
-            Save and open {getRouteLabel(modeConfig.nextRoute)}
-          </button>
-        </div>
-      }
-    />
   );
 }

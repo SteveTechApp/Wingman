@@ -1,0 +1,520 @@
+:root {
+  --wm-theme-control-bg: rgba(255, 255, 255, 0.72);
+  --wm-theme-control-border: rgba(43, 37, 30, 0.08);
+  --wm-theme-control-text: #2d2823;
+  --wm-theme-control-muted: rgba(106, 99, 92, 0.82);
+  --wm-theme-control-hover: rgba(255, 255, 255, 0.96);
+  --wm-theme-control-active-bg: linear-gradient(180deg, #1d1b18 0%, #11100e 100%);
+  --wm-theme-control-active-text: #fbf6f0;
+  --wm-theme-control-shadow: 0 14px 28px rgba(47, 32, 18, 0.08);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --wm-shell-bg: #06111e;
+  --wm-shell-bg-2: #0b1f37;
+  --wm-panel: rgba(9, 18, 33, 0.88);
+  --wm-panel-2: rgba(12, 24, 44, 0.94);
+  --wm-border: rgba(148, 163, 184, 0.16);
+  --wm-border-strong: rgba(96, 165, 250, 0.28);
+  --wm-text: #eff6ff;
+  --wm-text-soft: rgba(226, 232, 240, 0.8);
+  --wm-text-muted: rgba(191, 206, 223, 0.62);
+  --wm-shadow-sm: 0 18px 40px rgba(2, 8, 23, 0.22);
+  --wm-shadow-md: 0 28px 80px rgba(2, 8, 23, 0.34);
+
+  --wm-enterprise-surface: var(--wm-surface);
+  --wm-enterprise-surface-soft: var(--wm-surface);
+  --wm-enterprise-surface-raised: var(--wm-surface);
+  --wm-enterprise-border: rgba(142, 170, 208, 0.18);
+  --wm-enterprise-border-strong: rgba(142, 170, 208, 0.28);
+  --wm-enterprise-text: #f5f8fc;
+  --wm-enterprise-text-soft: rgba(224, 232, 242, 0.82);
+  --wm-enterprise-text-dim: rgba(194, 207, 224, 0.68);
+  --wm-enterprise-shadow: 0 18px 40px rgba(4, 11, 20, 0.18);
+
+  --wm-studio-canvas: #081321;
+  --wm-studio-canvas-strong: #0b1626;
+  --wm-studio-surface: rgba(10, 19, 33, 0.84);
+  --wm-studio-surface-strong: rgba(12, 22, 38, 0.96);
+  --wm-studio-surface-soft: rgba(12, 24, 40, 0.7);
+  --wm-studio-line: rgba(148, 163, 184, 0.14);
+  --wm-studio-line-soft: rgba(148, 163, 184, 0.08);
+  --wm-studio-text: #eff6ff;
+  --wm-studio-text-soft: rgba(226, 232, 240, 0.82);
+  --wm-studio-text-muted: rgba(191, 206, 223, 0.68);
+  --wm-studio-accent: #38d7cc;
+  --wm-studio-shadow: 0 28px 70px rgba(2, 8, 23, 0.32);
+  --wm-studio-shadow-soft: 0 14px 30px rgba(2, 8, 23, 0.2);
+
+  --wm-shell-border: rgba(137, 197, 216, 0.12);
+  --wm-shell-border-strong: rgba(89, 227, 223, 0.18);
+  --wm-shell-text: #ecf7fb;
+  --wm-shell-text-soft: rgba(236, 247, 251, 0.72);
+  --wm-shell-text-dim: rgba(236, 247, 251, 0.48);
+  --wm-shell-accent: #41e7dd;
+  --wm-shell-accent-2: #74f3d8;
+  --wm-shell-bg-top: rgba(4, 12, 22, 0.88);
+  --wm-shell-bg-side: rgba(6, 14, 24, 0.8);
+  --wm-shell-panel: linear-gradient(180deg, rgba(10, 24, 38, 0.92) 0%, rgba(5, 14, 24, 0.94) 100%);
+  --wm-shell-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+
+  --wm-surface-0: #071321;
+  --wm-surface-1: #0a1728;
+  --wm-surface-2: #0d1c30;
+  --wm-surface-3: #10223a;
+  --wm-border-soft: rgba(123, 169, 234, 0.12);
+  --wm-border-strong: rgba(123, 169, 234, 0.2);
+  --wm-text-strong: #f4f8ff;
+  --wm-accent: #4ea1ff;
+  --wm-accent-2: #2c6fff;
+  --wm-success: #7de0ab;
+  --wm-warn: #ffb067;
+  --wm-shadow-1:
+    0 10px 30px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  --wm-shadow-2:
+    0 16px 38px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+
+  --wm-theme-control-bg: rgba(8, 20, 34, 0.82);
+  --wm-theme-control-border: rgba(148, 163, 184, 0.14);
+  --wm-theme-control-text: #e8eef7;
+  --wm-theme-control-muted: rgba(191, 206, 223, 0.76);
+  --wm-theme-control-hover: rgba(59, 130, 246, 0.12);
+  --wm-theme-control-active-bg: linear-gradient(135deg, #4f8cff, #22d3ee);
+  --wm-theme-control-active-text: #04111d;
+  --wm-theme-control-shadow: 0 14px 28px rgba(2, 8, 23, 0.18);
+}
+
+.wm-theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--wm-theme-control-border);
+  background: var(--wm-theme-control-bg);
+  box-shadow: var(--wm-theme-control-shadow);
+}
+
+.wm-theme-switcher__button {
+  appearance: none;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--wm-theme-control-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    color 140ms ease,
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.wm-theme-switcher__button:hover {
+  transform: translateY(-1px);
+  background: var(--wm-theme-control-hover);
+  color: var(--wm-theme-control-text);
+}
+
+.wm-theme-switcher__button.is-active {
+  background: var(--wm-theme-control-active-bg);
+  color: var(--wm-theme-control-active-text);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.16);
+}
+
+.wm-theme-switcher__button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.16);
+}
+
+:root[data-theme="light"] .wm-auth-shell,
+:root[data-theme="light"] .wm-public-landing-page {
+  background:
+    radial-gradient(circle at top left, rgba(18, 200, 186, 0.08), transparent 24%),
+    radial-gradient(circle at top right, rgba(215, 166, 116, 0.08), transparent 20%),
+    linear-gradient(180deg, #faf7f2 0%, #f0ebe4 100%) !important;
+  color: #1f1b17 !important;
+}
+
+:root[data-theme="light"] .wm-auth-card,
+:root[data-theme="light"] .wm-public-landing-page__panel,
+:root[data-theme="light"] .wm-public-landing-page__feature,
+:root[data-theme="light"] .wm-public-landing-page__step {
+  border: 1px solid rgba(43, 37, 30, 0.08) !important;
+  background: var(--wm-surface) !important;
+  box-shadow: 0 18px 38px rgba(47, 32, 18, 0.08) !important;
+}
+
+:root[data-theme="light"] .wm-auth-card__title,
+:root[data-theme="light"] .wm-public-landing-page__title,
+:root[data-theme="light"] .wm-public-landing-page__side-title,
+:root[data-theme="light"] .wm-public-landing-page__brand-title {
+  color: #201b17 !important;
+}
+
+:root[data-theme="light"] .wm-auth-card__copy,
+:root[data-theme="light"] .wm-auth-label,
+:root[data-theme="light"] .wm-public-landing-page__copy,
+:root[data-theme="light"] .wm-public-landing-page__feature-copy,
+:root[data-theme="light"] .wm-public-landing-page__side-copy,
+:root[data-theme="light"] .wm-public-landing-page__step-copy,
+:root[data-theme="light"] .wm-public-landing-page__brand-subtitle {
+  color: rgba(94, 88, 81, 0.82) !important;
+}
+
+:root[data-theme="light"] .wm-auth-input {
+  background: #fffdf9 !important;
+  color: #1f1b17 !important;
+  border-color: rgba(43, 37, 30, 0.12) !important;
+}
+
+:root[data-theme="light"] .wm-auth-input::placeholder {
+  color: rgba(118, 111, 104, 0.76) !important;
+  -webkit-text-fill-color: rgba(118, 111, 104, 0.76) !important;
+}
+
+:root[data-theme="light"] .wm-auth-input,
+:root[data-theme="light"] .wm-auth-input:focus,
+:root[data-theme="light"] .wm-auth-input:active,
+:root[data-theme="light"] .wm-auth-input:hover {
+  color: #1f1b17 !important;
+  -webkit-text-fill-color: #1f1b17 !important;
+  caret-color: #1f1b17 !important;
+}
+
+:root[data-theme="light"] .wm-auth-input:-webkit-autofill,
+:root[data-theme="light"] .wm-auth-input:-webkit-autofill:hover,
+:root[data-theme="light"] .wm-auth-input:-webkit-autofill:focus,
+:root[data-theme="light"] .wm-auth-input:-webkit-autofill:active {
+  -webkit-text-fill-color: #1f1b17 !important;
+  caret-color: #1f1b17 !important;
+  box-shadow: 0 0 0 1000px #fffdf9 inset !important;
+  -webkit-box-shadow: 0 0 0 1000px #fffdf9 inset !important;
+}
+
+:root[data-theme="light"] .wm-auth-btn--secondary,
+:root[data-theme="light"] .wm-public-landing-page__button--secondary {
+  border-color: rgba(43, 37, 30, 0.12) !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  color: #2d2823 !important;
+}
+
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] .wm-auth-shell,
+:root[data-theme="dark"] .wm-public-landing-page {
+  color: var(--wm-text) !important;
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 26%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 24%),
+    linear-gradient(180deg, #04111f 0%, #07162a 55%, #0a1c35 100%) !important;
+}
+
+:root[data-theme="dark"] :is(h1, h2, h3, h4, h5, h6),
+:root[data-theme="dark"] .wm-topbar__title,
+:root[data-theme="dark"] .wm-page-title,
+:root[data-theme="dark"] .wm-frame__title,
+:root[data-theme="dark"] .wm-section-title,
+:root[data-theme="dark"] .wm-block__title,
+:root[data-theme="dark"] .wm-tool-card__title,
+:root[data-theme="dark"] .wm-product-card__title,
+:root[data-theme="dark"] .wm-dashboard-start-card__title,
+:root[data-theme="dark"] .wm-workspace-card__title,
+:root[data-theme="dark"] .wm-product-intelligence-page__record-title,
+:root[data-theme="dark"] .wm-public-landing-page__title,
+:root[data-theme="dark"] .wm-public-landing-page__side-title,
+:root[data-theme="dark"] .wm-public-landing-page__brand-title,
+:root[data-theme="dark"] .wm-split-page__title {
+  color: #f8fbff !important;
+}
+
+:root[data-theme="dark"] p,
+:root[data-theme="dark"] .wm-topbar__subtitle,
+:root[data-theme="dark"] .wm-brand__subtitle,
+:root[data-theme="dark"] .wm-nav__title,
+:root[data-theme="dark"] .wm-nav__item-hint,
+:root[data-theme="dark"] .wm-page-copy,
+:root[data-theme="dark"] .wm-body,
+:root[data-theme="dark"] .wm-body-sm,
+:root[data-theme="dark"] .wm-section-copy,
+:root[data-theme="dark"] .wm-dashboard-start-card__copy,
+:root[data-theme="dark"] .wm-tool-card__copy,
+:root[data-theme="dark"] .wm-tool-card__cta,
+:root[data-theme="dark"] .wm-flow-card__label,
+:root[data-theme="dark"] .wm-product-card__copy,
+:root[data-theme="dark"] .wm-product-card__meta,
+:root[data-theme="dark"] .wm-focus-guide__copy,
+:root[data-theme="dark"] .wm-focus-guide__note,
+:root[data-theme="dark"] .wm-stat-card__meta,
+:root[data-theme="dark"] .wm-workspace-card__copy,
+:root[data-theme="dark"] .wm-workspace-list-item__copy,
+:root[data-theme="dark"] .wm-workspace-prose,
+:root[data-theme="dark"] .wm-workspace-empty,
+:root[data-theme="dark"] .wm-product-intelligence-page__meta-note,
+:root[data-theme="dark"] .wm-public-landing-page__copy,
+:root[data-theme="dark"] .wm-public-landing-page__side-copy,
+:root[data-theme="dark"] .wm-public-landing-page__feature-copy,
+:root[data-theme="dark"] .wm-public-landing-page__step-copy,
+:root[data-theme="dark"] .wm-public-landing-page__brand-subtitle,
+:root[data-theme="dark"] .wm-split-page__subtitle {
+  color: rgba(226, 232, 240, 0.78) !important;
+}
+
+:root[data-theme="dark"] .wm-topbar__kicker,
+:root[data-theme="dark"] .wm-topbar__eyebrow,
+:root[data-theme="dark"] .wm-page-kicker,
+:root[data-theme="dark"] .wm-focus-guide__title,
+:root[data-theme="dark"] .wm-frame__eyebrow,
+:root[data-theme="dark"] .wm-stat-card__label,
+:root[data-theme="dark"] .wm-dashboard-start-card__eyebrow,
+:root[data-theme="dark"] .wm-workspace-label,
+:root[data-theme="dark"] .wm-workspace-list-item__eyebrow,
+:root[data-theme="dark"] .wm-split-page__eyebrow,
+:root[data-theme="dark"] .wm-guru-fab__eyebrow,
+:root[data-theme="dark"] .wm-guru-fab__suggestion-title,
+:root[data-theme="dark"] .wm-public-landing-page__eyebrow {
+  color: #7dd3fc !important;
+}
+
+:root[data-theme="dark"] .wm-shell-root,
+:root[data-theme="dark"] .wm-reference-shell,
+:root[data-theme="dark"] .wm-shell-root .wm-main,
+:root[data-theme="dark"] .wm-reference-shell__main,
+:root[data-theme="dark"] .wm-shell-root .wm-main__inner {
+  color: var(--wm-text) !important;
+  background: transparent !important;
+}
+
+:root[data-theme="dark"] .wm-topbar,
+:root[data-theme="dark"] .wm-sidebar,
+:root[data-theme="dark"] .wm-shell-nav-column,
+:root[data-theme="dark"] .wm-reference-shell__nav {
+  border-color: rgba(125, 211, 252, 0.1) !important;
+  background: var(--wm-surface) !important;
+  box-shadow: 0 18px 40px rgba(2, 8, 23, 0.2) !important;
+  backdrop-filter: blur(18px);
+}
+
+:root[data-theme="dark"] .wm-topbar__search,
+:root[data-theme="dark"] .wm-topbar__iconButton,
+:root[data-theme="dark"] .wm-sidebar__helper {
+  border-color: rgba(148, 163, 184, 0.14) !important;
+  background: rgba(8, 18, 33, 0.82) !important;
+  color: #e8eef7 !important;
+}
+
+:root[data-theme="dark"] .wm-topbar__status {
+  border-color: rgba(89, 227, 223, 0.18) !important;
+  background: rgba(21, 88, 91, 0.16) !important;
+  color: #d8ffff !important;
+}
+
+:root[data-theme="dark"] .wm-brand__mark,
+:root[data-theme="dark"] .wm-public-landing-page__brand-mark {
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.26), transparent 36%),
+    linear-gradient(180deg, #2563eb 0%, #0f172a 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  box-shadow: 0 18px 40px rgba(2, 8, 23, 0.3) !important;
+}
+
+:root[data-theme="dark"] .wm-pill-button,
+:root[data-theme="dark"] .wm-btn,
+:root[data-theme="dark"] .wm-btn-secondary,
+:root[data-theme="dark"] .wm-chip,
+:root[data-theme="dark"] .wm-nav__item,
+:root[data-theme="dark"] .wm-projects-page__icon-btn,
+:root[data-theme="dark"] .wm-guru-fab__toggle-pill,
+:root[data-theme="dark"] .wm-workspace-tab,
+:root[data-theme="dark"] .wm-workspace-tag,
+:root[data-theme="dark"] .wm-product-intelligence-page__toggle,
+:root[data-theme="dark"] .wm-auth-btn--secondary,
+:root[data-theme="dark"] .wm-public-landing-page__button--secondary {
+  border: 1px solid rgba(148, 163, 184, 0.14) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #e8eef7 !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .wm-pill-button:hover,
+:root[data-theme="dark"] .wm-btn:hover,
+:root[data-theme="dark"] .wm-btn-secondary:hover,
+:root[data-theme="dark"] .wm-chip:hover,
+:root[data-theme="dark"] .wm-nav__item:hover,
+:root[data-theme="dark"] .wm-projects-page__icon-btn:hover,
+:root[data-theme="dark"] .wm-workspace-tab:hover,
+:root[data-theme="dark"] .wm-product-intelligence-page__toggle:hover,
+:root[data-theme="dark"] .wm-topbar__iconButton:hover {
+  border-color: rgba(96, 165, 250, 0.24) !important;
+  background: rgba(59, 130, 246, 0.12) !important;
+}
+
+:root[data-theme="dark"] .wm-btn-primary,
+:root[data-theme="dark"] .wm-pill-button--active,
+:root[data-theme="dark"] .wm-nav__item--active,
+:root[data-theme="dark"] .wm-workspace-tab--active,
+:root[data-theme="dark"] .wm-public-landing-page__button--primary,
+:root[data-theme="dark"] .wm-auth-btn--primary {
+  border: 1px solid transparent !important;
+  background: linear-gradient(135deg, #4f8cff, #22d3ee) !important;
+  color: #04111d !important;
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.28) !important;
+}
+
+:root[data-theme="dark"] .wm-chip--active,
+:root[data-theme="dark"] .wm-workspace-list-item--active,
+:root[data-theme="dark"] .wm-product-intelligence-page__status-region.is-good,
+:root[data-theme="dark"] .wm-workspace-tag {
+  border-color: rgba(125, 211, 252, 0.24) !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+  color: #dff9ff !important;
+}
+
+:root[data-theme="dark"] .wm-input-dark,
+:root[data-theme="dark"] .wm-textarea-dark,
+:root[data-theme="dark"] .wm-form-input,
+:root[data-theme="dark"] .wm-select-dark,
+:root[data-theme="dark"] .wm-split-column__body textarea,
+:root[data-theme="dark"] .wm-split-column__body input,
+:root[data-theme="dark"] .wm-split-column__body select,
+:root[data-theme="dark"] .wm-auth-input {
+  background: rgba(6, 14, 24, 0.84) !important;
+  color: #eff6ff !important;
+  border: 1px solid rgba(148, 163, 184, 0.14) !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .wm-input-dark::placeholder,
+:root[data-theme="dark"] .wm-textarea-dark::placeholder,
+:root[data-theme="dark"] .wm-form-input::placeholder,
+:root[data-theme="dark"] .wm-auth-input::placeholder {
+  color: rgba(191, 206, 223, 0.62) !important;
+}
+
+:root[data-theme="dark"] .wm-auth-input,
+:root[data-theme="dark"] .wm-auth-input:focus,
+:root[data-theme="dark"] .wm-auth-input:active,
+:root[data-theme="dark"] .wm-auth-input:hover {
+  color: #eff6ff !important;
+  -webkit-text-fill-color: #eff6ff !important;
+  caret-color: #eff6ff !important;
+}
+
+:root[data-theme="dark"] .wm-auth-input:-webkit-autofill,
+:root[data-theme="dark"] .wm-auth-input:-webkit-autofill:hover,
+:root[data-theme="dark"] .wm-auth-input:-webkit-autofill:focus,
+:root[data-theme="dark"] .wm-auth-input:-webkit-autofill:active {
+  -webkit-text-fill-color: #eff6ff !important;
+  caret-color: #eff6ff !important;
+  box-shadow: 0 0 0 1000px rgba(6, 14, 24, 0.92) inset !important;
+  -webkit-box-shadow: 0 0 0 1000px rgba(6, 14, 24, 0.92) inset !important;
+}
+
+:root[data-theme="dark"] .wm-input-dark:focus,
+:root[data-theme="dark"] .wm-textarea-dark:focus,
+:root[data-theme="dark"] .wm-form-input:focus,
+:root[data-theme="dark"] .wm-split-column__body textarea:focus,
+:root[data-theme="dark"] .wm-split-column__body input:focus,
+:root[data-theme="dark"] .wm-split-column__body select:focus,
+:root[data-theme="dark"] .wm-auth-input:focus {
+  border-color: rgba(56, 189, 248, 0.32) !important;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14) !important;
+}
+
+:root[data-theme="dark"] .wm-fit-page__hero,
+:root[data-theme="dark"] .wm-frame__hero,
+:root[data-theme="dark"] .wm-surface-card,
+:root[data-theme="dark"] .wm-product-card,
+:root[data-theme="dark"] .wm-block,
+:root[data-theme="dark"] .wm-projects-page__row,
+:root[data-theme="dark"] .wm-tool-card,
+:root[data-theme="dark"] .wm-flow-card,
+:root[data-theme="dark"] .wm-dashboard-start-card,
+:root[data-theme="dark"] .wm-stat-card,
+:root[data-theme="dark"] .wm-dashboard-empty,
+:root[data-theme="dark"] .wm-guru-fab__panel,
+:root[data-theme="dark"] .wm-guru-fab__summary,
+:root[data-theme="dark"] .wm-guru-fab__suggestion,
+:root[data-theme="dark"] .wm-public-landing-page__panel,
+:root[data-theme="dark"] .wm-public-landing-page__feature,
+:root[data-theme="dark"] .wm-public-landing-page__step,
+:root[data-theme="dark"] .wm-workspace-card,
+:root[data-theme="dark"] .wm-workspace-list-item,
+:root[data-theme="dark"] .wm-workspace-metric,
+:root[data-theme="dark"] .wm-workspace-table-wrap,
+:root[data-theme="dark"] .wm-product-intelligence-page__status-region,
+:root[data-theme="dark"] .wm-split-column {
+  border: 1px solid rgba(123, 169, 234, 0.14) !important;
+  background: var(--wm-surface) !important;
+  box-shadow: 0 22px 52px rgba(2, 8, 23, 0.24) !important;
+}
+
+:root[data-theme="dark"] .wm-workspace-card--muted,
+:root[data-theme="dark"] .wm-workspace-metric,
+:root[data-theme="dark"] .wm-product-intelligence-page__status-region,
+:root[data-theme="dark"] .wm-split-column__body .wm-next-step,
+:root[data-theme="dark"] .wm-split-column__body .wm-start-step {
+  background: var(--wm-surface) !important;
+}
+
+:root[data-theme="dark"] .wm-focus-guide,
+:root[data-theme="dark"] .wm-focus-guide__step,
+:root[data-theme="dark"] .wm-surface-card--soft,
+:root[data-theme="dark"] .wm-dashboard-start-card__icon,
+:root[data-theme="dark"] .wm-tool-card__badge,
+:root[data-theme="dark"] .wm-flow-card__step {
+  border-color: rgba(56, 189, 248, 0.18) !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+  color: #dff9ff !important;
+}
+
+:root[data-theme="dark"] .wm-split-column__header {
+  border-bottom: 1px solid rgba(123, 169, 234, 0.14) !important;
+}
+
+:root[data-theme="dark"] .wm-split-column__header h2,
+:root[data-theme="dark"] .wm-workspace-metric strong,
+:root[data-theme="dark"] .wm-workspace-list-item__title,
+:root[data-theme="dark"] .wm-workspace-prose,
+:root[data-theme="dark"] .wm-workspace-table td,
+:root[data-theme="dark"] .wm-workspace-table th,
+:root[data-theme="dark"] .wm-product-intelligence-page__status-region,
+:root[data-theme="dark"] .wm-training-hub-page__lesson-bullets {
+  color: #eff6ff !important;
+}
+
+:root[data-theme="dark"] .wm-workspace-metric span,
+:root[data-theme="dark"] .wm-workspace-list-item__eyebrow {
+  color: rgba(191, 206, 223, 0.72) !important;
+}
+
+:root[data-theme="dark"] .wm-workspace-list-item:hover {
+  background: var(--wm-surface) !important;
+  box-shadow: 0 20px 40px rgba(2, 8, 23, 0.24) !important;
+}
+
+@media (max-width: 900px) {
+  .wm-theme-switcher {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .wm-theme-switcher__button {
+    flex: 1 1 0;
+    justify-content: center;
+    padding-inline: 10px;
+  }
+}

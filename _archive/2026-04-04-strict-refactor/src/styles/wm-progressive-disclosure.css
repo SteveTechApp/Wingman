@@ -1,0 +1,126 @@
+/* =========================================
+   Wingman Progressive Disclosure System
+   ========================================= */
+
+.wm-disclosure {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(148,163,184,0.10);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.02);
+  overflow: hidden;
+}
+
+.wm-disclosure summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #f8fafc;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.wm-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.wm-disclosure summary::after {
+  content: "Show";
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.wm-disclosure[open] summary::after {
+  content: "Hide";
+}
+
+.wm-disclosure__body {
+  padding: 0 14px 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.wm-support-muted {
+  opacity: 0.82;
+}
+
+.wm-support-muted .wm-panel,
+.wm-support-muted .wm-card,
+.wm-support-muted .wm-workspace-card {
+  background: rgba(255,255,255,0.02) !important;
+  box-shadow: none !important;
+}
+
+.wm-empty-soft,
+.wm-workspace-empty {
+  padding: 12px 14px !important;
+  border-radius: 14px !important;
+  border: 1px dashed rgba(148,163,184,0.14) !important;
+  background: rgba(255,255,255,0.02) !important;
+  color: #93a4ba !important;
+  font-size: 0.84rem !important;
+  line-height: 1.5 !important;
+}
+
+.wm-helper-inline {
+  font-size: 0.82rem;
+  color: #93a4ba;
+  line-height: 1.45;
+}
+
+.wm-first-view-priority {
+  order: -1;
+}
+
+.wm-secondary-block {
+  opacity: 0.92;
+}
+
+.wm-secondary-block .wm-section__title {
+  font-size: 0.96rem !important;
+}
+
+.wm-secondary-block .wm-section__subtitle {
+  font-size: 0.82rem !important;
+}
+
+.wm-collapsible-list {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-collapsible-list > * {
+  margin: 0 !important;
+}
+
+/* Reduce weight of long support lists by default */
+.wm-long-support .wm-list-row__text,
+.wm-long-support .wm-workspace-list-item__copy {
+  color: #9aa8bb;
+  font-size: 0.83rem;
+  line-height: 1.48;
+}
+
+/* Better spacing inside open details */
+.wm-disclosure .wm-list-row {
+  padding: 8px 0 !important;
+}
+
+/* Mobile friendliness */
+@media (max-width: 900px) {
+  .wm-disclosure summary {
+    padding: 11px 12px;
+    font-size: 0.88rem;
+  }
+
+  .wm-disclosure__body {
+    padding: 0 12px 12px;
+  }
+}

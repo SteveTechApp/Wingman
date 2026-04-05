@@ -1,257 +1,308 @@
-import { useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { writeTemplateSeed, type TemplateSeed, type TierKey } from "@/app/schema/templateSeed";
-import SplitWorkspaceFrame from "@/components/workspace/SplitWorkspaceFrame";
+import { clearTemplateSeed, writeTemplateSeed } from "@/app/schema/templateSeed";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
+import {
+  buildWorkbenchTemplateSeed,
+  ROOM_TEMPLATE_CATEGORY_ORDER,
+  ROOM_TEMPLATE_LIBRARY,
+  roomTemplateSearchBlob,
+  type RoomTemplateCategory,
+} from "./roomTemplateLibrary";
+import "./templates-page.css";
 
-type TemplateView = "visual" | "bom" | "sales";
-type TemplateTier = "Bronze" | "Silver" | "Gold";
+type CategoryFilter = "All Rooms" | RoomTemplateCategory;
 
-type TemplateCard = {
-  id: string;
-  name: string;
-  application: string;
-  tier: TemplateTier;
-  summary: string;
-  visual: string[];
-  bom: string[];
-  sales: string[];
-};
-
-const templates: TemplateCard[] = [
-  {
-    id: "meeting-bronze",
-    name: "Small Meeting Room",
-    application: "Presentation / UC",
-    tier: "Bronze",
-    summary: "Entry-level meeting room template with simple switching and minimal infrastructure.",
-    visual: ["Single display", "Simple switching", "Short cable runs"],
-    bom: ["Presentation switcher", "Display connectivity", "Basic control"],
-    sales: ["Fast to quote", "Low cost entry", "Ideal for small rooms"],
-  },
-  {
-    id: "meeting-silver",
-    name: "Medium Collaboration Room",
-    application: "Presentation / UC",
-    tier: "Silver",
-    summary: "Balanced room with stronger connectivity and better UX.",
-    visual: ["Improved workflow", "Better source flexibility", "Structured cabling"],
-    bom: ["Apollo platform", "USB extension", "Infrastructure"],
-    sales: ["Strong upsell", "Better UX", "Future-ready"],
-  },
-  {
-    id: "education-gold",
-    name: "Training / Learning Space",
-    application: "Education",
-    tier: "Gold",
-    summary: "Scalable design for larger or more complex spaces.",
-    visual: ["Instructor-led control", "Long distance transport", "Expandable"],
-    bom: ["Matrix / AVoIP", "Transport layer", "Control + audio"],
-    sales: ["High value", "Consultant-ready", "Scalable"],
-  },
-];
-
-function toTierKey(value: TemplateTier): TierKey {
-  return value.toLowerCase() as TierKey;
+function toolLabel(path: string): string {
+  if (path === WM_ROUTES.roomWizard) return "Room Wizard";
+  if (path === WM_ROUTES.videowall) return "Video Wall Planner";
+  if (path === WM_ROUTES.proposals) return "Proposal Builder";
+  return "Product Catalogue";
 }
 
-function buildRecommendedFamilies(template: TemplateCard): string[] {
-  if (template.tier === "Gold") return ["AVoIP", "Matrix"];
-  if (template.tier === "Silver") return ["Apollo", "USB Extension"];
-  return ["Apollo"];
-}
-
-function buildRecommendedTool(template: TemplateCard): string {
-  if (template.tier === "Gold") return WM_ROUTES.proposal;
-  return WM_ROUTES.roomWizard;
-}
-
-function buildTemplateSeed(template: TemplateCard): TemplateSeed {
-  return {
-    source: "template-workbench",
-    verticalMarket: {
-      id: template.application.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-      name: template.application,
-      summary: `${template.application} template starting point.`,
-    },
-    roomType: {
-      id: template.id,
-      name: template.name,
-      summary: template.summary,
-      useCases: template.visual,
-    },
-    tier: {
-      id: toTierKey(template.tier),
-      label: template.tier,
-      summary: template.summary,
-      positioning: template.sales[0] ?? template.summary,
-      performance: template.visual[0] ?? template.summary,
-      commercialNote: template.sales.join("; "),
-    },
-    includedSystems: template.bom,
-    uplift: template.sales,
-    assumptions: template.visual,
-    recommendedFamilies: buildRecommendedFamilies(template),
-    recommendedTool: buildRecommendedTool(template),
-    solutionSummary: template.summary,
-    ioProfile: {
-      sourceCount: template.tier === "Gold" ? 4 : template.tier === "Silver" ? 3 : 2,
-      displayCount: template.tier === "Gold" ? 2 : 1,
-    },
-    projectName: `${template.name} Project`,
-    createdAt: new Date().toISOString(),
-  };
+function scaleLabel(tier: "bronze" | "silver" | "gold"): string {
+  if (tier === "bronze") return "Compact starter";
+  if (tier === "gold") return "Complex room";
+  return "Balanced room";
 }
 
 export default function TemplatesPage() {
   const navigate = useNavigate();
-  const [activeTemplateId, setActiveTemplateId] = useState(templates[0].id);
-  const [view, setView] = useState<TemplateView>("visual");
-  const [tierFilter, setTierFilter] = useState<"All" | TemplateTier>("All");
+  const [category, setCategory] = useState<CategoryFilter>("All Rooms");
+  const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState(ROOM_TEMPLATE_LIBRARY[0]?.id ?? "");
+  const deferredQuery = useDeferredValue(query.trim().toLowerCase());
 
   const visibleTemplates = useMemo(() => {
-    return templates.filter((template) => tierFilter === "All" || template.tier === tierFilter);
-  }, [tierFilter]);
+    return ROOM_TEMPLATE_LIBRARY.filter((template) => {
+      if (category !== "All Rooms" && template.category !== category) {
+        return false;
+      }
+
+      if (!deferredQuery) {
+        return true;
+      }
+
+      return roomTemplateSearchBlob(template).includes(deferredQuery);
+    });
+  }, [category, deferredQuery]);
+
+  useEffect(() => {
+    if (visibleTemplates.length === 0) return;
+    if (!visibleTemplates.some((template) => template.id === selectedId)) {
+      setSelectedId(visibleTemplates[0]!.id);
+    }
+  }, [selectedId, visibleTemplates]);
 
   const activeTemplate =
-    visibleTemplates.find((template) => template.id === activeTemplateId) ?? visibleTemplates[0];
+    visibleTemplates.find((template) => template.id === selectedId) ?? visibleTemplates[0] ?? null;
 
-  const items =
-    view === "visual"
-      ? activeTemplate.visual
-      : view === "bom"
-        ? activeTemplate.bom
-        : activeTemplate.sales;
-
-  function startFromTemplate() {
-    const seed = buildTemplateSeed(activeTemplate);
-    writeTemplateSeed(seed);
+  function loadTemplateStarter() {
+    if (!activeTemplate) return;
+    writeTemplateSeed(buildWorkbenchTemplateSeed(activeTemplate));
     navigate(WM_ROUTES.projectLauncher);
   }
 
-  const left = (
-    <div className="wm-workspace-stack">
-      <div className="wm-start-step">
-        Pick the closest room pattern first, then move into the launcher with the template already attached.
-      </div>
-
-      <section className="wm-workspace-card">
-        <div className="wm-workspace-card__header">
-          <h3 className="wm-workspace-card__title">Filter by tier</h3>
-          <p className="wm-workspace-card__copy">Use a smaller list so the user only compares a few realistic starts.</p>
-        </div>
-
-        <div className="wm-workspace-tag-row">
-          {["All", "Bronze", "Silver", "Gold"].map((tier) => (
-            <button
-              key={tier}
-              type="button"
-              className={`wm-workspace-tab${tierFilter === tier ? " wm-workspace-tab--active" : ""}`}
-              onClick={() => setTierFilter(tier as "All" | TemplateTier)}
-            >
-              {tier}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="wm-workspace-card">
-        <div className="wm-workspace-card__header">
-          <h3 className="wm-workspace-card__title">Template browser</h3>
-          <p className="wm-workspace-card__copy">Select one template, then keep the supporting detail in tabs on the right.</p>
-        </div>
-
-        <div className="wm-workspace-list">
-          {visibleTemplates.map((template) => (
-            <button
-              key={template.id}
-              type="button"
-              className={`wm-workspace-list-item${template.id === activeTemplate.id ? " wm-workspace-list-item--active" : ""}`}
-              onClick={() => setActiveTemplateId(template.id)}
-            >
-              <span className="wm-workspace-list-item__eyebrow">{template.tier}</span>
-              <span className="wm-workspace-list-item__title">{template.name}</span>
-              <span className="wm-workspace-list-item__copy">{template.application}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
-
-  const right = (
-    <div className="wm-workspace-stack">
-      <section className="wm-workspace-card">
-        <div className="wm-workspace-card__header">
-          <span className="wm-workspace-list-item__eyebrow">{activeTemplate.tier}</span>
-          <h3 className="wm-workspace-card__title">{activeTemplate.name}</h3>
-          <p className="wm-workspace-card__copy">{activeTemplate.summary}</p>
-        </div>
-
-        <div className="wm-workspace-tab-row">
-          <button
-            type="button"
-            className={`wm-workspace-tab${view === "visual" ? " wm-workspace-tab--active" : ""}`}
-            onClick={() => setView("visual")}
-          >
-            Visual
-          </button>
-          <button
-            type="button"
-            className={`wm-workspace-tab${view === "bom" ? " wm-workspace-tab--active" : ""}`}
-            onClick={() => setView("bom")}
-          >
-            BOM
-          </button>
-          <button
-            type="button"
-            className={`wm-workspace-tab${view === "sales" ? " wm-workspace-tab--active" : ""}`}
-            onClick={() => setView("sales")}
-          >
-            Sales
-          </button>
-        </div>
-
-        <div className="wm-workspace-list">
-          {items.map((item) => (
-            <div key={item} className="wm-workspace-list-item">
-              <span className="wm-workspace-list-item__title">{item}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="wm-workspace-action-row">
-          <button type="button" className="wm-btn-primary" onClick={startFromTemplate}>
-            Start from this template
-          </button>
-          <button type="button" className="wm-btn-secondary" onClick={() => navigate(WM_ROUTES.catalog)}>
-            Open catalogue
-          </button>
-        </div>
-      </section>
-
-      <section className="wm-workspace-card">
-        <div className="wm-workspace-metric">
-          <span>Recommended next tool</span>
-          <strong>{buildRecommendedTool(activeTemplate)}</strong>
-        </div>
-      </section>
-    </div>
-  );
+  function startBlankProject() {
+    clearTemplateSeed();
+    navigate(WM_ROUTES.projectLauncher);
+  }
 
   return (
-    <SplitWorkspaceFrame
-      title="Templates"
-      subtitle="Keep the browser on the left and the supporting layer on the right so users can compare one template at a time without filling the page."
-      leftTitle="Template Browser"
-      rightTitle="Template Detail"
-      left={left}
-      right={right}
-      top={
-        <button type="button" className="wm-btn-primary" onClick={startFromTemplate}>
-          Start from selected template
-        </button>
-      }
-    />
+    <div className="wm-templates-page">
+      <section className="wm-templates-page__hero">
+        <div className="wm-templates-page__hero-copy">
+          <div className="wm-templates-page__eyebrow">Templates</div>
+          <h1>Choose a room type.</h1>
+          <p>
+            Start with the room or venue the customer actually recognizes. Wingman will preload the likely sources,
+            outputs, transport assumptions, audio expectations, control style, and WyreStorm direction from there.
+          </p>
+        </div>
+
+        <div className="wm-templates-page__hero-metrics">
+          <div className="wm-templates-page__metric">
+            <span>Room starters</span>
+            <strong>{ROOM_TEMPLATE_LIBRARY.length}</strong>
+          </div>
+          <div className="wm-templates-page__metric">
+            <span>Sectors</span>
+            <strong>{ROOM_TEMPLATE_CATEGORY_ORDER.length - 1}</strong>
+          </div>
+          <div className="wm-templates-page__metric">
+            <span>Next step</span>
+            <strong>Project launcher</strong>
+          </div>
+        </div>
+      </section>
+
+      <section className="wm-templates-page__workspace">
+        <aside className="wm-templates-page__browser">
+          <div className="wm-templates-page__step">
+            <span className="wm-templates-page__step-number">1</span>
+            <div>
+              <h2>Pick the closest room type</h2>
+              <p>Use the room and venue pattern first. Avoid starting with products, tiers, or architecture jargon.</p>
+            </div>
+          </div>
+
+          <div className="wm-templates-page__controls">
+            <label className="wm-templates-page__search">
+              <span>Search room types</span>
+              <input
+                type="text"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Boardroom, classroom, pub, sports bar..."
+              />
+            </label>
+
+            <div className="wm-templates-page__filters">
+              {ROOM_TEMPLATE_CATEGORY_ORDER.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={
+                    option === category
+                      ? "wm-templates-page__filter wm-templates-page__filter--active"
+                      : "wm-templates-page__filter"
+                  }
+                  onClick={() => setCategory(option)}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="wm-templates-page__list-head">
+            <span>{visibleTemplates.length} matching room types</span>
+            {deferredQuery ? <button type="button" onClick={() => setQuery("")}>Clear search</button> : null}
+          </div>
+
+          {visibleTemplates.length > 0 ? (
+            <div className="wm-templates-page__list">
+              {visibleTemplates.map((template) => (
+                <button
+                  key={template.id}
+                  type="button"
+                  className={
+                    template.id === activeTemplate?.id
+                      ? "wm-templates-page__list-item wm-templates-page__list-item--active"
+                      : "wm-templates-page__list-item"
+                  }
+                  onClick={() => setSelectedId(template.id)}
+                >
+                  <div className="wm-templates-page__list-item-top">
+                    <span className="wm-templates-page__list-item-category">{template.category}</span>
+                    <span className="wm-templates-page__list-item-scale">{scaleLabel(template.templateTier)}</span>
+                  </div>
+                  <strong>{template.roomType}</strong>
+                  <p>{template.summary}</p>
+                  <div className="wm-templates-page__list-item-meta">
+                    <span>{template.ioProfile.sources}</span>
+                    <span>{template.ioProfile.outputs}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="wm-templates-page__empty">
+              <h3>No room types match that search.</h3>
+              <p>Try a broader room name like "meeting room", "classroom", or "sports bar".</p>
+            </div>
+          )}
+        </aside>
+
+        <section className="wm-templates-page__detail">
+          {activeTemplate ? (
+            <>
+              <div className="wm-templates-page__step">
+                <span className="wm-templates-page__step-number">2</span>
+                <div>
+                  <h2>Review what Wingman will preload</h2>
+                  <p>Each room starter carries realistic AV assumptions forward into the project launcher.</p>
+                </div>
+              </div>
+
+              <div className="wm-templates-page__detail-hero">
+                <div className="wm-templates-page__detail-copy">
+                  <div className="wm-templates-page__detail-kicker">
+                    <span>{activeTemplate.vertical}</span>
+                    <span>{scaleLabel(activeTemplate.templateTier)}</span>
+                  </div>
+                  <h3>{activeTemplate.roomType}</h3>
+                  <p>{activeTemplate.designPurpose}</p>
+                </div>
+
+                <div className="wm-templates-page__detail-metrics">
+                  <div className="wm-templates-page__detail-metric">
+                    <span>Inputs</span>
+                    <strong>{activeTemplate.ioProfile.sources}</strong>
+                  </div>
+                  <div className="wm-templates-page__detail-metric">
+                    <span>Outputs</span>
+                    <strong>{activeTemplate.ioProfile.outputs}</strong>
+                  </div>
+                  <div className="wm-templates-page__detail-metric">
+                    <span>Operators</span>
+                    <strong>{activeTemplate.ioProfile.operators}</strong>
+                  </div>
+                  <div className="wm-templates-page__detail-metric">
+                    <span>Next tool</span>
+                    <strong>{toolLabel(activeTemplate.recommendedTool)}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="wm-templates-page__chip-row">
+                {activeTemplate.recommendedFamilies.map((family) => (
+                  <span key={family} className="wm-templates-page__chip">
+                    {family}
+                  </span>
+                ))}
+              </div>
+
+              <div className="wm-templates-page__detail-grid">
+                <section className="wm-templates-page__panel">
+                  <h4>Likely input sources</h4>
+                  <ul>
+                    {activeTemplate.sourceTypes.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className="wm-templates-page__panel">
+                  <h4>Likely outputs</h4>
+                  <ul>
+                    {activeTemplate.outputTypes.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className="wm-templates-page__panel">
+                  <h4>Preloaded AV assumptions</h4>
+                  <ul>
+                    <li>{activeTemplate.transportProfile}</li>
+                    <li>{activeTemplate.audioProfile}</li>
+                    <li>{activeTemplate.controlProfile}</li>
+                    {activeTemplate.assumptions.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className="wm-templates-page__panel">
+                  <h4>Included system direction</h4>
+                  <ul>
+                    {activeTemplate.includedSystems.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              </div>
+
+              <div className="wm-templates-page__panel wm-templates-page__panel--wide">
+                <div className="wm-templates-page__panel-head">
+                  <div>
+                    <h4>Why this starter is useful</h4>
+                    <p>{activeTemplate.story}</p>
+                  </div>
+                  <div className="wm-templates-page__uplift">
+                    {activeTemplate.uplift.map((item) => (
+                      <span key={item}>{item}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="wm-templates-page__step">
+                <span className="wm-templates-page__step-number">3</span>
+                <div>
+                  <h2>Start from this room type</h2>
+                  <p>Wingman will carry these assumptions into the project launcher so you can add the customer and site details without rebuilding the room logic.</p>
+                </div>
+              </div>
+
+              <div className="wm-templates-page__actions">
+                <button type="button" className="wm-btn-primary" onClick={loadTemplateStarter}>
+                  Use This Room Type
+                </button>
+                <button type="button" className="wm-btn-secondary" onClick={startBlankProject}>
+                  Start Blank Project
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="wm-templates-page__empty">
+              <h3>Select a room type to continue.</h3>
+              <p>The detail panel will show the preloaded AV assumptions once a room type is selected.</p>
+            </div>
+          )}
+        </section>
+      </section>
+    </div>
   );
 }

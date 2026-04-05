@@ -1,0 +1,481 @@
+.wm-public {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 22%),
+    linear-gradient(180deg, #020817 0%, #071326 100%);
+  color: #e8eef8;
+}
+
+.wm-public-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.wm-public-topbar,
+.wm-public-hero-main,
+.wm-public-guru,
+.wm-public-workflow-card,
+.wm-public-tool-card,
+.wm-public-footer-band {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background:
+    linear-gradient(180deg, rgba(10, 20, 40, 0.9), rgba(4, 11, 24, 0.96));
+  box-shadow:
+    0 16px 40px rgba(2, 8, 23, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border-radius: 24px;
+}
+
+.wm-public-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+}
+
+.wm-public-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.wm-public-brand-logo {
+  width: auto;
+  max-width: 250px;
+  height: 62px;
+  object-fit: contain;
+  display: block;
+}
+
+.wm-public-brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wm-public-brand-copy strong {
+  color: #f8fbff;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.wm-public-eyebrow,
+.wm-public-section-label {
+  color: #7dd3fc;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.wm-public-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wm-public-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.82fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.wm-public-hero-main,
+.wm-public-guru {
+  position: relative;
+  overflow: hidden;
+}
+
+.wm-public-hero-main {
+  padding: 26px;
+}
+
+.wm-public-guru {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wm-public-hero-main::before,
+.wm-public-guru::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.08), transparent 24%);
+}
+
+.wm-public-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  color: #cfe4ff;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.wm-public-title {
+  margin: 16px 0 12px;
+  color: #f8fbff;
+  font-size: clamp(2.35rem, 4vw, 3.55rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  font-weight: 850;
+  max-width: 760px;
+}
+
+.wm-public-subtitle {
+  max-width: 690px;
+  margin: 0 0 18px;
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 0.98rem;
+  line-height: 1.62;
+}
+
+.wm-public-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.wm-public-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 700;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.wm-public-btn:hover {
+  transform: translateY(-1px);
+}
+
+.wm-public-btn-primary {
+  color: #07111f;
+  background: linear-gradient(135deg, #93c5fd, #38bdf8);
+}
+
+.wm-public-btn-ghost {
+  color: #dce8fb;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.wm-public-btn-guru {
+  width: 100%;
+  color: #eef6ff;
+  background: linear-gradient(135deg, rgba(29, 78, 216, 0.55), rgba(8, 47, 73, 0.92));
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.wm-public-proof {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-public-proof-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #dce8fb;
+  font-size: 0.9rem;
+}
+
+.wm-public-proof-item svg {
+  color: #7dd3fc;
+  flex: 0 0 auto;
+}
+
+.wm-public-guru-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wm-public-guru-badge,
+.wm-public-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.wm-public-guru-badge {
+  color: #eaf4ff;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+}
+
+.wm-public-status {
+  color: #dcfce7;
+  background: rgba(20, 83, 45, 0.28);
+  border: 1px solid rgba(74, 222, 128, 0.18);
+}
+
+.wm-public-guru-mark {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
+}
+
+.wm-public-guru h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #f8fbff;
+}
+
+.wm-public-guru p {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.8);
+  font-size: 0.92rem;
+  line-height: 1.58;
+}
+
+.wm-public-guru-prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wm-public-prompt {
+  padding: 12px 13px;
+  border-radius: 14px;
+  color: #dce9fb;
+  background: rgba(15, 23, 42, 0.62);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.wm-public-workflow,
+.wm-public-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wm-public-section-head h2 {
+  margin: 4px 0 0;
+  color: #f8fbff;
+  font-size: 1.22rem;
+  font-weight: 800;
+}
+
+.wm-public-workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wm-public-workflow-card {
+  padding: 16px;
+}
+
+.wm-public-workflow-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.wm-public-step-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6, #38bdf8);
+  color: #f8fbff;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.wm-public-workflow-icon,
+.wm-public-footer-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  color: #dce8fb;
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.28), rgba(15, 23, 42, 0.88));
+  border: 1px solid rgba(96, 165, 250, 0.18);
+}
+
+.wm-public-workflow-card h3 {
+  margin: 0 0 8px;
+  color: #f8fbff;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.wm-public-workflow-card p,
+.wm-public-tool-card p,
+.wm-public-footer-copy p {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.76);
+  font-size: 0.88rem;
+  line-height: 1.56;
+}
+
+.wm-public-inline-link {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8fd1ff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.wm-public-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wm-public-tool-card {
+  padding: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.wm-public-tool-card:hover,
+.wm-public-workflow-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(96, 165, 250, 0.22);
+}
+
+.wm-public-tool-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.wm-public-tool-top strong,
+.wm-public-footer-copy strong {
+  color: #f8fbff;
+  font-size: 0.95rem;
+}
+
+.wm-public-footer-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px;
+}
+
+.wm-public-footer-copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.wm-public-footer-copy p {
+  margin-top: 4px;
+  max-width: 620px;
+}
+
+.wm-public-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 1180px) {
+  .wm-public-hero,
+  .wm-public-workflow-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-public-tools-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 780px) {
+  .wm-public-shell {
+    padding: 12px;
+    gap: 14px;
+  }
+
+  .wm-public-topbar,
+  .wm-public-footer-band {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wm-public-brand {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wm-public-brand-logo {
+    max-width: 220px;
+    height: auto;
+  }
+
+  .wm-public-title {
+    font-size: 2rem;
+  }
+
+  .wm-public-tools-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-public-footer-actions,
+  .wm-public-topbar-actions,
+  .wm-public-cta-row {
+    flex-direction: column;
+  }
+
+  .wm-public-btn {
+    width: 100%;
+  }
+}
