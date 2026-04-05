@@ -226,3 +226,4 @@ function CommandPaletteUI({
     </div>
   );
 }
+

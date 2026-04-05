@@ -24,12 +24,12 @@ const CompetitorComparePage = React.lazy(() => import("@/features/compare/Compet
 const RoomWizardPage = React.lazy(() => import("@/features/room-wizard/RoomWizardPage"));
 const ProposalBuilderPage = React.lazy(() => import("@/features/proposal/ProposalPage"));
 const ImportIntakePage = React.lazy(() => import("@/features/import/ImportIntakePage"));
-const TrainingHubPage = React.lazy(() => import("@/features/misc/TrainingHubPage"));
+const TrainingHubPage = React.lazy(() => import("@/features/training/TrainingHubPage"));
 const VideoWallPlannerRebuild = React.lazy(
   () => import("@/features/misc/videoWall/VideoWallPlannerRebuild"),
 );
 const TemplatesPage = React.lazy(() => import("@/features/templates/TemplatesPage"));
-const GuruToolHostPage = React.lazy(() => import("@/features/guru/GuruToolHostPage"));
+const GuruToolHostPage = React.lazy(() => import("@/features/ai/guru/GuruToolHostPage"));
 const SalesPositioningPage = React.lazy(() => import("@/features/sales/SalesPositioningPage"));
 const ProductIntelligencePage = React.lazy(() => import("@/features/support/ProductIntelligencePage"));
 const CompetitorLookupDiagnosticsPage = React.lazy(

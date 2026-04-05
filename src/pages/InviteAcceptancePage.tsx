@@ -2,15 +2,19 @@ import * as React from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { resolveDeploymentWorkspaceInvitation } from "@/app/api/wingmanDeploymentClient";
 import { useAuth } from "@/context/AuthContext";
+import "@/styles/wm-auth-public.css";
 
 export default function InviteAcceptancePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { acceptInvitation, status, user, signOut } = useAuth();
+
   const token = searchParams.get("token") ?? "";
+
   const [name, setName] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [invitation, setInvitation] = React.useState<Awaited<ReturnType<typeof resolveDeploymentWorkspaceInvitation>>["invitation"] | null>(null);
+  const [invitation, setInvitation] = React.useState<any>(null);
+
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -25,25 +29,19 @@ export default function InviteAcceptancePage() {
         return;
       }
 
-      setLoading(true);
-      setError(null);
       try {
-        const response = await resolveDeploymentWorkspaceInvitation(token);
+        const res = await resolveDeploymentWorkspaceInvitation(token);
+        if (!cancelled) setInvitation(res.invitation);
+      } catch (err) {
         if (!cancelled) {
-          setInvitation(response.invitation);
-        }
-      } catch (nextError) {
-        if (!cancelled) {
-          setError(nextError instanceof Error ? nextError.message : "Unable to load invitation.");
+          setError(err instanceof Error ? err.message : "Unable to load invitation.");
         }
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     }
 
-    void loadInvitation();
+    loadInvitation();
     return () => {
       cancelled = true;
     };
@@ -51,93 +49,131 @@ export default function InviteAcceptancePage() {
 
   async function acceptInvite() {
     if (!token) return;
+
     setSaving(true);
     setError(null);
+
     try {
       await acceptInvitation({
         token,
         name: name.trim() || undefined,
         password: password.trim() || undefined,
       });
+
       navigate("/app/dashboard", { replace: true });
-    } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : "Unable to accept invitation.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to accept invitation.");
     } finally {
       setSaving(false);
     }
   }
 
-  const signedInWithDifferentEmail = Boolean(
+  const wrongUser =
     invitation &&
     user &&
     user.email &&
-    user.email !== invitation.email,
-  );
+    user.email !== invitation.email;
 
   return (
-    <div className="wm-page wm-invite-page">
-      <div className="wm-invite-page__inner">
-        <div className="wm-card wm-card-pad" style={{ display: "grid", gap: 12 }}>
-          <div className="wm-h2">Join Workspace</div>
-          {loading ? <div className="wm-p">Loading invitation...</div> : null}
-          {!loading && invitation ? (
-            <>
-              <div className="wm-p">
-                Join <strong>{invitation.workspaceName}</strong> as <strong>{invitation.role}</strong>.
+    <div className="wm-auth-shell">
+      <div className="wm-auth-shell__root">
+        <div className="wm-auth-shell__center">
+          <div className="wm-auth-card">
+            <div className="wm-auth-card__head">
+              <div className="wm-auth-card__eyebrow">
+                <span className="wm-auth-card__dot" />
+                <span>Workspace Invitation</span>
               </div>
-              <div className="wm-body-sm" style={{ opacity: 0.78 }}>
-                Invited email: {invitation.email}
-              </div>
-            </>
-          ) : null}
 
-          {signedInWithDifferentEmail ? (
-            <>
-              <div className="wm-body-sm" style={{ color: "#ff9da5" }}>
-                You are signed in as {user?.email}. Sign out and use the invited account instead.
-              </div>
-              <button type="button" className="wm-btn wm-btn-primary" onClick={() => { void signOut(); }}>
-                Sign Out
-              </button>
-            </>
-          ) : null}
+              <h1 className="wm-auth-card__title">Join workspace</h1>
 
-          {!loading && invitation && !signedInWithDifferentEmail ? (
-            <>
-              {status === "authenticated" && user?.email === invitation.email ? (
-                <button type="button" className="wm-btn wm-btn-primary" onClick={() => { void acceptInvite(); }} disabled={saving}>
-                  {saving ? "Joining..." : "Accept Invitation"}
+              {loading ? (
+                <p className="wm-auth-card__copy">Loading invitation…</p>
+              ) : invitation ? (
+                <p className="wm-auth-card__copy">
+                  Join <strong>{invitation.workspaceName}</strong> as{" "}
+                  <strong>{invitation.role}</strong>
+                </p>
+              ) : null}
+            </div>
+
+            {/* Wrong user */}
+            {wrongUser ? (
+              <>
+                <div className="wm-auth-error">
+                  You are signed in as {user?.email}. Use the invited account.
+                </div>
+
+                <button
+                  type="button"
+                  className="wm-auth-btn wm-auth-btn--primary"
+                  onClick={() => void signOut()}
+                >
+                  Sign out
                 </button>
-              ) : (
-                <>
-                  <label className="wm-form-field">
-                    <span className="wm-form-label">Name</span>
-                    <input className="wm-form-input" value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" />
-                  </label>
+              </>
+            ) : null}
 
-                  <label className="wm-form-field">
-                    <span className="wm-form-label">Password</span>
-                    <input
-                      className="wm-form-input"
-                      type="password"
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                      placeholder="Use your existing account password, or create one"
-                    />
-                  </label>
-
-                  <button type="button" className="wm-btn wm-btn-primary" onClick={() => { void acceptInvite(); }} disabled={saving || !password.trim()}>
-                    {saving ? "Joining..." : "Join Workspace"}
+            {/* Accept flow */}
+            {!loading && invitation && !wrongUser ? (
+              <form
+                className="wm-auth-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void acceptInvite();
+                }}
+              >
+                {status === "authenticated" &&
+                user?.email === invitation.email ? (
+                  <button
+                    type="submit"
+                    className="wm-auth-btn wm-auth-btn--primary"
+                    disabled={saving}
+                  >
+                    {saving ? "Joining…" : "Accept invitation"}
                   </button>
-                </>
-              )}
-            </>
-          ) : null}
+                ) : (
+                  <>
+                    <div className="wm-auth-grid">
+                      <div className="wm-auth-field">
+                        <label className="wm-auth-label">Name</label>
+                        <input
+                          className="wm-auth-input"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Your name"
+                        />
+                      </div>
 
-          {error ? <div className="wm-body-sm" style={{ color: "#ff9da5" }}>{error}</div> : null}
+                      <div className="wm-auth-field">
+                        <label className="wm-auth-label">Password</label>
+                        <input
+                          className="wm-auth-input"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Enter or create password"
+                        />
+                      </div>
+                    </div>
 
-          <div className="wm-body-sm" style={{ opacity: 0.78 }}>
-            Already part of the workspace? <Link to="/login">Sign in</Link>
+                    <button
+                      type="submit"
+                      className="wm-auth-btn wm-auth-btn--primary"
+                      disabled={saving || !password.trim()}
+                    >
+                      {saving ? "Joining…" : "Join workspace"}
+                    </button>
+                  </>
+                )}
+              </form>
+            ) : null}
+
+            {error ? <div className="wm-auth-error">{error}</div> : null}
+
+            <div className="wm-auth-meta">
+              Already a member? <Link to="/login">Sign in</Link>
+            </div>
           </div>
         </div>
       </div>

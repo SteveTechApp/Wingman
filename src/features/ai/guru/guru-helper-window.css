@@ -1,0 +1,133 @@
+.wm-guru-helper-window {
+  position: fixed !important;
+  right: 24px !important;
+  bottom: 108px !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 2147482999 !important;
+  width: 420px !important;
+  max-width: calc(100vw - 32px) !important;
+  height: 560px !important;
+  max-height: calc(100vh - 140px) !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(123, 169, 234, 0.18) !important;
+  background:
+    linear-gradient(180deg, rgba(8, 18, 34, 0.98), rgba(5, 12, 24, 0.99)) !important;
+  box-shadow:
+    0 28px 60px rgba(2, 8, 23, 0.42),
+    inset 0 1px 0 rgba(255,255,255,0.04) !important;
+  overflow: hidden !important;
+}
+
+.wm-guru-helper-window__header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 14px 16px !important;
+  border-bottom: 1px solid rgba(123, 169, 234, 0.12) !important;
+}
+
+.wm-guru-helper-window__brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.wm-guru-helper-window__brand strong {
+  color: var(--wm-text) !important;
+  display: block !important;
+}
+
+.wm-guru-helper-window__brand div div {
+  color: var(--wm-text-muted) !important;
+  font-size: 12px !important;
+}
+
+.wm-guru-helper-window__avatar {
+  width: 34px !important;
+  height: 34px !important;
+  object-fit: contain !important;
+}
+
+.wm-guru-helper-window__actions {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.wm-guru-helper-window__icon-btn {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(123, 169, 234, 0.14) !important;
+  background: rgba(13, 24, 42, 0.78) !important;
+  color: var(--wm-text) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+.wm-guru-helper-window__body {
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.wm-guru-helper-window__messages {
+  height: 100% !important;
+  overflow: auto !important;
+  display: grid !important;
+  align-content: start !important;
+  gap: 12px !important;
+  padding: 16px !important;
+}
+
+.wm-guru-helper-window__message {
+  padding: 12px 14px !important;
+  border-radius: 16px !important;
+  line-height: 1.55 !important;
+  color: var(--wm-text) !important;
+  background: rgba(15, 30, 54, 0.86) !important;
+  border: 1px solid rgba(96, 165, 250, 0.16) !important;
+}
+
+.wm-guru-helper-window__footer {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 10px !important;
+  padding: 14px 16px !important;
+  border-top: 1px solid rgba(123, 169, 234, 0.12) !important;
+}
+
+.wm-guru-helper-window__input {
+  min-height: 44px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(123, 169, 234, 0.16) !important;
+  background: rgba(8, 18, 34, 0.92) !important;
+  color: var(--wm-text) !important;
+  padding: 10px 12px !important;
+}
+
+.wm-guru-helper-window__send {
+  min-width: 44px !important;
+  min-height: 44px !important;
+  border-radius: 14px !important;
+  border: 0 !important;
+  background: linear-gradient(135deg, #2c6fff, #4ea1ff) !important;
+  color: #fff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+@media (max-width: 900px) {
+  .wm-guru-helper-window {
+    right: 16px !important;
+    bottom: 92px !important;
+    width: calc(100vw - 32px) !important;
+    height: min(520px, calc(100vh - 120px)) !important;
+  }
+}

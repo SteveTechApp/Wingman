@@ -1,128 +1,252 @@
-import { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { brand } from "@/branding/brand";
-import "@/styles/wm-public-landing.css";
+import { Link } from "react-router-dom";
+import {
+  ArrowRight,
+  Bot,
+  CheckCircle2,
+  ClipboardList,
+  FileText,
+  Layers3,
+  LayoutGrid,
+  MonitorSmartphone,
+} from "lucide-react";
+import "@/styles/public-landing-toolfirst.css";
+
+const workflow = [
+  {
+    step: "01",
+    title: "Discover",
+    text: "Capture sources, displays, distance, control, USB and application constraints before selecting hardware.",
+    href: "/app/tools/discovery",
+    icon: ClipboardList,
+  },
+  {
+    step: "02",
+    title: "Design",
+    text: "Move into the right WyreStorm architecture path: extender, matrix, AVoIP or video wall.",
+    href: "/app/tools/catalog",
+    icon: Layers3,
+  },
+  {
+    step: "03",
+    title: "Deliver",
+    text: "Generate a cleaner proposal-ready output with supporting technical rationale.",
+    href: "/app/tools/proposal",
+    icon: FileText,
+  },
+];
+
+const quickTools = [
+  {
+    title: "Discovery Wizard",
+    text: "Start a new opportunity and structure the brief properly.",
+    href: "/app/tools/discovery",
+  },
+  {
+    title: "Catalogue",
+    text: "Review product families and recommended solution paths.",
+    href: "/app/tools/catalog",
+  },
+  {
+    title: "Proposal Builder",
+    text: "Turn technical direction into customer-facing output.",
+    href: "/app/tools/proposal",
+  },
+  {
+    title: "Video Wall Planner",
+    text: "Model wall layouts and hardware approach.",
+    href: "/app/tools/video-wall",
+  },
+];
+
+const proofPoints = [
+  "Faster qualification for non-engineering sales users",
+  "More consistent architecture selection across the team",
+  "Cleaner handoff from requirement to proposal output",
+];
+
+const guruPrompts = [
+  "Is this application better suited to matrix switching or AVoIP?",
+  "What is still missing from this customer brief?",
+  "What WyreStorm path fits this video wall requirement?",
+];
 
 export default function PublicLandingPage() {
-  const navigate = useNavigate();
-
-  const goLogin = useCallback(() => navigate("/login"), [navigate]);
-  const goSignup = useCallback(() => navigate("/signup"), [navigate]);
-
   return (
-    <div className="wm-public-landing-page">
-      <div className="wm-public-landing-page__shell">
-        <div className="wm-public-landing-page__layout">
-          <section className="wm-public-landing-page__panel">
-            <div className="wm-public-landing-page__brand">
-              <div className="wm-public-landing-page__brand-lockup" aria-label={brand.fullName}>
-                <span className="wm-public-landing-page__brand-mark" aria-hidden="true">
-                  {brand.monogram}
-                </span>
-                <div>
-                  <div className="wm-public-landing-page__brand-title">{brand.appName}</div>
-                  <div className="wm-public-landing-page__brand-subtitle">{brand.tagline}</div>
-                </div>
-              </div>
+    <main className="wm-public">
+      <section className="wm-public-shell">
+        <header className="wm-public-topbar">
+          <div className="wm-public-brand">
+            <img
+              src="/WyreStorm-Wingman-logo.png"
+              alt="WyreStorm Wingman"
+              className="wm-public-brand-logo"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.style.display = "none";
+              }}
+            />
+            <div className="wm-public-brand-copy">
+              <span className="wm-public-eyebrow">WyreStorm Wingman</span>
+              <strong>Sales enablement for real AV projects</strong>
+            </div>
+          </div>
+
+          <div className="wm-public-topbar-actions">
+            <Link to="/login" className="wm-public-btn wm-public-btn-ghost">
+              Log in
+            </Link>
+            <Link to="/signup" className="wm-public-btn wm-public-btn-primary">
+              Open Wingman
+            </Link>
+          </div>
+        </header>
+
+        <section className="wm-public-hero">
+          <div className="wm-public-hero-main">
+            <div className="wm-public-kicker">
+              <LayoutGrid size={15} />
+              <span>Tool-first workflow</span>
             </div>
 
-            <h1 className="wm-public-landing-page__title">
-              AV sales enablement built to fit real-world projects.
+            <h1 className="wm-public-title">
+              Move from AV requirement
+              <br />
+              to product recommendation
+              <br />
+              with less guesswork.
             </h1>
 
-            <p className="wm-public-landing-page__copy">
-              Wingman helps sales and pre-sales teams qualify applications, recommend the right
-              WyreStorm products, and move from discovery to proposal with less friction.
+            <p className="wm-public-subtitle">
+              Wingman helps sales and pre-sales teams structure the brief, select
+              the correct WyreStorm path, and produce cleaner proposal-ready output
+              without needing full integration-level knowledge at the first step.
             </p>
 
-            <div className="wm-public-landing-page__actions">
-              <button
-                type="button"
-                className="wm-public-landing-page__button wm-public-landing-page__button--primary"
-                onClick={goLogin}
-              >
-                Sign in
-              </button>
-
-              <button
-                type="button"
-                className="wm-public-landing-page__button wm-public-landing-page__button--secondary"
-                onClick={goSignup}
-              >
-                Create account
-              </button>
+            <div className="wm-public-cta-row">
+              <Link to="/signup" className="wm-public-btn wm-public-btn-primary">
+                Start in Wingman
+                <ArrowRight size={16} />
+              </Link>
+              <Link to="/login" className="wm-public-btn wm-public-btn-ghost">
+                Existing user login
+              </Link>
             </div>
 
-            <div className="wm-public-landing-page__feature-grid">
-              <article className="wm-public-landing-page__feature">
-                <h2 className="wm-public-landing-page__feature-title">Guide sales conversations</h2>
-                <p className="wm-public-landing-page__feature-copy">
-                  Help sales teams move from requirement to the right WyreStorm approach faster.
-                </p>
-              </article>
-
-              <article className="wm-public-landing-page__feature">
-                <h2 className="wm-public-landing-page__feature-title">Build system confidence</h2>
-                <p className="wm-public-landing-page__feature-copy">
-                  Turn application detail into practical recommendation logic and cleaner outputs.
-                </p>
-              </article>
-
-              <article className="wm-public-landing-page__feature">
-                <h2 className="wm-public-landing-page__feature-title">Reduce dependency</h2>
-                <p className="wm-public-landing-page__feature-copy">
-                  Give less technical users a more self-serve path without losing structure.
-                </p>
-              </article>
+            <div className="wm-public-proof">
+              {proofPoints.map((item) => (
+                <div key={item} className="wm-public-proof-item">
+                  <CheckCircle2 size={16} />
+                  <span>{item}</span>
+                </div>
+              ))}
             </div>
-          </section>
+          </div>
 
-          <aside className="wm-public-landing-page__panel">
-            <div className="wm-public-landing-page__eyebrow">Why Wingman</div>
+          <aside className="wm-public-guru">
+            <div className="wm-public-guru-head">
+              <div className="wm-public-guru-badge">
+                <img src="/guru.png" alt="Wingman Guru" className="wm-public-guru-mark" />
+                <span>Guru Assistance</span>
+              </div>
+              <span className="wm-public-status">Ready</span>
+            </div>
 
-            <h2 className="wm-public-landing-page__side-title">
-              A cleaner route from requirement to recommendation.
-            </h2>
-
-            <p className="wm-public-landing-page__side-copy">
-              Built for teams that need better technical consistency without forcing every user to
-              be an integration specialist.
+            <h2>Guided help before the product choice</h2>
+            <p>
+              Guru helps users identify missing requirements, challenge the wrong
+              architecture early, and improve technical consistency before proposal
+              generation.
             </p>
 
-            <div className="wm-public-landing-page__steps">
-              <article className="wm-public-landing-page__step">
-                <div className="wm-public-landing-page__step-index">01</div>
-                <div>
-                  <h3 className="wm-public-landing-page__step-title">Discover</h3>
-                  <p className="wm-public-landing-page__step-copy">
-                    Capture the application clearly and structure the brief.
-                  </p>
+            <div className="wm-public-guru-prompts">
+              {guruPrompts.map((prompt) => (
+                <div key={prompt} className="wm-public-prompt">
+                  “{prompt}”
                 </div>
-              </article>
-
-              <article className="wm-public-landing-page__step">
-                <div className="wm-public-landing-page__step-index">02</div>
-                <div>
-                  <h3 className="wm-public-landing-page__step-title">Recommend</h3>
-                  <p className="wm-public-landing-page__step-copy">
-                    Match topology, features, and products with more confidence.
-                  </p>
-                </div>
-              </article>
-
-              <article className="wm-public-landing-page__step">
-                <div className="wm-public-landing-page__step-index">03</div>
-                <div>
-                  <h3 className="wm-public-landing-page__step-title">Deliver</h3>
-                  <p className="wm-public-landing-page__step-copy">
-                    Support proposal-ready output with less internal back-and-forth.
-                  </p>
-                </div>
-              </article>
+              ))}
             </div>
+
+            <Link to="/app/tools/guru" className="wm-public-btn wm-public-btn-guru">
+              <Bot size={16} />
+              Open Guru
+            </Link>
           </aside>
-        </div>
-      </div>
-    </div>
+        </section>
+
+        <section className="wm-public-workflow">
+          <div className="wm-public-section-head">
+            <span className="wm-public-section-label">Core workflow</span>
+            <h2>Start with the brief. Then move into the right tool.</h2>
+          </div>
+
+          <div className="wm-public-workflow-grid">
+            {workflow.map((item) => {
+              const Icon = item.icon;
+              return (
+                <article key={item.title} className="wm-public-workflow-card">
+                  <div className="wm-public-workflow-top">
+                    <div className="wm-public-step-chip">{item.step}</div>
+                    <div className="wm-public-workflow-icon">
+                      <Icon size={18} />
+                    </div>
+                  </div>
+
+                  <h3>{item.title}</h3>
+                  <p>{item.text}</p>
+
+                  <Link to={item.href} className="wm-public-inline-link">
+                    Open {item.title}
+                    <ArrowRight size={14} />
+                  </Link>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="wm-public-tools">
+          <div className="wm-public-section-head">
+            <span className="wm-public-section-label">Key tools</span>
+            <h2>Jump straight into the area you need.</h2>
+          </div>
+
+          <div className="wm-public-tools-grid">
+            {quickTools.map((tool) => (
+              <Link key={tool.title} to={tool.href} className="wm-public-tool-card">
+                <div className="wm-public-tool-top">
+                  <strong>{tool.title}</strong>
+                  <ArrowRight size={16} />
+                </div>
+                <p>{tool.text}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="wm-public-footer-band">
+          <div className="wm-public-footer-copy">
+            <div className="wm-public-footer-icon">
+              <MonitorSmartphone size={18} />
+            </div>
+            <div>
+              <strong>Built for practical sales support</strong>
+              <p>
+                Wingman is designed to reduce friction between opportunity intake,
+                technical direction and proposal output.
+              </p>
+            </div>
+          </div>
+
+          <div className="wm-public-footer-actions">
+            <Link to="/signup" className="wm-public-btn wm-public-btn-primary">
+              Create account
+            </Link>
+            <Link to="/login" className="wm-public-btn wm-public-btn-ghost">
+              Sign in
+            </Link>
+          </div>
+        </section>
+      </section>
+    </main>
   );
 }

@@ -1,0 +1,44 @@
+/* ============================================
+   GURU FAB — ABSOLUTE AUTHORITY OVERRIDE
+   ============================================ */
+
+.wm-guru-fab,
+button.wm-guru-fab,
+div.wm-guru-fab {
+  position: fixed !important;
+
+  right: 28px !important;
+  bottom: 28px !important;
+
+  left: auto !important;
+  top: auto !important;
+
+  margin: 0 !important;
+  transform: none !important;
+
+  z-index: 9999 !important;
+
+  width: 72px !important;
+  height: 72px !important;
+
+  border-radius: 999px !important;
+}
+
+/* Kill any parent layout interference */
+.wm-guru-fab {
+  inset: auto !important;
+}
+
+/* Prevent flex/grid parents from affecting it */
+body .wm-guru-fab {
+  align-self: auto !important;
+  justify-self: auto !important;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .wm-guru-fab {
+    right: 16px !important;
+    bottom: 16px !important;
+  }
+}

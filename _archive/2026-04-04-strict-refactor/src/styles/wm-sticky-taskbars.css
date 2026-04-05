@@ -1,0 +1,125 @@
+/* =========================================
+   Wingman Sticky Task Bars
+   ========================================= */
+
+:root {
+  --wm-sticky-top: 10px;
+  --wm-sticky-z: 40;
+}
+
+/* Reusable explicit sticky task bar */
+.wm-sticky-taskbar {
+  position: sticky;
+  top: var(--wm-sticky-top);
+  z-index: var(--wm-sticky-z);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid rgba(148,163,184,0.14);
+  border-radius: 14px;
+  background:
+    var(--wm-surface);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.18);
+}
+
+/* Hero action rows become compact sticky bars on working pages */
+.wm-page-hero .wm-page-actions {
+  position: sticky;
+  top: var(--wm-sticky-top);
+  z-index: calc(var(--wm-sticky-z) - 2);
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(8,17,29,0.72);
+  backdrop-filter: blur(10px);
+}
+
+/* Generic action rows when used as first element inside panels/sections */
+.wm-panel > .wm-action-row:first-child,
+.wm-panel > .wm-workspace-action-row:first-child {
+  position: sticky;
+  top: calc(var(--wm-sticky-top) + 2px);
+  z-index: calc(var(--wm-sticky-z) - 4);
+  padding: 8px 0;
+  background: var(--wm-surface);
+}
+
+/* Keep buttons aligned and readable */
+.wm-sticky-taskbar .wm-button,
+.wm-sticky-taskbar .wm-btn,
+.wm-sticky-taskbar .wm-btn-primary,
+.wm-sticky-taskbar .wm-btn-secondary,
+.wm-page-hero .wm-page-actions .wm-button {
+  white-space: nowrap;
+}
+
+/* Support rails should stay below sticky taskbars */
+.wm-support-rail,
+.wm-main-rail {
+  min-width: 0;
+}
+
+/* Avoid sticky bars feeling oversized */
+.wm-sticky-taskbar .wm-meta-pill,
+.wm-sticky-taskbar .wm-chip {
+  margin-left: auto;
+}
+
+/* Optional divider below sticky bars */
+.wm-sticky-taskbar--lined {
+  border-bottom: 1px solid rgba(148,163,184,0.12);
+}
+
+/* Tablet and below: remove aggressive stickiness from hero actions */
+@media (max-width: 1180px) {
+  .wm-page-hero .wm-page-actions {
+    position: static;
+    padding: 0;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  .wm-sticky-taskbar {
+    position: static;
+    padding: 8px 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  .wm-panel > .wm-action-row:first-child,
+  .wm-panel > .wm-workspace-action-row:first-child {
+    position: static;
+    padding: 0;
+    background: transparent;
+  }
+}
+
+/* Mobile: stack buttons cleanly */
+@media (max-width: 640px) {
+  .wm-sticky-taskbar,
+  .wm-page-hero .wm-page-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .wm-sticky-taskbar .wm-button,
+  .wm-sticky-taskbar .wm-btn,
+  .wm-sticky-taskbar .wm-btn-primary,
+  .wm-sticky-taskbar .wm-btn-secondary,
+  .wm-page-hero .wm-page-actions .wm-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .wm-sticky-taskbar .wm-meta-pill,
+  .wm-sticky-taskbar .wm-chip {
+    margin-left: 0;
+  }
+}

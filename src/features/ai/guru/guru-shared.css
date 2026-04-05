@@ -1,0 +1,17 @@
+.wm-guru-mark {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.wm-guru-mark--lg {
+  width: 44px;
+  height: 44px;
+}
+
+.wm-guru-mark--hero {
+  width: 64px;
+  height: 64px;
+}

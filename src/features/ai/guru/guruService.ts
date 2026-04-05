@@ -1,6 +1,7 @@
 export type GuruMode =
   | "general"
   | "wyrestorm"
+  | "project"
   | "design"
   | "troubleshooting"
   | "training";

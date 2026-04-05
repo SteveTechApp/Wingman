@@ -7,6 +7,7 @@ export const DEFAULT_USER_PROFILE: UserProfile = {
   company: "",
   logoUrl: "",
   language: "en",
+  theme: "dark",
   unitSystem: "metric",
   showBackground: true,
   zoomLevel: 1,

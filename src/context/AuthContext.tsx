@@ -198,3 +198,4 @@ export function AuthProvider(props: { children: React.ReactNode }) {
 
   return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>;
 }
+

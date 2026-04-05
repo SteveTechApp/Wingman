@@ -1,0 +1,24 @@
+.wm-landing {
+  font-size: 0.75rem;
+}
+
+.wm-landing h1 {
+  font-size: 2rem;
+}
+
+.wm-landing p {
+  font-size: 0.9rem;
+}
+
+.wm-landing button {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+.wm-landing-card {
+  padding: 14px;
+}
+
+.wm-landing-grid {
+  gap: 12px;
+}

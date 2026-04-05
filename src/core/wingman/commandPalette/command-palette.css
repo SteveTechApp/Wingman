@@ -32,7 +32,7 @@
   padding: 16px;
   border: 1px solid var(--wmx-command-line);
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(19, 33, 57, 0.98), rgba(11, 21, 38, 1));
+  background: var(--wm-surface);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
 }
 
@@ -84,7 +84,7 @@
 .wmx-command-item:hover,
 .wmx-command-item.is-active {
   border-color: var(--wmx-command-line-strong);
-  background: linear-gradient(180deg, rgba(21, 41, 73, 0.98), rgba(14, 28, 50, 1));
+  background: var(--wm-surface);
   box-shadow: var(--wmx-command-glow);
 }
 

@@ -1,829 +1,653 @@
-import { startTransition, useDeferredValue, useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { Link } from "react-router-dom";
-import { getCatalogProducts } from "@/catalog/repository";
-import type { CatalogProduct } from "@/catalog/types";
-import SplitWorkspaceFrame from "@/components/workspace/SplitWorkspaceFrame";
-import { WM_ROUTES } from "@/core/wingman/routeMap";
-import { getActiveProject, subscribeProjects } from "@/features/projects/projectStore";
+import * as React from "react";
 import {
-  SALES_CONVERSATION_CARDS,
-  SALES_PITCH_MODULES,
-  buildProductPositioningGuide,
-} from "./salesPositioningContent";
+  ArrowLeftRight,
+  ArrowRight,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  MonitorPlay,
+  Network,
+  RefreshCcw,
+  Route,
+  Rows3,
+  ScanSearch,
+  Sparkles,
+  SplitSquareVertical,
+  Wand2,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
 import "./sales-positioning-page.css";
 
-type SalesWorkspaceMode = "product" | "flashcards" | "brand";
+type OutcomeKey =
+  | "split"
+  | "extend"
+  | "switch"
+  | "matrix"
+  | "avoip";
 
-function tidy(value: unknown): string {
-  return String(value ?? "").trim();
-}
+type PromptCard = {
+  id: string;
+  question: string;
+  whyItMatters: string;
+  whatGoodLooksLike: string;
+  upsellPrompt?: string;
+  technologyChecks: string[];
+};
 
-function buildSearchBlob(product: CatalogProduct): string {
-  return [
-    product.sku,
-    product.name,
-    product.family,
-    product.category,
-    product.subcategory,
-    product.summary,
-    product.technology,
-    product.transport,
-    ...(product.features || []),
-    ...(product.normalizedTags || []),
-    ...(product.matchKeywords || []),
-    ...(product.control || []),
-    ...(product.audio || []),
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-}
+type OutcomeGuide = {
+  key: OutcomeKey;
+  title: string;
+  subtitle: string;
+  description: string;
+  icon: "split" | "extend" | "switch" | "matrix" | "avoip";
+  productDirection: string[];
+  upgradeSignals: string[];
+  cards: PromptCard[];
+};
 
-function buildMetricLabel(product: CatalogProduct): string {
-  const parts = [product.family, product.category, product.transport].map((value) => tidy(value)).filter(Boolean);
-  return parts.slice(0, 3).join(" | ");
-}
+const OUTCOMES: OutcomeGuide[] = [
+  {
+    key: "split",
+    title: "Split / duplicate a signal",
+    subtitle: "One source to several displays",
+    description:
+      "Use this when the customer is duplicating one signal to multiple screens and does not need independent source selection per display.",
+    icon: "split",
+    productDirection: [
+      "Start with HDMI splitter logic before discussing matrix systems.",
+      "Check whether the job is truly one-to-many duplication or if future source selection is likely.",
+      "If cable distance becomes the issue, move from local splitter thinking into extender or HDBaseT logic.",
+    ],
+    upgradeSignals: [
+      "Long cable distances",
+      "Need for display control",
+      "Audio breakout or de-embedding",
+      "Future request to add source selection",
+      "Higher refresh / resolution requirement",
+    ],
+    cards: [
+      {
+        id: "split-1",
+        question: "How many displays need to show the same source at the same time?",
+        whyItMatters:
+          "This confirms whether the requirement is a true splitter application and sizes the output count correctly.",
+        whatGoodLooksLike:
+          "Get a firm display count and confirm they are all showing the same content simultaneously.",
+        technologyChecks: [
+          "Output count",
+          "HDMI version / bandwidth",
+          "4K60 support",
+          "HDR need",
+        ],
+      },
+      {
+        id: "split-2",
+        question: "Are the displays close to the source, or do we have long cable runs?",
+        whyItMatters:
+          "A local splitter and a distributed splitter-plus-extension design are different conversations.",
+        whatGoodLooksLike:
+          "Get the approximate source-to-display distance for the furthest screen.",
+        upsellPrompt:
+          "If the distance is high, position extender or HDBaseT support instead of relying on long passive HDMI.",
+        technologyChecks: [
+          "Distance",
+          "HDBaseT suitability",
+          "Signal stability",
+          "Power at receiver end",
+        ],
+      },
+      {
+        id: "split-3",
+        question: "Do you need audio extraction, display control, or any integration features?",
+        whyItMatters:
+          "Simple duplication may still need professional features that narrow the product choice fast.",
+        whatGoodLooksLike:
+          "Confirm whether audio de-embed, RS232, IR, or Ethernet pass-through matter on this job.",
+        technologyChecks: [
+          "Audio de-embed",
+          "RS232",
+          "IR",
+          "Ethernet pass-through",
+        ],
+      },
+    ],
+  },
+  {
+    key: "extend",
+    title: "Extend a signal",
+    subtitle: "Point-to-point transport",
+    description:
+      "Use this when the customer needs one source to one display over distance, with or without USB and control.",
+    icon: "extend",
+    productDirection: [
+      "Start with point-to-point extension before jumping into switching or AVoIP.",
+      "Distance and USB behaviour usually narrow the choice quickly.",
+      "If multiple rooms or multiple displays appear, the conversation may need to move beyond extender logic.",
+    ],
+    upgradeSignals: [
+      "USB camera or peripheral support",
+      "Need for USB 3.0 rather than USB 2.0",
+      "Control system integration",
+      "Power / PoH preference",
+      "Future expansion to multiple endpoints",
+    ],
+    cards: [
+      {
+        id: "extend-1",
+        question: "What is the actual source-to-display distance?",
+        whyItMatters:
+          "Distance is the first major filter in extender selection.",
+        whatGoodLooksLike:
+          "Get a real cable path estimate, not just a room width guess.",
+        technologyChecks: [
+          "Distance",
+          "HDBaseT range",
+          "Copper vs other transport",
+          "4K distance impact",
+        ],
+      },
+      {
+        id: "extend-2",
+        question: "Is USB required, and if so is it simple HID/USB 2.0 or high-bandwidth USB 3.0?",
+        whyItMatters:
+          "This is one of the biggest product split points in real projects.",
+        whatGoodLooksLike:
+          "Confirm whether they only need keyboard/mouse/touch/HID or whether they need camera, storage, or higher-bandwidth USB behaviour.",
+        upsellPrompt:
+          "If they mention cameras, soft codec rooms, or docking behaviour, verify whether USB 3.0 performance matters.",
+        technologyChecks: [
+          "USB 2.0",
+          "USB 3.0",
+          "Camera support",
+          "Peripheral bandwidth",
+        ],
+      },
+      {
+        id: "extend-3",
+        question: "Do you need IR, RS232, Ethernet pass-through, or CEC-style control?",
+        whyItMatters:
+          "Control and integration features often separate a basic extender from a proper AV system component.",
+        whatGoodLooksLike:
+          "Confirm the real control method the installer or customer expects to use.",
+        technologyChecks: [
+          "RS232",
+          "IR",
+          "Ethernet pass-through",
+          "Control path",
+        ],
+      },
+    ],
+  },
+  {
+    key: "switch",
+    title: "Switch between sources",
+    subtitle: "Several sources to one display",
+    description:
+      "Use this when the room needs source selection but only one main display destination is involved.",
+    icon: "switch",
+    productDirection: [
+      "Lead with presentation switching logic when many sources feed one destination.",
+      "Check whether the room also needs collaboration, wireless presentation, or USB host switching.",
+      "If several displays must receive different sources, move toward matrix rather than simple switcher logic.",
+    ],
+    upgradeSignals: [
+      "USB-C input expectations",
+      "Wireless presentation",
+      "BYOD / UC workflow",
+      "Audio DSP or breakout needs",
+      "Control system integration",
+    ],
+    cards: [
+      {
+        id: "switch-1",
+        question: "How many source devices need to be selected, and what connector types are they?",
+        whyItMatters:
+          "Input count and connector mix immediately narrow the switching family.",
+        whatGoodLooksLike:
+          "List actual source types such as HDMI laptops, USB-C devices, wireless inputs, or media players.",
+        technologyChecks: [
+          "Input count",
+          "HDMI",
+          "USB-C",
+          "Wireless input",
+        ],
+      },
+      {
+        id: "switch-2",
+        question: "Is the requirement just video switching, or do laptops need USB, charging, or BYOD support too?",
+        whyItMatters:
+          "This separates a straightforward switcher from a more advanced collaboration or presentation solution.",
+        whatGoodLooksLike:
+          "Confirm whether the customer expects one-cable laptop connection or UC room integration.",
+        upsellPrompt:
+          "If they mention hybrid meetings or room peripherals, qualify USB switching and host/device behaviour early.",
+        technologyChecks: [
+          "USB host switching",
+          "BYOD",
+          "Laptop charging",
+          "Meeting room peripherals",
+        ],
+      },
+      {
+        id: "switch-3",
+        question: "Does the customer need simple push-button control, touchscreen control, or integration into a wider control system?",
+        whyItMatters:
+          "This helps position the room as either simple switching or part of a more managed AV environment.",
+        whatGoodLooksLike:
+          "Confirm who is controlling the room and how polished the user experience needs to be.",
+        technologyChecks: [
+          "Front-panel control",
+          "Web UI / app control",
+          "RS232",
+          "Third-party control integration",
+        ],
+      },
+    ],
+  },
+  {
+    key: "matrix",
+    title: "Matrix switching",
+    subtitle: "Several sources to several displays",
+    description:
+      "Use this when the customer wants sources routed flexibly across multiple destinations.",
+    icon: "matrix",
+    productDirection: [
+      "Start with matrix logic when different displays may need different sources.",
+      "Quantify inputs, outputs, and whether routing must happen independently per destination.",
+      "If the estate becomes very large or highly distributed, check whether AVoIP is the better long-term path.",
+    ],
+    upgradeSignals: [
+      "Need for expansion later",
+      "Audio breakaway",
+      "Control room or multi-zone control",
+      "Longer cable distances",
+      "Potential migration to networked AV",
+    ],
+    cards: [
+      {
+        id: "matrix-1",
+        question: "How many sources and how many display outputs need independent routing?",
+        whyItMatters:
+          "This is the foundation of matrix sizing and avoids under- or over-positioning the solution.",
+        whatGoodLooksLike:
+          "Get a proper input/output count and confirm whether every output needs independent source choice.",
+        technologyChecks: [
+          "Matrix size",
+          "Input count",
+          "Output count",
+          "Independent routing",
+        ],
+      },
+      {
+        id: "matrix-2",
+        question: "Are the outputs local, or are they spread across longer distances or different rooms?",
+        whyItMatters:
+          "This helps determine whether local matrix switching is enough or whether extension/distribution also needs to be built in.",
+        whatGoodLooksLike:
+          "Map outputs by room and approximate cable route length.",
+        upsellPrompt:
+          "If rooms are widely spread or growth is likely, begin positioning distributed AV or AVoIP as the cleaner future path.",
+        technologyChecks: [
+          "Distance",
+          "Local matrix vs distributed",
+          "HDBaseT output path",
+          "Expansion risk",
+        ],
+      },
+      {
+        id: "matrix-3",
+        question: "Do you need audio de-embedding, breakaway audio, or additional control features?",
+        whyItMatters:
+          "Professional matrix jobs often include more than video routing.",
+        whatGoodLooksLike:
+          "Confirm whether audio and control need to be handled separately from the main HDMI path.",
+        technologyChecks: [
+          "Audio de-embed",
+          "Audio breakaway",
+          "RS232",
+          "IR",
+        ],
+      },
+    ],
+  },
+  {
+    key: "avoip",
+    title: "AVoIP system",
+    subtitle: "Networked AV distribution",
+    description:
+      "Use this when the requirement is larger-scale, more flexible, multi-room, or likely to expand over time.",
+    icon: "avoip",
+    productDirection: [
+      "Lead with AVoIP when flexibility, scale, and routing freedom matter more than simple point-to-point topology.",
+      "Qualify whether the customer needs one-to-many distribution, many-to-many switching, or video wall behaviour.",
+      "Understand whether multiview, control, USB, and network readiness are part of the requirement.",
+    ],
+    upgradeSignals: [
+      "Video wall requirement",
+      "Many rooms or many endpoints",
+      "Need for expansion",
+      "Multiview or control room workflows",
+      "Higher-end USB / KVM style behaviour",
+    ],
+    cards: [
+      {
+        id: "avoip-1",
+        question: "How many endpoints or spaces are involved now, and how likely is future expansion?",
+        whyItMatters:
+          "Scale and flexibility are core reasons to move into AVoIP rather than simpler architectures.",
+        whatGoodLooksLike:
+          "Understand both the current deployment and the likely next phase.",
+        technologyChecks: [
+          "Endpoint count",
+          "Expansion",
+          "Many-to-many routing",
+          "Scalability",
+        ],
+      },
+      {
+        id: "avoip-2",
+        question: "Does the customer need simple distribution, flexible switching, multiview, or video wall behaviour?",
+        whyItMatters:
+          "Not all AVoIP requirements are the same. This shapes the decoder/feature path quickly.",
+        whatGoodLooksLike:
+          "Separate straightforward distribution from control-room, wall, or multiview expectations.",
+        upsellPrompt:
+          "If they mention wall layouts or multiple windows, qualify decoder feature level immediately.",
+        technologyChecks: [
+          "Multiview",
+          "Video wall",
+          "Decoder capability",
+          "Windowing",
+        ],
+      },
+      {
+        id: "avoip-3",
+        question: "Does USB, KVM-style behaviour, or control integration need to travel with the AV path?",
+        whyItMatters:
+          "This is often where AVoIP solutions diverge in practical suitability.",
+        whatGoodLooksLike:
+          "Confirm whether the AV network is only for video/audio, or whether USB/control must be part of the design too.",
+        technologyChecks: [
+          "USB transport",
+          "KVM needs",
+          "RS232",
+          "IR",
+          "Ethernet/control integration",
+        ],
+      },
+    ],
+  },
+];
 
-function joinParagraphs(lines: string[]): string {
-  return lines.filter(Boolean).join("\n");
-}
-
-function uniqueStrings(values: Array<string | undefined | null>, limit = 6): string[] {
-  const out: string[] = [];
-  const seen = new Set<string>();
-
-  for (const value of values) {
-    const text = tidy(value);
-    if (!text) continue;
-    const key = text.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(text);
-    if (out.length >= limit) break;
+function getOutcomeIcon(key: OutcomeGuide["icon"]) {
+  switch (key) {
+    case "split":
+      return SplitSquareVertical;
+    case "extend":
+      return Route;
+    case "switch":
+      return ArrowLeftRight;
+    case "matrix":
+      return Rows3;
+    case "avoip":
+      return Network;
+    default:
+      return MonitorPlay;
   }
-
-  return out;
 }
 
 export default function SalesPositioningPage() {
-  const activeProject = useSyncExternalStore(subscribeProjects, getActiveProject, () => undefined);
-  const products = useMemo(
-    () => getCatalogProducts().filter((product) => product.status !== "legacy"),
-    [],
-  );
-  const families = useMemo(
-    () => ["All", ...Array.from(new Set(products.map((product) => tidy(product.family)).filter(Boolean))).sort()],
-    [products],
-  );
-  const defaultSku = useMemo(
-    () => products.find((product) => product.sku === "NHD-500-TX")?.sku || products[0]?.sku || "",
-    [products],
+  const [selectedOutcome, setSelectedOutcome] = React.useState<OutcomeKey>("split");
+  const [cardIndex, setCardIndex] = React.useState(0);
+  const [showAnswer, setShowAnswer] = React.useState(false);
+
+  const activeOutcome = React.useMemo(
+    () => OUTCOMES.find((item) => item.key === selectedOutcome) ?? OUTCOMES[0],
+    [selectedOutcome],
   );
 
-  const [mode, setMode] = useState<SalesWorkspaceMode>("product");
-  const [query, setQuery] = useState("");
-  const [family, setFamily] = useState("All");
-  const [selectedSku, setSelectedSku] = useState(defaultSku);
-  const [selectedFlashCardId, setSelectedFlashCardId] = useState(SALES_CONVERSATION_CARDS[0]?.id || "");
-  const [selectedPitchId, setSelectedPitchId] = useState(SALES_PITCH_MODULES[0]?.id || "wyrestorm");
-  const [status, setStatus] = useState("");
+  const activeCard = activeOutcome.cards[cardIndex] ?? activeOutcome.cards[0];
+  const ActiveIcon = getOutcomeIcon(activeOutcome.icon);
 
-  const deferredQuery = useDeferredValue(query);
-  const normalizedFamilyOptions = useMemo(
-    () => new Map(families.map((item) => [tidy(item).toLowerCase(), item])),
-    [families],
-  );
+  React.useEffect(() => {
+    setCardIndex(0);
+    setShowAnswer(false);
+  }, [selectedOutcome]);
 
-  const filteredProducts = useMemo(() => {
-    const familyKey = tidy(family).toLowerCase();
-    const q = tidy(deferredQuery).toLowerCase();
-
-    return products.filter((product) => {
-      const matchesFamily = familyKey === "all" || tidy(product.family).toLowerCase() === familyKey;
-      if (!matchesFamily) return false;
-      if (!q) return true;
-      return buildSearchBlob(product).includes(q);
-    });
-  }, [deferredQuery, family, products]);
-
-  useEffect(() => {
-    if (!filteredProducts.length) return;
-    if (!filteredProducts.some((product) => product.sku === selectedSku)) {
-      setSelectedSku(filteredProducts[0].sku);
-    }
-  }, [filteredProducts, selectedSku]);
-
-  useEffect(() => {
-    if (!selectedSku && defaultSku) {
-      setSelectedSku(defaultSku);
-    }
-  }, [defaultSku, selectedSku]);
-
-  const selectedProduct = useMemo(() => {
-    if (filteredProducts.length === 0) return null;
-    return filteredProducts.find((product) => product.sku === selectedSku) || filteredProducts[0] || null;
-  }, [filteredProducts, selectedSku]);
-
-  const productGuide = useMemo(
-    () => (selectedProduct ? buildProductPositioningGuide(selectedProduct) : null),
-    [selectedProduct],
-  );
-  const selectedProductTags = useMemo(
-    () =>
-      selectedProduct
-        ? uniqueStrings([
-            ...(selectedProduct.features || []),
-            ...(selectedProduct.normalizedTags || []),
-            ...(selectedProduct.matchKeywords || []),
-          ])
-        : [],
-    [selectedProduct],
-  );
-  const visibleProducts = useMemo(() => {
-    if (filteredProducts.length <= 12) return filteredProducts;
-
-    const topProducts = filteredProducts.slice(0, 12);
-    if (!selectedSku || topProducts.some((product) => product.sku === selectedSku)) {
-      return topProducts;
-    }
-
-    const selectedMatch = filteredProducts.find((product) => product.sku === selectedSku);
-    return selectedMatch ? [...topProducts.slice(0, 11), selectedMatch] : topProducts;
-  }, [filteredProducts, selectedSku]);
-
-  const selectedFlashCard = useMemo(
-    () =>
-      SALES_CONVERSATION_CARDS.find((card) => card.id === selectedFlashCardId) ||
-      SALES_CONVERSATION_CARDS[0] ||
-      null,
-    [selectedFlashCardId],
-  );
-
-  const selectedPitch = useMemo(
-    () =>
-      SALES_PITCH_MODULES.find((pitch) => pitch.id === selectedPitchId) ||
-      SALES_PITCH_MODULES[0] ||
-      null,
-    [selectedPitchId],
-  );
-
-  function focusSku(sku: string) {
-    startTransition(() => {
-      setMode("product");
-      setFamily("All");
-      setQuery(sku);
-      setSelectedSku(sku);
-    });
+  function previousCard() {
+    setCardIndex((current) =>
+      current === 0 ? activeOutcome.cards.length - 1 : current - 1,
+    );
+    setShowAnswer(false);
   }
 
-  function focusFamily(targetFamily: string) {
-    const resolvedFamily = normalizedFamilyOptions.get(tidy(targetFamily).toLowerCase());
-
-    startTransition(() => {
-      setMode("product");
-      if (resolvedFamily && resolvedFamily !== "All") {
-        setFamily(resolvedFamily);
-        setQuery("");
-        return;
-      }
-
-      setFamily("All");
-      setQuery(targetFamily);
-    });
+  function nextCard() {
+    setCardIndex((current) =>
+      current === activeOutcome.cards.length - 1 ? 0 : current + 1,
+    );
+    setShowAnswer(false);
   }
 
-  function openFlashCard(cardId: string) {
-    setMode("flashcards");
-    setSelectedFlashCardId(cardId);
+  function randomOutcome() {
+    const next = OUTCOMES[Math.floor(Math.random() * OUTCOMES.length)];
+    setSelectedOutcome(next.key);
   }
-
-  function openPitch(pitchId: string) {
-    setMode("brand");
-    setSelectedPitchId(pitchId);
-  }
-
-  async function copyText(label: string, text: string) {
-    try {
-      if (!navigator.clipboard) {
-        throw new Error("Clipboard access is not available in this browser.");
-      }
-      await navigator.clipboard.writeText(text);
-      setStatus(`${label} copied to the clipboard.`);
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : `Could not copy ${label.toLowerCase()}.`);
-    }
-  }
-
-  const left = (
-    <div className="wm-workspace-stack wm-sales-page__column">
-      <div className="wm-start-step">
-        Build the story before the customer call. Search a SKU when you already know the product,
-        use flash cards when you need an outcome-led opener, or pull a WyreStorm elevator pitch to
-        start the conversation with more confidence.
-      </div>
-
-      <section className="wm-workspace-card">
-        <div className="wm-workspace-card__header">
-          <h3 className="wm-workspace-card__title">Enablement view</h3>
-          <p className="wm-workspace-card__copy">
-            Move between product talk tracks, guided flash cards, and the wider WyreStorm story
-            without leaving the workspace.
-          </p>
-        </div>
-
-        <div className="wm-workspace-tab-row">
-          <button
-            type="button"
-            className={`wm-workspace-tab${mode === "product" ? " wm-workspace-tab--active" : ""}`}
-            onClick={() => setMode("product")}
-          >
-            Product positioning
-          </button>
-          <button
-            type="button"
-            className={`wm-workspace-tab${mode === "flashcards" ? " wm-workspace-tab--active" : ""}`}
-            onClick={() => setMode("flashcards")}
-          >
-            Flash cards
-          </button>
-          <button
-            type="button"
-            className={`wm-workspace-tab${mode === "brand" ? " wm-workspace-tab--active" : ""}`}
-            onClick={() => setMode("brand")}
-          >
-            Position WyreStorm
-          </button>
-        </div>
-      </section>
-
-      <section className="wm-workspace-card wm-sales-page__project-context">
-        <div className="wm-workspace-card__header">
-          <h3 className="wm-workspace-card__title">Current context</h3>
-          <p className="wm-workspace-card__copy">
-            The sales workspace works without an active project, but it can still sit alongside the
-            live opportunity when one is open.
-          </p>
-        </div>
-
-        {activeProject ? (
-          <div className="wm-workspace-list-item">
-            <span className="wm-workspace-list-item__eyebrow">Active project</span>
-            <span className="wm-workspace-list-item__title">{activeProject.name}</span>
-            <span className="wm-workspace-list-item__copy">
-              {activeProject.customer ? `${activeProject.customer} | ` : ""}
-              {tidy(activeProject.discovery?.applicationType) ||
-                tidy(activeProject.discovery?.workflowTrack) ||
-                "General AV opportunity"}
-            </span>
-          </div>
-        ) : (
-          <div className="wm-workspace-empty">
-            No active project is linked right now. Use this page as a stand-alone sales coach, then
-            jump into Compare, Product Intelligence, or Proposal when the conversation is ready.
-          </div>
-        )}
-      </section>
-
-      {mode === "product" ? (
-        <>
-          <section className="wm-workspace-card">
-            <div className="wm-workspace-card__header">
-              <h3 className="wm-workspace-card__title">Find a WyreStorm SKU</h3>
-              <p className="wm-workspace-card__copy">
-                Search by SKU, family, or outcome, then use the right-hand panel as the live talk
-                track for the customer conversation.
-              </p>
-            </div>
-
-            <div className="wm-workspace-form">
-              <div className="wm-workspace-field">
-                <label htmlFor="sales-positioning-query">Search</label>
-                <input
-                  id="sales-positioning-query"
-                  className="wm-input-dark"
-                  type="text"
-                  placeholder="SKU, range, feature, use case"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                />
-              </div>
-
-              <div className="wm-workspace-grid-2">
-                <div className="wm-workspace-field">
-                  <label htmlFor="sales-positioning-family">Family</label>
-                  <select
-                    id="sales-positioning-family"
-                    className="wm-input-dark"
-                    value={family}
-                    onChange={(event) => setFamily(event.target.value)}
-                  >
-                    {families.map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="wm-workspace-metric">
-                  <span>Matches</span>
-                  <strong>{filteredProducts.length}</strong>
-                </div>
-              </div>
-            </div>
-
-            <div className="wm-next-step">
-              Search by exact SKU when the customer already has a model in mind. Search by family or
-              outcome when you are still helping them understand what category of WyreStorm solution
-              fits the opportunity.
-            </div>
-          </section>
-
-          <section className="wm-workspace-card">
-            <div className="wm-workspace-card__header">
-              <h3 className="wm-workspace-card__title">Shortlist</h3>
-              <p className="wm-workspace-card__copy">
-                Pick the product you want to talk through. The first twelve matching products stay in
-                view so the list remains easy to scan during a call.
-              </p>
-            </div>
-
-            {visibleProducts.length > 0 ? (
-              <div className="wm-workspace-list wm-sales-page__selector-list">
-                {visibleProducts.map((product) => (
-                  <button
-                    key={product.sku}
-                    type="button"
-                    className={`wm-workspace-list-item wm-sales-page__selector-item${selectedProduct?.sku === product.sku ? " wm-workspace-list-item--active" : ""}`}
-                    aria-pressed={selectedProduct?.sku === product.sku}
-                    onClick={() => setSelectedSku(product.sku)}
-                  >
-                    <span className="wm-workspace-list-item__eyebrow">{product.sku}</span>
-                    <span className="wm-workspace-list-item__title">{product.name}</span>
-                    <span className="wm-workspace-list-item__copy">{buildMetricLabel(product)}</span>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div className="wm-workspace-empty">
-                No WyreStorm products matched that search. Try a broader family, clear the query, or
-                search by a simpler customer outcome.
-              </div>
-            )}
-          </section>
-        </>
-      ) : null}
-
-      {mode === "flashcards" ? (
-        <>
-          <section className="wm-workspace-card">
-            <div className="wm-workspace-card__header">
-              <h3 className="wm-workspace-card__title">Conversation starters</h3>
-              <p className="wm-workspace-card__copy">
-                Start with the customer outcome before you narrow into product. This keeps the sales
-                conversation confident even when the person using Wingman is not the AV expert.
-              </p>
-            </div>
-            <div className="wm-next-step">
-              Pick the outcome the customer is describing. Use the right-hand coaching panel to ask
-              better questions, then jump back into Product Positioning when a family or SKU becomes
-              obvious.
-            </div>
-          </section>
-
-          <section className="wm-workspace-card">
-            <div className="wm-workspace-list wm-sales-page__selector-list">
-              {SALES_CONVERSATION_CARDS.map((card) => (
-                <button
-                  key={card.id}
-                  type="button"
-                  className={`wm-workspace-list-item wm-sales-page__selector-item${selectedFlashCard?.id === card.id ? " wm-workspace-list-item--active" : ""}`}
-                  aria-pressed={selectedFlashCard?.id === card.id}
-                  onClick={() => setSelectedFlashCardId(card.id)}
-                >
-                  <span className="wm-workspace-list-item__eyebrow">{card.outcome}</span>
-                  <span className="wm-workspace-list-item__title">{card.title}</span>
-                  <span className="wm-workspace-list-item__copy">{card.opener}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-        </>
-      ) : null}
-
-      {mode === "brand" ? (
-        <>
-          <section className="wm-workspace-card">
-            <div className="wm-workspace-card__header">
-              <h3 className="wm-workspace-card__title">Position WyreStorm</h3>
-              <p className="wm-workspace-card__copy">
-                Use this when you need a cleaner opening story for the company, the platform, or one
-                of the core ranges before you drop into product-level detail.
-              </p>
-            </div>
-            <div className="wm-next-step">
-              Open with the range story, earn the customer&apos;s confidence, then narrow into the
-              right product family and SKU once the need is better defined.
-            </div>
-          </section>
-
-          <section className="wm-workspace-card">
-            <div className="wm-workspace-list wm-sales-page__selector-list">
-              {SALES_PITCH_MODULES.map((pitch) => (
-                <button
-                  key={pitch.id}
-                  type="button"
-                  className={`wm-workspace-list-item wm-sales-page__selector-item${selectedPitch?.id === pitch.id ? " wm-workspace-list-item--active" : ""}`}
-                  aria-pressed={selectedPitch?.id === pitch.id}
-                  onClick={() => setSelectedPitchId(pitch.id)}
-                >
-                  <span className="wm-workspace-list-item__eyebrow">{pitch.eyebrow}</span>
-                  <span className="wm-workspace-list-item__title">{pitch.title}</span>
-                  <span className="wm-workspace-list-item__copy">{pitch.elevatorPitch}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-        </>
-      ) : null}
-    </div>
-  );
-
-  const right = mode === "product" ? (
-    selectedProduct && productGuide ? (
-      <div className="wm-workspace-stack wm-sales-page__column wm-sales-page__column--output">
-        <section className="wm-workspace-card wm-workspace-card--muted wm-sales-page__hero-card">
-          <div className="wm-workspace-card__header">
-            <span className="wm-workspace-list-item__eyebrow">{selectedProduct.sku}</span>
-            <h3 className="wm-workspace-card__title">{selectedProduct.name}</h3>
-            <p className="wm-workspace-card__copy">{productGuide.headline}</p>
-          </div>
-
-          <div className="wm-workspace-prose">{productGuide.elevatorPitch}</div>
-
-          <div className="wm-workspace-grid-3 wm-sales-page__meta-grid">
-            <div className="wm-workspace-metric">
-              <span>Family</span>
-              <strong>{selectedProduct.family}</strong>
-            </div>
-            <div className="wm-workspace-metric">
-              <span>Category</span>
-              <strong>{selectedProduct.category}</strong>
-            </div>
-            <div className="wm-workspace-metric">
-              <span>Transport</span>
-              <strong>{tidy(selectedProduct.transport) || "General AV"}</strong>
-            </div>
-          </div>
-
-          <div className="wm-workspace-tag-row">
-            {selectedProductTags.map((tag) => (
-              <span key={tag} className="wm-workspace-tag">
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          <div className="wm-workspace-action-row">
-            <button
-              type="button"
-              className="wm-btn-primary"
-              onClick={() =>
-                void copyText(
-                  `${selectedProduct.sku} positioning pitch`,
-                  joinParagraphs([
-                    `${selectedProduct.sku} | ${selectedProduct.name}`,
-                    productGuide.elevatorPitch,
-                    "How to position it:",
-                    ...productGuide.positioningHighlights.map((item) => `- ${item}`),
-                    "Questions to ask:",
-                    ...productGuide.discoveryQuestions.map((item) => `- ${item}`),
-                  ]),
-                )
-              }
-            >
-              Copy talk track
-            </button>
-            <button
-              type="button"
-              className="wm-btn-secondary"
-              onClick={() => openFlashCard(productGuide.recommendedFlashCardId)}
-            >
-              Open matching flash card
-            </button>
-            <button
-              type="button"
-              className="wm-btn-secondary"
-              onClick={() => openPitch(productGuide.recommendedPitchId)}
-            >
-              Open range pitch
-            </button>
-            <Link to={WM_ROUTES.COMPARE} className="wm-btn">
-              Compare against competition
-            </Link>
-            <Link to={WM_ROUTES.PRODUCT_INTELLIGENCE} className="wm-btn">
-              Product intelligence
-            </Link>
-            {selectedProduct.sourceUrl ? (
-              <a href={selectedProduct.sourceUrl} target="_blank" rel="noreferrer" className="wm-btn">
-                Manufacturer page
-              </a>
-            ) : null}
-          </div>
-        </section>
-
-        <div className="wm-sales-page__support-grid">
-          <section className="wm-workspace-card">
-            <div className="wm-workspace-card__header">
-              <h3 className="wm-workspace-card__title">How to position it</h3>
-              <p className="wm-workspace-card__copy">
-                Use these lines to translate the spec sheet into customer language.
-              </p>
-            </div>
-            <ul className="wm-sales-page__bullet-list">
-              {productGuide.positioningHighlights.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="wm-workspace-card">
-            <div className="wm-workspace-card__header">
-              <h3 className="wm-workspace-card__title">Questions to ask next</h3>
-              <p className="wm-workspace-card__copy">
-                Keep the conversation moving toward a better-fit WyreStorm recommendation.
-              </p>
-            </div>
-            <ul className="wm-sales-page__bullet-list">
-              {productGuide.discoveryQuestions.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
-        </div>
-
-        <section className="wm-workspace-card">
-          <div className="wm-workspace-card__header">
-            <h3 className="wm-workspace-card__title">Proof points to promote</h3>
-            <p className="wm-workspace-card__copy">{productGuide.rangeConnection}</p>
-          </div>
-          <ul className="wm-sales-page__bullet-list">
-            {productGuide.proofPoints.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-      </div>
-    ) : (
-      <div className="wm-workspace-empty">
-        No product matches the current search. Clear the query or switch to a broader family to get
-        back to a usable sales story.
-      </div>
-    )
-  ) : mode === "flashcards" ? (
-    selectedFlashCard ? (
-      <div className="wm-workspace-stack wm-sales-page__column wm-sales-page__column--output">
-        <section className="wm-workspace-card wm-workspace-card--muted wm-sales-page__hero-card">
-          <div className="wm-workspace-card__header">
-            <span className="wm-workspace-list-item__eyebrow">{selectedFlashCard.outcome}</span>
-            <h3 className="wm-workspace-card__title">{selectedFlashCard.title}</h3>
-            <p className="wm-workspace-card__copy">{selectedFlashCard.opener}</p>
-          </div>
-
-          <div className="wm-workspace-action-row">
-            <button
-              type="button"
-              className="wm-btn-primary"
-              onClick={() =>
-                void copyText(
-                  `${selectedFlashCard.title} flash card`,
-                  joinParagraphs([
-                    selectedFlashCard.title,
-                    selectedFlashCard.opener,
-                    "Qualification questions:",
-                    ...selectedFlashCard.qualificationQuestions.map((item) => `- ${item}`),
-                    "How to position WyreStorm:",
-                    ...selectedFlashCard.wyrestormAngles.map((item) => `- ${item}`),
-                  ]),
-                )
-              }
-            >
-              Copy flash card
-            </button>
-            <Link to={selectedFlashCard.route} className="wm-btn-secondary">
-              Open recommended tool
-            </Link>
-          </div>
-        </section>
-
-        <div className="wm-sales-page__support-grid">
-          <section className="wm-workspace-card">
-            <div className="wm-workspace-card__header">
-              <h3 className="wm-workspace-card__title">Questions to ask</h3>
-              <p className="wm-workspace-card__copy">
-                Use these to qualify the customer need before you jump to product.
-              </p>
-            </div>
-            <ul className="wm-sales-page__bullet-list">
-              {selectedFlashCard.qualificationQuestions.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="wm-workspace-card">
-            <div className="wm-workspace-card__header">
-              <h3 className="wm-workspace-card__title">How to position WyreStorm</h3>
-              <p className="wm-workspace-card__copy">
-                Keep the conversation outcome-led, then let the product family support the story.
-              </p>
-            </div>
-            <ul className="wm-sales-page__bullet-list">
-              {selectedFlashCard.wyrestormAngles.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
-        </div>
-
-        <section className="wm-workspace-card">
-          <div className="wm-workspace-card__header">
-            <h3 className="wm-workspace-card__title">Keep the conversation going</h3>
-            <p className="wm-workspace-card__copy">
-              Use these bridges to move from the opener into the right product family or next tool.
-            </p>
-          </div>
-
-          <ul className="wm-sales-page__bullet-list">
-            {selectedFlashCard.keepConversationMoving.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-
-          <div className="wm-sales-page__chip-group">
-            {selectedFlashCard.recommendedFamilies.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className="wm-workspace-tag wm-sales-page__chip-button"
-                onClick={() => focusFamily(item)}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
-          <div className="wm-sales-page__chip-group">
-            {selectedFlashCard.sampleSkus.map((sku) => (
-              <button
-                key={sku}
-                type="button"
-                className="wm-workspace-tag wm-sales-page__chip-button"
-                onClick={() => focusSku(sku)}
-              >
-                {sku}
-              </button>
-            ))}
-          </div>
-        </section>
-      </div>
-    ) : null
-  ) : selectedPitch ? (
-    <div className="wm-workspace-stack wm-sales-page__column wm-sales-page__column--output">
-      <section className="wm-workspace-card wm-workspace-card--muted wm-sales-page__hero-card">
-        <div className="wm-workspace-card__header">
-          <span className="wm-workspace-list-item__eyebrow">{selectedPitch.eyebrow}</span>
-          <h3 className="wm-workspace-card__title">{selectedPitch.title}</h3>
-          <p className="wm-workspace-card__copy">{selectedPitch.elevatorPitch}</p>
-        </div>
-
-        <div className="wm-workspace-action-row">
-          <button
-            type="button"
-            className="wm-btn-primary"
-            onClick={() =>
-              void copyText(
-                `${selectedPitch.title} elevator pitch`,
-                joinParagraphs([
-                  selectedPitch.title,
-                  selectedPitch.elevatorPitch,
-                  "Lead with:",
-                  ...selectedPitch.leadWith.map((item) => `- ${item}`),
-                  "Proof points:",
-                  ...selectedPitch.proofPoints.map((item) => `- ${item}`),
-                ]),
-              )
-            }
-          >
-            Copy elevator pitch
-          </button>
-          <Link to={selectedPitch.route} className="wm-btn-secondary">
-            Open supporting tool
-          </Link>
-        </div>
-      </section>
-
-      <div className="wm-sales-page__support-grid">
-        <section className="wm-workspace-card">
-          <div className="wm-workspace-card__header">
-            <h3 className="wm-workspace-card__title">Lead with</h3>
-            <p className="wm-workspace-card__copy">
-              These points help the salesperson open the conversation with confidence.
-            </p>
-          </div>
-          <ul className="wm-sales-page__bullet-list">
-            {selectedPitch.leadWith.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="wm-workspace-card">
-          <div className="wm-workspace-card__header">
-            <h3 className="wm-workspace-card__title">Keep the conversation moving</h3>
-            <p className="wm-workspace-card__copy">
-              Use these bridges when the customer wants more depth without losing the simple story.
-            </p>
-          </div>
-          <ul className="wm-sales-page__bullet-list">
-            {selectedPitch.keepConversationMoving.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-      </div>
-
-      <section className="wm-workspace-card">
-        <div className="wm-workspace-card__header">
-          <h3 className="wm-workspace-card__title">Proof points and next moves</h3>
-          <p className="wm-workspace-card__copy">
-            Use these to support the elevator pitch once the customer asks for a little more.
-          </p>
-        </div>
-
-        <ul className="wm-sales-page__bullet-list">
-          {selectedPitch.proofPoints.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-
-        <div className="wm-sales-page__chip-group">
-          {selectedPitch.relatedFamilies.map((item) => (
-            <button
-              key={item}
-              type="button"
-              className="wm-workspace-tag wm-sales-page__chip-button"
-              onClick={() => focusFamily(item)}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-
-        <div className="wm-sales-page__chip-group">
-          {selectedPitch.sampleSkus.map((sku) => (
-            <button
-              key={sku}
-              type="button"
-              className="wm-workspace-tag wm-sales-page__chip-button"
-              onClick={() => focusSku(sku)}
-            >
-              {sku}
-            </button>
-          ))}
-        </div>
-      </section>
-    </div>
-  ) : null;
 
   return (
-    <SplitWorkspaceFrame
-      title="Sales Positioning"
-      subtitle="Wingman is here to give the salesperson an AV expert on demand: open the conversation with confidence, move into the right WyreStorm range, and keep enough supporting detail in front of you to sell against the competition."
-      leftTitle="Enablement Controls"
-      rightTitle="Sales Support"
-      left={left}
-      right={right}
-      top={
-        <div className="wm-workspace-action-row wm-sales-page__top-actions">
-          <Link to={WM_ROUTES.COMPARE} className="wm-btn-secondary">
-            Competitor Compare
-          </Link>
-          <Link to={WM_ROUTES.PRODUCT_INTELLIGENCE} className="wm-btn-secondary">
-            Product Intelligence
-          </Link>
-          <Link to={WM_ROUTES.TRAINING} className="wm-btn">
-            Training Hub
-          </Link>
-          <Link to={WM_ROUTES.PROPOSAL} className="wm-btn">
-            Proposal Builder
-          </Link>
-          <span className="wm-workspace-tag wm-sales-page__project-pill">
-            {activeProject ? `Active project: ${activeProject.name}` : "Works with or without a live project"}
-          </span>
+    <div className="wm-page-shell wm-sales-tools-page">
+      <section className="wm-page-header wm-page-header--split">
+        <div className="wm-page-stack">
+          <div className="wm-page-kicker">Sales helper</div>
+          <h1 className="wm-page-title">
+            Start from the AV outcome, then ask the right sales questions
+          </h1>
+          <p className="wm-page-subtitle">
+            Choose the customer’s likely requirement first, then let the flash cards
+            guide the qualification path, upgrade conversation, and WyreStorm product direction.
+          </p>
         </div>
-      }
-      bottom={status ? <div className="wm-workspace-empty">{status}</div> : null}
-    />
+
+        <div className="wm-page-actions">
+          <Link to={WM_ROUTES.catalog} className="wm-btn-secondary">
+            Open Catalogue
+          </Link>
+          <Link to={WM_ROUTES.guru} className="wm-btn-secondary">
+            Ask Guru
+          </Link>
+          <Link to={WM_ROUTES.proposal} className="wm-btn-primary">
+            Open Proposal
+          </Link>
+        </div>
+      </section>
+
+      <section className="wm-stat-row wm-sales-tools-page__stats">
+        <div className="wm-stat-card">
+          <span className="wm-stat-label">Outcome paths</span>
+          <span className="wm-stat-value">{OUTCOMES.length}</span>
+        </div>
+        <div className="wm-stat-card">
+          <span className="wm-stat-label">Current path</span>
+          <span className="wm-stat-value">{activeOutcome.title}</span>
+        </div>
+        <div className="wm-stat-card">
+          <span className="wm-stat-label">Flash cards</span>
+          <span className="wm-stat-value">{activeOutcome.cards.length}</span>
+        </div>
+        <div className="wm-stat-card">
+          <span className="wm-stat-label">Use case</span>
+          <span className="wm-stat-value">Live qualification</span>
+        </div>
+      </section>
+
+      <section className="wm-section">
+        <div className="wm-section-header">
+          <div>
+            <h2 className="wm-section-title">Choose the likely requirement</h2>
+            <p className="wm-section-copy">
+              Start from what the customer thinks they need. The helper then guides the
+              follow-up questions that narrow the best-fit WyreStorm path.
+            </p>
+          </div>
+        </div>
+
+        <div className="wm-sales-tools-page__outcome-grid">
+          {OUTCOMES.map((outcome) => {
+            const Icon = getOutcomeIcon(outcome.icon);
+            const isActive = outcome.key === selectedOutcome;
+
+            return (
+              <button
+                key={outcome.key}
+                type="button"
+                className={"wm-sales-outcome-card" + (isActive ? " is-active" : "")}
+                onClick={() => setSelectedOutcome(outcome.key)}
+              >
+                <div className="wm-sales-outcome-card__icon">
+                  <Icon size={18} />
+                </div>
+                <div className="wm-sales-outcome-card__body">
+                  <strong>{outcome.title}</strong>
+                  <span>{outcome.subtitle}</span>
+                  <p>{outcome.description}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="wm-page-grid wm-page-grid--2">
+        <aside className="wm-card wm-sales-path-panel">
+          <div className="wm-section-header">
+            <div>
+              <h2 className="wm-section-title">Current sales path</h2>
+              <p className="wm-section-copy">{activeOutcome.description}</p>
+            </div>
+          </div>
+
+          <div className="wm-sales-path-panel__hero">
+            <div className="wm-sales-path-panel__hero-icon">
+              <ActiveIcon size={20} />
+            </div>
+            <div>
+              <div className="wm-title">{activeOutcome.title}</div>
+              <div className="wm-text-muted">{activeOutcome.subtitle}</div>
+            </div>
+          </div>
+
+          <div className="wm-card wm-sales-subpanel">
+            <div className="wm-sales-subpanel__title">Product direction</div>
+            <div className="wm-sales-list">
+              {activeOutcome.productDirection.map((item) => (
+                <div key={item} className="wm-sales-list__item">
+                  <CheckCircle2 size={15} />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="wm-card wm-sales-subpanel">
+            <div className="wm-sales-subpanel__title">Upgrade / option signals</div>
+            <div className="wm-page-inline-list">
+              {activeOutcome.upgradeSignals.map((item) => (
+                <span key={item} className="wm-workspace-tag">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        <section className="wm-card wm-sales-flashcard-panel">
+          <div className="wm-sales-flashcard-panel__top">
+            <div className="wm-page-inline-list">
+              <span className="wm-workspace-tag">{activeOutcome.title}</span>
+              <span className="wm-workspace-tag">
+                Card {cardIndex + 1} of {activeOutcome.cards.length}
+              </span>
+            </div>
+
+            <button type="button" className="wm-btn-secondary" onClick={randomOutcome}>
+              <RefreshCcw size={16} />
+              Random path
+            </button>
+          </div>
+
+          <div className="wm-sales-flashcard">
+            {!showAnswer ? (
+              <div className="wm-sales-flashcard__face">
+                <div className="wm-sales-flashcard__label">
+                  <ScanSearch size={16} />
+                  <span>Question to ask</span>
+                </div>
+                <h3>{activeCard.question}</h3>
+                <p>{activeCard.whyItMatters}</p>
+              </div>
+            ) : (
+              <div className="wm-sales-flashcard__face wm-sales-flashcard__face--answer">
+                <div className="wm-sales-flashcard__label">
+                  <Sparkles size={16} />
+                  <span>What good looks like</span>
+                </div>
+                <h3>{activeCard.whatGoodLooksLike}</h3>
+                {activeCard.upsellPrompt ? <p>{activeCard.upsellPrompt}</p> : null}
+              </div>
+            )}
+          </div>
+
+          <div className="wm-action-row">
+            <button
+              type="button"
+              className="wm-btn-secondary"
+              onClick={() => setShowAnswer((current) => !current)}
+            >
+              <ArrowLeftRight size={16} />
+              {showAnswer ? "Show question" : "Flip card"}
+            </button>
+
+            <button type="button" className="wm-btn-secondary" onClick={previousCard}>
+              <ChevronLeft size={16} />
+              Previous
+            </button>
+
+            <button type="button" className="wm-btn-secondary" onClick={nextCard}>
+              Next
+              <ChevronRight size={16} />
+            </button>
+          </div>
+
+          <div className="wm-card wm-sales-subpanel">
+            <div className="wm-sales-subpanel__title">Technology checks to confirm</div>
+            <div className="wm-page-inline-list">
+              {activeCard.technologyChecks.map((item) => (
+                <span key={item} className="wm-workspace-tag">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="wm-card wm-sales-subpanel">
+            <div className="wm-sales-subpanel__title">Best next move</div>
+            <div className="wm-sales-list">
+              <Link to={WM_ROUTES.catalog} className="wm-sales-next-link">
+                Review matching product families in Catalogue
+                <ArrowRight size={15} />
+              </Link>
+              <Link to={WM_ROUTES.guru} className="wm-sales-next-link">
+                Ask Guru to sense-check the architecture
+                <ArrowRight size={15} />
+              </Link>
+              <Link to={WM_ROUTES.proposal} className="wm-sales-next-link">
+                Move to proposal once the path is clear
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
   );
 }

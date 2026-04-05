@@ -1,4 +1,5 @@
 import * as React from "react";
+import { saveGuruActiveProject } from "@/features/ai/guru/projectSnapshotSync";
 import { createStrictContext } from "./createStrictContext";
 import { useWingman, wingmanActions } from "@/state/useWingman";
 import type { LoadingContext } from "@/state/defaults";

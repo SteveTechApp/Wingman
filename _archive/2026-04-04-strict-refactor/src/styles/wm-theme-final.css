@@ -1,0 +1,489 @@
+/* =========================================================
+   Wingman Final Dark Authority Pass
+   Forces dark surfaces, cards, panels, tiles, and page blocks
+   ========================================================= */
+
+:root {
+  --wm-dark-bg: #07111d;
+  --wm-dark-surface: #0c1828;
+  --wm-dark-surface-2: #102033;
+  --wm-dark-surface-3: #13263c;
+  --wm-dark-border: #1f3650;
+  --wm-dark-border-strong: #2c4a6b;
+  --wm-dark-text: #e8eef7;
+  --wm-dark-text-soft: #b8c5d6;
+  --wm-dark-text-muted: #8ea0b7;
+  --wm-dark-accent: #f08a24;
+  --wm-dark-accent-soft: rgba(240, 138, 36, 0.14);
+  --wm-dark-blue: #2ea8ff;
+  --wm-dark-shadow: 0 16px 36px rgba(0, 0, 0, 0.34);
+}
+
+:root[data-theme="dark"],
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Base */
+html,
+body,
+#root {
+  background: var(--wm-dark-bg) !important;
+  color: var(--wm-dark-text) !important;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(240, 138, 36, 0.06), transparent 26%),
+    radial-gradient(circle at top right, rgba(46, 168, 255, 0.05), transparent 22%),
+    var(--wm-dark-bg) !important;
+  color: var(--wm-dark-text) !important;
+}
+
+/* Shell */
+.wm-shell-root,
+.wm-shell-body,
+.wm-shell-main,
+.wm-app-shell,
+.app-shell,
+.wm-main,
+.main,
+.wm-page,
+.wm-content,
+.content,
+.wm-canvas,
+.wm-canvas-inner {
+  background: transparent !important;
+  color: var(--wm-dark-text) !important;
+}
+
+/* Sidebar / topbar */
+.wm-sidebar,
+.sidebar,
+.wmx-sidebar,
+.wm-mission-control,
+.wm-mission-rail {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.02), transparent 18%),
+    #06101b !important;
+  color: #eaf2fb !important;
+  border-right: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+.wm-topbar,
+.topbar,
+.wmx-topbar,
+header[class*="topbar"] {
+  background: rgba(7, 17, 29, 0.88) !important;
+  color: var(--wm-dark-text) !important;
+  border-bottom: 1px solid var(--wm-dark-border) !important;
+  backdrop-filter: blur(14px);
+}
+
+/* Headings / body copy */
+h1, h2, h3, h4, h5, h6,
+.wm-page-title,
+.wm-card-title,
+.card-title,
+strong {
+  color: var(--wm-dark-text) !important;
+}
+
+p,
+small,
+span,
+label,
+li,
+.wm-page-subtitle,
+.card-subtitle,
+.text-muted,
+.wm-muted {
+  color: var(--wm-dark-text-soft) !important;
+}
+
+/* ---------------------------------------------------------
+   Main fix: cards / blocks / tiles / panels are forced dark
+   --------------------------------------------------------- */
+.wm-card,
+.card,
+.panel,
+.surface,
+.stat-card,
+.table-wrap,
+.modal,
+.dropdown-menu,
+.menu,
+.wm-panel,
+.wm-surface,
+[class*="card"],
+[class*="panel"],
+[class*="surface"],
+[class*="tile"],
+[class*="block"],
+[class*="section"],
+[class*="widget"] {
+  background: linear-gradient(
+      180deg,
+      rgba(255,255,255,0.02),
+      rgba(255,255,255,0)
+    ),
+    var(--wm-dark-surface) !important;
+  color: var(--wm-dark-text) !important;
+  border: 1px solid var(--wm-dark-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--wm-dark-shadow) !important;
+}
+
+/* Specific common inner wrappers */
+div[class*="hero"],
+div[class*="summary"],
+div[class*="overview"],
+div[class*="launcher"],
+div[class*="module"],
+div[class*="hub"],
+div[class*="path"],
+div[class*="project"] {
+  color: var(--wm-dark-text) !important;
+}
+
+/* Tool hub style blocks like screenshot */
+[class*="tool-hub"] > div,
+[class*="hub-page"] > div,
+[class*="dashboard"] > div,
+[class*="workspace"] > div {
+  color: var(--wm-dark-text) !important;
+}
+
+/* Buttons */
+button,
+.btn,
+.wm-btn {
+  border-radius: 12px !important;
+  color: var(--wm-dark-text) !important;
+}
+
+.btn-primary,
+.wm-btn-primary,
+button[class*="primary"] {
+  background: linear-gradient(180deg, #ff9c39, #f08a24) !important;
+  color: #08111f !important;
+  border: 1px solid transparent !important;
+  box-shadow: 0 12px 28px rgba(240, 138, 36, 0.28) !important;
+}
+
+.btn-secondary,
+.btn-ghost,
+.wm-btn-secondary,
+.wm-btn-ghost {
+  background: var(--wm-dark-surface-2) !important;
+  color: var(--wm-dark-text) !important;
+  border: 1px solid var(--wm-dark-border) !important;
+}
+
+/* Inputs */
+input,
+select,
+textarea,
+.input,
+.select,
+.textarea,
+.wm-input,
+.wm-select,
+.wm-textarea {
+  background: var(--wm-dark-surface-2) !important;
+  color: var(--wm-dark-text) !important;
+  border: 1px solid var(--wm-dark-border) !important;
+  border-radius: 12px !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none !important;
+  border-color: var(--wm-dark-blue) !important;
+  box-shadow: 0 0 0 4px rgba(46, 168, 255, 0.14) !important;
+}
+
+/* Tables */
+table,
+.table,
+.wm-table {
+  background: transparent !important;
+  color: var(--wm-dark-text) !important;
+}
+
+th,
+td,
+.table th,
+.table td,
+.wm-table th,
+.wm-table td {
+  border-color: var(--wm-dark-border) !important;
+  color: var(--wm-dark-text) !important;
+}
+
+/* Nav */
+.sidebar-link,
+.wm-nav-link,
+.wmx-nav-item,
+.wm-mission-link,
+.wm-sidebar-link {
+  color: rgba(234, 242, 251, 0.84) !important;
+  border-radius: 12px !important;
+}
+
+.sidebar-link:hover,
+.wm-nav-link:hover,
+.wmx-nav-item:hover,
+.wm-mission-link:hover,
+.wm-sidebar-link:hover {
+  background: rgba(255,255,255,0.06) !important;
+  color: var(--wm-text) !important;
+}
+
+.sidebar-link.active,
+.wm-nav-link.active,
+.wmx-nav-item.is-active,
+.wm-mission-link.active,
+.wm-sidebar-link.active {
+  background: linear-gradient(
+      180deg,
+      rgba(255,255,255,0.07),
+      rgba(255,255,255,0.02)
+    ),
+    #0f2740 !important;
+  color: var(--wm-text) !important;
+  border: 1px solid rgba(46, 168, 255, 0.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 10px 22px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Guru */
+.wm-guru-card,
+.wm-guru-button,
+[data-wingman-role="guru"],
+[data-guru="true"] {
+  background:
+    var(--wm-surface),
+    var(--wm-dark-surface-2) !important;
+  border: 1px solid rgba(240, 138, 36, 0.32) !important;
+  box-shadow:
+    0 0 0 1px rgba(240, 138, 36, 0.12),
+    0 16px 34px rgba(240, 138, 36, 0.12) !important;
+}
+
+/* Force pale blocks from screenshot to become dark */
+[style*="background: rgb(243"],
+[style*="background:#f"],
+[style*="background: #f"],
+[style*="background-color:#f"],
+[style*="background-color: #f"],
+[style*="background-color: rgb(24"],
+[style*="background: rgb(24"] {
+  background: var(--wm-dark-surface) !important;
+  color: var(--wm-dark-text) !important;
+  border-color: var(--wm-dark-border) !important;
+}
+
+/* Project chips */
+.wm-project-state--good,
+.wm-status-good,
+.wm-chip-good {
+  color: #5ee28c !important;
+}
+
+.wm-project-state--risk,
+.wm-status-risk,
+.wm-chip-risk,
+.wm-status-bad {
+  color: #ff7b7b !important;
+}
+
+/* =========================================================
+   Light-mode overrides so the final dark authority pass
+   only wins when the app is actually in dark mode.
+   ========================================================= */
+
+html[data-theme="light"],
+html[data-theme="light"] body,
+html[data-theme="light"] #root {
+  background: var(--wm-bg-shell) !important;
+  color: var(--wm-text) !important;
+}
+
+html[data-theme="light"] body {
+  background:
+    radial-gradient(circle at top left, rgba(240, 138, 36, 0.08), transparent 28%),
+    radial-gradient(circle at top right, rgba(90, 169, 255, 0.07), transparent 24%),
+    var(--wm-bg) !important;
+}
+
+html[data-theme="light"] .wm-shell-root,
+html[data-theme="light"] .wm-shell-body,
+html[data-theme="light"] .wm-shell-main,
+html[data-theme="light"] .wm-app-shell,
+html[data-theme="light"] .app-shell,
+html[data-theme="light"] .wm-main,
+html[data-theme="light"] .main,
+html[data-theme="light"] .wm-page,
+html[data-theme="light"] .wm-content,
+html[data-theme="light"] .content,
+html[data-theme="light"] .wm-canvas,
+html[data-theme="light"] .wm-canvas-inner {
+  background: transparent !important;
+  color: var(--wm-text) !important;
+}
+
+html[data-theme="light"] .wm-sidebar,
+html[data-theme="light"] .sidebar,
+html[data-theme="light"] .wmx-sidebar,
+html[data-theme="light"] .wm-mission-control,
+html[data-theme="light"] .wm-mission-rail {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), transparent 18%),
+    var(--wm-bg-sidebar) !important;
+  color: var(--wm-text-inverse) !important;
+  border-right: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+html[data-theme="light"] .wm-topbar,
+html[data-theme="light"] .topbar,
+html[data-theme="light"] .wmx-topbar,
+html[data-theme="light"] header[class*="topbar"] {
+  background: var(--wm-bg-topbar) !important;
+  color: var(--wm-text) !important;
+  border-bottom: 1px solid var(--wm-border) !important;
+}
+
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] h3,
+html[data-theme="light"] h4,
+html[data-theme="light"] h5,
+html[data-theme="light"] h6,
+html[data-theme="light"] .wm-page-title,
+html[data-theme="light"] .wm-card-title,
+html[data-theme="light"] .card-title,
+html[data-theme="light"] strong {
+  color: var(--wm-text) !important;
+}
+
+html[data-theme="light"] p,
+html[data-theme="light"] small,
+html[data-theme="light"] span,
+html[data-theme="light"] label,
+html[data-theme="light"] li,
+html[data-theme="light"] .wm-page-subtitle,
+html[data-theme="light"] .card-subtitle,
+html[data-theme="light"] .text-muted,
+html[data-theme="light"] .wm-muted {
+  color: var(--wm-text-soft) !important;
+}
+
+html[data-theme="light"] .wm-card,
+html[data-theme="light"] .card,
+html[data-theme="light"] .panel,
+html[data-theme="light"] .surface,
+html[data-theme="light"] .stat-card,
+html[data-theme="light"] .table-wrap,
+html[data-theme="light"] .modal,
+html[data-theme="light"] .dropdown-menu,
+html[data-theme="light"] .menu,
+html[data-theme="light"] .wm-panel,
+html[data-theme="light"] .wm-surface,
+html[data-theme="light"] [class*="card"],
+html[data-theme="light"] [class*="panel"],
+html[data-theme="light"] [class*="surface"],
+html[data-theme="light"] [class*="tile"],
+html[data-theme="light"] [class*="block"],
+html[data-theme="light"] [class*="section"],
+html[data-theme="light"] [class*="widget"] {
+  background: var(--wm-bg-elevated) !important;
+  color: var(--wm-text) !important;
+  border: 1px solid var(--wm-border) !important;
+  box-shadow: var(--wm-shadow-sm) !important;
+}
+
+html[data-theme="light"] button,
+html[data-theme="light"] .btn,
+html[data-theme="light"] .wm-btn {
+  color: var(--wm-text) !important;
+}
+
+html[data-theme="light"] .btn-primary,
+html[data-theme="light"] .wm-btn-primary,
+html[data-theme="light"] button[class*="primary"] {
+  background: linear-gradient(180deg, var(--wm-primary-hover), var(--wm-primary)) !important;
+  color: var(--wm-text) !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"] .btn-secondary,
+html[data-theme="light"] .btn-ghost,
+html[data-theme="light"] .wm-btn-secondary,
+html[data-theme="light"] .wm-btn-ghost {
+  background: var(--wm-bg-elevated) !important;
+  color: var(--wm-text) !important;
+  border: 1px solid var(--wm-border) !important;
+}
+
+html[data-theme="light"] input,
+html[data-theme="light"] select,
+html[data-theme="light"] textarea,
+html[data-theme="light"] .input,
+html[data-theme="light"] .select,
+html[data-theme="light"] .textarea,
+html[data-theme="light"] .wm-input,
+html[data-theme="light"] .wm-select,
+html[data-theme="light"] .wm-textarea {
+  background: var(--wm-bg-elevated) !important;
+  color: var(--wm-text) !important;
+  border: 1px solid var(--wm-border) !important;
+}
+
+html[data-theme="light"] table,
+html[data-theme="light"] .table,
+html[data-theme="light"] .wm-table {
+  background: transparent !important;
+  color: var(--wm-text) !important;
+}
+
+html[data-theme="light"] th,
+html[data-theme="light"] td,
+html[data-theme="light"] .table th,
+html[data-theme="light"] .table td,
+html[data-theme="light"] .wm-table th,
+html[data-theme="light"] .wm-table td {
+  border-color: var(--wm-border) !important;
+  color: var(--wm-text) !important;
+}
+
+html[data-theme="light"] .sidebar-link,
+html[data-theme="light"] .wm-nav-link,
+html[data-theme="light"] .wmx-nav-item,
+html[data-theme="light"] .wm-mission-link,
+html[data-theme="light"] .wm-sidebar-link {
+  color: rgba(248, 250, 252, 0.84) !important;
+}
+
+html[data-theme="light"] .sidebar-link.active,
+html[data-theme="light"] .wm-nav-link.active,
+html[data-theme="light"] .wmx-nav-item.is-active,
+html[data-theme="light"] .wm-mission-link.active,
+html[data-theme="light"] .wm-sidebar-link.active {
+  background: linear-gradient(
+      180deg,
+      rgba(255,255,255,0.08),
+      rgba(255,255,255,0.03)
+    ),
+    var(--wm-primary) !important;
+  color: var(--wm-text) !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+}

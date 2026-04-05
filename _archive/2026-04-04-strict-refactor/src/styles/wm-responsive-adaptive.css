@@ -1,0 +1,216 @@
+/* =========================================
+   Wingman Responsive + Adaptive Layout Pass
+   ========================================= */
+
+:root {
+  --wm-page-max-width: 1480px;
+  --wm-content-gap: 16px;
+  --wm-rail-gap: 14px;
+}
+
+/* Overall page containment */
+.wm-page-frame,
+.wm-page-content,
+.wm-canvas-inner {
+  width: 100%;
+  max-width: var(--wm-page-max-width);
+  margin-inline: auto;
+}
+
+/* Core two-column tool layout */
+.wm-layout-main-support {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr) !important;
+  gap: var(--wm-content-gap) !important;
+  align-items: start !important;
+}
+
+/* Three-zone pages like Sales */
+.wm-sales-three-zone {
+  display: grid !important;
+  grid-template-columns: minmax(240px, 0.78fr) minmax(0, 1.22fr) minmax(280px, 0.82fr) !important;
+  gap: var(--wm-content-gap) !important;
+  align-items: start !important;
+}
+
+/* Rails */
+.wm-main-rail,
+.wm-support-rail {
+  display: grid !important;
+  gap: var(--wm-rail-gap) !important;
+  min-width: 0 !important;
+  align-content: start !important;
+}
+
+/* Product/result grids should not become giant walls */
+.wm-grid-cards {
+  display: grid !important;
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.wm-card {
+  grid-column: span 4;
+}
+
+.wm-card--hero {
+  grid-column: span 6;
+}
+
+/* Dense lists for shortlist/selectors */
+.wm-stack-tight > .wm-card,
+.wm-stack-tight > button.wm-card,
+.wm-stack-tight > .wm-workspace-list-item,
+.wm-stack-tight > button.wm-workspace-list-item {
+  min-height: unset !important;
+}
+
+/* Buttons wrap cleanly instead of forcing width */
+.wm-page-actions,
+.wm-action-row,
+.wm-workspace-action-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+/* Tables should scroll horizontally, not break layout */
+.wm-workspace-table-wrap {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+/* Very wide screens: prevent content drifting too far apart */
+@media (min-width: 1700px) {
+  :root {
+    --wm-page-max-width: 1560px;
+  }
+
+  .wm-layout-main-support {
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.78fr) !important;
+  }
+
+  .wm-sales-three-zone {
+    grid-template-columns: minmax(250px, 0.72fr) minmax(0, 1.18fr) minmax(300px, 0.78fr) !important;
+  }
+}
+
+/* Large laptop / normal desktop */
+@media (max-width: 1400px) {
+  .wm-sales-three-zone {
+    grid-template-columns: minmax(220px, 0.82fr) minmax(0, 1.18fr) minmax(260px, 0.8fr) !important;
+  }
+
+  .wm-card {
+    grid-column: span 6;
+  }
+
+  .wm-card--hero {
+    grid-column: span 12;
+  }
+}
+
+/* Tablet landscape / tighter laptops */
+@media (max-width: 1180px) {
+  .wm-layout-main-support {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-sales-three-zone {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-main-rail,
+  .wm-support-rail {
+    gap: 12px !important;
+  }
+
+  .wm-grid-cards {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+
+  .wm-card,
+  .wm-card--hero {
+    grid-column: span 6;
+  }
+}
+
+/* Tablet portrait */
+@media (max-width: 900px) {
+  .wm-page-frame,
+  .wm-page-content,
+  .wm-canvas-inner {
+    padding-inline: 12px !important;
+  }
+
+  .wm-page-hero__top {
+    display: grid !important;
+    gap: 10px !important;
+  }
+
+  .wm-page-title {
+    font-size: 20px !important;
+  }
+
+  .wm-grid-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .wm-card,
+  .wm-card--hero {
+    grid-column: span 2;
+  }
+
+  .wm-sales-three-zone,
+  .wm-layout-main-support {
+    gap: 12px !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .wm-page-frame,
+  .wm-page-content,
+  .wm-canvas-inner {
+    padding-inline: 10px !important;
+  }
+
+  .wm-grid-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-card,
+  .wm-card--hero {
+    grid-column: span 1;
+  }
+
+  .wm-page-actions,
+  .wm-action-row,
+  .wm-workspace-action-row {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-button,
+  .wm-btn,
+  .wm-btn-primary,
+  .wm-btn-secondary {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100% !important;
+  }
+}
+
+/* Sticky support only on larger screens where it helps */
+@media (min-width: 1181px) {
+  .wm-support-rail > .wm-section:first-child {
+    position: sticky;
+    top: 12px;
+  }
+}

@@ -1,86 +1,51 @@
-.guru-fab {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 999;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 52px;
-  padding: 10px 14px;
-  border-radius: 18px;
-  border: 1px solid rgba(125, 211, 252, 0.28);
+.wm-guru-fab {
+  position: fixed !important;
+  right: 24px !important;
+  bottom: 24px !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 2147483000 !important;
+  width: 72px !important;
+  height: 72px !important;
+  min-width: 72px !important;
+  min-height: 72px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(123, 169, 234, 0.26) !important;
   background:
-    radial-gradient(circle at top left, rgba(34, 211, 238, 0.16), transparent 28%),
-    linear-gradient(180deg, rgba(5, 12, 22, 0.96), rgba(8, 17, 31, 0.94));
-  color: #eff6ff;
-  user-select: none;
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.16), transparent 36%),
+    linear-gradient(180deg, rgba(10, 23, 40, 0.96), rgba(6, 14, 28, 0.98)) !important;
   box-shadow:
-    0 18px 36px rgba(2, 8, 23, 0.4),
-    0 0 0 1px rgba(56, 189, 248, 0.08) inset;
-  transition:
-    transform 140ms ease,
-    border-color 140ms ease,
-    box-shadow 140ms ease;
+    0 20px 42px rgba(2, 8, 23, 0.38),
+    inset 0 1px 0 rgba(255,255,255,0.04) !important;
+  cursor: pointer !important;
 }
 
-.guru-fab:hover {
-  transform: translateY(-1px);
-  border-color: rgba(125, 211, 252, 0.42);
-  box-shadow:
-    0 24px 44px rgba(2, 8, 23, 0.46),
-    0 0 0 1px rgba(56, 189, 248, 0.12) inset;
+.wm-guru-fab__icon,
+.wm-guru-fab img {
+  width: 42px !important;
+  height: 42px !important;
+  object-fit: contain !important;
+  pointer-events: none !important;
 }
 
-.guru-fab:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 4px rgba(56, 189, 248, 0.2),
-    0 20px 40px rgba(2, 8, 23, 0.45);
-}
-
-.guru-fab__icon,
-.guru-fab__spark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  color: #bfeaff;
-}
-
-.guru-fab__icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-  background: rgba(59, 130, 246, 0.14);
-}
-
-.guru-fab__copy {
-  display: grid;
-  gap: 1px;
-  text-align: left;
-}
-
-.guru-fab__copy strong {
-  font-size: 0.9rem;
-  line-height: 1.05;
-}
-
-.guru-fab__copy small {
-  font-size: 0.72rem;
-  line-height: 1.15;
-  color: rgba(191, 234, 255, 0.78);
-}
-
-@media (max-width: 760px) {
-  .guru-fab {
-    right: 12px;
-    bottom: 12px;
-    padding: 10px 12px;
+@media (max-width: 900px) {
+  .wm-guru-fab {
+    right: 16px !important;
+    bottom: 16px !important;
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+    min-height: 64px !important;
   }
 
-  .guru-fab__copy small,
-  .guru-fab__spark {
-    display: none;
+  .wm-guru-fab__icon,
+  .wm-guru-fab img {
+    width: 36px !important;
+    height: 36px !important;
   }
 }

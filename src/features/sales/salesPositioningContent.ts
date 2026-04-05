@@ -1,5 +1,7 @@
 import type { CatalogPortCount, CatalogProduct } from "@/catalog/types";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
+import type { StoredProject } from "@/features/projects/projectStore";
+import type { RoomTemplateScenario } from "@/features/templates/roomTemplateLibrary";
 
 export type SalesConversationCard = {
   id: string;
@@ -38,8 +40,29 @@ export type ProductPositioningGuide = {
   recommendedFlashCardId: string;
 };
 
+export type SalesMotionId =
+  | "room-fit"
+  | "competitive-refresh"
+  | "reassurance"
+  | "rollout";
+
+export type SalesMotion = {
+  id: SalesMotionId;
+  title: string;
+  summary: string;
+  detail: string;
+  focusFamilies: string[];
+  preferredCardIds: string[];
+  preferredPitchIds: string[];
+  nextRoute: string;
+};
+
 function tidy(value: unknown): string {
   return String(value ?? "").trim();
+}
+
+function normalizeKey(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
 function compact(values: Array<string | undefined | null>, limit = 6): string[] {
@@ -119,6 +142,14 @@ function inferPitchId(product: CatalogProduct): string {
   if (range === "NetworkHD") return "networkhd";
   if (range === "Synergy") return "synergy";
   if (range === "Apollo") return "apollo";
+  return "ranges";
+}
+
+function pitchIdForFamily(family: string): string {
+  const key = normalizeKey(family);
+  if (key === "avoip") return "networkhd";
+  if (key === "matrix") return "synergy";
+  if (key === "apollo" || key === "usbextension") return "apollo";
   return "ranges";
 }
 
@@ -262,6 +293,203 @@ export function buildProductPositioningGuide(product: CatalogProduct): ProductPo
     recommendedPitchId: pitchId,
     recommendedFlashCardId: inferFlashCardId(product),
   };
+}
+
+export const SALES_MOTIONS: SalesMotion[] = [
+  {
+    id: "room-fit",
+    title: "Lead the first recommendation",
+    summary: "Start with the room and the user outcome, then bring in the most believable WyreStorm direction.",
+    detail: "Best when the customer is still early and needs a clear room-first recommendation rather than a spec-sheet dump.",
+    focusFamilies: ["Apollo", "HDBaseT", "Matrix"],
+    preferredCardIds: ["wireless-collaboration", "switch-between-sources", "extend-a-signal"],
+    preferredPitchIds: ["apollo", "synergy", "ranges"],
+    nextRoute: WM_ROUTES.catalog,
+  },
+  {
+    id: "competitive-refresh",
+    title: "Refresh or replace an existing system",
+    summary: "Frame the conversation around a cleaner upgrade path, not just a model-for-model swap.",
+    detail: "Best for refresh work, legacy-system replacements, or competitor displacement where confidence and migration path matter.",
+    focusFamilies: ["HDBaseT", "Matrix", "AVoIP"],
+    preferredCardIds: ["extend-a-signal", "scale-distribution", "switch-between-sources"],
+    preferredPitchIds: ["ranges", "networkhd", "synergy"],
+    nextRoute: WM_ROUTES.compare,
+  },
+  {
+    id: "reassurance",
+    title: "Handle objections and prove the fit",
+    summary: "Keep the language plain, reassure the buyer, and use only the proof points that reduce friction.",
+    detail: "Best when the customer is worried about complexity, support, ease of use, or whether the recommendation is too much or too little.",
+    focusFamilies: ["Apollo", "USB Extension", "Matrix"],
+    preferredCardIds: ["wireless-collaboration", "switch-between-sources", "split-a-signal"],
+    preferredPitchIds: ["apollo", "synergy", "ranges"],
+    nextRoute: WM_ROUTES.guru,
+  },
+  {
+    id: "rollout",
+    title: "Standardise more rooms or scale the estate",
+    summary: "Shift the conversation from one room and one box to repeatability, supportability, and growth.",
+    detail: "Best when the customer is thinking about many rooms, venue scale, or a platform they can keep expanding.",
+    focusFamilies: ["AVoIP", "Matrix", "HDBaseT"],
+    preferredCardIds: ["scale-distribution", "split-a-signal", "extend-a-signal"],
+    preferredPitchIds: ["networkhd", "ranges", "synergy"],
+    nextRoute: WM_ROUTES.proposal,
+  },
+];
+
+export function findSalesMotion(id?: string | null): SalesMotion | undefined {
+  const key = tidy(id).toLowerCase();
+  if (!key) return undefined;
+  return SALES_MOTIONS.find((item) => item.id === key);
+}
+
+export function findSalesPitchModule(id?: string | null): SalesPitchModule | undefined {
+  const key = tidy(id).toLowerCase();
+  if (!key) return undefined;
+  return SALES_PITCH_MODULES.find((item) => item.id === key);
+}
+
+export function labelSalesRoute(route: string): string {
+  if (route === WM_ROUTES.catalog) return "Catalog";
+  if (route === WM_ROUTES.compare) return "Competitor Compare";
+  if (route === WM_ROUTES.proposal) return "Proposal Builder";
+  if (route === WM_ROUTES.roomWizard) return "Room Wizard";
+  if (route === WM_ROUTES.guru) return "Guru";
+  if (route === WM_ROUTES.training) return "Training Hub";
+  if (route === WM_ROUTES.productIntelligence) return "Product Intelligence";
+  return "Next tool";
+}
+
+function buildRoomBlob(room?: RoomTemplateScenario | null): string {
+  if (!room) return "";
+  return [
+    room.roomType,
+    room.vertical,
+    room.summary,
+    room.story,
+    room.designPurpose,
+    ...room.useCases,
+    ...room.sourceTypes,
+    ...room.outputTypes,
+    ...room.recommendedFamilies,
+    ...room.includedSystems,
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
+function buildProjectBlob(project?: StoredProject | null): string {
+  if (!project) return "";
+  return [
+    project.name,
+    project.customer,
+    project.site,
+    project.roomName,
+    project.notes,
+    project.discovery?.workflowTrack,
+    project.discovery?.applicationType,
+    project.discovery?.customerOutcome,
+    project.discovery?.featureRequirements,
+    project.template?.application,
+    project.template?.summary,
+  ]
+    .map((value) => tidy(value).toLowerCase())
+    .filter(Boolean)
+    .join(" ");
+}
+
+export function recommendSalesConversationCards(input: {
+  room?: RoomTemplateScenario | null;
+  motion?: SalesMotion | null;
+  project?: StoredProject | null;
+  limit?: number;
+}): SalesConversationCard[] {
+  const roomBlob = buildRoomBlob(input.room);
+  const projectBlob = buildProjectBlob(input.project);
+  const roomFamilies = new Set(
+    compact(
+      [
+        ...(input.room?.recommendedFamilies || []),
+        ...(input.motion?.focusFamilies || []),
+        ...(input.project?.template?.recommendedFamilies || []),
+        ...(input.project?.discovery?.recommendedFamilies || []),
+      ],
+      12,
+    ).map(normalizeKey),
+  );
+
+  return [...SALES_CONVERSATION_CARDS]
+    .map((card) => {
+      let score = 0;
+
+      for (const family of card.recommendedFamilies) {
+        if (roomFamilies.has(normalizeKey(family))) {
+          score += 14;
+        }
+      }
+
+      if (input.motion?.preferredCardIds.includes(card.id)) {
+        score += 12;
+      }
+
+      const blob = [
+        card.title,
+        card.outcome,
+        card.opener,
+        ...card.qualificationQuestions,
+        ...card.wyrestormAngles,
+        ...card.keepConversationMoving,
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      if (roomBlob && blob.includes("wireless") && /meeting|classroom|boardroom|seminar|uc/i.test(roomBlob)) {
+        score += 8;
+      }
+      if (roomBlob && blob.includes("scale") && /venue|sports bar|command|control|showroom|sanctuary|hotel/i.test(roomBlob)) {
+        score += 8;
+      }
+      if (roomBlob && blob.includes("switch") && input.room && input.room.ioProfile.sourceCount >= 4) {
+        score += 6;
+      }
+      if (roomBlob && blob.includes("extend") && input.room && input.room.ioProfile.displayCount <= 2) {
+        score += 5;
+      }
+      if (projectBlob && blob.includes("support") && /support|simple|confidence|refresh/i.test(projectBlob)) {
+        score += 5;
+      }
+
+      return { card, score };
+    })
+    .sort((left, right) => right.score - left.score || left.card.title.localeCompare(right.card.title))
+    .map((item) => item.card)
+    .slice(0, Math.max(1, input.limit ?? 3));
+}
+
+export function recommendSalesPitchModules(input: {
+  room?: RoomTemplateScenario | null;
+  motion?: SalesMotion | null;
+  project?: StoredProject | null;
+  limit?: number;
+}): SalesPitchModule[] {
+  const families = compact([
+    ...(input.motion?.focusFamilies || []),
+    ...(input.room?.recommendedFamilies || []),
+    ...(input.project?.template?.recommendedFamilies || []),
+    ...(input.project?.discovery?.recommendedFamilies || []),
+  ], 8);
+
+  const ids = compact([
+    ...(input.motion?.preferredPitchIds || []),
+    ...families.map((family) => pitchIdForFamily(family)),
+    "wyrestorm",
+  ], Math.max(2, input.limit ?? 2));
+
+  return ids
+    .map((id) => findSalesPitchModule(id))
+    .filter((item): item is SalesPitchModule => Boolean(item))
+    .slice(0, Math.max(1, input.limit ?? 2));
 }
 
 export const SALES_CONVERSATION_CARDS: SalesConversationCard[] = [

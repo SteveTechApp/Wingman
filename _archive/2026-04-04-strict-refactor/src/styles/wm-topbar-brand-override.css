@@ -1,0 +1,63 @@
+/* Top-left Wingman brand cleanup */
+
+.wm-topbar :is(
+  .wm-topbar-brand-copy,
+  .wm-topbar-brand__copy,
+  .wm-topbar-brand-text,
+  .wm-brand-copy,
+  .wm-brand-text,
+  .wm-brand-meta,
+  .wm-brand-label,
+  .topbar-brand-copy,
+  .topbar-brand-text
+) {
+  display: none !important;
+}
+
+.wm-topbar :is(
+  .wm-topbar-brand,
+  .wm-topbar__brand,
+  .wm-brand,
+  .wm-brand-lockup,
+  .topbar-brand
+) {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+}
+
+.wm-topbar :is(
+  .wm-topbar-brand-media,
+  .wm-topbar-brand__media,
+  .wm-brand-media,
+  .topbar-brand-media
+) {
+  width: auto !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+}
+
+.wm-topbar :is(
+  .wm-topbar-brand img,
+  .wm-topbar__brand img,
+  .wm-brand img,
+  .wm-brand-lockup img,
+  .topbar-brand img
+) {
+  display: block !important;
+  width: auto !important;
+  height: 86px !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+}
+
+.wm-topbar {
+  overflow: visible !important;
+}

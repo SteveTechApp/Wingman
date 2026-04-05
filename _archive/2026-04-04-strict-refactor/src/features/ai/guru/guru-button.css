@@ -1,0 +1,31 @@
+.wm-guru-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(6px);
+
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  /* IMPORTANT: no fixed positioning */
+  position: relative;
+}
+
+.wm-guru-button:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.wm-guru-button__icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}

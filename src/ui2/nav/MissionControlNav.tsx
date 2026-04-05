@@ -1,8 +1,9 @@
+import "./mission-control-nav.css";
 import { NavLink } from "react-router-dom";
 import {
   BookOpen,
-  Brain,
-  FileUp,
+  Boxes,
+  FileInput,
   Grid2x2,
   LayoutPanelTop,
   ShieldCheck,
@@ -14,56 +15,47 @@ import {
 type NavItem = {
   label: string;
   route: string;
-  icon: typeof Grid2x2;
+  icon: typeof LayoutPanelTop;
 };
 
-const items: NavItem[] = [
+const navItems: NavItem[] = [
   { label: "Tool Hub", route: "/app/tools", icon: LayoutPanelTop },
   { label: "Catalogue", route: "/app/tools/catalog", icon: Grid2x2 },
   { label: "Competitor Compare", route: "/app/tools/compare", icon: Trophy },
-  { label: "Video Wall", route: "/app/tools/video-wall", icon: LayoutPanelTop },
-  { label: "Import Customer Brief", route: "/app/tools/import-intake", icon: FileUp },
-  { label: "Product Intelligence", route: "/app/tools/product-intelligence", icon: Brain },
-  { label: "Sales Positioning", route: "/app/tools/sales", icon: ShieldCheck },
+  { label: "Video Wall", route: "/app/tools/video-wall", icon: Boxes },
+  { label: "Import Customer Brief", route: "/app/tools/import-intake", icon: FileInput },
+  { label: "Product Intelligence", route: "/app/tools/product-intelligence", icon: ShieldCheck },
+  { label: "Sales Positioning", route: "/app/tools/sales-positioning", icon: Sparkles },
   { label: "Training Hub", route: "/app/tools/training", icon: BookOpen },
   { label: "Guru", route: "/app/tools/guru", icon: Wand2 },
 ];
 
 export default function MissionControlNav() {
   return (
-    <aside className="wm-sidebar" aria-label="Primary navigation">
-      <div className="wm-sidebar__inner">
-        <div className="wm-sidebar__sectionLabel">Workspace</div>
+    <nav className="wm-mission-control" aria-label="Primary">
+      <div className="wm-mission-control__row">
+        {navItems.map((item) => {
+          const Icon = item.icon;
 
-        <nav className="wm-sidebar__nav">
-          {items.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <NavLink
-                key={item.route}
-                to={item.route}
-                end={item.route === "/app/tools"}
-                className={({ isActive }) =>
-                  isActive ? "wm-sidebar__link wm-sidebar__link--active" : "wm-sidebar__link"
-                }
-              >
-                <span className="wm-sidebar__icon">
-                  <Icon size={16} strokeWidth={1.9} />
-                </span>
-                <span className="wm-sidebar__label">{item.label}</span>
-              </NavLink>
-            );
-          })}
-        </nav>
-
-        <div className="wm-sidebar__footer">
-          <div className="wm-sidebar__helper">
-            <Sparkles size={14} />
-            <span>Wingman assistant ready</span>
-          </div>
-        </div>
+          return (
+            <NavLink
+              key={item.route}
+              to={item.route}
+              className={({ isActive }) =>
+                "wm-mission-control__link" + (isActive ? " is-active" : "")
+              }
+            >
+              <Icon size={16} strokeWidth={2} aria-hidden="true" />
+              <span>{item.label}</span>
+            </NavLink>
+          );
+        })}
       </div>
-    </aside>
+
+      <div className="wm-mission-control__status">
+        <Sparkles size={14} strokeWidth={2} aria-hidden="true" />
+        <span>Wingman assistant ready</span>
+      </div>
+    </nav>
   );
 }

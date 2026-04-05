@@ -1,345 +1,208 @@
 .wm-project-overview-page {
-  display: grid;
-  gap: 26px;
-  padding: 8px 0 36px;
-}
-
-.wm-project-overview-page__intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 18px 24px;
-  align-items: end;
-}
-
-.wm-project-overview-page__intro-copy {
-  display: grid;
-  gap: 10px;
-}
-
-.wm-project-overview-page__eyebrow {
-  color: var(--wm-studio-accent, #15c5b6);
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.wm-project-overview-page__intro h1 {
-  margin: 0;
-  color: var(--wm-studio-text, #211b16);
-  font-family: var(--wm-font-display);
-  font-size: clamp(2.8rem, 5vw, 4.6rem);
-  line-height: 0.93;
-  font-weight: 350;
-  letter-spacing: -0.075em;
-}
-
-.wm-project-overview-page__intro p {
-  max-width: 68ch;
-  color: var(--wm-studio-text-soft, rgba(77, 68, 60, 0.82));
-  font-size: 1rem;
-  line-height: 1.62;
-}
-
-.wm-project-overview-page__intro-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.wm-project-overview-page__board {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
-}
-
-.wm-project-overview-page__panel,
-.wm-project-overview-page__notes {
-  display: grid;
   gap: 18px;
-  min-width: 0;
-  padding: 26px;
-  border-radius: 30px;
-  border: 1px solid rgba(58, 47, 36, 0.06);
-  background: rgba(255, 253, 249, 0.76);
-  box-shadow: 0 28px 70px rgba(63, 47, 31, 0.08);
-  backdrop-filter: blur(24px);
 }
 
-.wm-project-overview-page__section-head {
-  display: grid;
-  gap: 6px;
-}
-
-.wm-project-overview-page__section-head h2 {
-  margin: 0;
-  color: var(--wm-studio-text, #211b16);
-  font-size: 1.08rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-}
-
-.wm-project-overview-page__section-head p,
-.wm-project-overview-page__next-card p,
-.wm-project-overview-page__notes-body {
-  color: var(--wm-studio-text-soft, rgba(77, 68, 60, 0.82));
-  line-height: 1.58;
-}
-
-.wm-project-overview-page__definition-list {
+.wm-project-definition-list {
   display: grid;
   gap: 12px;
   margin: 0;
 }
 
-.wm-project-overview-page__definition-row {
+.wm-project-definition-row {
   display: grid;
   gap: 4px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(58, 47, 36, 0.06);
+  border-bottom: 1px solid rgba(123, 169, 234, 0.1);
 }
 
-.wm-project-overview-page__definition-row:last-child {
+.wm-project-definition-row:last-child {
   padding-bottom: 0;
   border-bottom: 0;
 }
 
-.wm-project-overview-page__definition-row dt {
-  color: rgba(120, 108, 97, 0.92);
-  font-size: 0.68rem;
+.wm-project-definition-row dt,
+.wm-project-next-kicker,
+.wm-project-asset-card span,
+.wm-project-commercial-state span,
+.wm-project-field span,
+.wm-project-activity-head span,
+.wm-project-activity-eyebrow {
+  color: var(--wm-text-muted);
+  font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
-.wm-project-overview-page__definition-row dd {
+.wm-project-definition-row dd {
   margin: 0;
-  color: var(--wm-studio-text, #211b16);
-  font-weight: 600;
+  color: var(--wm-text);
+  font-weight: 650;
   line-height: 1.45;
 }
 
-.wm-project-overview-page__next-card {
+.wm-project-next-card,
+.wm-project-asset-card,
+.wm-project-commercial-state,
+.wm-project-activity-item,
+.wm-project-status {
+  border-radius: 18px;
+  border: 1px solid rgba(123, 169, 234, 0.1);
+  background: rgba(9, 21, 38, 0.56);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.wm-project-next-card {
   display: grid;
   gap: 8px;
-  padding: 18px;
-  border-radius: 24px;
-  border: 1px solid rgba(21, 197, 182, 0.14);
-  background: rgba(236, 251, 248, 0.78);
+  padding: 16px;
 }
 
-.wm-project-overview-page__next-kicker {
-  color: rgba(120, 108, 97, 0.92);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.wm-project-overview-page__next-card strong {
-  color: var(--wm-studio-text, #211b16);
+.wm-project-next-card strong {
+  color: var(--wm-text);
   font-size: 1rem;
-  font-weight: 650;
+  font-weight: 750;
 }
 
-.wm-project-overview-page__asset-grid {
+.wm-project-next-card p {
+  color: var(--wm-text-soft);
+  line-height: 1.55;
+}
+
+.wm-project-asset-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.wm-project-overview-page__asset {
+.wm-project-asset-card {
   display: grid;
   gap: 4px;
-  padding: 14px 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(58, 47, 36, 0.06);
-  background: rgba(255, 255, 255, 0.74);
+  padding: 14px 15px;
 }
 
-.wm-project-overview-page__asset span {
-  color: rgba(120, 108, 97, 0.92);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+.wm-project-asset-card strong {
+  color: var(--wm-text);
+  font-weight: 750;
 }
 
-.wm-project-overview-page__asset strong {
-  color: var(--wm-studio-text, #211b16);
-  font-weight: 650;
+.wm-project-main-card,
+.wm-project-activity-card {
+  align-content: start;
 }
 
-.wm-project-overview-page__studio {
+.wm-project-form,
+.wm-project-activity-list,
+.wm-project-activity-section {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
-  gap: 22px;
+  gap: 14px;
 }
 
-.wm-project-overview-page__studio-main,
-.wm-project-overview-page__studio-rail,
-.wm-project-overview-page__form,
-.wm-project-overview-page__activity-list,
-.wm-project-overview-page__activity-section {
-  display: grid;
-  gap: 16px;
-}
-
-.wm-project-overview-page__tab-copy,
-.wm-project-overview-page__status-region,
-.wm-project-overview-page__commercial-state,
-.wm-project-overview-page__empty {
-  padding: 15px 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(58, 47, 36, 0.06);
-  background: rgba(255, 255, 255, 0.68);
-  color: var(--wm-studio-text-soft, rgba(77, 68, 60, 0.82));
-  line-height: 1.58;
-}
-
-.wm-project-overview-page__commercial-state {
-  gap: 4px;
-}
-
-.wm-project-overview-page__commercial-state span,
-.wm-project-overview-page__field span,
-.wm-project-overview-page__activity-head span {
-  color: rgba(120, 108, 97, 0.92);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.wm-project-overview-page__commercial-state strong {
-  color: var(--wm-studio-text, #211b16);
-  font-size: 1rem;
-  font-weight: 650;
-}
-
-.wm-project-overview-page__field-grid {
+.wm-project-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
 
-.wm-project-overview-page__field {
+.wm-project-field {
   display: grid;
   gap: 8px;
 }
 
-.wm-project-overview-page__field--span {
+.wm-project-field--span {
   grid-column: 1 / -1;
 }
 
-.wm-project-overview-page__field .wm-form-input {
+.wm-project-field .wm-form-input,
+.wm-project-field textarea.wm-form-input {
   width: 100%;
 }
 
-.wm-project-overview-page__field textarea.wm-form-input {
+.wm-project-field textarea.wm-form-input {
   min-height: 148px;
   resize: vertical;
 }
 
-.wm-project-overview-page__form-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+.wm-project-commercial-state {
+  display: grid;
+  gap: 4px;
+  padding: 14px 15px;
 }
 
-.wm-project-overview-page__status-region.is-good {
-  border-color: rgba(22, 163, 74, 0.16);
-  background: rgba(236, 253, 245, 0.84);
-  color: #166534;
+.wm-project-commercial-state strong {
+  color: var(--wm-text);
+  font-size: 1rem;
+  font-weight: 750;
 }
 
-.wm-project-overview-page__status-region.is-warn {
-  border-color: rgba(180, 83, 9, 0.16);
-  background: rgba(255, 247, 237, 0.88);
-  color: #9a3412;
+.wm-project-status {
+  padding: 14px 15px;
+  line-height: 1.5;
 }
 
-.wm-project-overview-page__activity-head {
+.wm-project-status.is-good {
+  border-color: rgba(74, 222, 128, 0.16);
+  background: rgba(20, 83, 45, 0.2);
+  color: #dcfce7;
+}
+
+.wm-project-status.is-warn {
+  border-color: rgba(248, 113, 113, 0.14);
+  background: rgba(60, 12, 18, 0.24);
+  color: #fee2e2;
+}
+
+.wm-project-activity-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
 }
 
-.wm-project-overview-page__activity-head h3 {
+.wm-project-activity-head h3 {
   margin: 0;
-  color: var(--wm-studio-text, #211b16);
-  font-size: 0.96rem;
-  font-weight: 700;
+  color: var(--wm-text);
+  font-size: 0.98rem;
+  font-weight: 750;
 }
 
-.wm-project-overview-page__activity-item {
+.wm-project-activity-item {
   display: grid;
   gap: 6px;
-  padding: 15px 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(58, 47, 36, 0.06);
-  background: rgba(255, 255, 255, 0.62);
+  padding: 14px 15px;
 }
 
-.wm-project-overview-page__activity-eyebrow {
-  color: var(--wm-studio-accent, #15c5b6);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.wm-project-overview-page__activity-title {
-  color: var(--wm-studio-text, #211b16);
-  font-size: 0.96rem;
-  font-weight: 650;
+.wm-project-activity-title {
+  color: var(--wm-text);
+  font-size: 0.95rem;
+  font-weight: 700;
   line-height: 1.4;
 }
 
-.wm-project-overview-page__activity-copy,
-.wm-project-overview-page__activity-meta {
-  color: var(--wm-studio-text-soft, rgba(77, 68, 60, 0.82));
+.wm-project-activity-copy,
+.wm-project-activity-meta,
+.wm-project-notes-body {
+  color: var(--wm-text-soft);
   line-height: 1.58;
 }
 
-.wm-project-overview-page__activity-meta {
+.wm-project-activity-meta {
   font-size: 0.84rem;
 }
 
-.wm-project-overview-page__notes-body {
+.wm-project-notes-body {
   white-space: pre-line;
 }
 
 @media (max-width: 1180px) {
-  .wm-project-overview-page__intro,
-  .wm-project-overview-page__board,
-  .wm-project-overview-page__studio {
-    grid-template-columns: 1fr;
+  .wm-project-asset-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 760px) {
-  .wm-project-overview-page__intro h1 {
-    font-size: clamp(2.2rem, 12vw, 3.4rem);
-  }
-
-  .wm-project-overview-page__intro-actions,
-  .wm-project-overview-page__intro-actions .wm-btn-primary,
-  .wm-project-overview-page__intro-actions .wm-btn-secondary {
-    width: 100%;
-  }
-
-  .wm-project-overview-page__panel,
-  .wm-project-overview-page__notes {
-    padding: 20px 18px;
-  }
-
-  .wm-project-overview-page__asset-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .wm-project-overview-page__field-grid {
+  .wm-project-asset-grid,
+  .wm-project-form-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -1,3 +1,5 @@
+import type { ThemeMode } from "./api";
+
 export type UserProfile = {
   name: string
   email: string
@@ -7,6 +9,7 @@ export type UserProfile = {
   unitSystem?: "metric" | "imperial"
   logoUrl?: string
   language?: string
+  theme?: ThemeMode
   zoomLevel?: number
 
   customProductDatabase?: any[]

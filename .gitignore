@@ -45,6 +45,7 @@ $RECYCLE.BIN/
 *.tmp
 *.temp
 *.bak
+*.bak-*
 *.old
 *.orig
 *.rej

@@ -1,0 +1,48 @@
+/* =========================================================
+   WINGMAN FINAL AUTHORITY â€” DO NOT OVERRIDE THIS FILE
+   ========================================================= */
+
+/* Kill ALL light backgrounds globally */
+div,
+section,
+article {
+  background-color: transparent !important;
+}
+
+/* Force dark surfaces everywhere */
+div[class*="card"],
+div[class*="panel"],
+div[class*="surface"],
+div[class*="tile"],
+div[class*="block"],
+div[class*="section"],
+div[class*="module"],
+div[class*="hub"],
+div[class*="workspace"],
+div[class*="dashboard"] {
+  background: #0c1828 !important;
+  color: #e8eef7 !important;
+  border: 1px solid #1f3650 !important;
+}
+
+/* Specific fix for your grey bars (top cards in screenshot) */
+div[style*="background"],
+div[class*="summary"],
+div[class*="overview"] {
+  background: #0c1828 !important;
+  color: #e8eef7 !important;
+}
+
+/* Buttons still visible */
+button {
+  color: inherit !important;
+}
+
+/* Text readability */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--wm-text) !important;
+}
+
+p, span, small {
+  color: #b8c5d6 !important;
+}
