@@ -31,6 +31,18 @@
     background 160ms ease;
 }
 
+.wm-guru-fab.is-open {
+  background: rgba(12, 22, 38, 0.98);
+  box-shadow:
+    0 18px 42px rgba(2, 6, 23, 0.4),
+    0 0 0 1px rgba(110, 168, 255, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.wm-guru-fab.is-minimized {
+  opacity: 0.96;
+}
+
 .wm-guru-fab:hover {
   transform: translateY(-2px);
   box-shadow:

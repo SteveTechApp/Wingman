@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { Bot } from "lucide-react";
+import guruLogo from "@/assets/branding/guru.png";
 
 type GuruAvatarProps = {
   size?: number;
@@ -17,7 +18,7 @@ export default function GuruAvatar({ size = 48, rounded = 14 }: GuruAvatarProps)
       }}
     >
       <img
-        src="/guru.png"
+        src={guruLogo}
         alt="Guru"
         style={imgStyle}
         onError={(event) => {

@@ -205,50 +205,47 @@ export default function MissionControlNav() {
 function toneSectionStyle(tone: NavTone): CSSProperties {
   if (tone === "quick") {
     return {
-      border: "1px solid rgba(14,165,233,0.18)",
-      background: "linear-gradient(180deg, rgba(8,40,59,0.52), rgba(8,18,28,0.74))",
+      boxShadow: "inset 3px 0 0 rgba(110,168,255,0.16)",
     };
   }
 
   if (tone === "workflow") {
     return {
-      border: "1px solid rgba(20,184,166,0.18)",
-      background: "linear-gradient(180deg, rgba(8,54,48,0.52), rgba(8,23,22,0.74))",
+      boxShadow: "inset 3px 0 0 rgba(67,195,123,0.16)",
     };
   }
 
   return {
-    border: "1px solid rgba(245,158,11,0.18)",
-    background: "linear-gradient(180deg, rgba(62,43,10,0.50), rgba(28,20,9,0.74))",
+    boxShadow: "inset 3px 0 0 rgba(214,139,79,0.16)",
   };
 }
 
 function toneLinkStyle(tone: NavTone): CSSProperties {
   if (tone === "quick") {
     return {
-      border: "1px solid rgba(59,130,246,0.10)",
-      background: "rgba(8,18,28,0.34)",
+      border: "1px solid rgba(255,255,255,0.03)",
+      background: "rgba(255,255,255,0.02)",
     };
   }
 
   if (tone === "workflow") {
     return {
-      border: "1px solid rgba(16,185,129,0.10)",
-      background: "rgba(8,22,20,0.34)",
+      border: "1px solid rgba(255,255,255,0.03)",
+      background: "rgba(255,255,255,0.02)",
     };
   }
 
   return {
-    border: "1px solid rgba(245,158,11,0.10)",
-    background: "rgba(28,20,9,0.34)",
+    border: "1px solid rgba(255,255,255,0.03)",
+    background: "rgba(255,255,255,0.02)",
   };
 }
 
 const shellStyle: CSSProperties = {
   display: "grid",
-  gap: 12,
+  gap: 14,
   alignContent: "start",
-  padding: 10,
+  padding: 4,
   color: "var(--wm-text, #e5eef8)",
   position: "relative",
   overflow: "visible",
@@ -258,11 +255,11 @@ const shellStyle: CSSProperties = {
 const projectPanelStyle: CSSProperties = {
   display: "grid",
   gap: 6,
-  borderRadius: 16,
-  padding: 12,
-  border: "1px solid rgba(96,165,250,0.18)",
-  background: "linear-gradient(180deg, rgba(15,23,42,0.88), rgba(15,23,42,0.98))",
-  boxShadow: "0 12px 26px rgba(2,8,23,0.18)",
+  borderRadius: 18,
+  padding: 14,
+  border: "1px solid var(--wm-border-default)",
+  background: "linear-gradient(180deg, rgba(11,24,44,0.92), rgba(8,18,34,0.94))",
+  boxShadow: "var(--wm-glow-soft)",
 };
 
 const projectEyebrowStyle: CSSProperties = {
@@ -282,21 +279,23 @@ const projectNameStyle: CSSProperties = {
 const projectSubtleStyle: CSSProperties = {
   fontSize: 12,
   lineHeight: 1.45,
-  opacity: 0.76,
+  color: "var(--wm-text-soft)",
 };
 
 const navStyle: CSSProperties = {
   display: "grid",
-  gap: 10,
+  gap: 12,
   overflow: "visible",
 };
 
 const sectionStyle: CSSProperties = {
   display: "grid",
-  gap: 8,
-  borderRadius: 16,
-  padding: 10,
-  boxShadow: "0 10px 20px rgba(2,8,23,0.14)",
+  gap: 10,
+  borderRadius: 18,
+  padding: 12,
+  border: "1px solid var(--wm-border-default)",
+  background: "linear-gradient(180deg, rgba(11,24,44,0.92), rgba(8,18,34,0.92))",
+  boxShadow: "var(--wm-glow-soft)",
   overflow: "visible",
   position: "relative",
   zIndex: 1,
@@ -306,7 +305,7 @@ const sectionTitleStyle: CSSProperties = {
   fontSize: 11,
   textTransform: "uppercase",
   letterSpacing: 1,
-  opacity: 0.8,
+  color: "var(--wm-text-muted)",
   fontWeight: 900,
   padding: "0 2px",
 };
@@ -336,11 +335,13 @@ const navItemBaseStyle: CSSProperties = {
   fontSize: 13,
   fontWeight: 700,
   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02)",
+  transition: "background var(--wm-fast), border-color var(--wm-fast), transform var(--wm-fast)",
 };
 
 const navItemActiveStyle: CSSProperties = {
-  outline: "1px solid rgba(249,115,22,0.30)",
-  background: "linear-gradient(180deg, rgba(249,115,22,0.18), rgba(124,45,18,0.18))",
+  border: "1px solid var(--wm-accent-line)",
+  background: "linear-gradient(180deg, rgba(20,39,70,0.98), rgba(13,29,54,0.98))",
+  boxShadow: "var(--wm-glow-soft)",
 };
 
 const iconWrapStyle: CSSProperties = {
@@ -350,7 +351,8 @@ const iconWrapStyle: CSSProperties = {
   width: 24,
   height: 24,
   borderRadius: 8,
-  background: "rgba(255,255,255,0.06)",
+  background: "rgba(255,255,255,0.05)",
+  color: "var(--wm-text-soft)",
 };
 
 const labelStyle: CSSProperties = {
@@ -368,8 +370,8 @@ const tooltipStyle: CSSProperties = {
   padding: 10,
   fontSize: 12,
   lineHeight: 1.45,
-  border: "1px solid rgba(255,255,255,0.12)",
-  background: "linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,1))",
+  border: "1px solid var(--wm-border-default)",
+  background: "linear-gradient(180deg, rgba(8,18,34,0.98), rgba(11,24,44,1))",
   boxShadow: "0 18px 34px rgba(2,8,23,0.42)",
   pointerEvents: "none",
 };

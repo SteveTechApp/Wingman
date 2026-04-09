@@ -90,6 +90,12 @@ canvas {
   background: transparent;
 }
 
+.wm-shell-body {
+  display: grid;
+  grid-template-columns: inherit;
+  min-height: 0;
+}
+
 .wm-shell-nav-column {
   min-height: 0;
   overflow-y: auto;
@@ -103,8 +109,15 @@ canvas {
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
-  padding: 12px;
+  padding: 16px;
   background: transparent;
+}
+
+.wm-shell-workspace {
+  width: 100%;
+  max-width: var(--wm-content-max, 1600px);
+  margin: 0 auto;
+  min-width: 0;
 }
 
 .wm-fit-page,
@@ -177,7 +190,7 @@ canvas {
   }
 
   .wm-app-main {
-    padding: 10px;
+    padding: 12px;
   }
 
   .wm-fit-page__hero,
