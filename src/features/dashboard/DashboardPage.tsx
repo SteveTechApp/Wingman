@@ -1,6 +1,25 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import type { CSSProperties } from "react";
+import { useMemo, type CSSProperties } from "react";
+import {
+  Bot,
+  ClipboardList,
+  FileText,
+  GitCompareArrows,
+  LayoutTemplate,
+  LucideIcon,
+  Network,
+  ScanSearch,
+  Sparkles,
+  Upload,
+  ArrowRight,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+
+import {
+  WingmanPageFrame,
+  WingmanSection,
+  WingmanStatStrip,
+  type WingmanStatItem,
+} from "@/components/wm";
 
 type HomeAction = {
   id: string;
@@ -10,6 +29,7 @@ type HomeAction = {
   badge: string;
   tone: "quick" | "workflow" | "assistant";
   tooltip: string;
+  icon: LucideIcon;
 };
 
 type WorkflowStage = {
@@ -20,39 +40,43 @@ type WorkflowStage = {
 const quickReferenceTools: HomeAction[] = [
   {
     id: "guru",
-    title: "AI Guru Expert",
-    subtitle: "Get immediate product help, positioning guidance and technical answers.",
+    title: "Guru",
+    subtitle: "Open a chat-first assistant for product, sales and technical help.",
     route: "/app/tools/guru",
     badge: "Fast answer",
     tone: "assistant",
-    tooltip: "Use this when a salesperson needs immediate support, such as product explanation, objection handling, technology guidance or a quick technical answer without starting a full project workflow.",
+    tooltip: "Best when a salesperson needs immediate support without starting a full proposal flow.",
+    icon: Bot,
   },
   {
     id: "catalog",
     title: "Product Finder",
-    subtitle: "Find the right WyreStorm product, compare options and hand off to next tools.",
+    subtitle: "Find the right WyreStorm product and carry the result into the next tool.",
     route: "/app/tools/catalog",
     badge: "Single-use tool",
     tone: "quick",
-    tooltip: "Use this to narrow the correct WyreStorm SKU from requirement inputs, family filters and endpoint selection, then pass the result into Guru or Proposal Builder.",
+    tooltip: "Use this to narrow the correct family, endpoint type and SKU from requirement inputs.",
+    icon: ScanSearch,
   },
   {
     id: "compare",
     title: "Competitor Compare",
-    subtitle: "Match competitor references against WyreStorm positioning and alternatives.",
+    subtitle: "Position the closest WyreStorm option against a competitor reference.",
     route: "/app/tools/compare",
     badge: "Sales support",
     tone: "quick",
-    tooltip: "Use this when a customer or consultant mentions a competitor part number and you need a WyreStorm alternative, positioning guidance or a commercial response.",
+    tooltip: "Use this when a customer mentions a competitor part number or asks for an alternative.",
+    icon: GitCompareArrows,
   },
   {
     id: "navigator",
     title: "AV Navigator",
-    subtitle: "Use guided architecture thinking to determine the right transport approach.",
+    subtitle: "Choose the right transport and system direction before locking products.",
     route: "/app/tools/navigator",
     badge: "Decision support",
     tone: "quick",
-    tooltip: "Use this early when you need help deciding whether the application suits extender, matrix, AV over IP, video wall or another system architecture.",
+    tooltip: "Use this when you need help deciding whether the application suits extender, matrix or AVoIP.",
+    icon: Network,
   },
 ];
 
@@ -60,38 +84,42 @@ const formalWorkflows: HomeAction[] = [
   {
     id: "discovery",
     title: "Discovery Wizard",
-    subtitle: "Capture room, source, display, USB and control requirements.",
+    subtitle: "Capture room, source, display, USB and control requirements correctly.",
     route: "/app/tools/discovery",
     badge: "Workflow stage 1",
     tone: "workflow",
-    tooltip: "Use this to structure the customer requirement properly before product selection. It is the right place for room type, display count, source count, USB, audio and control needs.",
+    tooltip: "Use this to structure the opportunity before product selection starts.",
+    icon: ClipboardList,
   },
   {
     id: "proposal",
     title: "Proposal Builder",
-    subtitle: "Convert selections into a professional architecture and commercial output.",
+    subtitle: "Convert selections into a customer-facing architecture and BOM.",
     route: "/app/tools/proposal",
     badge: "Workflow stage 2",
     tone: "workflow",
-    tooltip: "Use this when the opportunity needs a formal proposal output, including executive summary, requirement understanding, architecture, BOM and supporting commercial narrative.",
+    tooltip: "Use this when the opportunity needs formal output and commercial narrative.",
+    icon: FileText,
   },
   {
     id: "templates",
     title: "System Templates",
-    subtitle: "Start from structured Bronze, Silver or Gold solution patterns.",
+    subtitle: "Start from structured reference systems instead of a blank canvas.",
     route: "/app/tools/templates",
     badge: "Workflow accelerator",
     tone: "workflow",
-    tooltip: "Use this when you want to begin from a known reference system rather than starting from a blank requirement capture.",
+    tooltip: "Use this when the application matches a known pattern and you want to accelerate the design.",
+    icon: LayoutTemplate,
   },
   {
     id: "import",
     title: "Import Intake",
-    subtitle: "Turn customer briefs and requirement notes into usable project context.",
+    subtitle: "Turn customer notes, briefs or PDFs into usable project context.",
     route: "/app/tools/import-intake",
     badge: "Workflow intake",
     tone: "workflow",
-    tooltip: "Use this when the customer has already supplied notes, PDFs, a brief or scope text and you want Wingman to convert that into structured project context.",
+    tooltip: "Use this when the customer has already supplied notes or source documents.",
+    icon: Upload,
   },
 ];
 
@@ -106,447 +134,234 @@ const workflowStages: WorkflowStage[] = [
   },
   {
     title: "Propose",
-    text: "Generate a customer-ready solution narrative, BOM and visual architecture output.",
+    text: "Generate the customer-ready summary, BOM and architecture output inside the same shell.",
   },
 ];
 
 function getActiveProjectName(): string {
-  return localStorage.getItem("wm:activeProjectName") || "No active project";
+  return localStorage.getItem("wm:activeProjectName") || "General sales mode";
 }
 
 function getActiveProjectId(): string {
   return localStorage.getItem("wm:activeProjectId") || "";
 }
 
-type TooltipCardProps = {
-  tool: HomeAction;
-  onOpen: (route: string) => void;
-  style: CSSProperties;
-};
+function cardToneStyle(tone: HomeAction["tone"]): CSSProperties {
+  if (tone === "workflow") {
+    return {
+      border: "1px solid rgba(67,195,123,0.16)",
+      boxShadow: "0 0 0 1px rgba(67,195,123,0.05)",
+    };
+  }
 
-function TooltipCard({ tool, onOpen, style }: TooltipCardProps) {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <button
-      type="button"
-      style={style}
-      onClick={() => onOpen(tool.route)}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <div style={cardBadgeStyle}>{tool.badge}</div>
-      <div style={cardTitleStyle}>{tool.title}</div>
-      <div style={cardBodyStyle}>{tool.subtitle}</div>
-
-      <div style={tooltipWrapStyle}>
-        <div
-          style={{
-            ...tooltipStyle,
-            ...(hovered ? tooltipVisibleStyle : tooltipHiddenStyle),
-          }}
-        >
-          {tool.tooltip}
-        </div>
-      </div>
-    </button>
-  );
-}
-
-export default function DashboardPage() {
-  const navigate = useNavigate();
-
-  const projectName = useMemo(() => getActiveProjectName(), []);
-  const hasProject = useMemo(() => Boolean(getActiveProjectId()), []);
-
-  return (
-    <div style={pageStyle}>
-      <section style={heroStyle}>
-        <div style={heroCopyStyle}>
-          <div style={eyebrowStyle}>Wingman Mission Control</div>
-          <h1 style={titleStyle}>Two clear ways to use Wingman</h1>
-          <div style={bodyStyle}>
-            Use quick tools when a salesperson needs immediate help, or move into the structured workflow when the requirement needs a formal design and proposal.
-          </div>
-
-          <div style={heroChipRowStyle}>
-            <span style={heroChipStyle}>Active project: {projectName}</span>
-            <span style={heroChipStyle}>{hasProject ? "Project context loaded" : "General sales mode"}</span>
-          </div>
-        </div>
-
-        <div style={heroSidebarStyle}>
-          <div style={heroMetricGridStyle}>
-            <div style={{ ...metricCardStyle, ...metricBlueStyle }}>
-              <span style={metricLabelStyle}>Quick Tools</span>
-              <strong style={metricValueStyle}>4</strong>
-            </div>
-            <div style={{ ...metricCardStyle, ...metricOrangeStyle }}>
-              <span style={metricLabelStyle}>Formal Flows</span>
-              <strong style={metricValueStyle}>4</strong>
-            </div>
-          </div>
-
-          <button type="button" style={primaryHeroButtonStyle} onClick={() => navigate("/app/tools")}>
-            Open Tool Hub
-          </button>
-        </div>
-      </section>
-
-      <div style={splitGridStyle}>
-        <section style={quickPanelStyle}>
-          <div style={sectionHeadStyle}>
-            <div>
-              <div style={sectionEyebrowStyle}>Quick Reference / Sales Support</div>
-              <div style={sectionTitleStyle}>Single-use helpful tools</div>
-            </div>
-            <div style={sectionNoteStyle}>Fast answers without forcing a full proposal workflow.</div>
-          </div>
-
-          <div style={cardGridStyle}>
-            {quickReferenceTools.map((tool) => (
-              <TooltipCard
-                key={tool.id}
-                tool={tool}
-                onOpen={(route) => navigate(route)}
-                style={{ ...actionCardStyle, ...quickCardStyle(tool.tone) }}
-              />
-            ))}
-          </div>
-        </section>
-
-        <section style={workflowPanelStyle}>
-          <div style={sectionHeadStyle}>
-            <div>
-              <div style={sectionEyebrowStyle}>Formal Design / Proposal Workflows</div>
-              <div style={sectionTitleStyle}>Structured project delivery</div>
-            </div>
-            <div style={sectionNoteStyle}>Move from customer requirement through architecture into proposal output.</div>
-          </div>
-
-          <div style={cardGridStyle}>
-            {formalWorkflows.map((tool) => (
-              <TooltipCard
-                key={tool.id}
-                tool={tool}
-                onOpen={(route) => navigate(route)}
-                style={{ ...actionCardStyle, ...workflowCardStyle }}
-              />
-            ))}
-          </div>
-        </section>
-      </div>
-
-      <section style={journeyPanelStyle}>
-        <div style={sectionEyebrowStyle}>Preferred Workflow</div>
-        <div style={journeyGridStyle}>
-          {workflowStages.map((stage, index) => (
-            <div key={stage.title} style={journeyCardStyle}>
-              <div style={journeyIndexStyle}>0{index + 1}</div>
-              <div style={journeyTitleStyle}>{stage.title}</div>
-              <div style={cardBodyStyle}>{stage.text}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function quickCardStyle(tone: HomeAction["tone"]): CSSProperties {
   if (tone === "assistant") {
     return {
-      border: "1px solid rgba(249,115,22,0.32)",
-      background: "linear-gradient(180deg, rgba(89,36,9,0.82), rgba(33,20,11,0.94))",
+      border: "1px solid rgba(214,139,79,0.18)",
+      boxShadow: "0 0 0 1px rgba(214,139,79,0.06)",
     };
   }
 
   return {
-    border: "1px solid rgba(14,165,233,0.24)",
-    background: "linear-gradient(180deg, rgba(9,53,72,0.82), rgba(10,25,34,0.94))",
+    border: "1px solid rgba(110,168,255,0.16)",
+    boxShadow: "0 0 0 1px rgba(110,168,255,0.05)",
   };
 }
 
-const pageStyle: CSSProperties = {
+function iconToneStyle(tone: HomeAction["tone"]): CSSProperties {
+  if (tone === "workflow") {
+    return {
+      background: "rgba(67,195,123,0.12)",
+      color: "#d7f6e3",
+    };
+  }
+
+  if (tone === "assistant") {
+    return {
+      background: "rgba(214,139,79,0.14)",
+      color: "#ffdfc2",
+    };
+  }
+
+  return {
+    background: "rgba(110,168,255,0.12)",
+    color: "#dbe9ff",
+  };
+}
+
+function WorkspaceCard({ action }: { action: HomeAction }) {
+  const Icon = action.icon;
+
+  return (
+    <Link to={action.route} className="wm-card wm-interactive" style={{ ...cardStyle, ...cardToneStyle(action.tone) }}>
+      <div style={cardTopStyle}>
+        <div style={{ ...iconWrapStyle, ...iconToneStyle(action.tone) }}>
+          <Icon size={18} />
+        </div>
+        <span className="wm-workspace-tag">{action.badge}</span>
+      </div>
+
+      <div className="wm-stack-xs">
+        <h3 style={cardTitleStyle}>{action.title}</h3>
+        <p className="wm-soft">{action.subtitle}</p>
+        <p className="wm-muted" style={supportTextStyle}>
+          {action.tooltip}
+        </p>
+      </div>
+
+      <span style={ctaStyle}>
+        Open workspace
+        <ArrowRight size={16} />
+      </span>
+    </Link>
+  );
+}
+
+export default function DashboardPage() {
+  const projectName = useMemo(() => getActiveProjectName(), []);
+  const hasProject = useMemo(() => Boolean(getActiveProjectId()), []);
+
+  const statItems = useMemo<WingmanStatItem[]>(
+    () => [
+      {
+        label: "Active project",
+        value: projectName,
+        meta: hasProject ? "Project context loaded into the shell" : "Working in general sales mode",
+      },
+      {
+        label: "Quick tools",
+        value: String(quickReferenceTools.length),
+        meta: "Immediate guidance and reference support",
+      },
+      {
+        label: "Structured flows",
+        value: String(formalWorkflows.length),
+        meta: "Discovery, design and proposal delivery",
+      },
+    ],
+    [hasProject, projectName],
+  );
+
+  return (
+    <div className="wm-page">
+      <WingmanPageFrame
+        eyebrow="Mission Control"
+        title="Two clear ways to use Wingman"
+        subtitle="Keep the shell familiar across the app. Use quick tools for live conversations, then move into the structured workflow when the opportunity needs a fuller design and proposal path."
+        actions={
+          <div className="wm-flex">
+            <Link to="/app/tools" className="wm-btn wm-btn--brand">
+              Open tool hub
+            </Link>
+            <Link to="/app/projects" className="wm-btn wm-btn--secondary">
+              View projects
+            </Link>
+          </div>
+        }
+        toolbar={
+          <div className="wm-between" style={{ width: "100%" }}>
+            <div className="wm-soft">The outer shell stays fixed. Only the workspace inside it changes from feature to feature.</div>
+            <div className="wm-page-inline-list">
+              <span className="wm-workspace-tag">{projectName}</span>
+              <span className="wm-workspace-tag">{hasProject ? "Project context loaded" : "General sales mode"}</span>
+            </div>
+          </div>
+        }
+      >
+        <WingmanStatStrip items={statItems} />
+
+        <div className="wm-grid wm-grid--2">
+          <WingmanSection
+            eyebrow="Quick Reference"
+            title="Single-use helpful tools"
+            description="Fast answers and product direction without forcing the full workflow."
+          >
+            <div className="wm-grid wm-grid--2">
+              {quickReferenceTools.map((tool) => (
+                <WorkspaceCard key={tool.id} action={tool} />
+              ))}
+            </div>
+          </WingmanSection>
+
+          <WingmanSection
+            eyebrow="Structured Workflow"
+            title="Project delivery surfaces"
+            description="Move from discovery into architecture and customer-facing output without leaving the shared shell."
+          >
+            <div className="wm-grid wm-grid--2">
+              {formalWorkflows.map((tool) => (
+                <WorkspaceCard key={tool.id} action={tool} />
+              ))}
+            </div>
+          </WingmanSection>
+        </div>
+
+        <WingmanSection
+          eyebrow="Preferred Workflow"
+          title="Recommended sequence"
+          description="Use the same layout scaffolding throughout the opportunity, then swap the working surface as the job matures."
+        >
+          <div className="wm-grid wm-grid--3">
+            {workflowStages.map((stage, index) => (
+              <div key={stage.title} className="wm-stat">
+                <p className="wm-stat__label">0{index + 1}</p>
+                <p className="wm-stat__value" style={sequenceTitleStyle}>
+                  {stage.title}
+                </p>
+                <p className="wm-stat__meta">{stage.text}</p>
+              </div>
+            ))}
+          </div>
+        </WingmanSection>
+      </WingmanPageFrame>
+    </div>
+  );
+}
+
+const cardStyle: CSSProperties = {
   display: "grid",
   gap: 12,
-  padding: 12,
-  maxWidth: 1720,
-  margin: "0 auto",
-  color: "var(--wm-text, #e5eef8)",
+  padding: 16,
+  textDecoration: "none",
 };
 
-const heroStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "1.4fr 360px",
-  gap: 12,
-  borderRadius: 18,
-  padding: 18,
-  border: "1px solid rgba(96,165,250,0.20)",
-  background: "linear-gradient(135deg, rgba(15,23,42,0.94), rgba(30,41,59,0.88))",
-  boxShadow: "0 18px 40px rgba(2,8,23,0.24)",
-};
-
-const heroCopyStyle: CSSProperties = {
-  display: "grid",
-  gap: 10,
-  alignContent: "start",
-};
-
-const heroSidebarStyle: CSSProperties = {
-  display: "grid",
-  gap: 10,
-  alignContent: "start",
-};
-
-const eyebrowStyle: CSSProperties = {
-  fontSize: 12,
-  textTransform: "uppercase",
-  letterSpacing: 1.4,
-  opacity: 0.74,
-  fontWeight: 800,
-};
-
-const titleStyle: CSSProperties = {
-  margin: 0,
-  fontSize: 30,
-  lineHeight: 1.05,
-  fontWeight: 900,
-};
-
-const bodyStyle: CSSProperties = {
-  fontSize: 14,
-  lineHeight: 1.5,
-  opacity: 0.88,
-};
-
-const heroChipRowStyle: CSSProperties = {
+const cardTopStyle: CSSProperties = {
   display: "flex",
-  gap: 8,
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
   flexWrap: "wrap",
 };
 
-const heroChipStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  padding: "5px 10px",
-  borderRadius: 999,
-  fontSize: 11,
-  background: "rgba(255,255,255,0.08)",
-  border: "1px solid rgba(255,255,255,0.10)",
-};
-
-const heroMetricGridStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-  gap: 8,
-};
-
-const metricCardStyle: CSSProperties = {
-  borderRadius: 14,
-  padding: 12,
-  border: "1px solid rgba(255,255,255,0.10)",
-  display: "grid",
-  gap: 6,
-};
-
-const metricBlueStyle: CSSProperties = {
-  background: "linear-gradient(180deg, rgba(29,78,216,0.34), rgba(15,23,42,0.76))",
-};
-
-const metricOrangeStyle: CSSProperties = {
-  background: "linear-gradient(180deg, rgba(234,88,12,0.34), rgba(15,23,42,0.76))",
-};
-
-const metricLabelStyle: CSSProperties = {
-  fontSize: 11,
-  textTransform: "uppercase",
-  letterSpacing: 0.9,
-  opacity: 0.78,
-};
-
-const metricValueStyle: CSSProperties = {
-  fontSize: 20,
-  lineHeight: 1.2,
-  fontWeight: 900,
-};
-
-const primaryHeroButtonStyle: CSSProperties = {
+const iconWrapStyle: CSSProperties = {
+  width: 38,
+  height: 38,
+  borderRadius: 12,
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  minHeight: 40,
-  borderRadius: 12,
-  border: "1px solid rgba(249,115,22,0.34)",
-  background: "linear-gradient(180deg, rgba(249,115,22,0.88), rgba(194,65,12,0.90))",
-  color: "#fff",
-  fontWeight: 800,
-  cursor: "pointer",
-  padding: "0 14px",
-};
-
-const splitGridStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: 12,
-};
-
-const basePanelStyle: CSSProperties = {
-  borderRadius: 18,
-  padding: 14,
-  display: "grid",
-  gap: 12,
-  boxShadow: "0 18px 36px rgba(2,8,23,0.18)",
-};
-
-const quickPanelStyle: CSSProperties = {
-  ...basePanelStyle,
-  border: "1px solid rgba(14,165,233,0.24)",
-  background: "linear-gradient(180deg, rgba(11,42,63,0.82), rgba(11,24,37,0.94))",
-};
-
-const workflowPanelStyle: CSSProperties = {
-  ...basePanelStyle,
-  border: "1px solid rgba(20,184,166,0.24)",
-  background: "linear-gradient(180deg, rgba(7,44,46,0.84), rgba(10,27,34,0.94))",
-};
-
-const sectionHeadStyle: CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "start",
-  gap: 10,
-};
-
-const sectionEyebrowStyle: CSSProperties = {
-  fontSize: 11,
-  textTransform: "uppercase",
-  letterSpacing: 1,
-  opacity: 0.76,
-  fontWeight: 800,
-};
-
-const sectionTitleStyle: CSSProperties = {
-  fontSize: 18,
-  fontWeight: 900,
-  lineHeight: 1.2,
-};
-
-const sectionNoteStyle: CSSProperties = {
-  maxWidth: 260,
-  fontSize: 12,
-  lineHeight: 1.45,
-  opacity: 0.78,
-  textAlign: "right",
-};
-
-const cardGridStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-  gap: 10,
-};
-
-const actionCardStyle: CSSProperties = {
-  textAlign: "left",
-  borderRadius: 16,
-  padding: 14,
-  display: "grid",
-  gap: 8,
-  cursor: "pointer",
-  boxShadow: "0 10px 22px rgba(2,8,23,0.16)",
-  position: "relative",
-  overflow: "visible",
-};
-
-const workflowCardStyle: CSSProperties = {
-  border: "1px solid rgba(34,197,94,0.22)",
-  background: "linear-gradient(180deg, rgba(12,61,36,0.84), rgba(9,27,19,0.94))",
-};
-
-const cardBadgeStyle: CSSProperties = {
-  display: "inline-flex",
-  width: "fit-content",
-  alignItems: "center",
-  padding: "4px 8px",
-  borderRadius: 999,
-  fontSize: 11,
-  fontWeight: 700,
-  background: "rgba(255,255,255,0.08)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
 };
 
 const cardTitleStyle: CSSProperties = {
-  fontSize: 16,
-  fontWeight: 900,
-  lineHeight: 1.2,
+  margin: 0,
+  fontSize: 18,
+  lineHeight: 1.15,
 };
 
-const cardBodyStyle: CSSProperties = {
-  fontSize: 13,
-  lineHeight: 1.45,
-  opacity: 0.88,
-};
-
-const tooltipWrapStyle: CSSProperties = {
-  position: "relative",
-  height: 0,
-};
-
-const tooltipStyle: CSSProperties = {
-  position: "absolute",
-  left: 0,
-  top: 10,
-  zIndex: 20,
-  width: "100%",
-  borderRadius: 12,
-  padding: 10,
+const supportTextStyle: CSSProperties = {
   fontSize: 12,
-  lineHeight: 1.45,
-  border: "1px solid rgba(255,255,255,0.12)",
-  background: "linear-gradient(180deg, rgba(2,6,23,0.96), rgba(15,23,42,0.98))",
-  boxShadow: "0 16px 30px rgba(2,8,23,0.36)",
-  pointerEvents: "none",
-  transform: "translateY(0)",
+  lineHeight: 1.5,
 };
 
-const tooltipVisibleStyle: CSSProperties = {
-  opacity: 1,
-};
-
-const tooltipHiddenStyle: CSSProperties = {
-  opacity: 0,
-};
-
-const journeyPanelStyle: CSSProperties = {
-  ...basePanelStyle,
-  border: "1px solid rgba(168,85,247,0.24)",
-  background: "linear-gradient(180deg, rgba(45,20,75,0.82), rgba(24,14,42,0.94))",
-};
-
-const journeyGridStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-  gap: 10,
-};
-
-const journeyCardStyle: CSSProperties = {
-  borderRadius: 16,
-  padding: 14,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "linear-gradient(180deg, rgba(19,19,46,0.36), rgba(12,12,28,0.64))",
-  display: "grid",
-  gap: 8,
-};
-
-const journeyIndexStyle: CSSProperties = {
+const ctaStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
   fontSize: 12,
-  fontWeight: 900,
-  opacity: 0.74,
+  fontWeight: 800,
+  color: "var(--wm-accent-strong)",
 };
 
-const journeyTitleStyle: CSSProperties = {
-  fontSize: 17,
-  fontWeight: 900,
+const sequenceTitleStyle: CSSProperties = {
+  fontSize: 20,
 };

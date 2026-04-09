@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import guruIcon from "@/assets/branding/guru.png";
+import "@/styles/wm-guru-fab.css";
+import GuruLogo from "@/components/branding/GuruLogo";
 
 type GuruFabProps = {
   open?: boolean;
@@ -52,13 +53,9 @@ export default function GuruFab({
       title={label}
       onClick={handleClick}
     >
-      <span className="wm-guru-fab__inner">
-        <img
-          src={guruIcon}
-          alt=""
-          className="wm-guru-fab__icon"
-          draggable={false}
-        />
+      <span className="wm-guru-fab__halo" aria-hidden="true" />
+      <span className="wm-guru-fab__avatar">
+        <GuruLogo className="wm-guru-fab__image" alt="" />
       </span>
     </button>
   );

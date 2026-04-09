@@ -8,6 +8,7 @@ import {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ExternalLink, LoaderCircle, SendHorizonal, User2 } from "lucide-react";
+import guruLogo from "@/assets/branding/guru.png";
 import { askGuru, type GuruAnswer, type GuruContext } from "@/features/ai/guru/guruApi";
 
 type ChatMessage = {
@@ -235,7 +236,7 @@ export default function GuruDock() {
                 >
                   {isAssistant ? (
                     <div style={assistantMetaStyle}>
-                      <img src="/guru.png" alt="Guru" style={assistantAvatarStyle} />
+                      <img src={guruLogo} alt="Guru" style={assistantAvatarStyle} />
                       <div style={assistantNameStyle}>Guru</div>
                       {label ? <div style={confidencePillStyle}>{label}</div> : null}
                     </div>

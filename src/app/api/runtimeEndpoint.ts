@@ -57,6 +57,11 @@ export function resolveLookupEndpoint(): string {
   return explicit || buildFallbackEndpoint("/api/competitor-lookup");
 }
 
+export function resolveCompetitorMatchEndpoint(): string {
+  const explicit = normalizeEndpoint(import.meta.env.VITE_COMPETITOR_MATCH_ENDPOINT);
+  return explicit || remapFromLookup("/api/competitor/resolveMatch") || buildFallbackEndpoint("/api/competitor/resolveMatch");
+}
+
 export function resolveApprovalEndpoint(): string {
   const explicit = normalizeEndpoint(import.meta.env.VITE_COMPETITOR_APPROVAL_ENDPOINT);
   return explicit || remapFromLookup("/api/competitor-approvals") || buildFallbackEndpoint("/api/competitor-approvals");
