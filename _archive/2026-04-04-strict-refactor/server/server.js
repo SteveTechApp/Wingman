@@ -2,11 +2,11 @@ import guruRouter from "";
 import express from "express";
 import cors from "cors";
 import routes from "./routes.js";
-import guruRouter from "./routes/guru.mjs";
+import guruRouter from "./routes/guru.mjs";import { createAgentsRouter } from "../../../server/routes/agents.mjs";
 
 const app = express();
 
-// Ã¢Å“â€¦ CORS FIX
+// ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ CORS FIX
 app.use(cors({
   origin: "http://localhost:3000",
   credentials: true
@@ -14,12 +14,13 @@ app.use(cors({
 
 app.use(express.json());
 
-// Ã¢Å“â€¦ Mount API routes
+// ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Mount API routes
 app.use("/api", routes);
 
-// Ã¢Å“â€¦ Start server
+// ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Start server
 const PORT = 8787;
 app.use("/api/wingman/guru", guruRouter);
+app.use("/api/wingman/agents", createAgentsRouter());
 
 app.listen(PORT, () => {
   console.log(`Wingman backend running on http://127.0.0.1:${PORT}`);

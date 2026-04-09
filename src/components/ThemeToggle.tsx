@@ -10,18 +10,7 @@ export default function ThemeToggle() {
       onClick={toggleTheme}
       aria-label="Toggle theme"
       title="Toggle theme"
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        border: "1px solid var(--wm-border)",
-        background: "var(--wm-surface)",
-        color: "var(--wm-text)",
-        cursor: "pointer",
-      }}
+      className="wm-theme-toggle"
     >
       {resolvedTheme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
     </button>

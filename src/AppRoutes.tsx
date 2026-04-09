@@ -19,7 +19,7 @@ const AvNavigatorPage = React.lazy(() => import("@/features/navigator/AvNavigato
 
 // Tools / workflows
 const DiscoveryWizardPage = React.lazy(() => import("@/features/discovery/DiscoveryWizardPage"));
-const CatalogPage = React.lazy(() => import("@/features/catalog/CatalogPage"));
+const CatalogPage = React.lazy(() => import("@/features/catalog/CataloguePage"));
 const CompetitorComparePage = React.lazy(() => import("@/features/compare/CompetitorComparePage"));
 const RoomWizardPage = React.lazy(() => import("@/features/room-wizard/RoomWizardPage"));
 const ProposalBuilderPage = React.lazy(() => import("@/features/proposal/ProposalPage"));

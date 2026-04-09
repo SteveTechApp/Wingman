@@ -1,0 +1,336 @@
+:root {
+  --wm-app-card-border: rgba(123, 169, 234, 0.12);
+  --wm-app-card-border-strong: rgba(255, 122, 26, 0.22);
+  --wm-app-card-bg:
+    linear-gradient(180deg, rgba(10, 20, 40, 0.82), rgba(5, 12, 26, 0.9));
+  --wm-app-card-bg-soft:
+    linear-gradient(180deg, rgba(11, 24, 42, 0.68), rgba(7, 18, 34, 0.76));
+  --wm-app-chip-bg: rgba(10, 23, 40, 0.7);
+  --wm-app-chip-border: rgba(123, 169, 234, 0.14);
+  --wm-app-shadow:
+    0 16px 34px rgba(2, 8, 23, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.wm-shell-root {
+  background:
+    radial-gradient(circle at top left, rgba(255, 122, 26, 0.08), transparent 24%),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 20%),
+    linear-gradient(180deg, #06111d 0%, #071321 100%);
+}
+
+.wm-app-main {
+  background:
+    radial-gradient(circle at top left, rgba(255, 122, 26, 0.05), transparent 24%),
+    linear-gradient(180deg, rgba(7, 17, 31, 0.94), rgba(5, 12, 23, 1));
+}
+
+:is(
+  .wm-dashboard,
+  .wm-projects-page,
+  .wm-project-overview-page,
+  .wm-sales-page,
+  .guru-page,
+  .wm-catalog-page,
+  .wm-training-hub,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-proposal-page,
+  .wm-saved-projects-panel,
+  .wm-navx,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) {
+  color: var(--wm-text) !important;
+  background: transparent !important;
+}
+
+:is(
+  .wm-dashboard,
+  .wm-projects-page,
+  .wm-project-overview-page,
+  .wm-sales-page,
+  .guru-page,
+  .wm-catalog-page,
+  .wm-training-hub,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-proposal-page,
+  .wm-saved-projects-panel,
+  .wm-navx,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(
+  [class*="__hero"],
+  [class*="__panel"],
+  [class*="__browser"],
+  [class*="__detail"],
+  [class*="__brief"],
+  [class*="__workspace"],
+  [class*="__project-strip"],
+  [class*="__project"],
+  [class*="__support"],
+  [class*="__empty"],
+  [class*="__metric"],
+  [class*="__detail-card"],
+  [class*="__assumption-card"],
+  [class*="__path-card"],
+  [class*="__room-card"],
+  [class*="__journey-card"],
+  [class*="__module-card"],
+  [class*="__lesson-card"],
+  [class*="__action-card"],
+  [class*="__stage-button"],
+  [class*="__trace"],
+  [class*="__status"],
+  [class*="__queue-item"],
+  [class*="__question"],
+  [class*="__summary"],
+  [class*="__card"]
+) {
+  border-color: var(--wm-app-card-border) !important;
+  background: var(--wm-app-card-bg) !important;
+  box-shadow: var(--wm-app-shadow) !important;
+  backdrop-filter: none !important;
+}
+
+:is(
+  .wm-dashboard,
+  .wm-projects-page,
+  .wm-project-overview-page,
+  .wm-sales-page,
+  .guru-page,
+  .wm-catalog-page,
+  .wm-training-hub,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-proposal-page,
+  .wm-saved-projects-panel,
+  .wm-navx,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(
+  h1,
+  h2,
+  h3,
+  h4,
+  strong,
+  [class*="__title"],
+  [class*="__copy"] strong,
+  [class*="__queue-item-title"],
+  [class*="__brand"]
+) {
+  color: var(--wm-text) !important;
+}
+
+:is(
+  .wm-dashboard,
+  .wm-projects-page,
+  .wm-project-overview-page,
+  .wm-sales-page,
+  .guru-page,
+  .wm-catalog-page,
+  .wm-training-hub,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-proposal-page,
+  .wm-saved-projects-panel,
+  .wm-navx,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(
+  p,
+  [class*="__eyebrow"],
+  [class*="__section-eyebrow"],
+  [class*="__meta"],
+  [class*="__subtitle"],
+  [class*="__copy"] span,
+  [class*="__copy"] small,
+  [class*="__lesson-time"],
+  [class*="__trace-summary"]
+) {
+  color: var(--wm-text-soft) !important;
+}
+
+:is(
+  .wm-dashboard,
+  .wm-projects-page,
+  .wm-project-overview-page,
+  .wm-sales-page,
+  .guru-page,
+  .wm-catalog-page,
+  .wm-training-hub,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-proposal-page,
+  .wm-saved-projects-panel,
+  .wm-navx,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(
+  [class*="__chip"],
+  [class*="__filter"],
+  [class*="__tag"],
+  [class*="__badge"],
+  [class*="__pill"],
+  [class*="__warning"]
+) {
+  border-color: var(--wm-app-chip-border) !important;
+  background: var(--wm-app-chip-bg) !important;
+  color: var(--wm-text-soft) !important;
+  box-shadow: none !important;
+}
+
+:is(
+  .wm-dashboard,
+  .wm-projects-page,
+  .wm-project-overview-page,
+  .wm-sales-page,
+  .guru-page,
+  .wm-catalog-page,
+  .wm-training-hub,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-proposal-page,
+  .wm-saved-projects-panel,
+  .wm-navx,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(
+  .is-active,
+  [class*="--active"]
+) {
+  border-color: var(--wm-app-card-border-strong) !important;
+  background:
+    linear-gradient(180deg, rgba(24, 36, 53, 0.94), rgba(9, 18, 32, 0.98)) !important;
+  color: var(--wm-text) !important;
+}
+
+:is(
+  .wm-dashboard,
+  .wm-projects-page,
+  .wm-project-overview-page,
+  .wm-sales-page,
+  .guru-page,
+  .wm-catalog-page,
+  .wm-training-hub,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-proposal-page,
+  .wm-saved-projects-panel,
+  .wm-navx,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(input, select, textarea) {
+  border-color: rgba(123, 169, 234, 0.16) !important;
+  background: rgba(8, 18, 34, 0.88) !important;
+  color: var(--wm-text) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+}
+
+:is(
+  .wm-dashboard,
+  .wm-projects-page,
+  .wm-project-overview-page,
+  .wm-sales-page,
+  .guru-page,
+  .wm-catalog-page,
+  .wm-training-hub,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-proposal-page,
+  .wm-saved-projects-panel,
+  .wm-navx,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(input, textarea)::placeholder {
+  color: rgba(191, 208, 229, 0.52) !important;
+}
+
+:is(
+  .wm-dashboard,
+  .wm-projects-page,
+  .wm-project-overview-page,
+  .wm-sales-page,
+  .guru-page,
+  .wm-catalog-page,
+  .wm-training-hub,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-proposal-page,
+  .wm-saved-projects-panel,
+  .wm-navx,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(a, button) {
+  color: inherit;
+}
+
+.wm-dashboard .wm-btn-primary,
+.wm-dashboard .wm-btn-secondary,
+.wm-projects-page .wm-btn-primary,
+.wm-projects-page .wm-btn-secondary,
+.wm-project-overview-page .wm-btn-primary,
+.wm-project-overview-page .wm-btn-secondary,
+.wm-sales-page .wm-btn-primary,
+.wm-sales-page .wm-btn-secondary,
+.wm-tool-hub-page .wm-btn-primary,
+.wm-tool-hub-page .wm-btn-secondary,
+.wm-training-hub .wm-btn-primary,
+.wm-training-hub .wm-btn-secondary {
+  box-shadow: none !important;
+}
+
+.wm-catalog-page,
+.wm-training-hub,
+.wm-discovery-page,
+.wm-import-page,
+.wm-room-wizard,
+.wm-templates-page,
+.wm-proposal-page {
+  padding-inline: 0 !important;
+}
+
+.wm-saved-projects-panel {
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.wm-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--wm-border);
+  background: rgba(10, 23, 40, 0.7);
+  color: var(--wm-text);
+  cursor: pointer;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+
+.wm-theme-toggle:hover {
+  transform: translateY(-1px);
+  border-color: rgba(96, 165, 250, 0.22);
+  background: rgba(15, 23, 42, 0.84);
+}

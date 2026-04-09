@@ -1,113 +1,202 @@
-.wm-sales-tools-page {
-  gap: 18px;
+.wm-sales-page {
+  gap: 16px;
 }
 
-.wm-sales-tools-page__stats {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.wm-sales-tools-page__outcome-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.wm-sales-outcome-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 12px;
-  align-items: start;
-  width: 100%;
-  text-align: left;
-  padding: 16px;
+.wm-sales-hero,
+.wm-sales-hero__project,
+.wm-sales-room-card,
+.wm-sales-motion-card,
+.wm-sales-pitch-card,
+.wm-sales-product-card,
+.wm-sales-story__subpanel,
+.wm-sales-conversation-card {
   border-radius: 18px;
   border: 1px solid rgba(123, 169, 234, 0.12);
-  background: rgba(9, 21, 38, 0.56);
-  color: var(--wm-text);
+  background: linear-gradient(180deg, rgba(10, 20, 40, 0.8), rgba(5, 12, 26, 0.88));
+  box-shadow:
+    0 14px 30px rgba(2, 8, 23, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.wm-sales-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
+  gap: 16px;
+  padding: 18px;
+}
+
+.wm-sales-hero__copy,
+.wm-sales-hero__project,
+.wm-sales-story,
+.wm-sales-conversation-card {
+  display: grid;
+  gap: 12px;
+}
+
+.wm-sales-hero__copy h2,
+.wm-sales-story__lead h3,
+.wm-sales-conversation-card h3 {
+  margin: 0;
+  color: #f5f8ff;
+  letter-spacing: -0.03em;
+}
+
+.wm-sales-hero__copy h2 {
+  font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+  line-height: 1.04;
+}
+
+.wm-sales-hero__copy p,
+.wm-sales-hero__project p,
+.wm-sales-story__lead p,
+.wm-sales-conversation-card p {
+  margin: 0;
+  color: var(--wm-text-soft);
+  line-height: 1.55;
+}
+
+.wm-sales-hero__project {
+  padding: 16px;
+}
+
+.wm-sales-hero__project strong {
+  color: #f5f8ff;
+  font-size: 1rem;
+}
+
+.wm-sales-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-sales-filter-row {
+  display: grid;
+  gap: 12px;
+}
+
+.wm-sales-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(123, 169, 234, 0.14);
+  background: rgba(8, 18, 34, 0.82);
+}
+
+.wm-sales-search input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #f5f8ff;
+  outline: 0;
+}
+
+.wm-sales-chip-filter,
+.wm-sales-room-card,
+.wm-sales-motion-card,
+.wm-sales-pitch-card,
+.wm-sales-product-card {
   cursor: pointer;
   transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
 }
 
-.wm-sales-outcome-card:hover {
+.wm-sales-chip-filter:hover,
+.wm-sales-room-card:hover,
+.wm-sales-motion-card:hover,
+.wm-sales-pitch-card:hover,
+.wm-sales-product-card:hover,
+.wm-sales-next-link:hover {
   transform: translateY(-1px);
-  border-color: rgba(96, 165, 250, 0.22);
-  background: rgba(12, 26, 46, 0.72);
 }
 
-.wm-sales-outcome-card.is-active {
-  border-color: rgba(96, 165, 250, 0.3);
-  background:
-    linear-gradient(180deg, rgba(16, 36, 62, 0.94), rgba(9, 22, 40, 0.98));
-  box-shadow: 0 18px 36px rgba(2, 8, 23, 0.2);
-}
-
-.wm-sales-outcome-card__icon {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
+.wm-sales-chip-filter {
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
   border: 1px solid rgba(123, 169, 234, 0.14);
-  background: rgba(15, 23, 42, 0.62);
+  background: rgba(10, 23, 40, 0.68);
+  color: #d8e8ff;
+  font-size: 0.74rem;
+  font-weight: 800;
 }
 
-.wm-sales-outcome-card__body {
+.wm-sales-chip-filter.is-active,
+.wm-sales-room-card.is-active,
+.wm-sales-motion-card.is-active,
+.wm-sales-pitch-card.is-active,
+.wm-sales-product-card.is-active {
+  border-color: rgba(96, 165, 250, 0.28);
+  background: linear-gradient(180deg, rgba(15, 31, 56, 0.94), rgba(7, 17, 32, 0.98));
+}
+
+.wm-sales-room-grid,
+.wm-sales-motion-grid,
+.wm-sales-product-grid,
+.wm-sales-conversation-grid {
   display: grid;
-  gap: 4px;
-}
-
-.wm-sales-outcome-card__body strong {
-  color: var(--wm-text);
-  font-size: 0.98rem;
-}
-
-.wm-sales-outcome-card__body span {
-  color: var(--wm-text-muted);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.wm-sales-outcome-card__body p {
-  color: var(--wm-text-soft);
-  line-height: 1.5;
-  margin: 4px 0 0;
-}
-
-.wm-sales-path-panel,
-.wm-sales-flashcard-panel,
-.wm-sales-subpanel {
-  display: grid;
-  gap: 14px;
-}
-
-.wm-sales-path-panel__hero {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
   gap: 12px;
-  align-items: center;
 }
 
-.wm-sales-path-panel__hero-icon {
-  width: 44px;
-  height: 44px;
+.wm-sales-room-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wm-sales-motion-grid,
+.wm-sales-product-grid,
+.wm-sales-conversation-grid {
+  grid-template-columns: 1fr;
+}
+
+.wm-sales-room-card,
+.wm-sales-motion-card,
+.wm-sales-pitch-card,
+.wm-sales-product-card {
   display: grid;
-  place-items: center;
-  border-radius: 14px;
-  border: 1px solid rgba(123, 169, 234, 0.14);
-  background: rgba(15, 23, 42, 0.62);
+  gap: 6px;
+  width: 100%;
+  padding: 14px;
+  text-align: left;
+  color: var(--wm-text);
 }
 
-.wm-sales-subpanel {
-  padding: 16px;
+.wm-sales-room-card strong,
+.wm-sales-motion-card strong,
+.wm-sales-pitch-card strong,
+.wm-sales-product-card strong,
+.wm-sales-story__lead strong {
+  color: #f5f8ff;
+  font-size: 0.96rem;
 }
 
+.wm-sales-room-card span,
+.wm-sales-motion-card span,
+.wm-sales-pitch-card span,
+.wm-sales-product-card span,
+.wm-sales-story__lead span {
+  color: var(--wm-text-soft);
+  line-height: 1.45;
+}
+
+.wm-sales-room-card__meta,
+.wm-sales-motion-card__meta,
 .wm-sales-subpanel__title {
   color: var(--wm-text-muted);
   font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.wm-sales-story-panel,
+.wm-sales-story {
+  gap: 14px;
+}
+
+.wm-sales-story__subpanel {
+  padding: 14px;
 }
 
 .wm-sales-list {
@@ -124,57 +213,6 @@
   line-height: 1.5;
 }
 
-.wm-sales-flashcard-panel__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.wm-sales-flashcard {
-  display: grid;
-}
-
-.wm-sales-flashcard__face {
-  min-height: 250px;
-  padding: 22px;
-  border-radius: 20px;
-  border: 1px solid rgba(123, 169, 234, 0.14);
-  background:
-    linear-gradient(180deg, rgba(11, 24, 42, 0.9), rgba(7, 18, 34, 0.95));
-  box-shadow:
-    0 18px 36px rgba(2, 8, 23, 0.2),
-    inset 0 1px 0 rgba(255,255,255,0.03);
-  display: grid;
-  gap: 14px;
-}
-
-.wm-sales-flashcard__face--answer {
-  border-color: rgba(96, 165, 250, 0.22);
-  background:
-    linear-gradient(180deg, rgba(15, 30, 54, 0.94), rgba(8, 20, 38, 0.98));
-}
-
-.wm-sales-flashcard__label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--wm-text-soft);
-}
-
-.wm-sales-flashcard__face h3 {
-  margin: 0;
-  color: var(--wm-text);
-  line-height: 1.45;
-}
-
-.wm-sales-flashcard__face p {
-  margin: 0;
-  color: var(--wm-text-soft);
-  line-height: 1.6;
-}
-
 .wm-sales-next-link {
   display: flex;
   align-items: center;
@@ -182,37 +220,16 @@
   gap: 12px;
   padding: 12px 14px;
   border-radius: 14px;
-  border: 1px solid rgba(123, 169, 234, 0.1);
-  background: rgba(9, 21, 38, 0.44);
-  color: var(--wm-text);
+  border: 1px solid rgba(123, 169, 234, 0.12);
+  background: rgba(10, 23, 40, 0.58);
+  color: #f5f8ff;
   text-decoration: none;
   transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
 }
 
-.wm-sales-next-link:hover {
-  transform: translateY(-1px);
-  border-color: rgba(96, 165, 250, 0.22);
-  background: rgba(12, 26, 46, 0.72);
-}
-
-@media (max-width: 1200px) {
-  .wm-sales-tools-page__outcome-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .wm-sales-tools-page__stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 760px) {
-  .wm-sales-tools-page__outcome-grid,
-  .wm-sales-tools-page__stats {
+@media (max-width: 1180px) {
+  .wm-sales-hero,
+  .wm-sales-room-grid {
     grid-template-columns: 1fr;
-  }
-
-  .wm-sales-flashcard__face {
-    min-height: 0;
-    padding: 16px;
   }
 }

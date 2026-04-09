@@ -1,0 +1,40 @@
+import express from "express";
+
+export function createAgentsRouter() {
+  const router = express.Router();
+
+  router.get("/health", (_req, res) => {
+    res.json({
+      ok: true,
+      service: "wingman-agents",
+      phases: ["discovery", "architect", "validate", "proposal", "guru", "competitor"],
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  router.post("/discovery", async (req, res) => {
+    res.json({ ok: true, phase: "discovery", received: req.body ?? null, mock: true });
+  });
+
+  router.post("/architect", async (req, res) => {
+    res.json({ ok: true, phase: "architect", received: req.body ?? null, mock: true });
+  });
+
+  router.post("/validate", async (req, res) => {
+    res.json({ ok: true, phase: "validate", received: req.body ?? null, mock: true });
+  });
+
+  router.post("/proposal", async (req, res) => {
+    res.json({ ok: true, phase: "proposal", received: req.body ?? null, mock: true });
+  });
+
+  router.post("/guru", async (req, res) => {
+    res.json({ ok: true, phase: "guru", received: req.body ?? null, mock: true });
+  });
+
+  router.post("/competitor", async (req, res) => {
+    res.json({ ok: true, phase: "competitor", received: req.body ?? null, mock: true });
+  });
+
+  return router;
+}
