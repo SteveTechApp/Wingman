@@ -166,6 +166,137 @@ canvas {
   pointer-events: none;
 }
 
+.wm-shell-workspace :is(
+  .wm-catalog-page,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-training-hub,
+  .wm-templates-page,
+  .wm-room-wizard,
+  .wm-proposal-page
+) {
+  background: transparent;
+  color: var(--wm-text);
+}
+
+.wm-shell-workspace :is(
+  .wm-catalog-page__hero,
+  .wm-catalog-page__panel,
+  .wm-discovery-page__hero,
+  .wm-discovery-page__panel,
+  .wm-import-page__hero,
+  .wm-import-page__panel,
+  .wm-training-hub__hero,
+  .wm-training-hub__project-strip,
+  .wm-training-hub__panel,
+  .wm-templates-page__hero,
+  .wm-templates-page__browser,
+  .wm-templates-page__detail,
+  .wm-templates-page__panel,
+  .wm-room-wizard__browser,
+  .wm-room-wizard__detail,
+  .wm-proposal-page__brief,
+  .wm-proposal-page__support,
+  .wm-proposal-page__panel,
+  .wm-proposal-page__stage-button,
+  .wm-proposal-page__empty
+) {
+  border: 1px solid var(--wm-border-default);
+  background: var(--wm-surface-1);
+  box-shadow: var(--wm-glow-panel);
+}
+
+.wm-shell-workspace :is(
+  .wm-catalog-page__metric,
+  .wm-catalog-page__assumption-card,
+  .wm-catalog-page__detail-card,
+  .wm-discovery-page__metric,
+  .wm-discovery-page__assumption-card,
+  .wm-discovery-page__detail-card,
+  .wm-import-page__metric,
+  .wm-import-page__detail-card,
+  .wm-training-hub__metric,
+  .wm-templates-page__metric,
+  .wm-templates-page__detail-metric,
+  .wm-room-wizard__metric,
+  .wm-proposal-page__metric
+) {
+  border: 1px solid var(--wm-border-default);
+  background: rgba(8, 18, 34, 0.76);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.wm-shell-workspace :is(
+  .wm-catalog-page,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-training-hub,
+  .wm-templates-page,
+  .wm-room-wizard,
+  .wm-proposal-page
+) :is(h1, h2, h3, h4, strong) {
+  color: var(--wm-text) !important;
+}
+
+.wm-shell-workspace :is(
+  .wm-catalog-page,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-training-hub,
+  .wm-templates-page,
+  .wm-room-wizard,
+  .wm-proposal-page
+) :is(p, li) {
+  color: var(--wm-text-soft) !important;
+}
+
+.wm-shell-workspace :is(
+  .wm-catalog-page,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-training-hub,
+  .wm-templates-page,
+  .wm-room-wizard,
+  .wm-proposal-page
+) :is(
+  [class*="__eyebrow"],
+  [class*="__meta"],
+  [class*="__label"],
+  [class*="__step"],
+  [class*="__kicker"],
+  [class*="__category"],
+  [class*="__scale"]
+) {
+  color: var(--wm-text-muted) !important;
+}
+
+.wm-shell-workspace :is(
+  .wm-catalog-page,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-training-hub,
+  .wm-templates-page,
+  .wm-room-wizard,
+  .wm-proposal-page
+) :is(input, select, textarea) {
+  border: 1px solid var(--wm-border-default);
+  background: rgba(8, 18, 34, 0.8);
+  color: var(--wm-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.wm-shell-workspace :is(
+  .wm-catalog-page,
+  .wm-discovery-page,
+  .wm-import-page,
+  .wm-training-hub,
+  .wm-templates-page,
+  .wm-room-wizard,
+  .wm-proposal-page
+) :is(input, textarea)::placeholder {
+  color: var(--wm-text-faint);
+}
+
 @media (max-width: 1180px) {
   .wm-fit-page__hero,
   .wm-frame__hero {
