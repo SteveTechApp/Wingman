@@ -1,0 +1,202 @@
+function withCorsHeaders(base = {}) {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    ...base,
+  };
+}
+
+function sendJson(res, statusCode, payload) {
+  const body = JSON.stringify(payload, null, 2);
+  res.writeHead(statusCode, withCorsHeaders({
+    "Content-Type": "application/json; charset=utf-8",
+    "Content-Length": Buffer.byteLength(body),
+  }));
+  res.end(body);
+}
+
+async function parseJsonBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on("data", (chunk) => chunks.push(chunk));
+    req.on("end", () => {
+      try {
+        const text = Buffer.concat(chunks).toString("utf8");
+        if (!text) {
+          resolve({});
+          return;
+        }
+        resolve(JSON.parse(text));
+      } catch (error) {
+        reject(error);
+      }
+    });
+    req.on("error", reject);
+  });
+}
+
+function getAgentsPath(req) {
+  const url = new URL(req.url || "/", "http://localhost");
+  const pathname = url.pathname || "/";
+  if (pathname === "/api/wingman/agents" || pathname.startsWith("/api/wingman/agents/")) {
+    return pathname;
+  }
+  return "";
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+export async function handleAgentsRoute(req, res) {
+  const pathname = getAgentsPath(req);
+  if (!pathname) {
+    return false;
+  }
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(204, withCorsHeaders());
+    res.end();
+    return true;
+  }
+
+  if ((pathname === "/api/wingman/agents" || pathname === "/api/wingman/agents/health") && req.method === "GET") {
+    sendJson(res, 200, {
+      ok: true,
+      service: "wingman-agents",
+      runtime: "node:http",
+      phases: ["discovery", "architect", "validate", "proposal", "guru", "competitor"],
+      timestamp: nowIso(),
+    });
+    return true;
+  }
+
+  if (pathname === "/api/wingman/agents/discovery" && req.method === "POST") {
+    try {
+      const body = await parseJsonBody(req);
+      sendJson(res, 200, {
+        ok: true,
+        phase: "discovery",
+        mock: true,
+        received: body,
+        timestamp: nowIso(),
+      });
+    } catch (error) {
+      sendJson(res, 400, {
+        ok: false,
+        phase: "discovery",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return true;
+  }
+
+  if (pathname === "/api/wingman/agents/architect" && req.method === "POST") {
+    try {
+      const body = await parseJsonBody(req);
+      sendJson(res, 200, {
+        ok: true,
+        phase: "architect",
+        mock: true,
+        received: body,
+        timestamp: nowIso(),
+      });
+    } catch (error) {
+      sendJson(res, 400, {
+        ok: false,
+        phase: "architect",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return true;
+  }
+
+  if (pathname === "/api/wingman/agents/validate" && req.method === "POST") {
+    try {
+      const body = await parseJsonBody(req);
+      sendJson(res, 200, {
+        ok: true,
+        phase: "validate",
+        mock: true,
+        received: body,
+        timestamp: nowIso(),
+      });
+    } catch (error) {
+      sendJson(res, 400, {
+        ok: false,
+        phase: "validate",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return true;
+  }
+
+  if (pathname === "/api/wingman/agents/proposal" && req.method === "POST") {
+    try {
+      const body = await parseJsonBody(req);
+      sendJson(res, 200, {
+        ok: true,
+        phase: "proposal",
+        mock: true,
+        received: body,
+        timestamp: nowIso(),
+      });
+    } catch (error) {
+      sendJson(res, 400, {
+        ok: false,
+        phase: "proposal",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return true;
+  }
+
+  if (pathname === "/api/wingman/agents/guru" && req.method === "POST") {
+    try {
+      const body = await parseJsonBody(req);
+      sendJson(res, 200, {
+        ok: true,
+        phase: "guru",
+        mock: true,
+        received: body,
+        timestamp: nowIso(),
+      });
+    } catch (error) {
+      sendJson(res, 400, {
+        ok: false,
+        phase: "guru",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return true;
+  }
+
+  if (pathname === "/api/wingman/agents/competitor" && req.method === "POST") {
+    try {
+      const body = await parseJsonBody(req);
+      sendJson(res, 200, {
+        ok: true,
+        phase: "competitor",
+        mock: true,
+        received: body,
+        timestamp: nowIso(),
+      });
+    } catch (error) {
+      sendJson(res, 400, {
+        ok: false,
+        phase: "competitor",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return true;
+  }
+
+  sendJson(res, 404, {
+    ok: false,
+    error: "Unknown Wingman agents route",
+    pathname,
+    method: req.method || "GET",
+  });
+  return true;
+}

@@ -1,0 +1,123 @@
+:root,
+html.wm-force-authority,
+body.wm-force-authority {
+  color-scheme: dark;
+
+  --wm-bg: #07111f;
+  --wm-bg-elevated: #0b1628;
+  --wm-surface-0: rgba(8, 18, 34, 0.90);
+  --wm-surface-1: rgba(10, 22, 40, 0.94);
+  --wm-surface-2: rgba(14, 28, 50, 0.97);
+  --wm-surface-3: rgba(18, 36, 64, 0.99);
+
+  --wm-border-subtle: rgba(96, 141, 198, 0.16);
+  --wm-border-default: rgba(96, 141, 198, 0.22);
+  --wm-border-strong: rgba(96, 141, 198, 0.34);
+
+  --wm-text: #e8f0fb;
+  --wm-text-soft: #b8c7dd;
+  --wm-text-muted: #88a0bf;
+  --wm-text-faint: #6c82a0;
+
+  --wm-accent: #6ea8ff;
+  --wm-accent-strong: #86b8ff;
+  --wm-accent-wash: rgba(110, 168, 255, 0.10);
+  --wm-accent-line: rgba(110, 168, 255, 0.24);
+
+  --wm-brand: #d68b4f;
+  --wm-brand-soft: rgba(214, 139, 79, 0.15);
+  --wm-brand-line: rgba(214, 139, 79, 0.28);
+
+  --wm-success: #43c37b;
+  --wm-success-soft: rgba(67, 195, 123, 0.14);
+  --wm-warning: #e1ac4a;
+  --wm-warning-soft: rgba(225, 172, 74, 0.14);
+  --wm-danger: #dc6d79;
+  --wm-danger-soft: rgba(220, 109, 121, 0.14);
+
+  --wm-glow-soft: 0 0 0 1px rgba(110, 168, 255, 0.06), 0 18px 40px rgba(4, 10, 20, 0.26);
+  --wm-glow-panel: 0 0 0 1px rgba(110, 168, 255, 0.08), inset 0 1px 0 rgba(255,255,255,0.03), 0 18px 38px rgba(0,0,0,0.28);
+  --wm-glow-brand: 0 0 0 1px rgba(214, 139, 79, 0.12), 0 18px 42px rgba(57, 29, 9, 0.22);
+
+  --wm-radius-xs: 8px;
+  --wm-radius-sm: 12px;
+  --wm-radius-md: 16px;
+  --wm-radius-lg: 20px;
+  --wm-radius-xl: 24px;
+  --wm-radius-pill: 999px;
+
+  --wm-space-1: 4px;
+  --wm-space-2: 8px;
+  --wm-space-3: 12px;
+  --wm-space-4: 16px;
+  --wm-space-5: 20px;
+  --wm-space-6: 24px;
+  --wm-space-7: 32px;
+  --wm-space-8: 40px;
+
+  --wm-font: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --wm-fs-caption: 11px;
+  --wm-fs-meta: 12px;
+  --wm-fs-body: 14px;
+  --wm-fs-body-lg: 15px;
+  --wm-fs-label: 13px;
+  --wm-fs-title: 20px;
+  --wm-fs-page: clamp(28px, 3.2vw, 40px);
+
+  --wm-lh-tight: 1.1;
+  --wm-lh-body: 1.45;
+  --wm-lh-relaxed: 1.6;
+
+  --wm-topbar-h: 72px;
+  --wm-sidebar-w: 250px;
+  --wm-sidebar-w-collapsed: 84px;
+  --wm-content-max: 1600px;
+  --wm-control-h: 42px;
+  --wm-control-h-lg: 48px;
+
+  --wm-fast: 120ms ease;
+  --wm-med: 180ms ease;
+  --wm-slow: 240ms ease;
+}
+
+html[data-theme="light"],
+:root[data-theme="light"],
+body.theme-light {
+  color-scheme: light;
+
+  --wm-bg: #edf3fb;
+  --wm-bg-elevated: #f7faff;
+  --wm-surface-0: rgba(255, 255, 255, 0.90);
+  --wm-surface-1: rgba(255, 255, 255, 0.95);
+  --wm-surface-2: rgba(255, 255, 255, 0.98);
+  --wm-surface-3: rgba(248, 251, 255, 1);
+
+  --wm-border-subtle: rgba(34, 76, 132, 0.10);
+  --wm-border-default: rgba(34, 76, 132, 0.18);
+  --wm-border-strong: rgba(34, 76, 132, 0.28);
+
+  --wm-text: #13243c;
+  --wm-text-soft: #2a4366;
+  --wm-text-muted: #587294;
+  --wm-text-faint: #7c90a9;
+
+  --wm-accent: #2d74d7;
+  --wm-accent-strong: #1d63c5;
+  --wm-accent-wash: rgba(45, 116, 215, 0.10);
+  --wm-accent-line: rgba(45, 116, 215, 0.22);
+
+  --wm-brand: #b86d28;
+  --wm-brand-soft: rgba(184, 109, 40, 0.12);
+  --wm-brand-line: rgba(184, 109, 40, 0.22);
+
+  --wm-success: #238a53;
+  --wm-success-soft: rgba(35, 138, 83, 0.12);
+  --wm-warning: #b57914;
+  --wm-warning-soft: rgba(181, 121, 20, 0.12);
+  --wm-danger: #bf4b5a;
+  --wm-danger-soft: rgba(191, 75, 90, 0.12);
+
+  --wm-glow-soft: 0 0 0 1px rgba(45, 116, 215, 0.05), 0 14px 26px rgba(60, 88, 128, 0.12);
+  --wm-glow-panel: 0 0 0 1px rgba(45, 116, 215, 0.06), inset 0 1px 0 rgba(255,255,255,0.7), 0 14px 30px rgba(60, 88, 128, 0.12);
+  --wm-glow-brand: 0 0 0 1px rgba(184, 109, 40, 0.10), 0 16px 34px rgba(117, 73, 24, 0.10);
+}

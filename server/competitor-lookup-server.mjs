@@ -1,3 +1,4 @@
+import { handleAgentsRoute } from "./routes/agents.mjs";
 import http from "node:http";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -40,6 +41,7 @@ import {
 } from "./wingman-app-store.mjs";
 import { resolveCompetitorMatch } from "./competitor/resolve-match.mjs";
 import { resolveCompetitorLiveLookup } from "./competitor/live-lookup.mjs";
+import { enrichProductClassification } from "./shared/product-classification.mjs";
 
 let createSupabaseClient = null;
 try {
@@ -1841,6 +1843,9 @@ function buildHealthPayload() {
 }
 
 const server = http.createServer(async (req, res) => {
+  if (await handleAgentsRoute(req, res)) {
+    return;
+  }
 
     if (req.method === "POST" && req.url === "/api/competitor/resolveMatch") {
       try {

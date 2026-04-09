@@ -34,6 +34,11 @@
   --wm-topbar: #091523;
   --wm-sidebar: #081220;
   --wm-input: #0f1a2d;
+
+  --wm-studio-accent: var(--wm-accent);
+  --wm-studio-text: var(--wm-text);
+  --wm-studio-text-soft: var(--wm-text-soft);
+  --wm-studio-text-muted: var(--wm-text-muted);
 }
 
 :root[data-theme="light"] {
@@ -61,6 +66,11 @@
   --wm-topbar: var(--wm-text);
   --wm-sidebar: #f8fafc;
   --wm-input: var(--wm-text);
+
+  --wm-studio-accent: var(--wm-accent);
+  --wm-studio-text: var(--wm-text);
+  --wm-studio-text-soft: var(--wm-text-soft);
+  --wm-studio-text-muted: var(--wm-text-muted);
 }
 
 html,

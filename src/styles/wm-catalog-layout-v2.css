@@ -1,0 +1,77 @@
+.wm-catalog-v2 {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 14px;
+  height: calc(100vh - 90px);
+  padding: 12px;
+}
+
+/* LEFT PANEL */
+.wm-catalog-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+/* filter tabs */
+.wm-filter-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.wm-filter-tab {
+  flex: 1;
+  padding: 8px;
+  font-size: 12px;
+  border-radius: 8px;
+  background: #0f172a;
+  border: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+}
+
+.wm-filter-tab.active {
+  background: rgba(249,115,22,0.2);
+  border-color: rgba(249,115,22,0.4);
+}
+
+/* scrollable filter content */
+.wm-filter-body {
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+}
+
+/* RIGHT PANEL */
+.wm-catalog-right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* RESULTS GRID */
+.wm-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  overflow-y: auto;
+}
+
+/* PRODUCT CARD */
+.wm-product-card {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 10px;
+  background: #0b1324;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* SCORE BADGE */
+.wm-score {
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(249,115,22,0.2);
+}

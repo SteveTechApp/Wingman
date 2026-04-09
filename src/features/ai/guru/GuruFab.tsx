@@ -1,33 +1,65 @@
-import "./guru-fab.css";
-import * as React from "react";
-import { createPortal } from "react-dom";
-import wingmanBot from "../../../assets/branding/wingman-bot.png";
+import { useMemo, useState } from "react";
+import guruIcon from "@/assets/branding/guru.png";
 
 type GuruFabProps = {
-  open: boolean;
-  minimized: boolean;
-  onToggle: () => void;
+  open?: boolean;
+  minimized?: boolean;
+  onToggle?: () => void;
+  className?: string;
 };
 
-export default function GuruFab({ open, minimized, onToggle }: GuruFabProps) {
-  const [mounted, setMounted] = React.useState(false);
+function joinClasses(...values: Array<string | false | null | undefined>) {
+  return values.filter(Boolean).join(" ");
+}
 
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+export default function GuruFab({
+  open,
+  minimized = false,
+  onToggle,
+  className,
+}: GuruFabProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
 
-  if (!mounted || typeof document === "undefined") return null;
+  const isControlled = typeof open === "boolean";
+  const isOpen = isControlled ? open : internalOpen;
 
-  return createPortal(
+  const label = useMemo(() => {
+    if (isOpen && minimized) return "Restore Guru";
+    if (isOpen) return "Close Guru";
+    return "Open Guru";
+  }, [isOpen, minimized]);
+
+  function handleClick() {
+    if (onToggle) {
+      onToggle();
+      return;
+    }
+
+    setInternalOpen((current) => !current);
+  }
+
+  return (
     <button
       type="button"
-      className={"wm-guru-fab" + (open && !minimized ? " is-open" : "")}
-      aria-label="Open Guru helper"
-      title="Guru helper"
-      onClick={onToggle}
+      className={joinClasses(
+        "wm-guru-fab",
+        isOpen && "is-open",
+        minimized && "is-minimized",
+        className
+      )}
+      aria-label={label}
+      aria-pressed={isOpen}
+      title={label}
+      onClick={handleClick}
     >
-      <img src={wingmanBot} alt="" className="wm-guru-fab__icon" draggable={false} />
-    </button>,
-    document.body
+      <span className="wm-guru-fab__inner">
+        <img
+          src={guruIcon}
+          alt=""
+          className="wm-guru-fab__icon"
+          draggable={false}
+        />
+      </span>
+    </button>
   );
 }

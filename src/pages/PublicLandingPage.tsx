@@ -1,252 +1,405 @@
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  Bot,
-  CheckCircle2,
-  ClipboardList,
-  FileText,
-  Layers3,
-  LayoutGrid,
-  MonitorSmartphone,
-} from "lucide-react";
-import "@/styles/public-landing-toolfirst.css";
+import type { CSSProperties } from "react";
+import { ArrowRight, Bot, ClipboardList, FileText, Search } from "lucide-react";
+import WingmanBrand from "@/components/branding/WingmanBrand";
+import GuruAvatar from "@/components/branding/GuruAvatar";
 
-const workflow = [
+const features = [
   {
-    step: "01",
-    title: "Discover",
-    text: "Capture sources, displays, distance, control, USB and application constraints before selecting hardware.",
-    href: "/app/tools/discovery",
+    icon: Search,
+    title: "Find the right product",
+    text: "Use application-led product finding instead of starting from product codes.",
+  },
+  {
     icon: ClipboardList,
+    title: "Capture requirements properly",
+    text: "Guide sales teams through the correct discovery structure for AV projects.",
   },
   {
-    step: "02",
-    title: "Design",
-    text: "Move into the right WyreStorm architecture path: extender, matrix, AVoIP or video wall.",
-    href: "/app/tools/catalog",
-    icon: Layers3,
-  },
-  {
-    step: "03",
-    title: "Deliver",
-    text: "Generate a cleaner proposal-ready output with supporting technical rationale.",
-    href: "/app/tools/proposal",
     icon: FileText,
-  },
-];
-
-const quickTools = [
-  {
-    title: "Discovery Wizard",
-    text: "Start a new opportunity and structure the brief properly.",
-    href: "/app/tools/discovery",
+    title: "Build proposals faster",
+    text: "Convert selected products and requirements into architecture and proposal output.",
   },
   {
-    title: "Catalogue",
-    text: "Review product families and recommended solution paths.",
-    href: "/app/tools/catalog",
+    icon: Bot,
+    title: "Use Guru as your AV assistant",
+    text: "Get live product, technical and positioning support during real sales conversations.",
   },
-  {
-    title: "Proposal Builder",
-    text: "Turn technical direction into customer-facing output.",
-    href: "/app/tools/proposal",
-  },
-  {
-    title: "Video Wall Planner",
-    text: "Model wall layouts and hardware approach.",
-    href: "/app/tools/video-wall",
-  },
-];
-
-const proofPoints = [
-  "Faster qualification for non-engineering sales users",
-  "More consistent architecture selection across the team",
-  "Cleaner handoff from requirement to proposal output",
-];
-
-const guruPrompts = [
-  "Is this application better suited to matrix switching or AVoIP?",
-  "What is still missing from this customer brief?",
-  "What WyreStorm path fits this video wall requirement?",
 ];
 
 export default function PublicLandingPage() {
   return (
-    <main className="wm-public">
-      <section className="wm-public-shell">
-        <header className="wm-public-topbar">
-          <div className="wm-public-brand">
-            <img
-              src="/WyreStorm-Wingman-logo.png"
-              alt="WyreStorm Wingman"
-              className="wm-public-brand-logo"
-              onError={(e) => {
-                const target = e.currentTarget;
-                target.style.display = "none";
-              }}
-            />
-            <div className="wm-public-brand-copy">
-              <span className="wm-public-eyebrow">WyreStorm Wingman</span>
-              <strong>Sales enablement for real AV projects</strong>
-            </div>
-          </div>
+    <div style={pageStyle}>
+      <header style={topBarStyle}>
+        <WingmanBrand size="lg" showText />
+        <div style={topActionsStyle}>
+          <Link to="/login" style={ghostButtonStyle}>
+            Log in
+          </Link>
+          <Link to="/signup" style={primaryButtonStyle}>
+            Get started
+          </Link>
+        </div>
+      </header>
 
-          <div className="wm-public-topbar-actions">
-            <Link to="/login" className="wm-public-btn wm-public-btn-ghost">
-              Log in
-            </Link>
-            <Link to="/signup" className="wm-public-btn wm-public-btn-primary">
-              Open Wingman
-            </Link>
-          </div>
-        </header>
-
-        <section className="wm-public-hero">
-          <div className="wm-public-hero-main">
-            <div className="wm-public-kicker">
-              <LayoutGrid size={15} />
-              <span>Tool-first workflow</span>
+      <main style={heroWrapStyle}>
+        <section style={heroPanelStyle}>
+          <div style={heroCopyStyle}>
+            <div style={eyebrowStyle}>WyreStorm Wingman</div>
+            <h1 style={titleStyle}>The AV sales and design platform for faster, clearer solution building</h1>
+            <div style={bodyStyle}>
+              Wingman helps sales and pre-sales teams move from customer requirement to product selection, architecture and proposal output with less dependency on senior engineering support.
             </div>
 
-            <h1 className="wm-public-title">
-              Move from AV requirement
-              <br />
-              to product recommendation
-              <br />
-              with less guesswork.
-            </h1>
-
-            <p className="wm-public-subtitle">
-              Wingman helps sales and pre-sales teams structure the brief, select
-              the correct WyreStorm path, and produce cleaner proposal-ready output
-              without needing full integration-level knowledge at the first step.
-            </p>
-
-            <div className="wm-public-cta-row">
-              <Link to="/signup" className="wm-public-btn wm-public-btn-primary">
-                Start in Wingman
-                <ArrowRight size={16} />
+            <div style={actionRowStyle}>
+              <Link to="/signup" style={primaryButtonStyle}>
+                Start with Wingman
               </Link>
-              <Link to="/login" className="wm-public-btn wm-public-btn-ghost">
-                Existing user login
+              <Link to="/login" style={ghostButtonStyle}>
+                Open existing workspace
               </Link>
             </div>
 
-            <div className="wm-public-proof">
-              {proofPoints.map((item) => (
-                <div key={item} className="wm-public-proof-item">
-                  <CheckCircle2 size={16} />
-                  <span>{item}</span>
-                </div>
-              ))}
+            <div style={heroInfoRowStyle}>
+              <span style={heroChipStyle}>Quick reference tools</span>
+              <span style={heroChipStyle}>Formal proposal workflows</span>
+              <span style={heroChipStyle}>Guru AV assistant</span>
             </div>
           </div>
 
-          <aside className="wm-public-guru">
-            <div className="wm-public-guru-head">
-              <div className="wm-public-guru-badge">
-                <img src="/guru.png" alt="Wingman Guru" className="wm-public-guru-mark" />
-                <span>Guru Assistance</span>
+          <div style={heroVisualStyle}>
+            <div style={visualCardStyle}>
+              <div style={visualHeadStyle}>
+                <WingmanBrand size="sm" showText={false} />
+                <div style={visualTitleStyle}>Wingman Workspace</div>
               </div>
-              <span className="wm-public-status">Ready</span>
-            </div>
 
-            <h2>Guided help before the product choice</h2>
-            <p>
-              Guru helps users identify missing requirements, challenge the wrong
-              architecture early, and improve technical consistency before proposal
-              generation.
-            </p>
-
-            <div className="wm-public-guru-prompts">
-              {guruPrompts.map((prompt) => (
-                <div key={prompt} className="wm-public-prompt">
-                  “{prompt}”
+              <div style={modeGridStyle}>
+                <div style={quickModeCardStyle}>
+                  <div style={modeCardTitleStyle}>Quick Reference</div>
+                  <div style={modeCardTextStyle}>Product Finder, Guru, Compare, Navigator</div>
                 </div>
-              ))}
-            </div>
 
-            <Link to="/app/tools/guru" className="wm-public-btn wm-public-btn-guru">
-              <Bot size={16} />
-              Open Guru
-            </Link>
-          </aside>
-        </section>
+                <div style={workflowModeCardStyle}>
+                  <div style={modeCardTitleStyle}>Workflow</div>
+                  <div style={modeCardTextStyle}>Discovery, Templates, Proposal, Project Outputs</div>
+                </div>
+              </div>
 
-        <section className="wm-public-workflow">
-          <div className="wm-public-section-head">
-            <span className="wm-public-section-label">Core workflow</span>
-            <h2>Start with the brief. Then move into the right tool.</h2>
-          </div>
-
-          <div className="wm-public-workflow-grid">
-            {workflow.map((item) => {
-              const Icon = item.icon;
-              return (
-                <article key={item.title} className="wm-public-workflow-card">
-                  <div className="wm-public-workflow-top">
-                    <div className="wm-public-step-chip">{item.step}</div>
-                    <div className="wm-public-workflow-icon">
-                      <Icon size={18} />
-                    </div>
+              <div style={guruFeatureCardStyle}>
+                <GuruAvatar size={54} rounded={14} />
+                <div style={guruFeatureCopyStyle}>
+                  <div style={modeCardTitleStyle}>Guru Assistant</div>
+                  <div style={modeCardTextStyle}>
+                    Page-aware AV helper for product explanation, design guidance and sales support.
                   </div>
-
-                  <h3>{item.title}</h3>
-                  <p>{item.text}</p>
-
-                  <Link to={item.href} className="wm-public-inline-link">
-                    Open {item.title}
-                    <ArrowRight size={14} />
-                  </Link>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="wm-public-tools">
-          <div className="wm-public-section-head">
-            <span className="wm-public-section-label">Key tools</span>
-            <h2>Jump straight into the area you need.</h2>
-          </div>
-
-          <div className="wm-public-tools-grid">
-            {quickTools.map((tool) => (
-              <Link key={tool.title} to={tool.href} className="wm-public-tool-card">
-                <div className="wm-public-tool-top">
-                  <strong>{tool.title}</strong>
-                  <ArrowRight size={16} />
                 </div>
-                <p>{tool.text}</p>
-              </Link>
-            ))}
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="wm-public-footer-band">
-          <div className="wm-public-footer-copy">
-            <div className="wm-public-footer-icon">
-              <MonitorSmartphone size={18} />
-            </div>
-            <div>
-              <strong>Built for practical sales support</strong>
-              <p>
-                Wingman is designed to reduce friction between opportunity intake,
-                technical direction and proposal output.
-              </p>
-            </div>
-          </div>
-
-          <div className="wm-public-footer-actions">
-            <Link to="/signup" className="wm-public-btn wm-public-btn-primary">
-              Create account
-            </Link>
-            <Link to="/login" className="wm-public-btn wm-public-btn-ghost">
-              Sign in
-            </Link>
-          </div>
+        <section style={featureGridStyle}>
+          {features.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <article key={feature.title} style={featureCardStyle}>
+                <div style={featureIconWrapStyle}>
+                  <Icon size={18} />
+                </div>
+                <div style={featureTitleStyle}>{feature.title}</div>
+                <div style={featureTextStyle}>{feature.text}</div>
+              </article>
+            );
+          })}
         </section>
-      </section>
-    </main>
+
+        <section style={ctaPanelStyle}>
+          <div>
+            <div style={ctaTitleStyle}>Move from discovery to design to proposal</div>
+            <div style={ctaTextStyle}>
+              Wingman is built for real AV sales support, not generic chat.
+            </div>
+          </div>
+          <Link to="/signup" style={ctaButtonStyle}>
+            Create workspace
+            <ArrowRight size={15} />
+          </Link>
+        </section>
+      </main>
+    </div>
   );
 }
+
+const pageStyle: CSSProperties = {
+  minHeight: "100vh",
+  background: "radial-gradient(circle at top, rgba(30,64,175,0.10), transparent 26%), linear-gradient(180deg, #07111f, #081221)",
+  color: "#e5eef8",
+  padding: 18,
+};
+
+const topBarStyle: CSSProperties = {
+  maxWidth: 1320,
+  margin: "0 auto 18px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+};
+
+const topActionsStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+};
+
+const heroWrapStyle: CSSProperties = {
+  maxWidth: 1320,
+  margin: "0 auto",
+  display: "grid",
+  gap: 16,
+};
+
+const heroPanelStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1.1fr 0.9fr",
+  gap: 16,
+  borderRadius: 24,
+  padding: 22,
+  border: "1px solid rgba(96,165,250,0.18)",
+  background: "linear-gradient(135deg, rgba(15,23,42,0.94), rgba(30,41,59,0.84))",
+  boxShadow: "0 24px 60px rgba(2,8,23,0.34)",
+};
+
+const heroCopyStyle: CSSProperties = {
+  display: "grid",
+  gap: 14,
+  alignContent: "center",
+};
+
+const eyebrowStyle: CSSProperties = {
+  fontSize: 12,
+  textTransform: "uppercase",
+  letterSpacing: 1.4,
+  opacity: 0.74,
+  fontWeight: 800,
+};
+
+const titleStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 44,
+  lineHeight: 1.02,
+  fontWeight: 900,
+  maxWidth: 720,
+};
+
+const bodyStyle: CSSProperties = {
+  fontSize: 16,
+  lineHeight: 1.6,
+  opacity: 0.88,
+  maxWidth: 680,
+};
+
+const actionRowStyle: CSSProperties = {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+};
+
+const primaryButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 42,
+  padding: "0 16px",
+  borderRadius: 12,
+  border: "1px solid rgba(249,115,22,0.30)",
+  background: "linear-gradient(180deg, rgba(249,115,22,0.90), rgba(194,65,12,0.92))",
+  color: "#fff",
+  textDecoration: "none",
+  fontWeight: 800,
+  fontSize: 14,
+};
+
+const ghostButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 42,
+  padding: "0 16px",
+  borderRadius: 12,
+  border: "1px solid rgba(148,163,184,0.16)",
+  background: "rgba(255,255,255,0.05)",
+  color: "inherit",
+  textDecoration: "none",
+  fontWeight: 700,
+  fontSize: 14,
+};
+
+const heroInfoRowStyle: CSSProperties = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+};
+
+const heroChipStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "5px 10px",
+  borderRadius: 999,
+  fontSize: 11,
+  background: "rgba(255,255,255,0.07)",
+  border: "1px solid rgba(255,255,255,0.10)",
+};
+
+const heroVisualStyle: CSSProperties = {
+  display: "grid",
+  alignContent: "center",
+};
+
+const visualCardStyle: CSSProperties = {
+  borderRadius: 20,
+  padding: 18,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "linear-gradient(180deg, rgba(8,16,30,0.88), rgba(8,14,24,0.96))",
+  boxShadow: "0 20px 40px rgba(2,8,23,0.32)",
+  display: "grid",
+  gap: 14,
+};
+
+const visualHeadStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+};
+
+const visualTitleStyle: CSSProperties = {
+  fontSize: 15,
+  fontWeight: 900,
+};
+
+const modeGridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: 10,
+};
+
+const quickModeCardStyle: CSSProperties = {
+  borderRadius: 16,
+  padding: 14,
+  border: "1px solid rgba(14,165,233,0.22)",
+  background: "linear-gradient(180deg, rgba(9,53,72,0.82), rgba(10,25,34,0.94))",
+  display: "grid",
+  gap: 6,
+};
+
+const workflowModeCardStyle: CSSProperties = {
+  borderRadius: 16,
+  padding: 14,
+  border: "1px solid rgba(20,184,166,0.22)",
+  background: "linear-gradient(180deg, rgba(7,44,46,0.84), rgba(10,27,34,0.94))",
+  display: "grid",
+  gap: 6,
+};
+
+const guruFeatureCardStyle: CSSProperties = {
+  borderRadius: 16,
+  padding: 14,
+  border: "1px solid rgba(249,115,22,0.22)",
+  background: "linear-gradient(180deg, rgba(89,36,9,0.74), rgba(33,20,11,0.94))",
+  display: "grid",
+  gridTemplateColumns: "auto 1fr",
+  gap: 12,
+  alignItems: "center",
+};
+
+const guruFeatureCopyStyle: CSSProperties = {
+  display: "grid",
+  gap: 4,
+};
+
+const modeCardTitleStyle: CSSProperties = {
+  fontSize: 14,
+  fontWeight: 900,
+};
+
+const modeCardTextStyle: CSSProperties = {
+  fontSize: 13,
+  lineHeight: 1.45,
+  opacity: 0.86,
+};
+
+const featureGridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+  gap: 12,
+};
+
+const featureCardStyle: CSSProperties = {
+  borderRadius: 18,
+  padding: 16,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "linear-gradient(180deg, rgba(15,23,42,0.74), rgba(8,14,24,0.88))",
+  boxShadow: "0 14px 28px rgba(2,8,23,0.22)",
+  display: "grid",
+  gap: 10,
+};
+
+const featureIconWrapStyle: CSSProperties = {
+  width: 36,
+  height: 36,
+  borderRadius: 12,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "rgba(249,115,22,0.14)",
+  border: "1px solid rgba(249,115,22,0.22)",
+};
+
+const featureTitleStyle: CSSProperties = {
+  fontSize: 16,
+  fontWeight: 900,
+};
+
+const featureTextStyle: CSSProperties = {
+  fontSize: 13,
+  lineHeight: 1.5,
+  opacity: 0.86,
+};
+
+const ctaPanelStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 14,
+  borderRadius: 20,
+  padding: 18,
+  border: "1px solid rgba(168,85,247,0.18)",
+  background: "linear-gradient(180deg, rgba(45,20,75,0.76), rgba(24,14,42,0.94))",
+};
+
+const ctaTitleStyle: CSSProperties = {
+  fontSize: 24,
+  fontWeight: 900,
+  lineHeight: 1.1,
+};
+
+const ctaTextStyle: CSSProperties = {
+  marginTop: 6,
+  fontSize: 14,
+  opacity: 0.84,
+};
+
+const ctaButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
+  minHeight: 44,
+  padding: "0 16px",
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(255,255,255,0.08)",
+  color: "inherit",
+  textDecoration: "none",
+  fontWeight: 800,
+};
