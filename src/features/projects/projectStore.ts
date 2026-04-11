@@ -365,7 +365,7 @@ function resetNewProjectState<T extends Record<string, unknown>>(project: T): T 
   return next;
 }
 function shouldSeedProjects(): boolean {
-  return !deploymentSession || deploymentSession.mode === "demo";
+  return deploymentSession?.mode === "demo";
 }
 
 function currentActorName(): string {

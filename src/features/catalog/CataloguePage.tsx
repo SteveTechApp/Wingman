@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Clock3, Filter, FolderOpen, PackageSearch, RotateCcw, Search, Sparkles, Tag, X } from "lucide-react";
+import "./catalog-page.css";
 
 type CatalogProduct = {
   id: string;
@@ -552,19 +553,22 @@ export default function CataloguePage() {
 
   const showingQuietState = !hasIntent(state);
   const visibleResults = rankedResults.slice(0, state.viewMode === "list" ? 24 : 12);
+  const projectName = localStorage.getItem("wm:activeProjectName") || "General catalog";
 
   return (
-    <div style={pageStyle}>
-      <section style={topBarStyle}>
-        <div style={{ display: "grid", gap: 4 }}>
-          <div style={eyebrowStyle}>Sales Assist</div>
-          <h1 style={titleStyle}>Product Finder</h1>
-          <div style={tinyMutedStyle}>NHD uses the Power of Three: 100 Series, 500 Series and 600 Series.</div>
+    <div style={pageStyle} className="wm-catalog-page">
+      <section style={topBarStyle} className="wm-catalog-page__hero">
+        <div className="wm-catalog-page__hero-copy" style={{ display: "grid", gap: 4 }}>
+          <div style={eyebrowStyle} className="wm-catalog-page__eyebrow">Sales Assist</div>
+          <h1 style={titleStyle} className="wm-catalog-page__title">Product Finder</h1>
+          <div style={tinyMutedStyle} className="wm-catalog-page__hero-note">
+            NHD uses the Power of Three: 100 Series, 500 Series and 600 Series.
+          </div>
         </div>
 
-        <div style={topSearchWrapStyle}>
-          <div style={searchBoxStyle}>
-            <Search size={18} style={searchIconStyle} />
+        <div style={topSearchWrapStyle} className="wm-catalog-page__search-panel">
+          <div style={searchBoxStyle} className="wm-catalog-page__search-box">
+            <Search size={18} style={searchIconStyle} className="wm-catalog-page__search-icon" />
             <input
               ref={searchRef}
               list="catalog-search-suggestions"
@@ -575,6 +579,7 @@ export default function CataloguePage() {
                 if (event.key === "Enter") commitSearch(state.search);
               }}
               placeholder="Search SKU, feature, series, room type, application..."
+              className="wm-catalog-page__search-input"
               style={searchInputStyle}
             />
             <datalist id="catalog-search-suggestions">
@@ -585,7 +590,7 @@ export default function CataloguePage() {
           </div>
         </div>
 
-        <div style={actionRowStyle}>
+        <div style={actionRowStyle} className="wm-catalog-page__toolbar">
           <button
             type="button"
             onClick={() => updateState("matchMode", state.matchMode === "find" ? "filter" : "find")}
@@ -604,13 +609,13 @@ export default function CataloguePage() {
         </div>
       </section>
 
-      <section style={contextBarStyle}>
-        <div style={chipWrapStyle}>
-          <span style={metaPillStyle}>Project: {localStorage.getItem("wm:activeProjectName") || "General catalog"}</span>
-          <span style={metaPillStyle}>Mode: {restored ? "Restored session" : "New session"}</span>
-          <span style={metaPillStyle}>{state.matchMode === "find" ? "Ranked catalogue search" : "Strict filtered search"}</span>
+      <section style={contextBarStyle} className="wm-catalog-page__context-bar">
+        <div style={chipWrapStyle} className="wm-catalog-page__chip-row">
+          <span style={metaPillStyle} className="wm-catalog-page__meta-pill">Project: {projectName}</span>
+          <span style={metaPillStyle} className="wm-catalog-page__meta-pill">Mode: {restored ? "Restored session" : "New session"}</span>
+          <span style={metaPillStyle} className="wm-catalog-page__meta-pill">{state.matchMode === "find" ? "Ranked catalogue search" : "Strict filtered search"}</span>
           {chips.map((chip) => (
-            <button key={`${chip.key}-${chip.label}`} type="button" onClick={() => updateState(chip.key, "" as never)} style={activeChipStyle}>
+            <button key={`${chip.key}-${chip.label}`} type="button" onClick={() => updateState(chip.key, "" as never)} style={activeChipStyle} className="wm-catalog-page__meta-pill wm-catalog-page__meta-pill--active">
               <Tag size={12} />
               {chip.label}
               <X size={12} />
@@ -618,7 +623,7 @@ export default function CataloguePage() {
           ))}
         </div>
 
-        <div style={chipWrapStyle}>
+        <div style={chipWrapStyle} className="wm-catalog-page__chip-row">
           {recentSearches.slice(0, 4).map((item) => (
             <button
               key={`${item.value}-${item.timestamp}`}
@@ -628,6 +633,7 @@ export default function CataloguePage() {
                 commitSearch(item.value);
               }}
               style={chipButtonStyle}
+              className="wm-catalog-page__meta-pill"
             >
               <Clock3 size={14} />
               {item.value}
@@ -636,11 +642,11 @@ export default function CataloguePage() {
         </div>
       </section>
 
-      <div style={layoutStyle}>
-        <aside style={leftRailStyle}>
-          <section style={panelStyle}>
-            <div style={sectionTitleStyle}>Quick family</div>
-            <div style={quickGridStyle}>
+      <div style={layoutStyle} className="wm-catalog-page__layout">
+        <aside style={leftRailStyle} className="wm-catalog-page__filters">
+          <section style={panelStyle} className="wm-catalog-page__panel wm-catalog-page__panel--filters">
+            <div style={sectionTitleStyle} className="wm-catalog-page__section-label">Quick family</div>
+            <div style={quickGridStyle} className="wm-catalog-page__quick-grid">
               {QUICK_FAMILIES.map((family) => {
                 const active = state.family === family;
                 return (
@@ -649,6 +655,7 @@ export default function CataloguePage() {
                     type="button"
                     onClick={() => updateState("family", active ? "" : family)}
                     style={active ? selectedQuickChipStyle : quickChipStyle}
+                    className={active ? "wm-catalog-page__quick-chip is-active" : "wm-catalog-page__quick-chip"}
                   >
                     {family}
                   </button>
@@ -656,8 +663,8 @@ export default function CataloguePage() {
               })}
             </div>
 
-            <div style={sectionTitleStyle}>NHD Power of Three</div>
-            <div style={quickGridStyle}>
+            <div style={sectionTitleStyle} className="wm-catalog-page__section-label">NHD Power of Three</div>
+            <div style={quickGridStyle} className="wm-catalog-page__quick-grid">
               {QUICK_SERIES.map((series) => {
                 const active = state.series === series;
                 return (
@@ -669,6 +676,7 @@ export default function CataloguePage() {
                       updateState("series", active ? "" : series);
                     }}
                     style={active ? selectedQuickChipStyle : quickChipStyle}
+                    className={active ? "wm-catalog-page__quick-chip is-active" : "wm-catalog-page__quick-chip"}
                   >
                     {series}
                   </button>
@@ -676,8 +684,8 @@ export default function CataloguePage() {
               })}
             </div>
 
-            <div style={sectionTitleStyle}>Quick application</div>
-            <div style={quickGridStyle}>
+            <div style={sectionTitleStyle} className="wm-catalog-page__section-label">Quick application</div>
+            <div style={quickGridStyle} className="wm-catalog-page__quick-grid">
               {QUICK_APPLICATIONS.map((application) => {
                 const active = state.application === application;
                 return (
@@ -686,6 +694,7 @@ export default function CataloguePage() {
                     type="button"
                     onClick={() => updateState("application", active ? "" : application)}
                     style={active ? selectedQuickChipStyle : quickChipStyle}
+                    className={active ? "wm-catalog-page__quick-chip is-active" : "wm-catalog-page__quick-chip"}
                   >
                     {application}
                   </button>
@@ -693,8 +702,8 @@ export default function CataloguePage() {
               })}
             </div>
 
-            <div style={sectionTitleStyle}>Suggestions</div>
-            <div style={chipWrapStyle}>
+            <div style={sectionTitleStyle} className="wm-catalog-page__section-label">Suggestions</div>
+            <div style={chipWrapStyle} className="wm-catalog-page__chip-row">
               {searchSuggestions.slice(0, 6).map((item) => (
                 <button
                   key={item.key}
@@ -704,6 +713,7 @@ export default function CataloguePage() {
                     commitSearch(item.label);
                   }}
                   style={chipButtonStyle}
+                  className="wm-catalog-page__meta-pill"
                 >
                   {item.source === "recent" ? <Clock3 size={14} /> : item.source === "project" ? <FolderOpen size={14} /> : item.source === "catalog" ? <PackageSearch size={14} /> : <Sparkles size={14} />}
                   {item.label}
@@ -711,8 +721,8 @@ export default function CataloguePage() {
               ))}
             </div>
 
-            <div style={compactGridStyle}>
-              <label style={fieldStyle}>
+            <div style={compactGridStyle} className="wm-catalog-page__field-grid">
+              <label style={fieldStyle} className="wm-catalog-page__field">
                 <span style={labelStyle}>Family</span>
                 <select value={state.family} onChange={(event) => updateState("family", event.target.value)} style={inputStyle}>
                   <option value="">All families</option>
@@ -724,7 +734,7 @@ export default function CataloguePage() {
                 </select>
               </label>
 
-              <label style={fieldStyle}>
+              <label style={fieldStyle} className="wm-catalog-page__field">
                 <span style={labelStyle}>Series</span>
                 <select value={state.series} onChange={(event) => updateState("series", event.target.value)} style={inputStyle}>
                   <option value="">All series</option>
@@ -737,8 +747,8 @@ export default function CataloguePage() {
               </label>
             </div>
 
-            <div style={compactGridStyle}>
-              <label style={fieldStyle}>
+            <div style={compactGridStyle} className="wm-catalog-page__field-grid">
+              <label style={fieldStyle} className="wm-catalog-page__field">
                 <span style={labelStyle}>Category</span>
                 <select value={state.category} onChange={(event) => updateState("category", event.target.value)} style={inputStyle}>
                   <option value="">All categories</option>
@@ -750,7 +760,7 @@ export default function CataloguePage() {
                 </select>
               </label>
 
-              <label style={fieldStyle}>
+              <label style={fieldStyle} className="wm-catalog-page__field">
                 <span style={labelStyle}>Application</span>
                 <input
                   list="catalog-application-suggestions"
@@ -768,8 +778,8 @@ export default function CataloguePage() {
               </label>
             </div>
 
-            <div style={compactGridStyle}>
-              <label style={fieldStyle}>
+            <div style={compactGridStyle} className="wm-catalog-page__field-grid">
+              <label style={fieldStyle} className="wm-catalog-page__field">
                 <span style={labelStyle}>Room type</span>
                 <input
                   list="catalog-roomtype-suggestions"
@@ -787,7 +797,7 @@ export default function CataloguePage() {
               </label>
 
               {showAdvanced ? (
-                <label style={fieldStyle}>
+                <label style={fieldStyle} className="wm-catalog-page__field">
                   <span style={labelStyle}>Budget band</span>
                   <input
                     list="catalog-budget-suggestions"
@@ -810,18 +820,18 @@ export default function CataloguePage() {
           </section>
         </aside>
 
-        <main style={mainPaneStyle}>
+        <main style={mainPaneStyle} className="wm-catalog-page__results">
           {showingQuietState ? (
-            <section style={starterPanelStyle}>
-              <div style={starterHeaderStyle}>
+            <section style={starterPanelStyle} className="wm-catalog-page__panel wm-catalog-page__starter">
+              <div style={starterHeaderStyle} className="wm-catalog-page__starter-head">
                 <div>
-                  <div style={eyebrowStyle}>Start here</div>
-                  <h2 style={starterTitleStyle}>Suggested starting points</h2>
+                  <div style={eyebrowStyle} className="wm-catalog-page__eyebrow">Start here</div>
+                  <h2 style={starterTitleStyle} className="wm-catalog-page__results-title">Suggested starting points</h2>
                 </div>
-                <div style={tinyMutedStyle}>The panel shows useful products immediately instead of staying blank.</div>
+                <div style={tinyMutedStyle} className="wm-catalog-page__starter-copy">The panel shows useful products immediately instead of staying blank.</div>
               </div>
 
-              <div style={starterGridStyle}>
+              <div style={starterGridStyle} className="wm-catalog-page__starter-grid">
                 {[
                   { label: "NHD 100 Series", family: "NHD", series: "NHD-100 Series" },
                   { label: "NHD 500 Series", family: "NHD", series: "NHD-500 Series" },
@@ -839,6 +849,7 @@ export default function CataloguePage() {
                       if ("application" in item && item.application) updateState("application", item.application);
                     }}
                     style={starterButtonStyle}
+                    className="wm-catalog-page__starter-button"
                   >
                     {item.label}
                   </button>
@@ -847,11 +858,11 @@ export default function CataloguePage() {
             </section>
           ) : null}
 
-          <section style={resultsPanelStyle}>
-            <div style={resultsToolbarStyle}>
+          <section style={resultsPanelStyle} className="wm-catalog-page__panel wm-catalog-page__panel--results">
+            <div style={resultsToolbarStyle} className="wm-catalog-page__results-head">
               <div>
-                <div style={eyebrowStyle}>{showingQuietState ? "Featured products" : "Results"}</div>
-                <div style={resultsTitleStyle}>
+                <div style={eyebrowStyle} className="wm-catalog-page__eyebrow">{showingQuietState ? "Featured products" : "Results"}</div>
+                <div style={resultsTitleStyle} className="wm-catalog-page__results-title">
                   {loading
                     ? "Loading product guide..."
                     : showingQuietState
@@ -862,11 +873,12 @@ export default function CataloguePage() {
                 </div>
               </div>
 
-              <div style={actionRowStyle}>
+              <div style={actionRowStyle} className="wm-catalog-page__toolbar">
                 <button
                   type="button"
                   onClick={() => updateState("viewMode", "list")}
                   style={state.viewMode === "list" ? activeButtonStyle : buttonStyle}
+                  className={state.viewMode === "list" ? "wm-catalog-page__button is-active" : "wm-catalog-page__button"}
                 >
                   List
                 </button>
@@ -874,6 +886,7 @@ export default function CataloguePage() {
                   type="button"
                   onClick={() => updateState("viewMode", "grid")}
                   style={state.viewMode === "grid" ? activeButtonStyle : buttonStyle}
+                  className={state.viewMode === "grid" ? "wm-catalog-page__button is-active" : "wm-catalog-page__button"}
                 >
                   Grid
                 </button>
@@ -881,8 +894,8 @@ export default function CataloguePage() {
             </div>
 
             {state.viewMode === "list" ? (
-              <div style={tableStyle}>
-                <div style={tableHeaderStyle}>
+              <div style={tableStyle} className="wm-catalog-page__table">
+                <div style={tableHeaderStyle} className="wm-catalog-page__table-head">
                   <div>SKU</div>
                   <div>Name</div>
                   <div>Series</div>
@@ -891,22 +904,26 @@ export default function CataloguePage() {
                 </div>
 
                 {visibleResults.map((product, index) => (
-                  <div key={product.id} style={index === 0 ? tableRowTopStyle : tableRowStyle}>
-                    <div style={skuStyle}>{product.sku}</div>
-                    <div>
-                      <div style={nameStyle}>{product.name}</div>
-                      <div style={tinyMutedStyle}>{product.summary}</div>
+                  <div
+                    key={product.id}
+                    style={index === 0 ? tableRowTopStyle : tableRowStyle}
+                    className={index === 0 ? "wm-catalog-page__table-row is-top-result" : "wm-catalog-page__table-row"}
+                  >
+                    <div style={skuStyle} className="wm-catalog-page__sku">{product.sku}</div>
+                    <div className="wm-catalog-page__name-block">
+                      <div style={nameStyle} className="wm-catalog-page__name">{product.name}</div>
+                      <div style={tinyMutedStyle} className="wm-catalog-page__summary">{product.summary}</div>
                     </div>
                     <div>{product.series}</div>
                     <div>{product.category}</div>
-                    <div style={featureInlineStyle}>
+                    <div style={featureInlineStyle} className="wm-catalog-page__fit-line">
                       {[product.family, product.series, product.category, ...product.tags.slice(0, 2)].join(" • ")}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={resultsGridStyle}>
+              <div style={resultsGridStyle} className="wm-catalog-page__result-grid">
                 {visibleResults.map((product, index) => (
                   <article
                     key={product.id}
@@ -919,37 +936,38 @@ export default function CataloguePage() {
                           }
                         : {}),
                     }}
+                    className={index === 0 ? "wm-catalog-page__result-card is-top-result" : "wm-catalog-page__result-card"}
                   >
-                    <div style={resultTopStyle}>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={skuLineStyle}>
-                          <span style={skuStyle}>{product.sku}</span>
-                          <span style={categoryTagStyle}>{product.category}</span>
-                          {index === 0 ? <span style={topPickStyle}>Top match</span> : null}
+                    <div style={resultTopStyle} className="wm-catalog-page__result-top">
+                      <div style={{ minWidth: 0 }} className="wm-catalog-page__name-wrap">
+                        <div style={skuLineStyle} className="wm-catalog-page__sku-line">
+                          <span style={skuStyle} className="wm-catalog-page__sku">{product.sku}</span>
+                          <span style={categoryTagStyle} className="wm-catalog-page__meta-pill">{product.category}</span>
+                          {index === 0 ? <span style={topPickStyle} className="wm-catalog-page__meta-pill wm-catalog-page__meta-pill--accent">Top match</span> : null}
                         </div>
-                        <div style={nameStyle}>{product.name}</div>
+                        <div style={nameStyle} className="wm-catalog-page__name">{product.name}</div>
                       </div>
                     </div>
 
-                    <p style={summaryStyle}>{product.summary}</p>
+                    <p style={summaryStyle} className="wm-catalog-page__summary">{product.summary}</p>
 
-                    <div style={whyFitStyle}>
+                    <div style={whyFitStyle} className="wm-catalog-page__fit-line">
                       <strong>Why this product:</strong> {[product.family, product.series, product.category, ...product.tags.slice(0, 2)].join(" • ")}
                     </div>
 
-                    <div style={pillWrapStyle}>
+                    <div style={pillWrapStyle} className="wm-catalog-page__chip-row">
                       {product.tags.slice(0, 6).map((tag) => (
-                        <span key={tag} style={metaPillStyle}>
+                        <span key={tag} style={metaPillStyle} className="wm-catalog-page__meta-pill">
                           {tag}
                         </span>
                       ))}
                     </div>
 
-                    <div style={resultActionsStyle}>
-                      <button type="button" style={primaryButtonStyle}>
+                    <div style={resultActionsStyle} className="wm-catalog-page__card-actions">
+                      <button type="button" style={primaryButtonStyle} className="wm-btn-primary">
                         Add to Project
                       </button>
-                      <button type="button" style={buttonStyle}>
+                      <button type="button" style={buttonStyle} className="wm-btn-secondary">
                         Ask Guru
                       </button>
                     </div>

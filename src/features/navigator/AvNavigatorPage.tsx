@@ -103,7 +103,7 @@ const TRACKS: NavigatorTrack[] = [
       {
         id: "notes",
         prompt: "What is the customer actually saying?",
-        helper: "Capture the room language you want the next tool to inherit.",
+        helper: "Discovery language you want the next tool to inherit.",
         type: "text",
         placeholder: "Customer language, room notes, or project intent...",
       },

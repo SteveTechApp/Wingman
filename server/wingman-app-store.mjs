@@ -889,11 +889,56 @@ function makeSessionPayload(sessionToken, user, workspace) {
 }
 
 function getTokenFromRequest(req, url) {
-  const authHeader = tidy(req.headers.authorization);
-  if (authHeader.toLowerCase().startsWith("bearer ")) {
-    return authHeader.slice(7).trim();
+  const authorization = typeof req?.headers?.authorization === "string"
+    ? req.headers.authorization.trim()
+    : "";
+
+  if (authorization.toLowerCase().startsWith("bearer ")) {
+    const token = authorization.slice(7).trim();
+    if (token) return token;
   }
-  return tidy(url.searchParams.get("token"));
+
+  const headerToken = typeof req?.headers?.["x-wingman-session"] === "string"
+    ? req.headers["x-wingman-session"].trim()
+    : "";
+
+  if (headerToken) return headerToken;
+
+  const queryToken = typeof url?.searchParams?.get === "function"
+    ? String(url.searchParams.get("token") || "").trim()
+    : "";
+
+  if (queryToken) return queryToken;
+
+  const cookieHeader = typeof req?.headers?.cookie === "string"
+    ? req.headers.cookie
+    : "";
+
+  if (!cookieHeader) return "";
+
+  const cookies = cookieHeader
+    .split(";")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  for (const cookie of cookies) {
+    const separatorIndex = cookie.indexOf("=");
+    if (separatorIndex <= 0) continue;
+
+    const name = cookie.slice(0, separatorIndex).trim();
+    if (name !== "wingman_session") continue;
+
+    const rawValue = cookie.slice(separatorIndex + 1).trim();
+    if (!rawValue) return "";
+
+    try {
+      return decodeURIComponent(rawValue);
+    } catch {
+      return rawValue;
+    }
+  }
+
+  return "";
 }
 
 function getAuthContext(req, url, db) {
@@ -920,6 +965,15 @@ function getAuthContext(req, url, db) {
 
   session.lastSeenAt = nowIso();
   return { ok: true, session, token, user, workspace, workspaceRole, permissions };
+}
+
+export async function getWingmanRequestAuth(req, url) {
+  const db = await readDb();
+  const auth = getAuthContext(req, url, db);
+  if (auth.ok) {
+    await writeDb(db);
+  }
+  return auth;
 }
 
 function normalizeProjectsForWorkspace(projects, workspaceId, userId) {
@@ -1014,6 +1068,36 @@ export async function handleWingmanHealthGet(_req, res, { sendJson }) {
   });
 }
 
+function buildWingmanSessionCookie(token) {
+  const parts = [
+    `wingman_session=${encodeURIComponent(String(token || ""))}`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    "Max-Age=2592000",
+  ];
+  return parts.join("; ");
+}
+
+function buildExpiredWingmanSessionCookie() {
+  const parts = [
+    "wingman_session=",
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    "Max-Age=0",
+    "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+  ];
+  return parts.join("; ");
+}
+
+function setWingmanSessionCookie(res, token) {
+  res.setHeader("Set-Cookie", buildWingmanSessionCookie(token));
+}
+
+function clearWingmanSessionCookie(res) {
+  res.setHeader("Set-Cookie", buildExpiredWingmanSessionCookie());
+}
 export async function handleWingmanAuthSignupPost(req, res, { sendJson, parseJsonBody }) {
   let body = {};
   try {
@@ -1087,6 +1171,7 @@ export async function handleWingmanAuthSignupPost(req, res, { sendJson, parseJso
   }));
 
   await writeDb(db);
+  setWingmanSessionCookie(res, sessionToken);
   sendJson(res, 200, makeSessionPayload(sessionToken, user, workspace));
 }
 
@@ -1131,6 +1216,7 @@ export async function handleWingmanAuthLoginPost(req, res, { sendJson, parseJson
   }));
 
   await writeDb(db);
+  setWingmanSessionCookie(res, sessionToken);
   sendJson(res, 200, makeSessionPayload(sessionToken, user, workspace));
 }
 
@@ -1165,6 +1251,7 @@ export async function handleWingmanAuthLogoutPost(req, res, url, { sendJson }) {
     }
     await writeDb(db);
   }
+  clearWingmanSessionCookie(res);
   sendJson(res, 200, { ok: true });
 }
 

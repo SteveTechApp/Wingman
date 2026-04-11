@@ -2068,22 +2068,22 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (method === "POST" && url.pathname === "/api/product-intelligence/refresh") {
-    await handleProductIntelligenceRefreshPost(req, res, { sendJson, parseJsonBody });
+    await handleProductIntelligenceRefreshPost(req, res, url, { sendJson, parseJsonBody });
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/product-intelligence/upsert") {
-    await handleProductIntelligenceUpsertPost(req, res, { sendJson, parseJsonBody });
+    await handleProductIntelligenceUpsertPost(req, res, url, { sendJson, parseJsonBody });
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/product-intelligence/evidence") {
-    await handleProductIntelligenceEvidencePost(req, res, { sendJson, parseJsonBody });
+    await handleProductIntelligenceEvidencePost(req, res, url, { sendJson, parseJsonBody });
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/product-intelligence/status") {
-    await handleProductIntelligenceStatusPost(req, res, { sendJson, parseJsonBody });
+    await handleProductIntelligenceStatusPost(req, res, url, { sendJson, parseJsonBody });
     return;
   }
 

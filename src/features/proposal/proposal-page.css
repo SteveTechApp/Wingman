@@ -1,317 +1,132 @@
-.wm-proposal-page {
-  display: grid;
-  gap: 14px;
-  padding: 4px 0 18px;
-}
-
-.wm-proposal-page__hero,
-.wm-proposal-page__brief,
-.wm-proposal-page__workspace {
+.wm-proposal-builder-page__sidebar-stack,
+.wm-proposal-builder-page__draft-stack {
   display: grid;
   gap: 14px;
 }
 
-.wm-proposal-page__hero {
-  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.9fr);
-  align-items: start;
-}
-
-.wm-proposal-page__hero-copy,
-.wm-proposal-page__brief-copy,
-.wm-proposal-page__support,
-.wm-proposal-page__main {
+.wm-proposal-builder-page__field {
   display: grid;
-  gap: 10px;
-}
-
-.wm-proposal-page__eyebrow,
-.wm-proposal-page__section-eyebrow {
-  color: var(--wm-studio-accent, #15c5b6);
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.wm-proposal-page__hero h1 {
-  margin: 0;
-  color: var(--wm-studio-text, #211b16);
-  font-size: clamp(1.7rem, 2.4vw, 2.35rem);
-  line-height: 1.02;
-  font-weight: 650;
-  letter-spacing: -0.045em;
-}
-
-.wm-proposal-page__hero p,
-.wm-proposal-page__brief-copy p,
-.wm-proposal-page__panel-head p,
-.wm-proposal-page__body-copy,
-.wm-proposal-page__section-item p,
-.wm-proposal-page__empty p {
-  margin: 0;
-  color: var(--wm-studio-text-soft, rgba(77, 68, 60, 0.82));
-  font-size: 0.88rem;
-  line-height: 1.45;
-}
-
-.wm-proposal-page__hero-metrics,
-.wm-proposal-page__brief-metrics,
-.wm-proposal-page__stage-strip,
-.wm-proposal-page__content-grid {
-  display: grid;
-  gap: 10px;
-}
-
-.wm-proposal-page__hero-metrics,
-.wm-proposal-page__brief-metrics {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.wm-proposal-page__metric,
-.wm-proposal-page__brief,
-.wm-proposal-page__stage-button,
-.wm-proposal-page__panel,
-.wm-proposal-page__empty,
-.wm-proposal-page__support {
-  border-radius: 18px;
-  border: 1px solid rgba(58, 47, 36, 0.06);
-  background: rgba(255, 253, 249, 0.78);
-  box-shadow: 0 10px 28px rgba(63, 47, 31, 0.08);
-  backdrop-filter: blur(24px);
-}
-
-.wm-proposal-page__metric {
-  display: grid;
-  gap: 4px;
-  padding: 10px 12px;
-  border-radius: 14px;
-}
-
-.wm-proposal-page__metric span,
-.wm-proposal-page__stage-step,
-.wm-proposal-page__reading-row span,
-.wm-proposal-page__chip {
-  color: rgba(120, 108, 97, 0.92);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.wm-proposal-page__metric strong,
-.wm-proposal-page__brief-copy h2,
-.wm-proposal-page__panel-head h3,
-.wm-proposal-page__stage-copy strong,
-.wm-proposal-page__reading-row strong,
-.wm-proposal-page__row-item strong,
-.wm-proposal-page__section-item strong,
-.wm-proposal-page__empty h3 {
-  color: var(--wm-studio-text, #211b16);
-}
-
-.wm-proposal-page__metric strong,
-.wm-proposal-page__reading-row strong {
-  font-size: 0.92rem;
-  font-weight: 650;
-  line-height: 1.35;
-}
-
-.wm-proposal-page__brief,
-.wm-proposal-page__support {
-  padding: 14px;
-}
-
-.wm-proposal-page__brief {
-  grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.9fr);
-  align-items: start;
-}
-
-.wm-proposal-page__brief-copy h2,
-.wm-proposal-page__panel-head h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-}
-
-.wm-proposal-page__chip-row {
-  display: flex;
-  flex-wrap: wrap;
   gap: 8px;
-  grid-column: 1 / -1;
 }
 
-.wm-proposal-page__chip {
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(58, 47, 36, 0.06);
-  background: rgba(255, 255, 255, 0.86);
+.wm-proposal-builder-page__input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--wm-border-default);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    rgba(255, 255, 255, 0.02);
+  color: var(--wm-text);
+  font: inherit;
 }
 
-.wm-proposal-page__stage-strip {
+.wm-proposal-builder-page__input:focus {
+  outline: none;
+  border-color: var(--wm-brand-line);
+  box-shadow: 0 0 0 3px rgba(255, 180, 106, 0.12);
+}
+
+.wm-proposal-builder-page__status {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--wm-border-default);
+  color: var(--wm-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.wm-proposal-builder-page__status.is-good {
+  border-color: rgba(94, 197, 155, 0.32);
+  background:
+    linear-gradient(180deg, rgba(94, 197, 155, 0.12), transparent),
+    rgba(255, 255, 255, 0.02);
+}
+
+.wm-proposal-builder-page__status.is-warn {
+  border-color: rgba(255, 180, 106, 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 180, 106, 0.12), transparent),
+    rgba(255, 255, 255, 0.02);
+}
+
+.wm-proposal-builder-page__grid,
+.wm-proposal-builder-page__actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wm-proposal-builder-page__actions-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.wm-proposal-page__stage-button {
+.wm-proposal-builder-page__static-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 10px;
-  width: 100%;
-  padding: 12px;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    transform 140ms ease,
-    border-color 140ms ease,
-    background 140ms ease,
-    box-shadow 140ms ease;
+  justify-content: stretch;
+  align-items: start;
+  padding: 16px;
 }
 
-.wm-proposal-page__stage-button:hover {
-  transform: translateY(-1px);
-  border-color: rgba(21, 197, 182, 0.22);
+.wm-proposal-builder-page__static-copy,
+.wm-proposal-builder-page__draft-body {
+  color: var(--wm-text-soft);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
 }
 
-.wm-proposal-page__stage-button--active {
-  border-color: rgba(21, 197, 182, 0.24);
-  background: rgba(236, 251, 248, 0.94);
-}
-
-.wm-proposal-page__stage-step {
-  display: inline-grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 10px;
-  background: rgba(236, 251, 248, 0.9);
-  color: #15655d;
-}
-
-.wm-proposal-page__stage-copy {
-  display: grid;
-  gap: 2px;
-}
-
-.wm-proposal-page__stage-copy span {
-  color: var(--wm-studio-text-soft, rgba(77, 68, 60, 0.82));
-  font-size: 0.78rem;
-  line-height: 1.35;
-}
-
-.wm-proposal-page__workspace {
-  grid-template-columns: minmax(250px, 0.72fr) minmax(0, 1.28fr);
-  align-items: stretch;
-}
-
-.wm-proposal-page__support,
-.wm-proposal-page__panel,
-.wm-proposal-page__empty {
-  display: grid;
-  gap: 10px;
-}
-
-.wm-proposal-page__panel,
-.wm-proposal-page__empty {
-  padding: 14px;
-}
-
-.wm-proposal-page__panel-head {
-  display: grid;
-  gap: 4px;
-}
-
-.wm-proposal-page__reading-list,
-.wm-proposal-page__row-list,
-.wm-proposal-page__section-list,
-.wm-proposal-page__action-stack {
-  display: grid;
+.wm-proposal-builder-page__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
-}
-
-.wm-proposal-page__reading-row,
-.wm-proposal-page__row-item,
-.wm-proposal-page__section-item {
-  display: grid;
-  gap: 4px;
-  padding: 10px 12px;
+  min-height: 40px;
+  width: 100%;
+  padding: 0 14px;
   border-radius: 14px;
-  border: 1px solid rgba(58, 47, 36, 0.06);
-  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--wm-border-default);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    rgba(255, 255, 255, 0.02);
+  color: var(--wm-text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    transform var(--wm-fast),
+    border-color var(--wm-fast),
+    background var(--wm-fast);
 }
 
-.wm-proposal-page__row-item span {
-  color: var(--wm-studio-text-soft, rgba(77, 68, 60, 0.82));
-  font-size: 0.84rem;
-  line-height: 1.45;
+.wm-proposal-builder-page__button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: var(--wm-brand-line);
 }
 
-.wm-proposal-page__content-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.wm-proposal-builder-page__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.wm-proposal-page__empty h3 {
-  margin: 0;
-  font-size: 0.94rem;
-  font-weight: 650;
-}
-
-.wm-proposal-page__support,
-.wm-proposal-page__main {
-  height: 100%;
-}
-
-.wm-proposal-page__support,
-.wm-proposal-page__main {
-  overflow: auto;
-}
-
-@media (min-width: 1100px) {
-  .wm-proposal-page {
-    min-height: calc(100dvh - var(--wm-topbar-h) - 24px);
-    grid-template-rows: auto auto auto minmax(0, 1fr);
-  }
-
-  .wm-proposal-page__workspace {
-    min-height: 0;
-  }
+.wm-proposal-builder-page__button--primary {
+  border-color: var(--wm-brand-line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent),
+    linear-gradient(180deg, var(--wm-brand-soft), rgba(255, 255, 255, 0.02));
+  color: var(--wm-brand);
 }
 
 @media (max-width: 1180px) {
-  .wm-proposal-page__hero,
-  .wm-proposal-page__workspace,
-  .wm-proposal-page__content-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .wm-proposal-page__brief {
-    grid-template-columns: 1fr;
-  }
-
-  .wm-proposal-page__support,
-  .wm-proposal-page__main {
-    height: auto;
-    overflow: visible;
-  }
-}
-
-@media (max-width: 820px) {
-  .wm-proposal-page__hero-metrics,
-  .wm-proposal-page__brief-metrics,
-  .wm-proposal-page__stage-strip {
+  .wm-proposal-builder-page__actions-grid {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 760px) {
-  .wm-proposal-page__hero h1 {
-    font-size: clamp(1.6rem, 10vw, 2rem);
-  }
-
-  .wm-proposal-page__brief,
-  .wm-proposal-page__support,
-  .wm-proposal-page__panel,
-  .wm-proposal-page__empty {
-    padding: 12px;
+@media (max-width: 900px) {
+  .wm-proposal-builder-page__grid {
+    grid-template-columns: 1fr;
   }
 }

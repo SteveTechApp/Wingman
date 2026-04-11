@@ -105,20 +105,20 @@ function getToolLabel(path?: string): string {
 
 function buildTemplateNotes(seed: WorkbenchTemplateSeed): string {
   const blocks = [
-    "${seed.verticalMarket.name} / ${seed.roomType.name} / ${seed.tier.label}",
+    `${seed.verticalMarket.name} / ${seed.roomType.name} / ${seed.tier.label}`,
     seed.solutionSummary || "",
     seed.tier.summary,
-    seed.ioProfile?.sources ? "Inputs: ${seed.ioProfile.sources}" : "",
-    seed.ioProfile?.outputs ? "Outputs: ${seed.ioProfile.outputs}" : "",
-    seed.ioProfile?.operators ? "Operators: ${seed.ioProfile.operators}" : "",
+    seed.ioProfile?.sources ? `Inputs: ${seed.ioProfile.sources}` : "",
+    seed.ioProfile?.outputs ? `Outputs: ${seed.ioProfile.outputs}` : "",
+    seed.ioProfile?.operators ? `Operators: ${seed.ioProfile.operators}` : "",
     seed.includedSystems.length
-      ? "Included systems: ${seed.includedSystems.join('; ')}"
+      ? `Included systems: ${seed.includedSystems.join("; ")}`
       : "",
     seed.assumptions?.length
-      ? "Assumptions: ${seed.assumptions.join('; ')}"
+      ? `Assumptions: ${seed.assumptions.join("; ")}`
       : "",
     seed.uplift.length
-      ? "Commercial uplift: ${seed.uplift.join('; ')}"
+      ? `Commercial uplift: ${seed.uplift.join("; ")}`
       : "",
   ].filter(Boolean);
 
@@ -181,7 +181,7 @@ export default function ProjectNewPage() {
     const recommendedFamilies = normalizeRecommendedFamilies(templateSeed?.recommendedFamilies);
 
     const project = createProject({
-      name: name.trim() || templateSeed?.projectName || "${methodTitle} Project",
+      name: name.trim() || templateSeed?.projectName || `${methodTitle} Project`,
       customer: customer.trim(),
       site: site.trim(),
       roomName: name.trim() || templateSeed?.roomType.name || "",

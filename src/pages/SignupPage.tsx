@@ -1,117 +1,371 @@
-import { FormEvent, useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState, type FormEvent } from "react";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+
+import { normalizeAppRoute, routeMap } from "@/core/wingman/routeMap";
 import { useAuth } from "@/context/AuthContext";
-import "@/styles/wm-auth-public.css";
+
+type SignupLocationState = {
+  from?: string | {
+    pathname?: string;
+    search?: string;
+    hash?: string;
+  };
+};
+
+function resolveRedirectPath(state: SignupLocationState | null): string {
+  const from = state?.from;
+
+  if (typeof from === "string") {
+    return from;
+  }
+
+  if (!from || typeof from !== "object") {
+    return routeMap.app.dashboard;
+  }
+
+  return `${from.pathname ?? ""}${from.search ?? ""}${from.hash ?? ""}`;
+}
+
+function normaliseRedirectPath(rawPath?: string): string {
+  const value = typeof rawPath === "string" ? rawPath.trim() : "";
+
+  if (!value) {
+    return routeMap.app.dashboard;
+  }
+
+  if (value === "/app" || value === "/app/" || value === "/login" || value === "/signup" || value === "/") {
+    return routeMap.app.dashboard;
+  }
+
+  if (value === "/app/toolhub" || value === "/app/toolhub/") {
+    return routeMap.app.tools;
+  }
+
+  if (value.startsWith("/wingman/")) {
+    return normalizeAppRoute(value);
+  }
+
+  if (value.startsWith("/app")) {
+    return value;
+  }
+
+  return routeMap.app.dashboard;
+}
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const { signUp, error, isAuthed, status } = useAuth();
+  const location = useLocation();
+  const {
+    backendHealthy,
+    error: authError,
+    isAuthenticated,
+    signInDemo,
+    signUp,
+    status,
+  } = useAuth();
 
-  const [name, setName] = useState("Alex Smith");
-  const [company, setCompany] = useState("Acme Ltd");
-  const [email, setEmail] = useState("alex@acme.com");
+  const [name, setName] = useState("");
+  const [company, setCompany] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDemoSubmitting, setIsDemoSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (status !== "loading" && isAuthed) {
-      navigate("/app/dashboard", { replace: true });
-    }
-  }, [status, isAuthed, navigate]);
+  const redirectTo = useMemo(() => {
+    const state = location.state as SignupLocationState | null;
+    return normaliseRedirectPath(resolveRedirectPath(state));
+  }, [location.state]);
 
-  const goHome = useCallback(() => navigate("/", { replace: false }), [navigate]);
-  const goLogin = useCallback(() => navigate("/login", { replace: false }), [navigate]);
-
-  const handleSubmit = useCallback(async (event: FormEvent) => {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
     try {
-      await signUp({ name, company, email, password });
-      navigate("/app/dashboard", { replace: true });
-    } catch (err) {
-      console.error("Sign up failed:", err);
+      await signUp({
+        name: name.trim(),
+        company: company.trim(),
+        email: email.trim(),
+        password,
+      });
+
+      navigate(redirectTo, { replace: true });
+    } catch (reason) {
+      if (reason instanceof Error) {
+        setError(reason.message);
+      }
+
+      if (!(reason instanceof Error)) {
+        setError("Unable to reach the sign-up service.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
-  }, [name, company, email, password, signUp, navigate]);
+  }
+
+  async function handleDemoSubmit() {
+    setError("");
+    setIsDemoSubmitting(true);
+
+    try {
+      await signInDemo(email.trim() || undefined);
+      navigate(routeMap.app.dashboard, { replace: true });
+    } catch (reason) {
+      if (reason instanceof Error) {
+        setError(reason.message);
+      }
+
+      if (!(reason instanceof Error)) {
+        setError("Demo mode could not be opened.");
+      }
+    } finally {
+      setIsDemoSubmitting(false);
+    }
+  }
+
+  const busy = isSubmitting || isDemoSubmitting;
+  const visibleError = error || authError || "";
+
+  if (isAuthenticated) {
+    return <Navigate to={redirectTo} replace />;
+  }
 
   return (
-    <div className="wm-auth-shell">
-      <div className="wm-auth-shell__root">
-        <div className="wm-auth-shell__center">
-          <div className="wm-auth-card">
-            <div className="wm-auth-card__head">
-              <div className="wm-auth-card__eyebrow">
-                <span className="wm-auth-card__dot" />
-                <span>WyreStorm Wingman</span>
-              </div>
-              <h1 className="wm-auth-card__title">Create account</h1>
-              <p className="wm-auth-card__copy">
-                Create a workspace identity and continue into the Wingman design flow.
-              </p>
-            </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        padding: "24px",
+        background:
+          "radial-gradient(circle at top, rgba(243,140,46,0.12), transparent 28%), var(--wm-bg, #08111b)",
+      }}
+    >
+      <div
+        style={{
+          width: "min(100%, 460px)",
+          borderRadius: "24px",
+          padding: "28px",
+          background: "rgba(10, 18, 30, 0.92)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 24px 60px rgba(0,0,0,0.35)",
+          color: "var(--wm-text, #e8edf7)",
+        }}
+      >
+        <div style={{ marginBottom: "20px" }}>
+          <h1 style={{ margin: 0, fontSize: "28px", lineHeight: 1.1 }}>
+            Create account
+          </h1>
 
-            {error ? <div className="wm-auth-error">{String(error)}</div> : null}
+          <p style={{ margin: "10px 0 0", opacity: 0.78 }}>
+            Create your account and continue straight into the workspace.
+          </p>
+        </div>
 
-            <form className="wm-auth-form" onSubmit={handleSubmit}>
-              <div className="wm-auth-grid">
-                <div className="wm-auth-field">
-                  <label className="wm-auth-label" htmlFor="wm-signup-name">Name</label>
-                  <input
-                    id="wm-signup-name"
-                    className="wm-auth-input"
-                    type="text"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                  />
-                </div>
-
-                <div className="wm-auth-field">
-                  <label className="wm-auth-label" htmlFor="wm-signup-company">Company</label>
-                  <input
-                    id="wm-signup-company"
-                    className="wm-auth-input"
-                    type="text"
-                    value={company}
-                    onChange={(event) => setCompany(event.target.value)}
-                  />
-                </div>
-
-                <div className="wm-auth-field">
-                  <label className="wm-auth-label" htmlFor="wm-signup-email">Email</label>
-                  <input
-                    id="wm-signup-email"
-                    className="wm-auth-input"
-                    type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                  />
-                </div>
-
-                <div className="wm-auth-field">
-                  <label className="wm-auth-label" htmlFor="wm-signup-password">Password</label>
-                  <input
-                    id="wm-signup-password"
-                    className="wm-auth-input"
-                    type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="wm-auth-actions">
-                <button type="submit" className="wm-auth-btn wm-auth-btn--primary">
-                  Create account
-                </button>
-              </div>
-            </form>
-
-            <div className="wm-auth-meta">
-              <button type="button" className="wm-auth-btn wm-auth-btn--ghost" onClick={goHome}>
-                Back to home
-              </button>
-              <button type="button" className="wm-auth-btn wm-auth-btn--ghost" onClick={goLogin}>
-                Already have an account?
-              </button>
-            </div>
+        {!backendHealthy ? (
+          <div
+            role="status"
+            style={{
+              marginBottom: "14px",
+              borderRadius: "12px",
+              padding: "12px 14px",
+              background: "rgba(255, 179, 71, 0.14)",
+              border: "1px solid rgba(255, 179, 71, 0.26)",
+              color: "#ffe0b3",
+              fontSize: "14px",
+            }}
+          >
+            Live sign-up may be unavailable right now. Demo mode still works for testing.
           </div>
+        ) : null}
+
+        {status === "loading" ? (
+          <div
+            role="status"
+            style={{
+              marginBottom: "14px",
+              borderRadius: "12px",
+              padding: "12px 14px",
+              background: "rgba(99, 149, 255, 0.10)",
+              border: "1px solid rgba(99, 149, 255, 0.22)",
+              color: "#dbe7ff",
+              fontSize: "14px",
+            }}
+          >
+            Checking saved session... this should only take a moment.
+          </div>
+        ) : null}
+
+        <form onSubmit={handleSubmit} noValidate>
+          <label style={{ display: "block", marginBottom: "14px" }}>
+            <span style={{ display: "block", marginBottom: "8px", fontSize: "14px" }}>
+              Name
+            </span>
+            <input
+              type="text"
+              autoComplete="name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Your name"
+              disabled={busy}
+              style={{
+                width: "100%",
+                height: "46px",
+                borderRadius: "12px",
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.04)",
+                color: "inherit",
+                padding: "0 14px",
+                boxSizing: "border-box",
+              }}
+            />
+          </label>
+
+          <label style={{ display: "block", marginBottom: "14px" }}>
+            <span style={{ display: "block", marginBottom: "8px", fontSize: "14px" }}>
+              Company
+            </span>
+            <input
+              type="text"
+              autoComplete="organization"
+              value={company}
+              onChange={(event) => setCompany(event.target.value)}
+              placeholder="Company name"
+              disabled={busy}
+              style={{
+                width: "100%",
+                height: "46px",
+                borderRadius: "12px",
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.04)",
+                color: "inherit",
+                padding: "0 14px",
+                boxSizing: "border-box",
+              }}
+            />
+          </label>
+
+          <label style={{ display: "block", marginBottom: "14px" }}>
+            <span style={{ display: "block", marginBottom: "8px", fontSize: "14px" }}>
+              Email
+            </span>
+            <input
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@company.com"
+              disabled={busy}
+              style={{
+                width: "100%",
+                height: "46px",
+                borderRadius: "12px",
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.04)",
+                color: "inherit",
+                padding: "0 14px",
+                boxSizing: "border-box",
+              }}
+            />
+          </label>
+
+          <label style={{ display: "block", marginBottom: "16px" }}>
+            <span style={{ display: "block", marginBottom: "8px", fontSize: "14px" }}>
+              Password
+            </span>
+            <input
+              type="password"
+              autoComplete="new-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Create a password"
+              disabled={busy}
+              style={{
+                width: "100%",
+                height: "46px",
+                borderRadius: "12px",
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.04)",
+                color: "inherit",
+                padding: "0 14px",
+                boxSizing: "border-box",
+              }}
+            />
+          </label>
+
+          {visibleError ? (
+            <div
+              role="alert"
+              style={{
+                marginBottom: "14px",
+                borderRadius: "12px",
+                padding: "12px 14px",
+                background: "rgba(255, 99, 99, 0.12)",
+                border: "1px solid rgba(255, 99, 99, 0.26)",
+                color: "#ffd0d0",
+                fontSize: "14px",
+              }}
+            >
+              {visibleError}
+            </div>
+          ) : null}
+
+          <div style={{ display: "grid", gap: "12px" }}>
+            <button
+              type="submit"
+              disabled={busy || !name.trim() || !company.trim() || !email.trim() || !password}
+              style={{
+                width: "100%",
+                height: "48px",
+                border: 0,
+                borderRadius: "12px",
+                cursor: busy ? "default" : "pointer",
+                fontWeight: 700,
+                color: "#0b1017",
+                background: "linear-gradient(135deg, #f38c2e, #ffb267)",
+                opacity: busy ? 0.7 : 1,
+              }}
+            >
+              {isSubmitting ? "Creating account..." : "Create account"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => void handleDemoSubmit()}
+              disabled={busy}
+              style={{
+                width: "100%",
+                height: "46px",
+                borderRadius: "12px",
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.03)",
+                color: "inherit",
+                cursor: busy ? "default" : "pointer",
+                opacity: busy ? 0.7 : 1,
+                fontWeight: 700,
+              }}
+            >
+              {isDemoSubmitting ? "Opening demo..." : "Demo mode"}
+            </button>
+          </div>
+        </form>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "12px",
+            marginTop: "16px",
+            fontSize: "14px",
+            opacity: 0.86,
+            flexWrap: "wrap",
+          }}
+        >
+          <span>Already have an account?</span>
+          <Link to="/login" style={{ color: "#ffb267" }}>
+            Sign in
+          </Link>
         </div>
       </div>
     </div>

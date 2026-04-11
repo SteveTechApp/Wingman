@@ -202,7 +202,7 @@ export default function DiscoveryWizardPage() {
     [guidance.recommendedFamilies],
   );
   const projectStatusNote = activeProject
-    ? `Saving to ${activeProject.name || "active project"}${activeProject.updatedAt ? ` • Updated ${formatDateTime(activeProject.updatedAt)}` : ""}`
+    ? `Saving to ${activeProject.name || "active project"}${activeProject.updatedAt ? ` â€¢ Updated ${formatDateTime(activeProject.updatedAt)}` : ""}`
     : "No active project yet. The first save will create one and keep the discovery assumptions attached.";
 
   function persistAndNavigate(route: string) {
@@ -256,7 +256,7 @@ export default function DiscoveryWizardPage() {
       <section className="wm-discovery-page__hero">
         <div className="wm-discovery-page__hero-copy">
           <div className="wm-discovery-page__eyebrow">Discovery</div>
-          <h1>Capture the room, confirm the few inputs that change the design, and move on.</h1>
+          <h1>Discovery, confirm the few inputs that change the design, and move on.</h1>
           <p>
             Discovery stays lean so the form and the recommended next workspace stay in focus.
           </p>

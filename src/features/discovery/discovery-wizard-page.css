@@ -1,25 +1,41 @@
 .wm-discovery-page {
   display: grid;
-  gap: 14px;
-  padding: clamp(12px, 1.4vw, 18px);
-  background:
-    radial-gradient(circle at top right, rgba(254, 243, 199, 0.44), transparent 30%),
-    linear-gradient(180deg, #f9f5ec 0%, #f3ede3 100%);
+  gap: 16px;
+  min-width: 0;
 }
 
 .wm-discovery-page__hero,
-.wm-discovery-page__panel {
-  border: 1px solid rgba(88, 69, 45, 0.08);
-  background: rgba(255, 255, 255, 0.84);
-  box-shadow: 0 8px 24px rgba(77, 58, 35, 0.07);
+.wm-discovery-page__panel,
+.wm-discovery-page__room-card,
+.wm-discovery-page__toggle-row,
+.wm-discovery-page__metric,
+.wm-discovery-page__assumption-card,
+.wm-discovery-page__detail-card {
+  border-radius: 22px;
+  border: 1px solid var(--wm-border-default);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    linear-gradient(180deg, var(--wm-surface-2), var(--wm-surface-1));
+  box-shadow: var(--wm-glow-panel);
 }
 
 .wm-discovery-page__hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.9fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.92fr);
   gap: 14px;
-  padding: clamp(16px, 1.8vw, 20px);
-  border-radius: 22px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.wm-discovery-page__hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top right, rgba(122, 168, 255, 0.18), transparent 30%),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.04), transparent 40%);
 }
 
 .wm-discovery-page__hero-copy,
@@ -27,14 +43,20 @@
 .wm-discovery-page__detail-block,
 .wm-discovery-page__detail-actions {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .wm-discovery-page__eyebrow,
 .wm-discovery-page__section-eyebrow,
-.wm-discovery-page__room-meta {
-  color: rgba(119, 89, 49, 0.76);
-  font-size: 0.68rem;
+.wm-discovery-page__room-meta,
+.wm-discovery-page__metric span,
+.wm-discovery-page__assumption-card span,
+.wm-discovery-page__detail-card span,
+.wm-discovery-page__field > span,
+.wm-discovery-page__detail-block > span,
+.wm-discovery-page__toggle-row > span {
+  color: var(--wm-text-muted);
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -42,15 +64,18 @@
 
 .wm-discovery-page__hero-copy h1,
 .wm-discovery-page__section-head h2,
-.wm-discovery-page__detail-panel h2 {
+.wm-discovery-page__detail-panel h2,
+.wm-discovery-page__room-card strong {
   margin: 0;
-  color: #21180f;
-  line-height: 1.05;
+  color: var(--wm-text);
 }
 
 .wm-discovery-page__hero-copy h1 {
-  font-size: clamp(1.6rem, 2.4vw, 2.25rem);
-  max-width: 16ch;
+  max-width: 14ch;
+  font-family: var(--wm-font-display);
+  font-size: clamp(2.1rem, 3vw, 3.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
 }
 
 .wm-discovery-page__hero-copy p,
@@ -58,15 +83,14 @@
 .wm-discovery-page__room-card span,
 .wm-discovery-page__detail-block p {
   margin: 0;
-  color: rgba(80, 61, 40, 0.72);
-  font-size: 0.88rem;
-  line-height: 1.45;
+  color: var(--wm-text-soft);
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .wm-discovery-page__hero-note {
-  color: rgba(103, 80, 54, 0.72);
-  font-size: 0.8rem;
-  line-height: 1.4;
+  color: var(--wm-text-muted);
+  font-size: 12px;
 }
 
 .wm-discovery-page__hero-actions,
@@ -78,58 +102,42 @@
   gap: 8px;
 }
 
-.wm-discovery-page__hero-actions .wm-btn-primary,
-.wm-discovery-page__hero-actions .wm-btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+.wm-discovery-page__hero-metrics,
+.wm-discovery-page__assumption-grid,
+.wm-discovery-page__detail-grid,
+.wm-discovery-page__form-grid {
+  display: grid;
+  gap: 10px;
 }
 
 .wm-discovery-page__hero-metrics,
 .wm-discovery-page__assumption-grid,
 .wm-discovery-page__detail-grid {
-  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
 }
 
 .wm-discovery-page__metric,
 .wm-discovery-page__assumption-card,
 .wm-discovery-page__detail-card {
   display: grid;
-  gap: 5px;
-  padding: 11px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(88, 69, 45, 0.08);
-  background: rgba(255, 249, 239, 0.82);
-}
-
-.wm-discovery-page__metric span,
-.wm-discovery-page__assumption-card span,
-.wm-discovery-page__detail-card span,
-.wm-discovery-page__field > span,
-.wm-discovery-page__detail-block > span,
-.wm-discovery-page__toggle-row > span {
-  color: rgba(121, 93, 57, 0.82);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  gap: 6px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .wm-discovery-page__metric strong,
 .wm-discovery-page__assumption-card strong,
 .wm-discovery-page__detail-card strong {
-  color: #21180f;
-  font-size: 0.92rem;
+  color: var(--wm-text);
+  font-size: 14px;
   line-height: 1.35;
 }
 
 .wm-discovery-page__layout {
   display: grid;
-  grid-template-columns: minmax(240px, 0.78fr) minmax(0, 1.16fr) minmax(280px, 0.84fr);
+  grid-template-columns: minmax(250px, 0.84fr) minmax(0, 1.16fr) minmax(290px, 0.9fr);
   gap: 14px;
-  align-items: stretch;
+  align-items: start;
 }
 
 .wm-discovery-page__sidebar,
@@ -148,27 +156,20 @@
   display: grid;
   gap: 12px;
   min-height: 0;
-  padding: 14px;
-  border-radius: 18px;
-}
-
-.wm-discovery-page__panel--feature {
-  background:
-    linear-gradient(135deg, rgba(254, 249, 231, 0.88), rgba(255, 255, 255, 0.86));
+  padding: 16px;
 }
 
 .wm-discovery-page__panel--sidebar {
   grid-template-rows: auto auto auto minmax(0, 1fr);
 }
 
-.wm-discovery-page__panel--sidebar,
-.wm-discovery-page__panel--form,
-.wm-discovery-page__detail-panel {
-  height: 100%;
+.wm-discovery-page__panel--feature {
+  border-color: var(--wm-tone-line);
 }
 
 .wm-discovery-page__panel--form,
-.wm-discovery-page__detail-panel {
+.wm-discovery-page__detail-panel,
+.wm-discovery-page__room-list {
   overflow: auto;
 }
 
@@ -177,13 +178,13 @@
 .wm-discovery-page__chip {
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
+  min-height: 30px;
   padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(88, 69, 45, 0.1);
-  background: rgba(255, 255, 255, 0.86);
-  color: rgba(76, 58, 38, 0.86);
-  font-size: 0.72rem;
+  border-radius: 12px;
+  border: 1px solid var(--wm-border-default);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--wm-text-soft);
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -194,30 +195,30 @@
 
 .wm-discovery-page__filter-chip.is-active,
 .wm-discovery-page__toggle-chip.is-active {
-  border-color: rgba(180, 83, 9, 0.18);
-  background: #7c4a1f;
-  color: #fff7ed;
+  border-color: var(--wm-tone-line);
+  background: var(--wm-tone-soft);
+  color: var(--wm-text);
 }
 
 .wm-discovery-page__chip--accent {
-  border-color: rgba(180, 83, 9, 0.18);
-  background: rgba(255, 247, 237, 0.92);
-  color: #b45309;
+  border-color: var(--wm-brand-line);
+  background: var(--wm-brand-soft);
+  color: var(--wm-brand);
 }
 
 .wm-discovery-page__search {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 40px;
+  min-height: 42px;
   padding: 0 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(88, 69, 45, 0.1);
-  background: rgba(255, 255, 255, 0.94);
+  border-radius: 16px;
+  border: 1px solid var(--wm-border-default);
+  background: rgba(7, 11, 17, 0.56);
 }
 
 .wm-discovery-page__search svg {
-  color: rgba(119, 89, 49, 0.74);
+  color: var(--wm-text-muted);
   flex-shrink: 0;
 }
 
@@ -228,23 +229,8 @@
   border: 0;
   outline: none;
   background: transparent;
-  color: #21180f;
-  font-size: 0.9rem;
-}
-
-.wm-discovery-page__field input,
-.wm-discovery-page__field textarea {
-  min-height: 40px;
-  padding: 11px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(88, 69, 45, 0.1);
-  background: rgba(255, 255, 255, 0.94);
-}
-
-.wm-discovery-page__field textarea {
-  min-height: 104px;
-  resize: vertical;
-  line-height: 1.45;
+  color: var(--wm-text);
+  font-size: 14px;
 }
 
 .wm-discovery-page__room-list,
@@ -254,40 +240,29 @@
   gap: 10px;
 }
 
-.wm-discovery-page__room-list {
-  min-height: 0;
-  overflow: auto;
-  padding-right: 2px;
-}
-
 .wm-discovery-page__room-card {
   width: 100%;
   display: grid;
   gap: 8px;
-  padding: 12px;
+  padding: 14px;
   text-align: left;
-  border-radius: 16px;
-  border: 1px solid rgba(88, 69, 45, 0.1);
-  background: rgba(255, 255, 255, 0.9);
   cursor: pointer;
-  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  transition:
+    transform var(--wm-fast),
+    border-color var(--wm-fast),
+    background var(--wm-fast);
 }
 
 .wm-discovery-page__room-card:hover,
 .wm-discovery-page__room-card.is-active {
   transform: translateY(-1px);
-  border-color: rgba(180, 83, 9, 0.18);
-  box-shadow: 0 8px 18px rgba(77, 58, 35, 0.08);
+  border-color: var(--wm-tone-line);
 }
 
 .wm-discovery-page__room-card.is-active {
-  background: rgba(255, 247, 237, 0.94);
-}
-
-.wm-discovery-page__room-card strong {
-  color: #21180f;
-  font-size: 0.92rem;
-  line-height: 1.3;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    linear-gradient(180deg, var(--wm-tone-soft), rgba(255, 255, 255, 0.02));
 }
 
 .wm-discovery-page__form-grid {
@@ -299,31 +274,33 @@
   gap: 6px;
 }
 
+.wm-discovery-page__field input,
+.wm-discovery-page__field textarea {
+  min-height: 42px;
+  padding: 11px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--wm-border-default);
+  background: rgba(7, 11, 17, 0.56);
+}
+
+.wm-discovery-page__field textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
 .wm-discovery-page__toggle-row {
-  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 11px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(88, 69, 45, 0.08);
-  background: rgba(255, 251, 245, 0.82);
-}
-
-@media (min-width: 1100px) {
-  .wm-discovery-page {
-    min-height: calc(100dvh - var(--wm-topbar-h) - 24px);
-    grid-template-rows: auto minmax(0, 1fr);
-  }
-
-  .wm-discovery-page__layout {
-    min-height: 0;
-  }
+  padding: 12px 14px;
+  display: flex;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 @media (max-width: 1240px) {
   .wm-discovery-page__layout {
-    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.1fr);
+    grid-template-columns: minmax(250px, 0.92fr) minmax(0, 1.08fr);
   }
 
   .wm-discovery-page__detail-rail {
@@ -353,13 +330,10 @@
 }
 
 @media (max-width: 640px) {
-  .wm-discovery-page {
-    padding: 10px;
-  }
-
   .wm-discovery-page__hero,
   .wm-discovery-page__panel {
-    border-radius: 16px;
+    border-radius: 18px;
+    padding: 16px;
   }
 
   .wm-discovery-page__hero-metrics,

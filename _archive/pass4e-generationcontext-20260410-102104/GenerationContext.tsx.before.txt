@@ -1,4 +1,7 @@
-import * as React from "react";
+/** @deprecated Candidate legacy generation surface.
+ * Keep only if still actively consumed by the live app.
+ * Proposal generation should converge on one canonical path.
+ */import * as React from "react";
 import type { NavigateFunction } from "react-router-dom";
 import { createStrictContext } from "./createStrictContext";
 import {

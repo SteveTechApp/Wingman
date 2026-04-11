@@ -1,75 +1,125 @@
 .wm-guru-fab {
   position: fixed;
-  right: 24px;
-  bottom: 24px;
-  width: 72px;
-  height: 72px;
+  left: var(--wm-guru-fab-left, calc(100vw - 92px));
+  top: var(--wm-guru-fab-top, calc(100vh - 92px));
+  width: var(--wm-guru-fab-size, 68px);
+  height: var(--wm-guru-fab-size, 68px);
   border: 0;
+  padding: 0;
+  margin: 0;
   border-radius: 999px;
-  background: linear-gradient(135deg, #ff7a18 0%, #ff4d6d 100%);
+  background: transparent;
   display: grid;
   place-items: center;
   cursor: pointer;
-  z-index: 9998;
-  box-shadow: 0 14px 36px rgba(2, 6, 23, 0.38);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
-  overflow: hidden;
+  z-index: 2147483000;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  animation: wm-guru-fab-float 5.8s ease-in-out infinite;
+  transition: transform 180ms ease, opacity 180ms ease;
 }
 
 .wm-guru-fab:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 18px 42px rgba(2, 6, 23, 0.46);
+  animation-play-state: paused;
+  transform: translateY(-4px) scale(1.02);
+}
+
+.wm-guru-fab:focus-visible {
+  outline: 2px solid rgba(242, 138, 43, 0.58);
+  outline-offset: 3px;
 }
 
 .wm-guru-fab.is-open {
-  box-shadow:
-    0 0 0 2px rgba(255, 122, 24, 0.35),
-    0 0 28px rgba(255, 77, 109, 0.28),
-    0 18px 42px rgba(2, 6, 23, 0.46);
+  animation-play-state: paused;
+  opacity: 0.96;
 }
 
 .wm-guru-fab.is-minimized {
-  opacity: 0.94;
+  opacity: 0.98;
 }
 
 .wm-guru-fab-glow {
   position: absolute;
-  inset: -20%;
-  background: radial-gradient(circle, rgba(255,255,255,0.20) 0%, transparent 60%);
+  inset: -10px;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(255, 184, 107, 0.24) 0%, rgba(255, 184, 107, 0.08) 38%, transparent 68%);
+  filter: blur(6px);
+  opacity: 0.74;
   pointer-events: none;
+}
+
+.wm-guru-fab-core {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 184, 107, 0.22);
+  background: linear-gradient(180deg, rgba(18, 26, 42, 0.96) 0%, rgba(10, 16, 28, 0.98) 100%);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(255, 184, 107, 0.06) inset;
+}
+
+.wm-guru-fab.is-open .wm-guru-fab-core {
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(255, 184, 107, 0.08) inset,
+    0 0 26px rgba(255, 184, 107, 0.16);
+}
+
+.wm-guru-fab-ring {
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 184, 107, 0.2), rgba(255, 184, 107, 0.04) 58%, rgba(255, 184, 107, 0) 74%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
 }
 
 .wm-guru-fab-image {
-  width: 48px;
-  height: 48px;
+  width: calc(100% - 18px);
+  height: calc(100% - 18px);
   object-fit: contain;
-  position: relative;
-  z-index: 1;
+  display: block;
+  filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.28));
   pointer-events: none;
 }
 
-.wm-guru-fab-fallback {
+.wm-guru-fab-badge {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: white;
-  z-index: 1;
+  top: 6px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 184, 107, 0.92);
+  box-shadow: 0 0 12px rgba(255, 184, 107, 0.34);
+}
+
+@keyframes wm-guru-fab-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 @media (max-width: 900px) {
-  .wm-guru-fab {
-    right: 16px;
-    bottom: 16px;
-    width: 64px;
-    height: 64px;
+  .wm-guru-fab:hover {
+    transform: translateY(-2px) scale(1.01);
   }
 
-  .wm-guru-fab-image {
-    width: 42px;
-    height: 42px;
+  .wm-guru-fab-ring {
+    width: calc(100% - 14px);
+    height: calc(100% - 14px);
   }
 }

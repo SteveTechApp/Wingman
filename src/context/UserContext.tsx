@@ -28,11 +28,9 @@ export function UserProvider(props: { children: React.ReactNode }) {
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
 
   const setIsAuthenticated = React.useCallback((v: boolean) => {
-    if (v) {
-      void auth.signInDemo("local-user");
-      return;
+    if (!v) {
+      void auth.signOut();
     }
-    void auth.signOut();
   }, [auth]);
 
   const updateUserProfile = React.useCallback((patch: Partial<UserProfile>) => {

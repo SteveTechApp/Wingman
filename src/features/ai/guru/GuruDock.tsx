@@ -346,7 +346,7 @@ export default function GuruDock() {
             <div style={typingRowStyle}>
               <div style={typingBubbleStyle}>
                 <LoaderCircle size={14} className="animate-spin" />
-                <span>Guru is thinking…</span>
+                <span>Guru is thinkingâ€¦</span>
               </div>
             </div>
           )}
@@ -390,7 +390,7 @@ const dockRootStyle: CSSProperties = {
   height: "100%",
   display: "grid",
   gridTemplateRows: "minmax(0, 1fr) auto",
-  background: "linear-gradient(180deg, rgba(5,10,18,0.58), rgba(5,10,18,0.34))",
+  background: "linear-gradient(180deg, var(--wm-surface-2) 0%, var(--wm-surface-1) 100%)",
 };
 
 const messagesViewportStyle: CSSProperties = {
@@ -450,10 +450,10 @@ const confidencePillStyle: CSSProperties = {
   fontSize: 10,
   lineHeight: 1,
   padding: "4px 7px",
-  borderRadius: 999,
-  border: "1px solid rgba(96,165,250,0.18)",
-  background: "rgba(96,165,250,0.08)",
-  color: "rgba(219,234,254,0.9)",
+  borderRadius: 10,
+  border: "1px solid rgba(93,127,167,0.18)",
+  background: "rgba(93,127,167,0.08)",
+  color: "rgba(224,233,244,0.9)",
   fontWeight: 700,
 };
 
@@ -491,17 +491,17 @@ const bubbleStyle: CSSProperties = {
 
 const assistantBubbleStyle: CSSProperties = {
   border: "1px solid rgba(148,163,184,0.12)",
-  background: "linear-gradient(180deg, rgba(15,23,42,0.86), rgba(9,14,24,0.94))",
+  background: "linear-gradient(180deg, var(--wm-surface-2) 0%, var(--wm-surface-1) 100%)",
 };
 
 const userBubbleStyle: CSSProperties = {
-  border: "1px solid rgba(249,115,22,0.16)",
-  background: "linear-gradient(180deg, rgba(249,115,22,0.11), rgba(30,41,59,0.88))",
+  border: "1px solid rgba(242,138,43,0.16)",
+  background: "linear-gradient(180deg, var(--wm-surface-2) 0%, var(--wm-surface-1) 100%)",
 };
 
 const errorBubbleStyle: CSSProperties = {
   border: "1px solid rgba(239,68,68,0.22)",
-  background: "linear-gradient(180deg, rgba(127,29,29,0.22), rgba(30,41,59,0.92))",
+  background: "linear-gradient(180deg, var(--wm-surface-2) 0%, var(--wm-surface-1) 100%)",
 };
 
 const messageTextStyle: CSSProperties = {
@@ -515,8 +515,8 @@ const explanationCardStyle: CSSProperties = {
   marginTop: 12,
   borderRadius: 14,
   padding: 12,
-  border: "1px solid rgba(96,165,250,0.14)",
-  background: "rgba(59,130,246,0.05)",
+  border: "1px solid rgba(93,127,167,0.14)",
+  background: "rgba(93,127,167,0.05)",
   display: "grid",
   gap: 10,
 };
@@ -524,7 +524,7 @@ const explanationCardStyle: CSSProperties = {
 const explanationHeadlineStyle: CSSProperties = {
   fontSize: 12,
   fontWeight: 800,
-  color: "rgba(219,234,254,0.94)",
+  color: "rgba(228,235,244,0.94)",
 };
 
 const explanationBlockStyle: CSSProperties = {
@@ -535,7 +535,7 @@ const explanationBlockStyle: CSSProperties = {
 const explanationLabelStyle: CSSProperties = {
   fontSize: 11,
   fontWeight: 800,
-  color: "rgba(191,219,254,0.88)",
+  color: "rgba(193,207,226,0.88)",
   textTransform: "uppercase",
   letterSpacing: 0.5,
 };
@@ -573,20 +573,20 @@ const skuChipStyle: CSSProperties = {
   gap: 3,
   padding: "8px 10px",
   borderRadius: 12,
-  border: "1px solid rgba(34,197,94,0.16)",
-  background: "rgba(34,197,94,0.06)",
+  border: "1px solid rgba(242,138,43,0.16)",
+  background: "rgba(242,138,43,0.06)",
 };
 
 const skuTextStyle: CSSProperties = {
   fontSize: 12,
   fontWeight: 800,
-  color: "rgba(220,252,231,0.96)",
+  color: "rgba(255,229,203,0.96)",
 };
 
 const skuReasonStyle: CSSProperties = {
   fontSize: 11,
   lineHeight: 1.35,
-  color: "rgba(220,252,231,0.72)",
+  color: "rgba(255,229,203,0.72)",
   maxWidth: 280,
 };
 
@@ -597,7 +597,7 @@ const sourceChipStyle: CSSProperties = {
   padding: "8px 10px",
   borderRadius: 12,
   border: "1px solid rgba(148,163,184,0.16)",
-  background: "rgba(255,255,255,0.04)",
+  background: "rgba(255,255,255,0.03)",
   color: "rgba(226,232,240,0.92)",
   cursor: "pointer",
   fontSize: 12,
@@ -620,7 +620,7 @@ const promptButtonStyle: CSSProperties = {
   padding: "10px 12px",
   borderRadius: 12,
   border: "1px solid rgba(148,163,184,0.12)",
-  background: "rgba(255,255,255,0.025)",
+  background: "rgba(255,255,255,0.02)",
   color: "rgba(241,245,249,0.92)",
   cursor: "pointer",
   fontSize: 12,
@@ -640,7 +640,7 @@ const typingBubbleStyle: CSSProperties = {
   padding: "10px 12px",
   borderRadius: 12,
   border: "1px solid rgba(148,163,184,0.12)",
-  background: "rgba(255,255,255,0.035)",
+  background: "rgba(255,255,255,0.03)",
   color: "rgba(226,232,240,0.82)",
   fontSize: 12,
   fontWeight: 700,
@@ -648,7 +648,7 @@ const typingBubbleStyle: CSSProperties = {
 
 const composerWrapStyle: CSSProperties = {
   borderTop: "1px solid rgba(255,255,255,0.06)",
-  background: "linear-gradient(180deg, rgba(8,13,22,0.82), rgba(5,9,16,0.96))",
+  background: "linear-gradient(180deg, var(--wm-surface-2) 0%, var(--wm-surface-1) 100%)",
   padding: 12,
 };
 
@@ -666,7 +666,7 @@ const composerInputStyle: CSSProperties = {
   width: "100%",
   borderRadius: 14,
   border: "1px solid rgba(148,163,184,0.14)",
-  background: "rgba(15,23,42,0.88)",
+  background: "rgba(21,28,36,0.9)",
   color: "#f8fafc",
   padding: "12px 13px",
   fontSize: 13,
@@ -678,8 +678,8 @@ const sendButtonStyle: CSSProperties = {
   width: 44,
   height: 44,
   borderRadius: 14,
-  border: "1px solid rgba(249,115,22,0.22)",
-  background: "linear-gradient(180deg, rgba(249,115,22,0.18), rgba(15,23,42,0.92))",
+  border: "1px solid rgba(242,138,43,0.28)",
+  background: "linear-gradient(180deg, var(--wm-surface-2) 0%, var(--wm-surface-1) 100%)",
   color: "#fff",
   display: "inline-flex",
   alignItems: "center",

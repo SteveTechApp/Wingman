@@ -2,7 +2,7 @@ import { useMemo, type CSSProperties } from "react";
 import { ArrowRight, MessageSquareText, PackageSearch, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import GuruAvatar from "@/components/branding/GuruAvatar";
+import GuruLogo from "@/components/branding/GuruLogo";
 import {
   WingmanEmptyState,
   WingmanPageFrame,
@@ -56,7 +56,9 @@ export default function GuruToolHostPage() {
         }
         title={
           <span style={titleWrapStyle}>
-            <GuruAvatar size={42} rounded={14} />
+            <span style={titleIconStyle}>
+              <GuruLogo alt="Guru" />
+            </span>
             <span>Guru</span>
           </span>
         }
@@ -209,6 +211,15 @@ const titleWrapStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   gap: 12,
+};
+
+const titleIconStyle: CSSProperties = {
+  width: 42,
+  height: 42,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flex: "0 0 auto",
 };
 
 const statValueStyle: CSSProperties = {

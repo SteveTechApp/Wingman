@@ -1,0 +1,96 @@
+:root {
+  --wm-frame-ratio: 16 / 9;
+  --wm-frame-gutter: 24px;
+  --wm-frame-inline-size: min(calc(100dvw - 48px), 1600px);
+  --wm-frame-block-size: calc(100dvh - 48px);
+  --wm-page-max-width: min(calc(100dvw - 48px), 1600px);
+  --wm-app-scale: 1;
+  --wm-fit-radius: 24px;
+  --wm-fit-surface-pad: 14px;
+}
+
+:root[data-wm-viewport-mode="desktop"] {
+  --wm-frame-inline-size: calc(100dvw - 48px) !important;
+  --wm-page-max-width: calc(100dvw - 48px) !important;
+  --wm-frame-block-size: calc(100dvh - 48px) !important;
+}
+
+html,
+body,
+#root {
+  min-height: 100dvh;
+}
+
+html {
+  font-size: calc(16px * var(--wm-app-scale));
+}
+
+@media (max-width: 820px) {
+  html {
+    font-size: calc(15px * var(--wm-app-scale));
+  }
+}
+
+body {
+  margin: 0;
+  color: var(--wm-text);
+  background: transparent;
+  line-height: 1.5;
+}
+
+/*
+  IMPORTANT:
+  Frame sizing applies only to the authenticated app shell.
+  Public routes, login, signup, landing, and auth-loading screens
+  must not be constrained by #root > *.
+*/
+.wm-shell-root {
+  box-sizing: border-box;
+  width: min(var(--wm-page-max-width), calc(100dvw - (var(--wm-frame-gutter) * 2)));
+  max-width: min(var(--wm-page-max-width), calc(100dvw - (var(--wm-frame-gutter) * 2)));
+  min-height: min(var(--wm-frame-block-size), calc(100dvh - (var(--wm-frame-gutter) * 2)));
+  max-height: min(var(--wm-frame-block-size), calc(100dvh - (var(--wm-frame-gutter) * 2)));
+  margin: var(--wm-frame-gutter) auto;
+  overflow: hidden;
+  border-radius: var(--wm-fit-radius);
+}
+
+@media (max-width: 1024px) {
+  .wm-shell-root {
+    width: min(var(--wm-page-max-width), calc(100dvw - 16px));
+    max-width: min(var(--wm-page-max-width), calc(100dvw - 16px));
+    min-height: min(var(--wm-frame-block-size), calc(100dvh - 16px));
+    max-height: min(var(--wm-frame-block-size), calc(100dvh - 16px));
+    margin: 8px auto;
+    border-radius: var(--wm-fit-radius);
+  }
+}
+
+@media (max-width: 820px) {
+  .wm-shell-root {
+    width: min(var(--wm-page-max-width), calc(100dvw - 12px));
+    max-width: min(var(--wm-page-max-width), calc(100dvw - 12px));
+    min-height: min(var(--wm-frame-block-size), calc(100dvh - 12px));
+    max-height: min(var(--wm-frame-block-size), calc(100dvh - 12px));
+    margin: 6px auto;
+    border-radius: var(--wm-fit-radius);
+  }
+}
+
+/* make the shell internals behave nicely inside the framed app */
+.wm-shell-root,
+.wm-shell-root * {
+  box-sizing: border-box;
+}
+
+.wm-shell-root .wm-main,
+.wm-shell-root .wm-shell-main,
+.wm-shell-root .wm-canvas,
+.wm-shell-root .wm-canvas-inner {
+  min-height: 0;
+}
+
+.wm-shell-root .wm-main,
+.wm-shell-root .wm-shell-main {
+  overflow: auto;
+}

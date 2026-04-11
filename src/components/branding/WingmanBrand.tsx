@@ -35,7 +35,6 @@ export default function WingmanBrand({
           ...markWrapStyle,
           width: px,
           height: px,
-          borderRadius: Math.max(10, Math.round(px * 0.28)),
         }}
       >
         <img
@@ -68,7 +67,7 @@ export default function WingmanBrand({
                 12,
             }}
           >
-            WyreStorm Sales & Design Platform
+            WyreStorm Technical Sales Console
           </div>
         </div>
       ) : null}
@@ -85,10 +84,6 @@ const markWrapStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  overflow: "hidden",
-  border: "1px solid rgba(96,165,250,0.24)",
-  background: "linear-gradient(180deg, rgba(15,23,42,0.92), rgba(30,41,59,0.88))",
-  boxShadow: "0 10px 24px rgba(2,8,23,0.20)",
   flex: "0 0 auto",
 };
 
@@ -110,10 +105,14 @@ const titleStyle: CSSProperties = {
   lineHeight: 1,
   fontWeight: 900,
   color: "inherit",
+  fontFamily: "var(--wm-font-display)",
+  letterSpacing: "0.04em",
+  textTransform: "uppercase",
 };
 
 const subStyle: CSSProperties = {
   lineHeight: 1.35,
-  opacity: 0.74,
-  letterSpacing: 0.2,
+  opacity: 0.72,
+  letterSpacing: 0.9,
+  textTransform: "uppercase",
 };

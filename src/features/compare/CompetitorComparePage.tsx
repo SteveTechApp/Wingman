@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowRight, ExternalLink, RefreshCcw, Save, Search } from "lucide-react";
 
 import {
@@ -9,9 +10,18 @@ import {
   type WingmanStatItem,
 } from "@/components/wm";
 import { resolveCompetitorMatchEndpoint } from "@/app/api/runtimeEndpoint";
+import { captureCompetitorLookupRecord } from "@/services/liveProductDataStore";
+import type { CompetitorLookupRecord } from "@/services/competitor/lookupService";
+import { WM_ROUTES } from "@/core/wingman/routeMap";
+import {
+  applyCompareToProject,
+  ensureActiveProject,
+  type ProjectCompareRecord,
+} from "@/features/projects/projectStore";
 
 type JsonMap = Record<string, unknown>;
 type CompareTab = "selected" | "shortlist" | "detail";
+
 type ComparisonRow = {
   label: string;
   competitor: string;
@@ -45,6 +55,8 @@ const BRAND_OPTIONS = [
   "Other",
 ];
 
+const AUTO_RESOLVED_BRANDS = new Set(["atlona", "crestron", "extron", "kramer"]);
+
 function isRecord(value: unknown): value is JsonMap {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -53,6 +65,15 @@ function asArray(value: unknown): JsonMap[] {
   if (Array.isArray(value)) {
     return value.filter(isRecord);
   }
+  return [];
+}
+
+function firstNonEmptyArray(...values: unknown[]): JsonMap[] {
+  for (const value of values) {
+    const items = asArray(value);
+    if (items.length > 0) return items;
+  }
+
   return [];
 }
 
@@ -69,6 +90,198 @@ function pickText(...values: unknown[]): string {
     if (typeof value === "number") return String(value);
   }
   return "";
+}
+
+function isHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function uniqueStrings(values: unknown[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+
+  for (const value of values) {
+    const text = pickText(value);
+    if (!text) continue;
+
+    const key = text.toLowerCase();
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    out.push(text);
+  }
+
+  return out;
+}
+
+function prettifyFeatureKey(key: string): string {
+  const fixed: Record<string, string> = {
+    scaling: "Scaling",
+    kvm: "KVM",
+    videoWall: "Video wall",
+    audioBreakout: "Audio breakout",
+    multiview: "Multiview",
+    hdr: "HDR",
+    byod: "BYOD",
+    usbRouting: "USB routing",
+    collaboration: "Collaboration",
+    rs232: "RS-232",
+    ir: "IR",
+    cec: "CEC",
+    relay: "Relay",
+  };
+
+  if (fixed[key]) return fixed[key];
+  return key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/\s+/g, " ").trim();
+}
+
+function featureListFromUnknown(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return uniqueStrings(value);
+  }
+
+  if (isRecord(value)) {
+    const truthy = Object.entries(value)
+      .filter(([, enabled]) => Boolean(enabled))
+      .map(([key]) => prettifyFeatureKey(key));
+
+    return uniqueStrings(truthy);
+  }
+
+  return [];
+}
+
+function toPortEntries(
+  ports: JsonMap | null,
+  mapping: Array<{ key: string; type: string }>,
+): Array<{ type: string; count: number }> {
+  if (!ports) return [];
+
+  const out: Array<{ type: string; count: number }> = [];
+
+  for (const item of mapping) {
+    const raw = Number(ports[item.key] ?? 0);
+    if (!Number.isFinite(raw) || raw <= 0) continue;
+
+    out.push({
+      type: item.type,
+      count: Math.round(raw),
+    });
+  }
+
+  return out;
+}
+
+function toBandwidthGbps(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+    return value;
+  }
+
+  const text = pickText(value).toLowerCase();
+  if (!text) return undefined;
+
+  const match = text.match(/(\d+(?:\.\d+)?)/);
+  if (!match?.[1]) return undefined;
+
+  const parsed = Number(match[1]);
+  if (!Number.isFinite(parsed) || parsed <= 0) return undefined;
+
+  return parsed;
+}
+
+function toBoolean(value: unknown): boolean | undefined {
+  if (typeof value === "boolean") return value;
+  return undefined;
+}
+
+function buildCompetitorLookupRecord(result: NormalizedLookupResult): CompetitorLookupRecord | null {
+  const manualMapping = isRecord(result.manualMapping) ? result.manualMapping : null;
+  const competitorProduct =
+    manualMapping && isRecord(manualMapping.competitorProduct)
+      ? manualMapping.competitorProduct
+      : null;
+
+  if (!competitorProduct) return null;
+
+  const brand = pickText(competitorProduct.manufacturer, "Unknown");
+  const sku = pickText(competitorProduct.model);
+  if (!sku) return null;
+
+  const ports = isRecord(competitorProduct.ports) ? competitorProduct.ports : null;
+  const video = isRecord(competitorProduct.video) ? competitorProduct.video : null;
+  const features = featureListFromUnknown(competitorProduct.features);
+
+  const inputs = toPortEntries(ports, [
+    { key: "hdmiIn", type: "HDMI" },
+    { key: "usbC", type: "USB-C" },
+    { key: "usbHost", type: "USB Host" },
+  ]);
+
+  const outputs = toPortEntries(ports, [
+    { key: "hdmiOut", type: "HDMI" },
+    { key: "hdbt", type: "HDBaseT" },
+    { key: "lan", type: "LAN" },
+    { key: "usbDevice", type: "USB Device" },
+  ]);
+
+  return {
+    brand,
+    sku,
+    name: pickText(competitorProduct.title, competitorProduct.model, sku),
+    family: pickText(competitorProduct.category, "Live lookup"),
+    category: pickText(competitorProduct.category, "Uncategorized"),
+    summary: pickText(
+      competitorProduct.summary,
+      "Resolved from live competitor compare.",
+    ),
+    features,
+    transport: pickText(competitorProduct.transport) || undefined,
+    inputs,
+    outputs,
+    control: uniqueStrings(
+      features.filter((item) =>
+        /rs-232|ir|cec|relay|control/i.test(item),
+      ),
+    ),
+    audio: uniqueStrings(
+      features.filter((item) =>
+        /audio/i.test(item),
+      ),
+    ),
+    video: video
+      ? {
+          maxResolution: pickText(video.maxResolution) || undefined,
+          chroma: pickText(video.chroma) || undefined,
+          hdr: toBoolean(video.hdr),
+          hdcpVersion: pickText(video.hdcpVersion) || undefined,
+          bandwidthGbps: toBandwidthGbps(video.bandwidthGbps ?? video.bandwidth),
+        }
+      : undefined,
+    latency: pickText(competitorProduct.latency) || undefined,
+    distanceMeters: Number.isFinite(Number(competitorProduct.distanceMeters))
+      ? Number(competitorProduct.distanceMeters)
+      : undefined,
+    sourceUrl: pickText(
+      competitorProduct.resolvedUrl,
+      competitorProduct.sourceUrl,
+      result.competitorUrl,
+    ) || undefined,
+  };
+}
+
+async function captureCompetitorIntelligence(
+  result: NormalizedLookupResult,
+): Promise<CompetitorLookupRecord | null> {
+  const record = buildCompetitorLookupRecord(result);
+  if (!record) return null;
+
+  await captureCompetitorLookupRecord(record);
+  return record;
 }
 
 function normalizeMatchCandidate(value: unknown): JsonMap | null {
@@ -97,6 +310,8 @@ function normalizeMatchCandidate(value: unknown): JsonMap | null {
     resolvedUrl: pickText(value.resolvedUrl, profile?.resolvedUrl, profile?.sourceUrl),
     comparisonRows: Array.isArray(value.comparison_rows) ? value.comparison_rows : [],
     breakdown: isRecord(value.breakdown) ? value.breakdown : null,
+    verifiedCatalogSku: value.verified_catalog_sku === true,
+    liveSpecExtracted: value.live_spec_extracted === true,
     profile: profile ?? undefined,
   };
 }
@@ -185,11 +400,7 @@ function normalizeLookupResponse(raw: unknown): NormalizedLookupResult {
     };
   }
 
-  const matches =
-    asArray(raw.matches) ??
-    asArray(raw.candidates) ??
-    asArray(raw.results) ??
-    asArray(raw.shortlist);
+  const matches = firstNonEmptyArray(raw.matches, raw.candidates, raw.results, raw.shortlist);
 
   const shortlist =
     asArray(raw.shortlist).length > 0
@@ -211,7 +422,7 @@ function normalizeLookupResponse(raw: unknown): NormalizedLookupResult {
     raw.status,
     raw.outcome,
     raw.state,
-    matches.length > 0 ? "Lookup complete" : "No matches"
+    matches.length > 0 ? "Lookup complete" : "No matches",
   ) || "Lookup complete";
 
   const message = pickText(
@@ -220,7 +431,7 @@ function normalizeLookupResponse(raw: unknown): NormalizedLookupResult {
     raw.note,
     matches.length > 0
       ? "Review the selected fit and shortlist below."
-      : "No shortlist was returned by the lookup."
+      : "No shortlist was returned by the lookup.",
   );
 
   return {
@@ -245,7 +456,7 @@ function getItemTitle(item: JsonMap | null): string {
       item.productName,
       item.model,
       item.sku,
-      item.id
+      item.id,
     ) || "Untitled result"
   );
 }
@@ -256,8 +467,17 @@ function getItemSubtitle(item: JsonMap | null): string {
   const brand = pickText(item.brand, item.vendor, item.manufacturer);
   const sku = pickText(item.sku, item.model, item.partNumber);
   const confidence = pickText(item.confidence, item.score, item.matchScore);
+  const verification =
+    item.verifiedCatalogSku === true && item.liveSpecExtracted === true
+      ? "Verified"
+      : "Manual review";
 
-  const parts = [brand, sku ? `SKU ${sku}` : "", confidence ? `Confidence ${confidence}` : ""].filter(Boolean);
+  const parts = [
+    brand,
+    sku ? `SKU ${sku}` : "",
+    confidence ? `Confidence ${confidence}` : "",
+    verification,
+  ].filter(Boolean);
 
   return parts.join(" | ");
 }
@@ -279,7 +499,7 @@ function getItemLink(item: JsonMap | null): string {
   return pickText(item.resolvedUrl, item.url, item.sourceUrl);
 }
 
-async function tryLookup(brand: string, sku: string): Promise<NormalizedLookupResult> {
+async function tryLookup(brand: string, sku: string, productUrl: string): Promise<NormalizedLookupResult> {
   if (!COMPETITOR_MATCH_ENDPOINT) {
     throw new Error("Competitor match endpoint is not configured.");
   }
@@ -290,6 +510,7 @@ async function tryLookup(brand: string, sku: string): Promise<NormalizedLookupRe
     body: JSON.stringify({
       manufacturer: brand,
       model: sku,
+      productUrl,
     }),
   });
 
@@ -306,6 +527,7 @@ async function tryLookup(brand: string, sku: string): Promise<NormalizedLookupRe
         pickText(payload.error, payload.message, `Live compare failed (${response.status}).`),
       );
     }
+
     throw new Error(`Live compare failed (${response.status}).`);
   }
 
@@ -472,12 +694,74 @@ function ComparisonDetailView({ value }: { value: unknown }) {
   );
 }
 
+function normalizeCompareConfidence(value: unknown): "High" | "Medium" | "Low" {
+  const text = pickText(value).toLowerCase();
+  if (text.includes("high")) return "High";
+  if (text.includes("low")) return "Low";
+
+  const numeric = Number(text);
+  if (Number.isFinite(numeric) && numeric >= 80) return "High";
+  if (Number.isFinite(numeric) && numeric <= 40) return "Low";
+
+  return "Medium";
+}
+
+function buildProjectCompareRecord(input: {
+  brand: string;
+  competitorSku: string;
+  fit: JsonMap;
+  lookupResult: NormalizedLookupResult | null;
+}): ProjectCompareRecord {
+  const profile =
+    input.fit.profile && typeof input.fit.profile === "object" && !Array.isArray(input.fit.profile)
+      ? (input.fit.profile as JsonMap)
+      : null;
+
+  const rawFeatures =
+    Array.isArray(profile?.features) ? profile.features :
+    Array.isArray(input.fit.features) ? input.fit.features :
+    [];
+
+  const features = rawFeatures
+    .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    .map((item) => item.trim());
+
+  const wyrestormVerified =
+    input.fit.verifiedCatalogSku === true && input.fit.liveSpecExtracted === true;
+
+  const notes = [
+    pickText(input.fit.matchType) ? `Match type: ${pickText(input.fit.matchType)}` : "",
+    pickText(input.fit.matchScore, input.fit.score) ? `Match score: ${pickText(input.fit.matchScore, input.fit.score)}` : "",
+    input.lookupResult?.competitorUrl ? `Competitor source: ${input.lookupResult.competitorUrl}` : "",
+    wyrestormVerified ? "" : "WyreStorm mapping requires manual verification before downstream use.",
+  ].filter(Boolean);
+
+  return {
+    brand: input.brand,
+    competitorSku: input.competitorSku.trim(),
+    category: pickText(input.fit.category, profile?.category, "Competitor compare"),
+    summary: pickText(input.fit.summary, input.lookupResult?.message),
+    features,
+    wyrestormSku: pickText(input.fit.sku, profile?.model, "Manual review required"),
+    wyrestormName: pickText(input.fit.name, input.fit.title),
+    wyrestormCategory: pickText(input.fit.category, profile?.category),
+    wyrestormVerified,
+    confidence: normalizeCompareConfidence(pickText(input.fit.confidence, input.fit.matchScore, input.fit.score)),
+    rationale: pickText(input.fit.reason, input.fit.summary, input.lookupResult?.message),
+    notes,
+    createdAt: new Date().toISOString(),
+  };
+}
 export default function CompetitorComparePage() {
+  const navigate = useNavigate();
   const [brand, setBrand] = useState("Atlona");
   const [sku, setSku] = useState("");
+  const [productUrl, setProductUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<CompareTab>("selected");
   const [error, setError] = useState("");
+  const [captureMessage, setCaptureMessage] = useState("");
+  const [captureError, setCaptureError] = useState("");
   const [lookupResult, setLookupResult] = useState<NormalizedLookupResult | null>(null);
   const [selectedFit, setSelectedFit] = useState<JsonMap | null>(null);
   const [savedFit, setSavedFit] = useState(false);
@@ -492,6 +776,18 @@ export default function CompetitorComparePage() {
           ? "Cached live result"
           : "Live backend"
         : "Waiting";
+
+    const intelligenceValue = loading
+      ? "Pending"
+      : captureError
+        ? "Capture issue"
+        : captureMessage
+          ? "Captured"
+          : "Not captured";
+
+    const intelligenceMeta = loading
+      ? "Waiting for compare result."
+      : captureError || captureMessage || "Successful live compares should capture a draft competitor spec record for approval.";
 
     return [
       {
@@ -512,34 +808,100 @@ export default function CompetitorComparePage() {
         meta: matchesCount > 0 ? "Candidate matches returned" : "No matches loaded",
       },
       {
+        label: "Intelligence",
+        value: intelligenceValue,
+        meta: intelligenceMeta,
+      },
+      {
         label: "Saved fit",
         value: savedFit ? "Saved" : "Not saved",
-        meta: savedFit ? "Stored locally for this browser session" : "Ready to save selected fit",
+        meta: savedFit ? "Saved back into the active project record" : "Ready to save selected fit into the project",
       },
     ];
-  }, [error, loading, lookupResult, savedFit]);
+  }, [captureError, captureMessage, error, loading, lookupResult, savedFit]);
 
   const currentSelectedFit = selectedFit ?? lookupResult?.selectedFit ?? null;
   const shortlist = lookupResult?.shortlist ?? [];
   const manualMapping = lookupResult?.manualMapping ?? null;
   const currentSelectedLink = getItemLink(currentSelectedFit);
+  const requiresProductUrl = !AUTO_RESOLVED_BRANDS.has(brand.toLowerCase());
+  const selectedFitRequiresReview =
+    currentSelectedFit !== null &&
+    !(currentSelectedFit.verifiedCatalogSku === true && currentSelectedFit.liveSpecExtracted === true);
+
+  async function handleCaptureCompetitor() {
+    if (!lookupResult) {
+      setCaptureMessage("");
+      setCaptureError("Run a live compare before capturing competitor intelligence.");
+      return;
+    }
+
+    setCaptureMessage("");
+    setCaptureError("");
+
+    try {
+      const captured = await captureCompetitorIntelligence(lookupResult);
+      if (!captured) {
+        setCaptureError("Compare completed, but no structured competitor record was available to capture.");
+        return;
+      }
+
+      setCaptureMessage(`Captured draft record for ${captured.brand} ${captured.sku} into Product Intelligence.`);
+    } catch (err) {
+      const message = err instanceof Error
+        ? err.message
+        : "Compare completed, but competitor intelligence capture failed.";
+
+      setCaptureError(message);
+    }
+  }
 
   async function handleLookup() {
     const trimmedSku = sku.trim();
+    const trimmedProductUrl = productUrl.trim();
     if (!trimmedSku) {
       setError("Enter a competitor SKU to enable lookup.");
+      return;
+    }
+
+    if (requiresProductUrl && !trimmedProductUrl) {
+      setError(`${brand} needs a direct product URL until automated lookup is added.`);
+      return;
+    }
+
+    if (trimmedProductUrl && !isHttpUrl(trimmedProductUrl)) {
+      setError("Enter a full http(s) competitor product URL.");
       return;
     }
 
     setLoading(true);
     setError("");
     setSavedFit(false);
+    setCaptureMessage("");
+    setCaptureError("");
 
     try {
-      const result = await tryLookup(brand, trimmedSku);
+      const result = await tryLookup(brand, trimmedSku, trimmedProductUrl);
       setLookupResult(result);
       setSelectedFit(result.selectedFit);
       setTab("selected");
+
+      try {
+        const captured = await captureCompetitorIntelligence(result);
+        if (!captured) {
+          setCaptureError("Compare completed, but no structured competitor record was available to capture.");
+        }
+
+        if (captured) {
+          setCaptureMessage(`Captured draft record for ${captured.brand} ${captured.sku} into Product Intelligence.`);
+        }
+      } catch (captureErr) {
+        const captureFailure = captureErr instanceof Error
+          ? captureErr.message
+          : "Compare completed, but competitor intelligence capture failed.";
+
+        setCaptureError(captureFailure);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Lookup failed.";
       setLookupResult(null);
@@ -552,7 +914,10 @@ export default function CompetitorComparePage() {
 
   function handleClear() {
     setSku("");
+    setProductUrl("");
     setError("");
+    setCaptureMessage("");
+    setCaptureError("");
     setLookupResult(null);
     setSelectedFit(null);
     setSavedFit(false);
@@ -563,19 +928,29 @@ export default function CompetitorComparePage() {
     if (!currentSelectedFit) return;
 
     try {
-      localStorage.setItem(
-        "wm:competitor-compare:lastFit",
-        JSON.stringify({
-          brand,
-          sku,
-          savedAt: new Date().toISOString(),
-          fit: currentSelectedFit,
-        })
-      );
+      const project = ensureActiveProject({
+        name: sku.trim() ? `${brand} ${sku.trim()} compare` : "Competitor Compare",
+        stage: "Specify",
+        status: "Draft",
+      });
+
+      const compareRecord = buildProjectCompareRecord({
+        brand,
+        competitorSku: sku,
+        fit: currentSelectedFit,
+        lookupResult,
+      });
+
+      const savedProject = applyCompareToProject(project.id, compareRecord);
+      if (!savedProject) {
+        throw new Error("Compare result could not be written to the active project.");
+      }
+
       setSavedFit(true);
-    } catch {
+      setError("");
+    } catch (err) {
       setSavedFit(false);
-      setError("Could not save fit in local storage.");
+      setError(err instanceof Error ? err.message : "Could not save fit into the project.");
     }
   }
 
@@ -583,14 +958,14 @@ export default function CompetitorComparePage() {
     <WingmanPageFrame
       eyebrow="Quick Reference"
       title="Competitor Compare"
-      subtitle="Search on the left, then review the fit, shortlist, and live comparison detail in a consistent Wingman workflow."
+      subtitle="Run a live competitor compare, review the best fit, and capture a draft competitor product record for approval in Wingman."
       actions={
         <>
           <button
             type="button"
             className="wm-btn wm-btn--secondary"
             onClick={() => {
-              window.location.href = "/app/dashboard";
+              navigate(WM_ROUTES.dashboard);
             }}
           >
             General sales mode
@@ -599,7 +974,7 @@ export default function CompetitorComparePage() {
             type="button"
             className="wm-btn wm-btn--brand"
             onClick={() => {
-              window.location.href = "/app/tools";
+              navigate(WM_ROUTES.tools);
             }}
           >
             Tools
@@ -609,14 +984,14 @@ export default function CompetitorComparePage() {
       toolbar={
         <div className="wm-between" style={{ width: "100%" }}>
           <div className="wm-soft">
-            Live compare runs against the backend match resolver, then opens catalogue for the next project step.
+            Successful live compares capture a draft competitor intelligence record, but only approved intelligence should drive future compares.
           </div>
           <div className="wm-flex">
             <button
               type="button"
               className="wm-btn wm-btn--secondary"
               onClick={() => {
-                window.location.href = "/app/tools/catalog";
+                navigate(WM_ROUTES.catalog);
               }}
             >
               Open catalogue
@@ -629,7 +1004,7 @@ export default function CompetitorComparePage() {
       <WingmanSection
         eyebrow="Step 1"
         title="Competitor lookup"
-        description="Start with a brand and competitor SKU or model. Live compare will resolve the competitor source and rank WyreStorm candidates."
+        description="Start with a brand and competitor SKU or model. For brands without automated lookup, provide the direct competitor product URL so the live compare can extract evidence from the right page."
         actions={
           <div className="wm-flex">
             <button type="button" className="wm-btn wm-btn--secondary" onClick={handleClear}>
@@ -648,7 +1023,7 @@ export default function CompetitorComparePage() {
           </div>
         }
       >
-        <div className="wm-grid wm-grid--3">
+        <div className="wm-grid wm-grid--2">
           <label className="wm-field">
             <span className="wm-field__label">Competitor brand</span>
             <select value={brand} onChange={(e) => setBrand(e.target.value)}>
@@ -669,6 +1044,17 @@ export default function CompetitorComparePage() {
             />
           </label>
 
+          <label className="wm-field">
+            <span className="wm-field__label">
+              Competitor product URL {requiresProductUrl ? "(required)" : "(optional)"}
+            </span>
+            <input
+              value={productUrl}
+              onChange={(e) => setProductUrl(e.target.value)}
+              placeholder="https://manufacturer.example/product-page"
+            />
+          </label>
+
           <div className="wm-field">
             <span className="wm-field__label">Workflow guidance</span>
             <div className="wm-stat" style={{ height: "100%" }}>
@@ -676,7 +1062,9 @@ export default function CompetitorComparePage() {
                 {error
                   ? error
                   : sku.trim()
-                    ? "Run compare to populate the best fit, shortlist, and scoring detail."
+                    ? requiresProductUrl
+                      ? "Add the exact competitor product URL, then run compare. This brand does not have automated URL resolution yet."
+                      : "Run compare to populate the fit, shortlist, match detail, and draft competitor intelligence."
                     : "Enter a competitor SKU to enable live compare."}
               </p>
             </div>
@@ -721,6 +1109,15 @@ export default function CompetitorComparePage() {
             <div className="wm-stack-md">
               <ResultCard item={currentSelectedFit} selected />
 
+              {selectedFitRequiresReview ? (
+                <div className="wm-stat">
+                  <p className="wm-stat__label">Verification status</p>
+                  <p className="wm-soft" style={{ margin: 0 }}>
+                    This mapping is not fully verified from catalog SKU plus live spec extraction. Review it before using it in downstream proposal or compare output.
+                  </p>
+                </div>
+              ) : null}
+
               <div className="wm-flex">
                 <button type="button" className="wm-btn wm-btn--brand" onClick={handleSaveFit}>
                   <Save size={16} />
@@ -730,8 +1127,18 @@ export default function CompetitorComparePage() {
                 <button
                   type="button"
                   className="wm-btn wm-btn--secondary"
+                  onClick={handleCaptureCompetitor}
+                  disabled={!lookupResult || loading}
+                >
+                  <Save size={16} />
+                  Capture competitor record
+                </button>
+
+                <button
+                  type="button"
+                  className="wm-btn wm-btn--secondary"
                   onClick={() => {
-                    window.location.href = "/app/tools/catalog";
+                    navigate(WM_ROUTES.catalog);
                   }}
                 >
                   Continue to catalogue
@@ -745,6 +1152,20 @@ export default function CompetitorComparePage() {
                   </a>
                 ) : null}
               </div>
+
+              {captureMessage ? (
+                <div className="wm-stat" style={{ background: "var(--wm-success-soft)" }}>
+                  <p className="wm-stat__label">Competitor intelligence</p>
+                  <p className="wm-soft" style={{ margin: 0 }}>{captureMessage}</p>
+                </div>
+              ) : null}
+
+              {captureError ? (
+                <div className="wm-stat">
+                  <p className="wm-stat__label">Competitor intelligence</p>
+                  <p className="wm-soft" style={{ margin: 0 }}>{captureError}</p>
+                </div>
+              ) : null}
             </div>
           ) : (
             <WingmanEmptyState

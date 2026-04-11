@@ -1,367 +1,358 @@
-import { useMemo, type CSSProperties } from "react";
+import * as React from "react";
+import { Link } from "react-router-dom";
+import type { LucideIcon } from "lucide-react";
 import {
+  ArrowRight,
   Bot,
+  Boxes,
   ClipboardList,
   FileText,
-  GitCompareArrows,
-  LayoutTemplate,
-  LucideIcon,
-  Network,
-  ScanSearch,
-  Sparkles,
-  Upload,
-  ArrowRight,
+  FolderOpen,
+  Monitor,
+  Route,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 
+import WingmanPageFrame, { WingmanPageSection } from "@/components/layout/WingmanPageFrame";
+import { buildCustomerSafeSummary } from "@/features/projects/customerSummary";
+import { getProjectResumeAction } from "@/features/projects/projectProductivity";
 import {
-  WingmanPageFrame,
-  WingmanSection,
-  WingmanStatStrip,
-  type WingmanStatItem,
-} from "@/components/wm";
+  getActiveProject,
+  loadProjects,
+  subscribeProjects,
+  type StoredProject,
+} from "@/features/projects/projectStore";
+import "./wingman-dashboard.css";
 
-type HomeAction = {
-  id: string;
+type FlowCard = {
+  index: string;
   title: string;
-  subtitle: string;
-  route: string;
-  badge: string;
-  tone: "quick" | "workflow" | "assistant";
-  tooltip: string;
+  copy: string;
+  to: string;
+};
+
+type ToolCard = {
+  title: string;
+  description: string;
+  to: string;
   icon: LucideIcon;
+  badge: string;
 };
 
-type WorkflowStage = {
-  title: string;
-  text: string;
-};
-
-const quickReferenceTools: HomeAction[] = [
+const primaryFlow: FlowCard[] = [
   {
-    id: "guru",
-    title: "Guru",
-    subtitle: "Open a chat-first assistant for product, sales and technical help.",
-    route: "/app/tools/guru",
-    badge: "Fast answer",
-    tone: "assistant",
-    tooltip: "Best when a salesperson needs immediate support without starting a full proposal flow.",
-    icon: Bot,
+    index: "01",
+    title: "Discovery",
+    copy: "Discovery and Import Intake should reduce the brief to the few decisions that change design.",
+    to: "/app/tools/discovery",
   },
   {
-    id: "catalog",
-    title: "Product Finder",
-    subtitle: "Find the right WyreStorm product and carry the result into the next tool.",
-    route: "/app/tools/catalog",
-    badge: "Single-use tool",
-    tone: "quick",
-    tooltip: "Use this to narrow the correct family, endpoint type and SKU from requirement inputs.",
-    icon: ScanSearch,
+    index: "02",
+    title: "Design",
+    copy: "Use Product Finder, Navigator, and templates only after the direction is clear.",
+    to: "/app/tools/catalog",
   },
   {
-    id: "compare",
-    title: "Competitor Compare",
-    subtitle: "Position the closest WyreStorm option against a competitor reference.",
-    route: "/app/tools/compare",
-    badge: "Sales support",
-    tone: "quick",
-    tooltip: "Use this when a customer mentions a competitor part number or asks for an alternative.",
-    icon: GitCompareArrows,
-  },
-  {
-    id: "navigator",
-    title: "AV Navigator",
-    subtitle: "Choose the right transport and system direction before locking products.",
-    route: "/app/tools/navigator",
-    badge: "Decision support",
-    tone: "quick",
-    tooltip: "Use this when you need help deciding whether the application suits extender, matrix or AVoIP.",
-    icon: Network,
+    index: "03",
+    title: "Proposal",
+    copy: "Move into Proposal Builder once the technical path is stable and project-linked.",
+    to: "/app/tools/proposal",
   },
 ];
 
-const formalWorkflows: HomeAction[] = [
+const quickTools: ToolCard[] = [
   {
-    id: "discovery",
     title: "Discovery Wizard",
-    subtitle: "Capture room, source, display, USB and control requirements correctly.",
-    route: "/app/tools/discovery",
-    badge: "Workflow stage 1",
-    tone: "workflow",
-    tooltip: "Use this to structure the opportunity before product selection starts.",
+    description: "Best first step when the room and technical scope are still moving.",
+    to: "/app/tools/discovery",
     icon: ClipboardList,
+    badge: "Start",
   },
   {
-    id: "proposal",
+    title: "Product Finder",
+    description: "Dense product lookup for live sales work and design narrowing.",
+    to: "/app/tools/catalog",
+    icon: Boxes,
+    badge: "Reference",
+  },
+  {
+    title: "AV Navigator",
+    description: "Guided architecture direction when you already know the broad system category.",
+    to: "/app/tools/navigator",
+    icon: Route,
+    badge: "Guide",
+  },
+  {
     title: "Proposal Builder",
-    subtitle: "Convert selections into a customer-facing architecture and BOM.",
-    route: "/app/tools/proposal",
-    badge: "Workflow stage 2",
-    tone: "workflow",
-    tooltip: "Use this when the opportunity needs formal output and commercial narrative.",
+    description: "Convert the selected path into a sharper commercial output pack.",
+    to: "/app/tools/proposal",
     icon: FileText,
-  },
-  {
-    id: "templates",
-    title: "System Templates",
-    subtitle: "Start from structured reference systems instead of a blank canvas.",
-    route: "/app/tools/templates",
-    badge: "Workflow accelerator",
-    tone: "workflow",
-    tooltip: "Use this when the application matches a known pattern and you want to accelerate the design.",
-    icon: LayoutTemplate,
-  },
-  {
-    id: "import",
-    title: "Import Intake",
-    subtitle: "Turn customer notes, briefs or PDFs into usable project context.",
-    route: "/app/tools/import-intake",
-    badge: "Workflow intake",
-    tone: "workflow",
-    tooltip: "Use this when the customer has already supplied notes or source documents.",
-    icon: Upload,
+    badge: "Output",
   },
 ];
 
-const workflowStages: WorkflowStage[] = [
-  {
-    title: "Discover",
-    text: "Capture the application, room type, source count, display count and user expectations.",
-  },
-  {
-    title: "Select",
-    text: "Choose the right architecture, then narrow to the correct WyreStorm family and endpoint mix.",
-  },
-  {
-    title: "Propose",
-    text: "Generate the customer-ready summary, BOM and architecture output inside the same shell.",
-  },
-];
-
-function getActiveProjectName(): string {
-  return localStorage.getItem("wm:activeProjectName") || "General sales mode";
+function tidy(value: unknown): string {
+  return String(value ?? "").trim();
 }
 
-function getActiveProjectId(): string {
-  return localStorage.getItem("wm:activeProjectId") || "";
+function lower(value: string | undefined): string {
+  return String(value ?? "").trim().toLowerCase();
 }
 
-function cardToneStyle(tone: HomeAction["tone"]): CSSProperties {
-  if (tone === "workflow") {
-    return {
-      border: "1px solid rgba(67,195,123,0.16)",
-      boxShadow: "0 0 0 1px rgba(67,195,123,0.05)",
-    };
-  }
-
-  if (tone === "assistant") {
-    return {
-      border: "1px solid rgba(214,139,79,0.18)",
-      boxShadow: "0 0 0 1px rgba(214,139,79,0.06)",
-    };
-  }
-
-  return {
-    border: "1px solid rgba(110,168,255,0.16)",
-    boxShadow: "0 0 0 1px rgba(110,168,255,0.05)",
-  };
+function formatDateTime(value?: string): string {
+  if (!value) return "No recent activity";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(parsed);
 }
 
-function iconToneStyle(tone: HomeAction["tone"]): CSSProperties {
-  if (tone === "workflow") {
-    return {
-      background: "rgba(67,195,123,0.12)",
-      color: "#d7f6e3",
-    };
-  }
-
-  if (tone === "assistant") {
-    return {
-      background: "rgba(214,139,79,0.14)",
-      color: "#ffdfc2",
-    };
-  }
-
-  return {
-    background: "rgba(110,168,255,0.12)",
-    color: "#dbe9ff",
-  };
-}
-
-function WorkspaceCard({ action }: { action: HomeAction }) {
-  const Icon = action.icon;
-
+function projectSummaryLine(project: StoredProject): string {
   return (
-    <Link to={action.route} className="wm-card wm-interactive" style={{ ...cardStyle, ...cardToneStyle(action.tone) }}>
-      <div style={cardTopStyle}>
-        <div style={{ ...iconWrapStyle, ...iconToneStyle(action.tone) }}>
-          <Icon size={18} />
-        </div>
-        <span className="wm-workspace-tag">{action.badge}</span>
-      </div>
-
-      <div className="wm-stack-xs">
-        <h3 style={cardTitleStyle}>{action.title}</h3>
-        <p className="wm-soft">{action.subtitle}</p>
-        <p className="wm-muted" style={supportTextStyle}>
-          {action.tooltip}
-        </p>
-      </div>
-
-      <span style={ctaStyle}>
-        Open workspace
-        <ArrowRight size={16} />
-      </span>
-    </Link>
+    [tidy(project.customer), tidy(project.roomName) || tidy(project.discovery?.applicationType), tidy(project.site)]
+      .filter(Boolean)
+      .join(" / ") || "Customer, room, and site details are still being captured."
   );
+}
+
+function isDiscoveryProject(project: StoredProject): boolean {
+  const stage = lower(project.stage);
+  return stage.length === 0 || stage.includes("discovery");
+}
+
+function isProposalProject(project: StoredProject): boolean {
+  return Boolean(
+    tidy(project.proposal?.title) ||
+      tidy(project.proposal?.notes) ||
+      lower(project.stage).includes("proposal"),
+  );
+}
+
+function isCommercialReady(project: StoredProject): boolean {
+  return lower(project.status).includes("commercial ready");
 }
 
 export default function DashboardPage() {
-  const projectName = useMemo(() => getActiveProjectName(), []);
-  const hasProject = useMemo(() => Boolean(getActiveProjectId()), []);
+  const projects = React.useSyncExternalStore(subscribeProjects, loadProjects, () => []);
+  const activeProject = React.useSyncExternalStore(subscribeProjects, getActiveProject, () => undefined);
 
-  const statItems = useMemo<WingmanStatItem[]>(
-    () => [
-      {
-        label: "Active project",
-        value: projectName,
-        meta: hasProject ? "Project context loaded into the shell" : "Working in general sales mode",
-      },
-      {
-        label: "Quick tools",
-        value: String(quickReferenceTools.length),
-        meta: "Immediate guidance and reference support",
-      },
-      {
-        label: "Structured flows",
-        value: String(formalWorkflows.length),
-        meta: "Discovery, design and proposal delivery",
-      },
-    ],
-    [hasProject, projectName],
+  const projectInFocus = activeProject ?? projects[0] ?? null;
+  const resumeAction = React.useMemo(
+    () => (projectInFocus ? getProjectResumeAction(projectInFocus) : null),
+    [projectInFocus],
   );
+  const discoveryCount = React.useMemo(
+    () => projects.filter(isDiscoveryProject).length,
+    [projects],
+  );
+  const proposalCount = React.useMemo(
+    () => projects.filter(isProposalProject).length,
+    [projects],
+  );
+  const readyCount = React.useMemo(
+    () => projects.filter(isCommercialReady).length,
+    [projects],
+  );
+  const shareCount = React.useMemo(
+    () => projects.reduce((total, project) => total + (project.shares?.length ?? 0), 0),
+    [projects],
+  );
+  const recentProjects = React.useMemo(() => projects.slice(0, 3), [projects]);
+  const focusSummary = React.useMemo(() => {
+    if (!projectInFocus) return null;
+    return projectInFocus.customerSummary ?? buildCustomerSafeSummary(projectInFocus);
+  }, [projectInFocus]);
+
+  const primaryActionLabel = resumeAction?.label ?? "Start discovery";
+  const primaryActionTo = resumeAction?.to ?? "/app/tools/discovery";
 
   return (
-    <div className="wm-page">
-      <WingmanPageFrame
-        eyebrow="Mission Control"
-        title="Two clear ways to use Wingman"
-        subtitle="Keep the shell familiar across the app. Use quick tools for live conversations, then move into the structured workflow when the opportunity needs a fuller design and proposal path."
-        actions={
-          <div className="wm-flex">
-            <Link to="/app/tools" className="wm-btn wm-btn--brand">
-              Open tool hub
-            </Link>
-            <Link to="/app/projects" className="wm-btn wm-btn--secondary">
-              View projects
-            </Link>
-          </div>
-        }
-        toolbar={
-          <div className="wm-between" style={{ width: "100%" }}>
-            <div className="wm-soft">The outer shell stays fixed. Only the workspace inside it changes from feature to feature.</div>
-            <div className="wm-page-inline-list">
-              <span className="wm-workspace-tag">{projectName}</span>
-              <span className="wm-workspace-tag">{hasProject ? "Project context loaded" : "General sales mode"}</span>
+    <WingmanPageFrame
+      className="wm-dashboard-page"
+      eyebrow="Mission control"
+      title={projectInFocus ? `Pick up ${projectInFocus.name}` : "Start the next project"}
+      subtitle={
+        projectInFocus
+          ? "Dashboard now reads the live project and surfaces the next unfinished lane instead of acting like a static landing page."
+          : "Create or open a project first so Wingman can keep the workflow centred on one live record."
+      }
+      actions={
+        <div className="wm-workspace-actions">
+          <Link to="/app/projects/new" className="wm-workspace-action">
+            New project
+          </Link>
+          <Link to={projects.length > 0 ? "/app/projects" : "/app/tools/import-intake"} className="wm-workspace-action">
+            {projects.length > 0 ? "Open projects" : "Import brief"}
+          </Link>
+          <Link to={primaryActionTo} className="wm-workspace-action wm-workspace-action--primary">
+            {primaryActionLabel}
+          </Link>
+        </div>
+      }
+      stats={
+        <div className="wm-workspace-stats">
+          <div className="wm-workspace-stat">
+            <div className="wm-workspace-stat__label">Project in focus</div>
+            <div className="wm-workspace-stat__value">{projectInFocus?.name ?? "No active project"}</div>
+            <div className="wm-workspace-stat__meta">
+              {projectInFocus
+                ? `${projectSummaryLine(projectInFocus)} / Next: ${resumeAction?.shortLabel ?? "Discovery"}`
+                : "Create or open a project so Dashboard can point to the next real action."}
             </div>
           </div>
+
+          <div className="wm-workspace-stat">
+            <div className="wm-workspace-stat__label">Pipeline</div>
+            <div className="wm-workspace-stat__value">{projects.length} live project(s)</div>
+            <div className="wm-workspace-stat__meta">
+              Discovery: {discoveryCount} / Proposal: {proposalCount}
+            </div>
+          </div>
+
+          <div className="wm-workspace-stat">
+            <div className="wm-workspace-stat__label">Handoff readiness</div>
+            <div className="wm-workspace-stat__value">{readyCount} commercial-ready</div>
+            <div className="wm-workspace-stat__meta">
+              Share packs: {shareCount} / Last update: {formatDateTime(projectInFocus?.updatedAt)}
+            </div>
+          </div>
+        </div>
+      }
+      aside={
+        <>
+          <WingmanPageSection title="Focus rules" subtitle="Keep the live project moving forward.">
+            <ul className="wm-workspace-list wm-workspace-list--plain">
+              <li>
+                {projectInFocus
+                  ? `Resume ${projectInFocus.name} in ${resumeAction?.shortLabel ?? "Discovery"} before opening a disconnected lane.`
+                  : "Start from a project or imported brief so every next step stays attached to one record."}
+              </li>
+              <li>Use Discovery or Import Intake to sharpen the brief before narrowing products.</li>
+              <li>Save proposal output back into the project before preparing anything customer-facing.</li>
+            </ul>
+          </WingmanPageSection>
+
+          <WingmanPageSection title="Fast access" subtitle="Jump straight to the live workspace touchpoints.">
+            <div className="wm-workspace-link-list">
+              <Link
+                to={projectInFocus ? `/app/projects/${encodeURIComponent(projectInFocus.id)}` : "/app/projects"}
+                className="wm-workspace-link"
+              >
+                <span>{projectInFocus ? "Project overview" : "Open projects"}</span>
+                <FolderOpen size={14} />
+              </Link>
+              <Link to="/app/tools/guru" className="wm-workspace-link">
+                <span>Ask Guru</span>
+                <Bot size={14} />
+              </Link>
+              <Link to="/app/tools/video-wall" className="wm-workspace-link">
+                <span>Video wall planner</span>
+                <Monitor size={14} />
+              </Link>
+            </div>
+          </WingmanPageSection>
+        </>
+      }
+    >
+      <WingmanPageSection
+        title="Primary flow"
+        subtitle={
+          projectInFocus
+            ? `Current resume point: ${resumeAction?.label ?? "Open discovery"} for ${projectInFocus.name}.`
+            : "The intended working line: brief in, design narrowed, proposal out."
         }
       >
-        <WingmanStatStrip items={statItems} />
-
-        <div className="wm-grid wm-grid--2">
-          <WingmanSection
-            eyebrow="Quick Reference"
-            title="Single-use helpful tools"
-            description="Fast answers and product direction without forcing the full workflow."
-          >
-            <div className="wm-grid wm-grid--2">
-              {quickReferenceTools.map((tool) => (
-                <WorkspaceCard key={tool.id} action={tool} />
-              ))}
-            </div>
-          </WingmanSection>
-
-          <WingmanSection
-            eyebrow="Structured Workflow"
-            title="Project delivery surfaces"
-            description="Move from discovery into architecture and customer-facing output without leaving the shared shell."
-          >
-            <div className="wm-grid wm-grid--2">
-              {formalWorkflows.map((tool) => (
-                <WorkspaceCard key={tool.id} action={tool} />
-              ))}
-            </div>
-          </WingmanSection>
+        <div className="wm-workspace-stage-grid">
+          {primaryFlow.map((step) => (
+            <Link key={step.index} to={step.to} className="wm-workspace-stage">
+              <span className="wm-workspace-stage__index">{step.index}</span>
+              <div className="wm-workspace-stage__title">{step.title}</div>
+              <div className="wm-workspace-stage__copy">{step.copy}</div>
+            </Link>
+          ))}
         </div>
+      </WingmanPageSection>
 
-        <WingmanSection
-          eyebrow="Preferred Workflow"
-          title="Recommended sequence"
-          description="Use the same layout scaffolding throughout the opportunity, then swap the working surface as the job matures."
-        >
-          <div className="wm-grid wm-grid--3">
-            {workflowStages.map((stage, index) => (
-              <div key={stage.title} className="wm-stat">
-                <p className="wm-stat__label">0{index + 1}</p>
-                <p className="wm-stat__value" style={sequenceTitleStyle}>
-                  {stage.title}
-                </p>
-                <p className="wm-stat__meta">{stage.text}</p>
-              </div>
-            ))}
+      <WingmanPageSection
+        title="Quick lanes"
+        subtitle="Fast entry points when you already know which part of the workflow needs attention."
+      >
+        <div className="wm-workspace-tile-grid">
+          {quickTools.map((tool) => {
+            const Icon = tool.icon;
+
+            return (
+              <Link key={tool.to} to={tool.to} className="wm-workspace-tile">
+                <div className="wm-workspace-tile__top">
+                  <div className="wm-workspace-tile__icon">
+                    <Icon size={18} strokeWidth={2} />
+                  </div>
+                  <span className="wm-workspace-tile__badge">{tool.badge}</span>
+                </div>
+
+                <div className="wm-workspace-tile__title">{tool.title}</div>
+                <div className="wm-workspace-tile__description">{tool.description}</div>
+                <div className="wm-workspace-tile__footer">
+                  Open workspace
+                  <ArrowRight size={14} />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </WingmanPageSection>
+
+      <WingmanPageSection
+        title="Projects in play"
+        subtitle="Most recent project records, with their next useful action."
+      >
+        {recentProjects.length > 0 ? (
+          <div className="wm-workspace-link-list">
+            {recentProjects.map((project) => {
+              const projectAction = getProjectResumeAction(project);
+              const summary = project.customerSummary ?? buildCustomerSafeSummary(project);
+
+              return (
+                <Link
+                  key={project.id}
+                  to={`/app/projects/${encodeURIComponent(project.id)}`}
+                  className="wm-workspace-link wm-dashboard-page__project-link"
+                >
+                  <div className="wm-dashboard-page__project-copy">
+                    <strong>{project.name}</strong>
+                    <div className="wm-dashboard-page__project-summary">
+                      {summary.headline || "Project summary is still being assembled."}
+                    </div>
+                    <div className="wm-dashboard-page__project-meta">
+                      {projectSummaryLine(project)} / Next: {projectAction.shortLabel} / Updated {formatDateTime(project.updatedAt)}
+                    </div>
+                  </div>
+                  <ArrowRight size={14} />
+                </Link>
+              );
+            })}
           </div>
-        </WingmanSection>
-      </WingmanPageFrame>
-    </div>
+        ) : (
+          <div className="wm-workspace-note-block">
+            <div className="wm-workspace-kicker">Command deck</div>
+            <strong>Start from one project so Dashboard has something real to drive.</strong>
+            <div className="wm-workspace-note">
+              Once a project exists, this screen can surface the active record, the next unfinished lane, and the latest workspace activity without relying on placeholders.
+            </div>
+          </div>
+        )}
+      </WingmanPageSection>
+
+      {focusSummary ? (
+        <WingmanPageSection
+          title="Operator note"
+          subtitle="What the current project is already communicating back to the workspace."
+        >
+          <div className="wm-workspace-note-block">
+            <div className="wm-workspace-kicker">Live summary</div>
+            <strong>{focusSummary.headline}</strong>
+            <div className="wm-workspace-note">{focusSummary.overview}</div>
+          </div>
+        </WingmanPageSection>
+      ) : null}
+    </WingmanPageFrame>
   );
 }
-
-const cardStyle: CSSProperties = {
-  display: "grid",
-  gap: 12,
-  padding: 16,
-  textDecoration: "none",
-};
-
-const cardTopStyle: CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: 12,
-  flexWrap: "wrap",
-};
-
-const iconWrapStyle: CSSProperties = {
-  width: 38,
-  height: 38,
-  borderRadius: 12,
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
-};
-
-const cardTitleStyle: CSSProperties = {
-  margin: 0,
-  fontSize: 18,
-  lineHeight: 1.15,
-};
-
-const supportTextStyle: CSSProperties = {
-  fontSize: 12,
-  lineHeight: 1.5,
-};
-
-const ctaStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 6,
-  fontSize: 12,
-  fontWeight: 800,
-  color: "var(--wm-accent-strong)",
-};
-
-const sequenceTitleStyle: CSSProperties = {
-  fontSize: 20,
-};

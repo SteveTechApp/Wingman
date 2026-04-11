@@ -2,57 +2,31 @@ import * as React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
 import TopBar from "@/app/navigation/TopBar";
+import { getWorkspaceMeta } from "@/app/navigation/workspaceMeta";
 import GuruFab from "@/features/ai/guru/GuruFab";
 import GuruHelperWindow from "@/features/ai/guru/GuruHelperWindow";
+import {
+  getAnchoredGuruBounds,
+  getDefaultGuruBounds,
+  getGuruFabPosition,
+  sanitizeGuruBounds,
+  type GuruBounds,
+} from "@/features/ai/guru/guruLayout";
 import MissionControlNav from "@/ui2/nav/MissionControlNav";
-
-type GuruBounds = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
 
 const GURU_BOUNDS_KEY = "wingman.guru.bounds";
 const GURU_OPEN_KEY = "wingman.guru.open";
 const GURU_MINIMIZED_KEY = "wingman.guru.minimized";
 
-const DEFAULT_BOUNDS: GuruBounds = {
-  x: 0,
-  y: 0,
-  width: 520,
-  height: 680,
-};
-
-function clamp(value: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, value));
-}
-
-function getDefaultBounds(): GuruBounds {
-  if (typeof window === "undefined") {
-    return DEFAULT_BOUNDS;
-  }
-
-  const width = clamp(window.innerWidth * 0.34, 420, 560);
-  const height = clamp(window.innerHeight * 0.7, 520, 760);
-
-  return {
-    x: Math.max(16, window.innerWidth - width - 28),
-    y: Math.max(88, window.innerHeight - height - 28),
-    width,
-    height,
-  };
-}
-
 function readBounds(): GuruBounds {
   if (typeof window === "undefined") {
-    return DEFAULT_BOUNDS;
+    return getDefaultGuruBounds();
   }
 
   try {
     const raw = window.localStorage.getItem(GURU_BOUNDS_KEY);
     if (!raw) {
-      return getDefaultBounds();
+      return getDefaultGuruBounds();
     }
 
     const parsed = JSON.parse(raw) as Partial<GuruBounds>;
@@ -62,13 +36,13 @@ function readBounds(): GuruBounds {
       typeof parsed.width === "number" &&
       typeof parsed.height === "number"
     ) {
-      return parsed as GuruBounds;
+      return sanitizeGuruBounds(parsed, true);
     }
   } catch {
     // ignore malformed storage
   }
 
-  return getDefaultBounds();
+  return getDefaultGuruBounds();
 }
 
 function readBool(key: string, fallback: boolean): boolean {
@@ -89,6 +63,10 @@ function readBool(key: string, fallback: boolean): boolean {
 
 export default function AppShell() {
   const location = useLocation();
+  const workspaceMeta = React.useMemo(
+    () => getWorkspaceMeta(location.pathname),
+    [location.pathname],
+  );
   const isGuruFullPage = location.pathname.startsWith("/app/tools/guru");
 
   const [guruOpen, setGuruOpen] = React.useState(() => readBool(GURU_OPEN_KEY, false));
@@ -123,22 +101,23 @@ export default function AppShell() {
 
   React.useEffect(() => {
     function onResize() {
-      setGuruBounds((current) => {
-        const maxWidth = Math.max(420, window.innerWidth - 32);
-        const maxHeight = Math.max(480, window.innerHeight - 120);
-        const width = clamp(current.width, 420, maxWidth);
-        const height = clamp(current.height, 480, maxHeight);
-        const x = clamp(current.x, 12, Math.max(12, window.innerWidth - width - 12));
-        const y = clamp(current.y, 84, Math.max(84, window.innerHeight - height - 12));
-
-        return { x, y, width, height };
-      });
+      setGuruBounds((current) => sanitizeGuruBounds(current));
     }
 
     onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined" || isGuruFullPage || !guruOpen || guruMinimized) {
+      return;
+    }
+
+    setGuruBounds((current) => getAnchoredGuruBounds(current));
+  }, [guruMinimized, guruOpen, isGuruFullPage]);
+
+  const guruFabPosition = getGuruFabPosition();
 
   const handleToggleGuru = React.useCallback(() => {
     if (!guruOpen) {
@@ -155,13 +134,20 @@ export default function AppShell() {
     setGuruMinimized(true);
   }, [guruMinimized, guruOpen]);
 
+  const showGuruFab = !isGuruFullPage && (!guruOpen || guruMinimized);
+
   return (
-    <div className="wm-shell-root app-shell" data-wm-shell="root">
-      <TopBar />
+    <div
+      className="wm-shell-root app-shell"
+      data-wm-shell="root"
+      data-wm-tone={workspaceMeta.tone}
+      data-wm-route-key={workspaceMeta.key}
+    >
+      <TopBar meta={workspaceMeta} />
 
       <div className="wm-shell-grid wm-shell-body" data-wm-shell="body">
         <aside className="wm-shell-nav-column wm-sidebar" data-wm-sidebar>
-          <MissionControlNav />
+          <MissionControlNav meta={workspaceMeta} />
         </aside>
 
         <main className="wm-app-main wm-main" data-wm-main>
@@ -188,7 +174,13 @@ export default function AppShell() {
             }}
           />
 
-          <GuruFab open={guruOpen} minimized={guruMinimized} onToggle={handleToggleGuru} />
+          {showGuruFab ? (
+            <GuruFab
+              open={guruOpen}
+              minimized={guruMinimized}
+              onToggle={handleToggleGuru}
+            />
+          ) : null}
         </>
       ) : null}
     </div>

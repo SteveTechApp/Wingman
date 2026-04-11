@@ -1,0 +1,202 @@
+:root {
+  --wm-page-max-width: calc(100dvw - 28px) !important;
+}
+
+html,
+body,
+#root {
+  min-height: 100dvh;
+  height: 100%;
+}
+
+body {
+  overflow-y: auto !important;
+}
+
+.wm-shell-root {
+  min-height: 100dvh !important;
+  height: 100dvh !important;
+}
+
+.wm-shell-main,
+.wm-main,
+main,
+.wm-canvas,
+.wm-canvas-inner,
+.wm-page-frame,
+.wm-page-body,
+.wm-page-content,
+[class*="shell-main"],
+[class*="page-body"],
+[class*="page-content"],
+[class*="canvas"] {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.wm-topbar {
+  min-height: 88px !important;
+  padding: 8px 16px !important;
+  gap: 12px !important;
+}
+
+.wm-topbar__brand,
+.wm-brand-lockup,
+[class*="topbar__brand"],
+[class*="brand-lockup"] {
+  min-width: 88px !important;
+  gap: 0 !important;
+  align-items: center !important;
+}
+
+.wm-topbar__brand img,
+.wm-brand-lockup img,
+[class*="topbar__brand"] img,
+[class*="brand-lockup"] img,
+.wm-topbar img[alt*="wingman" i],
+header img[alt*="wingman" i] {
+  height: clamp(78px, 9.5dvh, 104px) !important;
+  width: auto !important;
+  max-height: none !important;
+  min-width: 78px !important;
+  object-fit: contain !important;
+}
+
+.wm-topbar__brand-copy,
+.wm-brand-lockup__copy,
+.wm-topbar__title,
+.wm-topbar__subtitle,
+.wm-brand-lockup__title,
+.wm-brand-lockup__subtitle,
+.wm-brand-lockup__meta,
+[data-role="brand-copy"],
+[data-role="brand-title"],
+[data-role="brand-subtitle"],
+[data-role="brand-meta"] {
+  display: none !important;
+}
+
+.wm-sidebar [class*="section-title"],
+.wm-sidebar [class*="section-heading"],
+.wm-sidebar [class*="section-label"],
+.wm-sidebar [class*="group-label"],
+.wm-sidebar [class*="rail-heading"],
+.wm-sidebar [class*="rail-label"],
+.wm-sidebar [class*="nav-section__title"],
+.wm-sidebar [class*="nav-group__label"],
+.wm-sidebar [class*="kicker"],
+.wm-sidebar [class*="eyebrow"] {
+  display: none !important;
+}
+
+.wm-page-frame__header,
+.wm-page-section__header {
+  padding: 16px !important;
+  gap: 10px !important;
+}
+
+.wm-page-section,
+.wm-card,
+.wm-tool-card,
+.wm-command-card,
+.wm-action-card,
+[class*="tool-card"],
+[class*="action-card"],
+[class*="mission-card"],
+[class*="panel"] {
+  padding: 12px !important;
+  gap: 8px !important;
+}
+
+.wm-canvas,
+.wm-canvas-inner,
+.wm-page-frame,
+.wm-page-body,
+.wm-page-content {
+  padding: 10px !important;
+  gap: 10px !important;
+}
+
+.wm-page-frame__eyebrow,
+.wm-page-frame__meta,
+.wm-page-frame__subtitle,
+.wm-page-frame__summary,
+.wm-page-frame__description,
+.wm-page-section__eyebrow,
+.wm-page-section__meta,
+.wm-page-section__subtitle,
+.wm-page-section__summary,
+.wm-page-section__description,
+.wm-card__meta,
+.wm-card__description,
+.wm-tool-card__meta,
+.wm-tool-card__description,
+.wm-command-card__meta,
+.wm-command-card__description,
+.wm-action-card__meta,
+.wm-action-card__description,
+[class*="page-frame__eyebrow"],
+[class*="page-frame__meta"],
+[class*="page-frame__summary"],
+[class*="page-frame__description"],
+[class*="page-section__eyebrow"],
+[class*="page-section__meta"],
+[class*="page-section__summary"],
+[class*="page-section__description"],
+[class*="card__meta"],
+[class*="card__description"],
+[class*="card__summary"],
+[class*="helper-text"],
+[class*="supporting-text"],
+[class*="secondary-copy"],
+[class*="subcopy"],
+[class*="lede"],
+[class*="eyebrow"],
+[class*="kicker"] {
+  display: none !important;
+}
+
+.wm-dashboard-page .wm-card > p,
+.wm-dashboard-page .wm-tool-card > p,
+.wm-dashboard-page .wm-command-card > p,
+.wm-dashboard-page .wm-action-card > p,
+.wm-dashboard-page [class*="card"] > p,
+.wm-dashboard-page [class*="panel"] > p {
+  display: none !important;
+}
+
+.wm-dashboard-page .wm-page-frame__header p,
+.wm-dashboard-page .wm-page-section__header p,
+.wm-dashboard-page [class*="hero"] p,
+.wm-dashboard-page [class*="header"] p {
+  display: none !important;
+}
+
+.wm-page-frame__title,
+.wm-page-section__title,
+h1,
+h2,
+h3 {
+  margin-bottom: 4px !important;
+}
+
+.wm-page-frame,
+.wm-page-body,
+.wm-page-content,
+.wm-canvas-inner,
+[class*="page-frame"],
+[class*="page-body"],
+[class*="page-content"] {
+  inline-size: 100% !important;
+  max-inline-size: none !important;
+}
+
+@media (min-width: 821px) {
+  :root[data-wm-viewport-mode="desktop"] {
+    --wm-frame-inline-size: calc(100dvw - 28px) !important;
+    --wm-page-max-width: calc(100dvw - 28px) !important;
+    --wm-frame-block-size: calc(100dvh - 28px) !important;
+  }
+}
