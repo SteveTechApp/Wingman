@@ -1,24 +1,25 @@
 .wm-projects-page {
-  gap: 14px;
+  gap: 16px;
 }
 
 .wm-projects-current {
   display: flex;
-  align-items: end;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 14px;
+  gap: 16px;
+  border-color: var(--wm-tone-line);
 }
 
 .wm-projects-card {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .wm-projects-card__top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
 }
 
 .wm-projects-card__metrics {
@@ -32,29 +33,29 @@
   gap: 4px;
   padding: 12px 14px;
   border-radius: 16px;
-  border: 1px solid rgba(123, 169, 234, 0.1);
-  background: rgba(9, 21, 38, 0.56);
+  border: 1px solid var(--wm-border-default);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .wm-projects-card__metric span {
   color: var(--wm-text-muted);
-  font-size: 0.72rem;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .wm-projects-card__metric strong {
   color: var(--wm-text);
-  font-size: 0.95rem;
-  font-weight: 750;
+  font-size: 14px;
+  font-weight: 700;
   line-height: 1.35;
 }
 
 .wm-projects-card__summary {
   color: var(--wm-text-soft);
-  font-size: 0.84rem;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.55;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;

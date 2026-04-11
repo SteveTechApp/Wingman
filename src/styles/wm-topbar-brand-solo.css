@@ -1,0 +1,95 @@
+body .wm-topbar {
+  min-height: 132px !important;
+  padding: 8px 16px !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+body .wm-topbar__brand,
+body .wm-brand-lockup,
+body [class*="topbar__brand"],
+body [class*="brand-lockup"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex: 0 0 auto !important;
+  width: 240px !important;
+  min-width: 240px !important;
+  max-width: 240px !important;
+  height: 124px !important;
+  min-height: 124px !important;
+  max-height: 124px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  gap: 0 !important;
+  overflow: visible !important;
+}
+
+body .wm-topbar__brand > :not(.wm-topbar__brand-solo),
+body .wm-brand-lockup > :not(.wm-topbar__brand-solo),
+body [class*="topbar__brand"] > :not(.wm-topbar__brand-solo),
+body [class*="brand-lockup"] > :not(.wm-topbar__brand-solo) {
+  display: none !important;
+}
+
+body .wm-topbar__brand-solo {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 240px !important;
+  min-width: 240px !important;
+  max-width: 240px !important;
+  height: 124px !important;
+  min-height: 124px !important;
+  max-height: 124px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  gap: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  text-decoration: none !important;
+}
+
+body .wm-topbar__brand-solo-image,
+body .wm-topbar__brand-solo img,
+body .wm-topbar__brand-solo svg {
+  display: block !important;
+  width: auto !important;
+  height: 120px !important;
+  min-height: 120px !important;
+  max-height: 120px !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  flex: 0 0 auto !important;
+}
+
+@media (max-width: 900px) {
+  body .wm-topbar {
+    min-height: 96px !important;
+  }
+
+  body .wm-topbar__brand,
+  body .wm-brand-lockup,
+  body [class*="topbar__brand"],
+  body [class*="brand-lockup"],
+  body .wm-topbar__brand-solo {
+    width: 132px !important;
+    min-width: 132px !important;
+    max-width: 132px !important;
+    height: 82px !important;
+    min-height: 82px !important;
+    max-height: 82px !important;
+  }
+
+  body .wm-topbar__brand-solo-image,
+  body .wm-topbar__brand-solo img,
+  body .wm-topbar__brand-solo svg {
+    height: 78px !important;
+    min-height: 78px !important;
+    max-height: 78px !important;
+  }
+}

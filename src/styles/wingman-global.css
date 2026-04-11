@@ -6,7 +6,7 @@
    - Preserve compact, enterprise SaaS density
    ========================================================= */
 
-:root {
+:root:not(.wm-force-authority) {
   color-scheme: dark;
 
   /* Core */
@@ -87,9 +87,9 @@
    Base
    --------------------------------------------------------- */
 
-html,
-body,
-#root {
+html:not(.wm-force-authority),
+body:not(.wm-force-authority),
+html:not(.wm-force-authority) #root {
   min-height: 100%;
   background:
     radial-gradient(circle at top left, rgba(233, 138, 45, 0.07), transparent 26%),
@@ -98,12 +98,12 @@ body,
   color: var(--wm-text);
 }
 
-html {
+html:not(.wm-force-authority) {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+body:not(.wm-force-authority) {
   margin: 0;
   font-family: "Aptos", "Segoe UI", Inter, system-ui, sans-serif;
   line-height: 1.45;
@@ -687,14 +687,14 @@ textarea:focus-visible,
    --------------------------------------------------------- */
 
 @media (max-width: 1100px) {
-  :root {
+  :root:not(.wm-force-authority) {
     --wm-page-pad-x: 16px;
     --wm-page-pad-y: 14px;
   }
 }
 
 @media (max-width: 900px) {
-  :root {
+  :root:not(.wm-force-authority) {
     --wm-control-h-md: 38px;
     --wm-gap-4: 16px;
     --wm-gap-5: 20px;

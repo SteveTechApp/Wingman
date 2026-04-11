@@ -1,8 +1,9 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo } from "react";
 import { NavLink } from "react-router-dom";
 import {
   Bot,
   Boxes,
+  BriefcaseBusiness,
   ClipboardList,
   FileText,
   FolderKanban,
@@ -14,115 +15,115 @@ import {
   WandSparkles,
 } from "lucide-react";
 
-type NavTone = "quick" | "workflow" | "output";
+import type { WorkspaceMeta } from "@/app/navigation/workspaceMeta";
+
+type NavTone = "reference" | "workflow" | "proposal";
 
 type NavItemModel = {
   label: string;
   to: string;
   icon: typeof Bot;
-  tooltip: string;
-  tone: NavTone;
+  title: string;
 };
 
 type NavSectionModel = {
   title: string;
+  note: string;
   tone: NavTone;
   items: NavItemModel[];
 };
 
 const SECTIONS: NavSectionModel[] = [
   {
-    title: "Quick Reference",
-    tone: "quick",
+    title: "Reference",
+    note: "",
+    tone: "reference",
     items: [
       {
-        label: "AI Guru Expert",
+        label: "AI Guru",
         to: "/app/tools/guru",
         icon: Bot,
-        tone: "quick",
-        tooltip: "Immediate product, application and positioning guidance for live sales conversations.",
+        title: "Immediate product, application, and sales support.",
       },
       {
         label: "Product Finder",
         to: "/app/tools/catalog",
         icon: ScanSearch,
-        tone: "quick",
-        tooltip: "Find the right WyreStorm SKU, narrow endpoint choices and pass the result into downstream tools.",
+        title: "Find the right WyreStorm SKU and move it into the workflow.",
       },
       {
         label: "AV Navigator",
         to: "/app/tools/navigator",
         icon: Network,
-        tone: "quick",
-        tooltip: "Use guided architecture thinking to decide whether the project suits extender, matrix, AV over IP or another transport path.",
+        title: "Decide the broad transport path quickly.",
       },
       {
-        label: "Competitor Compare",
+        label: "Compare",
         to: "/app/tools/compare",
         icon: GitCompareArrows,
-        tone: "quick",
-        tooltip: "Compare competitor products and position the closest WyreStorm alternative.",
+        title: "Match competitor products and position the fit.",
+      },
+      {
+        label: "Sales",
+        to: "/app/tools/sales",
+        icon: BriefcaseBusiness,
+        title: "Steer the conversation before it turns into proposal detail.",
       },
     ],
   },
   {
-    title: "Workflows",
+    title: "Build",
+    note: "Capture scope, then shape the system.",
     tone: "workflow",
     items: [
       {
-        label: "Discovery Wizard",
+        label: "Discovery",
         to: "/app/tools/discovery",
         icon: ClipboardList,
-        tone: "workflow",
-        tooltip: "Capture room type, source count, display count, USB, audio and control requirements properly.",
+        title: "Capture the few requirements that change the design.",
       },
       {
         label: "Templates",
         to: "/app/tools/templates",
         icon: LayoutTemplate,
-        tone: "workflow",
-        tooltip: "Start from structured reference systems such as Bronze, Silver and Gold style solution patterns.",
+        title: "Start from a proven room pattern.",
       },
       {
         label: "Import Intake",
         to: "/app/tools/import-intake",
         icon: Upload,
-        tone: "workflow",
-        tooltip: "Turn customer notes, documents and requirement text into structured project input.",
+        title: "Pull external notes into a structured project start.",
       },
       {
         label: "Tool Hub",
         to: "/app/tools",
         icon: WandSparkles,
-        tone: "workflow",
-        tooltip: "Browse all Wingman tools by purpose and working mode.",
+        title: "Browse the full working surface by purpose.",
       },
     ],
   },
   {
-    title: "Project Outputs",
-    tone: "output",
+    title: "Output",
+    note: "Keep work attached to the project record.",
+    tone: "proposal",
     items: [
       {
         label: "Projects",
         to: "/app/projects",
         icon: FolderKanban,
-        tone: "output",
-        tooltip: "Open saved projects, continue prior work and manage project context.",
+        title: "Resume the right project without digging through tools.",
       },
       {
-        label: "Proposal Builder",
+        label: "Proposal",
         to: "/app/tools/proposal",
         icon: FileText,
-        tone: "output",
-        tooltip: "Turn product and requirement selections into solution narrative, architecture and BOM output.",
+        title: "Turn the chosen path into a clean commercial pack.",
       },
       {
-        label: "System Templates",
+        label: "Systems",
         to: "/app/tools/templates",
         icon: Boxes,
-        tone: "output",
-        tooltip: "Reuse structured system patterns and accelerate repeatable proposal work.",
+        title: "Reuse structured solution patterns and outputs.",
       },
     ],
   },
@@ -132,254 +133,62 @@ function getActiveProjectName(): string {
   return localStorage.getItem("wm:activeProjectName") || "General sales mode";
 }
 
-type NavItemProps = {
-  item: NavItemModel;
+type MissionControlNavProps = {
+  meta: WorkspaceMeta;
 };
 
-function NavItem({ item }: NavItemProps) {
-  const [hovered, setHovered] = useState(false);
-  const Icon = item.icon;
-
-  return (
-    <div style={navItemWrapStyle}>
-      <NavLink
-        to={item.to}
-        end={item.to === "/app/tools" || item.to === "/app/projects"}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        onFocus={() => setHovered(true)}
-        onBlur={() => setHovered(false)}
-        style={({ isActive }) => ({
-          ...navItemBaseStyle,
-          ...toneLinkStyle(item.tone),
-          ...(isActive ? navItemActiveStyle : null),
-        })}
-      >
-        <span style={iconWrapStyle}>
-          <Icon size={16} />
-        </span>
-        <span style={labelStyle}>{item.label}</span>
-      </NavLink>
-
-      <div
-        style={{
-          ...tooltipStyle,
-          ...(hovered ? tooltipVisibleStyle : tooltipHiddenStyle),
-        }}
-      >
-        {item.tooltip}
-      </div>
-    </div>
-  );
-}
-
-export default function MissionControlNav() {
+export default function MissionControlNav({ meta }: MissionControlNavProps) {
   const projectName = useMemo(() => getActiveProjectName(), []);
 
   return (
-    <aside style={shellStyle} aria-label="Wingman navigation">
-      <div style={projectPanelStyle}>
-        <div style={projectEyebrowStyle}>Active Project</div>
-        <div style={projectNameStyle}>{projectName}</div>
-        <div style={projectSubtleStyle}>
-          Quick tools support live selling. Workflow tools build structured outputs.
+    <div className="wm-nav" aria-label="Wingman navigation">
+      <div className="wm-nav__context">
+        <div className="wm-nav__context-head">
+          <span className="wm-nav__context-kicker">Flight Deck</span>
+          <span className="wm-nav__context-tone">{meta.label}</span>
+        </div>
+        <strong className="wm-nav__context-project">{projectName}</strong>
+        <p className="wm-nav__context-copy">{meta.description}</p>
+        <div className="wm-nav__flow">
+          <span>Discovery</span>
+          <span>Design</span>
+          <span>Proposal</span>
         </div>
       </div>
 
-      <nav style={navStyle}>
+      <nav className="wm-nav__sections">
         {SECTIONS.map((section) => (
-          <section key={section.title} style={{ ...sectionStyle, ...toneSectionStyle(section.tone) }}>
-            <div style={sectionTitleStyle}>{section.title}</div>
-            <div style={sectionItemsStyle}>
-              {section.items.map((item) => (
-                <NavItem key={`${section.title}-${item.label}`} item={item} />
-              ))}
+          <section key={section.title} className="wm-nav__section" data-tone={section.tone}>
+            <div className="wm-nav__section-head">
+              <span className="wm-nav__section-title">{section.title}</span>
+              <span className="wm-nav__section-note">{section.note}</span>
+            </div>
+
+            <div className="wm-nav__items">
+              {section.items.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <NavLink
+                    key={`${section.title}-${item.to}`}
+                    to={item.to}
+                    end={item.to === "/app/tools" || item.to === "/app/projects"}
+                    className={({ isActive }) =>
+                      isActive ? "wm-nav__item is-active" : "wm-nav__item"
+                    }
+                    title={item.title}
+                  >
+                    <span className="wm-nav__item-icon">
+                      <Icon size={15} />
+                    </span>
+                    <span className="wm-nav__item-label">{item.label}</span>
+                  </NavLink>
+                );
+              })}
             </div>
           </section>
         ))}
       </nav>
-    </aside>
+    </div>
   );
 }
-
-function toneSectionStyle(tone: NavTone): CSSProperties {
-  if (tone === "quick") {
-    return {
-      boxShadow: "inset 3px 0 0 rgba(110,168,255,0.16)",
-    };
-  }
-
-  if (tone === "workflow") {
-    return {
-      boxShadow: "inset 3px 0 0 rgba(67,195,123,0.16)",
-    };
-  }
-
-  return {
-    boxShadow: "inset 3px 0 0 rgba(214,139,79,0.16)",
-  };
-}
-
-function toneLinkStyle(tone: NavTone): CSSProperties {
-  if (tone === "quick") {
-    return {
-      border: "1px solid rgba(255,255,255,0.03)",
-      background: "rgba(255,255,255,0.02)",
-    };
-  }
-
-  if (tone === "workflow") {
-    return {
-      border: "1px solid rgba(255,255,255,0.03)",
-      background: "rgba(255,255,255,0.02)",
-    };
-  }
-
-  return {
-    border: "1px solid rgba(255,255,255,0.03)",
-    background: "rgba(255,255,255,0.02)",
-  };
-}
-
-const shellStyle: CSSProperties = {
-  display: "grid",
-  gap: 14,
-  alignContent: "start",
-  padding: 4,
-  color: "var(--wm-text, #e5eef8)",
-  position: "relative",
-  overflow: "visible",
-  zIndex: 20,
-};
-
-const projectPanelStyle: CSSProperties = {
-  display: "grid",
-  gap: 6,
-  borderRadius: 18,
-  padding: 14,
-  border: "1px solid var(--wm-border-default)",
-  background: "linear-gradient(180deg, rgba(11,24,44,0.92), rgba(8,18,34,0.94))",
-  boxShadow: "var(--wm-glow-soft)",
-};
-
-const projectEyebrowStyle: CSSProperties = {
-  fontSize: 10,
-  textTransform: "uppercase",
-  letterSpacing: 1.2,
-  opacity: 0.72,
-  fontWeight: 800,
-};
-
-const projectNameStyle: CSSProperties = {
-  fontSize: 14,
-  fontWeight: 900,
-  lineHeight: 1.2,
-};
-
-const projectSubtleStyle: CSSProperties = {
-  fontSize: 12,
-  lineHeight: 1.45,
-  color: "var(--wm-text-soft)",
-};
-
-const navStyle: CSSProperties = {
-  display: "grid",
-  gap: 12,
-  overflow: "visible",
-};
-
-const sectionStyle: CSSProperties = {
-  display: "grid",
-  gap: 10,
-  borderRadius: 18,
-  padding: 12,
-  border: "1px solid var(--wm-border-default)",
-  background: "linear-gradient(180deg, rgba(11,24,44,0.92), rgba(8,18,34,0.92))",
-  boxShadow: "var(--wm-glow-soft)",
-  overflow: "visible",
-  position: "relative",
-  zIndex: 1,
-};
-
-const sectionTitleStyle: CSSProperties = {
-  fontSize: 11,
-  textTransform: "uppercase",
-  letterSpacing: 1,
-  color: "var(--wm-text-muted)",
-  fontWeight: 900,
-  padding: "0 2px",
-};
-
-const sectionItemsStyle: CSSProperties = {
-  display: "grid",
-  gap: 6,
-  overflow: "visible",
-};
-
-const navItemWrapStyle: CSSProperties = {
-  position: "relative",
-  overflow: "visible",
-  zIndex: 2,
-};
-
-const navItemBaseStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "28px 1fr",
-  alignItems: "center",
-  gap: 8,
-  minHeight: 42,
-  padding: "8px 10px",
-  borderRadius: 12,
-  textDecoration: "none",
-  color: "inherit",
-  fontSize: 13,
-  fontWeight: 700,
-  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02)",
-  transition: "background var(--wm-fast), border-color var(--wm-fast), transform var(--wm-fast)",
-};
-
-const navItemActiveStyle: CSSProperties = {
-  border: "1px solid var(--wm-accent-line)",
-  background: "linear-gradient(180deg, rgba(20,39,70,0.98), rgba(13,29,54,0.98))",
-  boxShadow: "var(--wm-glow-soft)",
-};
-
-const iconWrapStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 24,
-  height: 24,
-  borderRadius: 8,
-  background: "rgba(255,255,255,0.05)",
-  color: "var(--wm-text-soft)",
-};
-
-const labelStyle: CSSProperties = {
-  lineHeight: 1.2,
-};
-
-const tooltipStyle: CSSProperties = {
-  position: "absolute",
-  left: "calc(100% + 8px)",
-  top: "50%",
-  transform: "translateY(-50%)",
-  zIndex: 9999,
-  width: 260,
-  borderRadius: 12,
-  padding: 10,
-  fontSize: 12,
-  lineHeight: 1.45,
-  border: "1px solid var(--wm-border-default)",
-  background: "linear-gradient(180deg, rgba(8,18,34,0.98), rgba(11,24,44,1))",
-  boxShadow: "0 18px 34px rgba(2,8,23,0.42)",
-  pointerEvents: "none",
-};
-
-const tooltipVisibleStyle: CSSProperties = {
-  opacity: 1,
-};
-
-const tooltipHiddenStyle: CSSProperties = {
-  opacity: 0,
-};

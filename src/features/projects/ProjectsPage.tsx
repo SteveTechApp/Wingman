@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { WM_ROUTES } from "@/core/wingman/routeMap";
-import WingmanSavedProjectsPanel from "@/features/projects/WingmanSavedProjectsPanel";
 import { getProjectResumeAction } from "@/features/projects/projectProductivity";
 import {
   deleteProject,
@@ -326,8 +325,6 @@ export default function ProjectsPage() {
           </div>
         )}
       </section>
-
-      <WingmanSavedProjectsPanel />
     </div>
   );
 }

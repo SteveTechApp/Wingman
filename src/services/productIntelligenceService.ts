@@ -5,6 +5,7 @@ import {
   resolveProductIntelligenceEndpoint,
   resolveProductIntelligenceHealthEndpoint,
 } from "@/app/api/runtimeEndpoint";
+import { getPersistedDeploymentSession } from "@/app/api/wingmanDeploymentClient";
 import type { CatalogDistance,
   CatalogIntegrationProfile,
   CatalogPowerProfile,
@@ -1400,9 +1401,14 @@ async function postJson<T>(endpoint: string, payload: unknown): Promise<{ ok: bo
     return { ok: false, status: 0, data: null };
   }
   try {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const token = getPersistedDeploymentSession()?.token;
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
     const response = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(payload ?? {}),
     });
     const data = (await response.json()) as T;

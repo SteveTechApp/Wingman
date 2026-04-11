@@ -7,6 +7,7 @@ import {
   WYRESTORM_SEED_CATALOG_FILE,
   WYRESTORM_SKU_MASTER_FILE,
 } from "./catalog/files.mjs";
+import { getWingmanRequestAuth } from "./wingman-app-store.mjs";
 
 const PRODUCT_INTELLIGENCE_MAX_RECORDS = Math.max(100, Number(process.env.PRODUCT_INTELLIGENCE_MAX_RECORDS || 4000));
 
@@ -208,6 +209,19 @@ function normalizePortType(value) {
   if (text === "rj45" || text === "lan" || text === "ethernet") return "RJ45";
   if (text === "mic" || text === "mics") return "Mic";
   return cleanText(value).toUpperCase() === "HDMI" ? "HDMI" : cleanText(value);
+}
+
+async function requireProductIntelligenceAdmin(req, res, url, sendJson) {
+  const auth = await getWingmanRequestAuth(req, url);
+  if (!auth.ok) {
+    sendJson(res, 401, { ok: false, error: auth.error });
+    return null;
+  }
+  if (!auth.permissions?.canManageWorkspace) {
+    sendJson(res, 403, { ok: false, error: "Workspace administrator access is required." });
+    return null;
+  }
+  return auth;
 }
 
 function skuMasterPorts(description) {
@@ -1109,7 +1123,9 @@ export async function handleProductIntelligenceHealthGet(_req, res, { sendJson }
   }
 }
 
-export async function handleProductIntelligenceRefreshPost(req, res, { sendJson, parseJsonBody }) {
+export async function handleProductIntelligenceRefreshPost(req, res, url, { sendJson, parseJsonBody }) {
+  const auth = await requireProductIntelligenceAdmin(req, res, url, sendJson);
+  if (!auth) return;
   try {
     try {
       await parseJsonBody(req);
@@ -1131,7 +1147,9 @@ export async function handleProductIntelligenceRefreshPost(req, res, { sendJson,
   }
 }
 
-export async function handleProductIntelligenceUpsertPost(req, res, { sendJson, parseJsonBody }) {
+export async function handleProductIntelligenceUpsertPost(req, res, url, { sendJson, parseJsonBody }) {
+  const auth = await requireProductIntelligenceAdmin(req, res, url, sendJson);
+  if (!auth) return;
   let body = {};
   try {
     body = await parseJsonBody(req);
@@ -1171,7 +1189,9 @@ export async function handleProductIntelligenceUpsertPost(req, res, { sendJson, 
   }
 }
 
-export async function handleProductIntelligenceEvidencePost(req, res, { sendJson, parseJsonBody }) {
+export async function handleProductIntelligenceEvidencePost(req, res, url, { sendJson, parseJsonBody }) {
+  const auth = await requireProductIntelligenceAdmin(req, res, url, sendJson);
+  if (!auth) return;
   let body = {};
   try {
     body = await parseJsonBody(req);
@@ -1212,7 +1232,9 @@ export async function handleProductIntelligenceEvidencePost(req, res, { sendJson
   }
 }
 
-export async function handleProductIntelligenceStatusPost(req, res, { sendJson, parseJsonBody }) {
+export async function handleProductIntelligenceStatusPost(req, res, url, { sendJson, parseJsonBody }) {
+  const auth = await requireProductIntelligenceAdmin(req, res, url, sendJson);
+  if (!auth) return;
   let body = {};
   try {
     body = await parseJsonBody(req);

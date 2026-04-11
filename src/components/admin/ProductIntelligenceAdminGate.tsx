@@ -1,74 +1,48 @@
 import * as React from "react";
-
-const WM_ADMIN_GATE_KEY = "wm:product-intelligence:admin";
-const WM_ADMIN_GATE_PASSWORD = "W1ngm4n!";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 type Props = {
   children: React.ReactNode;
 };
 
 export default function ProductIntelligenceAdminGate({ children }: Props) {
-  const [unlocked, setUnlocked] = React.useState<boolean>(() => {
-    try {
-      return window.sessionStorage.getItem(WM_ADMIN_GATE_KEY) === "ok";
-    } catch {
-      return false;
-    }
-  });
+  const auth = useAuth();
+  const canAdmin = Boolean(
+    auth.permissions.canManageWorkspace ||
+      auth.workspaceRole === "admin" ||
+      auth.workspaceRole === "owner" ||
+      auth.user?.role === "admin",
+  );
 
-  const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState("");
-
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (password === WM_ADMIN_GATE_PASSWORD) {
-      try {
-        window.sessionStorage.setItem(WM_ADMIN_GATE_KEY, "ok");
-      } catch {
-      }
-      setUnlocked(true);
-      setPassword("");
-      setError("");
-      return;
-    }
-
-    setError("Incorrect admin password.");
-  };
-
-  if (unlocked) {
+  if (canAdmin) {
     return <>{children}</>;
   }
+
+  const accessLabel = auth.workspaceRole ?? auth.user?.role ?? "guest";
 
   return (
     <div className="wm-admin-gate">
       <div className="wm-admin-gate__backdrop" />
       <div className="wm-admin-gate__dialog" role="dialog" aria-modal="true" aria-labelledby="wm-admin-gate-title">
-        <div className="wm-admin-gate__lock" aria-hidden="true">LOCK</div>
+        <div className="wm-admin-gate__lock" aria-hidden="true">ADMIN</div>
         <div id="wm-admin-gate-title" className="wm-admin-gate__title">
           ADMIN PERMISSION REQUIRED
         </div>
         <div className="wm-admin-gate__copy">
-          This page is restricted to authorised Wingman administrators.
+          Product Intelligence editing is restricted to workspace owners and admins.
         </div>
-
-        <form className="wm-admin-gate__form" onSubmit={onSubmit}>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              if (error) setError("");
-            }}
-            className="wm-admin-gate__input"
-            placeholder="Enter admin password"
-            autoFocus
-          />
-          {error ? <div className="wm-admin-gate__error">{error}</div> : null}
-          <button type="submit" className="wm-btn wm-admin-gate__button">
-            Unlock
-          </button>
-        </form>
+        <div className="wm-admin-gate__error">
+          Signed in with {accessLabel} access{auth.user?.email ? ` as ${auth.user.email}` : "."}
+        </div>
+        <div className="wm-admin-gate__copy">
+          Ask a workspace owner to grant admin access instead of relying on shared client-side passwords.
+        </div>
+        <div className="wm-admin-gate__form">
+          <Link to="/app/tools" className="wm-btn wm-admin-gate__button">
+            Return to tools
+          </Link>
+        </div>
       </div>
     </div>
   );

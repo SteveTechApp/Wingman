@@ -1,18 +1,21 @@
-import * as React from "react";
+import { type ReactNode } from "react";
+
 import { AuthProvider } from "@/context/AuthContext";
 import { UserProvider } from "@/context/UserContext";
 import { ProjectProvider } from "@/context/ProjectContext";
-import { GenerationProvider } from "@/context/GenerationContext";
 
-export default function WingmanProviders(props: { children: React.ReactNode }) {
+type WingmanProvidersProps = {
+  children: ReactNode;
+};
+
+export default function WingmanProviders({ children }: WingmanProvidersProps) {
   return (
     <AuthProvider>
       <UserProvider>
         <ProjectProvider>
-          <GenerationProvider>{props.children}</GenerationProvider>
+            {children}
         </ProjectProvider>
       </UserProvider>
     </AuthProvider>
   );
 }
-

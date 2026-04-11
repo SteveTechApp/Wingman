@@ -40,9 +40,6 @@ const wrapStyle: CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   overflow: "hidden",
-  border: "1px solid rgba(249,115,22,0.30)",
-  background: "linear-gradient(180deg, rgba(249,115,22,0.18), rgba(30,41,59,0.80))",
-  boxShadow: "0 10px 24px rgba(2,8,23,0.20)",
   flex: "0 0 auto",
   position: "relative",
 };
@@ -50,7 +47,7 @@ const wrapStyle: CSSProperties = {
 const imgStyle: CSSProperties = {
   width: "100%",
   height: "100%",
-  objectFit: "cover",
+  objectFit: "contain",
   display: "block",
 };
 

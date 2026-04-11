@@ -15,8 +15,15 @@ body.wm-force-authority #root {
 
 html.wm-force-authority {
   background:
-    radial-gradient(circle at top center, rgba(110, 168, 255, 0.08), transparent 34%),
-    linear-gradient(180deg, rgba(7, 17, 31, 1), rgba(5, 12, 22, 1)) !important;
+    radial-gradient(circle at top right, rgba(242, 138, 43, 0.08), transparent 24%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.015) 0,
+      rgba(255, 255, 255, 0.015) 1px,
+      transparent 1px,
+      transparent 120px
+    ),
+    linear-gradient(180deg, #05080d, #090d13 52%, #0d1117 100%) !important;
 }
 
 body.wm-force-authority {
@@ -26,8 +33,9 @@ body.wm-force-authority {
   line-height: var(--wm-lh-body) !important;
   color: var(--wm-text) !important;
   background:
-    radial-gradient(circle at top center, rgba(110, 168, 255, 0.06), transparent 36%),
-    linear-gradient(180deg, var(--wm-bg) 0%, #06101d 100%) !important;
+    radial-gradient(circle at top right, rgba(242, 138, 43, 0.07), transparent 22%),
+    radial-gradient(circle at top left, rgba(93, 127, 167, 0.08), transparent 24%),
+    linear-gradient(180deg, var(--wm-bg) 0%, #090d13 58%, #0d1117 100%) !important;
   -webkit-font-smoothing: antialiased !important;
   text-rendering: optimizeLegibility !important;
 }
@@ -61,8 +69,8 @@ body.wm-force-authority textarea {
 body.wm-force-authority :focus-visible {
   outline: none !important;
   box-shadow:
-    0 0 0 2px rgba(110, 168, 255, 0.18),
-    0 0 0 4px rgba(110, 168, 255, 0.08) !important;
+    0 0 0 2px rgba(242, 138, 43, 0.22),
+    0 0 0 4px rgba(242, 138, 43, 0.08) !important;
 }
 
 /* ---------- shell authority ---------- */
@@ -72,8 +80,16 @@ body.wm-force-authority .app-shell,
 body.wm-force-authority [data-wm-shell="root"] {
   min-height: 100vh !important;
   background:
-    radial-gradient(circle at top center, rgba(110, 168, 255, 0.06), transparent 34%),
-    linear-gradient(180deg, var(--wm-bg) 0%, #06101d 100%) !important;
+    radial-gradient(circle at top right, rgba(242, 138, 43, 0.06), transparent 24%),
+    radial-gradient(circle at top left, rgba(93, 127, 167, 0.07), transparent 22%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.015) 0,
+      rgba(255, 255, 255, 0.015) 1px,
+      transparent 1px,
+      transparent 120px
+    ),
+    linear-gradient(180deg, var(--wm-bg) 0%, #090d13 58%, #0d1117 100%) !important;
   color: var(--wm-text) !important;
 }
 
@@ -91,8 +107,10 @@ body.wm-force-authority [data-wm-topbar] {
   height: var(--wm-topbar-h) !important;
   border-bottom: 1px solid var(--wm-border-default) !important;
   background:
-    linear-gradient(180deg, rgba(8, 18, 34, 0.96), rgba(8, 18, 34, 0.88)) !important;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.18) !important;
+    linear-gradient(180deg, rgba(9, 13, 18, 0.98), rgba(11, 16, 22, 0.96)) !important;
+  box-shadow:
+    inset 0 -1px 0 rgba(255,255,255,0.03),
+    0 14px 30px rgba(0,0,0,0.24) !important;
   position: sticky !important;
   top: 0 !important;
   z-index: 40 !important;
@@ -106,7 +124,7 @@ body.wm-force-authority [data-wm-sidebar] {
   width: var(--wm-sidebar-w) !important;
   border-right: 1px solid var(--wm-border-default) !important;
   background:
-    linear-gradient(180deg, rgba(6, 18, 32, 0.96), rgba(5, 14, 26, 0.98)) !important;
+    linear-gradient(180deg, rgba(9, 13, 18, 0.96), rgba(11, 16, 22, 0.98)) !important;
   overflow: auto !important;
   padding: var(--wm-space-4) !important;
 }
@@ -137,8 +155,19 @@ body.wm-force-authority .wm-page-header {
   border: 1px solid var(--wm-border-default) !important;
   border-radius: var(--wm-radius-lg) !important;
   background:
-    linear-gradient(180deg, rgba(10, 22, 40, 0.92), rgba(8, 18, 34, 0.90)) !important;
+    linear-gradient(180deg, rgba(16, 22, 30, 0.96), rgba(11, 16, 22, 0.94)) !important;
   box-shadow: var(--wm-glow-panel) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+body.wm-force-authority .wm-page-header::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  background:
+    linear-gradient(120deg, transparent 0%, transparent 55%, rgba(242, 138, 43, 0.08) 100%) !important;
 }
 
 body.wm-force-authority .wm-page-header__top {
@@ -155,14 +184,14 @@ body.wm-force-authority .wm-page-header__eyebrow {
   gap: var(--wm-space-2) !important;
   min-height: 28px !important;
   padding: 0 12px !important;
-  border: 1px solid var(--wm-accent-line) !important;
-  border-radius: var(--wm-radius-pill) !important;
-  background: var(--wm-accent-wash) !important;
-  color: var(--wm-accent-strong) !important;
+  border: 1px solid var(--wm-brand-line) !important;
+  border-radius: 10px !important;
+  background: var(--wm-brand-soft) !important;
+  color: #ffd3ab !important;
   font-size: var(--wm-fs-caption) !important;
   font-weight: 800 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.1em !important;
+  letter-spacing: 0.12em !important;
 }
 
 body.wm-force-authority .wm-page-header__actions {
@@ -176,8 +205,10 @@ body.wm-force-authority .wm-page-title {
   margin: 0 !important;
   font-size: var(--wm-fs-page) !important;
   line-height: var(--wm-lh-tight) !important;
-  letter-spacing: -0.03em !important;
+  letter-spacing: 0.01em !important;
   font-weight: 800 !important;
+  font-family: var(--wm-font-display) !important;
+  text-transform: uppercase !important;
   color: var(--wm-text) !important;
 }
 
@@ -203,7 +234,7 @@ body.wm-force-authority .wm-section {
   border: 1px solid var(--wm-border-default) !important;
   border-radius: var(--wm-radius-lg) !important;
   background:
-    linear-gradient(180deg, rgba(10, 22, 40, 0.92), rgba(8, 18, 34, 0.92)) !important;
+    linear-gradient(180deg, rgba(15, 21, 29, 0.96), rgba(11, 16, 22, 0.94)) !important;
   box-shadow: var(--wm-glow-panel) !important;
   overflow: hidden !important;
 }
@@ -280,7 +311,7 @@ body.wm-force-authority .wm-stat {
   border: 1px solid var(--wm-border-subtle) !important;
   border-radius: var(--wm-radius-md) !important;
   background:
-    linear-gradient(180deg, rgba(11, 24, 44, 0.88), rgba(8, 18, 34, 0.88)) !important;
+    linear-gradient(180deg, rgba(18, 24, 32, 0.92), rgba(12, 17, 23, 0.9)) !important;
 }
 
 body.wm-force-authority .wm-stat__label {
@@ -352,8 +383,8 @@ body.wm-force-authority textarea:focus,
 body.wm-force-authority .wm-input:focus,
 body.wm-force-authority .wm-select:focus,
 body.wm-force-authority .wm-textarea:focus {
-  border-color: var(--wm-accent) !important;
-  box-shadow: 0 0 0 3px rgba(110, 168, 255, 0.12) !important;
+  border-color: var(--wm-brand) !important;
+  box-shadow: 0 0 0 3px rgba(242, 138, 43, 0.12) !important;
 }
 
 /* ---------- global button override ---------- */
@@ -368,9 +399,9 @@ body.wm-force-authority [role="button"] {
   min-height: var(--wm-control-h) !important;
   padding: 0 14px !important;
   border: 1px solid var(--wm-border-default) !important;
-  border-radius: var(--wm-radius-pill) !important;
+  border-radius: 12px !important;
   background:
-    linear-gradient(180deg, rgba(14, 28, 50, 0.98), rgba(10, 22, 40, 0.98)) !important;
+    linear-gradient(180deg, rgba(17, 24, 33, 0.98), rgba(12, 17, 23, 0.98)) !important;
   color: var(--wm-text) !important;
   cursor: pointer !important;
   transition:
@@ -398,9 +429,9 @@ body.wm-force-authority [role="button"]:active {
 body.wm-force-authority .wm-btn--primary {
   border-color: var(--wm-accent-line) !important;
   background:
-    linear-gradient(180deg, rgba(38, 83, 147, 0.98), rgba(28, 65, 122, 0.98)) !important;
-  color: #f5f9ff !important;
-  box-shadow: 0 8px 22px rgba(18, 45, 88, 0.26) !important;
+    linear-gradient(180deg, rgba(86, 116, 151, 0.96), rgba(63, 88, 116, 0.98)) !important;
+  color: #f6f9fc !important;
+  box-shadow: 0 8px 22px rgba(20, 28, 38, 0.24) !important;
 }
 
 body.wm-force-authority .wm-btn--secondary {
@@ -410,8 +441,9 @@ body.wm-force-authority .wm-btn--secondary {
 body.wm-force-authority .wm-btn--brand {
   border-color: var(--wm-brand-line) !important;
   background:
-    linear-gradient(180deg, rgba(126, 79, 34, 0.98), rgba(96, 59, 24, 0.98)) !important;
+    linear-gradient(180deg, rgba(242, 138, 43, 0.96), rgba(183, 95, 18, 0.98)) !important;
   color: #fff7ef !important;
+  box-shadow: 0 10px 24px rgba(48, 25, 8, 0.22) !important;
 }
 
 body.wm-force-authority .wm-btn--quiet {
@@ -445,8 +477,8 @@ body.wm-force-authority .wm-chip {
   min-height: 34px !important;
   padding: 0 12px !important;
   border: 1px solid var(--wm-border-default) !important;
-  border-radius: var(--wm-radius-pill) !important;
-  background: rgba(12, 25, 45, 0.86) !important;
+  border-radius: 10px !important;
+  background: rgba(19, 25, 34, 0.9) !important;
   color: var(--wm-text-soft) !important;
   font-size: var(--wm-fs-meta) !important;
   font-weight: 700 !important;
@@ -457,8 +489,8 @@ body.wm-force-authority .wm-tab.is-active,
 body.wm-force-authority .wm-chip.is-active,
 body.wm-force-authority [aria-selected="true"].wm-tab {
   color: var(--wm-text) !important;
-  border-color: var(--wm-accent-line) !important;
-  background: var(--wm-accent-wash) !important;
+  border-color: var(--wm-brand-line) !important;
+  background: var(--wm-brand-soft) !important;
 }
 
 /* ---------- fields / grids ---------- */
@@ -511,7 +543,7 @@ body.wm-force-authority .wm-sidebar .project-output-group {
   border: 1px solid var(--wm-border-default) !important;
   border-radius: var(--wm-radius-lg) !important;
   background:
-    linear-gradient(180deg, rgba(11, 24, 44, 0.92), rgba(8, 18, 34, 0.92)) !important;
+    linear-gradient(180deg, rgba(15, 21, 29, 0.96), rgba(11, 16, 22, 0.94)) !important;
   box-shadow: var(--wm-glow-soft) !important;
 }
 
@@ -534,8 +566,8 @@ body.wm-force-authority .wm-sidebar button {
 body.wm-force-authority .wm-sidebar .active,
 body.wm-force-authority .wm-sidebar [aria-current="page"],
 body.wm-force-authority .wm-sidebar [data-active="true"] {
-  border-color: var(--wm-accent-line) !important;
-  background: linear-gradient(180deg, rgba(20, 39, 70, 0.98), rgba(13, 29, 54, 0.98)) !important;
+  border-color: var(--wm-brand-line) !important;
+  background: linear-gradient(180deg, rgba(52, 34, 18, 0.94), rgba(21, 18, 16, 0.98)) !important;
   color: var(--wm-text) !important;
 }
 

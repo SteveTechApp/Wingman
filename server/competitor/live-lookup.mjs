@@ -51,8 +51,10 @@ function summariseProductPage(html,text,manufacturer,model,url){
 function resolveManufacturerProductUrl(manufacturer, model, productUrl) {
   const m = String(manufacturer || "").toLowerCase().trim();
   const sku = String(model || "").trim();
+  const explicitUrl = String(productUrl || "").trim();
 
-  if (!sku) return productUrl;
+  if (explicitUrl) return explicitUrl;
+  if (!sku) return explicitUrl;
 
   if (m === "extron") return `https://www.extron.com/product/${sku.toLowerCase()}`;
   if (m === "atlona") return `https://atlona.com/product/${sku}`;
@@ -60,7 +62,7 @@ function resolveManufacturerProductUrl(manufacturer, model, productUrl) {
   if (m === "kramer") return `https://www1.kramerav.com/Product/${sku}`;
   if (m === "crestron") return `https://www.crestron.com/Products/Model/${sku}`;
 
-  return productUrl;
+  return explicitUrl;
 }
 const LIVE_LOOKUP_CACHE = new Map();
 
@@ -137,8 +139,7 @@ export async function resolveCompetitorLiveLookup(payload) {
   if (cached) {
     return {
       ok: true,
-      html: cached.html,
-      text: cached.text,
+      ...cached,
       cacheHit: true,
       fetchedAt: cached.fetchedAt,
     };
@@ -164,9 +165,14 @@ export async function resolveCompetitorLiveLookup(payload) {
     };
   }
 
+  const summaryRecord = summariseProductPage(html, text, manufacturer, model, productUrl);
   const record = {
     html,
     text,
+    resolvedUrl: productUrl,
+    title: summaryRecord.title,
+    summary: summaryRecord.summary,
+    keySpecs: summaryRecord.keySpecs,
     fetchedAt: new Date().toISOString(),
   };
 
@@ -174,8 +180,7 @@ export async function resolveCompetitorLiveLookup(payload) {
 
   return {
     ok: true,
-    html,
-    text,
+    ...record,
     cacheHit: false,
     fetchedAt: record.fetchedAt,
   };

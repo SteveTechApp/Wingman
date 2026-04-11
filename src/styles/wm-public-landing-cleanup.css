@@ -1,0 +1,55 @@
+html[data-wm-public-landing-clean="true"] body .wm-public-landing-hide-brand-source {
+  display: none !important;
+}
+
+html[data-wm-public-landing-clean="true"] body .wm-public-landing-clean-main {
+  width: min(1040px, calc(100dvw - 56px)) !important;
+  max-width: min(1040px, calc(100dvw - 56px)) !important;
+  margin-inline: auto !important;
+}
+
+html[data-wm-public-landing-clean="true"] body .wm-public-landing-clean-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  justify-content: center !important;
+  align-items: start !important;
+}
+
+html[data-wm-public-landing-clean="true"] body .wm-public-landing-clean-hero {
+  width: 100% !important;
+  max-width: none !important;
+  margin-inline: auto !important;
+}
+
+html[data-wm-public-landing-clean="true"] body .wm-public-landing-clean-brand {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin: 0 auto 20px !important;
+}
+
+html[data-wm-public-landing-clean="true"] body .wm-public-landing-clean-brand-image {
+  display: block !important;
+  width: auto !important;
+  height: 126px !important;
+  max-width: min(420px, 70vw) !important;
+  object-fit: contain !important;
+  background: transparent !important;
+}
+
+html[data-wm-public-landing-clean="true"] body [data-wm-landing-hidden="true"] {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  html[data-wm-public-landing-clean="true"] body .wm-public-landing-clean-main {
+    width: min(calc(100dvw - 28px), 100%) !important;
+    max-width: min(calc(100dvw - 28px), 100%) !important;
+  }
+
+  html[data-wm-public-landing-clean="true"] body .wm-public-landing-clean-brand-image {
+    height: 88px !important;
+    max-width: 72vw !important;
+  }
+}

@@ -2,17 +2,19 @@
   gap: 18px;
 }
 
-.wm-project-definition-list {
+.wm-project-definition-list,
+.wm-project-form,
+.wm-project-activity-list,
+.wm-project-activity-section {
   display: grid;
-  gap: 12px;
-  margin: 0;
+  gap: 14px;
 }
 
 .wm-project-definition-row {
   display: grid;
   gap: 4px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(123, 169, 234, 0.1);
+  border-bottom: 1px solid var(--wm-border-subtle);
 }
 
 .wm-project-definition-row:last-child {
@@ -28,16 +30,16 @@
 .wm-project-activity-head span,
 .wm-project-activity-eyebrow {
   color: var(--wm-text-muted);
-  font-size: 0.72rem;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .wm-project-definition-row dd {
   margin: 0;
   color: var(--wm-text);
-  font-weight: 650;
+  font-weight: 700;
   line-height: 1.45;
 }
 
@@ -47,26 +49,27 @@
 .wm-project-activity-item,
 .wm-project-status {
   border-radius: 18px;
-  border: 1px solid rgba(123, 169, 234, 0.1);
-  background: rgba(9, 21, 38, 0.56);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--wm-border-default);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wm-project-next-card,
+.wm-project-commercial-state,
+.wm-project-status,
+.wm-project-activity-item {
+  padding: 16px;
 }
 
 .wm-project-next-card {
   display: grid;
   gap: 8px;
-  padding: 16px;
 }
 
-.wm-project-next-card strong {
+.wm-project-next-card strong,
+.wm-project-commercial-state strong,
+.wm-project-asset-card strong,
+.wm-project-activity-title {
   color: var(--wm-text);
-  font-size: 1rem;
-  font-weight: 750;
-}
-
-.wm-project-next-card p {
-  color: var(--wm-text-soft);
-  line-height: 1.55;
 }
 
 .wm-project-asset-grid {
@@ -81,21 +84,9 @@
   padding: 14px 15px;
 }
 
-.wm-project-asset-card strong {
-  color: var(--wm-text);
-  font-weight: 750;
-}
-
 .wm-project-main-card,
 .wm-project-activity-card {
   align-content: start;
-}
-
-.wm-project-form,
-.wm-project-activity-list,
-.wm-project-activity-section {
-  display: grid;
-  gap: 14px;
 }
 
 .wm-project-form-grid {
@@ -113,43 +104,24 @@
   grid-column: 1 / -1;
 }
 
-.wm-project-field .wm-form-input,
-.wm-project-field textarea.wm-form-input {
-  width: 100%;
-}
-
 .wm-project-field textarea.wm-form-input {
   min-height: 148px;
-  resize: vertical;
-}
-
-.wm-project-commercial-state {
-  display: grid;
-  gap: 4px;
-  padding: 14px 15px;
-}
-
-.wm-project-commercial-state strong {
-  color: var(--wm-text);
-  font-size: 1rem;
-  font-weight: 750;
 }
 
 .wm-project-status {
-  padding: 14px 15px;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .wm-project-status.is-good {
-  border-color: rgba(74, 222, 128, 0.16);
-  background: rgba(20, 83, 45, 0.2);
-  color: #dcfce7;
+  border-color: rgba(84, 211, 157, 0.22);
+  background: rgba(84, 211, 157, 0.12);
+  color: #dffdf0;
 }
 
 .wm-project-status.is-warn {
-  border-color: rgba(248, 113, 113, 0.14);
-  background: rgba(60, 12, 18, 0.24);
-  color: #fee2e2;
+  border-color: rgba(255, 123, 139, 0.22);
+  background: rgba(255, 123, 139, 0.12);
+  color: #ffe5e8;
 }
 
 .wm-project-activity-head {
@@ -162,21 +134,7 @@
 .wm-project-activity-head h3 {
   margin: 0;
   color: var(--wm-text);
-  font-size: 0.98rem;
-  font-weight: 750;
-}
-
-.wm-project-activity-item {
-  display: grid;
-  gap: 6px;
-  padding: 14px 15px;
-}
-
-.wm-project-activity-title {
-  color: var(--wm-text);
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1.4;
+  font-size: 16px;
 }
 
 .wm-project-activity-copy,
@@ -187,17 +145,11 @@
 }
 
 .wm-project-activity-meta {
-  font-size: 0.84rem;
+  font-size: 13px;
 }
 
 .wm-project-notes-body {
   white-space: pre-line;
-}
-
-@media (max-width: 1180px) {
-  .wm-project-asset-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 760px) {

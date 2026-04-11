@@ -1,16 +1,10 @@
 import * as React from "react";
-import { Maximize2, Minus, X } from "lucide-react";
+import { Expand, Maximize2, Minimize2, Minus, X } from "lucide-react";
 
 import GuruLogo from "@/components/branding/GuruLogo";
 import GuruDock from "@/features/ai/guru/GuruDock";
+import { getDefaultGuruBounds, type GuruBounds } from "@/features/ai/guru/guruLayout";
 import "./guru-helper-window.css";
-
-type GuruBounds = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
 
 type GuruHelperWindowProps = {
   open: boolean;
@@ -42,6 +36,18 @@ function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
 
+function getFullscreenBounds(): GuruBounds {
+  const x = 14;
+  const y = 88;
+
+  return {
+    x,
+    y,
+    width: Math.max(420, window.innerWidth - x - 14),
+    height: Math.max(480, window.innerHeight - y - 14),
+  };
+}
+
 export default function GuruHelperWindow({
   open,
   minimized,
@@ -52,11 +58,26 @@ export default function GuruHelperWindow({
 }: GuruHelperWindowProps) {
   const dragRef = React.useRef<DragState>(null);
   const frameRef = React.useRef<HTMLElement | null>(null);
+  const restoreBoundsRef = React.useRef<GuruBounds | null>(null);
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (open || !isFullscreen) {
+      return;
+    }
+
+    if (restoreBoundsRef.current) {
+      onBoundsChange(() => restoreBoundsRef.current ?? getDefaultGuruBounds());
+    }
+
+    restoreBoundsRef.current = null;
+    setIsFullscreen(false);
+  }, [isFullscreen, onBoundsChange, open]);
 
   React.useEffect(() => {
     function onMouseMove(event: MouseEvent) {
       const active = dragRef.current;
-      if (!active) {
+      if (!active || isFullscreen) {
         return;
       }
 
@@ -97,7 +118,21 @@ export default function GuruHelperWindow({
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
     };
-  }, [bounds.height, bounds.width, onBoundsChange]);
+  }, [bounds.height, bounds.width, isFullscreen, onBoundsChange]);
+
+  React.useEffect(() => {
+    if (!isFullscreen) {
+      return;
+    }
+
+    function syncFullscreenBounds() {
+      onBoundsChange(() => getFullscreenBounds());
+    }
+
+    syncFullscreenBounds();
+    window.addEventListener("resize", syncFullscreenBounds);
+    return () => window.removeEventListener("resize", syncFullscreenBounds);
+  }, [isFullscreen, onBoundsChange]);
 
   React.useLayoutEffect(() => {
     const frame = frameRef.current;
@@ -112,6 +147,10 @@ export default function GuruHelperWindow({
   }, [bounds.height, bounds.width, bounds.x, bounds.y]);
 
   function beginMove(event: React.MouseEvent<HTMLElement>) {
+    if (isFullscreen) {
+      return;
+    }
+
     event.preventDefault();
     dragRef.current = {
       mode: "move",
@@ -124,6 +163,10 @@ export default function GuruHelperWindow({
   }
 
   function beginResize(event: React.MouseEvent<HTMLButtonElement>) {
+    if (isFullscreen) {
+      return;
+    }
+
     event.preventDefault();
     event.stopPropagation();
     dragRef.current = {
@@ -136,50 +179,73 @@ export default function GuruHelperWindow({
     document.body.classList.add("wm-guru-dragging");
   }
 
+  function resetWindowBounds() {
+    setIsFullscreen(false);
+    restoreBoundsRef.current = null;
+    onBoundsChange(() => getDefaultGuruBounds());
+  }
+
+  function toggleFullscreen() {
+    dragRef.current = null;
+    document.body.classList.remove("wm-guru-dragging");
+
+    if (isFullscreen) {
+      const nextBounds = restoreBoundsRef.current ?? getDefaultGuruBounds();
+      setIsFullscreen(false);
+      onBoundsChange(() => nextBounds);
+      return;
+    }
+
+    restoreBoundsRef.current = bounds;
+    setIsFullscreen(true);
+    onBoundsChange(() => getFullscreenBounds());
+  }
+
   if (!open || minimized) {
     return null;
   }
 
   return (
-    <section className="wm-guru-window" ref={frameRef} role="dialog" aria-label="Guru assistant">
-      <header className="wm-guru-window-header" onMouseDown={beginMove}>
+    <section
+      className={`wm-guru-window${isFullscreen ? " is-fullscreen" : ""}`}
+      ref={frameRef}
+      role="dialog"
+      aria-label="Guru assistant"
+    >
+      <header className="wm-guru-window-header" onMouseDown={beginMove} onDoubleClick={toggleFullscreen}>
         <div className="wm-guru-window-brand">
-          <div className="wm-guru-window-logo-wrap">
-            <GuruLogo className="wm-guru-window-logo" alt="Guru" />
-          </div>
+          <GuruLogo className="wm-guru-window-logo" alt="Guru" />
 
           <div className="wm-guru-window-title-copy">
             <strong>Guru</strong>
-            <span>Chat-first sales, product and technical support</span>
+            <span>WyreStorm sales, product and technical chat</span>
           </div>
         </div>
 
         <div className="wm-guru-window-actions" onMouseDown={(event) => event.stopPropagation()}>
-          <button type="button" className="wm-guru-window-btn" onClick={onMinimize} title="Minimise">
-            <Minus size={16} />
+          <button
+            type="button"
+            className="wm-guru-window-btn"
+            onClick={resetWindowBounds}
+            title="Reset size and position"
+            aria-label="Reset size and position"
+          >
+            <Expand size={17} />
           </button>
           <button
             type="button"
             className="wm-guru-window-btn"
-            onClick={() => {
-              onBoundsChange(() => {
-                const width = Math.max(420, Math.min(540, window.innerWidth - 32));
-                const height = Math.max(520, Math.min(720, window.innerHeight - 120));
-
-                return {
-                  x: Math.max(16, window.innerWidth - width - 28),
-                  y: Math.max(84, window.innerHeight - height - 24),
-                  width,
-                  height,
-                };
-              });
-            }}
-            title="Reset size and position"
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit full screen" : "Full screen"}
+            aria-label={isFullscreen ? "Exit full screen" : "Full screen"}
           >
-            <Maximize2 size={16} />
+            {isFullscreen ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
           </button>
-          <button type="button" className="wm-guru-window-btn" onClick={onClose} title="Close">
-            <X size={16} />
+          <button type="button" className="wm-guru-window-btn" onClick={onMinimize} title="Minimise">
+            <Minus size={17} />
+          </button>
+          <button type="button" className="wm-guru-window-btn is-close" onClick={onClose} title="Close">
+            <X size={17} />
           </button>
         </div>
       </header>
