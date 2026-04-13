@@ -358,6 +358,15 @@ function containsText(text: string, query: string): boolean {
   return normalizeText(text).includes(normalizeText(query));
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function containsToken(text: string, token: string): boolean {
+  const normalizedToken = escapeRegExp(normalizeText(token));
+  return new RegExp(`(^|[^a-z0-9])${normalizedToken}([^a-z0-9]|$)`).test(normalizeText(text));
+}
+
 function intersects<T extends string>(left: T[], right: T[]): boolean {
   return left.some((value) => right.includes(value));
 }
@@ -406,7 +415,7 @@ function inferFamilies(input: {
 
   const families: CatalogFamily[] = [];
 
-  if (text.includes("apollo") || text.includes("conference") || text.includes("teams") || text.includes("uc")) {
+  if (text.includes("apollo") || text.includes("conference") || text.includes("teams") || containsToken(text, "uc")) {
     families.push("Unified Communication");
   }
   if (text.includes("presentation") || text.includes("byod") || text.includes("byom") || text.includes("switcher")) {
@@ -470,7 +479,7 @@ function inferRoles(input: {
   if (text.includes("video wall")) roles.push("video-wall-processor");
   if (text.includes("multiview")) roles.push("multiview-processor");
   if (text.includes("usb")) roles.push("usb-peripheral-host");
-  if (text.includes("uc") || text.includes("conference")) roles.push("uc-endpoint");
+  if (containsToken(text, "uc") || text.includes("conference")) roles.push("uc-endpoint");
   if (text.includes("accessory") || text.includes("dongle")) roles.push("accessory");
   if (text.includes("camera") || text.includes("ptz")) roles.push("camera");
   if (text.includes("speaker") || text.includes("microphone")) roles.push("audio-endpoint");
