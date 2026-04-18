@@ -1,0 +1,29 @@
+{
+  "recommendationRules": {
+    "id": "guided-project-physical-dynamics",
+    "version": "2026.03.10",
+    "approvedAt": "2026-03-10T09:00:00.000Z",
+    "approvedBy": "WyreStorm Solutions Engineering",
+    "catalogVersion": "wyrestorm-catalog.phase1",
+    "changeSummary": "Guided Project recommendations branch on source origin, first hop, cable media, network readiness, and endpoint delivery.",
+    "explainability": [
+      "Every recommendation lists the room, transport, and route cues that triggered it.",
+      "Each saved project stores the rule-set version and product catalog version used at the time of recommendation.",
+      "Customer-facing summaries hide internal-only assumptions while keeping open risks explicit."
+    ]
+  },
+  "deploymentControls": {
+    "workspaceIsolation": "Projects, telemetry, and audit events are stored per authenticated workspace.",
+    "auditCoverage": [
+      "auth.signup",
+      "auth.login",
+      "auth.logout",
+      "projects.sync",
+      "projects.comment",
+      "projects.share",
+      "projects.attachment",
+      "telemetry.runtime"
+    ],
+    "retentionDays": 90
+  }
+}

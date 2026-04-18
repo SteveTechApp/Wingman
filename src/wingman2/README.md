@@ -11,6 +11,12 @@ Structure:
 - `content/`: feature audit and other static workflow content
 - `styles/`: Wingman2-only styling entrypoint and theme
 
+Canonical runtime data:
+
+- `data/catalog/`: catalog and seed data used by the active server runtime
+- `data/governance/`: governance and policy data used by the active server runtime
+- `data/*.json`: persisted runtime stores and product intelligence databases
+
 Entry points:
 
 - `src/main.tsx`

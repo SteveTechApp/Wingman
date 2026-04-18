@@ -127,7 +127,7 @@ export function deriveDiscoveryFromInput({ userInput, context = {} }) {
   };
 }
 
-export function deriveArchitectureFromBrief({ brief, catalogMatches = [], compatibilityRules = [], videoWallRules = [], options = {} }) {
+export function deriveArchitectureFromBrief({ brief, catalogMatches: _catalogMatches = [], compatibilityRules = [], videoWallRules = [], options = {} }) {
   const room = brief?.roomProfile || {};
   const commercial = brief?.commercialProfile || {};
   const recommendations = [];
@@ -363,7 +363,7 @@ export function deriveProposal({ brief, architecture, validation }) {
   };
 }
 
-export function deriveGuruAnswer({ question, brief, architecture }) {
+export function deriveGuruAnswer({ question: _question, brief, architecture }) {
   const family = architecture?.recommendedArchitecture?.family || "unknown";
   const roomType = brief?.roomProfile?.roomType || "project";
 

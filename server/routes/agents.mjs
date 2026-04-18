@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { getWingmanRequestAuth } from "../wingman-app-store.mjs";
 import {
   ROOT_DIR,
   PRODUCT_INTELLIGENCE_DB_FILE,
@@ -9,12 +10,37 @@ import {
 } from "../catalog/files.mjs";
 
 const WINGMAN_APP_DB_FILE = path.join(ROOT_DIR, "data", "wingman-app-db.json");
+const UI_HOST = String(process.env.WINGMAN_UI_HOST || "127.0.0.1").trim() || "127.0.0.1";
+const parsedUiPort = Number(process.env.WINGMAN_UI_PORT || 3000);
+const UI_PORT = Number.isFinite(parsedUiPort) ? parsedUiPort : 3000;
+const CORS_ALLOW_ORIGIN = String(process.env.WINGMAN_CORS_ALLOW_ORIGIN || `http://${UI_HOST}:${UI_PORT}`).trim();
+const CORS_ALLOW_CREDENTIALS = CORS_ALLOW_ORIGIN !== "*";
+const MAX_JSON_BODY_BYTES = Math.max(1024, Number(process.env.WINGMAN_MAX_JSON_BODY_BYTES || 1_048_576));
+const ENABLE_SECURITY_HEADERS = !["0", "false", "off", "no"].includes(String(process.env.WINGMAN_ENABLE_SECURITY_HEADERS ?? "true").trim().toLowerCase());
+const API_CONTENT_SECURITY_POLICY = String(process.env.WINGMAN_API_CONTENT_SECURITY_POLICY || "default-src 'none'; frame-ancestors 'none'; base-uri 'none'").trim();
+const API_STRICT_TRANSPORT_SECURITY = String(process.env.WINGMAN_API_HSTS || "max-age=31536000; includeSubDomains").trim();
 
 function withCorsHeaders(base = {}) {
-  return {
-    "Access-Control-Allow-Origin": "*",
+  const headers = {
+    "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Wingman-Session",
+    Vary: "Origin",
+  };
+  if (ENABLE_SECURITY_HEADERS) {
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["X-Frame-Options"] = "DENY";
+    headers["Referrer-Policy"] = "no-referrer";
+    headers["Content-Security-Policy"] = API_CONTENT_SECURITY_POLICY;
+    if (API_STRICT_TRANSPORT_SECURITY) {
+      headers["Strict-Transport-Security"] = API_STRICT_TRANSPORT_SECURITY;
+    }
+  }
+  if (CORS_ALLOW_CREDENTIALS) {
+    headers["Access-Control-Allow-Credentials"] = "true";
+  }
+  return {
+    ...headers,
     ...base,
   };
 }
@@ -31,20 +57,45 @@ function sendJson(res, statusCode, payload) {
 async function parseJsonBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
-    req.on("data", (chunk) => chunks.push(chunk));
+    let bodyBytes = 0;
+    let done = false;
+
+    const fail = (error) => {
+      if (done) return;
+      done = true;
+      reject(error);
+    };
+
+    const succeed = (value) => {
+      if (done) return;
+      done = true;
+      resolve(value);
+    };
+
+    req.on("data", (chunk) => {
+      chunks.push(chunk);
+      bodyBytes += chunk.length;
+      if (bodyBytes > MAX_JSON_BODY_BYTES) {
+        const error = new Error(`Request body too large. Max ${MAX_JSON_BODY_BYTES} bytes.`);
+        error.statusCode = 413;
+        fail(error);
+        req.destroy();
+      }
+    });
     req.on("end", () => {
+      if (done) return;
       try {
         const text = Buffer.concat(chunks).toString("utf8");
         if (!text) {
-          resolve({});
+          succeed({});
           return;
         }
-        resolve(JSON.parse(text));
+        succeed(JSON.parse(text));
       } catch (error) {
-        reject(error);
+        fail(error);
       }
     });
-    req.on("error", reject);
+    req.on("error", fail);
   });
 }
 
@@ -799,14 +850,28 @@ export async function handleAgentsRoute(req, res) {
   if (!pathname) {
     return false;
   }
+  const method = req.method || "GET";
+  const url = new URL(req.url || "/", "http://localhost");
 
-  if (req.method === "OPTIONS") {
+  if (method === "OPTIONS") {
     res.writeHead(204, withCorsHeaders());
     res.end();
     return true;
   }
 
-  if ((pathname === "/api/wingman/agents" || pathname === "/api/wingman/agents/health") && req.method === "GET") {
+  const isHealthRoute = (pathname === "/api/wingman/agents" || pathname === "/api/wingman/agents/health") && method === "GET";
+  if (!isHealthRoute) {
+    const auth = await getWingmanRequestAuth(req, url);
+    if (!auth.ok) {
+      sendJson(res, 401, {
+        ok: false,
+        error: auth.error || "Authentication required.",
+      });
+      return true;
+    }
+  }
+
+  if (isHealthRoute) {
     const catalogContext = await loadCatalogContext();
     sendJson(res, 200, {
       ok: true,
@@ -820,7 +885,7 @@ export async function handleAgentsRoute(req, res) {
     return true;
   }
 
-  if (pathname === "/api/wingman/agents/run-pipeline" && req.method === "POST") {
+  if (pathname === "/api/wingman/agents/run-pipeline" && method === "POST") {
     try {
       const body = await parseJsonBody(req);
       sendJson(res, 200, await runPhase1Pipeline(body));
@@ -834,7 +899,7 @@ export async function handleAgentsRoute(req, res) {
     return true;
   }
 
-  if (pathname === "/api/wingman/agents/discovery" && req.method === "POST") {
+  if (pathname === "/api/wingman/agents/discovery" && method === "POST") {
     try {
       const body = await parseJsonBody(req);
       const projectContext = await getProjectContext(body.workspaceId, body.projectId);
@@ -854,7 +919,7 @@ export async function handleAgentsRoute(req, res) {
     return true;
   }
 
-  if (pathname === "/api/wingman/agents/architect" && req.method === "POST") {
+  if (pathname === "/api/wingman/agents/architect" && method === "POST") {
     try {
       const body = await parseJsonBody(req);
       const catalogContext = await loadCatalogContext();
@@ -874,7 +939,7 @@ export async function handleAgentsRoute(req, res) {
     return true;
   }
 
-  if (pathname === "/api/wingman/agents/validate" && req.method === "POST") {
+  if (pathname === "/api/wingman/agents/validate" && method === "POST") {
     try {
       const body = await parseJsonBody(req);
       const catalogContext = await loadCatalogContext();
@@ -894,7 +959,7 @@ export async function handleAgentsRoute(req, res) {
     return true;
   }
 
-  if (pathname === "/api/wingman/agents/proposal" && req.method === "POST") {
+  if (pathname === "/api/wingman/agents/proposal" && method === "POST") {
     try {
       const body = await parseJsonBody(req);
       sendJson(res, 200, {
@@ -914,7 +979,7 @@ export async function handleAgentsRoute(req, res) {
     return true;
   }
 
-  if (pathname === "/api/wingman/agents/guru" && req.method === "POST") {
+  if (pathname === "/api/wingman/agents/guru" && method === "POST") {
     try {
       const body = await parseJsonBody(req);
       sendJson(res, 200, {
@@ -934,7 +999,7 @@ export async function handleAgentsRoute(req, res) {
     return true;
   }
 
-  if (pathname === "/api/wingman/agents/competitor" && req.method === "POST") {
+  if (pathname === "/api/wingman/agents/competitor" && method === "POST") {
     try {
       const body = await parseJsonBody(req);
       sendJson(res, 200, {
@@ -958,7 +1023,7 @@ export async function handleAgentsRoute(req, res) {
     ok: false,
     error: "Unknown Wingman agents route",
     pathname,
-    method: req.method || "GET",
+    method,
   });
   return true;
 }

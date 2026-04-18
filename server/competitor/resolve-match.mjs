@@ -273,16 +273,6 @@ function detectVideo(blob) {
   return { maxResolution, chroma, bandwidth };
 }
 
-function detectNumericNear(blob, regexes, fallback = 0) {
-  const b = normalise(blob);
-  for (const source of regexes) {
-    const rx = new RegExp(source, "i");
-    const m = b.match(rx);
-    if (m && m[1]) return Number(m[1]);
-  }
-  return fallback;
-}
-
 function detectPortCounts(blob) {
   const b = normalise(blob);
 

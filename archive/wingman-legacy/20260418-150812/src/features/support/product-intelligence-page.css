@@ -1,0 +1,73 @@
+.wm-product-intelligence-page__pane {
+  display: grid;
+  gap: 18px;
+}
+
+.wm-product-intelligence-page__filter-row,
+.wm-product-intelligence-page__queue-item-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-product-intelligence-page__filter-chip,
+.wm-product-intelligence-page__status-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(58, 47, 36, 0.08);
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--wm-studio-text-soft, rgba(77, 68, 60, 0.82));
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.wm-product-intelligence-page__filter-chip.is-active {
+  border-color: rgba(21, 197, 182, 0.18);
+  background: rgba(236, 251, 248, 0.92);
+  color: #16584f;
+}
+
+.wm-product-intelligence-page__queue-item {
+  gap: 8px;
+}
+
+.wm-product-intelligence-page__queue-item-meta,
+.wm-product-intelligence-page__queue-item-subtitle {
+  color: var(--wm-studio-text-muted, rgba(120, 108, 97, 0.92));
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.wm-product-intelligence-page__queue-item-meta {
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.wm-product-intelligence-page__queue-item-title {
+  color: var(--wm-studio-text, #211b16);
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.wm-product-intelligence-page__status-chip.is-approved {
+  border-color: rgba(22, 163, 74, 0.14);
+  background: rgba(236, 253, 245, 0.88);
+  color: #166534;
+}
+
+.wm-product-intelligence-page__status-chip.is-draft {
+  border-color: rgba(180, 83, 9, 0.14);
+  background: rgba(255, 247, 237, 0.9);
+  color: #9a3412;
+}
+
+.wm-product-intelligence-page__status-chip.is-issue {
+  border-color: rgba(185, 28, 28, 0.12);
+  background: rgba(254, 242, 242, 0.9);
+  color: #991b1b;
+}
