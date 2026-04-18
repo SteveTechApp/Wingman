@@ -1,0 +1,33 @@
+Wingman root legacy folder archive
+Created: 20260418-165529
+
+Reason:
+Consolidated historical backup, recovery, rescue, audit, and migration folders from the repository root after Wingman2 runtime cutover.
+
+Kept at repository root:
+- .git
+- .githooks
+- archive
+- data
+- dist
+- node_modules
+- public
+- server
+- src
+- supabase
+- tools
+
+Moved folders:
+- _archive
+- _AUDITS
+- _AUTH_BACKUP
+- _BACKUPS
+- _COMPARE_BACKUP
+- _COMPARE_MIGRATION_BACKUP
+- _QUARANTINE
+- _RECOVERY
+- _release
+- _RESCUE
+- _STYLE_AUTHORITY_BACKUP
+- _WORK
+- .wingman-backup

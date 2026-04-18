@@ -1,108 +1,244 @@
-import { readFile, writeFile } from "node:fs/promises";
+﻿import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(__dirname, "..");
-const sourcePath = path.join(rootDir, "data", "product-intelligence-db.json");
-const outputPath = path.join(rootDir, "data", "product-intelligence-index.json");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, "..");
 
-function isPlainObject(value) {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+const sourceCandidates = [
+  "data/products.json",
+  "data/catalog.json",
+  "src/data/products.json",
+  "src/data/catalog.json",
+  "src/content/products.json",
+  "src/content/catalog.json",
+  "public/products.json",
+  "public/catalog.json",
+  "public/data/products.json",
+  "public/data/catalog.json",
+];
+
+const outputTargets = [
+  { type: "json", path: "public/product-intelligence-index.json" },
+];
+
+async function pathExists(targetPath) {
+  try {
+    await fs.access(targetPath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
-function compact(value) {
-  if (Array.isArray(value)) {
-    const next = value.map((entry) => compact(entry)).filter((entry) => entry !== undefined);
-    return next.length > 0 ? next : undefined;
-  }
-
-  if (!isPlainObject(value)) {
-    if (value == null) return undefined;
-    if (typeof value === "string" && value.trim() === "") return undefined;
-    return value;
-  }
-
-  const next = Object.fromEntries(
-    Object.entries(value)
-      .map(([key, entry]) => [key, compact(entry)])
-      .filter(([, entry]) => entry !== undefined),
-  );
-
-  return Object.keys(next).length > 0 ? next : undefined;
+async function readJsonFile(filePath) {
+  const raw = await fs.readFile(filePath, "utf8");
+  return JSON.parse(raw);
 }
 
-function toIndexRecord(record) {
-  const evidenceCount = Array.isArray(record?.evidence)
-    ? record.evidence.length
-    : Math.max(0, Number(record?.evidenceCount) || 0);
-  const openReviewFlagCount = Array.isArray(record?.reviewFlags)
-    ? record.reviewFlags.filter((flag) => String(flag?.status ?? "").trim().toLowerCase() === "open").length
-    : Math.max(0, Number(record?.openReviewFlagCount) || 0);
+function ensureArrayPayload(value) {
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === "object") {
+    if (Array.isArray(value.products)) return value.products;
+    if (Array.isArray(value.items)) return value.items;
+    if (Array.isArray(value.catalog)) return value.catalog;
+    if (Array.isArray(value.data)) return value.data;
+  }
+  return [];
+}
 
-  return compact({
-    id: record?.id,
-    vendorType: record?.vendorType,
-    brand: record?.brand,
-    sku: record?.sku,
-    name: record?.name,
-    family: record?.family,
-    group: record?.group,
-    category: record?.category,
-    subcategory: record?.subcategory,
-    classificationSource: record?.classificationSource,
-    summary: record?.summary,
-    technology: record?.technology,
-    topology: record?.topology,
-    role: record?.role,
-    directionality: record?.directionality,
-    outputBehavior: record?.outputBehavior,
-    features: record?.features,
-    transport: record?.transport,
-    inputs: record?.inputs,
-    outputs: record?.outputs,
-    control: record?.control,
-    audio: record?.audio,
-    video: record?.video,
-    latency: record?.latency,
-    distance: record?.distance,
-    distanceMeters: record?.distanceMeters,
-    usb: record?.usb,
-    wireless: record?.wireless,
-    integration: record?.integration,
-    power: record?.power,
-    status: record?.status,
-    confidence: record?.confidence,
-    sourceType: record?.sourceType,
-    sourceUrls: Array.isArray(record?.sourceUrls) ? record.sourceUrls.filter(Boolean).slice(0, 1) : undefined,
-    lastCapturedAt: record?.lastCapturedAt,
-    archived: record?.archived,
-    evidenceCount: evidenceCount > 0 ? evidenceCount : undefined,
-    openReviewFlagCount: openReviewFlagCount > 0 ? openReviewFlagCount : undefined,
-  });
+function asString(value) {
+  if (value === null || value === undefined) return "";
+  return String(value).trim();
+}
+
+function normalizeProduct(item, index, sourceFile) {
+  const sku =
+    asString(item?.sku) ||
+    asString(item?.SKU) ||
+    asString(item?.partNumber) ||
+    asString(item?.part_number) ||
+    asString(item?.model) ||
+    asString(item?.id);
+
+  const name =
+    asString(item?.name) ||
+    asString(item?.title) ||
+    asString(item?.productName) ||
+    asString(item?.product_name) ||
+    sku ||
+    `Product ${index + 1}`;
+
+  const description =
+    asString(item?.description) ||
+    asString(item?.summary) ||
+    asString(item?.overview);
+
+  const category =
+    asString(item?.category) ||
+    asString(item?.family) ||
+    asString(item?.productFamily) ||
+    asString(item?.product_family);
+
+  const technologies = Array.isArray(item?.technologies)
+    ? item.technologies.map(asString).filter(Boolean)
+    : [];
+
+  const connectors = Array.isArray(item?.connectors)
+    ? item.connectors.map(asString).filter(Boolean)
+    : [];
+
+  const features = Array.isArray(item?.features)
+    ? item.features
+        .map((feature) =>
+          typeof feature === "string"
+            ? feature.trim()
+            : asString(feature?.name || feature?.label || feature)
+        )
+        .filter(Boolean)
+    : [];
+
+  const applications = Array.isArray(item?.applications)
+    ? item.applications.map(asString).filter(Boolean)
+    : [];
+
+  const searchTerms = [
+    sku,
+    name,
+    category,
+    description,
+    ...technologies,
+    ...connectors,
+    ...features,
+    ...applications,
+  ]
+    .map((value) => value.toLowerCase())
+    .filter(Boolean);
+
+  return {
+    id: sku || `generated-${index + 1}`,
+    sku,
+    name,
+    description,
+    category,
+    technologies,
+    connectors,
+    features,
+    applications,
+    searchTerms: Array.from(new Set(searchTerms)),
+    source: path.relative(projectRoot, sourceFile).replace(/\\/g, "/"),
+    raw: item,
+  };
+}
+
+function dedupeProducts(products) {
+  const seen = new Set();
+  const results = [];
+
+  for (const product of products) {
+    const key = [
+      product.sku?.toLowerCase() || "",
+      product.name?.toLowerCase() || "",
+    ].join("::");
+
+    if (seen.has(key)) continue;
+    seen.add(key);
+    results.push(product);
+  }
+
+  return results;
+}
+
+function buildIndex(products, discoveredSources) {
+  const bySku = {};
+  const byName = {};
+
+  for (const product of products) {
+    if (product.sku) bySku[product.sku] = product.id;
+    if (product.name) byName[product.name] = product.id;
+  }
+
+  return {
+    meta: {
+      generatedAt: new Date().toISOString(),
+      sourceFiles: discoveredSources.map((filePath) =>
+        path.relative(projectRoot, filePath).replace(/\\/g, "/")
+      ),
+      count: products.length,
+      generator: "tools/generate-product-intelligence-index.mjs",
+    },
+    products,
+    lookup: {
+      bySku,
+      byName,
+    },
+  };
+}
+
+async function writeFileEnsured(targetPath, content) {
+  await fs.mkdir(path.dirname(targetPath), { recursive: true });
+  await fs.writeFile(targetPath, content, "utf8");
+}
+
+function toTsModule(indexObject) {
+  const serialized = JSON.stringify(indexObject, null, 2);
+  return `export const productIntelligenceIndex = ${serialized} as const;\n\nexport default productIntelligenceIndex;\n`;
 }
 
 async function main() {
-  const raw = JSON.parse(await readFile(sourcePath, "utf8"));
-  const records = Array.isArray(raw?.records) ? raw.records.map((record) => toIndexRecord(record)).filter(Boolean) : [];
+  const discoveredSources = [];
+  const normalizedProducts = [];
 
-  const indexPayload = {
-    version: raw?.version ?? 1,
-    generatedAt: raw?.generatedAt,
-    updatedAt: raw?.updatedAt,
-    records,
-  };
+  for (const relativePath of sourceCandidates) {
+    const absolutePath = path.join(projectRoot, relativePath);
 
-  await writeFile(outputPath, `${JSON.stringify(indexPayload, null, 2)}\n`, "utf8");
+    if (!(await pathExists(absolutePath))) continue;
 
-  const fullBytes = Buffer.byteLength(JSON.stringify(raw));
-  const indexBytes = Buffer.byteLength(JSON.stringify(indexPayload));
-  const reduction = fullBytes > 0 ? (((fullBytes - indexBytes) / fullBytes) * 100).toFixed(1) : "0.0";
+    try {
+      const parsed = await readJsonFile(absolutePath);
+      const items = ensureArrayPayload(parsed);
 
-  console.log(`Wrote ${path.relative(rootDir, outputPath)} (${indexBytes} bytes, ${reduction}% smaller than full DB).`);
+      if (items.length === 0) continue;
+
+      discoveredSources.push(absolutePath);
+
+      items.forEach((item, index) => {
+        normalizedProducts.push(normalizeProduct(item, index, absolutePath));
+      });
+    } catch (error) {
+      console.warn(`[product-intelligence-index] Skipping ${relativePath}: ${error.message}`);
+    }
+  }
+
+  const products = dedupeProducts(normalizedProducts);
+  const index = buildIndex(products, discoveredSources);
+
+  for (const target of outputTargets) {
+    const absoluteOutputPath = path.join(projectRoot, target.path);
+
+    if (target.type === "json") {
+      await writeFileEnsured(absoluteOutputPath, JSON.stringify(index, null, 2) + "\n");
+    } else {
+      await writeFileEnsured(absoluteOutputPath, toTsModule(index));
+    }
+
+    console.log(`[product-intelligence-index] Wrote ${target.path}`);
+  }
+
+  if (products.length === 0) {
+    console.log(
+      "[product-intelligence-index] No source product JSON files were found. Generated an empty index so the build can continue."
+    );
+  } else {
+    console.log(
+      `[product-intelligence-index] Indexed ${products.length} product entries from ${discoveredSources.length} source file(s).`
+    );
+  }
 }
 
 main().catch((error) => {
+  console.error("[product-intelligence-index] Generation failed.");
   console.error(error);
-  process.exitCode = 1;
+  process.exit(1);
 });
