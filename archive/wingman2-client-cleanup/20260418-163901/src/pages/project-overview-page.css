@@ -1,0 +1,160 @@
+.wm-project-overview-page {
+  gap: 18px;
+}
+
+.wm-project-definition-list,
+.wm-project-form,
+.wm-project-activity-list,
+.wm-project-activity-section {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-project-definition-row {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--wm-border-subtle);
+}
+
+.wm-project-definition-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.wm-project-definition-row dt,
+.wm-project-next-kicker,
+.wm-project-asset-card span,
+.wm-project-commercial-state span,
+.wm-project-field span,
+.wm-project-activity-head span,
+.wm-project-activity-eyebrow {
+  color: var(--wm-text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wm-project-definition-row dd {
+  margin: 0;
+  color: var(--wm-text);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.wm-project-next-card,
+.wm-project-asset-card,
+.wm-project-commercial-state,
+.wm-project-activity-item,
+.wm-project-status {
+  border-radius: 18px;
+  border: 1px solid var(--wm-border-default);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wm-project-next-card,
+.wm-project-commercial-state,
+.wm-project-status,
+.wm-project-activity-item {
+  padding: 16px;
+}
+
+.wm-project-next-card {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-project-next-card strong,
+.wm-project-commercial-state strong,
+.wm-project-asset-card strong,
+.wm-project-activity-title {
+  color: var(--wm-text);
+}
+
+.wm-project-asset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wm-project-asset-card {
+  display: grid;
+  gap: 4px;
+  padding: 14px 15px;
+}
+
+.wm-project-main-card,
+.wm-project-activity-card {
+  align-content: start;
+}
+
+.wm-project-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wm-project-field {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-project-field--span {
+  grid-column: 1 / -1;
+}
+
+.wm-project-field textarea.wm-form-input {
+  min-height: 148px;
+}
+
+.wm-project-status {
+  line-height: 1.55;
+}
+
+.wm-project-status.is-good {
+  border-color: rgba(84, 211, 157, 0.22);
+  background: rgba(84, 211, 157, 0.12);
+  color: #dffdf0;
+}
+
+.wm-project-status.is-warn {
+  border-color: rgba(255, 123, 139, 0.22);
+  background: rgba(255, 123, 139, 0.12);
+  color: #ffe5e8;
+}
+
+.wm-project-activity-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wm-project-activity-head h3 {
+  margin: 0;
+  color: var(--wm-text);
+  font-size: 16px;
+}
+
+.wm-project-activity-copy,
+.wm-project-activity-meta,
+.wm-project-notes-body {
+  color: var(--wm-text-soft);
+  line-height: 1.58;
+}
+
+.wm-project-activity-meta {
+  font-size: 13px;
+}
+
+.wm-project-notes-body {
+  white-space: pre-line;
+}
+
+@media (max-width: 760px) {
+  .wm-project-asset-grid,
+  .wm-project-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

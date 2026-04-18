@@ -1,0 +1,343 @@
+.wm-import-page {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.wm-import-page__hero,
+.wm-import-page__panel,
+.wm-import-page__path-card,
+.wm-import-page__room-card,
+.wm-import-page__metric,
+.wm-import-page__detail-card {
+  border-radius: 22px;
+  border: 1px solid var(--wm-border-default);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    linear-gradient(180deg, var(--wm-surface-2), var(--wm-surface-1));
+  box-shadow: var(--wm-glow-panel);
+}
+
+.wm-import-page__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.92fr);
+  gap: 14px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.wm-import-page__hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top right, rgba(130, 209, 179, 0.16), transparent 30%),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.04), transparent 40%);
+}
+
+.wm-import-page__hero-copy,
+.wm-import-page__section-head,
+.wm-import-page__detail-block,
+.wm-import-page__detail-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-import-page__eyebrow,
+.wm-import-page__section-eyebrow,
+.wm-import-page__path-meta,
+.wm-import-page__room-meta,
+.wm-import-page__metric span,
+.wm-import-page__detail-card span,
+.wm-import-page__field > span {
+  color: var(--wm-text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wm-import-page__hero-copy h1,
+.wm-import-page__section-head h2,
+.wm-import-page__path-card strong,
+.wm-import-page__room-card strong,
+.wm-import-page__detail-panel h2 {
+  margin: 0;
+  color: var(--wm-text);
+}
+
+.wm-import-page__hero-copy h1 {
+  max-width: 14ch;
+  font-family: var(--wm-font-display);
+  font-size: clamp(2.1rem, 3vw, 3.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.wm-import-page__hero-copy p,
+.wm-import-page__section-head p,
+.wm-import-page__path-card span,
+.wm-import-page__room-card span,
+.wm-import-page__detail-block p {
+  margin: 0;
+  color: var(--wm-text-soft);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.wm-import-page__hero-note {
+  color: var(--wm-text-muted);
+  font-size: 12px;
+}
+
+.wm-import-page__hero-actions,
+.wm-import-page__chip-row,
+.wm-import-page__detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-import-page__hero-metrics,
+.wm-import-page__detail-grid,
+.wm-import-page__room-grid,
+.wm-import-page__form-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-import-page__hero-metrics,
+.wm-import-page__detail-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wm-import-page__metric,
+.wm-import-page__detail-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wm-import-page__metric strong,
+.wm-import-page__detail-card strong {
+  color: var(--wm-text);
+  font-size: 14px;
+}
+
+.wm-import-page__layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.8fr) minmax(0, 1.18fr) minmax(290px, 0.9fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.wm-import-page__sidebar,
+.wm-import-page__main,
+.wm-import-page__detail-rail {
+  display: grid;
+  gap: 14px;
+  min-height: 0;
+}
+
+.wm-import-page__main {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.wm-import-page__panel {
+  display: grid;
+  gap: 12px;
+  min-height: 0;
+  padding: 16px;
+}
+
+.wm-import-page__panel--feature {
+  border-color: var(--wm-tone-line);
+}
+
+.wm-import-page__panel--sidebar {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.wm-import-page__panel--form,
+.wm-import-page__detail-panel,
+.wm-import-page__path-list {
+  overflow: auto;
+}
+
+.wm-import-page__path-list,
+.wm-import-page__room-grid,
+.wm-import-page__form-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-import-page__room-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wm-import-page__path-card,
+.wm-import-page__room-card {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform var(--wm-fast),
+    border-color var(--wm-fast),
+    background var(--wm-fast);
+}
+
+.wm-import-page__path-card:hover,
+.wm-import-page__path-card.is-active,
+.wm-import-page__room-card:hover,
+.wm-import-page__room-card.is-active {
+  transform: translateY(-1px);
+  border-color: var(--wm-tone-line);
+}
+
+.wm-import-page__path-card.is-active,
+.wm-import-page__room-card.is-active {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    linear-gradient(180deg, var(--wm-tone-soft), rgba(255, 255, 255, 0.02));
+}
+
+.wm-import-page__filter-chip,
+.wm-import-page__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid var(--wm-border-default);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--wm-text-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wm-import-page__chip--accent {
+  border-color: var(--wm-brand-line);
+  background: var(--wm-brand-soft);
+  color: var(--wm-brand);
+}
+
+.wm-import-page__filter-chip {
+  cursor: pointer;
+}
+
+.wm-import-page__filter-chip.is-active {
+  border-color: var(--wm-tone-line);
+  background: var(--wm-tone-soft);
+  color: var(--wm-text);
+}
+
+.wm-import-page__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 16px;
+  border: 1px solid var(--wm-border-default);
+  background: rgba(7, 11, 17, 0.56);
+}
+
+.wm-import-page__search svg {
+  color: var(--wm-text-muted);
+  flex-shrink: 0;
+}
+
+.wm-import-page__search input,
+.wm-import-page__field input,
+.wm-import-page__field textarea,
+.wm-import-page__field select {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--wm-text);
+  font-size: 14px;
+}
+
+.wm-import-page__form-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wm-import-page__field {
+  display: grid;
+  gap: 6px;
+}
+
+.wm-import-page__field input,
+.wm-import-page__field textarea,
+.wm-import-page__field select {
+  min-height: 42px;
+  padding: 11px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--wm-border-default);
+  background: rgba(7, 11, 17, 0.56);
+}
+
+.wm-import-page__field textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.wm-import-page__field--wide {
+  grid-column: span 3;
+}
+
+@media (max-width: 1240px) {
+  .wm-import-page__layout {
+    grid-template-columns: minmax(240px, 0.86fr) minmax(0, 1.14fr);
+  }
+
+  .wm-import-page__detail-rail {
+    grid-column: 1 / -1;
+  }
+
+  .wm-import-page__detail-panel {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 980px) {
+  .wm-import-page__hero,
+  .wm-import-page__layout,
+  .wm-import-page__room-grid,
+  .wm-import-page__form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-import-page__main {
+    grid-template-rows: none;
+  }
+
+  .wm-import-page__panel--form,
+  .wm-import-page__detail-panel {
+    overflow: visible;
+  }
+
+  .wm-import-page__field--wide {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .wm-import-page__hero,
+  .wm-import-page__panel {
+    border-radius: 18px;
+    padding: 16px;
+  }
+
+  .wm-import-page__hero-metrics,
+  .wm-import-page__detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

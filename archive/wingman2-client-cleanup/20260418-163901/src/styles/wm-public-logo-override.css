@@ -1,0 +1,24 @@
+/* Public landing header logo override */
+.wm-public-brand-mark {
+  width: clamp(96px, 8vw, 132px) !important;
+  height: auto !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  display: block !important;
+  flex: 0 0 auto !important;
+}
+
+/* Remove the text wordmark next to the actual logo */
+.wm-public-brand-mark + * {
+  display: none !important;
+}
+
+/* Tighten the brand row after the text block is hidden */
+.wm-public-brand:has(.wm-public-brand-mark),
+.wm-public-header-brand:has(.wm-public-brand-mark),
+.wm-public-hero-brand:has(.wm-public-brand-mark),
+.wm-brand-lockup:has(.wm-public-brand-mark),
+.wm-brand:has(.wm-public-brand-mark) {
+  gap: 0 !important;
+  align-items: center !important;
+}

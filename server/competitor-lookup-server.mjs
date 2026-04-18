@@ -15,6 +15,7 @@ import {
   handleProductIntelligenceUpsertPost,
 } from "./product-intelligence-store.mjs";
 import {
+  getWingmanRequestAuth,
   handleWingmanAuditGet,
   handleWingmanInvitationAcceptPost,
   handleWingmanInvitationResolveGet,
@@ -41,7 +42,6 @@ import {
 } from "./wingman-app-store.mjs";
 import { resolveCompetitorMatch } from "./competitor/resolve-match.mjs";
 import { resolveCompetitorLiveLookup } from "./competitor/live-lookup.mjs";
-import { enrichProductClassification } from "./shared/product-classification.mjs";
 
 let createSupabaseClient = null;
 try {
@@ -51,6 +51,12 @@ try {
 
 const PORT = Number(process.env.PORT || 8787);
 const HOST = process.env.HOST || "127.0.0.1";
+const UI_HOST = String(process.env.WINGMAN_UI_HOST || "127.0.0.1").trim() || "127.0.0.1";
+const parsedUiPort = Number(process.env.WINGMAN_UI_PORT || 3000);
+const UI_PORT = Number.isFinite(parsedUiPort) ? parsedUiPort : 3000;
+const CORS_ALLOW_ORIGIN = String(process.env.WINGMAN_CORS_ALLOW_ORIGIN || `http://${UI_HOST}:${UI_PORT}`).trim();
+const CORS_ALLOW_CREDENTIALS = CORS_ALLOW_ORIGIN !== "*";
+const MAX_JSON_BODY_BYTES = Math.max(1024, Number(process.env.WINGMAN_MAX_JSON_BODY_BYTES || 1_048_576));
 const RETRY_ATTEMPTS = Number(process.env.LOOKUP_RETRY_ATTEMPTS || 3);
 const FETCH_TIMEOUT_MS = Number(process.env.LOOKUP_TIMEOUT_MS || 4500);
 const LOOKUP_ENABLE_LIVE_ENRICHMENT = !["0", "false", "off", "no"].includes(String(process.env.LOOKUP_ENABLE_LIVE_ENRICHMENT ?? "true").trim().toLowerCase());
@@ -67,6 +73,9 @@ const SUPABASE_APPROVALS_ENABLED = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE
 const LOOKUP_PERSIST_RUNTIME_EVENTS = !["0", "false", "off", "no"].includes(String(process.env.LOOKUP_PERSIST_RUNTIME_EVENTS ?? "true").trim().toLowerCase());
 const SUPABASE_RUNTIME_EVENTS_TABLE = String(process.env.SUPABASE_LOOKUP_DIAGNOSTICS_TABLE || "competitor_lookup_runtime_events").trim();
 const SUPABASE_RUNTIME_EVENTS_ENABLED = Boolean(SUPABASE_APPROVALS_ENABLED && LOOKUP_PERSIST_RUNTIME_EVENTS);
+const ENABLE_SECURITY_HEADERS = !["0", "false", "off", "no"].includes(String(process.env.WINGMAN_ENABLE_SECURITY_HEADERS ?? "true").trim().toLowerCase());
+const API_CONTENT_SECURITY_POLICY = String(process.env.WINGMAN_API_CONTENT_SECURITY_POLICY || "default-src 'none'; frame-ancestors 'none'; base-uri 'none'").trim();
+const API_STRICT_TRANSPORT_SECURITY = String(process.env.WINGMAN_API_HSTS || "max-age=31536000; includeSubDomains").trim();
 
 const SEARCH_ENGINE_PROVIDERS = [
   {
@@ -180,10 +189,26 @@ function parseLookupQuery(query) {
 }
 
 function withCorsHeaders(base = {}) {
-  return {
-    "Access-Control-Allow-Origin": "*",
+  const headers = {
+    "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Wingman-Session",
+    Vary: "Origin",
+  };
+  if (ENABLE_SECURITY_HEADERS) {
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["X-Frame-Options"] = "DENY";
+    headers["Referrer-Policy"] = "no-referrer";
+    headers["Content-Security-Policy"] = API_CONTENT_SECURITY_POLICY;
+    if (API_STRICT_TRANSPORT_SECURITY) {
+      headers["Strict-Transport-Security"] = API_STRICT_TRANSPORT_SECURITY;
+    }
+  }
+  if (CORS_ALLOW_CREDENTIALS) {
+    headers["Access-Control-Allow-Credentials"] = "true";
+  }
+  return {
+    ...headers,
     ...base,
   };
 }
@@ -197,20 +222,90 @@ function sendJson(res, statusCode, payload) {
   res.end(body);
 }
 
+async function runProtectedRoute(res, work) {
+  try {
+    await work();
+  } catch (error) {
+    sendJson(res, 503, {
+      ok: false,
+      error: error instanceof Error ? error.message : "Service unavailable.",
+    });
+  }
+}
+
+async function requireWingmanPermission(req, res, url, {
+  permission,
+  deniedMessage,
+} = {}) {
+  let auth = null;
+  try {
+    auth = await getWingmanRequestAuth(req, url);
+  } catch (error) {
+    sendJson(res, 503, {
+      ok: false,
+      error: error instanceof Error ? error.message : "Authentication service unavailable.",
+    });
+    return null;
+  }
+
+  if (!auth?.ok) {
+    sendJson(res, 401, {
+      ok: false,
+      error: auth?.error || "Authentication required.",
+    });
+    return null;
+  }
+
+  if (permission && !auth.permissions?.[permission]) {
+    sendJson(res, 403, {
+      ok: false,
+      error: deniedMessage || "Insufficient workspace permissions.",
+    });
+    return null;
+  }
+
+  return auth;
+}
+
 async function parseJsonBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
-    req.on("data", (chunk) => chunks.push(chunk));
-    req.on("end", () => {
-      try {
-        const text = Buffer.concat(chunks).toString("utf8");
-        if (!text) return resolve({});
-        resolve(JSON.parse(text));
-      } catch (error) {
-        reject(error);
+    let bodyBytes = 0;
+    let done = false;
+
+    const fail = (error) => {
+      if (done) return;
+      done = true;
+      reject(error);
+    };
+
+    const succeed = (value) => {
+      if (done) return;
+      done = true;
+      resolve(value);
+    };
+
+    req.on("data", (chunk) => {
+      chunks.push(chunk);
+      bodyBytes += chunk.length;
+      if (bodyBytes > MAX_JSON_BODY_BYTES) {
+        const error = new Error(`Request body too large. Max ${MAX_JSON_BODY_BYTES} bytes.`);
+        error.statusCode = 413;
+        fail(error);
+        req.destroy();
       }
     });
-    req.on("error", reject);
+    req.on("end", () => {
+      if (done) return;
+      try {
+        const text = Buffer.concat(chunks).toString("utf8");
+        if (!text) return succeed({});
+        succeed(JSON.parse(text));
+      } catch (error) {
+        fail(error);
+      }
+    });
+    req.on("error", fail);
   });
 }
 
@@ -1611,7 +1706,12 @@ async function saveApprovalRecord(input) {
   };
 }
 
-async function handleApprovalsGet(_req, res) {
+async function handleApprovalsGet(req, res, url) {
+  if (!(await requireWingmanPermission(req, res, url, {
+    permission: "canManageWorkspace",
+    deniedMessage: "Competitor approvals are restricted to workspace admins.",
+  }))) return;
+
   const approvals = await readApprovals();
   if (approvals.warnings.length > 0) {
     pushRuntimeDiagnosticsEvent({
@@ -1633,7 +1733,12 @@ async function handleApprovalsGet(_req, res) {
   });
 }
 
-async function handleApprovalsPost(req, res) {
+async function handleApprovalsPost(req, res, url) {
+  if (!(await requireWingmanPermission(req, res, url, {
+    permission: "canManageWorkspace",
+    deniedMessage: "Competitor approvals are restricted to workspace admins.",
+  }))) return;
+
   let body = {};
   try {
     body = await parseJsonBody(req);
@@ -1691,7 +1796,12 @@ async function handleApprovalsPost(req, res) {
   });
 }
 
-async function handleLookupRuntimeDiagnosticsGet(_req, res) {
+async function handleLookupRuntimeDiagnosticsGet(req, res, url) {
+  if (!(await requireWingmanPermission(req, res, url, {
+    permission: "canViewDiagnostics",
+    deniedMessage: "Runtime diagnostics are unavailable for this workspace role.",
+  }))) return;
+
   pruneRuntimeDiagnosticsEventsInMemory(LOOKUP_RUNTIME_EVENT_RETENTION_DAYS);
 
   const memoryEvents = runtimeDiagnosticsEvents.slice(0, LOOKUP_RUNTIME_EVENT_MAX);
@@ -1723,7 +1833,12 @@ async function handleLookupRuntimeDiagnosticsGet(_req, res) {
   });
 }
 
-async function handleLookupRuntimeDiagnosticsClear(_req, res) {
+async function handleLookupRuntimeDiagnosticsClear(req, res, url) {
+  if (!(await requireWingmanPermission(req, res, url, {
+    permission: "canManageWorkspace",
+    deniedMessage: "Runtime diagnostics maintenance is restricted to workspace admins.",
+  }))) return;
+
   const warnings = [];
   const memoryBefore = runtimeDiagnosticsEvents.length;
   runtimeDiagnosticsEvents.length = 0;
@@ -1762,7 +1877,12 @@ async function handleLookupRuntimeDiagnosticsClear(_req, res) {
   });
 }
 
-async function handleLookupRuntimeDiagnosticsPrune(req, res) {
+async function handleLookupRuntimeDiagnosticsPrune(req, res, url) {
+  if (!(await requireWingmanPermission(req, res, url, {
+    permission: "canManageWorkspace",
+    deniedMessage: "Runtime diagnostics maintenance is restricted to workspace admins.",
+  }))) return;
+
   let body = {};
   try {
     body = await parseJsonBody(req);
@@ -1843,7 +1963,15 @@ function buildHealthPayload() {
 }
 
 const server = http.createServer(async (req, res) => {
-  if (await handleAgentsRoute(req, res)) {
+  try {
+    if (await handleAgentsRoute(req, res)) {
+      return;
+    }
+  } catch (error) {
+    sendJson(res, 503, {
+      ok: false,
+      error: error instanceof Error ? error.message : "Agents service unavailable.",
+    });
     return;
   }
 
@@ -1899,79 +2027,79 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (method === "GET" && url.pathname === "/api/wingman/health") {
-    await handleWingmanHealthGet(req, res, { sendJson });
+    await runProtectedRoute(res, () => handleWingmanHealthGet(req, res, { sendJson }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/wingman/auth/signup") {
-    await handleWingmanAuthSignupPost(req, res, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleWingmanAuthSignupPost(req, res, { sendJson, parseJsonBody }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/wingman/auth/login") {
-    await handleWingmanAuthLoginPost(req, res, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleWingmanAuthLoginPost(req, res, { sendJson, parseJsonBody }));
     return;
   }
 
   if (method === "GET" && url.pathname === "/api/wingman/auth/session") {
-    await handleWingmanAuthSessionGet(req, res, url, { sendJson });
+    await runProtectedRoute(res, () => handleWingmanAuthSessionGet(req, res, url, { sendJson }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/wingman/auth/logout") {
-    await handleWingmanAuthLogoutPost(req, res, url, { sendJson });
+    await runProtectedRoute(res, () => handleWingmanAuthLogoutPost(req, res, url, { sendJson }));
     return;
   }
 
   if (method === "GET" && url.pathname === "/api/wingman/workspace") {
-    await handleWingmanWorkspaceGet(req, res, url, { sendJson });
+    await runProtectedRoute(res, () => handleWingmanWorkspaceGet(req, res, url, { sendJson }));
     return;
   }
 
   if (method === "GET" && url.pathname === "/api/wingman/workspace/members") {
-    await handleWingmanWorkspaceMembersGet(req, res, url, { sendJson });
+    await runProtectedRoute(res, () => handleWingmanWorkspaceMembersGet(req, res, url, { sendJson }));
     return;
   }
 
   if (method === "GET" && url.pathname === "/api/wingman/workspace/invitations") {
-    await handleWingmanWorkspaceInvitationsGet(req, res, url, { sendJson });
+    await runProtectedRoute(res, () => handleWingmanWorkspaceInvitationsGet(req, res, url, { sendJson }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/wingman/workspace/invitations") {
-    await handleWingmanWorkspaceInvitationsPost(req, res, url, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleWingmanWorkspaceInvitationsPost(req, res, url, { sendJson, parseJsonBody }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/wingman/workspace/settings") {
-    await handleWingmanWorkspaceSettingsPost(req, res, url, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleWingmanWorkspaceSettingsPost(req, res, url, { sendJson, parseJsonBody }));
     return;
   }
 
   if (method === "GET" && url.pathname === "/api/wingman/projects") {
-    await handleWingmanProjectsGet(req, res, url, { sendJson });
+    await runProtectedRoute(res, () => handleWingmanProjectsGet(req, res, url, { sendJson }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/wingman/projects/sync") {
-    await handleWingmanProjectsSyncPost(req, res, url, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleWingmanProjectsSyncPost(req, res, url, { sendJson, parseJsonBody }));
     return;
   }
 
   const workspaceMemberRoleRoute = url.pathname.match(/^\/api\/wingman\/workspace\/members\/([^/]+)\/role$/);
   if (workspaceMemberRoleRoute && method === "POST") {
     const userId = decodeURIComponent(workspaceMemberRoleRoute[1] || "");
-    await handleWingmanWorkspaceMemberRolePost(req, res, url, userId, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleWingmanWorkspaceMemberRolePost(req, res, url, userId, { sendJson, parseJsonBody }));
     return;
   }
 
   if (method === "GET" && url.pathname === "/api/wingman/invitations/resolve") {
-    await handleWingmanInvitationResolveGet(req, res, url, { sendJson });
+    await runProtectedRoute(res, () => handleWingmanInvitationResolveGet(req, res, url, { sendJson }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/wingman/invitations/accept") {
-    await handleWingmanInvitationAcceptPost(req, res, url, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleWingmanInvitationAcceptPost(req, res, url, { sendJson, parseJsonBody }));
     return;
   }
 
@@ -1981,43 +2109,43 @@ const server = http.createServer(async (req, res) => {
     const action = wingmanProjectRoute[2];
 
     if (method === "POST" && action === "comments") {
-      await handleWingmanProjectCommentsPost(req, res, url, projectId, { sendJson, parseJsonBody });
+      await runProtectedRoute(res, () => handleWingmanProjectCommentsPost(req, res, url, projectId, { sendJson, parseJsonBody }));
       return;
     }
 
     if (method === "POST" && action === "shares") {
-      await handleWingmanProjectSharesPost(req, res, url, projectId, { sendJson, parseJsonBody });
+      await runProtectedRoute(res, () => handleWingmanProjectSharesPost(req, res, url, projectId, { sendJson, parseJsonBody }));
       return;
     }
 
     if (method === "POST" && action === "attachments") {
-      await handleWingmanProjectAttachmentsPost(req, res, url, projectId, { sendJson, parseJsonBody });
+      await runProtectedRoute(res, () => handleWingmanProjectAttachmentsPost(req, res, url, projectId, { sendJson, parseJsonBody }));
       return;
     }
 
     if (method === "POST" && action === "mark-ready") {
-      await handleWingmanProjectMarkReadyPost(req, res, url, projectId, { sendJson, parseJsonBody });
+      await runProtectedRoute(res, () => handleWingmanProjectMarkReadyPost(req, res, url, projectId, { sendJson, parseJsonBody }));
       return;
     }
   }
 
   if (method === "GET" && url.pathname === "/api/wingman/governance") {
-    await handleWingmanGovernanceGet(req, res, url, { sendJson });
+    await runProtectedRoute(res, () => handleWingmanGovernanceGet(req, res, url, { sendJson }));
     return;
   }
 
   if (method === "GET" && url.pathname === "/api/wingman/audit") {
-    await handleWingmanAuditGet(req, res, url, { sendJson });
+    await runProtectedRoute(res, () => handleWingmanAuditGet(req, res, url, { sendJson }));
     return;
   }
 
   if (method === "GET" && url.pathname === "/api/wingman/telemetry") {
-    await handleWingmanTelemetryGet(req, res, url, { sendJson });
+    await runProtectedRoute(res, () => handleWingmanTelemetryGet(req, res, url, { sendJson }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/wingman/telemetry") {
-    await handleWingmanTelemetryPost(req, res, url, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleWingmanTelemetryPost(req, res, url, { sendJson, parseJsonBody }));
     return;
   }
 
@@ -2033,57 +2161,57 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (method === "GET" && url.pathname === "/api/competitor-lookup/diagnostics") {
-    await handleLookupRuntimeDiagnosticsGet(req, res);
+    await runProtectedRoute(res, () => handleLookupRuntimeDiagnosticsGet(req, res, url));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/competitor-lookup/diagnostics/clear") {
-    await handleLookupRuntimeDiagnosticsClear(req, res);
+    await runProtectedRoute(res, () => handleLookupRuntimeDiagnosticsClear(req, res, url));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/competitor-lookup/diagnostics/prune") {
-    await handleLookupRuntimeDiagnosticsPrune(req, res);
+    await runProtectedRoute(res, () => handleLookupRuntimeDiagnosticsPrune(req, res, url));
     return;
   }
 
   if (method === "GET" && url.pathname === "/api/competitor-approvals") {
-    await handleApprovalsGet(req, res);
+    await runProtectedRoute(res, () => handleApprovalsGet(req, res, url));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/competitor-approvals") {
-    await handleApprovalsPost(req, res);
+    await runProtectedRoute(res, () => handleApprovalsPost(req, res, url));
     return;
   }
 
   if (method === "GET" && url.pathname === "/api/product-intelligence/health") {
-    await handleProductIntelligenceHealthGet(req, res, { sendJson });
+    await runProtectedRoute(res, () => handleProductIntelligenceHealthGet(req, res, { sendJson }));
     return;
   }
 
   if (method === "GET" && url.pathname === "/api/product-intelligence") {
-    await handleProductIntelligenceGet(req, res, url, { sendJson });
+    await runProtectedRoute(res, () => handleProductIntelligenceGet(req, res, url, { sendJson }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/product-intelligence/refresh") {
-    await handleProductIntelligenceRefreshPost(req, res, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleProductIntelligenceRefreshPost(req, res, url, { sendJson, parseJsonBody }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/product-intelligence/upsert") {
-    await handleProductIntelligenceUpsertPost(req, res, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleProductIntelligenceUpsertPost(req, res, url, { sendJson, parseJsonBody }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/product-intelligence/evidence") {
-    await handleProductIntelligenceEvidencePost(req, res, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleProductIntelligenceEvidencePost(req, res, url, { sendJson, parseJsonBody }));
     return;
   }
 
   if (method === "POST" && url.pathname === "/api/product-intelligence/status") {
-    await handleProductIntelligenceStatusPost(req, res, { sendJson, parseJsonBody });
+    await runProtectedRoute(res, () => handleProductIntelligenceStatusPost(req, res, url, { sendJson, parseJsonBody }));
     return;
   }
 

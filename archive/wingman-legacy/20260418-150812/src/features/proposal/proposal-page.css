@@ -1,0 +1,132 @@
+.wm-proposal-builder-page__sidebar-stack,
+.wm-proposal-builder-page__draft-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-proposal-builder-page__field {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-proposal-builder-page__input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--wm-border-default);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    rgba(255, 255, 255, 0.02);
+  color: var(--wm-text);
+  font: inherit;
+}
+
+.wm-proposal-builder-page__input:focus {
+  outline: none;
+  border-color: var(--wm-brand-line);
+  box-shadow: 0 0 0 3px rgba(255, 180, 106, 0.12);
+}
+
+.wm-proposal-builder-page__status {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--wm-border-default);
+  color: var(--wm-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.wm-proposal-builder-page__status.is-good {
+  border-color: rgba(94, 197, 155, 0.32);
+  background:
+    linear-gradient(180deg, rgba(94, 197, 155, 0.12), transparent),
+    rgba(255, 255, 255, 0.02);
+}
+
+.wm-proposal-builder-page__status.is-warn {
+  border-color: rgba(255, 180, 106, 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 180, 106, 0.12), transparent),
+    rgba(255, 255, 255, 0.02);
+}
+
+.wm-proposal-builder-page__grid,
+.wm-proposal-builder-page__actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wm-proposal-builder-page__actions-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wm-proposal-builder-page__static-card {
+  display: grid;
+  justify-content: stretch;
+  align-items: start;
+  padding: 16px;
+}
+
+.wm-proposal-builder-page__static-copy,
+.wm-proposal-builder-page__draft-body {
+  color: var(--wm-text-soft);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.wm-proposal-builder-page__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  width: 100%;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--wm-border-default);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    rgba(255, 255, 255, 0.02);
+  color: var(--wm-text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    transform var(--wm-fast),
+    border-color var(--wm-fast),
+    background var(--wm-fast);
+}
+
+.wm-proposal-builder-page__button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: var(--wm-brand-line);
+}
+
+.wm-proposal-builder-page__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wm-proposal-builder-page__button--primary {
+  border-color: var(--wm-brand-line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent),
+    linear-gradient(180deg, var(--wm-brand-soft), rgba(255, 255, 255, 0.02));
+  color: var(--wm-brand);
+}
+
+@media (max-width: 1180px) {
+  .wm-proposal-builder-page__actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .wm-proposal-builder-page__grid {
+    grid-template-columns: 1fr;
+  }
+}

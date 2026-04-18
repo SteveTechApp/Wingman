@@ -1,0 +1,299 @@
+.wm-workspace-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wm-workspace-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--wm-border-default);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
+    rgba(255, 255, 255, 0.02);
+  color: var(--wm-text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    transform var(--wm-fast),
+    border-color var(--wm-fast),
+    background var(--wm-fast);
+}
+
+.wm-workspace-action:hover {
+  transform: translateY(-1px);
+  border-color: var(--wm-tone-line);
+}
+
+.wm-workspace-action--primary {
+  border-color: var(--wm-tone-line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent),
+    linear-gradient(180deg, var(--wm-tone-soft), rgba(255, 255, 255, 0.02));
+}
+
+.wm-workspace-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wm-workspace-stat,
+.wm-workspace-stage,
+.wm-workspace-link,
+.wm-workspace-note-block,
+.wm-workspace-rail-item,
+.wm-workspace-tile {
+  border-radius: 20px;
+  border: 1px solid var(--wm-border-default);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    rgba(255, 255, 255, 0.02);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.wm-workspace-stat {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+}
+
+.wm-workspace-stat__label,
+.wm-workspace-kicker,
+.wm-workspace-stage__index {
+  color: var(--wm-text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wm-workspace-stat__value,
+.wm-workspace-tile__title,
+.wm-workspace-stage__title {
+  color: var(--wm-text);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.wm-workspace-stat__meta,
+.wm-workspace-note,
+.wm-workspace-tile__description,
+.wm-workspace-stage__copy {
+  color: var(--wm-text-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.wm-workspace-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.wm-workspace-tile-grid,
+.wm-workspace-stage-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wm-workspace-stage {
+  grid-column: span 4;
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+}
+
+.wm-workspace-stage__index {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 10px;
+  border: 1px solid var(--wm-tone-line);
+  background: var(--wm-tone-soft);
+  color: var(--wm-text);
+}
+
+.wm-workspace-tile {
+  grid-column: span 6;
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  color: var(--wm-text);
+  transition:
+    transform var(--wm-fast),
+    border-color var(--wm-fast),
+    background var(--wm-fast),
+    box-shadow var(--wm-fast);
+}
+
+.wm-workspace-tile:hover,
+.wm-workspace-link:hover {
+  transform: translateY(-1px);
+  border-color: var(--wm-tone-line);
+  box-shadow: var(--wm-glow-accent);
+}
+
+.wm-workspace-tile__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wm-workspace-tile__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--wm-tone-line);
+  background: var(--wm-tone-soft);
+  color: var(--wm-tone);
+  flex: 0 0 auto;
+}
+
+.wm-workspace-tile__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: var(--wm-radius-pill);
+  border: 1px solid var(--wm-border-default);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--wm-text-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wm-workspace-tile__title {
+  font-size: 18px;
+}
+
+.wm-workspace-tile__footer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--wm-tone);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.wm-workspace-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--wm-text-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.wm-workspace-list--plain {
+  padding-left: 0;
+  list-style: none;
+}
+
+.wm-workspace-link-list,
+.wm-workspace-rail-list {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-workspace-link,
+.wm-workspace-rail-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 16px;
+  color: var(--wm-text);
+  transition:
+    transform var(--wm-fast),
+    border-color var(--wm-fast),
+    background var(--wm-fast);
+}
+
+.wm-workspace-link span,
+.wm-workspace-rail-item span {
+  min-width: 0;
+}
+
+.wm-workspace-note-block {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.wm-workspace-note-block strong {
+  color: var(--wm-text);
+}
+
+.wm-dashboard-page .wm-page-frame__header::before {
+  background:
+    radial-gradient(circle at top right, rgba(124, 196, 255, 0.16), transparent 32%),
+    linear-gradient(110deg, rgba(255, 255, 255, 0.04), transparent 42%);
+}
+
+.wm-toolhub-page .wm-workspace-tile__icon {
+  color: #9ac8ff;
+}
+
+.wm-proposal-builder-page .wm-page-frame__header::before {
+  background:
+    radial-gradient(circle at top right, rgba(255, 180, 106, 0.18), transparent 32%),
+    linear-gradient(110deg, rgba(255, 255, 255, 0.04), transparent 42%);
+}
+
+.wm-proposal-builder-page .wm-workspace-tile__icon,
+.wm-proposal-builder-page .wm-workspace-tile__footer {
+  color: var(--wm-brand);
+}
+
+.wm-proposal-builder-page .wm-workspace-tile__icon {
+  border-color: var(--wm-brand-line);
+  background: var(--wm-brand-soft);
+}
+
+@media (max-width: 1180px) {
+  .wm-workspace-stats,
+  .wm-workspace-stage-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wm-workspace-stat,
+  .wm-workspace-stage {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 900px) {
+  .wm-workspace-stats,
+  .wm-workspace-stage-grid,
+  .wm-workspace-tile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-workspace-stat,
+  .wm-workspace-stage,
+  .wm-workspace-tile {
+    grid-column: span 1;
+  }
+}
