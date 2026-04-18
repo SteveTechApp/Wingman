@@ -15,14 +15,28 @@ try {
 }
 
 const DB_FILE = path.join(ROOT, "data", "wingman-app-db.json");
-const GOVERNANCE_FILE = path.join(ROOT, "src", "data", "governance", "wingman-governance.json");
+const GOVERNANCE_FILE = path.join(ROOT, "data", "governance", "wingman-governance.json");
 const SESSION_TTL_MS = Math.max(60 * 60 * 1000, Number(process.env.WINGMAN_SESSION_TTL_MS || 7 * 24 * 60 * 60 * 1000));
+const INVITATION_TTL_MS = Math.max(60 * 60 * 1000, Number(process.env.WINGMAN_INVITATION_TTL_MS || 7 * 24 * 60 * 60 * 1000));
 const AUDIT_RETENTION = Math.max(50, Number(process.env.WINGMAN_AUDIT_RETENTION || 800));
 const TELEMETRY_RETENTION = Math.max(50, Number(process.env.WINGMAN_TELEMETRY_RETENTION || 400));
+const AUTH_RATE_LIMIT_WINDOW_MS = Math.max(5_000, Number(process.env.WINGMAN_AUTH_RATE_LIMIT_WINDOW_MS || 60_000));
+const AUTH_RATE_LIMIT_MAX_REQUESTS = Math.max(1, Number(process.env.WINGMAN_AUTH_RATE_LIMIT_MAX_REQUESTS || 8));
+const SESSION_COOKIE_SECURE = !["0", "false", "off", "no"].includes(
+  String(process.env.WINGMAN_SESSION_COOKIE_SECURE ?? (process.env.NODE_ENV === "production" ? "true" : "false"))
+    .trim()
+    .toLowerCase(),
+);
+const STORAGE_FAIL_CLOSED = !["0", "false", "off", "no"].includes(
+  String(process.env.WINGMAN_STORAGE_FAIL_CLOSED ?? (process.env.NODE_ENV === "production" ? "true" : "false"))
+    .trim()
+    .toLowerCase(),
+);
 const scryptAsync = promisify(crypto.scrypt);
 let supabaseAdmin = null;
 let lastStorageModeUsed = "file";
 let lastStorageWarning = "";
+const authRateBuckets = new Map();
 
 function nowIso() {
   return new Date().toISOString();
@@ -95,11 +109,25 @@ function configuredStorageMode() {
   const supabaseReady = Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
   if (WINGMAN_STORAGE_MODE === "file") return "file";
   if (WINGMAN_STORAGE_MODE === "supabase" && supabaseReady) return "supabase";
-  if (WINGMAN_STORAGE_MODE === "supabase" && !supabaseReady) return "file";
+  if (WINGMAN_STORAGE_MODE === "supabase" && !supabaseReady) {
+    if (STORAGE_FAIL_CLOSED) {
+      throw new Error("Supabase storage mode is configured but Supabase credentials are missing.");
+    }
+    return "file";
+  }
   if (WINGMAN_STORAGE_MODE === "supabase-tables" && supabaseReady) return "supabase-tables";
-  if (WINGMAN_STORAGE_MODE === "supabase-tables" && !supabaseReady) return "file";
+  if (WINGMAN_STORAGE_MODE === "supabase-tables" && !supabaseReady) {
+    if (STORAGE_FAIL_CLOSED) {
+      throw new Error("Supabase tables storage mode is configured but Supabase credentials are missing.");
+    }
+    return "file";
+  }
   if (supabaseReady && SUPABASE_WINGMAN_TABLES_ENABLED) return "supabase-tables";
-  return supabaseReady ? "supabase" : "file";
+  if (supabaseReady) return "supabase";
+  if (WINGMAN_STORAGE_MODE === "auto" && STORAGE_FAIL_CLOSED) {
+    throw new Error("Storage mode auto resolved to local file storage while fail-closed is enabled.");
+  }
+  return "file";
 }
 
 function getSupabaseAdmin() {
@@ -522,22 +550,32 @@ async function writeDbToSupabase(db) {
 }
 
 async function readDb() {
-  if (configuredStorageMode() === "supabase-tables") {
+  const mode = configuredStorageMode();
+  if (mode === "supabase-tables") {
     const remote = await readDbFromSupabaseTables();
     if (remote) {
       lastStorageModeUsed = "supabase-tables";
       return remote;
     }
+    if (STORAGE_FAIL_CLOSED) {
+      throw new Error(`Supabase tables storage read failed${lastStorageWarning ? `: ${lastStorageWarning}` : "."}`);
+    }
   }
 
-  if (configuredStorageMode() === "supabase") {
+  if (mode === "supabase") {
     const remote = await readDbFromSupabase();
     if (remote) {
       lastStorageModeUsed = "supabase";
       return remote;
     }
+    if (STORAGE_FAIL_CLOSED) {
+      throw new Error(`Supabase storage read failed${lastStorageWarning ? `: ${lastStorageWarning}` : "."}`);
+    }
   }
 
+  if (mode !== "file" && STORAGE_FAIL_CLOSED) {
+    throw new Error(`File storage fallback is disabled while storage mode is ${mode}.`);
+  }
   lastStorageModeUsed = "file";
   lastStorageWarning = "";
   const db = await readJsonFile(DB_FILE, emptyDb());
@@ -546,19 +584,29 @@ async function readDb() {
 
 async function writeDb(db) {
   db.updatedAt = nowIso();
-  if (configuredStorageMode() === "supabase-tables") {
+  const mode = configuredStorageMode();
+  if (mode === "supabase-tables") {
     const saved = await writeDbToSupabaseTables(db);
     if (saved) {
       lastStorageModeUsed = "supabase-tables";
       return;
     }
+    if (STORAGE_FAIL_CLOSED) {
+      throw new Error(`Supabase tables storage write failed${lastStorageWarning ? `: ${lastStorageWarning}` : "."}`);
+    }
   }
-  if (configuredStorageMode() === "supabase") {
+  if (mode === "supabase") {
     const saved = await writeDbToSupabase(db);
     if (saved) {
       lastStorageModeUsed = "supabase";
       return;
     }
+    if (STORAGE_FAIL_CLOSED) {
+      throw new Error(`Supabase storage write failed${lastStorageWarning ? `: ${lastStorageWarning}` : "."}`);
+    }
+  }
+  if (mode !== "file" && STORAGE_FAIL_CLOSED) {
+    throw new Error(`File storage fallback is disabled while storage mode is ${mode}.`);
   }
   lastStorageModeUsed = "file";
   lastStorageWarning = "";
@@ -671,6 +719,18 @@ function removePendingInvitationsForMember(db, workspaceId, email) {
   });
 }
 
+function invitationExpiryIso(invitation) {
+  const createdAtMs = Date.parse(invitation?.createdAt || "");
+  const base = Number.isFinite(createdAtMs) ? createdAtMs : Date.now();
+  return new Date(base + INVITATION_TTL_MS).toISOString();
+}
+
+function isInvitationExpired(invitation, nowMs = Date.now()) {
+  const createdAtMs = Date.parse(invitation?.createdAt || "");
+  if (!Number.isFinite(createdAtMs)) return true;
+  return createdAtMs + INVITATION_TTL_MS <= nowMs;
+}
+
 function createInvitationToken() {
   return crypto.randomBytes(24).toString("hex");
 }
@@ -699,6 +759,7 @@ function publicInvitation(invitation, workspace, token) {
     invitedByName: invitation.invitedByName || "Wingman",
     invitedByEmail: invitation.invitedByEmail || "",
     createdAt: invitation.createdAt || nowIso(),
+    expiresAt: invitationExpiryIso(invitation),
     acceptedAt: invitation.acceptedAt || undefined,
     acceptUrl: token ? `/invite?token=${encodeURIComponent(token)}` : undefined,
   };
@@ -708,11 +769,17 @@ function findWorkspaceMember(workspace, userId) {
   return getWorkspaceMemberships(workspace).find((membership) => membership.userId === userId) || null;
 }
 
-function findPendingInvitationByToken(db, token) {
+function findInvitationByToken(db, token) {
   const tokenHash = hashToken(token);
-  return asArray(db.invitations).find((invitation) =>
-    invitation.status === "pending" && invitation.tokenHash === tokenHash
-  ) || null;
+  return asArray(db.invitations).find((invitation) => invitation.tokenHash === tokenHash) || null;
+}
+
+function findPendingInvitationByToken(db, token) {
+  const invitation = findInvitationByToken(db, token);
+  if (!invitation) return null;
+  if (invitation.status !== "pending") return null;
+  if (isInvitationExpired(invitation)) return null;
+  return invitation;
 }
 
 function sanitizeAuditEntry(entry, fallback = {}) {
@@ -852,6 +919,51 @@ function pruneExpiredSessions(db) {
   });
 }
 
+function requestClientAddress(req) {
+  const forwardedFor = tidy(req?.headers?.["x-forwarded-for"]);
+  if (forwardedFor) {
+    const first = forwardedFor.split(",")[0];
+    if (first) return tidy(first).toLowerCase();
+  }
+  const realIp = tidy(req?.headers?.["x-real-ip"]);
+  if (realIp) return realIp.toLowerCase();
+  return tidy(req?.socket?.remoteAddress || req?.connection?.remoteAddress || "unknown").toLowerCase();
+}
+
+function takeAuthRateLimitToken(req, action) {
+  const key = `${tidy(action).toLowerCase()}:${requestClientAddress(req) || "unknown"}`;
+  const nowMs = Date.now();
+  const current = authRateBuckets.get(key);
+
+  if (!current || nowMs - current.windowStart >= AUTH_RATE_LIMIT_WINDOW_MS) {
+    authRateBuckets.set(key, {
+      windowStart: nowMs,
+      count: 1,
+    });
+    return {
+      ok: true,
+      remaining: Math.max(0, AUTH_RATE_LIMIT_MAX_REQUESTS - 1),
+      retryAfterMs: 0,
+    };
+  }
+
+  if (current.count >= AUTH_RATE_LIMIT_MAX_REQUESTS) {
+    return {
+      ok: false,
+      remaining: 0,
+      retryAfterMs: Math.max(0, (current.windowStart + AUTH_RATE_LIMIT_WINDOW_MS) - nowMs),
+    };
+  }
+
+  current.count += 1;
+  authRateBuckets.set(key, current);
+  return {
+    ok: true,
+    remaining: Math.max(0, AUTH_RATE_LIMIT_MAX_REQUESTS - current.count),
+    retryAfterMs: 0,
+  };
+}
+
 function publicUser(user) {
   return {
     id: user.id,
@@ -872,13 +984,12 @@ function publicWorkspace(workspace) {
   };
 }
 
-function makeSessionPayload(sessionToken, user, workspace) {
+function makeSessionPayload(user, workspace) {
   const workspaceRole = getWorkspaceRoleForUser(workspace, user.id) || "sales";
   return {
     ok: true,
     session: {
       mode: "backend",
-      token: sessionToken,
       issuedAt: nowIso(),
       user: publicUser(user),
       workspace: publicWorkspace(workspace),
@@ -888,7 +999,7 @@ function makeSessionPayload(sessionToken, user, workspace) {
   };
 }
 
-function getTokenFromRequest(req, url) {
+function getTokenFromRequest(req, _url) {
   const authorization = typeof req?.headers?.authorization === "string"
     ? req.headers.authorization.trim()
     : "";
@@ -903,12 +1014,6 @@ function getTokenFromRequest(req, url) {
     : "";
 
   if (headerToken) return headerToken;
-
-  const queryToken = typeof url?.searchParams?.get === "function"
-    ? String(url.searchParams.get("token") || "").trim()
-    : "";
-
-  if (queryToken) return queryToken;
 
   const cookieHeader = typeof req?.headers?.cookie === "string"
     ? req.headers.cookie
@@ -1048,15 +1153,36 @@ async function createSession(db, user, workspace) {
 }
 
 export async function handleWingmanHealthGet(_req, res, { sendJson }) {
-  const db = await readDb();
+  let db = emptyDb();
+  try {
+    db = await readDb();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Storage unavailable.";
+    sendJson(res, 503, {
+      ok: false,
+      service: "wingman-deployment-api",
+      now: nowIso(),
+      error: message,
+    });
+    return;
+  }
   const governance = await readGovernance();
   const projectCount = Object.values(db.projectsByWorkspace).reduce((sum, state) => sum + asArray(state?.projects).length, 0);
+  let storageModeConfigured = "file";
+  let storageConfigError = "";
+  try {
+    storageModeConfigured = configuredStorageMode();
+  } catch (error) {
+    storageModeConfigured = "error";
+    storageConfigError = error instanceof Error ? error.message : "Storage configuration error.";
+  }
 
   sendJson(res, 200, {
     ok: true,
     service: "wingman-deployment-api",
     now: nowIso(),
-    storageModeConfigured: configuredStorageMode(),
+    storageModeConfigured,
+    storageConfigError: storageConfigError || undefined,
     storageModeActive: lastStorageModeUsed,
     storageWarning: lastStorageWarning || undefined,
     users: db.users.length,
@@ -1076,6 +1202,7 @@ function buildWingmanSessionCookie(token) {
     "SameSite=Lax",
     "Max-Age=2592000",
   ];
+  if (SESSION_COOKIE_SECURE) parts.push("Secure");
   return parts.join("; ");
 }
 
@@ -1088,6 +1215,7 @@ function buildExpiredWingmanSessionCookie() {
     "Max-Age=0",
     "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
   ];
+  if (SESSION_COOKIE_SECURE) parts.push("Secure");
   return parts.join("; ");
 }
 
@@ -1099,6 +1227,18 @@ function clearWingmanSessionCookie(res) {
   res.setHeader("Set-Cookie", buildExpiredWingmanSessionCookie());
 }
 export async function handleWingmanAuthSignupPost(req, res, { sendJson, parseJsonBody }) {
+  const signupRateLimit = takeAuthRateLimitToken(req, "signup");
+  if (!signupRateLimit.ok) {
+    const retryAfterSeconds = Math.max(1, Math.ceil(signupRateLimit.retryAfterMs / 1000));
+    res.setHeader("Retry-After", String(retryAfterSeconds));
+    sendJson(res, 429, {
+      ok: false,
+      error: "Too many sign-up attempts. Please try again shortly.",
+      retryAfterSeconds,
+    });
+    return;
+  }
+
   let body = {};
   try {
     body = await parseJsonBody(req);
@@ -1172,10 +1312,22 @@ export async function handleWingmanAuthSignupPost(req, res, { sendJson, parseJso
 
   await writeDb(db);
   setWingmanSessionCookie(res, sessionToken);
-  sendJson(res, 200, makeSessionPayload(sessionToken, user, workspace));
+  sendJson(res, 200, makeSessionPayload(user, workspace));
 }
 
 export async function handleWingmanAuthLoginPost(req, res, { sendJson, parseJsonBody }) {
+  const loginRateLimit = takeAuthRateLimitToken(req, "login");
+  if (!loginRateLimit.ok) {
+    const retryAfterSeconds = Math.max(1, Math.ceil(loginRateLimit.retryAfterMs / 1000));
+    res.setHeader("Retry-After", String(retryAfterSeconds));
+    sendJson(res, 429, {
+      ok: false,
+      error: "Too many sign-in attempts. Please try again shortly.",
+      retryAfterSeconds,
+    });
+    return;
+  }
+
   let body = {};
   try {
     body = await parseJsonBody(req);
@@ -1217,7 +1369,7 @@ export async function handleWingmanAuthLoginPost(req, res, { sendJson, parseJson
 
   await writeDb(db);
   setWingmanSessionCookie(res, sessionToken);
-  sendJson(res, 200, makeSessionPayload(sessionToken, user, workspace));
+  sendJson(res, 200, makeSessionPayload(user, workspace));
 }
 
 export async function handleWingmanAuthSessionGet(req, res, url, { sendJson }) {
@@ -1229,7 +1381,7 @@ export async function handleWingmanAuthSessionGet(req, res, url, { sendJson }) {
   }
 
   await writeDb(db);
-  sendJson(res, 200, makeSessionPayload(auth.token, auth.user, auth.workspace));
+  sendJson(res, 200, makeSessionPayload(auth.user, auth.workspace));
 }
 
 export async function handleWingmanAuthLogoutPost(req, res, url, { sendJson }) {
@@ -1856,6 +2008,12 @@ export async function handleWingmanInvitationResolveGet(_req, res, url, { sendJs
     return;
   }
 
+  const invitationByToken = findInvitationByToken(db, token);
+  if (invitationByToken && invitationByToken.status === "pending" && isInvitationExpired(invitationByToken)) {
+    sendJson(res, 410, { ok: false, error: "Invitation has expired. Ask an administrator to send a new invite." });
+    return;
+  }
+
   const invitation = findPendingInvitationByToken(db, token);
   const workspace = invitation
     ? db.workspaces.find((candidate) => candidate.id === invitation.workspaceId)
@@ -1884,6 +2042,12 @@ export async function handleWingmanInvitationAcceptPost(req, res, url, { sendJso
   const token = tidy(body?.token);
   if (!token) {
     sendJson(res, 400, { ok: false, error: "Invitation token is required." });
+    return;
+  }
+
+  const invitationByToken = findInvitationByToken(db, token);
+  if (invitationByToken && invitationByToken.status === "pending" && isInvitationExpired(invitationByToken)) {
+    sendJson(res, 410, { ok: false, error: "Invitation has expired. Ask an administrator to send a new invite." });
     return;
   }
 
@@ -1956,7 +2120,8 @@ export async function handleWingmanInvitationAcceptPost(req, res, url, { sendJso
   }));
 
   await writeDb(db);
-  sendJson(res, 200, makeSessionPayload(sessionToken, user, workspace));
+  setWingmanSessionCookie(res, sessionToken);
+  sendJson(res, 200, makeSessionPayload(user, workspace));
 }
 
 export async function handleWingmanGovernanceGet(req, res, url, { sendJson }) {

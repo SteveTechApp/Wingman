@@ -1,6 +1,7 @@
+import { CheckCircle2, Circle, Clock3 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { routeCatalogByKey } from "../app/routeCatalog";
+import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { RecommendationCard } from "../components/RecommendationCard";
 import { SectionCard } from "../components/SectionCard";
@@ -12,11 +13,16 @@ const wallTypes = [
     summary: "Use when bezel-free impact, scalable size, and viewing distance flexibility are priority.",
     recommendationTitle: "Premium LED design direction",
     recommendationSku: "VIDEOWALL-LED-CONCEPT",
+    confidence: 84,
     rationale: [
       "Strong path for premium large-format presentation impact.",
       "Supports a clearer story around scale, control, and future flexibility.",
       "Best fit when impact and visibility matter more than panel simplicity.",
     ],
+    exampleWallSize: "6.0m x 2.0m",
+    targetEnvironment: "Corporate foyer / experience area",
+    signalPath: "LED controller + distribution + control layer",
+    caution: "Confirm service access, viewing distance, and controller architecture before final recommendation.",
   },
   {
     key: "lcd",
@@ -24,11 +30,16 @@ const wallTypes = [
     summary: "Use when cost control, indoor clarity, and standard panel structures fit the application.",
     recommendationTitle: "Structured LCD wall path",
     recommendationSku: "VIDEOWALL-LCD-CONCEPT",
+    confidence: 79,
     rationale: [
       "Better suited to cost-conscious indoor videowall projects.",
       "Simpler service model where standard display structures are acceptable.",
       "Stronger fit for traditional control-room or signage wall proposals.",
     ],
+    exampleWallSize: "3 x 3 55in layout",
+    targetEnvironment: "Control room / indoor signage wall",
+    signalPath: "Wall processor or matrix + distribution + control layer",
+    caution: "Confirm bezel expectations, mounting tolerances, and processor behavior before final recommendation.",
   },
 ] as const;
 
@@ -40,6 +51,56 @@ const designFactors = [
   "Signal distribution and controller path",
   "Mounting, service, and control requirements",
 ];
+
+type ProgressState = "completed" | "current" | "upcoming";
+
+const builderOutputs: {
+  label: string;
+  routeKey: WingmanRouteKey;
+  state: ProgressState;
+}[] = [
+  { label: "Create videowall project brief", routeKey: "projects", state: "completed" },
+  { label: "Send summary to proposal builder", routeKey: "proposal", state: "current" },
+  { label: "Attach recommended signal and control path", routeKey: "compare", state: "upcoming" },
+  { label: "Create customer assumptions list", routeKey: "support", state: "upcoming" },
+];
+
+function progressClasses(state: ProgressState) {
+  switch (state) {
+    case "completed":
+      return {
+        wrapper: "border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100/70",
+        icon: "text-emerald-600",
+        badge: "bg-emerald-100 text-emerald-700",
+        label: "Completed",
+      };
+    case "current":
+      return {
+        wrapper: "border-amber-200 bg-amber-50 text-amber-950 hover:bg-amber-100/70",
+        icon: "text-amber-600",
+        badge: "bg-amber-100 text-amber-700",
+        label: "Current",
+      };
+    default:
+      return {
+        wrapper: "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100",
+        icon: "text-slate-400",
+        badge: "bg-slate-200 text-slate-600",
+        label: "To do",
+      };
+  }
+}
+
+function progressIcon(state: ProgressState) {
+  switch (state) {
+    case "completed":
+      return <CheckCircle2 className="h-5 w-5" />;
+    case "current":
+      return <Clock3 className="h-5 w-5" />;
+    default:
+      return <Circle className="h-5 w-5" />;
+  }
+}
 
 export function VideowallBuilderPage() {
   const [selectedWallType, setSelectedWallType] = useState<(typeof wallTypes)[number]["key"]>("led");
@@ -105,15 +166,15 @@ export function VideowallBuilderPage() {
                 </div>
                 <div>
                   <p className="text-slate-500">Wall size</p>
-                  <p className="font-semibold text-slate-900">6.0m x 2.0m</p>
+                  <p className="font-semibold text-slate-900">{wallType.exampleWallSize}</p>
                 </div>
                 <div>
                   <p className="text-slate-500">Target environment</p>
-                  <p className="font-semibold text-slate-900">Corporate foyer / experience area</p>
+                  <p className="font-semibold text-slate-900">{wallType.targetEnvironment}</p>
                 </div>
                 <div>
                   <p className="text-slate-500">Signal path</p>
-                  <p className="font-semibold text-slate-900">Controller + distribution + control layer</p>
+                  <p className="font-semibold text-slate-900">{wallType.signalPath}</p>
                 </div>
               </div>
             </div>
@@ -125,41 +186,53 @@ export function VideowallBuilderPage() {
             title={wallType.recommendationTitle}
             sku={wallType.recommendationSku}
             status="recommended"
-            confidence={84}
+            confidence={wallType.confidence}
             rationale={wallType.rationale}
-            caution="Confirm service access, viewing distance, and controller architecture before final recommendation."
+            caution={wallType.caution}
             actionTo={routeCatalogByKey.proposal.path}
           />
 
           <SectionCard
             title="Builder outputs"
-            subtitle="Use these outputs to keep the sales motion structured."
+            subtitle="Use this progress guide to keep the sales motion structured and route each next action into the right Wingman workspace."
           >
+            <div className="mb-4 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">Completed</span>
+              <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-700">Current</span>
+              <span className="rounded-full bg-slate-200 px-3 py-1 text-slate-600">To do</span>
+            </div>
+
             <div className="grid gap-3 text-sm">
-              <Link
-                to={routeCatalogByKey.projects.path}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-slate-700 transition hover:border-slate-300"
-              >
-                Create videowall project brief
-              </Link>
-              <Link
-                to={routeCatalogByKey.proposal.path}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-slate-700 transition hover:border-slate-300"
-              >
-                Send summary to proposal builder
-              </Link>
-              <Link
-                to={routeCatalogByKey.compare.path}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-slate-700 transition hover:border-slate-300"
-              >
-                Attach recommended signal and control path
-              </Link>
-              <Link
-                to={routeCatalogByKey.support.path}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-slate-700 transition hover:border-slate-300"
-              >
-                Create customer assumptions list
-              </Link>
+              {builderOutputs.map((item) => {
+                const tone = progressClasses(item.state);
+                const destination = routeCatalogByKey[item.routeKey];
+
+                return (
+                  <Link
+                    key={item.label}
+                    to={destination.path}
+                    className={`rounded-2xl border px-4 py-4 transition ${tone.wrapper}`}
+                  >
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                      <span className="inline-flex items-center gap-3 font-medium">
+                        <span className={tone.icon}>{progressIcon(item.state)}</span>
+                        {item.label}
+                      </span>
+
+                      <span className="flex items-center gap-2">
+                        <span
+                          className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${tone.badge}`}
+                        >
+                          {tone.label}
+                        </span>
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                          Open {destination.navLabel}
+                        </span>
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </SectionCard>
         </div>

@@ -14,7 +14,8 @@
     "lint": "eslint src server tools --ext .js,.mjs,.ts,.tsx",
     "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
     "check:routes": "node tools/route-smoke-check.mjs",
-    "verify": "npm run typecheck && npm run build && npm run check:routes",
+    "check:readiness": "node tools/production-readiness-check.mjs",
+    "verify": "npm run typecheck && npm run build && npm run check:routes && npm run check:readiness",
     "precommit:check": "npm run verify",
     "safe:verify": "npm run verify"
   },

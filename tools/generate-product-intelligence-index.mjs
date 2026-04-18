@@ -7,16 +7,7 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
 const sourceCandidates = [
-  "data/products.json",
-  "data/catalog.json",
-  "src/data/products.json",
-  "src/data/catalog.json",
-  "src/content/products.json",
-  "src/content/catalog.json",
-  "public/products.json",
-  "public/catalog.json",
-  "public/data/products.json",
-  "public/data/catalog.json",
+  "data/product-intelligence-db.json",
 ];
 
 const outputTargets = [
@@ -40,6 +31,7 @@ async function readJsonFile(filePath) {
 function ensureArrayPayload(value) {
   if (Array.isArray(value)) return value;
   if (value && typeof value === "object") {
+    if (Array.isArray(value.records)) return value.records;
     if (Array.isArray(value.products)) return value.products;
     if (Array.isArray(value.items)) return value.items;
     if (Array.isArray(value.catalog)) return value.catalog;
@@ -54,6 +46,16 @@ function asString(value) {
 }
 
 function normalizeProduct(item, index, sourceFile) {
+  const brand =
+    asString(item?.brand) ||
+    asString(item?.manufacturer) ||
+    asString(item?.vendor) ||
+    asString(item?.make);
+
+  const vendorType =
+    asString(item?.vendorType) ||
+    (brand.toLowerCase() === "wyrestorm" ? "wyrestorm" : "");
+
   const sku =
     asString(item?.sku) ||
     asString(item?.SKU) ||
@@ -73,13 +75,19 @@ function normalizeProduct(item, index, sourceFile) {
   const description =
     asString(item?.description) ||
     asString(item?.summary) ||
-    asString(item?.overview);
+    asString(item?.overview) ||
+    asString(item?.notes);
 
   const category =
     asString(item?.category) ||
     asString(item?.family) ||
     asString(item?.productFamily) ||
     asString(item?.product_family);
+
+  const summary =
+    asString(item?.summary) ||
+    description ||
+    asString(item?.overview);
 
   const technologies = Array.isArray(item?.technologies)
     ? item.technologies.map(asString).filter(Boolean)
@@ -103,29 +111,44 @@ function normalizeProduct(item, index, sourceFile) {
     ? item.applications.map(asString).filter(Boolean)
     : [];
 
+  const tags = [
+    ...(Array.isArray(item?.tags) ? item.tags : []),
+    ...(Array.isArray(item?.featureTags) ? item.featureTags : []),
+    ...(Array.isArray(item?.applicationTags) ? item.applicationTags : []),
+  ]
+    .map(asString)
+    .filter(Boolean);
+
   const searchTerms = [
+    brand,
+    vendorType,
     sku,
     name,
     category,
-    description,
+    summary,
     ...technologies,
     ...connectors,
     ...features,
     ...applications,
+    ...tags,
   ]
     .map((value) => value.toLowerCase())
     .filter(Boolean);
 
   return {
     id: sku || `generated-${index + 1}`,
+    brand,
+    vendorType,
     sku,
     name,
     description,
+    summary,
     category,
     technologies,
     connectors,
     features,
     applications,
+    tags,
     searchTerms: Array.from(new Set(searchTerms)),
     source: path.relative(projectRoot, sourceFile).replace(/\\/g, "/"),
     raw: item,
