@@ -1,0 +1,143 @@
+:is(
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-training-hub,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) {
+  color: var(--wm-text);
+  background: transparent !important;
+}
+
+:is(
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-training-hub,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(
+  [class*="__hero"],
+  [class*="__project-strip"],
+  [class*="__browser"],
+  [class*="__detail"],
+  [class*="__panel"],
+  [class*="__metric"],
+  [class*="__detail-metric"],
+  [class*="__journey-card"],
+  [class*="__module-card"],
+  [class*="__action-card"],
+  [class*="__lesson-card"],
+  [class*="__list-item"],
+  [class*="__status"],
+  [class*="__trace"],
+  [class*="__empty"],
+  [class*="__queue-item"],
+  [class*="__warning"]
+) {
+  border-color: var(--wm-border-default) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    linear-gradient(180deg, var(--wm-surface-2), var(--wm-surface-1)) !important;
+  box-shadow: var(--wm-glow-panel) !important;
+  backdrop-filter: none !important;
+}
+
+:is(
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-training-hub,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(
+  h1,
+  h2,
+  h3,
+  h4,
+  strong,
+  dt,
+  dd,
+  [class*="__title"],
+  [class*="__copy"] strong
+) {
+  color: var(--wm-text) !important;
+}
+
+:is(
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-training-hub,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(
+  p,
+  li,
+  label,
+  small,
+  [class*="__eyebrow"],
+  [class*="__meta"],
+  [class*="__subtitle"],
+  [class*="__copy"],
+  [class*="__summary"],
+  [class*="__time"]
+) {
+  color: var(--wm-text-soft) !important;
+}
+
+:is(
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-training-hub,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(
+  [class*="__chip"],
+  [class*="__filter"],
+  [class*="__badge"],
+  [class*="__tag"],
+  [class*="__warning"]
+) {
+  border-color: var(--wm-border-default) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--wm-text-soft) !important;
+}
+
+:is(
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-training-hub,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(
+  [class*="is-active"],
+  [class*="--active"]
+) {
+  border-color: var(--wm-tone-line) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
+    linear-gradient(180deg, var(--wm-tone-soft), rgba(255, 255, 255, 0.02)) !important;
+  color: var(--wm-text) !important;
+}
+
+:is(
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-training-hub,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(input, select, textarea) {
+  border-color: var(--wm-border-default) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    rgba(7, 11, 17, 0.56) !important;
+  color: var(--wm-text) !important;
+}
+
+:is(
+  .wm-room-wizard,
+  .wm-templates-page,
+  .wm-training-hub,
+  .wm-product-intelligence-page__pane,
+  .wm-lookup-diagnostics-page
+) :is(input, textarea)::placeholder {
+  color: var(--wm-text-faint) !important;
+}

@@ -11,9 +11,11 @@
     "data:product-intelligence-index": "node tools/generate-product-intelligence-index.mjs",
     "build": "npm run data:product-intelligence-index && vite build",
     "preview": "vite preview",
+    "lint": "eslint src server tools --ext .js,.mjs,.ts,.tsx",
     "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
     "check:routes": "node tools/route-smoke-check.mjs",
-    "verify": "npm run typecheck && npm run build && npm run check:routes",
+    "check:readiness": "node tools/production-readiness-check.mjs",
+    "verify": "npm run typecheck && npm run build && npm run check:routes && npm run check:readiness",
     "precommit:check": "npm run verify",
     "safe:verify": "npm run verify"
   },
@@ -29,13 +31,20 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.20",
+    "eslint": "^9.39.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.6.3",
-    "vite": "^8.0.3"
+    "typescript-eslint": "^8.58.2",
+    "vite": "^8.0.8"
   }
 }

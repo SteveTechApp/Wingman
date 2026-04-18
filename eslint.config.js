@@ -11,12 +11,40 @@ export default [
       "dist/**",
       "build/**",
       "coverage/**",
-      "node_modules/**"
+      "node_modules/**",
+      "_*/**",
+      "_archive/**",
+      "_release/**",
+      "_RESCUE/**",
+      "_RECOVERY/**",
+      "_WORK/**",
+      "_STYLE_AUTHORITY_BACKUP/**",
+      "_AUTH_BACKUP/**",
+      "_COMPARE_BACKUP/**",
+      "_COMPARE_MIGRATION_BACKUP/**"
     ]
   },
 
   js.configs.recommended,
   ...tseslint.configs.recommended,
+
+  {
+    files: ["**/*.js", "**/*.mjs", "**/*.cjs", "**/*.ts", "**/*.tsx"],
+    rules: {
+      "no-undef": "off",
+      "no-empty": "off",
+      "no-extra-boolean-cast": "off",
+      "no-useless-escape": "warn",
+      "no-irregular-whitespace": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^React$|^_",
+        },
+      ],
+    },
+  },
 
   {
     files: ["**/*.ts", "**/*.tsx"],

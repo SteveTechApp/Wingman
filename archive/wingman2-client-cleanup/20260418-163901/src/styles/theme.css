@@ -1,0 +1,115 @@
+:root:not(.wm-force-authority) {
+  --wm-radius-sm: 10px;
+  --wm-radius-md: 12px;
+  --wm-radius-lg: 14px;
+
+  --wm-font: "Segoe UI Variable", "Aptos", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --wm-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --wm-shadow-md: 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+
+:root[data-theme="dark"]:not(.wm-force-authority) {
+  --wm-bg: #05080d;
+  --wm-bg-elevated: #0d1117;
+  --wm-surface: #131a22;
+  --wm-surface-2: #181f28;
+  --wm-panel: #1d2631;
+
+  --wm-text: #edf3ff;
+  --wm-text-soft: #bcc5d1;
+  --wm-text-muted: #8f99a8;
+
+  --wm-border: rgba(181, 196, 217, 0.14);
+  --wm-border-strong: rgba(181, 196, 217, 0.24);
+
+  --wm-accent: #f28a2b;
+  --wm-accent-soft: rgba(242, 138, 43, 0.14);
+
+  --wm-success: #22c55e;
+  --wm-warning: #f59e0b;
+  --wm-danger: #ef4444;
+  --wm-info: #38bdf8;
+
+  --wm-topbar: #0e1218;
+  --wm-sidebar: #11161d;
+  --wm-input: #161d25;
+
+  --wm-studio-accent: var(--wm-accent);
+  --wm-studio-text: var(--wm-text);
+  --wm-studio-text-soft: var(--wm-text-soft);
+  --wm-studio-text-muted: var(--wm-text-muted);
+}
+
+:root[data-theme="light"]:not(.wm-force-authority) {
+  --wm-bg: #e3e7eb;
+  --wm-bg-elevated: #eff2f5;
+  --wm-surface: #f5f6f8;
+  --wm-surface-2: #eceff2;
+  --wm-panel: #ffffff;
+
+  --wm-text: #151b24;
+  --wm-text-soft: #394555;
+  --wm-text-muted: #667487;
+
+  --wm-border: rgba(21, 27, 36, 0.10);
+  --wm-border-strong: rgba(21, 27, 36, 0.18);
+
+  --wm-accent: #cf6f1d;
+  --wm-accent-soft: rgba(207, 111, 29, 0.10);
+
+  --wm-success: #16a34a;
+  --wm-warning: #d97706;
+  --wm-danger: #dc2626;
+  --wm-info: #0284c7;
+
+  --wm-topbar: #1b222c;
+  --wm-sidebar: #f0f2f5;
+  --wm-input: #f7f8fa;
+
+  --wm-studio-accent: var(--wm-accent);
+  --wm-studio-text: var(--wm-text);
+  --wm-studio-text-soft: var(--wm-text-soft);
+  --wm-studio-text-muted: var(--wm-text-muted);
+}
+
+html:not(.wm-force-authority),
+body:not(.wm-force-authority),
+html:not(.wm-force-authority) #root {
+  min-height: 100%;
+}
+
+html:not(.wm-force-authority),
+body:not(.wm-force-authority) {
+  margin: 0;
+  padding: 0;
+  background:
+    radial-gradient(circle at top right, rgba(242, 138, 43, 0.08), transparent 24%),
+    linear-gradient(180deg, var(--wm-bg), var(--wm-bg-elevated));
+  color: var(--wm-text);
+  font-family: var(--wm-font);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+body:not(.wm-force-authority) {
+  background: var(--wm-bg);
+  color: var(--wm-text);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}

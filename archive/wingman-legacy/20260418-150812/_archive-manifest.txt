@@ -1,0 +1,12 @@
+﻿Archived at: 20260418-150812
+Project root: C:\Users\steve\wingman
+
+Archived items:
+src/features/compare
+src/features/dashboard
+src/features/discovery
+src/features/proposal
+src/features/support
+src/features/templates
+src\core\wingman
+src\features\wingmanUx

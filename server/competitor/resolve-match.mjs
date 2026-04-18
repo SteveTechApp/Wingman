@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveCompetitorLiveLookup } from "./live-lookup.mjs";
 import {
+  PRODUCT_INTELLIGENCE_DB_FILE,
   WYRESTORM_PRODUCT_INTELLIGENCE_FILE,
   WYRESTORM_SEED_CATALOG_FILE,
   WYRESTORM_SKU_MASTER_FILE,
@@ -210,6 +211,44 @@ function detectCategory(blob) {
   return "Unknown";
 }
 
+function detectComparisonDomain(blobInput) {
+  const blob = normalise(blobInput);
+
+  if (/\bvideo wall\b|\bvideowall\b|\bwall processor\b|\bwall feed\b|\bmultiview\b|\bwindowing\b/.test(blob)) return "VIDEO_WALL";
+  if (/\bmatrix\b|\bmodular matrix\b|\bmatrix switch\b|\bmatrix switching\b/.test(blob)) return "MATRIX";
+  if (/\bextender\b|\btpx\b|\btps\b|\bdtp\b|\bhdbase t\b|\bhdbaset\b|\bpoint to point\b/.test(blob)) return "EXTENDER";
+  if (/\bcontroller\b|\bmanagement\b|\bdirector\b|\bcontrol\b/.test(blob)) return "CONTROL";
+  if (/\bnvx\b|\bnav\b|\bubex\b|\bvinx\b|\bnetworkhd\b|\bavoip\b|\bsdvoe\b|\bav over ip\b|\bencoder\b|\bdecoder\b/.test(blob)) return "AVOIP";
+  if (/\bpresentation switcher\b|\bpresentation system\b|\bcollaboration\b|\bbyod\b|\bbyom\b|\bucx\b|\bdmps\b|\bhd-ps\b|\btaurus ucx\b|\bomega\b|\bome\b|\bomni\b|\bclickshare\b|\bairmedia\b|\bvia\b|\bsharelink\b/.test(blob)) return "PRESENTATION";
+
+  return "UNKNOWN";
+}
+
+function detectComparisonUseCase(blobInput, domain) {
+  const blob = normalise(blobInput);
+
+  if (/\bmultiview\b|\bmulti-view\b|\bwindowing\b/.test(blob)) return "MULTIVIEW";
+  if (/\bvideo wall\b|\bvideowall\b|\bwall processor\b|\bwall feed\b/.test(blob)) return "WALL_PROCESSING";
+  if (domain === "MATRIX") return "ROUTING";
+  if (domain === "EXTENDER") return "EXTENSION";
+  if (domain === "VIDEO_WALL") return "WALL_PROCESSING";
+  if (domain === "CONTROL") return "CONTROL";
+  if (domain === "PRESENTATION") return "COLLABORATION";
+  if (/\bcollaboration\b|\bbyod\b|\bbyom\b|\busb-c\b|\busb c\b|\bwireless presentation\b|\bhuddle\b|\bclickshare\b|\bairmedia\b|\bvia\b|\bsharelink\b/.test(blob)) return "COLLABORATION";
+  if (/\bextension\b|\bextender\b|\bpoint to point\b|\blong reach\b/.test(blob)) return "EXTENSION";
+  if (/\bcontrol\b|\bmanagement\b|\bdirector\b/.test(blob)) return "CONTROL";
+  if (domain === "AVOIP") return "DISTRIBUTION";
+
+  return "UNKNOWN";
+}
+
+function detectHdbtGeneration(blobInput) {
+  const blob = normalise(blobInput);
+  if (/3\.0|hdbaset 3|hdbt 3|tx3|rx3|dtp3/.test(blob)) return "HDBT_3_0";
+  if (/hdbaset|dtp/.test(blob)) return "HDBT_2_0";
+  return "UNKNOWN";
+}
+
 function detectVideo(blob) {
   const b = normalise(blob);
 
@@ -232,16 +271,6 @@ function detectVideo(blob) {
     "Unknown";
 
   return { maxResolution, chroma, bandwidth };
-}
-
-function detectNumericNear(blob, regexes, fallback = 0) {
-  const b = normalise(blob);
-  for (const source of regexes) {
-    const rx = new RegExp(source, "i");
-    const m = b.match(rx);
-    if (m && m[1]) return Number(m[1]);
-  }
-  return fallback;
 }
 
 function detectPortCounts(blob) {
@@ -456,8 +485,8 @@ function comparisonRow(label, competitorValue, wyrestormValue) {
   const b = String(wyrestormValue ?? "").trim();
   return {
     label,
-    competitor: a || "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â",
-    wyrestorm: b || "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â",
+    competitor: a || "--",
+    wyrestorm: b || "--",
     matches: a !== "" && b !== "" && a === b,
   };
 }
@@ -574,6 +603,10 @@ function toStructuredProfile(input) {
       : detectFeatures(blob),
     keySpecs: Array.isArray(input.keySpecs) ? input.keySpecs : [],
     formFactor: tidy(input.formFactor || detectFormFactor(blob, input.model)),
+    comparisonDomain: detectComparisonDomain(blob),
+    comparisonUseCase: detectComparisonUseCase(blob, detectComparisonDomain(blob)),
+    hdbtGeneration: detectHdbtGeneration(blob),
+    sourceUrl: tidy(input.sourceUrl || input.resolvedUrl),
     rawText: tidy(input.rawText || blob),
   };
 }
@@ -594,6 +627,7 @@ function extractCompetitorProfileFromLivePayload(payload, manufacturer, model) {
     title,
     summary,
     keySpecs: Array.isArray(payload?.keySpecs) ? payload.keySpecs : [],
+    sourceUrl: payload?.resolvedUrl,
     rawText: text,
   });
 
@@ -644,10 +678,20 @@ function buildCandidateFromCatalog(row) {
   const sku = pickSku(row);
   const name = pickName(row);
   const blob = pickBlob(row);
+  const base = toStructuredProfile({
+    manufacturer: "WyreStorm",
+    model: sku,
+    title: name,
+    summary: blob,
+    rawText: blob,
+  });
 
   return {
     sku,
     name,
+    comparisonDomain: base.comparisonDomain,
+    comparisonUseCase: base.comparisonUseCase,
+    hdbtGeneration: base.hdbtGeneration,
     deviceClass: detectDeviceClass(blob, sku),
     transport: detectTransport(blob),
     subtype: detectSubtype(blob),
@@ -669,10 +713,13 @@ function shortlistWyreStormCandidates(competitorProfile, rows, limit = 5) {
   const scored = candidates.map((candidate) => {
     let score = 0;
 
+    if (candidate.comparisonDomain === competitorProfile.comparisonDomain && competitorProfile.comparisonDomain !== "UNKNOWN") score += 24;
+    if (candidate.comparisonUseCase === competitorProfile.comparisonUseCase && competitorProfile.comparisonUseCase !== "UNKNOWN") score += 18;
     if (candidate.transport === competitorProfile.transport) score += 30;
     if (candidate.role === competitorProfile.role) score += 25;
     if (candidate.category === competitorProfile.category) score += 15;
     if (candidate.subtype === competitorProfile.subtype && competitorProfile.subtype !== "Unknown") score += 12;
+    if (candidate.hdbtGeneration === competitorProfile.hdbtGeneration && competitorProfile.hdbtGeneration !== "UNKNOWN") score += 8;
 
     if (candidate.video.maxResolution === competitorProfile.video.maxResolution) score += 8;
     if (candidate.video.bandwidth === competitorProfile.video.bandwidth) score += 5;
@@ -694,7 +741,7 @@ function shortlistWyreStormCandidates(competitorProfile, rows, limit = 5) {
     }
 
     score -= featurePenalty(candidate, competitorProfile);
-        if (!isCandidateClassCompatible(competitorProfile, candidate)) { score -= 30; }
+    if (!isCandidateClassCompatible(competitorProfile, candidate)) score -= 30;
     return { ...candidate, shortlistScore: score };
   });
 
@@ -778,12 +825,67 @@ function buildWyreStormProfile(page, fallbackCandidate) {
     video: fallbackCandidate.video,
     ports: fallbackCandidate.ports,
     features: fallbackCandidate.features,
+    sourceUrl: page.url,
   }));
 }
 
 function coveragePercent(total, matched) {
   if (total <= 0) return 0;
   return Math.round((matched / total) * 100);
+}
+
+function isKnownValue(value) {
+  const text = normalise(value);
+  return Boolean(text) && text !== "unknown";
+}
+
+function resolutionRank(value) {
+  const text = normalise(value);
+  if (text === "1080p") return 1;
+  if (text === "4k30") return 2;
+  if (text === "4k60") return 3;
+  if (text === "8k") return 4;
+  return 0;
+}
+
+function chromaRank(value) {
+  const text = normalise(value);
+  if (text === "4:2:0") return 1;
+  if (text === "4:4:4") return 2;
+  return 0;
+}
+
+function bandwidthRank(value) {
+  const text = normalise(value);
+  if (text === "10g") return 1;
+  if (text === "18g") return 2;
+  if (text === "48g") return 3;
+  return 0;
+}
+
+function roleKey(value) {
+  const text = normalise(value);
+  if (text === "presentation switcher" || text === "switcher") return "switcher";
+  if (text === "multiview decoder") return "multiview-decoder";
+  if (text === "matrix") return "matrix";
+  if (text === "encoder") return "encoder";
+  if (text === "decoder") return "decoder";
+  if (text === "extender") return "extender";
+  return text || "unknown";
+}
+
+function areRolesCompatible(competitor, wyrestorm) {
+  const a = roleKey(competitor?.role);
+  const b = roleKey(wyrestorm?.role);
+
+  if (a === "unknown" || b === "unknown") return true;
+  if (a === b) return true;
+  if (a === "switcher" && b === "matrix") return true;
+  if (a === "matrix" && b === "switcher") return true;
+  if (a === "decoder" && b === "multiview-decoder") return true;
+  if (a === "multiview-decoder" && b === "decoder") return true;
+
+  return false;
 }
 
 function computeIoCoverage(a, b) {
@@ -818,91 +920,378 @@ function computeFeatureCoverage(a, b) {
   return coveragePercent(comparable, matched);
 }
 
-function scoreProfiles(competitor, wyrestorm) {
-  let categoryScore = 0;
-  let inputsScore = 0;
-  let outputsScore = 0;
-  let resolutionScore = 0;
-  let transportScore = 0;
-  let audioFeatureScore = 0;
-  let latencyScore = 0;
+function computeProfileCompleteness(profile) {
+  const checks = [
+    Boolean(tidy(profile?.title)),
+    Boolean(tidy(profile?.summary)),
+    isKnownValue(profile?.category),
+    isKnownValue(profile?.transport),
+    isKnownValue(profile?.role),
+    isKnownValue(profile?.comparisonDomain),
+    isKnownValue(profile?.comparisonUseCase),
+    isKnownValue(profile?.sourceUrl),
+    Object.values(profile?.ports || {}).some((value) => Number(value || 0) > 0),
+    resolutionRank(profile?.video?.maxResolution) > 0 || bandwidthRank(profile?.video?.bandwidth) > 0,
+    truthyFeatureNames(profile?.features).length > 0,
+  ];
 
-  if (competitor.category !== "Unknown" && wyrestorm.category === competitor.category) categoryScore = 30;
-  else if (wyrestorm.role === competitor.role && competitor.role !== "Unknown") categoryScore = 20;
+  const present = checks.filter(Boolean).length;
+  return coveragePercent(checks.length, present);
+}
 
-  const inA = Number(competitor.ports.hdmiIn || 0) + Number(competitor.ports.usbC || 0);
-  const inB = Number(wyrestorm.ports.hdmiIn || 0) + Number(wyrestorm.ports.usbC || 0);
-  inputsScore =
-    inA === 0 || inB === 0 ? 6 :
-    inA === inB ? 15 :
-    Math.max(0, 15 - Math.min(15, Math.abs(inA - inB) * 3));
+function scorePortFamily(competitorValue, wyrestormValue, label, warnings, strengths) {
+  const left = Number(competitorValue || 0);
+  const right = Number(wyrestormValue || 0);
 
-  const outA = Number(competitor.ports.hdmiOut || 0) + Number(competitor.ports.hdbt || 0);
-  const outB = Number(wyrestorm.ports.hdmiOut || 0) + Number(wyrestorm.ports.hdbt || 0);
-  outputsScore =
-    outA === 0 || outB === 0 ? 6 :
-    outA === outB ? 15 :
-    Math.max(0, 15 - Math.min(15, Math.abs(outA - outB) * 4));
-
-  resolutionScore =
-    competitor.video.maxResolution === wyrestorm.video.maxResolution ? 10 :
-    competitor.video.maxResolution === "Unknown" || wyrestorm.video.maxResolution === "Unknown" ? 4 :
-    0;
-
-  transportScore =
-    competitor.transport === wyrestorm.transport ? 10 :
-    competitor.transport === "Unknown" || wyrestorm.transport === "Unknown" ? 4 :
-    0;
-
-  const featureKeys = ["audioBreakout", "hdr"];
-  for (const key of featureKeys) {
-    if (Boolean(competitor.features[key]) === Boolean(wyrestorm.features[key])) audioFeatureScore += 5;
+  if (left <= 0 && right <= 0) {
+    warnings.push(`${label} counts are missing on both products.`);
+    return 0;
   }
 
-  latencyScore = 10;
+  if (left <= 0 || right <= 0) {
+    warnings.push(`${label} counts are incomplete, so this dimension still needs review.`);
+    return 25;
+  }
 
-  const total = Math.round(
-    categoryScore +
-    inputsScore +
-    outputsScore +
-    resolutionScore +
-    transportScore +
-    audioFeatureScore +
-    latencyScore
+  const delta = Math.abs(left - right);
+  if (delta === 0) {
+    strengths.push(`${label} counts align exactly.`);
+    return 100;
+  }
+
+  if (delta === 1) {
+    warnings.push(`${label} counts differ by one port.`);
+    return 70;
+  }
+
+  warnings.push(`${label} counts diverge materially (${left} vs ${right}).`);
+  return Math.max(0, 100 - delta * 30);
+}
+
+function scoreVideoDimension(competitorValue, wyrestormValue, label, rankFn, warnings, strengths) {
+  const leftRank = rankFn(competitorValue);
+  const rightRank = rankFn(wyrestormValue);
+
+  if (leftRank === 0 && rightRank === 0) {
+    warnings.push(`${label} was not captured clearly for either product.`);
+    return 0;
+  }
+
+  if (leftRank === 0 || rightRank === 0) {
+    warnings.push(`${label} is only partially captured, so this dimension stays in review.`);
+    return 35;
+  }
+
+  if (rightRank === leftRank) {
+    strengths.push(`${label} aligns exactly.`);
+    return 100;
+  }
+
+  if (rightRank > leftRank) {
+    strengths.push(`WyreStorm ${label.toLowerCase()} meets or exceeds the competitor spec.`);
+    return 82;
+  }
+
+  warnings.push(`WyreStorm ${label.toLowerCase()} appears lower than the competitor spec.`);
+  return 10;
+}
+
+function buildNextActions(blockers, warnings, competitor, wyrestorm) {
+  const actions = [];
+
+  if (!isKnownValue(competitor?.sourceUrl)) {
+    actions.push("Capture a direct competitor product URL or datasheet before trusting this compare.");
+  }
+
+  if (blockers.some((item) => item.toLowerCase().includes("transport"))) {
+    actions.push("Re-check the competitor transport class. A transport mismatch usually means this is the wrong WyreStorm family.");
+  }
+
+  if (blockers.some((item) => item.toLowerCase().includes("role"))) {
+    actions.push("Confirm whether the competitor device is an encoder, decoder, switcher, or matrix endpoint.");
+  }
+
+  if (warnings.some((item) => item.toLowerCase().includes("counts"))) {
+    actions.push("Verify input and output counts from the source page before saving this fit downstream.");
+  }
+
+  if (warnings.some((item) => item.toLowerCase().includes("captured"))) {
+    actions.push("Add evidence in Product Intelligence so future compares can rely on approved stored data instead of partial live extraction.");
+  }
+
+  if (!actions.length && isKnownValue(wyrestorm?.sourceUrl)) {
+    actions.push("Open the matched WyreStorm product page and confirm the workflow assumptions before saving.");
+  }
+
+  return actions.slice(0, 4);
+}
+
+function scoreProfiles(competitor, wyrestorm, options = {}) {
+  const blockers = [];
+  const warnings = [];
+  const strengths = [];
+  const reasons = [];
+
+  let comparisonDomainScore = 0;
+  let useCaseScore = 0;
+  let transportScore = 0;
+  let roleScore = 0;
+  let subtypeScore = 100;
+  let generationScore = 100;
+
+  const competitorDomain = String(competitor?.comparisonDomain || "UNKNOWN");
+  const wyrestormDomain = String(wyrestorm?.comparisonDomain || "UNKNOWN");
+  if (competitorDomain === wyrestormDomain && competitorDomain !== "UNKNOWN") {
+    comparisonDomainScore = 100;
+    strengths.push(`Comparison domain aligned (${competitorDomain}).`);
+  } else if (competitorDomain === "UNKNOWN" || wyrestormDomain === "UNKNOWN") {
+    comparisonDomainScore = 45;
+    warnings.push("Comparison domain could not be fully classified.");
+  } else if (competitorDomain === "CONTROL" || wyrestormDomain === "CONTROL") {
+    comparisonDomainScore = 0;
+    blockers.push(`Comparison domain mismatch (${competitorDomain} vs ${wyrestormDomain}).`);
+  } else if (
+    (competitorDomain === "PRESENTATION" && wyrestormDomain === "MATRIX") ||
+    (competitorDomain === "MATRIX" && wyrestormDomain === "PRESENTATION")
+  ) {
+    comparisonDomainScore = 40;
+    warnings.push(`Domain alignment is partial (${competitorDomain} vs ${wyrestormDomain}).`);
+  } else {
+    comparisonDomainScore = 15;
+    warnings.push(`Domain alignment is weak (${competitorDomain} vs ${wyrestormDomain}).`);
+  }
+
+  const competitorUseCase = String(competitor?.comparisonUseCase || "UNKNOWN");
+  const wyrestormUseCase = String(wyrestorm?.comparisonUseCase || "UNKNOWN");
+  if (competitorUseCase === wyrestormUseCase && competitorUseCase !== "UNKNOWN") {
+    useCaseScore = 100;
+    strengths.push(`Use case aligned (${competitorUseCase}).`);
+  } else if (competitorUseCase === "UNKNOWN" || wyrestormUseCase === "UNKNOWN") {
+    useCaseScore = 40;
+    warnings.push("Use case could not be fully classified.");
+  } else if (
+    (competitorUseCase === "COLLABORATION" && wyrestormUseCase === "ROUTING") ||
+    (competitorUseCase === "ROUTING" && wyrestormUseCase === "COLLABORATION")
+  ) {
+    useCaseScore = 55;
+    warnings.push(`Use case is adjacent rather than exact (${competitorUseCase} vs ${wyrestormUseCase}).`);
+  } else {
+    useCaseScore = 20;
+    warnings.push(`Use case differs (${competitorUseCase} vs ${wyrestormUseCase}).`);
+  }
+
+  if (competitor.transport === wyrestorm.transport && isKnownValue(competitor.transport)) {
+    transportScore = 100;
+    strengths.push(`Transport aligned (${competitor.transport}).`);
+  } else if (!isKnownValue(competitor.transport) || !isKnownValue(wyrestorm.transport)) {
+    transportScore = 35;
+    warnings.push("Transport classification is incomplete.");
+  } else {
+    transportScore = 0;
+    blockers.push(`Transport mismatch (${competitor.transport} vs ${wyrestorm.transport}).`);
+  }
+
+  if (areRolesCompatible(competitor, wyrestorm)) {
+    roleScore =
+      roleKey(competitor.role) === roleKey(wyrestorm.role) && roleKey(competitor.role) !== "unknown"
+        ? 100
+        : 65;
+    if (roleScore === 100) strengths.push(`Device role aligned (${competitor.role}).`);
+    else warnings.push(`Device role is adjacent rather than exact (${competitor.role} vs ${wyrestorm.role}).`);
+  } else {
+    roleScore = 0;
+    blockers.push(`Device role mismatch (${competitor.role} vs ${wyrestorm.role}).`);
+  }
+
+  if (competitor.transport === "AVoIP" || wyrestorm.transport === "AVoIP") {
+    if (competitor.subtype === wyrestorm.subtype && isKnownValue(competitor.subtype)) {
+      subtypeScore = 100;
+      strengths.push(`AVoIP subtype aligned (${competitor.subtype}).`);
+    } else if (
+      !isKnownValue(competitor.subtype) ||
+      !isKnownValue(wyrestorm.subtype) ||
+      competitor.subtype === "Proprietary" ||
+      wyrestorm.subtype === "Proprietary"
+    ) {
+      subtypeScore = 45;
+      warnings.push("AVoIP subtype is not precise enough for a fully trusted compare.");
+    } else {
+      subtypeScore = 0;
+      blockers.push(`AVoIP subtype mismatch (${competitor.subtype} vs ${wyrestorm.subtype}).`);
+    }
+  }
+
+  if (competitor.transport === "HDBaseT" || wyrestorm.transport === "HDBaseT") {
+    if (competitor.hdbtGeneration === wyrestorm.hdbtGeneration && competitor.hdbtGeneration !== "UNKNOWN") {
+      generationScore = 100;
+      strengths.push(`HDBaseT generation aligned (${competitor.hdbtGeneration}).`);
+    } else if (competitor.hdbtGeneration === "UNKNOWN" || wyrestorm.hdbtGeneration === "UNKNOWN") {
+      generationScore = 40;
+      warnings.push("HDBaseT generation is not fully captured.");
+    } else if (competitor.hdbtGeneration === "HDBT_2_0" && wyrestorm.hdbtGeneration === "HDBT_3_0") {
+      generationScore = 70;
+      strengths.push("WyreStorm HDBaseT generation meets or exceeds the competitor tier.");
+    } else {
+      generationScore = 20;
+      warnings.push(`HDBaseT generation differs (${competitor.hdbtGeneration} vs ${wyrestorm.hdbtGeneration}).`);
+    }
+  }
+
+  const inputScore = scorePortFamily(
+    Number(competitor.ports.hdmiIn || 0) + Number(competitor.ports.usbC || 0),
+    Number(wyrestorm.ports.hdmiIn || 0) + Number(wyrestorm.ports.usbC || 0),
+    "Input",
+    warnings,
+    strengths,
   );
+  const outputScore = scorePortFamily(
+    Number(competitor.ports.hdmiOut || 0) + Number(competitor.ports.hdbt || 0),
+    Number(wyrestorm.ports.hdmiOut || 0) + Number(wyrestorm.ports.hdbt || 0),
+    "Output",
+    warnings,
+    strengths,
+  );
+  const ioScore = Math.round((inputScore + outputScore) / 2);
+
+  const resolutionScore = scoreVideoDimension(
+    competitor.video?.maxResolution,
+    wyrestorm.video?.maxResolution,
+    "Max resolution",
+    resolutionRank,
+    warnings,
+    strengths,
+  );
+  const chromaScore = scoreVideoDimension(
+    competitor.video?.chroma,
+    wyrestorm.video?.chroma,
+    "Chroma",
+    chromaRank,
+    warnings,
+    strengths,
+  );
+  const bandwidthScore = scoreVideoDimension(
+    competitor.video?.bandwidth,
+    wyrestorm.video?.bandwidth,
+    "Bandwidth",
+    bandwidthRank,
+    warnings,
+    strengths,
+  );
+  const videoScore = Math.round((resolutionScore + chromaScore + bandwidthScore) / 3);
 
   const ioCoverage = computeIoCoverage(competitor, wyrestorm);
   const featureCoverage = computeFeatureCoverage(competitor, wyrestorm);
+  const featureScore = featureCoverage > 0 ? featureCoverage : 25;
+  if (featureCoverage >= 70) strengths.push("Feature flags aligned across the captured spec set.");
+  else if (featureCoverage === 0) warnings.push("Feature alignment is weak or not captured clearly enough.");
+  else warnings.push(`Feature alignment is partial (${featureCoverage}% coverage).`);
 
-  const confidenceScore = Math.round(
-    Math.min(100,
-      total * 0.55 +
-      ioCoverage * 0.25 +
-      featureCoverage * 0.20
-    )
+  const competitorCompleteness = computeProfileCompleteness(competitor);
+  const wyrestormCompleteness = computeProfileCompleteness(wyrestorm);
+  const profileCompleteness = Math.round((competitorCompleteness * 0.6) + (wyrestormCompleteness * 0.4));
+  let evidenceCoverage = Math.round(profileCompleteness * 0.6 + ioCoverage * 0.2 + featureCoverage * 0.2);
+
+  if (options.competitorLookupMode === "stored-intelligence") evidenceCoverage = Math.min(100, evidenceCoverage + 5);
+  if (!isKnownValue(competitor?.sourceUrl)) evidenceCoverage = Math.max(0, evidenceCoverage - 15);
+  if (!isKnownValue(wyrestorm?.sourceUrl)) evidenceCoverage = Math.max(0, evidenceCoverage - 10);
+
+  const total = Math.round(
+    comparisonDomainScore * 0.14 +
+    useCaseScore * 0.12 +
+    transportScore * 0.16 +
+    roleScore * 0.14 +
+    subtypeScore * 0.08 +
+    generationScore * 0.06 +
+    ioScore * 0.12 +
+    videoScore * 0.10 +
+    featureScore * 0.08
   );
 
+  let confidenceScore = Math.round(
+    Math.min(100, total * 0.55 + evidenceCoverage * 0.25 + profileCompleteness * 0.20)
+  );
+
+  if (blockers.length > 0) confidenceScore = Math.min(confidenceScore, 45);
+
   const confidence =
-    confidenceScore >= 80 ? "High" :
-    confidenceScore >= 60 ? "Medium" :
+    confidenceScore >= 82 ? "High" :
+    confidenceScore >= 62 ? "Medium" :
     "Low";
 
+  const readinessStatus =
+    blockers.length > 0 ? "blocked" :
+    confidenceScore >= 78 && evidenceCoverage >= 70 && profileCompleteness >= 65 && ioCoverage >= 35 ? "ready" :
+    "review";
+
+  const reviewRequired = readinessStatus !== "ready";
   const matchType =
-    total >= 85 ? "DIRECT MATCH" :
+    readinessStatus === "blocked" ? "INCOMPATIBLE" :
+    total >= 85 && confidenceScore >= 80 ? "DIRECT MATCH" :
     total >= 70 ? "CLOSE MATCH" :
     total >= 55 ? "ALTERNATIVE" :
-    "TECHNOLOGY DIFFERENCE";
+    "REVIEW REQUIRED";
+
+  reasons.push(`Comparison domain: ${competitorDomain} vs ${wyrestormDomain}`);
+  reasons.push(`Use case: ${competitorUseCase} vs ${wyrestormUseCase}`);
+  reasons.push(`Transport: ${competitor.transport || "Unknown"} vs ${wyrestorm.transport || "Unknown"}`);
+  reasons.push(`Role: ${competitor.role || "Unknown"} vs ${wyrestorm.role || "Unknown"}`);
+  if (competitor.transport === "AVoIP" || wyrestorm.transport === "AVoIP") {
+    reasons.push(`AVoIP subtype: ${competitor.subtype || "Unknown"} vs ${wyrestorm.subtype || "Unknown"}`);
+  }
+  if (competitor.transport === "HDBaseT" || wyrestorm.transport === "HDBaseT") {
+    reasons.push(`HDBaseT generation: ${competitor.hdbtGeneration || "UNKNOWN"} vs ${wyrestorm.hdbtGeneration || "UNKNOWN"}`);
+  }
+  reasons.push(`Profile completeness: ${profileCompleteness}%`);
+  reasons.push(`Evidence coverage: ${evidenceCoverage}%`);
+  reasons.push(`I/O coverage: ${ioCoverage}%`);
+  reasons.push(`Feature coverage: ${featureCoverage}%`);
+
+  const nextActions = buildNextActions(blockers, warnings, competitor, wyrestorm);
+  const readinessSummary =
+    readinessStatus === "blocked"
+      ? blockers[0] || "Critical mismatches block this compare."
+      : readinessStatus === "ready"
+        ? "Evidence and classification support this match for downstream use."
+        : warnings[0] || "Manual review is recommended before downstream use.";
 
   return {
-    matchScore: Math.min(100, total),
+    matchScore: Math.max(0, Math.min(100, total)),
     breakdown: {
-      categoryScore,
-      inputsScore,
-      outputsScore,
-      resolutionScore,
+      comparisonDomainScore,
+      useCaseScore,
       transportScore,
-      audioFeatureScore,
-      latencyScore,
+      roleScore,
+      subtypeScore,
+      generationScore,
+      ioScore,
+      videoScore,
+      featureScore,
+      evidenceCoverage,
+      profileCompleteness,
+      ioCoverage,
+      featureCoverage,
+      total: Math.max(0, Math.min(100, total)),
+      reasons,
+    },
+    quality: {
+      evidenceCoverage,
+      profileCompleteness,
+      ioCoverage,
+      featureCoverage,
+      competitorLookupMode: options.competitorLookupMode || "live",
+    },
+    readiness: {
+      status: readinessStatus,
+      summary: readinessSummary,
+      reviewRequired,
+      blockers,
+      warnings,
+      strengths,
+      nextActions,
+      evidenceCoverage,
+      profileCompleteness,
+      ioCoverage,
+      featureCoverage,
     },
     ioCoverage,
     featureCoverage,
@@ -911,6 +1300,151 @@ function scoreProfiles(competitor, wyrestorm) {
     matchType,
   };
 }
+
+function sumPortsByType(entries, patterns) {
+  if (!Array.isArray(entries) || entries.length === 0) return 0;
+
+  let total = 0;
+
+  for (const entry of entries) {
+    const type = normalise(entry?.type);
+    if (!type) continue;
+
+    const matched = patterns.some((pattern) => type.includes(pattern));
+    if (!matched) continue;
+
+    const count = Number(entry?.count || 0);
+    if (!Number.isFinite(count) || count <= 0) continue;
+
+    total += Math.round(count);
+  }
+
+  return total;
+}
+
+function firstSourceUrl(record) {
+  const urls = Array.isArray(record?.sourceUrls) ? record.sourceUrls : [];
+  const firstListUrl = urls.find((value) => tidy(value));
+  return tidy(firstListUrl || record?.sourceUrl);
+}
+
+function buildBlobFromCompetitorIntelligence(record) {
+  const parts = [];
+
+  parts.push(tidy(record?.brand));
+  parts.push(tidy(record?.sku));
+  parts.push(tidy(record?.name));
+  parts.push(tidy(record?.family));
+  parts.push(tidy(record?.category));
+  parts.push(tidy(record?.summary));
+  parts.push(...(Array.isArray(record?.features) ? record.features : []));
+  parts.push(...(Array.isArray(record?.control) ? record.control : []));
+  parts.push(...(Array.isArray(record?.audio) ? record.audio : []));
+
+  const inputs = Array.isArray(record?.inputs) ? record.inputs : [];
+  const outputs = Array.isArray(record?.outputs) ? record.outputs : [];
+
+  for (const input of inputs) {
+    const count = Number(input?.count || 0);
+    const type = tidy(input?.type);
+    if (!Number.isFinite(count) || count <= 0 || !type) continue;
+    parts.push(`${count} ${type} inputs`);
+  }
+
+  for (const output of outputs) {
+    const count = Number(output?.count || 0);
+    const type = tidy(output?.type);
+    if (!Number.isFinite(count) || count <= 0 || !type) continue;
+    parts.push(`${count} ${type} outputs`);
+  }
+
+  const video = record?.video && typeof record.video === "object" ? record.video : null;
+  if (video) {
+    parts.push(tidy(video.maxResolution));
+    parts.push(tidy(video.chroma));
+    parts.push(tidy(video.hdmi));
+    parts.push(tidy(video.hdcpVersion));
+    if (video.hdr === true) parts.push("HDR");
+    if (video.multiview === true) parts.push("Multiview");
+    if (video.scaling === true) parts.push("Scaling");
+    const bandwidth = Number(video.bandwidthGbps || 0);
+    if (Number.isFinite(bandwidth) && bandwidth > 0) {
+      parts.push(`${bandwidth}Gbps`);
+    }
+  }
+
+  const distanceMeters = Number(record?.distanceMeters || 0);
+  if (Number.isFinite(distanceMeters) && distanceMeters > 0) {
+    parts.push(`${distanceMeters}m`);
+  }
+
+  return parts.filter(Boolean).join(" ");
+}
+
+async function loadCompetitorIntelligenceRecord(manufacturer, model) {
+  const db = await readJsonFile(PRODUCT_INTELLIGENCE_DB_FILE, null);
+  const records = Array.isArray(db?.records) ? db.records : [];
+
+  if (records.length === 0) return null;
+
+  const brandKey = normalise(manufacturer);
+  const skuKey = normalise(model);
+
+  const exact = records.find((record) => {
+    if (!isApprovedCompetitorIntelligenceRecord(record)) return false;
+    if (normalise(record?.brand) !== brandKey) return false;
+    if (normalise(record?.sku) !== skuKey) return false;
+    return true;
+  });
+
+  if (exact) return exact;
+
+  return null;
+}
+
+function isApprovedCompetitorIntelligenceRecord(record) {
+  if (normalise(record?.vendorType) !== "competitor") return false;
+  if (Boolean(record?.archived)) return false;
+  if (normalise(record?.status) !== "approved") return false;
+  return true;
+}
+
+function buildCompetitorProfileFromIntelligenceRecord(record) {
+  const blob = buildBlobFromCompetitorIntelligence(record);
+
+  const ports = {
+    hdmiIn: sumPortsByType(record?.inputs, ["hdmi"]),
+    hdmiOut: sumPortsByType(record?.outputs, ["hdmi"]),
+    usbC: sumPortsByType(record?.inputs, ["usb-c", "usbc"]),
+    usbHost: sumPortsByType(record?.inputs, ["usbhost", "usb host"]),
+    usbDevice: sumPortsByType(record?.outputs, ["usbdevice", "usb device"]),
+    hdbt: sumPortsByType([...(Array.isArray(record?.inputs) ? record.inputs : []), ...(Array.isArray(record?.outputs) ? record.outputs : [])], ["hdbaset", "hdbt"]),
+    lan: sumPortsByType([...(Array.isArray(record?.inputs) ? record.inputs : []), ...(Array.isArray(record?.outputs) ? record.outputs : [])], ["rj45", "lan", "ethernet"]),
+  };
+
+  return enrichProfile(toStructuredProfile({
+    manufacturer: tidy(record?.brand),
+    model: tidy(record?.sku),
+    title: tidy(record?.name || record?.sku),
+    summary: tidy(record?.summary),
+    category: tidy(record?.category),
+    transport: tidy(record?.transport),
+    keySpecs: [
+      ...(Array.isArray(record?.features) ? record.features : []),
+      ...(Array.isArray(record?.control) ? record.control : []),
+      ...(Array.isArray(record?.audio) ? record.audio : []),
+    ],
+    rawText: blob,
+    sourceUrl: firstSourceUrl(record),
+    ports,
+    video: record?.video && typeof record.video === "object" ? record.video : undefined,
+  }));
+}
+
+
+
+
+
 
 export async function resolveCompetitorMatch(payload) {
   const manufacturer = tidy(payload?.manufacturer);
@@ -931,21 +1465,36 @@ export async function resolveCompetitorMatch(payload) {
     };
   }
 
-  const competitorLive = await resolveCompetitorLiveLookup({
-    manufacturer,
-    model,
-    productUrl,
-  });
+  const storedCompetitorRecord = await loadCompetitorIntelligenceRecord(manufacturer, model);
 
-  if (!competitorLive?.ok) {
-    return {
-      ok: false,
-      error: competitorLive?.error || "Competitor live lookup failed.",
-      cacheHit: false,
-    };
+  let competitorProfile = null;
+  let competitorResolvedUrl = "";
+  let competitorLookupMode = "live";
+
+  if (storedCompetitorRecord) {
+    competitorProfile = buildCompetitorProfileFromIntelligenceRecord(storedCompetitorRecord);
+    competitorResolvedUrl = firstSourceUrl(storedCompetitorRecord);
+    competitorLookupMode = "stored-intelligence";
   }
 
-  const competitorProfile = enrichProfile(extractCompetitorProfileFromLivePayload(competitorLive, manufacturer, model));
+  if (!competitorProfile) {
+    const competitorLive = await resolveCompetitorLiveLookup({
+      manufacturer,
+      model,
+      productUrl,
+    });
+
+    if (!competitorLive?.ok) {
+      return {
+        ok: false,
+        error: competitorLive?.error || "Competitor live lookup failed.",
+        cacheHit: false,
+      };
+    }
+
+    competitorProfile = enrichProfile(extractCompetitorProfileFromLivePayload(competitorLive, manufacturer, model));
+    competitorResolvedUrl = competitorLive.resolvedUrl || competitorLive.discoveryUrl || productUrl || inferCompetitorProductUrl(manufacturer, model);
+  }
 
   const wyrestormRows = await getWyreStormCatalog();
   const shortlist = shortlistWyreStormCandidates(competitorProfile, wyrestormRows, 5);
@@ -956,7 +1505,9 @@ export async function resolveCompetitorMatch(payload) {
     if (!page.ok) continue;
 
     const profile = buildWyreStormProfile(page, candidate);
-    const scored = scoreProfiles(competitorProfile, profile);
+    const scored = scoreProfiles(competitorProfile, profile, {
+      competitorLookupMode,
+    });
 
     const comparison_rows = buildComparisonRows(competitorProfile, profile);
 
@@ -970,10 +1521,12 @@ export async function resolveCompetitorMatch(payload) {
       io_coverage: scored.ioCoverage,
       feature_coverage: scored.featureCoverage,
       resolvedUrl: page.url,
-      summary: profile.summary,
+      summary: scored.readiness.summary || profile.summary,
       profile,
       comparison_rows,
       breakdown: scored.breakdown,
+      quality: scored.quality,
+      readiness: scored.readiness,
       verified_catalog_sku: true,
       live_spec_extracted: true,
     });
@@ -988,15 +1541,20 @@ export async function resolveCompetitorMatch(payload) {
     ok: true,
     cacheHit: false,
     fetchedAt: nowIso(),
+    competitor_lookup_mode: competitorLookupMode,
     competitor_product: {
       manufacturer: competitorProfile.manufacturer,
       model: competitorProfile.model,
       title: competitorProfile.title,
       category: competitorProfile.category,
+      comparisonDomain: competitorProfile.comparisonDomain,
+      comparisonUseCase: competitorProfile.comparisonUseCase,
       transport: competitorProfile.transport,
       role: competitorProfile.role,
+      subtype: competitorProfile.subtype,
+      hdbtGeneration: competitorProfile.hdbtGeneration,
       summary: competitorProfile.summary,
-      resolvedUrl: competitorLive.resolvedUrl || competitorLive.discoveryUrl || productUrl || inferCompetitorProductUrl(manufacturer, model),
+      resolvedUrl: competitorResolvedUrl,
       ports: competitorProfile.ports,
       video: competitorProfile.video,
       features: competitorProfile.features,
@@ -1004,9 +1562,17 @@ export async function resolveCompetitorMatch(payload) {
     best_match: best,
     alternatives,
     shortlist_count: shortlist.length,
-    resolved_competitor_url: competitorLive.resolvedUrl || competitorLive.discoveryUrl || productUrl || inferCompetitorProductUrl(manufacturer, model),
+    resolved_competitor_url: competitorResolvedUrl,
+    compare_quality: best?.quality || null,
+    compare_readiness: best?.readiness || null,
   };
 
   MATCH_CACHE.set(cacheKey, result);
   return result;
 }
+
+export const compareInternals = {
+  toStructuredProfile,
+  enrichProfile,
+  scoreProfiles,
+};

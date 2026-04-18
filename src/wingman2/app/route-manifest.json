@@ -1,0 +1,110 @@
+[
+  {
+    "key": "dashboard",
+    "path": "/wingman/dashboard",
+    "segment": "dashboard",
+    "label": "Dashboard",
+    "navLabel": "Dashboard",
+    "pageFile": "DashboardPage.tsx",
+    "summary": "Route the user into the right sales motion quickly."
+  },
+  {
+    "key": "projects",
+    "path": "/wingman/projects",
+    "segment": "projects",
+    "label": "Project Management",
+    "navLabel": "Project Management",
+    "pageFile": "ProjectsPage.tsx",
+    "summary": "Resume active opportunities and keep stage progress visible."
+  },
+  {
+    "key": "discovery",
+    "path": "/wingman/discovery",
+    "segment": "discovery",
+    "label": "Discovery",
+    "navLabel": "Discovery",
+    "pageFile": "DiscoveryPage.tsx",
+    "summary": "Turn vague customer requests into a structured brief."
+  },
+  {
+    "key": "finder",
+    "path": "/wingman/finder",
+    "segment": "finder",
+    "label": "Product Finder",
+    "navLabel": "Product Finder",
+    "pageFile": "FinderPage.tsx",
+    "summary": "Match the brief to the right WyreStorm direction."
+  },
+  {
+    "key": "compare",
+    "path": "/wingman/compare",
+    "segment": "compare",
+    "label": "Competitor Compare",
+    "navLabel": "Competitor Compare",
+    "pageFile": "ComparePage.tsx",
+    "summary": "Replace competitor SKUs with a clear WyreStorm answer."
+  },
+  {
+    "key": "templates",
+    "path": "/wingman/templates",
+    "segment": "templates",
+    "label": "Room Templates",
+    "navLabel": "Room Templates",
+    "pageFile": "TemplatesPage.tsx",
+    "summary": "Start from a known room archetype and pre-fill the workflow."
+  },
+  {
+    "key": "videowall",
+    "path": "/wingman/videowall",
+    "segment": "videowall",
+    "label": "Videowall Builder",
+    "navLabel": "Videowall Builder",
+    "pageFile": "VideowallBuilderPage.tsx",
+    "summary": "Shape LED or LCD wall requirements into a design direction."
+  },
+  {
+    "key": "salesHelper",
+    "path": "/wingman/sales-helper",
+    "segment": "sales-helper",
+    "label": "Sales Helper",
+    "navLabel": "Sales Helper",
+    "pageFile": "SalesHelperPage.tsx",
+    "summary": "Turn technical findings into rep-friendly positioning."
+  },
+  {
+    "key": "callCards",
+    "path": "/wingman/call-cards",
+    "segment": "call-cards",
+    "label": "Call Cards",
+    "navLabel": "Call Cards",
+    "pageFile": "CallCardsPage.tsx",
+    "summary": "Give reps live-call prompts for common AV conversations."
+  },
+  {
+    "key": "ingest",
+    "path": "/wingman/ingest",
+    "segment": "ingest",
+    "label": "Document Ingest",
+    "navLabel": "Document Ingest",
+    "pageFile": "IngestPage.tsx",
+    "summary": "Convert customer documents into a structured brief."
+  },
+  {
+    "key": "proposal",
+    "path": "/wingman/proposal",
+    "segment": "proposal",
+    "label": "Proposal Builder",
+    "navLabel": "Proposal Builder",
+    "pageFile": "ProposalPage.tsx",
+    "summary": "Package the recommendation into customer-safe output."
+  },
+  {
+    "key": "support",
+    "path": "/wingman/support",
+    "segment": "support",
+    "label": "Support",
+    "navLabel": "Support",
+    "pageFile": "SupportPage.tsx",
+    "summary": "Escalate risk, request review, and track completion gaps."
+  }
+]

@@ -1,0 +1,44 @@
+{
+  "name": "wyrestorm-wingman",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:lookup-api": "npm --prefix server run dev",
+    "server:dev": "npm --prefix server run dev",
+    "server:start": "npm --prefix server run start",
+    "data:product-intelligence-index": "node tools/generate-product-intelligence-index.mjs",
+    "build": "npm run data:product-intelligence-index && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
+    "check:routes": "node tools/route-smoke-check.mjs",
+    "check:guardrails": "powershell -ExecutionPolicy Bypass -File tools/guardrail-scan.ps1",
+    "check:workflow": "node tools/workflow-regression-check.mjs",
+    "check:store": "node tools/canonical-store-check.mjs",
+    "verify": "npm run typecheck && npm run build && npm run check:routes && npm run check:guardrails && npm run check:workflow && npm run check:store",
+    "precommit:check": "npm run verify",
+    "safe:verify": "npm run verify"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "husky": "^9.1.7",
+    "lucide-react": "^0.511.0",
+    "mammoth": "^1.12.0",
+    "pdfjs-dist": "^4.10.38",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.6.3",
+    "vite": "^8.0.3"
+  }
+}
