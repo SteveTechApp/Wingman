@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "generatedAt": "2026-04-18T15:56:00.411Z",
+    "sourceFiles": [],
+    "count": 0,
+    "generator": "tools/generate-product-intelligence-index.mjs"
+  },
+  "products": [],
+  "lookup": {
+    "bySku": {},
+    "byName": {}
+  }
+}

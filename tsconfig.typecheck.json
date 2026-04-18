@@ -24,8 +24,10 @@
     "noEmit": true
   },
   "include": [
-    "src",
-    "src/vite-env.d.ts"
+    "src/App.tsx",
+    "src/main.tsx",
+    "src/vite-env.d.ts",
+    "src/wingman2/**/*"
   ],
   "exclude": [
     "node_modules",
@@ -33,16 +35,6 @@
     "build",
     "coverage",
     "**/*.bak_*",
-    "src/components/3D/**",
-    "src/components/CableRoutingVisualization.tsx",
-    "src/components/InteractiveDiagramReactFlow.tsx",
-    "src/components/PlannerCanvas.tsx",
-    "src/pages/VideoGeneratorPage.tsx",
-    "src/import/recommendWyrestorm.ts",
-    "src/services/export/docxExporterPro.ts",
-    "src/utils/pdfExporter.ts",
-    "src/utils/technologyAnalyzer.ts",
-    "src/services/auth/**",
     "src/_legacy/**"
   ]
 }

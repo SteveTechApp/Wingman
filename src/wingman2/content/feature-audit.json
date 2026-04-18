@@ -1,0 +1,110 @@
+[
+  {
+    "routeKey": "dashboard",
+    "status": "wired",
+    "summary": "Dashboard routing, launch actions, and project summary links are now connected to real routes.",
+    "needed": [
+      "Replace static KPI values with live project and workflow metrics.",
+      "Add recent activity and saved-work state from a canonical project store."
+    ]
+  },
+  {
+    "routeKey": "projects",
+    "status": "partial",
+    "summary": "Project open actions now route by workflow stage, but the page still uses seeded opportunity data.",
+    "needed": [
+      "Persist project records and stage history in a dedicated store or backend.",
+      "Add project detail pages so users can reopen a specific opportunity context."
+    ]
+  },
+  {
+    "routeKey": "discovery",
+    "status": "partial",
+    "summary": "Discovery now drives visible state and routes forward into Product Finder and Projects.",
+    "needed": [
+      "Capture answers in structured form state rather than demo-only selections.",
+      "Pass discovery output into Finder, Proposal, and Projects as reusable data."
+    ]
+  },
+  {
+    "routeKey": "finder",
+    "status": "partial",
+    "summary": "Finder is fully reachable and routes into compare and proposal flows, but recommendations are still static.",
+    "needed": [
+      "Bind shortlist generation to discovery inputs and catalog intelligence.",
+      "Add accessory logic and family-level recommendation reasoning."
+    ]
+  },
+  {
+    "routeKey": "compare",
+    "status": "partial",
+    "summary": "Compare now has outbound workflow links and proposal handoff, but matching is still hard-coded.",
+    "needed": [
+      "Connect SKU entry to competitor lookup and WyreStorm match resolution.",
+      "Store comparison runs and expose confidence evidence per result."
+    ]
+  },
+  {
+    "routeKey": "templates",
+    "status": "partial",
+    "summary": "Template actions now route users into downstream workflows, but templates are still static cards.",
+    "needed": [
+      "Define template data models covering room assumptions, bundle defaults, and optional upgrades.",
+      "Apply the selected template into discovery, proposal, and project state."
+    ]
+  },
+  {
+    "routeKey": "videowall",
+    "status": "partial",
+    "summary": "Videowall path selection now changes the page state and routes into proposal and project flows.",
+    "needed": [
+      "Add wall sizing, controller, and topology logic for LED and LCD scenarios.",
+      "Generate BOM outputs and assumptions based on wall dimensions and behavior."
+    ]
+  },
+  {
+    "routeKey": "salesHelper",
+    "status": "wired",
+    "summary": "Sales Helper is complete as a static guidance module and now links cleanly into compare, finder, and proposal flows.",
+    "needed": [
+      "Generate prompt cards dynamically from the active project context.",
+      "Tie objection handling to the matched product family or competitor profile."
+    ]
+  },
+  {
+    "routeKey": "callCards",
+    "status": "wired",
+    "summary": "Call card journeys are reachable and each card now routes to the most relevant follow-on workflow.",
+    "needed": [
+      "Filter cards by room type, workflow stage, and competitor context.",
+      "Allow saving call outcomes back into project notes."
+    ]
+  },
+  {
+    "routeKey": "ingest",
+    "status": "partial",
+    "summary": "Ingest now supports real file selection and routes into proposal generation, but extraction is still illustrative.",
+    "needed": [
+      "Wire the file picker into Mammoth and PDF extraction with requirement parsing.",
+      "Persist extracted requirements and unknowns into discovery or project state."
+    ]
+  },
+  {
+    "routeKey": "proposal",
+    "status": "partial",
+    "summary": "Proposal is reachable from every major workflow, but the document sections are still a static preview.",
+    "needed": [
+      "Assemble proposal sections from live discovery, compare, and BOM data.",
+      "Add export paths for presentation-safe PDF or document output."
+    ]
+  },
+  {
+    "routeKey": "support",
+    "status": "wired",
+    "summary": "Support now acts as the completion and escalation hub, including the current feature audit view.",
+    "needed": [
+      "Connect escalation actions to real contacts, queues, or internal workflows.",
+      "Track review outcomes and approval status against each project."
+    ]
+  }
+]

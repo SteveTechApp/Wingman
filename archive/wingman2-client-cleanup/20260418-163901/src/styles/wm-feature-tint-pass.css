@@ -1,0 +1,410 @@
+:root,
+.wm-shell-root {
+  --wm-feature-dashboard: #67c7ff;
+  --wm-feature-dashboard-soft: rgba(103, 199, 255, 0.12);
+  --wm-feature-dashboard-line: rgba(103, 199, 255, 0.26);
+
+  --wm-feature-projects: #73d6a8;
+  --wm-feature-projects-soft: rgba(115, 214, 168, 0.12);
+  --wm-feature-projects-line: rgba(115, 214, 168, 0.26);
+
+  --wm-feature-guru: #ff9b47;
+  --wm-feature-guru-soft: rgba(255, 155, 71, 0.16);
+  --wm-feature-guru-line: rgba(255, 155, 71, 0.30);
+
+  --wm-feature-discovery: #59d4ff;
+  --wm-feature-discovery-soft: rgba(89, 212, 255, 0.13);
+  --wm-feature-discovery-line: rgba(89, 212, 255, 0.27);
+
+  --wm-feature-catalog: #8ec5ff;
+  --wm-feature-catalog-soft: rgba(142, 197, 255, 0.12);
+  --wm-feature-catalog-line: rgba(142, 197, 255, 0.26);
+
+  --wm-feature-proposal: #f0c26b;
+  --wm-feature-proposal-soft: rgba(240, 194, 107, 0.14);
+  --wm-feature-proposal-line: rgba(240, 194, 107, 0.28);
+
+  --wm-feature-navigator: #9d8cff;
+  --wm-feature-navigator-soft: rgba(157, 140, 255, 0.13);
+  --wm-feature-navigator-line: rgba(157, 140, 255, 0.28);
+
+  --wm-feature-compare: #ff7b8b;
+  --wm-feature-compare-soft: rgba(255, 123, 139, 0.13);
+  --wm-feature-compare-line: rgba(255, 123, 139, 0.28);
+
+  --wm-feature-training: #57d3c2;
+  --wm-feature-training-soft: rgba(87, 211, 194, 0.13);
+  --wm-feature-training-line: rgba(87, 211, 194, 0.28);
+
+  --wm-feature-templates: #7eb3ff;
+  --wm-feature-templates-soft: rgba(126, 179, 255, 0.13);
+  --wm-feature-templates-line: rgba(126, 179, 255, 0.28);
+
+  --wm-feature-import: #8fd96b;
+  --wm-feature-import-soft: rgba(143, 217, 107, 0.13);
+  --wm-feature-import-line: rgba(143, 217, 107, 0.28);
+
+  --wm-feature-videowall: #c28bff;
+  --wm-feature-videowall-soft: rgba(194, 139, 255, 0.13);
+  --wm-feature-videowall-line: rgba(194, 139, 255, 0.28);
+
+  --wm-feature-workspace: #9aa9bf;
+  --wm-feature-workspace-soft: rgba(154, 169, 191, 0.10);
+  --wm-feature-workspace-line: rgba(154, 169, 191, 0.22);
+}
+
+:root[data-wm-feature="dashboard"],
+.wm-shell-root[data-wm-feature="dashboard"] {
+  --wm-tone: var(--wm-feature-dashboard);
+  --wm-tone-soft: var(--wm-feature-dashboard-soft);
+  --wm-tone-line: var(--wm-feature-dashboard-line);
+}
+
+:root[data-wm-feature="projects"],
+.wm-shell-root[data-wm-feature="projects"] {
+  --wm-tone: var(--wm-feature-projects);
+  --wm-tone-soft: var(--wm-feature-projects-soft);
+  --wm-tone-line: var(--wm-feature-projects-line);
+}
+
+:root[data-wm-feature="guru"],
+.wm-shell-root[data-wm-feature="guru"] {
+  --wm-tone: var(--wm-feature-guru);
+  --wm-tone-soft: var(--wm-feature-guru-soft);
+  --wm-tone-line: var(--wm-feature-guru-line);
+}
+
+:root[data-wm-feature="discovery"],
+.wm-shell-root[data-wm-feature="discovery"] {
+  --wm-tone: var(--wm-feature-discovery);
+  --wm-tone-soft: var(--wm-feature-discovery-soft);
+  --wm-tone-line: var(--wm-feature-discovery-line);
+}
+
+:root[data-wm-feature="catalog"],
+.wm-shell-root[data-wm-feature="catalog"] {
+  --wm-tone: var(--wm-feature-catalog);
+  --wm-tone-soft: var(--wm-feature-catalog-soft);
+  --wm-tone-line: var(--wm-feature-catalog-line);
+}
+
+:root[data-wm-feature="proposal"],
+.wm-shell-root[data-wm-feature="proposal"] {
+  --wm-tone: var(--wm-feature-proposal);
+  --wm-tone-soft: var(--wm-feature-proposal-soft);
+  --wm-tone-line: var(--wm-feature-proposal-line);
+}
+
+:root[data-wm-feature="navigator"],
+.wm-shell-root[data-wm-feature="navigator"] {
+  --wm-tone: var(--wm-feature-navigator);
+  --wm-tone-soft: var(--wm-feature-navigator-soft);
+  --wm-tone-line: var(--wm-feature-navigator-line);
+}
+
+:root[data-wm-feature="compare"],
+.wm-shell-root[data-wm-feature="compare"] {
+  --wm-tone: var(--wm-feature-compare);
+  --wm-tone-soft: var(--wm-feature-compare-soft);
+  --wm-tone-line: var(--wm-feature-compare-line);
+}
+
+:root[data-wm-feature="training"],
+.wm-shell-root[data-wm-feature="training"] {
+  --wm-tone: var(--wm-feature-training);
+  --wm-tone-soft: var(--wm-feature-training-soft);
+  --wm-tone-line: var(--wm-feature-training-line);
+}
+
+:root[data-wm-feature="templates"],
+.wm-shell-root[data-wm-feature="templates"] {
+  --wm-tone: var(--wm-feature-templates);
+  --wm-tone-soft: var(--wm-feature-templates-soft);
+  --wm-tone-line: var(--wm-feature-templates-line);
+}
+
+:root[data-wm-feature="import"],
+.wm-shell-root[data-wm-feature="import"] {
+  --wm-tone: var(--wm-feature-import);
+  --wm-tone-soft: var(--wm-feature-import-soft);
+  --wm-tone-line: var(--wm-feature-import-line);
+}
+
+:root[data-wm-feature="videowall"],
+.wm-shell-root[data-wm-feature="videowall"] {
+  --wm-tone: var(--wm-feature-videowall);
+  --wm-tone-soft: var(--wm-feature-videowall-soft);
+  --wm-tone-line: var(--wm-feature-videowall-line);
+}
+
+:root[data-wm-feature="workspace"],
+.wm-shell-root[data-wm-feature="workspace"] {
+  --wm-tone: var(--wm-feature-workspace);
+  --wm-tone-soft: var(--wm-feature-workspace-soft);
+  --wm-tone-line: var(--wm-feature-workspace-line);
+}
+
+.wm-page-frame__header,
+.wm-page-section,
+.wm-card,
+.wm-tool-card,
+.wm-command-card,
+.wm-action-card,
+[class*="tool-card"],
+[class*="action-card"],
+[class*="start-path"],
+[class*="mission-card"] {
+  position: relative;
+  overflow: hidden;
+}
+
+.wm-page-frame__header::before,
+.wm-page-section::before,
+.wm-card::before,
+.wm-tool-card::before,
+.wm-command-card::before,
+.wm-action-card::before,
+[class*="tool-card"]::before,
+[class*="action-card"]::before,
+[class*="start-path"]::before,
+[class*="mission-card"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top right, var(--wm-tone-soft), transparent 36%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 40%);
+}
+
+.wm-page-frame__header,
+.wm-page-section,
+.wm-card,
+.wm-tool-card,
+.wm-command-card,
+.wm-action-card,
+[class*="tool-card"],
+[class*="action-card"],
+[class*="start-path"],
+[class*="mission-card"] {
+  border-color: color-mix(in srgb, var(--wm-tone-line) 62%, var(--wm-border-default)) !important;
+}
+
+a[href*="/guru"],
+a[href*="/discovery"],
+a[href*="/catalog"],
+a[href*="/proposal"],
+a[href*="/navigator"],
+a[href*="/compare"],
+a[href*="/competitor"],
+a[href*="/training"],
+a[href*="/templates"],
+a[href*="/import"],
+a[href*="/video-wall"],
+a[href*="/projects"],
+a[href*="/dashboard"],
+[data-route*="guru"],
+[data-route*="discovery"],
+[data-route*="catalog"],
+[data-route*="proposal"],
+[data-route*="navigator"],
+[data-route*="compare"],
+[data-route*="competitor"],
+[data-route*="training"],
+[data-route*="templates"],
+[data-route*="import"],
+[data-route*="video-wall"],
+[data-route*="projects"],
+[data-route*="dashboard"] {
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+a[href*="/guru"],
+[data-route*="guru"] {
+  border-color: var(--wm-feature-guru-line) !important;
+  background: linear-gradient(180deg, rgba(255, 155, 71, 0.10), rgba(255, 155, 71, 0.03)) !important;
+}
+
+a[href*="/discovery"],
+[data-route*="discovery"] {
+  border-color: var(--wm-feature-discovery-line) !important;
+  background: linear-gradient(180deg, rgba(89, 212, 255, 0.09), rgba(89, 212, 255, 0.03)) !important;
+}
+
+a[href*="/catalog"],
+[data-route*="catalog"] {
+  border-color: var(--wm-feature-catalog-line) !important;
+  background: linear-gradient(180deg, rgba(142, 197, 255, 0.08), rgba(142, 197, 255, 0.03)) !important;
+}
+
+a[href*="/proposal"],
+[data-route*="proposal"] {
+  border-color: var(--wm-feature-proposal-line) !important;
+  background: linear-gradient(180deg, rgba(240, 194, 107, 0.10), rgba(240, 194, 107, 0.03)) !important;
+}
+
+a[href*="/navigator"],
+[data-route*="navigator"] {
+  border-color: var(--wm-feature-navigator-line) !important;
+  background: linear-gradient(180deg, rgba(157, 140, 255, 0.09), rgba(157, 140, 255, 0.03)) !important;
+}
+
+a[href*="/compare"],
+a[href*="/competitor"],
+[data-route*="compare"],
+[data-route*="competitor"] {
+  border-color: var(--wm-feature-compare-line) !important;
+  background: linear-gradient(180deg, rgba(255, 123, 139, 0.09), rgba(255, 123, 139, 0.03)) !important;
+}
+
+a[href*="/training"],
+[data-route*="training"] {
+  border-color: var(--wm-feature-training-line) !important;
+  background: linear-gradient(180deg, rgba(87, 211, 194, 0.09), rgba(87, 211, 194, 0.03)) !important;
+}
+
+a[href*="/templates"],
+[data-route*="templates"] {
+  border-color: var(--wm-feature-templates-line) !important;
+  background: linear-gradient(180deg, rgba(126, 179, 255, 0.09), rgba(126, 179, 255, 0.03)) !important;
+}
+
+a[href*="/import"],
+[data-route*="import"] {
+  border-color: var(--wm-feature-import-line) !important;
+  background: linear-gradient(180deg, rgba(143, 217, 107, 0.09), rgba(143, 217, 107, 0.03)) !important;
+}
+
+a[href*="/video-wall"],
+[data-route*="video-wall"] {
+  border-color: var(--wm-feature-videowall-line) !important;
+  background: linear-gradient(180deg, rgba(194, 139, 255, 0.09), rgba(194, 139, 255, 0.03)) !important;
+}
+
+a[href*="/projects"],
+[data-route*="projects"] {
+  border-color: var(--wm-feature-projects-line) !important;
+  background: linear-gradient(180deg, rgba(115, 214, 168, 0.09), rgba(115, 214, 168, 0.03)) !important;
+}
+
+a[href*="/dashboard"],
+[data-route*="dashboard"] {
+  border-color: var(--wm-feature-dashboard-line) !important;
+  background: linear-gradient(180deg, rgba(103, 199, 255, 0.09), rgba(103, 199, 255, 0.03)) !important;
+}
+
+.wm-page-frame__header,
+.wm-page-section__header {
+  gap: 12px !important;
+  padding: 18px !important;
+}
+
+.wm-page-section,
+.wm-card,
+.wm-tool-card,
+.wm-command-card,
+.wm-action-card,
+[class*="tool-card"],
+[class*="action-card"],
+[class*="mission-card"] {
+  padding: 14px !important;
+  gap: 10px !important;
+}
+
+.wm-canvas,
+.wm-canvas-inner,
+.wm-page-frame,
+.wm-page-body,
+.wm-page-content,
+[class*="page-body"],
+[class*="page-content"] {
+  padding: 12px !important;
+  gap: 12px !important;
+}
+
+.wm-page-frame__eyebrow,
+.wm-page-frame__kicker,
+.wm-page-frame__meta,
+.wm-page-section__eyebrow,
+.wm-page-section__meta {
+  margin-bottom: 4px !important;
+}
+
+.wm-page-frame__title,
+.wm-page-section__title,
+h1 {
+  margin-bottom: 6px !important;
+}
+
+html,
+body,
+#root {
+  min-height: 100dvh;
+  height: 100%;
+}
+
+body {
+  overflow-y: auto !important;
+}
+
+.wm-shell-root {
+  min-height: 100dvh !important;
+  height: 100dvh !important;
+}
+
+.wm-shell-main,
+.wm-main,
+main,
+.wm-page-scroll,
+.wm-canvas,
+.wm-canvas-inner,
+[class*="page-scroll"],
+[class*="shell-main"] {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+.wm-guru-fab,
+button.wm-guru-fab,
+a.wm-guru-fab,
+div.wm-guru-fab {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  backdrop-filter: none !important;
+  width: 76px !important;
+  height: 76px !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+}
+
+.wm-guru-fab::before,
+.wm-guru-fab::after,
+button.wm-guru-fab::before,
+button.wm-guru-fab::after {
+  display: none !important;
+  content: none !important;
+}
+
+.wm-guru-fab img,
+.wm-guru-fab svg,
+.wm-guru-fab > img,
+.wm-guru-fab > svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 0 0 rgba(255, 155, 71, 0)) drop-shadow(0 12px 28px rgba(255, 155, 71, 0.26)) !important;
+}
+
+.wm-shell-root[data-wm-feature="guru"] .wm-page-frame__header,
+.wm-shell-root[data-wm-feature="guru"] .wm-page-section,
+:root[data-wm-feature="guru"] .wm-page-frame__header,
+:root[data-wm-feature="guru"] .wm-page-section {
+  border-color: var(--wm-feature-guru-line) !important;
+}
