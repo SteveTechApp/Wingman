@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Menu, RotateCcw, X } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { routeCatalog } from "../app/routeCatalog";
+import { routeByPath, routeCatalog } from "../app/routeCatalog";
 import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
 
@@ -10,92 +10,108 @@ type AppShellProps = {
   children?: ReactNode;
 };
 
+const storedProjectKeys = [
+  "wingman-current-project",
+  "wingman-current-project-id",
+  "wingman-active-project",
+  "wingman-active-project-id",
+  "wingman-project-context",
+  "wingman-workflow-context",
+  "wingman-discovery-brief",
+  "wingman-proposal-draft",
+];
+
+function clearStoredProjectContext() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  storedProjectKeys.forEach((key) => {
+    window.localStorage.removeItem(key);
+    window.sessionStorage.removeItem(key);
+  });
+
+  window.dispatchEvent(new CustomEvent("wingman:project-context-cleared"));
+}
+
 export function AppShell({ children }: AppShellProps) {
   const [guruOpen, setGuruOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const location = useLocation();
+
+  const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
+  const activeLabel = activeRoute?.label ?? "Dashboard";
+  const activeSummary = activeRoute?.summary ?? "WyreStorm technical sales workspace.";
 
   useEffect(() => {
     setMobileNavOpen(false);
   }, [location.pathname]);
 
   return (
-    <div className="wingman-shell">
-      <div className="mx-auto flex min-h-screen max-w-[1680px] gap-6 px-4 py-4 lg:px-6">
-        <aside className="hidden w-[280px] shrink-0 rounded-3xl wingman-panel p-5 lg:block">
-          <div className="border-b border-white/10 pb-5">
-            <p className="wingman-kicker">WyreStorm</p>
-            <h1 className="wingman-display mt-2 text-4xl text-white">Wingman</h1>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              Fast pre-sales technical assistant for distributor sales teams.
-            </p>
+    <div className="wingman-shell wingman-authority-shell">
+      <aside className="wingman-sidebar" data-mobile-open={mobileNavOpen ? "true" : "false"}>
+        <div className="wingman-brand">
+          <div className="wingman-brand-mark" aria-hidden="true">
+            W
           </div>
+          <div className="wingman-brand-copy">
+            <p>WyreStorm</p>
+            <strong>Wingman</strong>
+          </div>
+        </div>
 
-          <nav className="mt-5 space-y-2">
-            {routeCatalog.map(({ path, navLabel, icon: Icon }) => (
-              <NavLink
-                key={path}
-                to={path}
-                className={({ isActive }) =>
-                  [
-                    "flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition-all duration-200",
-                    isActive
-                      ? "border-orange-400/50 bg-orange-500/12 text-orange-100 shadow-[0_0_0_1px_rgba(251,146,60,0.18),0_0_30px_rgba(251,146,60,0.24)]"
-                      : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white",
-                  ].join(" ")
-                }
-              >
-                <Icon className="h-4 w-4 shrink-0" />
+        <nav className="wingman-nav" aria-label="Wingman navigation">
+          {routeCatalog.map(({ path, navLabel, icon: Icon, summary }) => (
+            <NavLink
+              key={path}
+              to={path}
+              className={({ isActive }) =>
+                ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""]
+                  .filter(Boolean)
+                  .join(" ")
+              }
+            >
+              <Icon className="wingman-nav-icon" />
+              <span className="wingman-nav-copy">
                 <span>{navLabel}</span>
-              </NavLink>
-            ))}
-          </nav>
-        </aside>
+                <small>{summary}</small>
+              </span>
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
 
-        <main className="min-w-0 flex-1">
-          <div className="mb-4 rounded-3xl wingman-panel p-4 lg:hidden">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="wingman-kicker">WyreStorm</p>
-                <p className="mt-1 text-lg font-semibold text-white">Wingman navigation</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setMobileNavOpen((current) => !current)}
-                className="rounded-full border border-white/15 bg-white/5 p-3 text-white transition hover:bg-white/10"
-                aria-label={mobileNavOpen ? "Close Wingman navigation" : "Open Wingman navigation"}
-              >
-                {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </button>
-            </div>
+      <div
+        className="wingman-mobile-shade"
+        data-mobile-open={mobileNavOpen ? "true" : "false"}
+        onClick={() => setMobileNavOpen(false)}
+      />
 
-            {mobileNavOpen ? (
-              <nav className="mt-4 grid gap-2">
-                {routeCatalog.map(({ path, navLabel, icon: Icon }) => (
-                  <NavLink
-                    key={path}
-                    to={path}
-                    className={({ isActive }) =>
-                      [
-                        "flex items-center justify-between rounded-2xl border px-4 py-3 text-sm transition-all",
-                        isActive
-                          ? "border-orange-400/50 bg-orange-500/12 text-orange-100"
-                          : "border-white/10 bg-white/5 text-slate-100 hover:bg-white/10",
-                      ].join(" ")
-                    }
-                  >
-                    <span className="inline-flex items-center gap-3">
-                      <Icon className="h-4 w-4" />
-                      {navLabel}
-                    </span>
-                    <span className="text-xs uppercase tracking-[0.18em] text-slate-400">Open</span>
-                  </NavLink>
-                ))}
-              </nav>
-            ) : null}
+      <div className="wingman-workspace">
+        <header className="wingman-topbar">
+          <button
+            type="button"
+            className="wingman-mobile-nav-button"
+            onClick={() => setMobileNavOpen((current) => !current)}
+            aria-label={mobileNavOpen ? "Close Wingman navigation" : "Open Wingman navigation"}
+            aria-expanded={mobileNavOpen}
+          >
+            {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+
+          <div className="wingman-topbar-title">
+            <p>{activeLabel}</p>
+            <span>{activeSummary}</span>
           </div>
 
-          {children ?? <Outlet />}
+          <button type="button" className="wingman-clear-project-button" onClick={clearStoredProjectContext}>
+            <RotateCcw className="h-4 w-4" />
+            Clear current project
+          </button>
+        </header>
+
+        <main className="wingman-app-main">
+          <div className="wingman-page-host">{children ?? <Outlet />}</div>
         </main>
       </div>
 
