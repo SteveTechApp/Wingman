@@ -874,3 +874,34 @@ textarea {
   }
 }
 /* WINGMAN-LOGO-SVG-FIX-END */
+/* REAL-WINGMAN-LOGO-START */
+.wingman-sidebar .wingman-brand.wingman-brand-logo-only {
+  min-height: 118px !important;
+  margin: 0 0 16px !important;
+  padding: 8px 4px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.wingman-sidebar .wingman-brand-image {
+  display: block !important;
+  width: 100% !important;
+  max-width: 238px !important;
+  height: 96px !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.28));
+}
+
+@media (max-width: 1023px) {
+  .wingman-sidebar .wingman-brand.wingman-brand-logo-only {
+    min-height: 102px !important;
+  }
+
+  .wingman-sidebar .wingman-brand-image {
+    max-width: 212px !important;
+    height: 84px !important;
+  }
+}
+/* REAL-WINGMAN-LOGO-END */
