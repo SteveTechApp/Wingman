@@ -1641,3 +1641,47 @@ textarea {
 }
 
 /* WINGMAN-COMPACT-PAGE-LENGTH-END */
+/* MOBILE-SHADE-DESKTOP-FIX-START */
+.wingman-mobile-shade {
+  display: none !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.wingman-mobile-shade[data-mobile-open="false"] {
+  display: none !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+@media (max-width: 1023px) {
+  .wingman-mobile-shade[data-mobile-open="true"] {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 70 !important;
+    display: block !important;
+    pointer-events: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: rgba(2, 8, 16, 0.62) !important;
+    backdrop-filter: blur(8px) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wingman-mobile-shade,
+  .wingman-mobile-shade[data-mobile-open="true"],
+  .wingman-mobile-shade[data-mobile-open="false"] {
+    display: none !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  .wingman-sidebar {
+    transform: none !important;
+  }
+}
+/* MOBILE-SHADE-DESKTOP-FIX-END */
