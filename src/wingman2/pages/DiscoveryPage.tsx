@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -416,6 +416,36 @@ const initialState: DiscoveryState = {
   confidenceFlags: [],
   notes: "",
 };
+
+
+function normaliseDiscoveryState(state: DiscoveryState): DiscoveryState {
+  const fallbackSourcePaths =
+    Array.isArray(state.sourcePaths) && state.sourcePaths.length > 0
+      ? state.sourcePaths
+      : [getEmptySourcePath(0)];
+
+  const summary = summarizeSourcePaths(fallbackSourcePaths);
+
+  return {
+    ...state,
+    sourcePaths: fallbackSourcePaths,
+    sourceCount: fallbackSourcePaths.length,
+    sourceTypes: Array.isArray(state.sourceTypes) && state.sourceTypes.length ? state.sourceTypes : summary.sourceTypes,
+    sourceLocations:
+      Array.isArray(state.sourceLocations) && state.sourceLocations.length ? state.sourceLocations : summary.sourceLocations,
+    sourceConnections:
+      Array.isArray(state.sourceConnections) && state.sourceConnections.length
+        ? state.sourceConnections
+        : summary.sourceConnections,
+    layoutFlags: Array.isArray(state.layoutFlags) ? state.layoutFlags : [],
+    usbNeeds: Array.isArray(state.usbNeeds) ? state.usbNeeds : [],
+    audioNeeds: Array.isArray(state.audioNeeds) ? state.audioNeeds : [],
+    cableAvailable: Array.isArray(state.cableAvailable) ? state.cableAvailable : [],
+    cableRisks: Array.isArray(state.cableRisks) ? state.cableRisks : [],
+    controlNeeds: Array.isArray(state.controlNeeds) ? state.controlNeeds : [],
+    confidenceFlags: Array.isArray(state.confidenceFlags) ? state.confidenceFlags : [],
+  };
+}
 
 type MultiSelectKey =
   | "layoutFlags"
@@ -1231,8 +1261,20 @@ function ListLine({ label, values }: { label: string; values: string[] }) {
 
 export function DiscoveryPage() {
   const [activeStepIndex, setActiveStepIndex] = useState(0);
-  const [state, setState] = useState<DiscoveryState>(initialState);
+  const [state, setState] = useState<DiscoveryState>(() => normaliseDiscoveryState(initialState));
 
+
+  useEffect(() => {
+    if (!Array.isArray(state.sourcePaths) || state.sourcePaths.length === 0) {
+      setState((current) => normaliseDiscoveryState(current));
+    }
+  }, [state.sourcePaths]);
+
+  const sourcePaths = useMemo(
+    () => (Array.isArray(state.sourcePaths) && state.sourcePaths.length > 0 ? state.sourcePaths : [getEmptySourcePath(0)]),
+    [state.sourcePaths],
+  );
+  // wingman: normalise sourcePaths after HMR
   const profile = useMemo(() => getRoomProfile(state.roomType), [state.roomType]);
   const inference = useMemo(() => inferDesign(state), [state]);
   const currentStep = steps[activeStepIndex];
@@ -1316,7 +1358,7 @@ export function DiscoveryPage() {
   function resizeSourcePaths(nextCount: number) {
     setState((current) => {
       const safeCount = Math.max(1, nextCount);
-      const sourcePaths = [...current.sourcePaths];
+      const sourcePaths = Array.isArray(current.sourcePaths) && current.sourcePaths.length > 0 ? [...current.sourcePaths] : [getEmptySourcePath(0)];
 
       while (sourcePaths.length < safeCount) {
         sourcePaths.push(getEmptySourcePath(sourcePaths.length));
@@ -1336,7 +1378,8 @@ export function DiscoveryPage() {
 
   function updateSourcePath(id: string, field: SourcePathField, value: string) {
     setState((current) => {
-      const nextSourcePaths = current.sourcePaths.map((source) => {
+      const currentSourcePaths = Array.isArray(current.sourcePaths) && current.sourcePaths.length > 0 ? current.sourcePaths : [getEmptySourcePath(0)];
+      const nextSourcePaths = currentSourcePaths.map((source) => {
         if (source.id !== id) {
           return source;
         }
@@ -1443,7 +1486,8 @@ export function DiscoveryPage() {
   function chooseUsbTransport(value: string) {
     setState((current) => {
       if (value === "No USB required") {
-        const sourcePaths = current.sourcePaths.map((source) => {
+        const currentSourcePaths = Array.isArray(current.sourcePaths) && current.sourcePaths.length > 0 ? current.sourcePaths : [getEmptySourcePath(0)];
+        const sourcePaths = currentSourcePaths.map((source) => {
           if (source.deviceType === "USB camera" || source.outputConnection === "USB only") {
             return {
               ...source,
@@ -1792,7 +1836,7 @@ export function DiscoveryPage() {
         <div className="grid gap-5">
           <CountControl
             label="Number of source positions"
-            value={state.sourcePaths.length}
+            value={sourcePaths.length}
             onChange={resizeSourcePaths}
           />
 
@@ -1808,7 +1852,7 @@ export function DiscoveryPage() {
             </p>
           </div>
 
-          {state.sourcePaths.map((source, index) => renderSourcePathCard(source, index))}
+          {sourcePaths.map((source, index) => renderSourcePathCard(source, index))}
         </div>
       );
     }
@@ -1979,9 +2023,9 @@ export function DiscoveryPage() {
               <p className="text-sm font-black text-slate-900">Likely product direction</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.productDirection.length ? (
-                  inference.productDirection.map((item) => <li key={item}>â€¢ {item}</li>)
+                  inference.productDirection.map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
                 ) : (
-                  <li>â€¢ More information is required before a reliable product direction can be stated.</li>
+                  <li>Ã¢â‚¬Â¢ More information is required before a reliable product direction can be stated.</li>
                 )}
               </ul>
             </div>
@@ -1990,9 +2034,9 @@ export function DiscoveryPage() {
               <p className="text-sm font-black text-slate-900">Avoid / do not assume</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.avoid.length ? (
-                  inference.avoid.map((item) => <li key={item}>â€¢ {item}</li>)
+                  inference.avoid.map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
                 ) : (
-                  <li>â€¢ No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
+                  <li>Ã¢â‚¬Â¢ No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
                 )}
               </ul>
             </div>
@@ -2154,9 +2198,9 @@ export function DiscoveryPage() {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.missing.length ? (
-                      inference.missing.slice(0, 6).map((item) => <li key={item}>â€¢ {item}</li>)
+                      inference.missing.slice(0, 6).map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
                     ) : (
-                      <li>â€¢ No major missing details detected.</li>
+                      <li>Ã¢â‚¬Â¢ No major missing details detected.</li>
                     )}
                   </ul>
                 </div>
@@ -2168,9 +2212,9 @@ export function DiscoveryPage() {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.risks.length ? (
-                      inference.risks.slice(0, 6).map((item) => <li key={item}>â€¢ {item}</li>)
+                      inference.risks.slice(0, 6).map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
                     ) : (
-                      <li>â€¢ No major risk flags yet.</li>
+                      <li>Ã¢â‚¬Â¢ No major risk flags yet.</li>
                     )}
                   </ul>
                 </div>
