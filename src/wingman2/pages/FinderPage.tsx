@@ -22,7 +22,6 @@ import {
 } from "../data/projectStore";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
-import { StatusChip } from "../components/StatusChip";
 
 type MatchStatus = "recommended" | "alternative" | "caution";
 
@@ -58,8 +57,6 @@ type FinderNeed = {
 type ProductMatch = FinderProduct & {
   score: number;
   status: MatchStatus;
-  reasons: string[];
-  cautions: string[];
 };
 
 type ProductSelection = {
@@ -209,42 +206,86 @@ const seedProducts: FinderProduct[] = [
     family: "Presentation / HDBaseT",
     category: "HDMI / USB extender",
     description:
-      "Use when the user needs a single room input point carrying HDMI/USB-C video and USB for BYOD/BYOM style workflows.",
-    tags: ["HDMI", "USB-C", "USB 2.0", "HDBaseT", "BYOD / BYOM"],
+      "Use when the user needs a single room input point carrying HDMI, USB-C video, and USB for BYOD or BYOM style workflows.",
+    tags: ["HDMI", "USB-C", "USB 2.0", "HDBaseT", "BYOD / BYOM", "Presentation Switcher"],
     searchText: "sw-130-tx-uk in wall hdmi usb-c usb hdbaset transmitter byod byom hdmi usb extender",
     source: "seed",
   },
   {
+    sku: "EX-100-KVM",
+    title: "4K HDMI and USB extender kit over HDBaseT",
+    family: "HDBaseT",
+    category: "HDMI / USB extender",
+    description:
+      "Use when HDMI and USB 2.0 need to travel together over distance as an integrated extender or KVM style requirement.",
+    tags: ["HDMI", "USB 2.0", "HDBaseT", "KVM", "Extender"],
+    searchText: "ex-100-kvm hdmi usb extender kit hdbaset kvm usb 2.0",
+    source: "seed",
+  },
+  {
     sku: "RX-35",
-    title: "HDBaseT receiver for shorter video-only receiver paths",
+    title: "HDBaseT receiver for shorter video-only paths",
     family: "HDBaseT",
     category: "HDBaseT extender",
     description:
-      "Use when USB is not required and the system only needs HDBaseT video receive over a shorter distance class.",
+      "Use when USB transport is not required and the system only needs a shorter-distance HDBaseT video receive path.",
     tags: ["HDBaseT", "Video only", "Receiver", "Shorter distance"],
     searchText: "rx-35 hdbaset receiver video only hdmi extension shorter distance",
     source: "seed",
   },
   {
     sku: "RX-70",
-    title: "HDBaseT receiver for longer video-only receiver paths",
+    title: "HDBaseT receiver for longer video-only paths",
     family: "HDBaseT",
     category: "HDBaseT extender",
     description:
-      "Use when USB is not required and the distance requirement points to the longer HDBaseT receiver class.",
+      "Use when USB transport is not required and the system needs a longer-distance HDBaseT video receive path.",
     tags: ["HDBaseT", "Video only", "Receiver", "Longer distance"],
     searchText: "rx-70 hdbaset receiver video only hdmi extension longer distance",
     source: "seed",
   },
   {
-    sku: "SW-0206-VW",
-    title: "4K60 video wall processor",
-    family: "Video wall processor",
-    category: "Video wall",
+    sku: "MX-0402-MST",
+    title: "Dual-display / MST presentation switcher",
+    family: "Presentation switching",
+    category: "Presentation switcher",
     description:
-      "Dedicated non-AVoIP processor path for LCD wall opportunities where fixed wall processing is more appropriate than networked AVoIP.",
-    tags: ["Video wall", "LCD wall", "4K60", "Processor", "Non-AVoIP"],
-    searchText: "sw-0206-vw video wall processor lcd wall 4k60 non avoip multiview",
+      "Use when a USB-C laptop, dual-display presentation behaviour, or MST-style workflow is required in a compact room-core switcher.",
+    tags: ["Presentation switcher", "Dual display", "MST", "USB-C"],
+    searchText: "mx-0402-mst presentation switcher dual display mst usb-c",
+    source: "seed",
+  },
+  {
+    sku: "MX-0403-H3-MST",
+    title: "Multi-output presentation switcher with HDBaseT",
+    family: "Presentation switching",
+    category: "Presentation switcher",
+    description:
+      "Use for rooms needing multiple outputs, USB-C or HDMI source handling, MST-style behaviour, and HDBaseT extension.",
+    tags: ["Presentation switcher", "Dual display", "MST", "USB-C", "HDBaseT"],
+    searchText: "mx-0403-h3-mst presentation switcher hdbaset usb-c hdmi dual display mst",
+    source: "seed",
+  },
+  {
+    sku: "MX-0404-SCL",
+    title: "4x4 seamless matrix switcher",
+    family: "Seamless matrix",
+    category: "Matrix / routing",
+    description:
+      "Use when several sources must route to several displays with scaling or seamless switching in a fixed I/O design.",
+    tags: ["Matrix", "4x4", "Scaling", "Seamless switching", "HDMI"],
+    searchText: "mx-0404-scl 4x4 seamless matrix switcher hdmi scaling routing",
+    source: "seed",
+  },
+  {
+    sku: "MX-0808-SCL",
+    title: "8x8 seamless matrix switcher",
+    family: "Seamless matrix",
+    category: "Matrix / routing",
+    description:
+      "Use for larger fixed I/O systems where multiple sources need to route to multiple displays with scaling.",
+    tags: ["Matrix", "8x8", "Scaling", "Seamless switching", "HDMI"],
+    searchText: "mx-0808-scl 8x8 seamless matrix switcher hdmi scaling routing",
     source: "seed",
   },
   {
@@ -253,9 +294,42 @@ const seedProducts: FinderProduct[] = [
     family: "Video wall processor",
     category: "Video wall",
     description:
-      "Simpler processor path for basic LCD wall layouts where preset wall processing is sufficient.",
+      "Use for basic LCD wall layouts where a simple dedicated processor is more appropriate than AVoIP.",
     tags: ["Video wall", "LCD wall", "Processor", "Preset layouts"],
     searchText: "sw-0204-vw video wall processor lcd wall preset layouts",
+    source: "seed",
+  },
+  {
+    sku: "SW-0206-VW",
+    title: "4K60 video wall processor",
+    family: "Video wall processor",
+    category: "Video wall",
+    description:
+      "Use for LCD wall opportunities where fixed 4K60 wall processing is more appropriate than networked AVoIP.",
+    tags: ["Video wall", "LCD wall", "4K60", "Processor", "Non-AVoIP"],
+    searchText: "sw-0206-vw video wall processor lcd wall 4k60 non avoip",
+    source: "seed",
+  },
+  {
+    sku: "NHD-120-TX",
+    title: "NetworkHD 100 series encoder",
+    family: "NetworkHD 100",
+    category: "AVoIP",
+    description:
+      "Cost-effective AVoIP encoder for flexible NetworkHD 100 distribution over standard network infrastructure.",
+    tags: ["AVoIP", "NetworkHD 100", "Encoder", "HDMI"],
+    searchText: "nhd-120-tx networkhd 100 avoip encoder hdmi transmitter",
+    source: "seed",
+  },
+  {
+    sku: "NHD-120-RX",
+    title: "NetworkHD 100 series decoder",
+    family: "NetworkHD 100",
+    category: "AVoIP",
+    description:
+      "Cost-effective AVoIP decoder for flexible NetworkHD 100 distribution over standard network infrastructure.",
+    tags: ["AVoIP", "NetworkHD 100", "Decoder", "HDMI"],
+    searchText: "nhd-120-rx networkhd 100 avoip decoder hdmi receiver",
     source: "seed",
   },
   {
@@ -288,7 +362,29 @@ const seedProducts: FinderProduct[] = [
     description:
       "Premium 4K60 AVoIP path where flexible routing, low latency, stronger USB support, or Dante-ready workflows matter.",
     tags: ["AVoIP", "NetworkHD 500", "4K60", "USB", "Dante"],
-    searchText: "nhd-500-tx networkhd 500 4k60 4:4:4 avoip encoder usb dante",
+    searchText: "nhd-500-tx networkhd 500 4k60 avoip encoder usb dante",
+    source: "seed",
+  },
+  {
+    sku: "NHD-500-RX",
+    title: "NetworkHD 500 4K60 AVoIP decoder",
+    family: "NetworkHD 500",
+    category: "AVoIP",
+    description:
+      "Premium 4K60 AVoIP decoder for higher-quality networked video distribution.",
+    tags: ["AVoIP", "NetworkHD 500", "4K60", "USB", "Dante"],
+    searchText: "nhd-500-rx networkhd 500 4k60 avoip decoder usb dante",
+    source: "seed",
+  },
+  {
+    sku: "NHD-0401-MV",
+    title: "NetworkHD 500 multiview processor",
+    family: "NetworkHD 500",
+    category: "AVoIP",
+    description:
+      "Use for NetworkHD 500 multiview source composition and monitoring workflows.",
+    tags: ["AVoIP", "NetworkHD 500", "Multiview", "Processor"],
+    searchText: "nhd-0401-mv networkhd 500 multiview processor source composition",
     source: "seed",
   },
   {
@@ -303,14 +399,47 @@ const seedProducts: FinderProduct[] = [
     source: "seed",
   },
   {
-    sku: "MX-0402-MST",
-    title: "Dual-display / MST presentation switcher",
-    family: "Presentation switching",
+    sku: "CAM-210-NDI-PTZ",
+    title: "NDI PTZ camera",
+    family: "Unified Communication",
+    category: "NDI / camera",
+    description:
+      "PTZ camera with NDI support for conferencing, capture, streaming, and network video workflows.",
+    tags: ["NDI", "PTZ", "Camera", "Streaming"],
+    searchText: "cam-210-ndi-ptz ndi camera ptz streaming lecture capture",
+    source: "seed",
+  },
+  {
+    sku: "CAM-420-PTZ",
+    title: "PTZ camera",
+    family: "Unified Communication",
+    category: "NDI / camera",
+    description:
+      "PTZ camera for meeting, teaching, and conferencing applications where camera capture is required.",
+    tags: ["PTZ", "Camera", "USB", "HDMI"],
+    searchText: "cam-420-ptz camera ptz meeting room training lecture capture",
+    source: "seed",
+  },
+  {
+    sku: "CAM-0402-BRG",
+    title: "Camera bridge and mixer",
+    family: "Unified Communication",
+    category: "UC / conferencing",
+    description:
+      "Camera bridge and mixer for integrating cameras into conferencing and capture workflows.",
+    tags: ["Camera bridge", "Mixer", "USB conferencing"],
+    searchText: "cam-0402-brg camera bridge mixer usb conferencing",
+    source: "seed",
+  },
+  {
+    sku: "IDB-300",
+    title: "In-desk cable management box",
+    family: "In-Desk Box",
     category: "Presentation switcher",
     description:
-      "Use when the requirement needs dual-display presentation behaviour, MST-style workflows, or a compact room-core switcher.",
-    tags: ["Presentation switcher", "Dual display", "MST", "USB-C"],
-    searchText: "mx-0402-mst presentation switcher dual display mst usb-c",
+      "In-desk cable management box for BYOD and meeting room cable access.",
+    tags: ["In-desk", "Cable management", "BYOD", "USB-C", "HDMI"],
+    searchText: "idb-300 in desk cable management byod hdmi usb-c",
     source: "seed",
   },
 ];
@@ -341,7 +470,6 @@ function createId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-
 function cleanDisplayText(value: unknown) {
   return String(value ?? "")
     .replace(/&amp;/gi, "&")
@@ -357,159 +485,32 @@ function cleanDisplayText(value: unknown) {
     .replace(/&nbsp;/gi, " ")
     .replace(/&quot;/gi, '"')
     .replace(/&#39;|&#x27;/gi, "'")
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/\u2022/g, "-")
     .replace(/[\u0080-\u024f]+/g, " ")
     .replace(/[^\x09\x0a\x0d\x20-\x7e]/g, " ")
-    .replace(/\s+\|\s+\|/g, " | ")
-    .replace(/\s*,\s*,/g, ",")
     .replace(/\s+/g, " ")
-    .replace(/^[\s|,;:_-]+/g, "")
-    .replace(/[\s|,;:_-]+$/g, "")
     .trim();
 }
 
-function cleanNarrativeText(value: unknown) {
-  const cleaned = cleanDisplayText(value)
-    .replace(/^(?:[A-Z]\s+){2,}/, "")
-    .replace(/^(?:A\s+|F\s+|TM\s+|R\s+){2,}/i, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  const anchorPhrases = [
-    "Matches the",
-    "Matches ",
-    "Fits ",
-    "Aligns with",
-    "Supports or references",
-    "Supports ",
-    "Relevant to",
-    "Confirm current",
-    "Validate ",
-    "Excluded by",
-    "Partial match",
-    "May be",
-    "I/O count",
-    "3-4 inputs",
-    "Higher input",
-    "Multiple outputs",
-    "Video-only",
-  ];
-
-  const lower = cleaned.toLowerCase();
-  const indexes = anchorPhrases
-    .map((phrase) => lower.indexOf(phrase.toLowerCase()))
-    .filter((index) => index >= 0)
-    .sort((a, b) => a - b);
-
-  if (indexes.length) {
-    return cleaned.slice(indexes[0]).trim();
-  }
-
-  return cleaned;
+function hasTextNoise(value: unknown) {
+  const text = String(value ?? "");
+  return /[ÃÂâ�]|[\u0080-\u024f]/.test(text);
 }
-function normaliseText(value: string) {
+
+function normaliseText(value: unknown) {
   return cleanDisplayText(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
 function unique(values: string[]) {
-  return Array.from(new Set(values.filter(Boolean)));
+  return Array.from(new Set(values.map(cleanDisplayText).filter(Boolean)));
 }
 
-
-const knownWyreStormSkuPrefixes = [
-  "NHD-",
-  "SW-",
-  "MX-",
-  "RX-",
-  "TX-",
-  "EX-",
-  "EXP-",
-  "APO-",
-  "CAM-",
-  "SP-",
-  "CAB-",
-  "CBL-",
-  "IDB-",
-  "AMP-",
-  "USB-",
-  "CON-",
-  "WP-",
-];
-
-const comparisonOnlyBrandMarkers = [
-  "crestron",
-  "extron",
-  "kramer",
-  "atlona",
-  "lightware",
-  "avpro edge",
-  "av pro edge",
-  "just add power",
-  "q sys",
-  "qsys",
-  "biamp",
-  "barco",
-  "amx",
-  "blustream",
-  "cisco",
-  "poly",
-  "logitech",
-  "aver",
-  "yealink",
-  "huddly",
-  "datavideo",
-  "blackmagic",
-  "novastar",
-  "brompton",
-  "magnimage",
-];
-
-function containsComparisonOnlyBrand(text: string) {
-  return comparisonOnlyBrandMarkers.some((brand) => text.includes(normaliseText(brand)));
-}
-
-function isWyreStormProduct(product: Partial<FinderProduct> | Partial<ProductSelection>) {
-  const sku = valueAsString(product.sku).trim().toUpperCase();
-  const haystack = normaliseText(
-    [
-      valueAsString(product.sku),
-      valueAsString(product.title),
-      valueAsString(product.family),
-      valueAsString(product.category),
-      "description" in product ? valueAsString(product.description) : "",
-      "searchText" in product ? valueAsString(product.searchText) : "",
-      Array.isArray(product.tags) ? product.tags.join(" ") : "",
-    ].join(" "),
-  );
-
-  if (containsComparisonOnlyBrand(haystack) && !haystack.includes("wyrestorm")) {
-    return false;
-  }
-
-  if (haystack.includes("wyrestorm")) {
-    return true;
-  }
-
-  if (knownWyreStormSkuPrefixes.some((prefix) => sku.startsWith(prefix))) {
-    return true;
-  }
-
-  return false;
-}
-
-function filterWyreStormProducts<T extends Partial<FinderProduct> | Partial<ProductSelection>>(items: T[]) {
-  return items.filter((item) => isWyreStormProduct(item));
-}
-
-function sanitiseProjectProductSelectionMap(selections: Record<string, ProductSelection[]>) {
-  return Object.fromEntries(
-    Object.entries(selections).map(([projectId, items]) => [
-      projectId,
-      filterWyreStormProducts(Array.isArray(items) ? items : []) as ProductSelection[],
-    ]),
-  );
-}
 function textIncludesAny(text: string, terms: string[]) {
-  return terms.some((term) => text.includes(normaliseText(term)));
+  const normalised = normaliseText(text);
+  return terms.some((term) => normalised.includes(normaliseText(term)));
 }
 
 function valueAsString(value: unknown) {
@@ -550,7 +551,7 @@ function collectProductRecords(value: unknown, output: UnknownRecord[] = [], dep
   if (typeof value !== "object") return output;
 
   const record = value as UnknownRecord;
-  const sku = getFirstString(record, ["sku", "SKU", "model", "Model", "productCode", "product_code"]);
+  const sku = getFirstString(record, ["sku", "SKU", "model", "Model", "id", "productCode"]);
   const title = getFirstString(record, ["title", "name", "productName", "Product Name", "description"]);
 
   if (sku || title) output.push(record);
@@ -565,20 +566,47 @@ function collectProductRecords(value: unknown, output: UnknownRecord[] = [], dep
 function classifyProduct(product: FinderProduct) {
   const text = normaliseText(`${product.sku} ${product.title} ${product.description} ${product.searchText}`);
 
-  if (textIncludesAny(text, ["video wall", "vw", "wall processor"])) return "Video wall";
-  if (textIncludesAny(text, ["networkhd", "nhd", "avoip", "av over ip", "encoder", "decoder", "transceiver"])) return "AVoIP";
+  if (textIncludesAny(text, ["video wall", "lcd wall", "wall processor", "sw 0206 vw", "sw 0204 vw"])) return "Video wall";
   if (textIncludesAny(text, ["ndi", "camera", "ptz", "cam"])) return "NDI / camera";
-  if (textIncludesAny(text, ["hdbaset", "rx", "tx", "extender"])) return "HDBaseT extender";
-  if (textIncludesAny(text, ["matrix", "routing", "mx"])) return "Matrix / routing";
+  if (textIncludesAny(text, ["networkhd", "nhd", "avoip", "av over ip", "encoder", "decoder", "transceiver"])) return "AVoIP";
+  if (textIncludesAny(text, ["matrix", "routing", "mx 0404", "mx 0808", "mx 0812"])) return "Matrix / routing";
+  if (textIncludesAny(text, ["hdbaset", "rx", "tx", "extender", "kvm"])) return "HDBaseT extender";
   if (textIncludesAny(text, ["wireless", "miracast", "airplay"])) return "Wireless presentation";
   if (textIncludesAny(text, ["usb", "conference", "byom", "byod", "speakerphone", "microphone"])) return "UC / conferencing";
-  if (textIncludesAny(text, ["presentation", "switcher", "usb-c", "sw"])) return "Presentation switcher";
+  if (textIncludesAny(text, ["presentation", "switcher", "usb c", "sw"])) return "Presentation switcher";
 
   return product.category || "Other";
 }
 
+function isWyreStormProduct(product: FinderProduct) {
+  const sku = product.sku.toUpperCase();
+  const brandText = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.description} ${product.searchText}`);
+  const prefixes = ["NHD-", "SW-", "MX-", "RX-", "TX-", "EX-", "EXP-", "APO-", "CAM-", "SP-", "CAB-", "CBL-", "IDB-", "AMP-", "USB-", "CON-", "WP-"];
+
+  if (brandText.includes("wyrestorm")) return true;
+  return prefixes.some((prefix) => sku.startsWith(prefix));
+}
+
+function cleanFinderProduct(product: FinderProduct): FinderProduct {
+  const cleaned: FinderProduct = {
+    ...product,
+    sku: cleanDisplayText(product.sku),
+    title: cleanDisplayText(product.title),
+    family: cleanDisplayText(product.family),
+    category: cleanDisplayText(product.category),
+    description: cleanDisplayText(product.description),
+    tags: unique(product.tags),
+    searchText: cleanDisplayText(product.searchText),
+  };
+
+  if (hasTextNoise(product.family) || !cleaned.family) cleaned.family = classifyProduct(cleaned);
+  if (hasTextNoise(product.category) || !cleaned.category) cleaned.category = classifyProduct(cleaned);
+
+  return cleaned;
+}
+
 function normaliseIndexProduct(record: UnknownRecord): FinderProduct | null {
-  const sku = getFirstString(record, ["sku", "SKU", "model", "Model", "productCode", "product_code"]);
+  const sku = getFirstString(record, ["sku", "SKU", "model", "Model", "id", "productCode", "product_code"]);
   const title = getFirstString(record, ["title", "name", "productName", "Product Name"]) || sku || "WyreStorm product";
 
   if (!sku && !title) return null;
@@ -593,7 +621,7 @@ function normaliseIndexProduct(record: UnknownRecord): FinderProduct | null {
     getFirstString(record, ["category", "type", "technology"]),
     ...deepText(record)
       .split(/\s+/)
-      .filter((word) => /^(usb|usb-c|hdbaset|hdmi|avoip|networkhd|ndi|4k|8k|matrix|video|wall|wireless|dante|audio|control|rs232)$/i.test(word))
+      .filter((word) => /^(usb|hdbaset|hdmi|avoip|networkhd|ndi|4k|8k|matrix|video|wall|wireless|dante|audio|control|rs232)$/i.test(word))
       .slice(0, 10),
   ]);
 
@@ -608,53 +636,22 @@ function normaliseIndexProduct(record: UnknownRecord): FinderProduct | null {
     source: "index",
   };
 
-  return { ...product, category: classifyProduct(product) };
+  const cleaned = cleanFinderProduct({ ...product, category: classifyProduct(product) });
+
+  if (!isWyreStormProduct(cleaned)) return null;
+  if (hasTextNoise(cleaned.title) || hasTextNoise(cleaned.description)) return null;
+
+  return cleaned;
 }
 
-function cleanFinderProduct(product: FinderProduct): FinderProduct {
-  const tags = Array.isArray(product.tags)
-    ? unique(product.tags.map((tag) => cleanDisplayText(tag)).filter(Boolean))
-    : [];
-
-  return {
-    ...product,
-    sku: cleanDisplayText(product.sku),
-    title: cleanDisplayText(product.title),
-    family: cleanDisplayText(product.family),
-    category: cleanDisplayText(product.category),
-    description: cleanDisplayText(product.description),
-    tags,
-    searchText: cleanDisplayText(product.searchText),
-  };
-}
-
-function mergeFinderProducts(existing: FinderProduct, incoming: FinderProduct): FinderProduct {
-  const cleanExisting = cleanFinderProduct(existing);
-  const cleanIncoming = cleanFinderProduct(incoming);
-
-  if (cleanExisting.source === "seed") {
-    return {
-      ...cleanExisting,
-      tags: unique([...cleanExisting.tags, ...cleanIncoming.tags]),
-      searchText: cleanDisplayText(`${cleanExisting.searchText} ${cleanIncoming.searchText}`),
-      source: cleanIncoming.source === "index" ? "index" : cleanExisting.source,
-    };
-  }
-
-  return cleanFinderProduct({
-    ...cleanExisting,
-    ...cleanIncoming,
-    tags: unique([...cleanExisting.tags, ...cleanIncoming.tags]),
-    searchText: `${cleanExisting.searchText} ${cleanIncoming.searchText}`,
-    source: cleanIncoming.source === "index" ? "index" : cleanExisting.source,
-  });
-}
 function normaliseProductIndex(data: unknown) {
   const records = collectProductRecords(data);
   const products = records.map(normaliseIndexProduct).filter((product): product is FinderProduct => Boolean(product));
   const bySku = new Map<string, FinderProduct>();
 
   [...seedProducts, ...products].map(cleanFinderProduct).forEach((product) => {
+    if (!isWyreStormProduct(product)) return;
+
     const key = product.sku.toUpperCase();
     const existing = bySku.get(key);
 
@@ -663,10 +660,24 @@ function normaliseProductIndex(data: unknown) {
       return;
     }
 
-    bySku.set(key, mergeFinderProducts(existing, product));
+    if (existing.source === "seed") {
+      bySku.set(key, {
+        ...existing,
+        tags: unique([...existing.tags, ...product.tags]),
+        searchText: cleanDisplayText(`${existing.searchText} ${product.searchText}`),
+      });
+      return;
+    }
+
+    bySku.set(key, {
+      ...existing,
+      ...product,
+      tags: unique([...existing.tags, ...product.tags]),
+      searchText: cleanDisplayText(`${existing.searchText} ${product.searchText}`),
+    });
   });
 
-  return filterWyreStormProducts(Array.from(bySku.values()).map(cleanFinderProduct)) as FinderProduct[];
+  return Array.from(bySku.values()).map(cleanFinderProduct);
 }
 
 function hasFinderIntent(need: FinderNeed) {
@@ -691,294 +702,124 @@ function expectedProductPathForRequirement(requirement: string) {
   return "";
 }
 
-function isMultiInput(value: string) {
-  return value === "3-4" || value === "5-8" || value === "9+";
+function inferPathFromNeed(need: FinderNeed) {
+  const expected = expectedProductPathForRequirement(need.technicalRequirement);
+  if (need.productPath) return need.productPath;
+  if (expected) return expected;
+
+  if (["3-4", "5-8", "9+"].includes(need.inputs) || ["3-4", "5-8", "9+"].includes(need.outputs)) {
+    return "Matrix / routing";
+  }
+
+  if (need.network === "Dedicated AV network" || need.network === "10G network") return "AVoIP";
+  if (need.processing === "Video wall processing") return "Video wall";
+  if (need.processing === "Multiview") return "AVoIP";
+  if (need.usb === "USB 3.x required") return "HDMI / USB extender";
+  if (need.usb === "No USB" && need.distance) return "HDBaseT extender";
+
+  return "";
 }
-
-function isHighInputCount(value: string) {
-  return value === "5-8" || value === "9+";
-}
-
-function isMultiOutput(value: string) {
-  return value === "2" || value === "3-4" || value === "5-8" || value === "9+";
-}
-
-function hasOnlyIoCountIntent(need: FinderNeed) {
-  const nonIoValues = [
-    need.query,
-    need.technicalRequirement,
-    need.productPath,
-    need.signalType,
-    need.sourceConnector,
-    need.displayConnector,
-    need.distance,
-    need.resolution,
-    need.usb,
-    need.audio,
-    need.network,
-    need.processing,
-    need.control,
-  ];
-
-  return Boolean(need.inputs || need.outputs) && nonIoValues.every((value) => !value.trim());
-}
-
-function getIoCategoryHints(need: FinderNeed) {
-  const hints: string[] = [];
-
-  if (need.inputs === "1" && !isMultiOutput(need.outputs)) {
-    hints.push("HDBaseT extender", "HDMI / USB extender", "Presentation switcher");
-  }
-
-  if (need.inputs === "2" && !isMultiOutput(need.outputs)) {
-    hints.push("Presentation switcher", "HDMI / USB extender", "Matrix / routing");
-  }
-
-  if (need.inputs === "3-4" && !isMultiOutput(need.outputs)) {
-    hints.push("Presentation switcher", "Matrix / routing", "AVoIP");
-  }
-
-  if (need.inputs === "3-4" && isMultiOutput(need.outputs)) {
-    hints.push("Matrix / routing", "AVoIP", "Presentation switcher");
-  }
-
-  if (isHighInputCount(need.inputs)) {
-    hints.push("Matrix / routing", "AVoIP");
-  }
-
-  if (isMultiOutput(need.outputs) && !need.inputs) {
-    hints.push("Matrix / routing", "AVoIP");
-  }
-
-  if (isMultiOutput(need.outputs) && need.inputs === "1") {
-    hints.push("Distribution amplifier", "Matrix / routing", "AVoIP");
-  }
-
-  return unique(hints);
-}
-
-function getIoIntentReason(need: FinderNeed) {
-  if (need.inputs === "3-4" && !isMultiOutput(need.outputs)) {
-    return "3-4 inputs points to a presentation switcher, compact matrix, or AVoIP source-side design rather than a random extender/accessory.";
-  }
-
-  if (need.inputs === "3-4" && isMultiOutput(need.outputs)) {
-    return "3-4 inputs with multiple outputs points primarily to matrix switching or AVoIP routing.";
-  }
-
-  if (isHighInputCount(need.inputs)) {
-    return "Higher input counts normally require matrix switching or AVoIP rather than a simple extender.";
-  }
-
-  if (isMultiOutput(need.outputs)) {
-    return "Multiple outputs normally require matrix routing, distribution, or AVoIP.";
-  }
-
-  return "I/O count is being used as a product-class filter, not as a final SKU recommendation.";
-}
-
 
 function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
-  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
-  const category = classifyProduct(product);
-  const reasons: string[] = [];
-  const cautions: string[] = [];
+  const cleanProduct = cleanFinderProduct(product);
+  const text = normaliseText(`${cleanProduct.sku} ${cleanProduct.title} ${cleanProduct.family} ${cleanProduct.category} ${cleanProduct.description} ${cleanProduct.tags.join(" ")} ${cleanProduct.searchText}`);
+  const category = classifyProduct(cleanProduct);
+  const selectedPath = inferPathFromNeed(need);
   let score = 0;
-
-  const expectedPath = expectedProductPathForRequirement(need.technicalRequirement);
-  const selectedPath = need.productPath || expectedPath;
-  const ioCategoryHints = getIoCategoryHints(need);
-  const ioOnlyIntent = hasOnlyIoCountIntent(need);
 
   if (need.query.trim()) {
     const query = normaliseText(need.query);
     const words = query.split(/\s+/).filter(Boolean);
-    const allWordsMatch = words.length > 0 && words.every((word) => text.includes(word));
 
-    if (text.includes(query)) {
-      score += product.sku.toLowerCase() === need.query.trim().toLowerCase() ? 60 : 35;
-      reasons.push("Matches the search term directly.");
-    }
-
-    if (!text.includes(query) && allWordsMatch) {
-      score += 22;
-      reasons.push("Matches the search intent by keyword coverage.");
-    }
+    if (text.includes(query)) score += cleanProduct.sku.toLowerCase() === need.query.trim().toLowerCase() ? 60 : 35;
+    if (!text.includes(query) && words.length && words.every((word) => text.includes(word))) score += 22;
   }
 
-  if (need.technicalRequirement && textIncludesAny(text, [need.technicalRequirement])) {
-    score += 26;
-    reasons.push(`Matches the technical need: ${need.technicalRequirement}.`);
+  if (selectedPath && category === selectedPath) score += 40;
+  if (selectedPath && cleanProduct.category === selectedPath) score += 20;
+  if (need.technicalRequirement && textIncludesAny(text, [need.technicalRequirement])) score += 20;
+  if (need.signalType && textIncludesAny(text, [need.signalType])) score += 16;
+  if (need.sourceConnector && textIncludesAny(text, [need.sourceConnector])) score += 12;
+  if (need.displayConnector && textIncludesAny(text, [need.displayConnector])) score += 12;
+  if (need.resolution && textIncludesAny(text, [need.resolution])) score += 12;
+
+  if (need.technicalRequirement === "Extend HDMI and USB together" && textIncludesAny(text, ["hdmi", "usb", "hdbaset", "kvm", "sw-130", "ex-100"])) score += 38;
+  if (need.technicalRequirement === "Extend HDMI over distance" && textIncludesAny(text, ["hdbaset", "extender", "receiver", "transmitter", "rx", "tx"])) score += 30;
+  if (need.technicalRequirement === "Distribute AV over network" && textIncludesAny(text, ["networkhd", "avoip", "encoder", "decoder", "transceiver"])) score += 38;
+  if (need.technicalRequirement === "Bring NDI camera into AV system" && textIncludesAny(text, ["ndi", "camera", "networkhd"])) score += 38;
+  if (need.technicalRequirement === "Build LCD video wall" && textIncludesAny(text, ["video wall", "wall processor", "networkhd"])) score += 34;
+  if (need.technicalRequirement === "Dual display / MST" && textIncludesAny(text, ["dual", "mst", "multi output"])) score += 30;
+  if (need.technicalRequirement === "Create multiview layout" && textIncludesAny(text, ["multiview", "processor", "composition"])) score += 32;
+
+  if (["3-4", "5-8", "9+"].includes(need.inputs) || ["3-4", "5-8", "9+"].includes(need.outputs)) {
+    if (textIncludesAny(text, ["matrix", "routing", "networkhd", "avoip", "presentation switcher", "multi output"])) score += 34;
+    if (textIncludesAny(text, ["rx-35", "rx-70", "receiver for", "video only receiver"])) score -= 50;
   }
 
-  if (selectedPath && category === selectedPath) {
-    score += 36;
-    reasons.push(`Matches the likely product family: ${selectedPath}.`);
-  }
-
-  if (ioCategoryHints.length && ioCategoryHints.includes(category)) {
-    score += ioOnlyIntent ? 46 : 20;
-    reasons.push(getIoIntentReason(need));
-  }
-
-  if (ioOnlyIntent && ioCategoryHints.length && !ioCategoryHints.includes(category)) {
-    score -= 60;
-    cautions.push("Excluded by I/O logic: the selected input/output count points to another product class.");
-  }
-
-  if (need.signalType && textIncludesAny(text, [need.signalType])) {
-    score += 18;
-    reasons.push(`Matches the selected signal type: ${need.signalType}.`);
-  }
-
-  if (need.sourceConnector && textIncludesAny(text, [need.sourceConnector])) {
-    score += 14;
-    reasons.push(`Supports or references ${need.sourceConnector} source connection.`);
-  }
-
-  if (need.displayConnector && textIncludesAny(text, [need.displayConnector])) {
-    score += 12;
-    reasons.push(`Supports or references ${need.displayConnector} output/display connection.`);
-  }
-
-  if (need.technicalRequirement === "Extend HDMI and USB together" && textIncludesAny(text, ["usb", "hdmi", "hdbaset", "sw-130"])) {
-    score += 34;
-    reasons.push("Treats HDMI + USB as one integrated transport requirement.");
-  }
-
-  if (need.technicalRequirement === "Extend HDMI over distance" && textIncludesAny(text, ["hdbaset", "extender", "receiver", "transmitter", "rx", "tx"])) {
-    score += 28;
-    reasons.push("Fits HDMI extension over distance.");
-  }
-
-  if (need.technicalRequirement === "Distribute AV over network" && textIncludesAny(text, ["networkhd", "avoip", "encoder", "decoder", "transceiver"])) {
-    score += 34;
-    reasons.push("Fits AV-over-IP distribution.");
-  }
-
-  if (need.technicalRequirement === "Bring NDI camera into AV system" && textIncludesAny(text, ["ndi", "camera", "networkhd"])) {
-    score += 36;
-    reasons.push("Fits NDI/camera integration into the AV system.");
-  }
-
-  if (need.technicalRequirement === "Build LCD video wall" && textIncludesAny(text, ["video wall", "wall processor", "vw", "networkhd"])) {
-    score += 34;
-    reasons.push("Relevant to LCD wall processing or wall distribution.");
-  }
-
-  if (need.technicalRequirement === "Dual display / MST" && textIncludesAny(text, ["dual", "mst", "2 output", "multi display"])) {
-    score += 28;
-    reasons.push("Fits dual-display or MST behaviour.");
-  }
-
-  if (need.technicalRequirement === "Create multiview layout" && textIncludesAny(text, ["multiview", "multi view", "composition", "processor"])) {
-    score += 30;
-    reasons.push("Fits multiview composition behaviour.");
-  }
-
-  if (need.usb === "No USB" && textIncludesAny(text, ["hdbaset", "rx", "receiver", "video only"])) {
-    score += 16;
-    reasons.push("Video-only path avoids over-specifying USB transport.");
-  }
-
-  if (need.usb === "USB 2.0 enough" && textIncludesAny(text, ["usb", "hdbaset", "byod", "byom", "sw-130"])) {
-    score += 20;
-    reasons.push("Suitable for USB 2.0 / integrated room transport direction.");
-  }
-
-  if (need.usb === "USB 3.x required" && textIncludesAny(text, ["usb 3", "usb3", "3.0", "5gbps"])) {
-    score += 26;
-    reasons.push("Explicitly aligns with high-bandwidth USB.");
-  }
-
-  if (need.usb === "USB 3.x required" && textIncludesAny(text, ["usb"]) && !textIncludesAny(text, ["usb 3", "usb3", "3.0", "5gbps"])) {
-    cautions.push("USB is mentioned, but USB 3.x capability must be confirmed.");
-  }
-
-  if (need.distance === "Local <5m" || need.distance === "Short 5-10m") {
-    if (textIncludesAny(text, ["switcher", "presentation", "local", "hdmi"])) {
-      score += 15;
-      reasons.push("Sensible for short local presentation paths.");
-    }
-
-    if (textIncludesAny(text, ["networkhd", "10g", "avoip"])) {
-      cautions.push("May be over-specified for a short local run unless routing/flexibility is required.");
-    }
-  }
+  if (need.usb === "No USB" && textIncludesAny(text, ["video only", "receiver", "hdbaset"])) score += 18;
+  if (need.usb === "USB 2.0 enough" && textIncludesAny(text, ["usb 2", "usb", "kvm", "byod", "byom", "sw-130", "ex-100"])) score += 24;
+  if (need.usb === "USB 3.x required" && textIncludesAny(text, ["usb 3", "3.0"])) score += 28;
 
   if (need.distance === "Medium 10-35m" || need.distance === "Long 35-70m") {
-    if (textIncludesAny(text, ["hdbaset", "extender", "rx", "tx"])) {
-      score += 22;
-      reasons.push("Matches medium/long HDBaseT-style transport.");
-    }
+    if (textIncludesAny(text, ["hdbaset", "extender", "receiver", "transmitter"])) score += 18;
   }
 
   if (need.distance === "Very long 70-100m" || need.distance === "Network / site-wide") {
-    if (textIncludesAny(text, ["networkhd", "avoip", "fibre", "fiber", "10g", "hdbaset"])) {
-      score += 24;
-      reasons.push("Fits long-distance or networked AV transport.");
-    }
+    if (textIncludesAny(text, ["networkhd", "avoip", "10g", "hdbaset"])) score += 22;
   }
 
   if (need.network === "Dedicated AV network" || need.network === "10G network" || need.network === "NDI source present") {
-    if (textIncludesAny(text, ["networkhd", "nhd", "avoip", "10g", "ndi", "network"])) {
-      score += 22;
-      reasons.push("Aligns with the selected networked AV requirement.");
-    }
+    if (textIncludesAny(text, ["networkhd", "nhd", "avoip", "10g", "ndi", "network"])) score += 24;
   }
 
-  if (need.processing && textIncludesAny(text, [need.processing])) {
-    score += 20;
-    reasons.push(`Relevant to ${need.processing.toLowerCase()}.`);
-  }
-
-  if (need.audio && textIncludesAny(text, [need.audio])) {
-    score += 15;
-    reasons.push(`Relevant to ${need.audio.toLowerCase()}.`);
-  }
-
-  if (need.control && textIncludesAny(text, [need.control])) {
-    score += 12;
-    reasons.push(`Relevant to ${need.control.toLowerCase()} control requirement.`);
-  }
-
-  if (need.resolution === "4K60 4:4:4" && textIncludesAny(text, ["4k60", "4:4:4", "18gbps", "networkhd 500", "500"])) {
-    score += 18;
-    reasons.push("Relevant to higher-quality 4K60 transport.");
-  }
-
-  if (need.inputs === "5-8" || need.inputs === "9+" || need.outputs === "5-8" || need.outputs === "9+") {
-    if (textIncludesAny(text, ["matrix", "networkhd", "avoip", "routing"])) {
-      score += 20;
-      reasons.push("Scales better for higher input/output counts.");
-    }
-
-    if (textIncludesAny(text, ["4x1", "2x1", "single"])) {
-      cautions.push("I/O count may exceed the product class.");
-    }
-  }
-
-  if (product.source === "seed" && score > 0) score += 5;
+  if (need.processing && textIncludesAny(text, [need.processing])) score += 18;
+  if (cleanProduct.source === "seed") score += 4;
 
   const status: MatchStatus = score >= 72 ? "recommended" : score >= 42 ? "alternative" : "caution";
 
-  if (!reasons.length) {
-    reasons.push("Partial match only. Add more technical details to improve confidence.");
+  return {
+    ...cleanProduct,
+    score: Math.max(0, score),
+    status,
+  };
+}
+
+function getReasonLines(match: ProductMatch, need: FinderNeed) {
+  const lines: string[] = [];
+  const path = inferPathFromNeed(need);
+
+  if (need.query.trim()) lines.push("Matches the search term or product intent.");
+  if (path && match.category === path) lines.push(`Fits the likely product path: ${path}.`);
+  if (need.technicalRequirement) lines.push(`Supports the selected technical requirement: ${need.technicalRequirement}.`);
+  if (need.signalType) lines.push(`Relevant to the selected signal type: ${need.signalType}.`);
+  if (need.sourceConnector) lines.push(`References the source connector: ${need.sourceConnector}.`);
+  if (need.displayConnector) lines.push(`References the display or output connection: ${need.displayConnector}.`);
+
+  if (["3-4", "5-8", "9+"].includes(need.inputs) || ["3-4", "5-8", "9+"].includes(need.outputs)) {
+    lines.push("Higher I/O count points toward matrix, presentation switcher, or AVoIP architecture.");
   }
 
-  return {
-    ...product,
-    title: cleanDisplayText(product.title),
-    family: cleanDisplayText(product.family),
-    category: cleanDisplayText(product.category),
-    description: cleanDisplayText(product.description),
-    tags: unique(product.tags.map(cleanDisplayText).filter(Boolean)),
-    searchText: cleanDisplayText(product.searchText),
-    score,
-    status,
-    reasons: unique(reasons.map(cleanNarrativeText).filter(Boolean)).slice(0, 4),
-    cautions: unique(cautions.map(cleanNarrativeText).filter(Boolean)).slice(0, 3),
-  };
+  if (!lines.length) lines.push("Partial match only. Add more technical detail to improve confidence.");
+
+  return unique(lines).slice(0, 4);
+}
+
+function getCautionLines(match: ProductMatch, need: FinderNeed) {
+  const lines = ["Confirm current datasheet, receiver/accessory set, firmware notes, and cable assumptions."];
+
+  if (need.usb === "USB 3.x required" && !textIncludesAny(match.searchText, ["usb 3", "3.0"])) {
+    lines.unshift("USB 3.x is requested. Confirm high-bandwidth USB support before quoting.");
+  }
+
+  if ((need.inputs === "3-4" || need.inputs === "5-8" || need.inputs === "9+") && match.category === "HDBaseT extender") {
+    lines.unshift("Multiple inputs normally need a switcher, matrix, or AVoIP design rather than a receiver-only path.");
+  }
+
+  if (match.category === "AVoIP" && (need.distance === "Local <5m" || need.distance === "Short 5-10m")) {
+    lines.unshift("AVoIP may be over-specified for a short local run unless routing or expansion is required.");
+  }
+
+  return unique(lines).slice(0, 3);
 }
 
 function readProductSelections(): Record<string, ProductSelection[]> {
@@ -987,7 +828,7 @@ function readProductSelections(): Record<string, ProductSelection[]> {
   if (!raw) return {};
   try {
     const parsed = JSON.parse(raw) as Record<string, ProductSelection[]>;
-    return parsed && typeof parsed === "object" ? sanitiseProjectProductSelectionMap(parsed) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
   } catch {
     return {};
   }
@@ -995,7 +836,7 @@ function readProductSelections(): Record<string, ProductSelection[]> {
 
 function writeProductSelections(selections: Record<string, ProductSelection[]>) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(PRODUCT_SELECTION_STORE_KEY, JSON.stringify(sanitiseProjectProductSelectionMap(selections)));
+  window.localStorage.setItem(PRODUCT_SELECTION_STORE_KEY, JSON.stringify(selections));
   window.dispatchEvent(new CustomEvent("wingman:project-product-selections-updated"));
 }
 
@@ -1071,7 +912,7 @@ function readStandaloneShortlist(): ProductSelection[] {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw) as ProductSelection[];
-    return Array.isArray(parsed) ? (filterWyreStormProducts(parsed) as ProductSelection[]) : [];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
@@ -1079,18 +920,10 @@ function readStandaloneShortlist(): ProductSelection[] {
 
 function writeStandaloneShortlist(items: ProductSelection[]) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STANDALONE_SHORTLIST_KEY, JSON.stringify(filterWyreStormProducts(items)));
+  window.localStorage.setItem(STANDALONE_SHORTLIST_KEY, JSON.stringify(items));
 }
 
-function ChipButton({
-  active,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  onClick: () => void;
-}) {
+function ChipButton({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
   return (
     <button
       type="button"
@@ -1137,6 +970,18 @@ function FieldSelect({
   );
 }
 
+function StatusPill({ status }: { status: MatchStatus }) {
+  const label = status === "recommended" ? "Recommended" : status === "alternative" ? "Alternative" : "Check fit";
+  const classes =
+    status === "recommended"
+      ? "bg-emerald-100 text-emerald-700"
+      : status === "alternative"
+        ? "bg-amber-100 text-amber-700"
+        : "bg-rose-100 text-rose-700";
+
+  return <span className={`rounded-full px-3 py-1 text-xs font-black ${classes}`}>{label}</span>;
+}
+
 export function FinderPage() {
   const { projects } = useProjectStore();
   const [products, setProducts] = useState<FinderProduct[]>(seedProducts.map(cleanFinderProduct));
@@ -1157,9 +1002,9 @@ export function FinderPage() {
       .then((data) => {
         if (!active) return;
 
-        const parsedProducts = filterWyreStormProducts(normaliseProductIndex(data)) as FinderProduct[];
+        const parsedProducts = normaliseProductIndex(data);
 
-        if (parsedProducts.length) {
+        if (parsedProducts.length > seedProducts.length) {
           setProducts(parsedProducts);
           setIndexState("ready");
           return;
@@ -1186,7 +1031,7 @@ export function FinderPage() {
 
     return products
       .map((product) => scoreProduct(product, need))
-      .filter((match) => match.score > 0 || Boolean(need.query.trim() && match.score >= 0))
+      .filter((match) => match.score > 0 || need.query.trim())
       .sort((a, b) => b.score - a.score)
       .slice(0, 12);
   }, [hasIntent, need, products]);
@@ -1209,11 +1054,15 @@ export function FinderPage() {
         if (value === "Extend HDMI and USB together") {
           next.signalType = "HDMI + USB";
           next.usb = "USB 2.0 enough";
+          next.sourceConnector = "HDMI";
+          next.displayConnector = "HDBaseT";
         }
 
         if (value === "Extend HDMI over distance") {
           next.signalType = "HDMI video";
           next.usb = "No USB";
+          next.sourceConnector = "HDMI";
+          next.displayConnector = "HDBaseT";
         }
 
         if (value === "Distribute AV over network") {
@@ -1227,6 +1076,8 @@ export function FinderPage() {
         }
 
         if (value === "Build LCD video wall") {
+          next.signalType = "HDMI video";
+          next.outputs = "3-4";
           next.processing = "Video wall processing";
         }
 
@@ -1237,6 +1088,11 @@ export function FinderPage() {
         if (value === "Dual display / MST") {
           next.processing = "Matrix routing";
         }
+      }
+
+      if ((key === "inputs" || key === "outputs") && ["3-4", "5-8", "9+"].includes(String(value))) {
+        if (!next.technicalRequirement) next.technicalRequirement = "Route sources to multiple displays";
+        if (!next.productPath) next.productPath = "Matrix / routing";
       }
 
       return next;
@@ -1288,7 +1144,7 @@ export function FinderPage() {
         sourceConnector: "USB-C",
         inputs: "2",
         outputs: "1",
-        usb: "BYOD / BYOM",
+        usb: "USB 2.0 enough",
         processing: "Scaling",
       });
     }
@@ -1399,23 +1255,23 @@ export function FinderPage() {
   function addToExistingProject() {
     if (!selectedProduct || !selectedProjectId) return;
     addProductToProject(selectedProjectId, selectedProduct);
-    setMessage(`Added ${cleanDisplayText(selectedProduct.sku)} to ${activeProject?.name ?? "selected project"}.`);
+    setMessage(`Added ${selectedProduct.sku} to ${activeProject?.name ?? "selected project"}.`);
   }
 
   function addToNewProject() {
     if (!selectedProduct) return;
     const project = createProjectFromProduct(newProjectName, newProjectOwner, selectedProduct);
     setSelectedProjectId(project.id);
-    setMessage(`Created ${project.name} and added ${cleanDisplayText(selectedProduct.sku)}.`);
+    setMessage(`Created ${project.name} and added ${selectedProduct.sku}.`);
   }
 
   return (
-    <div className="pb-10">
+    <div className="pb-8">
       <PageHero
         eyebrow="Product Finder"
         title="Find products from technical requirements, not room labels."
-        purpose="Use Finder as a training-led technical selector. Start with the required feature or signal path: HDMI extension, USB transport, USB-C laptop input, AVoIP, multiview, video wall processing, NDI camera integration, audio, or control."
-        nextMove="Pick the technical requirement first. Finder will infer the likely product family, then refine using signal type, connectors, distance, USB, processing, network, and control."
+        purpose="Use Finder as a technical selector. Start with the required feature or signal path: HDMI extension, USB transport, USB-C input, AVoIP, multiview, video wall processing, NDI camera integration, audio, or control."
+        nextMove="Pick the technical requirement first. Finder will infer the likely product family, then refine using signal type, connectors, distance, USB, processing, network, audio, and control."
         actions={[
           { label: "Load Discovery brief", variant: "secondary", onClick: applyDiscoveryBrief },
           { label: "Open projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
@@ -1424,38 +1280,25 @@ export function FinderPage() {
 
       <SectionCard
         title="Technical Product Finder"
-        subtitle="Feature-led filtering replaces room-type filtering. Room type can be useful context, but product selection should be driven by signal path, transport, processing, USB, network, audio, and control needs."
+        subtitle="Feature-led filtering replaces room-type filtering. Product selection is driven by signal path, transport, processing, USB, network, audio, and control needs."
       >
         <div className="grid gap-4">
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <div className="grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-black text-amber-950">Technical feature menu</p>
-                <p className="mt-1 max-w-4xl text-sm leading-6 text-amber-900">
-                  Select the primary technical job first. This container is fixed-height so the Finder layout stays stable while the product filters and results change below.
+                <p className="text-sm font-black text-amber-950">Start with the technical job</p>
+                <p className="mt-1 text-sm leading-6 text-amber-900">
+                  The first decision is the technical requirement. This avoids random product lists and helps explain why a product family is needed.
                 </p>
               </div>
 
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-3 py-1 text-xs font-black text-amber-800">
                 <Database className="h-3.5 w-3.5" />
-                {indexState === "ready" ? `${products.length} indexed WyreStorm products` : indexState === "loading" ? "Loading index" : "Fallback library"}
+                {indexState === "ready" ? `${products.length} indexed products` : indexState === "loading" ? "Loading index" : "Clean fallback library"}
               </div>
             </div>
 
-            <div className="mt-3 max-h-[118px] overflow-y-auto rounded-2xl border border-amber-200 bg-white/70 p-3">
-              <div className="flex flex-wrap gap-2">
-                {technicalRequirementOptions.map((option) => (
-                  <ChipButton
-                    key={option}
-                    active={need.technicalRequirement === option}
-                    label={option}
-                    onClick={() => setNeedField("technicalRequirement", need.technicalRequirement === option ? "" : option)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-3 flex flex-wrap gap-2 border-t border-amber-200 pt-3">
+            <div className="flex flex-wrap gap-2">
               <ChipButton active={false} label="HDMI over distance" onClick={() => applyQuickStart("hdmi")} />
               <ChipButton active={false} label="HDMI + USB together" onClick={() => applyQuickStart("usb")} />
               <ChipButton active={false} label="USB-C laptop input" onClick={() => applyQuickStart("usbC")} />
@@ -1495,41 +1338,14 @@ export function FinderPage() {
                   />
                 </div>
               </label>
-              <div className="rounded-2xl border border-slate-200 bg-white p-3">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Selected technical feature</p>
-                <p className="mt-1 text-sm font-black text-slate-900">{need.technicalRequirement || "Not selected yet"}</p>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  Choose this from the fixed feature menu above. The fields below refine the product path.
-                </p>
-              </div>
 
-              <FieldSelect
-                label="Likely product path"
-                value={need.productPath}
-                options={productPathOptions}
-                onChange={(value) => setNeedField("productPath", value)}
-              />
-
-              <FieldSelect
-                label="Signal type"
-                value={need.signalType}
-                options={signalTypeOptions}
-                onChange={(value) => setNeedField("signalType", value)}
-              />
+              <FieldSelect label="Technical requirement" value={need.technicalRequirement} options={technicalRequirementOptions} onChange={(value) => setNeedField("technicalRequirement", value)} />
+              <FieldSelect label="Likely product path" value={need.productPath} options={productPathOptions} onChange={(value) => setNeedField("productPath", value)} />
+              <FieldSelect label="Signal type" value={need.signalType} options={signalTypeOptions} onChange={(value) => setNeedField("signalType", value)} />
 
               <div className="grid grid-cols-2 gap-3">
-                <FieldSelect
-                  label="Source connector"
-                  value={need.sourceConnector}
-                  options={connectorOptions}
-                  onChange={(value) => setNeedField("sourceConnector", value)}
-                />
-                <FieldSelect
-                  label="Display / output"
-                  value={need.displayConnector}
-                  options={connectorOptions}
-                  onChange={(value) => setNeedField("displayConnector", value)}
-                />
+                <FieldSelect label="Source connector" value={need.sourceConnector} options={connectorOptions} onChange={(value) => setNeedField("sourceConnector", value)} />
+                <FieldSelect label="Display / output" value={need.displayConnector} options={connectorOptions} onChange={(value) => setNeedField("displayConnector", value)} />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -1553,24 +1369,21 @@ export function FinderPage() {
                     <PackageSearch className="mx-auto h-12 w-12 text-slate-300" />
                     <h3 className="mt-4 text-xl font-black text-slate-950">Start with a technical requirement</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Finder now waits for a feature, signal path, connector, I/O count, distance, USB, network, processing, audio, or control requirement before showing products. If only I/O count is known, it should show likely product classes rather than random SKUs.
+                      Finder waits for a feature, signal path, connector, distance, USB, network, processing, audio, or control requirement before showing products.
                     </p>
                   </div>
                 </div>
               ) : matches.length ? (
                 matches.map((match, index) => (
-                  <article key={`${cleanDisplayText(match.sku)}-${index}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <article key={`${match.sku}-${index}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-lg font-black text-slate-950">{cleanDisplayText(match.sku)}</h3>
-                          <StatusChip
-                            label={match.status === "recommended" ? "Recommended" : match.status === "alternative" ? "Alternative" : "Check fit"}
-                            variant={match.status}
-                          />
+                          <h3 className="text-lg font-black text-slate-950">{match.sku}</h3>
+                          <StatusPill status={match.status} />
                         </div>
-                        <p className="mt-1 text-sm font-semibold text-slate-700">{cleanDisplayText(match.title)}</p>
-                        <p className="mt-1 text-xs text-slate-500">{cleanDisplayText(match.family)} | {cleanDisplayText(match.category)}</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-700">{match.title}</p>
+                        <p className="mt-1 text-xs text-slate-500">{match.family} | {match.category}</p>
                       </div>
 
                       <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
@@ -1578,12 +1391,12 @@ export function FinderPage() {
                       </div>
                     </div>
 
-                    <p className="mt-3 text-sm leading-6 text-slate-700">{cleanDisplayText(match.description)}</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-700">{match.description}</p>
 
                     <div className="mt-3 flex flex-wrap gap-2">
                       {match.tags.slice(0, 7).map((tag) => (
-                        <span key={cleanDisplayText(tag)} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-                          {cleanDisplayText(tag)}
+                        <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                          {tag}
                         </span>
                       ))}
                     </div>
@@ -1592,8 +1405,8 @@ export function FinderPage() {
                       <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
-                          {match.reasons.map((reason) => (
-                            <li key={cleanDisplayText(reason)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â 'ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ {cleanDisplayText(reason)}</li>
+                          {getReasonLines(match, need).map((reason) => (
+                            <li key={reason}>- {reason}</li>
                           ))}
                         </ul>
                       </div>
@@ -1601,11 +1414,9 @@ export function FinderPage() {
                       <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3">
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before quoting</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
-                          {match.cautions.length ? (
-                            match.cautions.map((caution) => <li key={cleanDisplayText(caution)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â 'ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ {cleanDisplayText(caution)}</li>)
-                          ) : (
-                            <li>- Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
-                          )}
+                          {getCautionLines(match, need).map((caution) => (
+                            <li key={caution}>- {caution}</li>
+                          ))}
                         </ul>
                       </div>
                     </div>
@@ -1628,10 +1439,7 @@ export function FinderPage() {
                         Add to project
                       </button>
 
-                      <Link
-                        to={routeCatalogByKey.compare.path}
-                        className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
-                      >
+                      <Link to={routeCatalogByKey.compare.path} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50">
                         Compare
                       </Link>
                     </div>
@@ -1650,7 +1458,7 @@ export function FinderPage() {
               )}
             </main>
 
-            <aside className="grid content-start gap-3 self-start">
+            <aside className="grid content-start gap-3">
               <div className="rounded-2xl border border-slate-200 bg-white p-4">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-amber-500" />
@@ -1658,14 +1466,14 @@ export function FinderPage() {
                 </div>
 
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Finder now scores products by technical requirement, product family, signal type, source/output connector, distance, USB class, resolution, processing, network, audio, and control.
+                  Finder scores WyreStorm products by technical requirement, product family, signal type, source/output connector, distance, USB class, resolution, processing, network, audio, and control.
                 </p>
 
                 {bestMatch ? (
                   <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
                     <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Current best match</p>
-                    <p className="mt-2 text-lg font-black text-slate-950">{cleanDisplayText(bestMatch.sku)}</p>
-                    <p className="mt-1 text-sm text-slate-600">{cleanDisplayText(bestMatch.title)}</p>
+                    <p className="mt-2 text-lg font-black text-slate-950">{bestMatch.sku}</p>
+                    <p className="mt-1 text-sm text-slate-600">{bestMatch.title}</p>
                   </div>
                 ) : null}
               </div>
@@ -1677,9 +1485,9 @@ export function FinderPage() {
                 <div className="mt-3 space-y-2">
                   {shortlist.length ? (
                     shortlist.slice(0, 6).map((item) => (
-                      <div key={`${cleanDisplayText(item.sku)}-${item.addedAt}`} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                        <p className="text-sm font-black text-slate-900">{cleanDisplayText(item.sku)}</p>
-                        <p className="mt-1 text-xs text-slate-500">{cleanDisplayText(item.title)}</p>
+                      <div key={`${item.sku}-${item.addedAt}`} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <p className="text-sm font-black text-slate-900">{item.sku}</p>
+                        <p className="mt-1 text-xs text-slate-500">{item.title}</p>
                       </div>
                     ))
                   ) : (
@@ -1712,9 +1520,9 @@ export function FinderPage() {
           <div className="w-full max-w-2xl rounded-3xl border border-slate-700 bg-slate-950 p-5 text-white shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Add product to project</p>
-                <h2 className="mt-2 text-2xl font-black tracking-tight">{cleanDisplayText(selectedProduct.sku)}</h2>
-                <p className="mt-1 text-sm text-slate-300">{cleanDisplayText(selectedProduct.title)}</p>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Add WyreStorm product to project</p>
+                <h2 className="mt-2 text-2xl font-black tracking-tight">{selectedProduct.sku}</h2>
+                <p className="mt-1 text-sm text-slate-300">{selectedProduct.title}</p>
               </div>
 
               <button
@@ -1793,17 +1601,11 @@ export function FinderPage() {
                 Shortlist only
               </button>
 
-              <Link
-                to={routeCatalogByKey.projects.path}
-                className="rounded-full border border-white/10 px-4 py-2 text-sm font-black text-slate-200 transition hover:bg-white/10"
-              >
+              <Link to={routeCatalogByKey.projects.path} className="rounded-full border border-white/10 px-4 py-2 text-sm font-black text-slate-200 transition hover:bg-white/10">
                 Open projects
               </Link>
 
-              <Link
-                to={routeCatalogByKey.proposal.path}
-                className="rounded-full bg-slate-200 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-white"
-              >
+              <Link to={routeCatalogByKey.proposal.path} className="rounded-full bg-slate-200 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-white">
                 Continue to proposal
               </Link>
             </div>

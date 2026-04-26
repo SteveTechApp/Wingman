@@ -1,0 +1,760 @@
+{
+    "records":  [
+                    {
+                        "sku":  "SW-130-TX-UK",
+                        "description":  "In-wall presentation transmitter for HDMI and USB-C room input points. Useful when video and USB need to be transported from the user position to the room system.",
+                        "category":  "Presentation Switcher",
+                        "tags":  [
+                                     "HDMI USB extender",
+                                     "presentation",
+                                     "USB-C",
+                                     "HDBaseT"
+                                 ],
+                        "applications":  [
+                                             "Meeting room",
+                                             "Teaching space",
+                                             "Collaboration room"
+                                         ],
+                        "name":  "In-wall HDMI and USB-C presentation transmitter",
+                        "connectors":  [
+                                           "HDMI",
+                                           "USB-C",
+                                           "USB"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "HDBaseT",
+                                             "HDMI",
+                                             "USB-C",
+                                             "USB 2.0",
+                                             "BYOD",
+                                             "BYOM"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Presentation input",
+                                         "USB transport",
+                                         "Room input plate"
+                                     ]
+                    },
+                    {
+                        "sku":  "EX-100-KVM",
+                        "description":  "HDMI and USB 2.0 KVM extender kit for applications where HDMI and USB need to travel together over distance.",
+                        "category":  "KVM Extender",
+                        "tags":  [
+                                     "HDMI USB extender",
+                                     "KVM",
+                                     "HDBaseT",
+                                     "USB 2.0"
+                                 ],
+                        "applications":  [
+                                             "Meeting room",
+                                             "Training room",
+                                             "Control room"
+                                         ],
+                        "name":  "4K HDMI and USB extender kit over HDBaseT",
+                        "connectors":  [
+                                           "HDMI",
+                                           "USB",
+                                           "HDBaseT"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "HDBaseT",
+                                             "HDMI",
+                                             "USB 2.0",
+                                             "KVM"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "HDMI extension",
+                                         "USB 2.0 extension",
+                                         "KVM"
+                                     ]
+                    },
+                    {
+                        "sku":  "RX-35",
+                        "description":  "HDBaseT receiver option for video-only extension where USB transport is not required.",
+                        "category":  "HDBaseT Extender",
+                        "tags":  [
+                                     "receiver",
+                                     "RX",
+                                     "HDBaseT",
+                                     "video only"
+                                 ],
+                        "applications":  [
+                                             "Display extension",
+                                             "Meeting room",
+                                             "Classroom"
+                                         ],
+                        "name":  "HDBaseT receiver for shorter video-only paths",
+                        "connectors":  [
+                                           "HDBaseT",
+                                           "HDMI"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "HDBaseT",
+                                             "HDMI"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Video-only receiver",
+                                         "Shorter distance receiver"
+                                     ]
+                    },
+                    {
+                        "sku":  "RX-70",
+                        "description":  "HDBaseT receiver option for longer video-only extension where USB transport is not required.",
+                        "category":  "HDBaseT Extender",
+                        "tags":  [
+                                     "receiver",
+                                     "RX",
+                                     "HDBaseT",
+                                     "video only"
+                                 ],
+                        "applications":  [
+                                             "Display extension",
+                                             "Meeting room",
+                                             "Classroom"
+                                         ],
+                        "name":  "HDBaseT receiver for longer video-only paths",
+                        "connectors":  [
+                                           "HDBaseT",
+                                           "HDMI"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "HDBaseT",
+                                             "HDMI"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Video-only receiver",
+                                         "Longer distance receiver"
+                                     ]
+                    },
+                    {
+                        "sku":  "MX-0402-MST",
+                        "description":  "Presentation switcher for USB-C laptop, dual display, and MST-style workflows.",
+                        "category":  "Presentation Switcher",
+                        "tags":  [
+                                     "presentation",
+                                     "dual display",
+                                     "MST",
+                                     "USB-C"
+                                 ],
+                        "applications":  [
+                                             "Meeting room",
+                                             "Training room",
+                                             "Hybrid collaboration"
+                                         ],
+                        "name":  "Dual-display MST presentation switcher",
+                        "connectors":  [
+                                           "USB-C",
+                                           "HDMI"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "USB-C",
+                                             "HDMI",
+                                             "MST",
+                                             "Dual Display"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Dual display",
+                                         "MST",
+                                         "Presentation switching"
+                                     ]
+                    },
+                    {
+                        "sku":  "MX-0403-H3-MST",
+                        "description":  "Presentation switcher for rooms needing multiple outputs, USB-C/HDMI source handling, MST-style behaviour, and HDBaseT extension.",
+                        "category":  "Presentation Switcher",
+                        "tags":  [
+                                     "presentation",
+                                     "MST",
+                                     "HDBaseT",
+                                     "dual display"
+                                 ],
+                        "applications":  [
+                                             "Meeting room",
+                                             "Teaching space",
+                                             "Boardroom"
+                                         ],
+                        "name":  "Multi-output presentation switcher with HDBaseT",
+                        "connectors":  [
+                                           "USB-C",
+                                           "HDMI",
+                                           "HDBaseT"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "USB-C",
+                                             "HDMI",
+                                             "MST",
+                                             "HDBaseT",
+                                             "Dual Display"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Multiple outputs",
+                                         "HDBaseT output",
+                                         "Presentation switching"
+                                     ]
+                    },
+                    {
+                        "sku":  "SW-0204-VW",
+                        "description":  "Dedicated video wall processor for basic LCD wall layouts where preset wall processing is sufficient.",
+                        "category":  "Video Processor",
+                        "tags":  [
+                                     "video wall",
+                                     "LCD wall",
+                                     "processor"
+                                 ],
+                        "applications":  [
+                                             "Retail",
+                                             "Reception",
+                                             "Control room",
+                                             "Display wall"
+                                         ],
+                        "name":  "Preset-layout video wall processor",
+                        "connectors":  [
+                                           "HDMI"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "Video Wall",
+                                             "HDMI"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "LCD video wall",
+                                         "Preset layouts",
+                                         "Wall processing"
+                                     ]
+                    },
+                    {
+                        "sku":  "SW-0206-VW",
+                        "description":  "Dedicated non-AVoIP 4K60 video wall processor for LCD wall opportunities where fixed wall processing is more appropriate than networked AVoIP.",
+                        "category":  "Video Processor",
+                        "tags":  [
+                                     "video wall",
+                                     "LCD wall",
+                                     "processor",
+                                     "4K60"
+                                 ],
+                        "applications":  [
+                                             "Retail",
+                                             "Reception",
+                                             "Control room",
+                                             "Display wall"
+                                         ],
+                        "name":  "4K60 video wall processor",
+                        "connectors":  [
+                                           "HDMI"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "Video Wall",
+                                             "HDMI",
+                                             "4K60"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "LCD video wall",
+                                         "4K60",
+                                         "Wall processing"
+                                     ]
+                    },
+                    {
+                        "sku":  "NHD-120-TX",
+                        "description":  "Cost-effective NetworkHD 100 series AVoIP encoder for flexible 4K distribution over network infrastructure.",
+                        "category":  "AVoIP",
+                        "tags":  [
+                                     "NetworkHD",
+                                     "encoder",
+                                     "AVoIP",
+                                     "transmitter"
+                                 ],
+                        "applications":  [
+                                             "Distributed AV",
+                                             "Education",
+                                             "Hospitality",
+                                             "Retail"
+                                         ],
+                        "name":  "NetworkHD 100 series encoder",
+                        "connectors":  [
+                                           "HDMI",
+                                           "RJ45"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "NetworkHD 100",
+                                             "AVoIP",
+                                             "4K"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Encoder",
+                                         "Network AV distribution"
+                                     ]
+                    },
+                    {
+                        "sku":  "NHD-120-RX",
+                        "description":  "NetworkHD 100 series decoder for cost-effective AVoIP distribution systems.",
+                        "category":  "AVoIP",
+                        "tags":  [
+                                     "NetworkHD",
+                                     "decoder",
+                                     "AVoIP",
+                                     "receiver"
+                                 ],
+                        "applications":  [
+                                             "Distributed AV",
+                                             "Education",
+                                             "Hospitality",
+                                             "Retail"
+                                         ],
+                        "name":  "NetworkHD 100 series decoder",
+                        "connectors":  [
+                                           "HDMI",
+                                           "RJ45"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "NetworkHD 100",
+                                             "AVoIP",
+                                             "4K"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Decoder",
+                                         "Network AV receiver"
+                                     ]
+                    },
+                    {
+                        "sku":  "NHD-150-RX",
+                        "description":  "NetworkHD 100 series multiview decoder for AVoIP systems requiring multi-source composition at the display output.",
+                        "category":  "AVoIP",
+                        "tags":  [
+                                     "NetworkHD",
+                                     "decoder",
+                                     "multiview",
+                                     "AVoIP"
+                                 ],
+                        "applications":  [
+                                             "Control room",
+                                             "Education",
+                                             "Signage",
+                                             "Monitoring"
+                                         ],
+                        "name":  "NetworkHD 100 multiview decoder",
+                        "connectors":  [
+                                           "HDMI",
+                                           "RJ45"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "NetworkHD 100",
+                                             "AVoIP",
+                                             "Multiview",
+                                             "H.265"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Decoder",
+                                         "Multiview",
+                                         "Network AV receiver"
+                                     ]
+                    },
+                    {
+                        "sku":  "NHD-128-NDI-TRX",
+                        "description":  "NDI bridge/transceiver for bringing NDI sources into NetworkHD 100 H.265 AVoIP workflows.",
+                        "category":  "AVoIP",
+                        "tags":  [
+                                     "NDI",
+                                     "NetworkHD",
+                                     "AVoIP",
+                                     "camera"
+                                 ],
+                        "applications":  [
+                                             "Lecture capture",
+                                             "Streaming",
+                                             "Camera workflow",
+                                             "Hybrid meeting"
+                                         ],
+                        "name":  "NDI to NetworkHD 100 bridge",
+                        "connectors":  [
+                                           "RJ45"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "NetworkHD 100",
+                                             "NDI",
+                                             "AVoIP",
+                                             "H.265"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "NDI bridge",
+                                         "Camera integration",
+                                         "Network AV"
+                                     ]
+                    },
+                    {
+                        "sku":  "NHD-500-TX",
+                        "description":  "Premium NetworkHD 500 encoder for 4K60 AVoIP distribution with low latency, flexible routing, and stronger USB/audio workflow support.",
+                        "category":  "AVoIP",
+                        "tags":  [
+                                     "NetworkHD",
+                                     "500",
+                                     "encoder",
+                                     "4K60",
+                                     "AVoIP"
+                                 ],
+                        "applications":  [
+                                             "Boardroom",
+                                             "Education",
+                                             "Control room",
+                                             "Enterprise AV"
+                                         ],
+                        "name":  "NetworkHD 500 4K60 AVoIP encoder",
+                        "connectors":  [
+                                           "HDMI",
+                                           "RJ45",
+                                           "USB"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "NetworkHD 500",
+                                             "AVoIP",
+                                             "4K60",
+                                             "USB",
+                                             "Dante"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Encoder",
+                                         "4K60",
+                                         "Low latency",
+                                         "USB support"
+                                     ]
+                    },
+                    {
+                        "sku":  "NHD-500-RX",
+                        "description":  "Premium NetworkHD 500 decoder for 4K60 AVoIP systems requiring high-quality networked video distribution.",
+                        "category":  "AVoIP",
+                        "tags":  [
+                                     "NetworkHD",
+                                     "500",
+                                     "decoder",
+                                     "4K60",
+                                     "AVoIP"
+                                 ],
+                        "applications":  [
+                                             "Boardroom",
+                                             "Education",
+                                             "Control room",
+                                             "Enterprise AV"
+                                         ],
+                        "name":  "NetworkHD 500 4K60 AVoIP decoder",
+                        "connectors":  [
+                                           "HDMI",
+                                           "RJ45",
+                                           "USB"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "NetworkHD 500",
+                                             "AVoIP",
+                                             "4K60",
+                                             "USB",
+                                             "Dante"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Decoder",
+                                         "4K60",
+                                         "Low latency",
+                                         "USB support"
+                                     ]
+                    },
+                    {
+                        "sku":  "NHD-0401-MV",
+                        "description":  "NetworkHD 500 multiview processor for source composition and multi-view display workflows.",
+                        "category":  "AVoIP",
+                        "tags":  [
+                                     "NetworkHD",
+                                     "multiview",
+                                     "NHD-0401-MV",
+                                     "AVoIP"
+                                 ],
+                        "applications":  [
+                                             "Control room",
+                                             "Monitoring",
+                                             "Enterprise AV"
+                                         ],
+                        "name":  "NetworkHD 500 multiview processor",
+                        "connectors":  [
+                                           "RJ45",
+                                           "HDMI"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "NetworkHD 500",
+                                             "AVoIP",
+                                             "Multiview"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Multiview",
+                                         "Source composition",
+                                         "AVoIP processing"
+                                     ]
+                    },
+                    {
+                        "sku":  "NHD-600-TRX",
+                        "description":  "Highest-performance NetworkHD 600 transceiver for 10G lossless zero-latency AVoIP systems.",
+                        "category":  "AVoIP",
+                        "tags":  [
+                                     "NetworkHD",
+                                     "600",
+                                     "10G",
+                                     "transceiver",
+                                     "AVoIP"
+                                 ],
+                        "applications":  [
+                                             "Command and control",
+                                             "Broadcast",
+                                             "Premium enterprise AV"
+                                         ],
+                        "name":  "NetworkHD 600 10G transceiver",
+                        "connectors":  [
+                                           "HDMI",
+                                           "RJ45"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "NetworkHD 600",
+                                             "AVoIP",
+                                             "10G",
+                                             "Lossless",
+                                             "Zero latency"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Transceiver",
+                                         "10G",
+                                         "Lossless",
+                                         "Zero latency"
+                                     ]
+                    },
+                    {
+                        "sku":  "CAM-210-NDI-PTZ",
+                        "description":  "PTZ camera with NDI support for conferencing, capture, streaming, and network video workflows.",
+                        "category":  "Unified Communication",
+                        "tags":  [
+                                     "camera",
+                                     "NDI",
+                                     "PTZ",
+                                     "UC"
+                                 ],
+                        "applications":  [
+                                             "Lecture capture",
+                                             "Meeting room",
+                                             "Training room",
+                                             "Streaming"
+                                         ],
+                        "name":  "NDI PTZ camera",
+                        "connectors":  [
+                                           "RJ45",
+                                           "HDMI",
+                                           "USB"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "NDI",
+                                             "PTZ",
+                                             "Camera",
+                                             "Streaming"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "PTZ camera",
+                                         "NDI",
+                                         "Streaming"
+                                     ]
+                    },
+                    {
+                        "sku":  "CAM-420-PTZ",
+                        "description":  "PTZ camera for meeting, teaching, and conferencing applications where camera capture is required.",
+                        "category":  "Unified Communication",
+                        "tags":  [
+                                     "camera",
+                                     "PTZ",
+                                     "UC"
+                                 ],
+                        "applications":  [
+                                             "Meeting room",
+                                             "Training room",
+                                             "Lecture capture"
+                                         ],
+                        "name":  "PTZ camera",
+                        "connectors":  [
+                                           "USB",
+                                           "HDMI"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "PTZ",
+                                             "Camera",
+                                             "USB",
+                                             "HDMI"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "PTZ camera",
+                                         "Camera capture"
+                                     ]
+                    },
+                    {
+                        "sku":  "CAM-0402-BRG",
+                        "description":  "Camera bridge/mixer for integrating cameras into conferencing and capture workflows.",
+                        "category":  "Unified Communication",
+                        "tags":  [
+                                     "camera bridge",
+                                     "mixer",
+                                     "UC"
+                                 ],
+                        "applications":  [
+                                             "Meeting room",
+                                             "Training room",
+                                             "Hybrid conferencing"
+                                         ],
+                        "name":  "Camera bridge and mixer",
+                        "connectors":  [
+                                           "USB",
+                                           "HDMI"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "Camera bridge",
+                                             "USB",
+                                             "HDMI"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "Camera bridge",
+                                         "Mixer",
+                                         "USB conferencing"
+                                     ]
+                    },
+                    {
+                        "sku":  "IDB-300",
+                        "description":  "In-desk cable management box for BYOD and meeting room cable access.",
+                        "category":  "In-Desk Box",
+                        "tags":  [
+                                     "in-desk",
+                                     "cable management",
+                                     "BYOD"
+                                 ],
+                        "applications":  [
+                                             "Meeting room",
+                                             "Boardroom",
+                                             "Training room"
+                                         ],
+                        "name":  "In-desk cable management box",
+                        "connectors":  [
+                                           "HDMI",
+                                           "USB-C",
+                                           "USB"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "Cable management",
+                                             "BYOD"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "In-desk cable access",
+                                         "BYOD support"
+                                     ]
+                    },
+                    {
+                        "sku":  "MX-0404-SCL",
+                        "description":  "Seamless matrix switcher for routing and scaling multiple HDMI sources to multiple displays.",
+                        "category":  "Matrix Solution",
+                        "tags":  [
+                                     "matrix",
+                                     "seamless",
+                                     "scaling",
+                                     "4x4"
+                                 ],
+                        "applications":  [
+                                             "Meeting room",
+                                             "Training room",
+                                             "Video wall",
+                                             "Multi-display"
+                                         ],
+                        "name":  "4x4 seamless matrix switcher",
+                        "connectors":  [
+                                           "HDMI"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "HDMI",
+                                             "Matrix",
+                                             "Scaling",
+                                             "Seamless"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "4x4 matrix",
+                                         "Scaling",
+                                         "Seamless switching"
+                                     ]
+                    },
+                    {
+                        "sku":  "MX-0808-SCL",
+                        "description":  "8x8 seamless matrix switcher for larger multi-source and multi-display routing applications.",
+                        "category":  "Matrix Solution",
+                        "tags":  [
+                                     "matrix",
+                                     "seamless",
+                                     "scaling",
+                                     "8x8"
+                                 ],
+                        "applications":  [
+                                             "Training room",
+                                             "Control room",
+                                             "Hospitality",
+                                             "Multi-display"
+                                         ],
+                        "name":  "8x8 seamless matrix switcher",
+                        "connectors":  [
+                                           "HDMI"
+                                       ],
+                        "brand":  "WyreStorm",
+                        "technologies":  [
+                                             "HDMI",
+                                             "Matrix",
+                                             "Scaling",
+                                             "Seamless"
+                                         ],
+                        "vendorType":  "wyrestorm",
+                        "features":  [
+                                         "8x8 matrix",
+                                         "Scaling",
+                                         "Seamless switching"
+                                     ]
+                    }
+                ],
+    "meta":  {
+                 "rebuiltAt":  "2026-04-26T16:16:12.8918503+01:00",
+                 "rebuiltBy":  "Wingman clean product DB repair",
+                 "vendorPolicy":  "WyreStorm-only",
+                 "count":  22
+             }
+}
