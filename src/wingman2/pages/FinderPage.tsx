@@ -341,8 +341,44 @@ function createId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+
+function cleanDisplayText(value: string) {
+  let cleaned = value;
+
+  const mojibakeFixes: Array<[string, string]> = [
+    [String.fromCharCode(0x00e2, 0x20ac, 0x00a2), "-"],
+    [String.fromCharCode(0x00e2, 0x20ac, 0x2122), "'"],
+    [String.fromCharCode(0x00e2, 0x20ac, 0x0153), '"'],
+    [String.fromCharCode(0x00e2, 0x20ac, 0x009d), '"'],
+    [String.fromCharCode(0x00e2, 0x20ac, 0x201c), "-"],
+    [String.fromCharCode(0x00e2, 0x20ac, 0x201d), "-"],
+    [String.fromCharCode(0x00c2), ""],
+    [String.fromCharCode(0x00c3, 0x2014), "x"],
+  ];
+
+  mojibakeFixes.forEach(([bad, good]) => {
+    cleaned = cleaned.split(bad).join(good);
+  });
+
+  return cleaned
+    .replace(/(TM)|(TM)|(TM)/gi, "(TM)")
+    .replace(/&#x00ae;|&#174;|&reg;/gi, "(R)")
+    .replace(/&#x2013;|&#8211;|&ndash;/gi, "-")
+    .replace(/&#x2014;|&#8212;|&mdash;/gi, "-")
+    .replace(/&#x2018;|&#8216;|&lsquo;/gi, "'")
+    .replace(/&#x2019;|&#8217;|&rsquo;/gi, "'")
+    .replace(/&#x201c;|&#8220;|&ldquo;/gi, '"')
+    .replace(/&#x201d;|&#8221;|&rdquo;/gi, '"')
+    .replace(/&#x2022;|&#8226;|&bull;/gi, "-")
+    .replace(/ /gi, " ")
+    .replace(/&/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&#x27;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 function normaliseText(value: string) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  return cleanDisplayText(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
 function unique(values: string[]) {
@@ -448,7 +484,7 @@ function textIncludesAny(text: string, terms: string[]) {
 }
 
 function valueAsString(value: unknown) {
-  if (typeof value === "string") return value;
+  if (typeof value === "string") return cleanDisplayText(value);
   if (typeof value === "number" || typeof value === "boolean") return String(value);
   return "";
 }
@@ -1467,7 +1503,7 @@ export function FinderPage() {
                         </div>
                         <p className="mt-1 text-sm font-semibold text-slate-700">{match.title}</p>
                         <p className="mt-1 text-xs text-slate-500">
-                          {match.family} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {match.category}
+                          {match.family} ÃƒÆ’Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {match.category}
                         </p>
                       </div>
 
@@ -1491,7 +1527,7 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
                           {match.reasons.map((reason) => (
-                            <li key={reason}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {reason}</li>
+                            <li key={reason}>ÃƒÆ’Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {reason}</li>
                           ))}
                         </ul>
                       </div>
@@ -1500,9 +1536,9 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before quoting</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
                           {match.cautions.length ? (
-                            match.cautions.map((caution) => <li key={caution}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {caution}</li>)
+                            match.cautions.map((caution) => <li key={caution}>ÃƒÆ’Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {caution}</li>)
                           ) : (
-                            <li>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
+                            <li>ÃƒÆ’Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
                           )}
                         </ul>
                       </div>
