@@ -2023,9 +2023,9 @@ export function DiscoveryPage() {
               <p className="text-sm font-black text-slate-900">Likely product direction</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.productDirection.length ? (
-                  inference.productDirection.map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
+                  inference.productDirection.map((item) => <li key={item}>- {item}</li>)
                 ) : (
-                  <li>Ã¢â‚¬Â¢ More information is required before a reliable product direction can be stated.</li>
+                  <li>- More information is required before a reliable product direction can be stated.</li>
                 )}
               </ul>
             </div>
@@ -2034,9 +2034,9 @@ export function DiscoveryPage() {
               <p className="text-sm font-black text-slate-900">Avoid / do not assume</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.avoid.length ? (
-                  inference.avoid.map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
+                  inference.avoid.map((item) => <li key={item}>- {item}</li>)
                 ) : (
-                  <li>Ã¢â‚¬Â¢ No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
+                  <li>- No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
                 )}
               </ul>
             </div>
@@ -2198,9 +2198,9 @@ export function DiscoveryPage() {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.missing.length ? (
-                      inference.missing.slice(0, 6).map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
+                      inference.missing.slice(0, 6).map((item) => <li key={item}>- {item}</li>)
                     ) : (
-                      <li>Ã¢â‚¬Â¢ No major missing details detected.</li>
+                      <li>- No major missing details detected.</li>
                     )}
                   </ul>
                 </div>
@@ -2212,9 +2212,9 @@ export function DiscoveryPage() {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.risks.length ? (
-                      inference.risks.slice(0, 6).map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
+                      inference.risks.slice(0, 6).map((item) => <li key={item}>- {item}</li>)
                     ) : (
-                      <li>Ã¢â‚¬Â¢ No major risk flags yet.</li>
+                      <li>- No major risk flags yet.</li>
                     )}
                   </ul>
                 </div>

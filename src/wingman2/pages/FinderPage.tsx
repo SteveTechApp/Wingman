@@ -344,19 +344,19 @@ function createId(prefix: string) {
 
 function cleanDisplayText(value: string) {
   return value
-    .replace(/&amp;/gi, "&")
-    .replace(/&#x2122;|&#8482;|&trade;/gi, " TM ")
-    .replace(/&#x00ae;|&#174;|&reg;/gi, " R ")
-    .replace(/&#x2013;|&#8211;|&ndash;/gi, "-")
-    .replace(/&#x2014;|&#8212;|&mdash;/gi, "-")
-    .replace(/&#x2018;|&#8216;|&lsquo;/gi, "'")
-    .replace(/&#x2019;|&#8217;|&rsquo;/gi, "'")
-    .replace(/&#x201c;|&#8220;|&ldquo;/gi, '"')
-    .replace(/&#x201d;|&#8221;|&rdquo;/gi, '"')
-    .replace(/&#x2022;|&#8226;|&bull;/gi, "-")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;|&#x27;/gi, "'")
+    .replace(/&/gi, "&")
+    .replace(/ TM | TM | TM /gi, " TM ")
+    .replace(/ R | R | R /gi, " R ")
+    .replace(/-|-|-/gi, "-")
+    .replace(/-|-|-/gi, "-")
+    .replace(/'|'|'/gi, "'")
+    .replace(/'|'|'/gi, "'")
+    .replace(/"|"|"/gi, '"')
+    .replace(/"|"|"/gi, '"')
+    .replace(/-|-|-/gi, "-")
+    .replace(/ /gi, " ")
+    .replace(/"/gi, '"')
+    .replace(/'|'/gi, "'")
     .replace(/\u00d7/g, "x")
     .replace(/\u2013|\u2014/g, "-")
     .replace(/\u2018|\u2019/g, "'")
@@ -1553,7 +1553,7 @@ export function FinderPage() {
                         </div>
                         <p className="mt-1 text-sm font-semibold text-slate-700">{cleanDisplayText(match.title)}</p>
                         <p className="mt-1 text-xs text-slate-500">
-                          {cleanDisplayText(match.family)} ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ {cleanDisplayText(match.category)}
+                          {cleanDisplayText(match.family)} ÃƒÆ'Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {cleanDisplayText(match.category)}
                         </p>
                       </div>
 
@@ -1577,7 +1577,7 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
                           {match.reasons.map((reason) => (
-                            <li key={cleanDisplayText(reason)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ {cleanDisplayText(reason)}</li>
+                            <li key={cleanDisplayText(reason)}>ÃƒÆ'Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {cleanDisplayText(reason)}</li>
                           ))}
                         </ul>
                       </div>
@@ -1586,9 +1586,9 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before quoting</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
                           {match.cautions.length ? (
-                            match.cautions.map((caution) => <li key={cleanDisplayText(caution)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ {cleanDisplayText(caution)}</li>)
+                            match.cautions.map((caution) => <li key={cleanDisplayText(caution)}>ÃƒÆ'Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {cleanDisplayText(caution)}</li>)
                           ) : (
-                            <li>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
+                            <li>ÃƒÆ'Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
                           )}
                         </ul>
                       </div>

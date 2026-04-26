@@ -47,10 +47,10 @@ function flattenHtmlToText(html) {
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
     .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
+    .replace(/ /g, " ")
+    .replace(/&/g, "&")
+    .replace(/"/g, '"')
+    .replace(/'/g, "'")
     .replace(/\s+/g, " ")
     .trim();
 }
