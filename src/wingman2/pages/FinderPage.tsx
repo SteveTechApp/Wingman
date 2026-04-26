@@ -342,89 +342,11 @@ function createId(prefix: string) {
 }
 
 
-function repairMojibakeText(value: string) {
-  let current = value;
-
-  const cp1252: Record<number, number> = {
-    0x20ac: 0x80,
-    0x201a: 0x82,
-    0x0192: 0x83,
-    0x201e: 0x84,
-    0x2026: 0x85,
-    0x2020: 0x86,
-    0x2021: 0x87,
-    0x02c6: 0x88,
-    0x2030: 0x89,
-    0x0160: 0x8a,
-    0x2039: 0x8b,
-    0x0152: 0x8c,
-    0x017d: 0x8e,
-    0x2018: 0x91,
-    0x2019: 0x92,
-    0x201c: 0x93,
-    0x201d: 0x94,
-    0x2022: 0x95,
-    0x2013: 0x96,
-    0x2014: 0x97,
-    0x02dc: 0x98,
-    0x2122: 0x99,
-    0x0161: 0x9a,
-    0x203a: 0x9b,
-    0x0153: 0x9c,
-    0x017e: 0x9e,
-    0x0178: 0x9f,
-  };
-
-  for (let pass = 0; pass < 4; pass += 1) {
-    if (!/[\u00c2\u00c3\u00c5\u00c6\u00e2\u0192\u20ac]/.test(current)) {
-      break;
-    }
-
-    try {
-      const bytes: number[] = [];
-
-      for (const character of current) {
-        const code = character.charCodeAt(0);
-
-        if (code <= 0xff) {
-          bytes.push(code);
-          continue;
-        }
-
-        if (cp1252[code] !== undefined) {
-          bytes.push(cp1252[code]);
-          continue;
-        }
-
-        bytes.length = 0;
-        break;
-      }
-
-      if (!bytes.length) {
-        break;
-      }
-
-      const decoded = new TextDecoder("utf-8", { fatal: false }).decode(new Uint8Array(bytes));
-
-      if (!decoded || decoded === current) {
-        break;
-      }
-
-      current = decoded;
-    } catch {
-      break;
-    }
-  }
-
-  return current;
-}
-
 function cleanDisplayText(value: string) {
-  const repaired = repairMojibakeText(value);
-
-  return repaired
-    .replace(/&#x2122;|&#8482;|&trade;/gi, "(TM)")
-    .replace(/&#x00ae;|&#174;|&reg;/gi, "(R)")
+  return value
+    .replace(/&amp;/gi, "&")
+    .replace(/&#x2122;|&#8482;|&trade;/gi, " TM ")
+    .replace(/&#x00ae;|&#174;|&reg;/gi, " R ")
     .replace(/&#x2013;|&#8211;|&ndash;/gi, "-")
     .replace(/&#x2014;|&#8212;|&mdash;/gi, "-")
     .replace(/&#x2018;|&#8216;|&lsquo;/gi, "'")
@@ -433,14 +355,31 @@ function cleanDisplayText(value: string) {
     .replace(/&#x201d;|&#8221;|&rdquo;/gi, '"')
     .replace(/&#x2022;|&#8226;|&bull;/gi, "-")
     .replace(/&nbsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
     .replace(/&quot;/gi, '"')
     .replace(/&#39;|&#x27;/gi, "'")
-    .replace(/[\u00c2\u00c3\u00c5\u00c6\u00e2\u0192\u2020\u20ac\u0161\u201a\u201c\u201d\u2018\u2019\u2122\u0153\u009d\u00a2\u00ab\u00bb\u00a0]+/g, " ")
-    .replace(/^[^a-zA-Z0-9]+(?=[a-zA-Z0-9])/g, "")
-    .replace(/\s*[,;:_-]\s*(?=[A-Z][a-z])/g, " ")
+    .replace(/\u00d7/g, "x")
+    .replace(/\u2013|\u2014/g, "-")
+    .replace(/\u2018|\u2019/g, "'")
+    .replace(/\u201c|\u201d/g, '"')
+    .replace(/\u2022/g, "-")
+    .replace(/[^\x09\x0a\x0d\x20-\x7e]/g, " ")
     .replace(/\s+/g, " ")
+    .replace(/^[\s|,;:_-]+/g, "")
+    .replace(/[\s|,;:_-]+$/g, "")
     .trim();
+}
+
+function cleanFinderProduct(product: FinderProduct): FinderProduct {
+  return {
+    ...product,
+    sku: cleanDisplayText(product.sku),
+    title: cleanDisplayText(product.title),
+    family: cleanDisplayText(product.family),
+    category: cleanDisplayText(product.category),
+    description: cleanDisplayText(product.description),
+    tags: unique(product.tags.map(cleanDisplayText).filter(Boolean)),
+    searchText: cleanDisplayText(product.searchText),
+  };
 }
 function normaliseText(value: string) {
   return cleanDisplayText(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -669,7 +608,7 @@ function normaliseProductIndex(data: unknown) {
     });
   });
 
-  return filterWyreStormProducts(Array.from(bySku.values())) as FinderProduct[];
+  return filterWyreStormProducts(Array.from(bySku.values()).map(cleanFinderProduct)) as FinderProduct[];
 }
 
 function hasFinderIntent(need: FinderNeed) {
@@ -1574,7 +1513,7 @@ export function FinderPage() {
                         </div>
                         <p className="mt-1 text-sm font-semibold text-slate-700">{cleanDisplayText(match.title)}</p>
                         <p className="mt-1 text-xs text-slate-500">
-                          {cleanDisplayText(match.family)} ÃƒÆ’Ã†â€™Ãƒâ€šÂ¢ÃƒÆ’Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÂ¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÂ¢ {cleanDisplayText(match.category)}
+                          {cleanDisplayText(match.family)} ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ÃƒÆ’Ã†â€™Ã‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ {cleanDisplayText(match.category)}
                         </p>
                       </div>
 
@@ -1598,7 +1537,7 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
                           {match.reasons.map((reason) => (
-                            <li key={cleanDisplayText(reason)}>ÃƒÆ’Ã†â€™Ãƒâ€šÂ¢ÃƒÆ’Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÂ¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÂ¢ {cleanDisplayText(reason)}</li>
+                            <li key={cleanDisplayText(reason)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ÃƒÆ’Ã†â€™Ã‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ {cleanDisplayText(reason)}</li>
                           ))}
                         </ul>
                       </div>
@@ -1607,9 +1546,9 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before quoting</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
                           {match.cautions.length ? (
-                            match.cautions.map((caution) => <li key={cleanDisplayText(caution)}>ÃƒÆ’Ã†â€™Ãƒâ€šÂ¢ÃƒÆ’Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÂ¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÂ¢ {cleanDisplayText(caution)}</li>)
+                            match.cautions.map((caution) => <li key={cleanDisplayText(caution)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ÃƒÆ’Ã†â€™Ã‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ {cleanDisplayText(caution)}</li>)
                           ) : (
-                            <li>ÃƒÆ’Ã†â€™Ãƒâ€šÂ¢ÃƒÆ’Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÂ¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÂ¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
+                            <li>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ÃƒÆ’Ã†â€™Ã‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
                           )}
                         </ul>
                       </div>
