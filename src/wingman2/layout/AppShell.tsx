@@ -21,22 +21,76 @@ const storedProjectKeys = [
   "wingman-proposal-draft",
 ];
 
+const transientStoragePrefixes = [
+  "wingman-current-",
+  "wingman-active-",
+  "wingman-workflow-",
+  "wingman-discovery-",
+  "wingman-proposal-draft",
+  "wingman-finder-draft",
+  "wingman-room-draft",
+  "wingman-brief-draft",
+];
+
+const preservedStorageKeys = [
+  "wingman-project-store-v1",
+  "wingman-project-product-selections-v1",
+  "wingman-guru-local-memory-v1",
+  "wingman-guru-glossary-v1",
+];
+
+function shouldRemoveTransientKey(key: string) {
+  if (storedProjectKeys.includes(key)) {
+    return true;
+  }
+
+  if (preservedStorageKeys.includes(key)) {
+    return false;
+  }
+
+  return transientStoragePrefixes.some((prefix) => key.startsWith(prefix));
+}
+
+function removeTransientStorage(storage: Storage) {
+  const keys = Array.from({ length: storage.length }, (_, index) => storage.key(index)).filter(
+    (key): key is string => Boolean(key),
+  );
+
+  keys.forEach((key) => {
+    if (shouldRemoveTransientKey(key)) {
+      storage.removeItem(key);
+    }
+  });
+}
+
 function clearStoredProjectContext() {
   if (typeof window === "undefined") {
     return;
   }
 
-  storedProjectKeys.forEach((key) => {
-    window.localStorage.removeItem(key);
-    window.sessionStorage.removeItem(key);
-  });
+  removeTransientStorage(window.localStorage);
+  removeTransientStorage(window.sessionStorage);
 
   window.dispatchEvent(new CustomEvent("wingman:project-context-cleared"));
+  window.dispatchEvent(new CustomEvent("wingman:page-reset-requested"));
+}
+
+function resetMainScrollPosition() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const main = window.document.querySelector(".wingman-app-main");
+
+  if (main instanceof HTMLElement) {
+    main.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }
 }
 
 export function AppShell({ children }: AppShellProps) {
   const [guruOpen, setGuruOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [pageResetVersion, setPageResetVersion] = useState(0);
   const location = useLocation();
 
   const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
@@ -46,6 +100,13 @@ export function AppShell({ children }: AppShellProps) {
   useEffect(() => {
     setMobileNavOpen(false);
   }, [location.pathname]);
+
+  function handleClearCurrentProject() {
+    clearStoredProjectContext();
+    setGuruOpen(false);
+    setPageResetVersion((current) => current + 1);
+    window.setTimeout(resetMainScrollPosition, 0);
+  }
 
   return (
     <div className="wingman-shell wingman-authority-shell">
@@ -60,9 +121,7 @@ export function AppShell({ children }: AppShellProps) {
               key={path}
               to={path}
               className={({ isActive }) =>
-                ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""]
-                  .filter(Boolean)
-                  .join(" ")
+                ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")
               }
             >
               <Icon className="wingman-nav-icon" />
@@ -98,14 +157,16 @@ export function AppShell({ children }: AppShellProps) {
             <span>{activeSummary}</span>
           </div>
 
-          <button type="button" className="wingman-clear-project-button" onClick={clearStoredProjectContext}>
+          <button type="button" className="wingman-clear-project-button" onClick={handleClearCurrentProject}>
             <RotateCcw className="h-4 w-4" />
             Clear current project
           </button>
         </header>
 
         <main className="wingman-app-main">
-          <div className="wingman-page-host">{children ?? <Outlet />}</div>
+          <div className="wingman-page-host" key={`${location.pathname}-${pageResetVersion}`}>
+            {children ?? <Outlet />}
+          </div>
         </main>
       </div>
 
