@@ -342,26 +342,88 @@ function createId(prefix: string) {
 }
 
 
+function repairMojibakeText(value: string) {
+  let current = value;
+
+  const cp1252: Record<number, number> = {
+    0x20ac: 0x80,
+    0x201a: 0x82,
+    0x0192: 0x83,
+    0x201e: 0x84,
+    0x2026: 0x85,
+    0x2020: 0x86,
+    0x2021: 0x87,
+    0x02c6: 0x88,
+    0x2030: 0x89,
+    0x0160: 0x8a,
+    0x2039: 0x8b,
+    0x0152: 0x8c,
+    0x017d: 0x8e,
+    0x2018: 0x91,
+    0x2019: 0x92,
+    0x201c: 0x93,
+    0x201d: 0x94,
+    0x2022: 0x95,
+    0x2013: 0x96,
+    0x2014: 0x97,
+    0x02dc: 0x98,
+    0x2122: 0x99,
+    0x0161: 0x9a,
+    0x203a: 0x9b,
+    0x0153: 0x9c,
+    0x017e: 0x9e,
+    0x0178: 0x9f,
+  };
+
+  for (let pass = 0; pass < 4; pass += 1) {
+    if (!/[\u00c2\u00c3\u00c5\u00c6\u00e2\u0192\u20ac]/.test(current)) {
+      break;
+    }
+
+    try {
+      const bytes: number[] = [];
+
+      for (const character of current) {
+        const code = character.charCodeAt(0);
+
+        if (code <= 0xff) {
+          bytes.push(code);
+          continue;
+        }
+
+        if (cp1252[code] !== undefined) {
+          bytes.push(cp1252[code]);
+          continue;
+        }
+
+        bytes.length = 0;
+        break;
+      }
+
+      if (!bytes.length) {
+        break;
+      }
+
+      const decoded = new TextDecoder("utf-8", { fatal: false }).decode(new Uint8Array(bytes));
+
+      if (!decoded || decoded === current) {
+        break;
+      }
+
+      current = decoded;
+    } catch {
+      break;
+    }
+  }
+
+  return current;
+}
+
 function cleanDisplayText(value: string) {
-  let cleaned = value;
+  const repaired = repairMojibakeText(value);
 
-  const mojibakeFixes: Array<[string, string]> = [
-    [String.fromCharCode(0x00e2, 0x20ac, 0x00a2), "-"],
-    [String.fromCharCode(0x00e2, 0x20ac, 0x2122), "'"],
-    [String.fromCharCode(0x00e2, 0x20ac, 0x0153), '"'],
-    [String.fromCharCode(0x00e2, 0x20ac, 0x009d), '"'],
-    [String.fromCharCode(0x00e2, 0x20ac, 0x201c), "-"],
-    [String.fromCharCode(0x00e2, 0x20ac, 0x201d), "-"],
-    [String.fromCharCode(0x00c2), ""],
-    [String.fromCharCode(0x00c3, 0x2014), "x"],
-  ];
-
-  mojibakeFixes.forEach(([bad, good]) => {
-    cleaned = cleaned.split(bad).join(good);
-  });
-
-  return cleaned
-    .replace(/(TM)|(TM)|(TM)/gi, "(TM)")
+  return repaired
+    .replace(/&#x2122;|&#8482;|&trade;/gi, "(TM)")
     .replace(/&#x00ae;|&#174;|&reg;/gi, "(R)")
     .replace(/&#x2013;|&#8211;|&ndash;/gi, "-")
     .replace(/&#x2014;|&#8212;|&mdash;/gi, "-")
@@ -370,10 +432,13 @@ function cleanDisplayText(value: string) {
     .replace(/&#x201c;|&#8220;|&ldquo;/gi, '"')
     .replace(/&#x201d;|&#8221;|&rdquo;/gi, '"')
     .replace(/&#x2022;|&#8226;|&bull;/gi, "-")
-    .replace(/ /gi, " ")
-    .replace(/&/gi, "&")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
     .replace(/&quot;/gi, '"')
     .replace(/&#39;|&#x27;/gi, "'")
+    .replace(/[\u00c2\u00c3\u00c5\u00c6\u00e2\u0192\u2020\u20ac\u0161\u201a\u201c\u201d\u2018\u2019\u2122\u0153\u009d\u00a2\u00ab\u00bb\u00a0]+/g, " ")
+    .replace(/^[^a-zA-Z0-9]+(?=[a-zA-Z0-9])/g, "")
+    .replace(/\s*[,;:_-]\s*(?=[A-Z][a-z])/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -906,10 +971,16 @@ function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
 
   return {
     ...product,
+    title: cleanDisplayText(product.title),
+    family: cleanDisplayText(product.family),
+    category: cleanDisplayText(product.category),
+    description: cleanDisplayText(product.description),
+    tags: unique(product.tags.map(cleanDisplayText).filter(Boolean)),
+    searchText: cleanDisplayText(product.searchText),
     score,
     status,
-    reasons: unique(reasons).slice(0, 4),
-    cautions: unique(cautions).slice(0, 3),
+    reasons: unique(reasons.map(cleanDisplayText).filter(Boolean)).slice(0, 4),
+    cautions: unique(cautions.map(cleanDisplayText).filter(Boolean)).slice(0, 3),
   };
 }
 
@@ -1331,14 +1402,14 @@ export function FinderPage() {
   function addToExistingProject() {
     if (!selectedProduct || !selectedProjectId) return;
     addProductToProject(selectedProjectId, selectedProduct);
-    setMessage(`Added ${selectedProduct.sku} to ${activeProject?.name ?? "selected project"}.`);
+    setMessage(`Added ${cleanDisplayText(selectedProduct.sku)} to ${activeProject?.name ?? "selected project"}.`);
   }
 
   function addToNewProject() {
     if (!selectedProduct) return;
     const project = createProjectFromProduct(newProjectName, newProjectOwner, selectedProduct);
     setSelectedProjectId(project.id);
-    setMessage(`Created ${project.name} and added ${selectedProduct.sku}.`);
+    setMessage(`Created ${project.name} and added ${cleanDisplayText(selectedProduct.sku)}.`);
   }
 
   return (
@@ -1398,7 +1469,7 @@ export function FinderPage() {
           </div>
 
           <div className="grid gap-4 xl:grid-cols-[340px_minmax(0,1fr)_330px]">
-            <aside className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <aside className="grid content-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4 text-slate-500" />
@@ -1478,7 +1549,7 @@ export function FinderPage() {
               <FieldSelect label="Control" value={need.control} options={controlOptions} onChange={(value) => setNeedField("control", value)} />
             </aside>
 
-            <main className="grid gap-3">
+            <main className="grid content-start gap-3">
               {!hasIntent ? (
                 <div className="grid min-h-[360px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
                   <div className="max-w-xl">
@@ -1491,19 +1562,19 @@ export function FinderPage() {
                 </div>
               ) : matches.length ? (
                 matches.map((match, index) => (
-                  <article key={`${match.sku}-${index}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <article key={`${cleanDisplayText(match.sku)}-${index}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-lg font-black text-slate-950">{match.sku}</h3>
+                          <h3 className="text-lg font-black text-slate-950">{cleanDisplayText(match.sku)}</h3>
                           <StatusChip
                             label={match.status === "recommended" ? "Recommended" : match.status === "alternative" ? "Alternative" : "Check fit"}
                             variant={match.status}
                           />
                         </div>
-                        <p className="mt-1 text-sm font-semibold text-slate-700">{match.title}</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-700">{cleanDisplayText(match.title)}</p>
                         <p className="mt-1 text-xs text-slate-500">
-                          {match.family} ÃƒÆ’Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {match.category}
+                          {cleanDisplayText(match.family)} ÃƒÆ’Ã†â€™Ãƒâ€šÂ¢ÃƒÆ’Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÂ¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÂ¢ {cleanDisplayText(match.category)}
                         </p>
                       </div>
 
@@ -1512,12 +1583,12 @@ export function FinderPage() {
                       </div>
                     </div>
 
-                    <p className="mt-3 text-sm leading-6 text-slate-700">{match.description}</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-700">{cleanDisplayText(match.description)}</p>
 
                     <div className="mt-3 flex flex-wrap gap-2">
                       {match.tags.slice(0, 7).map((tag) => (
-                        <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-                          {tag}
+                        <span key={cleanDisplayText(tag)} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                          {cleanDisplayText(tag)}
                         </span>
                       ))}
                     </div>
@@ -1527,7 +1598,7 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
                           {match.reasons.map((reason) => (
-                            <li key={reason}>ÃƒÆ’Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {reason}</li>
+                            <li key={cleanDisplayText(reason)}>ÃƒÆ’Ã†â€™Ãƒâ€šÂ¢ÃƒÆ’Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÂ¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÂ¢ {cleanDisplayText(reason)}</li>
                           ))}
                         </ul>
                       </div>
@@ -1536,9 +1607,9 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before quoting</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
                           {match.cautions.length ? (
-                            match.cautions.map((caution) => <li key={caution}>ÃƒÆ’Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {caution}</li>)
+                            match.cautions.map((caution) => <li key={cleanDisplayText(caution)}>ÃƒÆ’Ã†â€™Ãƒâ€šÂ¢ÃƒÆ’Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÂ¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÂ¢ {cleanDisplayText(caution)}</li>)
                           ) : (
-                            <li>ÃƒÆ’Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
+                            <li>ÃƒÆ’Ã†â€™Ãƒâ€šÂ¢ÃƒÆ’Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÂ¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÂ¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
                           )}
                         </ul>
                       </div>
@@ -1584,7 +1655,7 @@ export function FinderPage() {
               )}
             </main>
 
-            <aside className="grid content-start gap-3">
+            <aside className="grid content-start gap-3 self-start">
               <div className="rounded-2xl border border-slate-200 bg-white p-4">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-amber-500" />
@@ -1598,8 +1669,8 @@ export function FinderPage() {
                 {bestMatch ? (
                   <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
                     <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Current best match</p>
-                    <p className="mt-2 text-lg font-black text-slate-950">{bestMatch.sku}</p>
-                    <p className="mt-1 text-sm text-slate-600">{bestMatch.title}</p>
+                    <p className="mt-2 text-lg font-black text-slate-950">{cleanDisplayText(bestMatch.sku)}</p>
+                    <p className="mt-1 text-sm text-slate-600">{cleanDisplayText(bestMatch.title)}</p>
                   </div>
                 ) : null}
               </div>
@@ -1611,9 +1682,9 @@ export function FinderPage() {
                 <div className="mt-3 space-y-2">
                   {shortlist.length ? (
                     shortlist.slice(0, 6).map((item) => (
-                      <div key={`${item.sku}-${item.addedAt}`} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                        <p className="text-sm font-black text-slate-900">{item.sku}</p>
-                        <p className="mt-1 text-xs text-slate-500">{item.title}</p>
+                      <div key={`${cleanDisplayText(item.sku)}-${item.addedAt}`} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <p className="text-sm font-black text-slate-900">{cleanDisplayText(item.sku)}</p>
+                        <p className="mt-1 text-xs text-slate-500">{cleanDisplayText(item.title)}</p>
                       </div>
                     ))
                   ) : (
@@ -1647,8 +1718,8 @@ export function FinderPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">Add product to project</p>
-                <h2 className="mt-2 text-2xl font-black tracking-tight">{selectedProduct.sku}</h2>
-                <p className="mt-1 text-sm text-slate-300">{selectedProduct.title}</p>
+                <h2 className="mt-2 text-2xl font-black tracking-tight">{cleanDisplayText(selectedProduct.sku)}</h2>
+                <p className="mt-1 text-sm text-slate-300">{cleanDisplayText(selectedProduct.title)}</p>
               </div>
 
               <button
