@@ -74,7 +74,7 @@ const steps: { id: StepId; label: string; description: string }[] = [
   {
     id: "useCase",
     label: "Use case",
-    description: "Identify the room type and main behaviour.",
+    description: "Identify the room type before asking detailed design questions.",
   },
   {
     id: "layout",
@@ -330,7 +330,7 @@ const audioNeeds = [
   "Unknown",
 ];
 
-const runBands = ["Under 5m", "5Ã¢â‚¬â€œ10m", "10Ã¢â‚¬â€œ35m", "35Ã¢â‚¬â€œ70m", "70Ã¢â‚¬â€œ100m", "100m+", "Unknown"];
+const runBands = ["Under 5m", "5ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“10m", "10ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“35m", "35ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“70m", "70ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“100m", "100m+", "Unknown"];
 
 const cableTypes = ["HDMI", "Cat5e", "Cat6", "Cat6A", "Fibre", "Network only", "No cable installed", "Unknown"];
 
@@ -536,19 +536,19 @@ function distanceRank(longestRun: string) {
     return 1;
   }
 
-  if (longestRun === "5Ã¢â‚¬â€œ10m") {
+  if (longestRun === "5ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“10m") {
     return 2;
   }
 
-  if (longestRun === "10Ã¢â‚¬â€œ35m") {
+  if (longestRun === "10ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“35m") {
     return 3;
   }
 
-  if (longestRun === "35Ã¢â‚¬â€œ70m") {
+  if (longestRun === "35ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“70m") {
     return 4;
   }
 
-  if (longestRun === "70Ã¢â‚¬â€œ100m") {
+  if (longestRun === "70ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“100m") {
     return 5;
   }
 
@@ -1024,22 +1024,12 @@ const capturedPercent = useMemo(() => {
         <div className="grid gap-5">
           <ChipGroup
             title="Room / application type"
-            helper="This establishes the likely AV pattern before discussing products."
+            helper="This sets the starting context only. Display behaviour, USB, wall, and routing choices are captured later where they are relevant."
             options={roomTypes}
             value={state.roomType}
             onSelect={(value) => setField("roomType", value)}
           />
-
-          <ChipGroup
-            title="Primary behaviour"
-            helper="Choose only the behaviours that change the design. If this is a wall, choose LCD wall or LED wall rather than a generic video-wall label."
-            options={behaviourOptions}
-            value={state.behaviours}
-            onSelect={(value) => toggleMulti("behaviours", value)}
-            multi
-          />
-
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <p className="text-sm font-black text-slate-900">Customer wording / unusual notes</p>
             <textarea
               value={state.notes}
@@ -1305,9 +1295,9 @@ const capturedPercent = useMemo(() => {
               <p className="text-sm font-black text-slate-900">Likely product direction</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.productDirection.length ? (
-                  inference.productDirection.map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
+                  inference.productDirection.map((item) => <li key={item}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {item}</li>)
                 ) : (
-                  <li>Ã¢â‚¬Â¢ More information is required before a reliable product direction can be stated.</li>
+                  <li>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ More information is required before a reliable product direction can be stated.</li>
                 )}
               </ul>
             </div>
@@ -1316,9 +1306,9 @@ const capturedPercent = useMemo(() => {
               <p className="text-sm font-black text-slate-900">Avoid / do not assume</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.avoid.length ? (
-                  inference.avoid.map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
+                  inference.avoid.map((item) => <li key={item}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {item}</li>)
                 ) : (
-                  <li>Ã¢â‚¬Â¢ No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
+                  <li>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
                 )}
               </ul>
             </div>
@@ -1343,7 +1333,7 @@ const capturedPercent = useMemo(() => {
 
       <SectionCard
         title="Click-first discovery workflow"
-        subtitle="The options shown are context-sensitive. Earlier answers shape the next set of choices so the user is not shown irrelevant lists."
+        subtitle="The workflow is context-sensitive. Each section only asks questions that are relevant to the current design decision."
       >
         <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -1434,7 +1424,6 @@ const capturedPercent = useMemo(() => {
 
               <div className="mt-4 space-y-4 text-sm">
                 <ValueLine label="Room type" value={state.roomType} />
-                <ListLine label="Behaviour" values={state.behaviours} />
                 <ValueLine label="Room size" value={state.roomSize} />
                 <ValueLine label="User position" value={state.userPosition} />
                 <ValueLine label="Equipment position" value={state.equipmentLocation} />
@@ -1481,9 +1470,9 @@ const capturedPercent = useMemo(() => {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.missing.length ? (
-                      inference.missing.slice(0, 6).map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
+                      inference.missing.slice(0, 6).map((item) => <li key={item}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {item}</li>)
                     ) : (
-                      <li>Ã¢â‚¬Â¢ No major missing details detected.</li>
+                      <li>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ No major missing details detected.</li>
                     )}
                   </ul>
                 </div>
@@ -1495,9 +1484,9 @@ const capturedPercent = useMemo(() => {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.risks.length ? (
-                      inference.risks.slice(0, 6).map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
+                      inference.risks.slice(0, 6).map((item) => <li key={item}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {item}</li>)
                     ) : (
-                      <li>Ã¢â‚¬Â¢ No major risk flags yet.</li>
+                      <li>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ No major risk flags yet.</li>
                     )}
                   </ul>
                 </div>
