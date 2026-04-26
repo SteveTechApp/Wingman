@@ -1323,22 +1323,35 @@ export function FinderPage() {
         subtitle="Feature-led filtering replaces room-type filtering. Room type can be useful context, but product selection should be driven by signal path, transport, processing, USB, network, audio, and control needs."
       >
         <div className="grid gap-4">
-          <div className="grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-black text-amber-950">Start with the technical job</p>
-                <p className="mt-1 text-sm leading-6 text-amber-900">
-                  The first decision is now the technical requirement, not the application. This makes Finder useful for training reps on why a product family is needed.
+                <p className="text-sm font-black text-amber-950">Technical feature menu</p>
+                <p className="mt-1 max-w-4xl text-sm leading-6 text-amber-900">
+                  Select the primary technical job first. This container is fixed-height so the Finder layout stays stable while the product filters and results change below.
                 </p>
               </div>
 
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-3 py-1 text-xs font-black text-amber-800">
                 <Database className="h-3.5 w-3.5" />
-                {indexState === "ready" ? `${products.length} indexed products` : indexState === "loading" ? "Loading index" : "Fallback library"}
+                {indexState === "ready" ? `${products.length} indexed WyreStorm products` : indexState === "loading" ? "Loading index" : "Fallback library"}
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="mt-3 max-h-[118px] overflow-y-auto rounded-2xl border border-amber-200 bg-white/70 p-3">
+              <div className="flex flex-wrap gap-2">
+                {technicalRequirementOptions.map((option) => (
+                  <ChipButton
+                    key={option}
+                    active={need.technicalRequirement === option}
+                    label={option}
+                    onClick={() => setNeedField("technicalRequirement", need.technicalRequirement === option ? "" : option)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2 border-t border-amber-200 pt-3">
               <ChipButton active={false} label="HDMI over distance" onClick={() => applyQuickStart("hdmi")} />
               <ChipButton active={false} label="HDMI + USB together" onClick={() => applyQuickStart("usb")} />
               <ChipButton active={false} label="USB-C laptop input" onClick={() => applyQuickStart("usbC")} />
@@ -1378,13 +1391,13 @@ export function FinderPage() {
                   />
                 </div>
               </label>
-
-              <FieldSelect
-                label="Technical requirement"
-                value={need.technicalRequirement}
-                options={technicalRequirementOptions}
-                onChange={(value) => setNeedField("technicalRequirement", value)}
-              />
+              <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Selected technical feature</p>
+                <p className="mt-1 text-sm font-black text-slate-900">{need.technicalRequirement || "Not selected yet"}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  Choose this from the fixed feature menu above. The fields below refine the product path.
+                </p>
+              </div>
 
               <FieldSelect
                 label="Likely product path"
@@ -1454,7 +1467,7 @@ export function FinderPage() {
                         </div>
                         <p className="mt-1 text-sm font-semibold text-slate-700">{match.title}</p>
                         <p className="mt-1 text-xs text-slate-500">
-                          {match.family} Ã¢â‚¬Â¢ {match.category}
+                          {match.family} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {match.category}
                         </p>
                       </div>
 
@@ -1478,7 +1491,7 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
                           {match.reasons.map((reason) => (
-                            <li key={reason}>Ã¢â‚¬Â¢ {reason}</li>
+                            <li key={reason}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {reason}</li>
                           ))}
                         </ul>
                       </div>
@@ -1487,9 +1500,9 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before quoting</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
                           {match.cautions.length ? (
-                            match.cautions.map((caution) => <li key={caution}>Ã¢â‚¬Â¢ {caution}</li>)
+                            match.cautions.map((caution) => <li key={caution}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {caution}</li>)
                           ) : (
-                            <li>Ã¢â‚¬Â¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
+                            <li>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
                           )}
                         </ul>
                       </div>
