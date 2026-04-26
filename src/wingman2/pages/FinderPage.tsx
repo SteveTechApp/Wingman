@@ -362,24 +362,69 @@ function cleanDisplayText(value: string) {
     .replace(/\u2018|\u2019/g, "'")
     .replace(/\u201c|\u201d/g, '"')
     .replace(/\u2022/g, "-")
+    .replace(/[\u00c0-\u024f\u0080-\u00bf]+/g, " ")
     .replace(/[^\x09\x0a\x0d\x20-\x7e]/g, " ")
+    .replace(/\s+\|\s+\|/g, " | ")
+    .replace(/\s*,\s*,/g, ",")
     .replace(/\s+/g, " ")
     .replace(/^[\s|,;:_-]+/g, "")
     .replace(/[\s|,;:_-]+$/g, "")
     .trim();
 }
 
+function hasEncodingNoise(value: string) {
+  return /[\u00c0-\u024f\u0080-\u00bf]/.test(value) || /&[#a-z0-9]+;/i.test(value);
+}
+
 function cleanFinderProduct(product: FinderProduct): FinderProduct {
-  return {
+  const sku = cleanDisplayText(product.sku);
+  const title = cleanDisplayText(product.title);
+  const description = cleanDisplayText(product.description);
+  const searchText = cleanDisplayText(product.searchText);
+  const tags = unique(product.tags.map(cleanDisplayText).filter(Boolean));
+  const cleanedFamily = cleanDisplayText(product.family);
+  const cleanedCategory = cleanDisplayText(product.category);
+
+  const cleanCandidate: FinderProduct = {
     ...product,
-    sku: cleanDisplayText(product.sku),
-    title: cleanDisplayText(product.title),
-    family: cleanDisplayText(product.family),
-    category: cleanDisplayText(product.category),
-    description: cleanDisplayText(product.description),
-    tags: unique(product.tags.map(cleanDisplayText).filter(Boolean)),
-    searchText: cleanDisplayText(product.searchText),
+    sku,
+    title,
+    family: cleanedFamily || "WyreStorm",
+    category: cleanedCategory || product.category || "WyreStorm product",
+    description,
+    tags,
+    searchText,
   };
+
+  const inferredCategory = classifyProduct(cleanCandidate);
+
+  return {
+    ...cleanCandidate,
+    family: hasEncodingNoise(product.family) ? inferredCategory : cleanCandidate.family,
+    category: hasEncodingNoise(product.category) ? inferredCategory : cleanCandidate.category,
+  };
+}
+
+function mergeFinderProducts(existing: FinderProduct, incoming: FinderProduct) {
+  const cleanExisting = cleanFinderProduct(existing);
+  const cleanIncoming = cleanFinderProduct(incoming);
+
+  if (cleanExisting.source === "seed") {
+    return {
+      ...cleanExisting,
+      tags: unique([...cleanExisting.tags, ...cleanIncoming.tags]),
+      searchText: cleanDisplayText(`${cleanExisting.searchText} ${cleanIncoming.searchText}`),
+      source: cleanIncoming.source === "index" ? "index" : cleanExisting.source,
+    } satisfies FinderProduct;
+  }
+
+  return cleanFinderProduct({
+    ...cleanExisting,
+    ...cleanIncoming,
+    tags: unique([...cleanExisting.tags, ...cleanIncoming.tags]),
+    searchText: `${cleanExisting.searchText} ${cleanIncoming.searchText}`,
+    source: cleanIncoming.source === "index" ? "index" : cleanExisting.source,
+  });
 }
 function normaliseText(value: string) {
   return cleanDisplayText(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -495,7 +540,8 @@ function valueAsString(value: unknown) {
 
 function deepText(value: unknown, depth = 0): string {
   if (depth > 4 || value == null) return "";
-  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
+  if (typeof value === "string") return cleanDisplayText(value);
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
   if (Array.isArray(value)) return value.map((item) => deepText(item, depth + 1)).join(" ");
   if (typeof value === "object") {
     return Object.values(value as UnknownRecord)
@@ -590,7 +636,7 @@ function normaliseProductIndex(data: unknown) {
   const products = records.map(normaliseIndexProduct).filter((product): product is FinderProduct => Boolean(product));
   const bySku = new Map<string, FinderProduct>();
 
-  [...seedProducts, ...products].forEach((product) => {
+  [...seedProducts, ...products].map(cleanFinderProduct).forEach((product) => {
     const key = product.sku.toUpperCase();
     const existing = bySku.get(key);
 
@@ -599,13 +645,7 @@ function normaliseProductIndex(data: unknown) {
       return;
     }
 
-    bySku.set(key, {
-      ...existing,
-      ...product,
-      tags: unique([...existing.tags, ...product.tags]),
-      searchText: `${existing.searchText} ${product.searchText}`,
-      source: product.source === "index" ? "index" : existing.source,
-    });
+    bySku.set(key, mergeFinderProducts(existing, product));
   });
 
   return filterWyreStormProducts(Array.from(bySku.values()).map(cleanFinderProduct)) as FinderProduct[];
@@ -1081,7 +1121,7 @@ function FieldSelect({
 
 export function FinderPage() {
   const { projects } = useProjectStore();
-  const [products, setProducts] = useState<FinderProduct[]>(seedProducts);
+  const [products, setProducts] = useState<FinderProduct[]>(seedProducts.map(cleanFinderProduct));
   const [indexState, setIndexState] = useState<"loading" | "ready" | "fallback">("loading");
   const [need, setNeed] = useState<FinderNeed>(initialNeed);
   const [selectedProduct, setSelectedProduct] = useState<ProductMatch | null>(null);
@@ -1107,12 +1147,12 @@ export function FinderPage() {
           return;
         }
 
-        setProducts(seedProducts);
+        setProducts(seedProducts.map(cleanFinderProduct));
         setIndexState("fallback");
       })
       .catch(() => {
         if (!active) return;
-        setProducts(seedProducts);
+        setProducts(seedProducts.map(cleanFinderProduct));
         setIndexState("fallback");
       });
 
@@ -1513,7 +1553,7 @@ export function FinderPage() {
                         </div>
                         <p className="mt-1 text-sm font-semibold text-slate-700">{cleanDisplayText(match.title)}</p>
                         <p className="mt-1 text-xs text-slate-500">
-                          {cleanDisplayText(match.family)} ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ÃƒÆ’Ã†â€™Ã‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ {cleanDisplayText(match.category)}
+                          {cleanDisplayText(match.family)} ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ {cleanDisplayText(match.category)}
                         </p>
                       </div>
 
@@ -1537,7 +1577,7 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
                           {match.reasons.map((reason) => (
-                            <li key={cleanDisplayText(reason)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ÃƒÆ’Ã†â€™Ã‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ {cleanDisplayText(reason)}</li>
+                            <li key={cleanDisplayText(reason)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ {cleanDisplayText(reason)}</li>
                           ))}
                         </ul>
                       </div>
@@ -1546,9 +1586,9 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before quoting</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
                           {match.cautions.length ? (
-                            match.cautions.map((caution) => <li key={cleanDisplayText(caution)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ÃƒÆ’Ã†â€™Ã‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ {cleanDisplayText(caution)}</li>)
+                            match.cautions.map((caution) => <li key={cleanDisplayText(caution)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ {cleanDisplayText(caution)}</li>)
                           ) : (
-                            <li>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ÃƒÆ’Ã†â€™Ã‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ã‚Â¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
+                            <li>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
                           )}
                         </ul>
                       </div>
