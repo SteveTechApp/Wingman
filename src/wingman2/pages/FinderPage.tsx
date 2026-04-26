@@ -349,6 +349,100 @@ function unique(values: string[]) {
   return Array.from(new Set(values.filter(Boolean)));
 }
 
+
+const knownWyreStormSkuPrefixes = [
+  "NHD-",
+  "SW-",
+  "MX-",
+  "RX-",
+  "TX-",
+  "EX-",
+  "EXP-",
+  "APO-",
+  "CAM-",
+  "SP-",
+  "CAB-",
+  "CBL-",
+  "IDB-",
+  "AMP-",
+  "USB-",
+  "CON-",
+  "WP-",
+];
+
+const comparisonOnlyBrandMarkers = [
+  "crestron",
+  "extron",
+  "kramer",
+  "atlona",
+  "lightware",
+  "avpro edge",
+  "av pro edge",
+  "just add power",
+  "q sys",
+  "qsys",
+  "biamp",
+  "barco",
+  "amx",
+  "blustream",
+  "cisco",
+  "poly",
+  "logitech",
+  "aver",
+  "yealink",
+  "huddly",
+  "datavideo",
+  "blackmagic",
+  "novastar",
+  "brompton",
+  "magnimage",
+];
+
+function containsComparisonOnlyBrand(text: string) {
+  return comparisonOnlyBrandMarkers.some((brand) => text.includes(normaliseText(brand)));
+}
+
+function isWyreStormProduct(product: Partial<FinderProduct> | Partial<ProductSelection>) {
+  const sku = valueAsString(product.sku).trim().toUpperCase();
+  const haystack = normaliseText(
+    [
+      valueAsString(product.sku),
+      valueAsString(product.title),
+      valueAsString(product.family),
+      valueAsString(product.category),
+      "description" in product ? valueAsString(product.description) : "",
+      "searchText" in product ? valueAsString(product.searchText) : "",
+      Array.isArray(product.tags) ? product.tags.join(" ") : "",
+    ].join(" "),
+  );
+
+  if (containsComparisonOnlyBrand(haystack) && !haystack.includes("wyrestorm")) {
+    return false;
+  }
+
+  if (haystack.includes("wyrestorm")) {
+    return true;
+  }
+
+  if (knownWyreStormSkuPrefixes.some((prefix) => sku.startsWith(prefix))) {
+    return true;
+  }
+
+  return false;
+}
+
+function filterWyreStormProducts<T extends Partial<FinderProduct> | Partial<ProductSelection>>(items: T[]) {
+  return items.filter((item) => isWyreStormProduct(item));
+}
+
+function sanitiseProjectProductSelectionMap(selections: Record<string, ProductSelection[]>) {
+  return Object.fromEntries(
+    Object.entries(selections).map(([projectId, items]) => [
+      projectId,
+      filterWyreStormProducts(Array.isArray(items) ? items : []) as ProductSelection[],
+    ]),
+  );
+}
 function textIncludesAny(text: string, terms: string[]) {
   return terms.some((term) => text.includes(normaliseText(term)));
 }
@@ -474,7 +568,7 @@ function normaliseProductIndex(data: unknown) {
     });
   });
 
-  return Array.from(bySku.values());
+  return filterWyreStormProducts(Array.from(bySku.values())) as FinderProduct[];
 }
 
 function hasFinderIntent(need: FinderNeed) {
@@ -789,7 +883,7 @@ function readProductSelections(): Record<string, ProductSelection[]> {
   if (!raw) return {};
   try {
     const parsed = JSON.parse(raw) as Record<string, ProductSelection[]>;
-    return parsed && typeof parsed === "object" ? parsed : {};
+    return parsed && typeof parsed === "object" ? sanitiseProjectProductSelectionMap(parsed) : {};
   } catch {
     return {};
   }
@@ -797,7 +891,7 @@ function readProductSelections(): Record<string, ProductSelection[]> {
 
 function writeProductSelections(selections: Record<string, ProductSelection[]>) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(PRODUCT_SELECTION_STORE_KEY, JSON.stringify(selections));
+  window.localStorage.setItem(PRODUCT_SELECTION_STORE_KEY, JSON.stringify(sanitiseProjectProductSelectionMap(selections)));
   window.dispatchEvent(new CustomEvent("wingman:project-product-selections-updated"));
 }
 
@@ -873,7 +967,7 @@ function readStandaloneShortlist(): ProductSelection[] {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw) as ProductSelection[];
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? (filterWyreStormProducts(parsed) as ProductSelection[]) : [];
   } catch {
     return [];
   }
@@ -881,7 +975,7 @@ function readStandaloneShortlist(): ProductSelection[] {
 
 function writeStandaloneShortlist(items: ProductSelection[]) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STANDALONE_SHORTLIST_KEY, JSON.stringify(items));
+  window.localStorage.setItem(STANDALONE_SHORTLIST_KEY, JSON.stringify(filterWyreStormProducts(items)));
 }
 
 function ChipButton({
@@ -959,7 +1053,7 @@ export function FinderPage() {
       .then((data) => {
         if (!active) return;
 
-        const parsedProducts = normaliseProductIndex(data);
+        const parsedProducts = filterWyreStormProducts(normaliseProductIndex(data)) as FinderProduct[];
 
         if (parsedProducts.length) {
           setProducts(parsedProducts);
@@ -1360,7 +1454,7 @@ export function FinderPage() {
                         </div>
                         <p className="mt-1 text-sm font-semibold text-slate-700">{match.title}</p>
                         <p className="mt-1 text-xs text-slate-500">
-                          {match.family} â€¢ {match.category}
+                          {match.family} Ã¢â‚¬Â¢ {match.category}
                         </p>
                       </div>
 
@@ -1384,7 +1478,7 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
                           {match.reasons.map((reason) => (
-                            <li key={reason}>â€¢ {reason}</li>
+                            <li key={reason}>Ã¢â‚¬Â¢ {reason}</li>
                           ))}
                         </ul>
                       </div>
@@ -1393,9 +1487,9 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before quoting</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
                           {match.cautions.length ? (
-                            match.cautions.map((caution) => <li key={caution}>â€¢ {caution}</li>)
+                            match.cautions.map((caution) => <li key={caution}>Ã¢â‚¬Â¢ {caution}</li>)
                           ) : (
-                            <li>â€¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
+                            <li>Ã¢â‚¬Â¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
                           )}
                         </ul>
                       </div>
@@ -1484,7 +1578,7 @@ export function FinderPage() {
               <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
                 <p className="text-sm font-black text-red-900">Advisory notice</p>
                 <p className="mt-2 text-sm leading-6 text-red-800">
-                  Wingman/Guru can make mistakes. Always validate datasheets, receiver/accessory requirements, firmware notes, and commercial suitability before quoting.
+                  Product Finder and project/proposal builders only display and save WyreStorm products. Competitor or non-WyreStorm products are comparison-only and must never be added to product, project, BOM, or proposal flows. Wingman/Guru can make mistakes, so always validate datasheets, receiver/accessory requirements, firmware notes, and commercial suitability before quoting.
                 </p>
               </div>
             </aside>
