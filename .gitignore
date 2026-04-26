@@ -62,6 +62,7 @@ data/*.json
 !data/seed/
 !data/seed/**
 !data/wyrestorm-product-intelligence.json
+!data/product-intelligence-db.json
 
 # --- Databases / local server state ---
 *.db
@@ -77,6 +78,8 @@ temp/
 # --- Internal work / quarantine / rescue ---
 _WORK/
 _RESCUE/
+_RECOVERY/
+_IMPORT/
 _QUARANTINE/
 _AUDITS/
 _release/
