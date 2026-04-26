@@ -342,27 +342,22 @@ function createId(prefix: string) {
 }
 
 
-function cleanDisplayText(value: string) {
-  return value
-    .replace(/&/gi, "&")
-    .replace(/ TM | TM | TM /gi, " TM ")
-    .replace(/ R | R | R /gi, " R ")
-    .replace(/-|-|-/gi, "-")
-    .replace(/-|-|-/gi, "-")
-    .replace(/'|'|'/gi, "'")
-    .replace(/'|'|'/gi, "'")
-    .replace(/"|"|"/gi, '"')
-    .replace(/"|"|"/gi, '"')
-    .replace(/-|-|-/gi, "-")
-    .replace(/ /gi, " ")
-    .replace(/"/gi, '"')
-    .replace(/'|'/gi, "'")
-    .replace(/\u00d7/g, "x")
-    .replace(/\u2013|\u2014/g, "-")
-    .replace(/\u2018|\u2019/g, "'")
-    .replace(/\u201c|\u201d/g, '"')
-    .replace(/\u2022/g, "-")
-    .replace(/[\u00c0-\u024f\u0080-\u00bf]+/g, " ")
+function cleanDisplayText(value: unknown) {
+  return String(value ?? "")
+    .replace(/&amp;/gi, "&")
+    .replace(/&#x2122;|&#8482;|&trade;/gi, " TM ")
+    .replace(/&#x00ae;|&#174;|&reg;/gi, " R ")
+    .replace(/&#x2013;|&#8211;|&ndash;/gi, "-")
+    .replace(/&#x2014;|&#8212;|&mdash;/gi, "-")
+    .replace(/&#x2018;|&#8216;|&lsquo;/gi, "'")
+    .replace(/&#x2019;|&#8217;|&rsquo;/gi, "'")
+    .replace(/&#x201c;|&#8220;|&ldquo;/gi, '"')
+    .replace(/&#x201d;|&#8221;|&rdquo;/gi, '"')
+    .replace(/&#x2022;|&#8226;|&bull;/gi, "-")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&#x27;/gi, "'")
+    .replace(/[\u0080-\u024f]+/g, " ")
     .replace(/[^\x09\x0a\x0d\x20-\x7e]/g, " ")
     .replace(/\s+\|\s+\|/g, " | ")
     .replace(/\s*,\s*,/g, ",")
@@ -372,59 +367,44 @@ function cleanDisplayText(value: string) {
     .trim();
 }
 
-function hasEncodingNoise(value: string) {
-  return /[\u00c0-\u024f\u0080-\u00bf]/.test(value) || /&[#a-z0-9]+;/i.test(value);
-}
+function cleanNarrativeText(value: unknown) {
+  const cleaned = cleanDisplayText(value)
+    .replace(/^(?:[A-Z]\s+){2,}/, "")
+    .replace(/^(?:A\s+|F\s+|TM\s+|R\s+){2,}/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
-function cleanFinderProduct(product: FinderProduct): FinderProduct {
-  const sku = cleanDisplayText(product.sku);
-  const title = cleanDisplayText(product.title);
-  const description = cleanDisplayText(product.description);
-  const searchText = cleanDisplayText(product.searchText);
-  const tags = unique(product.tags.map(cleanDisplayText).filter(Boolean));
-  const cleanedFamily = cleanDisplayText(product.family);
-  const cleanedCategory = cleanDisplayText(product.category);
+  const anchorPhrases = [
+    "Matches the",
+    "Matches ",
+    "Fits ",
+    "Aligns with",
+    "Supports or references",
+    "Supports ",
+    "Relevant to",
+    "Confirm current",
+    "Validate ",
+    "Excluded by",
+    "Partial match",
+    "May be",
+    "I/O count",
+    "3-4 inputs",
+    "Higher input",
+    "Multiple outputs",
+    "Video-only",
+  ];
 
-  const cleanCandidate: FinderProduct = {
-    ...product,
-    sku,
-    title,
-    family: cleanedFamily || "WyreStorm",
-    category: cleanedCategory || product.category || "WyreStorm product",
-    description,
-    tags,
-    searchText,
-  };
+  const lower = cleaned.toLowerCase();
+  const indexes = anchorPhrases
+    .map((phrase) => lower.indexOf(phrase.toLowerCase()))
+    .filter((index) => index >= 0)
+    .sort((a, b) => a - b);
 
-  const inferredCategory = classifyProduct(cleanCandidate);
-
-  return {
-    ...cleanCandidate,
-    family: hasEncodingNoise(product.family) ? inferredCategory : cleanCandidate.family,
-    category: hasEncodingNoise(product.category) ? inferredCategory : cleanCandidate.category,
-  };
-}
-
-function mergeFinderProducts(existing: FinderProduct, incoming: FinderProduct) {
-  const cleanExisting = cleanFinderProduct(existing);
-  const cleanIncoming = cleanFinderProduct(incoming);
-
-  if (cleanExisting.source === "seed") {
-    return {
-      ...cleanExisting,
-      tags: unique([...cleanExisting.tags, ...cleanIncoming.tags]),
-      searchText: cleanDisplayText(`${cleanExisting.searchText} ${cleanIncoming.searchText}`),
-      source: cleanIncoming.source === "index" ? "index" : cleanExisting.source,
-    } satisfies FinderProduct;
+  if (indexes.length) {
+    return cleaned.slice(indexes[0]).trim();
   }
 
-  return cleanFinderProduct({
-    ...cleanExisting,
-    ...cleanIncoming,
-    tags: unique([...cleanExisting.tags, ...cleanIncoming.tags]),
-    searchText: `${cleanExisting.searchText} ${cleanIncoming.searchText}`,
-    source: cleanIncoming.source === "index" ? "index" : cleanExisting.source,
-  });
+  return cleaned;
 }
 function normaliseText(value: string) {
   return cleanDisplayText(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -631,6 +611,44 @@ function normaliseIndexProduct(record: UnknownRecord): FinderProduct | null {
   return { ...product, category: classifyProduct(product) };
 }
 
+function cleanFinderProduct(product: FinderProduct): FinderProduct {
+  const tags = Array.isArray(product.tags)
+    ? unique(product.tags.map((tag) => cleanDisplayText(tag)).filter(Boolean))
+    : [];
+
+  return {
+    ...product,
+    sku: cleanDisplayText(product.sku),
+    title: cleanDisplayText(product.title),
+    family: cleanDisplayText(product.family),
+    category: cleanDisplayText(product.category),
+    description: cleanDisplayText(product.description),
+    tags,
+    searchText: cleanDisplayText(product.searchText),
+  };
+}
+
+function mergeFinderProducts(existing: FinderProduct, incoming: FinderProduct): FinderProduct {
+  const cleanExisting = cleanFinderProduct(existing);
+  const cleanIncoming = cleanFinderProduct(incoming);
+
+  if (cleanExisting.source === "seed") {
+    return {
+      ...cleanExisting,
+      tags: unique([...cleanExisting.tags, ...cleanIncoming.tags]),
+      searchText: cleanDisplayText(`${cleanExisting.searchText} ${cleanIncoming.searchText}`),
+      source: cleanIncoming.source === "index" ? "index" : cleanExisting.source,
+    };
+  }
+
+  return cleanFinderProduct({
+    ...cleanExisting,
+    ...cleanIncoming,
+    tags: unique([...cleanExisting.tags, ...cleanIncoming.tags]),
+    searchText: `${cleanExisting.searchText} ${cleanIncoming.searchText}`,
+    source: cleanIncoming.source === "index" ? "index" : cleanExisting.source,
+  });
+}
 function normaliseProductIndex(data: unknown) {
   const records = collectProductRecords(data);
   const products = records.map(normaliseIndexProduct).filter((product): product is FinderProduct => Boolean(product));
@@ -958,8 +976,8 @@ function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
     searchText: cleanDisplayText(product.searchText),
     score,
     status,
-    reasons: unique(reasons.map(cleanDisplayText).filter(Boolean)).slice(0, 4),
-    cautions: unique(cautions.map(cleanDisplayText).filter(Boolean)).slice(0, 3),
+    reasons: unique(reasons.map(cleanNarrativeText).filter(Boolean)).slice(0, 4),
+    cautions: unique(cautions.map(cleanNarrativeText).filter(Boolean)).slice(0, 3),
   };
 }
 
@@ -1552,9 +1570,7 @@ export function FinderPage() {
                           />
                         </div>
                         <p className="mt-1 text-sm font-semibold text-slate-700">{cleanDisplayText(match.title)}</p>
-                        <p className="mt-1 text-xs text-slate-500">
-                          {cleanDisplayText(match.family)} ÃƒÆ'Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {cleanDisplayText(match.category)}
-                        </p>
+                        <p className="mt-1 text-xs text-slate-500">{cleanDisplayText(match.family)} | {cleanDisplayText(match.category)}</p>
                       </div>
 
                       <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
@@ -1577,7 +1593,7 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
                           {match.reasons.map((reason) => (
-                            <li key={cleanDisplayText(reason)}>ÃƒÆ'Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {cleanDisplayText(reason)}</li>
+                            <li key={cleanDisplayText(reason)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â 'ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ {cleanDisplayText(reason)}</li>
                           ))}
                         </ul>
                       </div>
@@ -1586,9 +1602,9 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before quoting</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
                           {match.cautions.length ? (
-                            match.cautions.map((caution) => <li key={cleanDisplayText(caution)}>ÃƒÆ'Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ {cleanDisplayText(caution)}</li>)
+                            match.cautions.map((caution) => <li key={cleanDisplayText(caution)}>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â 'ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¢ {cleanDisplayText(caution)}</li>)
                           ) : (
-                            <li>ÃƒÆ'Ã‚¢Ãƒ¢Ã¢â‚¬Å¡Ã‚¬Ãƒâ€šÃ‚¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
+                            <li>- Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
                           )}
                         </ul>
                       </div>

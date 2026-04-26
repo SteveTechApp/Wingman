@@ -1,10 +1,10 @@
 {
   "meta": {
-    "generatedAt": "2026-04-26T15:05:54.537Z",
+    "generatedAt": "2026-04-26T19:22:44.753Z",
     "sourceFiles": [
       "data/product-intelligence-db.json"
     ],
-    "count": 28,
+    "count": 22,
     "generator": "tools/generate-product-intelligence-index.mjs"
   },
   "products": [
@@ -14,8 +14,8 @@
       "vendorType": "wyrestorm",
       "sku": "SW-130-TX-UK",
       "name": "In-wall HDMI and USB-C presentation transmitter",
-      "description": "In-wall presentation transmitter for HDMI and USB-C room input points. Useful for BYOD and BYOM spaces where video and USB need to be transported from a user position to the room system.",
-      "summary": "In-wall presentation transmitter for HDMI and USB-C room input points. Useful for BYOD and BYOM spaces where video and USB need to be transported from a user position to the room system.",
+      "description": "In-wall presentation transmitter for HDMI and USB-C room input points. Useful when video and USB need to be transported from the user position to the room system.",
+      "summary": "In-wall presentation transmitter for HDMI and USB-C room input points. Useful when video and USB need to be transported from the user position to the room system.",
       "category": "Presentation Switcher",
       "technologies": [
         "HDBaseT",
@@ -51,7 +51,7 @@
         "sw-130-tx-uk",
         "in-wall hdmi and usb-c presentation transmitter",
         "presentation switcher",
-        "in-wall presentation transmitter for hdmi and usb-c room input points. useful for byod and byom spaces where video and usb need to be transported from a user position to the room system.",
+        "in-wall presentation transmitter for hdmi and usb-c room input points. useful when video and usb need to be transported from the user position to the room system.",
         "hdbaset",
         "hdmi",
         "usb-c",
@@ -71,7 +71,7 @@
       "source": "data/product-intelligence-db.json",
       "raw": {
         "sku": "SW-130-TX-UK",
-        "description": "In-wall presentation transmitter for HDMI and USB-C room input points. Useful for BYOD and BYOM spaces where video and USB need to be transported from a user position to the room system.",
+        "description": "In-wall presentation transmitter for HDMI and USB-C room input points. Useful when video and USB need to be transported from the user position to the room system.",
         "category": "Presentation Switcher",
         "tags": [
           "HDMI USB extender",
@@ -108,13 +108,104 @@
       }
     },
     {
+      "id": "EX-100-KVM",
+      "brand": "WyreStorm",
+      "vendorType": "wyrestorm",
+      "sku": "EX-100-KVM",
+      "name": "4K HDMI and USB extender kit over HDBaseT",
+      "description": "HDMI and USB 2.0 KVM extender kit for applications where HDMI and USB need to travel together over distance.",
+      "summary": "HDMI and USB 2.0 KVM extender kit for applications where HDMI and USB need to travel together over distance.",
+      "category": "KVM Extender",
+      "technologies": [
+        "HDBaseT",
+        "HDMI",
+        "USB 2.0",
+        "KVM"
+      ],
+      "connectors": [
+        "HDMI",
+        "USB",
+        "HDBaseT"
+      ],
+      "features": [
+        "HDMI extension",
+        "USB 2.0 extension",
+        "KVM"
+      ],
+      "applications": [
+        "Meeting room",
+        "Training room",
+        "Control room"
+      ],
+      "tags": [
+        "HDMI USB extender",
+        "KVM",
+        "HDBaseT",
+        "USB 2.0"
+      ],
+      "searchTerms": [
+        "wyrestorm",
+        "ex-100-kvm",
+        "4k hdmi and usb extender kit over hdbaset",
+        "kvm extender",
+        "hdmi and usb 2.0 kvm extender kit for applications where hdmi and usb need to travel together over distance.",
+        "hdbaset",
+        "hdmi",
+        "usb 2.0",
+        "kvm",
+        "usb",
+        "hdmi extension",
+        "usb 2.0 extension",
+        "meeting room",
+        "training room",
+        "control room",
+        "hdmi usb extender"
+      ],
+      "source": "data/product-intelligence-db.json",
+      "raw": {
+        "sku": "EX-100-KVM",
+        "description": "HDMI and USB 2.0 KVM extender kit for applications where HDMI and USB need to travel together over distance.",
+        "category": "KVM Extender",
+        "tags": [
+          "HDMI USB extender",
+          "KVM",
+          "HDBaseT",
+          "USB 2.0"
+        ],
+        "applications": [
+          "Meeting room",
+          "Training room",
+          "Control room"
+        ],
+        "name": "4K HDMI and USB extender kit over HDBaseT",
+        "connectors": [
+          "HDMI",
+          "USB",
+          "HDBaseT"
+        ],
+        "brand": "WyreStorm",
+        "technologies": [
+          "HDBaseT",
+          "HDMI",
+          "USB 2.0",
+          "KVM"
+        ],
+        "vendorType": "wyrestorm",
+        "features": [
+          "HDMI extension",
+          "USB 2.0 extension",
+          "KVM"
+        ]
+      }
+    },
+    {
       "id": "RX-35",
       "brand": "WyreStorm",
       "vendorType": "wyrestorm",
       "sku": "RX-35",
       "name": "HDBaseT receiver for shorter video-only paths",
-      "description": "HDBaseT receiver option for video-only extension where USB transport is not required. Select by transmission distance and video requirement.",
-      "summary": "HDBaseT receiver option for video-only extension where USB transport is not required. Select by transmission distance and video requirement.",
+      "description": "HDBaseT receiver option for video-only extension where USB transport is not required.",
+      "summary": "HDBaseT receiver option for video-only extension where USB transport is not required.",
       "category": "HDBaseT Extender",
       "technologies": [
         "HDBaseT",
@@ -144,7 +235,7 @@
         "rx-35",
         "hdbaset receiver for shorter video-only paths",
         "hdbaset extender",
-        "hdbaset receiver option for video-only extension where usb transport is not required. select by transmission distance and video requirement.",
+        "hdbaset receiver option for video-only extension where usb transport is not required.",
         "hdbaset",
         "hdmi",
         "video-only receiver",
@@ -159,7 +250,7 @@
       "source": "data/product-intelligence-db.json",
       "raw": {
         "sku": "RX-35",
-        "description": "HDBaseT receiver option for video-only extension where USB transport is not required. Select by transmission distance and video requirement.",
+        "description": "HDBaseT receiver option for video-only extension where USB transport is not required.",
         "category": "HDBaseT Extender",
         "tags": [
           "receiver",
@@ -195,8 +286,8 @@
       "vendorType": "wyrestorm",
       "sku": "RX-70",
       "name": "HDBaseT receiver for longer video-only paths",
-      "description": "HDBaseT receiver option for longer video-only extension where USB transport is not required. Use when distance requirement exceeds the shorter receiver class.",
-      "summary": "HDBaseT receiver option for longer video-only extension where USB transport is not required. Use when distance requirement exceeds the shorter receiver class.",
+      "description": "HDBaseT receiver option for longer video-only extension where USB transport is not required.",
+      "summary": "HDBaseT receiver option for longer video-only extension where USB transport is not required.",
       "category": "HDBaseT Extender",
       "technologies": [
         "HDBaseT",
@@ -226,7 +317,7 @@
         "rx-70",
         "hdbaset receiver for longer video-only paths",
         "hdbaset extender",
-        "hdbaset receiver option for longer video-only extension where usb transport is not required. use when distance requirement exceeds the shorter receiver class.",
+        "hdbaset receiver option for longer video-only extension where usb transport is not required.",
         "hdbaset",
         "hdmi",
         "video-only receiver",
@@ -241,7 +332,7 @@
       "source": "data/product-intelligence-db.json",
       "raw": {
         "sku": "RX-70",
-        "description": "HDBaseT receiver option for longer video-only extension where USB transport is not required. Use when distance requirement exceeds the shorter receiver class.",
+        "description": "HDBaseT receiver option for longer video-only extension where USB transport is not required.",
         "category": "HDBaseT Extender",
         "tags": [
           "receiver",
@@ -277,8 +368,8 @@
       "vendorType": "wyrestorm",
       "sku": "MX-0402-MST",
       "name": "Dual-display MST presentation switcher",
-      "description": "Presentation switcher for USB-C laptop, dual display, and MST-style workflows. Useful where a compact room-core switcher is more appropriate than a full matrix or AVoIP system.",
-      "summary": "Presentation switcher for USB-C laptop, dual display, and MST-style workflows. Useful where a compact room-core switcher is more appropriate than a full matrix or AVoIP system.",
+      "description": "Presentation switcher for USB-C laptop, dual display, and MST-style workflows.",
+      "summary": "Presentation switcher for USB-C laptop, dual display, and MST-style workflows.",
       "category": "Presentation Switcher",
       "technologies": [
         "USB-C",
@@ -311,7 +402,7 @@
         "mx-0402-mst",
         "dual-display mst presentation switcher",
         "presentation switcher",
-        "presentation switcher for usb-c laptop, dual display, and mst-style workflows. useful where a compact room-core switcher is more appropriate than a full matrix or avoip system.",
+        "presentation switcher for usb-c laptop, dual display, and mst-style workflows.",
         "usb-c",
         "hdmi",
         "mst",
@@ -325,7 +416,7 @@
       "source": "data/product-intelligence-db.json",
       "raw": {
         "sku": "MX-0402-MST",
-        "description": "Presentation switcher for USB-C laptop, dual display, and MST-style workflows. Useful where a compact room-core switcher is more appropriate than a full matrix or AVoIP system.",
+        "description": "Presentation switcher for USB-C laptop, dual display, and MST-style workflows.",
         "category": "Presentation Switcher",
         "tags": [
           "presentation",
@@ -449,96 +540,6 @@
           "Multiple outputs",
           "HDBaseT output",
           "Presentation switching"
-        ]
-      }
-    },
-    {
-      "id": "SW-220-TX-W",
-      "brand": "WyreStorm",
-      "vendorType": "wyrestorm",
-      "sku": "SW-220-TX-W",
-      "name": "Synergy 2-input switcher with USB 3.0 and wireless casting",
-      "description": "Compact room transmitter/switcher for HDMI, USB 3.0, wireless casting, and dual-view applications.",
-      "summary": "Compact room transmitter/switcher for HDMI, USB 3.0, wireless casting, and dual-view applications.",
-      "category": "Presentation Switcher",
-      "technologies": [
-        "HDMI",
-        "USB 3.0",
-        "Wireless",
-        "AirPlay",
-        "Miracast"
-      ],
-      "connectors": [
-        "HDMI",
-        "USB"
-      ],
-      "features": [
-        "Wireless casting",
-        "USB 3.0",
-        "Dual view"
-      ],
-      "applications": [
-        "Meeting room",
-        "BYOD space"
-      ],
-      "tags": [
-        "Synergy",
-        "wireless",
-        "USB 3.0",
-        "presentation"
-      ],
-      "searchTerms": [
-        "wyrestorm",
-        "sw-220-tx-w",
-        "synergy 2-input switcher with usb 3.0 and wireless casting",
-        "presentation switcher",
-        "compact room transmitter/switcher for hdmi, usb 3.0, wireless casting, and dual-view applications.",
-        "hdmi",
-        "usb 3.0",
-        "wireless",
-        "airplay",
-        "miracast",
-        "usb",
-        "wireless casting",
-        "dual view",
-        "meeting room",
-        "byod space",
-        "synergy",
-        "presentation"
-      ],
-      "source": "data/product-intelligence-db.json",
-      "raw": {
-        "sku": "SW-220-TX-W",
-        "description": "Compact room transmitter/switcher for HDMI, USB 3.0, wireless casting, and dual-view applications.",
-        "category": "Presentation Switcher",
-        "tags": [
-          "Synergy",
-          "wireless",
-          "USB 3.0",
-          "presentation"
-        ],
-        "applications": [
-          "Meeting room",
-          "BYOD space"
-        ],
-        "name": "Synergy 2-input switcher with USB 3.0 and wireless casting",
-        "connectors": [
-          "HDMI",
-          "USB"
-        ],
-        "brand": "WyreStorm",
-        "technologies": [
-          "HDMI",
-          "USB 3.0",
-          "Wireless",
-          "AirPlay",
-          "Miracast"
-        ],
-        "vendorType": "wyrestorm",
-        "features": [
-          "Wireless casting",
-          "USB 3.0",
-          "Dual view"
         ]
       }
     },
@@ -718,14 +719,12 @@
       "vendorType": "wyrestorm",
       "sku": "NHD-120-TX",
       "name": "NetworkHD 100 series encoder",
-      "description": "Cost-effective NetworkHD 100 series AVoIP encoder for flexible 4K distribution over standard network infrastructure.",
-      "summary": "Cost-effective NetworkHD 100 series AVoIP encoder for flexible 4K distribution over standard network infrastructure.",
+      "description": "Cost-effective NetworkHD 100 series AVoIP encoder for flexible 4K distribution over network infrastructure.",
+      "summary": "Cost-effective NetworkHD 100 series AVoIP encoder for flexible 4K distribution over network infrastructure.",
       "category": "AVoIP",
       "technologies": [
         "NetworkHD 100",
         "AVoIP",
-        "H.264",
-        "H.265",
         "4K"
       ],
       "connectors": [
@@ -753,10 +752,8 @@
         "nhd-120-tx",
         "networkhd 100 series encoder",
         "avoip",
-        "cost-effective networkhd 100 series avoip encoder for flexible 4k distribution over standard network infrastructure.",
+        "cost-effective networkhd 100 series avoip encoder for flexible 4k distribution over network infrastructure.",
         "networkhd 100",
-        "h.264",
-        "h.265",
         "4k",
         "hdmi",
         "rj45",
@@ -772,97 +769,7 @@
       "source": "data/product-intelligence-db.json",
       "raw": {
         "sku": "NHD-120-TX",
-        "description": "Cost-effective NetworkHD 100 series AVoIP encoder for flexible 4K distribution over standard network infrastructure.",
-        "category": "AVoIP",
-        "tags": [
-          "NetworkHD",
-          "encoder",
-          "AVoIP",
-          "transmitter"
-        ],
-        "applications": [
-          "Distributed AV",
-          "Education",
-          "Hospitality",
-          "Retail"
-        ],
-        "name": "NetworkHD 100 series encoder",
-        "connectors": [
-          "HDMI",
-          "RJ45"
-        ],
-        "brand": "WyreStorm",
-        "technologies": [
-          "NetworkHD 100",
-          "AVoIP",
-          "H.264",
-          "H.265",
-          "4K"
-        ],
-        "vendorType": "wyrestorm",
-        "features": [
-          "Encoder",
-          "Network AV distribution"
-        ]
-      }
-    },
-    {
-      "id": "NHD-124-TX",
-      "brand": "WyreStorm",
-      "vendorType": "wyrestorm",
-      "sku": "NHD-124-TX",
-      "name": "NetworkHD 100 series encoder",
-      "description": "NetworkHD 100 series encoder for cost-effective AVoIP distribution where flexible routing is required.",
-      "summary": "NetworkHD 100 series encoder for cost-effective AVoIP distribution where flexible routing is required.",
-      "category": "AVoIP",
-      "technologies": [
-        "NetworkHD 100",
-        "AVoIP",
-        "4K"
-      ],
-      "connectors": [
-        "HDMI",
-        "RJ45"
-      ],
-      "features": [
-        "Encoder",
-        "Network AV distribution"
-      ],
-      "applications": [
-        "Distributed AV",
-        "Education",
-        "Hospitality",
-        "Retail"
-      ],
-      "tags": [
-        "NetworkHD",
-        "encoder",
-        "AVoIP",
-        "transmitter"
-      ],
-      "searchTerms": [
-        "wyrestorm",
-        "nhd-124-tx",
-        "networkhd 100 series encoder",
-        "avoip",
-        "networkhd 100 series encoder for cost-effective avoip distribution where flexible routing is required.",
-        "networkhd 100",
-        "4k",
-        "hdmi",
-        "rj45",
-        "encoder",
-        "network av distribution",
-        "distributed av",
-        "education",
-        "hospitality",
-        "retail",
-        "networkhd",
-        "transmitter"
-      ],
-      "source": "data/product-intelligence-db.json",
-      "raw": {
-        "sku": "NHD-124-TX",
-        "description": "NetworkHD 100 series encoder for cost-effective AVoIP distribution where flexible routing is required.",
+        "description": "Cost-effective NetworkHD 100 series AVoIP encoder for flexible 4K distribution over network infrastructure.",
         "category": "AVoIP",
         "tags": [
           "NetworkHD",
@@ -1372,91 +1279,6 @@
       }
     },
     {
-      "id": "NHD-510-TX",
-      "brand": "WyreStorm",
-      "vendorType": "wyrestorm",
-      "sku": "NHD-510-TX",
-      "name": "NetworkHD 500 series encoder",
-      "description": "NetworkHD 500 family encoder for premium AVoIP applications requiring strong 4K and workflow performance.",
-      "summary": "NetworkHD 500 family encoder for premium AVoIP applications requiring strong 4K and workflow performance.",
-      "category": "AVoIP",
-      "technologies": [
-        "NetworkHD 500",
-        "AVoIP",
-        "4K60"
-      ],
-      "connectors": [
-        "HDMI",
-        "RJ45"
-      ],
-      "features": [
-        "Encoder",
-        "Network AV distribution"
-      ],
-      "applications": [
-        "Enterprise AV",
-        "Education",
-        "Control room"
-      ],
-      "tags": [
-        "NetworkHD",
-        "encoder",
-        "500",
-        "AVoIP"
-      ],
-      "searchTerms": [
-        "wyrestorm",
-        "nhd-510-tx",
-        "networkhd 500 series encoder",
-        "avoip",
-        "networkhd 500 family encoder for premium avoip applications requiring strong 4k and workflow performance.",
-        "networkhd 500",
-        "4k60",
-        "hdmi",
-        "rj45",
-        "encoder",
-        "network av distribution",
-        "enterprise av",
-        "education",
-        "control room",
-        "networkhd",
-        "500"
-      ],
-      "source": "data/product-intelligence-db.json",
-      "raw": {
-        "sku": "NHD-510-TX",
-        "description": "NetworkHD 500 family encoder for premium AVoIP applications requiring strong 4K and workflow performance.",
-        "category": "AVoIP",
-        "tags": [
-          "NetworkHD",
-          "encoder",
-          "500",
-          "AVoIP"
-        ],
-        "applications": [
-          "Enterprise AV",
-          "Education",
-          "Control room"
-        ],
-        "name": "NetworkHD 500 series encoder",
-        "connectors": [
-          "HDMI",
-          "RJ45"
-        ],
-        "brand": "WyreStorm",
-        "technologies": [
-          "NetworkHD 500",
-          "AVoIP",
-          "4K60"
-        ],
-        "vendorType": "wyrestorm",
-        "features": [
-          "Encoder",
-          "Network AV distribution"
-        ]
-      }
-    },
-    {
       "id": "NHD-0401-MV",
       "brand": "WyreStorm",
       "vendorType": "wyrestorm",
@@ -1733,100 +1555,6 @@
       }
     },
     {
-      "id": "APO-CAM210-NDI-PTZ",
-      "brand": "WyreStorm",
-      "vendorType": "wyrestorm",
-      "sku": "APO-CAM210-NDI-PTZ",
-      "name": "Apollo NDI PTZ camera",
-      "description": "NDI-capable PTZ camera for UC, streaming, lecture capture, and network AV applications.",
-      "summary": "NDI-capable PTZ camera for UC, streaming, lecture capture, and network AV applications.",
-      "category": "Unified Communication",
-      "technologies": [
-        "NDI",
-        "PTZ",
-        "Camera",
-        "Streaming"
-      ],
-      "connectors": [
-        "RJ45",
-        "HDMI",
-        "USB"
-      ],
-      "features": [
-        "PTZ camera",
-        "NDI",
-        "Streaming"
-      ],
-      "applications": [
-        "Lecture capture",
-        "Meeting room",
-        "Training room",
-        "Streaming"
-      ],
-      "tags": [
-        "camera",
-        "NDI",
-        "PTZ",
-        "Apollo"
-      ],
-      "searchTerms": [
-        "wyrestorm",
-        "apo-cam210-ndi-ptz",
-        "apollo ndi ptz camera",
-        "unified communication",
-        "ndi-capable ptz camera for uc, streaming, lecture capture, and network av applications.",
-        "ndi",
-        "ptz",
-        "camera",
-        "streaming",
-        "rj45",
-        "hdmi",
-        "usb",
-        "ptz camera",
-        "lecture capture",
-        "meeting room",
-        "training room",
-        "apollo"
-      ],
-      "source": "data/product-intelligence-db.json",
-      "raw": {
-        "sku": "APO-CAM210-NDI-PTZ",
-        "description": "NDI-capable PTZ camera for UC, streaming, lecture capture, and network AV applications.",
-        "category": "Unified Communication",
-        "tags": [
-          "camera",
-          "NDI",
-          "PTZ",
-          "Apollo"
-        ],
-        "applications": [
-          "Lecture capture",
-          "Meeting room",
-          "Training room",
-          "Streaming"
-        ],
-        "name": "Apollo NDI PTZ camera",
-        "connectors": [
-          "RJ45",
-          "HDMI",
-          "USB"
-        ],
-        "brand": "WyreStorm",
-        "technologies": [
-          "NDI",
-          "PTZ",
-          "Camera",
-          "Streaming"
-        ],
-        "vendorType": "wyrestorm",
-        "features": [
-          "PTZ camera",
-          "NDI",
-          "Streaming"
-        ]
-      }
-    },
-    {
       "id": "CAM-420-PTZ",
       "brand": "WyreStorm",
       "vendorType": "wyrestorm",
@@ -1989,169 +1717,6 @@
           "Camera bridge",
           "Mixer",
           "USB conferencing"
-        ]
-      }
-    },
-    {
-      "id": "CAM-0402-NDI-BRG",
-      "brand": "WyreStorm",
-      "vendorType": "wyrestorm",
-      "sku": "CAM-0402-NDI-BRG",
-      "name": "NDI camera bridge and mixer",
-      "description": "NDI-capable camera bridge/mixer for combining camera and network video workflows.",
-      "summary": "NDI-capable camera bridge/mixer for combining camera and network video workflows.",
-      "category": "Unified Communication",
-      "technologies": [
-        "NDI",
-        "Camera bridge",
-        "USB",
-        "HDMI"
-      ],
-      "connectors": [
-        "RJ45",
-        "USB",
-        "HDMI"
-      ],
-      "features": [
-        "NDI bridge",
-        "Camera bridge",
-        "Mixer"
-      ],
-      "applications": [
-        "Meeting room",
-        "Lecture capture",
-        "Streaming"
-      ],
-      "tags": [
-        "NDI",
-        "camera bridge",
-        "mixer",
-        "UC"
-      ],
-      "searchTerms": [
-        "wyrestorm",
-        "cam-0402-ndi-brg",
-        "ndi camera bridge and mixer",
-        "unified communication",
-        "ndi-capable camera bridge/mixer for combining camera and network video workflows.",
-        "ndi",
-        "camera bridge",
-        "usb",
-        "hdmi",
-        "rj45",
-        "ndi bridge",
-        "mixer",
-        "meeting room",
-        "lecture capture",
-        "streaming",
-        "uc"
-      ],
-      "source": "data/product-intelligence-db.json",
-      "raw": {
-        "sku": "CAM-0402-NDI-BRG",
-        "description": "NDI-capable camera bridge/mixer for combining camera and network video workflows.",
-        "category": "Unified Communication",
-        "tags": [
-          "NDI",
-          "camera bridge",
-          "mixer",
-          "UC"
-        ],
-        "applications": [
-          "Meeting room",
-          "Lecture capture",
-          "Streaming"
-        ],
-        "name": "NDI camera bridge and mixer",
-        "connectors": [
-          "RJ45",
-          "USB",
-          "HDMI"
-        ],
-        "brand": "WyreStorm",
-        "technologies": [
-          "NDI",
-          "Camera bridge",
-          "USB",
-          "HDMI"
-        ],
-        "vendorType": "wyrestorm",
-        "features": [
-          "NDI bridge",
-          "Camera bridge",
-          "Mixer"
-        ]
-      }
-    },
-    {
-      "id": "APO-MIC-EXT",
-      "brand": "WyreStorm",
-      "vendorType": "wyrestorm",
-      "sku": "APO-MIC-EXT",
-      "name": "Apollo microphone extender",
-      "description": "Microphone extension accessory for Apollo unified communication workflows.",
-      "summary": "Microphone extension accessory for Apollo unified communication workflows.",
-      "category": "Unified Communication",
-      "technologies": [
-        "Audio",
-        "Microphone",
-        "UC"
-      ],
-      "connectors": [
-        "Audio"
-      ],
-      "features": [
-        "Microphone extension"
-      ],
-      "applications": [
-        "Meeting room",
-        "Conferencing"
-      ],
-      "tags": [
-        "microphone",
-        "audio",
-        "UC"
-      ],
-      "searchTerms": [
-        "wyrestorm",
-        "apo-mic-ext",
-        "apollo microphone extender",
-        "unified communication",
-        "microphone extension accessory for apollo unified communication workflows.",
-        "audio",
-        "microphone",
-        "uc",
-        "microphone extension",
-        "meeting room",
-        "conferencing"
-      ],
-      "source": "data/product-intelligence-db.json",
-      "raw": {
-        "sku": "APO-MIC-EXT",
-        "description": "Microphone extension accessory for Apollo unified communication workflows.",
-        "category": "Unified Communication",
-        "tags": [
-          "microphone",
-          "audio",
-          "UC"
-        ],
-        "applications": [
-          "Meeting room",
-          "Conferencing"
-        ],
-        "name": "Apollo microphone extender",
-        "connectors": [
-          "Audio"
-        ],
-        "brand": "WyreStorm",
-        "technologies": [
-          "Audio",
-          "Microphone",
-          "UC"
-        ],
-        "vendorType": "wyrestorm",
-        "features": [
-          "Microphone extension"
         ]
       }
     },
@@ -2415,156 +1980,56 @@
           "Seamless switching"
         ]
       }
-    },
-    {
-      "id": "MX-0812-SCL",
-      "brand": "WyreStorm",
-      "vendorType": "wyrestorm",
-      "sku": "MX-0812-SCL",
-      "name": "8x12 seamless matrix switcher",
-      "description": "Seamless matrix switcher for larger multi-output systems requiring scaling and flexible routing.",
-      "summary": "Seamless matrix switcher for larger multi-output systems requiring scaling and flexible routing.",
-      "category": "Matrix Solution",
-      "technologies": [
-        "HDMI",
-        "Matrix",
-        "Scaling",
-        "Seamless"
-      ],
-      "connectors": [
-        "HDMI"
-      ],
-      "features": [
-        "8x12 matrix",
-        "Scaling",
-        "Seamless switching"
-      ],
-      "applications": [
-        "Training room",
-        "Control room",
-        "Hospitality",
-        "Multi-display"
-      ],
-      "tags": [
-        "matrix",
-        "seamless",
-        "scaling",
-        "8x12"
-      ],
-      "searchTerms": [
-        "wyrestorm",
-        "mx-0812-scl",
-        "8x12 seamless matrix switcher",
-        "matrix solution",
-        "seamless matrix switcher for larger multi-output systems requiring scaling and flexible routing.",
-        "hdmi",
-        "matrix",
-        "scaling",
-        "seamless",
-        "8x12 matrix",
-        "seamless switching",
-        "training room",
-        "control room",
-        "hospitality",
-        "multi-display",
-        "8x12"
-      ],
-      "source": "data/product-intelligence-db.json",
-      "raw": {
-        "sku": "MX-0812-SCL",
-        "description": "Seamless matrix switcher for larger multi-output systems requiring scaling and flexible routing.",
-        "category": "Matrix Solution",
-        "tags": [
-          "matrix",
-          "seamless",
-          "scaling",
-          "8x12"
-        ],
-        "applications": [
-          "Training room",
-          "Control room",
-          "Hospitality",
-          "Multi-display"
-        ],
-        "name": "8x12 seamless matrix switcher",
-        "connectors": [
-          "HDMI"
-        ],
-        "brand": "WyreStorm",
-        "technologies": [
-          "HDMI",
-          "Matrix",
-          "Scaling",
-          "Seamless"
-        ],
-        "vendorType": "wyrestorm",
-        "features": [
-          "8x12 matrix",
-          "Scaling",
-          "Seamless switching"
-        ]
-      }
     }
   ],
   "lookup": {
     "bySku": {
       "SW-130-TX-UK": "SW-130-TX-UK",
+      "EX-100-KVM": "EX-100-KVM",
       "RX-35": "RX-35",
       "RX-70": "RX-70",
       "MX-0402-MST": "MX-0402-MST",
       "MX-0403-H3-MST": "MX-0403-H3-MST",
-      "SW-220-TX-W": "SW-220-TX-W",
       "SW-0204-VW": "SW-0204-VW",
       "SW-0206-VW": "SW-0206-VW",
       "NHD-120-TX": "NHD-120-TX",
-      "NHD-124-TX": "NHD-124-TX",
       "NHD-120-RX": "NHD-120-RX",
       "NHD-150-RX": "NHD-150-RX",
       "NHD-128-NDI-TRX": "NHD-128-NDI-TRX",
       "NHD-500-TX": "NHD-500-TX",
       "NHD-500-RX": "NHD-500-RX",
-      "NHD-510-TX": "NHD-510-TX",
       "NHD-0401-MV": "NHD-0401-MV",
       "NHD-600-TRX": "NHD-600-TRX",
       "CAM-210-NDI-PTZ": "CAM-210-NDI-PTZ",
-      "APO-CAM210-NDI-PTZ": "APO-CAM210-NDI-PTZ",
       "CAM-420-PTZ": "CAM-420-PTZ",
       "CAM-0402-BRG": "CAM-0402-BRG",
-      "CAM-0402-NDI-BRG": "CAM-0402-NDI-BRG",
-      "APO-MIC-EXT": "APO-MIC-EXT",
       "IDB-300": "IDB-300",
       "MX-0404-SCL": "MX-0404-SCL",
-      "MX-0808-SCL": "MX-0808-SCL",
-      "MX-0812-SCL": "MX-0812-SCL"
+      "MX-0808-SCL": "MX-0808-SCL"
     },
     "byName": {
       "In-wall HDMI and USB-C presentation transmitter": "SW-130-TX-UK",
+      "4K HDMI and USB extender kit over HDBaseT": "EX-100-KVM",
       "HDBaseT receiver for shorter video-only paths": "RX-35",
       "HDBaseT receiver for longer video-only paths": "RX-70",
       "Dual-display MST presentation switcher": "MX-0402-MST",
       "Multi-output presentation switcher with HDBaseT": "MX-0403-H3-MST",
-      "Synergy 2-input switcher with USB 3.0 and wireless casting": "SW-220-TX-W",
       "Preset-layout video wall processor": "SW-0204-VW",
       "4K60 video wall processor": "SW-0206-VW",
-      "NetworkHD 100 series encoder": "NHD-124-TX",
+      "NetworkHD 100 series encoder": "NHD-120-TX",
       "NetworkHD 100 series decoder": "NHD-120-RX",
       "NetworkHD 100 multiview decoder": "NHD-150-RX",
       "NDI to NetworkHD 100 bridge": "NHD-128-NDI-TRX",
       "NetworkHD 500 4K60 AVoIP encoder": "NHD-500-TX",
       "NetworkHD 500 4K60 AVoIP decoder": "NHD-500-RX",
-      "NetworkHD 500 series encoder": "NHD-510-TX",
       "NetworkHD 500 multiview processor": "NHD-0401-MV",
       "NetworkHD 600 10G transceiver": "NHD-600-TRX",
       "NDI PTZ camera": "CAM-210-NDI-PTZ",
-      "Apollo NDI PTZ camera": "APO-CAM210-NDI-PTZ",
       "PTZ camera": "CAM-420-PTZ",
       "Camera bridge and mixer": "CAM-0402-BRG",
-      "NDI camera bridge and mixer": "CAM-0402-NDI-BRG",
-      "Apollo microphone extender": "APO-MIC-EXT",
       "In-desk cable management box": "IDB-300",
       "4x4 seamless matrix switcher": "MX-0404-SCL",
-      "8x8 seamless matrix switcher": "MX-0808-SCL",
-      "8x12 seamless matrix switcher": "MX-0812-SCL"
+      "8x8 seamless matrix switcher": "MX-0808-SCL"
     }
   }
 }
