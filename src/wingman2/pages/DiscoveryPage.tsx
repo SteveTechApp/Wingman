@@ -7,6 +7,7 @@ import {
   Camera,
   Check,
   Circle,
+  Layers,
   MapPin,
   Minus,
   Monitor,
@@ -43,6 +44,9 @@ type DiscoveryState = {
   displayCount: number;
   outputTypes: string[];
   outputBehaviours: string[];
+  wallLayout: string;
+  wallInputMode: string;
+  wallMultiview: string;
   meetingWorkflow: string;
   usbNeeds: string[];
   cameraPosition: string;
@@ -85,7 +89,7 @@ const steps: { id: StepId; label: string; description: string }[] = [
   {
     id: "outputs",
     label: "Outputs",
-    description: "Define displays, video wall needs, and routing behaviour.",
+    description: "Define displays, LCD/LED wall needs, multiview, and routing behaviour.",
   },
   {
     id: "usb",
@@ -115,7 +119,7 @@ const roomTypes = [
   "House of worship",
   "Control room",
   "Multi-zone venue",
-  "Video wall space",
+  "Display wall / large format wall",
   "Other / not sure",
 ];
 
@@ -128,7 +132,7 @@ const behaviourOptions = [
   "BYOM",
   "Dual display",
   "Multiview",
-  "Video wall",
+  "LCD wall", "LED wall",
   "Streaming / recording",
   "Digital signage",
   "Central distribution",
@@ -157,15 +161,35 @@ const equipmentLocations = [
   "Unknown",
 ];
 
-const displayPositions = [
+const standardDisplayPositions = [
   "Front wall",
   "Side wall",
   "Rear wall",
   "Ceiling projector",
   "Multiple walls",
   "Distributed displays",
-  "Video wall",
   "Unknown",
+];
+
+const dualDisplayPositions = [
+  "Dual displays on front wall",
+  "Left and right of camera",
+  "Content display + conferencing display",
+  "Front display + side display",
+  "Front display + confidence monitor",
+  "Mirrored displays in same room",
+  "Independent displays in same room",
+  "Unknown dual-display position",
+];
+
+const wallDisplayPositions = [
+  "Primary feature wall",
+  "Front wall display wall",
+  "Retail display wall",
+  "Reception / atrium wall",
+  "Control room wall",
+  "Stage / event wall",
+  "Unknown wall position",
 ];
 
 const layoutFlags = [
@@ -218,28 +242,55 @@ const sourceConnections = [
   "Unknown",
 ];
 
-const outputTypes = [
+const standardOutputTypes = [
   "Single display",
   "Dual mirrored displays",
   "Dual independent displays",
   "Projector",
-  "LCD video wall",
-  "LED wall",
   "Distributed displays",
-  "Multiview display",
   "Confidence monitor",
+  "LCD wall",
+  "LED wall",
 ];
 
-const outputBehaviours = [
+const dualOutputTypes = [
+  "Dual mirrored displays",
+  "Dual independent displays",
+  "Content display + conferencing display",
+  "Primary display + confidence monitor",
+];
+
+const wallOutputTypes = ["LCD wall", "LED wall"];
+
+const standardOutputBehaviours = [
   "Same content everywhere",
   "Choose source per display",
-  "One source across wall",
-  "Multiple sources on one screen",
-  "Independent left/right screens",
   "Presentation plus conferencing",
   "Signage loop",
   "Future expansion required",
 ];
+
+const dualOutputBehaviours = [
+  "Mirror same content on both displays",
+  "Independent content per display",
+  "Laptop dual extended desktop",
+  "Presentation on one display, conferencing on the other",
+  "Confidence monitor follows presenter",
+];
+
+const wallOutputBehaviours = [
+  "Single full-screen input",
+  "Single input tile-mode",
+  "Screen-driven / input-per-display",
+  "Multiview required",
+  "Non-multiview",
+];
+
+const lcdWallLayouts = ["2x2 LCD wall", "3x3 LCD wall", "4x4 LCD wall", "1x3 LCD ribbon", "1x4 LCD ribbon", "Custom LCD layout"];
+const ledWallLayouts = ["Single LED canvas", "Custom LED canvas"];
+const lcdWallInputModes = ["Single input tile-mode", "Screen-driven / input-per-display"];
+const ledWallInputModes = ["Single input canvas"];
+const wallMultiviewModes = ["Multiview required", "Non-multiview"];
 
 const meetingWorkflows = [
   "Presentation only",
@@ -279,7 +330,7 @@ const audioNeeds = [
   "Unknown",
 ];
 
-const runBands = ["Under 5m", "5–10m", "10–35m", "35–70m", "70–100m", "100m+", "Unknown"];
+const runBands = ["Under 5m", "5Ã¢â‚¬â€œ10m", "10Ã¢â‚¬â€œ35m", "35Ã¢â‚¬â€œ70m", "70Ã¢â‚¬â€œ100m", "100m+", "Unknown"];
 
 const cableTypes = ["HDMI", "Cat5e", "Cat6", "Cat6A", "Fibre", "Network only", "No cable installed", "Unknown"];
 
@@ -341,6 +392,9 @@ const initialState: DiscoveryState = {
   displayCount: 1,
   outputTypes: [],
   outputBehaviours: [],
+  wallLayout: "",
+  wallInputMode: "",
+  wallMultiview: "",
   meetingWorkflow: "",
   usbNeeds: [],
   cameraPosition: "",
@@ -374,13 +428,81 @@ function includesAny(values: string[], tests: string[]) {
   return values.some((value) => tests.includes(value));
 }
 
-function hasVideoWall(state: DiscoveryState) {
+function hasDualDisplay(state: DiscoveryState) {
   return (
-    state.roomType === "Video wall space" ||
-    state.behaviours.includes("Video wall") ||
-    includesAny(state.outputTypes, ["LCD video wall", "LED wall"]) ||
-    state.displayPosition === "Video wall"
+    state.behaviours.includes("Dual display") ||
+    includesAny(state.outputTypes, [
+      "Dual mirrored displays",
+      "Dual independent displays",
+      "Content display + conferencing display",
+      "Primary display + confidence monitor",
+    ]) ||
+    state.outputBehaviours.some((item) => item.toLowerCase().includes("dual") || item.toLowerCase().includes("both displays"))
   );
+}
+
+function hasLcdWall(state: DiscoveryState) {
+  return state.behaviours.includes("LCD wall") || state.outputTypes.includes("LCD wall");
+}
+
+function hasLedWall(state: DiscoveryState) {
+  return state.behaviours.includes("LED wall") || state.outputTypes.includes("LED wall");
+}
+
+function hasDisplayWall(state: DiscoveryState) {
+  return state.roomType === "Display wall / large format wall" || hasLcdWall(state) || hasLedWall(state);
+}
+
+function hasVideoWall(state: DiscoveryState) {
+  return hasDisplayWall(state);
+}
+
+function getDisplayPositionOptions(state: DiscoveryState) {
+  if (hasDisplayWall(state)) {
+    return wallDisplayPositions;
+  }
+
+  if (hasDualDisplay(state)) {
+    return dualDisplayPositions;
+  }
+
+  return standardDisplayPositions;
+}
+
+function getDisplayPositionHelper(state: DiscoveryState) {
+  if (hasDisplayWall(state)) {
+    return "Wall requirement selected. Capture where the LCD/LED wall canvas will physically sit; detailed wall spec can be done in the wall wizard or quick pick below.";
+  }
+
+  if (hasDualDisplay(state)) {
+    return "Dual display has been selected, so only dual-screen physical arrangements are shown.";
+  }
+
+  return "Creates the display endpoint in the room model.";
+}
+
+function getOutputTypeOptions(state: DiscoveryState) {
+  if (hasDisplayWall(state)) {
+    return wallOutputTypes;
+  }
+
+  if (hasDualDisplay(state)) {
+    return dualOutputTypes;
+  }
+
+  return standardOutputTypes;
+}
+
+function getOutputBehaviourOptions(state: DiscoveryState) {
+  if (hasDisplayWall(state)) {
+    return wallOutputBehaviours;
+  }
+
+  if (hasDualDisplay(state)) {
+    return dualOutputBehaviours;
+  }
+
+  return standardOutputBehaviours;
 }
 
 function hasUsbRequirement(state: DiscoveryState) {
@@ -414,19 +536,19 @@ function distanceRank(longestRun: string) {
     return 1;
   }
 
-  if (longestRun === "5–10m") {
+  if (longestRun === "5Ã¢â‚¬â€œ10m") {
     return 2;
   }
 
-  if (longestRun === "10–35m") {
+  if (longestRun === "10Ã¢â‚¬â€œ35m") {
     return 3;
   }
 
-  if (longestRun === "35–70m") {
+  if (longestRun === "35Ã¢â‚¬â€œ70m") {
     return 4;
   }
 
-  if (longestRun === "70–100m") {
+  if (longestRun === "70Ã¢â‚¬â€œ100m") {
     return 5;
   }
 
@@ -475,6 +597,18 @@ function inferDesign(state: DiscoveryState): Inference {
     missing.push("Display/output type");
   }
 
+  if (hasDisplayWall(state) && !state.wallLayout) {
+    missing.push("LCD/LED wall layout");
+  }
+
+  if (hasDisplayWall(state) && !state.wallInputMode) {
+    missing.push("Wall input mode");
+  }
+
+  if (hasDisplayWall(state) && !state.wallMultiview) {
+    missing.push("Wall multiview requirement");
+  }
+
   if (!state.longestRun || state.longestRun === "Unknown") {
     missing.push("Longest cable run");
   }
@@ -509,11 +643,28 @@ function inferDesign(state: DiscoveryState): Inference {
 
   let architecture = "Structured presentation / extension system";
 
-  if (hasVideoWall(state)) {
-    architecture = "Video wall processor or AVoIP video wall architecture";
-    productDirection.push("Consider SW-0206-VW or SW-0204-VW for dedicated processor-led wall requirements.");
-    productDirection.push("Consider NetworkHD when source/display distribution, flexible routing, or expansion is required.");
-    avoid.push("Do not assume AVoIP is automatically required until wall behaviour and source count are confirmed.");
+  if (hasLedWall(state) && !hasLcdWall(state)) {
+    architecture =
+      state.wallMultiview === "Multiview required"
+        ? "LED wall with upstream multiview composition feeding a single LED canvas"
+        : "LED wall single-input canvas path";
+
+    productDirection.push("Treat LED as a single input canvas into the LED controller unless multiview composition is specifically required upstream.");
+    productDirection.push("If multiview is required, define source composition before the LED processor/controller input.");
+    productDirection.push("Use the wall wizard for detailed LED dimensions, pixel pitch, processor handoff, and source behaviour.");
+    avoid.push("Do not treat LED as a normal multi-output LCD tile wall unless the LED processor specifically requires that topology.");
+  }
+
+  if (hasLcdWall(state)) {
+    architecture =
+      state.wallInputMode === "Screen-driven / input-per-display"
+        ? "LCD wall with screen-driven / input-per-display processing"
+        : "LCD wall single-input tile-mode processing";
+
+    productDirection.push("Use quick-pick LCD layouts such as 2x2, 3x3, or 4x4 to size the wall before detailed design.");
+    productDirection.push("For fixed tile-mode walls, consider SW-0204-VW or SW-0206-VW before escalating to AVoIP.");
+    productDirection.push("If multiview or flexible source routing is required, consider NetworkHD / AVoIP or multiview processing.");
+    avoid.push("Do not assume AVoIP is automatically required until wall layout, input mode, and multiview need are confirmed.");
   }
 
   if (!hasVideoWall(state) && hasDistributedNeed(state)) {
@@ -546,10 +697,10 @@ function inferDesign(state: DiscoveryState): Inference {
   }
 
   if (state.outputTypes.includes("Dual independent displays") || state.behaviours.includes("Dual display")) {
-    productDirection.push("Check MST / dual-display presentation switching where a USB-C laptop needs independent dual-display output.");
+    productDirection.push("Dual-screen selection should drive whether mirrored output, independent output, MST, or presentation-plus-conferencing mode is required.");
   }
 
-  if (state.outputTypes.includes("Multiview display") || state.behaviours.includes("Multiview")) {
+  if (state.outputTypes.includes("Multiview display") || state.behaviours.includes("Multiview") || state.wallMultiview === "Multiview required") {
     productDirection.push("Check multiview-capable paths such as NHD-150-RX or NHD-0401-MV depending on NetworkHD family.");
   }
 
@@ -731,8 +882,13 @@ export function DiscoveryPage() {
   const currentStep = steps[activeStepIndex];
   const isFirstStep = activeStepIndex === 0;
   const isLastStep = activeStepIndex === steps.length - 1;
-
-  const capturedPercent = useMemo(() => {
+  const displayPositionOptions = useMemo(() => getDisplayPositionOptions(state), [state]);
+  const outputTypeOptions = useMemo(() => getOutputTypeOptions(state), [state]);
+  const outputBehaviourOptions = useMemo(() => getOutputBehaviourOptions(state), [state]);
+  const isWallMode = hasDisplayWall(state);
+  const isLedMode = hasLedWall(state);
+  const isLcdMode = hasLcdWall(state);
+const capturedPercent = useMemo(() => {
     const required = [
       state.roomType,
       state.roomSize,
@@ -747,8 +903,9 @@ export function DiscoveryPage() {
       state.budgetStyle,
     ];
 
-    const filled = required.filter(Boolean).length;
-    return Math.round((filled / required.length) * 100);
+    const wallRequired = hasDisplayWall(state) ? [state.wallLayout, state.wallInputMode, state.wallMultiview] : [];
+    const filled = [...required, ...wallRequired].filter(Boolean).length;
+    return Math.round((filled / (required.length + wallRequired.length)) * 100);
   }, [state]);
 
   function setField<K extends keyof DiscoveryState>(key: K, value: DiscoveryState[K]) {
@@ -765,7 +922,7 @@ export function DiscoveryPage() {
       return {
         ...current,
         [key]: nextValues,
-      };
+      } as DiscoveryState;
     });
   }
 
@@ -775,6 +932,7 @@ export function DiscoveryPage() {
       roomModel: state,
       inference,
       capturedPercent,
+      returnRoute: routeCatalogByKey.discovery.path,
     };
 
     window.localStorage.setItem("wingman-discovery-brief", JSON.stringify(brief));
@@ -785,6 +943,7 @@ export function DiscoveryPage() {
         savedAt: brief.savedAt,
         projectStage: "Discovery",
         nextRecommendedRoute: routeCatalogByKey.finder.path,
+        returnRoute: routeCatalogByKey.discovery.path,
         brief,
       }),
     );
@@ -792,6 +951,73 @@ export function DiscoveryPage() {
     window.dispatchEvent(new CustomEvent("wingman:discovery-brief-saved", { detail: brief }));
   }
 
+  function renderWallQuickPick() {
+    if (!isWallMode) {
+      return null;
+    }
+
+    const wallLayoutOptions = isLedMode && !isLcdMode ? ledWallLayouts : lcdWallLayouts;
+    const wallInputOptions = isLedMode && !isLcdMode ? ledWallInputModes : lcdWallInputModes;
+
+    return (
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <Layers className="h-5 w-5 text-amber-700" />
+              <p className="text-sm font-black text-amber-950">Wall quick pick</p>
+            </div>
+            <p className="mt-1 text-xs leading-5 text-amber-800">
+              Use quick pick for common LCD/LED wall assumptions, or open the wall wizard for detailed layout, source,
+              multiview, and processor decisions.
+            </p>
+          </div>
+
+          <Link
+            to={routeCatalogByKey.videowall.path}
+            onClick={saveDiscoveryBrief}
+            className="rounded-full bg-amber-600 px-4 py-2 text-xs font-black text-white transition hover:bg-amber-700"
+          >
+            Open wall wizard
+          </Link>
+        </div>
+
+        <div className="mt-4 grid gap-4">
+          <ChipGroup
+            title={isLedMode && !isLcdMode ? "LED wall canvas" : "LCD wall layout"}
+            helper={
+              isLedMode && !isLcdMode
+                ? "LED is treated as a single canvas/input unless upstream multiview composition is required."
+                : "Choose a common LCD wall format for fast qualification. Detailed bezel, model, and processor work can happen in the wall wizard."
+            }
+            options={wallLayoutOptions}
+            value={state.wallLayout}
+            onSelect={(value) => setField("wallLayout", value)}
+          />
+
+          <ChipGroup
+            title="Input mode"
+            helper={
+              isLedMode && !isLcdMode
+                ? "LED should default to a single input canvas. Multiview, if needed, is normally composed before the LED input."
+                : "Single input tile-mode is different from screen-driven / input-per-display behaviour."
+            }
+            options={wallInputOptions}
+            value={state.wallInputMode}
+            onSelect={(value) => setField("wallInputMode", value)}
+          />
+
+          <ChipGroup
+            title="Multiview requirement"
+            helper="This is required for both LCD and LED paths because it changes whether simple tile-mode is enough or composition/routing is needed."
+            options={wallMultiviewModes}
+            value={state.wallMultiview}
+            onSelect={(value) => setField("wallMultiview", value)}
+          />
+        </div>
+      </div>
+    );
+  }
   function renderStep(stepId: StepId) {
     if (stepId === "useCase") {
       return (
@@ -806,7 +1032,7 @@ export function DiscoveryPage() {
 
           <ChipGroup
             title="Primary behaviour"
-            helper="Choose only the behaviours that change the design. Avoid collecting decorative labels."
+            helper="Choose only the behaviours that change the design. If this is a wall, choose LCD wall or LED wall rather than a generic video-wall label."
             options={behaviourOptions}
             value={state.behaviours}
             onSelect={(value) => toggleMulti("behaviours", value)}
@@ -855,8 +1081,8 @@ export function DiscoveryPage() {
 
           <ChipGroup
             title="Display position"
-            helper="Creates the display endpoint in the room model."
-            options={displayPositions}
+            helper={getDisplayPositionHelper(state)}
+            options={displayPositionOptions}
             value={state.displayPosition}
             onSelect={(value) => setField("displayPosition", value)}
           />
@@ -909,31 +1135,55 @@ export function DiscoveryPage() {
     }
 
     if (stepId === "outputs") {
+      const selectedArrangement = state.outputTypes[0] ?? "";
+      const selectedBehaviour = state.outputBehaviours[0] ?? "";
+
       return (
         <div className="grid gap-5">
-          <CountControl label="Number of display/output positions" value={state.displayCount} onChange={(value) => setField("displayCount", value)} />
-
-          <ChipGroup
-            title="Output type"
-            helper="This is a major architecture decision point."
-            options={outputTypes}
-            value={state.outputTypes}
-            onSelect={(value) => toggleMulti("outputTypes", value)}
-            multi
+          <CountControl
+            label="Number of display/output positions"
+            value={state.displayCount}
+            onChange={(value) => setField("displayCount", value)}
           />
 
           <ChipGroup
-            title="Required display behaviour"
-            helper="This tells Wingman whether the system needs switching, matrix routing, multiview, video wall processing, or AVoIP."
-            options={outputBehaviours}
-            value={state.outputBehaviours}
-            onSelect={(value) => toggleMulti("outputBehaviours", value)}
-            multi
+            title="Display arrangement"
+            helper={
+              isWallMode
+                ? "Wall mode is active. Choose LCD wall or LED wall only; detailed wall layout is handled by quick pick or the wall wizard."
+                : hasDualDisplay(state)
+                  ? "Dual display was selected earlier, so only dual-screen arrangements are shown."
+                  : "Choose the physical output arrangement. This is not asking behaviour yet."
+            }
+            options={outputTypeOptions}
+            value={selectedArrangement}
+            onSelect={(value) => {
+              setField("outputTypes", [value]);
+              setField("outputBehaviours", []);
+              setField("wallLayout", "");
+              setField("wallInputMode", "");
+              setField("wallMultiview", "");
+            }}
           />
+
+          <ChipGroup
+            title="Display behaviour"
+            helper={
+              isWallMode
+                ? "For LCD/LED walls, choose simple full-screen/tile-mode, screen-driven, multiview, or non-multiview."
+                : hasDualDisplay(state)
+                  ? "For dual displays, choose the required relationship between the two screens."
+                  : "Choose what the display system needs to do. This drives switching, matrix, multiview, wall processing, or AVoIP logic."
+            }
+            options={outputBehaviourOptions}
+            value={selectedBehaviour}
+            onSelect={(value) => setField("outputBehaviours", [value])}
+          />
+
+          {renderWallQuickPick()}
         </div>
       );
     }
-
     if (stepId === "usb") {
       return (
         <div className="grid gap-5">
@@ -1055,9 +1305,9 @@ export function DiscoveryPage() {
               <p className="text-sm font-black text-slate-900">Likely product direction</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.productDirection.length ? (
-                  inference.productDirection.map((item) => <li key={item}>• {item}</li>)
+                  inference.productDirection.map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
                 ) : (
-                  <li>• More information is required before a reliable product direction can be stated.</li>
+                  <li>Ã¢â‚¬Â¢ More information is required before a reliable product direction can be stated.</li>
                 )}
               </ul>
             </div>
@@ -1066,9 +1316,9 @@ export function DiscoveryPage() {
               <p className="text-sm font-black text-slate-900">Avoid / do not assume</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.avoid.length ? (
-                  inference.avoid.map((item) => <li key={item}>• {item}</li>)
+                  inference.avoid.map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
                 ) : (
-                  <li>• No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
+                  <li>Ã¢â‚¬Â¢ No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
                 )}
               </ul>
             </div>
@@ -1083,7 +1333,7 @@ export function DiscoveryPage() {
       <PageHero
         eyebrow="Guided Customer Discovery"
         title="Build the room model before choosing products."
-        purpose="This upgraded workflow is click-first for live calls. Each response builds the design picture: room, layout, source locations, outputs, USB behaviour, infrastructure, and confidence."
+        purpose="This workflow is responsive to earlier answers. Dual-display choices filter display positions and output behaviour; LCD and LED wall requirements trigger relevant wall quick-pick options or handoff to the wall wizard."
         nextMove="Capture the fastest structured path, review inferred architecture, then save the brief into Finder, Projects, or Proposal."
         actions={[
           { label: "Open Product Finder", to: routeCatalogByKey.finder.path },
@@ -1093,7 +1343,7 @@ export function DiscoveryPage() {
 
       <SectionCard
         title="Click-first discovery workflow"
-        subtitle="Amber is current, green is completed, grey is still to complete. The options are intentionally relevant to the active design decision."
+        subtitle="The options shown are context-sensitive. Earlier answers shape the next set of choices so the user is not shown irrelevant lists."
       >
         <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -1192,6 +1442,9 @@ export function DiscoveryPage() {
                 <ListLine label="Sources" values={state.sourceTypes} />
                 <ListLine label="Source locations" values={state.sourceLocations} />
                 <ListLine label="Outputs" values={state.outputTypes} />
+                <ValueLine label="Wall layout" value={state.wallLayout} />
+                <ValueLine label="Wall input mode" value={state.wallInputMode} />
+                <ValueLine label="Wall multiview" value={state.wallMultiview} />
                 <ListLine label="USB" values={state.usbNeeds} />
                 <ValueLine label="Longest run" value={state.longestRun} />
               </div>
@@ -1228,9 +1481,9 @@ export function DiscoveryPage() {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.missing.length ? (
-                      inference.missing.slice(0, 6).map((item) => <li key={item}>• {item}</li>)
+                      inference.missing.slice(0, 6).map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
                     ) : (
-                      <li>• No major missing details detected.</li>
+                      <li>Ã¢â‚¬Â¢ No major missing details detected.</li>
                     )}
                   </ul>
                 </div>
@@ -1242,9 +1495,9 @@ export function DiscoveryPage() {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.risks.length ? (
-                      inference.risks.slice(0, 6).map((item) => <li key={item}>• {item}</li>)
+                      inference.risks.slice(0, 6).map((item) => <li key={item}>Ã¢â‚¬Â¢ {item}</li>)
                     ) : (
-                      <li>• No major risk flags yet.</li>
+                      <li>Ã¢â‚¬Â¢ No major risk flags yet.</li>
                     )}
                   </ul>
                 </div>
