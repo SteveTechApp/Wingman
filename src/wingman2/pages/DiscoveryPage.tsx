@@ -1,392 +1,1090 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Save } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  Cable,
+  Camera,
+  Check,
+  Circle,
+  MapPin,
+  Minus,
+  Monitor,
+  Network,
+  Plus,
+  Save,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 
-const applicationProfiles = {
-  "Meeting room": {
-    knownNeeds: "Presentation, conferencing, laptop inputs, display output",
-    missingInfo: "Camera USB path, audio handoff, cable distance, and control requirements",
-  },
-  Boardroom: {
-    knownNeeds: "Multiple presentation sources, dual displays, control integration",
-    missingInfo: "Table connectivity, camera count, and audio handoff",
-  },
-  Classroom: {
-    knownNeeds: "Lectern input switching, display extension, simple instructor control",
-    missingInfo: "USB teaching peripherals, recording workflow, and display distance",
-  },
-  "Retail signage": {
-    knownNeeds: "Distributed displays, repeatable content routing, simple support path",
-    missingInfo: "Display count, signal distance, and failover behaviour",
-  },
-  Hospitality: {
-    knownNeeds: "Guest-facing displays, flexible sources, easy day-two support",
-    missingInfo: "Centralised control and content scheduling requirements",
-  },
-  "Multi-zone": {
-    knownNeeds: "Many-to-many routing, future expansion, mixed display endpoints",
-    missingInfo: "Network availability, latency expectations, and USB needs",
-  },
-} as const;
+type StepId =
+  | "useCase"
+  | "layout"
+  | "sources"
+  | "outputs"
+  | "usb"
+  | "infrastructure"
+  | "review";
 
-const steps = [
-  {
-    id: "application",
-    label: "Application Type",
-    description: "Define the customer environment and primary use case.",
-  },
-  {
-    id: "room",
-    label: "Room / Space",
-    description: "Capture size, layout, rack position, and physical constraints.",
-  },
-  {
-    id: "sources",
-    label: "Sources & Displays",
-    description: "Map what connects, where it is, and where it needs to appear.",
-  },
-  {
-    id: "transport",
-    label: "Signal Transport",
-    description: "Choose HDMI, HDBaseT, fibre, AVoIP, or mixed transport logic.",
-  },
-  {
-    id: "usb",
-    label: "USB / Control",
-    description: "Capture cameras, microphones, touch, BYOD/BYOM, and control needs.",
-  },
-  {
-    id: "cables",
-    label: "Cable Constraints",
-    description: "Identify cable routes, cable type, distance, and installation risk.",
-  },
-  {
-    id: "budget",
-    label: "Budget & Preferences",
-    description: "Capture commercial direction and proposal assumptions.",
-  },
-] as const;
-
-const applicationOptions = Object.keys(applicationProfiles) as (keyof typeof applicationProfiles)[];
-
-type ApplicationOption = keyof typeof applicationProfiles;
-type StepId = (typeof steps)[number]["id"];
-
-type DiscoveryAnswers = {
-  application: ApplicationOption;
+type DiscoveryState = {
+  roomType: string;
+  behaviours: string[];
   roomSize: string;
-  roomLayout: string;
-  rackLocation: string;
-  sources: string;
-  displays: string;
-  transport: string;
-  usbControl: string;
-  cableConstraints: string;
-  budget: string;
+  userPosition: string;
+  equipmentLocation: string;
+  displayPosition: string;
+  layoutFlags: string[];
+  sourceCount: number;
+  sourceTypes: string[];
+  sourceLocations: string[];
+  sourceConnections: string[];
+  displayCount: number;
+  outputTypes: string[];
+  outputBehaviours: string[];
+  meetingWorkflow: string;
+  usbNeeds: string[];
+  cameraPosition: string;
+  audioNeeds: string[];
+  longestRun: string;
+  cableAvailable: string[];
+  networkAvailability: string;
+  cableRisks: string[];
+  controlNeeds: string[];
+  budgetStyle: string;
+  confidenceFlags: string[];
   notes: string;
 };
 
-const initialAnswers: DiscoveryAnswers = {
-  application: "Meeting room",
+type Inference = {
+  architecture: string;
+  productDirection: string[];
+  avoid: string[];
+  confidence: "High" | "Medium" | "Low";
+  missing: string[];
+  risks: string[];
+};
+
+const steps: { id: StepId; label: string; description: string }[] = [
+  {
+    id: "useCase",
+    label: "Use case",
+    description: "Identify the room type and main behaviour.",
+  },
+  {
+    id: "layout",
+    label: "Layout",
+    description: "Build the spatial picture: users, displays, rack, and room shape.",
+  },
+  {
+    id: "sources",
+    label: "Sources",
+    description: "Capture what connects and where each source is located.",
+  },
+  {
+    id: "outputs",
+    label: "Outputs",
+    description: "Define displays, video wall needs, and routing behaviour.",
+  },
+  {
+    id: "usb",
+    label: "USB / Conferencing",
+    description: "Capture BYOD, BYOM, USB peripherals, cameras, and audio.",
+  },
+  {
+    id: "infrastructure",
+    label: "Infrastructure",
+    description: "Confirm cable distance, cable type, network availability, and risks.",
+  },
+  {
+    id: "review",
+    label: "Review",
+    description: "Generate architecture direction, risks, and next workflow handoff.",
+  },
+];
+
+const roomTypes = [
+  "Meeting room",
+  "Boardroom",
+  "Classroom",
+  "Training room",
+  "Lecture space",
+  "Retail signage",
+  "Hospitality",
+  "House of worship",
+  "Control room",
+  "Multi-zone venue",
+  "Video wall space",
+  "Other / not sure",
+];
+
+const behaviourOptions = [
+  "Present only",
+  "Video conferencing",
+  "Wireless presentation",
+  "Wireless conferencing",
+  "BYOD",
+  "BYOM",
+  "Dual display",
+  "Multiview",
+  "Video wall",
+  "Streaming / recording",
+  "Digital signage",
+  "Central distribution",
+];
+
+const roomSizes = ["Small <10m", "Medium <25m", "Large <50m", "Extra-large 50m+", "Open / divisible space", "Unknown"];
+
+const userPositions = [
+  "Central table",
+  "Lectern",
+  "Front-of-house",
+  "Operator desk",
+  "Reception / counter",
+  "No fixed user position",
+  "Unknown",
+];
+
+const equipmentLocations = [
+  "Behind display",
+  "Local rack",
+  "Central rack",
+  "Lectern",
+  "Credenza",
+  "Under table",
+  "Ceiling",
+  "Unknown",
+];
+
+const displayPositions = [
+  "Front wall",
+  "Side wall",
+  "Rear wall",
+  "Ceiling projector",
+  "Multiple walls",
+  "Distributed displays",
+  "Video wall",
+  "Unknown",
+];
+
+const layoutFlags = [
+  "Fixed orientation",
+  "Divisible space",
+  "Repeater displays",
+  "Future expansion",
+  "No rack available",
+  "Customer unsure",
+];
+
+const sourceTypes = [
+  "Laptop HDMI",
+  "Laptop USB-C",
+  "Room PC",
+  "Media player",
+  "Signage player",
+  "Wireless presentation",
+  "HDMI wall input",
+  "USB-C wall input",
+  "Document camera",
+  "USB camera",
+  "NDI camera",
+  "PTZ camera",
+  "Other source",
+];
+
+const sourceLocations = [
+  "Table",
+  "Floor box",
+  "Wall plate",
+  "Lectern",
+  "Rack",
+  "Credenza",
+  "Ceiling",
+  "Camera position",
+  "Display wall",
+  "Unknown",
+];
+
+const sourceConnections = [
+  "HDMI",
+  "USB-C video",
+  "USB-C with charging",
+  "USB only",
+  "NDI",
+  "Network",
+  "Audio only",
+  "Wireless",
+  "Unknown",
+];
+
+const outputTypes = [
+  "Single display",
+  "Dual mirrored displays",
+  "Dual independent displays",
+  "Projector",
+  "LCD video wall",
+  "LED wall",
+  "Distributed displays",
+  "Multiview display",
+  "Confidence monitor",
+];
+
+const outputBehaviours = [
+  "Same content everywhere",
+  "Choose source per display",
+  "One source across wall",
+  "Multiple sources on one screen",
+  "Independent left/right screens",
+  "Presentation plus conferencing",
+  "Signage loop",
+  "Future expansion required",
+];
+
+const meetingWorkflows = [
+  "Presentation only",
+  "BYOD presentation",
+  "BYOM conferencing",
+  "Room PC conferencing",
+  "MTR / Zoom Room",
+  "Wireless conferencing",
+  "Streaming / recording",
+  "Not sure",
+];
+
+const usbNeeds = [
+  "No USB required",
+  "USB camera",
+  "Speakerphone",
+  "Microphone",
+  "Touch display return",
+  "Keyboard / mouse",
+  "Multiple USB devices",
+  "USB 2.0 enough",
+  "USB 3.x required",
+  "Not sure",
+];
+
+const cameraPositions = ["No camera", "Above display", "Ceiling", "Rear of room", "Table camera", "Multiple cameras", "NDI camera", "Unknown"];
+
+const audioNeeds = [
+  "Display speakers only",
+  "Speakerphone",
+  "Microphones",
+  "Audio de-embed",
+  "Amplifier",
+  "DSP integration",
+  "Dante / AES67",
+  "Hearing loop",
+  "Unknown",
+];
+
+const runBands = ["Under 5m", "5–10m", "10–35m", "35–70m", "70–100m", "100m+", "Unknown"];
+
+const cableTypes = ["HDMI", "Cat5e", "Cat6", "Cat6A", "Fibre", "Network only", "No cable installed", "Unknown"];
+
+const networkOptions = [
+  "No network needed",
+  "Existing IT network",
+  "Dedicated AV network possible",
+  "Managed switch available",
+  "10G available",
+  "Unknown",
+];
+
+const cableRiskOptions = [
+  "Cable not certified",
+  "Distance not confirmed",
+  "No new cable route",
+  "Shared IT network",
+  "Old installed cable",
+  "Customer drawings needed",
+  "None known",
+];
+
+const controlOptions = [
+  "No control",
+  "Display auto power",
+  "IR",
+  "RS-232",
+  "Relay / contact closure",
+  "Web UI",
+  "Touch panel",
+  "Button panel",
+  "Third-party control",
+];
+
+const budgetOptions = ["Cost-sensitive", "Balanced", "Premium", "Expansion-led", "No budget yet", "Quote required quickly"];
+
+const confidenceOptions = [
+  "Enough to recommend",
+  "Need site survey",
+  "Need cable confirmation",
+  "Need USB test",
+  "Need network confirmation",
+  "Need display spec",
+  "Need customer drawings",
+];
+
+const initialState: DiscoveryState = {
+  roomType: "Meeting room",
+  behaviours: [],
   roomSize: "",
-  roomLayout: "",
-  rackLocation: "",
-  sources: "",
-  displays: "",
-  transport: "",
-  usbControl: "",
-  cableConstraints: "",
-  budget: "",
+  userPosition: "",
+  equipmentLocation: "",
+  displayPosition: "",
+  layoutFlags: [],
+  sourceCount: 1,
+  sourceTypes: [],
+  sourceLocations: [],
+  sourceConnections: [],
+  displayCount: 1,
+  outputTypes: [],
+  outputBehaviours: [],
+  meetingWorkflow: "",
+  usbNeeds: [],
+  cameraPosition: "",
+  audioNeeds: [],
+  longestRun: "",
+  cableAvailable: [],
+  networkAvailability: "",
+  cableRisks: [],
+  controlNeeds: [],
+  budgetStyle: "",
+  confidenceFlags: [],
   notes: "",
 };
 
-function stepClass(index: number, activeStepIndex: number) {
-  if (index < activeStepIndex) {
-    return "border-emerald-300 bg-emerald-100 text-emerald-800";
-  }
+type MultiSelectKey =
+  | "behaviours"
+  | "layoutFlags"
+  | "sourceTypes"
+  | "sourceLocations"
+  | "sourceConnections"
+  | "outputTypes"
+  | "outputBehaviours"
+  | "usbNeeds"
+  | "audioNeeds"
+  | "cableAvailable"
+  | "cableRisks"
+  | "controlNeeds"
+  | "confidenceFlags";
 
-  if (index === activeStepIndex) {
-    return "border-amber-300 bg-amber-100 text-amber-900";
-  }
-
-  return "border-slate-200 bg-white text-slate-700";
+function includesAny(values: string[], tests: string[]) {
+  return values.some((value) => tests.includes(value));
 }
 
-function stepIcon(index: number, activeStepIndex: number) {
-  if (index < activeStepIndex) {
-    return <Check className="h-4 w-4" />;
-  }
-
-  return <span>{index + 1}</span>;
-}
-
-function FieldLabel({ label, helper }: { label: string; helper?: string }) {
+function hasVideoWall(state: DiscoveryState) {
   return (
-    <label className="grid gap-2">
-      <span className="text-sm font-semibold text-slate-900">{label}</span>
-      {helper ? <span className="text-xs leading-5 text-slate-500">{helper}</span> : null}
-    </label>
+    state.roomType === "Video wall space" ||
+    state.behaviours.includes("Video wall") ||
+    includesAny(state.outputTypes, ["LCD video wall", "LED wall"]) ||
+    state.displayPosition === "Video wall"
   );
 }
 
-function TextAreaField({
+function hasUsbRequirement(state: DiscoveryState) {
+  return (
+    state.usbNeeds.length > 0 &&
+    !state.usbNeeds.includes("No USB required") &&
+    !state.usbNeeds.every((item) => item === "Not sure")
+  );
+}
+
+function hasConferencing(state: DiscoveryState) {
+  return (
+    includesAny(state.behaviours, ["Video conferencing", "Wireless conferencing", "BYOM"]) ||
+    includesAny([state.meetingWorkflow], ["BYOM conferencing", "Room PC conferencing", "MTR / Zoom Room", "Wireless conferencing"])
+  );
+}
+
+function hasDistributedNeed(state: DiscoveryState) {
+  return (
+    state.roomType === "Multi-zone venue" ||
+    state.behaviours.includes("Central distribution") ||
+    state.outputBehaviours.includes("Choose source per display") ||
+    state.outputBehaviours.includes("Future expansion required") ||
+    state.layoutFlags.includes("Future expansion") ||
+    state.outputTypes.includes("Distributed displays")
+  );
+}
+
+function distanceRank(longestRun: string) {
+  if (longestRun === "Under 5m") {
+    return 1;
+  }
+
+  if (longestRun === "5–10m") {
+    return 2;
+  }
+
+  if (longestRun === "10–35m") {
+    return 3;
+  }
+
+  if (longestRun === "35–70m") {
+    return 4;
+  }
+
+  if (longestRun === "70–100m") {
+    return 5;
+  }
+
+  if (longestRun === "100m+") {
+    return 6;
+  }
+
+  return 0;
+}
+
+function inferDesign(state: DiscoveryState): Inference {
+  const missing: string[] = [];
+  const risks: string[] = [];
+  const productDirection: string[] = [];
+  const avoid: string[] = [];
+
+  if (!state.roomType) {
+    missing.push("Room/application type");
+  }
+
+  if (!state.roomSize) {
+    missing.push("Room size");
+  }
+
+  if (!state.userPosition) {
+    missing.push("Main user/source position");
+  }
+
+  if (!state.equipmentLocation) {
+    missing.push("Equipment/rack location");
+  }
+
+  if (!state.displayPosition) {
+    missing.push("Display position");
+  }
+
+  if (!state.sourceTypes.length) {
+    missing.push("Source types");
+  }
+
+  if (!state.sourceLocations.length) {
+    missing.push("Source locations");
+  }
+
+  if (!state.outputTypes.length) {
+    missing.push("Display/output type");
+  }
+
+  if (!state.longestRun || state.longestRun === "Unknown") {
+    missing.push("Longest cable run");
+  }
+
+  if (!state.cableAvailable.length || state.cableAvailable.includes("Unknown")) {
+    missing.push("Installed cable type/grade");
+  }
+
+  if (hasUsbRequirement(state) && (!state.meetingWorkflow || state.meetingWorkflow === "Not sure")) {
+    missing.push("USB/conferencing workflow");
+  }
+
+  if (state.cableRisks.includes("Cable not certified")) {
+    risks.push("Cable is not certified; avoid committing to maximum distance/resolution until verified.");
+  }
+
+  if (state.cableRisks.includes("Distance not confirmed")) {
+    risks.push("Distance is not confirmed; product family and receiver choice may change.");
+  }
+
+  if (state.cableRisks.includes("Shared IT network")) {
+    risks.push("Shared IT network may restrict AVoIP multicast, QoS, IGMP, or bandwidth behaviour.");
+  }
+
+  if (state.usbNeeds.includes("USB 3.x required")) {
+    risks.push("USB 3.x requirement must be verified before selecting USB transport hardware.");
+  }
+
+  if (state.networkAvailability === "Existing IT network" && hasDistributedNeed(state)) {
+    risks.push("NetworkHD / AVoIP design needs IT confirmation before final hardware selection.");
+  }
+
+  let architecture = "Structured presentation / extension system";
+
+  if (hasVideoWall(state)) {
+    architecture = "Video wall processor or AVoIP video wall architecture";
+    productDirection.push("Consider SW-0206-VW or SW-0204-VW for dedicated processor-led wall requirements.");
+    productDirection.push("Consider NetworkHD when source/display distribution, flexible routing, or expansion is required.");
+    avoid.push("Do not assume AVoIP is automatically required until wall behaviour and source count are confirmed.");
+  }
+
+  if (!hasVideoWall(state) && hasDistributedNeed(state)) {
+    architecture = "Distributed AV routing architecture";
+    productDirection.push("Consider NetworkHD 100 for cost-effective flexible distribution.");
+    productDirection.push("Consider NetworkHD 500 where 4K60 4:4:4, lower latency, stronger USB, or Dante-ready workflows matter.");
+    productDirection.push("Consider NetworkHD 600 where lossless zero-latency 10G performance is required.");
+    avoid.push("Avoid fixed small switchers if many-to-many routing or future expansion is required.");
+  }
+
+  if (!hasVideoWall(state) && !hasDistributedNeed(state) && hasUsbRequirement(state)) {
+    architecture = "Integrated HDMI/USB or USB-C presentation transport";
+    productDirection.push("Use an integrated solution path that carries video and USB together where possible.");
+    productDirection.push("Check SW-130-TX-UK / SW-130-TX-US with RX-500 where in-wall HDMI/USB-C plus USB transport is required.");
+    productDirection.push("Check SW-120-TX3 family with RX3-100 where HDBaseT 3.0 style performance is more appropriate.");
+    avoid.push("Do not treat HDMI and USB as separate extender products unless the installation genuinely requires split paths.");
+  }
+
+  if (!hasVideoWall(state) && !hasDistributedNeed(state) && !hasUsbRequirement(state) && distanceRank(state.longestRun) >= 3) {
+    architecture = "HDBaseT video transport";
+    productDirection.push("Use HDBaseT when the source/display run exceeds practical HDMI distance.");
+    productDirection.push("If video-only, select receiver family by distance: RX-35 for shorter HDBaseT runs, RX-70 for longer runs.");
+    avoid.push("Avoid over-specifying USB-capable receiver paths if USB transport is not required.");
+  }
+
+  if (!hasVideoWall(state) && !hasDistributedNeed(state) && !hasUsbRequirement(state) && distanceRank(state.longestRun) <= 2 && distanceRank(state.longestRun) > 0) {
+    architecture = "Local HDMI / presentation switching";
+    productDirection.push("Use a simpler local switching or short HDMI path where distance and behaviour allow.");
+    avoid.push("Avoid AVoIP or HDBaseT where a local switcher and short HDMI connection is enough.");
+  }
+
+  if (state.outputTypes.includes("Dual independent displays") || state.behaviours.includes("Dual display")) {
+    productDirection.push("Check MST / dual-display presentation switching where a USB-C laptop needs independent dual-display output.");
+  }
+
+  if (state.outputTypes.includes("Multiview display") || state.behaviours.includes("Multiview")) {
+    productDirection.push("Check multiview-capable paths such as NHD-150-RX or NHD-0401-MV depending on NetworkHD family.");
+  }
+
+  if (hasConferencing(state) && !hasUsbRequirement(state)) {
+    risks.push("Conferencing selected but USB devices are not yet captured; camera/microphone path is likely missing.");
+  }
+
+  const confidence =
+    missing.length <= 2 && risks.length <= 2
+      ? "High"
+      : missing.length <= 5
+        ? "Medium"
+        : "Low";
+
+  return {
+    architecture,
+    productDirection,
+    avoid,
+    confidence,
+    missing,
+    risks,
+  };
+}
+
+function ChipButton({
+  active,
   label,
-  helper,
-  value,
-  onChange,
-  placeholder,
+  onClick,
 }: {
+  active: boolean;
   label: string;
-  helper?: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
+  onClick: () => void;
 }) {
   return (
-    <div className="grid gap-2">
-      <FieldLabel label={label} helper={helper} />
-      <textarea
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        className="min-h-[108px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
-      />
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-[34px] items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
+        active
+          ? "border-slate-900 bg-slate-900 text-white"
+          : "border-slate-200 bg-white text-slate-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800"
+      }`}
+    >
+      {active ? <Check className="h-3.5 w-3.5" /> : <Circle className="h-3.5 w-3.5" />}
+      {label}
+    </button>
+  );
+}
+
+function ChipGroup({
+  title,
+  helper,
+  options,
+  value,
+  onSelect,
+  multi = false,
+}: {
+  title: string;
+  helper: string;
+  options: string[];
+  value: string | string[];
+  onSelect: (value: string) => void;
+  multi?: boolean;
+}) {
+  return (
+    <div className="grid gap-3">
+      <div>
+        <p className="text-sm font-black text-slate-900">{title}</p>
+        <p className="mt-1 text-xs leading-5 text-slate-500">{helper}</p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => {
+          const active = multi ? Array.isArray(value) && value.includes(option) : value === option;
+
+          return <ChipButton key={option} active={active} label={option} onClick={() => onSelect(option)} />;
+        })}
+      </div>
     </div>
   );
 }
 
+function CountControl({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+      <div>
+        <p className="text-sm font-black text-slate-900">{label}</p>
+        <p className="mt-1 text-xs text-slate-500">Use quick controls during the live call.</p>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(0, value - 1))}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700"
+        >
+          <Minus className="h-4 w-4" />
+        </button>
+
+        <span className="min-w-10 rounded-full bg-slate-900 px-3 py-1 text-center text-sm font-black text-white">
+          {value}
+        </span>
+
+        <button
+          type="button"
+          onClick={() => onChange(value + 1)}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700"
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function StepBadge({
+  index,
+  activeStepIndex,
+  label,
+  description,
+  onClick,
+}: {
+  index: number;
+  activeStepIndex: number;
+  label: string;
+  description: string;
+  onClick: () => void;
+}) {
+  const stateClass =
+    index < activeStepIndex
+      ? "border-emerald-300 bg-emerald-100 text-emerald-800"
+      : index === activeStepIndex
+        ? "border-amber-300 bg-amber-100 text-amber-900"
+        : "border-slate-200 bg-white text-slate-700";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm transition ${stateClass}`}
+    >
+      <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/70 text-xs font-black">
+        {index < activeStepIndex ? <Check className="h-4 w-4" /> : index + 1}
+      </span>
+      <span>
+        <span className="block font-black">{label}</span>
+        <span className="mt-1 block text-xs opacity-75">{description}</span>
+      </span>
+    </button>
+  );
+}
+
+function ValueLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-slate-500">{label}</p>
+      <p className="font-semibold text-slate-900">{value || "Not captured yet"}</p>
+    </div>
+  );
+}
+
+function ListLine({ label, values }: { label: string; values: string[] }) {
+  return <ValueLine label={label} value={values.length ? values.join(", ") : "Not captured yet"} />;
+}
+
 export function DiscoveryPage() {
   const [activeStepIndex, setActiveStepIndex] = useState(0);
-  const [answers, setAnswers] = useState<DiscoveryAnswers>(initialAnswers);
+  const [state, setState] = useState<DiscoveryState>(initialState);
 
+  const inference = useMemo(() => inferDesign(state), [state]);
   const currentStep = steps[activeStepIndex];
-  const selectedProfile = applicationProfiles[answers.application];
   const isFirstStep = activeStepIndex === 0;
   const isLastStep = activeStepIndex === steps.length - 1;
 
-  const briefCompleteness = useMemo(() => {
-    const values = [
-      answers.application,
-      answers.roomSize,
-      answers.roomLayout,
-      answers.sources,
-      answers.displays,
-      answers.transport,
-      answers.usbControl,
-      answers.cableConstraints,
-      answers.budget,
+  const capturedPercent = useMemo(() => {
+    const required = [
+      state.roomType,
+      state.roomSize,
+      state.userPosition,
+      state.equipmentLocation,
+      state.displayPosition,
+      state.sourceTypes.length ? "sources" : "",
+      state.sourceLocations.length ? "source locations" : "",
+      state.outputTypes.length ? "outputs" : "",
+      state.longestRun,
+      state.cableAvailable.length ? "cable" : "",
+      state.budgetStyle,
     ];
 
-    const filled = values.filter((value) => value.trim().length > 0).length;
-    return Math.round((filled / values.length) * 100);
-  }, [answers]);
+    const filled = required.filter(Boolean).length;
+    return Math.round((filled / required.length) * 100);
+  }, [state]);
 
-  function updateAnswer<K extends keyof DiscoveryAnswers>(key: K, value: DiscoveryAnswers[K]) {
-    setAnswers((current) => ({
-      ...current,
-      [key]: value,
-    }));
+  function setField<K extends keyof DiscoveryState>(key: K, value: DiscoveryState[K]) {
+    setState((current) => ({ ...current, [key]: value }));
   }
 
-  function goBack() {
-    setActiveStepIndex((current) => Math.max(0, current - 1));
+  function toggleMulti(key: MultiSelectKey, value: string) {
+    setState((current) => {
+      const existing = current[key];
+      const nextValues = existing.includes(value)
+        ? existing.filter((item) => item !== value)
+        : [...existing, value];
+
+      return {
+        ...current,
+        [key]: nextValues,
+      };
+    });
   }
 
-  function goNext() {
-    setActiveStepIndex((current) => Math.min(steps.length - 1, current + 1));
+  function saveDiscoveryBrief() {
+    const brief = {
+      savedAt: new Date().toISOString(),
+      roomModel: state,
+      inference,
+      capturedPercent,
+    };
+
+    window.localStorage.setItem("wingman-discovery-brief", JSON.stringify(brief));
+    window.localStorage.setItem(
+      "wingman-workflow-context",
+      JSON.stringify({
+        source: "discovery",
+        savedAt: brief.savedAt,
+        projectStage: "Discovery",
+        nextRecommendedRoute: routeCatalogByKey.finder.path,
+        brief,
+      }),
+    );
+
+    window.dispatchEvent(new CustomEvent("wingman:discovery-brief-saved", { detail: brief }));
   }
 
-  function jumpToStep(index: number) {
-    setActiveStepIndex(index);
-  }
+  function renderStep(stepId: StepId) {
+    if (stepId === "useCase") {
+      return (
+        <div className="grid gap-5">
+          <ChipGroup
+            title="Room / application type"
+            helper="This establishes the likely AV pattern before discussing products."
+            options={roomTypes}
+            value={state.roomType}
+            onSelect={(value) => setField("roomType", value)}
+          />
 
-  function renderCurrentStep(stepId: StepId) {
-    switch (stepId) {
-      case "application":
-        return (
-          <div className="grid gap-4">
-            <div className="grid gap-3 md:grid-cols-2">
-              {applicationOptions.map((option) => {
-                const isActive = option === answers.application;
+          <ChipGroup
+            title="Primary behaviour"
+            helper="Choose only the behaviours that change the design. Avoid collecting decorative labels."
+            options={behaviourOptions}
+            value={state.behaviours}
+            onSelect={(value) => toggleMulti("behaviours", value)}
+            multi
+          />
 
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => updateAnswer("application", option)}
-                    className={`rounded-2xl border px-4 py-4 text-left transition ${
-                      isActive
-                        ? "border-slate-900 bg-slate-900 text-white"
-                        : "border-slate-200 bg-slate-50 text-slate-800 hover:bg-white"
-                    }`}
-                  >
-                    <p className="font-semibold">{option}</p>
-                    <p className="mt-1 text-sm opacity-80">Apply a guided question branch</p>
-                  </button>
-                );
-              })}
-            </div>
-
-            <TextAreaField
-              label="Anything already known?"
-              helper="Capture the customer's opening request in plain language."
-              value={answers.notes}
-              onChange={(value) => updateAnswer("notes", value)}
-              placeholder="Example: Customer wants a Microsoft Teams room with laptop sharing, camera, wall display, and a simple table connection."
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-sm font-black text-slate-900">Customer wording / unusual notes</p>
+            <textarea
+              value={state.notes}
+              onChange={(event) => setField("notes", event.target.value)}
+              placeholder="Optional. Capture anything the customer says that does not fit the quick-click options."
+              className="mt-3 min-h-[88px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
             />
           </div>
-        );
-
-      case "room":
-        return (
-          <div className="grid gap-4">
-            <div className="grid gap-3 md:grid-cols-2">
-              {["Small <10m", "Medium <25m", "Large <50m", "Extra-large 50m+"].map((size) => (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => updateAnswer("roomSize", size)}
-                  className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
-                    answers.roomSize === size
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-slate-200 bg-slate-50 text-slate-800 hover:bg-white"
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-
-            <TextAreaField
-              label="Room layout"
-              helper="Describe table, lectern, displays, wall/floor boxes, rack position, divisible spaces, or repeater needs."
-              value={answers.roomLayout}
-              onChange={(value) => updateAnswer("roomLayout", value)}
-              placeholder="Example: Central table with BYOD input, display on front wall, local rack behind display, camera above screen."
-            />
-
-            <TextAreaField
-              label="Rack / equipment location"
-              helper="This helps decide HDMI, HDBaseT, AVoIP, or local switching."
-              value={answers.rackLocation}
-              onChange={(value) => updateAnswer("rackLocation", value)}
-              placeholder="Example: Local rack behind display, central comms room, lectern, credenza, or no rack confirmed."
-            />
-          </div>
-        );
-
-      case "sources":
-        return (
-          <div className="grid gap-4">
-            <TextAreaField
-              label="Sources"
-              helper="List source type, quantity, location, connection, and expected resolution."
-              value={answers.sources}
-              onChange={(value) => updateAnswer("sources", value)}
-              placeholder="Example: 1x USB-C laptop at table, 1x HDMI guest input at wall plate, 1x room PC in rack."
-            />
-
-            <TextAreaField
-              label="Displays / outputs"
-              helper="List display count, location, orientation, resolution, and special behaviour."
-              value={answers.displays}
-              onChange={(value) => updateAnswer("displays", value)}
-              placeholder="Example: 1x 4K front display, future second display, no video wall, no multiview required."
-            />
-          </div>
-        );
-
-      case "transport":
-        return (
-          <div className="grid gap-4">
-            <div className="grid gap-3 md:grid-cols-2">
-              {["Short HDMI", "HDBaseT", "Fibre", "NetworkHD AVoIP", "Mixed / not sure"].map((transport) => (
-                <button
-                  key={transport}
-                  type="button"
-                  onClick={() => updateAnswer("transport", transport)}
-                  className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
-                    answers.transport === transport
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-slate-200 bg-slate-50 text-slate-800 hover:bg-white"
-                  }`}
-                >
-                  {transport}
-                </button>
-              ))}
-            </div>
-
-            <TextAreaField
-              label="Transport notes"
-              helper="Capture distance, cable routes, network availability, or why a transport method was chosen."
-              value={answers.transport}
-              onChange={(value) => updateAnswer("transport", value)}
-              placeholder="Example: Table to display is 18m over existing Cat6, USB camera return required, no managed AV network available."
-            />
-          </div>
-        );
-
-      case "usb":
-        return (
-          <div className="grid gap-4">
-            <TextAreaField
-              label="USB, camera, audio, and control needs"
-              helper="Include cameras, microphones, speakerphones, touch displays, keyboard/mouse, BYOM, control panels, or IR/RS-232 needs."
-              value={answers.usbControl}
-              onChange={(value) => updateAnswer("usbControl", value)}
-              placeholder="Example: Laptop must use room USB camera and speakerphone. No touch display. Basic display control only."
-            />
-          </div>
-        );
-
-      case "cables":
-        return (
-          <div className="grid gap-4">
-            <TextAreaField
-              label="Cable constraints"
-              helper="Capture existing cables, new cable routes, maximum distance, cable grade, and installation risks."
-              value={answers.cableConstraints}
-              onChange={(value) => updateAnswer("cableConstraints", value)}
-              placeholder="Example: Existing Cat6 from table box to display wall, about 25m. Unknown cable certification. No new conduit available."
-            />
-          </div>
-        );
-
-      case "budget":
-        return (
-          <div className="grid gap-4">
-            <TextAreaField
-              label="Budget and proposal preferences"
-              helper="Capture good/better/best expectation, customer sensitivity, stock/timeline pressure, or preferred WyreStorm family."
-              value={answers.budget}
-              onChange={(value) => updateAnswer("budget", value)}
-              placeholder="Example: Customer wants reliable mid-range solution, no AVoIP unless needed, quote required this week."
-            />
-
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-              <p className="text-sm font-semibold text-emerald-900">Discovery ready for next workflow</p>
-              <p className="mt-2 text-sm leading-6 text-emerald-800">
-                Review the live summary, then push this into Product Finder or save it against the project.
-              </p>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
+        </div>
+      );
     }
+
+    if (stepId === "layout") {
+      return (
+        <div className="grid gap-5">
+          <ChipGroup
+            title="Room size"
+            helper="Used to infer cable distance, solution complexity, and likely equipment positioning."
+            options={roomSizes}
+            value={state.roomSize}
+            onSelect={(value) => setField("roomSize", value)}
+          />
+
+          <ChipGroup
+            title="Main user / source position"
+            helper="Where will the user normally connect or operate the system?"
+            options={userPositions}
+            value={state.userPosition}
+            onSelect={(value) => setField("userPosition", value)}
+          />
+
+          <ChipGroup
+            title="Equipment position"
+            helper="This strongly affects HDMI, HDBaseT, AVoIP, and local switcher decisions."
+            options={equipmentLocations}
+            value={state.equipmentLocation}
+            onSelect={(value) => setField("equipmentLocation", value)}
+          />
+
+          <ChipGroup
+            title="Display position"
+            helper="Creates the display endpoint in the room model."
+            options={displayPositions}
+            value={state.displayPosition}
+            onSelect={(value) => setField("displayPosition", value)}
+          />
+
+          <ChipGroup
+            title="Layout flags"
+            helper="Only select flags that change the architecture or risk profile."
+            options={layoutFlags}
+            value={state.layoutFlags}
+            onSelect={(value) => toggleMulti("layoutFlags", value)}
+            multi
+          />
+        </div>
+      );
+    }
+
+    if (stepId === "sources") {
+      return (
+        <div className="grid gap-5">
+          <CountControl label="Number of source positions" value={state.sourceCount} onChange={(value) => setField("sourceCount", value)} />
+
+          <ChipGroup
+            title="Source types"
+            helper="What needs to connect into the system?"
+            options={sourceTypes}
+            value={state.sourceTypes}
+            onSelect={(value) => toggleMulti("sourceTypes", value)}
+            multi
+          />
+
+          <ChipGroup
+            title="Source locations"
+            helper="Where are those sources physically located?"
+            options={sourceLocations}
+            value={state.sourceLocations}
+            onSelect={(value) => toggleMulti("sourceLocations", value)}
+            multi
+          />
+
+          <ChipGroup
+            title="Source connection types"
+            helper="Connection type affects presentation switcher, extender, and USB-C product selection."
+            options={sourceConnections}
+            value={state.sourceConnections}
+            onSelect={(value) => toggleMulti("sourceConnections", value)}
+            multi
+          />
+        </div>
+      );
+    }
+
+    if (stepId === "outputs") {
+      return (
+        <div className="grid gap-5">
+          <CountControl label="Number of display/output positions" value={state.displayCount} onChange={(value) => setField("displayCount", value)} />
+
+          <ChipGroup
+            title="Output type"
+            helper="This is a major architecture decision point."
+            options={outputTypes}
+            value={state.outputTypes}
+            onSelect={(value) => toggleMulti("outputTypes", value)}
+            multi
+          />
+
+          <ChipGroup
+            title="Required display behaviour"
+            helper="This tells Wingman whether the system needs switching, matrix routing, multiview, video wall processing, or AVoIP."
+            options={outputBehaviours}
+            value={state.outputBehaviours}
+            onSelect={(value) => toggleMulti("outputBehaviours", value)}
+            multi
+          />
+        </div>
+      );
+    }
+
+    if (stepId === "usb") {
+      return (
+        <div className="grid gap-5">
+          <ChipGroup
+            title="Meeting / user workflow"
+            helper="Separates simple presentation from BYOM, MTR/Zoom Room, conferencing, streaming, or room PC workflows."
+            options={meetingWorkflows}
+            value={state.meetingWorkflow}
+            onSelect={(value) => setField("meetingWorkflow", value)}
+          />
+
+          <ChipGroup
+            title="USB requirement"
+            helper="USB is often the deciding factor. Select the actual peripheral behaviour, not just the word USB."
+            options={usbNeeds}
+            value={state.usbNeeds}
+            onSelect={(value) => toggleMulti("usbNeeds", value)}
+            multi
+          />
+
+          <ChipGroup
+            title="Camera position"
+            helper="Camera position determines USB, HDMI, NDI, and cable routing requirements."
+            options={cameraPositions}
+            value={state.cameraPosition}
+            onSelect={(value) => setField("cameraPosition", value)}
+          />
+
+          <ChipGroup
+            title="Audio requirement"
+            helper="Audio can change the required product family, DSP handoff, and proposal scope."
+            options={audioNeeds}
+            value={state.audioNeeds}
+            onSelect={(value) => toggleMulti("audioNeeds", value)}
+            multi
+          />
+        </div>
+      );
+    }
+
+    if (stepId === "infrastructure") {
+      return (
+        <div className="grid gap-5">
+          <ChipGroup
+            title="Longest signal run"
+            helper="This should drive transport recommendation. Do not ask non-technical users to guess HDMI vs HDBaseT too early."
+            options={runBands}
+            value={state.longestRun}
+            onSelect={(value) => setField("longestRun", value)}
+          />
+
+          <ChipGroup
+            title="Available cable / pathway"
+            helper="Select what is installed or what can realistically be installed."
+            options={cableTypes}
+            value={state.cableAvailable}
+            onSelect={(value) => toggleMulti("cableAvailable", value)}
+            multi
+          />
+
+          <ChipGroup
+            title="Network availability"
+            helper="Only matters if AVoIP, NDI, control, streaming, or network audio may be required."
+            options={networkOptions}
+            value={state.networkAvailability}
+            onSelect={(value) => setField("networkAvailability", value)}
+          />
+
+          <ChipGroup
+            title="Known infrastructure risks"
+            helper="These directly affect confidence and whether the rep should quote or request more information."
+            options={cableRiskOptions}
+            value={state.cableRisks}
+            onSelect={(value) => toggleMulti("cableRisks", value)}
+            multi
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid gap-5">
+        <ChipGroup
+          title="Control needs"
+          helper="Control and operation should be included before product recommendation."
+          options={controlOptions}
+          value={state.controlNeeds}
+          onSelect={(value) => toggleMulti("controlNeeds", value)}
+          multi
+        />
+
+        <ChipGroup
+          title="Commercial direction"
+          helper="Used to avoid over-engineering or under-specifying."
+          options={budgetOptions}
+          value={state.budgetStyle}
+          onSelect={(value) => setField("budgetStyle", value)}
+        />
+
+        <ChipGroup
+          title="Confidence / validation flags"
+          helper="Select anything that should stop Wingman from producing an over-confident recommendation."
+          options={confidenceOptions}
+          value={state.confidenceFlags}
+          onSelect={(value) => toggleMulti("confidenceFlags", value)}
+          multi
+        />
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <div className="flex items-center gap-2 text-slate-900">
+            <Network className="h-5 w-5 text-amber-600" />
+            <p className="font-black">Inferred architecture</p>
+          </div>
+
+          <p className="mt-3 text-lg font-black text-slate-950">{inference.architecture}</p>
+
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <div>
+              <p className="text-sm font-black text-slate-900">Likely product direction</p>
+              <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
+                {inference.productDirection.length ? (
+                  inference.productDirection.map((item) => <li key={item}>• {item}</li>)
+                ) : (
+                  <li>• More information is required before a reliable product direction can be stated.</li>
+                )}
+              </ul>
+            </div>
+
+            <div>
+              <p className="text-sm font-black text-slate-900">Avoid / do not assume</p>
+              <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
+                {inference.avoid.length ? (
+                  inference.avoid.map((item) => <li key={item}>• {item}</li>)
+                ) : (
+                  <li>• No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
+                )}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="pb-10">
       <PageHero
         eyebrow="Guided Customer Discovery"
-        title="Turn a loose customer request into a usable technical brief."
-        purpose="This workflow now moves step-by-step with Back and Next controls, so sales users can progress through the discovery conversation without losing structure."
-        nextMove="Complete each step, review the live summary, then push the brief into Product Finder for a pre-filled recommendation path."
+        title="Build the room model before choosing products."
+        purpose="This upgraded workflow is click-first for live calls. Each response builds the design picture: room, layout, source locations, outputs, USB behaviour, infrastructure, and confidence."
+        nextMove="Capture the fastest structured path, review inferred architecture, then save the brief into Finder, Projects, or Proposal."
         actions={[
           { label: "Open Product Finder", to: routeCatalogByKey.finder.path },
           { label: "Save to Projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
@@ -394,37 +1092,28 @@ export function DiscoveryPage() {
       />
 
       <SectionCard
-        title="Discovery workflow"
-        subtitle="Amber shows the current step, green shows completed steps, and grey shows steps still to complete."
+        title="Click-first discovery workflow"
+        subtitle="Amber is current, green is completed, grey is still to complete. The options are intentionally relevant to the active design decision."
       >
-        <div className="grid gap-6 xl:grid-cols-[280px_1fr_340px]">
+        <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-slate-900">Steps</p>
-              <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600">
+              <p className="text-sm font-black text-slate-900">Workflow path</p>
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-600">
                 {activeStepIndex + 1} / {steps.length}
               </span>
             </div>
 
             <div className="mt-4 space-y-2">
               {steps.map((step, index) => (
-                <button
+                <StepBadge
                   key={step.id}
-                  type="button"
-                  onClick={() => jumpToStep(index)}
-                  className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm transition ${stepClass(
-                    index,
-                    activeStepIndex,
-                  )}`}
-                >
-                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/70 text-xs font-black">
-                    {stepIcon(index, activeStepIndex)}
-                  </span>
-                  <span>
-                    <span className="block font-semibold">{step.label}</span>
-                    <span className="mt-1 block text-xs opacity-75">{step.description}</span>
-                  </span>
-                </button>
+                  index={index}
+                  activeStepIndex={activeStepIndex}
+                  label={step.label}
+                  description={step.description}
+                  onClick={() => setActiveStepIndex(index)}
+                />
               ))}
             </div>
           </div>
@@ -432,23 +1121,23 @@ export function DiscoveryPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-slate-900">Current step: {currentStep.label}</p>
-                <p className="mt-1 text-sm text-slate-500">{currentStep.description}</p>
+                <p className="text-sm font-black text-slate-900">Current step: {currentStep.label}</p>
+                <p className="mt-1 text-sm leading-6 text-slate-500">{currentStep.description}</p>
               </div>
 
-              <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                {briefCompleteness}% captured
+              <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-800">
+                {capturedPercent}% design model captured
               </span>
             </div>
 
-            <div className="mt-5">{renderCurrentStep(currentStep.id)}</div>
+            <div className="mt-6">{renderStep(currentStep.id)}</div>
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
               <button
                 type="button"
-                onClick={goBack}
+                onClick={() => setActiveStepIndex((current) => Math.max(0, current - 1))}
                 disabled={isFirstStep}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back
@@ -457,7 +1146,8 @@ export function DiscoveryPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <Link
                   to={routeCatalogByKey.callCards.path}
-                  className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  onClick={saveDiscoveryBrief}
+                  className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
                 >
                   Open call cards
                 </Link>
@@ -465,16 +1155,17 @@ export function DiscoveryPage() {
                 {isLastStep ? (
                   <Link
                     to={routeCatalogByKey.finder.path}
-                    className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                    onClick={saveDiscoveryBrief}
+                    className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-black text-white transition hover:bg-emerald-700"
                   >
                     <Save className="h-4 w-4" />
-                    Push to Product Finder
+                    Save & push to Finder
                   </Link>
                 ) : (
                   <button
                     type="button"
-                    onClick={goNext}
-                    className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    onClick={() => setActiveStepIndex((current) => Math.min(steps.length - 1, current + 1))}
+                    className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800"
                   >
                     Next
                     <ArrowRight className="h-4 w-4" />
@@ -484,50 +1175,91 @@ export function DiscoveryPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-            <p className="text-sm font-semibold text-slate-900">Live summary</p>
-
-            <div className="mt-4 space-y-4 text-sm">
-              <div>
-                <p className="text-slate-500">Application</p>
-                <p className="font-semibold text-slate-900">{answers.application}</p>
+          <div className="grid gap-4">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div className="flex items-center gap-2">
+                <Monitor className="h-5 w-5 text-slate-500" />
+                <p className="text-sm font-black text-slate-900">Live room model</p>
               </div>
 
-              <div>
-                <p className="text-slate-500">Known needs</p>
-                <p className="font-semibold text-slate-900">{selectedProfile.knownNeeds}</p>
+              <div className="mt-4 space-y-4 text-sm">
+                <ValueLine label="Room type" value={state.roomType} />
+                <ListLine label="Behaviour" values={state.behaviours} />
+                <ValueLine label="Room size" value={state.roomSize} />
+                <ValueLine label="User position" value={state.userPosition} />
+                <ValueLine label="Equipment position" value={state.equipmentLocation} />
+                <ValueLine label="Display position" value={state.displayPosition} />
+                <ListLine label="Sources" values={state.sourceTypes} />
+                <ListLine label="Source locations" values={state.sourceLocations} />
+                <ListLine label="Outputs" values={state.outputTypes} />
+                <ListLine label="USB" values={state.usbNeeds} />
+                <ValueLine label="Longest run" value={state.longestRun} />
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="flex items-center gap-2">
+                <Cable className="h-5 w-5 text-amber-600" />
+                <p className="text-sm font-black text-slate-900">Architecture direction</p>
               </div>
 
-              <div>
-                <p className="text-slate-500">Missing information</p>
-                <p className="font-semibold text-amber-700">{selectedProfile.missingInfo}</p>
-              </div>
+              <p className="mt-3 text-base font-black text-slate-950">{inference.architecture}</p>
 
-              <div>
-                <p className="text-slate-500">Room</p>
-                <p className="font-semibold text-slate-900">{answers.roomSize || "Not captured yet"}</p>
-              </div>
-
-              <div>
-                <p className="text-slate-500">Sources</p>
-                <p className="font-semibold text-slate-900">{answers.sources || "Not captured yet"}</p>
-              </div>
-
-              <div>
-                <p className="text-slate-500">Displays</p>
-                <p className="font-semibold text-slate-900">{answers.displays || "Not captured yet"}</p>
-              </div>
-
-              <div>
-                <p className="text-slate-500">USB / control</p>
-                <p className="font-semibold text-slate-900">{answers.usbControl || "Not captured yet"}</p>
-              </div>
-
-              <div>
-                <p className="text-slate-500">Suggested next action</p>
-                <p className="font-semibold text-slate-900">
-                  {isLastStep ? "Push to Product Finder" : "Continue discovery workflow"}
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Confidence</p>
+                <p
+                  className={`mt-1 text-lg font-black ${
+                    inference.confidence === "High"
+                      ? "text-emerald-700"
+                      : inference.confidence === "Medium"
+                        ? "text-amber-700"
+                        : "text-red-700"
+                  }`}
+                >
+                  {inference.confidence}
                 </p>
+              </div>
+
+              <div className="mt-4 space-y-3 text-sm">
+                <div>
+                  <div className="flex items-center gap-2 font-black text-slate-900">
+                    <MapPin className="h-4 w-4 text-slate-500" />
+                    Missing detail
+                  </div>
+                  <ul className="mt-2 space-y-1 text-slate-600">
+                    {inference.missing.length ? (
+                      inference.missing.slice(0, 6).map((item) => <li key={item}>• {item}</li>)
+                    ) : (
+                      <li>• No major missing details detected.</li>
+                    )}
+                  </ul>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 font-black text-slate-900">
+                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                    Risks
+                  </div>
+                  <ul className="mt-2 space-y-1 text-slate-600">
+                    {inference.risks.length ? (
+                      inference.risks.slice(0, 6).map((item) => <li key={item}>• {item}</li>)
+                    ) : (
+                      <li>• No major risk flags yet.</li>
+                    )}
+                  </ul>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 font-black text-slate-900">
+                    <Camera className="h-4 w-4 text-slate-500" />
+                    Next design move
+                  </div>
+                  <p className="mt-2 text-slate-600">
+                    {isLastStep
+                      ? "Save the structured brief and continue into Product Finder."
+                      : "Continue the click-first workflow until the room model is complete enough to recommend with confidence."}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
