@@ -1,148 +1,29 @@
-import { useState } from "react";
-import { Copy, Trash2 } from "lucide-react";
+import { Copy, RotateCcw, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { StatusChip } from "../components/StatusChip";
-
-type ProjectRow = {
-  id: string;
-  name: string;
-  owner: string;
-  stage: string;
-  status: "recommended" | "alternative" | "caution";
-  updated: string;
-  resumeTo: string;
-};
-
-type ProposalDraft = {
-  id: string;
-  name: string;
-  customer: string;
-  state: string;
-};
-
-const initialActiveProjects: ProjectRow[] = [
-  {
-    id: "northbridge-meeting-room-refresh",
-    name: "Northbridge Meeting Room Refresh",
-    owner: "Steve",
-    stage: "Discovery",
-    status: "recommended",
-    updated: "2 hours ago",
-    resumeTo: routeCatalogByKey.discovery.path,
-  },
-  {
-    id: "harbour-retail-signage-rollout",
-    name: "Harbour Retail Signage Rollout",
-    owner: "Channel Sales",
-    stage: "Competitor Compare",
-    status: "alternative",
-    updated: "Today",
-    resumeTo: routeCatalogByKey.compare.path,
-  },
-  {
-    id: "westbrook-classroom-standard",
-    name: "Westbrook Classroom Standard",
-    owner: "Pre-sales",
-    stage: "Proposal Builder",
-    status: "recommended",
-    updated: "Yesterday",
-    resumeTo: routeCatalogByKey.proposal.path,
-  },
-];
-
-const initialProposalDrafts: ProposalDraft[] = [
-  {
-    id: "boardroom-av-upgrade-proposal",
-    name: "Boardroom AV Upgrade Proposal",
-    customer: "Apex Group",
-    state: "Ready for review",
-  },
-  {
-    id: "meeting-room-standard-bundle",
-    name: "Meeting Room Standard Bundle",
-    customer: "Northbridge",
-    state: "Waiting on assumptions",
-  },
-  {
-    id: "retail-display-distribution-pack",
-    name: "Retail Display Distribution Pack",
-    customer: "Harbour Retail",
-    state: "Ready for export",
-  },
-];
-
-function createCopyId(id: string) {
-  return `${id}-copy-${Date.now()}`;
-}
-
-function copyProject(project: ProjectRow): ProjectRow {
-  return {
-    ...project,
-    id: createCopyId(project.id),
-    name: `${project.name} Copy`,
-    updated: "Just now",
-  };
-}
-
-function copyDraft(draft: ProposalDraft): ProposalDraft {
-  return {
-    ...draft,
-    id: createCopyId(draft.id),
-    name: `${draft.name} Copy`,
-    state: "Copied draft",
-  };
-}
+import { useProjectStore } from "../data/projectStore";
 
 export function ProjectsPage() {
-  const [activeProjects, setActiveProjects] = useState<ProjectRow[]>(initialActiveProjects);
-  const [proposalDrafts, setProposalDrafts] = useState<ProposalDraft[]>(initialProposalDrafts);
-
-  function handleCopyProject(project: ProjectRow) {
-    setActiveProjects((current) => {
-      const index = current.findIndex((item) => item.id === project.id);
-      const next = [...current];
-
-      if (index < 0) {
-        return [...current, copyProject(project)];
-      }
-
-      next.splice(index + 1, 0, copyProject(project));
-      return next;
-    });
-  }
-
-  function handleDeleteProject(projectId: string) {
-    setActiveProjects((current) => current.filter((project) => project.id !== projectId));
-  }
-
-  function handleCopyDraft(draft: ProposalDraft) {
-    setProposalDrafts((current) => {
-      const index = current.findIndex((item) => item.id === draft.id);
-      const next = [...current];
-
-      if (index < 0) {
-        return [...current, copyDraft(draft)];
-      }
-
-      next.splice(index + 1, 0, copyDraft(draft));
-      return next;
-    });
-  }
-
-  function handleDeleteDraft(draftId: string) {
-    setProposalDrafts((current) => current.filter((draft) => draft.id !== draftId));
-  }
+  const {
+    projects,
+    proposalDrafts,
+    copyProject,
+    deleteProject,
+    copyProposalDraft,
+    deleteProposalDraft,
+    resetStore,
+  } = useProjectStore();
 
   return (
     <div className="pb-10">
       <PageHero
         eyebrow="Project Management"
         title="Keep live opportunities, drafts, and next actions in one place."
-        purpose="This page gives the sales team a working view of active opportunities so they can reopen discovery, move stalled comparisons forward, and keep proposal output aligned to the current state of the project."
-        nextMove="Open the priority project, update its stage, and continue the workflow from discovery, comparison, or proposal."
+        purpose="This page now uses the Wingman project store, so copy and delete actions persist after refresh instead of only changing the current screen."
+        nextMove="Open the priority project, copy a similar project, delete stale entries, or reset the sample store while testing."
         actions={[
           { label: "Start discovery", to: routeCatalogByKey.discovery.path },
           { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
@@ -152,7 +33,17 @@ export function ProjectsPage() {
       <div className="space-y-6">
         <SectionCard
           title="Active projects"
-          subtitle="Use this table to reopen active opportunities and move them to the next stage."
+          subtitle="Use this table to reopen active opportunities, copy useful examples, or remove stale project lines."
+          rightSlot={
+            <button
+              type="button"
+              onClick={resetStore}
+              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Reset sample store
+            </button>
+          }
         >
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
             <table className="min-w-full text-left text-sm">
@@ -167,8 +58,8 @@ export function ProjectsPage() {
                 </tr>
               </thead>
               <tbody>
-                {activeProjects.length ? (
-                  activeProjects.map((project) => (
+                {projects.length ? (
+                  projects.map((project) => (
                     <tr key={project.id} className="border-t border-slate-100">
                       <td className="px-5 py-4 font-medium text-slate-900">{project.name}</td>
                       <td className="px-5 py-4 text-slate-700">{project.owner}</td>
@@ -191,7 +82,7 @@ export function ProjectsPage() {
 
                           <button
                             type="button"
-                            onClick={() => handleCopyProject(project)}
+                            onClick={() => copyProject(project.id)}
                             className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
                             title={`Copy ${project.name}`}
                             aria-label={`Copy ${project.name}`}
@@ -201,7 +92,7 @@ export function ProjectsPage() {
 
                           <button
                             type="button"
-                            onClick={() => handleDeleteProject(project.id)}
+                            onClick={() => deleteProject(project.id)}
                             className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700"
                             title={`Delete ${project.name}`}
                             aria-label={`Delete ${project.name}`}
@@ -215,7 +106,7 @@ export function ProjectsPage() {
                 ) : (
                   <tr>
                     <td className="px-5 py-8 text-center text-slate-500" colSpan={6}>
-                      No active projects are currently listed.
+                      No active projects are currently listed. Use Reset sample store to restore the starter examples.
                     </td>
                   </tr>
                 )}
@@ -226,7 +117,7 @@ export function ProjectsPage() {
 
         <SectionCard
           title="Proposal-ready drafts"
-          subtitle="Keep proposal output visible so sales users can see what is ready, what is blocked, and what can be sent next."
+          subtitle="Draft copy/delete actions also persist using the same project store."
         >
           {proposalDrafts.length ? (
             <div className="grid gap-4 lg:grid-cols-3">
@@ -241,7 +132,7 @@ export function ProjectsPage() {
                     <div className="flex shrink-0 items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => handleCopyDraft(draft)}
+                        onClick={() => copyProposalDraft(draft.id)}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
                         title={`Copy ${draft.name}`}
                         aria-label={`Copy ${draft.name}`}
@@ -251,7 +142,7 @@ export function ProjectsPage() {
 
                       <button
                         type="button"
-                        onClick={() => handleDeleteDraft(draft.id)}
+                        onClick={() => deleteProposalDraft(draft.id)}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700"
                         title={`Delete ${draft.name}`}
                         aria-label={`Delete ${draft.name}`}
@@ -276,7 +167,7 @@ export function ProjectsPage() {
             </div>
           ) : (
             <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
-              No proposal drafts are currently listed.
+              No proposal drafts are currently listed. Use Reset sample store to restore the starter examples.
             </div>
           )}
         </SectionCard>
