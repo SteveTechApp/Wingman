@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { Send, Sparkles, X } from "lucide-react";
+import type { FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Database, Send, Sparkles, X } from "lucide-react";
 import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
 
 type WingmanGuruDrawerProps = {
@@ -14,11 +15,146 @@ type GuruMessage = {
   time: string;
 };
 
+type ProductEntry = {
+  sku: string;
+  title: string;
+  family: string;
+  category: string;
+  description: string;
+  text: string;
+  raw: unknown;
+};
+
+type CompatibilityRule = {
+  receiver?: string;
+  transmitter?: string;
+  relationship: string;
+  notes: string[];
+  checks: string[];
+};
+
+const SKU_PATTERN = /\b[A-Z]{2,6}(?:-[A-Z0-9]{2,}){1,7}\b/g;
+
 const quickPrompts = [
+  "Which receiver can I use with the SW-130-TX-UK?",
   "Suggest a solution for a medium meeting room.",
   "What should I ask to qualify an LED wall opportunity?",
   "Which WyreStorm products fit a BYOD presentation space?",
-  "Help me turn a discovery brief into a proposal summary.",
+];
+
+const compatibilityRules: Record<string, CompatibilityRule> = {
+  "SW-130-TX-UK": {
+    receiver: "RX-500",
+    relationship: "Compatible HDBaseT receiver path",
+    notes: [
+      "Use RX-500 as the receiver with SW-130-TX-UK.",
+      "This is the correct path for the SW-130 in-wall HDBaseT transmitter family.",
+      "Use this when the requirement is an in-wall source position feeding a remote display/projector with USB support.",
+    ],
+    checks: [
+      "Confirm cable type, installed cable quality, and actual run distance.",
+      "Confirm required USB peripherals: camera, speakerphone, touchscreen, keyboard, or mouse.",
+      "Confirm display resolution and refresh rate before quoting.",
+    ],
+  },
+  "SW-130-TX-US": {
+    receiver: "RX-500",
+    relationship: "Compatible HDBaseT receiver path",
+    notes: [
+      "Use RX-500 as the receiver with SW-130-TX-US.",
+      "This is the US-format version of the SW-130 in-wall HDBaseT transmitter path.",
+    ],
+    checks: [
+      "Confirm US wall-plate format.",
+      "Confirm cable distance and USB requirements.",
+      "Confirm source mix: HDMI, USB-C, or both.",
+    ],
+  },
+  "SW-130-TX": {
+    receiver: "RX-500",
+    relationship: "Compatible HDBaseT receiver path",
+    notes: [
+      "Use RX-500 as the receiver with the SW-130-TX family.",
+      "Check the regional suffix before ordering: UK and US versions are different wall-plate formats.",
+    ],
+    checks: [
+      "Confirm regional plate format.",
+      "Confirm cable distance.",
+      "Confirm USB peripheral requirements.",
+    ],
+  },
+  "SW-120-TX3": {
+    receiver: "RX3-100",
+    relationship: "Compatible HDBaseT 3.0 receiver path",
+    notes: [
+      "Use RX3-100 with the SW-120-TX3 family.",
+      "This is the stronger HDBaseT 3.0 path when higher bandwidth and longer 5K/4K transmission are required.",
+    ],
+    checks: [
+      "Confirm whether the project needs the UK, US, or box version.",
+      "Confirm if USB-C laptop input and USB peripheral return are both required.",
+    ],
+  },
+  "SW-120-TX3-UK": {
+    receiver: "RX3-100",
+    relationship: "Compatible HDBaseT 3.0 receiver path",
+    notes: [
+      "Use RX3-100 with SW-120-TX3-UK.",
+      "This is the UK wall-plate HDBaseT 3.0 transmitter path.",
+    ],
+    checks: [
+      "Confirm UK wall-plate fit.",
+      "Confirm required laptop charging, USB, and display resolution.",
+    ],
+  },
+  "SW-120-TX3-US": {
+    receiver: "RX3-100",
+    relationship: "Compatible HDBaseT 3.0 receiver path",
+    notes: [
+      "Use RX3-100 with SW-120-TX3-US.",
+      "This is the US wall-plate HDBaseT 3.0 transmitter path.",
+    ],
+    checks: [
+      "Confirm US wall-plate fit.",
+      "Confirm required laptop charging, USB, and display resolution.",
+    ],
+  },
+  "SW-510-TX": {
+    receiver: "SW-515-RX",
+    relationship: "Matching receiver for the SW-510 HDBaseT switcher system",
+    notes: [
+      "Use SW-515-RX with SW-510-TX.",
+      "This is the paired HDBaseT receiver for the SW-510 presentation switching transmitter.",
+    ],
+    checks: [
+      "Confirm source count.",
+      "Confirm USB peripheral requirements.",
+      "Confirm display location and cable distance.",
+    ],
+  },
+};
+
+const applicationAnswers = [
+  {
+    terms: ["meeting room", "conference room", "boardroom", "huddle"],
+    answer:
+      "For a meeting room, start with the collaboration workflow rather than the product.\n\nLikely WyreStorm paths:\n• Small/simple room: APO video bar or SW-220-TX-W style presentation path.\n• Medium BYOD/BYOM room: SW-620-TX-W or SW-640L-TX-W if wireless conferencing, USB-C, dual display, or multiview is required.\n• More technical dual-display room: MX-0402-MST or MX-0403-H3-MST where MST, USB-C, HDMI, and structured room switching matter.\n\nQualify next:\n• How many displays?\n• Is USB-C laptop connection required?\n• Is wireless conferencing required or only wireless casting?\n• Are cameras/microphones local to the room or remote over USB/HDBaseT/IP?\n• Is this BYOD, MTR, Zoom Room, or a flexible room?",
+  },
+  {
+    terms: ["video wall", "videowall", "led wall", "lcd wall"],
+    answer:
+      "For a video wall, choose the architecture from behaviour, not just wall size.\n\nRecommended design split:\n• Simple fixed-layout LCD wall: consider SW-0204-VW.\n• More flexible processor-led LCD/video wall: consider SW-0206-VW.\n• Distributed sources/displays or future expansion: consider NetworkHD AVoIP.\n• Premium 4K60 4:4:4 / low latency / USB workflows: consider NetworkHD 500.\n• Lossless zero-latency 10G requirement: consider NetworkHD 600.\n\nQualify next:\n• LED or LCD?\n• Wall layout: 2x2, 3x3, 1x4, custom, or mosaic?\n• Single canvas, separate content per display, or multiview?\n• Number of sources?\n• Required latency and image quality?",
+  },
+  {
+    terms: ["byod", "byom", "usb-c", "wireless conferencing", "wireless casting"],
+    answer:
+      "For BYOD/BYOM, qualify USB and user workflow first.\n\nLikely WyreStorm paths:\n• Wireless casting only: use a simpler wireless presentation route.\n• Wireless conferencing plus USB peripherals: look at SW-620-TX-W or SW-640L-TX-W.\n• Wired USB-C with dual-screen / MST: look at MX-0402-MST or MX-0403-H3-MST.\n• In-desk cable management: include IDB-300 / IDB-300-BTN where a clean table workflow is needed.\n\nQualify next:\n• Does the laptop need to use the room camera and microphone?\n• Does USB-C need charging?\n• One display or two?\n• Is MST required?\n• Is a touch panel or button controller required?",
+  },
+  {
+    terms: ["ndi", "camera", "ptz", "streaming", "capture"],
+    answer:
+      "For camera, NDI, or capture workflows, separate the camera path from the display path.\n\nUseful WyreStorm paths:\n• NDI camera into NetworkHD 100 workflow: NHD-128-NDI-TRX can bridge NDI into NetworkHD H.265 workflows.\n• Multiview composition in NetworkHD 100: NHD-150-RX can be used for multiview output.\n• PTZ camera choices: CAM-210-PTZ, CAM-210-NDI-PTZ, CAM-420-PTZ depending on resolution, NDI, and AI tracking needs.\n• Multi-camera bridge: CAM-0402-BRG or CAM-0402-NDI-BRG depending on whether NDI is required.\n\nQualify next:\n• USB, HDMI, NDI, or all three?\n• Single camera or multi-camera?\n• Local conferencing only, streaming, recording, or overflow display?",
+  },
 ];
 
 function createMessage(role: "assistant" | "user", content: string): GuruMessage {
@@ -30,24 +166,476 @@ function createMessage(role: "assistant" | "user", content: string): GuruMessage
   };
 }
 
+function normaliseSku(value: string) {
+  return value
+    .toUpperCase()
+    .replace(/[–—]/g, "-")
+    .replace(/[^A-Z0-9-]/g, "")
+    .trim();
+}
+
+function extractSkus(value: string) {
+  const matches = value.toUpperCase().match(SKU_PATTERN) ?? [];
+  const unique = new Set<string>();
+
+  matches.forEach((match) => {
+    const sku = normaliseSku(match);
+    if (/\d/.test(sku)) {
+      unique.add(sku);
+    }
+  });
+
+  return Array.from(unique);
+}
+
+function stringifyUnknown(value: unknown, depth = 0): string {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  if (depth > 4) {
+    return "";
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => stringifyUnknown(item, depth + 1)).join(" ");
+  }
+
+  if (typeof value === "object") {
+    return Object.entries(value as Record<string, unknown>)
+      .map(([key, item]) => `${key} ${stringifyUnknown(item, depth + 1)}`)
+      .join(" ");
+  }
+
+  return "";
+}
+
+function fieldValue(record: Record<string, unknown>, candidates: string[]) {
+  for (const candidate of candidates) {
+    const value = record[candidate];
+
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+
+    if (typeof value === "number") {
+      return String(value);
+    }
+  }
+
+  return "";
+}
+
+function collectObjects(value: unknown, output: unknown[] = [], depth = 0) {
+  if (value === null || value === undefined) {
+    return output;
+  }
+
+  if (depth > 5) {
+    return output;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectObjects(item, output, depth + 1));
+    return output;
+  }
+
+  if (typeof value !== "object") {
+    return output;
+  }
+
+  const text = stringifyUnknown(value);
+  const skus = extractSkus(text);
+  const record = value as Record<string, unknown>;
+
+  if (skus.length || fieldValue(record, ["sku", "SKU", "model", "partNumber", "part_number"])) {
+    output.push(value);
+  }
+
+  Object.values(record).forEach((item) => collectObjects(item, output, depth + 1));
+  return output;
+}
+
+function toProductEntry(item: unknown): ProductEntry | null {
+  if (item === null || item === undefined || typeof item !== "object") {
+    return null;
+  }
+
+  const record = item as Record<string, unknown>;
+  const text = stringifyUnknown(item);
+  const extractedSku = extractSkus(text)[0] ?? "";
+  const sku = normaliseSku(fieldValue(record, ["sku", "SKU", "model", "partNumber", "part_number"]) || extractedSku);
+
+  if (!sku) {
+    return null;
+  }
+
+  return {
+    sku,
+    title:
+      fieldValue(record, ["title", "name", "productName", "product_name", "modelName", "model_name"]) ||
+      sku,
+    family: fieldValue(record, ["family", "series", "productFamily", "product_family"]),
+    category: fieldValue(record, ["category", "type", "technology", "technologyType", "technology_type"]),
+    description: fieldValue(record, ["description", "summary", "shortDescription", "short_description"]),
+    text,
+    raw: item,
+  };
+}
+
+function parseProductIndex(data: unknown) {
+  const objects = collectObjects(data);
+  const bySku = new Map<string, ProductEntry>();
+
+  objects.forEach((item) => {
+    const product = toProductEntry(item);
+
+    if (!product) {
+      return;
+    }
+
+    const existing = bySku.get(product.sku);
+
+    if (!existing) {
+      bySku.set(product.sku, product);
+      return;
+    }
+
+    if (product.text.length > existing.text.length) {
+      bySku.set(product.sku, product);
+    }
+  });
+
+  return Array.from(bySku.values()).sort((a, b) => a.sku.localeCompare(b.sku));
+}
+
+function findProduct(products: ProductEntry[], sku: string) {
+  const normalised = normaliseSku(sku);
+  return products.find((product) => normaliseSku(product.sku) === normalised);
+}
+
+function scoreProduct(product: ProductEntry, query: string) {
+  const normalisedQuery = query.toLowerCase();
+  const words = normalisedQuery
+    .split(/[^a-z0-9]+/i)
+    .map((word) => word.trim())
+    .filter((word) => word.length > 2);
+
+  let score = 0;
+  const productText = `${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.text}`.toLowerCase();
+
+  if (productText.includes(normalisedQuery)) {
+    score += 40;
+  }
+
+  words.forEach((word) => {
+    if (productText.includes(word)) {
+      score += 4;
+    }
+  });
+
+  extractSkus(query).forEach((sku) => {
+    if (normaliseSku(product.sku) === sku) {
+      score += 100;
+    }
+
+    if (productText.includes(sku.toLowerCase())) {
+      score += 40;
+    }
+  });
+
+  return score;
+}
+
+function searchProducts(products: ProductEntry[], query: string, limit = 5) {
+  return products
+    .map((product) => ({ product, score: scoreProduct(product, query) }))
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((item) => item.product);
+}
+
+function usefulLines(product: ProductEntry) {
+  const keywords = [
+    "input",
+    "output",
+    "receiver",
+    "transmitter",
+    "compatible",
+    "usb",
+    "hdbaset",
+    "networkhd",
+    "distance",
+    "resolution",
+    "video wall",
+    "multiview",
+    "wireless",
+    "dante",
+  ];
+
+  const parts = product.text
+    .replace(/\s+/g, " ")
+    .split(/(?:•|\n|\. |; )/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 18 && line.length < 220);
+
+  const selected = parts.filter((line) => {
+    const lower = line.toLowerCase();
+    return keywords.some((keyword) => lower.includes(keyword));
+  });
+
+  return Array.from(new Set(selected)).slice(0, 5);
+}
+
+function answerReceiverQuestion(question: string, products: ProductEntry[]) {
+  const skus = extractSkus(question);
+  const sourceSku = skus[0];
+
+  if (!sourceSku) {
+    return "Tell me the transmitter SKU and I’ll identify the correct receiver path. For example: “Which receiver works with SW-130-TX-UK?”";
+  }
+
+  const rule = compatibilityRules[sourceSku];
+
+  if (rule?.receiver) {
+    const sourceProduct = findProduct(products, sourceSku);
+    const receiverProduct = findProduct(products, rule.receiver);
+
+    const sourceTitle = sourceProduct?.title && sourceProduct.title !== sourceSku ? ` — ${sourceProduct.title}` : "";
+    const receiverTitle =
+      receiverProduct?.title && receiverProduct.title !== rule.receiver ? ` — ${receiverProduct.title}` : "";
+
+    return [
+      `Use ${rule.receiver}${receiverTitle} with ${sourceSku}${sourceTitle}.`,
+      "",
+      `Relationship: ${rule.relationship}.`,
+      "",
+      "Why this fits:",
+      ...rule.notes.map((note) => `• ${note}`),
+      "",
+      "Check before quoting:",
+      ...rule.checks.map((check) => `• ${check}`),
+    ].join("\n");
+  }
+
+  const sourceProduct = findProduct(products, sourceSku);
+  const sourceLines = sourceProduct ? usefulLines(sourceProduct) : [];
+
+  if (sourceProduct && sourceLines.length) {
+    return [
+      `I found ${sourceSku}, but I do not have a confirmed receiver rule for it yet.`,
+      "",
+      `Product context: ${sourceProduct.title}`,
+      ...sourceLines.map((line) => `• ${line}`),
+      "",
+      "Next step: confirm whether this is HDBaseT, NetworkHD, HDMI, or USB extension. I can then narrow the receiver path safely.",
+    ].join("\n");
+  }
+
+  return [
+    `I do not have a confirmed receiver match for ${sourceSku} yet.`,
+    "",
+    "To avoid specifying the wrong Tx/Rx pair, confirm:",
+    "• Is this HDBaseT, NetworkHD, HDMI, or USB?",
+    "• What receiver or display location is required?",
+    "• What cable distance and resolution are required?",
+  ].join("\n");
+}
+
+function answerProductQuestion(question: string, products: ProductEntry[]) {
+  const skus = extractSkus(question);
+  const sku = skus[0];
+
+  if (!sku) {
+    return "";
+  }
+
+  const product = findProduct(products, sku);
+
+  if (!product) {
+    const rule = compatibilityRules[sku];
+
+    if (rule) {
+      return answerReceiverQuestion(question, products);
+    }
+
+    return [
+      `I do not have ${sku} in the local product index yet.`,
+      "",
+      "I can still help, but I need one more detail:",
+      "• Is it a transmitter, receiver, switcher, matrix, AVoIP endpoint, extender, or accessory?",
+    ].join("\n");
+  }
+
+  const lines = usefulLines(product);
+
+  return [
+    `${product.sku} — ${product.title}`,
+    product.family ? `Family: ${product.family}` : "",
+    product.category ? `Category: ${product.category}` : "",
+    product.description ? `Summary: ${product.description}` : "",
+    "",
+    lines.length ? "Useful product notes:" : "I found the product but the local index does not expose detailed notes for it yet.",
+    ...lines.map((line) => `• ${line}`),
+    "",
+    "Next qualification:",
+    "• What is the room/application?",
+    "• What is the source and display count?",
+    "• What resolution, distance, USB, audio, and control behaviour is required?",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function answerComparison(question: string, products: ProductEntry[]) {
+  const skus = extractSkus(question);
+
+  if (skus.length < 2) {
+    return "";
+  }
+
+  const productA = findProduct(products, skus[0]);
+  const productB = findProduct(products, skus[1]);
+
+  return [
+    `Comparison: ${skus[0]} vs ${skus[1]}`,
+    "",
+    `${skus[0]}: ${productA?.title ?? "Not found in local index"}`,
+    ...(productA ? usefulLines(productA).slice(0, 3).map((line) => `• ${line}`) : []),
+    "",
+    `${skus[1]}: ${productB?.title ?? "Not found in local index"}`,
+    ...(productB ? usefulLines(productB).slice(0, 3).map((line) => `• ${line}`) : []),
+    "",
+    "Decision check:",
+    "• Which one matches the transport type?",
+    "• Which one supports the required distance and resolution?",
+    "• Which one supports the needed USB/audio/control behaviour?",
+  ].join("\n");
+}
+
+function answerApplication(question: string) {
+  const lower = question.toLowerCase();
+  const match = applicationAnswers.find((item) => item.terms.some((term) => lower.includes(term)));
+
+  if (!match) {
+    return "";
+  }
+
+  return match.answer;
+}
+
+function answerFromSearch(question: string, products: ProductEntry[]) {
+  const matches = searchProducts(products, question, 4);
+
+  if (!matches.length) {
+    return [
+      "I can help, but I need to narrow the AV requirement.",
+      "",
+      "Answer these in order:",
+      "• What type of space is this?",
+      "• How many sources and displays?",
+      "• Is this HDMI, HDBaseT, AVoIP, USB-C, wireless, or mixed?",
+      "• What distance and resolution are required?",
+      "• Is USB for camera/microphone/touch needed?",
+    ].join("\n");
+  }
+
+  return [
+    "Likely product matches from the local index:",
+    "",
+    ...matches.map((product) => {
+      const summary = product.description || product.category || product.family || "Matched by SKU/product text.";
+      return `• ${product.sku} — ${product.title}. ${summary}`;
+    }),
+    "",
+    "Tell me the room type, source/display count, distance, resolution, and USB requirement and I’ll narrow this to a recommendation.",
+  ].join("\n");
+}
+
+function answerQuestion(question: string, products: ProductEntry[]) {
+  const lower = question.toLowerCase();
+  const skus = extractSkus(question);
+
+  if ((lower.includes("receiver") || lower.includes("rx")) && skus.length) {
+    return answerReceiverQuestion(question, products);
+  }
+
+  if ((lower.includes("compare") || lower.includes("difference")) && skus.length >= 2) {
+    return answerComparison(question, products);
+  }
+
+  if (skus.length) {
+    const skuAnswer = answerProductQuestion(question, products);
+
+    if (skuAnswer) {
+      return skuAnswer;
+    }
+  }
+
+  const applicationAnswer = answerApplication(question);
+
+  if (applicationAnswer) {
+    return applicationAnswer;
+  }
+
+  return answerFromSearch(question, products);
+}
+
 const openingMessage = createMessage(
   "assistant",
-  "Hi, I’m Guru. Ask one question at a time and I’ll help you shape the right WyreStorm answer, product path, or proposal response."
+  "Hi, I’m Guru. Ask me a WyreStorm product or system design question and I’ll answer directly. Example: “Which receiver can I use with the SW-130-TX-UK?”"
 );
-
-function buildAssistantReply(prompt: string) {
-  return [
-    "Got it. I’m treating this as your current working question:",
-    `"${prompt}"`,
-    "I can now help you with the next best step, the qualifying questions to ask, the likely WyreStorm product path, or wording for a customer-facing answer.",
-  ].join(" ");
-}
 
 export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
   const [messages, setMessages] = useState<GuruMessage[]>([openingMessage]);
   const [draft, setDraft] = useState("");
+  const [products, setProducts] = useState<ProductEntry[]>([]);
+  const [indexStatus, setIndexStatus] = useState("Loading product intelligence...");
   const messagesRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    fetch("/product-intelligence-index.json", { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Index request failed: ${response.status}`);
+        }
+
+        return response.json() as Promise<unknown>;
+      })
+      .then((data) => {
+        if (!active) {
+          return;
+        }
+
+        const parsed = parseProductIndex(data);
+        setProducts(parsed);
+        setIndexStatus(`Product index loaded: ${parsed.length} entries`);
+      })
+      .catch(() => {
+        if (!active) {
+          return;
+        }
+
+        setProducts([]);
+        setIndexStatus("Product index unavailable — using built-in AV rules");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) {
@@ -62,20 +650,23 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
     return () => window.clearTimeout(timer);
   }, [open, messages]);
 
+  const helperText = useMemo(() => indexStatus, [indexStatus]);
+
   function sendMessage(raw: string) {
     const prompt = raw.trim();
+
     if (!prompt) {
       return;
     }
 
     const userMessage = createMessage("user", prompt);
-    const assistantMessage = createMessage("assistant", buildAssistantReply(prompt));
+    const assistantMessage = createMessage("assistant", answerQuestion(prompt, products));
 
     setMessages((current) => [...current, userMessage, assistantMessage]);
     setDraft("");
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     sendMessage(draft);
   }
@@ -103,7 +694,11 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
             <GuruAssistantAvatar size={42} />
             <div>
               <h2>Guru</h2>
-              <p>Simple Q&A assistant for sales guidance, product direction, and proposal support.</p>
+              <p>Product-aware Q&A for WyreStorm sales, system design, and proposal support.</p>
+              <p style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 6 }}>
+                <Database className="h-3.5 w-3.5" />
+                {helperText}
+              </p>
             </div>
           </div>
 
@@ -155,7 +750,7 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             className="wingman-guru-input"
-            placeholder="Ask Guru a question..."
+            placeholder="Ask Guru a product or system question..."
           />
           <button type="submit" className="wingman-guru-send" aria-label="Send question">
             <Send className="h-4 w-4" />
