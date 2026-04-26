@@ -25,135 +25,290 @@ type ProductEntry = {
   raw: unknown;
 };
 
-type CompatibilityRule = {
-  receiver?: string;
-  transmitter?: string;
-  relationship: string;
-  notes: string[];
-  checks: string[];
+type GlossaryEntry = {
+  terms: string[];
+  title: string;
+  answer: string;
+  salesUse: string;
+  watchOut: string;
+  related?: string[];
+};
+
+type LiveCacheEntry = {
+  question: string;
+  answer: string;
+  source: string;
+  savedAt: string;
 };
 
 const SKU_PATTERN = /\b[A-Z]{2,6}(?:-[A-Z0-9]{2,}){1,7}\b/g;
+const GURU_CACHE_KEY = "wingman-guru-live-knowledge-cache-v1";
+const GURU_CACHE_LIMIT = 80;
 
 const quickPrompts = [
   "Which receiver can I use with the SW-130-TX-UK?",
-  "Suggest a solution for a medium meeting room.",
-  "What should I ask to qualify an LED wall opportunity?",
-  "Which WyreStorm products fit a BYOD presentation space?",
+  "Which receiver can I use with the SW-130-TX-UK if USB is not important and the run is 30m?",
+  "What does HDBaseT mean?",
+  "Explain AVoIP encoder vs decoder.",
+  "What is EDID and why does it matter?",
+  "What is USB host vs USB device?",
 ];
 
-const compatibilityRules: Record<string, CompatibilityRule> = {
-  "SW-130-TX-UK": {
-    receiver: "RX-500",
-    relationship: "Compatible HDBaseT receiver path",
-    notes: [
-      "Use RX-500 as the receiver with SW-130-TX-UK.",
-      "This is the correct path for the SW-130 in-wall HDBaseT transmitter family.",
-      "Use this when the requirement is an in-wall source position feeding a remote display/projector with USB support.",
-    ],
-    checks: [
-      "Confirm cable type, installed cable quality, and actual run distance.",
-      "Confirm required USB peripherals: camera, speakerphone, touchscreen, keyboard, or mouse.",
-      "Confirm display resolution and refresh rate before quoting.",
-    ],
+const avGlossary: GlossaryEntry[] = [
+  {
+    terms: ["avoip", "av over ip", "av-over-ip", "network av", "networked av"],
+    title: "AVoIP / AV-over-IP",
+    answer:
+      "AV-over-IP means transporting audio, video, control, and sometimes USB over an IP network rather than using a fixed point-to-point AV cable. In WyreStorm designs this usually means NetworkHD.",
+    salesUse:
+      "Use AVoIP when the customer needs flexible routing, expansion, distributed displays, multi-room routing, centralised control, video walls, or many-to-many source/display behaviour.",
+    watchOut:
+      "Do not treat every AVoIP platform as equivalent. Check latency, image quality, compression, bandwidth, USB, Dante/audio, switch requirements, and scalability.",
+    related: ["NetworkHD", "encoder", "decoder", "IGMP", "multicast"],
   },
-  "SW-130-TX-US": {
-    receiver: "RX-500",
-    relationship: "Compatible HDBaseT receiver path",
-    notes: [
-      "Use RX-500 as the receiver with SW-130-TX-US.",
-      "This is the US-format version of the SW-130 in-wall HDBaseT transmitter path.",
-    ],
-    checks: [
-      "Confirm US wall-plate format.",
-      "Confirm cable distance and USB requirements.",
-      "Confirm source mix: HDMI, USB-C, or both.",
-    ],
+  {
+    terms: ["encoder", "av encoder", "networkhd encoder", "transmitter", "tx"],
+    title: "Encoder / Transmitter / TX",
+    answer:
+      "An encoder or transmitter sits at the source end. It takes a signal such as HDMI, USB-C, camera, or another AV source and prepares it for transport.",
+    salesUse:
+      "Ask what the source is, where it is physically located, what it connects to, and what transport path is available from that location.",
+    watchOut:
+      "Do not confuse AVoIP encoders with HDBaseT transmitters. Both may be called TX, but they belong to different architectures.",
+    related: ["decoder", "receiver", "HDBaseT", "AVoIP"],
   },
-  "SW-130-TX": {
-    receiver: "RX-500",
-    relationship: "Compatible HDBaseT receiver path",
-    notes: [
-      "Use RX-500 as the receiver with the SW-130-TX family.",
-      "Check the regional suffix before ordering: UK and US versions are different wall-plate formats.",
-    ],
-    checks: [
-      "Confirm regional plate format.",
-      "Confirm cable distance.",
-      "Confirm USB peripheral requirements.",
-    ],
+  {
+    terms: ["decoder", "av decoder", "networkhd decoder", "receiver", "rx"],
+    title: "Decoder / Receiver / RX",
+    answer:
+      "A decoder or receiver sits at the display/end-point side. It receives the transported signal and outputs it to a display, projector, processor, audio device, or endpoint.",
+    salesUse:
+      "Ask what display or endpoint is being fed, what resolution is required, and whether USB, audio, scaling, or control is also needed.",
+    watchOut:
+      "A NetworkHD decoder is not the same as an HDBaseT receiver. Match the receiver to the transport technology first, then distance and features.",
+    related: ["encoder", "transmitter", "RX-500", "RX-70", "NetworkHD"],
   },
-  "SW-120-TX3": {
-    receiver: "RX3-100",
-    relationship: "Compatible HDBaseT 3.0 receiver path",
-    notes: [
-      "Use RX3-100 with the SW-120-TX3 family.",
-      "This is the stronger HDBaseT 3.0 path when higher bandwidth and longer 5K/4K transmission are required.",
-    ],
-    checks: [
-      "Confirm whether the project needs the UK, US, or box version.",
-      "Confirm if USB-C laptop input and USB peripheral return are both required.",
-    ],
+  {
+    terms: ["hdbaset", "hd base t", "hdbt", "hdbt3", "hdbaset 3.0"],
+    title: "HDBaseT",
+    answer:
+      "HDBaseT is a point-to-point AV transport technology that sends video, audio, control, Ethernet, USB on some products, and power on some products over twisted-pair category cable.",
+    salesUse:
+      "Use HDBaseT when a source or switcher needs to feed a display over a medium-to-long cable run without moving to a full networked AV architecture.",
+    watchOut:
+      "Always check distance, resolution, cable grade, USB support, PoH/PoC direction, and the exact receiver feature set.",
+    related: ["Cat6", "PoH", "PoC", "RX-35", "RX-70", "RX-500"],
   },
-  "SW-120-TX3-UK": {
-    receiver: "RX3-100",
-    relationship: "Compatible HDBaseT 3.0 receiver path",
-    notes: [
-      "Use RX3-100 with SW-120-TX3-UK.",
-      "This is the UK wall-plate HDBaseT 3.0 transmitter path.",
-    ],
-    checks: [
-      "Confirm UK wall-plate fit.",
-      "Confirm required laptop charging, USB, and display resolution.",
-    ],
+  {
+    terms: ["edid", "extended display identification data"],
+    title: "EDID",
+    answer:
+      "EDID is the display information sent back to a source to tell it what resolutions, refresh rates, audio formats, and colour formats the display can accept.",
+    salesUse:
+      "EDID matters when a source is not outputting the expected resolution or when mixed displays are used in the same system.",
+    watchOut:
+      "Poor EDID handling can cause no picture, wrong resolution, unstable images, or incorrect audio format.",
+    related: ["HDMI", "scaler", "matrix", "display compatibility"],
   },
-  "SW-120-TX3-US": {
-    receiver: "RX3-100",
-    relationship: "Compatible HDBaseT 3.0 receiver path",
-    notes: [
-      "Use RX3-100 with SW-120-TX3-US.",
-      "This is the US wall-plate HDBaseT 3.0 transmitter path.",
-    ],
-    checks: [
-      "Confirm US wall-plate fit.",
-      "Confirm required laptop charging, USB, and display resolution.",
-    ],
+  {
+    terms: ["hdcp", "copy protection", "hdcp 2.2", "hdcp 2.3"],
+    title: "HDCP",
+    answer:
+      "HDCP is HDMI content protection. Every active device in the signal path must support the required HDCP version for protected content to display correctly.",
+    salesUse:
+      "Ask whether the source is a laptop, media player, set-top box, or protected content source.",
+    watchOut:
+      "HDCP faults often look like intermittent picture, blank screen, or content showing on one display but not another.",
+    related: ["HDMI", "EDID", "matrix", "splitter"],
   },
-  "SW-510-TX": {
-    receiver: "SW-515-RX",
-    relationship: "Matching receiver for the SW-510 HDBaseT switcher system",
-    notes: [
-      "Use SW-515-RX with SW-510-TX.",
-      "This is the paired HDBaseT receiver for the SW-510 presentation switching transmitter.",
-    ],
-    checks: [
-      "Confirm source count.",
-      "Confirm USB peripheral requirements.",
-      "Confirm display location and cable distance.",
-    ],
+  {
+    terms: ["usb host", "host port", "usb-b host", "usb-c host"],
+    title: "USB Host",
+    answer:
+      "USB host is the computer side of the USB relationship. In meeting rooms, the host is normally the laptop or room PC that wants to use a camera, microphone, speakerphone, touch display, keyboard, or mouse.",
+    salesUse:
+      "Identify which device is the computer and which devices are peripherals before selecting extenders or switchers.",
+    watchOut:
+      "USB host and USB device ports are not interchangeable. Getting this wrong is a common reason conferencing systems fail.",
+    related: ["USB device", "KVM", "BYOM", "camera"],
   },
-};
+  {
+    terms: ["usb device", "usb peripheral", "device port", "usb camera", "usb speakerphone"],
+    title: "USB Device / Peripheral",
+    answer:
+      "A USB device or peripheral is the item the computer wants to use, such as a webcam, PTZ camera, speakerphone, microphone, touch display, keyboard, or mouse.",
+    salesUse:
+      "List every USB peripheral and where it is physically located before choosing switchers or extenders.",
+    watchOut:
+      "USB 2.0 and USB 3.x have different bandwidth and distance implications. Cameras need more care than simple keyboard/mouse devices.",
+    related: ["USB host", "USB extender", "camera", "speakerphone"],
+  },
+  {
+    terms: ["usb-c", "usbc", "type-c", "displayport alt mode", "alt-mode"],
+    title: "USB-C",
+    answer:
+      "USB-C is a connector type, not a guarantee of capability. A USB-C port may carry video, USB data, charging, Ethernet, or only some of those functions.",
+    salesUse:
+      "Ask whether the customer needs USB-C for video, USB peripherals, laptop charging, network access, or all of these.",
+    watchOut:
+      "Do not assume every USB-C cable or port supports video, charging, high-speed USB, or MST.",
+    related: ["MST", "Power Delivery", "BYOD", "USB host"],
+  },
+  {
+    terms: ["mst", "multi-stream transport", "dual screen over usb-c", "dual display over usb-c"],
+    title: "MST",
+    answer:
+      "MST means Multi-Stream Transport. It allows more than one display signal to be carried over a suitable USB-C / DisplayPort connection from a laptop.",
+    salesUse:
+      "Use MST when a laptop needs to drive dual independent displays from one USB-C connection.",
+    watchOut:
+      "MST depends on laptop, operating system, USB-C/DisplayPort capability, and switcher support. Mac behaviour can be different from Windows.",
+    related: ["USB-C", "dual display", "MX-0402-MST", "MX-0403-H3-MST"],
+  },
+  {
+    terms: ["byod", "bring your own device"],
+    title: "BYOD",
+    answer:
+      "BYOD means Bring Your Own Device. In AV, the user brings a laptop and connects it to the room to share content or run the meeting.",
+    salesUse:
+      "Ask whether the laptop only needs to share video, or whether it also needs access to the room camera, microphone, speakers, touch display, and network.",
+    watchOut:
+      "BYOD can mean simple presentation or full conferencing. USB requirements change the product choice.",
+    related: ["BYOM", "USB-C", "wireless conferencing", "presentation switcher"],
+  },
+  {
+    terms: ["byom", "bring your own meeting"],
+    title: "BYOM",
+    answer:
+      "BYOM means Bring Your Own Meeting. The user runs Teams, Zoom, Webex, or similar from their own laptop while using the room camera, microphone, speakers, and display.",
+    salesUse:
+      "BYOM normally requires USB routing as well as video routing.",
+    watchOut:
+      "Wireless presentation is not automatically wireless conferencing. Confirm whether the camera and microphone return to the laptop.",
+    related: ["BYOD", "USB host", "wireless conferencing", "camera"],
+  },
+  {
+    terms: ["kvm", "keyboard video mouse"],
+    title: "KVM",
+    answer:
+      "KVM stands for Keyboard, Video, Mouse. In AV it usually means transporting video and USB control/peripherals together so a user can operate a remote computer or device.",
+    salesUse:
+      "Ask which computer is being controlled, where the user is sitting, and what USB devices need to work.",
+    watchOut:
+      "KVM can mean simple keyboard/mouse, but it can also involve cameras, touchscreens, or high-speed USB devices.",
+    related: ["USB extender", "USB host", "USB device"],
+  },
+  {
+    terms: ["matrix", "matrix switcher", "hdmi matrix", "hdbaset matrix"],
+    title: "Matrix Switcher",
+    answer:
+      "A matrix switcher routes multiple inputs to multiple outputs. For example, an 8x8 matrix can route any of 8 sources to any of 8 displays.",
+    salesUse:
+      "Use a matrix when the I/O count is known and the system is mostly fixed around a central rack or room core.",
+    watchOut:
+      "A matrix is not always better than AVoIP. AVoIP may be better when expansion, distributed rooms, or flexible routing are important.",
+    related: ["seamless matrix", "AVoIP", "HDBaseT matrix"],
+  },
+  {
+    terms: ["seamless", "seamless switching", "fast switching"],
+    title: "Seamless Switching",
+    answer:
+      "Seamless switching reduces or removes the black-screen delay when changing between sources. It usually uses scaling or frame synchronisation inside the switcher or processor.",
+    salesUse:
+      "Use seamless switching for presentation spaces, education, events, and rooms where source changes must look professional.",
+    watchOut:
+      "Check whether the customer needs true seamless switching, fast switching, multiview, video wall processing, or just basic source selection.",
+    related: ["scaler", "matrix", "multiview", "video wall"],
+  },
+  {
+    terms: ["scaler", "scaling", "downscaling", "upscaling"],
+    title: "Scaler / Scaling",
+    answer:
+      "A scaler changes video resolution or format. It helps when sources and displays do not all support the same resolution.",
+    salesUse:
+      "Use scaling where mixed-resolution displays are involved or where the system needs a consistent output format.",
+    watchOut:
+      "Scaling solves many compatibility issues but can affect latency, image processing, and system behaviour.",
+    related: ["EDID", "matrix", "splitter", "video wall"],
+  },
+  {
+    terms: ["multiview", "multi-view", "quad view", "pip", "picture in picture"],
+    title: "Multiview",
+    answer:
+      "Multiview shows multiple sources on one display at the same time, such as quad view, picture-in-picture, or custom layouts.",
+    salesUse:
+      "Use multiview for monitoring, teaching, meeting rooms, control rooms, or any environment where users need to see more than one source at once.",
+    watchOut:
+      "Multiview is different from a video wall. A video wall spreads content across multiple displays; multiview combines sources onto one output or canvas.",
+    related: ["video wall", "seamless matrix", "NHD-150-RX", "NHD-0401-MV"],
+  },
+  {
+    terms: ["video wall", "videowall", "lcd wall", "led wall"],
+    title: "Video Wall",
+    answer:
+      "A video wall uses multiple displays or LED cabinets to create a larger visual canvas. It may show one large image, separate content per display, or mixed layouts.",
+    salesUse:
+      "Ask wall size, layout, source count, content behaviour, latency, and whether it is LCD or LED before recommending a processor, matrix, or AVoIP.",
+    watchOut:
+      "Do not assume AVoIP is always the answer. Dedicated processors like SW-0206-VW can be better for some fixed wall requirements.",
+    related: ["SW-0206-VW", "SW-0204-VW", "AVoIP", "multiview"],
+  },
+  {
+    terms: ["poe", "power over ethernet"],
+    title: "PoE",
+    answer:
+      "PoE means Power over Ethernet. It provides power over network cabling to devices such as touch panels, cameras, controllers, or networked endpoints.",
+    salesUse:
+      "Use PoE where the endpoint is network-based and can be powered from a suitable PoE switch or injector.",
+    watchOut:
+      "PoE is not the same as PoH or PoC. Check the exact product power standard and required wattage.",
+    related: ["PoH", "PoC", "network switch"],
+  },
+  {
+    terms: ["poh", "power over hdbaset"],
+    title: "PoH",
+    answer:
+      "PoH means Power over HDBaseT. It powers a compatible transmitter or receiver over the HDBaseT link.",
+    salesUse:
+      "Use PoH to reduce local power supplies at endpoints where the WyreStorm product supports it.",
+    watchOut:
+      "Check direction: some products power transmitter to receiver, some receiver to transmitter, and some are bidirectional.",
+    related: ["HDBaseT", "PoC", "PoE"],
+  },
+  {
+    terms: ["poc", "power over cable"],
+    title: "PoC",
+    answer:
+      "PoC means Power over Cable. It is a general term for powering one side of an extender/link from the other side over the same cable path.",
+    salesUse:
+      "Use it as a practical installation benefit when the endpoint has no convenient local power.",
+    watchOut:
+      "Always check compatibility and power direction between the exact transmitter and receiver.",
+    related: ["PoH", "PoE", "HDBaseT"],
+  },
+  {
+    terms: ["dante", "aes67", "network audio"],
+    title: "Dante / AES67",
+    answer:
+      "Dante and AES67 are network audio technologies used to move audio channels over an IP network.",
+    salesUse:
+      "Use network audio where audio needs to be distributed, routed, processed, or integrated with DSPs/amplifiers across the network.",
+    watchOut:
+      "Network audio needs correct network design, clocking, routing, and IT coordination.",
+    related: ["DSP", "amplifier", "network audio", "MX-1007-HYB"],
+  },
+];
 
 const applicationAnswers = [
   {
     terms: ["meeting room", "conference room", "boardroom", "huddle"],
     answer:
-      "For a meeting room, start with the collaboration workflow rather than the product.\n\nLikely WyreStorm paths:\nâ€¢ Small/simple room: APO video bar or SW-220-TX-W style presentation path.\nâ€¢ Medium BYOD/BYOM room: SW-620-TX-W or SW-640L-TX-W if wireless conferencing, USB-C, dual display, or multiview is required.\nâ€¢ More technical dual-display room: MX-0402-MST or MX-0403-H3-MST where MST, USB-C, HDMI, and structured room switching matter.\n\nQualify next:\nâ€¢ How many displays?\nâ€¢ Is USB-C laptop connection required?\nâ€¢ Is wireless conferencing required or only wireless casting?\nâ€¢ Are cameras/microphones local to the room or remote over USB/HDBaseT/IP?\nâ€¢ Is this BYOD, MTR, Zoom Room, or a flexible room?",
-  },
-  {
-    terms: ["video wall", "videowall", "led wall", "lcd wall"],
-    answer:
-      "For a video wall, choose the architecture from behaviour, not just wall size.\n\nRecommended design split:\nâ€¢ Simple fixed-layout LCD wall: consider SW-0204-VW.\nâ€¢ More flexible processor-led LCD/video wall: consider SW-0206-VW.\nâ€¢ Distributed sources/displays or future expansion: consider NetworkHD AVoIP.\nâ€¢ Premium 4K60 4:4:4 / low latency / USB workflows: consider NetworkHD 500.\nâ€¢ Lossless zero-latency 10G requirement: consider NetworkHD 600.\n\nQualify next:\nâ€¢ LED or LCD?\nâ€¢ Wall layout: 2x2, 3x3, 1x4, custom, or mosaic?\nâ€¢ Single canvas, separate content per display, or multiview?\nâ€¢ Number of sources?\nâ€¢ Required latency and image quality?",
-  },
-  {
-    terms: ["byod", "byom", "usb-c", "wireless conferencing", "wireless casting"],
-    answer:
-      "For BYOD/BYOM, qualify USB and user workflow first.\n\nLikely WyreStorm paths:\nâ€¢ Wireless casting only: use a simpler wireless presentation route.\nâ€¢ Wireless conferencing plus USB peripherals: look at SW-620-TX-W or SW-640L-TX-W.\nâ€¢ Wired USB-C with dual-screen / MST: look at MX-0402-MST or MX-0403-H3-MST.\nâ€¢ In-desk cable management: include IDB-300 / IDB-300-BTN where a clean table workflow is needed.\n\nQualify next:\nâ€¢ Does the laptop need to use the room camera and microphone?\nâ€¢ Does USB-C need charging?\nâ€¢ One display or two?\nâ€¢ Is MST required?\nâ€¢ Is a touch panel or button controller required?",
+      "For a meeting room, start with the collaboration workflow rather than the product.\n\nLikely WyreStorm paths:\n• Small/simple room: APO video bar or simple presentation switching.\n• Medium BYOD/BYOM room: consider wireless conferencing or USB-C presentation products.\n• More technical dual-display room: consider MST/presentation matrix routes.\n\nQualify next:\n• How many displays?\n• Is USB-C laptop connection required?\n• Is wireless conferencing required or only wireless casting?\n• Are cameras/microphones local or remote?\n• Is this BYOD, MTR, Zoom Room, or flexible use?",
   },
   {
     terms: ["ndi", "camera", "ptz", "streaming", "capture"],
     answer:
-      "For camera, NDI, or capture workflows, separate the camera path from the display path.\n\nUseful WyreStorm paths:\nâ€¢ NDI camera into NetworkHD 100 workflow: NHD-128-NDI-TRX can bridge NDI into NetworkHD H.265 workflows.\nâ€¢ Multiview composition in NetworkHD 100: NHD-150-RX can be used for multiview output.\nâ€¢ PTZ camera choices: CAM-210-PTZ, CAM-210-NDI-PTZ, CAM-420-PTZ depending on resolution, NDI, and AI tracking needs.\nâ€¢ Multi-camera bridge: CAM-0402-BRG or CAM-0402-NDI-BRG depending on whether NDI is required.\n\nQualify next:\nâ€¢ USB, HDMI, NDI, or all three?\nâ€¢ Single camera or multi-camera?\nâ€¢ Local conferencing only, streaming, recording, or overflow display?",
+      "For camera, NDI, or capture workflows, separate the camera path from the display path.\n\nUseful WyreStorm paths:\n• NDI camera into NetworkHD 100 workflow: NHD-128-NDI-TRX can bridge NDI into H.265 workflows.\n• Multiview composition in NetworkHD 100: NHD-150-RX can be used for multiview output.\n• PTZ camera choices depend on resolution, NDI, AI tracking, and output format.\n\nQualify next:\n• USB, HDMI, NDI, or all three?\n• Single camera or multi-camera?\n• Conferencing only, streaming, recording, or overflow display?",
   },
 ];
 
@@ -169,7 +324,7 @@ function createMessage(role: "assistant" | "user", content: string): GuruMessage
 function normaliseSku(value: string) {
   return value
     .toUpperCase()
-    .replace(/[â€“â€”]/g, "-")
+    .replace(/[–—]/g, "-")
     .replace(/[^A-Z0-9-]/g, "")
     .trim();
 }
@@ -180,6 +335,7 @@ function extractSkus(value: string) {
 
   matches.forEach((match) => {
     const sku = normaliseSku(match);
+
     if (/\d/.test(sku)) {
       unique.add(sku);
     }
@@ -235,11 +391,7 @@ function fieldValue(record: Record<string, unknown>, candidates: string[]) {
 }
 
 function collectObjects(value: unknown, output: unknown[] = [], depth = 0) {
-  if (value === null || value === undefined) {
-    return output;
-  }
-
-  if (depth > 5) {
+  if (value === null || value === undefined || depth > 5) {
     return output;
   }
 
@@ -322,19 +474,166 @@ function findProduct(products: ProductEntry[], sku: string) {
   return products.find((product) => normaliseSku(product.sku) === normalised);
 }
 
+function detectUsbNotImportant(question: string) {
+  const lower = question.toLowerCase();
+
+  return [
+    "usb not important",
+    "usb is not important",
+    "usb isn't important",
+    "no usb",
+    "without usb",
+    "do not need usb",
+    "don't need usb",
+    "usb not required",
+    "usb isn't required",
+    "no camera",
+    "no touch",
+    "video only",
+    "hdmi only",
+  ].some((phrase) => lower.includes(phrase));
+}
+
+function detectUsbRequired(question: string) {
+  const lower = question.toLowerCase();
+
+  return [
+    "usb",
+    "camera",
+    "webcam",
+    "speakerphone",
+    "microphone",
+    "touch",
+    "interactive",
+    "keyboard",
+    "mouse",
+    "kvm",
+    "byom",
+    "conferencing",
+  ].some((phrase) => lower.includes(phrase));
+}
+
+function detectDistanceMetres(question: string) {
+  const match = question.toLowerCase().match(/\b(\d{1,3})\s*(m|metre|metres|meter|meters)\b/);
+
+  if (!match) {
+    return null;
+  }
+
+  const distance = Number.parseInt(match[1], 10);
+
+  if (Number.isNaN(distance)) {
+    return null;
+  }
+
+  return distance;
+}
+
+function hdbasetReceiverByDistance(distance: number | null) {
+  if (distance === null) {
+    return {
+      sku: "RX-35 or RX-70 family",
+      reason: "distance has not been confirmed yet",
+      caution: "Select the receiver by required transmission distance and confirmed resolution.",
+    };
+  }
+
+  if (distance <= 35) {
+    return {
+      sku: "RX-35 family",
+      reason: `the stated distance is ${distance}m, so the shorter-distance HDBaseT receiver path should be considered first`,
+      caution: "Confirm the exact RX-35 SKU against resolution, scaling, audio, and control needs.",
+    };
+  }
+
+  if (distance <= 70) {
+    return {
+      sku: "RX-70 family",
+      reason: `the stated distance is ${distance}m, so the longer-distance HDBaseT receiver path is the safer choice`,
+      caution: "Confirm the exact RX-70 SKU against resolution, scaling, audio, and control needs.",
+    };
+  }
+
+  return {
+    sku: "RX-70 family or a longer-distance HDBaseT path",
+    reason: `the stated distance is ${distance}m, which may exceed some receiver/cable combinations`,
+    caution: "Confirm cable grade, resolution, and whether a 100m-capable HDBaseT receiver/path is required.",
+  };
+}
+
+function isSw130Family(sku: string) {
+  const normalised = normaliseSku(sku);
+  return normalised === "SW-130-TX" || normalised === "SW-130-TX-UK" || normalised === "SW-130-TX-US";
+}
+
+function answerSw130ReceiverQuestion(question: string, sourceSku: string, products: ProductEntry[]) {
+  const usbNotImportant = detectUsbNotImportant(question);
+  const usbMentioned = detectUsbRequired(question);
+  const distance = detectDistanceMetres(question);
+  const distanceChoice = hdbasetReceiverByDistance(distance);
+  const sourceProduct = findProduct(products, sourceSku);
+  const sourceTitle = sourceProduct?.title && sourceProduct.title !== sourceSku ? ` — ${sourceProduct.title}` : "";
+
+  if (usbNotImportant) {
+    return [
+      `If USB transport is not required, ${sourceSku}${sourceTitle} does not have to be paired specifically with RX-500.`,
+      "",
+      `Use a suitable WyreStorm HDBaseT receiver selected by transmission distance: ${distanceChoice.sku}.`,
+      "",
+      `Why: ${distanceChoice.reason}.`,
+      "",
+      "Practical selection rule:",
+      "• RX-35 family for shorter HDBaseT receiver runs.",
+      "• RX-70 family for longer HDBaseT receiver runs.",
+      "• RX-500 when USB transport is required for camera, speakerphone, touch, keyboard, mouse, or KVM-style workflows.",
+      "",
+      "Check before quoting:",
+      "• Required cable distance.",
+      "• Required resolution and refresh rate.",
+      "• Cable grade and installed cable condition.",
+      "• Whether USB return is genuinely required or video-only is acceptable.",
+      `• ${distanceChoice.caution}`,
+    ].join("\n");
+  }
+
+  if (usbMentioned) {
+    return [
+      `Use RX-500 with ${sourceSku}${sourceTitle} when USB transport matters.`,
+      "",
+      "Why this fits:",
+      "• RX-500 is the correct receiver path when the SW-130 transmitter needs USB return for room peripherals.",
+      "• This applies to camera, speakerphone, touch display, keyboard/mouse, or KVM-style requirements.",
+      "",
+      "If the customer later confirms video-only operation:",
+      `• Use a suitable HDBaseT receiver by distance instead: ${distanceChoice.sku}.`,
+      "• RX-35 family for shorter runs.",
+      "• RX-70 family for longer runs.",
+    ].join("\n");
+  }
+
+  return [
+    `${sourceSku}${sourceTitle} has two valid receiver paths depending on whether USB is required.`,
+    "",
+    "Recommended answer:",
+    "• If USB transport is required: use RX-500.",
+    `• If USB transport is not required: use a suitable HDBaseT receiver by distance, typically ${distanceChoice.sku}.`,
+    "",
+    "Ask the customer:",
+    "• Is this video-only, or does the laptop need to access room USB devices?",
+    "• What is the cable distance from wall plate to display/receiver?",
+    "• What resolution and refresh rate are required?",
+  ].join("\n");
+}
+
 function scoreProduct(product: ProductEntry, query: string) {
-  const normalisedQuery = query.toLowerCase();
-  const words = normalisedQuery
+  const words = query
+    .toLowerCase()
     .split(/[^a-z0-9]+/i)
     .map((word) => word.trim())
     .filter((word) => word.length > 2);
 
   let score = 0;
   const productText = `${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.text}`.toLowerCase();
-
-  if (productText.includes(normalisedQuery)) {
-    score += 40;
-  }
 
   words.forEach((word) => {
     if (productText.includes(word)) {
@@ -384,7 +683,7 @@ function usefulLines(product: ProductEntry) {
 
   const parts = product.text
     .replace(/\s+/g, " ")
-    .split(/(?:â€¢|\n|\. |; )/)
+    .split(/(?:•|\n|\. |; )/)
     .map((line) => line.trim())
     .filter((line) => line.length > 18 && line.length < 220);
 
@@ -396,168 +695,40 @@ function usefulLines(product: ProductEntry) {
   return Array.from(new Set(selected)).slice(0, 5);
 }
 
-function detectUsbNotImportant(question: string) {
+function answerGlossary(question: string) {
   const lower = question.toLowerCase();
 
-  return [
-    "usb not important",
-    "usb is not important",
-    "usb isn't important",
-    "no usb",
-    "without usb",
-    "do not need usb",
-    "don't need usb",
-    "usb not required",
-    "usb isn't required",
-    "no camera",
-    "no touch",
-    "video only",
-    "hdmi only",
-  ].some((phrase) => lower.includes(phrase));
-}
+  const directTerm = lower
+    .replace(/^(what is|what does|explain|define|meaning of|what's)\s+/i, "")
+    .replace(/\?+$/g, "")
+    .trim();
 
-function detectUsbRequired(question: string) {
-  const lower = question.toLowerCase();
-
-  return [
-    "usb",
-    "camera",
-    "webcam",
-    "speakerphone",
-    "microphone",
-    "touch",
-    "interactive",
-    "keyboard",
-    "mouse",
-    "kvm",
-    "byom",
-    "conferencing",
-  ].some((phrase) => lower.includes(phrase));
-}
-
-function detectDistanceMetres(question: string) {
-  const lower = question.toLowerCase();
-  const match = lower.match(/\b(\d{1,3})\s*(m|metre|metres|meter|meters)\b/);
+  const match = avGlossary.find((entry) =>
+    entry.terms.some((term) => {
+      const termLower = term.toLowerCase();
+      return lower.includes(termLower) || directTerm === termLower;
+    })
+  );
 
   if (!match) {
-    return null;
-  }
-
-  const distance = Number.parseInt(match[1], 10);
-
-  if (Number.isNaN(distance)) {
-    return null;
-  }
-
-  return distance;
-}
-
-function hdbasetReceiverByDistance(distance: number | null) {
-  if (distance === null) {
-    return {
-      sku: "RX-35 or RX-70 family",
-      reason: "distance has not been confirmed yet",
-      caution: "Select the receiver by the required transmission distance and confirmed resolution.",
-    };
-  }
-
-  if (distance <= 35) {
-    return {
-      sku: "RX-35 family",
-      reason: `the stated distance is ${distance}m, so the shorter-distance HDBaseT receiver path should be considered first`,
-      caution: "Confirm the exact RX-35 SKU against required resolution, scaling, audio, and control needs.",
-    };
-  }
-
-  if (distance <= 70) {
-    return {
-      sku: "RX-70 family",
-      reason: `the stated distance is ${distance}m, so the longer-distance HDBaseT receiver path is the safer choice`,
-      caution: "Confirm the exact RX-70 SKU against required resolution, scaling, audio, and control needs.",
-    };
-  }
-
-  return {
-    sku: "RX-70 family or a longer-distance HDBaseT path",
-    reason: `the stated distance is ${distance}m, which may exceed the practical limit of some receiver/cable combinations`,
-    caution: "Do not assume compatibility beyond the rated distance. Confirm cable grade, resolution, and whether a 100m-capable HDBaseT receiver/path is required.",
-  };
-}
-
-function isSw130Family(sku: string) {
-  const normalised = normaliseSku(sku);
-
-  return normalised === "SW-130-TX" || normalised === "SW-130-TX-UK" || normalised === "SW-130-TX-US";
-}
-
-function answerSw130ReceiverQuestion(question: string, sourceSku: string, products: ProductEntry[]) {
-  const usbNotImportant = detectUsbNotImportant(question);
-  const usbMentioned = detectUsbRequired(question);
-  const distance = detectDistanceMetres(question);
-  const distanceChoice = hdbasetReceiverByDistance(distance);
-  const sourceProduct = findProduct(products, sourceSku);
-  const sourceTitle = sourceProduct?.title && sourceProduct.title !== sourceSku ? ` — ${sourceProduct.title}` : "";
-
-  if (usbNotImportant) {
-    return [
-      `If USB transport is not required, ${sourceSku}${sourceTitle} does not have to be paired specifically with RX-500.`,
-      "",
-      `Use a suitable WyreStorm HDBaseT receiver selected by transmission distance: ${distanceChoice.sku}.`,
-      "",
-      `Why: ${distanceChoice.reason}.`,
-      "",
-      "Practical selection rule:",
-      "• Use the RX-35 family for shorter HDBaseT receiver runs.",
-      "• Use the RX-70 family for longer HDBaseT receiver runs.",
-      "• Use RX-500 when USB transport is required for camera, speakerphone, touch, keyboard, mouse, or KVM-style workflows.",
-      "",
-      "Check before quoting:",
-      "• Required cable distance.",
-      "• Required resolution and refresh rate.",
-      "• Cable grade and installed cable condition.",
-      "• Whether USB return is genuinely required or video-only is acceptable.",
-      `• ${distanceChoice.caution}`,
-    ].join("\n");
-  }
-
-  if (usbMentioned) {
-    return [
-      `Use RX-500 with ${sourceSku}${sourceTitle} when USB transport matters.`,
-      "",
-      "Why this fits:",
-      "• RX-500 is the correct receiver path when the SW-130 transmitter needs USB return for room peripherals.",
-      "• This applies to camera, speakerphone, touch display, keyboard/mouse, or KVM-style requirements.",
-      "",
-      "If the customer later confirms video-only operation:",
-      `• You can move to a suitable HDBaseT receiver by distance instead: ${distanceChoice.sku}.`,
-      "• RX-35 family for shorter runs.",
-      "• RX-70 family for longer runs.",
-      "",
-      "Check before quoting:",
-      "• USB device type and bandwidth expectation.",
-      "• Cable distance.",
-      "• Resolution and refresh rate.",
-      "• Cable grade.",
-    ].join("\n");
+    return "";
   }
 
   return [
-    `${sourceSku}${sourceTitle} has two valid receiver paths depending on whether USB is required.`,
+    `${match.title}`,
     "",
-    "Recommended answer:",
-    "• If USB transport is required: use RX-500.",
-    `• If USB transport is not required: use a suitable HDBaseT receiver by distance, typically ${distanceChoice.sku}.`,
+    match.answer,
     "",
-    "Practical selection rule:",
-    "• RX-35 family for shorter HDBaseT runs.",
-    "• RX-70 family for longer HDBaseT runs.",
-    "• RX-500 when USB return is needed for camera, speakerphone, touch, keyboard, mouse, or KVM-style use.",
+    "Sales use:",
+    `• ${match.salesUse}`,
     "",
-    "Ask the customer:",
-    "• Is this video-only, or does the laptop need to access room USB devices?",
-    "• What is the cable distance from wall plate to display/receiver?",
-    "• What resolution and refresh rate are required?",
-  ].join("\n");
+    "Watch out:",
+    `• ${match.watchOut}`,
+    match.related?.length ? "" : "",
+    match.related?.length ? `Related terms: ${match.related.join(", ")}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 function answerReceiverQuestion(question: string, products: ProductEntry[]) {
@@ -572,40 +743,16 @@ function answerReceiverQuestion(question: string, products: ProductEntry[]) {
     return answerSw130ReceiverQuestion(question, sourceSku, products);
   }
 
-  const rule = compatibilityRules[sourceSku];
+  const product = findProduct(products, sourceSku);
 
-  if (rule?.receiver) {
-    const sourceProduct = findProduct(products, sourceSku);
-    const receiverProduct = findProduct(products, rule.receiver);
-
-    const sourceTitle = sourceProduct?.title && sourceProduct.title !== sourceSku ? ` — ${sourceProduct.title}` : "";
-    const receiverTitle =
-      receiverProduct?.title && receiverProduct.title !== rule.receiver ? ` — ${receiverProduct.title}` : "";
-
+  if (product) {
     return [
-      `Use ${rule.receiver}${receiverTitle} with ${sourceSku}${sourceTitle}.`,
+      `I found ${sourceSku}, but I do not have a confirmed receiver pairing rule for it yet.`,
       "",
-      `Relationship: ${rule.relationship}.`,
+      `Product context: ${product.title}`,
+      ...usefulLines(product).map((line) => `• ${line}`),
       "",
-      "Why this fits:",
-      ...rule.notes.map((note) => `• ${note}`),
-      "",
-      "Check before quoting:",
-      ...rule.checks.map((check) => `• ${check}`),
-    ].join("\n");
-  }
-
-  const sourceProduct = findProduct(products, sourceSku);
-  const sourceLines = sourceProduct ? usefulLines(sourceProduct) : [];
-
-  if (sourceProduct && sourceLines.length) {
-    return [
-      `I found ${sourceSku}, but I do not have a confirmed receiver rule for it yet.`,
-      "",
-      `Product context: ${sourceProduct.title}`,
-      ...sourceLines.map((line) => `• ${line}`),
-      "",
-      "Next step: confirm whether this is HDBaseT, NetworkHD, HDMI, or USB extension. I can then narrow the receiver path safely.",
+      "Confirm the transport type first: HDBaseT, NetworkHD/AVoIP, HDMI, or USB extension.",
     ].join("\n");
   }
 
@@ -618,6 +765,7 @@ function answerReceiverQuestion(question: string, products: ProductEntry[]) {
     "• What cable distance and resolution are required?",
   ].join("\n");
 }
+
 function answerProductQuestion(question: string, products: ProductEntry[]) {
   const skus = extractSkus(question);
   const sku = skus[0];
@@ -629,64 +777,27 @@ function answerProductQuestion(question: string, products: ProductEntry[]) {
   const product = findProduct(products, sku);
 
   if (!product) {
-    const rule = compatibilityRules[sku];
-
-    if (rule) {
-      return answerReceiverQuestion(question, products);
-    }
-
-    return [
-      `I do not have ${sku} in the local product index yet.`,
-      "",
-      "I can still help, but I need one more detail:",
-      "â€¢ Is it a transmitter, receiver, switcher, matrix, AVoIP endpoint, extender, or accessory?",
-    ].join("\n");
+    return "";
   }
 
   const lines = usefulLines(product);
 
   return [
-    `${product.sku} â€” ${product.title}`,
+    `${product.sku} — ${product.title}`,
     product.family ? `Family: ${product.family}` : "",
     product.category ? `Category: ${product.category}` : "",
     product.description ? `Summary: ${product.description}` : "",
     "",
     lines.length ? "Useful product notes:" : "I found the product but the local index does not expose detailed notes for it yet.",
-    ...lines.map((line) => `â€¢ ${line}`),
+    ...lines.map((line) => `• ${line}`),
     "",
     "Next qualification:",
-    "â€¢ What is the room/application?",
-    "â€¢ What is the source and display count?",
-    "â€¢ What resolution, distance, USB, audio, and control behaviour is required?",
+    "• What is the room/application?",
+    "• What is the source and display count?",
+    "• What resolution, distance, USB, audio, and control behaviour is required?",
   ]
     .filter(Boolean)
     .join("\n");
-}
-
-function answerComparison(question: string, products: ProductEntry[]) {
-  const skus = extractSkus(question);
-
-  if (skus.length < 2) {
-    return "";
-  }
-
-  const productA = findProduct(products, skus[0]);
-  const productB = findProduct(products, skus[1]);
-
-  return [
-    `Comparison: ${skus[0]} vs ${skus[1]}`,
-    "",
-    `${skus[0]}: ${productA?.title ?? "Not found in local index"}`,
-    ...(productA ? usefulLines(productA).slice(0, 3).map((line) => `â€¢ ${line}`) : []),
-    "",
-    `${skus[1]}: ${productB?.title ?? "Not found in local index"}`,
-    ...(productB ? usefulLines(productB).slice(0, 3).map((line) => `â€¢ ${line}`) : []),
-    "",
-    "Decision check:",
-    "â€¢ Which one matches the transport type?",
-    "â€¢ Which one supports the required distance and resolution?",
-    "â€¢ Which one supports the needed USB/audio/control behaviour?",
-  ].join("\n");
 }
 
 function answerApplication(question: string) {
@@ -704,16 +815,7 @@ function answerFromSearch(question: string, products: ProductEntry[]) {
   const matches = searchProducts(products, question, 4);
 
   if (!matches.length) {
-    return [
-      "I can help, but I need to narrow the AV requirement.",
-      "",
-      "Answer these in order:",
-      "â€¢ What type of space is this?",
-      "â€¢ How many sources and displays?",
-      "â€¢ Is this HDMI, HDBaseT, AVoIP, USB-C, wireless, or mixed?",
-      "â€¢ What distance and resolution are required?",
-      "â€¢ Is USB for camera/microphone/touch needed?",
-    ].join("\n");
+    return "";
   }
 
   return [
@@ -721,14 +823,185 @@ function answerFromSearch(question: string, products: ProductEntry[]) {
     "",
     ...matches.map((product) => {
       const summary = product.description || product.category || product.family || "Matched by SKU/product text.";
-      return `â€¢ ${product.sku} â€” ${product.title}. ${summary}`;
+      return `• ${product.sku} — ${product.title}. ${summary}`;
     }),
     "",
-    "Tell me the room type, source/display count, distance, resolution, and USB requirement and Iâ€™ll narrow this to a recommendation.",
+    "Tell me the room type, source/display count, distance, resolution, and USB requirement and I’ll narrow this to a recommendation.",
   ].join("\n");
 }
 
-function answerQuestion(question: string, products: ProductEntry[]) {
+function normaliseCacheKey(question: string) {
+  return question.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function readGuruCache() {
+  if (typeof window === "undefined") {
+    return {} as Record<string, LiveCacheEntry>;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(GURU_CACHE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === "object" ? (parsed as Record<string, LiveCacheEntry>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeGuruCache(cache: Record<string, LiveCacheEntry>) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const entries = Object.entries(cache)
+    .sort((a, b) => Date.parse(b[1]?.savedAt ?? "") - Date.parse(a[1]?.savedAt ?? ""))
+    .slice(0, GURU_CACHE_LIMIT);
+
+  window.localStorage.setItem(GURU_CACHE_KEY, JSON.stringify(Object.fromEntries(entries)));
+}
+
+function readCachedLiveAnswer(question: string) {
+  const cache = readGuruCache();
+  const key = normaliseCacheKey(question);
+  return cache[key] ?? null;
+}
+
+function storeCachedLiveAnswer(question: string, answer: string, source: string) {
+  const cache = readGuruCache();
+  const key = normaliseCacheKey(question);
+
+  cache[key] = {
+    question,
+    answer,
+    source,
+    savedAt: new Date().toISOString(),
+  };
+
+  writeGuruCache(cache);
+}
+
+function cacheCount() {
+  return Object.keys(readGuruCache()).length;
+}
+
+function liveLookupTerm(question: string) {
+  return question
+    .replace(/\b(what is|what does|explain|define|meaning of|tell me about|how does|why does)\b/gi, "")
+    .replace(/[?!.]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
+}
+
+async function tryWikipediaLookup(question: string) {
+  const term = liveLookupTerm(question);
+
+  if (!term || extractSkus(term).length) {
+    return "";
+  }
+
+  const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(term)}`;
+  const response = await fetch(url, { cache: "no-store" });
+
+  if (!response.ok) {
+    return "";
+  }
+
+  const data = (await response.json()) as { title?: string; extract?: string; content_urls?: { desktop?: { page?: string } } };
+  const extract = typeof data.extract === "string" ? data.extract.trim() : "";
+
+  if (!extract || extract.length < 80) {
+    return "";
+  }
+
+  return [
+    `${data.title ?? term}`,
+    "",
+    extract,
+    "",
+    "Guru note:",
+    "• This was found by live lookup because it was not in the local Wingman glossary or product index.",
+    "• I have stored it in local Guru memory for next time.",
+  ].join("\n");
+}
+
+async function tryDuckDuckGoLookup(question: string) {
+  const term = liveLookupTerm(question);
+
+  if (!term) {
+    return "";
+  }
+
+  const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(`${term} AV terminology`)}&format=json&no_html=1&skip_disambig=1`;
+  const response = await fetch(url, { cache: "no-store" });
+
+  if (!response.ok) {
+    return "";
+  }
+
+  const data = (await response.json()) as { Heading?: string; AbstractText?: string; Answer?: string };
+  const answer = [data.AbstractText, data.Answer].filter(Boolean).join(" ").trim();
+
+  if (!answer || answer.length < 60) {
+    return "";
+  }
+
+  return [
+    `${data.Heading || term}`,
+    "",
+    answer,
+    "",
+    "Guru note:",
+    "• This was found by live lookup because it was not in the local Wingman glossary or product index.",
+    "• I have stored it in local Guru memory for next time.",
+  ].join("\n");
+}
+
+async function liveLookup(question: string) {
+  const cached = readCachedLiveAnswer(question);
+
+  if (cached?.answer) {
+    return [
+      cached.answer,
+      "",
+      `Local Guru memory: reused cached answer saved ${new Date(cached.savedAt).toLocaleString()}.`,
+    ].join("\n");
+  }
+
+  try {
+    const wikipediaAnswer = await tryWikipediaLookup(question);
+
+    if (wikipediaAnswer) {
+      storeCachedLiveAnswer(question, wikipediaAnswer, "wikipedia");
+      return wikipediaAnswer;
+    }
+  } catch {
+    // Fall through to the next live lookup source.
+  }
+
+  try {
+    const duckAnswer = await tryDuckDuckGoLookup(question);
+
+    if (duckAnswer) {
+      storeCachedLiveAnswer(question, duckAnswer, "duckduckgo");
+      return duckAnswer;
+    }
+  } catch {
+    // Fall through to safe clarification.
+  }
+
+  return [
+    "I do not know that confidently yet.",
+    "",
+    "I checked the local Wingman glossary, local product index, and attempted a live lookup, but did not get a strong enough answer to store.",
+    "",
+    "Ask it with a little more context, for example:",
+    "• Is this a product SKU, AV acronym, signal type, cable type, or system behaviour?",
+    "• Is the question about WyreStorm product selection or general AV terminology?",
+  ].join("\n");
+}
+
+async function answerQuestion(question: string, products: ProductEntry[]) {
   const lower = question.toLowerCase();
   const skus = extractSkus(question);
 
@@ -736,8 +1009,10 @@ function answerQuestion(question: string, products: ProductEntry[]) {
     return answerReceiverQuestion(question, products);
   }
 
-  if ((lower.includes("compare") || lower.includes("difference")) && skus.length >= 2) {
-    return answerComparison(question, products);
+  const glossaryAnswer = answerGlossary(question);
+
+  if (glossaryAnswer) {
+    return glossaryAnswer;
   }
 
   if (skus.length) {
@@ -754,12 +1029,18 @@ function answerQuestion(question: string, products: ProductEntry[]) {
     return applicationAnswer;
   }
 
-  return answerFromSearch(question, products);
+  const productSearchAnswer = answerFromSearch(question, products);
+
+  if (productSearchAnswer) {
+    return productSearchAnswer;
+  }
+
+  return liveLookup(question);
 }
 
 const openingMessage = createMessage(
   "assistant",
-  "Hi, Iâ€™m Guru. Ask me a WyreStorm product or system design question and Iâ€™ll answer directly. Example: â€œWhich receiver can I use with the SW-130-TX-UK?â€"
+  "Hi, I’m Guru. Ask me a WyreStorm product, AV terminology, acronym, or system design question. If I don’t know it locally, I’ll try a live lookup and store the answer in local Guru memory for next time."
 );
 
 export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
@@ -767,10 +1048,13 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
   const [draft, setDraft] = useState("");
   const [products, setProducts] = useState<ProductEntry[]>([]);
   const [indexStatus, setIndexStatus] = useState("Loading product intelligence...");
+  const [memoryCount, setMemoryCount] = useState(0);
   const messagesRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
+    setMemoryCount(cacheCount());
+
     let active = true;
 
     fetch("/product-intelligence-index.json", { cache: "no-store" })
@@ -796,7 +1080,7 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
         }
 
         setProducts([]);
-        setIndexStatus("Product index unavailable â€” using built-in AV rules");
+        setIndexStatus("Product index unavailable — using built-in AV rules and glossary");
       });
 
     return () => {
@@ -817,9 +1101,11 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
     return () => window.clearTimeout(timer);
   }, [open, messages]);
 
-  const helperText = useMemo(() => indexStatus, [indexStatus]);
+  const helperText = useMemo(() => {
+    return `${indexStatus} • Glossary: ${avGlossary.length} terms • Local Guru memory: ${memoryCount}`;
+  }, [indexStatus, memoryCount]);
 
-  function sendMessage(raw: string) {
+  async function sendMessage(raw: string) {
     const prompt = raw.trim();
 
     if (!prompt) {
@@ -827,19 +1113,36 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
     }
 
     const userMessage = createMessage("user", prompt);
-    const assistantMessage = createMessage("assistant", answerQuestion(prompt, products));
+    const pendingMessage = createMessage("assistant", "Checking Guru knowledge...");
 
-    setMessages((current) => [...current, userMessage, assistantMessage]);
+    setMessages((current) => [...current, userMessage, pendingMessage]);
     setDraft("");
+
+    const answer = await answerQuestion(prompt, products);
+
+    setMessages((current) =>
+      current.map((message) => (message.id === pendingMessage.id ? { ...message, content: answer } : message))
+    );
+
+    setMemoryCount(cacheCount());
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    sendMessage(draft);
+    void sendMessage(draft);
   }
 
   function handleQuickPrompt(prompt: string) {
-    sendMessage(prompt);
+    void sendMessage(prompt);
+  }
+
+  function clearGuruMemory() {
+    window.localStorage.removeItem(GURU_CACHE_KEY);
+    setMemoryCount(0);
+    setMessages((current) => [
+      ...current,
+      createMessage("assistant", "Local Guru memory has been cleared. Built-in glossary and product rules remain available."),
+    ]);
   }
 
   return (
@@ -861,7 +1164,7 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
             <GuruAssistantAvatar size={42} />
             <div>
               <h2>Guru</h2>
-              <p>Product-aware Q&A for WyreStorm sales, system design, and proposal support.</p>
+              <p>Product-aware Q&A, AV glossary, acronym explainer, and local learning memory.</p>
               <p style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 6 }}>
                 <Database className="h-3.5 w-3.5" />
                 {helperText}
@@ -891,6 +1194,12 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
               <span>{prompt}</span>
             </button>
           ))}
+
+          {memoryCount > 0 ? (
+            <button type="button" className="wingman-guru-quick-prompt" onClick={clearGuruMemory}>
+              Clear Guru memory
+            </button>
+          ) : null}
         </div>
 
         <div className="wingman-guru-messages" ref={messagesRef}>
@@ -917,7 +1226,7 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             className="wingman-guru-input"
-            placeholder="Ask Guru a product or system question..."
+            placeholder="Ask Guru a product, AV term, acronym, or system question..."
           />
           <button type="submit" className="wingman-guru-send" aria-label="Send question">
             <Send className="h-4 w-4" />
