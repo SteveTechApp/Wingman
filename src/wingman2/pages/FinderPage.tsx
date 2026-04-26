@@ -499,7 +499,7 @@ function cleanDisplayText(value: unknown) {
 
 function hasTextNoise(value: unknown) {
   const text = String(value ?? "");
-  return /[ÃƒÆ’Ã†â€™ÃƒÆ’Ã¢â‚¬Å¡ÃƒÆ’Ã‚Â¢ÃƒÂ¯Ã‚Â¿Ã‚Â½]|[\u0080-\u024f]/.test(text);
+  return /[ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¿Ãƒâ€šÃ‚Â½]|[\u0080-\u024f]/.test(text);
 }
 
 function normaliseText(value: unknown) {
@@ -790,12 +790,68 @@ function isIntegratedHdmiUsbProduct(product: FinderProduct) {
   return hasHdmi && hasUsb && hasTransportRole && !isAccessoryOnly;
 }
 
+function isControlOnlyProduct(product: FinderProduct) {
+  const sku = product.sku.toUpperCase();
+  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")}`);
+
+  return (
+    sku.startsWith("SYN-") ||
+    sku.startsWith("TS-") ||
+    text.includes("keypad controller") ||
+    text.includes("touchscreen controller") ||
+    text.includes("touchpad ip controller") ||
+    text.includes("control only")
+  );
+}
+
+function isSimpleHdmiSwitcherOnly(product: FinderProduct) {
+  const sku = product.sku.toUpperCase();
+  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")}`);
+
+  return (
+    sku.startsWith("EXP-SW-") &&
+    text.includes("hdmi switcher") &&
+    !text.includes("mst") &&
+    !text.includes("dual display") &&
+    !text.includes("multi output") &&
+    !text.includes("usb c")
+  );
+}
+
+function isDualDisplayCapableProduct(product: FinderProduct) {
+  const sku = product.sku.toUpperCase();
+  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
+
+  if (isControlOnlyProduct(product)) return false;
+  if (isSimpleHdmiSwitcherOnly(product)) return false;
+  if (isReceiverOnlyProduct(product)) return false;
+
+  if (sku === "MX-0402-MST") return true;
+  if (sku === "MX-0403-H3-MST") return true;
+
+  return (
+    text.includes("mst") ||
+    text.includes("dual display") ||
+    text.includes("dual-display") ||
+    text.includes("dual independent") ||
+    text.includes("multi output") ||
+    text.includes("multiple outputs") ||
+    text.includes("usb c") && text.includes("presentation switcher") ||
+    text.includes("matrix") ||
+    text.includes("networkhd") ||
+    text.includes("avoip")
+  );
+}
 function isRoutingCapableProduct(product: FinderProduct) {
+  if (isControlOnlyProduct(product)) return false;
+  if (isSimpleHdmiSwitcherOnly(product)) return false;
+
   return productHasAny(product, [
     "matrix",
     "routing",
     "presentation switcher",
     "multi output",
+    "multiple outputs",
     "dual display",
     "mst",
     "networkhd",
@@ -829,6 +885,10 @@ function isProductAllowedForNeed(product: FinderProduct, need: FinderNeed) {
     return isIntegratedHdmiUsbProduct(product);
   }
 
+  if (need.technicalRequirement === "Dual display / MST") {
+    return isDualDisplayCapableProduct(product);
+  }
+
   if (hasMultiInputNeed(need)) {
     return isRoutingCapableProduct(product) && !isReceiverOnlyProduct(product);
   }
@@ -855,6 +915,10 @@ function isProductAllowedForNeed(product: FinderProduct, need: FinderNeed) {
 
   if (path === "Matrix / routing") {
     return isRoutingCapableProduct(product) && !isReceiverOnlyProduct(product);
+  }
+
+  if (path === "Presentation switcher" && need.technicalRequirement === "Dual display / MST") {
+    return isDualDisplayCapableProduct(product);
   }
 
   if (path === "AVoIP") {
@@ -954,6 +1018,9 @@ function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
   if (isReceiverOnlyProduct(cleanProduct) && hasMultiInputNeed(need)) score -= 100;
   if (hasIntegratedHdmiUsbNeed(need) && !isIntegratedHdmiUsbProduct(cleanProduct)) score -= 120;
   if (isReceiverOnlyProduct(cleanProduct) && hasIntegratedHdmiUsbNeed(need)) score -= 120;
+  if (need.technicalRequirement === "Dual display / MST" && !isDualDisplayCapableProduct(cleanProduct)) score -= 150;
+  if (isControlOnlyProduct(cleanProduct)) score -= 150;
+  if (isSimpleHdmiSwitcherOnly(cleanProduct)) score -= 120;
   if (isAvOverIpProduct(cleanProduct) && need.technicalRequirement === "Extend HDMI and USB together" && !productHasAny(cleanProduct, ["usb"])) score -= 60;
   if (cleanProduct.source === "seed") score += 4;
 
@@ -973,7 +1040,13 @@ function getReasonLines(match: ProductMatch, need: FinderNeed) {
 
   if (need.query.trim()) lines.push("Matches the search term or product intent.");
   if (path && match.category === path) lines.push(`Fits the likely product path: ${path}.`);
-  if (need.technicalRequirement) lines.push(`Supports the selected technical requirement: ${need.technicalRequirement}.`);
+  if (need.technicalRequirement === "Dual display / MST") {
+    lines.push("Supports dual-display, MST, multi-output presentation, matrix, or AVoIP routing behaviour.");
+  }
+
+  if (need.technicalRequirement && need.technicalRequirement !== "Dual display / MST") {
+    lines.push(`Supports the selected technical requirement: ${need.technicalRequirement}.`);
+  }
   if (hasIntegratedHdmiUsbNeed(need)) {
     lines.push("Integrated HDMI and USB transport requirement.");
   }
