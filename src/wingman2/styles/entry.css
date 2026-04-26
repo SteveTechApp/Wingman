@@ -905,3 +905,83 @@ textarea {
   }
 }
 /* REAL-WINGMAN-LOGO-END */
+/* PAGE-HEADER-REDUCTION-START */
+.wingman-page-hero {
+  gap: 13px !important;
+  margin-bottom: 14px !important;
+  padding: clamp(16px, 1.8vw, 25px) !important;
+}
+
+.wingman-hero-copy .wingman-display {
+  margin-top: 6px !important;
+  max-width: 920px !important;
+  font-size: clamp(1.5rem, 3vw, 3.18rem) !important;
+  line-height: 0.96 !important;
+  letter-spacing: -0.052em !important;
+}
+
+.wingman-hero-purpose {
+  max-width: 820px !important;
+  margin-top: 8px !important;
+  font-size: clamp(0.82rem, 0.86vw, 0.92rem) !important;
+  line-height: 1.48 !important;
+}
+
+.wingman-hero-next {
+  max-width: 860px !important;
+  gap: 3px !important;
+  padding: 9px 12px !important;
+  border-radius: 15px !important;
+}
+
+.wingman-hero-next span {
+  font-size: 0.61rem !important;
+}
+
+.wingman-hero-next p {
+  font-size: 0.81rem !important;
+  line-height: 1.38 !important;
+}
+
+.wingman-hero-actions {
+  gap: 8px !important;
+}
+
+.wingman-hero-action {
+  min-height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 0.76rem !important;
+}
+
+.wingman-section-card-header {
+  padding: 14px 17px 12px !important;
+}
+
+.wingman-section-card-header h2 {
+  font-size: clamp(1.05rem, 1.28vw, 1.38rem) !important;
+}
+
+.wingman-section-card-header p:not(.wingman-kicker) {
+  margin-top: 4px !important;
+  font-size: 0.8rem !important;
+  line-height: 1.42 !important;
+}
+
+.wingman-section-card-body {
+  padding: 15px 17px 17px !important;
+}
+
+@media (max-width: 1023px) {
+  .wingman-page-hero {
+    padding: 15px !important;
+  }
+
+  .wingman-hero-copy .wingman-display {
+    font-size: clamp(1.42rem, 8vw, 2.45rem) !important;
+  }
+
+  .wingman-hero-purpose {
+    font-size: 0.82rem !important;
+  }
+}
+/* PAGE-HEADER-REDUCTION-END */
