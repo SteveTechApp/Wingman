@@ -499,7 +499,7 @@ function cleanDisplayText(value: unknown) {
 
 function hasTextNoise(value: unknown) {
   const text = String(value ?? "");
-  return /[ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¿Ãƒâ€šÃ‚Â½]|[\u0080-\u024f]/.test(text);
+  return /[ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½]|[\u0080-\u024f]/.test(text);
 }
 
 function normaliseText(value: unknown) {
@@ -873,6 +873,59 @@ function isAvOverIpProduct(product: FinderProduct) {
   return productHasAny(product, ["networkhd", "avoip", "encoder", "decoder", "transceiver", "10g"]);
 }
 
+function hasPointToPointOneInOneOutNeed(need: FinderNeed) {
+  const oneInput = !need.inputs || need.inputs === "1" || need.inputs === "Unknown";
+  const oneOutput = !need.outputs || need.outputs === "1" || need.outputs === "Unknown";
+
+  return hasIntegratedHdmiUsbNeed(need) && oneInput && oneOutput;
+}
+
+function isStandaloneHdmiUsbExtenderProduct(product: FinderProduct) {
+  const sku = product.sku.toUpperCase();
+  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
+
+  if (sku === "EX-100-KVM") return true;
+  if (sku === "SW-130-TX-UK") return true;
+
+  if (sku.startsWith("RX-")) return false;
+  if (sku.startsWith("NHD-")) return false;
+  if (sku.startsWith("MX-")) return false;
+  if (sku.startsWith("APO-")) return false;
+
+  if (text.includes("matrix")) return false;
+  if (text.includes("networkhd")) return false;
+  if (text.includes("avoip")) return false;
+  if (text.includes("seamless")) return false;
+  if (text.includes("video-speakerphone")) return false;
+  if (text.includes("speakerphone")) return false;
+  if (text.includes("camera")) return false;
+  if (text.includes("controller")) return false;
+  if (text.includes("keypad")) return false;
+  if (text.includes("touchscreen")) return false;
+  if (text.includes("touchpad")) return false;
+  if (text.includes("in desk")) return false;
+  if (text.includes("cable management")) return false;
+  if (text.includes("for rx3-100")) return false;
+  if (text.includes("for mx-1007-hyb")) return false;
+
+  const hasHdmi = text.includes("hdmi");
+  const hasUsb = text.includes("usb");
+  const hasExtenderLanguage =
+    text.includes("extender") ||
+    text.includes("kvm") ||
+    text.includes("hdbt3") ||
+    text.includes("hdbaset 3") ||
+    text.includes("hdbaset");
+
+  const isKitOrCompletePath =
+    text.includes("kit") ||
+    text.includes("extender kit") ||
+    text.includes("receiver") && text.includes("transmitter") ||
+    sku.startsWith("EX-");
+
+  return hasHdmi && hasUsb && hasExtenderLanguage && isKitOrCompletePath;
+}
+
 function isProductAllowedForNeed(product: FinderProduct, need: FinderNeed) {
   if (!isWyreStormProduct(product)) return false;
 
@@ -881,8 +934,12 @@ function isProductAllowedForNeed(product: FinderProduct, need: FinderNeed) {
 
   if (query && product.sku.toLowerCase() === need.query.trim().toLowerCase()) return true;
 
+  if (hasPointToPointOneInOneOutNeed(need)) {
+    return isStandaloneHdmiUsbExtenderProduct(product);
+  }
+
   if (hasIntegratedHdmiUsbNeed(need)) {
-    return isIntegratedHdmiUsbProduct(product);
+    return isStandaloneHdmiUsbExtenderProduct(product);
   }
 
   if (need.technicalRequirement === "Dual display / MST") {
@@ -934,7 +991,7 @@ function isProductAllowedForNeed(product: FinderProduct, need: FinderNeed) {
   }
 
   if (path === "HDMI / USB extender") {
-    return isIntegratedHdmiUsbProduct(product);
+    return isStandaloneHdmiUsbExtenderProduct(product);
   }
 
   if (path === "HDBaseT extender") {
@@ -982,12 +1039,12 @@ function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
   if (selectedPath && classifyProduct(cleanProduct) === selectedPath) score += 28;
 
   if (need.technicalRequirement && productHasAny(cleanProduct, [need.technicalRequirement])) score += 22;
-  if (need.signalType && productHasAny(cleanProduct, [need.signalType])) score += 10;
+  if (need.signalType && productHasAny(cleanProduct, [need.signalType]) && !hasIntegratedHdmiUsbNeed(need)) score += 10;
   if (need.sourceConnector && productHasAny(cleanProduct, [need.sourceConnector])) score += 12;
   if (need.displayConnector && productHasAny(cleanProduct, [need.displayConnector])) score += 12;
   if (need.resolution && productHasAny(cleanProduct, [need.resolution])) score += 10;
 
-  if (hasIntegratedHdmiUsbNeed(need) && isIntegratedHdmiUsbProduct(cleanProduct)) score += 70;
+  if (hasIntegratedHdmiUsbNeed(need) && isStandaloneHdmiUsbExtenderProduct(cleanProduct)) score += 90;
   if (hasMultiInputNeed(need) && isRoutingCapableProduct(cleanProduct)) score += 44;
 
   if (need.technicalRequirement === "Extend HDMI over distance" && productHasAny(cleanProduct, ["hdbaset", "extender", "receiver", "transmitter"])) score += 32;
@@ -1016,7 +1073,7 @@ function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
   if (need.processing && productHasAny(cleanProduct, [need.processing])) score += 18;
 
   if (isReceiverOnlyProduct(cleanProduct) && hasMultiInputNeed(need)) score -= 100;
-  if (hasIntegratedHdmiUsbNeed(need) && !isIntegratedHdmiUsbProduct(cleanProduct)) score -= 120;
+  if (hasIntegratedHdmiUsbNeed(need) && !isStandaloneHdmiUsbExtenderProduct(cleanProduct)) score -= 180;
   if (isReceiverOnlyProduct(cleanProduct) && hasIntegratedHdmiUsbNeed(need)) score -= 120;
   if (need.technicalRequirement === "Dual display / MST" && !isDualDisplayCapableProduct(cleanProduct)) score -= 150;
   if (isControlOnlyProduct(cleanProduct)) score -= 150;
@@ -1048,7 +1105,7 @@ function getReasonLines(match: ProductMatch, need: FinderNeed) {
     lines.push(`Supports the selected technical requirement: ${need.technicalRequirement}.`);
   }
   if (hasIntegratedHdmiUsbNeed(need)) {
-    lines.push("Integrated HDMI and USB transport requirement.");
+    lines.push("Standalone HDMI and USB transport/extender requirement.");
   }
 
   if (need.signalType && !hasIntegratedHdmiUsbNeed(need)) {
@@ -1069,8 +1126,8 @@ function getReasonLines(match: ProductMatch, need: FinderNeed) {
 function getCautionLines(match: ProductMatch, need: FinderNeed) {
   const lines = ["Confirm current datasheet, receiver/accessory set, firmware notes, and cable assumptions."];
 
-  if (hasIntegratedHdmiUsbNeed(need) && !isIntegratedHdmiUsbProduct(match)) {
-    lines.unshift("This is not a true integrated HDMI and USB transport product.");
+  if (hasIntegratedHdmiUsbNeed(need) && !isStandaloneHdmiUsbExtenderProduct(match)) {
+    lines.unshift("This is not a standalone HDMI and USB extender path.");
   }
 
   if (need.usb === "USB 3.x required" && !textIncludesAny(match.searchText, ["usb 3", "3.0"])) {
@@ -1300,7 +1357,7 @@ export function FinderPage() {
       .map((product) => scoreProduct(product, need))
       .filter((match) => shouldShowMatch(match, need))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 8);
+      .slice(0, hasPointToPointOneInOneOutNeed(need) ? 4 : 8);
   }, [hasIntent, need, products]);
 
   const bestMatch = matches[0] ?? null;
