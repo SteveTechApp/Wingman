@@ -497,7 +497,7 @@ function cleanDisplayText(value: unknown) {
 
 function hasTextNoise(value: unknown) {
   const text = String(value ?? "");
-  return /[ÃÂâ�]|[\u0080-\u024f]/.test(text);
+  return /[ÃƒÆ’Ãƒâ€šÃƒÂ¢Ã¯Â¿Â½]|[\u0080-\u024f]/.test(text);
 }
 
 function normaliseText(value: unknown) {
@@ -720,66 +720,247 @@ function inferPathFromNeed(need: FinderNeed) {
   return "";
 }
 
+function hasMultiInputNeed(need: FinderNeed) {
+  return ["3-4", "5-8", "9+"].includes(need.inputs) || ["3-4", "5-8", "9+"].includes(need.outputs);
+}
+
+function hasIntegratedHdmiUsbNeed(need: FinderNeed) {
+  const query = normaliseText(need.query);
+  return (
+    need.technicalRequirement === "Extend HDMI and USB together" ||
+    need.signalType === "HDMI + USB" ||
+    (query.includes("hdmi") && query.includes("usb") && (query.includes("extend") || query.includes("extender")))
+  );
+}
+
+function productHasAll(product: FinderProduct, terms: string[]) {
+  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
+  return terms.every((term) => text.includes(normaliseText(term)));
+}
+
+function productHasAny(product: FinderProduct, terms: string[]) {
+  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
+  return terms.some((term) => text.includes(normaliseText(term)));
+}
+
+function isReceiverOnlyProduct(product: FinderProduct) {
+  const sku = product.sku.toUpperCase();
+  const text = normaliseText(`${product.title} ${product.category} ${product.description} ${product.tags.join(" ")}`);
+  return sku.startsWith("RX-") || (text.includes("receiver") && text.includes("video only"));
+}
+
+function isIntegratedHdmiUsbProduct(product: FinderProduct) {
+  const sku = product.sku.toUpperCase();
+  const title = normaliseText(product.title);
+  const category = normaliseText(product.category);
+  const description = normaliseText(product.description);
+  const tags = normaliseText(product.tags.join(" "));
+  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
+
+  if (sku === "SW-130-TX-UK") return true;
+  if (sku === "EX-100-KVM") return true;
+
+  if (sku.startsWith("RX-")) return false;
+  if (category.includes("in desk")) return false;
+  if (title.includes("in desk")) return false;
+  if (tags.includes("cable management")) return false;
+  if (description.includes("usb transport is not required")) return false;
+  if (description.includes("video only")) return false;
+  if (title.includes("video only")) return false;
+
+  const hasHdmi = text.includes("hdmi");
+  const hasUsb = text.includes("usb");
+  const hasTransportRole =
+    text.includes("extender") ||
+    text.includes("kvm") ||
+    text.includes("transmitter") ||
+    text.includes("receiver kit") ||
+    text.includes("hdbaset");
+
+  const isAccessoryOnly =
+    text.includes("cable management") ||
+    text.includes("in desk") ||
+    text.includes("mount") ||
+    text.includes("bracket") ||
+    text.includes("microphone") ||
+    text.includes("camera");
+
+  return hasHdmi && hasUsb && hasTransportRole && !isAccessoryOnly;
+}
+
+function isRoutingCapableProduct(product: FinderProduct) {
+  return productHasAny(product, [
+    "matrix",
+    "routing",
+    "presentation switcher",
+    "multi output",
+    "dual display",
+    "mst",
+    "networkhd",
+    "avoip",
+    "encoder",
+    "decoder",
+  ]);
+}
+
+function isVideoWallCapableProduct(product: FinderProduct) {
+  return productHasAny(product, ["video wall", "lcd wall", "wall processor", "sw-0204", "sw-0206", "multiview", "networkhd"]);
+}
+
+function isNdiCapableProduct(product: FinderProduct) {
+  return productHasAny(product, ["ndi", "camera", "ptz", "networkhd", "h265"]);
+}
+
+function isAvOverIpProduct(product: FinderProduct) {
+  return productHasAny(product, ["networkhd", "avoip", "encoder", "decoder", "transceiver", "10g"]);
+}
+
+function isProductAllowedForNeed(product: FinderProduct, need: FinderNeed) {
+  if (!isWyreStormProduct(product)) return false;
+
+  const query = normaliseText(need.query);
+  const path = inferPathFromNeed(need);
+
+  if (query && product.sku.toLowerCase() === need.query.trim().toLowerCase()) return true;
+
+  if (hasIntegratedHdmiUsbNeed(need)) {
+    return isIntegratedHdmiUsbProduct(product);
+  }
+
+  if (hasMultiInputNeed(need)) {
+    return isRoutingCapableProduct(product) && !isReceiverOnlyProduct(product);
+  }
+
+  if (need.technicalRequirement === "Extend HDMI over distance") {
+    return productHasAny(product, ["hdbaset", "extender", "receiver", "transmitter"]) && !isAvOverIpProduct(product);
+  }
+
+  if (need.technicalRequirement === "Distribute AV over network") {
+    return isAvOverIpProduct(product);
+  }
+
+  if (need.technicalRequirement === "Bring NDI camera into AV system") {
+    return isNdiCapableProduct(product);
+  }
+
+  if (need.technicalRequirement === "Build LCD video wall" || need.technicalRequirement === "Feed LED wall processor") {
+    return isVideoWallCapableProduct(product);
+  }
+
+  if (need.technicalRequirement === "Create multiview layout") {
+    return productHasAny(product, ["multiview", "networkhd", "processor"]);
+  }
+
+  if (path === "Matrix / routing") {
+    return isRoutingCapableProduct(product) && !isReceiverOnlyProduct(product);
+  }
+
+  if (path === "AVoIP") {
+    return isAvOverIpProduct(product);
+  }
+
+  if (path === "Video wall") {
+    return isVideoWallCapableProduct(product);
+  }
+
+  if (path === "NDI / camera") {
+    return isNdiCapableProduct(product);
+  }
+
+  if (path === "HDMI / USB extender") {
+    return isIntegratedHdmiUsbProduct(product);
+  }
+
+  if (path === "HDBaseT extender") {
+    return productHasAny(product, ["hdbaset", "extender", "receiver", "transmitter"]) && !isAvOverIpProduct(product);
+  }
+
+  if (!query) return true;
+
+  const queryWords = query.split(/\s+/).filter((word) => word.length >= 3);
+  const productText = normaliseText(`${product.sku} ${product.title} ${product.category} ${product.description} ${product.tags.join(" ")}`);
+
+  return queryWords.length > 0 && queryWords.every((word) => productText.includes(word));
+}
+
+function shouldShowMatch(match: ProductMatch, need: FinderNeed) {
+  if (!isProductAllowedForNeed(match, need)) return false;
+  if (match.score < 42) return false;
+  return true;
+}
+
 function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
   const cleanProduct = cleanFinderProduct(product);
   const text = normaliseText(`${cleanProduct.sku} ${cleanProduct.title} ${cleanProduct.family} ${cleanProduct.category} ${cleanProduct.description} ${cleanProduct.tags.join(" ")} ${cleanProduct.searchText}`);
-  const category = classifyProduct(cleanProduct);
   const selectedPath = inferPathFromNeed(need);
   let score = 0;
 
+  if (!isProductAllowedForNeed(cleanProduct, need)) {
+    return {
+      ...cleanProduct,
+      score: 0,
+      status: "caution",
+    };
+  }
+
   if (need.query.trim()) {
     const query = normaliseText(need.query);
-    const words = query.split(/\s+/).filter(Boolean);
+    const words = query.split(/\s+/).filter((word) => word.length >= 3);
 
-    if (text.includes(query)) score += cleanProduct.sku.toLowerCase() === need.query.trim().toLowerCase() ? 60 : 35;
-    if (!text.includes(query) && words.length && words.every((word) => text.includes(word))) score += 22;
+    if (cleanProduct.sku.toLowerCase() === need.query.trim().toLowerCase()) score += 80;
+    if (text.includes(query)) score += 36;
+    if (!text.includes(query) && words.length && words.every((word) => text.includes(word))) score += 24;
   }
 
-  if (selectedPath && category === selectedPath) score += 40;
-  if (selectedPath && cleanProduct.category === selectedPath) score += 20;
-  if (need.technicalRequirement && textIncludesAny(text, [need.technicalRequirement])) score += 20;
-  if (need.signalType && textIncludesAny(text, [need.signalType])) score += 16;
-  if (need.sourceConnector && textIncludesAny(text, [need.sourceConnector])) score += 12;
-  if (need.displayConnector && textIncludesAny(text, [need.displayConnector])) score += 12;
-  if (need.resolution && textIncludesAny(text, [need.resolution])) score += 12;
+  if (selectedPath && cleanProduct.category === selectedPath) score += 36;
+  if (selectedPath && classifyProduct(cleanProduct) === selectedPath) score += 28;
 
-  if (need.technicalRequirement === "Extend HDMI and USB together" && textIncludesAny(text, ["hdmi", "usb", "hdbaset", "kvm", "sw-130", "ex-100"])) score += 38;
-  if (need.technicalRequirement === "Extend HDMI over distance" && textIncludesAny(text, ["hdbaset", "extender", "receiver", "transmitter", "rx", "tx"])) score += 30;
-  if (need.technicalRequirement === "Distribute AV over network" && textIncludesAny(text, ["networkhd", "avoip", "encoder", "decoder", "transceiver"])) score += 38;
-  if (need.technicalRequirement === "Bring NDI camera into AV system" && textIncludesAny(text, ["ndi", "camera", "networkhd"])) score += 38;
-  if (need.technicalRequirement === "Build LCD video wall" && textIncludesAny(text, ["video wall", "wall processor", "networkhd"])) score += 34;
-  if (need.technicalRequirement === "Dual display / MST" && textIncludesAny(text, ["dual", "mst", "multi output"])) score += 30;
-  if (need.technicalRequirement === "Create multiview layout" && textIncludesAny(text, ["multiview", "processor", "composition"])) score += 32;
+  if (need.technicalRequirement && productHasAny(cleanProduct, [need.technicalRequirement])) score += 22;
+  if (need.signalType && productHasAny(cleanProduct, [need.signalType])) score += 10;
+  if (need.sourceConnector && productHasAny(cleanProduct, [need.sourceConnector])) score += 12;
+  if (need.displayConnector && productHasAny(cleanProduct, [need.displayConnector])) score += 12;
+  if (need.resolution && productHasAny(cleanProduct, [need.resolution])) score += 10;
 
-  if (["3-4", "5-8", "9+"].includes(need.inputs) || ["3-4", "5-8", "9+"].includes(need.outputs)) {
-    if (textIncludesAny(text, ["matrix", "routing", "networkhd", "avoip", "presentation switcher", "multi output"])) score += 34;
-    if (textIncludesAny(text, ["rx-35", "rx-70", "receiver for", "video only receiver"])) score -= 50;
+  if (hasIntegratedHdmiUsbNeed(need) && isIntegratedHdmiUsbProduct(cleanProduct)) score += 70;
+  if (hasMultiInputNeed(need) && isRoutingCapableProduct(cleanProduct)) score += 44;
+
+  if (need.technicalRequirement === "Extend HDMI over distance" && productHasAny(cleanProduct, ["hdbaset", "extender", "receiver", "transmitter"])) score += 32;
+  if (need.technicalRequirement === "Distribute AV over network" && isAvOverIpProduct(cleanProduct)) score += 42;
+  if (need.technicalRequirement === "Bring NDI camera into AV system" && isNdiCapableProduct(cleanProduct)) score += 42;
+  if (need.technicalRequirement === "Build LCD video wall" && isVideoWallCapableProduct(cleanProduct)) score += 40;
+  if (need.technicalRequirement === "Create multiview layout" && productHasAny(cleanProduct, ["multiview", "processor", "networkhd"])) score += 38;
+  if (need.technicalRequirement === "Dual display / MST" && productHasAny(cleanProduct, ["dual", "mst", "multi output", "presentation"])) score += 36;
+
+  if (need.usb === "No USB" && productHasAny(cleanProduct, ["video only", "receiver", "hdbaset"])) score += 16;
+  if (need.usb === "USB 2.0 enough" && productHasAny(cleanProduct, ["usb 2", "usb", "kvm", "byod", "byom"])) score += 22;
+  if (need.usb === "USB 3.x required" && productHasAny(cleanProduct, ["usb 3", "3.0"])) score += 28;
+
+  if ((need.distance === "Medium 10-35m" || need.distance === "Long 35-70m") && productHasAny(cleanProduct, ["hdbaset", "extender", "receiver", "transmitter"])) {
+    score += 18;
   }
 
-  if (need.usb === "No USB" && textIncludesAny(text, ["video only", "receiver", "hdbaset"])) score += 18;
-  if (need.usb === "USB 2.0 enough" && textIncludesAny(text, ["usb 2", "usb", "kvm", "byod", "byom", "sw-130", "ex-100"])) score += 24;
-  if (need.usb === "USB 3.x required" && textIncludesAny(text, ["usb 3", "3.0"])) score += 28;
-
-  if (need.distance === "Medium 10-35m" || need.distance === "Long 35-70m") {
-    if (textIncludesAny(text, ["hdbaset", "extender", "receiver", "transmitter"])) score += 18;
+  if ((need.distance === "Very long 70-100m" || need.distance === "Network / site-wide") && productHasAny(cleanProduct, ["networkhd", "avoip", "10g", "hdbaset"])) {
+    score += 22;
   }
 
-  if (need.distance === "Very long 70-100m" || need.distance === "Network / site-wide") {
-    if (textIncludesAny(text, ["networkhd", "avoip", "10g", "hdbaset"])) score += 22;
+  if ((need.network === "Dedicated AV network" || need.network === "10G network" || need.network === "NDI source present") && isAvOverIpProduct(cleanProduct)) {
+    score += 26;
   }
 
-  if (need.network === "Dedicated AV network" || need.network === "10G network" || need.network === "NDI source present") {
-    if (textIncludesAny(text, ["networkhd", "nhd", "avoip", "10g", "ndi", "network"])) score += 24;
-  }
+  if (need.processing && productHasAny(cleanProduct, [need.processing])) score += 18;
 
-  if (need.processing && textIncludesAny(text, [need.processing])) score += 18;
+  if (isReceiverOnlyProduct(cleanProduct) && hasMultiInputNeed(need)) score -= 100;
+  if (hasIntegratedHdmiUsbNeed(need) && !isIntegratedHdmiUsbProduct(cleanProduct)) score -= 120;
+  if (isReceiverOnlyProduct(cleanProduct) && hasIntegratedHdmiUsbNeed(need)) score -= 120;
+  if (isAvOverIpProduct(cleanProduct) && need.technicalRequirement === "Extend HDMI and USB together" && !productHasAny(cleanProduct, ["usb"])) score -= 60;
   if (cleanProduct.source === "seed") score += 4;
 
-  const status: MatchStatus = score >= 72 ? "recommended" : score >= 42 ? "alternative" : "caution";
+  const finalScore = Math.max(0, score);
+  const status: MatchStatus = finalScore >= 72 ? "recommended" : finalScore >= 42 ? "alternative" : "caution";
 
   return {
     ...cleanProduct,
-    score: Math.max(0, score),
+    score: finalScore,
     status,
   };
 }
@@ -791,7 +972,13 @@ function getReasonLines(match: ProductMatch, need: FinderNeed) {
   if (need.query.trim()) lines.push("Matches the search term or product intent.");
   if (path && match.category === path) lines.push(`Fits the likely product path: ${path}.`);
   if (need.technicalRequirement) lines.push(`Supports the selected technical requirement: ${need.technicalRequirement}.`);
-  if (need.signalType) lines.push(`Relevant to the selected signal type: ${need.signalType}.`);
+  if (hasIntegratedHdmiUsbNeed(need)) {
+    lines.push("Integrated HDMI and USB transport requirement.");
+  }
+
+  if (need.signalType && !hasIntegratedHdmiUsbNeed(need)) {
+    lines.push(`Relevant to the selected signal type: ${need.signalType}.`);
+  }
   if (need.sourceConnector) lines.push(`References the source connector: ${need.sourceConnector}.`);
   if (need.displayConnector) lines.push(`References the display or output connection: ${need.displayConnector}.`);
 
@@ -806,6 +993,10 @@ function getReasonLines(match: ProductMatch, need: FinderNeed) {
 
 function getCautionLines(match: ProductMatch, need: FinderNeed) {
   const lines = ["Confirm current datasheet, receiver/accessory set, firmware notes, and cable assumptions."];
+
+  if (hasIntegratedHdmiUsbNeed(need) && !isIntegratedHdmiUsbProduct(match)) {
+    lines.unshift("This is not a true integrated HDMI and USB transport product.");
+  }
 
   if (need.usb === "USB 3.x required" && !textIncludesAny(match.searchText, ["usb 3", "3.0"])) {
     lines.unshift("USB 3.x is requested. Confirm high-bandwidth USB support before quoting.");
@@ -1031,9 +1222,9 @@ export function FinderPage() {
 
     return products
       .map((product) => scoreProduct(product, need))
-      .filter((match) => match.score > 0 || need.query.trim())
+      .filter((match) => shouldShowMatch(match, need))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 12);
+      .slice(0, 8);
   }, [hasIntent, need, products]);
 
   const bestMatch = matches[0] ?? null;
@@ -1046,6 +1237,12 @@ export function FinderPage() {
   function setNeedField<K extends keyof FinderNeed>(key: K, value: FinderNeed[K]) {
     setNeed((current) => {
       const next = { ...current, [key]: value };
+
+      if (key === "signalType" && value === "HDMI + USB") {
+        next.technicalRequirement = "Extend HDMI and USB together";
+        next.productPath = "HDMI / USB extender";
+        next.usb = "USB 2.0 enough";
+      }
 
       if (key === "technicalRequirement") {
         const path = expectedProductPathForRequirement(value);
