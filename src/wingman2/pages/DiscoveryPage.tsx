@@ -49,6 +49,7 @@ type DiscoveryState = {
   wallInputMode: string;
   wallMultiview: string;
   meetingWorkflow: string;
+  usbTransport: string;
   usbNeeds: string[];
   cameraPosition: string;
   audioNeeds: string[];
@@ -96,7 +97,7 @@ const steps: { id: StepId; label: string; description: string }[] = [
   {
     id: "sources",
     label: "Sources",
-    description: "Capture source types, source positions, and connection types.",
+    description: "Capture source types, source positions, and compatible connection types.",
   },
   {
     id: "outputs",
@@ -106,12 +107,12 @@ const steps: { id: StepId; label: string; description: string }[] = [
   {
     id: "usb",
     label: "USB / Conferencing",
-    description: "Capture BYOD, BYOM, cameras, microphones, speakerphones, and USB transport.",
+    description: "Choose the USB transport class first, then only compatible USB devices are shown.",
   },
   {
     id: "infrastructure",
     label: "Infrastructure",
-    description: "Confirm distance, cable, network, and installation risk.",
+    description: "Confirm distance, cable, network, and installation risk using filtered options.",
   },
   {
     id: "review",
@@ -135,8 +136,6 @@ const roomTypes = [
   "Other / not sure",
 ];
 
-const roomSizeBase = ["Small <10m", "Medium <25m", "Large <50m", "Extra-large 50m+", "Open / divisible space", "Unknown"];
-
 const layoutFlags = [
   "Fixed orientation",
   "Divisible space",
@@ -144,48 +143,6 @@ const layoutFlags = [
   "Future expansion",
   "No rack available",
   "Customer unsure",
-];
-
-const allSourceTypes = [
-  "Laptop HDMI",
-  "Laptop USB-C",
-  "Room PC",
-  "Media player",
-  "Signage player",
-  "Wireless presentation",
-  "HDMI wall input",
-  "USB-C wall input",
-  "Document camera",
-  "USB camera",
-  "NDI camera",
-  "PTZ camera",
-  "Other source",
-];
-
-const allSourceLocations = [
-  "Table",
-  "Floor box",
-  "Wall plate",
-  "Lectern",
-  "Rack",
-  "Credenza",
-  "Ceiling",
-  "Camera position",
-  "Display wall",
-  "Zone location",
-  "Unknown",
-];
-
-const allSourceConnections = [
-  "HDMI",
-  "USB-C video",
-  "USB-C with charging",
-  "USB only",
-  "NDI",
-  "Network",
-  "Audio only",
-  "Wireless",
-  "Unknown",
 ];
 
 const standardDisplayArrangements = [
@@ -304,17 +261,41 @@ const meetingWorkflowBase = [
   "Not sure",
 ];
 
-const usbNeedsBase = [
+const usbTransportOptions = [
   "No USB required",
+  "USB 2.0 is enough",
+  "USB 3.x / high-bandwidth required",
+  "Not sure",
+];
+
+const usbNoTransportDevices = ["No USB required"];
+
+const usbLowBandwidthDevices = [
   "USB camera",
   "Speakerphone",
   "Microphone",
   "Touch display return",
   "Keyboard / mouse",
+  "Multiple low-bandwidth USB devices",
+  "Not sure",
+];
+
+const usbHighBandwidthDevices = [
+  "USB camera",
+  "USB 3.x camera",
+  "Speakerphone",
+  "Microphone",
+  "Touch display return",
+  "Keyboard / mouse",
   "Multiple USB devices",
-  "USB 2.0 enough",
   "USB 3.x required",
   "Not sure",
+];
+
+const highBandwidthUsbNeeds = [
+  "USB 3.x camera",
+  "Multiple USB devices",
+  "USB 3.x required",
 ];
 
 const cameraPositions = ["No camera", "Above display", "Ceiling", "Rear of room", "Table camera", "Multiple cameras", "NDI camera", "Unknown"];
@@ -333,16 +314,13 @@ const audioNeedsBase = [
 
 const runBands = ["Under 5m", "5-10m", "10-35m", "35-70m", "70-100m", "100m+", "Unknown"];
 
-const cableTypes = ["HDMI", "Cat5e", "Cat6", "Cat6A", "Fibre", "Network only", "No cable installed", "Unknown"];
+const cableTypesShort = ["HDMI", "Cat5e", "Cat6", "Cat6A", "Fibre", "Unknown"];
+const cableTypesMedium = ["Cat5e", "Cat6", "Cat6A", "Fibre", "Unknown"];
+const cableTypesLong = ["Cat6A", "Fibre", "Network only", "Unknown"];
+const cableTypesNetwork = ["Cat6", "Cat6A", "Fibre", "Network only", "Unknown"];
 
-const networkOptions = [
-  "No network needed",
-  "Existing IT network",
-  "Dedicated AV network possible",
-  "Managed switch available",
-  "10G available",
-  "Unknown",
-];
+const networkOptionsSimple = ["No network needed", "Existing IT network", "Unknown"];
+const networkOptionsRouted = ["Dedicated AV network possible", "Managed switch available", "10G available", "Existing IT network", "Unknown"];
 
 const cableRiskOptions = [
   "Cable not certified",
@@ -389,14 +367,15 @@ const initialState: DiscoveryState = {
   sourceLocations: [],
   sourceConnections: [],
   displayCount: 1,
-  displayArrangement: "",
-  displayPosition: "",
-  displayBehaviour: "",
+  displayArrangement: "Single display",
+  displayPosition: "Front wall",
+  displayBehaviour: "Presentation plus conferencing",
   wallType: "",
   wallLayout: "",
   wallInputMode: "",
   wallMultiview: "",
   meetingWorkflow: "",
+  usbTransport: "",
   usbNeeds: [],
   cameraPosition: "",
   audioNeeds: [],
@@ -430,10 +409,45 @@ function unique(values: string[]) {
   return Array.from(new Set(values));
 }
 
+function isDualArrangement(value: string) {
+  return value.includes("Dual") || value.includes("Content display") || value.includes("confidence monitor");
+}
+
+function isWallArrangement(value: string) {
+  return value === "LCD wall" || value === "LED wall";
+}
+
+function isMultiZone(state: DiscoveryState) {
+  return (
+    state.roomType === "Multi-zone venue" ||
+    state.displayArrangement === "Distributed displays" ||
+    state.displayArrangement === "Multiple zones" ||
+    state.displayArrangement === "Choose source per zone"
+  );
+}
+
+function isNetworkLedOrCameraSource(state: DiscoveryState) {
+  return (
+    state.sourceTypes.includes("NDI camera") ||
+    state.sourceConnections.includes("NDI") ||
+    state.sourceConnections.includes("Network")
+  );
+}
+
+function distanceRank(longestRun: string) {
+  if (longestRun === "Under 5m") return 1;
+  if (longestRun === "5-10m") return 2;
+  if (longestRun === "10-35m") return 3;
+  if (longestRun === "35-70m") return 4;
+  if (longestRun === "70-100m") return 5;
+  if (longestRun === "100m+") return 6;
+  return 0;
+}
+
 function getRoomProfile(roomType: string): RoomProfile {
   if (roomType === "Multi-zone venue") {
     return {
-      note: "Wingman assumes a multi-zone venue is normally extra-large, has distributed displays, and should be treated as a routing / distribution problem rather than a single-room switcher.",
+      note: "Wingman assumes a multi-zone venue is normally extra-large, has distributed displays, longer cable paths, and should be treated as a routing / distribution problem rather than a single-room switcher.",
       defaults: {
         roomSize: "Extra-large 50m+",
         userPosition: "No fixed user position",
@@ -457,7 +471,7 @@ function getRoomProfile(roomType: string): RoomProfile {
 
   if (roomType === "Display wall / large format wall") {
     return {
-      note: "Wingman treats this as an LCD or LED wall qualification first, then either quick-picks a common layout or hands off to the wall wizard for detailed design.",
+      note: "Wingman treats this as LCD or LED wall qualification first, then either quick-picks a common layout or hands off to the wall wizard for detailed design.",
       defaults: {
         roomSize: "Large <50m",
         userPosition: "No fixed user position",
@@ -470,6 +484,9 @@ function getRoomProfile(roomType: string): RoomProfile {
         wallLayout: "2x2 LCD wall",
         wallInputMode: "Single input tile-mode",
         wallMultiview: "Non-multiview",
+        meetingWorkflow: "Presentation only",
+        usbTransport: "No USB required",
+        usbNeeds: ["No USB required"],
       },
       roomSizeOptions: ["Large <50m", "Extra-large 50m+", "Open / divisible space", "Medium <25m", "Unknown"],
       userPositionOptions: ["No fixed user position", "Front-of-house", "Operator desk", "Reception / counter", "Unknown"],
@@ -482,7 +499,7 @@ function getRoomProfile(roomType: string): RoomProfile {
 
   if (roomType === "Retail signage" || roomType === "Hospitality") {
     return {
-      note: "Wingman assumes signage and hospitality applications are often display-distribution or repeatable-zone systems, so source location, display count, and cable distance become more important than room-table layout.",
+      note: "Wingman assumes signage and hospitality applications are normally display-distribution or repeatable-zone systems. USB is normally not required unless touch or keyboard/mouse is specifically requested.",
       defaults: {
         roomSize: "Large <50m",
         userPosition: "No fixed user position",
@@ -492,6 +509,7 @@ function getRoomProfile(roomType: string): RoomProfile {
         displayPosition: "Distributed displays",
         displayBehaviour: "Signage loop",
         meetingWorkflow: "Presentation only",
+        usbTransport: "No USB required",
         usbNeeds: ["No USB required"],
       },
       roomSizeOptions: ["Large <50m", "Extra-large 50m+", "Open / divisible space", "Medium <25m", "Unknown"],
@@ -503,30 +521,33 @@ function getRoomProfile(roomType: string): RoomProfile {
     };
   }
 
-  if (roomType === "Classroom" || roomType === "Training room" || roomType === "Lecture space") {
+  if (roomType === "Boardroom") {
     return {
-      note: "Wingman assumes a teaching space is usually lectern or instructor-position driven, with display/projector extension, possible capture, and optional USB teaching peripherals.",
+      note: "Wingman assumes a boardroom often needs dual display behaviour, table inputs, conferencing, USB transport, and a clean user-facing connection point.",
       defaults: {
-        roomSize: roomType === "Lecture space" ? "Large <50m" : "Medium <25m",
-        userPosition: "Lectern",
-        equipmentLocation: "Lectern",
-        displayCount: roomType === "Lecture space" ? 2 : 1,
-        displayArrangement: roomType === "Lecture space" ? "Primary display + confidence monitor" : "Single display",
-        displayPosition: roomType === "Lecture space" ? "Front display + confidence monitor" : "Front wall",
-        displayBehaviour: roomType === "Lecture space" ? "Confidence monitor follows presenter" : "Same content everywhere",
+        roomSize: "Medium <25m",
+        userPosition: "Central table",
+        equipmentLocation: "Credenza",
+        displayCount: 2,
+        displayArrangement: "Content display + conferencing display",
+        displayPosition: "Content display + conferencing display",
+        displayBehaviour: "Presentation on one display, conferencing on the other",
+        meetingWorkflow: "BYOM conferencing",
+        usbTransport: "USB 2.0 is enough",
+        usbNeeds: ["USB camera", "Speakerphone"],
       },
-      roomSizeOptions: roomType === "Lecture space" ? ["Large <50m", "Extra-large 50m+", "Medium <25m", "Unknown"] : ["Medium <25m", "Small <10m", "Large <50m", "Unknown"],
-      userPositionOptions: ["Lectern", "Central table", "Front-of-house", "Unknown"],
-      equipmentLocationOptions: ["Lectern", "Local rack", "Behind display", "Central rack", "Unknown"],
-      sourceTypeOptions: ["Laptop HDMI", "Laptop USB-C", "Room PC", "Document camera", "Wireless presentation", "USB camera", "PTZ camera", "Other source"],
-      sourceLocationOptions: ["Lectern", "Wall plate", "Rack", "Ceiling", "Camera position", "Unknown"],
-      sourceConnectionOptions: ["HDMI", "USB-C video", "USB-C with charging", "USB only", "Network", "Wireless", "Unknown"],
+      roomSizeOptions: ["Medium <25m", "Large <50m", "Small <10m", "Unknown"],
+      userPositionOptions: ["Central table", "Credenza", "No fixed user position", "Unknown"],
+      equipmentLocationOptions: ["Credenza", "Behind display", "Local rack", "Under table", "Unknown"],
+      sourceTypeOptions: ["Laptop USB-C", "Laptop HDMI", "Room PC", "Wireless presentation", "USB camera", "PTZ camera", "Other source"],
+      sourceLocationOptions: ["Table", "Floor box", "Wall plate", "Credenza", "Camera position", "Unknown"],
+      sourceConnectionOptions: ["USB-C with charging", "USB-C video", "HDMI", "USB only", "Wireless", "Unknown"],
     };
   }
 
   if (roomType === "Control room") {
     return {
-      note: "Wingman assumes a control room may need multiview, operator positions, and flexible source selection. This should bias the output step toward multiview and distributed routing choices.",
+      note: "Wingman assumes a control room may need operator positions, multiview, networked sources, and flexible source selection.",
       defaults: {
         roomSize: "Large <50m",
         userPosition: "Operator desk",
@@ -548,7 +569,7 @@ function getRoomProfile(roomType: string): RoomProfile {
 
   if (roomType === "House of worship") {
     return {
-      note: "Wingman assumes a worship space may include long cable paths, cameras, streaming, confidence displays, and central AV control.",
+      note: "Wingman assumes worship spaces often include longer cable paths, cameras, streaming, confidence displays, and central AV control.",
       defaults: {
         roomSize: "Extra-large 50m+",
         userPosition: "Front-of-house",
@@ -569,25 +590,24 @@ function getRoomProfile(roomType: string): RoomProfile {
     };
   }
 
-  if (roomType === "Boardroom") {
+  if (roomType === "Classroom" || roomType === "Training room" || roomType === "Lecture space") {
     return {
-      note: "Wingman assumes a boardroom may need dual displays, table inputs, conferencing, USB transport, and a cleaner user-facing experience.",
+      note: "Wingman assumes teaching spaces are usually lectern or instructor-position driven, with display/projector extension and optional capture or USB teaching peripherals.",
       defaults: {
-        roomSize: "Medium <25m",
-        userPosition: "Central table",
-        equipmentLocation: "Credenza",
-        displayCount: 2,
-        displayArrangement: "Content display + conferencing display",
-        displayPosition: "Content display + conferencing display",
-        displayBehaviour: "Presentation on one display, conferencing on the other",
-        meetingWorkflow: "BYOM conferencing",
+        roomSize: roomType === "Lecture space" ? "Large <50m" : "Medium <25m",
+        userPosition: "Lectern",
+        equipmentLocation: "Lectern",
+        displayCount: roomType === "Lecture space" ? 2 : 1,
+        displayArrangement: roomType === "Lecture space" ? "Primary display + confidence monitor" : "Single display",
+        displayPosition: roomType === "Lecture space" ? "Front display + confidence monitor" : "Front wall",
+        displayBehaviour: roomType === "Lecture space" ? "Confidence monitor follows presenter" : "Same content everywhere",
       },
-      roomSizeOptions: ["Medium <25m", "Large <50m", "Small <10m", "Unknown"],
-      userPositionOptions: ["Central table", "Credenza", "No fixed user position", "Unknown"],
-      equipmentLocationOptions: ["Credenza", "Behind display", "Local rack", "Under table", "Unknown"],
-      sourceTypeOptions: ["Laptop USB-C", "Laptop HDMI", "Room PC", "Wireless presentation", "USB camera", "PTZ camera", "Other source"],
-      sourceLocationOptions: ["Table", "Floor box", "Wall plate", "Credenza", "Camera position", "Unknown"],
-      sourceConnectionOptions: ["USB-C with charging", "USB-C video", "HDMI", "USB only", "Wireless", "Unknown"],
+      roomSizeOptions: roomType === "Lecture space" ? ["Large <50m", "Extra-large 50m+", "Medium <25m", "Unknown"] : ["Medium <25m", "Small <10m", "Large <50m", "Unknown"],
+      userPositionOptions: ["Lectern", "Central table", "Front-of-house", "Unknown"],
+      equipmentLocationOptions: ["Lectern", "Local rack", "Behind display", "Central rack", "Unknown"],
+      sourceTypeOptions: ["Laptop HDMI", "Laptop USB-C", "Room PC", "Document camera", "Wireless presentation", "USB camera", "PTZ camera", "Other source"],
+      sourceLocationOptions: ["Lectern", "Wall plate", "Rack", "Ceiling", "Camera position", "Unknown"],
+      sourceConnectionOptions: ["HDMI", "USB-C video", "USB-C with charging", "USB only", "Network", "Wireless", "Unknown"],
     };
   }
 
@@ -611,176 +631,136 @@ function getRoomProfile(roomType: string): RoomProfile {
   };
 }
 
-function isDualArrangement(value: string) {
-  return value.includes("Dual") || value.includes("Content display") || value.includes("confidence monitor");
+function getDisplayArrangementOptions(state: DiscoveryState, profile: RoomProfile) {
+  if (state.roomType === "Display wall / large format wall") return wallDisplayArrangements;
+  if (state.roomType === "Multi-zone venue") return multiZoneDisplayArrangements;
+  if (state.roomType === "Control room") return ["Multiview display", "Distributed displays", "LCD wall", "LED wall", "Single display"];
+  if (state.roomType === "Retail signage" || state.roomType === "Hospitality") return ["Distributed displays", "Single display", "LCD wall", "LED wall"];
+
+  const preferred = typeof profile.defaults.displayArrangement === "string" ? [profile.defaults.displayArrangement] : [];
+
+  if (isDualArrangement(state.displayArrangement)) return unique([...preferred, ...dualDisplayArrangements]);
+
+  return unique([...preferred, ...standardDisplayArrangements]);
 }
 
-function isWallArrangement(value: string) {
-  return value === "LCD wall" || value === "LED wall";
+function getDisplayPositionOptions(state: DiscoveryState) {
+  if (isWallArrangement(state.displayArrangement)) return wallDisplayPositions;
+  if (isDualArrangement(state.displayArrangement)) return dualDisplayPositions;
+  if (isMultiZone(state)) return multiZoneDisplayPositions;
+  return standardDisplayPositions;
 }
 
-function isMultiZone(state: DiscoveryState) {
-  return state.roomType === "Multi-zone venue" || state.displayArrangement === "Distributed displays" || state.displayArrangement === "Multiple zones" || state.displayArrangement === "Choose source per zone";
+function getDisplayBehaviourOptions(state: DiscoveryState) {
+  if (isWallArrangement(state.displayArrangement)) return wallDisplayBehaviours;
+  if (isDualArrangement(state.displayArrangement)) return dualDisplayBehaviours;
+  if (isMultiZone(state)) return multiZoneDisplayBehaviours;
+  if (state.displayArrangement === "Multiview display") return ["Multiple sources on one screen", "Operator selectable layouts", "Static multiview layout", "Future expansion required"];
+  return standardDisplayBehaviours;
+}
+
+function getSourceConnectionOptions(state: DiscoveryState, profile: RoomProfile) {
+  if (!state.sourceTypes.length) return profile.sourceConnectionOptions;
+
+  const options: string[] = [];
+
+  if (includesAny(state.sourceTypes, ["Laptop HDMI", "HDMI wall input", "Media player", "Signage player", "Room PC"])) {
+    options.push("HDMI");
+  }
+
+  if (includesAny(state.sourceTypes, ["Laptop USB-C", "USB-C wall input"])) {
+    options.push("USB-C video", "USB-C with charging");
+  }
+
+  if (includesAny(state.sourceTypes, ["USB camera"])) {
+    options.push("USB only");
+  }
+
+  if (includesAny(state.sourceTypes, ["NDI camera"])) {
+    options.push("NDI", "Network");
+  }
+
+  if (includesAny(state.sourceTypes, ["PTZ camera"])) {
+    options.push("HDMI", "USB only", "Network", "NDI");
+  }
+
+  if (includesAny(state.sourceTypes, ["Wireless presentation"])) {
+    options.push("Wireless", "Network");
+  }
+
+  options.push("Unknown");
+
+  return unique(options);
+}
+
+function getMeetingWorkflowOptions(state: DiscoveryState) {
+  if (state.roomType === "Retail signage" || state.roomType === "Hospitality") return ["Presentation only", "Streaming / recording", "Not sure"];
+  if (state.roomType === "House of worship") return ["Streaming / recording", "Presentation only", "BYOD presentation", "Not sure"];
+  if (state.roomType === "Control room") return ["Presentation only", "Streaming / recording", "Not sure"];
+  if (state.roomType === "Display wall / large format wall") return ["Presentation only", "Streaming / recording", "Not sure"];
+  return meetingWorkflowBase;
+}
+
+function getUsbOptions(state: DiscoveryState) {
+  if (state.usbTransport === "No USB required") return usbNoTransportDevices;
+  if (state.usbTransport === "USB 2.0 is enough") return usbLowBandwidthDevices;
+  if (state.usbTransport === "USB 3.x / high-bandwidth required") return usbHighBandwidthDevices;
+
+  if (state.meetingWorkflow === "Presentation only" || state.roomType === "Retail signage" || state.roomType === "Hospitality") {
+    return ["No USB required", "Touch display return", "Keyboard / mouse", "Not sure"];
+  }
+
+  return usbLowBandwidthDevices;
+}
+
+function getCableTypeOptions(state: DiscoveryState) {
+  if (isMultiZone(state) || isNetworkLedOrCameraSource(state)) return cableTypesNetwork;
+
+  const rank = distanceRank(state.longestRun);
+
+  if (rank >= 5) return cableTypesLong;
+  if (rank >= 3) return cableTypesMedium;
+  return cableTypesShort;
+}
+
+function getNetworkOptions(state: DiscoveryState) {
+  if (isMultiZone(state) || isNetworkLedOrCameraSource(state) || state.displayArrangement === "LED wall" || state.displayBehaviour.includes("Multiview")) {
+    return networkOptionsRouted;
+  }
+
+  return networkOptionsSimple;
+}
+
+function defaultDisplayPositionForArrangement(value: string, roomType: string) {
+  if (value === "LCD wall" || value === "LED wall") return "Primary feature wall";
+  if (value === "Distributed displays" || value === "Multiple zones" || roomType === "Multi-zone venue") return "Distributed displays";
+  if (value === "Content display + conferencing display") return "Content display + conferencing display";
+  if (value === "Primary display + confidence monitor") return "Front display + confidence monitor";
+  if (value.includes("Dual")) return "Dual displays on front wall";
+  if (value === "Projector") return "Ceiling projector";
+  return "Front wall";
+}
+
+function filterCompatibleUsbNeeds(usbTransport: string, usbNeeds: string[]) {
+  const allowed = getUsbOptions({ ...initialState, usbTransport });
+
+  if (usbTransport === "No USB required") return ["No USB required"];
+
+  return usbNeeds.filter((need) => allowed.includes(need) && !highBandwidthUsbNeeds.includes(need));
 }
 
 function hasUsbRequirement(state: DiscoveryState) {
+  if (state.usbTransport === "No USB required") return false;
+
   return (
-    state.usbNeeds.length > 0 &&
-    !state.usbNeeds.includes("No USB required") &&
-    !state.usbNeeds.every((item) => item === "Not sure")
+    state.usbTransport === "USB 2.0 is enough" ||
+    state.usbTransport === "USB 3.x / high-bandwidth required" ||
+    (state.usbNeeds.length > 0 && !state.usbNeeds.includes("No USB required"))
   );
 }
 
 function hasConferencing(state: DiscoveryState) {
   return includesAny([state.meetingWorkflow], ["BYOM conferencing", "Room PC conferencing", "MTR / Zoom Room", "Wireless conferencing"]);
-}
-
-function distanceRank(longestRun: string) {
-  if (longestRun === "Under 5m") {
-    return 1;
-  }
-
-  if (longestRun === "5-10m") {
-    return 2;
-  }
-
-  if (longestRun === "10-35m") {
-    return 3;
-  }
-
-  if (longestRun === "35-70m") {
-    return 4;
-  }
-
-  if (longestRun === "70-100m") {
-    return 5;
-  }
-
-  if (longestRun === "100m+") {
-    return 6;
-  }
-
-  return 0;
-}
-
-function getDisplayArrangementOptions(state: DiscoveryState, profile: RoomProfile) {
-  if (state.roomType === "Display wall / large format wall") {
-    return wallDisplayArrangements;
-  }
-
-  if (state.roomType === "Multi-zone venue") {
-    return multiZoneDisplayArrangements;
-  }
-
-  if (state.roomType === "Control room") {
-    return ["Multiview display", "Distributed displays", "LCD wall", "LED wall", "Single display"];
-  }
-
-  if (state.roomType === "Retail signage" || state.roomType === "Hospitality") {
-    return ["Distributed displays", "Single display", "LCD wall", "LED wall"];
-  }
-
-  if (isDualArrangement(state.displayArrangement)) {
-    return dualDisplayArrangements;
-  }
-
-  return unique([...standardDisplayArrangements, ...profile.defaults.displayArrangement ? [profile.defaults.displayArrangement as string] : []]);
-}
-
-function getDisplayPositionOptions(state: DiscoveryState) {
-  if (isWallArrangement(state.displayArrangement) || state.wallType) {
-    return wallDisplayPositions;
-  }
-
-  if (isDualArrangement(state.displayArrangement)) {
-    return dualDisplayPositions;
-  }
-
-  if (isMultiZone(state)) {
-    return multiZoneDisplayPositions;
-  }
-
-  return standardDisplayPositions;
-}
-
-function getDisplayBehaviourOptions(state: DiscoveryState) {
-  if (isWallArrangement(state.displayArrangement) || state.wallType) {
-    return wallDisplayBehaviours;
-  }
-
-  if (isDualArrangement(state.displayArrangement)) {
-    return dualDisplayBehaviours;
-  }
-
-  if (isMultiZone(state)) {
-    return multiZoneDisplayBehaviours;
-  }
-
-  if (state.displayArrangement === "Multiview display") {
-    return ["Multiple sources on one screen", "Operator selectable layouts", "Static multiview layout", "Future expansion required"];
-  }
-
-  return standardDisplayBehaviours;
-}
-
-function getMeetingWorkflowOptions(state: DiscoveryState) {
-  if (state.roomType === "Retail signage" || state.roomType === "Hospitality") {
-    return ["Presentation only", "Streaming / recording", "Not sure"];
-  }
-
-  if (state.roomType === "House of worship") {
-    return ["Streaming / recording", "Presentation only", "BYOD presentation", "Not sure"];
-  }
-
-  if (state.roomType === "Control room") {
-    return ["Presentation only", "Streaming / recording", "Not sure"];
-  }
-
-  if (state.roomType === "Display wall / large format wall") {
-    return ["Presentation only", "Streaming / recording", "Not sure"];
-  }
-
-  return meetingWorkflowBase;
-}
-
-function getUsbOptions(state: DiscoveryState) {
-  if (state.meetingWorkflow === "Presentation only" || state.roomType === "Retail signage" || state.roomType === "Hospitality") {
-    return ["No USB required", "Touch display return", "Keyboard / mouse", "Not sure"];
-  }
-
-  if (hasConferencing(state)) {
-    return ["USB camera", "Speakerphone", "Microphone", "Multiple USB devices", "USB 2.0 enough", "USB 3.x required", "Not sure"];
-  }
-
-  return usbNeedsBase;
-}
-
-function defaultDisplayPositionForArrangement(value: string, roomType: string) {
-  if (value === "LCD wall" || value === "LED wall") {
-    return "Primary feature wall";
-  }
-
-  if (value === "Distributed displays" || value === "Multiple zones" || roomType === "Multi-zone venue") {
-    return "Distributed displays";
-  }
-
-  if (value === "Content display + conferencing display") {
-    return "Content display + conferencing display";
-  }
-
-  if (value === "Primary display + confidence monitor") {
-    return "Front display + confidence monitor";
-  }
-
-  if (value.includes("Dual")) {
-    return "Dual displays on front wall";
-  }
-
-  if (value === "Projector") {
-    return "Ceiling projector";
-  }
-
-  return "Front wall";
 }
 
 function inferDesign(state: DiscoveryState): Inference {
@@ -789,93 +769,42 @@ function inferDesign(state: DiscoveryState): Inference {
   const productDirection: string[] = [];
   const avoid: string[] = [];
 
-  if (!state.roomType) {
-    missing.push("Room/application type");
+  if (!state.roomType) missing.push("Room/application type");
+  if (!state.roomSize) missing.push("Room size");
+  if (!state.userPosition) missing.push("Main user/source position");
+  if (!state.equipmentLocation) missing.push("Equipment/rack location");
+  if (!state.sourceTypes.length) missing.push("Source types");
+  if (!state.sourceLocations.length) missing.push("Source locations");
+  if (!state.sourceConnections.length) missing.push("Source connection type");
+  if (!state.displayArrangement) missing.push("Display arrangement");
+  if (!state.displayPosition) missing.push("Display position");
+  if (!state.displayBehaviour) missing.push("Display behaviour");
+  if (!state.longestRun || state.longestRun === "Unknown") missing.push("Longest cable run");
+  if (!state.cableAvailable.length || state.cableAvailable.includes("Unknown")) missing.push("Installed cable type/grade");
+
+  if (isWallArrangement(state.displayArrangement) && !state.wallLayout) missing.push("LCD/LED wall layout");
+  if (isWallArrangement(state.displayArrangement) && !state.wallInputMode) missing.push("Wall input mode");
+  if (isWallArrangement(state.displayArrangement) && !state.wallMultiview) missing.push("Wall multiview requirement");
+
+  if (hasUsbRequirement(state) && !state.usbTransport) missing.push("USB transport class");
+  if (hasUsbRequirement(state) && (!state.meetingWorkflow || state.meetingWorkflow === "Not sure")) missing.push("USB/conferencing workflow");
+
+  if (state.usbTransport === "USB 2.0 is enough" && includesAny(state.usbNeeds, highBandwidthUsbNeeds)) {
+    risks.push("USB 2.0 was selected but high-bandwidth USB devices are still present.");
   }
 
-  if (!state.roomSize) {
-    missing.push("Room size");
-  }
-
-  if (!state.userPosition) {
-    missing.push("Main user/source position");
-  }
-
-  if (!state.equipmentLocation) {
-    missing.push("Equipment/rack location");
-  }
-
-  if (!state.sourceTypes.length) {
-    missing.push("Source types");
-  }
-
-  if (!state.sourceLocations.length) {
-    missing.push("Source locations");
-  }
-
-  if (!state.displayArrangement) {
-    missing.push("Display arrangement");
-  }
-
-  if (!state.displayPosition) {
-    missing.push("Display position");
-  }
-
-  if (!state.displayBehaviour) {
-    missing.push("Display behaviour");
-  }
-
-  if (isWallArrangement(state.displayArrangement) && !state.wallLayout) {
-    missing.push("LCD/LED wall layout");
-  }
-
-  if (isWallArrangement(state.displayArrangement) && !state.wallInputMode) {
-    missing.push("Wall input mode");
-  }
-
-  if (isWallArrangement(state.displayArrangement) && !state.wallMultiview) {
-    missing.push("Wall multiview requirement");
-  }
-
-  if (!state.longestRun || state.longestRun === "Unknown") {
-    missing.push("Longest cable run");
-  }
-
-  if (!state.cableAvailable.length || state.cableAvailable.includes("Unknown")) {
-    missing.push("Installed cable type/grade");
-  }
-
-  if (hasUsbRequirement(state) && (!state.meetingWorkflow || state.meetingWorkflow === "Not sure")) {
-    missing.push("USB/conferencing workflow");
-  }
-
-  if (state.cableRisks.includes("Cable not certified")) {
-    risks.push("Cable is not certified; verify cable grade before committing to maximum distance/resolution.");
-  }
-
-  if (state.cableRisks.includes("Distance not confirmed")) {
-    risks.push("Distance is not confirmed; transport method and receiver choice may change.");
-  }
-
-  if (state.cableRisks.includes("Shared IT network")) {
-    risks.push("Shared IT network may restrict AVoIP multicast, QoS, IGMP, or bandwidth behaviour.");
-  }
-
-  if (state.usbNeeds.includes("USB 3.x required")) {
-    risks.push("USB 3.x requirement must be verified before selecting USB transport hardware.");
-  }
-
-  if (state.networkAvailability === "Existing IT network" && isMultiZone(state)) {
-    risks.push("NetworkHD / AVoIP design needs IT confirmation before final hardware selection.");
-  }
+  if (state.cableRisks.includes("Cable not certified")) risks.push("Cable is not certified; verify cable grade before committing to maximum distance/resolution.");
+  if (state.cableRisks.includes("Distance not confirmed")) risks.push("Distance is not confirmed; transport method and receiver choice may change.");
+  if (state.cableRisks.includes("Shared IT network")) risks.push("Shared IT network may restrict AVoIP multicast, QoS, IGMP, or bandwidth behaviour.");
+  if (state.usbNeeds.includes("USB 3.x required")) risks.push("USB 3.x requirement must be verified before selecting USB transport hardware.");
+  if (state.networkAvailability === "Existing IT network" && isMultiZone(state)) risks.push("NetworkHD / AVoIP design needs IT confirmation before final hardware selection.");
 
   let architecture = "Structured presentation / extension system";
 
   if (state.displayArrangement === "LED wall") {
-    architecture =
-      state.wallMultiview === "Multiview required"
-        ? "LED wall with upstream multiview composition feeding a single LED canvas"
-        : "LED wall single-input canvas path";
+    architecture = state.wallMultiview === "Multiview required"
+      ? "LED wall with upstream multiview composition feeding a single LED canvas"
+      : "LED wall single-input canvas path";
 
     productDirection.push("Treat LED as a single input canvas into the LED controller unless multiview composition is required upstream.");
     productDirection.push("Use the wall wizard for LED canvas dimensions, pixel pitch, processor handoff, and source behaviour.");
@@ -883,10 +812,9 @@ function inferDesign(state: DiscoveryState): Inference {
   }
 
   if (state.displayArrangement === "LCD wall") {
-    architecture =
-      state.wallInputMode === "Screen-driven / input-per-display"
-        ? "LCD wall with screen-driven / input-per-display processing"
-        : "LCD wall single-input tile-mode processing";
+    architecture = state.wallInputMode === "Screen-driven / input-per-display"
+      ? "LCD wall with screen-driven / input-per-display processing"
+      : "LCD wall single-input tile-mode processing";
 
     productDirection.push("Use quick-pick LCD layouts such as 2x2, 3x3, or 4x4 to size the wall before detailed design.");
     productDirection.push("For fixed tile-mode walls, consider SW-0204-VW or SW-0206-VW before escalating to AVoIP.");
@@ -903,11 +831,14 @@ function inferDesign(state: DiscoveryState): Inference {
   }
 
   if (!isWallArrangement(state.displayArrangement) && !isMultiZone(state) && hasUsbRequirement(state)) {
-    architecture = "Integrated HDMI/USB or USB-C presentation transport";
+    architecture = state.usbTransport === "USB 2.0 is enough"
+      ? "Primary HDBaseT / integrated HDMI + USB 2.0 transport"
+      : "Integrated HDMI/USB or USB-C presentation transport";
+
     productDirection.push("Use an integrated solution path that carries video and USB together where possible.");
-    productDirection.push("Check SW-130-TX-UK / SW-130-TX-US with RX-500 where in-wall HDMI/USB-C plus USB transport is required.");
-    productDirection.push("Check SW-120-TX3 family with RX3-100 where HDBaseT 3.0 style performance is more appropriate.");
-    avoid.push("Do not treat HDMI and USB as separate extender products unless the installation genuinely requires split paths.");
+    productDirection.push("If USB 2.0 is enough, prioritise HDBaseT-style integrated transport before higher-bandwidth USB-only options.");
+    productDirection.push("Only select USB 3.x-capable paths if high-bandwidth USB devices are confirmed.");
+    avoid.push("Do not allow USB 3.x camera or high-bandwidth USB device choices when USB 2.0 is confirmed as sufficient.");
   }
 
   if (!isWallArrangement(state.displayArrangement) && !isMultiZone(state) && !hasUsbRequirement(state) && distanceRank(state.longestRun) >= 3) {
@@ -942,14 +873,7 @@ function inferDesign(state: DiscoveryState): Inference {
         ? "Medium"
         : "Low";
 
-  return {
-    architecture,
-    productDirection,
-    avoid,
-    confidence,
-    missing,
-    risks,
-  };
+  return { architecture, productDirection, avoid, confidence, missing, risks };
 }
 
 function ChipButton({
@@ -1002,7 +926,6 @@ function ChipGroup({
       <div className="flex flex-wrap gap-2">
         {options.map((option) => {
           const active = multi ? Array.isArray(value) && value.includes(option) : value === option;
-
           return <ChipButton key={option} active={active} label={option} onClick={() => onSelect(option)} />;
         })}
       </div>
@@ -1114,8 +1037,11 @@ export function DiscoveryPage() {
   const displayArrangementOptions = useMemo(() => getDisplayArrangementOptions(state, profile), [state, profile]);
   const displayPositionOptions = useMemo(() => getDisplayPositionOptions(state), [state]);
   const displayBehaviourOptions = useMemo(() => getDisplayBehaviourOptions(state), [state]);
+  const sourceConnectionOptions = useMemo(() => getSourceConnectionOptions(state, profile), [state, profile]);
   const meetingWorkflowOptions = useMemo(() => getMeetingWorkflowOptions(state), [state]);
   const usbOptions = useMemo(() => getUsbOptions(state), [state]);
+  const cableTypeOptions = useMemo(() => getCableTypeOptions(state), [state]);
+  const networkAvailabilityOptions = useMemo(() => getNetworkOptions(state), [state]);
   const isWallMode = isWallArrangement(state.displayArrangement);
 
   const capturedPercent = useMemo(() => {
@@ -1126,6 +1052,7 @@ export function DiscoveryPage() {
       state.equipmentLocation,
       state.sourceTypes.length ? "sources" : "",
       state.sourceLocations.length ? "source locations" : "",
+      state.sourceConnections.length ? "connections" : "",
       state.displayArrangement,
       state.displayPosition,
       state.displayBehaviour,
@@ -1181,6 +1108,86 @@ export function DiscoveryPage() {
     });
   }
 
+  function chooseMeetingWorkflow(value: string) {
+    setState((current) => {
+      if (value === "Presentation only") {
+        return {
+          ...current,
+          meetingWorkflow: value,
+          usbTransport: current.usbTransport || "No USB required",
+          usbNeeds: current.usbTransport ? current.usbNeeds : ["No USB required"],
+          cameraPosition: current.usbTransport ? current.cameraPosition : "No camera",
+        };
+      }
+
+      if (["BYOM conferencing", "Room PC conferencing", "MTR / Zoom Room", "Wireless conferencing"].includes(value)) {
+        return {
+          ...current,
+          meetingWorkflow: value,
+          usbTransport: current.usbTransport && current.usbTransport !== "No USB required" ? current.usbTransport : "USB 2.0 is enough",
+          usbNeeds: current.usbNeeds.filter((need) => need !== "No USB required"),
+        };
+      }
+
+      return { ...current, meetingWorkflow: value };
+    });
+  }
+
+  function chooseUsbTransport(value: string) {
+    setState((current) => {
+      if (value === "No USB required") {
+        return {
+          ...current,
+          usbTransport: value,
+          usbNeeds: ["No USB required"],
+          cameraPosition: "No camera",
+          sourceTypes: current.sourceTypes.filter((source) => source !== "USB camera"),
+          sourceConnections: current.sourceConnections.filter((connection) => connection !== "USB only"),
+        };
+      }
+
+      return {
+        ...current,
+        usbTransport: value,
+        usbNeeds: filterCompatibleUsbNeeds(value, current.usbNeeds.filter((need) => need !== "No USB required")),
+      };
+    });
+  }
+
+  function toggleSourceType(value: string) {
+    setState((current) => {
+      const sourceTypes = current.sourceTypes.includes(value)
+        ? current.sourceTypes.filter((item) => item !== value)
+        : [...current.sourceTypes, value];
+
+      const virtualState = { ...current, sourceTypes };
+      const allowedConnections = getSourceConnectionOptions(virtualState, getRoomProfile(current.roomType));
+      const sourceConnections = current.sourceConnections.filter((connection) => allowedConnections.includes(connection));
+
+      const shouldEnableUsb = sourceTypes.includes("USB camera") && current.usbTransport !== "USB 3.x / high-bandwidth required";
+
+      return {
+        ...current,
+        sourceTypes,
+        sourceConnections,
+        usbTransport: shouldEnableUsb ? "USB 2.0 is enough" : current.usbTransport,
+        usbNeeds: shouldEnableUsb ? unique([...current.usbNeeds.filter((need) => need !== "No USB required"), "USB camera"]) : current.usbNeeds,
+      };
+    });
+  }
+
+  function chooseLongestRun(value: string) {
+    setState((current) => {
+      const virtualState = { ...current, longestRun: value };
+      const allowedCable = getCableTypeOptions(virtualState);
+      return {
+        ...current,
+        longestRun: value,
+        cableAvailable: current.cableAvailable.filter((cable) => allowedCable.includes(cable)),
+      };
+    });
+  }
+
   function toggleMulti(key: MultiSelectKey, value: string) {
     setState((current) => {
       const existing = current[key];
@@ -1221,9 +1228,7 @@ export function DiscoveryPage() {
   }
 
   function renderWallQuickPick() {
-    if (!isWallMode) {
-      return null;
-    }
+    if (!isWallMode) return null;
 
     const isLedWall = state.displayArrangement === "LED wall";
     const wallLayoutOptions = isLedWall ? ledWallLayouts : lcdWallLayouts;
@@ -1255,11 +1260,7 @@ export function DiscoveryPage() {
         <div className="mt-4 grid gap-4">
           <ChipGroup
             title={isLedWall ? "LED wall canvas" : "LCD wall layout"}
-            helper={
-              isLedWall
-                ? "LED should normally be treated as a single input canvas unless multiview is composed upstream."
-                : "Choose a common LCD layout for quick qualification."
-            }
+            helper={isLedWall ? "LED should normally be treated as a single input canvas unless multiview is composed upstream." : "Choose a common LCD layout for quick qualification."}
             options={wallLayoutOptions}
             value={state.wallLayout}
             onSelect={(value) => setField("wallLayout", value)}
@@ -1267,11 +1268,7 @@ export function DiscoveryPage() {
 
           <ChipGroup
             title="Input mode"
-            helper={
-              isLedWall
-                ? "LED defaults to a single input canvas."
-                : "Single input tile-mode is different from screen-driven / input-per-display behaviour."
-            }
+            helper={isLedWall ? "LED defaults to a single input canvas." : "Single input tile-mode is different from screen-driven / input-per-display behaviour."}
             options={wallInputOptions}
             value={state.wallInputMode}
             onSelect={(value) => setField("wallInputMode", value)}
@@ -1295,7 +1292,7 @@ export function DiscoveryPage() {
         <div className="grid gap-5">
           <ChipGroup
             title="Room / application type"
-            helper="Select the application. Wingman will apply sensible defaults and filter later options."
+            helper="Select the application. Wingman applies sensible defaults and filters later options."
             options={roomTypes}
             value={state.roomType}
             onSelect={applyRoomType}
@@ -1327,7 +1324,7 @@ export function DiscoveryPage() {
         <div className="grid gap-5">
           <ChipGroup
             title="Room size"
-            helper="Options are filtered by application. For example, multi-zone venues default to extra-large or open spaces."
+            helper="Options are filtered by application. Multi-zone venues default to extra-large or open spaces."
             options={profile.roomSizeOptions}
             value={state.roomSize}
             onSelect={(value) => setField("roomSize", value)}
@@ -1372,10 +1369,10 @@ export function DiscoveryPage() {
 
           <ChipGroup
             title="Source types"
-            helper="Source options are filtered by application so users are not shown irrelevant choices."
+            helper="Source options are filtered by application. Selecting USB camera or NDI camera changes the connection choices."
             options={profile.sourceTypeOptions}
             value={state.sourceTypes}
-            onSelect={(value) => toggleMulti("sourceTypes", value)}
+            onSelect={toggleSourceType}
             multi
           />
 
@@ -1389,9 +1386,9 @@ export function DiscoveryPage() {
           />
 
           <ChipGroup
-            title="Source connection types"
-            helper="Connection type affects USB-C, HDMI, HDBaseT, AVoIP, NDI, and wireless product paths."
-            options={profile.sourceConnectionOptions}
+            title="Compatible source connection types"
+            helper="This list now responds to selected source types. Incompatible connection methods are removed."
+            options={sourceConnectionOptions}
             value={state.sourceConnections}
             onSelect={(value) => toggleMulti("sourceConnections", value)}
             multi
@@ -1411,7 +1408,7 @@ export function DiscoveryPage() {
 
           <ChipGroup
             title="Display arrangement"
-            helper="This list is filtered by the selected application. Multi-zone, wall, control room, signage, and boardroom applications get different choices."
+            helper="This list is filtered by the selected application."
             options={displayArrangementOptions}
             value={state.displayArrangement}
             onSelect={chooseDisplayArrangement}
@@ -1419,7 +1416,7 @@ export function DiscoveryPage() {
 
           <ChipGroup
             title="Display position"
-            helper="This question is now responsive. Dual-display arrangements show dual-screen positions; wall arrangements show wall positions; multi-zone shows distributed positions."
+            helper="Dual displays show dual-screen positions; walls show wall positions; multi-zone shows distributed positions."
             options={displayPositionOptions}
             value={state.displayPosition}
             onSelect={(value) => setField("displayPosition", value)}
@@ -1442,16 +1439,24 @@ export function DiscoveryPage() {
       return (
         <div className="grid gap-5">
           <ChipGroup
-            title="Meeting / user workflow"
-            helper="Options are filtered by application. Signage and wall spaces do not show the same workflow choices as meeting rooms."
-            options={meetingWorkflowOptions}
-            value={state.meetingWorkflow}
-            onSelect={(value) => setField("meetingWorkflow", value)}
+            title="USB transport class"
+            helper="Choose this first. USB 2.0 removes high-bandwidth devices and keeps the design on the primary HDBaseT / integrated-transport path."
+            options={usbTransportOptions}
+            value={state.usbTransport}
+            onSelect={chooseUsbTransport}
           />
 
           <ChipGroup
-            title="USB requirement"
-            helper="USB choices respond to the meeting workflow. BYOM/conferencing exposes camera, speakerphone, microphone, and USB bandwidth choices."
+            title="Meeting / user workflow"
+            helper="Workflow choices are filtered by application."
+            options={meetingWorkflowOptions}
+            value={state.meetingWorkflow}
+            onSelect={chooseMeetingWorkflow}
+          />
+
+          <ChipGroup
+            title="Compatible USB devices"
+            helper="This list is filtered by the USB transport class. High-bandwidth options only appear when USB 3.x is selected."
             options={usbOptions}
             value={state.usbNeeds}
             onSelect={(value) => toggleMulti("usbNeeds", value)}
@@ -1483,16 +1488,16 @@ export function DiscoveryPage() {
         <div className="grid gap-5">
           <ChipGroup
             title="Longest signal run"
-            helper="This should drive transport recommendation. Multi-zone and worship spaces are pre-biased toward longer runs, but confirm the actual distance."
+            helper="This drives transport. Longer runs automatically remove unsuitable short-distance cable assumptions."
             options={runBands}
             value={state.longestRun}
-            onSelect={(value) => setField("longestRun", value)}
+            onSelect={chooseLongestRun}
           />
 
           <ChipGroup
-            title="Available cable / pathway"
-            helper="Select what is installed or what can realistically be installed."
-            options={cableTypes}
+            title="Compatible cable / pathway"
+            helper="This list is filtered by distance, AVoIP/NDI need, and multi-zone logic."
+            options={cableTypeOptions}
             value={state.cableAvailable}
             onSelect={(value) => toggleMulti("cableAvailable", value)}
             multi
@@ -1500,8 +1505,8 @@ export function DiscoveryPage() {
 
           <ChipGroup
             title="Network availability"
-            helper="This matters for NetworkHD, NDI, control, streaming, Dante/AES67, and multi-zone routing."
-            options={networkOptions}
+            helper="Network options change when NetworkHD, NDI, control, streaming, or multi-zone routing is likely."
+            options={networkAvailabilityOptions}
             value={state.networkAvailability}
             onSelect={(value) => setField("networkAvailability", value)}
           />
@@ -1586,9 +1591,9 @@ export function DiscoveryPage() {
     <div className="pb-10">
       <PageHero
         eyebrow="Guided Customer Discovery"
-        title="Wingman now responds to the application, not a static form."
-        purpose="This workflow applies real-world AV assumptions and dynamically filters each next choice. A multi-zone venue behaves like a multi-zone venue; a display wall exposes wall logic; dual displays expose dual-screen positions and behaviours."
-        nextMove="Select the use case, let Wingman apply smart defaults, then refine only the details that matter for equipment selection."
+        title="Wingman now filters incompatible choices as the design forms."
+        purpose="Primary selections now reduce later choices. USB 2.0 removes high-bandwidth USB devices, distance filters cable assumptions, source type filters connection types, and room application filters layout and output options."
+        nextMove="Select the use case, let Wingman apply smart defaults, then refine only the choices that remain technically relevant."
         actions={[
           { label: "Open Product Finder", to: routeCatalogByKey.finder.path },
           { label: "Save to Projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
@@ -1597,7 +1602,7 @@ export function DiscoveryPage() {
 
       <SectionCard
         title="Dynamic discovery workflow"
-        subtitle="The choices shown are filtered by previous answers so the workflow feels like a live AV design assistant, not a generic checklist."
+        subtitle="The workflow now behaves like a constraint engine: incompatible choices are hidden or removed instead of being collected and ignored."
       >
         <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -1693,13 +1698,12 @@ export function DiscoveryPage() {
                 <ValueLine label="Equipment position" value={state.equipmentLocation} />
                 <ListLine label="Sources" values={state.sourceTypes} />
                 <ListLine label="Source locations" values={state.sourceLocations} />
+                <ListLine label="Source connections" values={state.sourceConnections} />
                 <ValueLine label="Display arrangement" value={state.displayArrangement} />
                 <ValueLine label="Display position" value={state.displayPosition} />
                 <ValueLine label="Display behaviour" value={state.displayBehaviour} />
-                <ValueLine label="Wall layout" value={state.wallLayout} />
-                <ValueLine label="Wall input mode" value={state.wallInputMode} />
-                <ValueLine label="Wall multiview" value={state.wallMultiview} />
-                <ListLine label="USB" values={state.usbNeeds} />
+                <ValueLine label="USB transport" value={state.usbTransport} />
+                <ListLine label="USB devices" values={state.usbNeeds} />
                 <ValueLine label="Longest run" value={state.longestRun} />
               </div>
             </div>
