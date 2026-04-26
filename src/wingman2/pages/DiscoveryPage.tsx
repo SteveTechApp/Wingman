@@ -40,6 +40,7 @@ type DiscoveryState = {
   sourceTypes: string[];
   sourceLocations: string[];
   sourceConnections: string[];
+  sourcePaths: SourcePath[];
   displayCount: number;
   displayArrangement: string;
   displayPosition: string;
@@ -72,6 +73,20 @@ type Inference = {
   risks: string[];
 };
 
+type SourcePath = {
+  id: string;
+  name: string;
+  deviceType: string;
+  location: string;
+  outputConnection: string;
+  destination: string;
+  transport: string;
+  distance: string;
+  usbRole: string;
+  notes: string;
+};
+
+type SourcePathField = keyof SourcePath;
 type RoomProfile = {
   note: string;
   defaults: Partial<DiscoveryState>;
@@ -366,7 +381,20 @@ const initialState: DiscoveryState = {
   sourceTypes: [],
   sourceLocations: [],
   sourceConnections: [],
-  displayCount: 1,
+  sourcePaths: [
+    {
+      id: "source-1",
+      name: "Source 1",
+      deviceType: "",
+      location: "",
+      outputConnection: "",
+      destination: "",
+      transport: "",
+      distance: "",
+      usbRole: "",
+      notes: "",
+    },
+  ],  displayCount: 1,
   displayArrangement: "Single display",
   displayPosition: "Front wall",
   displayBehaviour: "Presentation plus conferencing",
@@ -763,6 +791,183 @@ function hasConferencing(state: DiscoveryState) {
   return includesAny([state.meetingWorkflow], ["BYOM conferencing", "Room PC conferencing", "MTR / Zoom Room", "Wireless conferencing"]);
 }
 
+function getEmptySourcePath(index: number): SourcePath {
+  return {
+    id: `source-${index + 1}-${Math.random().toString(16).slice(2)}`,
+    name: `Source ${index + 1}`,
+    deviceType: "",
+    location: "",
+    outputConnection: "",
+    destination: "",
+    transport: "",
+    distance: "",
+    usbRole: "",
+    notes: "",
+  };
+}
+
+function summarizeSourcePaths(sourcePaths: SourcePath[]) {
+  return {
+    sourceTypes: unique(sourcePaths.map((source) => source.deviceType).filter(Boolean)),
+    sourceLocations: unique(sourcePaths.map((source) => source.location).filter(Boolean)),
+    sourceConnections: unique(sourcePaths.map((source) => source.outputConnection).filter(Boolean)),
+  };
+}
+
+function getSourceConnectionOptionsForSourcePath(source: SourcePath, state: DiscoveryState, profile: RoomProfile) {
+  if (!source.deviceType) {
+    return profile.sourceConnectionOptions;
+  }
+
+  const options: string[] = [];
+
+  if (["Laptop HDMI", "HDMI wall input", "Media player", "Signage player", "Room PC", "Document camera"].includes(source.deviceType)) {
+    options.push("HDMI");
+  }
+
+  if (["Laptop USB-C", "USB-C wall input"].includes(source.deviceType)) {
+    options.push("USB-C video", "USB-C with charging");
+  }
+
+  if (source.deviceType === "USB camera") {
+    options.push("USB only");
+  }
+
+  if (source.deviceType === "NDI camera") {
+    options.push("NDI", "Network");
+  }
+
+  if (source.deviceType === "PTZ camera") {
+    options.push("HDMI", "USB only", "NDI", "Network");
+  }
+
+  if (source.deviceType === "Wireless presentation") {
+    options.push("Wireless", "Network", "HDMI");
+  }
+
+  if (source.deviceType === "Other source") {
+    options.push("HDMI", "USB-C video", "USB only", "Network", "Wireless", "Unknown");
+  }
+
+  if (state.usbTransport === "No USB required") {
+    return unique(options.filter((option) => option !== "USB only"));
+  }
+
+  options.push("Unknown");
+
+  return unique(options);
+}
+
+function getSourceDestinationOptions(state: DiscoveryState) {
+  const options = [
+    "Display / local display input",
+    "Local switcher",
+    "HDBaseT transmitter",
+    "AVoIP encoder",
+    "Central rack",
+    "Room PC / conferencing host",
+    "USB bridge / camera bridge",
+    "DSP / audio system",
+    "Unknown",
+  ];
+
+  if (isMultiZone(state)) {
+    return unique(["Central rack", "AVoIP encoder", "Zone display input", "Local switcher", "Unknown"]);
+  }
+
+  if (isWallArrangement(state.displayArrangement)) {
+    return unique(["Wall processor / controller", "AVoIP encoder", "Local switcher", "Central rack", "Unknown"]);
+  }
+
+  if (hasUsbRequirement(state)) {
+    return unique(["Local switcher", "Room PC / conferencing host", "USB bridge / camera bridge", "HDBaseT transmitter", "Unknown"]);
+  }
+
+  return options;
+}
+
+function getSourceTransportOptionsForSourcePath(source: SourcePath, state: DiscoveryState) {
+  const rank = distanceRank(source.distance || state.longestRun);
+
+  if (source.outputConnection === "USB only") {
+    if (state.usbTransport === "USB 3.x / high-bandwidth required") {
+      return ["USB 3.x extender", "Local USB", "USB 3.x over supported integrated path", "Unknown"];
+    }
+
+    if (state.usbTransport === "USB 2.0 is enough") {
+      return ["Primary HDBaseT / integrated USB 2.0 path", "USB 2.0 extender", "Local USB", "Unknown"];
+    }
+
+    return ["Local USB", "USB 2.0 extender", "Unknown"];
+  }
+
+  if (source.outputConnection === "NDI") {
+    return ["Network / NDI", "NDI to AVoIP bridge", "Unknown"];
+  }
+
+  if (source.outputConnection === "Network") {
+    return ["Network", "AVoIP encoder", "NDI / IP workflow", "Unknown"];
+  }
+
+  if (source.outputConnection === "Wireless") {
+    return ["Wireless presentation receiver", "Network", "Local HDMI from receiver", "Unknown"];
+  }
+
+  if (isMultiZone(state)) {
+    return ["AVoIP encoder", "HDBaseT to central rack", "Fibre / network transport", "Unknown"];
+  }
+
+  if (rank >= 5) {
+    return ["AVoIP encoder", "Fibre extender", "HDBaseT long-run path", "Unknown"];
+  }
+
+  if (rank >= 3) {
+    return ["HDBaseT", "AVoIP encoder", "Active optical HDMI", "Unknown"];
+  }
+
+  if (rank > 0 && rank <= 2) {
+    return ["Short HDMI / local switch", "HDBaseT if cable route requires it", "Unknown"];
+  }
+
+  return ["Short HDMI / local switch", "HDBaseT", "AVoIP encoder", "Active optical HDMI", "Unknown"];
+}
+
+function getUsbRoleOptionsForSourcePath(source: SourcePath, state: DiscoveryState) {
+  if (source.outputConnection !== "USB only" && source.deviceType !== "USB camera" && source.deviceType !== "PTZ camera") {
+    return ["Video only / no USB", "Unknown"];
+  }
+
+  if (state.usbTransport === "USB 3.x / high-bandwidth required") {
+    return ["USB 3.x camera/peripheral", "USB 2.0 camera/peripheral", "Keyboard / mouse", "Touch return", "Unknown"];
+  }
+
+  if (state.usbTransport === "USB 2.0 is enough") {
+    return ["USB 2.0 camera/peripheral", "Keyboard / mouse", "Touch return", "Unknown"];
+  }
+
+  return ["USB role not confirmed", "USB 2.0 camera/peripheral", "Keyboard / mouse", "Touch return", "Unknown"];
+}
+
+function defaultConnectionForSourceType(deviceType: string) {
+  if (deviceType === "Laptop USB-C") return "USB-C video";
+  if (deviceType === "Laptop HDMI") return "HDMI";
+  if (deviceType === "Room PC") return "HDMI";
+  if (deviceType === "USB camera") return "USB only";
+  if (deviceType === "NDI camera") return "NDI";
+  if (deviceType === "PTZ camera") return "HDMI";
+  if (deviceType === "Wireless presentation") return "Wireless";
+  if (deviceType === "Media player") return "HDMI";
+  if (deviceType === "Signage player") return "HDMI";
+  if (deviceType === "Document camera") return "HDMI";
+  return "";
+}
+
+function defaultDestinationForSource(state: DiscoveryState) {
+  if (isMultiZone(state)) return "Central rack";
+  if (isWallArrangement(state.displayArrangement)) return "Wall processor / controller";
+  if (hasUsbRequirement(state)) return "Local switcher";
+  return "Display / local display input";
+}
 function inferDesign(state: DiscoveryState): Inference {
   const missing: string[] = [];
   const risks: string[] = [];
@@ -1108,6 +1313,108 @@ export function DiscoveryPage() {
     });
   }
 
+  function resizeSourcePaths(nextCount: number) {
+    setState((current) => {
+      const safeCount = Math.max(1, nextCount);
+      const sourcePaths = [...current.sourcePaths];
+
+      while (sourcePaths.length < safeCount) {
+        sourcePaths.push(getEmptySourcePath(sourcePaths.length));
+      }
+
+      const trimmedSourcePaths = sourcePaths.slice(0, safeCount);
+      const summary = summarizeSourcePaths(trimmedSourcePaths);
+
+      return {
+        ...current,
+        sourceCount: safeCount,
+        sourcePaths: trimmedSourcePaths,
+        ...summary,
+      };
+    });
+  }
+
+  function updateSourcePath(id: string, field: SourcePathField, value: string) {
+    setState((current) => {
+      const nextSourcePaths = current.sourcePaths.map((source) => {
+        if (source.id !== id) {
+          return source;
+        }
+
+        const nextSource = {
+          ...source,
+          [field]: value,
+        };
+
+        if (field === "deviceType") {
+          const defaultConnection = defaultConnectionForSourceType(value);
+          const connectionOptions = getSourceConnectionOptionsForSourcePath(
+            { ...nextSource, outputConnection: defaultConnection },
+            current,
+            getRoomProfile(current.roomType),
+          );
+
+          nextSource.outputConnection = connectionOptions.includes(defaultConnection) ? defaultConnection : "";
+          nextSource.destination = source.destination || defaultDestinationForSource(current);
+          nextSource.transport = "";
+          nextSource.usbRole = "";
+        }
+
+        if (field === "outputConnection") {
+          nextSource.transport = "";
+          nextSource.usbRole = "";
+        }
+
+        if (field === "distance") {
+          const transportOptions = getSourceTransportOptionsForSourcePath(nextSource, current);
+
+          if (!transportOptions.includes(nextSource.transport)) {
+            nextSource.transport = "";
+          }
+        }
+
+        const compatibleConnections = getSourceConnectionOptionsForSourcePath(nextSource, current, getRoomProfile(current.roomType));
+
+        if (nextSource.outputConnection && !compatibleConnections.includes(nextSource.outputConnection)) {
+          nextSource.outputConnection = "";
+          nextSource.transport = "";
+          nextSource.usbRole = "";
+        }
+
+        const compatibleTransport = getSourceTransportOptionsForSourcePath(nextSource, current);
+
+        if (nextSource.transport && !compatibleTransport.includes(nextSource.transport)) {
+          nextSource.transport = "";
+        }
+
+        const compatibleUsbRoles = getUsbRoleOptionsForSourcePath(nextSource, current);
+
+        if (nextSource.usbRole && !compatibleUsbRoles.includes(nextSource.usbRole)) {
+          nextSource.usbRole = "";
+        }
+
+        return nextSource;
+      });
+
+      const summary = summarizeSourcePaths(nextSourcePaths);
+      const hasUsbCameraSource = nextSourcePaths.some((source) => source.deviceType === "USB camera" || source.outputConnection === "USB only");
+
+      return {
+        ...current,
+        sourcePaths: nextSourcePaths,
+        sourceCount: nextSourcePaths.length,
+        ...summary,
+        usbTransport:
+          hasUsbCameraSource && (!current.usbTransport || current.usbTransport === "No USB required")
+            ? "USB 2.0 is enough"
+            : current.usbTransport,
+        usbNeeds:
+          hasUsbCameraSource && !current.usbNeeds.includes("USB camera")
+            ? unique([...current.usbNeeds.filter((need) => need !== "No USB required"), "USB camera"])
+            : current.usbNeeds,
+      };
+    });
+  }
   function chooseMeetingWorkflow(value: string) {
     setState((current) => {
       if (value === "Presentation only") {
@@ -1136,20 +1443,52 @@ export function DiscoveryPage() {
   function chooseUsbTransport(value: string) {
     setState((current) => {
       if (value === "No USB required") {
+        const sourcePaths = current.sourcePaths.map((source) => {
+          if (source.deviceType === "USB camera" || source.outputConnection === "USB only") {
+            return {
+              ...source,
+              deviceType: "",
+              outputConnection: "",
+              transport: "",
+              usbRole: "",
+            };
+          }
+
+          return source;
+        });
+
+        const summary = summarizeSourcePaths(sourcePaths);
+
         return {
           ...current,
           usbTransport: value,
           usbNeeds: ["No USB required"],
           cameraPosition: "No camera",
-          sourceTypes: current.sourceTypes.filter((source) => source !== "USB camera"),
-          sourceConnections: current.sourceConnections.filter((connection) => connection !== "USB only"),
+          sourcePaths,
+          ...summary,
         };
       }
+
+      const sourcePaths = current.sourcePaths.map((source) => {
+        const transportOptions = getSourceTransportOptionsForSourcePath(source, { ...current, usbTransport: value });
+
+        return {
+          ...source,
+          transport: transportOptions.includes(source.transport) ? source.transport : "",
+          usbRole: getUsbRoleOptionsForSourcePath(source, { ...current, usbTransport: value }).includes(source.usbRole)
+            ? source.usbRole
+            : "",
+        };
+      });
+
+      const summary = summarizeSourcePaths(sourcePaths);
 
       return {
         ...current,
         usbTransport: value,
         usbNeeds: filterCompatibleUsbNeeds(value, current.usbNeeds.filter((need) => need !== "No USB required")),
+        sourcePaths,
+        ...summary,
       };
     });
   }
@@ -1227,6 +1566,96 @@ export function DiscoveryPage() {
     window.dispatchEvent(new CustomEvent("wingman:discovery-brief-saved", { detail: brief }));
   }
 
+  function renderSourcePathCard(source: SourcePath, index: number) {
+    const connectionOptions = getSourceConnectionOptionsForSourcePath(source, state, profile);
+    const destinationOptions = getSourceDestinationOptions(state);
+    const transportOptions = getSourceTransportOptionsForSourcePath(source, state);
+    const usbRoleOptions = getUsbRoleOptionsForSourcePath(source, state);
+
+    return (
+      <div key={source.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-black text-slate-950">{source.name || `Source ${index + 1}`}</p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              Define this as a point-to-point signal path, not just a device category.
+            </p>
+          </div>
+
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-600">
+            Path {index + 1}
+          </span>
+        </div>
+
+        <div className="grid gap-5">
+          <ChipGroup
+            title="Source device"
+            helper="What is physically generating the signal?"
+            options={profile.sourceTypeOptions}
+            value={source.deviceType}
+            onSelect={(value) => updateSourcePath(source.id, "deviceType", value)}
+          />
+
+          <ChipGroup
+            title="Source location"
+            helper="Where is this source located in the room or venue?"
+            options={profile.sourceLocationOptions}
+            value={source.location}
+            onSelect={(value) => updateSourcePath(source.id, "location", value)}
+          />
+
+          <ChipGroup
+            title="Source output connector"
+            helper="This is filtered from the selected source device and USB transport choice."
+            options={connectionOptions}
+            value={source.outputConnection}
+            onSelect={(value) => updateSourcePath(source.id, "outputConnection", value)}
+          />
+
+          <ChipGroup
+            title="Destination / system input"
+            helper="Where does this source feed first?"
+            options={destinationOptions}
+            value={source.destination}
+            onSelect={(value) => updateSourcePath(source.id, "destination", value)}
+          />
+
+          <ChipGroup
+            title="Source-to-destination distance"
+            helper="This helps Wingman choose HDMI, HDBaseT, AVoIP, fibre, or USB extension correctly."
+            options={runBands}
+            value={source.distance}
+            onSelect={(value) => updateSourcePath(source.id, "distance", value)}
+          />
+
+          <ChipGroup
+            title="Transport method"
+            helper="This is filtered by connector, distance, USB class, and application type."
+            options={transportOptions}
+            value={source.transport}
+            onSelect={(value) => updateSourcePath(source.id, "transport", value)}
+          />
+
+          <ChipGroup
+            title="USB role for this source"
+            helper="Only relevant when this source carries USB or is a USB peripheral."
+            options={usbRoleOptions}
+            value={source.usbRole}
+            onSelect={(value) => updateSourcePath(source.id, "usbRole", value)}
+          />
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Signal path summary</p>
+            <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">
+              {(source.deviceType || "Source")} at {(source.location || "unknown location")} outputs{" "}
+              {(source.outputConnection || "unknown connection")} to {(source.destination || "unknown destination")} over{" "}
+              {(source.transport || "unconfirmed transport")}.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   function renderWallQuickPick() {
     if (!isWallMode) return null;
 
@@ -1363,40 +1792,26 @@ export function DiscoveryPage() {
         <div className="grid gap-5">
           <CountControl
             label="Number of source positions"
-            value={state.sourceCount}
-            onChange={(value) => setField("sourceCount", value)}
+            value={state.sourcePaths.length}
+            onChange={resizeSourcePaths}
           />
 
-          <ChipGroup
-            title="Source types"
-            helper="Source options are filtered by application. Selecting USB camera or NDI camera changes the connection choices."
-            options={profile.sourceTypeOptions}
-            value={state.sourceTypes}
-            onSelect={toggleSourceType}
-            multi
-          />
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <div className="flex items-center gap-2">
+              <Cable className="h-5 w-5 text-amber-700" />
+              <p className="text-sm font-black text-amber-950">Source path logic</p>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-amber-900">
+              Each source is now captured as a signal path: device, location, output connector, destination, distance,
+              transport method, and USB role. This prevents Wingman from collecting disconnected tags that cannot drive
+              accurate product selection.
+            </p>
+          </div>
 
-          <ChipGroup
-            title="Source locations"
-            helper="Where the sources live physically is essential to product selection."
-            options={profile.sourceLocationOptions}
-            value={state.sourceLocations}
-            onSelect={(value) => toggleMulti("sourceLocations", value)}
-            multi
-          />
-
-          <ChipGroup
-            title="Compatible source connection types"
-            helper="This list now responds to selected source types. Incompatible connection methods are removed."
-            options={sourceConnectionOptions}
-            value={state.sourceConnections}
-            onSelect={(value) => toggleMulti("sourceConnections", value)}
-            multi
-          />
+          {state.sourcePaths.map((source, index) => renderSourcePathCard(source, index))}
         </div>
       );
     }
-
     if (stepId === "outputs") {
       return (
         <div className="grid gap-5">
@@ -1564,9 +1979,9 @@ export function DiscoveryPage() {
               <p className="text-sm font-black text-slate-900">Likely product direction</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.productDirection.length ? (
-                  inference.productDirection.map((item) => <li key={item}>• {item}</li>)
+                  inference.productDirection.map((item) => <li key={item}>â€¢ {item}</li>)
                 ) : (
-                  <li>• More information is required before a reliable product direction can be stated.</li>
+                  <li>â€¢ More information is required before a reliable product direction can be stated.</li>
                 )}
               </ul>
             </div>
@@ -1575,9 +1990,9 @@ export function DiscoveryPage() {
               <p className="text-sm font-black text-slate-900">Avoid / do not assume</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.avoid.length ? (
-                  inference.avoid.map((item) => <li key={item}>• {item}</li>)
+                  inference.avoid.map((item) => <li key={item}>â€¢ {item}</li>)
                 ) : (
-                  <li>• No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
+                  <li>â€¢ No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
                 )}
               </ul>
             </div>
@@ -1739,9 +2154,9 @@ export function DiscoveryPage() {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.missing.length ? (
-                      inference.missing.slice(0, 6).map((item) => <li key={item}>• {item}</li>)
+                      inference.missing.slice(0, 6).map((item) => <li key={item}>â€¢ {item}</li>)
                     ) : (
-                      <li>• No major missing details detected.</li>
+                      <li>â€¢ No major missing details detected.</li>
                     )}
                   </ul>
                 </div>
@@ -1753,9 +2168,9 @@ export function DiscoveryPage() {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.risks.length ? (
-                      inference.risks.slice(0, 6).map((item) => <li key={item}>• {item}</li>)
+                      inference.risks.slice(0, 6).map((item) => <li key={item}>â€¢ {item}</li>)
                     ) : (
-                      <li>• No major risk flags yet.</li>
+                      <li>â€¢ No major risk flags yet.</li>
                     )}
                   </ul>
                 </div>
