@@ -14,6 +14,7 @@ import {
   Network,
   Plus,
   Save,
+  Wand2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -31,19 +32,19 @@ type StepId =
 
 type DiscoveryState = {
   roomType: string;
-  behaviours: string[];
   roomSize: string;
   userPosition: string;
   equipmentLocation: string;
-  displayPosition: string;
   layoutFlags: string[];
   sourceCount: number;
   sourceTypes: string[];
   sourceLocations: string[];
   sourceConnections: string[];
   displayCount: number;
-  outputTypes: string[];
-  outputBehaviours: string[];
+  displayArrangement: string;
+  displayPosition: string;
+  displayBehaviour: string;
+  wallType: string;
   wallLayout: string;
   wallInputMode: string;
   wallMultiview: string;
@@ -70,41 +71,52 @@ type Inference = {
   risks: string[];
 };
 
+type RoomProfile = {
+  note: string;
+  defaults: Partial<DiscoveryState>;
+  roomSizeOptions: string[];
+  userPositionOptions: string[];
+  equipmentLocationOptions: string[];
+  sourceTypeOptions: string[];
+  sourceLocationOptions: string[];
+  sourceConnectionOptions: string[];
+};
+
 const steps: { id: StepId; label: string; description: string }[] = [
   {
     id: "useCase",
     label: "Use case",
-    description: "Identify the room type before asking detailed design questions.",
+    description: "Identify the application so Wingman can apply real-world assumptions.",
   },
   {
     id: "layout",
     label: "Layout",
-    description: "Build the spatial picture: users, displays, rack, and room shape.",
+    description: "Confirm the spatial model: room scale, user position, rack position, and constraints.",
   },
   {
     id: "sources",
     label: "Sources",
-    description: "Capture what connects and where each source is located.",
+    description: "Capture source types, source positions, and connection types.",
   },
   {
     id: "outputs",
     label: "Outputs",
-    description: "Define displays, LCD/LED wall needs, multiview, and routing behaviour.",
+    description: "Define display arrangement, display position, behaviour, and wall requirements.",
   },
   {
     id: "usb",
     label: "USB / Conferencing",
-    description: "Capture BYOD, BYOM, USB peripherals, cameras, and audio.",
+    description: "Capture BYOD, BYOM, cameras, microphones, speakerphones, and USB transport.",
   },
   {
     id: "infrastructure",
     label: "Infrastructure",
-    description: "Confirm cable distance, cable type, network availability, and risks.",
+    description: "Confirm distance, cable, network, and installation risk.",
   },
   {
     id: "review",
     label: "Review",
-    description: "Generate architecture direction, risks, and next workflow handoff.",
+    description: "Review the inferred architecture, missing detail, and recommendation confidence.",
   },
 ];
 
@@ -123,42 +135,117 @@ const roomTypes = [
   "Other / not sure",
 ];
 
-const behaviourOptions = [
-  "Present only",
-  "Video conferencing",
+const roomSizeBase = ["Small <10m", "Medium <25m", "Large <50m", "Extra-large 50m+", "Open / divisible space", "Unknown"];
+
+const layoutFlags = [
+  "Fixed orientation",
+  "Divisible space",
+  "Repeater displays",
+  "Future expansion",
+  "No rack available",
+  "Customer unsure",
+];
+
+const allSourceTypes = [
+  "Laptop HDMI",
+  "Laptop USB-C",
+  "Room PC",
+  "Media player",
+  "Signage player",
   "Wireless presentation",
-  "Wireless conferencing",
-  "BYOD",
-  "BYOM",
-  "Dual display",
-  "Multiview",
-  "LCD wall", "LED wall",
-  "Streaming / recording",
-  "Digital signage",
-  "Central distribution",
+  "HDMI wall input",
+  "USB-C wall input",
+  "Document camera",
+  "USB camera",
+  "NDI camera",
+  "PTZ camera",
+  "Other source",
 ];
 
-const roomSizes = ["Small <10m", "Medium <25m", "Large <50m", "Extra-large 50m+", "Open / divisible space", "Unknown"];
-
-const userPositions = [
-  "Central table",
+const allSourceLocations = [
+  "Table",
+  "Floor box",
+  "Wall plate",
   "Lectern",
-  "Front-of-house",
-  "Operator desk",
-  "Reception / counter",
-  "No fixed user position",
-  "Unknown",
-];
-
-const equipmentLocations = [
-  "Behind display",
-  "Local rack",
-  "Central rack",
-  "Lectern",
+  "Rack",
   "Credenza",
-  "Under table",
   "Ceiling",
+  "Camera position",
+  "Display wall",
+  "Zone location",
   "Unknown",
+];
+
+const allSourceConnections = [
+  "HDMI",
+  "USB-C video",
+  "USB-C with charging",
+  "USB only",
+  "NDI",
+  "Network",
+  "Audio only",
+  "Wireless",
+  "Unknown",
+];
+
+const standardDisplayArrangements = [
+  "Single display",
+  "Dual mirrored displays",
+  "Dual independent displays",
+  "Content display + conferencing display",
+  "Primary display + confidence monitor",
+  "Projector",
+  "Distributed displays",
+  "Multiview display",
+];
+
+const dualDisplayArrangements = [
+  "Dual mirrored displays",
+  "Dual independent displays",
+  "Content display + conferencing display",
+  "Primary display + confidence monitor",
+];
+
+const wallDisplayArrangements = ["LCD wall", "LED wall"];
+
+const multiZoneDisplayArrangements = [
+  "Distributed displays",
+  "Multiple zones",
+  "Choose source per zone",
+  "LCD wall",
+  "LED wall",
+];
+
+const standardDisplayBehaviours = [
+  "Same content everywhere",
+  "Choose source per display",
+  "Presentation plus conferencing",
+  "Signage loop",
+  "Future expansion required",
+];
+
+const dualDisplayBehaviours = [
+  "Mirror same content on both displays",
+  "Independent content per display",
+  "Laptop dual extended desktop",
+  "Presentation on one display, conferencing on the other",
+  "Confidence monitor follows presenter",
+];
+
+const wallDisplayBehaviours = [
+  "Single full-screen input",
+  "Single input tile-mode",
+  "Screen-driven / input-per-display",
+  "Multiview required",
+  "Non-multiview",
+];
+
+const multiZoneDisplayBehaviours = [
+  "Same content to all zones",
+  "Choose source per zone/display",
+  "Scheduled signage loop",
+  "Central routing with presets",
+  "Future expansion required",
 ];
 
 const standardDisplayPositions = [
@@ -167,7 +254,6 @@ const standardDisplayPositions = [
   "Rear wall",
   "Ceiling projector",
   "Multiple walls",
-  "Distributed displays",
   "Unknown",
 ];
 
@@ -192,98 +278,13 @@ const wallDisplayPositions = [
   "Unknown wall position",
 ];
 
-const layoutFlags = [
-  "Fixed orientation",
-  "Divisible space",
-  "Repeater displays",
-  "Future expansion",
-  "No rack available",
-  "Customer unsure",
-];
-
-const sourceTypes = [
-  "Laptop HDMI",
-  "Laptop USB-C",
-  "Room PC",
-  "Media player",
-  "Signage player",
-  "Wireless presentation",
-  "HDMI wall input",
-  "USB-C wall input",
-  "Document camera",
-  "USB camera",
-  "NDI camera",
-  "PTZ camera",
-  "Other source",
-];
-
-const sourceLocations = [
-  "Table",
-  "Floor box",
-  "Wall plate",
-  "Lectern",
-  "Rack",
-  "Credenza",
-  "Ceiling",
-  "Camera position",
-  "Display wall",
-  "Unknown",
-];
-
-const sourceConnections = [
-  "HDMI",
-  "USB-C video",
-  "USB-C with charging",
-  "USB only",
-  "NDI",
-  "Network",
-  "Audio only",
-  "Wireless",
-  "Unknown",
-];
-
-const standardOutputTypes = [
-  "Single display",
-  "Dual mirrored displays",
-  "Dual independent displays",
-  "Projector",
+const multiZoneDisplayPositions = [
   "Distributed displays",
-  "Confidence monitor",
-  "LCD wall",
-  "LED wall",
-];
-
-const dualOutputTypes = [
-  "Dual mirrored displays",
-  "Dual independent displays",
-  "Content display + conferencing display",
-  "Primary display + confidence monitor",
-];
-
-const wallOutputTypes = ["LCD wall", "LED wall"];
-
-const standardOutputBehaviours = [
-  "Same content everywhere",
-  "Choose source per display",
-  "Presentation plus conferencing",
-  "Signage loop",
-  "Future expansion required",
-];
-
-const dualOutputBehaviours = [
-  "Mirror same content on both displays",
-  "Independent content per display",
-  "Laptop dual extended desktop",
-  "Presentation on one display, conferencing on the other",
-  "Confidence monitor follows presenter",
-];
-
-const wallOutputBehaviours = [
-  "Single full-screen input",
-  "Single input tile-mode",
-  "Screen-driven / input-per-display",
-  "Multiview required",
-  "Non-multiview",
+  "Multiple walls",
+  "Multiple zones",
+  "Central venue zones",
+  "Remote displays",
+  "Unknown zone layout",
 ];
 
 const lcdWallLayouts = ["2x2 LCD wall", "3x3 LCD wall", "4x4 LCD wall", "1x3 LCD ribbon", "1x4 LCD ribbon", "Custom LCD layout"];
@@ -292,7 +293,7 @@ const lcdWallInputModes = ["Single input tile-mode", "Screen-driven / input-per-
 const ledWallInputModes = ["Single input canvas"];
 const wallMultiviewModes = ["Multiview required", "Non-multiview"];
 
-const meetingWorkflows = [
+const meetingWorkflowBase = [
   "Presentation only",
   "BYOD presentation",
   "BYOM conferencing",
@@ -303,7 +304,7 @@ const meetingWorkflows = [
   "Not sure",
 ];
 
-const usbNeeds = [
+const usbNeedsBase = [
   "No USB required",
   "USB camera",
   "Speakerphone",
@@ -318,7 +319,7 @@ const usbNeeds = [
 
 const cameraPositions = ["No camera", "Above display", "Ceiling", "Rear of room", "Table camera", "Multiple cameras", "NDI camera", "Unknown"];
 
-const audioNeeds = [
+const audioNeedsBase = [
   "Display speakers only",
   "Speakerphone",
   "Microphones",
@@ -330,7 +331,7 @@ const audioNeeds = [
   "Unknown",
 ];
 
-const runBands = ["Under 5m", "5ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“10m", "10ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“35m", "35ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“70m", "70ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“100m", "100m+", "Unknown"];
+const runBands = ["Under 5m", "5-10m", "10-35m", "35-70m", "70-100m", "100m+", "Unknown"];
 
 const cableTypes = ["HDMI", "Cat5e", "Cat6", "Cat6A", "Fibre", "Network only", "No cable installed", "Unknown"];
 
@@ -379,19 +380,19 @@ const confidenceOptions = [
 
 const initialState: DiscoveryState = {
   roomType: "Meeting room",
-  behaviours: [],
-  roomSize: "",
-  userPosition: "",
-  equipmentLocation: "",
-  displayPosition: "",
+  roomSize: "Medium <25m",
+  userPosition: "Central table",
+  equipmentLocation: "Behind display",
   layoutFlags: [],
   sourceCount: 1,
   sourceTypes: [],
   sourceLocations: [],
   sourceConnections: [],
   displayCount: 1,
-  outputTypes: [],
-  outputBehaviours: [],
+  displayArrangement: "",
+  displayPosition: "",
+  displayBehaviour: "",
+  wallType: "",
   wallLayout: "",
   wallInputMode: "",
   wallMultiview: "",
@@ -410,13 +411,10 @@ const initialState: DiscoveryState = {
 };
 
 type MultiSelectKey =
-  | "behaviours"
   | "layoutFlags"
   | "sourceTypes"
   | "sourceLocations"
   | "sourceConnections"
-  | "outputTypes"
-  | "outputBehaviours"
   | "usbNeeds"
   | "audioNeeds"
   | "cableAvailable"
@@ -428,81 +426,201 @@ function includesAny(values: string[], tests: string[]) {
   return values.some((value) => tests.includes(value));
 }
 
-function hasDualDisplay(state: DiscoveryState) {
-  return (
-    state.behaviours.includes("Dual display") ||
-    includesAny(state.outputTypes, [
-      "Dual mirrored displays",
-      "Dual independent displays",
-      "Content display + conferencing display",
-      "Primary display + confidence monitor",
-    ]) ||
-    state.outputBehaviours.some((item) => item.toLowerCase().includes("dual") || item.toLowerCase().includes("both displays"))
-  );
+function unique(values: string[]) {
+  return Array.from(new Set(values));
 }
 
-function hasLcdWall(state: DiscoveryState) {
-  return state.behaviours.includes("LCD wall") || state.outputTypes.includes("LCD wall");
+function getRoomProfile(roomType: string): RoomProfile {
+  if (roomType === "Multi-zone venue") {
+    return {
+      note: "Wingman assumes a multi-zone venue is normally extra-large, has distributed displays, and should be treated as a routing / distribution problem rather than a single-room switcher.",
+      defaults: {
+        roomSize: "Extra-large 50m+",
+        userPosition: "No fixed user position",
+        equipmentLocation: "Central rack",
+        displayCount: 4,
+        displayArrangement: "Distributed displays",
+        displayPosition: "Distributed displays",
+        displayBehaviour: "Choose source per zone/display",
+        longestRun: "70-100m",
+        networkAvailability: "Dedicated AV network possible",
+        layoutFlags: ["Future expansion"],
+      },
+      roomSizeOptions: ["Extra-large 50m+", "Open / divisible space", "Large <50m", "Unknown"],
+      userPositionOptions: ["No fixed user position", "Operator desk", "Reception / counter", "Front-of-house", "Unknown"],
+      equipmentLocationOptions: ["Central rack", "Local rack", "Credenza", "Unknown"],
+      sourceTypeOptions: ["Media player", "Signage player", "Room PC", "Wireless presentation", "HDMI wall input", "USB-C wall input", "Other source"],
+      sourceLocationOptions: ["Rack", "Zone location", "Wall plate", "Reception / counter", "Unknown"],
+      sourceConnectionOptions: ["HDMI", "USB-C video", "Network", "Wireless", "Unknown"],
+    };
+  }
+
+  if (roomType === "Display wall / large format wall") {
+    return {
+      note: "Wingman treats this as an LCD or LED wall qualification first, then either quick-picks a common layout or hands off to the wall wizard for detailed design.",
+      defaults: {
+        roomSize: "Large <50m",
+        userPosition: "No fixed user position",
+        equipmentLocation: "Local rack",
+        displayCount: 4,
+        displayArrangement: "LCD wall",
+        displayPosition: "Primary feature wall",
+        displayBehaviour: "Single input tile-mode",
+        wallType: "LCD wall",
+        wallLayout: "2x2 LCD wall",
+        wallInputMode: "Single input tile-mode",
+        wallMultiview: "Non-multiview",
+      },
+      roomSizeOptions: ["Large <50m", "Extra-large 50m+", "Open / divisible space", "Medium <25m", "Unknown"],
+      userPositionOptions: ["No fixed user position", "Front-of-house", "Operator desk", "Reception / counter", "Unknown"],
+      equipmentLocationOptions: ["Local rack", "Behind display", "Central rack", "Unknown"],
+      sourceTypeOptions: ["Media player", "Signage player", "Room PC", "Wireless presentation", "HDMI wall input", "Other source"],
+      sourceLocationOptions: ["Rack", "Display wall", "Wall plate", "Operator desk", "Unknown"],
+      sourceConnectionOptions: ["HDMI", "Network", "Wireless", "Unknown"],
+    };
+  }
+
+  if (roomType === "Retail signage" || roomType === "Hospitality") {
+    return {
+      note: "Wingman assumes signage and hospitality applications are often display-distribution or repeatable-zone systems, so source location, display count, and cable distance become more important than room-table layout.",
+      defaults: {
+        roomSize: "Large <50m",
+        userPosition: "No fixed user position",
+        equipmentLocation: "Central rack",
+        displayCount: 3,
+        displayArrangement: "Distributed displays",
+        displayPosition: "Distributed displays",
+        displayBehaviour: "Signage loop",
+        meetingWorkflow: "Presentation only",
+        usbNeeds: ["No USB required"],
+      },
+      roomSizeOptions: ["Large <50m", "Extra-large 50m+", "Open / divisible space", "Medium <25m", "Unknown"],
+      userPositionOptions: ["No fixed user position", "Reception / counter", "Operator desk", "Unknown"],
+      equipmentLocationOptions: ["Central rack", "Local rack", "Behind display", "Unknown"],
+      sourceTypeOptions: ["Signage player", "Media player", "Room PC", "Wireless presentation", "Other source"],
+      sourceLocationOptions: ["Rack", "Display wall", "Zone location", "Unknown"],
+      sourceConnectionOptions: ["HDMI", "Network", "Wireless", "Unknown"],
+    };
+  }
+
+  if (roomType === "Classroom" || roomType === "Training room" || roomType === "Lecture space") {
+    return {
+      note: "Wingman assumes a teaching space is usually lectern or instructor-position driven, with display/projector extension, possible capture, and optional USB teaching peripherals.",
+      defaults: {
+        roomSize: roomType === "Lecture space" ? "Large <50m" : "Medium <25m",
+        userPosition: "Lectern",
+        equipmentLocation: "Lectern",
+        displayCount: roomType === "Lecture space" ? 2 : 1,
+        displayArrangement: roomType === "Lecture space" ? "Primary display + confidence monitor" : "Single display",
+        displayPosition: roomType === "Lecture space" ? "Front display + confidence monitor" : "Front wall",
+        displayBehaviour: roomType === "Lecture space" ? "Confidence monitor follows presenter" : "Same content everywhere",
+      },
+      roomSizeOptions: roomType === "Lecture space" ? ["Large <50m", "Extra-large 50m+", "Medium <25m", "Unknown"] : ["Medium <25m", "Small <10m", "Large <50m", "Unknown"],
+      userPositionOptions: ["Lectern", "Central table", "Front-of-house", "Unknown"],
+      equipmentLocationOptions: ["Lectern", "Local rack", "Behind display", "Central rack", "Unknown"],
+      sourceTypeOptions: ["Laptop HDMI", "Laptop USB-C", "Room PC", "Document camera", "Wireless presentation", "USB camera", "PTZ camera", "Other source"],
+      sourceLocationOptions: ["Lectern", "Wall plate", "Rack", "Ceiling", "Camera position", "Unknown"],
+      sourceConnectionOptions: ["HDMI", "USB-C video", "USB-C with charging", "USB only", "Network", "Wireless", "Unknown"],
+    };
+  }
+
+  if (roomType === "Control room") {
+    return {
+      note: "Wingman assumes a control room may need multiview, operator positions, and flexible source selection. This should bias the output step toward multiview and distributed routing choices.",
+      defaults: {
+        roomSize: "Large <50m",
+        userPosition: "Operator desk",
+        equipmentLocation: "Central rack",
+        displayCount: 4,
+        displayArrangement: "Multiview display",
+        displayPosition: "Control room wall",
+        displayBehaviour: "Choose source per display",
+        networkAvailability: "Dedicated AV network possible",
+      },
+      roomSizeOptions: ["Large <50m", "Extra-large 50m+", "Medium <25m", "Unknown"],
+      userPositionOptions: ["Operator desk", "No fixed user position", "Unknown"],
+      equipmentLocationOptions: ["Central rack", "Local rack", "Unknown"],
+      sourceTypeOptions: ["Room PC", "Media player", "NDI camera", "PTZ camera", "HDMI wall input", "Other source"],
+      sourceLocationOptions: ["Rack", "Operator desk", "Camera position", "Zone location", "Unknown"],
+      sourceConnectionOptions: ["HDMI", "Network", "NDI", "USB only", "Unknown"],
+    };
+  }
+
+  if (roomType === "House of worship") {
+    return {
+      note: "Wingman assumes a worship space may include long cable paths, cameras, streaming, confidence displays, and central AV control.",
+      defaults: {
+        roomSize: "Extra-large 50m+",
+        userPosition: "Front-of-house",
+        equipmentLocation: "Central rack",
+        displayCount: 2,
+        displayArrangement: "Primary display + confidence monitor",
+        displayPosition: "Front display + confidence monitor",
+        displayBehaviour: "Confidence monitor follows presenter",
+        meetingWorkflow: "Streaming / recording",
+        longestRun: "70-100m",
+      },
+      roomSizeOptions: ["Extra-large 50m+", "Large <50m", "Open / divisible space", "Unknown"],
+      userPositionOptions: ["Front-of-house", "Lectern", "Operator desk", "No fixed user position", "Unknown"],
+      equipmentLocationOptions: ["Central rack", "Local rack", "Front-of-house", "Unknown"],
+      sourceTypeOptions: ["Room PC", "Media player", "PTZ camera", "NDI camera", "Laptop HDMI", "Other source"],
+      sourceLocationOptions: ["Front-of-house", "Rack", "Camera position", "Ceiling", "Unknown"],
+      sourceConnectionOptions: ["HDMI", "Network", "NDI", "USB only", "Unknown"],
+    };
+  }
+
+  if (roomType === "Boardroom") {
+    return {
+      note: "Wingman assumes a boardroom may need dual displays, table inputs, conferencing, USB transport, and a cleaner user-facing experience.",
+      defaults: {
+        roomSize: "Medium <25m",
+        userPosition: "Central table",
+        equipmentLocation: "Credenza",
+        displayCount: 2,
+        displayArrangement: "Content display + conferencing display",
+        displayPosition: "Content display + conferencing display",
+        displayBehaviour: "Presentation on one display, conferencing on the other",
+        meetingWorkflow: "BYOM conferencing",
+      },
+      roomSizeOptions: ["Medium <25m", "Large <50m", "Small <10m", "Unknown"],
+      userPositionOptions: ["Central table", "Credenza", "No fixed user position", "Unknown"],
+      equipmentLocationOptions: ["Credenza", "Behind display", "Local rack", "Under table", "Unknown"],
+      sourceTypeOptions: ["Laptop USB-C", "Laptop HDMI", "Room PC", "Wireless presentation", "USB camera", "PTZ camera", "Other source"],
+      sourceLocationOptions: ["Table", "Floor box", "Wall plate", "Credenza", "Camera position", "Unknown"],
+      sourceConnectionOptions: ["USB-C with charging", "USB-C video", "HDMI", "USB only", "Wireless", "Unknown"],
+    };
+  }
+
+  return {
+    note: "Wingman assumes a standard meeting-room style starting point, then narrows the options as layout, outputs, USB, and infrastructure are captured.",
+    defaults: {
+      roomSize: "Medium <25m",
+      userPosition: "Central table",
+      equipmentLocation: "Behind display",
+      displayCount: 1,
+      displayArrangement: "Single display",
+      displayPosition: "Front wall",
+      displayBehaviour: "Presentation plus conferencing",
+    },
+    roomSizeOptions: ["Medium <25m", "Small <10m", "Large <50m", "Unknown"],
+    userPositionOptions: ["Central table", "No fixed user position", "Lectern", "Unknown"],
+    equipmentLocationOptions: ["Behind display", "Local rack", "Credenza", "Under table", "Unknown"],
+    sourceTypeOptions: ["Laptop USB-C", "Laptop HDMI", "Room PC", "Wireless presentation", "USB camera", "Other source"],
+    sourceLocationOptions: ["Table", "Floor box", "Wall plate", "Rack", "Camera position", "Unknown"],
+    sourceConnectionOptions: ["USB-C with charging", "USB-C video", "HDMI", "USB only", "Wireless", "Unknown"],
+  };
 }
 
-function hasLedWall(state: DiscoveryState) {
-  return state.behaviours.includes("LED wall") || state.outputTypes.includes("LED wall");
+function isDualArrangement(value: string) {
+  return value.includes("Dual") || value.includes("Content display") || value.includes("confidence monitor");
 }
 
-function hasDisplayWall(state: DiscoveryState) {
-  return state.roomType === "Display wall / large format wall" || hasLcdWall(state) || hasLedWall(state);
+function isWallArrangement(value: string) {
+  return value === "LCD wall" || value === "LED wall";
 }
 
-function hasVideoWall(state: DiscoveryState) {
-  return hasDisplayWall(state);
-}
-
-function getDisplayPositionOptions(state: DiscoveryState) {
-  if (hasDisplayWall(state)) {
-    return wallDisplayPositions;
-  }
-
-  if (hasDualDisplay(state)) {
-    return dualDisplayPositions;
-  }
-
-  return standardDisplayPositions;
-}
-
-function getDisplayPositionHelper(state: DiscoveryState) {
-  if (hasDisplayWall(state)) {
-    return "Wall requirement selected. Capture where the LCD/LED wall canvas will physically sit; detailed wall spec can be done in the wall wizard or quick pick below.";
-  }
-
-  if (hasDualDisplay(state)) {
-    return "Dual display has been selected, so only dual-screen physical arrangements are shown.";
-  }
-
-  return "Creates the display endpoint in the room model.";
-}
-
-function getOutputTypeOptions(state: DiscoveryState) {
-  if (hasDisplayWall(state)) {
-    return wallOutputTypes;
-  }
-
-  if (hasDualDisplay(state)) {
-    return dualOutputTypes;
-  }
-
-  return standardOutputTypes;
-}
-
-function getOutputBehaviourOptions(state: DiscoveryState) {
-  if (hasDisplayWall(state)) {
-    return wallOutputBehaviours;
-  }
-
-  if (hasDualDisplay(state)) {
-    return dualOutputBehaviours;
-  }
-
-  return standardOutputBehaviours;
+function isMultiZone(state: DiscoveryState) {
+  return state.roomType === "Multi-zone venue" || state.displayArrangement === "Distributed displays" || state.displayArrangement === "Multiple zones" || state.displayArrangement === "Choose source per zone";
 }
 
 function hasUsbRequirement(state: DiscoveryState) {
@@ -514,21 +632,7 @@ function hasUsbRequirement(state: DiscoveryState) {
 }
 
 function hasConferencing(state: DiscoveryState) {
-  return (
-    includesAny(state.behaviours, ["Video conferencing", "Wireless conferencing", "BYOM"]) ||
-    includesAny([state.meetingWorkflow], ["BYOM conferencing", "Room PC conferencing", "MTR / Zoom Room", "Wireless conferencing"])
-  );
-}
-
-function hasDistributedNeed(state: DiscoveryState) {
-  return (
-    state.roomType === "Multi-zone venue" ||
-    state.behaviours.includes("Central distribution") ||
-    state.outputBehaviours.includes("Choose source per display") ||
-    state.outputBehaviours.includes("Future expansion required") ||
-    state.layoutFlags.includes("Future expansion") ||
-    state.outputTypes.includes("Distributed displays")
-  );
+  return includesAny([state.meetingWorkflow], ["BYOM conferencing", "Room PC conferencing", "MTR / Zoom Room", "Wireless conferencing"]);
 }
 
 function distanceRank(longestRun: string) {
@@ -536,19 +640,19 @@ function distanceRank(longestRun: string) {
     return 1;
   }
 
-  if (longestRun === "5ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“10m") {
+  if (longestRun === "5-10m") {
     return 2;
   }
 
-  if (longestRun === "10ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“35m") {
+  if (longestRun === "10-35m") {
     return 3;
   }
 
-  if (longestRun === "35ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“70m") {
+  if (longestRun === "35-70m") {
     return 4;
   }
 
-  if (longestRun === "70ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“100m") {
+  if (longestRun === "70-100m") {
     return 5;
   }
 
@@ -557,6 +661,126 @@ function distanceRank(longestRun: string) {
   }
 
   return 0;
+}
+
+function getDisplayArrangementOptions(state: DiscoveryState, profile: RoomProfile) {
+  if (state.roomType === "Display wall / large format wall") {
+    return wallDisplayArrangements;
+  }
+
+  if (state.roomType === "Multi-zone venue") {
+    return multiZoneDisplayArrangements;
+  }
+
+  if (state.roomType === "Control room") {
+    return ["Multiview display", "Distributed displays", "LCD wall", "LED wall", "Single display"];
+  }
+
+  if (state.roomType === "Retail signage" || state.roomType === "Hospitality") {
+    return ["Distributed displays", "Single display", "LCD wall", "LED wall"];
+  }
+
+  if (isDualArrangement(state.displayArrangement)) {
+    return dualDisplayArrangements;
+  }
+
+  return unique([...standardDisplayArrangements, ...profile.defaults.displayArrangement ? [profile.defaults.displayArrangement as string] : []]);
+}
+
+function getDisplayPositionOptions(state: DiscoveryState) {
+  if (isWallArrangement(state.displayArrangement) || state.wallType) {
+    return wallDisplayPositions;
+  }
+
+  if (isDualArrangement(state.displayArrangement)) {
+    return dualDisplayPositions;
+  }
+
+  if (isMultiZone(state)) {
+    return multiZoneDisplayPositions;
+  }
+
+  return standardDisplayPositions;
+}
+
+function getDisplayBehaviourOptions(state: DiscoveryState) {
+  if (isWallArrangement(state.displayArrangement) || state.wallType) {
+    return wallDisplayBehaviours;
+  }
+
+  if (isDualArrangement(state.displayArrangement)) {
+    return dualDisplayBehaviours;
+  }
+
+  if (isMultiZone(state)) {
+    return multiZoneDisplayBehaviours;
+  }
+
+  if (state.displayArrangement === "Multiview display") {
+    return ["Multiple sources on one screen", "Operator selectable layouts", "Static multiview layout", "Future expansion required"];
+  }
+
+  return standardDisplayBehaviours;
+}
+
+function getMeetingWorkflowOptions(state: DiscoveryState) {
+  if (state.roomType === "Retail signage" || state.roomType === "Hospitality") {
+    return ["Presentation only", "Streaming / recording", "Not sure"];
+  }
+
+  if (state.roomType === "House of worship") {
+    return ["Streaming / recording", "Presentation only", "BYOD presentation", "Not sure"];
+  }
+
+  if (state.roomType === "Control room") {
+    return ["Presentation only", "Streaming / recording", "Not sure"];
+  }
+
+  if (state.roomType === "Display wall / large format wall") {
+    return ["Presentation only", "Streaming / recording", "Not sure"];
+  }
+
+  return meetingWorkflowBase;
+}
+
+function getUsbOptions(state: DiscoveryState) {
+  if (state.meetingWorkflow === "Presentation only" || state.roomType === "Retail signage" || state.roomType === "Hospitality") {
+    return ["No USB required", "Touch display return", "Keyboard / mouse", "Not sure"];
+  }
+
+  if (hasConferencing(state)) {
+    return ["USB camera", "Speakerphone", "Microphone", "Multiple USB devices", "USB 2.0 enough", "USB 3.x required", "Not sure"];
+  }
+
+  return usbNeedsBase;
+}
+
+function defaultDisplayPositionForArrangement(value: string, roomType: string) {
+  if (value === "LCD wall" || value === "LED wall") {
+    return "Primary feature wall";
+  }
+
+  if (value === "Distributed displays" || value === "Multiple zones" || roomType === "Multi-zone venue") {
+    return "Distributed displays";
+  }
+
+  if (value === "Content display + conferencing display") {
+    return "Content display + conferencing display";
+  }
+
+  if (value === "Primary display + confidence monitor") {
+    return "Front display + confidence monitor";
+  }
+
+  if (value.includes("Dual")) {
+    return "Dual displays on front wall";
+  }
+
+  if (value === "Projector") {
+    return "Ceiling projector";
+  }
+
+  return "Front wall";
 }
 
 function inferDesign(state: DiscoveryState): Inference {
@@ -581,10 +805,6 @@ function inferDesign(state: DiscoveryState): Inference {
     missing.push("Equipment/rack location");
   }
 
-  if (!state.displayPosition) {
-    missing.push("Display position");
-  }
-
   if (!state.sourceTypes.length) {
     missing.push("Source types");
   }
@@ -593,19 +813,27 @@ function inferDesign(state: DiscoveryState): Inference {
     missing.push("Source locations");
   }
 
-  if (!state.outputTypes.length) {
-    missing.push("Display/output type");
+  if (!state.displayArrangement) {
+    missing.push("Display arrangement");
   }
 
-  if (hasDisplayWall(state) && !state.wallLayout) {
+  if (!state.displayPosition) {
+    missing.push("Display position");
+  }
+
+  if (!state.displayBehaviour) {
+    missing.push("Display behaviour");
+  }
+
+  if (isWallArrangement(state.displayArrangement) && !state.wallLayout) {
     missing.push("LCD/LED wall layout");
   }
 
-  if (hasDisplayWall(state) && !state.wallInputMode) {
+  if (isWallArrangement(state.displayArrangement) && !state.wallInputMode) {
     missing.push("Wall input mode");
   }
 
-  if (hasDisplayWall(state) && !state.wallMultiview) {
+  if (isWallArrangement(state.displayArrangement) && !state.wallMultiview) {
     missing.push("Wall multiview requirement");
   }
 
@@ -622,11 +850,11 @@ function inferDesign(state: DiscoveryState): Inference {
   }
 
   if (state.cableRisks.includes("Cable not certified")) {
-    risks.push("Cable is not certified; avoid committing to maximum distance/resolution until verified.");
+    risks.push("Cable is not certified; verify cable grade before committing to maximum distance/resolution.");
   }
 
   if (state.cableRisks.includes("Distance not confirmed")) {
-    risks.push("Distance is not confirmed; product family and receiver choice may change.");
+    risks.push("Distance is not confirmed; transport method and receiver choice may change.");
   }
 
   if (state.cableRisks.includes("Shared IT network")) {
@@ -637,25 +865,24 @@ function inferDesign(state: DiscoveryState): Inference {
     risks.push("USB 3.x requirement must be verified before selecting USB transport hardware.");
   }
 
-  if (state.networkAvailability === "Existing IT network" && hasDistributedNeed(state)) {
+  if (state.networkAvailability === "Existing IT network" && isMultiZone(state)) {
     risks.push("NetworkHD / AVoIP design needs IT confirmation before final hardware selection.");
   }
 
   let architecture = "Structured presentation / extension system";
 
-  if (hasLedWall(state) && !hasLcdWall(state)) {
+  if (state.displayArrangement === "LED wall") {
     architecture =
       state.wallMultiview === "Multiview required"
         ? "LED wall with upstream multiview composition feeding a single LED canvas"
         : "LED wall single-input canvas path";
 
-    productDirection.push("Treat LED as a single input canvas into the LED controller unless multiview composition is specifically required upstream.");
-    productDirection.push("If multiview is required, define source composition before the LED processor/controller input.");
-    productDirection.push("Use the wall wizard for detailed LED dimensions, pixel pitch, processor handoff, and source behaviour.");
+    productDirection.push("Treat LED as a single input canvas into the LED controller unless multiview composition is required upstream.");
+    productDirection.push("Use the wall wizard for LED canvas dimensions, pixel pitch, processor handoff, and source behaviour.");
     avoid.push("Do not treat LED as a normal multi-output LCD tile wall unless the LED processor specifically requires that topology.");
   }
 
-  if (hasLcdWall(state)) {
+  if (state.displayArrangement === "LCD wall") {
     architecture =
       state.wallInputMode === "Screen-driven / input-per-display"
         ? "LCD wall with screen-driven / input-per-display processing"
@@ -667,15 +894,15 @@ function inferDesign(state: DiscoveryState): Inference {
     avoid.push("Do not assume AVoIP is automatically required until wall layout, input mode, and multiview need are confirmed.");
   }
 
-  if (!hasVideoWall(state) && hasDistributedNeed(state)) {
+  if (!isWallArrangement(state.displayArrangement) && isMultiZone(state)) {
     architecture = "Distributed AV routing architecture";
     productDirection.push("Consider NetworkHD 100 for cost-effective flexible distribution.");
     productDirection.push("Consider NetworkHD 500 where 4K60 4:4:4, lower latency, stronger USB, or Dante-ready workflows matter.");
     productDirection.push("Consider NetworkHD 600 where lossless zero-latency 10G performance is required.");
-    avoid.push("Avoid fixed small switchers if many-to-many routing or future expansion is required.");
+    avoid.push("Avoid fixed small switchers if many-to-many routing, zone control, or future expansion is required.");
   }
 
-  if (!hasVideoWall(state) && !hasDistributedNeed(state) && hasUsbRequirement(state)) {
+  if (!isWallArrangement(state.displayArrangement) && !isMultiZone(state) && hasUsbRequirement(state)) {
     architecture = "Integrated HDMI/USB or USB-C presentation transport";
     productDirection.push("Use an integrated solution path that carries video and USB together where possible.");
     productDirection.push("Check SW-130-TX-UK / SW-130-TX-US with RX-500 where in-wall HDMI/USB-C plus USB transport is required.");
@@ -683,25 +910,25 @@ function inferDesign(state: DiscoveryState): Inference {
     avoid.push("Do not treat HDMI and USB as separate extender products unless the installation genuinely requires split paths.");
   }
 
-  if (!hasVideoWall(state) && !hasDistributedNeed(state) && !hasUsbRequirement(state) && distanceRank(state.longestRun) >= 3) {
+  if (!isWallArrangement(state.displayArrangement) && !isMultiZone(state) && !hasUsbRequirement(state) && distanceRank(state.longestRun) >= 3) {
     architecture = "HDBaseT video transport";
     productDirection.push("Use HDBaseT when the source/display run exceeds practical HDMI distance.");
     productDirection.push("If video-only, select receiver family by distance: RX-35 for shorter HDBaseT runs, RX-70 for longer runs.");
     avoid.push("Avoid over-specifying USB-capable receiver paths if USB transport is not required.");
   }
 
-  if (!hasVideoWall(state) && !hasDistributedNeed(state) && !hasUsbRequirement(state) && distanceRank(state.longestRun) <= 2 && distanceRank(state.longestRun) > 0) {
+  if (!isWallArrangement(state.displayArrangement) && !isMultiZone(state) && !hasUsbRequirement(state) && distanceRank(state.longestRun) > 0 && distanceRank(state.longestRun) <= 2) {
     architecture = "Local HDMI / presentation switching";
     productDirection.push("Use a simpler local switching or short HDMI path where distance and behaviour allow.");
     avoid.push("Avoid AVoIP or HDBaseT where a local switcher and short HDMI connection is enough.");
   }
 
-  if (state.outputTypes.includes("Dual independent displays") || state.behaviours.includes("Dual display")) {
+  if (isDualArrangement(state.displayArrangement)) {
     productDirection.push("Dual-screen selection should drive whether mirrored output, independent output, MST, or presentation-plus-conferencing mode is required.");
   }
 
-  if (state.outputTypes.includes("Multiview display") || state.behaviours.includes("Multiview") || state.wallMultiview === "Multiview required") {
-    productDirection.push("Check multiview-capable paths such as NHD-150-RX or NHD-0401-MV depending on NetworkHD family.");
+  if (state.displayArrangement === "Multiview display" || state.displayBehaviour.includes("Multiview") || state.wallMultiview === "Multiview required") {
+    productDirection.push("Confirm whether multiview is source composition on one display/canvas or flexible source-per-display routing.");
   }
 
   if (hasConferencing(state) && !hasUsbRequirement(state)) {
@@ -878,38 +1105,80 @@ export function DiscoveryPage() {
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [state, setState] = useState<DiscoveryState>(initialState);
 
+  const profile = useMemo(() => getRoomProfile(state.roomType), [state.roomType]);
   const inference = useMemo(() => inferDesign(state), [state]);
   const currentStep = steps[activeStepIndex];
   const isFirstStep = activeStepIndex === 0;
   const isLastStep = activeStepIndex === steps.length - 1;
+
+  const displayArrangementOptions = useMemo(() => getDisplayArrangementOptions(state, profile), [state, profile]);
   const displayPositionOptions = useMemo(() => getDisplayPositionOptions(state), [state]);
-  const outputTypeOptions = useMemo(() => getOutputTypeOptions(state), [state]);
-  const outputBehaviourOptions = useMemo(() => getOutputBehaviourOptions(state), [state]);
-  const isWallMode = hasDisplayWall(state);
-  const isLedMode = hasLedWall(state);
-  const isLcdMode = hasLcdWall(state);
-const capturedPercent = useMemo(() => {
+  const displayBehaviourOptions = useMemo(() => getDisplayBehaviourOptions(state), [state]);
+  const meetingWorkflowOptions = useMemo(() => getMeetingWorkflowOptions(state), [state]);
+  const usbOptions = useMemo(() => getUsbOptions(state), [state]);
+  const isWallMode = isWallArrangement(state.displayArrangement);
+
+  const capturedPercent = useMemo(() => {
     const required = [
       state.roomType,
       state.roomSize,
       state.userPosition,
       state.equipmentLocation,
-      state.displayPosition,
       state.sourceTypes.length ? "sources" : "",
       state.sourceLocations.length ? "source locations" : "",
-      state.outputTypes.length ? "outputs" : "",
+      state.displayArrangement,
+      state.displayPosition,
+      state.displayBehaviour,
       state.longestRun,
       state.cableAvailable.length ? "cable" : "",
       state.budgetStyle,
     ];
 
-    const wallRequired = hasDisplayWall(state) ? [state.wallLayout, state.wallInputMode, state.wallMultiview] : [];
+    const wallRequired = isWallArrangement(state.displayArrangement)
+      ? [state.wallLayout, state.wallInputMode, state.wallMultiview]
+      : [];
+
     const filled = [...required, ...wallRequired].filter(Boolean).length;
     return Math.round((filled / (required.length + wallRequired.length)) * 100);
   }, [state]);
 
   function setField<K extends keyof DiscoveryState>(key: K, value: DiscoveryState[K]) {
     setState((current) => ({ ...current, [key]: value }));
+  }
+
+  function applyRoomType(roomType: string) {
+    const nextProfile = getRoomProfile(roomType);
+
+    setState((current) => ({
+      ...current,
+      roomType,
+      ...nextProfile.defaults,
+    }));
+  }
+
+  function chooseDisplayArrangement(value: string) {
+    setState((current) => {
+      const wallType = isWallArrangement(value) ? value : "";
+      const nextDisplayCount = isDualArrangement(value)
+        ? Math.max(2, current.displayCount)
+        : value === "LCD wall"
+          ? Math.max(4, current.displayCount)
+          : value === "LED wall"
+            ? 1
+            : current.displayCount;
+
+      return {
+        ...current,
+        displayArrangement: value,
+        displayCount: nextDisplayCount,
+        displayPosition: defaultDisplayPositionForArrangement(value, current.roomType),
+        displayBehaviour: "",
+        wallType,
+        wallLayout: value === "LED wall" ? "Single LED canvas" : value === "LCD wall" ? "2x2 LCD wall" : "",
+        wallInputMode: value === "LED wall" ? "Single input canvas" : value === "LCD wall" ? "Single input tile-mode" : "",
+        wallMultiview: isWallArrangement(value) ? "Non-multiview" : "",
+      };
+    });
   }
 
   function toggleMulti(key: MultiSelectKey, value: string) {
@@ -956,8 +1225,9 @@ const capturedPercent = useMemo(() => {
       return null;
     }
 
-    const wallLayoutOptions = isLedMode && !isLcdMode ? ledWallLayouts : lcdWallLayouts;
-    const wallInputOptions = isLedMode && !isLcdMode ? ledWallInputModes : lcdWallInputModes;
+    const isLedWall = state.displayArrangement === "LED wall";
+    const wallLayoutOptions = isLedWall ? ledWallLayouts : lcdWallLayouts;
+    const wallInputOptions = isLedWall ? ledWallInputModes : lcdWallInputModes;
 
     return (
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
@@ -968,8 +1238,8 @@ const capturedPercent = useMemo(() => {
               <p className="text-sm font-black text-amber-950">Wall quick pick</p>
             </div>
             <p className="mt-1 text-xs leading-5 text-amber-800">
-              Use quick pick for common LCD/LED wall assumptions, or open the wall wizard for detailed layout, source,
-              multiview, and processor decisions.
+              Quick-pick captures enough to qualify the opportunity. Use the wall wizard for detailed layout, source,
+              multiview, processor, bezel, or LED canvas sizing.
             </p>
           </div>
 
@@ -984,11 +1254,11 @@ const capturedPercent = useMemo(() => {
 
         <div className="mt-4 grid gap-4">
           <ChipGroup
-            title={isLedMode && !isLcdMode ? "LED wall canvas" : "LCD wall layout"}
+            title={isLedWall ? "LED wall canvas" : "LCD wall layout"}
             helper={
-              isLedMode && !isLcdMode
-                ? "LED is treated as a single canvas/input unless upstream multiview composition is required."
-                : "Choose a common LCD wall format for fast qualification. Detailed bezel, model, and processor work can happen in the wall wizard."
+              isLedWall
+                ? "LED should normally be treated as a single input canvas unless multiview is composed upstream."
+                : "Choose a common LCD layout for quick qualification."
             }
             options={wallLayoutOptions}
             value={state.wallLayout}
@@ -998,8 +1268,8 @@ const capturedPercent = useMemo(() => {
           <ChipGroup
             title="Input mode"
             helper={
-              isLedMode && !isLcdMode
-                ? "LED should default to a single input canvas. Multiview, if needed, is normally composed before the LED input."
+              isLedWall
+                ? "LED defaults to a single input canvas."
                 : "Single input tile-mode is different from screen-driven / input-per-display behaviour."
             }
             options={wallInputOptions}
@@ -1009,7 +1279,7 @@ const capturedPercent = useMemo(() => {
 
           <ChipGroup
             title="Multiview requirement"
-            helper="This is required for both LCD and LED paths because it changes whether simple tile-mode is enough or composition/routing is needed."
+            helper="This changes whether simple tile/canvas handling is enough or whether upstream composition/routing is required."
             options={wallMultiviewModes}
             value={state.wallMultiview}
             onSelect={(value) => setField("wallMultiview", value)}
@@ -1018,18 +1288,28 @@ const capturedPercent = useMemo(() => {
       </div>
     );
   }
+
   function renderStep(stepId: StepId) {
     if (stepId === "useCase") {
       return (
         <div className="grid gap-5">
           <ChipGroup
             title="Room / application type"
-            helper="This sets the starting context only. Display behaviour, USB, wall, and routing choices are captured later where they are relevant."
+            helper="Select the application. Wingman will apply sensible defaults and filter later options."
             options={roomTypes}
             value={state.roomType}
-            onSelect={(value) => setField("roomType", value)}
+            onSelect={applyRoomType}
           />
-<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <div className="flex items-center gap-2">
+              <Wand2 className="h-5 w-5 text-amber-700" />
+              <p className="text-sm font-black text-amber-950">Wingman assumption</p>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-amber-900">{profile.note}</p>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <p className="text-sm font-black text-slate-900">Customer wording / unusual notes</p>
             <textarea
               value={state.notes}
@@ -1047,39 +1327,31 @@ const capturedPercent = useMemo(() => {
         <div className="grid gap-5">
           <ChipGroup
             title="Room size"
-            helper="Used to infer cable distance, solution complexity, and likely equipment positioning."
-            options={roomSizes}
+            helper="Options are filtered by application. For example, multi-zone venues default to extra-large or open spaces."
+            options={profile.roomSizeOptions}
             value={state.roomSize}
             onSelect={(value) => setField("roomSize", value)}
           />
 
           <ChipGroup
             title="Main user / source position"
-            helper="Where will the user normally connect or operate the system?"
-            options={userPositions}
+            helper="Where does the user normally present, operate, or connect from?"
+            options={profile.userPositionOptions}
             value={state.userPosition}
             onSelect={(value) => setField("userPosition", value)}
           />
 
           <ChipGroup
             title="Equipment position"
-            helper="This strongly affects HDMI, HDBaseT, AVoIP, and local switcher decisions."
-            options={equipmentLocations}
+            helper="This affects whether the system is local switching, HDBaseT, AVoIP, or mixed transport."
+            options={profile.equipmentLocationOptions}
             value={state.equipmentLocation}
             onSelect={(value) => setField("equipmentLocation", value)}
           />
 
           <ChipGroup
-            title="Display position"
-            helper={getDisplayPositionHelper(state)}
-            options={displayPositionOptions}
-            value={state.displayPosition}
-            onSelect={(value) => setField("displayPosition", value)}
-          />
-
-          <ChipGroup
             title="Layout flags"
-            helper="Only select flags that change the architecture or risk profile."
+            helper="Only select flags that change architecture, risk, or future expansion."
             options={layoutFlags}
             value={state.layoutFlags}
             onSelect={(value) => toggleMulti("layoutFlags", value)}
@@ -1092,12 +1364,16 @@ const capturedPercent = useMemo(() => {
     if (stepId === "sources") {
       return (
         <div className="grid gap-5">
-          <CountControl label="Number of source positions" value={state.sourceCount} onChange={(value) => setField("sourceCount", value)} />
+          <CountControl
+            label="Number of source positions"
+            value={state.sourceCount}
+            onChange={(value) => setField("sourceCount", value)}
+          />
 
           <ChipGroup
             title="Source types"
-            helper="What needs to connect into the system?"
-            options={sourceTypes}
+            helper="Source options are filtered by application so users are not shown irrelevant choices."
+            options={profile.sourceTypeOptions}
             value={state.sourceTypes}
             onSelect={(value) => toggleMulti("sourceTypes", value)}
             multi
@@ -1105,8 +1381,8 @@ const capturedPercent = useMemo(() => {
 
           <ChipGroup
             title="Source locations"
-            helper="Where are those sources physically located?"
-            options={sourceLocations}
+            helper="Where the sources live physically is essential to product selection."
+            options={profile.sourceLocationOptions}
             value={state.sourceLocations}
             onSelect={(value) => toggleMulti("sourceLocations", value)}
             multi
@@ -1114,8 +1390,8 @@ const capturedPercent = useMemo(() => {
 
           <ChipGroup
             title="Source connection types"
-            helper="Connection type affects presentation switcher, extender, and USB-C product selection."
-            options={sourceConnections}
+            helper="Connection type affects USB-C, HDMI, HDBaseT, AVoIP, NDI, and wireless product paths."
+            options={profile.sourceConnectionOptions}
             value={state.sourceConnections}
             onSelect={(value) => toggleMulti("sourceConnections", value)}
             multi
@@ -1125,9 +1401,6 @@ const capturedPercent = useMemo(() => {
     }
 
     if (stepId === "outputs") {
-      const selectedArrangement = state.outputTypes[0] ?? "";
-      const selectedBehaviour = state.outputBehaviours[0] ?? "";
-
       return (
         <div className="grid gap-5">
           <CountControl
@@ -1138,57 +1411,48 @@ const capturedPercent = useMemo(() => {
 
           <ChipGroup
             title="Display arrangement"
-            helper={
-              isWallMode
-                ? "Wall mode is active. Choose LCD wall or LED wall only; detailed wall layout is handled by quick pick or the wall wizard."
-                : hasDualDisplay(state)
-                  ? "Dual display was selected earlier, so only dual-screen arrangements are shown."
-                  : "Choose the physical output arrangement. This is not asking behaviour yet."
-            }
-            options={outputTypeOptions}
-            value={selectedArrangement}
-            onSelect={(value) => {
-              setField("outputTypes", [value]);
-              setField("outputBehaviours", []);
-              setField("wallLayout", "");
-              setField("wallInputMode", "");
-              setField("wallMultiview", "");
-            }}
+            helper="This list is filtered by the selected application. Multi-zone, wall, control room, signage, and boardroom applications get different choices."
+            options={displayArrangementOptions}
+            value={state.displayArrangement}
+            onSelect={chooseDisplayArrangement}
+          />
+
+          <ChipGroup
+            title="Display position"
+            helper="This question is now responsive. Dual-display arrangements show dual-screen positions; wall arrangements show wall positions; multi-zone shows distributed positions."
+            options={displayPositionOptions}
+            value={state.displayPosition}
+            onSelect={(value) => setField("displayPosition", value)}
           />
 
           <ChipGroup
             title="Display behaviour"
-            helper={
-              isWallMode
-                ? "For LCD/LED walls, choose simple full-screen/tile-mode, screen-driven, multiview, or non-multiview."
-                : hasDualDisplay(state)
-                  ? "For dual displays, choose the required relationship between the two screens."
-                  : "Choose what the display system needs to do. This drives switching, matrix, multiview, wall processing, or AVoIP logic."
-            }
-            options={outputBehaviourOptions}
-            value={selectedBehaviour}
-            onSelect={(value) => setField("outputBehaviours", [value])}
+            helper="Behaviour options are based on the display arrangement selected above."
+            options={displayBehaviourOptions}
+            value={state.displayBehaviour}
+            onSelect={(value) => setField("displayBehaviour", value)}
           />
 
           {renderWallQuickPick()}
         </div>
       );
     }
+
     if (stepId === "usb") {
       return (
         <div className="grid gap-5">
           <ChipGroup
             title="Meeting / user workflow"
-            helper="Separates simple presentation from BYOM, MTR/Zoom Room, conferencing, streaming, or room PC workflows."
-            options={meetingWorkflows}
+            helper="Options are filtered by application. Signage and wall spaces do not show the same workflow choices as meeting rooms."
+            options={meetingWorkflowOptions}
             value={state.meetingWorkflow}
             onSelect={(value) => setField("meetingWorkflow", value)}
           />
 
           <ChipGroup
             title="USB requirement"
-            helper="USB is often the deciding factor. Select the actual peripheral behaviour, not just the word USB."
-            options={usbNeeds}
+            helper="USB choices respond to the meeting workflow. BYOM/conferencing exposes camera, speakerphone, microphone, and USB bandwidth choices."
+            options={usbOptions}
             value={state.usbNeeds}
             onSelect={(value) => toggleMulti("usbNeeds", value)}
             multi
@@ -1196,7 +1460,7 @@ const capturedPercent = useMemo(() => {
 
           <ChipGroup
             title="Camera position"
-            helper="Camera position determines USB, HDMI, NDI, and cable routing requirements."
+            helper="Camera position affects USB, NDI, HDMI, and cable routing."
             options={cameraPositions}
             value={state.cameraPosition}
             onSelect={(value) => setField("cameraPosition", value)}
@@ -1204,8 +1468,8 @@ const capturedPercent = useMemo(() => {
 
           <ChipGroup
             title="Audio requirement"
-            helper="Audio can change the required product family, DSP handoff, and proposal scope."
-            options={audioNeeds}
+            helper="Audio can change product family, DSP handoff, and proposal scope."
+            options={audioNeedsBase}
             value={state.audioNeeds}
             onSelect={(value) => toggleMulti("audioNeeds", value)}
             multi
@@ -1219,7 +1483,7 @@ const capturedPercent = useMemo(() => {
         <div className="grid gap-5">
           <ChipGroup
             title="Longest signal run"
-            helper="This should drive transport recommendation. Do not ask non-technical users to guess HDMI vs HDBaseT too early."
+            helper="This should drive transport recommendation. Multi-zone and worship spaces are pre-biased toward longer runs, but confirm the actual distance."
             options={runBands}
             value={state.longestRun}
             onSelect={(value) => setField("longestRun", value)}
@@ -1236,7 +1500,7 @@ const capturedPercent = useMemo(() => {
 
           <ChipGroup
             title="Network availability"
-            helper="Only matters if AVoIP, NDI, control, streaming, or network audio may be required."
+            helper="This matters for NetworkHD, NDI, control, streaming, Dante/AES67, and multi-zone routing."
             options={networkOptions}
             value={state.networkAvailability}
             onSelect={(value) => setField("networkAvailability", value)}
@@ -1295,9 +1559,9 @@ const capturedPercent = useMemo(() => {
               <p className="text-sm font-black text-slate-900">Likely product direction</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.productDirection.length ? (
-                  inference.productDirection.map((item) => <li key={item}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {item}</li>)
+                  inference.productDirection.map((item) => <li key={item}>• {item}</li>)
                 ) : (
-                  <li>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ More information is required before a reliable product direction can be stated.</li>
+                  <li>• More information is required before a reliable product direction can be stated.</li>
                 )}
               </ul>
             </div>
@@ -1306,9 +1570,9 @@ const capturedPercent = useMemo(() => {
               <p className="text-sm font-black text-slate-900">Avoid / do not assume</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                 {inference.avoid.length ? (
-                  inference.avoid.map((item) => <li key={item}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {item}</li>)
+                  inference.avoid.map((item) => <li key={item}>• {item}</li>)
                 ) : (
-                  <li>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
+                  <li>• No avoid flags yet. Continue validating distance, USB, resolution, and behaviour.</li>
                 )}
               </ul>
             </div>
@@ -1322,9 +1586,9 @@ const capturedPercent = useMemo(() => {
     <div className="pb-10">
       <PageHero
         eyebrow="Guided Customer Discovery"
-        title="Build the room model before choosing products."
-        purpose="This workflow is responsive to earlier answers. Dual-display choices filter display positions and output behaviour; LCD and LED wall requirements trigger relevant wall quick-pick options or handoff to the wall wizard."
-        nextMove="Capture the fastest structured path, review inferred architecture, then save the brief into Finder, Projects, or Proposal."
+        title="Wingman now responds to the application, not a static form."
+        purpose="This workflow applies real-world AV assumptions and dynamically filters each next choice. A multi-zone venue behaves like a multi-zone venue; a display wall exposes wall logic; dual displays expose dual-screen positions and behaviours."
+        nextMove="Select the use case, let Wingman apply smart defaults, then refine only the details that matter for equipment selection."
         actions={[
           { label: "Open Product Finder", to: routeCatalogByKey.finder.path },
           { label: "Save to Projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
@@ -1332,8 +1596,8 @@ const capturedPercent = useMemo(() => {
       />
 
       <SectionCard
-        title="Click-first discovery workflow"
-        subtitle="The workflow is context-sensitive. Each section only asks questions that are relevant to the current design decision."
+        title="Dynamic discovery workflow"
+        subtitle="The choices shown are filtered by previous answers so the workflow feels like a live AV design assistant, not a generic checklist."
       >
         <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -1427,10 +1691,11 @@ const capturedPercent = useMemo(() => {
                 <ValueLine label="Room size" value={state.roomSize} />
                 <ValueLine label="User position" value={state.userPosition} />
                 <ValueLine label="Equipment position" value={state.equipmentLocation} />
-                <ValueLine label="Display position" value={state.displayPosition} />
                 <ListLine label="Sources" values={state.sourceTypes} />
                 <ListLine label="Source locations" values={state.sourceLocations} />
-                <ListLine label="Outputs" values={state.outputTypes} />
+                <ValueLine label="Display arrangement" value={state.displayArrangement} />
+                <ValueLine label="Display position" value={state.displayPosition} />
+                <ValueLine label="Display behaviour" value={state.displayBehaviour} />
                 <ValueLine label="Wall layout" value={state.wallLayout} />
                 <ValueLine label="Wall input mode" value={state.wallInputMode} />
                 <ValueLine label="Wall multiview" value={state.wallMultiview} />
@@ -1470,9 +1735,9 @@ const capturedPercent = useMemo(() => {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.missing.length ? (
-                      inference.missing.slice(0, 6).map((item) => <li key={item}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {item}</li>)
+                      inference.missing.slice(0, 6).map((item) => <li key={item}>• {item}</li>)
                     ) : (
-                      <li>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ No major missing details detected.</li>
+                      <li>• No major missing details detected.</li>
                     )}
                   </ul>
                 </div>
@@ -1484,9 +1749,9 @@ const capturedPercent = useMemo(() => {
                   </div>
                   <ul className="mt-2 space-y-1 text-slate-600">
                     {inference.risks.length ? (
-                      inference.risks.slice(0, 6).map((item) => <li key={item}>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ {item}</li>)
+                      inference.risks.slice(0, 6).map((item) => <li key={item}>• {item}</li>)
                     ) : (
-                      <li>ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ No major risk flags yet.</li>
+                      <li>• No major risk flags yet.</li>
                     )}
                   </ul>
                 </div>
@@ -1499,7 +1764,7 @@ const capturedPercent = useMemo(() => {
                   <p className="mt-2 text-slate-600">
                     {isLastStep
                       ? "Save the structured brief and continue into Product Finder."
-                      : "Continue the click-first workflow until the room model is complete enough to recommend with confidence."}
+                      : "Continue the dynamic workflow until the room model is complete enough to recommend with confidence."}
                   </p>
                 </div>
               </div>
