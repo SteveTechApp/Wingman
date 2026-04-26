@@ -303,12 +303,12 @@ const applicationAnswers = [
   {
     terms: ["meeting room", "conference room", "boardroom", "huddle"],
     answer:
-      "For a meeting room, start with the collaboration workflow rather than the product.\n\nLikely WyreStorm paths:\nâ€¢ Small/simple room: APO video bar or simple presentation switching.\nâ€¢ Medium BYOD/BYOM room: consider wireless conferencing or USB-C presentation products.\nâ€¢ More technical dual-display room: consider MST/presentation matrix routes.\n\nQualify next:\nâ€¢ How many displays?\nâ€¢ Is USB-C laptop connection required?\nâ€¢ Is wireless conferencing required or only wireless casting?\nâ€¢ Are cameras/microphones local or remote?\nâ€¢ Is this BYOD, MTR, Zoom Room, or flexible use?",
+      "For a meeting room, start with the collaboration workflow rather than the product.\n\nLikely WyreStorm paths:\n- Small/simple room: APO video bar or simple presentation switching.\n- Medium BYOD/BYOM room: consider wireless conferencing or USB-C presentation products.\n- More technical dual-display room: consider MST/presentation matrix routes.\n\nQualify next:\n- How many displays?\n- Is USB-C laptop connection required?\n- Is wireless conferencing required or only wireless casting?\n- Are cameras/microphones local or remote?\n- Is this BYOD, MTR, Zoom Room, or flexible use?",
   },
   {
     terms: ["ndi", "camera", "ptz", "streaming", "capture"],
     answer:
-      "For camera, NDI, or capture workflows, separate the camera path from the display path.\n\nUseful WyreStorm paths:\nâ€¢ NDI camera into NetworkHD 100 workflow: NHD-128-NDI-TRX can bridge NDI into H.265 workflows.\nâ€¢ Multiview composition in NetworkHD 100: NHD-150-RX can be used for multiview output.\nâ€¢ PTZ camera choices depend on resolution, NDI, AI tracking, and output format.\n\nQualify next:\nâ€¢ USB, HDMI, NDI, or all three?\nâ€¢ Single camera or multi-camera?\nâ€¢ Conferencing only, streaming, recording, or overflow display?",
+      "For camera, NDI, or capture workflows, separate the camera path from the display path.\n\nUseful WyreStorm paths:\n- NDI camera into NetworkHD 100 workflow: NHD-128-NDI-TRX can bridge NDI into H.265 workflows.\n- Multiview composition in NetworkHD 100: NHD-150-RX can be used for multiview output.\n- PTZ camera choices depend on resolution, NDI, AI tracking, and output format.\n\nQualify next:\n- USB, HDMI, NDI, or all three?\n- Single camera or multi-camera?\n- Conferencing only, streaming, recording, or overflow display?",
   },
 ];
 
@@ -324,7 +324,7 @@ function createMessage(role: "assistant" | "user", content: string): GuruMessage
 function normaliseSku(value: string) {
   return value
     .toUpperCase()
-    .replace(/[â€“â€”]/g, "-")
+    .replace(/[--]/g, "-")
     .replace(/[^A-Z0-9-]/g, "")
     .trim();
 }
@@ -572,7 +572,7 @@ function answerSw130ReceiverQuestion(question: string, sourceSku: string, produc
   const distance = detectDistanceMetres(question);
   const distanceChoice = hdbasetReceiverByDistance(distance);
   const sourceProduct = findProduct(products, sourceSku);
-  const sourceTitle = sourceProduct?.title && sourceProduct.title !== sourceSku ? ` â€” ${sourceProduct.title}` : "";
+  const sourceTitle = sourceProduct?.title && sourceProduct.title !== sourceSku ? ` - ${sourceProduct.title}` : "";
 
   if (usbNotImportant) {
     return [
@@ -583,16 +583,16 @@ function answerSw130ReceiverQuestion(question: string, sourceSku: string, produc
       `Why: ${distanceChoice.reason}.`,
       "",
       "Practical selection rule:",
-      "â€¢ RX-35 family for shorter HDBaseT receiver runs.",
-      "â€¢ RX-70 family for longer HDBaseT receiver runs.",
-      "â€¢ RX-500 when USB transport is required for camera, speakerphone, touch, keyboard, mouse, or KVM-style workflows.",
+      "- RX-35 family for shorter HDBaseT receiver runs.",
+      "- RX-70 family for longer HDBaseT receiver runs.",
+      "- RX-500 when USB transport is required for camera, speakerphone, touch, keyboard, mouse, or KVM-style workflows.",
       "",
       "Check before quoting:",
-      "â€¢ Required cable distance.",
-      "â€¢ Required resolution and refresh rate.",
-      "â€¢ Cable grade and installed cable condition.",
-      "â€¢ Whether USB return is genuinely required or video-only is acceptable.",
-      `â€¢ ${distanceChoice.caution}`,
+      "- Required cable distance.",
+      "- Required resolution and refresh rate.",
+      "- Cable grade and installed cable condition.",
+      "- Whether USB return is genuinely required or video-only is acceptable.",
+      `- ${distanceChoice.caution}`,
     ].join("\n");
   }
 
@@ -601,13 +601,13 @@ function answerSw130ReceiverQuestion(question: string, sourceSku: string, produc
       `Use RX-500 with ${sourceSku}${sourceTitle} when USB transport matters.`,
       "",
       "Why this fits:",
-      "â€¢ RX-500 is the correct receiver path when the SW-130 transmitter needs USB return for room peripherals.",
-      "â€¢ This applies to camera, speakerphone, touch display, keyboard/mouse, or KVM-style requirements.",
+      "- RX-500 is the correct receiver path when the SW-130 transmitter needs USB return for room peripherals.",
+      "- This applies to camera, speakerphone, touch display, keyboard/mouse, or KVM-style requirements.",
       "",
       "If the customer later confirms video-only operation:",
-      `â€¢ Use a suitable HDBaseT receiver by distance instead: ${distanceChoice.sku}.`,
-      "â€¢ RX-35 family for shorter runs.",
-      "â€¢ RX-70 family for longer runs.",
+      `- Use a suitable HDBaseT receiver by distance instead: ${distanceChoice.sku}.`,
+      "- RX-35 family for shorter runs.",
+      "- RX-70 family for longer runs.",
     ].join("\n");
   }
 
@@ -615,13 +615,13 @@ function answerSw130ReceiverQuestion(question: string, sourceSku: string, produc
     `${sourceSku}${sourceTitle} has two valid receiver paths depending on whether USB is required.`,
     "",
     "Recommended answer:",
-    "â€¢ If USB transport is required: use RX-500.",
-    `â€¢ If USB transport is not required: use a suitable HDBaseT receiver by distance, typically ${distanceChoice.sku}.`,
+    "- If USB transport is required: use RX-500.",
+    `- If USB transport is not required: use a suitable HDBaseT receiver by distance, typically ${distanceChoice.sku}.`,
     "",
     "Ask the customer:",
-    "â€¢ Is this video-only, or does the laptop need to access room USB devices?",
-    "â€¢ What is the cable distance from wall plate to display/receiver?",
-    "â€¢ What resolution and refresh rate are required?",
+    "- Is this video-only, or does the laptop need to access room USB devices?",
+    "- What is the cable distance from wall plate to display/receiver?",
+    "- What resolution and refresh rate are required?",
   ].join("\n");
 }
 
@@ -683,7 +683,7 @@ function usefulLines(product: ProductEntry) {
 
   const parts = product.text
     .replace(/\s+/g, " ")
-    .split(/(?:â€¢|\n|\. |; )/)
+    .split(/(?:-|\n|\. |; )/)
     .map((line) => line.trim())
     .filter((line) => line.length > 18 && line.length < 220);
 
@@ -720,10 +720,10 @@ function answerGlossary(question: string) {
     match.answer,
     "",
     "Sales use:",
-    `â€¢ ${match.salesUse}`,
+    `- ${match.salesUse}`,
     "",
     "Watch out:",
-    `â€¢ ${match.watchOut}`,
+    `- ${match.watchOut}`,
     match.related?.length ? "" : "",
     match.related?.length ? `Related terms: ${match.related.join(", ")}` : "",
   ]
@@ -736,7 +736,7 @@ function answerReceiverQuestion(question: string, products: ProductEntry[]) {
   const sourceSku = skus[0];
 
   if (!sourceSku) {
-    return "Tell me the transmitter SKU and Iâ€™ll identify the correct receiver path. For example: â€œWhich receiver works with SW-130-TX-UK?â€";
+    return `Tell me the transmitter SKU and I'll identify the correct receiver path. For example: "Which receiver works with SW-130-TX-UK?"`;
   }
 
   if (isSw130Family(sourceSku)) {
@@ -750,7 +750,7 @@ function answerReceiverQuestion(question: string, products: ProductEntry[]) {
       `I found ${sourceSku}, but I do not have a confirmed receiver pairing rule for it yet.`,
       "",
       `Product context: ${product.title}`,
-      ...usefulLines(product).map((line) => `â€¢ ${line}`),
+      ...usefulLines(product).map((line) => `- ${line}`),
       "",
       "Confirm the transport type first: HDBaseT, NetworkHD/AVoIP, HDMI, or USB extension.",
     ].join("\n");
@@ -760,9 +760,9 @@ function answerReceiverQuestion(question: string, products: ProductEntry[]) {
     `I do not have a confirmed receiver match for ${sourceSku} yet.`,
     "",
     "To avoid specifying the wrong Tx/Rx pair, confirm:",
-    "â€¢ Is this HDBaseT, NetworkHD, HDMI, or USB?",
-    "â€¢ What receiver or display location is required?",
-    "â€¢ What cable distance and resolution are required?",
+    "- Is this HDBaseT, NetworkHD, HDMI, or USB?",
+    "- What receiver or display location is required?",
+    "- What cable distance and resolution are required?",
   ].join("\n");
 }
 
@@ -783,18 +783,18 @@ function answerProductQuestion(question: string, products: ProductEntry[]) {
   const lines = usefulLines(product);
 
   return [
-    `${product.sku} â€” ${product.title}`,
+    `${product.sku} - ${product.title}`,
     product.family ? `Family: ${product.family}` : "",
     product.category ? `Category: ${product.category}` : "",
     product.description ? `Summary: ${product.description}` : "",
     "",
     lines.length ? "Useful product notes:" : "I found the product but the local index does not expose detailed notes for it yet.",
-    ...lines.map((line) => `â€¢ ${line}`),
+    ...lines.map((line) => `- ${line}`),
     "",
     "Next qualification:",
-    "â€¢ What is the room/application?",
-    "â€¢ What is the source and display count?",
-    "â€¢ What resolution, distance, USB, audio, and control behaviour is required?",
+    "- What is the room/application?",
+    "- What is the source and display count?",
+    "- What resolution, distance, USB, audio, and control behaviour is required?",
   ]
     .filter(Boolean)
     .join("\n");
@@ -837,56 +837,56 @@ function answerHdmiUsbExtenderIntent(question: string) {
 
   if (distance !== null) {
     return [
-      "Yes — treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
+      "Yes ï¿½ treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
       "",
       `Based on the stated ${distance}m run, the primary design path should be a single extender system / Tx-Rx pair that carries both HDMI video and USB over the same transport architecture.`,
       "",
       "Recommended design logic:",
-      "• Use an integrated HDMI + USB extender path where the transmitter and receiver are designed to work together.",
-      "• Do not split HDMI and USB into separate extender products unless there is a clear reason, such as USB bandwidth, cable pathway limits, or the selected video extender cannot carry the required USB.",
-      `• If the requirement later becomes video-only, select the HDBaseT receiver family by distance: ${distanceChoice.sku}.`,
+      "ï¿½ Use an integrated HDMI + USB extender path where the transmitter and receiver are designed to work together.",
+      "ï¿½ Do not split HDMI and USB into separate extender products unless there is a clear reason, such as USB bandwidth, cable pathway limits, or the selected video extender cannot carry the required USB.",
+      `ï¿½ If the requirement later becomes video-only, select the HDBaseT receiver family by distance: ${distanceChoice.sku}.`,
       "",
       "Likely WyreStorm paths to check first:",
-      "• SW-130-TX-UK / SW-130-TX-US with RX-500 where an in-wall HDMI/USB-C plus USB transport workflow is required.",
-      "• SW-120-TX3 family with RX3-100 where a higher-performance HDBaseT 3.0 style transmitter/receiver path is more appropriate.",
+      "ï¿½ SW-130-TX-UK / SW-130-TX-US with RX-500 where an in-wall HDMI/USB-C plus USB transport workflow is required.",
+      "ï¿½ SW-120-TX3 family with RX3-100 where a higher-performance HDBaseT 3.0 style transmitter/receiver path is more appropriate.",
       "",
       "Only consider a separate USB extender path when:",
-      "• The HDMI transport product does not support the required USB behaviour.",
-      "• The USB device needs more bandwidth than the combined AV extender supports.",
-      "• The USB device location is different from the HDMI display/source path.",
+      "ï¿½ The HDMI transport product does not support the required USB behaviour.",
+      "ï¿½ The USB device needs more bandwidth than the combined AV extender supports.",
+      "ï¿½ The USB device location is different from the HDMI display/source path.",
       "",
       "Before quoting, confirm:",
-      "• Cable distance and cable grade.",
-      "• Required resolution and refresh rate.",
-      "• USB device type: camera, speakerphone, touch, keyboard/mouse, or other.",
-      "• Whether USB 2.0 is enough or USB 3.x bandwidth is required.",
-      "• Whether the source location should be wall plate, desk, floor box, or rack.",
+      "ï¿½ Cable distance and cable grade.",
+      "ï¿½ Required resolution and refresh rate.",
+      "ï¿½ USB device type: camera, speakerphone, touch, keyboard/mouse, or other.",
+      "ï¿½ Whether USB 2.0 is enough or USB 3.x bandwidth is required.",
+      "ï¿½ Whether the source location should be wall plate, desk, floor box, or rack.",
     ].join("\n");
   }
 
   return [
-    "Yes — treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
+    "Yes ï¿½ treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
     "",
     "Recommended design logic:",
-    "• Start with a single extender system / Tx-Rx pair that carries HDMI video and USB together.",
-    "• Do not recommend separate HDMI and USB extenders unless an integrated product cannot meet the distance, USB bandwidth, or physical installation requirement.",
-    "• If USB transport is important for camera, speakerphone, touch, keyboard, mouse, or BYOM, the product must explicitly support USB transport.",
+    "ï¿½ Start with a single extender system / Tx-Rx pair that carries HDMI video and USB together.",
+    "ï¿½ Do not recommend separate HDMI and USB extenders unless an integrated product cannot meet the distance, USB bandwidth, or physical installation requirement.",
+    "ï¿½ If USB transport is important for camera, speakerphone, touch, keyboard, mouse, or BYOM, the product must explicitly support USB transport.",
     "",
     "Likely WyreStorm paths to check first:",
-    "• SW-130-TX-UK / SW-130-TX-US with RX-500 for in-wall HDMI/USB-C plus USB transport workflows.",
-    "• SW-120-TX3 family with RX3-100 for a higher-performance HDBaseT 3.0 style transmitter/receiver path.",
+    "ï¿½ SW-130-TX-UK / SW-130-TX-US with RX-500 for in-wall HDMI/USB-C plus USB transport workflows.",
+    "ï¿½ SW-120-TX3 family with RX3-100 for a higher-performance HDBaseT 3.0 style transmitter/receiver path.",
     "",
     "Only consider a separate USB extender path when:",
-    "• The selected HDMI extender does not carry the required USB.",
-    "• The USB peripheral needs more bandwidth than the integrated extender supports.",
-    "• The USB endpoint is in a different physical location from the HDMI endpoint.",
+    "ï¿½ The selected HDMI extender does not carry the required USB.",
+    "ï¿½ The USB peripheral needs more bandwidth than the integrated extender supports.",
+    "ï¿½ The USB endpoint is in a different physical location from the HDMI endpoint.",
     "",
     "Ask the customer:",
-    "• How far is the cable run?",
-    "• What resolution is required: 1080p, 4K30, or 4K60?",
-    "• What USB device needs to work?",
-    "• Is this for BYOM conferencing, touch, KVM, or simple USB control?",
-    "• Is the source location wall plate, desk, floor box, or rack?",
+    "ï¿½ How far is the cable run?",
+    "ï¿½ What resolution is required: 1080p, 4K30, or 4K60?",
+    "ï¿½ What USB device needs to work?",
+    "ï¿½ Is this for BYOM conferencing, touch, KVM, or simple USB control?",
+    "ï¿½ Is the source location wall plate, desk, floor box, or rack?",
   ].join("\n");
 }
 function answerFromSearch(question: string, products: ProductEntry[]) {
@@ -901,10 +901,10 @@ function answerFromSearch(question: string, products: ProductEntry[]) {
     "",
     ...matches.map((product) => {
       const summary = product.description || product.category || product.family || "Matched by SKU/product text.";
-      return `â€¢ ${product.sku} â€” ${product.title}. ${summary}`;
+      return `- ${product.sku} - ${product.title}. ${summary}`;
     }),
     "",
-    "Tell me the room type, source/display count, distance, resolution, and USB requirement and Iâ€™ll narrow this to a recommendation.",
+    "Tell me the room type, source/display count, distance, resolution, and USB requirement and I'll narrow this to a recommendation.",
   ].join("\n");
 }
 
@@ -998,8 +998,8 @@ async function tryWikipediaLookup(question: string) {
     extract,
     "",
     "Guru note:",
-    "â€¢ This was found by live lookup because it was not in the local Wingman glossary or product index.",
-    "â€¢ I have stored it in local Guru memory for next time.",
+    "- This was found by live lookup because it was not in the local Wingman glossary or product index.",
+    "- I have stored it in local Guru memory for next time.",
   ].join("\n");
 }
 
@@ -1030,8 +1030,8 @@ async function tryDuckDuckGoLookup(question: string) {
     answer,
     "",
     "Guru note:",
-    "â€¢ This was found by live lookup because it was not in the local Wingman glossary or product index.",
-    "â€¢ I have stored it in local Guru memory for next time.",
+    "- This was found by live lookup because it was not in the local Wingman glossary or product index.",
+    "- I have stored it in local Guru memory for next time.",
   ].join("\n");
 }
 
@@ -1074,8 +1074,8 @@ async function liveLookup(question: string) {
     "I checked the local Wingman glossary, local product index, and attempted a live lookup, but did not get a strong enough answer to store.",
     "",
     "Ask it with a little more context, for example:",
-    "â€¢ Is this a product SKU, AV acronym, signal type, cable type, or system behaviour?",
-    "â€¢ Is the question about WyreStorm product selection or general AV terminology?",
+    "- Is this a product SKU, AV acronym, signal type, cable type, or system behaviour?",
+    "- Is the question about WyreStorm product selection or general AV terminology?",
   ].join("\n");
 }
 
@@ -1125,7 +1125,7 @@ async function answerQuestion(question: string, products: ProductEntry[]) {
 
 const openingMessage = createMessage(
   "assistant",
-  "Hi, Iâ€™m Guru. Ask me a WyreStorm product, AV terminology, acronym, or system design question. If I donâ€™t know it locally, Iâ€™ll try a live lookup and store the answer in local Guru memory for next time."
+  "Hi, I'm Guru. Ask me a WyreStorm product, AV terminology, acronym, or system design question. If I don't know it locally, I'll try a live lookup and store the answer in local Guru memory for next time."
 );
 
 export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
@@ -1165,7 +1165,7 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
         }
 
         setProducts([]);
-        setIndexStatus("Product index unavailable â€” using built-in AV rules and glossary");
+        setIndexStatus("Product index unavailable - using built-in AV rules and glossary");
       });
 
     return () => {
@@ -1187,7 +1187,7 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
   }, [open, messages]);
 
   const helperText = useMemo(() => {
-    return `${indexStatus} â€¢ Glossary: ${avGlossary.length} terms â€¢ Local Guru memory: ${memoryCount}`;
+    return `${indexStatus} - Glossary: ${avGlossary.length} terms - Local Guru memory: ${memoryCount}`;
   }, [indexStatus, memoryCount]);
 
   async function sendMessage(raw: string) {
