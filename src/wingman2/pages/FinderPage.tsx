@@ -499,6 +499,93 @@ function expectedProductPathForRequirement(requirement: string) {
   return "";
 }
 
+function isMultiInput(value: string) {
+  return value === "3-4" || value === "5-8" || value === "9+";
+}
+
+function isHighInputCount(value: string) {
+  return value === "5-8" || value === "9+";
+}
+
+function isMultiOutput(value: string) {
+  return value === "2" || value === "3-4" || value === "5-8" || value === "9+";
+}
+
+function hasOnlyIoCountIntent(need: FinderNeed) {
+  const nonIoValues = [
+    need.query,
+    need.technicalRequirement,
+    need.productPath,
+    need.signalType,
+    need.sourceConnector,
+    need.displayConnector,
+    need.distance,
+    need.resolution,
+    need.usb,
+    need.audio,
+    need.network,
+    need.processing,
+    need.control,
+  ];
+
+  return Boolean(need.inputs || need.outputs) && nonIoValues.every((value) => !value.trim());
+}
+
+function getIoCategoryHints(need: FinderNeed) {
+  const hints: string[] = [];
+
+  if (need.inputs === "1" && !isMultiOutput(need.outputs)) {
+    hints.push("HDBaseT extender", "HDMI / USB extender", "Presentation switcher");
+  }
+
+  if (need.inputs === "2" && !isMultiOutput(need.outputs)) {
+    hints.push("Presentation switcher", "HDMI / USB extender", "Matrix / routing");
+  }
+
+  if (need.inputs === "3-4" && !isMultiOutput(need.outputs)) {
+    hints.push("Presentation switcher", "Matrix / routing", "AVoIP");
+  }
+
+  if (need.inputs === "3-4" && isMultiOutput(need.outputs)) {
+    hints.push("Matrix / routing", "AVoIP", "Presentation switcher");
+  }
+
+  if (isHighInputCount(need.inputs)) {
+    hints.push("Matrix / routing", "AVoIP");
+  }
+
+  if (isMultiOutput(need.outputs) && !need.inputs) {
+    hints.push("Matrix / routing", "AVoIP");
+  }
+
+  if (isMultiOutput(need.outputs) && need.inputs === "1") {
+    hints.push("Distribution amplifier", "Matrix / routing", "AVoIP");
+  }
+
+  return unique(hints);
+}
+
+function getIoIntentReason(need: FinderNeed) {
+  if (need.inputs === "3-4" && !isMultiOutput(need.outputs)) {
+    return "3-4 inputs points to a presentation switcher, compact matrix, or AVoIP source-side design rather than a random extender/accessory.";
+  }
+
+  if (need.inputs === "3-4" && isMultiOutput(need.outputs)) {
+    return "3-4 inputs with multiple outputs points primarily to matrix switching or AVoIP routing.";
+  }
+
+  if (isHighInputCount(need.inputs)) {
+    return "Higher input counts normally require matrix switching or AVoIP rather than a simple extender.";
+  }
+
+  if (isMultiOutput(need.outputs)) {
+    return "Multiple outputs normally require matrix routing, distribution, or AVoIP.";
+  }
+
+  return "I/O count is being used as a product-class filter, not as a final SKU recommendation.";
+}
+
+
 function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
   const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
   const category = classifyProduct(product);
@@ -508,6 +595,8 @@ function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
 
   const expectedPath = expectedProductPathForRequirement(need.technicalRequirement);
   const selectedPath = need.productPath || expectedPath;
+  const ioCategoryHints = getIoCategoryHints(need);
+  const ioOnlyIntent = hasOnlyIoCountIntent(need);
 
   if (need.query.trim()) {
     const query = normaliseText(need.query);
@@ -533,6 +622,16 @@ function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
   if (selectedPath && category === selectedPath) {
     score += 36;
     reasons.push(`Matches the likely product family: ${selectedPath}.`);
+  }
+
+  if (ioCategoryHints.length && ioCategoryHints.includes(category)) {
+    score += ioOnlyIntent ? 46 : 20;
+    reasons.push(getIoIntentReason(need));
+  }
+
+  if (ioOnlyIntent && ioCategoryHints.length && !ioCategoryHints.includes(category)) {
+    score -= 60;
+    cautions.push("Excluded by I/O logic: the selected input/output count points to another product class.");
   }
 
   if (need.signalType && textIncludesAny(text, [need.signalType])) {
@@ -667,7 +766,7 @@ function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
     }
   }
 
-  if (product.source === "seed") score += 5;
+  if (product.source === "seed" && score > 0) score += 5;
 
   const status: MatchStatus = score >= 72 ? "recommended" : score >= 42 ? "alternative" : "caution";
 
@@ -889,7 +988,7 @@ export function FinderPage() {
 
     return products
       .map((product) => scoreProduct(product, need))
-      .filter((match) => match.score > 0 || need.query.trim())
+      .filter((match) => match.score > 0 || Boolean(need.query.trim() && match.score >= 0))
       .sort((a, b) => b.score - a.score)
       .slice(0, 12);
   }, [hasIntent, need, products]);
@@ -1243,7 +1342,7 @@ export function FinderPage() {
                     <PackageSearch className="mx-auto h-12 w-12 text-slate-300" />
                     <h3 className="mt-4 text-xl font-black text-slate-950">Start with a technical requirement</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Finder now waits for a feature, signal path, connector, distance, USB, network, processing, audio, or control requirement before showing products.
+                      Finder now waits for a feature, signal path, connector, I/O count, distance, USB, network, processing, audio, or control requirement before showing products. If only I/O count is known, it should show likely product classes rather than random SKUs.
                     </p>
                   </div>
                 </div>
@@ -1261,7 +1360,7 @@ export function FinderPage() {
                         </div>
                         <p className="mt-1 text-sm font-semibold text-slate-700">{match.title}</p>
                         <p className="mt-1 text-xs text-slate-500">
-                          {match.family} • {match.category}
+                          {match.family} â€¢ {match.category}
                         </p>
                       </div>
 
@@ -1285,7 +1384,7 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
                           {match.reasons.map((reason) => (
-                            <li key={reason}>• {reason}</li>
+                            <li key={reason}>â€¢ {reason}</li>
                           ))}
                         </ul>
                       </div>
@@ -1294,9 +1393,9 @@ export function FinderPage() {
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before quoting</p>
                         <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
                           {match.cautions.length ? (
-                            match.cautions.map((caution) => <li key={caution}>• {caution}</li>)
+                            match.cautions.map((caution) => <li key={caution}>â€¢ {caution}</li>)
                           ) : (
-                            <li>• Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
+                            <li>â€¢ Confirm current datasheet, receiver/accessory set, and cable assumptions.</li>
                           )}
                         </ul>
                       </div>
