@@ -499,7 +499,7 @@ function cleanDisplayText(value: unknown) {
 
 function hasTextNoise(value: unknown) {
   const text = String(value ?? "");
-  return /[ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½]|[\u0080-\u024f]/.test(text);
+  return /[ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½]|[\u0080-\u024f]/.test(text);
 }
 
 function normaliseText(value: unknown) {
@@ -926,6 +926,42 @@ function isStandaloneHdmiUsbExtenderProduct(product: FinderProduct) {
   return hasHdmi && hasUsb && hasExtenderLanguage && isKitOrCompletePath;
 }
 
+function isEndpointOnlyProduct(product: FinderProduct) {
+  const sku = product.sku.toUpperCase();
+  return sku.startsWith("RX-") || sku.startsWith("TX-");
+}
+
+function hasEndpointOnlyIntent(need: FinderNeed) {
+  const text = normaliseText(
+    `${need.query} ${need.technicalRequirement} ${need.productPath} ${need.signalType} ${need.sourceConnector} ${need.displayConnector}`,
+  );
+
+  return (
+    text.includes("transmitter only") ||
+    text.includes("receiver only") ||
+    text.includes("tx only") ||
+    text.includes("rx only") ||
+    text.includes("standalone transmitter") ||
+    text.includes("standalone receiver") ||
+    text.includes("projector hdbaset input") ||
+    text.includes("display hdbaset input") ||
+    text.includes("hdbaset input on projector") ||
+    text.includes("hdbaset input on display") ||
+    text.includes("replace transmitter") ||
+    text.includes("replace receiver")
+  );
+}
+
+function shouldSuppressEndpointOnlyProduct(product: FinderProduct, need: FinderNeed) {
+  if (!isEndpointOnlyProduct(product)) return false;
+  if (hasEndpointOnlyIntent(need)) return false;
+
+  const query = need.query.trim().toUpperCase();
+  if (query && product.sku.toUpperCase() === query) return false;
+
+  return true;
+}
+
 function isProductAllowedForNeed(product: FinderProduct, need: FinderNeed) {
   if (!isWyreStormProduct(product)) return false;
 
@@ -933,6 +969,8 @@ function isProductAllowedForNeed(product: FinderProduct, need: FinderNeed) {
   const path = inferPathFromNeed(need);
 
   if (query && product.sku.toLowerCase() === need.query.trim().toLowerCase()) return true;
+
+  if (shouldSuppressEndpointOnlyProduct(product, need)) return false;
 
   if (hasPointToPointOneInOneOutNeed(need)) {
     return isStandaloneHdmiUsbExtenderProduct(product);
@@ -1079,6 +1117,7 @@ function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
   if (isControlOnlyProduct(cleanProduct)) score -= 150;
   if (isSimpleHdmiSwitcherOnly(cleanProduct)) score -= 120;
   if (isAvOverIpProduct(cleanProduct) && need.technicalRequirement === "Extend HDMI and USB together" && !productHasAny(cleanProduct, ["usb"])) score -= 60;
+  if (shouldSuppressEndpointOnlyProduct(cleanProduct, need)) score -= 250;
   if (cleanProduct.source === "seed") score += 4;
 
   const finalScore = Math.max(0, score);
@@ -1125,6 +1164,10 @@ function getReasonLines(match: ProductMatch, need: FinderNeed) {
 
 function getCautionLines(match: ProductMatch, need: FinderNeed) {
   const lines = ["Confirm current datasheet, receiver/accessory set, firmware notes, and cable assumptions."];
+
+  if (isEndpointOnlyProduct(match)) {
+    lines.unshift("Endpoint-only RX/TX part: only use when the compatible opposite endpoint or native HDBaseT display/projector input is confirmed.");
+  }
 
   if (hasIntegratedHdmiUsbNeed(need) && !isStandaloneHdmiUsbExtenderProduct(match)) {
     lines.unshift("This is not a standalone HDMI and USB extender path.");
