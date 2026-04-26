@@ -4,14 +4,18 @@ type WingmanGuruFabProps = {
 };
 
 export function WingmanGuruFab({ open, onClick }: WingmanGuruFabProps) {
+  if (open) {
+    return null;
+  }
+
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={open ? "Close Guru assistant" : "Open Guru assistant"}
-      aria-pressed={open}
+      aria-label="Open Guru assistant"
+      aria-pressed="false"
       className="wingman-guru-fab"
-      data-open={open ? "true" : "false"}
+      data-open="false"
     >
       <span className="wingman-guru-fab-sweep" aria-hidden="true" />
       <span className="wingman-guru-fab-glow" aria-hidden="true" />
