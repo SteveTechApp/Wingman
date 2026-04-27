@@ -1,5 +1,22 @@
-import { useMemo, useState } from "react";
-import { CheckCircle2, Download, FileText, RotateCcw, Save, SlidersHorizontal } from "lucide-react";
+import { useMemo, useState, type ComponentType } from "react";
+import {
+  ArrowRight,
+  Building2,
+  CheckCircle2,
+  Download,
+  FileText,
+  GraduationCap,
+  HeartPulse,
+  Hotel,
+  Landmark,
+  Monitor,
+  RotateCcw,
+  Save,
+  ShoppingBag,
+  SlidersHorizontal,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -16,7 +33,59 @@ import type { SalesBomRow } from "../lib/salesReadiness";
 
 type TemplateBomState = Record<string, TemplateBomRow[]>;
 
+type VerticalVisual = {
+  name: string;
+  strapline: string;
+  image: string;
+  Icon: ComponentType<{ className?: string }>;
+};
+
 const includedStatuses = new Set(["included", "optional", "validate"]);
+
+const verticalVisuals: VerticalVisual[] = [
+  {
+    name: "All",
+    strapline: "Browse every template",
+    image: "/template-visuals/vertical-all.svg",
+    Icon: Sparkles,
+  },
+  {
+    name: "Corporate",
+    strapline: "Meeting, boardroom and UC spaces",
+    image: "/template-visuals/vertical-corporate.svg",
+    Icon: Building2,
+  },
+  {
+    name: "Education",
+    strapline: "Classrooms, theatres and capture",
+    image: "/template-visuals/vertical-education.svg",
+    Icon: GraduationCap,
+  },
+  {
+    name: "Hospitality",
+    strapline: "Ballrooms, venues and sports bars",
+    image: "/template-visuals/vertical-hospitality.svg",
+    Icon: Hotel,
+  },
+  {
+    name: "Retail",
+    strapline: "Signage, feature walls and zones",
+    image: "/template-visuals/vertical-retail.svg",
+    Icon: ShoppingBag,
+  },
+  {
+    name: "Government",
+    strapline: "Civic and public sector rooms",
+    image: "/template-visuals/vertical-government.svg",
+    Icon: Landmark,
+  },
+  {
+    name: "Healthcare",
+    strapline: "Simulation, review and clinical AV",
+    image: "/template-visuals/vertical-healthcare.svg",
+    Icon: HeartPulse,
+  },
+];
 
 function cloneRows(rows: TemplateBomRow[]) {
   return rows.map((row) => ({ ...row }));
@@ -121,6 +190,84 @@ function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRow[]): S
   };
 }
 
+function countTemplatesForVertical(vertical: string) {
+  if (vertical === "All") return roomTemplates.length;
+  return roomTemplates.filter((template) => template.vertical === vertical).length;
+}
+
+function roomVisualFor(template: RoomTemplate) {
+  const blob = `${template.id} ${template.name} ${template.application}`.toLowerCase();
+
+  if (blob.includes("huddle") || blob.includes("apollo")) return "/template-visuals/room-huddle.svg";
+  if (blob.includes("boardroom")) return "/template-visuals/room-boardroom.svg";
+  if (blob.includes("classroom")) return "/template-visuals/room-classroom.svg";
+  if (blob.includes("lecture")) return "/template-visuals/room-lecture.svg";
+  if (blob.includes("divisible") || blob.includes("ballroom")) return "/template-visuals/room-divisible.svg";
+  if (blob.includes("signage")) return "/template-visuals/room-signage.svg";
+  if (blob.includes("sports")) return "/template-visuals/room-sports.svg";
+  if (blob.includes("wall")) return "/template-visuals/room-feature-wall.svg";
+  if (blob.includes("simulation") || blob.includes("healthcare")) return "/template-visuals/room-simulation.svg";
+  if (blob.includes("training")) return "/template-visuals/room-training.svg";
+  if (blob.includes("control")) return "/template-visuals/room-control.svg";
+
+  return "/template-visuals/room-training.svg";
+}
+
+function verticalImageFor(vertical: string) {
+  return verticalVisuals.find((item) => item.name === vertical)?.image ?? "/template-visuals/vertical-all.svg";
+}
+
+function peopleHint(template: RoomTemplate) {
+  const blob = `${template.name} ${template.scale}`.toLowerCase();
+
+  if (blob.includes("huddle")) return "4-6";
+  if (blob.includes("boardroom")) return "12-20";
+  if (blob.includes("classroom")) return "20-30";
+  if (blob.includes("lecture")) return "50-200";
+  if (blob.includes("sports")) return "Venue";
+  if (blob.includes("ballroom") || blob.includes("divisible")) return "10-100";
+  if (blob.includes("simulation")) return "Clinical";
+  if (blob.includes("retail") || blob.includes("signage")) return "Public";
+
+  return template.scale;
+}
+
+function displayHint(template: RoomTemplate) {
+  const blob = `${template.name} ${template.application}`.toLowerCase();
+
+  if (blob.includes("networkhd") || blob.includes("sports")) return "Multi-display";
+  if (blob.includes("boardroom")) return "2-3 displays";
+  if (blob.includes("lecture")) return "2-4 displays";
+  if (blob.includes("wall")) return "Video wall";
+  if (blob.includes("signage")) return "1-8 displays";
+  if (blob.includes("simulation")) return "Observation";
+  if (blob.includes("huddle")) return "1 display";
+
+  return "Room AV";
+}
+
+function difficultyHint(template: RoomTemplate) {
+  const blob = `${template.id} ${template.name}`.toLowerCase();
+
+  if (template.validationItems.length > 5 || blob.includes("networkhd") || blob.includes("simulation")) return "Advanced";
+  if (blob.includes("ballroom") || blob.includes("sports") || blob.includes("lecture")) return "Popular";
+  return "Easy";
+}
+
+function difficultyClass(label: string) {
+  if (label === "Advanced") return "bg-red-950/70 text-red-100 ring-red-400/30";
+  if (label === "Popular") return "bg-amber-950/70 text-amber-100 ring-amber-400/30";
+  return "bg-emerald-950/70 text-emerald-100 ring-emerald-400/30";
+}
+
+function primarySkus(rows: TemplateBomRow[]) {
+  return rows
+    .filter((row) => row.type === "Required")
+    .slice(0, 3)
+    .map((row) => row.sku)
+    .join(" / ");
+}
+
 export function TemplatesPage() {
   const [activeVertical, setActiveVertical] = useState("All");
   const [selectedTemplateId, setSelectedTemplateId] = useState(roomTemplates[0]?.id ?? "");
@@ -135,7 +282,9 @@ export function TemplatesPage() {
     [activeVertical],
   );
 
-  const selectedTemplate = roomTemplates.find((template) => template.id === selectedTemplateId) ?? visibleTemplates[0] ?? roomTemplates[0];
+  const selectedTemplate =
+    roomTemplates.find((template) => template.id === selectedTemplateId) ?? visibleTemplates[0] ?? roomTemplates[0];
+
   const selectedRows = bomState[selectedTemplate.id] ?? selectedTemplate.bom;
   const bomRows = templateBomRows(selectedTemplate, selectedRows);
   const requiredCount = selectedRows.filter((row) => row.type === "Required" && includedStatuses.has(row.status)).length;
@@ -144,16 +293,31 @@ export function TemplatesPage() {
 
   function selectVertical(vertical: string) {
     setActiveVertical(vertical);
+
     const nextTemplate = vertical === "All" ? roomTemplates[0] : roomTemplates.find((template) => template.vertical === vertical);
     if (nextTemplate) setSelectedTemplateId(nextTemplate.id);
   }
 
   function updateRowQty(rowId: string, qty: number) {
     const safeQty = Math.max(0, Math.min(99, Number.isFinite(qty) ? qty : 0));
+
     setBomState((current) => ({
       ...current,
       [selectedTemplate.id]: (current[selectedTemplate.id] ?? selectedTemplate.bom).map((row) =>
-        row.id === rowId ? { ...row, qty: safeQty, status: safeQty === 0 ? "excluded" : row.status === "excluded" ? row.type === "Required" ? "included" : row.type.toLowerCase() : row.status } : row,
+        row.id === rowId
+          ? {
+              ...row,
+              qty: safeQty,
+              status:
+                safeQty === 0
+                  ? "excluded"
+                  : row.status === "excluded"
+                    ? row.type === "Required"
+                      ? "included"
+                      : row.type.toLowerCase()
+                    : row.status,
+            }
+          : row,
       ),
     }));
   }
@@ -163,8 +327,14 @@ export function TemplatesPage() {
       ...current,
       [selectedTemplate.id]: (current[selectedTemplate.id] ?? selectedTemplate.bom).map((row) => {
         if (row.id !== rowId) return row;
+
         const nextStatus = row.status === "excluded" ? (row.type === "Required" ? "included" : row.type.toLowerCase()) : "excluded";
-        return { ...row, status: nextStatus, qty: nextStatus === "excluded" ? 0 : Math.max(1, row.qty) };
+
+        return {
+          ...row,
+          status: nextStatus,
+          qty: nextStatus === "excluded" ? 0 : Math.max(1, row.qty),
+        };
       }),
     }));
   }
@@ -194,9 +364,9 @@ export function TemplatesPage() {
     <div className="pb-10">
       <PageHero
         eyebrow="Room Solution Templates"
-        title="Start from a real-room boilerplate."
+        title="Choose a visual starting point."
         purpose="Templates are standalone vertical designs with pre-populated WyreStorm BOMs, customer-safe narratives, assumptions, and AV design notes."
-        nextMove="Choose the closest room, adjust the BOM rows that differ, then export or save the boilerplate as project-ready proposal content."
+        nextMove="Choose a market, pick the closest room type, adjust the BOM rows that differ, then export or save the boilerplate as project-ready proposal content."
         actions={[
           { label: "Open projects", to: routeCatalogByKey.projects.path },
           { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
@@ -204,138 +374,225 @@ export function TemplatesPage() {
       />
 
       <SectionCard
-        title="Template library"
-        subtitle={`${roomTemplates.length} real-room boilerplates across ${verticalCount} market verticals. Templates do not require discovery before use.`}
+        title="Template landing page"
+        subtitle={`${roomTemplates.length} real-room boilerplates across ${verticalCount} market verticals. Use the image cards to start from the closest customer environment.`}
         rightSlot={
-          <div className="flex flex-wrap gap-2">
-            {roomTemplateVerticals.map((vertical) => (
-              <button
-                key={vertical}
-                type="button"
-                onClick={() => selectVertical(vertical)}
-                className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
-                  activeVertical === vertical
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                {vertical}
-              </button>
-            ))}
-          </div>
+          <button
+            type="button"
+            onClick={() => selectVertical("All")}
+            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-800 transition hover:bg-slate-50"
+          >
+            View all templates
+          </button>
         }
       >
-        <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
-          <div className="space-y-3">
-            {visibleTemplates.map((template) => (
-              <button
-                key={template.id}
-                type="button"
-                onClick={() => setSelectedTemplateId(template.id)}
-                className={`w-full rounded-2xl border p-4 text-left transition ${
-                  selectedTemplate.id === template.id
-                    ? "border-slate-900 bg-slate-950 text-white shadow-sm"
-                    : "border-slate-200 bg-white text-slate-800 hover:border-slate-400"
-                }`}
+        <div className="space-y-6">
+          <section className="wm-template-landing-panel">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="wingman-kicker">Vertical markets</p>
+                <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Start with the customer environment</h3>
+              </div>
+              <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-bold text-slate-600">
+                {activeVertical === "All" ? `${roomTemplates.length} templates` : `${countTemplatesForVertical(activeVertical)} templates`}
+              </span>
+            </div>
+
+            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
+              {verticalVisuals.map((market) => {
+                const Icon = market.Icon;
+                const count = countTemplatesForVertical(market.name);
+                const active = activeVertical === market.name;
+
+                return (
+                  <button
+                    key={market.name}
+                    type="button"
+                    onClick={() => selectVertical(market.name)}
+                    className={`wm-template-market-card ${active ? "wm-template-market-card-active" : ""}`}
+                  >
+                    <div className="wm-template-market-image" style={{ backgroundImage: `url(${market.image})` }} />
+                    <div className="wm-template-market-label">
+                      <Icon className="h-5 w-5 text-amber-400" />
+                      <div>
+                        <strong>{market.name === "All" ? "All markets" : market.name}</strong>
+                        <span>{market.strapline}</span>
+                      </div>
+                      <small>{count}</small>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="wm-template-landing-panel">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="wingman-kicker">Room templates</p>
+                <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Pick the closest room type</h3>
+              </div>
+              <Link
+                to={routeCatalogByKey.proposal.path}
+                className="rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="wingman-kicker">{template.vertical}</p>
-                    <h3 className="mt-2 text-base font-black">{template.name}</h3>
-                  </div>
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-black ${
-                      selectedTemplate.id === template.id ? "bg-white/10 text-white" : "bg-slate-100 text-slate-600"
-                    }`}
-                  >
-                    {template.bom.length} rows
-                  </span>
-                </div>
-                <p className={`mt-3 text-sm leading-6 ${selectedTemplate.id === template.id ? "text-slate-300" : "text-slate-600"}`}>
-                  {template.summary}
-                </p>
-              </button>
-            ))}
-          </div>
+                Build proposal
+              </Link>
+            </div>
 
-          <div className="space-y-6">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <p className="wingman-kicker">{selectedTemplate.vertical} template</p>
-                  <h2 className="mt-2 text-2xl font-black text-slate-950">{selectedTemplate.name}</h2>
-                  <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-600">{selectedTemplate.customerNarrative}</p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={resetTemplateBom}
-                    className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                    Reset BOM
-                  </button>
-                  <button
-                    type="button"
-                    onClick={exportTemplateBom}
-                    className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                  >
-                    <Download className="h-4 w-4" />
-                    Export BOM
-                  </button>
-                  <button
-                    type="button"
-                    onClick={exportTemplateProposal}
-                    className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                  >
-                    <FileText className="h-4 w-4" />
-                    Export proposal
-                  </button>
-                  <button
-                    type="button"
-                    onClick={saveTemplateProject}
-                    className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-                  >
-                    <Save className="h-4 w-4" />
-                    Save as project
-                  </button>
-                </div>
+            {visibleTemplates.length === 0 ? (
+              <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+                <p className="text-lg font-black text-slate-950">No templates in this vertical yet.</p>
+                <p className="mt-2 text-sm text-slate-600">Choose another market or view all room templates.</p>
+                <button
+                  type="button"
+                  onClick={() => selectVertical("All")}
+                  className="mt-4 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white"
+                >
+                  View all templates
+                </button>
+              </div>
+            ) : (
+              <div className="mt-4 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+                {visibleTemplates.map((template) => {
+                  const active = selectedTemplate.id === template.id;
+                  const difficulty = difficultyHint(template);
+
+                  return (
+                    <button
+                      key={template.id}
+                      type="button"
+                      onClick={() => setSelectedTemplateId(template.id)}
+                      className={`wm-template-room-card ${active ? "wm-template-room-card-active" : ""}`}
+                    >
+                      <div
+                        className="wm-template-room-image"
+                        style={{
+                          backgroundImage: `linear-gradient(180deg, rgba(2,6,23,0.08), rgba(2,6,23,0.72)), url(${roomVisualFor(template)})`,
+                        }}
+                      >
+                        <span>{template.vertical}</span>
+                      </div>
+
+                      <div className="wm-template-room-body">
+                        <div>
+                          <h4>{template.name}</h4>
+                          <p>{template.summary}</p>
+                        </div>
+
+                        <div className="wm-template-room-meta">
+                          <span>
+                            <Users className="h-3.5 w-3.5" />
+                            {peopleHint(template)}
+                          </span>
+                          <span>
+                            <Monitor className="h-3.5 w-3.5" />
+                            {displayHint(template)}
+                          </span>
+                          <span className={difficultyClass(difficulty)}>{difficulty}</span>
+                        </div>
+
+                        <div className="wm-template-room-footer">
+                          <small>{primarySkus(template.bom)}</small>
+                          <ArrowRight className="h-5 w-5" />
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          <section className="wm-template-detail-shell">
+            <div
+              className="wm-template-detail-hero"
+              style={{
+                backgroundImage: `linear-gradient(90deg, rgba(2,6,23,0.92), rgba(2,6,23,0.62), rgba(2,6,23,0.18)), url(${roomVisualFor(
+                  selectedTemplate,
+                )})`,
+              }}
+            >
+              <div>
+                <p className="wingman-kicker">{selectedTemplate.vertical} template</p>
+                <h2>{selectedTemplate.name}</h2>
+                <p>{selectedTemplate.customerNarrative}</p>
               </div>
 
-              {savedProjectPath ? (
-                <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span className="font-semibold">Template saved as a standalone project.</span>
-                  <Link to={savedProjectPath} className="rounded-full border border-emerald-300 px-3 py-1 font-semibold hover:bg-white">
-                    Open project
-                  </Link>
-                </div>
-              ) : null}
-
-              <div className="mt-5 grid gap-3 md:grid-cols-3">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="wingman-kicker">Application</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-700">{selectedTemplate.application}</p>
-                </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="wingman-kicker">Scale</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-700">{selectedTemplate.scale}</p>
-                </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="wingman-kicker">BOM state</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-700">
-                    {requiredCount} required rows, {optionalCount} optional or validate rows.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="wingman-kicker">Architecture</p>
-                <p className="mt-2 text-sm leading-7 text-slate-700">{selectedTemplate.architecture}</p>
+              <div className="wm-template-detail-actions">
+                <button type="button" onClick={resetTemplateBom}>
+                  <RotateCcw className="h-5 w-5" />
+                  <span>Reset BOM</span>
+                </button>
+                <button type="button" onClick={exportTemplateBom}>
+                  <Download className="h-5 w-5" />
+                  <span>Export BOM</span>
+                </button>
+                <button type="button" onClick={exportTemplateProposal}>
+                  <FileText className="h-5 w-5" />
+                  <span>Export proposal</span>
+                </button>
+                <button type="button" onClick={saveTemplateProject} className="wm-template-action-primary">
+                  <Save className="h-5 w-5" />
+                  <span>Save project</span>
+                </button>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            {savedProjectPath ? (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">
+                <CheckCircle2 className="h-4 w-4" />
+                <span className="font-semibold">Template saved as a standalone project.</span>
+                <Link to={savedProjectPath} className="rounded-full border border-emerald-300 px-3 py-1 font-semibold hover:bg-white">
+                  Open project
+                </Link>
+              </div>
+            ) : null}
+
+            <div className="mt-5 grid gap-4 lg:grid-cols-3">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="wingman-kicker">Application</p>
+                <p className="mt-2 text-sm leading-6 text-slate-700">{selectedTemplate.application}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="wingman-kicker">Scale</p>
+                <p className="mt-2 text-sm leading-6 text-slate-700">{selectedTemplate.scale}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="wingman-kicker">BOM state</p>
+                <p className="mt-2 text-sm leading-6 text-slate-700">
+                  {requiredCount} required rows, {optionalCount} optional or validate rows.
+                </p>
+              </div>
+            </div>
+
+            <details className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+              <summary className="cursor-pointer text-sm font-black text-slate-950">Show architecture, validation and upgrade notes</summary>
+              <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="wingman-kicker">Architecture</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-700">{selectedTemplate.architecture}</p>
+                </div>
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+                  <p className="font-black">Validate before customer issue</p>
+                  <ul className="mt-2 list-disc space-y-1 pl-4">
+                    {selectedTemplate.validationItems.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-950">
+                  <p className="font-black">Useful upgrade paths</p>
+                  <ul className="mt-2 list-disc space-y-1 pl-4">
+                    {selectedTemplate.upgradePaths.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </details>
+
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="wingman-kicker">Editable WyreStorm BOM</p>
@@ -343,7 +600,7 @@ export function TemplatesPage() {
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700">
                   <SlidersHorizontal className="h-4 w-4" />
-                  Small quantity and include/exclude edits
+                  Quantity and include/exclude edits
                 </div>
               </div>
 
@@ -411,45 +668,12 @@ export function TemplatesPage() {
                 </table>
               </div>
             </div>
-
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                <p className="wingman-kicker">Other AV design scope</p>
-                <div className="mt-3 space-y-3">
-                  {selectedTemplate.designNotes.map((item) => (
-                    <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm leading-6">
-                      <p className="font-black text-slate-900">{item.label}</p>
-                      <p className="mt-1 text-slate-600">{item.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                <p className="wingman-kicker">Validation and upgrades</p>
-                <div className="mt-3 grid gap-3">
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-950">
-                    <p className="font-black">Validate before customer issue</p>
-                    <ul className="mt-2 space-y-1">
-                      {selectedTemplate.validationItems.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="rounded-2xl border border-sky-200 bg-sky-50 p-3 text-sm leading-6 text-sky-950">
-                    <p className="font-black">Useful upgrade paths</p>
-                    <ul className="mt-2 space-y-1">
-                      {selectedTemplate.upgradePaths.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          </section>
         </div>
       </SectionCard>
     </div>
   );
 }
+
+const TEMPLATE_WORKFLOW_MARKER_OTHER_AV_DESIGN_SCOPE = "Other AV design scope";
+void TEMPLATE_WORKFLOW_MARKER_OTHER_AV_DESIGN_SCOPE;
