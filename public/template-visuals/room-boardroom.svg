@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07111d"/>
+      <stop offset="48%" stop-color="#14304f"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.72)"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" rx="44" fill="url(#bg)"/>
+  <circle cx="810" cy="80" r="155" fill="rgba(255,255,255,0.08)"/>
+  <circle cx="130" cy="470" r="185" fill="rgba(255,255,255,0.06)"/>
+  <path d="M90 165h780" stroke="rgba(255,255,255,0.16)" stroke-width="22" stroke-linecap="round"/>
+  <path d="M145 245h300" stroke="rgba(255,255,255,0.22)" stroke-width="34" stroke-linecap="round"/>
+  <path d="M515 245h300" stroke="rgba(255,255,255,0.13)" stroke-width="34" stroke-linecap="round"/>
+  <rect x="165" y="300" width="630" height="90" rx="30" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.24)"/>
+  <rect y="315" width="960" height="225" fill="url(#fade)"/>
+  <text x="70" y="420" font-family="Inter, Arial, sans-serif" font-size="52" font-weight="850" fill="#ffffff">Boardroom</text>
+  <text x="72" y="468" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="rgba(255,255,255,0.78)">Premium presentation and UC</text>
+</svg>
