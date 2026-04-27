@@ -7,6 +7,7 @@ import {
   Camera,
   Check,
   Circle,
+  HelpCircle,
   Layers,
   MapPin,
   Minus,
@@ -20,6 +21,7 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
+import { saveDiscoveryBriefToProject } from "../data/projectStore";
 
 type StepId =
   | "useCase"
@@ -135,6 +137,132 @@ const steps: { id: StepId; label: string; description: string }[] = [
     description: "Review the inferred architecture, missing detail, and recommendation confidence.",
   },
 ];
+
+type QuestionStrategy = {
+  askFirst: string;
+  why: string;
+  ifUnknown: string;
+};
+
+const baseQuestionStrategyByStep = {
+  useCase: {
+    askFirst: "What is the customer trying to make happen in this space?",
+    why: "The application narrows the whole design before any product discussion starts.",
+    ifUnknown: "Pick the closest room type and use notes for the customer's own wording.",
+  },
+  layout: {
+    askFirst: "Where are the user, displays, and equipment likely to sit?",
+    why: "Physical layout decides whether the design can stay local or needs extension, routing, or network AV.",
+    ifUnknown: "Use Unknown or the closest default. Wingman will keep confidence lower until the site layout is confirmed.",
+  },
+  sources: {
+    askFirst: "What devices create the content, and where do they connect from?",
+    why: "A source is a signal path, not just a device name. This decides connector, transport, USB, and endpoint count.",
+    ifUnknown: "Capture the source type only, then leave connector, distance, or transport as Unknown.",
+  },
+  outputs: {
+    askFirst: "What should the displays actually show?",
+    why: "Same content, independent displays, multiview, and video walls require different architectures.",
+    ifUnknown: "Choose the closest behaviour and mark display spec or layout as a validation item.",
+  },
+  usb: {
+    askFirst: "Does the laptop or room PC need to use cameras, microphones, touch, or keyboard/mouse?",
+    why: "USB changes product family, cable path, host/device direction, and whether an extender or integrated path is required.",
+    ifUnknown: "Select Not sure. Wingman should not assume USB is available just because video works.",
+  },
+  infrastructure: {
+    askFirst: "How far is the longest signal run, and what cable or network path exists?",
+    why: "Distance and pathway decide HDMI, HDBaseT, fibre, AV-over-IP, or USB extension feasibility.",
+    ifUnknown: "Use Unknown and keep the recommendation as a design direction until cable or network details are confirmed.",
+  },
+  review: {
+    askFirst: "Is there anything here that would make the rep uncomfortable presenting the recommendation?",
+    why: "Confidence flags stop Wingman from presenting assumptions as final design facts.",
+    ifUnknown: "Request review or save the brief as a partial direction rather than forcing a final answer.",
+  },
+} satisfies Record<StepId, QuestionStrategy>;
+
+function getQuestionStrategy(stepId: StepId, state: DiscoveryState): QuestionStrategy {
+  const base = baseQuestionStrategyByStep[stepId];
+
+  if (state.roomType === "Display wall / large format wall" || isWallArrangement(state.displayArrangement)) {
+    if (stepId === "useCase" || stepId === "outputs") {
+      return {
+        askFirst: "Should the wall show one big image, separate content per display, multiview, or mixed layouts?",
+        why: "Wall behaviour decides whether the design needs a simple wall processor, a matrix/scaler path, or AV-over-IP flexibility.",
+        ifUnknown: "Start with the closest behaviour and hand off to the Videowall Builder before selecting processor SKUs.",
+      };
+    }
+
+    if (stepId === "infrastructure") {
+      return {
+        askFirst: "Where are the wall sources and processor/controller compared with the displays?",
+        why: "Source and processor location decide whether the wall needs local HDMI, HDBaseT, fibre, or network transport.",
+        ifUnknown: "Mark distance and processor location as validation items. Do not assume all wall products fit all layouts.",
+      };
+    }
+  }
+
+  if (state.roomType === "Multi-zone venue" || isMultiZone(state)) {
+    if (stepId === "outputs" || stepId === "infrastructure") {
+      return {
+        askFirst: "Do zones need the same content, independent content, or operator-controlled presets?",
+        why: "Zone behaviour decides whether the system is simple distribution, matrix switching, or AV-over-IP routing.",
+        ifUnknown: "Capture the number of zones and use a routing/flexibility assumption until source-to-zone behaviour is confirmed.",
+      };
+    }
+  }
+
+  if (["Meeting room", "Boardroom", "Training room", "Classroom"].includes(state.roomType)) {
+    if (stepId === "usb") {
+      return {
+        askFirst: "Does the user's laptop need to use the room camera, microphone, speakerphone, or touch display?",
+        why: "This separates presentation-only rooms from BYOM/BYOD conferencing rooms and prevents missing USB transport.",
+        ifUnknown: "Choose Not sure and ask whether Teams/Zoom calls must use room peripherals.",
+      };
+    }
+
+    if (stepId === "sources") {
+      return {
+        askFirst: "Where does the presenter connect: table, wall plate, lectern, room PC, or wireless?",
+        why: "The user connection point determines switcher style, USB-C needs, extension distance, and cable path.",
+        ifUnknown: "Use the most likely user position and validate the source connector before customer issue.",
+      };
+    }
+  }
+
+  if (state.roomType === "Retail signage" || state.roomType === "Hospitality") {
+    if (stepId === "outputs" || stepId === "sources") {
+      return {
+        askFirst: "How many displays or zones need signage, and do they all show the same content?",
+        why: "Signage usually depends on repeatable distribution, source location, and zone count rather than conferencing features.",
+        ifUnknown: "Capture display count and assume signage loop until zone-specific content is confirmed.",
+      };
+    }
+  }
+
+  if (state.roomType === "Control room") {
+    if (stepId === "outputs" || stepId === "sources") {
+      return {
+        askFirst: "How many live sources must operators see at once, and who changes the layout?",
+        why: "Control-room systems often need multiview, flexible routing, low latency, and operator control.",
+        ifUnknown: "Mark source count and layout control as validation items before selecting multiview or AVoIP paths.",
+      };
+    }
+  }
+
+  if (state.roomType === "House of worship" || state.roomType === "Lecture space") {
+    if (stepId === "sources" || stepId === "usb") {
+      return {
+        askFirst: "Are the key sources presentation, camera, streaming/recording, or confidence monitor feeds?",
+        why: "Teaching and worship spaces often mix presentation, camera, streaming, display, and audio handoff requirements.",
+        ifUnknown: "Capture the known source types first and flag camera/streaming workflow for review.",
+      };
+    }
+  }
+
+  return base;
+}
 
 const roomTypes = [
   "Meeting room",
@@ -717,40 +845,6 @@ function getDisplayBehaviourOptions(state: DiscoveryState) {
   return standardDisplayBehaviours;
 }
 
-function getSourceConnectionOptions(state: DiscoveryState, profile: RoomProfile) {
-  if (!state.sourceTypes.length) return profile.sourceConnectionOptions;
-
-  const options: string[] = [];
-
-  if (includesAny(state.sourceTypes, ["Laptop HDMI", "HDMI wall input", "Media player", "Signage player", "Room PC"])) {
-    options.push("HDMI");
-  }
-
-  if (includesAny(state.sourceTypes, ["Laptop USB-C", "USB-C wall input"])) {
-    options.push("USB-C video", "USB-C with charging");
-  }
-
-  if (includesAny(state.sourceTypes, ["USB camera"])) {
-    options.push("USB only");
-  }
-
-  if (includesAny(state.sourceTypes, ["NDI camera"])) {
-    options.push("NDI", "Network");
-  }
-
-  if (includesAny(state.sourceTypes, ["PTZ camera"])) {
-    options.push("HDMI", "USB only", "Network", "NDI");
-  }
-
-  if (includesAny(state.sourceTypes, ["Wireless presentation"])) {
-    options.push("Wireless", "Network");
-  }
-
-  options.push("Unknown");
-
-  return unique(options);
-}
-
 function getMeetingWorkflowOptions(state: DiscoveryState) {
   if (state.roomType === "Retail signage" || state.roomType === "Hospitality") return ["Presentation only", "Streaming / recording", "Not sure"];
   if (state.roomType === "House of worship") return ["Streaming / recording", "Presentation only", "BYOD presentation", "Not sure"];
@@ -1246,6 +1340,47 @@ function StepBadge({
   );
 }
 
+function QuestionStrategyCard({
+  askFirst,
+  why,
+  ifUnknown,
+  unresolvedCount,
+}: {
+  askFirst: string;
+  why: string;
+  ifUnknown: string;
+  unresolvedCount: number;
+}) {
+  return (
+    <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sky-950">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <HelpCircle className="h-5 w-5 text-sky-700" />
+          <p className="text-sm font-black">Ask less, explain more</p>
+        </div>
+        <span className="rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-black text-sky-700">
+          {unresolvedCount} validation item{unresolvedCount === 1 ? "" : "s"}
+        </span>
+      </div>
+
+      <div className="mt-3 grid gap-3 text-sm leading-6 lg:grid-cols-3">
+        <div className="rounded-xl border border-sky-200 bg-white p-3">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">Ask first</p>
+          <p className="mt-1 font-semibold">{askFirst}</p>
+        </div>
+        <div className="rounded-xl border border-sky-200 bg-white p-3">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">Why it matters</p>
+          <p className="mt-1">{why}</p>
+        </div>
+        <div className="rounded-xl border border-sky-200 bg-white p-3">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">If they do not know</p>
+          <p className="mt-1">{ifUnknown}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ValueLine({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -1278,13 +1413,13 @@ export function DiscoveryPage() {
   const profile = useMemo(() => getRoomProfile(state.roomType), [state.roomType]);
   const inference = useMemo(() => inferDesign(state), [state]);
   const currentStep = steps[activeStepIndex];
+  const currentQuestionStrategy = useMemo(() => getQuestionStrategy(currentStep.id, state), [currentStep.id, state]);
   const isFirstStep = activeStepIndex === 0;
   const isLastStep = activeStepIndex === steps.length - 1;
 
   const displayArrangementOptions = useMemo(() => getDisplayArrangementOptions(state, profile), [state, profile]);
   const displayPositionOptions = useMemo(() => getDisplayPositionOptions(state), [state]);
   const displayBehaviourOptions = useMemo(() => getDisplayBehaviourOptions(state), [state]);
-  const sourceConnectionOptions = useMemo(() => getSourceConnectionOptions(state, profile), [state, profile]);
   const meetingWorkflowOptions = useMemo(() => getMeetingWorkflowOptions(state), [state]);
   const usbOptions = useMemo(() => getUsbOptions(state), [state]);
   const cableTypeOptions = useMemo(() => getCableTypeOptions(state), [state]);
@@ -1537,28 +1672,6 @@ export function DiscoveryPage() {
     });
   }
 
-  function toggleSourceType(value: string) {
-    setState((current) => {
-      const sourceTypes = current.sourceTypes.includes(value)
-        ? current.sourceTypes.filter((item) => item !== value)
-        : [...current.sourceTypes, value];
-
-      const virtualState = { ...current, sourceTypes };
-      const allowedConnections = getSourceConnectionOptions(virtualState, getRoomProfile(current.roomType));
-      const sourceConnections = current.sourceConnections.filter((connection) => allowedConnections.includes(connection));
-
-      const shouldEnableUsb = sourceTypes.includes("USB camera") && current.usbTransport !== "USB 3.x / high-bandwidth required";
-
-      return {
-        ...current,
-        sourceTypes,
-        sourceConnections,
-        usbTransport: shouldEnableUsb ? "USB 2.0 is enough" : current.usbTransport,
-        usbNeeds: shouldEnableUsb ? unique([...current.usbNeeds.filter((need) => need !== "No USB required"), "USB camera"]) : current.usbNeeds,
-      };
-    });
-  }
-
   function chooseLongestRun(value: string) {
     setState((current) => {
       const virtualState = { ...current, longestRun: value };
@@ -1595,12 +1708,14 @@ export function DiscoveryPage() {
     };
 
     window.localStorage.setItem("wingman-discovery-brief", JSON.stringify(brief));
+    const project = saveDiscoveryBriefToProject(brief);
     window.localStorage.setItem(
       "wingman-workflow-context",
       JSON.stringify({
         source: "discovery",
         savedAt: brief.savedAt,
         projectStage: "Discovery",
+        projectId: project.id,
         nextRecommendedRoute: routeCatalogByKey.finder.path,
         returnRoute: routeCatalogByKey.discovery.path,
         brief,
@@ -1972,7 +2087,7 @@ export function DiscoveryPage() {
 
           <ChipGroup
             title="Known infrastructure risks"
-            helper="These directly affect confidence and whether the rep should quote or request more information."
+            helper="These directly affect confidence and whether the rep should present the design or request more information."
             options={cableRiskOptions}
             value={state.cableRisks}
             onSelect={(value) => toggleMulti("cableRisks", value)}
@@ -1994,8 +2109,8 @@ export function DiscoveryPage() {
         />
 
         <ChipGroup
-          title="Commercial direction"
-          helper="Used to avoid over-engineering or under-specifying."
+          title="Budget posture"
+          helper="Used only to avoid over-engineering or under-specifying the technical recommendation."
           options={budgetOptions}
           value={state.budgetStyle}
           onSelect={(value) => setField("budgetStyle", value)}
@@ -2050,9 +2165,9 @@ export function DiscoveryPage() {
     <div className="pb-10">
       <PageHero
         eyebrow="Guided Customer Discovery"
-        title="Wingman now filters incompatible choices as the design forms."
-        purpose="Primary selections now reduce later choices. USB 2.0 removes high-bandwidth USB devices, distance filters cable assumptions, source type filters connection types, and room application filters layout and output options."
-        nextMove="Select the use case, let Wingman apply smart defaults, then refine only the choices that remain technically relevant."
+        title="Ask only the questions that move the design forward."
+        purpose="Wingman now adapts discovery questions to the selected application and likely technical path, then explains why each answer matters so sales users are not forced through a blind AV checklist."
+        nextMove="Select the use case, follow the ask-first guidance, and leave unknown details as validation items instead of guessing."
         actions={[
           { label: "Open Product Finder", to: routeCatalogByKey.finder.path },
           { label: "Save to Projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
@@ -2061,7 +2176,7 @@ export function DiscoveryPage() {
 
       <SectionCard
         title="Dynamic discovery workflow"
-        subtitle="The workflow now behaves like a constraint engine: incompatible choices are hidden or removed instead of being collected and ignored."
+        subtitle="The workflow behaves like a guided conversation: application-specific questions, filtered choices, visible assumptions, and a safe path when the customer does not know."
       >
         <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -2098,7 +2213,15 @@ export function DiscoveryPage() {
               </span>
             </div>
 
-            <div className="mt-6">{renderStep(currentStep.id)}</div>
+            <div className="mt-6 grid gap-5">
+              <QuestionStrategyCard
+                askFirst={currentQuestionStrategy.askFirst}
+                why={currentQuestionStrategy.why}
+                ifUnknown={currentQuestionStrategy.ifUnknown}
+                unresolvedCount={inference.missing.length + inference.risks.length}
+              />
+              {renderStep(currentStep.id)}
+            </div>
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
               <button

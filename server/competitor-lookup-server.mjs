@@ -1963,6 +1963,9 @@ function buildHealthPayload() {
 }
 
 const server = http.createServer(async (req, res) => {
+  const method = req.method || "GET";
+  const url = new URL(req.url || "/", `http://${req.headers.host || `${HOST}:${PORT}`}`);
+
   try {
     if (await handleAgentsRoute(req, res)) {
       return;
@@ -1975,45 +1978,53 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-    if (req.method === "POST" && req.url === "/api/competitor/resolveMatch") {
-      try {
-        const body = await parseJsonBody(req);
+  if (method === "POST" && url.pathname === "/api/competitor/resolveMatch") {
+    if (!(await requireWingmanPermission(req, res, url, {
+      permission: "canViewDiagnostics",
+      deniedMessage: "Competitor match lookup requires an authenticated Wingman workspace session.",
+    }))) return;
 
-        const result = await resolveCompetitorMatch({
-          manufacturer: tidy(body.manufacturer),
-          model: tidy(body.model),
-          productUrl: tidy(body.productUrl),
-        });
+    try {
+      const body = await parseJsonBody(req);
 
-        return sendJson(res, result.ok ? 200 : 400, result);
-      } catch (error) {
-        return sendJson(res, 500, {
-          ok: false,
-          error: error instanceof Error ? error.message : "Resolve match failed",
-        });
-      }
+      const result = await resolveCompetitorMatch({
+        manufacturer: tidy(body.manufacturer),
+        model: tidy(body.model),
+        productUrl: tidy(body.productUrl),
+      });
+
+      return sendJson(res, result.ok ? 200 : 400, result);
+    } catch (error) {
+      return sendJson(res, 500, {
+        ok: false,
+        error: error instanceof Error ? error.message : "Resolve match failed",
+      });
     }
+  }
 
-    if (req.method === "POST" && req.url === "/api/competitor/liveLookup") {
-      try {
-        const body = await parseJsonBody(req);
+  if (method === "POST" && url.pathname === "/api/competitor/liveLookup") {
+    if (!(await requireWingmanPermission(req, res, url, {
+      permission: "canViewDiagnostics",
+      deniedMessage: "Competitor live lookup requires an authenticated Wingman workspace session.",
+    }))) return;
 
-        const result = await resolveCompetitorLiveLookup({
-          manufacturer: tidy(body.manufacturer),
-          model: tidy(body.model),
-          productUrl: tidy(body.productUrl),
-        });
+    try {
+      const body = await parseJsonBody(req);
 
-        return sendJson(res, result.ok ? 200 : 400, result);
-      } catch (error) {
-        return sendJson(res, 500, {
-          ok: false,
-          error: error instanceof Error ? error.message : "Live lookup failed",
-        });
-      }
+      const result = await resolveCompetitorLiveLookup({
+        manufacturer: tidy(body.manufacturer),
+        model: tidy(body.model),
+        productUrl: tidy(body.productUrl),
+      });
+
+      return sendJson(res, result.ok ? 200 : 400, result);
+    } catch (error) {
+      return sendJson(res, 500, {
+        ok: false,
+        error: error instanceof Error ? error.message : "Live lookup failed",
+      });
     }
-  const method = req.method || "GET";
-  const url = new URL(req.url || "/", `http://${req.headers.host || `${HOST}:${PORT}`}`);
+  }
 
   if (method === "OPTIONS") {
     res.writeHead(204, withCorsHeaders());
@@ -2150,12 +2161,17 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (
-  method === "POST" &&
-  (
-    url.pathname === "/api/competitor-lookup" ||
-    url.pathname === "/api/wingman/competitor-lookup"
-  )
-) {
+    method === "POST" &&
+    (
+      url.pathname === "/api/competitor-lookup" ||
+      url.pathname === "/api/wingman/competitor-lookup"
+    )
+  ) {
+    if (!(await requireWingmanPermission(req, res, url, {
+      permission: "canViewDiagnostics",
+      deniedMessage: "Competitor lookup requires an authenticated Wingman workspace session.",
+    }))) return;
+
     await handleLookupRequest(req, res);
     return;
   }

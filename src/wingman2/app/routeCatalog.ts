@@ -69,5 +69,9 @@ export const routeCatalogByKey = Object.fromEntries(
 ) as Record<WingmanRouteKey, WingmanRoute>;
 
 export function routeByPath(pathname: string) {
+  if (pathname.startsWith("/wingman/projects/")) {
+    return routeCatalogByKey.projects;
+  }
+
   return routeCatalog.find((route) => route.path === pathname);
 }

@@ -12,7 +12,7 @@ export function WingmanGuruFab({ open, onClick }: WingmanGuruFabProps) {
     <button
       type="button"
       onClick={onClick}
-      aria-label="Open Guru assistant"
+      aria-label="Open Guru technical assistant"
       aria-pressed="false"
       className="wingman-guru-fab"
       data-open="false"

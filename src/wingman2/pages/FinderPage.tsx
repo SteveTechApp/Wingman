@@ -17,9 +17,9 @@ import {
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
-  readProjectStore,
+  saveProductSelectionToProject,
+  upsertStoredProject,
   useProjectStore,
-  writeProjectStore,
   type StoredProject,
 } from "../data/projectStore";
 import { PageHero } from "../components/PageHero";
@@ -70,6 +70,8 @@ type ProductSelection = {
   tags: string[];
   addedAt: string;
   source: "Product Finder";
+  evidence?: string[];
+  cautions?: string[];
 };
 
 type UnknownRecord = Record<string, unknown>;
@@ -492,14 +494,14 @@ function cleanDisplayText(value: unknown) {
     .replace(/[\u201c\u201d]/g, '"')
     .replace(/\u2022/g, "-")
     .replace(/[\u0080-\u024f]+/g, " ")
-    .replace(/[^\x09\x0a\x0d\x20-\x7e]/g, " ")
+    .replace(/[^\u0020-\u007e]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
 function hasTextNoise(value: unknown) {
   const text = String(value ?? "");
-  return /[ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¿ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â½]|[\u0080-\u024f]/.test(text);
+  return /(?:\u00c3|\u00c2|\u00e2|\ufffd)|[\u0080-\u024f]/.test(text);
 }
 
 function normaliseText(value: unknown) {
@@ -735,11 +737,6 @@ function hasIntegratedHdmiUsbNeed(need: FinderNeed) {
   );
 }
 
-function productHasAll(product: FinderProduct, terms: string[]) {
-  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
-  return terms.every((term) => text.includes(normaliseText(term)));
-}
-
 function productHasAny(product: FinderProduct, terms: string[]) {
   const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
   return terms.some((term) => text.includes(normaliseText(term)));
@@ -749,45 +746,6 @@ function isReceiverOnlyProduct(product: FinderProduct) {
   const sku = product.sku.toUpperCase();
   const text = normaliseText(`${product.title} ${product.category} ${product.description} ${product.tags.join(" ")}`);
   return sku.startsWith("RX-") || (text.includes("receiver") && text.includes("video only"));
-}
-
-function isIntegratedHdmiUsbProduct(product: FinderProduct) {
-  const sku = product.sku.toUpperCase();
-  const title = normaliseText(product.title);
-  const category = normaliseText(product.category);
-  const description = normaliseText(product.description);
-  const tags = normaliseText(product.tags.join(" "));
-  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
-
-  if (sku === "SW-130-TX-UK") return true;
-  if (sku === "EX-100-KVM") return true;
-
-  if (sku.startsWith("RX-")) return false;
-  if (category.includes("in desk")) return false;
-  if (title.includes("in desk")) return false;
-  if (tags.includes("cable management")) return false;
-  if (description.includes("usb transport is not required")) return false;
-  if (description.includes("video only")) return false;
-  if (title.includes("video only")) return false;
-
-  const hasHdmi = text.includes("hdmi");
-  const hasUsb = text.includes("usb");
-  const hasTransportRole =
-    text.includes("extender") ||
-    text.includes("kvm") ||
-    text.includes("transmitter") ||
-    text.includes("receiver kit") ||
-    text.includes("hdbaset");
-
-  const isAccessoryOnly =
-    text.includes("cable management") ||
-    text.includes("in desk") ||
-    text.includes("mount") ||
-    text.includes("bracket") ||
-    text.includes("microphone") ||
-    text.includes("camera");
-
-  return hasHdmi && hasUsb && hasTransportRole && !isAccessoryOnly;
 }
 
 function isControlOnlyProduct(product: FinderProduct) {
@@ -1174,7 +1132,7 @@ function getCautionLines(match: ProductMatch, need: FinderNeed) {
   }
 
   if (need.usb === "USB 3.x required" && !textIncludesAny(match.searchText, ["usb 3", "3.0"])) {
-    lines.unshift("USB 3.x is requested. Confirm high-bandwidth USB support before quoting.");
+    lines.unshift("USB 3.x is requested. Confirm high-bandwidth USB support before customer issue.");
   }
 
   if ((need.inputs === "3-4" || need.inputs === "5-8" || need.inputs === "9+") && match.category === "HDBaseT extender") {
@@ -1206,7 +1164,10 @@ function writeProductSelections(selections: Record<string, ProductSelection[]>) 
   window.dispatchEvent(new CustomEvent("wingman:project-product-selections-updated"));
 }
 
-function productToSelection(product: ProductMatch | FinderProduct): ProductSelection {
+function productToSelection(product: ProductMatch | FinderProduct, need?: FinderNeed): ProductSelection {
+  const evidence = need && "score" in product ? getReasonLines(product, need) : [];
+  const cautions = need && "score" in product ? getCautionLines(product, need) : [];
+
   return {
     sku: product.sku,
     title: product.title,
@@ -1216,40 +1177,29 @@ function productToSelection(product: ProductMatch | FinderProduct): ProductSelec
     tags: product.tags,
     addedAt: nowIso(),
     source: "Product Finder",
+    evidence,
+    cautions,
   };
 }
 
-function addProductToProject(projectId: string, product: ProductMatch | FinderProduct) {
+function addProductToProject(projectId: string, product: ProductMatch | FinderProduct, need?: FinderNeed) {
+  const selection = productToSelection(product, need);
   const selections = readProductSelections();
   const existing = selections[projectId] ?? [];
   const withoutDuplicate = existing.filter((item) => item.sku !== product.sku);
 
   writeProductSelections({
     ...selections,
-    [projectId]: [productToSelection(product), ...withoutDuplicate],
+    [projectId]: [selection, ...withoutDuplicate],
   });
 
-  const snapshot = readProjectStore();
-  const projects = snapshot.projects.map((project) =>
-    project.id === projectId
-      ? {
-          ...project,
-          stage: "Finder" as const,
-          status: "status" in product ? product.status : project.status,
-          resumeTo: routeCatalogByKey.finder.path,
-          updated: "Just now",
-          updatedAt: nowIso(),
-        }
-      : project,
-  );
-
-  writeProjectStore({ ...snapshot, projects });
+  saveProductSelectionToProject(projectId, selection);
 }
 
-function createProjectFromProduct(projectName: string, owner: string, product: ProductMatch | FinderProduct) {
-  const snapshot = readProjectStore();
+function createProjectFromProduct(projectName: string, owner: string, product: ProductMatch | FinderProduct, need?: FinderNeed) {
   const timestamp = nowIso();
   const id = createId("finder-project");
+  const selection = productToSelection(product, need);
 
   const project: StoredProject = {
     id,
@@ -1261,14 +1211,21 @@ function createProjectFromProduct(projectName: string, owner: string, product: P
     resumeTo: routeCatalogByKey.finder.path,
     createdAt: timestamp,
     updatedAt: timestamp,
+    productSelections: [selection],
+    workflow: {
+      source: "Product Finder",
+      lastStep: "Product selected",
+      nextRoute: routeCatalogByKey.projects.path,
+      updatedAt: timestamp,
+    },
   };
 
-  writeProjectStore({
-    ...snapshot,
-    projects: [project, ...snapshot.projects],
-  });
+  upsertStoredProject(project);
 
-  addProductToProject(id, product);
+  writeProductSelections({
+    ...readProductSelections(),
+    [id]: [selection],
+  });
   return project;
 }
 
@@ -1349,7 +1306,7 @@ function StatusPill({ status }: { status: MatchStatus }) {
 }
 
 export function FinderPage() {
-  const { projects } = useProjectStore();
+  const { projects, activeProjectId } = useProjectStore();
   const [products, setProducts] = useState<FinderProduct[]>(seedProducts.map(cleanFinderProduct));
   const [indexState, setIndexState] = useState<"loading" | "ready" | "fallback">("loading");
   const [need, setNeed] = useState<FinderNeed>(initialNeed);
@@ -1610,7 +1567,7 @@ export function FinderPage() {
 
   function openAddPanel(product: ProductMatch) {
     setSelectedProduct(product);
-    setSelectedProjectId(projects[0]?.id ?? "");
+    setSelectedProjectId(activeProjectId ?? projects[0]?.id ?? "");
     setNewProjectName(`${product.sku} Selection`);
     setMessage("");
   }
@@ -1622,7 +1579,7 @@ export function FinderPage() {
   }
 
   function addToStandaloneShortlist(product: ProductMatch) {
-    const selection = productToSelection(product);
+    const selection = productToSelection(product, need);
     const next = [selection, ...shortlist.filter((item) => item.sku !== product.sku)].slice(0, 20);
     setShortlist(next);
     writeStandaloneShortlist(next);
@@ -1631,13 +1588,13 @@ export function FinderPage() {
 
   function addToExistingProject() {
     if (!selectedProduct || !selectedProjectId) return;
-    addProductToProject(selectedProjectId, selectedProduct);
+    addProductToProject(selectedProjectId, selectedProduct, need);
     setMessage(`Added ${selectedProduct.sku} to ${activeProject?.name ?? "selected project"}.`);
   }
 
   function addToNewProject() {
     if (!selectedProduct) return;
-    const project = createProjectFromProduct(newProjectName, newProjectOwner, selectedProduct);
+    const project = createProjectFromProduct(newProjectName, newProjectOwner, selectedProduct, need);
     setSelectedProjectId(project.id);
     setMessage(`Created ${project.name} and added ${selectedProduct.sku}.`);
   }
@@ -1826,7 +1783,7 @@ export function FinderPage() {
                               </div>
 
                               <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3">
-                                <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before quoting</p>
+                                <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before issue</p>
                                 <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
                                   {cautionLines.map((caution) => (
                                     <li key={caution}>- {caution}</li>
@@ -1919,7 +1876,7 @@ export function FinderPage() {
               <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
                 <p className="text-sm font-black text-red-900">Advisory notice</p>
                 <p className="mt-2 text-sm leading-6 text-red-800">
-                  Product Finder and project/proposal builders only display and save WyreStorm products. Competitor or non-WyreStorm products are comparison-only and must never be added to product, project, BOM, or proposal flows. Wingman/Guru can make mistakes, so always validate datasheets, receiver/accessory requirements, firmware notes, and commercial suitability before quoting.
+                  Product Finder and project/proposal builders only display and save WyreStorm products. Competitor or non-WyreStorm products are comparison-only and must never be added to product, project, BOM, or proposal flows. Wingman/Guru can make mistakes, so always validate datasheets, receiver/accessory requirements, firmware notes, and technical suitability before customer issue.
                 </p>
               </div>
             </aside>

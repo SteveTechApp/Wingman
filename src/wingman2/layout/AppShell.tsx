@@ -5,6 +5,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { routeByPath, routeCatalog } from "../app/routeCatalog";
 import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
+import { clearActiveProject } from "../data/projectStore";
 
 type AppShellProps = {
   children?: ReactNode;
@@ -70,6 +71,7 @@ function clearStoredProjectContext() {
 
   removeTransientStorage(window.localStorage);
   removeTransientStorage(window.sessionStorage);
+  clearActiveProject();
 
   window.dispatchEvent(new CustomEvent("wingman:project-context-cleared"));
   window.dispatchEvent(new CustomEvent("wingman:page-reset-requested"));
