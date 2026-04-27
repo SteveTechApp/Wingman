@@ -120,15 +120,17 @@ export function AppShell({ children }: AppShellProps) {
             <NavLink
               key={path}
               to={path}
+              title={summary}
+              aria-label={`${navLabel}: ${summary}`}
               className={({ isActive }) =>
                 ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")
               }
             >
               <Icon className="wingman-nav-icon" />
               <span className="wingman-nav-copy">
-                <span>{navLabel}</span>
-                <small>{summary}</small>
-              </span>
+                  <span>{navLabel}</span>
+                </span>
+                <span className="wingman-nav-tooltip" role="tooltip">{summary}</span>
             </NavLink>
           ))}
         </nav>
