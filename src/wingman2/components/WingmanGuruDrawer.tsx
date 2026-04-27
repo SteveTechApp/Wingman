@@ -44,6 +44,7 @@ type LiveCacheEntry = {
 const SKU_PATTERN = /\b[A-Z]{2,6}(?:-[A-Z0-9]{2,}){1,7}\b/g;
 const GURU_CACHE_KEY = "wingman-guru-live-knowledge-cache-v1";
 const GURU_CACHE_LIMIT = 80;
+const GURU_EXTERNAL_LOOKUP_ENABLED = import.meta.env.VITE_WINGMAN_ENABLE_GURU_EXTERNAL_LOOKUP === "true";
 
 const quickPrompts = [
   "Which receiver can I use with the SW-130-TX-UK?",
@@ -86,7 +87,7 @@ const avGlossary: GlossaryEntry[] = [
       "Ask what display or endpoint is being fed, what resolution is required, and whether USB, audio, scaling, or control is also needed.",
     watchOut:
       "A NetworkHD decoder is not the same as an HDBaseT receiver. Match the receiver to the transport technology first, then distance and features.",
-    related: ["encoder", "transmitter", "RX-500", "RX-70", "NetworkHD"],
+    related: ["encoder", "transmitter", "RX-700", "RX-500", "NetworkHD"],
   },
   {
     terms: ["hdbaset", "hd base t", "hdbt", "hdbt3", "hdbaset 3.0"],
@@ -97,7 +98,7 @@ const avGlossary: GlossaryEntry[] = [
       "Use HDBaseT when a source or switcher needs to feed a display over a medium-to-long cable run without moving to a full networked AV architecture.",
     watchOut:
       "Always check distance, resolution, cable grade, USB support, PoH/PoC direction, and the exact receiver feature set.",
-    related: ["Cat6", "PoH", "PoC", "RX-35", "RX-70", "RX-500"],
+    related: ["Cat6", "PoH", "PoC", "RX-35", "RX-70", "RX-700"],
   },
   {
     terms: ["edid", "extended display identification data"],
@@ -561,6 +562,30 @@ function hdbasetReceiverByDistance(distance: number | null) {
   };
 }
 
+function sw130ReceiverByDistance(distance: number | null) {
+  if (distance === null) {
+    return {
+      sku: "RX-500 or RX-700",
+      reason: "the SW-130 receiver choice depends on confirmed distance and resolution",
+      caution: "Use RX-500 for shorter SW-130 runs where the distance/resolution fits; use RX-700 for the longer-distance SW-130 path.",
+    };
+  }
+
+  if (distance <= 35) {
+    return {
+      sku: "RX-500",
+      reason: `the stated distance is ${distance}m, so RX-500 is a valid shorter-distance SW-130 receiver path`,
+      caution: "Confirm resolution, cable grade, USB/control needs, and installed path condition before customer issue.",
+    };
+  }
+
+  return {
+    sku: "RX-700",
+    reason: `the stated distance is ${distance}m, so the longer-distance SW-130 receiver path is the safer governed choice`,
+    caution: "Confirm cable grade, resolution, USB/control needs, and whether the run requires the 100m-capable SW-130 receive path.",
+  };
+}
+
 function isSw130Family(sku: string) {
   const normalised = normaliseSku(sku);
   return normalised === "SW-130-TX" || normalised === "SW-130-TX-UK" || normalised === "SW-130-TX-US";
@@ -570,56 +595,59 @@ function answerSw130ReceiverQuestion(question: string, sourceSku: string, produc
   const usbNotImportant = detectUsbNotImportant(question);
   const usbMentioned = detectUsbRequired(question);
   const distance = detectDistanceMetres(question);
-  const distanceChoice = hdbasetReceiverByDistance(distance);
+  const sw130DistanceChoice = sw130ReceiverByDistance(distance);
+  const valueEngineeredDistanceChoice = hdbasetReceiverByDistance(distance);
   const sourceProduct = findProduct(products, sourceSku);
   const sourceTitle = sourceProduct?.title && sourceProduct.title !== sourceSku ? ` - ${sourceProduct.title}` : "";
 
   if (usbNotImportant) {
     return [
-      `If USB transport is not required, ${sourceSku}${sourceTitle} does not have to be paired specifically with RX-500.`,
+      `If USB transport is not required, ${sourceSku}${sourceTitle} can be value-engineered with a WyreStorm HDBT 2.0 compatible receiver.`,
       "",
-      `Use a suitable WyreStorm HDBaseT receiver selected by transmission distance: ${distanceChoice.sku}.`,
+      "You do not have to force RX-500 or RX-700 just because SW-130 is the transmitter.",
       "",
-      `Why: ${distanceChoice.reason}.`,
+      `Distance logic: ${valueEngineeredDistanceChoice.reason}.`,
       "",
       "Practical selection rule:",
-      "- RX-35 family for shorter HDBaseT receiver runs.",
-      "- RX-70 family for longer HDBaseT receiver runs.",
-      "- RX-500 when USB transport is required for camera, speakerphone, touch, keyboard, mouse, or KVM-style workflows.",
+      "- If USB transport is not required: use any WyreStorm HDBT 2.0 compatible receiver that meets distance, resolution, cable, audio/control, and power needs.",
+      "- RX-500 remains valid for shorter-distance SW-130 receiver connections where its distance/resolution envelope fits.",
+      "- RX-700 remains the longer-distance SW-130 receiver path.",
       "",
-      "Check before quoting:",
+      "Check before customer issue:",
       "- Required cable distance.",
       "- Required resolution and refresh rate.",
       "- Cable grade and installed cable condition.",
-      "- Whether USB return is genuinely required or video-only is acceptable.",
-      `- ${distanceChoice.caution}`,
+      "- Whether USB return is genuinely not required.",
+      `- ${valueEngineeredDistanceChoice.caution}`,
     ].join("\n");
   }
 
   if (usbMentioned) {
     return [
-      `Use RX-500 with ${sourceSku}${sourceTitle} when USB transport matters.`,
+      `Use ${sw130DistanceChoice.sku} with ${sourceSku}${sourceTitle}, then validate the USB and cable requirements.`,
       "",
       "Why this fits:",
-      "- RX-500 is the correct receiver path when the SW-130 transmitter needs USB return for room peripherals.",
+      "- RX-500 can be used for shorter-distance SW-130 receiver connections.",
+      "- RX-700 is the longer-distance SW-130 receiver path.",
       "- This applies to camera, speakerphone, touch display, keyboard/mouse, or KVM-style requirements.",
+      `- Distance logic: ${sw130DistanceChoice.reason}.`,
       "",
-      "If the customer later confirms video-only operation:",
-      `- Use a suitable HDBaseT receiver by distance instead: ${distanceChoice.sku}.`,
-      "- RX-35 family for shorter runs.",
-      "- RX-70 family for longer runs.",
+      "Before customer issue:",
+      `- ${sw130DistanceChoice.caution}`,
+      "- Confirm whether USB 2.0 is sufficient for the device type.",
     ].join("\n");
   }
 
   return [
-    `${sourceSku}${sourceTitle} has two valid receiver paths depending on whether USB is required.`,
+    `${sourceSku}${sourceTitle} has two valid governed receiver paths depending on distance and design requirements.`,
     "",
     "Recommended answer:",
-    "- If USB transport is required: use RX-500.",
-    `- If USB transport is not required: use a suitable HDBaseT receiver by distance, typically ${distanceChoice.sku}.`,
+    "- If USB transport is required: RX-500 can provide the shorter-distance SW-130 receiver connection, while RX-700 is the longer-distance SW-130 receiver path.",
+    "- If USB transport is not required: value-engineer with any WyreStorm HDBT 2.0 compatible receiver that meets the technical requirements.",
+    `- Based on the stated distance for a USB-required SW-130 path: ${sw130DistanceChoice.sku}.`,
     "",
     "Ask the customer:",
-    "- Is this video-only, or does the laptop need to access room USB devices?",
+    "- Is USB transport required, or is this video-only?",
     "- What is the cable distance from wall plate to display/receiver?",
     "- What resolution and refresh rate are required?",
   ].join("\n");
@@ -847,7 +875,7 @@ function answerHdmiUsbExtenderIntent(question: string) {
       `Ã¯Â¿Â½ If the requirement later becomes video-only, select the HDBaseT receiver family by distance: ${distanceChoice.sku}.`,
       "",
       "Likely WyreStorm paths to check first:",
-      "Ã¯Â¿Â½ SW-130-TX-UK / SW-130-TX-US with RX-500 where an in-wall HDMI/USB-C plus USB transport workflow is required.",
+      "- SW-130-TX-UK / SW-130-TX-US with RX-500 for shorter USB-required runs or RX-700 for the longer SW-130 receive path.",
       "Ã¯Â¿Â½ SW-120-TX3 family with RX3-100 where a higher-performance HDBaseT 3.0 style transmitter/receiver path is more appropriate.",
       "",
       "Only consider a separate USB extender path when:",
@@ -855,7 +883,7 @@ function answerHdmiUsbExtenderIntent(question: string) {
       "Ã¯Â¿Â½ The USB device needs more bandwidth than the combined AV extender supports.",
       "Ã¯Â¿Â½ The USB device location is different from the HDMI display/source path.",
       "",
-      "Before quoting, confirm:",
+      "Before customer issue, confirm:",
       "Ã¯Â¿Â½ Cable distance and cable grade.",
       "Ã¯Â¿Â½ Required resolution and refresh rate.",
       "Ã¯Â¿Â½ USB device type: camera, speakerphone, touch, keyboard/mouse, or other.",
@@ -873,7 +901,7 @@ function answerHdmiUsbExtenderIntent(question: string) {
     "Ã¯Â¿Â½ If USB transport is important for camera, speakerphone, touch, keyboard, mouse, or BYOM, the product must explicitly support USB transport.",
     "",
     "Likely WyreStorm paths to check first:",
-    "Ã¯Â¿Â½ SW-130-TX-UK / SW-130-TX-US with RX-500 for in-wall HDMI/USB-C plus USB transport workflows.",
+    "- SW-130-TX-UK / SW-130-TX-US with RX-500 for shorter USB-required runs or RX-700 for the longer SW-130 receive path.",
     "Ã¯Â¿Â½ SW-120-TX3 family with RX3-100 for a higher-performance HDBaseT 3.0 style transmitter/receiver path.",
     "",
     "Only consider a separate USB extender path when:",
@@ -1046,6 +1074,16 @@ async function liveLookup(question: string) {
     ].join("\n");
   }
 
+  if (!GURU_EXTERNAL_LOOKUP_ENABLED) {
+    return [
+      "I do not know that confidently from Wingman's local knowledge yet.",
+      "",
+      "For privacy, Guru external web lookup is off by default. I checked the local glossary and product index only.",
+      "",
+      "Add more AV context or enable `VITE_WINGMAN_ENABLE_GURU_EXTERNAL_LOOKUP=true` in a trusted environment if third-party lookup is acceptable.",
+    ].join("\n");
+  }
+
   try {
     const wikipediaAnswer = await tryWikipediaLookup(question);
 
@@ -1125,7 +1163,9 @@ async function answerQuestion(question: string, products: ProductEntry[]) {
 
 const openingMessage = createMessage(
   "assistant",
-  "Hi, I'm Guru. Ask me a WyreStorm product, AV terminology, acronym, or system design question. If I don't know it locally, I'll try a live lookup and store the answer in local Guru memory for next time."
+  GURU_EXTERNAL_LOOKUP_ENABLED
+    ? "Hi, I'm Guru, Wingman's real-time AV and WyreStorm technical assistant. Ask me a product, AV terminology, acronym, or system design question. If I don't know it locally, I'll try a live lookup and store the answer in local Guru memory for next time."
+    : "Hi, I'm Guru, Wingman's real-time AV and WyreStorm technical assistant. Ask me a product, AV terminology, acronym, or system design question. External lookup is off, so I'll answer from the local Wingman glossary and product index."
 );
 
 export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
@@ -1249,7 +1289,7 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
             <GuruAssistantAvatar size={42} />
             <div>
               <h2>Guru</h2>
-              <p>Product-aware Q&A, AV glossary, acronym explainer, and local learning memory.</p>
+              <p>Real-time AV and WyreStorm technical Q&A for standalone questions, discovery support, and proposal checks.</p>
               <p style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 6 }}>
                 <Database className="h-3.5 w-3.5" />
                 {helperText}

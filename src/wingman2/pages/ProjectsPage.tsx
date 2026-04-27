@@ -1,15 +1,17 @@
-import { Copy, RotateCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, Check, Cloud, Copy, RotateCcw, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { StatusChip } from "../components/StatusChip";
-import { useProjectStore } from "../data/projectStore";
+import { setActiveProjectId, useProjectStore } from "../data/projectStore";
 
 export function ProjectsPage() {
   const {
     projects,
     proposalDrafts,
+    activeProjectId,
+    syncStatus,
     copyProject,
     deleteProject,
     copyProposalDraft,
@@ -22,8 +24,8 @@ export function ProjectsPage() {
       <PageHero
         eyebrow="Project Management"
         title="Keep live opportunities, drafts, and next actions in one place."
-        purpose="This page now uses the Wingman project store, so copy and delete actions persist after refresh instead of only changing the current screen."
-        nextMove="Open the priority project, copy a similar project, delete stale entries, or reset the sample store while testing."
+        purpose="This page now uses the Wingman project store, so copy, delete, resume, and requirement review actions persist after refresh instead of only changing the current screen."
+        nextMove="Open the priority project detail record, review requirements, then continue into Discovery, Finder, Compare, or Proposal."
         actions={[
           { label: "Start discovery", to: routeCatalogByKey.discovery.path },
           { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
@@ -35,14 +37,35 @@ export function ProjectsPage() {
           title="Active projects"
           subtitle="Use this table to reopen active opportunities, copy useful examples, or remove stale project lines."
           rightSlot={
-            <button
-              type="button"
-              onClick={resetStore}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Reset sample store
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <div
+                className={`inline-flex max-w-xl items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold ${
+                  syncStatus.state === "synced"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                    : syncStatus.state === "error" || syncStatus.state === "conflict"
+                      ? "border-rose-200 bg-rose-50 text-rose-800"
+                      : "border-slate-200 bg-slate-50 text-slate-700"
+                }`}
+                title={syncStatus.message}
+              >
+                {syncStatus.state === "synced" ? (
+                  <Check className="h-4 w-4" />
+                ) : syncStatus.state === "error" || syncStatus.state === "conflict" ? (
+                  <AlertTriangle className="h-4 w-4" />
+                ) : (
+                  <Cloud className="h-4 w-4" />
+                )}
+                <span className="truncate">{syncStatus.message}</span>
+              </div>
+              <button
+                type="button"
+                onClick={resetStore}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Reset sample store
+              </button>
+            </div>
           }
         >
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -54,7 +77,7 @@ export function ProjectsPage() {
                   <th className="px-5 py-4 font-semibold">Stage</th>
                   <th className="px-5 py-4 font-semibold">Status</th>
                   <th className="px-5 py-4 font-semibold">Last updated</th>
-                  <th className="px-5 py-4 font-semibold">Action</th>
+                  <th className="px-5 py-4 font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -74,10 +97,19 @@ export function ProjectsPage() {
                       <td className="px-5 py-4">
                         <div className="flex flex-wrap items-center gap-2">
                           <Link
+                            to={`${routeCatalogByKey.projects.path}/${project.id}`}
+                            onClick={() => setActiveProjectId(project.id)}
+                            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                          >
+                            Detail
+                          </Link>
+
+                          <Link
                             to={project.resumeTo}
+                            onClick={() => setActiveProjectId(project.id)}
                             className="rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
                           >
-                            Resume workflow
+                            {activeProjectId === project.id ? "Resume active" : "Resume workflow"}
                           </Link>
 
                           <button

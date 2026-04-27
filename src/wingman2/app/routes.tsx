@@ -8,6 +8,7 @@ import { DashboardPage } from "../pages/DashboardPage";
 import { DiscoveryPage } from "../pages/DiscoveryPage";
 import { FinderPage } from "../pages/FinderPage";
 import { IngestPage } from "../pages/IngestPage";
+import { ProjectDetailPage } from "../pages/ProjectDetailPage";
 import { ProjectsPage } from "../pages/ProjectsPage";
 import { ProposalPage } from "../pages/ProposalPage";
 import { SalesHelperPage } from "../pages/SalesHelperPage";
@@ -37,6 +38,7 @@ export const wingmanRoutes: RouteObject[] = [
     element: <AppShell />,
     children: [
       { index: true, element: <Navigate to={routeCatalog[0].segment} replace /> },
+      { path: "projects/:projectId", element: <ProjectDetailPage /> },
       ...routeCatalog.map((route) => ({
         path: route.segment,
         element: createElement(pageRegistry[route.key]),

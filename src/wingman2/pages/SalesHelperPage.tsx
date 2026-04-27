@@ -1,6 +1,9 @@
+import { useMemo } from "react";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { getCurrentWorkflowProject, readProjectStore } from "../data/projectStore";
+import { buildSalesReadinessPackage } from "../lib/salesReadiness";
 
 const positioningCards = [
   {
@@ -13,14 +16,14 @@ const positioningCards = [
   },
   {
     title: "How to differentiate from competitors",
-    text: "Use one commercial reason and one operational or deployment reason instead of drowning the customer in specs.",
+    text: "Use one business-outcome reason and one operational or deployment reason instead of drowning the customer in specs.",
   },
 ];
 
 const objectionCards = [
   {
-    title: "Price pressure",
-    text: "Reframe around deployment efficiency, supportability, and the cost of choosing a weaker fit.",
+    title: "Budget concern",
+    text: "Reframe around deployment efficiency, supportability, and the risk of choosing a weaker fit.",
   },
   {
     title: "Customer already requested competitor brand",
@@ -33,13 +36,39 @@ const objectionCards = [
 ];
 
 export function SalesHelperPage() {
+  const projectGuidance = useMemo(() => {
+    const project = getCurrentWorkflowProject(readProjectStore());
+    const roomModel = project?.discoveryBrief?.roomModel ?? {};
+    const discovery = {
+      projectTitle: String(roomModel.roomType || project?.name || "Standalone sales conversation"),
+      summary: String(project?.discoveryBrief?.inference?.summary || "Use discovery and Finder context to strengthen the sales conversation."),
+      roomSize: String(roomModel.roomSize || "Not confirmed"),
+      displays: String(roomModel.displayArrangement || "Not confirmed"),
+      usb: String(roomModel.usbTransport || "Not confirmed"),
+      distance: String(roomModel.longestRun || "Not confirmed"),
+      budget: String(roomModel.budgetStyle || "Not confirmed"),
+    };
+    const assumptions = [
+      ...(project?.ingest?.unknowns ?? []),
+      ...(project?.compareRuns?.[0]?.warnings ?? []),
+    ];
+
+    return buildSalesReadinessPackage({
+      products: project?.productSelections ?? [],
+      discovery,
+      assumptions,
+      ingest: project?.ingest,
+      compareRun: project?.compareRuns?.[0] ?? null,
+    });
+  }, []);
+
   return (
     <div className="pb-10">
       <PageHero
         eyebrow="Sales Q&A Positioning Helper"
-        title="Give the rep a better answer before the customer hears the wrong one."
-        purpose="This module turns product information into sales language by helping less experienced distributor reps ask better questions, position more cleanly, and handle common objections with confidence."
-        nextMove="Use the positioning cards for the live conversation, then move into Compare, Finder, or Proposal with a clearer commercial story."
+        title="Help the rep present the right SKU or BOM."
+        purpose="This module supports the three Wingman sales motions: competitor replacement, a one-off outcome SKU, or a full room/tender BOM."
+        nextMove="Use the positioning cards for the live conversation, then move into Compare, Finder, or Proposal with a clearer SKU or BOM story."
         actions={[
           { label: "Open compare", to: routeCatalogByKey.compare.path },
           { label: "Open finder", to: routeCatalogByKey.finder.path, variant: "secondary" },
@@ -48,8 +77,38 @@ export function SalesHelperPage() {
 
       <div className="space-y-6">
         <SectionCard
+          title="Guided rep mode"
+          subtitle="Project-aware prompts for what to ask, what to say, and when to escalate."
+        >
+          <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
+            <div className={`rounded-2xl border p-5 ${
+              projectGuidance.reviewRequired
+                ? "border-amber-200 bg-amber-50 text-amber-950"
+                : "border-emerald-200 bg-emerald-50 text-emerald-950"
+            }`}>
+              <p className="text-sm font-black uppercase tracking-[0.14em]">Readiness</p>
+              <p className="mt-3 text-4xl font-black">{projectGuidance.readinessScore}%</p>
+              <p className="mt-2 text-sm leading-6">
+                {projectGuidance.reviewRequired ? "Use as guided direction, then escalate before customer issue." : "Good enough for proposal drafting after final validation."}
+              </p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
+                <p className="font-black text-slate-900">{projectGuidance.outputPurpose.motion}</p>
+                <p className="mt-2">{projectGuidance.outputPurpose.customerOutput}</p>
+              </div>
+              {projectGuidance.repGuidance.slice(0, 3).map((item) => (
+                <div key={item} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard
           title="Positioning guidance"
-          subtitle="Use these cards to frame the recommendation in a way that is fast, clear, and commercially useful."
+          subtitle="Use these cards to frame the recommendation in a way that is fast, clear, and useful for customer presentation."
         >
           <div className="grid gap-4 lg:grid-cols-3">
             {positioningCards.map((card) => (
@@ -63,7 +122,7 @@ export function SalesHelperPage() {
 
         <SectionCard
           title="Objection handling"
-          subtitle="Use these cards to keep control of common commercial and technical pushback."
+          subtitle="Use these cards to keep control of common business and technical pushback."
         >
           <div className="grid gap-4 lg:grid-cols-3">
             {objectionCards.map((card) => (

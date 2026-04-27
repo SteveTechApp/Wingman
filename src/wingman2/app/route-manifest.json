@@ -60,7 +60,7 @@
     "label": "Videowall Builder",
     "navLabel": "Videowall Builder",
     "pageFile": "VideowallBuilderPage.tsx",
-    "summary": "Shape LED or LCD wall requirements into a design direction."
+    "summary": "Visualise LED or LCD wall signal flow and shape the design direction."
   },
   {
     "key": "salesHelper",

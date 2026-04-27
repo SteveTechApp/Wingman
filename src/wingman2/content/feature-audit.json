@@ -11,52 +11,51 @@
   {
     "routeKey": "projects",
     "status": "partial",
-    "summary": "Project open actions now route by workflow stage, but the page still uses seeded opportunity data.",
+    "summary": "Project open, copy, delete, reset, active-project actions, detail workspace, editable requirement records, sync status, and local/backend conflict preservation are wired. Standalone feature use is still allowed without forcing a project.",
     "needed": [
-      "Persist project records and stage history in a dedicated store or backend.",
-      "Add project detail pages so users can reopen a specific opportunity context."
+      "Add richer project history, approval state, and review outcome tracking."
     ]
   },
   {
     "routeKey": "discovery",
     "status": "partial",
-    "summary": "Discovery now drives visible state and routes forward into Product Finder and Projects.",
+    "summary": "Discovery captures structured room, source-path, output, USB, transport, and budget posture inputs with application-specific ask-first guidance, why-it-matters explanations, and safe unknown/validation paths, then saves both a legacy handoff and canonical project workflow data.",
     "needed": [
-      "Capture answers in structured form state rather than demo-only selections.",
-      "Pass discovery output into Finder, Proposal, and Projects as reusable data."
+      "Add backend conflict handling and visible sync status for saved discovery records.",
+      "Map requirement edits back into discovery fields where a user corrects the project detail record."
     ]
   },
   {
     "routeKey": "finder",
     "status": "partial",
-    "summary": "Finder is fully reachable and routes into compare and proposal flows, but recommendations are still static.",
+    "summary": "Finder loads the generated product intelligence index, scores WyreStorm products client-side, stores evidence/caution notes with selected products, and keeps standalone shortlists separate from explicit project product selections.",
     "needed": [
-      "Bind shortlist generation to discovery inputs and catalog intelligence.",
+      "Bind shortlist generation more deeply to discovery inputs and saved project context.",
       "Add accessory logic and family-level recommendation reasoning."
     ]
   },
   {
     "routeKey": "compare",
     "status": "partial",
-    "summary": "Compare now has outbound workflow links and proposal handoff, but matching is still hard-coded.",
+    "summary": "Compare now builds its review from saved discovery/Finder context, accepts editable competitor input, calls protected lookup and match resolver endpoints, shows scored evidence, and captures feedback only when an active project exists.",
     "needed": [
-      "Connect SKU entry to competitor lookup and WyreStorm match resolution.",
-      "Store comparison runs and expose confidence evidence per result."
+      "Add approval/review workflow for accepted competitor replacements.",
+      "Add comparison-only export that remains separate from proposal and BOM."
     ]
   },
   {
     "routeKey": "templates",
-    "status": "partial",
-    "summary": "Template actions now route users into downstream workflows, but templates are still static cards.",
+    "status": "wired",
+    "summary": "Templates now work as standalone real-room boilerplates across multiple verticals with pre-populated WyreStorm BOMs, editable quantities/include states, exports, project save, customer-safe narratives, assumptions, upgrade paths, and by-others AV design scope. They no longer route through Discovery.",
     "needed": [
-      "Define template data models covering room assumptions, bundle defaults, and optional upgrades.",
-      "Apply the selected template into discovery, proposal, and project state."
+      "Add more regional/market-specific template variants and approved drawing references.",
+      "Add branded document/PDF output for saved template projects."
     ]
   },
   {
     "routeKey": "videowall",
     "status": "partial",
-    "summary": "Videowall path selection now changes the page state and routes into proposal and project flows.",
+    "summary": "Videowall path selection now changes the page state, teaches source-to-display signal flow, explains LED/LCD processing trade-offs, and routes into discovery, proposal, and project flows.",
     "needed": [
       "Add wall sizing, controller, and topology logic for LED and LCD scenarios.",
       "Generate BOM outputs and assumptions based on wall dimensions and behavior."
@@ -65,9 +64,8 @@
   {
     "routeKey": "salesHelper",
     "status": "wired",
-    "summary": "Sales Helper is complete as a static guidance module and now links cleanly into compare, finder, and proposal flows.",
+    "summary": "Sales Helper now includes project-aware guided rep mode with readiness scoring, sales-motion guidance, and escalation guidance alongside static positioning and objection cards.",
     "needed": [
-      "Generate prompt cards dynamically from the active project context.",
       "Tie objection handling to the matched product family or competitor profile."
     ]
   },
@@ -83,25 +81,25 @@
   {
     "routeKey": "ingest",
     "status": "partial",
-    "summary": "Ingest now supports real file selection and routes into proposal generation, but extraction is still illustrative.",
+    "summary": "Ingest now parses PDF, DOCX, text, markdown, CSV, and email exports into structured requirements and unknowns, and persists them only when an active project exists.",
     "needed": [
-      "Wire the file picker into Mammoth and PDF extraction with requirement parsing.",
-      "Persist extracted requirements and unknowns into discovery or project state."
+      "Add legacy .doc conversion support or a clear guided conversion path.",
+      "Map extracted requirements into editable discovery fields."
     ]
   },
   {
     "routeKey": "proposal",
     "status": "partial",
-    "summary": "Proposal is reachable from every major workflow, but the document sections are still a static preview.",
+    "summary": "Proposal now reads canonical project context, saved discovery, shortlist, ingest, and compare warnings, classifies the output as competitor replacement, outcome SKU, or room/tender BOM, builds a governed dependency-aware BOM with validation questions and evidence, captures feedback, saves the generated preview back to the active project, and exports proposal HTML plus BOM CSV.",
     "needed": [
-      "Assemble proposal sections from live discovery, compare, and BOM data.",
-      "Add export paths for presentation-safe PDF or document output."
+      "Add branded document/PDF generation and template selection.",
+      "Connect exact accessory/dependency data, lifecycle, and regional suitability before customer issue."
     ]
   },
   {
     "routeKey": "support",
     "status": "wired",
-    "summary": "Support now acts as the completion and escalation hub, including the current feature audit view.",
+    "summary": "Support now acts as the completion and escalation hub, including the current feature audit view. Guru remains available globally as a standalone real-time AV/WyreStorm technical assistant, not only as a proposal helper.",
     "needed": [
       "Connect escalation actions to real contacts, queues, or internal workflows.",
       "Track review outcomes and approval status against each project."
