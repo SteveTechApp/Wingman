@@ -677,6 +677,28 @@ export function CallCardsPage() {
                 </div>
               </div>
 
+              <div className="wm-callcard-action-grid" aria-label="Call card handoff actions">
+                <Link to={routeCatalogByKey.discovery.path} className="wm-callcard-action-card">
+                  <span>Discovery</span>
+                  <small>Capture requirements</small>
+                </Link>
+                <Link to={routeCatalogByKey.finder.path} className="wm-callcard-action-card">
+                  <span>Finder</span>
+                  <small>Choose WyreStorm products</small>
+                </Link>
+                <Link to={routeCatalogByKey.compare.path} className="wm-callcard-action-card">
+                  <span>Compare</span>
+                  <small>Handle competitor SKUs</small>
+                </Link>
+                <Link to={routeCatalogByKey.videowall.path} className="wm-callcard-action-card">
+                  <span>Video Wall</span>
+                  <small>Qualify wall behaviour</small>
+                </Link>
+                <Link to={routeCatalogByKey.proposal.path} className="wm-callcard-action-card wm-callcard-action-card-primary">
+                  <span>Proposal</span>
+                  <small>Turn call into output</small>
+                </Link>
+              </div>
               <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
                 <p className="wingman-kicker text-amber-900">Say this first</p>
                 <p className="mt-2 text-lg font-semibold leading-7 text-slate-950">"{activeCard.opener}"</p>
