@@ -42,47 +42,55 @@ type VerticalVisual = {
 
 const includedStatuses = new Set(["included", "optional", "validate"]);
 
+function templateVisualPath(fileName: string): string {
+  const base = String(import.meta.env.BASE_URL || "/");
+  const cleanBase = base.endsWith("/") ? base : `${base}/`;
+  const cleanFileName = fileName.replace(/^\/?template-visuals\//, "");
+  return `${cleanBase}template-visuals/${cleanFileName}`;
+}
+
+
 const verticalVisuals: VerticalVisual[] = [
   {
     name: "All",
     strapline: "Browse every template",
-    image: "/template-visuals/vertical-all.svg",
+    image: templateVisualPath("vertical-all.svg"),
     Icon: Sparkles,
   },
   {
     name: "Corporate",
     strapline: "Meeting, boardroom and UC spaces",
-    image: "/template-visuals/vertical-corporate.svg",
+    image: templateVisualPath("vertical-corporate.svg"),
     Icon: Building2,
   },
   {
     name: "Education",
     strapline: "Classrooms, theatres and capture",
-    image: "/template-visuals/vertical-education.svg",
+    image: templateVisualPath("vertical-education.svg"),
     Icon: GraduationCap,
   },
   {
     name: "Hospitality",
     strapline: "Ballrooms, venues and sports bars",
-    image: "/template-visuals/vertical-hospitality.svg",
+    image: templateVisualPath("vertical-hospitality.svg"),
     Icon: Hotel,
   },
   {
     name: "Retail",
     strapline: "Signage, feature walls and zones",
-    image: "/template-visuals/vertical-retail.svg",
+    image: templateVisualPath("vertical-retail.svg"),
     Icon: ShoppingBag,
   },
   {
     name: "Government",
     strapline: "Civic and public sector rooms",
-    image: "/template-visuals/vertical-government.svg",
+    image: templateVisualPath("vertical-government.svg"),
     Icon: Landmark,
   },
   {
     name: "Healthcare",
     strapline: "Simulation, review and clinical AV",
-    image: "/template-visuals/vertical-healthcare.svg",
+    image: templateVisualPath("vertical-healthcare.svg"),
     Icon: HeartPulse,
   },
 ];
@@ -198,23 +206,23 @@ function countTemplatesForVertical(vertical: string) {
 function roomVisualFor(template: RoomTemplate) {
   const blob = `${template.id} ${template.name} ${template.application}`.toLowerCase();
 
-  if (blob.includes("huddle") || blob.includes("apollo")) return "/template-visuals/room-huddle.svg";
-  if (blob.includes("boardroom")) return "/template-visuals/room-boardroom.svg";
-  if (blob.includes("classroom")) return "/template-visuals/room-classroom.svg";
-  if (blob.includes("lecture")) return "/template-visuals/room-lecture.svg";
-  if (blob.includes("divisible") || blob.includes("ballroom")) return "/template-visuals/room-divisible.svg";
-  if (blob.includes("signage")) return "/template-visuals/room-signage.svg";
-  if (blob.includes("sports")) return "/template-visuals/room-sports.svg";
-  if (blob.includes("wall")) return "/template-visuals/room-feature-wall.svg";
-  if (blob.includes("simulation") || blob.includes("healthcare")) return "/template-visuals/room-simulation.svg";
-  if (blob.includes("training")) return "/template-visuals/room-training.svg";
-  if (blob.includes("control")) return "/template-visuals/room-control.svg";
+  if (blob.includes("huddle") || blob.includes("apollo")) return templateVisualPath("room-huddle.svg");
+  if (blob.includes("boardroom")) return templateVisualPath("room-boardroom.svg");
+  if (blob.includes("classroom")) return templateVisualPath("room-classroom.svg");
+  if (blob.includes("lecture")) return templateVisualPath("room-lecture.svg");
+  if (blob.includes("divisible") || blob.includes("ballroom")) return templateVisualPath("room-divisible.svg");
+  if (blob.includes("signage")) return templateVisualPath("room-signage.svg");
+  if (blob.includes("sports")) return templateVisualPath("room-sports.svg");
+  if (blob.includes("wall")) return templateVisualPath("room-feature-wall.svg");
+  if (blob.includes("simulation") || blob.includes("healthcare")) return templateVisualPath("room-simulation.svg");
+  if (blob.includes("training")) return templateVisualPath("room-training.svg");
+  if (blob.includes("control")) return templateVisualPath("room-control.svg");
 
-  return "/template-visuals/room-training.svg";
+  return templateVisualPath("room-training.svg");
 }
 
 function verticalImageFor(vertical: string) {
-  return verticalVisuals.find((item) => item.name === vertical)?.image ?? "/template-visuals/vertical-all.svg";
+  return verticalVisuals.find((item) => item.name === vertical)?.image ?? templateVisualPath("vertical-all.svg");
 }
 
 function peopleHint(template: RoomTemplate) {
