@@ -1,0 +1,175 @@
+/*
+ * Wingman sidebar compact density pass
+ * This targets the actual sidebar more broadly than WM_Menu because the live menu may use AppShell/sidebar classes.
+ */
+
+:root {
+  --wm-sidebar-item-height: 1.78rem;
+  --wm-sidebar-item-pad-y: 0.2rem;
+  --wm-sidebar-item-pad-x: 0.55rem;
+  --wm-sidebar-gap: 0.14rem;
+  --wm-sidebar-icon-size: 0.9rem;
+}
+
+/* Main sidebar containers */
+aside,
+[class*="sidebar" i],
+[class*="side-bar" i],
+[class*="sidenav" i],
+[class*="side-nav" i],
+[class*="WM_Menu"],
+[class*="wm-menu"],
+[class*="WmMenu"],
+[class*="MenuRail"],
+[class*="menuRail"] {
+  gap: var(--wm-sidebar-gap) !important;
+}
+
+/* Reduce sidebar inner padding */
+aside nav,
+aside ul,
+aside [role="navigation"],
+[class*="sidebar" i] nav,
+[class*="sidebar" i] ul,
+[class*="sidebar" i] [role="navigation"],
+[class*="side-nav" i] nav,
+[class*="side-nav" i] ul,
+[class*="sidenav" i] nav,
+[class*="sidenav" i] ul,
+[class*="WM_Menu"] nav,
+[class*="WM_Menu"] ul,
+[class*="wm-menu"] nav,
+[class*="wm-menu"] ul {
+  gap: var(--wm-sidebar-gap) !important;
+  row-gap: var(--wm-sidebar-gap) !important;
+  padding-block: 0.18rem !important;
+}
+
+/* Compact the clickable menu rows */
+aside a,
+aside button,
+aside [role="button"],
+aside [role="menuitem"],
+[class*="sidebar" i] a,
+[class*="sidebar" i] button,
+[class*="sidebar" i] [role="button"],
+[class*="sidebar" i] [role="menuitem"],
+[class*="side-nav" i] a,
+[class*="side-nav" i] button,
+[class*="sidenav" i] a,
+[class*="sidenav" i] button,
+[class*="WM_Menu"] a,
+[class*="WM_Menu"] button,
+[class*="wm-menu"] a,
+[class*="wm-menu"] button {
+  min-height: var(--wm-sidebar-item-height) !important;
+  height: auto !important;
+  padding-top: var(--wm-sidebar-item-pad-y) !important;
+  padding-bottom: var(--wm-sidebar-item-pad-y) !important;
+  padding-left: var(--wm-sidebar-item-pad-x) !important;
+  padding-right: var(--wm-sidebar-item-pad-x) !important;
+  line-height: 1.05 !important;
+}
+
+/* Remove excess list spacing */
+aside li,
+[class*="sidebar" i] li,
+[class*="side-nav" i] li,
+[class*="sidenav" i] li,
+[class*="WM_Menu"] li,
+[class*="wm-menu"] li {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Compact text inside menu rows */
+aside a span,
+aside button span,
+[class*="sidebar" i] a span,
+[class*="sidebar" i] button span,
+[class*="side-nav" i] a span,
+[class*="side-nav" i] button span,
+[class*="sidenav" i] a span,
+[class*="sidenav" i] button span,
+[class*="WM_Menu"] a span,
+[class*="WM_Menu"] button span,
+[class*="wm-menu"] a span,
+[class*="wm-menu"] button span {
+  line-height: 1.05 !important;
+}
+
+/* Compact menu icons */
+aside a svg,
+aside button svg,
+[class*="sidebar" i] a svg,
+[class*="sidebar" i] button svg,
+[class*="side-nav" i] a svg,
+[class*="side-nav" i] button svg,
+[class*="sidenav" i] a svg,
+[class*="sidenav" i] button svg,
+[class*="WM_Menu"] a svg,
+[class*="WM_Menu"] button svg,
+[class*="wm-menu"] a svg,
+[class*="wm-menu"] button svg {
+  width: var(--wm-sidebar-icon-size) !important;
+  height: var(--wm-sidebar-icon-size) !important;
+  min-width: var(--wm-sidebar-icon-size) !important;
+  min-height: var(--wm-sidebar-icon-size) !important;
+}
+
+/* Compact grouped menu sections */
+aside section,
+aside [class*="section" i],
+aside [class*="group" i],
+[class*="sidebar" i] section,
+[class*="sidebar" i] [class*="section" i],
+[class*="sidebar" i] [class*="group" i],
+[class*="side-nav" i] section,
+[class*="side-nav" i] [class*="section" i],
+[class*="sidenav" i] section,
+[class*="sidenav" i] [class*="section" i] {
+  margin-top: 0.26rem !important;
+  padding-top: 0.26rem !important;
+}
+
+/* Compact menu labels/headings */
+aside h2,
+aside h3,
+aside p,
+aside small,
+aside [class*="label" i],
+aside [class*="heading" i],
+[class*="sidebar" i] h2,
+[class*="sidebar" i] h3,
+[class*="sidebar" i] p,
+[class*="sidebar" i] small,
+[class*="sidebar" i] [class*="label" i],
+[class*="sidebar" i] [class*="heading" i],
+[class*="side-nav" i] [class*="label" i],
+[class*="sidenav" i] [class*="label" i] {
+  margin-top: 0.08rem !important;
+  margin-bottom: 0.12rem !important;
+  line-height: 1.05 !important;
+}
+
+/* Compact sidebar logo/header area without hiding the logo */
+aside header,
+aside [class*="brand" i],
+aside [class*="logo" i],
+[class*="sidebar" i] header,
+[class*="sidebar" i] [class*="brand" i],
+[class*="sidebar" i] [class*="logo" i],
+[class*="side-nav" i] header,
+[class*="sidenav" i] header {
+  padding-top: 0.25rem !important;
+  padding-bottom: 0.25rem !important;
+  margin-bottom: 0.18rem !important;
+}
+
+/* Keep logo usable but stop it forcing excessive menu height */
+aside img,
+[class*="sidebar" i] img,
+[class*="side-nav" i] img,
+[class*="sidenav" i] img {
+  max-height: 2.25rem !important;
+}

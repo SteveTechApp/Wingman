@@ -1,0 +1,109 @@
+/*
+ * WM Menu compact density pass v2
+ * Reduces menu height by tightening vertical padding, item height, icon size and section spacing.
+ */
+
+.WM_Menu,
+.wm-menu,
+[class~="WM_Menu"],
+[class~="wm-menu"] {
+  gap: 0.18rem !important;
+  padding-block: 0.22rem !important;
+}
+
+.WM_Menu nav,
+.wm-menu nav,
+.WM_Menu ul,
+.wm-menu ul,
+[class~="WM_Menu"] nav,
+[class~="wm-menu"] nav,
+[class~="WM_Menu"] ul,
+[class~="wm-menu"] ul {
+  gap: 0.16rem !important;
+}
+
+.WM_Menu a,
+.WM_Menu button,
+.wm-menu a,
+.wm-menu button,
+[class~="WM_Menu"] a,
+[class~="WM_Menu"] button,
+[class~="wm-menu"] a,
+[class~="wm-menu"] button {
+  min-height: 1.82rem !important;
+  padding-block: 0.24rem !important;
+  padding-inline: 0.58rem !important;
+  line-height: 1.08 !important;
+}
+
+.WM_Menu li,
+.wm-menu li,
+[class~="WM_Menu"] li,
+[class~="wm-menu"] li {
+  margin-block: 0 !important;
+}
+
+.WM_Menu svg,
+.wm-menu svg,
+[class~="WM_Menu"] svg,
+[class~="wm-menu"] svg {
+  width: 0.92rem !important;
+  height: 0.92rem !important;
+  flex-shrink: 0;
+}
+
+.WM_Menu img,
+.wm-menu img,
+[class~="WM_Menu"] img,
+[class~="wm-menu"] img {
+  max-height: 2.15rem !important;
+}
+
+.WM_Menu header,
+.wm-menu header,
+.WM_Menu .menu-header,
+.WM_Menu .wm-menu-header,
+.wm-menu .menu-header,
+.wm-menu .wm-menu-header,
+[class~="WM_Menu"] header,
+[class~="wm-menu"] header,
+[class~="WM_Menu"] .menu-header,
+[class~="WM_Menu"] .wm-menu-header,
+[class~="wm-menu"] .menu-header,
+[class~="wm-menu"] .wm-menu-header {
+  padding-block: 0.28rem !important;
+  margin-bottom: 0.2rem !important;
+}
+
+.WM_Menu .menu-section,
+.WM_Menu .wm-menu-section,
+.wm-menu .menu-section,
+.wm-menu .wm-menu-section,
+[class~="WM_Menu"] .menu-section,
+[class~="WM_Menu"] .wm-menu-section,
+[class~="wm-menu"] .menu-section,
+[class~="wm-menu"] .wm-menu-section {
+  margin-top: 0.3rem !important;
+  padding-top: 0.32rem !important;
+}
+
+.WM_Menu .menu-label,
+.WM_Menu .wm-menu-label,
+.wm-menu .menu-label,
+.wm-menu .wm-menu-label,
+[class~="WM_Menu"] .menu-label,
+[class~="WM_Menu"] .wm-menu-label,
+[class~="wm-menu"] .menu-label,
+[class~="wm-menu"] .wm-menu-label {
+  margin-bottom: 0.16rem !important;
+  font-size: 0.62rem !important;
+  line-height: 1 !important;
+  letter-spacing: 0.04em !important;
+}
+
+.WM_Menu span,
+.wm-menu span,
+[class~="WM_Menu"] span,
+[class~="wm-menu"] span {
+  line-height: 1.08 !important;
+}
