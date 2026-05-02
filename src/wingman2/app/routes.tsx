@@ -8,6 +8,7 @@ import { DashboardPage } from "../pages/DashboardPage";
 import { DiscoveryPage } from "../pages/DiscoveryPage";
 import { FinderPage } from "../pages/FinderPage";
 import { IngestPage } from "../pages/IngestPage";
+import { ProductPitchPage } from "../pages/ProductPitchPage";
 import { ProjectDetailPage } from "../pages/ProjectDetailPage";
 import { ProjectsPage } from "../pages/ProjectsPage";
 import { ProposalPage } from "../pages/ProposalPage";
@@ -22,6 +23,7 @@ const pageRegistry: Record<WingmanRouteKey, ComponentType> = {
   projects: ProjectsPage,
   discovery: DiscoveryPage,
   finder: FinderPage,
+  productPitch: ProductPitchPage,
   compare: ComparePage,
   templates: TemplatesPage,
   videowall: VideowallBuilderPage,
