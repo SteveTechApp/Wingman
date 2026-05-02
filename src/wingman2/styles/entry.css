@@ -2491,7 +2491,7 @@ textarea {
 }
 
 .wm-callcard-action-card::after {
-  content: "Ã¢â€ â€™" !important;
+  content: "• '" !important;
   position: absolute !important;
   right: 14px !important;
   top: 12px !important;
@@ -3092,3 +3092,1062 @@ textarea {
   }
 }
 /* VISUAL-TEMPLATES-LANDING-END */
+
+/* WORKFLOW-CLARITY-PASS-START */
+.wingman-page-hero-simple {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-areas:
+    "copy actions"
+    "context context" !important;
+  align-items: start !important;
+  gap: 12px 18px !important;
+  margin-bottom: 16px !important;
+  padding: clamp(16px, 1.8vw, 22px) !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(135deg, rgba(12, 31, 49, 0.98), rgba(7, 18, 31, 0.98)) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24) !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-copy {
+  grid-area: copy !important;
+  max-width: 920px !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-copy .wingman-display {
+  margin-top: 6px !important;
+  max-width: 900px !important;
+  font-size: clamp(1.55rem, 2.6vw, 2.75rem) !important;
+  line-height: 1.04 !important;
+  letter-spacing: 0 !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-actions {
+  grid-area: actions !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-top: 0 !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-action {
+  min-height: 38px !important;
+  border-radius: 10px !important;
+  padding: 0 12px !important;
+  text-align: left !important;
+  box-shadow: none !important;
+  letter-spacing: 0 !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-action::before {
+  display: none !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-action:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: none !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-action-primary {
+  border: 1px solid rgba(255, 216, 160, 0.44) !important;
+  background: #f6a340 !important;
+  color: #1b1205 !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-action-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--wm-text) !important;
+}
+
+.wingman-hero-context {
+  grid-area: context !important;
+  max-width: 980px !important;
+  color: var(--wm-text-soft) !important;
+}
+
+.wingman-hero-context > summary {
+  width: max-content !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  color: var(--wm-text-muted) !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  list-style: none !important;
+  cursor: pointer !important;
+}
+
+.wingman-hero-context > summary::-webkit-details-marker {
+  display: none !important;
+}
+
+.wingman-hero-context[open] > summary {
+  color: #ffd38a !important;
+}
+
+.wingman-hero-context > div {
+  display: grid !important;
+  gap: 6px !important;
+  margin-top: 9px !important;
+  padding-top: 10px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.wingman-hero-context p {
+  max-width: 900px !important;
+  margin: 0 !important;
+  color: var(--wm-text-soft) !important;
+  font-size: 0.86rem !important;
+  line-height: 1.45 !important;
+}
+
+.wingman-section-card {
+  border-radius: 14px !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08) !important;
+}
+
+.wingman-section-card-header {
+  align-items: center !important;
+  padding: 13px 16px !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.24) !important;
+  background: #ffffff !important;
+}
+
+.wingman-section-card-title-row {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 5px !important;
+}
+
+.wingman-section-card-header h2 {
+  margin: 0 !important;
+  color: var(--wm-ink) !important;
+  font-size: clamp(1.02rem, 1.2vw, 1.24rem) !important;
+  line-height: 1.18 !important;
+  letter-spacing: 0 !important;
+}
+
+.wingman-section-context {
+  color: var(--wm-ink-muted) !important;
+}
+
+.wingman-section-context > summary {
+  width: max-content !important;
+  color: var(--wm-ink-muted) !important;
+  font-size: 0.76rem !important;
+  font-weight: 800 !important;
+  list-style: none !important;
+  cursor: pointer !important;
+}
+
+.wingman-section-context > summary::-webkit-details-marker {
+  display: none !important;
+}
+
+.wingman-section-context[open] > summary {
+  color: #b45309 !important;
+}
+
+.wingman-section-context p {
+  display: block !important;
+  max-width: 760px !important;
+  margin: 5px 0 0 !important;
+  color: var(--wm-ink-muted) !important;
+  font-size: 0.82rem !important;
+  line-height: 1.45 !important;
+}
+
+.wingman-section-card-body {
+  padding: 16px !important;
+}
+
+.wm-inline-help {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.wm-inline-help > summary {
+  width: 24px !important;
+  height: 24px !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 1px solid rgba(148, 163, 184, 0.38) !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  color: #64748b !important;
+  list-style: none !important;
+  cursor: pointer !important;
+}
+
+.wm-inline-help > summary::-webkit-details-marker {
+  display: none !important;
+}
+
+.wm-inline-help[open] > summary {
+  border-color: rgba(246, 163, 64, 0.62) !important;
+  color: #b45309 !important;
+}
+
+.wm-inline-help p {
+  position: absolute !important;
+  top: calc(100% + 8px) !important;
+  left: 0 !important;
+  z-index: 90 !important;
+  width: min(360px, 78vw) !important;
+  margin: 0 !important;
+  border: 1px solid rgba(148, 163, 184, 0.36) !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  padding: 10px 12px !important;
+  font-size: 0.8rem !important;
+  line-height: 1.42 !important;
+  box-shadow: 0 18px 46px rgba(15, 23, 42, 0.18) !important;
+}
+
+.wm-question-focus {
+  background: #f0f7ff !important;
+  box-shadow: inset 4px 0 0 #78a9ff !important;
+}
+
+.wm-question-reasoning {
+  margin-top: 10px !important;
+}
+
+.wm-question-reasoning > summary {
+  width: max-content !important;
+  color: #2563eb !important;
+  font-size: 0.78rem !important;
+  font-weight: 850 !important;
+  list-style: none !important;
+  cursor: pointer !important;
+}
+
+.wm-question-reasoning > summary::-webkit-details-marker {
+  display: none !important;
+}
+
+.wm-question-reasoning > div {
+  display: grid !important;
+  gap: 7px !important;
+  margin-top: 8px !important;
+  border-top: 1px solid rgba(37, 99, 235, 0.16) !important;
+  padding-top: 9px !important;
+}
+
+.wm-question-reasoning p {
+  margin: 0 !important;
+  color: #334155 !important;
+  font-size: 0.84rem !important;
+  line-height: 1.45 !important;
+}
+
+.wm-discovery-workflow {
+  align-items: start !important;
+}
+
+.wm-workflow-rail,
+.wm-workflow-main,
+.wm-workflow-insight > div,
+.wm-finder-quickstart {
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+.wm-workflow-main {
+  border-color: rgba(100, 116, 139, 0.42) !important;
+  box-shadow: inset 4px 0 0 #f6a340 !important;
+}
+
+.wm-workflow-rail {
+  position: sticky !important;
+  top: 14px !important;
+}
+
+.wm-workflow-rail .space-y-2 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 7px !important;
+}
+
+.wm-workflow-rail button {
+  min-height: 42px !important;
+  border-radius: 10px !important;
+  padding: 8px 10px !important;
+}
+
+.wm-dashboard-simple {
+  display: grid !important;
+  gap: 16px !important;
+}
+
+.wm-dashboard-action-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.wm-dashboard-action-card {
+  min-height: 96px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 14px !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease !important;
+}
+
+.wm-dashboard-action-card:hover {
+  transform: translateY(-1px) !important;
+  border-color: rgba(246, 163, 64, 0.5) !important;
+  background: #fffaf2 !important;
+}
+
+.wm-dashboard-action-card strong,
+.wm-dashboard-action-card span {
+  display: block !important;
+}
+
+.wm-dashboard-action-card strong {
+  color: #0f172a !important;
+  font-size: 0.98rem !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+}
+
+.wm-dashboard-action-card span:not(.wm-dashboard-action-icon) {
+  margin-top: 5px !important;
+  color: #64748b !important;
+  font-size: 0.84rem !important;
+  line-height: 1.35 !important;
+}
+
+.wm-dashboard-action-icon {
+  width: 36px !important;
+  height: 36px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 10px !important;
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+.wm-finder-quickstart {
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  background: #ffffff !important;
+}
+
+.wm-finder-quickstart .text-amber-950 {
+  color: #0f172a !important;
+}
+
+@media (min-width: 1024px) {
+  .wingman-guru-fab {
+    right: auto !important;
+    bottom: 18px !important;
+    left: 18px !important;
+    width: 58px !important;
+    height: 58px !important;
+    opacity: 0.88 !important;
+  }
+
+  .wingman-guru-fab:hover {
+    opacity: 1 !important;
+  }
+
+  .wingman-guru-fab-image {
+    width: 58px !important;
+    height: 58px !important;
+    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.24)) !important;
+  }
+}
+
+@media (max-width: 960px) {
+  .wingman-page-hero-simple {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "copy"
+      "actions"
+      "context" !important;
+  }
+
+  .wingman-page-hero-simple .wingman-hero-actions {
+    justify-content: flex-start !important;
+  }
+
+  .wm-workflow-rail {
+    position: static !important;
+    order: 2 !important;
+  }
+
+  .wm-workflow-main {
+    order: 1 !important;
+  }
+
+  .wm-workflow-insight {
+    order: 3 !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .wingman-page-hero-simple .wingman-hero-actions,
+  .wingman-page-hero-simple .wingman-hero-action {
+    width: 100% !important;
+  }
+
+  .wingman-page-hero-simple .wingman-hero-action {
+    justify-content: space-between !important;
+  }
+
+  .wingman-section-card-header {
+    align-items: flex-start !important;
+  }
+
+  .wingman-guru-fab {
+    right: 12px !important;
+    bottom: 12px !important;
+    left: auto !important;
+    width: 54px !important;
+    height: 54px !important;
+  }
+
+  .wingman-guru-fab-image {
+    width: 54px !important;
+    height: 54px !important;
+    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.26)) !important;
+  }
+}
+/* WORKFLOW-CLARITY-PASS-END */
+
+/* NEW-WINGMAN-DESIGN-PASS-START */
+:root {
+  --wm-design-bg: #050d18;
+  --wm-design-bg-2: #091827;
+  --wm-design-panel: #09182a;
+  --wm-design-panel-2: #102238;
+  --wm-design-line: rgba(132, 163, 207, 0.34);
+  --wm-design-line-strong: rgba(148, 180, 226, 0.52);
+  --wm-design-accent: #ffa736;
+  --wm-design-accent-2: #ffc15f;
+  --wm-design-blue: #52b8ff;
+  --wm-design-surface: #f8fafc;
+  --wm-design-card: #ffffff;
+  --wm-design-muted: #627186;
+  --wm-design-ink: #0c1728;
+  --wm-design-radius: 18px;
+  --wm-design-radius-lg: 22px;
+  --wm-design-shadow: 0 22px 56px rgba(5, 13, 24, 0.26);
+  --wm-design-shell-shadow: 0 26px 80px rgba(0, 0, 0, 0.34);
+  --wm-sidebar-width: 252px;
+  --wm-topbar-height: 72px;
+}
+
+.wingman-shell,
+.wingman-shell * {
+  letter-spacing: 0 !important;
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(82, 184, 255, 0.17), transparent 28rem),
+    linear-gradient(145deg, #020814 0%, var(--wm-design-bg) 48%, var(--wm-design-bg-2) 100%) !important;
+}
+
+.wingman-shell {
+  background:
+    radial-gradient(circle at 58% -6%, rgba(82, 184, 255, 0.2), transparent 30rem),
+    radial-gradient(circle at 100% 36%, rgba(255, 167, 54, 0.08), transparent 24rem),
+    linear-gradient(145deg, #020814 0%, var(--wm-design-bg) 46%, #071423 100%) !important;
+}
+
+.wingman-sidebar {
+  width: var(--wm-sidebar-width) !important;
+  padding: 22px 18px 88px !important;
+  border-right: 1px solid rgba(132, 163, 207, 0.26) !important;
+  background:
+    linear-gradient(180deg, rgba(7, 18, 31, 0.98), rgba(4, 12, 22, 0.99)) !important;
+  box-shadow: 18px 0 54px rgba(0, 0, 0, 0.32) !important;
+}
+
+.wingman-workspace {
+  margin-left: var(--wm-sidebar-width) !important;
+  grid-template-rows: var(--wm-topbar-height) minmax(0, 1fr) !important;
+}
+
+.wingman-topbar {
+  height: var(--wm-topbar-height) !important;
+  padding: 0 clamp(18px, 2.1vw, 34px) !important;
+  border-bottom: 1px solid rgba(132, 163, 207, 0.22) !important;
+  background: rgba(3, 11, 21, 0.46) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+.wingman-topbar-title p {
+  color: #ffffff !important;
+  font-size: 1.02rem !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+}
+
+.wingman-topbar-title span {
+  margin-top: 4px !important;
+  color: rgba(214, 226, 244, 0.78) !important;
+  font-size: 0.8rem !important;
+}
+
+.wingman-clear-project-button {
+  min-height: 44px !important;
+  border-color: rgba(132, 163, 207, 0.32) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  color: #f7fbff !important;
+  padding: 0 16px !important;
+  font-size: 0.8rem !important;
+  font-weight: 850 !important;
+}
+
+.wingman-app-main {
+  padding: 20px clamp(18px, 2.4vw, 36px) 34px !important;
+}
+
+.wingman-page-host {
+  max-width: 1210px !important;
+}
+
+.wingman-brand-logo-only {
+  min-height: 90px !important;
+  margin-bottom: 18px !important;
+  padding: 6px 0 10px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.wingman-brand-image {
+  width: 196px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 0 18px rgba(82, 184, 255, 0.24)) !important;
+}
+
+.wingman-nav {
+  gap: 8px !important;
+}
+
+.wingman-nav-link {
+  min-height: 46px !important;
+  grid-template-columns: 22px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  border-radius: 12px !important;
+  border-color: transparent !important;
+  color: rgba(231, 239, 250, 0.88) !important;
+  padding: 10px 12px !important;
+  background: transparent !important;
+}
+
+.wingman-nav-link:hover {
+  transform: translateX(1px) !important;
+  border-color: rgba(132, 163, 207, 0.24) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.wingman-nav-link-active {
+  border-color: rgba(255, 167, 54, 0.58) !important;
+  color: #ffffff !important;
+  background:
+    linear-gradient(135deg, rgba(255, 167, 54, 0.2), rgba(255, 255, 255, 0.065)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 10px 28px rgba(0, 0, 0, 0.26) !important;
+}
+
+.wingman-nav-icon {
+  width: 18px !important;
+  height: 18px !important;
+  color: currentColor !important;
+}
+
+.wingman-nav-copy span {
+  font-size: 0.82rem !important;
+  font-weight: 850 !important;
+  line-height: 1.2 !important;
+}
+
+.wingman-panel {
+  border-color: var(--wm-design-line) !important;
+  background:
+    radial-gradient(circle at 63% -8%, rgba(82, 184, 255, 0.18), transparent 24rem),
+    linear-gradient(145deg, rgba(12, 31, 51, 0.96), rgba(5, 14, 26, 0.98)) !important;
+  box-shadow: var(--wm-design-shell-shadow) !important;
+}
+
+.wingman-page-hero-simple {
+  position: relative !important;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 336px) !important;
+  grid-template-areas:
+    "copy actions"
+    "context actions" !important;
+  gap: 18px 30px !important;
+  align-items: center !important;
+  min-height: 244px !important;
+  margin-bottom: 18px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--wm-design-line-strong) !important;
+  border-radius: var(--wm-design-radius-lg) !important;
+  padding: clamp(28px, 3vw, 42px) !important;
+  background:
+    radial-gradient(circle at 42% 0%, rgba(82, 184, 255, 0.24), transparent 19rem),
+    linear-gradient(140deg, rgba(8, 31, 55, 0.98), rgba(5, 15, 29, 0.98) 66%, rgba(9, 20, 35, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 22px 58px rgba(0, 0, 0, 0.3) !important;
+}
+
+.wingman-page-hero-simple::before,
+.wingman-page-hero-simple::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  pointer-events: none !important;
+  background: linear-gradient(90deg, transparent, rgba(82, 184, 255, 0.95), transparent) !important;
+  box-shadow: 0 0 18px rgba(82, 184, 255, 0.88) !important;
+}
+
+.wingman-page-hero-simple::before {
+  top: 0 !important;
+}
+
+.wingman-page-hero-simple::after {
+  bottom: 0 !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-copy {
+  align-self: end !important;
+  max-width: 780px !important;
+}
+
+.wingman-page-hero-simple .wingman-kicker {
+  color: rgba(221, 233, 250, 0.86) !important;
+  font-size: 0.76rem !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+  text-transform: uppercase !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-copy .wingman-display {
+  max-width: 780px !important;
+  margin-top: 12px !important;
+  color: #ffffff !important;
+  font-size: clamp(2.18rem, 3.45vw, 2.98rem) !important;
+  font-weight: 950 !important;
+  line-height: 1.06 !important;
+  text-wrap: balance !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-actions {
+  align-self: center !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  justify-content: stretch !important;
+  gap: 16px !important;
+  margin: 0 !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-action {
+  min-height: 74px !important;
+  width: 100% !important;
+  justify-content: space-between !important;
+  border-radius: 14px !important;
+  padding: 0 24px !important;
+  font-size: 1.04rem !important;
+  font-weight: 950 !important;
+  text-decoration: none !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24) !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-action::before {
+  display: none !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-action svg {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-action:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.31) !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-action-primary {
+  border-color: rgba(255, 207, 133, 0.62) !important;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(255, 255, 255, 0.42), transparent 42%),
+    linear-gradient(135deg, var(--wm-design-accent-2), var(--wm-design-accent) 58%, #f59e0b) !important;
+  color: #0f1115 !important;
+}
+
+.wingman-page-hero-simple .wingman-hero-action-secondary {
+  border-color: rgba(160, 185, 224, 0.42) !important;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(82, 184, 255, 0.14), transparent 42%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04)) !important;
+  color: #ffffff !important;
+}
+
+.wingman-hero-context {
+  align-self: start !important;
+  max-width: 760px !important;
+  margin-top: -2px !important;
+}
+
+.wingman-hero-context > summary {
+  gap: 8px !important;
+  color: rgba(210, 225, 246, 0.78) !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+}
+
+.wingman-hero-context > div {
+  max-width: 760px !important;
+  border-top-color: rgba(148, 180, 226, 0.22) !important;
+}
+
+.wingman-hero-context p {
+  color: rgba(221, 233, 250, 0.82) !important;
+  font-size: 0.9rem !important;
+  line-height: 1.52 !important;
+}
+
+.wingman-surface,
+.wingman-section-card {
+  border: 1px solid rgba(155, 169, 190, 0.38) !important;
+  border-radius: var(--wm-design-radius-lg) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(246, 249, 252, 0.99)) !important;
+  box-shadow: var(--wm-design-shadow) !important;
+}
+
+.wingman-section-card {
+  overflow: hidden !important;
+}
+
+.wingman-section-card-header {
+  align-items: center !important;
+  min-height: 70px !important;
+  padding: 18px 24px 12px !important;
+  border-bottom: 0 !important;
+  background: transparent !important;
+}
+
+.wingman-section-card-title-row {
+  gap: 6px !important;
+}
+
+.wingman-section-card-header h2 {
+  color: var(--wm-design-ink) !important;
+  font-size: clamp(1.32rem, 1.7vw, 1.62rem) !important;
+  font-weight: 950 !important;
+  line-height: 1.14 !important;
+}
+
+.wingman-section-context > summary {
+  color: #516072 !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+}
+
+.wingman-section-context p {
+  color: var(--wm-design-muted) !important;
+  font-size: 0.88rem !important;
+  line-height: 1.48 !important;
+}
+
+.wingman-section-card-body {
+  padding: 0 24px 24px !important;
+}
+
+.wm-dashboard-simple {
+  gap: 18px !important;
+}
+
+.wm-dashboard-action-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.wm-dashboard-action-card {
+  position: relative !important;
+  min-height: 216px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(155, 169, 190, 0.42) !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg, #ffffff, #f9fbfd) !important;
+  color: var(--wm-design-ink) !important;
+  padding: 22px !important;
+  text-align: left !important;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08) !important;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease !important;
+}
+
+.wm-dashboard-action-card:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(255, 167, 54, 0.62) !important;
+  background:
+    linear-gradient(180deg, #ffffff, #fff8ed) !important;
+  box-shadow: 0 20px 44px rgba(15, 23, 42, 0.14) !important;
+}
+
+.wm-dashboard-action-icon {
+  width: 58px !important;
+  height: 58px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle at 32% 20%, rgba(255, 255, 255, 0.92), rgba(210, 233, 255, 0.9)) !important;
+  color: #0c1728 !important;
+  box-shadow: 0 10px 24px rgba(82, 184, 255, 0.2) !important;
+}
+
+.wm-dashboard-action-copy {
+  display: block !important;
+  margin-top: 18px !important;
+  color: var(--wm-design-ink) !important;
+}
+
+.wm-dashboard-action-copy strong {
+  display: block !important;
+  color: var(--wm-design-ink) !important;
+  font-size: 1.03rem !important;
+  font-weight: 950 !important;
+  line-height: 1.22 !important;
+}
+
+.wm-dashboard-action-copy > span {
+  display: block !important;
+  margin-top: 9px !important;
+  color: #3e4d61 !important;
+  font-size: 0.91rem !important;
+  line-height: 1.44 !important;
+}
+
+.wm-dashboard-action-arrow {
+  width: 42px !important;
+  height: 42px !important;
+  display: grid !important;
+  place-items: center !important;
+  align-self: flex-end !important;
+  margin-top: auto !important;
+  border-radius: 999px !important;
+  background: #edf2f7 !important;
+  color: #0c1728 !important;
+}
+
+.wm-dashboard-action-card:hover .wm-dashboard-action-arrow {
+  background: var(--wm-design-accent) !important;
+}
+
+.wm-workflow-rail,
+.wm-workflow-main,
+.wm-workflow-insight > div,
+.wm-finder-quickstart,
+.wm-summary-card,
+.wm-review-notes,
+.wm-shortlist,
+.wm-swot-block,
+.wm-evidence,
+.wm-empty-state {
+  border-radius: var(--wm-design-radius) !important;
+  border-color: rgba(155, 169, 190, 0.36) !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07) !important;
+}
+
+.wm-workflow-main {
+  box-shadow:
+    inset 4px 0 0 var(--wm-design-accent),
+    0 12px 32px rgba(15, 23, 42, 0.08) !important;
+}
+
+.wingman-page-host :where(input, select, textarea) {
+  min-height: 42px !important;
+  border-radius: 12px !important;
+  border-color: rgba(155, 169, 190, 0.46) !important;
+  color: var(--wm-design-ink) !important;
+  background: #ffffff !important;
+}
+
+.wingman-page-host :where(input, select, textarea):focus {
+  border-color: rgba(255, 167, 54, 0.82) !important;
+  box-shadow:
+    0 0 0 4px rgba(255, 167, 54, 0.15),
+    inset 0 1px 0 rgba(15, 23, 42, 0.04) !important;
+}
+
+.wingman-page-host :where(.rounded-3xl) {
+  border-radius: var(--wm-design-radius-lg) !important;
+}
+
+.wingman-page-host :where(.rounded-2xl, .rounded-xl) {
+  border-radius: var(--wm-design-radius) !important;
+}
+
+.wingman-page-host :where(.bg-white, .bg-slate-50, .bg-gray-50) {
+  background: #ffffff !important;
+}
+
+.wingman-page-host :where(.bg-slate-100, .bg-gray-100) {
+  background: #eef3f8 !important;
+}
+
+.wingman-page-host :where(.border-slate-200, .border-gray-200) {
+  border-color: rgba(155, 169, 190, 0.38) !important;
+}
+
+.wingman-page-host :where(.text-xs.uppercase.tracking-\[0\.18em\], .text-xs.uppercase.tracking-\[0\.16em\], .text-xs.uppercase.tracking-\[0\.14em\]) {
+  letter-spacing: 0 !important;
+}
+
+.wingman-page-host :where(button, a) {
+  font-weight: 850 !important;
+}
+
+.wingman-page-host :where(button:not(.wingman-hero-action):not(.wingman-nav-link):not(.wm-dashboard-action-card), a:not(.wingman-hero-action):not(.wingman-nav-link):not(.wm-dashboard-action-card)) {
+  border-radius: 12px;
+}
+
+.wm-small-link,
+.wm-compare-form button,
+.wingman-page-host :where(.bg-slate-900, .bg-slate-950) {
+  border-radius: 12px !important;
+}
+
+.wm-compare-form button,
+.wingman-page-host :where(.bg-slate-900, .bg-slate-950) {
+  background: #0b1728 !important;
+}
+
+.wingman-guru-fab {
+  border-radius: 999px !important;
+}
+
+@media (max-width: 1240px) {
+  .wm-dashboard-action-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .wingman-sidebar {
+    transform: translateX(-105%);
+  }
+
+  .wingman-sidebar[data-mobile-open="true"] {
+    transform: translateX(0);
+  }
+
+  .wingman-workspace {
+    margin-left: 0 !important;
+  }
+
+  .wingman-clear-project-button {
+    width: 44px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+  }
+
+  .wingman-clear-project-button svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+}
+
+@media (max-width: 960px) {
+  .wingman-page-hero-simple {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "copy"
+      "actions"
+      "context" !important;
+    min-height: 0 !important;
+    padding: 26px !important;
+  }
+
+  .wingman-page-hero-simple .wingman-hero-copy,
+  .wingman-page-hero-simple .wingman-hero-context {
+    max-width: none !important;
+  }
+
+  .wingman-page-hero-simple .wingman-hero-actions {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .wingman-app-main {
+    padding: 14px 12px 24px !important;
+  }
+
+  .wingman-page-hero-simple {
+    border-radius: 18px !important;
+    padding: 22px !important;
+  }
+
+  .wingman-page-hero-simple .wingman-hero-copy .wingman-display {
+    font-size: 2.02rem !important;
+  }
+
+  .wingman-page-hero-simple .wingman-hero-action {
+    min-height: 66px !important;
+    padding: 0 18px !important;
+    font-size: 0.98rem !important;
+  }
+
+  .wingman-section-card-header {
+    min-height: 0 !important;
+    padding: 18px 18px 10px !important;
+  }
+
+  .wingman-section-card-body {
+    padding: 0 18px 18px !important;
+  }
+
+  .wm-dashboard-action-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-dashboard-action-card {
+    min-height: 184px !important;
+  }
+}
+/* NEW-WINGMAN-DESIGN-PASS-END */

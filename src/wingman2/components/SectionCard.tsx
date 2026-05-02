@@ -11,10 +11,17 @@ export function SectionCard({ title, subtitle, children, rightSlot }: SectionCar
   return (
     <section className="wingman-section-card wingman-surface">
       <header className="wingman-section-card-header">
-        <div>
-          <p className="wingman-kicker">Wingman workspace</p>
-          <h2>{title}</h2>
-          {subtitle ? <p>{subtitle}</p> : null}
+        <div className="wingman-section-card-title-row">
+          <div>
+            <h2>{title}</h2>
+          </div>
+
+          {subtitle ? (
+            <details className="wingman-section-context">
+              <summary>Context</summary>
+              <p>{subtitle}</p>
+            </details>
+          ) : null}
         </div>
 
         {rightSlot ? <div className="wingman-section-card-actions">{rightSlot}</div> : null}

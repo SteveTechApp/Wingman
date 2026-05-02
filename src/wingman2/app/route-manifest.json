@@ -36,6 +36,15 @@
     "summary": "Match the brief to the right WyreStorm direction."
   },
   {
+    "key": "productFamilies",
+    "path": "/wingman/product-families",
+    "segment": "product-families",
+    "label": "Product Families",
+    "navLabel": "Product Families",
+    "pageFile": "ProductFamilyPage.tsx",
+    "summary": "Explain each WyreStorm product family in practical sales language."
+  },
+  {
     "key": "productPitch",
     "path": "/wingman/product-pitch",
     "segment": "product-pitch",
@@ -48,10 +57,10 @@
     "key": "compare",
     "path": "/wingman/compare",
     "segment": "compare",
-    "label": "Competitor Compare",
-    "navLabel": "Competitor Compare",
+    "label": "Competitor Product Check",
+    "navLabel": "Competitor Product Check",
     "pageFile": "ComparePage.tsx",
-    "summary": "Replace competitor SKUs with a clear WyreStorm answer."
+    "summary": "Understand the competitor product and position a credible WyreStorm option."
   },
   {
     "key": "templates",
@@ -75,8 +84,8 @@
     "key": "salesHelper",
     "path": "/wingman/sales-helper",
     "segment": "sales-helper",
-    "label": "Sales Helper",
-    "navLabel": "Sales Helper",
+    "label": "Sales Strategy",
+    "navLabel": "Sales Strategy",
     "pageFile": "SalesHelperPage.tsx",
     "summary": "Turn technical findings into rep-friendly positioning."
   },
@@ -84,8 +93,8 @@
     "key": "callCards",
     "path": "/wingman/call-cards",
     "segment": "call-cards",
-    "label": "Call Cards",
-    "navLabel": "Call Cards",
+    "label": "Live Call Cards",
+    "navLabel": "Live Call Cards",
     "pageFile": "CallCardsPage.tsx",
     "summary": "Give reps live-call prompts for common AV conversations."
   },

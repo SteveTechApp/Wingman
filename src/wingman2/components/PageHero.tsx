@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type PageHeroAction = {
@@ -25,16 +25,10 @@ function actionClass(variant: PageHeroAction["variant"]) {
 
 export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHeroProps) {
   return (
-    <section className="wingman-page-hero wingman-panel wingman-grid">
+    <section className="wingman-page-hero wingman-panel wingman-page-hero-simple">
       <div className="wingman-hero-copy">
         <p className="wingman-kicker">{eyebrow}</p>
         <h1 className="wingman-display">{title}</h1>
-        <p className="wingman-hero-purpose">{purpose}</p>
-      </div>
-
-      <div className="wingman-hero-next">
-        <span>Next move</span>
-        <p>{nextMove}</p>
       </div>
 
       {actions?.length ? (
@@ -42,8 +36,8 @@ export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHer
           {actions.map((action) =>
             action.to ? (
               <Link key={action.label} to={action.to} className={actionClass(action.variant)}>
-                {action.label}
-                <ArrowRight className="h-4 w-4" />
+                <span>{action.label}</span>
+                <ArrowRight className="h-5 w-5" />
               </Link>
             ) : (
               <button
@@ -52,13 +46,25 @@ export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHer
                 onClick={action.onClick}
                 className={actionClass(action.variant)}
               >
-                {action.label}
-                <ArrowRight className="h-4 w-4" />
+                <span>{action.label}</span>
+                <ArrowRight className="h-5 w-5" />
               </button>
             ),
           )}
         </div>
       ) : null}
+
+      <details className="wingman-hero-context">
+        <summary>
+          <Info className="h-4 w-4" />
+          <span>Context</span>
+        </summary>
+
+        <div>
+          <p>{purpose}</p>
+          <p>{nextMove}</p>
+        </div>
+      </details>
     </section>
   );
 }

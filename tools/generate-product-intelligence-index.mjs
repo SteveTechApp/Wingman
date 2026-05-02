@@ -1,4 +1,4 @@
-﻿import fs from "node:fs/promises";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -30,6 +30,7 @@ async function readJsonFile(filePath) {
 
 function ensureArrayPayload(value) {
   if (Array.isArray(value)) return value;
+
   if (value && typeof value === "object") {
     if (Array.isArray(value.records)) return value.records;
     if (Array.isArray(value.products)) return value.products;
@@ -37,12 +38,232 @@ function ensureArrayPayload(value) {
     if (Array.isArray(value.catalog)) return value.catalog;
     if (Array.isArray(value.data)) return value.data;
   }
+
   return [];
 }
 
 function asString(value) {
   if (value === null || value === undefined) return "";
   return String(value).trim();
+}
+
+function asArray(value) {
+  if (!Array.isArray(value)) return [];
+  return value.map(asString).filter(Boolean);
+}
+
+function unique(values) {
+  return Array.from(new Set(values.map(asString).filter(Boolean)));
+}
+
+function cleanText(value) {
+  return asString(value)
+    .replace(/&amp;/gi, "&")
+    .replace(/&#x2122;|&#8482;|&trade;/gi, " TM ")
+    .replace(/&#x00ae;|&#174;|&reg;/gi, " R ")
+    .replace(/&#x2013;|&#8211;|&ndash;/gi, "-")
+    .replace(/&#x2014;|&#8212;|&mdash;/gi, "-")
+    .replace(/&#x2018;|&#8216;|&lsquo;/gi, "'")
+    .replace(/&#x2019;|&#8217;|&rsquo;/gi, "'")
+    .replace(/&#x201c;|&#8220;|&ldquo;/gi, '"')
+    .replace(/&#x201d;|&#8221;|&rdquo;/gi, '"')
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normaliseText(value) {
+  return cleanText(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function textIncludesAny(text, terms) {
+  const normalised = normaliseText(text);
+  return terms.some((term) => normalised.includes(normaliseText(term)));
+}
+
+function buildTextBlob(product) {
+  return [
+    product.sku,
+    product.name,
+    product.title,
+    product.description,
+    product.summary,
+    product.category,
+    product.family,
+    ...(Array.isArray(product.tags) ? product.tags : []),
+    ...(Array.isArray(product.technologies) ? product.technologies : []),
+    ...(Array.isArray(product.connectors) ? product.connectors : []),
+    ...(Array.isArray(product.features) ? product.features : []),
+    ...(Array.isArray(product.applications) ? product.applications : []),
+  ].map(asString).join(" ");
+}
+
+function classifyFamily(product, text) {
+  const sku = asString(product.sku).toUpperCase();
+
+  if (sku.startsWith("NHD-")) {
+    if (sku.includes("600") || text.includes("networkhd 600")) return "NetworkHD 600";
+    if (sku.includes("500") || sku.includes("510") || sku === "NHD-0401-MV" || text.includes("networkhd 500")) return "NetworkHD 500";
+    if (sku.includes("120") || sku.includes("124") || sku.includes("128") || sku.includes("150") || text.includes("networkhd 100")) return "NetworkHD 100";
+    return "NetworkHD";
+  }
+
+  if (sku.startsWith("SW-") || sku.startsWith("MX-")) return "Switching / Matrix";
+  if (sku.startsWith("EX-") || sku.startsWith("RX-") || sku.startsWith("TX-") || sku.startsWith("SWX-")) return "Extension";
+  if (sku.startsWith("APO-") || sku.startsWith("HALO-") || sku.startsWith("CAM-") || sku.startsWith("COM-")) return "UC / Conferencing";
+  if (sku.startsWith("CAB-") || sku.startsWith("EXP-CAB") || sku.startsWith("EXP-8K") || sku.startsWith("EXP-4K")) return "Cables";
+  if (sku.startsWith("SYN-")) return "Control";
+  if (sku.startsWith("AMP-")) return "Audio";
+
+  return asString(product.family) || asString(product.category) || "WyreStorm";
+}
+
+function classifyProductGranularity(product) {
+  const sku = asString(product.sku).toUpperCase();
+  const text = normaliseText(buildTextBlob(product));
+  const rawCategory = asString(product.category);
+  const primarySystemFamily = classifyFamily(product, text);
+
+  if (sku === "APO-DG2" || sku === "APO-DG2-PRO") {
+    return {
+      commercialRole: "workflow-endpoint",
+      finderVisibility: "conditional-default",
+      bomRole: "optional-workflow-endpoint",
+      dependencyType: "wireless-collaboration-dongle",
+      primarySystemFamily: "Apollo / Wireless Collaboration",
+      showWhenRequestedBy: [
+        "DG2",
+        "APO-DG2",
+        "wireless presentation",
+        "wireless conferencing",
+        "BYOD",
+        "BYOM",
+        "USB-C wireless",
+        "Apollo",
+        "SW-620",
+        "SW-640",
+      ],
+    };
+  }
+
+  if (textIncludesAny(text, ["nhd touch", "companion control app", "visual control app", "control app", "software app", "ios app", "android app"])) {
+    return {
+      commercialRole: "software-app",
+      finderVisibility: "request-only",
+      bomRole: "optional-software",
+      dependencyType: "software-app",
+      primarySystemFamily,
+      showWhenRequestedBy: ["software", "app", "NHD Touch", "Companion app", "control app"],
+    };
+  }
+
+  if (textIncludesAny(text, ["sygma", "cloud management", "cloud based management"])) {
+    return {
+      commercialRole: "cloud-service",
+      finderVisibility: "request-only",
+      bomRole: "optional-service",
+      dependencyType: "cloud-service",
+      primarySystemFamily,
+      showWhenRequestedBy: ["SYGMA", "cloud", "remote management", "device management"],
+    };
+  }
+
+  if (textIncludesAny(text, ["rack", "rack mount", "rackmount", "rack kit", "rack ears", "1u", "6u", "12 slot", "slot rack"])) {
+    return {
+      commercialRole: "rack-mount",
+      finderVisibility: "request-only",
+      bomRole: "dependency-accessory",
+      dependencyType: "rack-mount",
+      primarySystemFamily,
+      showWhenRequestedBy: ["rack", "rack mount", "rack kit", "1U", "6U"],
+    };
+  }
+
+  if (textIncludesAny(text, ["psu", "power supply", "replacement power", "power adapter", "dc adapter"])) {
+    return {
+      commercialRole: "power-accessory",
+      finderVisibility: "request-only",
+      bomRole: "dependency-accessory",
+      dependencyType: "power-accessory",
+      primarySystemFamily,
+      showWhenRequestedBy: ["PSU", "power supply", "power adapter", "spare power"],
+    };
+  }
+
+  if (textIncludesAny(text, ["mount", "wall mount", "display mount", "camera mount", "bracket", "wall plate accessory"])) {
+    return {
+      commercialRole: "mounting-accessory",
+      finderVisibility: "request-only",
+      bomRole: "dependency-accessory",
+      dependencyType: "mounting-accessory",
+      primarySystemFamily,
+      showWhenRequestedBy: ["mount", "wall mount", "bracket", "display mount", "camera mount"],
+    };
+  }
+
+  if (textIncludesAny(text, ["dock", "docking station", "adapter", "adaptor", "dongle"]) || sku.includes("-DG-") || sku.endsWith("-DG1")) {
+    return {
+      commercialRole: "accessory",
+      finderVisibility: "request-only",
+      bomRole: "optional-accessory",
+      dependencyType: "collaboration-accessory",
+      primarySystemFamily,
+      showWhenRequestedBy: ["dongle", "dock", "adapter", "adaptor", "wireless accessory", "Apollo accessory"],
+    };
+  }
+
+  if (sku.startsWith("CAB-") || sku.startsWith("EXP-CAB") || textIncludesAny(text, ["cable", "aoc", "active optical", "hdmi cable", "usb c cable", "usb-c cable"])) {
+    return {
+      commercialRole: "cable",
+      finderVisibility: "request-only",
+      bomRole: "optional-cable",
+      dependencyType: "cable",
+      primarySystemFamily,
+      showWhenRequestedBy: ["cable", "HDMI cable", "USB-C cable", "AOC", "active optical"],
+    };
+  }
+
+  if (sku === "NHD-CTL-PRO" || sku === "NHD-CTL-PRO-V2" || sku === "SYN-TOUCH10" || sku === "SYN-KEY10" || sku === "SYN-CTL-HUB") {
+    return {
+      commercialRole: "system-controller",
+      finderVisibility: "conditional-default",
+      bomRole: "required-or-optional-control",
+      dependencyType: "control-interface",
+      primarySystemFamily,
+      showWhenRequestedBy: ["control", "controller", "touch panel", "button panel", "NetworkHD control", "system control"],
+    };
+  }
+
+  if (textIncludesAny(text, ["receiver", "decoder", "encoder", "transmitter", "transceiver", "extender", "usb extender", "kvm extender"])) {
+    return {
+      commercialRole: "endpoint-hardware",
+      finderVisibility: "default",
+      bomRole: "required-endpoint",
+      dependencyType: "endpoint",
+      primarySystemFamily,
+      showWhenRequestedBy: [],
+    };
+  }
+
+  if (textIncludesAny(text, ["switcher", "matrix", "processor", "video wall", "multiview", "amplifier", "camera", "speakerphone", "video bar", "microphone hub", "bridge", "mixer"])) {
+    return {
+      commercialRole: "primary-hardware",
+      finderVisibility: "default",
+      bomRole: "primary-line-item",
+      dependencyType: "primary-device",
+      primarySystemFamily,
+      showWhenRequestedBy: [],
+    };
+  }
+
+  return {
+    commercialRole: "primary-hardware",
+    finderVisibility: rawCategory ? "default" : "request-only",
+    bomRole: "primary-line-item",
+    dependencyType: "unknown",
+    primarySystemFamily,
+    showWhenRequestedBy: [],
+  };
 }
 
 function normalizeProduct(item, index, sourceFile) {
@@ -65,37 +286,32 @@ function normalizeProduct(item, index, sourceFile) {
     asString(item?.id);
 
   const name =
-    asString(item?.name) ||
-    asString(item?.title) ||
-    asString(item?.productName) ||
-    asString(item?.product_name) ||
+    cleanText(item?.name) ||
+    cleanText(item?.title) ||
+    cleanText(item?.productName) ||
+    cleanText(item?.product_name) ||
     sku ||
     `Product ${index + 1}`;
 
   const description =
-    asString(item?.description) ||
-    asString(item?.summary) ||
-    asString(item?.overview) ||
-    asString(item?.notes);
+    cleanText(item?.description) ||
+    cleanText(item?.summary) ||
+    cleanText(item?.overview) ||
+    cleanText(item?.notes);
 
   const category =
-    asString(item?.category) ||
-    asString(item?.family) ||
-    asString(item?.productFamily) ||
-    asString(item?.product_family);
+    cleanText(item?.category) ||
+    cleanText(item?.family) ||
+    cleanText(item?.productFamily) ||
+    cleanText(item?.product_family);
 
   const summary =
-    asString(item?.summary) ||
+    cleanText(item?.summary) ||
     description ||
-    asString(item?.overview);
+    cleanText(item?.overview);
 
-  const technologies = Array.isArray(item?.technologies)
-    ? item.technologies.map(asString).filter(Boolean)
-    : [];
-
-  const connectors = Array.isArray(item?.connectors)
-    ? item.connectors.map(asString).filter(Boolean)
-    : [];
+  const technologies = asArray(item?.technologies);
+  const connectors = asArray(item?.connectors);
 
   const features = Array.isArray(item?.features)
     ? item.features
@@ -107,33 +323,53 @@ function normalizeProduct(item, index, sourceFile) {
         .filter(Boolean)
     : [];
 
-  const applications = Array.isArray(item?.applications)
-    ? item.applications.map(asString).filter(Boolean)
-    : [];
+  const applications = asArray(item?.applications);
 
-  const tags = [
+  const tags = unique([
     ...(Array.isArray(item?.tags) ? item.tags : []),
     ...(Array.isArray(item?.featureTags) ? item.featureTags : []),
     ...(Array.isArray(item?.applicationTags) ? item.applicationTags : []),
-  ]
-    .map(asString)
-    .filter(Boolean);
+  ]);
 
-  const searchTerms = [
+  const provisionalProduct = {
+    id: sku || `generated-${index + 1}`,
+    brand,
+    vendorType,
+    sku,
+    name,
+    title: name,
+    description,
+    summary,
+    category,
+    family: cleanText(item?.family) || category,
+    technologies,
+    connectors,
+    features,
+    applications,
+    tags,
+  };
+
+  const granularity = classifyProductGranularity(provisionalProduct);
+
+  const searchTerms = unique([
     brand,
     vendorType,
     sku,
     name,
     category,
     summary,
+    granularity.commercialRole,
+    granularity.finderVisibility,
+    granularity.bomRole,
+    granularity.dependencyType,
+    granularity.primarySystemFamily,
+    ...granularity.showWhenRequestedBy,
     ...technologies,
     ...connectors,
     ...features,
     ...applications,
     ...tags,
-  ]
-    .map((value) => value.toLowerCase())
-    .filter(Boolean);
+  ]).map((value) => value.toLowerCase());
 
   return {
     id: sku || `generated-${index + 1}`,
@@ -148,10 +384,29 @@ function normalizeProduct(item, index, sourceFile) {
     connectors,
     features,
     applications,
-    tags,
-    searchTerms: Array.from(new Set(searchTerms)),
+    tags: unique([
+      ...tags,
+      granularity.commercialRole,
+      granularity.dependencyType,
+      granularity.primarySystemFamily,
+    ]),
+    searchTerms,
+    commercialRole: granularity.commercialRole,
+    finderVisibility: granularity.finderVisibility,
+    bomRole: granularity.bomRole,
+    dependencyType: granularity.dependencyType,
+    primarySystemFamily: granularity.primarySystemFamily,
+    showWhenRequestedBy: granularity.showWhenRequestedBy,
     source: path.relative(projectRoot, sourceFile).replace(/\\/g, "/"),
-    raw: item,
+    raw: {
+      ...item,
+      commercialRole: granularity.commercialRole,
+      finderVisibility: granularity.finderVisibility,
+      bomRole: granularity.bomRole,
+      dependencyType: granularity.dependencyType,
+      primarySystemFamily: granularity.primarySystemFamily,
+      showWhenRequestedBy: granularity.showWhenRequestedBy,
+    },
   };
 }
 
@@ -166,11 +421,25 @@ function dedupeProducts(products) {
     ].join("::");
 
     if (seen.has(key)) continue;
+
     seen.add(key);
     results.push(product);
   }
 
   return results;
+}
+
+function buildRoleSummary(products) {
+  const summary = {};
+
+  for (const product of products) {
+    const role = product.commercialRole || "unknown";
+    const visibility = product.finderVisibility || "unknown";
+    const key = `${role} / ${visibility}`;
+    summary[key] = (summary[key] || 0) + 1;
+  }
+
+  return summary;
 }
 
 function buildIndex(products, discoveredSources) {
@@ -190,6 +459,7 @@ function buildIndex(products, discoveredSources) {
       ),
       count: products.length,
       generator: "tools/generate-product-intelligence-index.mjs",
+      roleSummary: buildRoleSummary(products),
     },
     products,
     lookup: {
@@ -242,7 +512,9 @@ async function main() {
 
     if (target.type === "json") {
       await writeFileEnsured(absoluteOutputPath, JSON.stringify(index, null, 2) + "\n");
-    } else {
+    }
+
+    if (target.type !== "json") {
       await writeFileEnsured(absoluteOutputPath, toTsModule(index));
     }
 
@@ -253,10 +525,14 @@ async function main() {
     console.log(
       "[product-intelligence-index] No source product JSON files were found. Generated an empty index so the build can continue."
     );
-  } else {
+  }
+
+  if (products.length > 0) {
     console.log(
       `[product-intelligence-index] Indexed ${products.length} product entries from ${discoveredSources.length} source file(s).`
     );
+    console.log("[product-intelligence-index] Role summary:");
+    console.log(JSON.stringify(index.meta.roleSummary, null, 2));
   }
 }
 

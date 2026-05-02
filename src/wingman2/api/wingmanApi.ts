@@ -1,3 +1,26 @@
+export type NormalizedIoPortGroup = {
+  type?: string;
+  count?: number | null;
+  label?: string;
+  confidence?: string;
+};
+
+export type NormalizedIoProfile = {
+  version?: number;
+  headline?: {
+    inputs?: number | null;
+    outputs?: number | null;
+    label?: string;
+    confidence?: string;
+  };
+  videoInputs?: NormalizedIoPortGroup[];
+  videoOutputs?: NormalizedIoPortGroup[];
+  usb?: NormalizedIoPortGroup[];
+  audio?: NormalizedIoPortGroup[];
+  networkControl?: NormalizedIoPortGroup[];
+  notes?: string[];
+  rawPorts?: Record<string, unknown>;
+};
 export type CompetitorLookupRecord = {
   brand?: string;
   sku?: string;
@@ -28,6 +51,7 @@ export type CompetitorMatchCandidate = {
   feature_coverage?: number;
   resolvedUrl?: string;
   summary?: string;
+  ioProfile?: NormalizedIoProfile;
   comparison_rows?: Array<{
     label?: string;
     competitor?: string;
