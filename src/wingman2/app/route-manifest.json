@@ -36,6 +36,15 @@
     "summary": "Match the brief to the right WyreStorm direction."
   },
   {
+    "key": "productPitch",
+    "path": "/wingman/product-pitch",
+    "segment": "product-pitch",
+    "label": "Product Pitch",
+    "navLabel": "Product Pitch",
+    "pageFile": "ProductPitchPage.tsx",
+    "summary": "Create a one-page sales overview from any WyreStorm SKU."
+  },
+  {
     "key": "compare",
     "path": "/wingman/compare",
     "segment": "compare",
