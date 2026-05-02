@@ -9,6 +9,7 @@ import {
   LayoutTemplate,
   LifeBuoy,
   Monitor,
+  PackageCheck,
   Scale,
   Search,
 } from "lucide-react";
@@ -19,6 +20,7 @@ export type WingmanRouteKey =
   | "projects"
   | "discovery"
   | "finder"
+  | "productPitch"
   | "compare"
   | "templates"
   | "videowall"
@@ -47,6 +49,7 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   projects: FolderKanban,
   discovery: ClipboardList,
   finder: Search,
+  productPitch: PackageCheck,
   compare: Scale,
   templates: LayoutTemplate,
   videowall: Monitor,
