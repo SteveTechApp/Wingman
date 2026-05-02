@@ -150,7 +150,7 @@ export function AppShell({ children }: AppShellProps) {
     <div className="wingman-shell wingman-authority-shell">
       <aside className="wingman-sidebar" data-mobile-open={mobileNavOpen ? "true" : "false"}>
         <div className="wingman-brand wingman-brand-logo-only">
-          <img src="/wingman-logo.png" alt="WyreStorm Wingman" className="wingman-brand-image" fetchPriority="high" decoding="async" />
+          <img src="/wingman-logo.png" alt="WyreStorm Wingman" className="wingman-brand-image" decoding="async" />
         </div>
 
         <nav className="wingman-nav" aria-label="Wingman navigation">
