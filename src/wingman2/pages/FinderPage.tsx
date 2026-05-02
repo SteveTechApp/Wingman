@@ -35,7 +35,12 @@ type FinderProduct = {
   description: string;
   tags: string[];
   searchText: string;
-  source: "seed" | "index";
+  source: "seed" | "index";  commercialRole?: string;
+  finderVisibility?: string;
+  bomRole?: string;
+  dependencyType?: string;
+  primarySystemFamily?: string;
+  showWhenRequestedBy?: string[];
 };
 
 type FinderNeed = {
@@ -446,6 +451,50 @@ const seedProducts: FinderProduct[] = [
     searchText: "idb-300 in desk cable management byod hdmi usb-c",
     source: "seed",
   },
+  {
+    sku: "APO-DG2",
+    title: "Apollo 4K USB-C wireless casting and conferencing dongle",
+    family: "Apollo / Wireless Collaboration",
+    category: "Wireless presentation",
+    description:
+      "Use when the room requires plug-and-play USB-C wireless casting or wireless conferencing into compatible Apollo and wireless presentation systems.",
+    tags: [
+      "Wireless presentation",
+      "Wireless conferencing",
+      "USB-C",
+      "BYOD / BYOM",
+      "Apollo",
+      "Dongle",
+      "Workflow endpoint",
+      "Meeting room",
+      "UC / conferencing",
+    ],
+    searchText:
+      "apo-dg2 apollo dg2 usb-c wireless casting wireless conferencing byod byom meeting room presentation dongle apollo sw-620 sw-640",
+    source: "seed",
+  },
+  {
+    sku: "APO-DG2-PRO",
+    title: "Apollo 4K USB-C wireless casting and conferencing dongle - Pro",
+    family: "Apollo / Wireless Collaboration",
+    category: "Wireless presentation",
+    description:
+      "Use when the room requires USB-C wireless casting or wireless conferencing with the professional Apollo dongle workflow.",
+    tags: [
+      "Wireless presentation",
+      "Wireless conferencing",
+      "USB-C",
+      "BYOD / BYOM",
+      "Apollo",
+      "Dongle",
+      "Workflow endpoint",
+      "Meeting room",
+      "UC / conferencing",
+    ],
+    searchText:
+      "apo-dg2-pro apollo dg2 pro usb-c wireless casting wireless conferencing byod byom meeting room presentation dongle apollo sw-620 sw-640",
+    source: "seed",
+  },
 ];
 
 const initialNeed: FinderNeed = {
@@ -638,6 +687,14 @@ function normaliseIndexProduct(record: UnknownRecord): FinderProduct | null {
     tags,
     searchText: deepText(record),
     source: "index",
+    commercialRole: getFirstString(record, ["commercialRole"]),
+    finderVisibility: getFirstString(record, ["finderVisibility"]),
+    bomRole: getFirstString(record, ["bomRole"]),
+    dependencyType: getFirstString(record, ["dependencyType"]),
+    primarySystemFamily: getFirstString(record, ["primarySystemFamily"]),
+    showWhenRequestedBy: Array.isArray(record.showWhenRequestedBy)
+      ? record.showWhenRequestedBy.map(String).filter(Boolean)
+      : [],
   };
 
   const cleaned = cleanFinderProduct({ ...product, category: classifyProduct(product) });
@@ -686,6 +743,357 @@ function normaliseProductIndex(data: unknown) {
 
 function hasFinderIntent(need: FinderNeed) {
   return Object.values(need).some((value) => value.trim().length >= 2);
+}
+
+
+function getFinderMetadataValue(product: FinderProduct, key: string) {
+  const value = (product as FinderProduct & Record<string, unknown>)[key];
+
+  if (Array.isArray(value)) {
+    return value.map(String).join(" ");
+  }
+
+  return String(value ?? "");
+}
+
+function inferFinderCommercialRole(product: FinderProduct) {
+  const explicitRole = getFinderMetadataValue(product, "commercialRole").trim();
+
+  if (explicitRole) {
+    return explicitRole;
+  }
+
+  const text = normaliseText(`${product.sku} ${product.title} ${product.description} ${product.tags.join(" ")}`);
+
+  if (textIncludesAny(text, ["nhd touch", "companion control app", "software app", "cloud management", "sygma"])) {
+    return "software-app";
+  }
+
+  if (textIncludesAny(text, ["rack", "rack mount", "psu", "power supply", "mount", "bracket", "dock", "adapter", "adaptor", "cable"])) {
+    return "accessory";
+  }
+
+  if (textIncludesAny(text, ["dongle"]) && product.sku.toUpperCase() !== "APO-DG2" && product.sku.toUpperCase() !== "APO-DG2-PRO") {
+    return "accessory";
+  }
+
+  if (textIncludesAny(text, ["receiver", "decoder", "encoder", "transmitter", "transceiver", "extender"])) {
+    return "endpoint-hardware";
+  }
+
+  return "primary-hardware";
+}
+
+function inferFinderVisibility(product: FinderProduct) {
+  const explicitVisibility = getFinderMetadataValue(product, "finderVisibility").trim();
+
+  if (explicitVisibility) {
+    return explicitVisibility;
+  }
+
+  const role = inferFinderCommercialRole(product);
+
+  if (role === "primary-hardware" || role === "endpoint-hardware") {
+    return "default";
+  }
+
+  if (role === "system-controller" || role === "workflow-endpoint") {
+    return "conditional-default";
+  }
+
+  return "request-only";
+}
+
+function needRequestsSupportItems(need: FinderNeed) {
+  const text = normaliseText(Object.values(need).join(" "));
+
+  return textIncludesAny(text, [
+    "accessory",
+    "accessories",
+    "rack",
+    "rack mount",
+    "rack kit",
+    "psu",
+    "power supply",
+    "mount",
+    "wall mount",
+    "bracket",
+    "cable",
+    "dongle",
+    "adapter",
+    "adaptor",
+    "dock",
+    "software",
+    "app",
+    "control app",
+    "nhd touch",
+    "companion app",
+    "spare",
+    "dependency",
+    "dependencies",
+    "what else",
+  ]);
+}
+
+function needRequestsWirelessCollaborationEndpoint(need: FinderNeed) {
+  const text = normaliseText(Object.values(need).join(" "));
+
+  return (
+    need.technicalRequirement === "Wireless presentation" ||
+    need.technicalRequirement === "BYOD / BYOM conferencing" ||
+    need.productPath === "Wireless presentation" ||
+    textIncludesAny(text, [
+      "wireless presentation",
+      "wireless conferencing",
+      "wireless casting",
+      "byod",
+      "byom",
+      "apollo",
+      "dg2",
+      "apo dg2",
+      "usb c wireless",
+      "sw 620",
+      "sw 640",
+    ])
+  );
+}
+
+function needRequestsControlProducts(need: FinderNeed) {
+  const text = normaliseText(Object.values(need).join(" "));
+
+  return (
+    need.control === "Touch panel" ||
+    need.control === "Button panel" ||
+    need.control === "Third-party control" ||
+    need.technicalRequirement === "Control displays / system" ||
+    textIncludesAny(text, ["control", "controller", "touch panel", "button panel", "networkhd controller", "syn touch", "syn key"])
+  );
+}
+
+function isFinderVisibleForNeed(product: FinderProduct, need: FinderNeed) {
+  const sku = product.sku.toUpperCase();
+  const role = inferFinderCommercialRole(product);
+  const visibility = inferFinderVisibility(product);
+
+  if (sku === "APO-DG2" || sku === "APO-DG2-PRO") {
+    return needRequestsWirelessCollaborationEndpoint(need) || needRequestsSupportItems(need);
+  }
+
+  if (visibility === "default") {
+    return true;
+  }
+
+  if (visibility === "conditional-default" && role === "system-controller") {
+    return needRequestsControlProducts(need) || needRequestsSupportItems(need);
+  }
+
+  if (visibility === "conditional-default" && role === "workflow-endpoint") {
+    return needRequestsWirelessCollaborationEndpoint(need) || needRequestsSupportItems(need);
+  }
+
+  if (visibility === "request-only" || visibility === "dependency-only") {
+    return needRequestsSupportItems(need);
+  }
+
+  if (visibility === "hide") {
+    return false;
+  }
+
+  return role === "primary-hardware" || role === "endpoint-hardware";
+}
+
+
+function applyFinderVisibilityToMatch(match: ProductMatch, need: FinderNeed): ProductMatch {
+  if (isFinderVisibleForNeed(match, need)) {
+    return match;
+  }
+
+  return {
+    ...match,
+    score: -999,
+    status: "caution",
+  };
+}
+
+
+function getFinderNeedText(need: FinderNeed) {
+  return normaliseText(Object.values(need).join(" "));
+}
+
+function getFinderMatchText(match: FinderProduct) {
+  return normaliseText(
+    `${match.sku} ${match.title} ${match.family} ${match.category} ${match.description} ${match.tags.join(" ")} ${match.searchText}`
+  );
+}
+
+function finderMatchHasAny(match: FinderProduct, terms: string[]) {
+  return textIncludesAny(getFinderMatchText(match), terms);
+}
+
+function finderNeedHasAny(need: FinderNeed, terms: string[]) {
+  return textIncludesAny(getFinderNeedText(need), terms);
+}
+
+function suppressFinderMatch(match: ProductMatch): ProductMatch {
+  return {
+    ...match,
+    score: -999,
+    status: "caution",
+  };
+}
+
+function promoteFinderMatch(match: ProductMatch, score = 96): ProductMatch {
+  return {
+    ...match,
+    score: Math.max(match.score, score),
+    status: "recommended",
+  };
+}
+
+function isNetworkHdProduct(match: FinderProduct) {
+  const sku = match.sku.toUpperCase();
+  const text = getFinderMatchText(match);
+
+  if (sku.startsWith("NHD-")) {
+    return true;
+  }
+
+  return textIncludesAny(text, ["networkhd", "network hd"]);
+}
+
+function isDedicatedNetworkHdMultiviewProduct(match: FinderProduct) {
+  const sku = match.sku.toUpperCase();
+  const text = getFinderMatchText(match);
+
+  if (sku === "NHD-150-RX") {
+    return true;
+  }
+
+  if (sku === "NHD-0401-MV") {
+    return true;
+  }
+
+  return sku.startsWith("NHD-") && textIncludesAny(text, ["multiview", "multi view", "multi-view", "mv"]);
+}
+
+function isGeneralMultiviewProduct(match: FinderProduct) {
+  const sku = match.sku.toUpperCase();
+  const text = getFinderMatchText(match);
+
+  if (isDedicatedNetworkHdMultiviewProduct(match)) {
+    return true;
+  }
+
+  if (sku === "MX-0404-SCL" || sku === "MX-0808-SCL" || sku === "MX-0812-SCL") {
+    return true;
+  }
+
+  return textIncludesAny(text, [
+    "multiview",
+    "multi view",
+    "multi-view",
+    "pip",
+    "picture in picture",
+    "quad view",
+    "quad-view",
+    "mosaic",
+  ]);
+}
+
+function finderRequirementPath(need: FinderNeed) {
+  if (need.productPath) {
+    return need.productPath;
+  }
+
+  return inferPathFromNeed(need);
+}
+
+function applyFinderRequirementGate(match: ProductMatch, need: FinderNeed): ProductMatch {
+  if (match.score < 0) {
+    return match;
+  }
+
+  const sku = match.sku.toUpperCase();
+  const path = finderRequirementPath(need);
+
+  const requiresMultiview =
+    need.technicalRequirement === "Create multiview layout" ||
+    need.processing === "Multiview" ||
+    finderNeedHasAny(need, ["multiview", "multi view", "multi-view", "pip", "quad view"]);
+
+  if (requiresMultiview && path === "AVoIP") {
+    if (isDedicatedNetworkHdMultiviewProduct(match)) {
+      return promoteFinderMatch(match, sku === "NHD-150-RX" || sku === "NHD-0401-MV" ? 99 : 94);
+    }
+
+    return suppressFinderMatch(match);
+  }
+
+  if (requiresMultiview) {
+    if (isGeneralMultiviewProduct(match)) {
+      return promoteFinderMatch(match, 94);
+    }
+
+    return suppressFinderMatch(match);
+  }
+
+  if (path === "AVoIP") {
+    if (isNetworkHdProduct(match)) {
+      return match;
+    }
+
+    return suppressFinderMatch(match);
+  }
+
+  if (path === "Video wall") {
+    if (finderMatchHasAny(match, ["video wall", "videowall", "wall processor", "networkhd", "nhd-", "sw-0204-vw", "sw-0206-vw"])) {
+      return match;
+    }
+
+    return suppressFinderMatch(match);
+  }
+
+  if (need.technicalRequirement === "Bring NDI camera into AV system") {
+    if (finderMatchHasAny(match, ["ndi", "camera", "ptz", "nhd-128-ndi"])) {
+      return match;
+    }
+
+    return suppressFinderMatch(match);
+  }
+
+  if (need.technicalRequirement === "Extend HDMI and USB together") {
+    if (finderMatchHasAny(match, ["hdmi", "usb", "kvm", "hdbaset 3", "swx", "rx3", "tx3"])) {
+      const text = getFinderMatchText(match);
+
+      if (text.includes("hdmi") && (text.includes("usb") || text.includes("kvm"))) {
+        return match;
+      }
+
+      if (text.includes("usb c") || text.includes("usb-c")) {
+        return match;
+      }
+    }
+
+    return suppressFinderMatch(match);
+  }
+
+  if (need.technicalRequirement === "Connect USB-C laptop") {
+    if (finderMatchHasAny(match, ["usb-c", "usb c", "presentation switcher", "apollo", "sw-120", "sw-130", "mx-0402", "mx-0403"])) {
+      return match;
+    }
+
+    return suppressFinderMatch(match);
+  }
+
+  if (need.technicalRequirement === "Wireless presentation") {
+    if (finderMatchHasAny(match, ["wireless", "airplay", "miracast", "apollo", "apo-dg2", "apo-dg2-pro", "sw-640", "sw-620"])) {
+      return match;
+    }
+
+    return suppressFinderMatch(match);
+  }
+
+  return match;
 }
 
 function expectedProductPathForRequirement(requirement: string) {
@@ -1354,7 +1762,7 @@ export function FinderPage() {
     if (!hasIntent) return [];
 
     return products
-      .map((product) => scoreProduct(product, need))
+      .map((product) => applyFinderRequirementGate(applyFinderVisibilityToMatch(scoreProduct(product, need), need), need))
       .filter((match) => shouldShowMatch(match, need))
       .sort((a, b) => b.score - a.score)
       .slice(0, hasPointToPointOneInOneOutNeed(need) ? 4 : 8);
@@ -1617,13 +2025,10 @@ export function FinderPage() {
         subtitle="Feature-led filtering replaces room-type filtering. Product selection is driven by signal path, transport, processing, USB, network, audio, and control needs."
       >
         <div className="grid gap-4">
-          <div className="grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <div className="wm-finder-quickstart grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-black text-amber-950">Start with the technical job</p>
-                <p className="mt-1 text-sm leading-6 text-amber-900">
-                  The first decision is the technical requirement. This avoids random product lists and helps explain why a product family is needed.
-                </p>
+                <p className="text-sm font-black text-amber-950">Quick-start filters</p>
               </div>
 
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-3 py-1 text-xs font-black text-amber-800">
@@ -1873,12 +2278,6 @@ export function FinderPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
-                <p className="text-sm font-black text-red-900">Advisory notice</p>
-                <p className="mt-2 text-sm leading-6 text-red-800">
-                  Product Finder and project/proposal builders only display and save WyreStorm products. Competitor or non-WyreStorm products are comparison-only and must never be added to product, project, BOM, or proposal flows. Wingman/Guru can make mistakes, so always validate datasheets, receiver/accessory requirements, firmware notes, and technical suitability before customer issue.
-                </p>
-              </div>
             </aside>
           </div>
         </div>

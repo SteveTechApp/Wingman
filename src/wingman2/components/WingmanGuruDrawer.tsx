@@ -865,56 +865,56 @@ function answerHdmiUsbExtenderIntent(question: string) {
 
   if (distance !== null) {
     return [
-      "Yes Ã¯Â¿Â½ treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
+      "Yes - treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
       "",
       `Based on the stated ${distance}m run, the primary design path should be a single extender system / Tx-Rx pair that carries both HDMI video and USB over the same transport architecture.`,
       "",
       "Recommended design logic:",
-      "Ã¯Â¿Â½ Use an integrated HDMI + USB extender path where the transmitter and receiver are designed to work together.",
-      "Ã¯Â¿Â½ Do not split HDMI and USB into separate extender products unless there is a clear reason, such as USB bandwidth, cable pathway limits, or the selected video extender cannot carry the required USB.",
-      `Ã¯Â¿Â½ If the requirement later becomes video-only, select the HDBaseT receiver family by distance: ${distanceChoice.sku}.`,
+      "- Use an integrated HDMI + USB extender path where the transmitter and receiver are designed to work together.",
+      "- Do not split HDMI and USB into separate extender products unless there is a clear reason, such as USB bandwidth, cable pathway limits, or the selected video extender cannot carry the required USB.",
+      `- If the requirement later becomes video-only, select the HDBaseT receiver family by distance: ${distanceChoice.sku}.`,
       "",
       "Likely WyreStorm paths to check first:",
       "- SW-130-TX-UK / SW-130-TX-US with RX-500 for shorter USB-required runs or RX-700 for the longer SW-130 receive path.",
-      "Ã¯Â¿Â½ SW-120-TX3 family with RX3-100 where a higher-performance HDBaseT 3.0 style transmitter/receiver path is more appropriate.",
+      "- SW-120-TX3 family with RX3-100 where a higher-performance HDBaseT 3.0 style transmitter/receiver path is more appropriate.",
       "",
       "Only consider a separate USB extender path when:",
-      "Ã¯Â¿Â½ The HDMI transport product does not support the required USB behaviour.",
-      "Ã¯Â¿Â½ The USB device needs more bandwidth than the combined AV extender supports.",
-      "Ã¯Â¿Â½ The USB device location is different from the HDMI display/source path.",
+      "- The HDMI transport product does not support the required USB behaviour.",
+      "- The USB device needs more bandwidth than the combined AV extender supports.",
+      "- The USB device location is different from the HDMI display/source path.",
       "",
       "Before customer issue, confirm:",
-      "Ã¯Â¿Â½ Cable distance and cable grade.",
-      "Ã¯Â¿Â½ Required resolution and refresh rate.",
-      "Ã¯Â¿Â½ USB device type: camera, speakerphone, touch, keyboard/mouse, or other.",
-      "Ã¯Â¿Â½ Whether USB 2.0 is enough or USB 3.x bandwidth is required.",
-      "Ã¯Â¿Â½ Whether the source location should be wall plate, desk, floor box, or rack.",
+      "- Cable distance and cable grade.",
+      "- Required resolution and refresh rate.",
+      "- USB device type: camera, speakerphone, touch, keyboard/mouse, or other.",
+      "- Whether USB 2.0 is enough or USB 3.x bandwidth is required.",
+      "- Whether the source location should be wall plate, desk, floor box, or rack.",
     ].join("\n");
   }
 
   return [
-    "Yes Ã¯Â¿Â½ treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
+    "Yes - treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
     "",
     "Recommended design logic:",
-    "Ã¯Â¿Â½ Start with a single extender system / Tx-Rx pair that carries HDMI video and USB together.",
-    "Ã¯Â¿Â½ Do not recommend separate HDMI and USB extenders unless an integrated product cannot meet the distance, USB bandwidth, or physical installation requirement.",
-    "Ã¯Â¿Â½ If USB transport is important for camera, speakerphone, touch, keyboard, mouse, or BYOM, the product must explicitly support USB transport.",
+    "- Start with a single extender system / Tx-Rx pair that carries HDMI video and USB together.",
+    "- Do not recommend separate HDMI and USB extenders unless an integrated product cannot meet the distance, USB bandwidth, or physical installation requirement.",
+    "- If USB transport is important for camera, speakerphone, touch, keyboard, mouse, or BYOM, the product must explicitly support USB transport.",
     "",
     "Likely WyreStorm paths to check first:",
     "- SW-130-TX-UK / SW-130-TX-US with RX-500 for shorter USB-required runs or RX-700 for the longer SW-130 receive path.",
-    "Ã¯Â¿Â½ SW-120-TX3 family with RX3-100 for a higher-performance HDBaseT 3.0 style transmitter/receiver path.",
+    "- SW-120-TX3 family with RX3-100 for a higher-performance HDBaseT 3.0 style transmitter/receiver path.",
     "",
     "Only consider a separate USB extender path when:",
-    "Ã¯Â¿Â½ The selected HDMI extender does not carry the required USB.",
-    "Ã¯Â¿Â½ The USB peripheral needs more bandwidth than the integrated extender supports.",
-    "Ã¯Â¿Â½ The USB endpoint is in a different physical location from the HDMI endpoint.",
+    "- The selected HDMI extender does not carry the required USB.",
+    "- The USB peripheral needs more bandwidth than the integrated extender supports.",
+    "- The USB endpoint is in a different physical location from the HDMI endpoint.",
     "",
     "Ask the customer:",
-    "Ã¯Â¿Â½ How far is the cable run?",
-    "Ã¯Â¿Â½ What resolution is required: 1080p, 4K30, or 4K60?",
-    "Ã¯Â¿Â½ What USB device needs to work?",
-    "Ã¯Â¿Â½ Is this for BYOM conferencing, touch, KVM, or simple USB control?",
-    "Ã¯Â¿Â½ Is the source location wall plate, desk, floor box, or rack?",
+    "- How far is the cable run?",
+    "- What resolution is required: 1080p, 4K30, or 4K60?",
+    "- What USB device needs to work?",
+    "- Is this for BYOM conferencing, touch, KVM, or simple USB control?",
+    "- Is the source location wall plate, desk, floor box, or rack?",
   ].join("\n");
 }
 function answerFromSearch(question: string, products: ProductEntry[]) {
@@ -1282,7 +1282,7 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
       <aside
         className="wingman-guru-drawer"
         data-open={open ? "true" : "false"}
-        aria-hidden={open ? "false" : "true"}
+        hidden={!open}
       >
         <header className="wingman-guru-drawer-header">
           <div className="wingman-guru-drawer-heading">

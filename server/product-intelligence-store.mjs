@@ -76,7 +76,7 @@ function cleanText(value) {
   return text
     .normalize("NFKC")
     .replace(/[\u00A0\u1680\u180E\u2000-\u200D\u2028\u2029\u202F\u205F\u3000]/g, " ")
-    .replace(/[�]/g, "")
+    .replace(/[•]/g, "")
     .replace(/[""«»„‟]/g, "\"")
     .replace(/[''‚‛]/g, "'")
     .replace(/[--―]/g, "-")

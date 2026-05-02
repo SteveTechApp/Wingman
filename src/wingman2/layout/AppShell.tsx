@@ -1,3 +1,26 @@
+
+function clearProjectStoragePreservingCompareHistory() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const preservedCompareHistory = new Map();
+
+  Object.keys(window.localStorage)
+    .filter((key) => key.startsWith("wingman.compare.inputHistory."))
+    .forEach((key) => {
+      preservedCompareHistory.set(key, window.localStorage.getItem(key));
+    });
+
+  clearProjectStoragePreservingCompareHistory();
+
+  preservedCompareHistory.forEach((value, key) => {
+    if (value !== null) {
+      window.localStorage.setItem(key, value);
+    }
+  });
+}
+
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Menu, RotateCcw, X } from "lucide-react";
@@ -7,6 +30,7 @@ import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { clearActiveProject } from "../data/projectStore";
 
+import { GuruRovingIcon } from "../components/GuruRovingIcon";
 type AppShellProps = {
   children?: ReactNode;
 };
@@ -102,6 +126,18 @@ export function AppShell({ children }: AppShellProps) {
   useEffect(() => {
     setMobileNavOpen(false);
   }, [location.pathname]);
+  useEffect(() => {
+    function handleOpenGuru() {
+      setGuruOpen(true);
+    }
+
+    window.addEventListener("wingman:open-guru", handleOpenGuru);
+
+    return () => {
+      window.removeEventListener("wingman:open-guru", handleOpenGuru);
+    };
+  }, []);
+
 
   function handleClearCurrentProject() {
     clearStoredProjectContext();
@@ -114,7 +150,7 @@ export function AppShell({ children }: AppShellProps) {
     <div className="wingman-shell wingman-authority-shell">
       <aside className="wingman-sidebar" data-mobile-open={mobileNavOpen ? "true" : "false"}>
         <div className="wingman-brand wingman-brand-logo-only">
-          <img src="/wingman-logo.png" alt="WyreStorm Wingman" className="wingman-brand-image" />
+          <img src="/wingman-logo.png" alt="WyreStorm Wingman" className="wingman-brand-image" fetchPriority="high" decoding="async" />
         </div>
 
         <nav className="wingman-nav" aria-label="Wingman navigation">
@@ -175,6 +211,7 @@ export function AppShell({ children }: AppShellProps) {
       </div>
 
       <WingmanGuruFab open={guruOpen} onClick={() => setGuruOpen((current) => !current)} />
+      <GuruRovingIcon />
       <WingmanGuruDrawer open={guruOpen} onClose={() => setGuruOpen(false)} />
     </div>
   );

@@ -8,6 +8,7 @@ import { DashboardPage } from "../pages/DashboardPage";
 import { DiscoveryPage } from "../pages/DiscoveryPage";
 import { FinderPage } from "../pages/FinderPage";
 import { IngestPage } from "../pages/IngestPage";
+import { ProductFamilyPage } from "../pages/ProductFamilyPage";
 import { ProductPitchPage } from "../pages/ProductPitchPage";
 import { ProjectDetailPage } from "../pages/ProjectDetailPage";
 import { ProjectsPage } from "../pages/ProjectsPage";
@@ -15,6 +16,7 @@ import { ProposalPage } from "../pages/ProposalPage";
 import { SalesHelperPage } from "../pages/SalesHelperPage";
 import { SupportPage } from "../pages/SupportPage";
 import { TemplatesPage } from "../pages/TemplatesPage";
+import { TemplateReviewPage } from "../pages/TemplateReviewPage";
 import { VideowallBuilderPage } from "../pages/VideowallBuilderPage";
 import { routeCatalog, type WingmanRouteKey } from "./routeCatalog";
 
@@ -23,6 +25,7 @@ const pageRegistry: Record<WingmanRouteKey, ComponentType> = {
   projects: ProjectsPage,
   discovery: DiscoveryPage,
   finder: FinderPage,
+  productFamilies: ProductFamilyPage,
   productPitch: ProductPitchPage,
   compare: ComparePage,
   templates: TemplatesPage,
@@ -41,6 +44,7 @@ export const wingmanRoutes: RouteObject[] = [
     children: [
       { index: true, element: <Navigate to={routeCatalog[0].segment} replace /> },
       { path: "projects/:projectId", element: <ProjectDetailPage /> },
+      { path: "templates/:templateId", element: <TemplateReviewPage /> },
       ...routeCatalog.map((route) => ({
         path: route.segment,
         element: createElement(pageRegistry[route.key]),

@@ -1,3 +1,4 @@
+import "./styles/wingman-discovery-builder-layout.css";
 import "./wingman2/styles/entry.css";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";

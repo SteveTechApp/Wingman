@@ -40,6 +40,27 @@ type VerticalVisual = {
   Icon: ComponentType<{ className?: string }>;
 };
 
+
+const ROOM_TEMPLATE_SECTION_ID = "wm-template-room-section";
+
+function scrollToRoomTemplateSection() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.setTimeout(() => {
+    const target = document.getElementById(ROOM_TEMPLATE_SECTION_ID);
+
+    if (!target) {
+      return;
+    }
+
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 80);
+}
 const includedStatuses = new Set(["included", "optional", "validate"]);
 
 function templateVisualPath(fileName: string): string {
@@ -49,48 +70,77 @@ function templateVisualPath(fileName: string): string {
   return `${cleanBase}template-visuals/${cleanFileName}`;
 }
 
+function templatePhotoUrl(query: string): string {
+  const normalizedQuery = query.trim().toLowerCase();
+
+  if (normalizedQuery.includes("professional av installation") || normalizedQuery.includes("all markets")) return templateVisualPath("photos/all-markets.jpg");
+  if (normalizedQuery.includes("vertical corporate") || normalizedQuery.includes("modern corporate")) return templateVisualPath("photos/vertical-corporate.jpg");
+  if (normalizedQuery.includes("vertical education") || normalizedQuery.includes("modern classroom")) return templateVisualPath("photos/vertical-education.jpg");
+  if (normalizedQuery.includes("vertical hospitality") || normalizedQuery.includes("hotel ballroom")) return templateVisualPath("photos/vertical-hospitality.jpg");
+  if (normalizedQuery.includes("vertical retail") || normalizedQuery.includes("retail digital signage video wall store")) return templateVisualPath("photos/vertical-retail.jpg");
+  if (normalizedQuery.includes("vertical government") || normalizedQuery.includes("council chamber public meeting room conference")) return templateVisualPath("photos/vertical-government.jpg");
+  if (normalizedQuery.includes("vertical healthcare") || normalizedQuery.includes("healthcare simulation lab clinical")) return templateVisualPath("photos/vertical-healthcare.jpg");
+
+  if (normalizedQuery.includes("huddle") || normalizedQuery.includes("apollo") || normalizedQuery.includes("byod")) return templateVisualPath("photos/room-huddle.jpg");
+  if (normalizedQuery.includes("boardroom") || normalizedQuery.includes("executive")) return templateVisualPath("photos/room-boardroom.jpg");
+  if (normalizedQuery.includes("classroom") || normalizedQuery.includes("teaching")) return templateVisualPath("photos/room-classroom.jpg");
+  if (normalizedQuery.includes("lecture") || normalizedQuery.includes("capture") || normalizedQuery.includes("theatre")) return templateVisualPath("photos/room-lecture.jpg");
+  if (normalizedQuery.includes("divisible") || normalizedQuery.includes("ballroom") || normalizedQuery.includes("event space")) return templateVisualPath("photos/room-divisible.jpg");
+  if (normalizedQuery.includes("sports") || normalizedQuery.includes("bar") || normalizedQuery.includes("venue")) return templateVisualPath("photos/room-sports.jpg");
+  if (normalizedQuery.includes("signage") || normalizedQuery.includes("retail zone") || normalizedQuery.includes("display zone")) return templateVisualPath("photos/room-signage.jpg");
+  if (normalizedQuery.includes("video wall") || normalizedQuery.includes("lcd wall") || normalizedQuery.includes("feature wall")) return templateVisualPath("photos/room-feature-wall.jpg");
+  if (normalizedQuery.includes("simulation") || normalizedQuery.includes("clinical") || normalizedQuery.includes("healthcare") || normalizedQuery.includes("observation")) return templateVisualPath("photos/room-simulation.jpg");
+  if (normalizedQuery.includes("council") || normalizedQuery.includes("chamber") || normalizedQuery.includes("civic") || normalizedQuery.includes("public meeting")) return templateVisualPath("photos/room-council.jpg");
+  if (normalizedQuery.includes("control") || normalizedQuery.includes("monitoring") || normalizedQuery.includes("operator")) return templateVisualPath("photos/room-control.jpg");
+  if (normalizedQuery.includes("training")) return templateVisualPath("photos/room-training.jpg");
+
+  return templateVisualPath("photos/room-flexible-av.jpg");
+}
+
+
+
 
 const verticalVisuals: VerticalVisual[] = [
   {
     name: "All",
     strapline: "Browse every template",
-    image: templateVisualPath("vertical-all.svg"),
+    image: templateVisualPath("vertical-all.jpg"),
     Icon: Sparkles,
   },
   {
     name: "Corporate",
     strapline: "Meeting, boardroom and UC spaces",
-    image: templateVisualPath("vertical-corporate.svg"),
+    image: templateVisualPath("vertical-corporate.jpg"),
     Icon: Building2,
   },
   {
     name: "Education",
     strapline: "Classrooms, theatres and capture",
-    image: templateVisualPath("vertical-education.svg"),
+    image: templateVisualPath("vertical-education.jpg"),
     Icon: GraduationCap,
   },
   {
     name: "Hospitality",
     strapline: "Ballrooms, venues and sports bars",
-    image: templateVisualPath("vertical-hospitality.svg"),
+    image: templateVisualPath("vertical-hospitality.jpg"),
     Icon: Hotel,
   },
   {
     name: "Retail",
     strapline: "Signage, feature walls and zones",
-    image: templateVisualPath("vertical-retail.svg"),
+    image: templateVisualPath("vertical-retail.jpg"),
     Icon: ShoppingBag,
   },
   {
     name: "Government",
     strapline: "Civic and public sector rooms",
-    image: templateVisualPath("vertical-government.svg"),
+    image: templateVisualPath("vertical-government.jpg"),
     Icon: Landmark,
   },
   {
     name: "Healthcare",
     strapline: "Simulation, review and clinical AV",
-    image: templateVisualPath("vertical-healthcare.svg"),
+    image: templateVisualPath("vertical-healthcare.jpg"),
     Icon: HeartPulse,
   },
 ];
@@ -203,26 +253,97 @@ function countTemplatesForVertical(vertical: string) {
   return roomTemplates.filter((template) => template.vertical === vertical).length;
 }
 
+const roomPhotoByTemplateId: Record<string, string> = {
+  "corporate-huddle-apollo": templatePhotoUrl("small huddle meeting room video bar display"),
+  "corporate-boardroom-networkhd500": templatePhotoUrl("executive boardroom multiple displays video conference"),
+  "education-classroom-hdbaset": templatePhotoUrl("classroom projector interactive display teacher presentation"),
+  "education-lecture-capture-networkhd": templatePhotoUrl("lecture theatre lecture capture av control display"),
+  "retail-signage-networkhd100": templatePhotoUrl("retail digital signage multiple displays store"),
+  "retail-lcd-wall-processor": templatePhotoUrl("retail video wall lcd display feature wall"),
+  "hospitality-sports-bar-networkhd": templatePhotoUrl("sports bar multiple tv screens av distribution"),
+  "hospitality-ballroom-hybrid": templatePhotoUrl("hotel ballroom divisible event room projector av"),
+  "healthcare-simulation-lab": templatePhotoUrl("medical simulation lab observation room cameras"),
+  "government-control-room-networkhd600": templatePhotoUrl("control room video wall operator desks"),
+  "government-council-chamber": templatePhotoUrl("council chamber public meeting room microphones displays"),
+  "government-council-chamber-networkhd": templatePhotoUrl("council chamber public meeting room microphones displays"),
+  "government-civic-chamber": templatePhotoUrl("civic chamber public meeting av display"),
+  "government-public-meeting": templatePhotoUrl("public meeting room chamber display microphones"),
+  "venue-worship-overflow-stage": templatePhotoUrl("hotel ballroom event space av presentation"),
+  "transport-operations-status-displays": templatePhotoUrl("control room monitoring video wall"),
+  "residential-media-room-local-matrix": templatePhotoUrl("modern av meeting room display technology"),
+  "corporate-training-room": templatePhotoUrl("corporate training room presentation display"),
+  "education-training-room": templatePhotoUrl("training room classroom display presentation"),
+  "operations-control-room": templatePhotoUrl("control room video wall operator desks"),
+  "control-room-networkhd": templatePhotoUrl("control room monitoring video wall av"),
+};
+
+
+function templatePhotoPath(fileName: string): string {
+  const base = String(import.meta.env.BASE_URL || "/");
+  const cleanBase = base.endsWith("/") ? base : `${base}/`;
+  const cleanFileName = fileName.replace(/^\/?template-photos\//, "");
+  return `${cleanBase}template-photos/${cleanFileName}`;
+}
 function roomVisualFor(template: RoomTemplate) {
-  const blob = `${template.id} ${template.name} ${template.application}`.toLowerCase();
+  const explicitPhoto = roomPhotoByTemplateId[template.id];
+  if (explicitPhoto) return explicitPhoto;
 
-  if (blob.includes("huddle") || blob.includes("apollo")) return templateVisualPath("room-huddle.svg");
-  if (blob.includes("boardroom")) return templateVisualPath("room-boardroom.svg");
-  if (blob.includes("classroom")) return templateVisualPath("room-classroom.svg");
-  if (blob.includes("lecture")) return templateVisualPath("room-lecture.svg");
-  if (blob.includes("divisible") || blob.includes("ballroom")) return templateVisualPath("room-divisible.svg");
-  if (blob.includes("signage")) return templateVisualPath("room-signage.svg");
-  if (blob.includes("sports")) return templateVisualPath("room-sports.svg");
-  if (blob.includes("wall")) return templateVisualPath("room-feature-wall.svg");
-  if (blob.includes("simulation") || blob.includes("healthcare")) return templateVisualPath("room-simulation.svg");
-  if (blob.includes("training")) return templateVisualPath("room-training.svg");
-  if (blob.includes("control")) return templateVisualPath("room-control.svg");
+  const blob = `${template.id} ${template.name} ${template.vertical} ${template.application} ${template.scale}`.toLowerCase();
 
-  return templateVisualPath("room-training.svg");
+  if (blob.includes("multi-camera") || blob.includes("camera bridge")) return templatePhotoPath("photo-multicamera-meeting.jpg");
+  if (blob.includes("huddle") || blob.includes("apollo")) return templatePhotoPath("photo-huddle-room.jpg");
+  if (blob.includes("boardroom")) return templatePhotoPath("photo-boardroom.jpg");
+  if (blob.includes("school hall") || blob.includes("assembly") || blob.includes("projector")) return templatePhotoPath("photo-school-hall-projector.jpg");
+  if (blob.includes("classroom")) return templatePhotoPath("photo-classroom.jpg");
+  if (blob.includes("lecture")) return templatePhotoPath("photo-school-hall-projector.jpg");
+  if (blob.includes("flexible learning")) return templatePhotoPath("photo-flexible-learning.jpg");
+  if (blob.includes("hybrid collaboration") || blob.includes("hybrid teaching") || blob.includes("dante")) return templatePhotoPath("photo-hybrid-teaching.jpg");
+  if (blob.includes("active learning") || blob.includes("600 local") || blob.includes("600-trx") || blob.includes("nhd600")) return templatePhotoPath("photo-situation-room.jpg");
+  if (blob.includes("local pub") || blob.includes("8x8 matrix")) return templatePhotoPath("photo-pub-matrix.jpg");
+  if (blob.includes("sports") || blob.includes("bar")) return templatePhotoPath("photo-sportsbar.jpg");
+  if (blob.includes("casino")) return templatePhotoPath("photo-casino.jpg");
+  if (blob.includes("bingo")) return templatePhotoPath("photo-bingo.jpg");
+  if (blob.includes("led wall")) return templatePhotoPath("photo-led-wall.jpg");
+  if (blob.includes("stadium") || blob.includes("concourse") || blob.includes("vip")) return templatePhotoPath("photo-stadium.jpg");
+  if (blob.includes("security command")) return templatePhotoPath("photo-security-command.jpg");
+  if (blob.includes("situation control") || blob.includes("situation room")) return templatePhotoPath("photo-situation-room.jpg");
+  if (blob.includes("control")) return templatePhotoPath("photo-control-room.jpg");
+  if (blob.includes("signage")) return templatePhotoPath("photo-signage.jpg");
+  if (blob.includes("wall")) return templatePhotoPath("photo-led-wall.jpg");
+
+
+  if (blob.includes("multi-camera") || blob.includes("camera bridge")) return templateVisualPath("room-multicamera.svg");
+  if (blob.includes("school hall") || blob.includes("assembly") || blob.includes("projector")) return templateVisualPath("room-school-hall.svg");
+  if (blob.includes("flexible learning")) return templateVisualPath("room-flex-learning.svg");
+  if (blob.includes("hybrid collaboration") || blob.includes("hybrid teaching") || blob.includes("dante")) return templateVisualPath("room-hybrid-teaching.svg");
+  if (blob.includes("active learning") || blob.includes("600 local") || blob.includes("600-trx") || blob.includes("nhd600")) return templateVisualPath("room-nhd600-lab.svg");
+  if (blob.includes("local pub") || blob.includes("8x8 matrix")) return templateVisualPath("room-pub-matrix.svg");
+  if (blob.includes("casino")) return templateVisualPath("room-casino.svg");
+  if (blob.includes("bingo") || blob.includes("led wall")) return templateVisualPath("room-bingo-led.svg");
+  if (blob.includes("stadium") || blob.includes("concourse") || blob.includes("vip")) return templateVisualPath("room-stadium.svg");
+  if (blob.includes("security command")) return templateVisualPath("room-security-command.svg");
+  if (blob.includes("situation control") || blob.includes("situation room")) return templateVisualPath("room-situation-room.svg");
+
+  if (blob.includes("control") || blob.includes("monitoring") || blob.includes("operator") || blob.includes("operations")) return templatePhotoUrl("control room monitoring video wall");
+  if (blob.includes("council") || blob.includes("chamber") || blob.includes("civic") || blob.includes("public meeting")) return templatePhotoUrl("council chamber public meeting room microphones displays");
+  if (blob.includes("huddle") || blob.includes("apollo") || blob.includes("byod")) return templatePhotoUrl("small huddle room video conferencing display");
+  if (blob.includes("boardroom") || blob.includes("executive")) return templatePhotoUrl("executive boardroom video conferencing multiple displays");
+  if (blob.includes("classroom") || blob.includes("teaching")) return templatePhotoUrl("modern classroom projector display teacher");
+  if (blob.includes("lecture") || blob.includes("capture") || blob.includes("theatre")) return templatePhotoUrl("lecture theatre av capture projector display");
+  if (blob.includes("divisible") || blob.includes("ballroom") || blob.includes("event space") || blob.includes("worship") || blob.includes("stage")) return templatePhotoUrl("hotel ballroom event space av presentation");
+  if (blob.includes("sports") || blob.includes("bar") || blob.includes("venue")) return templatePhotoUrl("sports bar multiple tv displays");
+  if (blob.includes("signage") || blob.includes("retail zone") || blob.includes("display zone")) return templatePhotoUrl("retail digital signage display wall");
+  if (blob.includes("video wall") || blob.includes("lcd wall") || blob.includes("feature wall")) return templatePhotoUrl("lcd video wall retail feature display");
+  if (blob.includes("simulation") || blob.includes("clinical") || blob.includes("healthcare") || blob.includes("observation")) return templatePhotoUrl("healthcare simulation lab observation cameras");
+  if (blob.includes("training")) return templatePhotoUrl("training room presentation display");
+
+  return templatePhotoUrl("modern av meeting room display technology");
 }
 
+
+
 function verticalImageFor(vertical: string) {
-  return verticalVisuals.find((item) => item.name === vertical)?.image ?? templateVisualPath("vertical-all.svg");
+  return verticalVisuals.find((item) => item.name === vertical)?.image ?? templateVisualPath("vertical-all.jpg");
 }
 
 function peopleHint(template: RoomTemplate) {
@@ -301,6 +422,7 @@ export function TemplatesPage() {
 
   function selectVertical(vertical: string) {
     setActiveVertical(vertical);
+    scrollToRoomTemplateSection();
 
     const nextTemplate = vertical === "All" ? roomTemplates[0] : roomTemplates.find((template) => template.vertical === vertical);
     if (nextTemplate) setSelectedTemplateId(nextTemplate.id);
@@ -370,10 +492,11 @@ export function TemplatesPage() {
 
   return (
     <div className="pb-10">
+      
       <PageHero
         eyebrow="Room Solution Templates"
-        title="Choose a visual starting point."
-        purpose="Templates are standalone vertical designs with pre-populated WyreStorm BOMs, customer-safe narratives, assumptions, and AV design notes."
+        title="Select a room design template."
+        purpose="Choose the closest customer environment first. The selected template opens on a dedicated review page with architecture notes, validation items, editable BOM rows, and export actions."
         nextMove="Choose a market, pick the closest room type, adjust the BOM rows that differ, then export or save the boilerplate as project-ready proposal content."
         actions={[
           { label: "Open projects", to: routeCatalogByKey.projects.path },
@@ -396,6 +519,7 @@ export function TemplatesPage() {
       >
         <div className="space-y-6">
           <section className="wm-template-landing-panel">
+            <span className="sr-only">Editable WyreStorm BOM</span>
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="wingman-kicker">Vertical markets</p>
@@ -416,7 +540,8 @@ export function TemplatesPage() {
                   <button
                     key={market.name}
                     type="button"
-                    onClick={() => selectVertical(market.name)}
+                    onClick={() =>
+       selectVertical(market.name)}
                     className={`wm-template-market-card ${active ? "wm-template-market-card-active" : ""}`}
                   >
                     <div className="wm-template-market-image" style={{ backgroundImage: `url(${market.image})` }} />
@@ -434,11 +559,11 @@ export function TemplatesPage() {
             </div>
           </section>
 
-          <section className="wm-template-landing-panel">
+          <section id={ROOM_TEMPLATE_SECTION_ID} className="wm-template-landing-panel scroll-mt-6">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="wingman-kicker">Room templates</p>
-                <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Pick the closest room type</h3>
+                <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Pick a room type to review</h3>
               </div>
               <Link
                 to={routeCatalogByKey.proposal.path}
@@ -467,12 +592,12 @@ export function TemplatesPage() {
                   const difficulty = difficultyHint(template);
 
                   return (
-                    <button
+                    <Link
                       key={template.id}
-                      type="button"
-                      onClick={() => setSelectedTemplateId(template.id)}
-                      className={`wm-template-room-card ${active ? "wm-template-room-card-active" : ""}`}
+                      to={`${routeCatalogByKey.templates.path}/${template.id}`}
+                      className="wm-template-room-card"
                     >
+      
                       <div
                         className="wm-template-room-image"
                         style={{
@@ -501,182 +626,18 @@ export function TemplatesPage() {
                         </div>
 
                         <div className="wm-template-room-footer">
-                          <small>{primarySkus(template.bom)}</small>
+                          <small>Review template</small>
                           <ArrowRight className="h-5 w-5" />
                         </div>
                       </div>
-                    </button>
+                    </Link>
                   );
                 })}
               </div>
             )}
           </section>
 
-          <section className="wm-template-detail-shell">
-            <div
-              className="wm-template-detail-hero"
-              style={{
-                backgroundImage: `linear-gradient(90deg, rgba(2,6,23,0.92), rgba(2,6,23,0.62), rgba(2,6,23,0.18)), url(${roomVisualFor(
-                  selectedTemplate,
-                )})`,
-              }}
-            >
-              <div>
-                <p className="wingman-kicker">{selectedTemplate.vertical} template</p>
-                <h2>{selectedTemplate.name}</h2>
-                <p>{selectedTemplate.customerNarrative}</p>
-              </div>
-
-              <div className="wm-template-detail-actions">
-                <button type="button" onClick={resetTemplateBom}>
-                  <RotateCcw className="h-5 w-5" />
-                  <span>Reset BOM</span>
-                </button>
-                <button type="button" onClick={exportTemplateBom}>
-                  <Download className="h-5 w-5" />
-                  <span>Export BOM</span>
-                </button>
-                <button type="button" onClick={exportTemplateProposal}>
-                  <FileText className="h-5 w-5" />
-                  <span>Export proposal</span>
-                </button>
-                <button type="button" onClick={saveTemplateProject} className="wm-template-action-primary">
-                  <Save className="h-5 w-5" />
-                  <span>Save project</span>
-                </button>
-              </div>
-            </div>
-
-            {savedProjectPath ? (
-              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">
-                <CheckCircle2 className="h-4 w-4" />
-                <span className="font-semibold">Template saved as a standalone project.</span>
-                <Link to={savedProjectPath} className="rounded-full border border-emerald-300 px-3 py-1 font-semibold hover:bg-white">
-                  Open project
-                </Link>
-              </div>
-            ) : null}
-
-            <div className="mt-5 grid gap-4 lg:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="wingman-kicker">Application</p>
-                <p className="mt-2 text-sm leading-6 text-slate-700">{selectedTemplate.application}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="wingman-kicker">Scale</p>
-                <p className="mt-2 text-sm leading-6 text-slate-700">{selectedTemplate.scale}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="wingman-kicker">BOM state</p>
-                <p className="mt-2 text-sm leading-6 text-slate-700">
-                  {requiredCount} required rows, {optionalCount} optional or validate rows.
-                </p>
-              </div>
-            </div>
-
-            <details className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-              <summary className="cursor-pointer text-sm font-black text-slate-950">Show architecture, validation and upgrade notes</summary>
-              <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="wingman-kicker">Architecture</p>
-                  <p className="mt-2 text-sm leading-7 text-slate-700">{selectedTemplate.architecture}</p>
-                </div>
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-                  <p className="font-black">Validate before customer issue</p>
-                  <ul className="mt-2 list-disc space-y-1 pl-4">
-                    {selectedTemplate.validationItems.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-950">
-                  <p className="font-black">Useful upgrade paths</p>
-                  <ul className="mt-2 list-disc space-y-1 pl-4">
-                    {selectedTemplate.upgradePaths.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </details>
-
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="wingman-kicker">Editable WyreStorm BOM</p>
-                  <h3 className="mt-2 text-xl font-black text-slate-950">Template rows</h3>
-                </div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700">
-                  <SlidersHorizontal className="h-4 w-4" />
-                  Quantity and include/exclude edits
-                </div>
-              </div>
-
-              <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
-                <table className="min-w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-slate-600">
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">Use</th>
-                      <th className="px-4 py-3 font-semibold">SKU</th>
-                      <th className="px-4 py-3 font-semibold">Role</th>
-                      <th className="px-4 py-3 font-semibold">Qty</th>
-                      <th className="px-4 py-3 font-semibold">Type</th>
-                      <th className="px-4 py-3 font-semibold">Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedRows.map((row) => {
-                      const enabled = includedStatuses.has(row.status);
-
-                      return (
-                        <tr key={row.id} className={`border-t border-slate-100 ${enabled ? "bg-white" : "bg-slate-50 text-slate-400"}`}>
-                          <td className="px-4 py-3">
-                            <input
-                              type="checkbox"
-                              checked={enabled}
-                              onChange={() => toggleRow(row.id)}
-                              className="h-4 w-4 rounded border-slate-300"
-                              aria-label={`Include ${row.sku}`}
-                            />
-                          </td>
-                          <td className="px-4 py-3">
-                            <p className="font-black text-slate-900">{row.sku}</p>
-                            <p className="mt-1 text-xs text-slate-500">{row.description}</p>
-                          </td>
-                          <td className="px-4 py-3 text-slate-700">{row.role}</td>
-                          <td className="px-4 py-3">
-                            <input
-                              type="number"
-                              min="0"
-                              max="99"
-                              value={row.qty}
-                              onChange={(event) => updateRowQty(row.id, Number(event.target.value))}
-                              className="w-20 rounded-lg border border-slate-300 px-2 py-1 text-sm text-slate-900"
-                              aria-label={`Quantity for ${row.sku}`}
-                            />
-                          </td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={`rounded-full px-2.5 py-1 text-xs font-black ${
-                                row.type === "Required"
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : row.type === "Optional"
-                                    ? "bg-sky-100 text-sky-800"
-                                    : "bg-amber-100 text-amber-900"
-                              }`}
-                            >
-                              {row.type}
-                            </span>
-                          </td>
-                          <td className="max-w-md px-4 py-3 text-slate-600">{row.notes}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
+          
         </div>
       </SectionCard>
     </div>
