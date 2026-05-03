@@ -20,6 +20,7 @@ export type WingmanRouteKey =
   | "projects"
   | "discovery"
   | "finder"
+  | "productFamilies"
   | "productPitch"
   | "compare"
   | "templates"
@@ -49,6 +50,7 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   projects: FolderKanban,
   discovery: ClipboardList,
   finder: Search,
+  productFamilies: LayoutTemplate,
   productPitch: PackageCheck,
   compare: Scale,
   templates: LayoutTemplate,

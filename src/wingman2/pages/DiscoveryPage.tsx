@@ -23,6 +23,7 @@ import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { saveDiscoveryBriefToProject } from "../data/projectStore";
 
+import { SourceDeviceCollator } from "../components/discovery/SourceDeviceCollator";
 type StepId =
   | "useCase"
   | "layout"
@@ -1247,9 +1248,14 @@ function ChipGroup({
 }) {
   return (
     <div className="grid gap-3">
-      <div>
+      <div className="flex flex-wrap items-center gap-2">
         <p className="text-sm font-black text-slate-900">{title}</p>
-        <p className="mt-1 text-xs leading-5 text-slate-500">{helper}</p>
+        <details className="wm-inline-help">
+          <summary aria-label={`Show guidance for ${title}`}>
+            <HelpCircle className="h-3.5 w-3.5" />
+          </summary>
+          <p>{helper}</p>
+        </details>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -1275,7 +1281,6 @@ function CountControl({
     <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
       <div>
         <p className="text-sm font-black text-slate-900">{label}</p>
-        <p className="mt-1 text-xs text-slate-500">Use quick controls during the live call.</p>
       </div>
 
       <div className="flex items-center gap-2">
@@ -1327,6 +1332,7 @@ function StepBadge({
     <button
       type="button"
       onClick={onClick}
+      title={description}
       className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm transition ${stateClass}`}
     >
       <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/70 text-xs font-black">
@@ -1334,7 +1340,6 @@ function StepBadge({
       </span>
       <span>
         <span className="block font-black">{label}</span>
-        <span className="mt-1 block text-xs opacity-75">{description}</span>
       </span>
     </button>
   );
@@ -1352,7 +1357,7 @@ function QuestionStrategyCard({
   unresolvedCount: number;
 }) {
   return (
-    <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sky-950">
+    <div className="wm-question-focus rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sky-950">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <HelpCircle className="h-5 w-5 text-sky-700" />
@@ -1363,20 +1368,19 @@ function QuestionStrategyCard({
         </span>
       </div>
 
-      <div className="mt-3 grid gap-3 text-sm leading-6 lg:grid-cols-3">
-        <div className="rounded-xl border border-sky-200 bg-white p-3">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">Ask first</p>
-          <p className="mt-1 font-semibold">{askFirst}</p>
+      <p className="mt-3 text-base font-black leading-6">{askFirst}</p>
+
+      <details className="wm-question-reasoning">
+        <summary>Why / unknown path</summary>
+        <div>
+          <p>
+            <strong>Why:</strong> {why}
+          </p>
+          <p>
+            <strong>If unknown:</strong> {ifUnknown}
+          </p>
         </div>
-        <div className="rounded-xl border border-sky-200 bg-white p-3">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">Why it matters</p>
-          <p className="mt-1">{why}</p>
-        </div>
-        <div className="rounded-xl border border-sky-200 bg-white p-3">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">If they do not know</p>
-          <p className="mt-1">{ifUnknown}</p>
-        </div>
-      </div>
+      </details>
     </div>
   );
 }
@@ -1736,9 +1740,6 @@ export function DiscoveryPage() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-sm font-black text-slate-950">{source.name || `Source ${index + 1}`}</p>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
-              Define this as a point-to-point signal path, not just a device category.
-            </p>
           </div>
 
           <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-600">
@@ -2174,12 +2175,14 @@ export function DiscoveryPage() {
         ]}
       />
 
-      <SectionCard
+      
+      <SourceDeviceCollator />
+<SectionCard
         title="Dynamic discovery workflow"
         subtitle="The workflow behaves like a guided conversation: application-specific questions, filtered choices, visible assumptions, and a safe path when the customer does not know."
       >
-        <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div className="wm-discovery-workflow grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)_320px]">
+          <div className="wm-workflow-rail rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-black text-slate-900">Workflow path</p>
               <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-600">
@@ -2201,7 +2204,7 @@ export function DiscoveryPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="wm-workflow-main rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-black text-slate-900">Current step: {currentStep.label}</p>
@@ -2266,7 +2269,7 @@ export function DiscoveryPage() {
             </div>
           </div>
 
-          <div className="grid gap-4">
+          <div className="wm-workflow-insight grid gap-4">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
               <div className="flex items-center gap-2">
                 <Monitor className="h-5 w-5 text-slate-500" />

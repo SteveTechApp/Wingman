@@ -1,0 +1,121 @@
+/* Wingman Product Finder visual polish
+   Adds depth, colour accents and separation to Product Finder results.
+*/
+
+body.wm-product-finder-active {
+  --wm-finder-navy: #071426;
+  --wm-finder-panel: rgba(255, 255, 255, 0.92);
+  --wm-finder-border: rgba(15, 23, 42, 0.12);
+  --wm-finder-shadow: 0 18px 44px rgba(2, 8, 23, 0.18);
+  --wm-finder-shadow-hover: 0 24px 60px rgba(2, 8, 23, 0.26);
+  --wm-finder-orange: #f97316;
+  --wm-finder-blue: #38bdf8;
+  --wm-finder-green: #22c55e;
+  --wm-finder-purple: #a78bfa;
+  --wm-finder-amber: #f59e0b;
+}
+
+/* Give the Finder workspace itself a more premium, less white feel. */
+body.wm-product-finder-active main {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(56, 189, 248, 0.16), transparent 28rem),
+    radial-gradient(circle at 82% 16%, rgba(249, 115, 22, 0.14), transparent 26rem),
+    linear-gradient(180deg, rgba(7, 20, 38, 0.04), rgba(7, 20, 38, 0.1));
+}
+
+/* Main card treatment. 
+   This intentionally catches Finder product cards even if their class names change. */
+body.wm-product-finder-active main :is(article, li, section, div):has(> :is(h2, h3, h4, header)) {
+  border-color: var(--wm-finder-border);
+}
+
+/* Product/result-style cards: shadow, depth and colour wash. */
+body.wm-product-finder-active main :is(article, li, div):has(:is(h2, h3, h4)):has(:is(button, a, [role="button"], span)) {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.9)),
+    var(--wm-finder-panel);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: var(--wm-finder-shadow);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+/* Left accent stripe. */
+body.wm-product-finder-active main :is(article, li, div):has(:is(h2, h3, h4)):has(:is(button, a, [role="button"], span))::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: linear-gradient(180deg, var(--wm-finder-orange), var(--wm-finder-blue));
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+/* Soft colour glow in the top-right of each card. */
+body.wm-product-finder-active main :is(article, li, div):has(:is(h2, h3, h4)):has(:is(button, a, [role="button"], span))::after {
+  content: "";
+  position: absolute;
+  top: -90px;
+  right: -80px;
+  width: 190px;
+  height: 190px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.22), transparent 68%);
+  pointer-events: none;
+}
+
+/* Rotate accent colours so the grid does not feel repetitive. */
+body.wm-product-finder-active main :is(article, li, div):has(:is(h2, h3, h4)):has(:is(button, a, [role="button"], span)):nth-of-type(5n + 1)::before {
+  background: linear-gradient(180deg, var(--wm-finder-orange), var(--wm-finder-amber));
+}
+
+body.wm-product-finder-active main :is(article, li, div):has(:is(h2, h3, h4)):has(:is(button, a, [role="button"], span)):nth-of-type(5n + 2)::before {
+  background: linear-gradient(180deg, var(--wm-finder-blue), #2563eb);
+}
+
+body.wm-product-finder-active main :is(article, li, div):has(:is(h2, h3, h4)):has(:is(button, a, [role="button"], span)):nth-of-type(5n + 3)::before {
+  background: linear-gradient(180deg, var(--wm-finder-green), #14b8a6);
+}
+
+body.wm-product-finder-active main :is(article, li, div):has(:is(h2, h3, h4)):has(:is(button, a, [role="button"], span)):nth-of-type(5n + 4)::before {
+  background: linear-gradient(180deg, var(--wm-finder-purple), #ec4899);
+}
+
+body.wm-product-finder-active main :is(article, li, div):has(:is(h2, h3, h4)):has(:is(button, a, [role="button"], span)):hover {
+  transform: translateY(-3px);
+  box-shadow: var(--wm-finder-shadow-hover);
+  border-color: rgba(56, 189, 248, 0.42);
+}
+
+/* Make SKU/family/type pills feel more intentional. */
+body.wm-product-finder-active main :is(span, small, strong):is([class*="pill"], [class*="badge"], [class*="tag"]),
+body.wm-product-finder-active main :is(span, small, strong):has(+ span) {
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+/* Give action buttons a clearer WyreStorm-style accent without making the whole page orange. */
+body.wm-product-finder-active main :is(button, a[role="button"]) {
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+body.wm-product-finder-active main :is(button, a[role="button"]):hover {
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
+}
+
+/* Light panels remain readable but no longer look like flat white blocks. */
+body.wm-product-finder-active main :is(.bg-white, [class*="bg-white"]) {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* Preserve compact layouts on smaller screens. */
+@media (max-width: 900px) {
+  body.wm-product-finder-active main :is(article, li, div):has(:is(h2, h3, h4)):has(:is(button, a, [role="button"], span)) {
+    box-shadow: 0 12px 30px rgba(2, 8, 23, 0.14);
+  }
+}

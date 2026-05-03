@@ -8,6 +8,8 @@
     "dev:lookup-api": "npm --prefix server run dev",
     "server:dev": "npm --prefix server run dev",
     "server:start": "npm --prefix server run start",
+    "data:enrich-wyrestorm-products": "node tools/enrich-wyrestorm-product-intelligence.mjs",
+    "data:audit-wyrestorm-products": "node tools/product-intelligence-audit.mjs",
     "data:product-intelligence-index": "node tools/generate-product-intelligence-index.mjs",
     "build": "npm run data:product-intelligence-index && vite build",
     "preview": "vite preview",
@@ -19,7 +21,9 @@
     "check:browser": "node tools/browser-smoke-check.mjs",
     "verify": "npm run typecheck && npm run build && npm run check:routes && npm run check:readiness && npm run check:workflow",
     "precommit:check": "npm run verify",
-    "safe:verify": "npm run verify"
+    "safe:verify": "npm run verify",
+    "compare:server": "node server/compare-intelligence-server.mjs",
+    "data:check-wyrestorm-products": "node tools/check-wyrestorm-product-updates.mjs"
   },
   "dependencies": {
     "cors": "^2.8.6",

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07111d"/>
+      <stop offset="54%" stop-color="#12263f"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.72)"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" rx="44" fill="url(#bg)"/>
+  <circle cx="806" cy="84" r="156" fill="rgba(255,255,255,0.08)"/>
+  <circle cx="134" cy="470" r="188" fill="rgba(255,255,255,0.055)"/>
+  <rect x="132" y="86" width="696" height="180" rx="28" fill="rgba(15,23,42,0.74)" stroke="rgba(255,255,255,0.2)"/>
+  <rect x="394" y="112" width="172" height="84" rx="16" fill="rgba(96,165,250,0.24)" stroke="rgba(255,255,255,0.3)"/>
+  <path d="M480 208v96" stroke="rgba(245,158,11,0.78)" stroke-width="8" stroke-linecap="round"/>
+  <rect x="326" y="304" width="308" height="62" rx="20" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.24)"/>
+  <text x="374" y="344" font-family="Inter, Arial" font-size="28" font-weight="850" fill="#fff">HDBaseT</text>
+  <rect x="136" y="302" width="84" height="72" rx="14" fill="rgba(255,255,255,0.13)" stroke="rgba(255,255,255,0.2)"/>
+  <text x="154" y="344" font-family="Inter, Arial" font-size="18" font-weight="850" fill="#fff">Plate</text>
+  <rect y="336" width="960" height="204" fill="url(#fade)"/>
+  <text x="70" y="424" font-family="Inter, Arial, sans-serif" font-size="48" font-weight="850" fill="#ffffff">School Hall</text>
+  <text x="72" y="470" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="rgba(255,255,255,0.78)">HDBaseT wall plate to projector</text>
+</svg>

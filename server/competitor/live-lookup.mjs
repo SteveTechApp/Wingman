@@ -10,6 +10,21 @@ const LIVE_LOOKUP_DB_FILE = path.join(ROOT_DIR, "data", "competitor-live-lookup-
 const LIVE_LOOKUP_MEMORY_CACHE = new Map();
 /* COMPETITOR-LIVE-LOOKUP-ALLOWLIST-GUARD-START */
 const ALLOWED_VENDOR_HOSTS = new Set([
+  // Search / discovery sources
+  "bing.com",
+  "www.bing.com",
+  "duckduckgo.com",
+  "html.duckduckgo.com",
+
+  // Alternative reference sources
+  "reddit.com",
+  "www.reddit.com",
+  "old.reddit.com",
+  "wikipedia.org",
+  "www.wikipedia.org",
+  "en.wikipedia.org",
+
+  // Core competitor manufacturers
   "crestron.com",
   "www.crestron.com",
   "extron.com",
@@ -31,11 +46,44 @@ const ALLOWED_VENDOR_HOSTS = new Set([
   "www.barco.com",
   "amx.com",
   "www.amx.com",
-  "bing.com",
-  "www.bing.com",
-  "duckduckgo.com",
-  "html.duckduckgo.com",
+
+  // Additional AV manufacturers / common comparison sources
+  "visionary-av.com",
+  "www.visionary-av.com",
+  "avproedge.com",
+  "www.avproedge.com",
+  "justaddpower.com",
+  "www.justaddpower.com",
+  "auroramm.com",
+  "www.auroramm.com",
+  "qsys.com",
+  "www.qsys.com",
+  "netgear.com",
+  "www.netgear.com",
+
+  // Trusted public AV catalogue / reseller / distribution sources
+  "avitdirect.co.uk",
+  "www.avitdirect.co.uk",
+  "markertek.com",
+  "www.markertek.com",
+  "bzbgear.com",
+  "www.bzbgear.com",
+  "proav.co.uk",
+  "www.proav.co.uk",
+  "midwich.com",
+  "www.midwich.com",
+  "exertis.co.uk",
+  "www.exertis.co.uk",
+  "bhphotovideo.com",
+  "www.bhphotovideo.com"
 ]);
+
+for (const host of String(process.env.LOOKUP_ALLOWED_SOURCE_HOSTS || "")
+  .split(/[,\s]+/)
+  .map((item) => item.trim().toLowerCase())
+  .filter(Boolean)) {
+  ALLOWED_VENDOR_HOSTS.add(host);
+}
 
 function normalizeAllowedProductUrl(rawUrl, baseUrl = "") {
   const value = tidy(rawUrl);
@@ -78,20 +126,12 @@ function isAllowedCompetitorLookupUrl(rawUrl) {
   return Boolean(normalizeAllowedProductUrl(rawUrl));
 }
 
-function isAllowedVendorLookupUrl(rawUrl) {
-  return isAllowedCompetitorLookupUrl(rawUrl);
-}
-
 function assertAllowedCompetitorLookupUrl(rawUrl) {
   if (isAllowedCompetitorLookupUrl(rawUrl)) {
     return;
   }
 
   throw new Error(`Competitor live lookup URL blocked by allowlist guard: ${String(rawUrl || "").slice(0, 160)}`);
-}
-
-function assertAllowedVendorLookupUrl(rawUrl) {
-  assertAllowedCompetitorLookupUrl(rawUrl);
 }
 /* COMPETITOR-LIVE-LOOKUP-ALLOWLIST-GUARD-END */
 const DEFAULT_TIMEOUT_MS = Math.max(3500, Number(process.env.LOOKUP_TIMEOUT_MS || 9000));
@@ -330,20 +370,6 @@ function normalizeHttpsUrl(rawUrl, baseUrl = "") {
   return normalizeAllowedProductUrl(rawUrl, baseUrl);
 }
 
-function isAllowedHost(url, adapter) {
-  if (!adapter || !Array.isArray(adapter.hosts) || adapter.hosts.length === 0) return true;
-
-  try {
-    const host = new URL(url).hostname.toLowerCase();
-    return adapter.hosts.some((allowedHost) => {
-      const allowed = String(allowedHost).toLowerCase();
-      return host === allowed || host.endsWith(`.${allowed}`);
-    });
-  } catch {
-    return false;
-  }
-}
-
 function buildSearchEngineUrls(adapter, sku) {
   if (!adapter?.hosts?.length || !sku) return [];
   const host = adapter.hosts[0];
@@ -351,6 +377,34 @@ function buildSearchEngineUrls(adapter, sku) {
   return [
     `https://www.bing.com/search?q=${encodeURIComponent(`site:${host} "${sku}"`)}`,
     `https://html.duckduckgo.com/html/?q=${encodeURIComponent(`site:${host} "${sku}"`)}`,
+  ];
+}
+
+function buildTrustedReferenceSourceUrls(manufacturer, model) {
+  const sku = tidy(model);
+  const brand = tidy(manufacturer);
+
+  if (!sku) return [];
+
+  const searchPhrase = [brand, sku].filter(Boolean).join(" ");
+
+  return [
+    // AVITdirect contains useful reseller/source catalogue records across video products.
+    `https://avitdirect.co.uk/search?q=${encodeURIComponent(searchPhrase)}`,
+    `https://avitdirect.co.uk/search?q=${encodeURIComponent(sku)}`,
+    "https://avitdirect.co.uk/collections/video",
+    "https://avitdirect.co.uk/collections/video-distribution",
+
+    // General search discovery sources. These are information discovery sources, not competitor vendors.
+    `https://www.bing.com/search?q=${encodeURIComponent(`${searchPhrase} datasheet product page specifications`)}`,
+    `https://html.duckduckgo.com/html/?q=${encodeURIComponent(`${searchPhrase} datasheet product page specifications`)}`,
+
+    // Alternative reference sources. These are useful for context, issue patterns, terminology,
+    // manufacturer background and real-world feedback, but should not overrule official datasheets.
+    `https://www.reddit.com/search/?q=${encodeURIComponent(`${searchPhrase} AV product issue review integration`)}`,
+    `https://old.reddit.com/search?q=${encodeURIComponent(`${searchPhrase} AV product issue review integration`)}`,
+    `https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(`${brand} ${sku}`)}`,
+    `https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(`${brand} AV over IP HDMI matrix video distribution`)}`,
   ];
 }
 
@@ -377,6 +431,13 @@ function buildInitialUrls(manufacturer, model, productUrl) {
       const normalized = normalizeHttpsUrl(url);
       if (normalized) urls.push({ url: normalized, kind: "search-engine" });
     }
+  }
+
+  for (const url of buildTrustedReferenceSourceUrls(manufacturer, model)) {
+    const normalized = normalizeHttpsUrl(url);
+    if (normalized && normalized.includes("reddit.com")) urls.push({ url: normalized, kind: "community-reference-source" });
+    if (normalized && normalized.includes("wikipedia.org")) urls.push({ url: normalized, kind: "encyclopedia-reference-source" });
+    if (normalized && !normalized.includes("reddit.com") && !normalized.includes("wikipedia.org")) urls.push({ url: normalized, kind: "trusted-reference-source" });
   }
 
   const seen = new Set();
@@ -422,8 +483,11 @@ function extractCandidateLinks(html, currentUrl, adapter, model) {
     const unwrapped = unwrapSearchRedirect(href);
     const normalized = normalizeHttpsUrl(unwrapped, currentUrl);
     if (!normalized) continue;
-    if (!isAllowedHost(normalized, adapter)) continue;
 
+    // The URL has already passed the public-source allowlist guard.
+    // Do not restrict discovered links to only the primary vendor domain, because source pages
+    // such as AVITdirect, distributor catalogues and search result pages can legitimately point
+    // to useful product pages, datasheets and manufacturer records.
     const linkSquash = normalizeId(normalized);
     const useful =
       !skuSquash ||
@@ -454,6 +518,14 @@ function scorePage({ url, title, text, model, kind }) {
   if (normalise(title).includes(sku)) score += 20;
   if (/\b4k\b|\b8k\b|\bhdbaset\b|\bav over ip\b|\bencoder\b|\bdecoder\b|\bmatrix\b|\bswitcher\b|\busb\b|\bmultiview\b|\bvideo wall\b/.test(blob)) score += 20;
   if (blob.includes("datasheet") || blob.includes("specification") || blob.includes("specifications")) score += 12;
+
+  // Community and encyclopaedia sources are useful supporting evidence, but should not outrank
+  // manufacturer product pages, datasheets or distributor product pages for exact specification matching.
+  if (url.includes("reddit.com")) score -= 18;
+  if (url.includes("wikipedia.org")) score -= 14;
+  if (kind === "community-reference-source") score -= 18;
+  if (kind === "encyclopedia-reference-source") score -= 14;
+
   if (blob.length < 500) score -= 25;
   if (blob.includes("search results")) score -= 10;
 

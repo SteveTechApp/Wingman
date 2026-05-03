@@ -18,32 +18,27 @@ type PageHeroProps = {
 
 function actionClass(variant: PageHeroAction["variant"]) {
   return [
-    "wingman-hero-action",
-    variant === "secondary" ? "wingman-hero-action-secondary" : "wingman-hero-action-primary",
+    "wm-balanced-hero-action",
+    variant === "secondary" ? "wm-balanced-hero-action-secondary" : "wm-balanced-hero-action-primary",
   ].join(" ");
 }
 
-export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHeroProps) {
+export function PageHero({ eyebrow, title, purpose, actions }: PageHeroProps) {
   return (
-    <section className="wingman-page-hero wingman-panel wingman-grid">
-      <div className="wingman-hero-copy">
-        <p className="wingman-kicker">{eyebrow}</p>
-        <h1 className="wingman-display">{title}</h1>
-        <p className="wingman-hero-purpose">{purpose}</p>
-      </div>
-
-      <div className="wingman-hero-next">
-        <span>Next move</span>
-        <p>{nextMove}</p>
+    <section className="wm-balanced-page-hero wingman-panel" aria-label={`${eyebrow}: ${title}`}>
+      <div className="wm-balanced-hero-copy">
+        <p className="wm-balanced-hero-kicker">{eyebrow}</p>
+        <h1 className="wm-balanced-hero-title">{title}</h1>
+        <p className="wm-balanced-hero-purpose">{purpose}</p>
       </div>
 
       {actions?.length ? (
-        <div className="wingman-hero-actions">
+        <div className="wm-balanced-hero-actions">
           {actions.map((action) =>
             action.to ? (
               <Link key={action.label} to={action.to} className={actionClass(action.variant)}>
                 {action.label}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="wm-balanced-hero-action-icon" />
               </Link>
             ) : (
               <button
@@ -53,7 +48,7 @@ export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHer
                 className={actionClass(action.variant)}
               >
                 {action.label}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="wm-balanced-hero-action-icon" />
               </button>
             ),
           )}

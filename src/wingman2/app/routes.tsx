@@ -1,38 +1,58 @@
-import { createElement, type ComponentType } from "react";
+import { Suspense, lazy, type ComponentType, type LazyExoticComponent } from "react";
 import type { RouteObject } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { AppShell } from "../layout/AppShell";
-import { CallCardsPage } from "../pages/CallCardsPage";
-import { ComparePage } from "../pages/ComparePage";
-import { DashboardPage } from "../pages/DashboardPage";
-import { DiscoveryPage } from "../pages/DiscoveryPage";
-import { FinderPage } from "../pages/FinderPage";
-import { IngestPage } from "../pages/IngestPage";
-import { ProductPitchPage } from "../pages/ProductPitchPage";
-import { ProjectDetailPage } from "../pages/ProjectDetailPage";
-import { ProjectsPage } from "../pages/ProjectsPage";
-import { ProposalPage } from "../pages/ProposalPage";
-import { SalesHelperPage } from "../pages/SalesHelperPage";
-import { SupportPage } from "../pages/SupportPage";
-import { TemplatesPage } from "../pages/TemplatesPage";
-import { VideowallBuilderPage } from "../pages/VideowallBuilderPage";
 import { routeCatalog, type WingmanRouteKey } from "./routeCatalog";
 
-const pageRegistry: Record<WingmanRouteKey, ComponentType> = {
-  dashboard: DashboardPage,
-  projects: ProjectsPage,
-  discovery: DiscoveryPage,
-  finder: FinderPage,
-  productPitch: ProductPitchPage,
-  compare: ComparePage,
-  templates: TemplatesPage,
-  videowall: VideowallBuilderPage,
-  salesHelper: SalesHelperPage,
-  callCards: CallCardsPage,
-  ingest: IngestPage,
-  proposal: ProposalPage,
-  support: SupportPage,
+type PageModule = { default: ComponentType };
+type PageLoader = () => Promise<PageModule>;
+type LazyPageComponent = LazyExoticComponent<ComponentType>;
+
+function fromNamedExport<TModule extends Record<string, unknown>>(
+  loader: () => Promise<TModule>,
+  exportName: keyof TModule,
+): PageLoader {
+  return () =>
+    loader().then((module) => ({
+      default: module[exportName] as ComponentType,
+    }));
+}
+
+const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
+  dashboard: lazy(fromNamedExport(() => import("../pages/DashboardPage"), "DashboardPage")),
+  projects: lazy(fromNamedExport(() => import("../pages/ProjectsPage"), "ProjectsPage")),
+  discovery: lazy(fromNamedExport(() => import("../pages/DiscoveryPage"), "DiscoveryPage")),
+  finder: lazy(fromNamedExport(() => import("../pages/FinderPage"), "FinderPage")),
+  productFamilies: lazy(fromNamedExport(() => import("../pages/ProductFamilyPage"), "ProductFamilyPage")),
+  productPitch: lazy(fromNamedExport(() => import("../pages/ProductPitchPage"), "ProductPitchPage")),
+  compare: lazy(() => import("../pages/ComparePage")),
+  templates: lazy(fromNamedExport(() => import("../pages/TemplatesPage"), "TemplatesPage")),
+  videowall: lazy(fromNamedExport(() => import("../pages/VideowallBuilderPage"), "VideowallBuilderPage")),
+  salesHelper: lazy(fromNamedExport(() => import("../pages/SalesHelperPage"), "SalesHelperPage")),
+  callCards: lazy(fromNamedExport(() => import("../pages/CallCardsPage"), "CallCardsPage")),
+  ingest: lazy(fromNamedExport(() => import("../pages/IngestPage"), "IngestPage")),
+  proposal: lazy(fromNamedExport(() => import("../pages/ProposalPage"), "ProposalPage")),
+  support: lazy(fromNamedExport(() => import("../pages/SupportPage"), "SupportPage")),
 };
+
+const ProjectDetailRoute = lazy(fromNamedExport(() => import("../pages/ProjectDetailPage"), "ProjectDetailPage"));
+const TemplateReviewRoute = lazy(fromNamedExport(() => import("../pages/TemplateReviewPage"), "TemplateReviewPage"));
+
+function RouteFallback() {
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm font-semibold text-slate-600">
+      Loading Wingman view...
+    </div>
+  );
+}
+
+function routeElement(Page: ComponentType) {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <Page />
+    </Suspense>
+  );
+}
 
 export const wingmanRoutes: RouteObject[] = [
   {
@@ -40,10 +60,11 @@ export const wingmanRoutes: RouteObject[] = [
     element: <AppShell />,
     children: [
       { index: true, element: <Navigate to={routeCatalog[0].segment} replace /> },
-      { path: "projects/:projectId", element: <ProjectDetailPage /> },
+      { path: "projects/:projectId", element: routeElement(ProjectDetailRoute) },
+      { path: "templates/:templateId", element: routeElement(TemplateReviewRoute) },
       ...routeCatalog.map((route) => ({
         path: route.segment,
-        element: createElement(pageRegistry[route.key]),
+        element: routeElement(pageRegistry[route.key]),
       })),
     ],
   },
