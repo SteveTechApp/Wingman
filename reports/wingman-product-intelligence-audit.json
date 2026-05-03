@@ -1,0 +1,2537 @@
+{
+  "generatedAt": "2026-05-03T12:25:54.327Z",
+  "source": "data/wyrestorm-product-intelligence.json",
+  "productCount": 253,
+  "rows": [
+    {
+      "sku": "AMP-2120-DNT",
+      "title": "Advanced 1 or 2 Channel Dante Amplifier with support for Low and High Impedance Speaker Systems - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Audio / Control",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "AMP-260-DNT",
+      "title": "Advanced 2 or 4 Channel Dante Amplifier - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "APO-100-UC",
+      "title": "Apollo Series Conference Speakerphone - WyreStorm",
+      "family": "Software / Service",
+      "category": "Software or service / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "APO-200-UC",
+      "title": "Apollo Series Conference Speakerphone & Switcher - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "APO-COM-MIC",
+      "title": "Add-On Microphone for Apollo Video Bar - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "APO-DG-DOCK",
+      "title": "Docking Cradle for APO-DG2 Wireless Casting Dongle and APO-DG-HDMI Adapter - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Dongle",
+      "hardwareRole": "workflow-endpoint",
+      "visibilityPriority": "conditional-default",
+      "issues": ""
+    },
+    {
+      "sku": "APO-DG-HDMI",
+      "title": "HDMI+USB A to USB-C Adapter for the APO-DG1 & DG2 - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Dongle",
+      "hardwareRole": "workflow-endpoint",
+      "visibilityPriority": "conditional-default",
+      "issues": ""
+    },
+    {
+      "sku": "APO-DG2",
+      "title": "Apollo USB-C Wireless Casting Dongle - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Dongle",
+      "hardwareRole": "workflow-endpoint",
+      "visibilityPriority": "conditional-default",
+      "issues": ""
+    },
+    {
+      "sku": "APO-DG2-PRO",
+      "title": "Apollo USB-C Wireless Casting Dongle - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Dongle",
+      "hardwareRole": "workflow-endpoint",
+      "visibilityPriority": "conditional-default",
+      "issues": ""
+    },
+    {
+      "sku": "APO-MIC-EXT",
+      "title": "USB Extender for Apollo Add-On Mic - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "APO-SKY-MIC",
+      "title": "Companion Add-on Ceiling Mic for Apollo Video Bar and Microphone Hub - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "APO-VX20-MNT",
+      "title": "Display Mount for Apollo VX20 Video Bars - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "APO-VX20-UC-V2",
+      "title": "Video Bar for Conference Rooms: Advanced Meeting Solution",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unified Comms",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-DAOC-10-C",
+      "title": "32Gbps 8K 60Hz DisplayPort 1.4 Active Optical Cable with DP++ Support (10m/32ft) CPR, CL3 Approvals - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-DAOC-10-P",
+      "title": "32Gbps 8K 60Hz DisplayPort 1.4 Active Optical Cable with DP++ Support (10m/32ft) Plenum, FT6 Approvals - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-HAOC-15-C",
+      "title": "Active Optical HDMI Cable | 4K HDR 4:4:4/60| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-HAOC-15-P",
+      "title": "24Gbps 4-core Active Optical HDMI Cable | WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-HAOC-20",
+      "title": "Active Optical HDMI Cable | 4K HDR 4:4:4/60, ARC, CEC, ALLM & VRR| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-HAOC-20-C",
+      "title": "Active Optical HDMI Cable | 4K HDR| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-HAOC-20-P",
+      "title": "Active Optical HDMI Cable | Plenum & FT6 Rated| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-HAOC-30-C",
+      "title": "24Gbps 4-core Active Optical HDMI Cable | 4K HDR 4:4:4/60 | Kevlar strengthened | Detachable Head | CPR Rated - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-HAOC-30-P",
+      "title": "24Gbps 4-core Active Optical HDMI Cable | 4K HDR 4:4:4/60 | Kevlar strengthened | Detachable Head | Plenum & FT6 Rated - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-HAOC-FRL-XX",
+      "title": "8K HDMI Cable - CAB‑HAOC‑FRL‑XX HDMI 2.1 Bandwidth 48Gbps | WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-HAOC-XX",
+      "title": "24Gbps 4-core Active Optical HDMI Cable | 4K HDR 4:4:4/60, ARC, CEC, ALLM & VRR | Kevlar strengthened | ISF Certified - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-HAOC-XX-C",
+      "title": "24Gbps 4-core Active Optical HDMI Cable | 4K HDR 4:4:4/60 | Kevlar strengthened | Detachable Head | CPR Rated - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-HAOC-XX-P",
+      "title": "24Gbps 4-core Active Optical HDMI Cable | 4K HDR 4:4:4/60 | Kevlar strengthened | Detachable Head | Plenum & FT6 Rated - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-IR-LINK",
+      "title": "IR Link Cable for Control System Integration - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-UAOC-15-C",
+      "title": "15 Meter USB 3.2 GEN 2 10Gbps Active Optical Extension Cable - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-UAOC-15-P",
+      "title": "15 Meter USB 3.2 GEN 2 10Gbps Active Optical Extension Cable - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-UAOC-USBC-10",
+      "title": "USB 3.2 USB-C to USB-C Cable| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAB-USBC-15",
+      "title": "USB-C Active Optical Cable (15m/49ft) - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAM-0402-BRG",
+      "title": "4K Multi-Camera Video Bridge with USB & HDMI Inputs & Outputs - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "CAM-0402-NDI-BRG",
+      "title": "4K Multi-Camera Video Bridge with USB, HDMI & NDI Inputs & Outputs - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Camera / Capture",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "CAM-200-PTZ",
+      "title": "1080p HD PTZ Conference Camera with USB 3.0 & Network Output - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Camera / Capture",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "CAM-210-NDI-PTZ",
+      "title": "CAM-210-NDI-PTZ 1080p60 Camera with with USB 3.0 - Pro AV & Streaming - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAM-210-PTZ",
+      "title": "PTZ Camera with AI Tracking | CAM-210-PTZ 1080p – WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "CAM-420-PTZ",
+      "title": "4K Dual-Lens AI PTZ Camera with AI features - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "COM-MIC-HUB",
+      "title": "Microphone Hub - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "COMPANIONCONTROL",
+      "title": "Companion Control App for NetworkHD 100, 400, 500 & 600 Series - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "CON-H2-DD-EARC",
+      "title": "4K/60 In-line HDMI Scaler with DSP-Controlled Audio Breakout, Dolby TrueHD & DTS-HD Downmixing and eARC Output - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Audio / Control",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "CON-H2-EDID",
+      "title": "4K60 In-line Signal Re-Clocker with EDID Management - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Camera / Capture",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "CON-H2-SCL",
+      "title": "4K60 In-Line HDMI Scaler with Audio Breakout - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Seamless scaling matrix switcher",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-100-G2",
+      "title": "4K HDBaseT Extender Set with Bi-directional PoC, IR, RS-232, and EDID Support - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EX-100-H2",
+      "title": "100m 4K HDBaseT Extender with USB - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EX-100-H2-EARC",
+      "title": "100m 4K60 AVX Extender with eARC - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-100-IW-USBC",
+      "title": "100m USB 3.2 Single Gang In-Wall HDBT-USB3 Transmitter and Receiver Kit - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Camera / Capture",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-100-KVM",
+      "title": "WyreStorm EX-100-KVM 4K HDMI & USB KVM Extender over HDBaseT",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-100-KVM-8K",
+      "title": "100m HDMI 2.1 8K HDBaseT Extender with RS-232 Passthrough, Audio De-embed and USB 2.0 Extension - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EX-100-KVM-IP",
+      "title": "4K 30Hz KVM Extender over IP | EX-100-KVM-IP - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-100-USB3",
+      "title": "USB 3.0 Extender | EX-100-USB3 Gen 1 Standard - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-35-8K",
+      "title": "35m HDMI 2.1 8K HDBaseT Extender with IR/RS-232 Passthrough, Audio De-embed, and Bi-directional PoH - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EX-35-H2",
+      "title": "35m 4K60 HDBaseT Extender - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-35-H2-ARC",
+      "title": "ARC HDMI Extender - EX-35-H2-ARC 18Gbps 4K HDR HDBaseT Extender - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-40-G3",
+      "title": "40m 1080p UTP Extender - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EX-40-H2-ARC",
+      "title": "40m 4K HDBaseT Extender with ARC and Audio Breakout - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-40-KVM-5K",
+      "title": "5K30Hz HDBT 3.0 Box to Box Extender Kit - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-60-USB2",
+      "title": "EX-60-USB2 USB 2.0 Extender over Cat6 with 4-Port Hub",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-70-G2",
+      "title": "EX-70-G2 4K HDBaseT Extender Set with HDCP 2.2 & 2-way PoH - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-70-H2",
+      "title": "4K HDBaseT Extender – High-Quality Video and Audio Transmission",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-70-H2C",
+      "title": "EX-70-H2C 70m 4K HDMI Extender over Cat6 with ARC",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX-70-H2X",
+      "title": "70m 4K60 HDBaseT Extender with Ethernet - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Camera / Capture",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EX3-100-EARC",
+      "title": "WyreStorm EX3-100-EARC 4K60 HDbaseT 3.0 Extender with eARC",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXA-100-EARC",
+      "title": "WyreStorm EXA-100-EARC eARC Audio Extender over Cat Cable",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXF-10KM-5K",
+      "title": "5K30Hz 4:4:4 SDVoE Fiber Extender - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXF-300-H2",
+      "title": "WyreStorm EXF-300-H2 4K HDMI Fiber Extender | Long-Range AV over Fiber",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-4KUHD-X",
+      "title": "4K HDR 4:4:4 60Hz HDMI Cable with VW-1 Rating - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-8KUHD-X",
+      "title": "8K 60Hz HDMI 2.1 Cable with VW-1 Rating - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-CAB-HAOC-2",
+      "title": "24Gbps 4-Core Active Optical HDMI Cable | 4K HDR 4:4:4/60, ARC, CEC, ALLM & VRR | Kevlar strengthened | ISF Certified - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-CAB-HAOC-4",
+      "title": "24Gbps 4-Core Active Optical HDMI Cable | 4K HDR 4:4:4/60, ARC, CEC, ALLM & VRR | Kevlar strengthened | ISF Certified - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-CAB-HAOC-6",
+      "title": "24Gbps 4-Core Active Optical HDMI Cable | 4K HDR 4:4:4/60, ARC, CEC, ALLM & VRR | Kevlar strengthened | ISF Certified - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-CAB-HAOC-8",
+      "title": "Active Optical HDMI Cable | 4K HDR 4:4:4/60, ARC, CEC, ALLM & VRR | WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-CAB-USBC-5M",
+      "title": "USB 3.2 USB-C to USB-C Cable| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-CAB-USBC-XM",
+      "title": "USB 3.2 USB-C to USB-C Cable| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-CON-AUD-H2",
+      "title": "WyreStorm Essentials™ HDMI Audio Extractor| WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Audio / Control",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-CON-DAC",
+      "title": "WyreStorm Essentials? Digital to Analog Audio Converter| WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Audio / Control",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-CON-DAC-D",
+      "title": "WyreStorm Essentials? Dolby? 5.1 Downmixer| WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Audio / Control",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-CON-H2-DD",
+      "title": "WyreStorm Essentials? Dolby? & DTS? 7.1 Downmixer| WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Audio / Control",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-EX-35-G2",
+      "title": "WyreStorm Essentials? 35m 4K60 UTP Extender| WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Camera / Capture",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-EX-80-KVM",
+      "title": "WyreStorm Essentials 80m KVM UTP Extender - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-10.0M",
+      "title": "10 Meter High Speed HDMI Cable | WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-15.0M",
+      "title": "WyreStorm Essentials? 15 Meter High Speed HDMI Cable| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-CPL",
+      "title": "WyreStorm Essentials HDMI Coupler - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-DVI",
+      "title": "WyreStorm Essentials DVI to HDMI - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-H2-0.5M",
+      "title": "HDMI Cable with CL3 Rating (0.5m/1.6ft)| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-H2-1M",
+      "title": "HDMI Cable with CL3 Rating (1m/3.2ft)| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-H2-2M",
+      "title": "HDMI Cable with CL3 Rating (2m/6.5ft)| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-H2-3M",
+      "title": "HDMI Cable with CL3 Rating (3m/9.8ft)| WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-H2-5M",
+      "title": "HDMI Cable with CL3 Rating | WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-RTA",
+      "title": "WyreStorm Essentials Right Angle HDMI Adapter - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-USBC",
+      "title": "WyreStorm Essentials USB-C to HDMI - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-VGA",
+      "title": "HDMI VGA Extender Essentials VGA to HDMI | WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-HDMI-XM-8K",
+      "title": "WyreStorm EXP‑HDMI‑XM‑8K 8K HDMI Cable – Ultra‑High Speed HDMI 2.1",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-MX-0402-H2",
+      "title": "WyreStorm Essentials 4K60 4x2 HDMI Matrix Switcher - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-MX-0404-H2",
+      "title": "WyreStorm Essentials 4 Input and 4 Scaling Output 4K HDR HDMI Matrix Switcher W/ Digital S/PDIF Audio De-Embed - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-MX-0808-KIT",
+      "title": "4K 8x8 HDBaseT Matrix with Receivers - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-SP-0102-8K",
+      "title": "WyreStorm Essentials 8K60 1:2 HDMI Splitter - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Splitter / Distribution",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-SP-0102-H2",
+      "title": "WyreStorm Essentials 4K60 1:2 Scaling HDMI Splitter - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Splitter / Distribution",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-SP-0104-H2",
+      "title": "WyreStorm Essentials 4K60 1:4 Scaling HDMI Splitter - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Splitter / Distribution",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-SW-0401-H2",
+      "title": "WyreStorm Essentials 4K60 4x1 HDMI Switcher - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "EXP-SW-0X01-8K",
+      "title": "WyreStorm Essentials 8K60 HDMI Switcher - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "FOCUS-100",
+      "title": "1080P HD Webcam - Business USB Webcam w/ Mic | WyreStorm FOCUS 100 Webcam",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unclassified",
+      "hardwareRole": "needs-review",
+      "visibilityPriority": "needs-review",
+      "issues": "technology type needs review"
+    },
+    {
+      "sku": "FOCUS-180A",
+      "title": "4K Autofocus AI Webcam w/ Auto Framing & Presenter Tracking",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "FOCUS-200",
+      "title": "Zoom-Certified 4K Webcam | WyreStorm FOCUS 200 Ultra HD Wide-Angle",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unclassified",
+      "hardwareRole": "needs-review",
+      "visibilityPriority": "needs-review",
+      "issues": "technology type needs review"
+    },
+    {
+      "sku": "FOCUS-200-PRO",
+      "title": "4K Wide Angle Webcam - High-Quality Video for Streaming",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unclassified",
+      "hardwareRole": "needs-review",
+      "visibilityPriority": "needs-review",
+      "issues": "technology type needs review"
+    },
+    {
+      "sku": "FOCUS-210",
+      "title": "AI webcam - 4K Ultra-Wide Angle Webcam | WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unclassified",
+      "hardwareRole": "needs-review",
+      "visibilityPriority": "needs-review",
+      "issues": "technology type needs review"
+    },
+    {
+      "sku": "HALO-30",
+      "title": "Halo 30 Professional USB Conference Speakerphone | WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unified Comms",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "HALO-60",
+      "title": "USB Bluetooth Speakerphone by Wyrestom",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unified Comms",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "HALO-80",
+      "title": "Plug and Play Portable USB and Bluetooth Conference Speakerphone - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unified Comms",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "HALO-90",
+      "title": "WyreStorm Halo 90 USB-C Docking Conference Speakerphone",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unified Comms",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "HALO-COM-MIC",
+      "title": "Add-On Microphone for Halo Video Bar - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "HALO-VX10-V1",
+      "title": "WyreStorm Video Bar w/ 4K Camera, Stereo Speaker & Mic",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unified Comms",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "HALO-WFA-130",
+      "title": "1080P HD Webcam - Business USB Webcam w/ Mic | WyreStorm FOCUS 100 Webcam",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unified Comms",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "HALO-WFA-290",
+      "title": "1080P HD Webcam - Business USB Webcam w/ Mic | WyreStorm FOCUS 100 Webcam",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unified Comms",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "IDB-200-XX",
+      "title": "Compact In-Desk Connectivity with Power - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unclassified",
+      "hardwareRole": "needs-review",
+      "visibilityPriority": "needs-review",
+      "issues": "technology type needs review"
+    },
+    {
+      "sku": "IDB-400-MS",
+      "title": "Flip Up In-Desk Connectivity with Power - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unclassified",
+      "hardwareRole": "needs-review",
+      "visibilityPriority": "needs-review",
+      "issues": "technology type needs review"
+    },
+    {
+      "sku": "IDB-400-MS-C",
+      "title": "Flip Up In-Desk Connectivity with Power - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unclassified",
+      "hardwareRole": "needs-review",
+      "visibilityPriority": "needs-review",
+      "issues": "technology type needs review"
+    },
+    {
+      "sku": "IDB-400-NA",
+      "title": "Flip Up In-Desk Connectivity with Power - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unclassified",
+      "hardwareRole": "needs-review",
+      "visibilityPriority": "needs-review",
+      "issues": "technology type needs review"
+    },
+    {
+      "sku": "M4250-GSM4212PX-10P",
+      "title": "Netgear Pre-configured 1GbE 10-port Switch with 1G/10G Uplinks for use with NetworkHD 100, 400 & 500 Series - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "M4250-GSM4230PX-26P",
+      "title": "Netgear Pre-configured 1GbE 26-port Switch with 1G/10G Uplinks for use with NetworkHD 100, 400 & 500 Series - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "M4250-GSM4248PX-40P",
+      "title": "Netgear Pre-configured 1GbE 48-port Switch with 1G/10G Uplinks for use with NetworkHD 100, 400 & 500 Series - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "M4300-XSM4316PA-16X",
+      "title": "Netgear Pre-configured 10GbE 16-port Switch for use with NetworkHD 600 Series - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "M4300-XSM4324CS-24X",
+      "title": "Netgear Pre-configured 10GbE 24-port Switch for use with NetworkHD 600 Series - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0402-MST",
+      "title": "Video Conferencing Equipment for Seamless Communication",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0403-H3-MST",
+      "title": "4x3 Multi-Input Conference Room Switcher with Advanced USB-C Integration & HDBT 3.0 Output - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0404-HDBT-H2A-KIT",
+      "title": "4K 4x4 HDBaseT Matrix with Receivers - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0404-HDMI",
+      "title": "WyreStorm MX-0404-HDMI 4×4 4K Matrix Switcher – 18Gbps HDMI",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0404-KIT",
+      "title": "4K 4x4 HDBaseT Matrix with Receiver - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0404-SCL",
+      "title": "WyreStorm MX-0404-SCL 4x4 Seamless 4K60 HDMI Matrix Switcher with Scaling",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0804-EDC",
+      "title": "WyreStorm MX-0804-EDC 8x4 Seamless Matrix Switch with USB-C & Dante",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0808-H2A-MK2",
+      "title": "8x8 HDMI Matrix – Seamless Video Switching for Multiple Displays",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0808-KIT-V2",
+      "title": "8x8 4K UHD HDBaseT Matrix Kit - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0808-SCL",
+      "title": "4K60 8x8 Seamless Scaling HDMI Matrix with USB-C Support - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Seamless scaling matrix switcher",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0808-SCL-V2",
+      "title": "4K60 8x8 Seamless Scaling HDMI Matrix with USB-C Support v2 - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Seamless scaling matrix switcher",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-0812-SCL",
+      "title": "4K60 8x12 Advanced Seamless Scaling HDMI Matrix - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Seamless scaling matrix switcher",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-1007-HYB",
+      "title": "WyreStorm MX-1007-HYB 10×7 4K Hybrid Matrix Switcher",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-1010-H2XC",
+      "title": "10 Slot 18Gbps 4K HDR Modular Matrix Switch Chassis - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-1616-H2XC",
+      "title": "16 Slot 18Gbps 4K HDR Modular Matrix Switch Chassis - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MX-1616-SCL",
+      "title": "Advanced 16x16 Seamless Scaling Matrix Chassis - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Seamless scaling matrix switcher",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MXV-0404-H2A-KIT-V2",
+      "title": "4K60 4x4 HDBaseT Matrix with Receivers - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MXV-0408-H2A",
+      "title": "4K60 4x8 HDBaseT Matrix - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "MXV-0408-H2A-KIT",
+      "title": "4K60 4x8 HDBaseT Matrix with 6x Receivers - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MXV-0606-H2A-V2",
+      "title": "4K HDR 4:4:4 60Hz HDBaseT 6x6 Matrix Switch with 6x Toslink Zone Audio De-Embed and 4 Mirrored HDMI Outputs (4K: 35m/115ft, 1080p: 70m/230ft) - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MXV-0606-H2A-V3",
+      "title": "4K60 6x6 HDBaseT Matrix - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MXV-0808-H2A-70-V2",
+      "title": "4K HDR 4:4:4 60Hz HDBaseT 8x8 Matrix Switch with Zone Audio De-Embed and 4 Mirrored HDMI Outputs (4K: 70m/230ft, 1080p: 100m/328ft) - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MXV-0808-H2A-70-V3",
+      "title": "70m 4K60 8x8 HDBaseT Matrix - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MXV-0808-H2A-KIT",
+      "title": "4K60 8x8 HDBaseT Matrix Kit with 8x Receivers - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MXV-0808-H2A-V2",
+      "title": "4K HDR 4:4:4 60Hz HDBaseT 8x8 Matrix Switch with Assignable Audio De-Embed and 4 mirrored HDMI outputs (4K 35m/114ft, 1080p 70m/230ft) - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MXV-0808-H2A-V3",
+      "title": "4K60 8x8 HDBaseT Matrix - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "MXV-0808-H2L",
+      "title": "8x8 4K60 'Lite' HDBaseT Matrix - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-000-CTL",
+      "title": "Controller for NetworkHD Systems - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-000-RACK3",
+      "title": "7U/8 Slot Rack Mount for NetworkHD 600 TX/RX - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-000-RACK4",
+      "title": "6U/12 Slot Rack Mount for NetworkHD 100/250/400/500/600 Series - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-0401-MV",
+      "title": "NetworkHD 4-Input 4K60 Multiview Switcher - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-110-RX",
+      "title": "1080p HD Low Bandwidth AV over IP Decoder - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-110-RX-S",
+      "title": "1080p HD Low Bandwidth AV over IP Decoder with Sealoc Protection - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-110-TX",
+      "title": "1080p HD Low Bandwidth AV over IP Encoder - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-120-IW-TX",
+      "title": "NetworkHD 100 Series 4K30 4:2:0 H.265/H.265 In-Wall Encoder - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-120-RX",
+      "title": "NetworkHD 120 Series 4K30 4:2:0 Decoder - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-120-RX-S",
+      "title": "NetworkHD 120 Series 4K30 4:2:0 Decoder with Sealoc Protection - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-120-TX",
+      "title": "WyreStorm NHD-120-TX 4K AV over IP Encoder with H.264/H.265",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-124-TX",
+      "title": "NetworkHD 100 Series 4K AV over IP Quad Encoder - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-128-NDI-TRX",
+      "title": "WyreStorm NHD-128-NDI-TRX 4K30 NDI to AV over IP Gateway",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-140-RACK-1U",
+      "title": "1U/2 Slot Rack Mount for NetworkHD NHD-140-TX - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-150-RX",
+      "title": "NetworkHD 100 Series 4K60 4:2:0 MultiView Processor - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-250-RX",
+      "title": "NetworkHD 200 Series AV over IP H.264 MultiView Processor - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-300-TX",
+      "title": "NetworkHD 300 Series 1080p AV over IP H.264 Open Standards Encoder - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-400-DNT-TX",
+      "title": "NetworkHD 400 Series 4K AV over IP JPEG 2000 Encoder with Dante - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-400-E-RX",
+      "title": "NetworkHD 400 Series 4K AV over IP JPEG 2000 Decoder - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-400-E-TX",
+      "title": "NetworkHD 400 Series 4K AV over IP JPEG 2000 Encoder - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-400-RX",
+      "title": "4K AV Over IP - NetworkHD™ 400 Series| WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-400-TX",
+      "title": "NetworkHD 400 Series 4K AV over IP JPEG 2000 Encoder - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-400-TX-IW",
+      "title": "NetworkHD 400 Series In-Wall 4K AV over IP JPEG 2000 Encoder - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-500",
+      "title": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 Encoder & Decoder - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-500-DNT-TX",
+      "title": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 Encoder with Dante Audio - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-500-E",
+      "title": "NetworkHD 500 Series Lite 4K60 4:4:4 JPEG2000 Encoder & Decoder - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-500-IW-TX",
+      "title": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 In-Wall Encoder - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-500-IW-TX-V2",
+      "title": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 In-Wall Encoder - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-500-T",
+      "title": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 TAA Compliant Encoder & Decoder - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-500-TXRX-V2",
+      "title": "WyreStorm NHD-500-TX/RX V2 4K60 Encoder & Decoder with JPEG2000",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-510-TX",
+      "title": "WyreStorm NHD-510-TX 4K60 JPEG2000 AV over IP Encoder with USB-C",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-600-E-TXRX",
+      "title": "WyreStorm NHD-600-E-TX/RX 4K60 SDVoE AV over IP Encoder & Decoder",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-600-RX",
+      "title": "NetworkHD 600 Series 4K HDR Premium AV over IP SDVoE Decoder - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-600-TRX",
+      "title": "NetworkHD 600 Series 4K60 4:4:4 10GbE SDVoE Transceiver - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-600-TRXF",
+      "title": "NetworkHD 600 Series 4K60 4:4:4 10Gb SDVoE Fiber Transceiver - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-600-TX",
+      "title": "NetworkHD 600 Series 4K HDR Premium AV over IP SDVoE Encoder - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-610",
+      "title": "NetworkHD 610 Series 4K60 10GbE SDVoE Encoder & Decoder - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-610-TX-V2",
+      "title": "WyreStorm NHD-610-TX V2 4K60 SDVoE AV over IP Encoder with Dante",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-CTL-PRO",
+      "title": "Pro Controller for NetworkHD - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-CTL-PRO-T",
+      "title": "Pro Controller for NetworkHD Series TAA Compliant - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-CTL-PRO-V2",
+      "title": "Pro Controller for NetworkHD Series - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-RACK-1U",
+      "title": "1U/2 Slot Rack Mount for NetworkHD 100/500/600 Series - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-RACK4-BLK",
+      "title": "Accessory for the NHD-000-RACK4 6U/12 Slot Rack Mount - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-TOUCH",
+      "title": "Touchscreen Control for NetworkHD 100, 400, 500 & 600 Series - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-TOUCHPLUS",
+      "title": "Touchscreen control application for NetworkHD 110 Series - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "NHD-USB-TRX",
+      "title": "USB 2.0 Over IP Transceiver - WyreStorm",
+      "family": "NetworkHD AVoIP",
+      "category": "AVoIP endpoint / system component",
+      "technologyType": "AVoIP",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "OFFICE-KIT",
+      "title": "WyreStorm FOCUS Webcam & HALO Speakerphone, Office Kits",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Unified Comms",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "PSU-12V-3A",
+      "title": "External Universal 12W Power Supply - 12V 3A - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "RX-35-POH",
+      "title": "35m 4K HDBaseT Receiver - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "RX-500",
+      "title": "35m 4K HDBaseT Receiver with USB - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Camera / Capture",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "RX-70-4K",
+      "title": "70m 4K HDBaseT Receiver - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "RX-70-4K-ARC",
+      "title": "70m 4K HDBaseT Receiver with ARC - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "RX-70-4K-SCL",
+      "title": "70m 4K HDBaseT Scaling Receiver with Downscaling - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "RX-700",
+      "title": "100m 4K60 HDBaseT DSC Receiver with USB - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "RX3-100",
+      "title": "4K HDR 4:4:4 60Hz HDBaseT3.0 Receiver with USB Device Inputs, Audio De-embed & PoH 100m/328ft over Cat6 - WyreStorm",
+      "family": "Cable",
+      "category": "Cable / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "RXF-300-4K",
+      "title": "4K HDR 4:4:4 60Hz HDBaseT Receiver with 2-Way IR and PoH (4K: 35m/115ft) - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "RXV-35-4K",
+      "title": "35m 4K60 HDBaseT Receiver for MXV - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "RXV-35-SCL",
+      "title": "Scaling 35m 4K60 HDBaseT Receiver for MXV - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Seamless scaling matrix switcher",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "RXV-70-4K",
+      "title": "70m 4K60 HDBaseT Receiver - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "RXV-70-4K-ARC",
+      "title": "70m 4K60 HDBaseT Receiver with ARC - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "RXV-70-4K-G2",
+      "title": "70m 4K60 HDBaseT Receiver for MXV - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "RXV-70-G2-SCL",
+      "title": "Scaling 70m 4K60 HDBaseT Receiver for MX - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Seamless scaling matrix switcher",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SP-0102-H2",
+      "title": "4K60 1:2 HDMI Splitter - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Splitter / Distribution",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SP-0104-H2",
+      "title": "4K HDMI Splitter – High-Quality HDMI Signal Distribution",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Splitter / Distribution",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SP-0108-SCL",
+      "title": "4K HDR 1:8 Splitter with Scaling Outputs - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Splitter / Distribution",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SP-618",
+      "title": "4K60 1:8 Scaling HDMI Splitter - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "SR-10G-MM-SFPP",
+      "title": "10G SFP+ Multimode Transceiver - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "SR-1G-MM-SFP",
+      "title": "1G SFP Multimode Transceiver - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Accessory",
+      "hardwareRole": "accessory",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "SW-0204-VW",
+      "title": "4K60Hz 4-Output Video Wall Processor - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SW-0206-VW",
+      "title": "WyreStorm SW-0206-VW 4K60 Video Wall Processor",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SW-120-TX3",
+      "title": "Synergy 2-input 4K60Hz HDBaseT 3.0 Switching Transmitter with USB-C Charging and CEC Trigger - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SW-120-TX3-UK",
+      "title": "Synergy 2-Input 4K60Hz HDBaseT 3.0 In-Wall Transmitter - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SW-120-TX3-US",
+      "title": "Synergy 2-Input 4K60Hz HDBaseT 3.0 In-Wall Transmitter - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SW-130-TX-UK",
+      "title": "3-Input In-wall HDBaseT Transmitter (2-gang UK) - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SW-130-TX-US",
+      "title": "3-Input In-wall HDBaseT Transmitter (2-gang US) - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SW-220-TX-W",
+      "title": "Wireless Presentation System for Seamless Presentations",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "SW-540-TX-W",
+      "title": "4x2 4K HDBaseT Switcher with Wireless Casting - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SW-620-TX-W",
+      "title": "Wireless Conferencing Solutions for Seamless Communication",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SW-640L-TX-W",
+      "title": "Wireless Conferencing Solutions for Seamless Communication",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Video Wall / Multiview",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SW-740-TX",
+      "title": "4-Input 4K60 DSC HDBaseT Switcher with USB - WyreStorm",
+      "family": "Video Processor",
+      "category": "Video processing hardware",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "SWX-100-HDBT3",
+      "title": "SW-120-TX3 Transmitter and RX3-100 Receiver Kit - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SWX-100-IW-UK",
+      "title": "In-Wall Kit with the SW-120-TX3-UK Transmitter and RX3-100 Receiver - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SWX-100-IW-US",
+      "title": "In-Wall Kit with the SW-120-TX3-US Transmitter and RX3-100 Receiver - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SYN-CTL-HUB",
+      "title": "IP to RS232/Relay/IR Protocol Converter - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Switcher",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SYN-KEY10",
+      "title": "Synergy 10-button Keypad Controller - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Presentation / Room Core",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SYN-KIT-130-EU",
+      "title": "In-Wall Presentation Kit with Control (EU) - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SYN-KIT-130-US",
+      "title": "In-Wall Presentation Kit with Control - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SYN-KIT-510-EU",
+      "title": "Advanced Presentation Kit with Control (EU) - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SYN-KIT-510-US",
+      "title": "Advanced Presentation Kit with Control - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SYN-TOUCH10",
+      "title": "Synergy 10.1\" All-In-One Touchpad Controller - WyreStorm",
+      "family": "Software / Service",
+      "category": "Software or service / request-only",
+      "technologyType": "Audio / Control",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "SYN-TOUCH10-V2",
+      "title": "Synergy 10.1\" All-In-One Touchpad Controller - WyreStorm",
+      "family": "Software / Service",
+      "category": "Software or service / request-only",
+      "technologyType": "Audio / Control",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "TS-280-EU",
+      "title": "2.8\" Serial Control Color Touchscreen - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "TS-280-US",
+      "title": "2.8\" Serial Control Color Touchscreen - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "TX-35-IW",
+      "title": "HDMI Single Gang In-Wall HDBaseT Transmitter - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "TX-35-IW-KVM",
+      "title": "HDMI & USB Single Gang In-Wall HDBaseT Transmitter - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Camera / Capture",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "TX-35-IWC-KVM",
+      "title": "USB C Single Gang In-Wall HDBaseT Transmitter - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Camera / Capture",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "TX-70-4K",
+      "title": "70m 4K HDBaseT Transmitter - WyreStorm",
+      "family": "Product",
+      "category": "Primary hardware",
+      "technologyType": "Extender / HDBaseT",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "TX-H2X-ADZ",
+      "title": "H2XC Card: HDMI In, HDMI Out - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "TX-H2X-HDBT",
+      "title": "H2XC Card: 4K HDBaseT In, 4K HDBaseT Out, Mirrored HDMI Out - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Matrix",
+      "hardwareRole": "primary-or-endpoint-hardware",
+      "visibilityPriority": "default",
+      "issues": ""
+    },
+    {
+      "sku": "TX-H2X-HDMI",
+      "title": "H2XC Card: HDMI In, 4K HDBaseT Out, Mirrored HDMI Out - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "TX-H2X-OM3",
+      "title": "H2XC Card: HDMI In, 4K60 Fiber Out, Mirrored HDMI Out - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "TX-H2X-VLC",
+      "title": "H2XC Card: HDMI In, 4K60 HDBaseT Out - WyreStorm",
+      "family": "Matrix Switcher",
+      "category": "Matrix switcher",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "USB-HUB4",
+      "title": "4-Port USB 3.0 Superspeed Hub - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    },
+    {
+      "sku": "WYRERING",
+      "title": "Adapter Ring with USB-C, DisplayPort & Mini DisplayPort to HDMI with Cable Lock - WyreStorm",
+      "family": "Accessory",
+      "category": "Accessory / request-only",
+      "technologyType": "Cable",
+      "hardwareRole": "cable",
+      "visibilityPriority": "request-only",
+      "issues": ""
+    }
+  ]
+}
