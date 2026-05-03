@@ -18,26 +18,27 @@ type PageHeroProps = {
 
 function actionClass(variant: PageHeroAction["variant"]) {
   return [
-    "wm-micro-hero-action",
-    variant === "secondary" ? "wm-micro-hero-action-secondary" : "wm-micro-hero-action-primary",
+    "wm-balanced-hero-action",
+    variant === "secondary" ? "wm-balanced-hero-action-secondary" : "wm-balanced-hero-action-primary",
   ].join(" ");
 }
 
-export function PageHero({ eyebrow, title, actions }: PageHeroProps) {
+export function PageHero({ eyebrow, title, purpose, actions }: PageHeroProps) {
   return (
-    <section className="wm-micro-page-hero" aria-label={`${eyebrow}: ${title}`} title={title}>
-      <div className="wm-micro-page-hero-copy">
-        <p className="wm-micro-page-kicker">{eyebrow}</p>
-        <h1 className="wm-micro-page-title">{title}</h1>
+    <section className="wm-balanced-page-hero wingman-panel" aria-label={`${eyebrow}: ${title}`}>
+      <div className="wm-balanced-hero-copy">
+        <p className="wm-balanced-hero-kicker">{eyebrow}</p>
+        <h1 className="wm-balanced-hero-title">{title}</h1>
+        <p className="wm-balanced-hero-purpose">{purpose}</p>
       </div>
 
       {actions?.length ? (
-        <div className="wm-micro-page-actions">
+        <div className="wm-balanced-hero-actions">
           {actions.map((action) =>
             action.to ? (
               <Link key={action.label} to={action.to} className={actionClass(action.variant)}>
                 {action.label}
-                <ArrowRight className="wm-micro-action-icon" />
+                <ArrowRight className="wm-balanced-hero-action-icon" />
               </Link>
             ) : (
               <button
@@ -47,7 +48,7 @@ export function PageHero({ eyebrow, title, actions }: PageHeroProps) {
                 className={actionClass(action.variant)}
               >
                 {action.label}
-                <ArrowRight className="wm-micro-action-icon" />
+                <ArrowRight className="wm-balanced-hero-action-icon" />
               </button>
             ),
           )}

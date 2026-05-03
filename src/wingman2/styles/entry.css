@@ -2411,7 +2411,7 @@ textarea {
 }
 
 .wm-callcard-action-card::after {
-  content: "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â '" !important;
+  content: "ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â '" !important;
   position: absolute !important;
   right: 14px !important;
   top: 12px !important;
@@ -4072,215 +4072,212 @@ body {
 }
 /* NEW-WINGMAN-DESIGN-PASS-END */
 
-/* HARD-COMPACT-APP-HEADERS-START */
-/* Hard component-level compact mode for Wingman application headers. */
+/* BALANCED-COMPACT-APP-HEADERS-START */
+/* Balanced compact headers: keep a real header, but stop it dominating the workspace. */
 
 :root {
-  --wm-topbar-height: 32px !important;
+  --wm-topbar-height: 46px !important;
 }
 
 .wingman-workspace {
-  grid-template-rows: 32px minmax(0, 1fr) !important;
+  grid-template-rows: 46px minmax(0, 1fr) !important;
 }
 
-.wm-micro-topbar,
-.wingman-topbar.wm-micro-topbar {
-  height: 32px !important;
-  min-height: 32px !important;
-  gap: 8px !important;
-  padding: 0 10px !important;
+.wm-balanced-topbar,
+.wingman-topbar.wm-balanced-topbar {
+  height: 46px !important;
+  min-height: 46px !important;
+  gap: 10px !important;
+  padding: 0 14px !important;
 }
 
-.wm-micro-topbar-title p {
+.wm-balanced-topbar-title p {
   margin: 0 !important;
+  font-size: 0.86rem !important;
+  line-height: 1.1 !important;
+}
+
+.wm-balanced-topbar-title span {
+  display: block !important;
+  margin-top: 2px !important;
+  max-width: 760px !important;
   overflow: hidden !important;
+  font-size: 0.68rem !important;
+  line-height: 1.15 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.wm-balanced-clear-project-button {
+  min-height: 31px !important;
+  gap: 6px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
   font-size: 0.72rem !important;
   line-height: 1 !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-.wm-micro-clear-project-button {
-  min-height: 22px !important;
-  gap: 4px !important;
-  padding: 0 8px !important;
-  border-radius: 999px !important;
-  font-size: 0.62rem !important;
-  line-height: 1 !important;
-}
-
-.wm-micro-page-hero {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  align-items: center !important;
-  gap: 8px !important;
-  min-height: 0 !important;
-  height: 28px !important;
-  max-height: 28px !important;
-  margin: 0 0 4px !important;
-  padding: 3px 7px !important;
-  overflow: hidden !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 8px !important;
-  color: var(--wm-text) !important;
-  background: rgba(10, 24, 38, 0.92) !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16) !important;
-}
-
-.wm-micro-page-hero-copy {
-  display: flex !important;
-  align-items: baseline !important;
-  gap: 7px !important;
-  min-width: 0 !important;
-}
-
-.wm-micro-page-kicker {
-  flex: 0 0 auto !important;
-  margin: 0 !important;
-  color: var(--wm-orange) !important;
-  font-size: 0.46rem !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-  letter-spacing: 0.09em !important;
-  text-transform: uppercase !important;
-  white-space: nowrap !important;
-}
-
-.wm-micro-page-title {
-  min-width: 0 !important;
-  margin: 0 !important;
-  overflow: hidden !important;
-  color: var(--wm-text) !important;
-  font-size: clamp(0.72rem, 0.82vw, 0.88rem) !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-  letter-spacing: -0.015em !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-.wm-micro-page-actions {
-  display: flex !important;
-  flex: 0 0 auto !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 4px !important;
-}
-
-.wm-micro-hero-action {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-height: 18px !important;
-  gap: 3px !important;
-  padding: 0 7px !important;
-  border-radius: 999px !important;
-  font-size: 0.56rem !important;
-  font-weight: 850 !important;
-  line-height: 1 !important;
-  text-decoration: none !important;
-  box-shadow: none !important;
-}
-
-.wm-micro-hero-action-primary {
-  border: 1px solid rgba(255, 216, 160, 0.38) !important;
-  color: #1a1208 !important;
-  background: linear-gradient(135deg, #ffc36a, var(--wm-orange)) !important;
-}
-
-.wm-micro-hero-action-secondary {
-  border: 1px solid var(--wm-border-dark) !important;
-  color: var(--wm-text) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-}
-
-.wm-micro-action-icon {
-  width: 0.58rem !important;
-  height: 0.58rem !important;
-}
-
-.wm-micro-section-card-header {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  min-height: 0 !important;
-  gap: 8px !important;
-  padding: 5px 8px !important;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.24) !important;
-}
-
-.wm-micro-section-card-header h2 {
-  min-width: 0 !important;
-  margin: 0 !important;
-  overflow: hidden !important;
-  color: var(--wm-ink) !important;
-  font-size: clamp(0.72rem, 0.76vw, 0.86rem) !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-  letter-spacing: -0.01em !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-.wm-micro-section-card-actions {
-  flex: 0 0 auto !important;
-}
-
-.wm-micro-section-card-actions :where(button, a) {
-  min-height: 18px !important;
-  padding: 0 7px !important;
-  border-radius: 999px !important;
-  font-size: 0.56rem !important;
-  line-height: 1 !important;
-}
-
-.wm-micro-section-card-body {
-  padding: 8px 10px 10px !important;
 }
 
 .wingman-app-main {
-  padding-top: 5px !important;
+  padding-top: 10px !important;
 }
 
-/* Defensive clamp for page-specific hero utilities that bypass PageHero. */
-.wingman-page-host :is(.text-4xl, .text-5xl, .text-6xl, .text-7xl, .lg\:text-4xl, .lg\:text-5xl, .lg\:text-6xl, .xl\:text-6xl, .xl\:text-7xl) {
-  font-size: clamp(0.72rem, 0.82vw, 0.9rem) !important;
+.wm-balanced-page-hero {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 14px !important;
+  min-height: 78px !important;
+  max-height: 96px !important;
+  margin: 0 0 10px !important;
+  padding: 13px 16px !important;
+  overflow: hidden !important;
+  border-radius: 18px !important;
+  color: var(--wm-text) !important;
+}
+
+.wm-balanced-hero-copy {
+  min-width: 0 !important;
+}
+
+.wm-balanced-hero-kicker {
+  margin: 0 0 4px !important;
+  color: var(--wm-orange) !important;
+  font-size: 0.62rem !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+}
+
+.wm-balanced-hero-title {
+  margin: 0 !important;
+  max-width: 980px !important;
+  color: var(--wm-text) !important;
+  font-size: clamp(1.35rem, 2.05vw, 2.15rem) !important;
+  font-weight: 900 !important;
+  line-height: 1.03 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.wm-balanced-hero-purpose {
+  display: -webkit-box !important;
+  max-width: 920px !important;
+  margin: 6px 0 0 !important;
+  overflow: hidden !important;
+  color: var(--wm-text-soft) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 1 !important;
+}
+
+.wm-balanced-hero-actions {
+  display: grid !important;
+  gap: 8px !important;
+  min-width: 190px !important;
+}
+
+.wm-balanced-hero-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  min-height: 34px !important;
+  gap: 8px !important;
+  padding: 0 13px !important;
+  border-radius: 13px !important;
+  font-size: 0.78rem !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+}
+
+.wm-balanced-hero-action-primary {
+  border: 1px solid rgba(255, 216, 160, 0.42) !important;
+  color: #1a1208 !important;
+  background: linear-gradient(135deg, #ffc36a, var(--wm-orange)) !important;
+  box-shadow: 0 10px 24px rgba(246, 163, 64, 0.2) !important;
+}
+
+.wm-balanced-hero-action-secondary {
+  border: 1px solid var(--wm-border-dark) !important;
+  color: var(--wm-text) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+.wm-balanced-hero-action-icon {
+  width: 0.9rem !important;
+  height: 0.9rem !important;
+}
+
+.wm-balanced-section-card-header {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 10px 14px 9px !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25) !important;
+}
+
+.wm-balanced-section-card-copy {
+  min-width: 0 !important;
+}
+
+.wm-balanced-section-card-copy h2 {
+  margin: 0 !important;
+  color: var(--wm-ink) !important;
+  font-size: clamp(1rem, 1.15vw, 1.25rem) !important;
+  font-weight: 900 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.wm-balanced-section-card-copy p {
+  display: -webkit-box !important;
+  max-width: 780px !important;
+  margin: 4px 0 0 !important;
+  overflow: hidden !important;
+  color: var(--wm-ink-muted) !important;
+  font-size: 0.76rem !important;
+  line-height: 1.3 !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 1 !important;
+}
+
+.wm-balanced-section-card-actions {
+  flex: 0 0 auto !important;
+}
+
+.wm-balanced-section-card-actions :where(button, a) {
+  min-height: 28px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  font-size: 0.7rem !important;
   line-height: 1 !important;
 }
 
+.wm-balanced-section-card-body {
+  padding: 14px 16px 16px !important;
+}
+
 @media (max-width: 1023px) {
-  :root {
-    --wm-topbar-height: 34px !important;
-  }
-
-  .wingman-workspace {
-    grid-template-rows: 34px minmax(0, 1fr) !important;
-  }
-
-  .wm-micro-topbar,
-  .wingman-topbar.wm-micro-topbar {
-    height: 34px !important;
-    min-height: 34px !important;
-  }
-
-  .wm-micro-page-hero {
-    height: auto !important;
-    max-height: none !important;
+  .wm-balanced-page-hero {
     grid-template-columns: 1fr !important;
+    max-height: none !important;
+    padding: 12px !important;
   }
 
-  .wm-micro-page-hero-copy {
-    display: grid !important;
-    gap: 2px !important;
+  .wm-balanced-hero-title {
+    font-size: clamp(1.25rem, 6vw, 1.75rem) !important;
   }
 
-  .wm-micro-page-title {
-    white-space: normal !important;
-  }
-
-  .wm-micro-page-actions {
-    justify-content: flex-start !important;
+  .wm-balanced-hero-actions {
+    display: flex !important;
     flex-wrap: wrap !important;
+    min-width: 0 !important;
+  }
+
+  .wm-balanced-topbar-title span {
+    display: none !important;
   }
 }
-/* HARD-COMPACT-APP-HEADERS-END */
+/* BALANCED-COMPACT-APP-HEADERS-END */
