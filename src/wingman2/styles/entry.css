@@ -2411,7 +2411,7 @@ textarea {
 }
 
 .wm-callcard-action-card::after {
-  content: "ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚Â '" !important;
+  content: "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â '" !important;
   position: absolute !important;
   right: 14px !important;
   top: 12px !important;
@@ -4268,3 +4268,191 @@ body {
   }
 }
 /* PAGE-HERO-FORCE-STRIP-END */
+
+/* SHELL-AND-HERO-MICRO-BARS-START */
+/* Final density pass: reduce top app header, project button, page hero and section headers. */
+
+:root {
+  --wm-topbar-height: 38px !important;
+}
+
+.wingman-workspace {
+  grid-template-rows: 38px minmax(0, 1fr) !important;
+}
+
+.wingman-topbar {
+  height: 38px !important;
+  min-height: 38px !important;
+  gap: 8px !important;
+  padding: 0 12px !important;
+}
+
+.wingman-topbar-title p {
+  margin: 0 !important;
+  overflow: hidden !important;
+  font-size: 0.78rem !important;
+  line-height: 1 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.wingman-topbar-title span {
+  display: none !important;
+}
+
+.wingman-clear-project-button {
+  min-height: 25px !important;
+  gap: 5px !important;
+  padding: 0 9px !important;
+  border-radius: 999px !important;
+  font-size: 0.66rem !important;
+  line-height: 1 !important;
+}
+
+.wingman-clear-project-button svg {
+  width: 0.8rem !important;
+  height: 0.8rem !important;
+}
+
+.wingman-mobile-nav-button {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.wingman-mobile-nav-button svg {
+  width: 0.85rem !important;
+  height: 0.85rem !important;
+}
+
+.wingman-app-main {
+  padding-top: 6px !important;
+}
+
+/* Shared PageHero component. */
+.wingman-page-hero,
+.wingman-hero-strip {
+  max-height: 34px !important;
+  min-height: 0 !important;
+  margin-bottom: 4px !important;
+  padding: 3px 6px !important;
+  border-radius: 8px !important;
+  gap: 6px !important;
+}
+
+.wingman-page-hero .wingman-hero-copy,
+.wingman-hero-strip .wingman-hero-copy {
+  gap: 5px !important;
+}
+
+.wingman-page-hero .wingman-kicker,
+.wingman-hero-strip .wingman-kicker {
+  font-size: 0.42rem !important;
+  letter-spacing: 0.08em !important;
+}
+
+.wingman-page-hero .wingman-display,
+.wingman-hero-strip .wingman-display,
+.wingman-page-host .wingman-page-hero h1,
+.wingman-page-host .wingman-hero-strip h1 {
+  font-size: clamp(0.72rem, 0.82vw, 0.88rem) !important;
+  line-height: 1 !important;
+}
+
+/* Custom large first-panel heroes, such as Videowall Builder. */
+.wingman-page-host > div > :is(section, header, div):first-child:has(h1),
+.wingman-page-host > :is(section, header, div):first-child:has(h1) {
+  max-height: 38px !important;
+  min-height: 0 !important;
+  margin-bottom: 4px !important;
+  padding: 4px 7px !important;
+  border-radius: 9px !important;
+}
+
+.wingman-page-host > div > :is(section, header, div):first-child:has(h1) h1,
+.wingman-page-host > :is(section, header, div):first-child:has(h1) h1 {
+  max-width: 720px !important;
+  font-size: clamp(0.72rem, 0.88vw, 0.95rem) !important;
+  line-height: 1 !important;
+  letter-spacing: -0.012em !important;
+  white-space: nowrap !important;
+}
+
+.wingman-page-host > div > :is(section, header, div):first-child:has(h1) :is(a, button),
+.wingman-page-host > :is(section, header, div):first-child:has(h1) :is(a, button) {
+  min-height: 16px !important;
+  padding: 0 6px !important;
+  border-radius: 999px !important;
+  font-size: 0.52rem !important;
+  line-height: 1 !important;
+}
+
+.wingman-page-host > div > :is(section, header, div):first-child:has(h1) svg,
+.wingman-page-host > :is(section, header, div):first-child:has(h1) svg {
+  width: 0.58rem !important;
+  height: 0.58rem !important;
+}
+
+/* Clamp any oversized Tailwind page-title utilities still present inside Wingman pages. */
+.wingman-page-host :is(.text-4xl, .text-5xl, .text-6xl, .text-7xl, .lg\:text-4xl, .lg\:text-5xl, .lg\:text-6xl, .xl\:text-6xl, .xl\:text-7xl) {
+  font-size: clamp(0.72rem, 0.88vw, 0.95rem) !important;
+  line-height: 1 !important;
+}
+
+/* Section cards. */
+.wingman-section-card-header {
+  min-height: 0 !important;
+  gap: 4px !important;
+  padding: 4px 7px !important;
+}
+
+.wingman-section-card-header h2 {
+  font-size: clamp(0.68rem, 0.72vw, 0.82rem) !important;
+  line-height: 1 !important;
+}
+
+.wingman-section-card-actions :where(button, a) {
+  min-height: 16px !important;
+  padding: 0 6px !important;
+  border-radius: 999px !important;
+  font-size: 0.52rem !important;
+}
+
+.wingman-section-card-body {
+  padding-top: 6px !important;
+}
+
+/* Reduce generic top-of-page button groups where pages use custom classes. */
+.wingman-page-host :where(.gap-4, .gap-5, .gap-6) {
+  gap: 8px !important;
+}
+
+.wingman-page-host :where(.py-4, .py-5, .py-6, .p-5, .p-6) {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --wm-topbar-height: 36px !important;
+  }
+
+  .wingman-workspace {
+    grid-template-rows: 36px minmax(0, 1fr) !important;
+  }
+
+  .wingman-topbar {
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+
+  .wingman-page-hero,
+  .wingman-hero-strip {
+    max-height: none !important;
+  }
+
+  .wingman-page-hero .wingman-display,
+  .wingman-hero-strip .wingman-display {
+    white-space: normal !important;
+  }
+}
+/* SHELL-AND-HERO-MICRO-BARS-END */
