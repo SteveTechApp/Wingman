@@ -1,4 +1,4 @@
-import { ArrowRight, Info } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type PageHeroAction = {
@@ -23,9 +23,9 @@ function actionClass(variant: PageHeroAction["variant"]) {
   ].join(" ");
 }
 
-export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHeroProps) {
+export function PageHero({ eyebrow, title, actions }: PageHeroProps) {
   return (
-    <section className="wingman-page-hero wingman-panel wingman-page-hero-simple">
+    <section className="wingman-page-hero wingman-panel wingman-hero-strip" aria-label={title}>
       <div className="wingman-hero-copy">
         <p className="wingman-kicker">{eyebrow}</p>
         <h1 className="wingman-display">{title}</h1>
@@ -36,8 +36,8 @@ export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHer
           {actions.map((action) =>
             action.to ? (
               <Link key={action.label} to={action.to} className={actionClass(action.variant)}>
-                <span>{action.label}</span>
-                <ArrowRight className="h-5 w-5" />
+                {action.label}
+                <ArrowRight className="h-3 w-3" />
               </Link>
             ) : (
               <button
@@ -46,25 +46,13 @@ export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHer
                 onClick={action.onClick}
                 className={actionClass(action.variant)}
               >
-                <span>{action.label}</span>
-                <ArrowRight className="h-5 w-5" />
+                {action.label}
+                <ArrowRight className="h-3 w-3" />
               </button>
             ),
           )}
         </div>
       ) : null}
-
-      <details className="wingman-hero-context">
-        <summary>
-          <Info className="h-4 w-4" />
-          <span>Context</span>
-        </summary>
-
-        <div>
-          <p>{purpose}</p>
-          <p>{nextMove}</p>
-        </div>
-      </details>
     </section>
   );
 }

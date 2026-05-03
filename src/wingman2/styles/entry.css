@@ -2411,7 +2411,7 @@ textarea {
 }
 
 .wm-callcard-action-card::after {
-  content: "Ã¢â‚¬Â¢Ã‚Â '" !important;
+  content: "ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚Â '" !important;
   position: absolute !important;
   right: 14px !important;
   top: 12px !important;
@@ -4072,214 +4072,61 @@ body {
 }
 /* NEW-WINGMAN-DESIGN-PASS-END */
 
-/* PAGE-HEADER-COMPACT-50-START */
-/* Global page header density pass.
-   Reduces PageHero and header action footprint by roughly 50%
-   so the application workspace gets more vertical room.
-*/
+/* PAGE-HERO-FORCE-STRIP-START */
+/* Force all Wingman page heroes to behave like compact app headers, not landing-page banners. */
 
-.wingman-page-hero {
+.wingman-page-hero,
+.wingman-hero-strip {
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.36fr) !important;
-  grid-template-rows: auto auto !important;
-  align-items: start !important;
-  gap: 8px 12px !important;
-  margin-bottom: 9px !important;
-  padding: clamp(10px, 1.1vw, 17px) !important;
-  border-radius: 18px !important;
-}
-
-.wingman-hero-copy {
-  grid-column: 1 !important;
-  grid-row: 1 / span 2 !important;
-  max-width: 820px !important;
-}
-
-.wingman-hero-copy .wingman-display {
-  margin-top: 4px !important;
-  max-width: 760px !important;
-  font-size: clamp(1.15rem, 2vw, 2.15rem) !important;
-  line-height: 1.02 !important;
-  letter-spacing: -0.045em !important;
-}
-
-.wingman-hero-purpose {
-  display: -webkit-box !important;
-  max-width: 760px !important;
-  margin: 5px 0 0 !important;
-  overflow: hidden !important;
-  color: var(--wm-text-soft) !important;
-  font-size: clamp(0.72rem, 0.78vw, 0.82rem) !important;
-  line-height: 1.35 !important;
-  -webkit-box-orient: vertical !important;
-  -webkit-line-clamp: 2 !important;
-}
-
-.wingman-page-hero .wingman-kicker {
-  font-size: 0.58rem !important;
-  line-height: 1 !important;
-  letter-spacing: 0.14em !important;
-}
-
-.wingman-hero-next {
-  grid-column: 2 !important;
-  grid-row: 1 !important;
-  gap: 2px !important;
-  max-width: none !important;
-  padding: 6px 8px !important;
-  border-radius: 12px !important;
-}
-
-.wingman-hero-next span {
-  font-size: 0.55rem !important;
-  line-height: 1 !important;
-  letter-spacing: 0.13em !important;
-}
-
-.wingman-hero-next p {
-  display: -webkit-box !important;
-  margin: 0 !important;
-  overflow: hidden !important;
-  font-size: 0.72rem !important;
-  line-height: 1.28 !important;
-  -webkit-box-orient: vertical !important;
-  -webkit-line-clamp: 2 !important;
-}
-
-.wingman-hero-actions {
-  grid-column: 2 !important;
-  grid-row: 2 !important;
-  display: flex !important;
-  flex-wrap: wrap !important;
-  align-self: start !important;
-  gap: 5px !important;
-}
-
-.wingman-hero-action {
-  min-height: 21px !important;
-  gap: 4px !important;
-  padding: 0 8px !important;
-  border-radius: 999px !important;
-  font-size: 0.68rem !important;
-  font-weight: 800 !important;
-  line-height: 1 !important;
-}
-
-.wingman-hero-action svg {
-  width: 0.7rem !important;
-  height: 0.7rem !important;
-}
-
-.wingman-section-card-header {
-  align-items: center !important;
-  gap: 8px !important;
-  padding: 9px 12px 8px !important;
-}
-
-.wingman-section-card-header h2 {
-  margin: 2px 0 0 !important;
-  font-size: clamp(0.95rem, 1vw, 1.15rem) !important;
-  line-height: 1.12 !important;
-  letter-spacing: -0.025em !important;
-}
-
-.wingman-section-card-header p:not(.wingman-kicker) {
-  display: -webkit-box !important;
-  max-width: 680px !important;
-  margin: 3px 0 0 !important;
-  overflow: hidden !important;
-  font-size: 0.74rem !important;
-  line-height: 1.32 !important;
-  -webkit-box-orient: vertical !important;
-  -webkit-line-clamp: 2 !important;
-}
-
-.wingman-section-card-actions {
-  flex-shrink: 0 !important;
-}
-
-.wingman-section-card-actions :where(button, a) {
-  min-height: 24px !important;
-  padding: 0 9px !important;
-  font-size: 0.7rem !important;
-  line-height: 1 !important;
-}
-
-.wingman-section-card-body {
-  padding-top: 12px !important;
-}
-
-@media (max-width: 1023px) {
-  .wingman-page-hero {
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto !important;
-    gap: 8px !important;
-    padding: 12px !important;
-  }
-
-  .wingman-hero-copy,
-  .wingman-hero-next,
-  .wingman-hero-actions {
-    grid-column: auto !important;
-    grid-row: auto !important;
-  }
-
-  .wingman-hero-copy .wingman-display {
-    font-size: clamp(1.15rem, 6vw, 1.85rem) !important;
-  }
-
-  .wingman-section-card-header {
-    align-items: flex-start !important;
-    flex-direction: column !important;
-  }
-}
-/* PAGE-HEADER-COMPACT-50-END */
-
-/* PAGE-HEADER-ULTRA-COMPACT-START */
-/* Second density pass.
-   Converts large page heroes into compact workspace headers.
-*/
-
-.wingman-page-hero {
   grid-template-columns: minmax(0, 1fr) auto !important;
   grid-template-rows: auto !important;
   align-items: center !important;
   gap: 8px !important;
   min-height: 0 !important;
-  margin-bottom: 6px !important;
-  padding: 6px 9px !important;
-  border-radius: 12px !important;
+  max-height: 48px !important;
+  margin: 0 0 6px !important;
+  padding: 5px 8px !important;
+  overflow: hidden !important;
+  border-radius: 10px !important;
   background-image: none !important;
 }
 
-.wingman-hero-copy {
-  grid-column: 1 !important;
-  grid-row: 1 !important;
+.wingman-page-hero.wingman-panel,
+.wingman-hero-strip.wingman-panel {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18) !important;
+}
+
+.wingman-page-hero .wingman-hero-copy,
+.wingman-hero-strip .wingman-hero-copy {
   display: grid !important;
   grid-template-columns: auto minmax(0, 1fr) !important;
   align-items: baseline !important;
-  gap: 8px !important;
-  max-width: none !important;
+  gap: 7px !important;
   min-width: 0 !important;
+  max-width: none !important;
 }
 
-.wingman-page-hero .wingman-kicker {
+.wingman-page-hero .wingman-kicker,
+.wingman-hero-strip .wingman-kicker {
   margin: 0 !important;
   color: var(--wm-orange) !important;
-  font-size: 0.52rem !important;
+  font-size: 0.48rem !important;
+  font-weight: 900 !important;
   line-height: 1 !important;
-  letter-spacing: 0.11em !important;
+  letter-spacing: 0.1em !important;
   white-space: nowrap !important;
 }
 
-.wingman-hero-copy .wingman-display {
+.wingman-page-hero .wingman-display,
+.wingman-hero-strip .wingman-display,
+.wingman-page-host .wingman-page-hero h1,
+.wingman-page-host .wingman-hero-strip h1 {
   margin: 0 !important;
   max-width: none !important;
   overflow: hidden !important;
-  color: var(--wm-text) !important;
-  font-size: clamp(0.95rem, 1.2vw, 1.28rem) !important;
-  line-height: 1.08 !important;
-  letter-spacing: -0.025em !important;
+  font-size: clamp(0.85rem, 1vw, 1.08rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.018em !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
 }
@@ -4289,9 +4136,8 @@ body {
   display: none !important;
 }
 
-.wingman-hero-actions {
-  grid-column: 2 !important;
-  grid-row: 1 !important;
+.wingman-page-hero .wingman-hero-actions,
+.wingman-hero-strip .wingman-hero-actions {
   display: flex !important;
   flex-wrap: nowrap !important;
   justify-content: flex-end !important;
@@ -4300,49 +4146,85 @@ body {
   min-width: max-content !important;
 }
 
-.wingman-hero-action {
+.wingman-page-hero .wingman-hero-action,
+.wingman-hero-strip .wingman-hero-action {
   min-height: 18px !important;
   gap: 3px !important;
   padding: 0 6px !important;
   border-radius: 999px !important;
-  font-size: 0.58rem !important;
-  font-weight: 800 !important;
+  font-size: 0.56rem !important;
+  font-weight: 850 !important;
   line-height: 1 !important;
   box-shadow: none !important;
 }
 
-.wingman-hero-action svg {
+.wingman-page-hero .wingman-hero-action svg,
+.wingman-hero-strip .wingman-hero-action svg {
   width: 0.58rem !important;
   height: 0.58rem !important;
 }
 
+/* Catch custom page banners that are not using PageHero but still sit as the first large page block. */
+.wingman-page-host > div > :is(section, header, div):first-child:has(h1),
+.wingman-page-host > :is(section, header, div):first-child:has(h1) {
+  min-height: 0 !important;
+  max-height: 56px !important;
+  margin-bottom: 6px !important;
+  padding: 6px 9px !important;
+  overflow: hidden !important;
+  border-radius: 12px !important;
+}
+
+.wingman-page-host > div > :is(section, header, div):first-child:has(h1) h1,
+.wingman-page-host > :is(section, header, div):first-child:has(h1) h1 {
+  margin: 0 !important;
+  max-width: 780px !important;
+  overflow: hidden !important;
+  font-size: clamp(0.9rem, 1.2vw, 1.18rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.wingman-page-host > div > :is(section, header, div):first-child:has(h1) :is(p, small):not(.wingman-kicker),
+.wingman-page-host > :is(section, header, div):first-child:has(h1) :is(p, small):not(.wingman-kicker) {
+  display: none !important;
+}
+
+.wingman-page-host > div > :is(section, header, div):first-child:has(h1) :is(a, button),
+.wingman-page-host > :is(section, header, div):first-child:has(h1) :is(a, button) {
+  min-height: 20px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  font-size: 0.62rem !important;
+  line-height: 1 !important;
+}
+
+/* Reduce secondary section headers as well. */
 .wingman-section-card-header {
   min-height: 0 !important;
   align-items: center !important;
   gap: 6px !important;
-  padding: 6px 9px !important;
+  padding: 5px 8px !important;
 }
 
 .wingman-section-card-header h2 {
   margin: 0 !important;
-  font-size: clamp(0.82rem, 0.86vw, 0.98rem) !important;
+  font-size: clamp(0.78rem, 0.82vw, 0.92rem) !important;
   line-height: 1.05 !important;
-  letter-spacing: -0.015em !important;
 }
 
-.wingman-section-card-header .wingman-kicker {
-  display: none !important;
-}
-
+.wingman-section-card-header .wingman-kicker,
 .wingman-section-card-header p:not(.wingman-kicker) {
   display: none !important;
 }
 
 .wingman-section-card-actions :where(button, a) {
-  min-height: 19px !important;
+  min-height: 18px !important;
   padding: 0 7px !important;
   border-radius: 999px !important;
-  font-size: 0.6rem !important;
+  font-size: 0.58rem !important;
   line-height: 1 !important;
 }
 
@@ -4351,34 +4233,38 @@ body {
 }
 
 .wingman-app-main {
-  padding-top: 10px !important;
+  padding-top: 8px !important;
+}
+
+/* Route-specific catch for large custom videowall/finder/template heroes. */
+.wingman-page-host :is(.text-5xl, .text-6xl, .text-7xl, .lg\:text-5xl, .lg\:text-6xl, .xl\:text-6xl, .xl\:text-7xl) {
+  font-size: clamp(0.95rem, 1.25vw, 1.2rem) !important;
+  line-height: 1.05 !important;
 }
 
 @media (max-width: 1023px) {
-  .wingman-page-hero {
+  .wingman-page-hero,
+  .wingman-hero-strip {
     grid-template-columns: 1fr !important;
-    gap: 6px !important;
-    padding: 8px !important;
+    max-height: none !important;
+    padding: 7px 8px !important;
   }
 
-  .wingman-hero-copy {
+  .wingman-page-hero .wingman-hero-copy,
+  .wingman-hero-strip .wingman-hero-copy {
     grid-template-columns: 1fr !important;
     gap: 3px !important;
   }
 
-  .wingman-hero-copy .wingman-display {
+  .wingman-page-hero .wingman-display,
+  .wingman-hero-strip .wingman-display {
     white-space: normal !important;
-    font-size: clamp(1rem, 5vw, 1.45rem) !important;
   }
 
-  .wingman-hero-actions {
-    grid-column: 1 !important;
+  .wingman-page-hero .wingman-hero-actions,
+  .wingman-hero-strip .wingman-hero-actions {
     justify-content: flex-start !important;
     flex-wrap: wrap !important;
   }
-
-  .wingman-section-card-header {
-    padding: 7px 9px !important;
-  }
 }
-/* PAGE-HEADER-ULTRA-COMPACT-END */
+/* PAGE-HERO-FORCE-STRIP-END */
