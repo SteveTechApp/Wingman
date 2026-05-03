@@ -2164,26 +2164,7 @@ export function SourceDeviceCollator() {
         ))}
       </div>
 
-      {activeStep === 0 ? (
-        <article className="wmg-canvas-panel">
-          <div className="wmg-panel-heading">
-            <h3>1. Market application / user context</h3>
-            <p>Start with what the space is for. This sets sensible AV assumptions before asking for hardware detail.</p>
-          </div>
-
-          <ChipGroup
-            options={applications}
-            values={[brief.application]}
-            onToggle={(value) => applyPreset(value)}
-          />
-
-          <div className="wmg-inline-actions">
-            <button type="button" onClick={() => setActiveStep(1)}>
-              Continue to environment
-            </button>
-          </div>
-        </article>
-      ) : null}
+      
 
       {activeStep === 1 ? (
         <article className="wmg-canvas-panel">
