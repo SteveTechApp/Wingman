@@ -1,0 +1,185 @@
+/* Discovery Answer Memory
+   Small in-flow reminder of previous Discovery responses.
+*/
+
+#wm-discovery-memory-strip {
+  position: relative;
+  z-index: 8;
+  margin: 0.5rem 0 0.78rem;
+  padding: 0.46rem 0.58rem;
+  border: 1px solid rgba(244, 185, 75, 0.2);
+  border-radius: 15px;
+  background:
+    linear-gradient(135deg, rgba(14, 23, 42, 0.82), rgba(10, 18, 34, 0.72)),
+    radial-gradient(circle at top left, rgba(244, 185, 75, 0.09), transparent 42%);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(10px);
+}
+
+#wm-discovery-memory-strip[hidden] {
+  display: none !important;
+}
+
+#wm-discovery-memory-strip .wm-memory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+#wm-discovery-memory-strip .wm-memory-header div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+#wm-discovery-memory-strip .wm-memory-header span {
+  color: rgba(244, 185, 75, 0.9);
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#wm-discovery-memory-strip .wm-memory-header strong {
+  color: rgba(248, 250, 252, 0.88);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+#wm-discovery-memory-strip .wm-memory-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.32rem;
+}
+
+#wm-discovery-memory-strip .wm-memory-actions button {
+  min-height: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(248, 250, 252, 0.78);
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 0.24rem 0.45rem;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+#wm-discovery-memory-strip .wm-memory-actions button:hover {
+  border-color: rgba(244, 185, 75, 0.38);
+  background: rgba(244, 185, 75, 0.1);
+}
+
+#wm-discovery-memory-strip .wm-memory-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.42rem;
+}
+
+#wm-discovery-memory-strip .wm-memory-card {
+  min-width: 7.8rem;
+  max-width: 13rem;
+  display: grid;
+  gap: 0.08rem;
+  padding: 0.34rem 0.48rem;
+  border: 1px solid rgba(244, 185, 75, 0.18);
+  border-radius: 11px;
+  background:
+    linear-gradient(135deg, rgba(244, 185, 75, 0.09), rgba(255, 255, 255, 0.035));
+  box-shadow: none;
+}
+
+#wm-discovery-memory-strip .wm-memory-card span {
+  color: rgba(203, 213, 225, 0.62);
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#wm-discovery-memory-strip .wm-memory-card strong {
+  overflow: hidden;
+  color: rgba(248, 250, 252, 0.9);
+  font-size: 0.69rem;
+  font-weight: 900;
+  line-height: 1.12;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#wm-discovery-memory-strip .wm-memory-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+#wm-discovery-memory-strip .wm-memory-details section {
+  padding: 0.52rem;
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: none;
+}
+
+#wm-discovery-memory-strip .wm-memory-details h4 {
+  margin: 0 0 0.35rem;
+  color: rgba(244, 185, 75, 0.88);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#wm-discovery-memory-strip .wm-memory-details ul {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#wm-discovery-memory-strip .wm-memory-details li {
+  display: grid;
+  grid-template-columns: minmax(6rem, 0.58fr) minmax(0, 1fr);
+  gap: 0.46rem;
+  align-items: start;
+}
+
+#wm-discovery-memory-strip .wm-memory-details li span {
+  color: rgba(203, 213, 225, 0.6);
+  font-size: 0.64rem;
+  line-height: 1.25;
+}
+
+#wm-discovery-memory-strip .wm-memory-details li strong {
+  color: rgba(248, 250, 252, 0.88);
+  font-size: 0.69rem;
+  line-height: 1.25;
+}
+
+@media (max-width: 980px) {
+  #wm-discovery-memory-strip .wm-memory-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #wm-discovery-memory-strip .wm-memory-header div:first-child {
+    flex-wrap: wrap;
+  }
+
+  #wm-discovery-memory-strip .wm-memory-actions {
+    justify-content: flex-start;
+  }
+
+  #wm-discovery-memory-strip .wm-memory-details {
+    grid-template-columns: 1fr;
+  }
+}
