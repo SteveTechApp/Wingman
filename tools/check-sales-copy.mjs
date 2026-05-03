@@ -33,7 +33,7 @@ function walk(dir, files = []) {
     const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      if (["node_modules", "dist", "build", "_RECOVERY"].includes(entry.name)) {
+      if (["node_modules", "dist", "build"].includes(entry.name) || entry.name.startsWith("_")) {
         continue;
       }
 

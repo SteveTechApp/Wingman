@@ -96,6 +96,7 @@ wingman/build/
 wingman/package-lock.json
 
 # --- Archives ---
+archive/
 *.zip
 *.tar
 *.gz
