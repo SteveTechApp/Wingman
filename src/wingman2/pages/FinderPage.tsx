@@ -2716,7 +2716,22 @@ export function FinderPage() {
 
           <div className="grid gap-4 xl:grid-cols-[340px_minmax(0,1fr)_330px]">
             <aside className="grid content-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="flex items-center justify-between gap-3">
+              
+              <label className="grid gap-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+                Technology Type
+                <select
+                  id="finder-technology-type"
+                  value={need.technologyType}
+                  onChange={(event) => setNeed((current) => ({ ...current, technologyType: event.target.value }))}
+                  className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold normal-case tracking-normal text-slate-900 shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                >
+                  {technologyTypeOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label><div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4 text-slate-500" />
                   <p className="text-sm font-black text-slate-900">Technical filters</p>
