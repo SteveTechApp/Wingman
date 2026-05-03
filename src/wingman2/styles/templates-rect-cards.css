@@ -1,0 +1,112 @@
+/* Room Templates rectangular card mode
+   Uses the Templates page body class and direct CSS targeting.
+*/
+
+body.wm-templates-rect-mode main {
+  --wm-template-card-radius: 18px;
+  --wm-template-card-radius-small: 14px;
+}
+
+/* Convert image-backed market and room selectors away from circles/pills */
+body.wm-templates-rect-mode main button:has(img),
+body.wm-templates-rect-mode main a:has(img),
+body.wm-templates-rect-mode main article:has(img) {
+  border-radius: var(--wm-template-card-radius) !important;
+  clip-path: none !important;
+  mask-image: none !important;
+  overflow: hidden !important;
+}
+
+/* Market strip cards */
+body.wm-templates-rect-mode main section button:has(img),
+body.wm-templates-rect-mode main section a:has(img) {
+  min-width: 118px !important;
+  width: 118px !important;
+  max-width: 118px !important;
+  min-height: 152px !important;
+  aspect-ratio: auto !important;
+}
+
+/* Room cards should be landscape rectangles, not circular crops */
+body.wm-templates-rect-mode main article:has(img),
+body.wm-templates-rect-mode main div:has(> img) {
+  border-radius: var(--wm-template-card-radius) !important;
+  clip-path: none !important;
+  mask-image: none !important;
+  overflow: hidden !important;
+}
+
+/* Kill circular image masking */
+body.wm-templates-rect-mode main img {
+  border-radius: 0 !important;
+  clip-path: none !important;
+  mask-image: none !important;
+  object-fit: cover !important;
+}
+
+/* Override common circular Tailwind / utility classes inside Templates only */
+body.wm-templates-rect-mode main .rounded-full,
+body.wm-templates-rect-mode main [class*="rounded-full"],
+body.wm-templates-rect-mode main [class*="rounded-\[999"],
+body.wm-templates-rect-mode main [class*="rounded-\[50"],
+body.wm-templates-rect-mode main [class*="rounded-[999"],
+body.wm-templates-rect-mode main [class*="rounded-[50"] {
+  border-radius: var(--wm-template-card-radius) !important;
+}
+
+/* If the circle is created by pseudo overlays, square those too */
+body.wm-templates-rect-mode main button:has(img)::before,
+body.wm-templates-rect-mode main button:has(img)::after,
+body.wm-templates-rect-mode main a:has(img)::before,
+body.wm-templates-rect-mode main a:has(img)::after,
+body.wm-templates-rect-mode main article:has(img)::before,
+body.wm-templates-rect-mode main article:has(img)::after {
+  border-radius: var(--wm-template-card-radius) !important;
+  clip-path: none !important;
+  mask-image: none !important;
+}
+
+/* Keep small labels/pills neat rather than fully round */
+body.wm-templates-rect-mode main button:not(:has(img)),
+body.wm-templates-rect-mode main a:not(:has(img)),
+body.wm-templates-rect-mode main span,
+body.wm-templates-rect-mode main small {
+  border-radius: var(--wm-template-card-radius-small) !important;
+}
+
+/* Reduce the giant circular room-card feel */
+body.wm-templates-rect-mode main article:has(img) {
+  min-height: 205px !important;
+  max-height: 260px !important;
+}
+
+/* Make the room grid feel more like cards */
+body.wm-templates-rect-mode main [class*="grid"] article:has(img),
+body.wm-templates-rect-mode main [class*="Grid"] article:has(img),
+body.wm-templates-rect-mode main [class*="grid"] button:has(img),
+body.wm-templates-rect-mode main [class*="Grid"] button:has(img) {
+  width: auto !important;
+  aspect-ratio: 16 / 10 !important;
+}
+
+/* Any inline 9999px radius should lose to this */
+body.wm-templates-rect-mode main [style*="9999"],
+body.wm-templates-rect-mode main [style*="50%"] {
+  border-radius: var(--wm-template-card-radius) !important;
+  clip-path: none !important;
+  mask-image: none !important;
+}
+
+@media (max-width: 980px) {
+  body.wm-templates-rect-mode main section button:has(img),
+  body.wm-templates-rect-mode main section a:has(img) {
+    min-width: 108px !important;
+    width: 108px !important;
+    max-width: 108px !important;
+    min-height: 140px !important;
+  }
+
+  body.wm-templates-rect-mode main article:has(img) {
+    min-height: 185px !important;
+  }
+}
