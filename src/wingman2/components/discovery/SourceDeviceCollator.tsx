@@ -2166,6 +2166,43 @@ export function SourceDeviceCollator() {
 
       
 
+
+      {activeStep === 0 ? (
+        <article className="wmg-canvas-panel" data-wmg-step="application">
+          <div className="wmg-panel-heading">
+            <h3>1. Application</h3>
+            <p>
+              Select the closest application. Wingman applies practical AV assumptions first, then carries those
+              assumptions into the environment, outputs, source paths, processing, and recommendation stages.
+            </p>
+          </div>
+
+          <div className="wmg-application-grid">
+            {applications.map((application) => {
+              const selected = brief.application === application.value;
+
+              return (
+                <button
+                  key={application.value}
+                  type="button"
+                  className={[
+                    "wmg-application-card",
+                    selected ? "selected" : "",
+                    hasDiscoveryPhoto(application.value) ? "has-photo" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  style={getDiscoveryPhotoStyle(application.value)}
+                  onClick={() => applyPreset(application.value)}
+                >
+                  <span>{application.label}</span>
+                  <small>{application.helper}</small>
+                </button>
+              );
+            })}
+          </div>
+        </article>
+      ) : null}
       {activeStep === 1 ? (
         <article className="wmg-canvas-panel">
           <div className="wmg-panel-heading">
