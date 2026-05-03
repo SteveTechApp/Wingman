@@ -1,0 +1,127 @@
+body.wm-clear-project-modal-open {
+  overflow: hidden;
+}
+
+#wm-clear-project-confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+#wm-clear-project-confirm-modal .wm-clear-project-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.68);
+  backdrop-filter: blur(8px);
+}
+
+#wm-clear-project-confirm-modal .wm-clear-project-panel {
+  position: relative;
+  width: min(31rem, calc(100vw - 2rem));
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.9rem;
+  padding: 1.05rem;
+  border: 1px solid rgba(244, 185, 75, 0.34);
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(8, 13, 26, 0.96)),
+    radial-gradient(circle at top left, rgba(244, 185, 75, 0.18), transparent 42%);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.46);
+}
+
+#wm-clear-project-confirm-modal .wm-clear-project-icon {
+  width: 2.35rem;
+  height: 2.35rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(244, 185, 75, 0.42);
+  border-radius: 999px;
+  background: rgba(244, 185, 75, 0.16);
+  color: rgba(255, 236, 179, 0.98);
+  font-size: 1.2rem;
+  font-weight: 950;
+}
+
+#wm-clear-project-confirm-modal .wm-clear-project-copy {
+  min-width: 0;
+}
+
+#wm-clear-project-confirm-modal .wm-clear-project-kicker {
+  margin: 0 0 0.2rem;
+  color: rgba(244, 185, 75, 0.92);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+#wm-clear-project-confirm-modal h2 {
+  margin: 0;
+  color: rgba(248, 250, 252, 0.98);
+  font-size: 1.35rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+#wm-clear-project-confirm-modal .wm-clear-project-copy p:last-child {
+  margin: 0.42rem 0 0;
+  color: rgba(203, 213, 225, 0.8);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+#wm-clear-project-confirm-modal .wm-clear-project-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  margin-top: 0.3rem;
+}
+
+#wm-clear-project-confirm-modal button {
+  min-height: 2.25rem;
+  border-radius: 999px;
+  padding: 0.48rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+#wm-clear-project-confirm-modal .wm-clear-project-secondary {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(248, 250, 252, 0.9);
+}
+
+#wm-clear-project-confirm-modal .wm-clear-project-danger {
+  border: 1px solid rgba(248, 113, 113, 0.42);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(185, 28, 28, 0.92));
+  color: white;
+}
+
+#wm-clear-project-confirm-modal .wm-clear-project-secondary:hover {
+  border-color: rgba(244, 185, 75, 0.42);
+  background: rgba(244, 185, 75, 0.1);
+}
+
+#wm-clear-project-confirm-modal .wm-clear-project-danger:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 640px) {
+  #wm-clear-project-confirm-modal .wm-clear-project-panel {
+    grid-template-columns: 1fr;
+  }
+
+  #wm-clear-project-confirm-modal .wm-clear-project-actions {
+    flex-direction: column-reverse;
+  }
+
+  #wm-clear-project-confirm-modal button {
+    width: 100%;
+  }
+}

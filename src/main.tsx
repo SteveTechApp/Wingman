@@ -1,3 +1,16 @@
+import "./wingman2/styles/templates-rect-cards.css";
+import "./wingman2/app/templatesRectCards";
+import "./wingman2/styles/templates-landing-density.css";
+import "./wingman2/app/templatesLandingDensity";
+import "./wingman2/styles/wingman-page-uniformity.css";
+import "./wingman2/styles/results-clear-until-action.css";
+import "./wingman2/app/resultsClearUntilAction";
+import "./wingman2/styles/discovery-clear-project-guard.css";
+import "./wingman2/app/discoveryClearProjectGuard";
+import "./wingman2/styles/discovery-answer-memory.css";
+import "./wingman2/app/discoveryAnswerMemory";
+import "./wingman2/styles/discovery-calm.css";
+import "./wingman2/app/discoveryCalmMode";
 import "./styles/wingman-discovery-builder-layout.css";
 import "./wingman2/styles/entry.css";
 import ReactDOM from "react-dom/client";
