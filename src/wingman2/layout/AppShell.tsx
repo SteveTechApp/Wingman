@@ -1,26 +1,3 @@
-
-function clearProjectStoragePreservingCompareHistory() {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const preservedCompareHistory = new Map();
-
-  Object.keys(window.localStorage)
-    .filter((key) => key.startsWith("wingman.compare.inputHistory."))
-    .forEach((key) => {
-      preservedCompareHistory.set(key, window.localStorage.getItem(key));
-    });
-
-  clearProjectStoragePreservingCompareHistory();
-
-  preservedCompareHistory.forEach((value, key) => {
-    if (value !== null) {
-      window.localStorage.setItem(key, value);
-    }
-  });
-}
-
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Menu, RotateCcw, X } from "lucide-react";

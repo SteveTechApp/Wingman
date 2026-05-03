@@ -126,20 +126,12 @@ function isAllowedCompetitorLookupUrl(rawUrl) {
   return Boolean(normalizeAllowedProductUrl(rawUrl));
 }
 
-function isAllowedVendorLookupUrl(rawUrl) {
-  return isAllowedCompetitorLookupUrl(rawUrl);
-}
-
 function assertAllowedCompetitorLookupUrl(rawUrl) {
   if (isAllowedCompetitorLookupUrl(rawUrl)) {
     return;
   }
 
   throw new Error(`Competitor live lookup URL blocked by allowlist guard: ${String(rawUrl || "").slice(0, 160)}`);
-}
-
-function assertAllowedVendorLookupUrl(rawUrl) {
-  assertAllowedCompetitorLookupUrl(rawUrl);
 }
 /* COMPETITOR-LIVE-LOOKUP-ALLOWLIST-GUARD-END */
 const DEFAULT_TIMEOUT_MS = Math.max(3500, Number(process.env.LOOKUP_TIMEOUT_MS || 9000));
@@ -376,20 +368,6 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = DEFAULT_TIMEOUT_M
 
 function normalizeHttpsUrl(rawUrl, baseUrl = "") {
   return normalizeAllowedProductUrl(rawUrl, baseUrl);
-}
-
-function isAllowedHost(url, adapter) {
-  if (!adapter || !Array.isArray(adapter.hosts) || adapter.hosts.length === 0) return true;
-
-  try {
-    const host = new URL(url).hostname.toLowerCase();
-    return adapter.hosts.some((allowedHost) => {
-      const allowed = String(allowedHost).toLowerCase();
-      return host === allowed || host.endsWith(`.${allowed}`);
-    });
-  } catch {
-    return false;
-  }
 }
 
 function buildSearchEngineUrls(adapter, sku) {

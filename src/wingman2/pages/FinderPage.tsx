@@ -27,6 +27,33 @@ import { SectionCard } from "../components/SectionCard";
 
 import "../styles/finder-card-visual-polish.css";
 type MatchStatus = "recommended" | "alternative" | "caution";
+type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
+
+type ProductSalesVoice = {
+  label?: string;
+  headline?: string;
+  pitch?: string;
+  value?: string;
+  talkTrack?: string[];
+  discoveryPrompts?: string[];
+  positioningNotes?: string[];
+  avoidPositioningAs?: string[];
+};
+
+type ProductSalesLanguage = {
+  headline?: string;
+  plainEnglishSummary?: string;
+  customerValue?: string;
+  realWorldApplication?: string;
+  salespersonCue?: string;
+  thirdOutputUseCase?: string;
+  talkTrack?: string[];
+  discoveryPrompts?: string[];
+  positioningNotes?: string[];
+  avoidPositioningAs?: string[];
+  marketApplications?: string[];
+  voices?: Partial<Record<ProductVoiceId, ProductSalesVoice>>;
+};
 
 type FinderProduct = {
   sku: string;
@@ -36,7 +63,9 @@ type FinderProduct = {
   description: string;
   tags: string[];
   searchText: string;
-  source: "seed" | "index";  commercialRole?: string;
+  source: "seed" | "index";
+  salesLanguage?: ProductSalesLanguage;
+  commercialRole?: string;
   finderVisibility?: string;
   bomRole?: string;
   dependencyType?: string;
@@ -612,6 +641,20 @@ function deepText(value: unknown, depth = 0): string {
   return "";
 }
 
+function asSalesLanguage(value: unknown): ProductSalesLanguage | undefined {
+  if (value && typeof value === "object") return value as ProductSalesLanguage;
+  return undefined;
+}
+
+function finderSalesLanguage(product: FinderProduct) {
+  return product.salesLanguage;
+}
+
+function finderSalesSummary(product: FinderProduct) {
+  const language = finderSalesLanguage(product);
+  return cleanDisplayText(language?.plainEnglishSummary || language?.voices?.endUser?.pitch || product.description);
+}
+
 function getFirstString(record: UnknownRecord, keys: string[]) {
   for (const key of keys) {
     const value = valueAsString(record[key]);
@@ -755,6 +798,12 @@ function normaliseIndexProduct(record: UnknownRecord): FinderProduct | null {
     deepText(record).slice(0, 260);
 
   const family = getFirstString(record, ["family", "series", "category", "productFamily"]) || "WyreStorm";
+  const technicalProfile = record.technicalProfile;
+  const salesLanguage =
+    asSalesLanguage(record.salesLanguage) ||
+    (technicalProfile && typeof technicalProfile === "object"
+      ? asSalesLanguage((technicalProfile as UnknownRecord).salesLanguage)
+      : undefined);
   const tags = unique([
     family,
     getFirstString(record, ["category", "type", "technology"]),
@@ -773,6 +822,7 @@ function normaliseIndexProduct(record: UnknownRecord): FinderProduct | null {
     tags,
     searchText: deepText(record),
     source: "index",
+    salesLanguage,
     commercialRole: getFirstString(record, ["commercialRole"]),
     finderVisibility: getFirstString(record, ["finderVisibility"]),
     bomRole: getFirstString(record, ["bomRole"]),
@@ -810,6 +860,7 @@ function normaliseProductIndex(data: unknown) {
     if (existing.source === "seed") {
       bySku.set(key, {
         ...existing,
+        salesLanguage: existing.salesLanguage || product.salesLanguage,
         tags: unique([...existing.tags, ...product.tags]),
         searchText: cleanDisplayText(`${existing.searchText} ${product.searchText}`),
       });
@@ -2826,7 +2877,7 @@ export function FinderPage() {
 
                               {!isExpanded ? (
                                 <span className="mt-2 block text-sm leading-5 text-slate-600">
-                                  {match.description}
+                                  {finderSalesSummary(match)}
                                 </span>
                               ) : null}
                             </span>
@@ -2857,7 +2908,22 @@ export function FinderPage() {
 
                         {isExpanded ? (
                           <div className="grid gap-3 border-t border-slate-100 pt-3">
-                            <p className="text-sm leading-6 text-slate-700">{match.description}</p>
+                            <p className="text-sm leading-6 text-slate-700">{finderSalesSummary(match)}</p>
+
+                            {match.salesLanguage ? (
+                              <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3">
+                                <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-700">Sales read</p>
+                                <p className="mt-2 text-sm font-black text-slate-950">
+                                  {cleanDisplayText(match.salesLanguage.headline || match.salesLanguage.voices?.endUser?.headline || match.sku)}
+                                </p>
+                                <p className="mt-1 text-sm leading-6 text-slate-700">
+                                  {cleanDisplayText(match.salesLanguage.salespersonCue || match.salesLanguage.customerValue || match.salesLanguage.realWorldApplication)}
+                                </p>
+                                {match.salesLanguage.thirdOutputUseCase ? (
+                                  <p className="mt-2 text-sm leading-6 text-sky-950">{cleanDisplayText(match.salesLanguage.thirdOutputUseCase)}</p>
+                                ) : null}
+                              </div>
+                            ) : null}
 
                             <div className="grid gap-3 lg:grid-cols-2">
                               <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3">

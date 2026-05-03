@@ -15,12 +15,40 @@ type GuruMessage = {
   time: string;
 };
 
+type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
+
+type ProductSalesVoice = {
+  label?: string;
+  headline?: string;
+  pitch?: string;
+  value?: string;
+  talkTrack?: string[];
+  discoveryPrompts?: string[];
+  positioningNotes?: string[];
+  avoidPositioningAs?: string[];
+};
+
+type ProductSalesLanguage = {
+  headline?: string;
+  plainEnglishSummary?: string;
+  customerValue?: string;
+  realWorldApplication?: string;
+  salespersonCue?: string;
+  thirdOutputUseCase?: string;
+  talkTrack?: string[];
+  discoveryPrompts?: string[];
+  positioningNotes?: string[];
+  avoidPositioningAs?: string[];
+  voices?: Partial<Record<ProductVoiceId, ProductSalesVoice>>;
+};
+
 type ProductEntry = {
   sku: string;
   title: string;
   family: string;
   category: string;
   description: string;
+  salesLanguage?: ProductSalesLanguage;
   text: string;
   raw: unknown;
 };
@@ -49,6 +77,7 @@ const GURU_EXTERNAL_LOOKUP_ENABLED = import.meta.env.VITE_WINGMAN_ENABLE_GURU_EX
 const quickPrompts = [
   "Which receiver can I use with the SW-130-TX-UK?",
   "Which receiver can I use with the SW-130-TX-UK if USB is not important and the run is 30m?",
+  "Explain MX-0403-H3-MST for an installer.",
   "What does HDBaseT mean?",
   "Explain AVoIP encoder vs decoder.",
   "What is EDID and why does it matter?",
@@ -391,6 +420,35 @@ function fieldValue(record: Record<string, unknown>, candidates: string[]) {
   return "";
 }
 
+function asSalesLanguage(value: unknown): ProductSalesLanguage | undefined {
+  if (value && typeof value === "object") return value as ProductSalesLanguage;
+  return undefined;
+}
+
+function salesLanguageFromRecord(record: Record<string, unknown>) {
+  const direct = asSalesLanguage(record.salesLanguage);
+
+  if (direct) {
+    return direct;
+  }
+
+  const technicalProfile = record.technicalProfile;
+
+  if (technicalProfile && typeof technicalProfile === "object") {
+    return asSalesLanguage((technicalProfile as Record<string, unknown>).salesLanguage);
+  }
+
+  return undefined;
+}
+
+function cleanGuruLine(value: unknown) {
+  return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function uniqueGuruLines(values: unknown[]) {
+  return Array.from(new Set(values.map(cleanGuruLine).filter(Boolean)));
+}
+
 function collectObjects(value: unknown, output: unknown[] = [], depth = 0) {
   if (value === null || value === undefined || depth > 5) {
     return output;
@@ -439,6 +497,7 @@ function toProductEntry(item: unknown): ProductEntry | null {
     family: fieldValue(record, ["family", "series", "productFamily", "product_family"]),
     category: fieldValue(record, ["category", "type", "technology", "technologyType", "technology_type"]),
     description: fieldValue(record, ["description", "summary", "shortDescription", "short_description"]),
+    salesLanguage: salesLanguageFromRecord(record),
     text,
     raw: item,
   };
@@ -723,6 +782,50 @@ function usefulLines(product: ProductEntry) {
   return Array.from(new Set(selected)).slice(0, 5);
 }
 
+function detectProductVoice(question: string): ProductVoiceId {
+  const lower = question.toLowerCase();
+
+  if (/\b(si|system integrator|integrator|installer|install|commissioning|commission)\b/.test(lower)) {
+    return "systemIntegrator";
+  }
+
+  if (/\b(consultant|technical|designer|specifier|architect|architecture|trade-off|tradeoff)\b/.test(lower)) {
+    return "consultant";
+  }
+
+  return "endUser";
+}
+
+function salesVoiceLines(product: ProductEntry, question: string) {
+  const language = product.salesLanguage;
+
+  if (!language) {
+    return [];
+  }
+
+  const voiceId = detectProductVoice(question);
+  const voice = language.voices?.[voiceId];
+  const heading = voice?.label || (voiceId === "systemIntegrator" ? "SI / installer" : voiceId === "consultant" ? "Consultant / technical" : "End user");
+  const pitch = cleanGuruLine(voice?.pitch || language.plainEnglishSummary);
+  const value = cleanGuruLine(voice?.value || language.customerValue || language.realWorldApplication);
+  const talkTrack = uniqueGuruLines([
+    ...(voice?.talkTrack ?? []),
+    ...(voiceId === "endUser" ? [language.salespersonCue, language.realWorldApplication] : []),
+    language.thirdOutputUseCase,
+  ]).slice(0, 3);
+  const prompts = uniqueGuruLines([...(voice?.discoveryPrompts ?? []), ...(language.discoveryPrompts ?? [])]).slice(0, 3);
+
+  return [
+    `${heading} view:`,
+    pitch ? `- ${pitch}` : "",
+    value ? `- ${value}` : "",
+    ...talkTrack.map((line) => `- ${line}`),
+    prompts.length ? "" : "",
+    prompts.length ? "Good questions to ask:" : "",
+    ...prompts.map((line) => `- ${line}`),
+  ].filter(Boolean);
+}
+
 function answerGlossary(question: string) {
   const lower = question.toLowerCase();
 
@@ -809,12 +912,15 @@ function answerProductQuestion(question: string, products: ProductEntry[]) {
   }
 
   const lines = usefulLines(product);
+  const voiceLines = salesVoiceLines(product, question);
 
   return [
     `${product.sku} - ${product.title}`,
     product.family ? `Family: ${product.family}` : "",
     product.category ? `Category: ${product.category}` : "",
     product.description ? `Summary: ${product.description}` : "",
+    voiceLines.length ? "" : "",
+    ...voiceLines,
     "",
     lines.length ? "Useful product notes:" : "I found the product but the local index does not expose detailed notes for it yet.",
     ...lines.map((line) => `- ${line}`),
@@ -928,7 +1034,7 @@ function answerFromSearch(question: string, products: ProductEntry[]) {
     "Likely product matches from the local index:",
     "",
     ...matches.map((product) => {
-      const summary = product.description || product.category || product.family || "Matched by SKU/product text.";
+      const summary = product.salesLanguage?.plainEnglishSummary || product.description || product.category || product.family || "Matched by SKU/product text.";
       return `- ${product.sku} - ${product.title}. ${summary}`;
     }),
     "",
@@ -1164,8 +1270,8 @@ async function answerQuestion(question: string, products: ProductEntry[]) {
 const openingMessage = createMessage(
   "assistant",
   GURU_EXTERNAL_LOOKUP_ENABLED
-    ? "Hi, I'm Guru, Wingman's real-time AV and WyreStorm technical assistant. Ask me a product, AV terminology, acronym, or system design question. If I don't know it locally, I'll try a live lookup and store the answer in local Guru memory for next time."
-    : "Hi, I'm Guru, Wingman's real-time AV and WyreStorm technical assistant. Ask me a product, AV terminology, acronym, or system design question. External lookup is off, so I'll answer from the local Wingman glossary and product index."
+    ? "Hi, I'm Guru, Wingman's real-time AV and WyreStorm technical assistant. Ask me a product, AV terminology, acronym, or system design question. You can ask for an end-user, installer, or consultant view. If I don't know it locally, I'll try a live lookup and store the answer in local Guru memory for next time."
+    : "Hi, I'm Guru, Wingman's real-time AV and WyreStorm technical assistant. Ask me a product, AV terminology, acronym, or system design question. You can ask for an end-user, installer, or consultant view. External lookup is off, so I'll answer from the local Wingman glossary and product index."
 );
 
 export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {

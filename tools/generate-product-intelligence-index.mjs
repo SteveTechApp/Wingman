@@ -56,6 +56,25 @@ function unique(values) {
   return Array.from(new Set(values.map(asString).filter(Boolean)));
 }
 
+function collectTextValues(value, output = []) {
+  if (typeof value === "string" || typeof value === "number") {
+    const text = asString(value);
+    if (text) output.push(text);
+    return output;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectTextValues(item, output));
+    return output;
+  }
+
+  if (value && typeof value === "object") {
+    Object.values(value).forEach((item) => collectTextValues(item, output));
+  }
+
+  return output;
+}
+
 function cleanText(value) {
   return asString(value)
     .replace(/&amp;/gi, "&")
@@ -376,6 +395,12 @@ function normalizeProduct(item, index, sourceFile) {
   const technicalProfile = item?.technicalProfile && typeof item.technicalProfile === "object"
     ? item.technicalProfile
     : null;
+  const salesLanguage =
+    item?.salesLanguage && typeof item.salesLanguage === "object"
+      ? item.salesLanguage
+      : technicalProfile?.salesLanguage && typeof technicalProfile.salesLanguage === "object"
+        ? technicalProfile.salesLanguage
+        : null;
   const classificationPath = asArray(item?.classificationPath);
   const subClassifications = asArray(item?.subClassifications);
   const profileFeatureLabels = Array.isArray(technicalProfile?.features)
@@ -383,6 +408,7 @@ function normalizeProduct(item, index, sourceFile) {
     : [];
   const profileTransports = asArray(technicalProfile?.transports);
   const profileApplications = asArray(technicalProfile?.applications);
+  const salesLanguageTerms = collectTextValues(salesLanguage);
 
   const tags = unique([
     ...(Array.isArray(item?.tags) ? item.tags : []),
@@ -438,6 +464,7 @@ function normalizeProduct(item, index, sourceFile) {
     ...profileFeatureLabels,
     ...applications,
     ...profileApplications,
+    ...salesLanguageTerms,
     ...tags,
   ]).map((value) => value.toLowerCase());
 
@@ -475,6 +502,7 @@ function normalizeProduct(item, index, sourceFile) {
     classificationPath,
     subClassifications,
     technicalProfile,
+    salesLanguage,
     source: path.relative(projectRoot, sourceFile).replace(/\\/g, "/"),
     raw: {
       ...item,
