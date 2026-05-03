@@ -121,6 +121,7 @@ export function AppShell({ children }: AppShellProps) {
 
   const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
   const activeLabel = activeRoute?.label ?? "Dashboard";
+  const activeSummary = activeRoute?.summary ?? "WyreStorm technical sales workspace.";
 
   useEffect(() => {
     setMobileNavOpen(false);
@@ -180,7 +181,7 @@ export function AppShell({ children }: AppShellProps) {
       />
 
       <div className="wingman-workspace">
-        <header className="wingman-topbar wm-micro-topbar">
+        <header className="wingman-topbar wm-balanced-topbar">
           <button
             type="button"
             className="wingman-mobile-nav-button"
@@ -191,13 +192,14 @@ export function AppShell({ children }: AppShellProps) {
             {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          <div className="wingman-topbar-title wm-micro-topbar-title" title={activeLabel}>
+          <div className="wingman-topbar-title wm-balanced-topbar-title" title={`${activeLabel}: ${activeSummary}`}>
             <p>{activeLabel}</p>
+            <span>{activeSummary}</span>
           </div>
 
-          <button type="button" className="wingman-clear-project-button wm-micro-clear-project-button" onClick={handleClearCurrentProject} title="Clear current project" aria-label="Clear current project">
-            <RotateCcw className="h-3 w-3" />
-            Clear
+          <button type="button" className="wingman-clear-project-button wm-balanced-clear-project-button" onClick={handleClearCurrentProject}>
+            <RotateCcw className="h-4 w-4" />
+            Clear current project
           </button>
         </header>
 
