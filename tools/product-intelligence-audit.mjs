@@ -2,98 +2,24 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-
-const sourcePath = fs.existsSync(path.join(root, "data/wyrestorm-product-intelligence.json"))
-  ? "data/wyrestorm-product-intelligence.json"
-  : "public/product-intelligence-index.json";
+const sourcePath = path.join(root, "data/wyrestorm-product-intelligence.json");
+const products = JSON.parse(fs.readFileSync(sourcePath, "utf8"));
 
 function clean(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
 
-function normalise(value) {
-  return clean(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+function upper(value) {
+  return clean(value).toUpperCase();
 }
 
-function deepText(value, depth = 0) {
-  if (value == null || depth > 5) return "";
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
-  if (Array.isArray(value)) return value.map((item) => deepText(item, depth + 1)).join(" ");
-  if (typeof value === "object") return Object.values(value).map((item) => deepText(item, depth + 1)).join(" ");
-  return "";
-}
-
-function firstString(record, keys) {
-  for (const key of keys) {
-    const value = clean(record?.[key]);
-    if (value) return value;
-  }
-  return "";
-}
-
-function collect(value, output = [], depth = 0) {
-  if (value == null || depth > 6) return output;
-
-  if (Array.isArray(value)) {
-    value.forEach((item) => collect(item, output, depth + 1));
-    return output;
-  }
-
-  if (typeof value !== "object") return output;
-
-  const sku = firstString(value, ["sku", "SKU", "model", "Model", "id", "productCode"]);
-  const title = firstString(value, ["title", "name", "productName", "Product Name", "description"]);
-
-  if (sku || title) output.push(value);
-
-  Object.values(value).forEach((item) => {
-    if (Array.isArray(item) || (item && typeof item === "object")) {
-      collect(item, output, depth + 1);
-    }
-  });
-
-  return output;
+function lower(value) {
+  return clean(value).toLowerCase();
 }
 
 function includesAny(text, terms) {
-  const haystack = normalise(text);
-  return terms.some((term) => haystack.includes(normalise(term)));
-}
-
-function classifyTechnology(text, sku) {
-  const skuUpper = sku.toUpperCase();
-
-  if (/^(CAB-|CBL-|EXP-CAB-|EXP-4KUHD-|EXP-8KUHD-)/.test(skuUpper) || includesAny(text, ["cable", "active optical", "hdmi aoc"])) return "Cable";
-  if (includesAny(text, ["dongle", "casting dongle"])) return "Dongle";
-  if (includesAny(text, ["rack", "mount", "bracket", "adapter", "faceplate", "accessory"])) return "Accessory";
-  if (includesAny(text, ["video wall", "videowall", "multiview", "multi view"])) return "Video Wall / Multiview";
-  if (includesAny(text, ["networkhd", "av over ip", "avoip", "encoder", "decoder", "transceiver", "nhd"])) return "AVoIP";
-  if (includesAny(text, ["matrix", "matrix routing", "seamless matrix"])) return "Matrix";
-  if (includesAny(text, ["presentation switcher", "room core", "usb-c switcher"])) return "Presentation / Room Core";
-  if (includesAny(text, ["unified comms", "video bar", "wireless conferencing", "speakerphone", "apollo", "halo"])) return "Unified Comms";
-  if (includesAny(text, ["camera", "ptz", "ndi", "camera bridge", "video bridge"])) return "Camera / Capture";
-  if (includesAny(text, ["splitter", "distribution amplifier", "1x2", "1x4", "1x8"])) return "Splitter / Distribution";
-  if (includesAny(text, ["extender", "hdbaset", "kvm", "receiver", "transmitter", "wall plate"])) return "Extender / HDBaseT";
-  if (includesAny(text, ["switcher", "switching"])) return "Switcher";
-  if (includesAny(text, ["audio", "dante", "aes67", "microphone", "amplifier", "control", "touch panel"])) return "Audio / Control";
-
-  return "Unclassified";
-}
-
-function roleFor(type) {
-  if (type === "Cable") return "cable";
-  if (type === "Dongle") return "workflow-endpoint";
-  if (type === "Accessory") return "accessory";
-  if (type === "Unclassified") return "needs-review";
-  return "primary-or-endpoint-hardware";
-}
-
-function visibilityFor(role) {
-  if (role === "primary-or-endpoint-hardware") return "default";
-  if (role === "workflow-endpoint") return "conditional-default";
-  if (role === "needs-review") return "needs-review";
-  return "request-only";
+  const haystack = lower(text);
+  return terms.some((term) => haystack.includes(lower(term)));
 }
 
 function csv(value) {
@@ -102,50 +28,130 @@ function csv(value) {
   return text;
 }
 
-if (!fs.existsSync(path.join(root, sourcePath))) {
-  console.error(`[product-intelligence-audit] Missing source: ${sourcePath}`);
-  process.exit(1);
+function expectedFor(product) {
+  const sku = upper(product.sku || product.id || product.model);
+  const text = `${sku} ${product.title ?? ""} ${product.name ?? ""} ${product.description ?? ""} ${(product.features ?? []).join(" ")} ${(product.tags ?? []).join(" ")}`;
+
+  if (/^(CAB-|CBL-|EXP-CAB-|EXP-HDMI-|EXP-8KUHD-|EXP-4KUHD-)/.test(sku)) return "Cable";
+  if (/^PSU-/.test(sku)) return "Accessory";
+  if (/^(SR-|NHD-.*RACK|APO-.*MNT|.*-MNT$)/.test(sku)) return "Accessory";
+  if (/^CAM-/.test(sku) || /^FOCUS-/.test(sku) || includesAny(text, ["ptz camera", "webcam", "camera bridge", "ndi camera"])) return "Camera / Capture";
+  if (/^NHD-/.test(sku)) {
+    if (includesAny(text, ["multiview processor", "multiview switcher", "multi view processor"])) return "Video Wall / Multiview";
+    if (includesAny(text, ["controller", "touchscreen", "touchscreen control", "control application"])) return "AVoIP Infrastructure";
+    return "AVoIP";
+  }
+  if (/^M42|^M43/.test(sku) || includesAny(text, ["pre-configured", "netgear", "network switch"])) return "AVoIP Infrastructure";
+  if (/^(EX-|EX3-|EXA-|EXF-|RX-|RX3-|RXF-|RXV-|TX-)/.test(sku)) return "Extender / HDBaseT";
+  if (/^(MX-|MXV-|TX-H2X-)/.test(sku)) {
+    if (includesAny(text, ["mst", "conference room", "usb-c integration", "presentation"])) return "Presentation / Room Core";
+    if (includesAny(text, ["seamless", "scaling matrix", "scl"])) return "Video Wall / Multiview";
+    return "Matrix";
+  }
+  if (/^SP-/.test(sku) || /^EXP-SP-/.test(sku) || includesAny(text, ["splitter", "distribution amplifier"])) return "Splitter / Distribution";
+  if (/^SW-020/.test(sku)) return "Video Wall / Multiview";
+  if (/^SW-/.test(sku) || /^SYN-KIT/.test(sku)) {
+    if (includesAny(text, ["wireless conferencing", "speakerphone", "video bar"])) return "Unified Comms";
+    return "Presentation / Room Core";
+  }
+  if (/^(APO-|HALO-|OFFICE-KIT)/.test(sku) || includesAny(text, ["speakerphone", "video bar", "conference", "unified communication", "webcam"])) return "Unified Comms";
+  if (/^(SYN-|TS-)/.test(sku) || includesAny(text, ["touchscreen", "touchpad", "keypad", "control", "rs232", "relay", "ir protocol"])) return "Audio / Control";
+  if (includesAny(text, ["amplifier", "dante", "audio extractor", "downmixer", "microphone"])) return "Audio / Control";
+
+  return "Needs Review";
 }
 
-const source = JSON.parse(fs.readFileSync(path.join(root, sourcePath), "utf8"));
-const records = collect(source);
-const seen = new Set();
 const rows = [];
 
-for (const record of records) {
-  const sku = firstString(record, ["sku", "SKU", "model", "Model", "id", "productCode"]);
-  const title = firstString(record, ["title", "name", "productName", "Product Name", "description"]);
-  const key = normalise(`${sku} ${title}`);
-
-  if (!key || seen.has(key)) continue;
-  seen.add(key);
-
-  const family = firstString(record, ["family", "productFamily", "series", "range"]);
-  const category = firstString(record, ["category", "type", "role"]);
-  const text = `${sku} ${title} ${family} ${category} ${deepText(record)}`;
-  const technologyType = classifyTechnology(text, sku);
-  const hardwareRole = roleFor(technologyType);
-  const visibilityPriority = visibilityFor(hardwareRole);
+for (const product of products) {
+  const sku = clean(product.sku || product.id || product.model);
+  const title = clean(product.title || product.name);
+  const expected = expectedFor(product);
+  const actual = clean(product.technologyType || product.hardwareType || "Missing");
   const issues = [];
 
   if (!sku) issues.push("missing SKU");
   if (!title) issues.push("missing title");
-  if (technologyType === "Unclassified") issues.push("technology type needs review");
+  if (!product.technologyType) issues.push("missing technologyType");
+  if (!product.hardwareType) issues.push("missing hardwareType");
+  if (!product.productRole) issues.push("missing productRole");
+  if (!product.catalogVisibility) issues.push("missing catalogVisibility");
 
-  rows.push({ sku, title, family, category, technologyType, hardwareRole, visibilityPriority, issues: issues.join("; ") });
+  if (expected !== "Needs Review" && actual !== expected) {
+    issues.push(`expected ${expected}, found ${actual}`);
+  }
+
+  if (/^NHD-/.test(upper(sku)) && actual === "Video Wall / Multiview" && !includesAny(`${title} ${product.description ?? ""}`, ["multiview", "multi view"])) {
+    issues.push("normal NetworkHD endpoint should not be multiview");
+  }
+
+  if (/^(EX-|EX3-|EXA-|EXF-|RX-|RX3-|RXF-|RXV-|TX-)/.test(upper(sku)) && actual === "Cable") {
+    issues.push("extender endpoint classified as cable");
+  }
+
+  if ((/^CAM-/.test(upper(sku)) || /^FOCUS-/.test(upper(sku))) && actual !== "Camera / Capture") {
+    issues.push("camera product not classified as Camera / Capture");
+  }
+
+  if (includesAny(title, ["speakerphone", "video bar"]) && actual === "Cable") {
+    issues.push("UC product classified as cable");
+  }
+
+  rows.push({
+    sku,
+    title,
+    family: clean(product.family),
+    role: clean(product.role),
+    technologyType: actual,
+    expectedTechnologyType: expected,
+    productRole: clean(product.productRole),
+    catalogVisibility: clean(product.catalogVisibility),
+    correctionSource: clean(product.roleCorrectionSource),
+    issues: issues.join("; "),
+  });
 }
 
 rows.sort((a, b) => a.sku.localeCompare(b.sku));
 
-fs.mkdirSync(path.join(root, "reports"), { recursive: true });
+const reportDir = path.join(root, "reports");
+fs.mkdirSync(reportDir, { recursive: true });
 
-const jsonPath = path.join(root, "reports/wingman-product-intelligence-audit.json");
-const csvPath = path.join(root, "reports/wingman-product-intelligence-audit.csv");
-const columns = ["sku", "title", "family", "category", "technologyType", "hardwareRole", "visibilityPriority", "issues"];
+const jsonPath = path.join(reportDir, "wingman-product-intelligence-audit.json");
+const csvPath = path.join(reportDir, "wingman-product-intelligence-audit.csv");
 
-fs.writeFileSync(jsonPath, JSON.stringify({ generatedAt: new Date().toISOString(), source: sourcePath, productCount: rows.length, rows }, null, 2) + "\n");
+fs.writeFileSync(jsonPath, JSON.stringify({
+  generatedAt: new Date().toISOString(),
+  source: "data/wyrestorm-product-intelligence.json",
+  productCount: rows.length,
+  issueCount: rows.filter((row) => row.issues).length,
+  rows,
+}, null, 2) + "\n");
+
+const columns = [
+  "sku",
+  "title",
+  "family",
+  "role",
+  "technologyType",
+  "expectedTechnologyType",
+  "productRole",
+  "catalogVisibility",
+  "correctionSource",
+  "issues",
+];
+
 fs.writeFileSync(csvPath, [columns.join(","), ...rows.map((row) => columns.map((column) => csv(row[column])).join(","))].join("\n") + "\n");
 
+const issueRows = rows.filter((row) => row.issues);
+
 console.log(`[product-intelligence-audit] Products audited: ${rows.length}`);
+console.log(`[product-intelligence-audit] Issue rows: ${issueRows.length}`);
 console.log("[product-intelligence-audit] Wrote reports/wingman-product-intelligence-audit.csv");
 console.log("[product-intelligence-audit] Wrote reports/wingman-product-intelligence-audit.json");
+
+if (issueRows.length > 0) {
+  console.log("[product-intelligence-audit] First 20 issue rows:");
+  for (const row of issueRows.slice(0, 20)) {
+    console.log(`- ${row.sku}: ${row.issues}`);
+  }
+}
