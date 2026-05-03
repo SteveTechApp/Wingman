@@ -123,6 +123,52 @@ function classifyProductGranularity(product) {
   const text = normaliseText(buildTextBlob(product));
   const rawCategory = asString(product.category);
   const primarySystemFamily = classifyFamily(product, text);
+  const explicitProductRole = asString(product.productRole);
+  const explicitCatalogVisibility = asString(product.catalogVisibility);
+  const explicitClassification = product.productClassification && typeof product.productClassification === "object"
+    ? product.productClassification
+    : null;
+
+  if (explicitProductRole && explicitCatalogVisibility) {
+    const dependencyTypeByRole = {
+      "primary-hardware": "primary-device",
+      "endpoint-hardware": "endpoint",
+      "system-controller": "control-interface",
+      "workflow-endpoint": "workflow-endpoint",
+      cable: "cable",
+      accessory: "accessory",
+      "rack-mount": "rack-mount",
+      "power-accessory": "power-accessory",
+      "software-app": "software-app",
+      "cloud-service": "cloud-service",
+    };
+    const bomRoleByRole = {
+      "primary-hardware": "primary-line-item",
+      "endpoint-hardware": "required-endpoint",
+      "system-controller": "required-or-optional-control",
+      "workflow-endpoint": "optional-workflow-endpoint",
+      cable: "optional-cable",
+      accessory: "optional-accessory",
+      "rack-mount": "dependency-accessory",
+      "power-accessory": "dependency-accessory",
+      "software-app": "optional-software",
+      "cloud-service": "optional-service",
+    };
+    const requestedBy = unique([
+      ...(Array.isArray(product.showWhenRequestedBy) ? product.showWhenRequestedBy : []),
+      ...(Array.isArray(explicitClassification?.subClassifications) ? explicitClassification.subClassifications : []),
+      ...(Array.isArray(product.subClassifications) ? product.subClassifications : []),
+    ]);
+
+    return {
+      commercialRole: explicitProductRole,
+      finderVisibility: explicitCatalogVisibility,
+      bomRole: bomRoleByRole[explicitProductRole] || "primary-line-item",
+      dependencyType: dependencyTypeByRole[explicitProductRole] || explicitProductRole,
+      primarySystemFamily: asString(explicitClassification?.primaryCategory) || primarySystemFamily,
+      showWhenRequestedBy: explicitCatalogVisibility === "default" ? [] : requestedBy,
+    };
+  }
 
   if (sku === "APO-DG2" || sku === "APO-DG2-PRO") {
     return {
@@ -324,11 +370,27 @@ function normalizeProduct(item, index, sourceFile) {
     : [];
 
   const applications = asArray(item?.applications);
+  const productClassification = item?.productClassification && typeof item.productClassification === "object"
+    ? item.productClassification
+    : null;
+  const technicalProfile = item?.technicalProfile && typeof item.technicalProfile === "object"
+    ? item.technicalProfile
+    : null;
+  const classificationPath = asArray(item?.classificationPath);
+  const subClassifications = asArray(item?.subClassifications);
+  const profileFeatureLabels = Array.isArray(technicalProfile?.features)
+    ? technicalProfile.features.map((feature) => asString(feature?.label || feature)).filter(Boolean)
+    : [];
+  const profileTransports = asArray(technicalProfile?.transports);
+  const profileApplications = asArray(technicalProfile?.applications);
 
   const tags = unique([
     ...(Array.isArray(item?.tags) ? item.tags : []),
     ...(Array.isArray(item?.featureTags) ? item.featureTags : []),
     ...(Array.isArray(item?.applicationTags) ? item.applicationTags : []),
+    ...classificationPath,
+    ...subClassifications,
+    ...profileFeatureLabels,
   ]);
 
   const provisionalProduct = {
@@ -347,6 +409,11 @@ function normalizeProduct(item, index, sourceFile) {
     features,
     applications,
     tags,
+    productRole: asString(item?.productRole),
+    catalogVisibility: asString(item?.catalogVisibility),
+    productClassification,
+    subClassifications,
+    showWhenRequestedBy: asArray(item?.showWhenRequestedBy),
   };
 
   const granularity = classifyProductGranularity(provisionalProduct);
@@ -365,9 +432,12 @@ function normalizeProduct(item, index, sourceFile) {
     granularity.primarySystemFamily,
     ...granularity.showWhenRequestedBy,
     ...technologies,
+    ...profileTransports,
     ...connectors,
     ...features,
+    ...profileFeatureLabels,
     ...applications,
+    ...profileApplications,
     ...tags,
   ]).map((value) => value.toLowerCase());
 
@@ -383,7 +453,7 @@ function normalizeProduct(item, index, sourceFile) {
     technologies,
     connectors,
     features,
-    applications,
+    applications: unique([...applications, ...profileApplications]),
     tags: unique([
       ...tags,
       granularity.commercialRole,
@@ -397,6 +467,14 @@ function normalizeProduct(item, index, sourceFile) {
     dependencyType: granularity.dependencyType,
     primarySystemFamily: granularity.primarySystemFamily,
     showWhenRequestedBy: granularity.showWhenRequestedBy,
+    productRole: asString(item?.productRole),
+    catalogVisibility: asString(item?.catalogVisibility),
+    technologyType: asString(item?.technologyType),
+    hardwareType: asString(item?.hardwareType),
+    productClassification,
+    classificationPath,
+    subClassifications,
+    technicalProfile,
     source: path.relative(projectRoot, sourceFile).replace(/\\/g, "/"),
     raw: {
       ...item,

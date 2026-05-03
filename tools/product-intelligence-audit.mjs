@@ -30,22 +30,31 @@ function csv(value) {
 
 function expectedFor(product) {
   const sku = upper(product.sku || product.id || product.model);
-  const text = `${sku} ${product.title ?? ""} ${product.name ?? ""} ${product.description ?? ""} ${(product.features ?? []).join(" ")} ${(product.tags ?? []).join(" ")}`;
+  const text = `${sku} ${product.title ?? ""} ${product.name ?? ""} ${product.description ?? ""} ${product.summary ?? ""}`;
 
   if (/^(CAB-|CBL-|EXP-CAB-|EXP-HDMI-|EXP-8KUHD-|EXP-4KUHD-)/.test(sku)) return "Cable";
   if (/^PSU-/.test(sku)) return "Accessory";
-  if (/^(SR-|NHD-.*RACK|APO-.*MNT|.*-MNT$)/.test(sku)) return "Accessory";
+  if (sku === "USB-HUB4") return "Accessory";
+  if (sku === "NHD-128-NDI-TRX") return "Camera / Capture";
+  if (sku === "NHD-TOUCHPLUS") return "Audio / Control";
+  if (/^NHD-TOUCH/.test(sku)) return "AVoIP Infrastructure";
+  if (/^TS-/.test(sku)) return "Audio / Control";
+  if (/^(SR-|NHD-.*RACK|NHD-RACK|APO-.*MNT|.*-MNT$)/.test(sku)) return "Accessory";
   if (/^CAM-/.test(sku) || /^FOCUS-/.test(sku) || includesAny(text, ["ptz camera", "webcam", "camera bridge", "ndi camera"])) return "Camera / Capture";
+  if (/^(CON-|EXP-CON-)/.test(sku)) return "Audio / Control";
+  if (/^EXP-EX-/.test(sku)) return "Extender / HDBaseT";
+  if (/^EXP-MX-/.test(sku)) return "Matrix";
+  if (/^EXP-SW-/.test(sku)) return "Presentation / Room Core";
+  if (/^IDB-/.test(sku)) return "Accessory";
   if (/^NHD-/.test(sku)) {
-    if (includesAny(text, ["multiview processor", "multiview switcher", "multi view processor"])) return "Video Wall / Multiview";
     if (includesAny(text, ["controller", "touchscreen", "touchscreen control", "control application"])) return "AVoIP Infrastructure";
     return "AVoIP";
   }
   if (/^M42|^M43/.test(sku) || includesAny(text, ["pre-configured", "netgear", "network switch"])) return "AVoIP Infrastructure";
+  if (/^SWX-/.test(sku)) return "Extender / HDBaseT";
   if (/^(EX-|EX3-|EXA-|EXF-|RX-|RX3-|RXF-|RXV-|TX-)/.test(sku)) return "Extender / HDBaseT";
   if (/^(MX-|MXV-|TX-H2X-)/.test(sku)) {
-    if (includesAny(text, ["mst", "conference room", "usb-c integration", "presentation"])) return "Presentation / Room Core";
-    if (includesAny(text, ["seamless", "scaling matrix", "scl"])) return "Video Wall / Multiview";
+    if (/^MX-.*MST/.test(sku)) return "Presentation / Room Core";
     return "Matrix";
   }
   if (/^SP-/.test(sku) || /^EXP-SP-/.test(sku) || includesAny(text, ["splitter", "distribution amplifier"])) return "Splitter / Distribution";
@@ -76,6 +85,8 @@ for (const product of products) {
   if (!product.hardwareType) issues.push("missing hardwareType");
   if (!product.productRole) issues.push("missing productRole");
   if (!product.catalogVisibility) issues.push("missing catalogVisibility");
+  if (!product.productClassification) issues.push("missing productClassification");
+  if (!product.technicalProfile) issues.push("missing technicalProfile");
 
   if (expected !== "Needs Review" && actual !== expected) {
     issues.push(`expected ${expected}, found ${actual}`);
@@ -97,6 +108,29 @@ for (const product of products) {
     issues.push("UC product classified as cable");
   }
 
+  const profile = product.technicalProfile && typeof product.technicalProfile === "object" ? product.technicalProfile : {};
+  const classification = product.productClassification && typeof product.productClassification === "object" ? product.productClassification : {};
+  const profileFeatureCount = Array.isArray(profile.features) ? profile.features.length : 0;
+  const profilePortCount = Array.isArray(profile.io?.ports) ? profile.io.ports.length : 0;
+  const classificationPath = Array.isArray(product.classificationPath) ? product.classificationPath : [];
+  const subClassifications = Array.isArray(product.subClassifications) ? product.subClassifications : [];
+
+  if (product.productClassification && !classification.primaryCategory) {
+    issues.push("productClassification missing primaryCategory");
+  }
+
+  if (product.productClassification && classificationPath.length < 2) {
+    issues.push("classificationPath too shallow");
+  }
+
+  if (product.productClassification && subClassifications.length === 0) {
+    issues.push("missing subClassifications");
+  }
+
+  if (product.technicalProfile && profileFeatureCount < 1) {
+    issues.push("technicalProfile has no features");
+  }
+
   rows.push({
     sku,
     title,
@@ -106,6 +140,14 @@ for (const product of products) {
     expectedTechnologyType: expected,
     productRole: clean(product.productRole),
     catalogVisibility: clean(product.catalogVisibility),
+    primaryCategory: clean(classification.primaryCategory),
+    category: clean(classification.category),
+    subCategory: clean(classification.subCategory),
+    productType: clean(classification.productType),
+    subClassifications: subClassifications.join("|"),
+    profileFeatureCount,
+    profilePortCount,
+    officialPageStatus: clean(profile.sourceQuality?.officialPageStatus),
     correctionSource: clean(product.roleCorrectionSource),
     issues: issues.join("; "),
   });
@@ -136,6 +178,14 @@ const columns = [
   "expectedTechnologyType",
   "productRole",
   "catalogVisibility",
+  "primaryCategory",
+  "category",
+  "subCategory",
+  "productType",
+  "subClassifications",
+  "profileFeatureCount",
+  "profilePortCount",
+  "officialPageStatus",
   "correctionSource",
   "issues",
 ];

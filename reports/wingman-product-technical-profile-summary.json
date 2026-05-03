@@ -1,0 +1,141 @@
+{
+  "generatedAt": "2026-05-03T14:35:14.941Z",
+  "profileVersion": "wyrestorm-product-manager-v1",
+  "offlineMode": false,
+  "sourceProductCount": 253,
+  "finderRecordCount": 151,
+  "categorySummary": {
+    "Accessory / Other": 15,
+    "Audio": 2,
+    "Cable / Connectivity": 39,
+    "Camera / Capture": 19,
+    "Control": 15,
+    "Distribution": 7,
+    "Extension": 48,
+    "Matrix / Routing": 28,
+    "NetworkHD AV over IP": 43,
+    "Presentation / Room Core": 16,
+    "Unified Communications": 19,
+    "Video Processing": 2
+  },
+  "subCategorySummary": {
+    "Accessory": 7,
+    "Adapter accessory": 1,
+    "Amplification": 2,
+    "AVoIP infrastructure": 6,
+    "Camera / capture": 2,
+    "Camera endpoint": 18,
+    "Control interface": 6,
+    "DisplayPort cable": 2,
+    "HDBaseT extender": 32,
+    "HDBaseT matrix": 14,
+    "HDMI cable": 30,
+    "Matrix switcher": 3,
+    "Microphone system": 6,
+    "Mounting accessory": 3,
+    "NDI workflow endpoint": 1,
+    "NetworkHD 100": 20,
+    "NetworkHD 500": 10,
+    "NetworkHD 600": 7,
+    "Presentation switcher": 14,
+    "Rack accessory": 3,
+    "Seamless matrix": 11,
+    "Signal management": 7,
+    "Software control": 2,
+    "Splitter / distribution amplifier": 7,
+    "UC audio / room core": 5,
+    "USB / KVM extender": 16,
+    "USB accessory": 1,
+    "USB cable": 7,
+    "Video wall processor": 2,
+    "Wireless collaboration accessory": 4,
+    "Wireless presentation switcher": 4
+  },
+  "technologyTypeSummary": {
+    "Accessory": 15,
+    "Audio / Control": 17,
+    "AVoIP": 29,
+    "AVoIP Infrastructure": 14,
+    "Cable": 39,
+    "Camera / Capture": 19,
+    "Extender / HDBaseT": 48,
+    "Matrix": 28,
+    "Presentation / Room Core": 16,
+    "Splitter / Distribution": 7,
+    "Unified Comms": 19,
+    "Video Wall / Multiview": 2
+  },
+  "finderCoverage": {
+    "withTechnicalProfile": 151,
+    "withClassification": 151
+  },
+  "officialPageFetchSummary": {
+    "200": 377,
+    "404": 27
+  },
+  "lowCoverageSkus": [
+    {
+      "sku": "APO-VX20-MNT",
+      "primaryCategory": "Accessory / Other",
+      "category": "Mounting accessory",
+      "subCategory": "Product-specific mounting kit",
+      "featureCount": 1,
+      "portCount": 0,
+      "officialPageStatus": 200
+    },
+    {
+      "sku": "EXP-CON-DAC",
+      "primaryCategory": "Control",
+      "category": "Signal management",
+      "subCategory": "Audio extraction / conversion",
+      "featureCount": 1,
+      "portCount": 0,
+      "officialPageStatus": 200
+    },
+    {
+      "sku": "EXP-CON-DAC-D",
+      "primaryCategory": "Control",
+      "category": "Signal management",
+      "subCategory": "Audio extraction / conversion",
+      "featureCount": 1,
+      "portCount": 0,
+      "officialPageStatus": 200
+    },
+    {
+      "sku": "EXP-CON-H2-DD",
+      "primaryCategory": "Control",
+      "category": "Signal management",
+      "subCategory": "Audio extraction / conversion",
+      "featureCount": 1,
+      "portCount": 0,
+      "officialPageStatus": 200
+    },
+    {
+      "sku": "FOCUS-180A",
+      "primaryCategory": "Camera / Capture",
+      "category": "Camera endpoint",
+      "subCategory": "PTZ camera",
+      "featureCount": 1,
+      "portCount": 0,
+      "officialPageStatus": 200
+    },
+    {
+      "sku": "HALO-WFA-130",
+      "primaryCategory": "Camera / Capture",
+      "category": "Camera endpoint",
+      "subCategory": "USB camera",
+      "featureCount": 1,
+      "portCount": 0,
+      "officialPageStatus": 200
+    },
+    {
+      "sku": "MX-1010-H2XC",
+      "primaryCategory": "Matrix / Routing",
+      "category": "Matrix switcher",
+      "subCategory": "Fixed I/O matrix",
+      "featureCount": 1,
+      "portCount": 0,
+      "officialPageStatus": 200
+    }
+  ]
+}
