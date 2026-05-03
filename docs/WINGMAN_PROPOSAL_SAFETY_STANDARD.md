@@ -4,6 +4,8 @@ Wingman must be commercially useful without overclaiming.
 
 ## Required output sections
 
+Every proposal-ready output should separate:
+
 - Confirmed requirement
 - Design assumptions
 - Recommended architecture
@@ -33,3 +35,13 @@ Avoid:
 - display behaviour
 - camera compatibility
 - product lifecycle status
+
+## Compare outputs
+
+Competitor comparison should label each result as one of:
+
+- Direct match
+- Partial match
+- Category match only
+- No credible WyreStorm equivalent
+- Needs manual review
