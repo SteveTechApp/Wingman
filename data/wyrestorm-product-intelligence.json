@@ -594,7 +594,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "AMP-260-DNT",
@@ -1183,7 +1184,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "APO-100-UC",
@@ -1262,7 +1264,8 @@
       "BYOD presentation",
       "BYOM / UC",
       "Audio reinforcement",
-      "Meeting room, BYOD/BYOM and conferencing workflows"
+      "Meeting room, BYOD/BYOM and conferencing workflows",
+      "EOL"
     ],
     "capabilities": [
       "USB-C",
@@ -1313,7 +1316,8 @@
       "BYOD presentation",
       "BYOM / UC",
       "Audio reinforcement",
-      "Meeting room, BYOD/BYOM and conferencing workflows"
+      "Meeting room, BYOD/BYOM and conferencing workflows",
+      "EOL"
     ],
     "source": {
       "type": "official-product-page",
@@ -1885,7 +1889,10 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "EOL",
+    "lifecycleStatus": "EOL",
+    "manualReviewNotes": "Lifecycle confirmed EOL."
   },
   {
     "id": "APO-200-UC",
@@ -1989,7 +1996,8 @@
       "BYOD presentation",
       "BYOM / UC",
       "Audio reinforcement",
-      "Meeting room, BYOD/BYOM and conferencing workflows"
+      "Meeting room, BYOD/BYOM and conferencing workflows",
+      "EOL"
     ],
     "capabilities": [
       "USB-C",
@@ -2056,7 +2064,8 @@
       "BYOD presentation",
       "BYOM / UC",
       "Audio reinforcement",
-      "Meeting room, BYOD/BYOM and conferencing workflows"
+      "Meeting room, BYOD/BYOM and conferencing workflows",
+      "EOL"
     ],
     "source": {
       "type": "official-product-page",
@@ -2754,7 +2763,10 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "EOL",
+    "lifecycleStatus": "EOL",
+    "manualReviewNotes": "Lifecycle confirmed EOL."
   },
   {
     "id": "APO-COM-MIC",
@@ -3097,7 +3109,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "APO-DG-DOCK",
@@ -3355,7 +3368,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "APO-DG-HDMI",
@@ -3699,7 +3713,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "APO-DG2",
@@ -3998,7 +4013,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "APO-DG2-PRO",
@@ -4350,7 +4366,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "APO-MIC-EXT",
@@ -4605,7 +4622,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "APO-SKY-MIC",
@@ -5144,7 +5162,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "APO-VX20-MNT",
@@ -5348,7 +5367,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "APO-VX20-UC-V2",
@@ -6227,7 +6247,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-DAOC-10-C",
@@ -6566,7 +6587,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-DAOC-10-P",
@@ -6905,7 +6927,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-HAOC-15-C",
@@ -7191,7 +7214,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-HAOC-15-P",
@@ -7477,7 +7501,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-HAOC-20",
@@ -7783,7 +7808,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-HAOC-20-C",
@@ -8069,7 +8095,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-HAOC-20-P",
@@ -8376,7 +8403,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-HAOC-30-C",
@@ -8688,7 +8716,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-HAOC-30-P",
@@ -9000,7 +9029,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-HAOC-FRL-XX",
@@ -9560,7 +9590,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-HAOC-XX",
@@ -10077,7 +10108,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-HAOC-XX-C",
@@ -10666,7 +10698,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-HAOC-XX-P",
@@ -11255,7 +11288,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-IR-LINK",
@@ -11554,7 +11588,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-UAOC-15-C",
@@ -11848,7 +11883,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-UAOC-15-P",
@@ -12142,7 +12178,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-UAOC-USBC-10",
@@ -12492,7 +12529,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAB-USBC-15",
@@ -12901,7 +12939,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAM-0402-BRG",
@@ -13666,7 +13705,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAM-0402-NDI-BRG",
@@ -14485,7 +14525,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAM-200-PTZ",
@@ -15108,7 +15149,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAM-210-NDI-PTZ",
@@ -15920,7 +15962,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAM-210-PTZ",
@@ -16683,7 +16726,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CAM-420-PTZ",
@@ -17424,7 +17468,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "COM-MIC-HUB",
@@ -18096,7 +18141,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "COMPANIONCONTROL",
@@ -18515,7 +18561,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CON-H2-DD-EARC",
@@ -18853,7 +18900,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CON-H2-EDID",
@@ -19491,7 +19539,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "CON-H2-SCL",
@@ -20137,7 +20186,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-100-G2",
@@ -20715,7 +20765,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-100-H2",
@@ -21447,7 +21498,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-100-H2-EARC",
@@ -22164,7 +22216,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-100-IW-USBC",
@@ -22775,7 +22828,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-100-KVM",
@@ -23496,7 +23550,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-100-KVM-8K",
@@ -24131,7 +24186,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-100-KVM-IP",
@@ -24720,7 +24776,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-100-USB3",
@@ -25192,7 +25249,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-35-8K",
@@ -25799,7 +25857,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-35-H2",
@@ -26565,7 +26624,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-35-H2-ARC",
@@ -27320,7 +27380,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-40-G3",
@@ -27902,7 +27963,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-40-H2-ARC",
@@ -28854,7 +28916,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-40-KVM-5K",
@@ -29700,7 +29763,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-60-USB2",
@@ -30254,7 +30318,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-70-G2",
@@ -30929,7 +30994,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-70-H2",
@@ -31664,7 +31730,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-70-H2C",
@@ -32271,7 +32338,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX-70-H2X",
@@ -32640,7 +32708,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EX3-100-EARC",
@@ -33352,7 +33421,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXA-100-EARC",
@@ -33974,7 +34044,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXF-10KM-5K",
@@ -34614,7 +34685,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXF-300-H2",
@@ -35203,7 +35275,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-4KUHD-X",
@@ -35601,7 +35674,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-8KUHD-X",
@@ -36096,7 +36170,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-CAB-HAOC-2",
@@ -36419,7 +36494,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-CAB-HAOC-4",
@@ -36742,7 +36818,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-CAB-HAOC-6",
@@ -37065,7 +37142,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-CAB-HAOC-8",
@@ -37385,7 +37463,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-CAB-USBC-5M",
@@ -37781,7 +37860,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-CAB-USBC-XM",
@@ -38150,7 +38230,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-CON-AUD-H2",
@@ -38427,7 +38508,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-CON-DAC",
@@ -38650,7 +38732,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-CON-DAC-D",
@@ -38883,7 +38966,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-CON-H2-DD",
@@ -39135,7 +39219,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-EX-35-G2",
@@ -39414,7 +39499,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-EX-80-KVM",
@@ -40024,7 +40110,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-10.0M",
@@ -40279,7 +40366,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-15.0M",
@@ -40539,7 +40627,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-CPL",
@@ -40927,7 +41016,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-DVI",
@@ -41241,7 +41331,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-H2-0.5M",
@@ -41527,7 +41618,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-H2-1M",
@@ -41777,7 +41869,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-H2-2M",
@@ -42063,7 +42156,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-H2-3M",
@@ -42349,7 +42443,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-H2-5M",
@@ -42598,7 +42693,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-RTA",
@@ -42977,7 +43073,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-USBC",
@@ -43420,7 +43517,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-VGA",
@@ -43725,7 +43823,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-HDMI-XM-8K",
@@ -43988,7 +44087,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-MX-0402-H2",
@@ -44691,7 +44791,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-MX-0404-H2",
@@ -45024,7 +45125,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-MX-0808-KIT",
@@ -45368,7 +45470,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-SP-0102-8K",
@@ -45954,7 +46057,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-SP-0102-H2",
@@ -46452,7 +46556,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-SP-0104-H2",
@@ -46945,7 +47050,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-SW-0401-H2",
@@ -47470,7 +47576,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "EXP-SW-0X01-8K",
@@ -48207,7 +48314,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "FOCUS-100",
@@ -48468,7 +48576,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "FOCUS-180A",
@@ -48710,7 +48819,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "FOCUS-200",
@@ -48963,7 +49073,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "FOCUS-200-PRO",
@@ -49213,7 +49324,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "FOCUS-210",
@@ -49470,7 +49582,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "HALO-30",
@@ -49764,7 +49877,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "HALO-60",
@@ -50040,7 +50154,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "HALO-80",
@@ -50562,7 +50677,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "HALO-90",
@@ -50945,7 +51061,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "HALO-COM-MIC",
@@ -51234,7 +51351,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "HALO-VX10-V1",
@@ -51536,7 +51654,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "HALO-WFA-130",
@@ -51785,7 +51904,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "HALO-WFA-290",
@@ -52074,7 +52194,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "IDB-200-XX",
@@ -52567,7 +52688,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "IDB-400-MS",
@@ -53074,7 +53196,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "IDB-400-MS-C",
@@ -53667,7 +53790,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "IDB-400-NA",
@@ -54172,7 +54296,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "M4250-GSM4212PX-10P",
@@ -54442,7 +54567,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "M4250-GSM4230PX-26P",
@@ -54712,7 +54838,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "M4250-GSM4248PX-40P",
@@ -54982,7 +55109,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "M4300-XSM4316PA-16X",
@@ -55239,7 +55367,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "M4300-XSM4324CS-24X",
@@ -55509,7 +55638,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0402-MST",
@@ -56296,7 +56426,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0403-H3-MST",
@@ -57093,7 +57224,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0404-HDBT-H2A-KIT",
@@ -57471,7 +57603,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0404-HDMI",
@@ -58216,7 +58349,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0404-KIT",
@@ -58982,7 +59116,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0404-SCL",
@@ -59848,7 +59983,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0804-EDC",
@@ -60878,7 +61014,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0808-H2A-MK2",
@@ -61676,7 +61813,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0808-KIT-V2",
@@ -62463,7 +62601,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0808-SCL",
@@ -63434,7 +63573,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0808-SCL-V2",
@@ -64363,7 +64503,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-0812-SCL",
@@ -65234,7 +65375,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-1007-HYB",
@@ -66549,7 +66691,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-1010-H2XC",
@@ -66804,7 +66947,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-1616-H2XC",
@@ -67733,7 +67877,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MX-1616-SCL",
@@ -68551,7 +68696,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MXV-0404-H2A-KIT-V2",
@@ -69409,7 +69555,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MXV-0408-H2A",
@@ -69735,7 +69882,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MXV-0408-H2A-KIT",
@@ -70021,7 +70169,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MXV-0606-H2A-V2",
@@ -70384,7 +70533,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MXV-0606-H2A-V3",
@@ -71179,7 +71329,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MXV-0808-H2A-70-V2",
@@ -71539,7 +71690,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MXV-0808-H2A-70-V3",
@@ -72319,7 +72471,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MXV-0808-H2A-KIT",
@@ -73257,7 +73410,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MXV-0808-H2A-V2",
@@ -73621,7 +73775,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MXV-0808-H2A-V3",
@@ -74416,7 +74571,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "MXV-0808-H2L",
@@ -75093,7 +75249,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-000-CTL",
@@ -75627,7 +75784,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-000-RACK3",
@@ -75959,7 +76117,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-000-RACK4",
@@ -76389,7 +76548,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-0401-MV",
@@ -77136,7 +77296,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-110-RX",
@@ -78089,7 +78250,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-110-RX-S",
@@ -78888,7 +79050,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-110-TX",
@@ -79763,7 +79926,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-120-IW-TX",
@@ -80597,7 +80761,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-120-RX",
@@ -81558,7 +81723,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-120-RX-S",
@@ -82434,7 +82600,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-120-TX",
@@ -83377,7 +83544,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-124-TX",
@@ -84033,7 +84201,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-128-NDI-TRX",
@@ -84603,7 +84772,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-140-RACK-1U",
@@ -85023,7 +85193,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-150-RX",
@@ -85851,7 +86022,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-250-RX",
@@ -86609,7 +86781,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-300-TX",
@@ -86669,7 +86842,8 @@
       "PoE / PoH / PoC",
       "Rack installation",
       "AV over IP distribution",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "capabilities": [
       "AVoIP",
@@ -86706,7 +86880,8 @@
       "PoE / PoH / PoC",
       "Rack installation",
       "AV over IP distribution",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "source": {
       "type": "official-product-page",
@@ -87217,7 +87392,10 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "EOL",
+    "lifecycleStatus": "EOL",
+    "manualReviewNotes": "Lifecycle confirmed EOL."
   },
   {
     "id": "NHD-400-DNT-TX",
@@ -87332,7 +87510,8 @@
       "Rack installation",
       "AV over IP distribution",
       "Control room",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "capabilities": [
       "Matrix",
@@ -87407,7 +87586,8 @@
       "Rack installation",
       "AV over IP distribution",
       "Control room",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "source": {
       "type": "official-product-page",
@@ -88120,7 +88300,10 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "EOL",
+    "lifecycleStatus": "EOL",
+    "manualReviewNotes": "Lifecycle confirmed EOL."
   },
   {
     "id": "NHD-400-E-RX",
@@ -88216,7 +88399,8 @@
       "PoE / PoH / PoC",
       "Rack installation",
       "AV over IP distribution",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "capabilities": [
       "Matrix",
@@ -88278,7 +88462,8 @@
       "PoE / PoH / PoC",
       "Rack installation",
       "AV over IP distribution",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "source": {
       "type": "official-product-page",
@@ -88916,7 +89101,10 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "EOL",
+    "lifecycleStatus": "EOL",
+    "manualReviewNotes": "Lifecycle confirmed EOL."
   },
   {
     "id": "NHD-400-E-TX",
@@ -89018,7 +89206,8 @@
       "PoE / PoH / PoC",
       "Rack installation",
       "AV over IP distribution",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "capabilities": [
       "Matrix",
@@ -89084,7 +89273,8 @@
       "PoE / PoH / PoC",
       "Rack installation",
       "AV over IP distribution",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "source": {
       "type": "official-product-page",
@@ -89692,7 +89882,10 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "EOL",
+    "lifecycleStatus": "EOL",
+    "manualReviewNotes": "Lifecycle confirmed EOL."
   },
   {
     "id": "NHD-400-RX",
@@ -89792,7 +89985,8 @@
       "Rack installation",
       "AV over IP distribution",
       "Control room",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "capabilities": [
       "Matrix",
@@ -89857,7 +90051,8 @@
       "Rack installation",
       "AV over IP distribution",
       "Control room",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "source": {
       "type": "official-product-page",
@@ -90529,7 +90724,10 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "EOL",
+    "lifecycleStatus": "EOL",
+    "manualReviewNotes": "Lifecycle confirmed EOL."
   },
   {
     "id": "NHD-400-TX",
@@ -90631,7 +90829,8 @@
       "PoE / PoH / PoC",
       "Rack installation",
       "AV over IP distribution",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "capabilities": [
       "Matrix",
@@ -90697,7 +90896,8 @@
       "PoE / PoH / PoC",
       "Rack installation",
       "AV over IP distribution",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "source": {
       "type": "official-product-page",
@@ -91373,7 +91573,10 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "EOL",
+    "lifecycleStatus": "EOL",
+    "manualReviewNotes": "Lifecycle confirmed EOL."
   },
   {
     "id": "NHD-400-TX-IW",
@@ -91472,7 +91675,8 @@
       "PoE / PoH / PoC",
       "In-wall installation",
       "AV over IP distribution",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "capabilities": [
       "Matrix",
@@ -91536,7 +91740,8 @@
       "PoE / PoH / PoC",
       "In-wall installation",
       "AV over IP distribution",
-      "Distributed AV routing, video wall, multiview or AVoIP transport"
+      "Distributed AV routing, video wall, multiview or AVoIP transport",
+      "EOL"
     ],
     "source": {
       "type": "official-product-page",
@@ -92170,7 +92375,10 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "EOL",
+    "lifecycleStatus": "EOL",
+    "manualReviewNotes": "Lifecycle confirmed EOL."
   },
   {
     "id": "NHD-500",
@@ -93091,7 +93299,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-500-DNT-TX",
@@ -94066,7 +94275,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-500-E",
@@ -94862,7 +95072,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-500-IW-TX",
@@ -95676,7 +95887,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-500-IW-TX-V2",
@@ -96495,7 +96707,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-500-T",
@@ -97489,7 +97702,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-500-TXRX-V2",
@@ -98533,7 +98747,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-510-TX",
@@ -99505,7 +99720,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-600-E-TXRX",
@@ -100350,7 +100566,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-600-RX",
@@ -100659,7 +100876,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-600-TRX",
@@ -101551,7 +101769,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-600-TRXF",
@@ -102531,7 +102750,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-600-TX",
@@ -102837,7 +103057,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-610",
@@ -103907,7 +104128,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-610-TX-V2",
@@ -104895,7 +105117,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-CTL-PRO",
@@ -105459,7 +105682,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-CTL-PRO-T",
@@ -106037,7 +106261,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-CTL-PRO-V2",
@@ -106599,7 +106824,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-RACK-1U",
@@ -107012,7 +107238,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-RACK4-BLK",
@@ -107270,7 +107497,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-TOUCH",
@@ -107666,7 +107894,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-TOUCHPLUS",
@@ -107994,7 +108223,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "NHD-USB-TRX",
@@ -109051,7 +109281,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "OFFICE-KIT",
@@ -109272,7 +109503,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "PSU-12V-3A",
@@ -109488,7 +109720,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RX-35-POH",
@@ -109800,7 +110033,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RX-500",
@@ -110522,7 +110756,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RX-70-4K",
@@ -111306,7 +111541,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RX-70-4K-ARC",
@@ -112063,7 +112299,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RX-70-4K-SCL",
@@ -112903,7 +113140,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RX-700",
@@ -113743,7 +113981,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RX3-100",
@@ -114565,7 +114804,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RXF-300-4K",
@@ -115210,7 +115450,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RXV-35-4K",
@@ -115891,7 +116132,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RXV-35-SCL",
@@ -116649,7 +116891,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RXV-70-4K",
@@ -116966,7 +117209,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RXV-70-4K-ARC",
@@ -117300,7 +117544,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RXV-70-4K-G2",
@@ -118012,7 +118257,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "RXV-70-G2-SCL",
@@ -118766,7 +119012,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SP-0102-H2",
@@ -119054,7 +119301,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SP-0104-H2",
@@ -119332,7 +119580,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SP-0108-SCL",
@@ -119825,7 +120074,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SP-618",
@@ -120204,7 +120454,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SR-10G-MM-SFPP",
@@ -120416,7 +120667,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SR-1G-MM-SFP",
@@ -120685,7 +120937,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-0204-VW",
@@ -121700,7 +121953,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-0206-VW",
@@ -122820,7 +123074,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-120-TX3",
@@ -123721,7 +123976,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-120-TX3-UK",
@@ -124597,7 +124853,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-120-TX3-US",
@@ -125487,7 +125744,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-130-TX-UK",
@@ -126263,7 +126521,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-130-TX-US",
@@ -127039,7 +127298,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-220-TX-W",
@@ -127755,7 +128015,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-540-TX-W",
@@ -128723,7 +128984,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-620-TX-W",
@@ -129673,7 +129935,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-640L-TX-W",
@@ -130635,7 +130898,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SW-740-TX",
@@ -131510,7 +131774,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SWX-100-HDBT3",
@@ -131778,7 +132043,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SWX-100-IW-UK",
@@ -132064,7 +132330,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SWX-100-IW-US",
@@ -132350,7 +132617,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SYN-CTL-HUB",
@@ -132946,7 +133214,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SYN-KEY10",
@@ -133483,7 +133752,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SYN-KIT-130-EU",
@@ -133797,7 +134067,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SYN-KIT-130-US",
@@ -134111,7 +134382,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SYN-KIT-510-EU",
@@ -134406,7 +134678,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SYN-KIT-510-US",
@@ -134701,7 +134974,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SYN-TOUCH10",
@@ -135342,7 +135616,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "SYN-TOUCH10-V2",
@@ -135985,7 +136260,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "TS-280-EU",
@@ -136232,7 +136508,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "TS-280-US",
@@ -136479,7 +136756,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "TX-35-IW",
@@ -137117,7 +137395,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "TX-35-IW-KVM",
@@ -137847,7 +138126,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "TX-35-IWC-KVM",
@@ -138597,7 +138877,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "TX-70-4K",
@@ -139309,7 +139590,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "TX-H2X-ADZ",
@@ -139797,7 +140079,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "TX-H2X-HDBT",
@@ -140414,7 +140697,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "TX-H2X-HDMI",
@@ -140977,7 +141261,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "TX-H2X-OM3",
@@ -141522,7 +141807,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "TX-H2X-VLC",
@@ -142120,7 +142406,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "USB-HUB4",
@@ -142607,7 +142894,8 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   },
   {
     "id": "WYRERING",
@@ -143041,6 +143329,7 @@
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
         ]
       }
-    }
+    },
+    "activeSku": "Yes"
   }
 ]
