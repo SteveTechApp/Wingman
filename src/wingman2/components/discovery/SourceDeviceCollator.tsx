@@ -1181,22 +1181,6 @@ function getAvailableOutputOptions(brief: EngineeringBrief) {
   return outputOptions.filter((option) => typicalTypes.includes(option.value));
 }
 
-function getOutputSelectOptions(brief: EngineeringBrief, currentType: OutputType) {
-  const availableOptions = getAvailableOutputOptions(brief);
-
-  if (availableOptions.some((option) => option.value === currentType)) {
-    return availableOptions;
-  }
-
-  const currentOption = outputOptions.find((option) => option.value === currentType);
-
-  if (!currentOption) {
-    return availableOptions;
-  }
-
-  return [currentOption, ...availableOptions];
-}
-
 function getUnusualSelectedOutputs(brief: EngineeringBrief) {
   const typicalTypes = getTypicalOutputTypes(brief.application, brief.roomSize);
 
@@ -1230,31 +1214,6 @@ function outputTypeToDestinationKind(type: OutputType): DestinationKind {
   }
 
   return "main-display";
-}
-
-function getOutputDestinationOptions(brief: EngineeringBrief, path: SignalPath): Option<string>[] {
-  const options: Option<string>[] = brief.outputs.map((output, index) => ({
-    value: output.id,
-    label: `Output ${index + 1}: ${optionLabel(outputOptions, output.type)} - ${optionLabel(avPositionOptions, output.location)}`,
-  }));
-
-  const placeholder: Option<string> = {
-    value: "",
-    label: brief.outputs.length > 0 ? "Select one of the outputs from step 3" : "No outputs selected yet",
-  };
-
-  if (!path.destinationOutputId || options.some((option) => option.value === path.destinationOutputId)) {
-    return [placeholder, ...options];
-  }
-
-  return [
-    placeholder,
-    {
-      value: path.destinationOutputId,
-      label: "Previously selected output",
-    },
-    ...options,
-  ];
 }
 
 function applyOutputToPath(path: SignalPath, output: OutputItem | undefined): SignalPath {
@@ -1753,34 +1712,6 @@ function FieldSelect<T extends string>({
   );
 }
 
-function ChipGroup<T extends string>({
-  options,
-  values,
-  onToggle,
-}: {
-  options: Option<T>[];
-  values: T[];
-  onToggle: (value: T) => void;
-}) {
-  return (
-    <div className="wmg-chip-grid">
-      {options.map((option) => (
-        <button
-          className={values.includes(option.value) ? "wmg-choice-chip is-on" : "wmg-choice-chip"}
-          data-has-photo={hasDiscoveryPhoto(option.value) ? "true" : undefined}
-          key={option.value}
-          style={getDiscoveryPhotoStyle(option.value)}
-          type="button"
-          onClick={() => onToggle(option.value)}
-        >
-          <strong>{option.label}</strong>
-          {option.helper ? <small>{option.helper}</small> : null}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 function CompactChipGroup<T extends string>({
   options,
   values,
@@ -1929,11 +1860,11 @@ export function SourceDeviceCollator() {
 
   const availableOutputOptions = useMemo(() => {
     return getAvailableOutputOptions(brief);
-  }, [brief.application, brief.roomSize]);
+  }, [brief]);
 
   const unusualSelectedOutputs = useMemo(() => {
     return getUnusualSelectedOutputs(brief);
-  }, [brief.application, brief.roomSize, brief.outputs]);
+  }, [brief]);
 
   const topologySummary = useMemo(() => {
     const cameraTotal = countCameras(brief.sources);
@@ -2023,16 +1954,6 @@ export function SourceDeviceCollator() {
     });
   }
 
-  function handleOutputTypeChange(id: string, type: OutputType, currentUsbHost: UsbHostKey) {
-    updateOutput(id, {
-      type,
-      usbHost: type === "interactive-display" ? currentUsbHost : "none",
-    });
-
-    if (isVideoWallConfiguratorOutput(type)) {
-      openVideoWallWizard(type);
-    }
-  }
   function removeOutput(id: string) {
     setBrief((current) => {
       const nextBrief = {
@@ -2074,22 +1995,6 @@ export function SourceDeviceCollator() {
     }));
   }
 
-  function handlePathOutputChange(id: string, outputId: string) {
-    setBrief((current) => {
-      const selectedOutput = current.outputs.find((output) => output.id === outputId);
-
-      return {
-        ...current,
-        paths: current.paths.map((path) => {
-          if (path.id !== id) {
-            return path;
-          }
-
-          return applyOutputToPath(path, selectedOutput);
-        }),
-      };
-    });
-  }
   function removePath(id: string) {
     setBrief((current) => ({ ...current, paths: current.paths.filter((path) => path.id !== id) }));
   }

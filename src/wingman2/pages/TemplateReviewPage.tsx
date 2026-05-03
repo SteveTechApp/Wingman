@@ -206,7 +206,7 @@ export function TemplateReviewPage() {
       setSelectedRows(cloneRows(selectedTemplate.bom));
       setSavedProjectPath("");
     }
-  }, [selectedTemplate?.id]);
+  }, [selectedTemplate]);
 
   if (!selectedTemplate) {
     return (

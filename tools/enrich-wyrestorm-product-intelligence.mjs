@@ -142,6 +142,25 @@ function unique(values) {
   return output;
 }
 
+function collectTextValues(value, output = []) {
+  if (typeof value === "string" || typeof value === "number") {
+    const text = clean(value);
+    if (text) output.push(text);
+    return output;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectTextValues(item, output));
+    return output;
+  }
+
+  if (value && typeof value === "object") {
+    Object.values(value).forEach((item) => collectTextValues(item, output));
+  }
+
+  return output;
+}
+
 function uniqueObjects(values, keySelector) {
   const seen = new Set();
   const output = [];
@@ -1345,6 +1364,518 @@ function buildSelectionGuidance(product, classification) {
   };
 }
 
+function buildSalesLanguage(product, classification, profile) {
+  const sku = upper(product.sku || product.id || product.model);
+  const category = classification.primaryCategory;
+  const featureGroups = profile?.featureGroups || {};
+  const hasUsb = Array.isArray(featureGroups.USB) && featureGroups.USB.length > 0;
+  const hasWireless = Array.isArray(featureGroups.Collaboration) && featureGroups.Collaboration.some((item) => includesAny(item, ["wireless"]));
+  const hasHdbaset = Array.isArray(profile?.transports) && profile.transports.some((item) => includesAny(item, ["hdbaset"]));
+  const hasAvoip = category === "NetworkHD AV over IP";
+  const application = classification.applicationRole || "Use when the product matches the room workflow and signal path.";
+  const technicalAnchor = classification.productType || classification.category || "WyreStorm product";
+
+  const base = {
+    voiceVersion: "wingman-sales-language-v1",
+    headline: `${sku}: ${technicalAnchor}`,
+    plainEnglishSummary: `${sku} helps the customer solve a defined AV problem in the room or system.`,
+    customerValue: "Helps the salesperson explain the outcome before discussing ports and specifications.",
+    realWorldApplication: application,
+    salespersonCue: "Start with what the customer needs the system to do, then use the technical details as proof.",
+    talkTrack: [],
+    discoveryPrompts: [
+      "What is the user trying to do when they walk into the room?",
+      "Where are the sources, displays and user devices physically located?",
+      "Does the customer need presentation, conferencing, recording, distribution, or a mix of those workflows?",
+    ],
+    positioningNotes: [],
+    avoidPositioningAs: [],
+    marketApplications: profile?.applications || [],
+  };
+
+  if (sku === "MX-0403-H3-MST" || sku === "MX-0403-MST") {
+    return {
+      ...base,
+      headline: `${sku}: runs a dual-display collaboration room and creates a useful third feed`,
+      plainEnglishSummary:
+        "Use this when a room needs more than simple screen switching. It lets users connect laptops by USB-C or HDMI, show content across two room displays, handle USB for collaboration devices, and send an additional output to another destination.",
+      customerValue:
+        "It helps a meeting room behave like a complete collaboration space: local presentation, dual-screen working, USB device sharing, and an extra hand-off feed for the wider system.",
+      realWorldApplication:
+        "Best for boardrooms, teaching spaces and Teams-style rooms where the in-room displays are not the only destination for the content.",
+      salespersonCue:
+        "Position the third output as the room's hand-off point, not just another display output.",
+      thirdOutputUseCase:
+        "The third output is designed for a Microsoft Teams Rooms PC, a recording or lecture-capture device, or an AV-over-IP encoder when the room signal needs to leave the room and join a wider system.",
+      talkTrack: [
+        "It gives the room two main display outputs for local presentation, then keeps a third output available for capture, conferencing or distribution.",
+        "The third output is useful when the customer wants the same room signal available to a Teams Rooms PC, recorder, streaming device or AVoIP encoder.",
+        "This is a room-core product: it is about making the room easier to use, not just adding another switch in the rack.",
+      ],
+      discoveryPrompts: [
+        "Will the third output feed a Microsoft Teams Rooms PC, a recording device, or an AVoIP encoder?",
+        "Do the two room displays need independent content, mirrored content, or MST-style dual-screen behaviour?",
+        "Where will the USB camera, microphone or speakerphone connect, and which laptop should control it?",
+        "Does the room content need to be recorded, streamed, or distributed outside the room?",
+      ],
+      positioningNotes: [
+        "Lead with the room workflow: laptop in, displays on, USB devices available, third feed out.",
+        "Use when the customer needs a meeting-room core with USB-C, HDMI, USB and an HDBaseT output path.",
+        "The third output can be a practical bridge from the local room into Teams, recording or NetworkHD/AVoIP distribution.",
+      ],
+      avoidPositioningAs: [
+        "Do not describe it as only a 4x3 matrix. That undersells the room workflow.",
+        "Do not use it as a generic distribution product when the real requirement is large-scale routing.",
+      ],
+      marketApplications: [
+        "Microsoft Teams Rooms",
+        "Boardroom dual-display presentation",
+        "Lecture capture",
+        "Training room recording",
+        "Room-to-AVoIP hand-off",
+        "Hybrid meeting rooms",
+      ],
+    };
+  }
+
+  if (category === "Presentation / Room Core") {
+    return {
+      ...base,
+      headline: `${sku}: makes the room easier for presenters to use`,
+      plainEnglishSummary:
+        "Use this when people need to walk into a room, connect a laptop or room source, and get content onto the display without cable swapping or technical confusion.",
+      customerValue:
+        "It improves the day-to-day room experience by bringing source switching, display connection and often USB collaboration into one predictable room core.",
+      realWorldApplication: "Meeting rooms, classrooms, training spaces and collaboration rooms where users need simple presentation from modern laptops.",
+      salespersonCue: "Talk about the user journey: connect, present, share, hand off to the display or wider system.",
+      talkTrack: [
+        hasUsb ? "It can support the USB side of collaboration, so cameras, speakerphones or USB devices can be part of the room workflow." : "It focuses on getting presentation sources to the room display cleanly.",
+        hasWireless ? "It also supports wireless sharing, which helps guests present without needing the right cable." : "It is strongest when the customer wants a reliable wired room experience.",
+        hasHdbaset ? "HDBaseT output helps when the display or next device is away from the room core." : "Use it where the display path stays local or is handled by another transport product.",
+      ],
+      discoveryPrompts: [
+        "How many laptops or room sources need to connect?",
+        "Do users need USB devices such as a camera, speakerphone or touch display?",
+        "Are there one, two or more displays in the room?",
+        "Does the room need a feed for recording, Teams, Zoom, or AV-over-IP?",
+      ],
+      positioningNotes: [
+        "Lead with user simplicity and room workflow.",
+        "Use the port count and USB class as proof after the application is understood.",
+      ],
+      avoidPositioningAs: ["Do not sell it as a generic matrix unless the customer only cares about source-to-display routing."],
+    };
+  }
+
+  if (category === "Unified Communications") {
+    return {
+      ...base,
+      headline: `${sku}: improves the meeting experience for people in and outside the room`,
+      plainEnglishSummary:
+        "Use this when the room needs to support video meetings, shared audio, cameras, microphones or BYOM/BYOD collaboration.",
+      customerValue:
+        "It helps make the meeting feel joined-up: people can be seen, heard and shared with more reliably than using loose laptop accessories.",
+      realWorldApplication: "Huddle rooms, boardrooms, classrooms and hybrid meeting spaces.",
+      salespersonCue: "Ask what the remote participant needs to see and hear, then position the product around that experience.",
+      talkTrack: [
+        "It is about the meeting workflow, not only the hardware.",
+        "It helps remove friction around camera, microphone, speaker and USB connectivity.",
+        "It should be selected when conferencing is part of the use case.",
+      ],
+      discoveryPrompts: [
+        "Which meeting platform is being used?",
+        "Do users bring their own laptop, use a room PC, or both?",
+        "What camera, microphone and speaker coverage does the room need?",
+      ],
+      positioningNotes: ["Use for UC-led rooms where audio, camera or USB device behaviour matters."],
+      avoidPositioningAs: ["Do not lead with UC products for simple video switching if there is no conferencing requirement."],
+    };
+  }
+
+  if (category === "Matrix / Routing") {
+    return {
+      ...base,
+      headline: `${sku}: lets several sources feed several displays from one controlled system`,
+      plainEnglishSummary:
+        "Use this when the customer has a known number of sources and displays and wants reliable routing without building a full networked AV system.",
+      customerValue:
+        "It keeps switching predictable and commercially efficient for fixed rooms or smaller multi-display systems.",
+      realWorldApplication: "Boardrooms, divisible rooms, education spaces, hospitality areas and fixed source-to-display systems.",
+      salespersonCue: "Confirm the source and display count first. If those numbers are stable, a matrix may be the cleanest answer.",
+      talkTrack: [
+        "It avoids manual cable changes by routing sources to the right display.",
+        "It is often a strong commercial option where the system is fixed and not expected to grow heavily.",
+        "Scaling or seamless behaviour can help when displays and sources do not all match perfectly.",
+      ],
+      discoveryPrompts: [
+        "How many sources need to be connected?",
+        "How many displays need independent control?",
+        "Are the display runs local HDMI, HDBaseT, or mixed?",
+        "Is future expansion likely, or is this a fixed room?",
+      ],
+      positioningNotes: ["For smaller fixed systems, check matrix before jumping to AV-over-IP."],
+      avoidPositioningAs: ["Do not position as fully flexible site-wide routing if the customer needs scalable distributed AV."],
+    };
+  }
+
+  if (category === "Video Processing") {
+    return {
+      ...base,
+      headline: `${sku}: turns multiple video signals or displays into a controlled visual layout`,
+      plainEnglishSummary:
+        "Use this when the customer needs more than basic switching, such as a video wall, multiview, scaling, source layout control or a more polished display presentation.",
+      customerValue:
+        "It helps create the visual result the customer actually wants on screen, rather than simply moving a signal from source to display.",
+      realWorldApplication:
+        "Video walls, monitoring screens, hospitality displays, retail feature walls, education spaces and room systems that need layout or scaling control.",
+      salespersonCue:
+        "Ask what the screens should look like in use: one big image, several sources, fixed presets, flexible layouts or simple source switching.",
+      talkTrack: [
+        "It is about shaping the final display layout, not only routing a source.",
+        "It can be the cleaner answer when the requirement is a fixed visual wall or display-processing task rather than scalable building-wide AV.",
+        "Check whether the customer needs a dedicated processor, matrix processing, or AV-over-IP video wall behaviour.",
+      ],
+      discoveryPrompts: [
+        "What is the screen layout and how many displays are involved?",
+        "Should the displays show one large image, separate sources, multiview, presets or mixed layouts?",
+        "How many sources feed the processor and what resolution must the final display support?",
+        "Does the customer need a fixed processor or future expansion through AV-over-IP?",
+      ],
+      positioningNotes: [
+        "Use when the visible display behaviour is the main requirement.",
+        "Compare dedicated processing against AV-over-IP when flexibility, endpoint count or future expansion matters.",
+      ],
+      avoidPositioningAs: [
+        "Do not treat video processing as the same requirement as ordinary source switching.",
+        "Do not assume AV-over-IP is automatically better for a simple fixed video wall.",
+      ],
+    };
+  }
+
+  if (hasAvoip) {
+    return {
+      ...base,
+      headline: `${sku}: moves AV around the building using the network`,
+      plainEnglishSummary:
+        "Use this when sources and displays are spread out, the customer needs flexible routing, or the system may grow over time.",
+      customerValue:
+        "It turns AV into a more flexible system where content can be routed to different places without redesigning fixed cabling every time.",
+      realWorldApplication: "Campuses, sports bars, casinos, command rooms, education buildings and large distributed AV systems.",
+      salespersonCue: "Sell the flexibility and future-proofing, then validate the network design.",
+      talkTrack: [
+        "It is strongest when the system needs expansion, many endpoints, or routing across distance.",
+        "It depends on the network, so switch selection and commissioning matter.",
+        "It is not automatically the best option for every multi-display room.",
+      ],
+      discoveryPrompts: [
+        "How many sources and displays are needed now and later?",
+        "Is there a dedicated AV network or will one be provided?",
+        "Does the customer need video wall, multiview, USB, Dante or control integration?",
+      ],
+      positioningNotes: ["Use for flexible and expandable systems, not simply because there are multiple screens."],
+      avoidPositioningAs: ["Do not use AV-over-IP to overcomplicate a small fixed room when a matrix or HDBaseT solution fits better."],
+    };
+  }
+
+  if (category === "Extension") {
+    return {
+      ...base,
+      headline: `${sku}: gets the signal from one place to another without moving the equipment`,
+      plainEnglishSummary:
+        "Use this when the source, display, USB device or control point is too far away for a simple local cable.",
+      customerValue:
+        "It lets the room be built around where people and displays need to be, rather than where short cables happen to reach.",
+      realWorldApplication: "Displays away from the rack, lecterns, teaching rooms, meeting rooms and point-to-point signal paths.",
+      salespersonCue: "Start with distance and what has to travel: video only, video plus USB, audio, control or network.",
+      talkTrack: [
+        "It solves a distance problem.",
+        hasUsb ? "If USB is included, it can support cameras, touch displays, keyboards, mice or conferencing peripherals." : "Use it when the video path needs reliable point-to-point extension.",
+        "It is usually simpler than AV-over-IP when the path is one source to one display.",
+      ],
+      discoveryPrompts: [
+        "How far is the source from the display or USB device?",
+        "What signals need to travel over the same path?",
+        "Is this a single fixed route or does it need to switch between many destinations?",
+      ],
+      positioningNotes: ["Best for defined point-to-point paths."],
+      avoidPositioningAs: ["Do not use an extender as a routing system when many sources and many displays need flexible switching."],
+    };
+  }
+
+  if (category === "Camera / Capture") {
+    return {
+      ...base,
+      headline: `${sku}: helps remote viewers see the room clearly`,
+      plainEnglishSummary:
+        "Use this when the room, presenter, audience or content needs to be captured for meetings, teaching, streaming or recording.",
+      customerValue:
+        "It improves the quality of the image being sent to remote participants or recording systems.",
+      realWorldApplication: "Meeting rooms, classrooms, lecture capture, training spaces and streaming workflows.",
+      salespersonCue: "Ask what needs to be seen and where that video needs to go.",
+      talkTrack: [
+        "It is about image capture and the viewer experience.",
+        "The right choice depends on room size, mounting position and output path.",
+      ],
+      discoveryPrompts: [
+        "What needs to be captured: presenter, table, audience or whiteboard?",
+        "Where will the camera be mounted?",
+        "Does the signal go to USB, HDMI, NDI, recording or conferencing?",
+      ],
+      positioningNotes: ["Use when camera quality and capture path matter."],
+      avoidPositioningAs: ["Do not treat camera products as generic video routing hardware."],
+    };
+  }
+
+  if (category === "Audio") {
+    return {
+      ...base,
+      headline: `${sku}: makes the room audio work as part of the AV system`,
+      plainEnglishSummary:
+        "Use this when the customer needs reliable sound through installed speakers or needs audio tied into the wider AV workflow.",
+      customerValue:
+        "It helps the room sound clear and controlled, which matters as much as the image in meetings and teaching spaces.",
+      realWorldApplication: "Meeting rooms, classrooms, lecture spaces and AV racks with installed speakers or network audio.",
+      salespersonCue: "Ask where the sound comes from, where it needs to be heard, and how it is controlled.",
+      talkTrack: [
+        "It supports the audio outcome, not the video switching outcome.",
+        "Dante or DSP details are proof points after the room audio requirement is clear.",
+      ],
+      discoveryPrompts: [
+        "How many speakers are in the room?",
+        "Is audio local, networked, or part of a DSP system?",
+        "Does the room need speech reinforcement, program audio or both?",
+      ],
+      positioningNotes: ["Lead with audibility, control and integration."],
+      avoidPositioningAs: ["Do not shortlist audio products for video routing requirements."],
+    };
+  }
+
+  if (category === "Control") {
+    return {
+      ...base,
+      headline: `${sku}: gives users a simpler way to run the room`,
+      plainEnglishSummary:
+        "Use this when the customer needs buttons, touch control, protocol conversion or a cleaner way to trigger room behaviour.",
+      customerValue:
+        "It helps hide technical complexity from everyday users.",
+      realWorldApplication: "Meeting rooms, classrooms, AV racks and controlled presentation spaces.",
+      salespersonCue: "Talk about the action the user wants, not the protocol.",
+      talkTrack: [
+        "It turns technical commands into practical room actions.",
+        "It should be tied to a clear user workflow or control requirement.",
+      ],
+      discoveryPrompts: [
+        "Who controls the room?",
+        "What actions should be one-touch?",
+        "Which devices need control: display, switcher, source, lift, lighting or audio?",
+      ],
+      positioningNotes: ["Use when control simplicity or integration is part of the requirement."],
+      avoidPositioningAs: ["Do not add control hardware unless there is a clear control task."],
+    };
+  }
+
+  if (category === "Distribution") {
+    return {
+      ...base,
+      headline: `${sku}: sends one source to multiple displays`,
+      plainEnglishSummary:
+        "Use this when the same content needs to appear on more than one screen without independent routing.",
+      customerValue: "It is a simple and cost-effective way to duplicate a source.",
+      realWorldApplication: "Signage, overflow displays, simple hospitality screens and duplicate monitor feeds.",
+      salespersonCue: "Confirm whether all screens show the same thing. If yes, a splitter may be enough.",
+      talkTrack: [
+        "It duplicates a signal rather than creating a flexible routing system.",
+        "It is useful when the requirement is simple and fixed.",
+      ],
+      discoveryPrompts: [
+        "Do all displays show the same source?",
+        "How many outputs are required?",
+        "Do any displays need scaling or different resolution handling?",
+      ],
+      positioningNotes: ["Use for same-source distribution."],
+      avoidPositioningAs: ["Do not use a splitter when displays need independent source selection."],
+    };
+  }
+
+  if (category === "Cable / Connectivity" || category === "Accessory / Other") {
+    return {
+      ...base,
+      headline: `${sku}: supports the main system`,
+      plainEnglishSummary:
+        "Use this as a supporting item when the main design needs the right cable, adapter, mount, hub or accessory to make the workflow complete.",
+      customerValue:
+        "It helps avoid small missing pieces that stop a good system from working properly on site.",
+      realWorldApplication: "Project accessories, room connectivity and installation support.",
+      salespersonCue: "Attach it to a main workflow rather than selling it as the lead product.",
+      talkTrack: [
+        "This is a dependency or convenience item.",
+        "It should be included when it completes the installation or user connection path.",
+      ],
+      discoveryPrompts: [
+        "Which main product or room workflow depends on this item?",
+        "Where will it be installed or used?",
+        "Is this required for installation, user connection, serviceability or spare stock?",
+      ],
+      positioningNotes: ["Use as a supporting line item in the BOM."],
+      avoidPositioningAs: ["Do not present accessories as the main solution unless the customer explicitly asks for that part."],
+    };
+  }
+
+  return base;
+}
+
+function addVoiceSetToSalesLanguage(language, product, classification, profile) {
+  const sku = upper(product.sku || product.id || product.model);
+  const category = classification.primaryCategory || "WyreStorm product";
+  const transports = Array.isArray(profile?.transports) ? profile.transports.slice(0, 4) : [];
+  const baseTalkTrack = Array.isArray(language.talkTrack) ? language.talkTrack : [];
+  const basePrompts = Array.isArray(language.discoveryPrompts) ? language.discoveryPrompts : [];
+  const basePositioning = Array.isArray(language.positioningNotes) ? language.positioningNotes : [];
+  const baseAvoid = Array.isArray(language.avoidPositioningAs) ? language.avoidPositioningAs : [];
+  const transportNote = transports.length
+    ? `Check the practical signal path around ${transports.join(", ")} before finalising the design.`
+    : "Check the practical signal path before finalising the design.";
+
+  const installerPitchByCategory = {
+    "Presentation / Room Core":
+      "Use this view when the installer needs to understand where the room core sits, which user connections land at the table or wall, and what leaves the room toward displays, USB devices or downstream systems.",
+    "Unified Communications":
+      "Use this view when the installer needs to validate the camera, microphone, speaker, USB and meeting-platform path before the room is quoted or commissioned.",
+    "Matrix / Routing":
+      "Use this view when the installer needs a clear source-to-display count, cable path, rack location and control method for a fixed routing system.",
+    "Video Processing":
+      "Use this view when the installer needs to confirm the screen layout, source count, output mapping, resolution handling, presets and how the processor is controlled.",
+    "NetworkHD AV over IP":
+      "Use this view when the installer needs to confirm endpoint count, switch requirements, VLAN or dedicated AV network design, controller placement and commissioning responsibility.",
+    Extension:
+      "Use this view when the installer needs to prove the point-to-point route, cable distance, signal direction, power method and USB behaviour if USB is involved.",
+    "Camera / Capture":
+      "Use this view when the installer needs to confirm camera position, field of view, mounting, USB/HDMI/NDI path and how the signal reaches conferencing or recording.",
+    Audio:
+      "Use this view when the installer needs to confirm speaker load, audio source, DSP or Dante path, rack position and how users control volume or source selection.",
+    Control:
+      "Use this view when the installer needs to confirm what each button, touch action or control command actually triggers in the room.",
+    Distribution:
+      "Use this view when the installer needs to confirm one-source-to-many-display behaviour, cable distance, display compatibility and whether scaling is required.",
+  };
+
+  const consultantPitchByCategory = {
+    "Presentation / Room Core":
+      "Use this view to decide whether the product is the right room-core architecture or whether the room should move toward a simpler switcher, matrix, extender or AV-over-IP design.",
+    "Unified Communications":
+      "Use this view to test whether conferencing is genuinely part of the requirement. If the room does not need camera, microphone, speakerphone or USB collaboration, there may be cleaner product paths.",
+    "Matrix / Routing":
+      "Use this view to compare fixed-I/O matrix switching against AV-over-IP, especially where source and display counts are stable and expansion is not the main driver.",
+    "Video Processing":
+      "Use this view to decide whether the requirement is best solved by a dedicated processor, matrix processing or AV-over-IP video wall design.",
+    "NetworkHD AV over IP":
+      "Use this view to validate why AV-over-IP is justified: flexibility, expansion, distributed locations, multiview, video wall, USB, Dante or control integration.",
+    Extension:
+      "Use this view to decide whether the project is simply a defined distance problem or whether routing, switching or networked AV is actually required.",
+    "Camera / Capture":
+      "Use this view to validate the capture objective, camera coverage, output format and whether the wider system can receive the chosen signal.",
+    Audio:
+      "Use this view to keep audio design tied to the room outcome: intelligibility, program sound, conferencing, installed speakers or network audio.",
+    Control:
+      "Use this view to decide whether the control requirement is real, what user actions matter, and whether this product simplifies or complicates the room.",
+    Distribution:
+      "Use this view to confirm whether the customer only needs duplicated content. If displays need independent source choice, move away from distribution.",
+  };
+
+  const thirdOutputNotes = language.thirdOutputUseCase ? [language.thirdOutputUseCase] : [];
+
+  return {
+    ...language,
+    voices: {
+      endUser: {
+        label: "End user",
+        audience: "Customer stakeholder",
+        headline: language.headline,
+        pitch: language.plainEnglishSummary,
+        value: language.customerValue,
+        talkTrack: unique([
+          language.salespersonCue,
+          language.realWorldApplication,
+          ...baseTalkTrack,
+          ...thirdOutputNotes,
+        ]).slice(0, 4),
+        discoveryPrompts: unique([
+          "What do users need to do when they walk into the room?",
+          "What would make the room feel easier or more reliable for everyday use?",
+          ...basePrompts,
+        ]).slice(0, 4),
+        positioningNotes: unique([
+          "Keep the language about outcomes and the user experience before talking about ports.",
+          ...basePositioning,
+        ]).slice(0, 4),
+        avoidPositioningAs: baseAvoid,
+      },
+      systemIntegrator: {
+        label: "SI / installer",
+        audience: "Installer or system integrator",
+        headline: `${sku}: deployment and commissioning view`,
+        pitch:
+          installerPitchByCategory[category] ||
+          `Use this view when the installer needs to understand exactly where ${sku} sits in the signal path and what it depends on.`,
+        value:
+          "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
+        talkTrack: unique([
+          transportNote,
+          "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
+          "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute.",
+          ...thirdOutputNotes,
+        ]).slice(0, 4),
+        discoveryPrompts: unique([
+          "Where will the product physically live: table, wall, display, rack, lectern or network closet?",
+          "What cable type, distance and route are available between each endpoint?",
+          "Which products, receivers, USB devices, controllers or network switches must be present for this to work?",
+          ...basePrompts,
+        ]).slice(0, 5),
+        positioningNotes: unique([
+          "Good installer language should make dependencies visible before a quote is issued.",
+          "Call out install risk early when the product depends on USB bandwidth, network design, endpoint pairing or control integration.",
+          ...basePositioning,
+        ]).slice(0, 5),
+        avoidPositioningAs: unique([
+          "Do not imply it is plug-and-play where cable distance, USB class, endpoint compatibility, network design or control programming still needs validation.",
+          ...baseAvoid,
+        ]).slice(0, 4),
+      },
+      consultant: {
+        label: "Consultant / technical",
+        audience: "Consultant or technical designer",
+        headline: `${sku}: architecture fit and trade-off view`,
+        pitch:
+          consultantPitchByCategory[category] ||
+          `Use this view to test whether ${sku} is the right architectural answer for the room or system rather than only a specification match.`,
+        value:
+          "Helps separate a technically possible product choice from the strongest design choice for the application, budget, risk and future expansion.",
+        talkTrack: unique([
+          "Validate the application first, then decide whether this product family is the cleanest architecture.",
+          "Compare against simpler or more scalable alternatives where the requirement is fixed, expandable, distance-led or conferencing-led.",
+          "Use the specification as evidence after the room workflow and signal architecture are clear.",
+          ...thirdOutputNotes,
+        ]).slice(0, 4),
+        discoveryPrompts: unique([
+          "Is this requirement driven by user experience, source/display routing, distance, USB, collaboration, network distribution, processing or control?",
+          "What would make this product the wrong choice even if it technically works?",
+          "Is the system expected to grow, change rooms, add endpoints, record, stream or integrate with a wider AV platform?",
+          ...basePrompts,
+        ]).slice(0, 5),
+        positioningNotes: unique([
+          "Use for architectural judgement, product-family selection and proposal-safe trade-off language.",
+          "Be explicit when the product is technically possible but unlikely to be the most natural choice.",
+          ...basePositioning,
+        ]).slice(0, 5),
+        avoidPositioningAs: unique([
+          "Do not let a feature match override the real application, architecture or operational requirement.",
+          ...baseAvoid,
+        ]).slice(0, 4),
+      },
+    },
+  };
+}
+
 function buildTechnicalProfile(product, classification, pageFacts) {
   const lines = unique([
     ...(Array.isArray(pageFacts.technicalLines) ? pageFacts.technicalLines : []),
@@ -1355,6 +1886,17 @@ function buildTechnicalProfile(product, classification, pageFacts) {
   const ports = extractPorts(lines);
   const portGroups = groupedPorts(ports);
   const applications = inferApplications(text, classification);
+  const profileSeed = {
+    featureGroups: buildFeatureGroups(features),
+    transports: unique([...classification.transportClass, ...features.map((feature) => feature.label).filter((label) => includesAny(label, ["HDMI", "HDBaseT", "USB", "Dante", "NDI", "NetworkHD", "Wireless", "DisplayPort"]))]),
+    applications,
+  };
+  const salesLanguage = addVoiceSetToSalesLanguage(
+    buildSalesLanguage(product, classification, profileSeed),
+    product,
+    classification,
+    profileSeed,
+  );
 
   return {
     profileVersion: PROFILE_VERSION,
@@ -1365,7 +1907,7 @@ function buildTechnicalProfile(product, classification, pageFacts) {
       capturedTechnicalLineCount: Array.isArray(pageFacts.technicalLines) ? pageFacts.technicalLines.length : 0,
     },
     signalDomains: unique([...classification.signalDomains, ...features.map((feature) => feature.group)]),
-    transports: unique([...classification.transportClass, ...features.map((feature) => feature.label).filter((label) => includesAny(label, ["HDMI", "HDBaseT", "USB", "Dante", "NDI", "NetworkHD", "Wireless", "DisplayPort"]))]),
+    transports: profileSeed.transports,
     io: {
       ports,
       video: portGroups.video,
@@ -1390,10 +1932,11 @@ function buildTechnicalProfile(product, classification, pageFacts) {
       installation: unique(features.filter((feature) => feature.group === "Mechanical").map((feature) => feature.label)),
       evidence: unique(lines.filter((line) => includesAny(line, ["rack", "wall", "mount", "plenum", "cpr", "cl3", "ft6"]))),
     },
-    featureGroups: buildFeatureGroups(features),
+    featureGroups: profileSeed.featureGroups,
     features,
     applications,
     selectionGuidance: buildSelectionGuidance(product, classification),
+    salesLanguage,
     evidence: {
       technicalLines: (pageFacts.technicalLines || []).slice(0, 80),
       featureLines: (pageFacts.featureEvidenceLines || []).slice(0, 40),
@@ -1405,6 +1948,7 @@ function enrichProduct(product, pageFacts) {
   const text = buildTextBlob(product, pageFacts);
   const productClassification = baseClassification(product, text);
   const technicalProfile = buildTechnicalProfile(product, productClassification, pageFacts);
+  const salesLanguage = technicalProfile.salesLanguage;
   const technologyType = technologyTypeForClassification(productClassification);
   const featureLabels = technicalProfile.features.map((feature) => feature.label);
 
@@ -1420,6 +1964,7 @@ function enrichProduct(product, pageFacts) {
     classificationPath: productClassification.classificationPath,
     subClassifications: productClassification.subClassifications,
     technicalProfile,
+    salesLanguage,
     features: addUnique(product.features, [technologyType, ...productClassification.classificationPath, ...featureLabels]),
     featureTags: addUnique(product.featureTags, [technologyType, ...productClassification.subClassifications, ...featureLabels]),
     tags: addUnique(product.tags, [technologyType, ...productClassification.classificationPath, ...productClassification.subClassifications, ...featureLabels, ...technicalProfile.applications]),
@@ -1437,6 +1982,7 @@ function enrichProduct(product, pageFacts) {
       ...productClassification.subClassifications,
       ...featureLabels,
       ...technicalProfile.applications,
+      ...collectTextValues(salesLanguage),
     ]),
     roleCorrectionSource: `product-manager-profile:${PROFILE_VERSION}`,
   };
@@ -1445,6 +1991,7 @@ function enrichProduct(product, pageFacts) {
 function mergeProfileIntoFinderRecord(record, sourceProduct) {
   const profile = sourceProduct.technicalProfile;
   const classification = sourceProduct.productClassification;
+  const salesLanguage = sourceProduct.salesLanguage || profile.salesLanguage;
   const featureLabels = profile.features.map((feature) => feature.label);
   const connectorLabels = profile.io.ports.map((port) => port.connector);
 
@@ -1472,6 +2019,7 @@ function mergeProfileIntoFinderRecord(record, sourceProduct) {
     classificationPath: classification.classificationPath,
     subClassifications: classification.subClassifications,
     technicalProfile: profile,
+    salesLanguage,
   };
 }
 
@@ -1523,6 +2071,12 @@ function buildSummary(products, finderRecords, fetchResults) {
     finderCoverage: {
       withTechnicalProfile: finderRecords.filter((record) => record.technicalProfile).length,
       withClassification: finderRecords.filter((record) => record.productClassification).length,
+      withSalesLanguage: finderRecords.filter((record) => record.salesLanguage).length,
+      withSalesVoices: finderRecords.filter((record) =>
+        record.salesLanguage?.voices?.endUser &&
+        record.salesLanguage?.voices?.systemIntegrator &&
+        record.salesLanguage?.voices?.consultant
+      ).length,
     },
     officialPageFetchSummary: countBy(fetchResults, (result) => String(result.status)),
     lowCoverageSkus: profileCoverage

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-03T14:35:14.941Z",
+  "generatedAt": "2026-05-03T15:31:56.550Z",
   "profileVersion": "wyrestorm-product-manager-v1",
   "offlineMode": false,
   "sourceProductCount": 253,
@@ -67,7 +67,9 @@
   },
   "finderCoverage": {
     "withTechnicalProfile": 151,
-    "withClassification": 151
+    "withClassification": 151,
+    "withSalesLanguage": 151,
+    "withSalesVoices": 151
   },
   "officialPageFetchSummary": {
     "200": 377,
@@ -133,6 +135,24 @@
       "primaryCategory": "Matrix / Routing",
       "category": "Matrix switcher",
       "subCategory": "Fixed I/O matrix",
+      "featureCount": 1,
+      "portCount": 0,
+      "officialPageStatus": 200
+    },
+    {
+      "sku": "TS-280-EU",
+      "primaryCategory": "Control",
+      "category": "Control interface",
+      "subCategory": "Touchscreen",
+      "featureCount": 1,
+      "portCount": 0,
+      "officialPageStatus": 200
+    },
+    {
+      "sku": "TS-280-US",
+      "primaryCategory": "Control",
+      "category": "Control interface",
+      "subCategory": "Touchscreen",
       "featureCount": 1,
       "portCount": 0,
       "officialPageStatus": 200

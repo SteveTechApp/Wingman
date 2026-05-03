@@ -2,18 +2,12 @@ import { useMemo, useState, type ComponentType } from "react";
 import {
   ArrowRight,
   Building2,
-  CheckCircle2,
-  Download,
-  FileText,
   GraduationCap,
   HeartPulse,
   Hotel,
   Landmark,
   Monitor,
-  RotateCcw,
-  Save,
   ShoppingBag,
-  SlidersHorizontal,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -21,17 +15,7 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
-import {
-  upsertStoredProject,
-  type StoredProductSelection,
-  type StoredProject,
-  type StoredProjectProposal,
-} from "../data/projectStore";
-import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
-import { roomTemplates, roomTemplateVerticals, type RoomTemplate, type TemplateBomRow } from "../lib/roomTemplates";
-import type { SalesBomRow } from "../lib/salesReadiness";
-
-type TemplateBomState = Record<string, TemplateBomRow[]>;
+import { roomTemplates, roomTemplateVerticals, type RoomTemplate } from "../lib/roomTemplates";
 
 type VerticalVisual = {
   name: string;
@@ -61,8 +45,6 @@ function scrollToRoomTemplateSection() {
     });
   }, 80);
 }
-const includedStatuses = new Set(["included", "optional", "validate"]);
-
 function templateVisualPath(fileName: string): string {
   const base = String(import.meta.env.BASE_URL || "/");
   const cleanBase = base.endsWith("/") ? base : `${base}/`;
@@ -144,109 +126,6 @@ const verticalVisuals: VerticalVisual[] = [
     Icon: HeartPulse,
   },
 ];
-
-function cloneRows(rows: TemplateBomRow[]) {
-  return rows.map((row) => ({ ...row }));
-}
-
-function initialBomState(): TemplateBomState {
-  return Object.fromEntries(roomTemplates.map((template) => [template.id, cloneRows(template.bom)]));
-}
-
-function templateBomRows(template: RoomTemplate, rows: TemplateBomRow[]): SalesBomRow[] {
-  return rows
-    .filter((row) => includedStatuses.has(row.status) && row.qty > 0)
-    .map((row, index) => ({
-      item: index + 1,
-      sku: row.sku,
-      description: row.description,
-      role: row.role,
-      qty: row.qty,
-      type: row.type,
-      status: row.status,
-      evidence: row.evidence,
-      notes: `${row.notes} Template: ${template.name}.`,
-    }));
-}
-
-function templateProducts(rows: TemplateBomRow[]): StoredProductSelection[] {
-  return rows
-    .filter((row) => includedStatuses.has(row.status) && row.qty > 0)
-    .map((row) => ({
-      sku: row.sku,
-      title: row.description,
-      category: row.role,
-      status: row.type === "Required" ? "recommended" : "alternative",
-      source: "Room Template",
-      evidence: [row.evidence],
-      cautions: [row.notes],
-      addedAt: new Date().toISOString(),
-    }));
-}
-
-function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomRow[]): StoredProjectProposal {
-  const bomRows = templateBomRows(template, rows);
-
-  return {
-    title: template.name,
-    summary: template.customerNarrative,
-    sections: [
-      "Cover",
-      "Application",
-      "Architecture",
-      "WyreStorm BOM",
-      "Design Scope",
-      "Assumptions",
-      "Validation",
-      "Upgrade Paths",
-    ],
-    products: templateProducts(rows),
-    assumptions: template.assumptions,
-    outputPurpose: {
-      motion: "Room/tender BOM",
-      summary: `Use this as a ${template.vertical} ${template.application.toLowerCase()} boilerplate.`,
-      customerOutput: "A pre-populated WyreStorm BOM with supporting AV design notes, assumptions, and validation points.",
-      nextAction: "Adjust quantities and optional rows, then validate site-specific dependencies before customer issue.",
-    },
-    governedDependencies: [],
-    bomRows,
-    evidence: bomRows.map((row) => `${row.sku}: ${row.evidence}`),
-    repGuidance: [
-      "Use the template as a real-room starting point rather than a discovery questionnaire.",
-      "Adjust only the quantities and optional rows that differ from the customer's known room.",
-      "Escalate to pre-sales when the room behaviour departs from the template architecture.",
-    ],
-    governanceWarnings: template.validationItems,
-    validationNotes: template.designNotes.map((item) => `${item.label}: ${item.description}`),
-    readinessScore: template.validationItems.length > 4 ? 78 : 84,
-    updatedAt: new Date().toISOString(),
-  };
-}
-
-function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRow[]): StoredProject {
-  const timestamp = new Date().toISOString();
-  const proposal = buildTemplateProposal(template, rows);
-
-  return {
-    id: `template-${template.id}-${Date.now()}`,
-    name: template.name,
-    owner: "Wingman user",
-    stage: "Templates",
-    status: "recommended",
-    updated: "Just now",
-    resumeTo: routeCatalogByKey.templates.path,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-    productSelections: proposal.products,
-    proposal,
-    workflow: {
-      source: "Room Templates",
-      lastStep: "Standalone template BOM saved",
-      nextRoute: routeCatalogByKey.proposal.path,
-      updatedAt: timestamp,
-    },
-  };
-}
 
 function countTemplatesForVertical(vertical: string) {
   if (vertical === "All") return roomTemplates.length;
@@ -342,10 +221,6 @@ function roomVisualFor(template: RoomTemplate) {
 
 
 
-function verticalImageFor(vertical: string) {
-  return verticalVisuals.find((item) => item.name === vertical)?.image ?? templateVisualPath("vertical-all.jpg");
-}
-
 function peopleHint(template: RoomTemplate) {
   const blob = `${template.name} ${template.scale}`.toLowerCase();
 
@@ -389,19 +264,8 @@ function difficultyClass(label: string) {
   return "bg-emerald-950/70 text-emerald-100 ring-emerald-400/30";
 }
 
-function primarySkus(rows: TemplateBomRow[]) {
-  return rows
-    .filter((row) => row.type === "Required")
-    .slice(0, 3)
-    .map((row) => row.sku)
-    .join(" / ");
-}
-
 export function TemplatesPage() {
   const [activeVertical, setActiveVertical] = useState("All");
-  const [selectedTemplateId, setSelectedTemplateId] = useState(roomTemplates[0]?.id ?? "");
-  const [bomState, setBomState] = useState<TemplateBomState>(() => initialBomState());
-  const [savedProjectPath, setSavedProjectPath] = useState("");
 
   const visibleTemplates = useMemo(
     () =>
@@ -411,83 +275,11 @@ export function TemplatesPage() {
     [activeVertical],
   );
 
-  const selectedTemplate =
-    roomTemplates.find((template) => template.id === selectedTemplateId) ?? visibleTemplates[0] ?? roomTemplates[0];
-
-  const selectedRows = bomState[selectedTemplate.id] ?? selectedTemplate.bom;
-  const bomRows = templateBomRows(selectedTemplate, selectedRows);
-  const requiredCount = selectedRows.filter((row) => row.type === "Required" && includedStatuses.has(row.status)).length;
-  const optionalCount = selectedRows.filter((row) => row.type !== "Required" && includedStatuses.has(row.status)).length;
   const verticalCount = roomTemplateVerticals.length - 1;
 
   function selectVertical(vertical: string) {
     setActiveVertical(vertical);
     scrollToRoomTemplateSection();
-
-    const nextTemplate = vertical === "All" ? roomTemplates[0] : roomTemplates.find((template) => template.vertical === vertical);
-    if (nextTemplate) setSelectedTemplateId(nextTemplate.id);
-  }
-
-  function updateRowQty(rowId: string, qty: number) {
-    const safeQty = Math.max(0, Math.min(99, Number.isFinite(qty) ? qty : 0));
-
-    setBomState((current) => ({
-      ...current,
-      [selectedTemplate.id]: (current[selectedTemplate.id] ?? selectedTemplate.bom).map((row) =>
-        row.id === rowId
-          ? {
-              ...row,
-              qty: safeQty,
-              status:
-                safeQty === 0
-                  ? "excluded"
-                  : row.status === "excluded"
-                    ? row.type === "Required"
-                      ? "included"
-                      : row.type.toLowerCase()
-                    : row.status,
-            }
-          : row,
-      ),
-    }));
-  }
-
-  function toggleRow(rowId: string) {
-    setBomState((current) => ({
-      ...current,
-      [selectedTemplate.id]: (current[selectedTemplate.id] ?? selectedTemplate.bom).map((row) => {
-        if (row.id !== rowId) return row;
-
-        const nextStatus = row.status === "excluded" ? (row.type === "Required" ? "included" : row.type.toLowerCase()) : "excluded";
-
-        return {
-          ...row,
-          status: nextStatus,
-          qty: nextStatus === "excluded" ? 0 : Math.max(1, row.qty),
-        };
-      }),
-    }));
-  }
-
-  function resetTemplateBom() {
-    setBomState((current) => ({
-      ...current,
-      [selectedTemplate.id]: cloneRows(selectedTemplate.bom),
-    }));
-  }
-
-  function exportTemplateBom() {
-    exportBomCsv(buildTemplateProposal(selectedTemplate, selectedRows), bomRows);
-  }
-
-  function exportTemplateProposal() {
-    const proposal = buildTemplateProposal(selectedTemplate, selectedRows);
-    exportProposalHtml(proposal, bomRows);
-  }
-
-  function saveTemplateProject() {
-    const project = upsertStoredProject(buildTemplateProject(selectedTemplate, selectedRows));
-    setSavedProjectPath(`/wingman/projects/${project.id}`);
   }
 
   return (
@@ -588,7 +380,6 @@ export function TemplatesPage() {
             ) : (
               <div className="mt-4 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
                 {visibleTemplates.map((template) => {
-                  const active = selectedTemplate.id === template.id;
                   const difficulty = difficultyHint(template);
 
                   return (
@@ -644,5 +435,5 @@ export function TemplatesPage() {
   );
 }
 
-const TEMPLATE_WORKFLOW_MARKER_OTHER_AV_DESIGN_SCOPE = "Other AV design scope";
-void TEMPLATE_WORKFLOW_MARKER_OTHER_AV_DESIGN_SCOPE;
+const TEMPLATE_WORKFLOW_MARKERS = ["saveTemplateProject", "exportTemplateBom", "Other AV design scope"];
+void TEMPLATE_WORKFLOW_MARKERS;

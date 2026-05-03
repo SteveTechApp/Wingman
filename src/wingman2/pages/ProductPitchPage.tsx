@@ -8,6 +8,35 @@ type ProductIndex = {
   products?: ProductRecord[];
 };
 
+type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
+
+type ProductSalesVoice = {
+  label?: string;
+  audience?: string;
+  headline?: string;
+  pitch?: string;
+  value?: string;
+  talkTrack?: string[];
+  discoveryPrompts?: string[];
+  positioningNotes?: string[];
+  avoidPositioningAs?: string[];
+};
+
+type ProductSalesLanguage = {
+  headline?: string;
+  plainEnglishSummary?: string;
+  customerValue?: string;
+  realWorldApplication?: string;
+  salespersonCue?: string;
+  thirdOutputUseCase?: string;
+  talkTrack?: string[];
+  discoveryPrompts?: string[];
+  positioningNotes?: string[];
+  avoidPositioningAs?: string[];
+  marketApplications?: string[];
+  voices?: Partial<Record<ProductVoiceId, ProductSalesVoice>>;
+};
+
 type ProductRecord = {
   id?: string;
   sku?: string;
@@ -24,6 +53,10 @@ type ProductRecord = {
   applications?: string[];
   tags?: string[];
   searchTerms?: string[];
+  salesLanguage?: ProductSalesLanguage;
+  technicalProfile?: {
+    salesLanguage?: ProductSalesLanguage;
+  };
   raw?: Record<string, unknown>;
 };
 
@@ -38,6 +71,12 @@ type SimplePitch = {
 };
 
 const indexUrl = "/product-intelligence-index.json";
+
+const voiceOptions: { id: ProductVoiceId; label: string; shortLabel: string }[] = [
+  { id: "endUser", label: "End user", shortLabel: "Customer" },
+  { id: "systemIntegrator", label: "SI / installer", shortLabel: "Installer" },
+  { id: "consultant", label: "Consultant / technical", shortLabel: "Consultant" },
+];
 
 function cleanText(value: unknown) {
   return String(value ?? "")
@@ -56,8 +95,58 @@ function asList(value: unknown) {
   return value.map(cleanText).filter(Boolean);
 }
 
+function collectTextValues(value: unknown, output: string[] = [], depth = 0) {
+  if (depth > 5 || value == null) return output;
+
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    const text = cleanText(value);
+    if (text) output.push(text);
+    return output;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectTextValues(item, output, depth + 1));
+    return output;
+  }
+
+  if (typeof value === "object") {
+    Object.values(value as Record<string, unknown>).forEach((item) => collectTextValues(item, output, depth + 1));
+  }
+
+  return output;
+}
+
 function unique(values: string[]) {
   return Array.from(new Set(values.map(cleanText).filter(Boolean)));
+}
+
+function compactTexts(values: unknown[]) {
+  return unique(values.map(cleanText));
+}
+
+function salesLanguageForProduct(product?: ProductRecord) {
+  if (!product) return undefined;
+
+  const direct = product.salesLanguage;
+  if (direct && typeof direct === "object") return direct;
+
+  const profile = product.technicalProfile?.salesLanguage;
+  if (profile && typeof profile === "object") return profile;
+
+  const rawSalesLanguage = product.raw?.salesLanguage;
+  if (rawSalesLanguage && typeof rawSalesLanguage === "object") return rawSalesLanguage as ProductSalesLanguage;
+
+  const rawProfile = product.raw?.technicalProfile;
+  if (rawProfile && typeof rawProfile === "object") {
+    const rawProfileSalesLanguage = (rawProfile as Record<string, unknown>).salesLanguage;
+    if (rawProfileSalesLanguage && typeof rawProfileSalesLanguage === "object") return rawProfileSalesLanguage as ProductSalesLanguage;
+  }
+
+  return undefined;
+}
+
+function salesVoiceForProduct(product: ProductRecord | undefined, voice: ProductVoiceId) {
+  return salesLanguageForProduct(product)?.voices?.[voice];
 }
 
 function productSku(product?: ProductRecord) {
@@ -94,6 +183,7 @@ function productSearchBlob(product: ProductRecord) {
     ...asList(product.applications),
     ...asList(product.tags),
     ...asList(product.searchTerms),
+    ...collectTextValues(salesLanguageForProduct(product)),
   ]
     .join(" ")
     .toLowerCase();
@@ -121,7 +211,7 @@ function firstUsefulApplication(product: ProductRecord) {
   return apps[0] || "";
 }
 
-function simplePitchForProduct(product?: ProductRecord): SimplePitch {
+function simplePitchForProduct(product?: ProductRecord, voice: ProductVoiceId = "endUser"): SimplePitch {
   if (!product) {
     return {
       headline: "Select a SKU to create a simple sales pitch.",
@@ -140,6 +230,55 @@ function simplePitchForProduct(product?: ProductRecord): SimplePitch {
   const blob = productSearchBlob(product);
   const application = firstUsefulApplication(product);
   const proofTerms = unique([...asList(product.features), ...asList(product.technologies), ...asList(product.connectors), ...asList(product.tags)]);
+  const salesLanguage = salesLanguageForProduct(product);
+  const selectedVoice = salesVoiceForProduct(product, voice);
+
+  if (salesLanguage) {
+    const talkTrack = compactTexts([
+      ...(selectedVoice?.talkTrack ?? []),
+      ...(salesLanguage.talkTrack ?? []),
+      salesLanguage.salespersonCue,
+      salesLanguage.realWorldApplication,
+    ]);
+    const askBeforeQuoting = compactTexts([
+      ...(selectedVoice?.discoveryPrompts ?? []),
+      ...(salesLanguage.discoveryPrompts ?? []),
+    ]);
+    const architectureChecks = compactTexts([
+      ...(selectedVoice?.positioningNotes ?? []),
+      ...(salesLanguage.positioningNotes ?? []),
+      salesLanguage.thirdOutputUseCase,
+      ...(selectedVoice?.avoidPositioningAs ?? []).map((item) => `Avoid: ${item}`),
+      ...(salesLanguage.avoidPositioningAs ?? []).map((item) => `Avoid: ${item}`),
+    ]);
+
+    return {
+      headline: cleanText(selectedVoice?.headline || salesLanguage.headline || `${sku}: ${title}`),
+      customerPitch:
+        cleanText(selectedVoice?.pitch || salesLanguage.plainEnglishSummary || summary) ||
+        `${title} supports a specific part of a professional WyreStorm AV system. Confirm the application before positioning it to the customer.`,
+      helpsWith: talkTrack.length
+        ? talkTrack.slice(0, 4)
+        : [
+            "Solves a specific AV system requirement.",
+            "Fits into a wider WyreStorm design.",
+            "Should be positioned based on the customer outcome, not just the specification.",
+          ],
+      bestFit:
+        cleanText(selectedVoice?.value || salesLanguage.customerValue || salesLanguage.realWorldApplication) ||
+        application ||
+        family,
+      askBeforeQuoting: askBeforeQuoting.length
+        ? askBeforeQuoting.slice(0, 5)
+        : [
+            "What is the customer trying to achieve?",
+            "Where are the sources, displays and users located?",
+            "Does the system need video, USB, audio, control or network integration?",
+          ],
+      architectureChecks: architectureChecks.slice(0, 5),
+      termExplanations: explainTerms(blob, proofTerms, "general"),
+    };
+  }
 
   const isAmplifier = includesAny(blob, ["amplifier", "amp-", "speaker output", "60w", "120w", "4ohm"]);
   const isAudio = isAmplifier || includesAny(blob, ["audio", "dante", "aes67", "microphone", "mic ", "speaker", "de-embed", "audio / control"]);
@@ -469,6 +608,7 @@ export function ProductPitchPage() {
   const [products, setProducts] = useState<ProductRecord[]>([]);
   const [query, setQuery] = useState("");
   const [selectedSku, setSelectedSku] = useState("");
+  const [voice, setVoice] = useState<ProductVoiceId>("endUser");
   const [indexError, setIndexError] = useState("");
 
   useEffect(() => {
@@ -515,7 +655,7 @@ export function ProductPitchPage() {
     return selectBestProduct(products, selectedSku) || selectBestProduct(products, query);
   }, [products, query, selectedSku]);
 
-  const pitch = useMemo(() => simplePitchForProduct(selectedProduct), [selectedProduct]);
+  const pitch = useMemo(() => simplePitchForProduct(selectedProduct, voice), [selectedProduct, voice]);
   const selectedProductSku = productSku(selectedProduct);
 
   return (
@@ -604,6 +744,35 @@ export function ProductPitchPage() {
           </header>
 
           <div className="space-y-4 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Voice</p>
+                <p className="mt-1 text-sm font-semibold text-slate-700">{voiceOptions.find((option) => option.id === voice)?.label}</p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {voiceOptions.map((option) => {
+                  const active = option.id === voice;
+
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setVoice(option.id)}
+                      className={[
+                        "rounded-full border px-3 py-2 text-xs font-black transition",
+                        active
+                          ? "border-slate-950 bg-slate-950 text-white"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-orange-300 hover:bg-orange-50 hover:text-orange-800",
+                      ].join(" ")}
+                    >
+                      {option.shortLabel}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="rounded-3xl border border-orange-200 bg-orange-50 p-5">
               <div className="flex items-center gap-2 text-sm font-black text-slate-950">
                 <Sparkles className="h-4 w-4 text-orange-600" />
