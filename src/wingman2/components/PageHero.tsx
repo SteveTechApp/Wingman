@@ -18,26 +18,26 @@ type PageHeroProps = {
 
 function actionClass(variant: PageHeroAction["variant"]) {
   return [
-    "wingman-hero-action",
-    variant === "secondary" ? "wingman-hero-action-secondary" : "wingman-hero-action-primary",
+    "wm-micro-hero-action",
+    variant === "secondary" ? "wm-micro-hero-action-secondary" : "wm-micro-hero-action-primary",
   ].join(" ");
 }
 
 export function PageHero({ eyebrow, title, actions }: PageHeroProps) {
   return (
-    <section className="wingman-page-hero wingman-panel wingman-hero-strip" aria-label={title}>
-      <div className="wingman-hero-copy">
-        <p className="wingman-kicker">{eyebrow}</p>
-        <h1 className="wingman-display">{title}</h1>
+    <section className="wm-micro-page-hero" aria-label={`${eyebrow}: ${title}`} title={title}>
+      <div className="wm-micro-page-hero-copy">
+        <p className="wm-micro-page-kicker">{eyebrow}</p>
+        <h1 className="wm-micro-page-title">{title}</h1>
       </div>
 
       {actions?.length ? (
-        <div className="wingman-hero-actions">
+        <div className="wm-micro-page-actions">
           {actions.map((action) =>
             action.to ? (
               <Link key={action.label} to={action.to} className={actionClass(action.variant)}>
                 {action.label}
-                <ArrowRight className="h-3 w-3" />
+                <ArrowRight className="wm-micro-action-icon" />
               </Link>
             ) : (
               <button
@@ -47,7 +47,7 @@ export function PageHero({ eyebrow, title, actions }: PageHeroProps) {
                 className={actionClass(action.variant)}
               >
                 {action.label}
-                <ArrowRight className="h-3 w-3" />
+                <ArrowRight className="wm-micro-action-icon" />
               </button>
             ),
           )}
