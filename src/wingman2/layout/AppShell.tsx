@@ -7,6 +7,7 @@ import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { clearActiveProject } from "../data/projectStore";
 
+import { GuruRovingIcon } from "../components/GuruRovingIcon";
 type AppShellProps = {
   children?: ReactNode;
 };
@@ -102,6 +103,18 @@ export function AppShell({ children }: AppShellProps) {
   useEffect(() => {
     setMobileNavOpen(false);
   }, [location.pathname]);
+  useEffect(() => {
+    function handleOpenGuru() {
+      setGuruOpen(true);
+    }
+
+    window.addEventListener("wingman:open-guru", handleOpenGuru);
+
+    return () => {
+      window.removeEventListener("wingman:open-guru", handleOpenGuru);
+    };
+  }, []);
+
 
   function handleClearCurrentProject() {
     clearStoredProjectContext();
@@ -114,7 +127,7 @@ export function AppShell({ children }: AppShellProps) {
     <div className="wingman-shell wingman-authority-shell">
       <aside className="wingman-sidebar" data-mobile-open={mobileNavOpen ? "true" : "false"}>
         <div className="wingman-brand wingman-brand-logo-only">
-          <img src="/wingman-logo.png" alt="WyreStorm Wingman" className="wingman-brand-image" />
+          <img src="/wingman-logo.png" alt="WyreStorm Wingman" className="wingman-brand-image" decoding="async" />
         </div>
 
         <nav className="wingman-nav" aria-label="Wingman navigation">
@@ -145,7 +158,7 @@ export function AppShell({ children }: AppShellProps) {
       />
 
       <div className="wingman-workspace">
-        <header className="wingman-topbar">
+        <header className="wingman-topbar wm-balanced-topbar">
           <button
             type="button"
             className="wingman-mobile-nav-button"
@@ -156,12 +169,12 @@ export function AppShell({ children }: AppShellProps) {
             {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          <div className="wingman-topbar-title">
+          <div className="wingman-topbar-title wm-balanced-topbar-title" title={`${activeLabel}: ${activeSummary}`}>
             <p>{activeLabel}</p>
             <span>{activeSummary}</span>
           </div>
 
-          <button type="button" className="wingman-clear-project-button" onClick={handleClearCurrentProject}>
+          <button type="button" className="wingman-clear-project-button wm-balanced-clear-project-button" onClick={handleClearCurrentProject}>
             <RotateCcw className="h-4 w-4" />
             Clear current project
           </button>
@@ -175,6 +188,7 @@ export function AppShell({ children }: AppShellProps) {
       </div>
 
       <WingmanGuruFab open={guruOpen} onClick={() => setGuruOpen((current) => !current)} />
+      <GuruRovingIcon />
       <WingmanGuruDrawer open={guruOpen} onClose={() => setGuruOpen(false)} />
     </div>
   );

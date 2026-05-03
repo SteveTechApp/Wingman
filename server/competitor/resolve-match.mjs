@@ -560,6 +560,222 @@ function truthyFeatureNames(features) {
   return [];
 }
 
+function numericPortCount(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return Math.max(0, Math.round(value));
+
+  const text = tidy(value);
+  if (!text) return null;
+
+  const match = text.match(/\d{1,3}/);
+  if (!match) return null;
+
+  const parsed = Number(match[0]);
+  if (!Number.isFinite(parsed)) return null;
+
+  return Math.max(0, Math.round(parsed));
+}
+
+function firstNumericPortCount(values) {
+  for (const value of values) {
+    const count = numericPortCount(value);
+    if (count !== null) return count;
+  }
+
+  return null;
+}
+
+function pushIoGroup(target, type, count, label, confidence = "inferred") {
+  const numericCount = numericPortCount(count);
+
+  if (numericCount === null || numericCount <= 0) {
+    return;
+  }
+
+  target.push({
+    type,
+    count: numericCount,
+    label: label || `${numericCount} ${type}`,
+    confidence,
+  });
+}
+
+function totalIoCount(groups) {
+  const total = groups.reduce((sum, item) => {
+    const count = numericPortCount(item?.count);
+    if (count === null) return sum;
+    return sum + count;
+  }, 0);
+
+  if (total > 0) return total;
+
+  return null;
+}
+
+function buildNormalizedIoProfile(input = {}) {
+  const ports = input.ports && typeof input.ports === "object" ? input.ports : {};
+  const features = input.features && typeof input.features === "object" ? input.features : {};
+
+  const blob = [
+    input.manufacturer,
+    input.model,
+    input.sku,
+    input.title,
+    input.name,
+    input.summary,
+    input.category,
+    input.transport,
+    input.role,
+    input.rawText,
+    ...(Array.isArray(input.keySpecs) ? input.keySpecs : []),
+  ].filter(Boolean).join(" ");
+
+  const compactBlob = normalise(blob);
+  const matrixMatch = compactBlob.match(/\b(\d{1,2})\s*[xX]\s*(\d{1,2})\b/);
+  const matrixInputs = matrixMatch?.[1] ? Number(matrixMatch[1]) : null;
+  const matrixOutputs = matrixMatch?.[2] ? Number(matrixMatch[2]) : null;
+
+  const hdmiIn = firstNumericPortCount([ports.hdmiIn, ports.hdmiInputs, ports.hdmi_input, input.hdmiIn]);
+  const hdmiOut = firstNumericPortCount([ports.hdmiOut, ports.hdmiOutputs, ports.hdmi_output, input.hdmiOut]);
+  const usbC = firstNumericPortCount([ports.usbC, ports.usbc, input.usbC]);
+  const displayPortIn = firstNumericPortCount([ports.displayPortIn, ports.dpIn, ports.displayportIn]);
+  const vgaIn = firstNumericPortCount([ports.vgaIn, ports.vga]);
+  const hdbt = firstNumericPortCount([ports.hdbt, ports.hdbtOut, ports.tps, ports.dtp]);
+  const avoip = firstNumericPortCount([ports.avoip, ports.networkVideo, ports.ipVideo]);
+  const sdiIn = firstNumericPortCount([ports.sdiIn, ports.sdi]);
+  const usbHost = firstNumericPortCount([ports.usbHost, ports.usb_host]);
+  const usbDevice = firstNumericPortCount([ports.usbDevice, ports.usb_device]);
+  const lan = firstNumericPortCount([ports.lan, ports.ethernet, ports.rj45]);
+  const rs232 = firstNumericPortCount([ports.rs232, ports.rs_232]);
+  const ir = firstNumericPortCount([ports.ir]);
+  const audioIn = firstNumericPortCount([ports.audioIn, ports.analogAudioIn, ports.lineIn]);
+  const audioOut = firstNumericPortCount([ports.audioOut, ports.analogAudioOut, ports.lineOut]);
+
+  const videoInputs = [];
+  const videoOutputs = [];
+  const usb = [];
+  const audio = [];
+  const networkControl = [];
+  const notes = [];
+
+  pushIoGroup(videoInputs, "HDMI input", hdmiIn, `${hdmiIn} HDMI in`, "explicit");
+  pushIoGroup(videoInputs, "USB-C video input", usbC, `${usbC} USB-C video in`, "explicit");
+  pushIoGroup(videoInputs, "DisplayPort input", displayPortIn, `${displayPortIn} DisplayPort in`, "explicit");
+  pushIoGroup(videoInputs, "VGA input", vgaIn, `${vgaIn} VGA in`, "explicit");
+  pushIoGroup(videoInputs, "SDI input", sdiIn, `${sdiIn} SDI in`, "explicit");
+
+  pushIoGroup(videoOutputs, "HDMI output", hdmiOut, `${hdmiOut} HDMI out`, "explicit");
+  pushIoGroup(videoOutputs, "HDBaseT/TPS/DTP output", hdbt, `${hdbt} HDBaseT/TPS/DTP path`, "explicit");
+  pushIoGroup(videoOutputs, "AVoIP stream", avoip, `${avoip} AVoIP stream path`, "explicit");
+
+  pushIoGroup(usb, "USB host", usbHost, `${usbHost} USB host`, "explicit");
+  pushIoGroup(usb, "USB device", usbDevice, `${usbDevice} USB device`, "explicit");
+
+  if (features.usbC && usbC === null) {
+    usb.push({
+      type: "USB-C",
+      count: null,
+      label: "USB-C present",
+      confidence: "inferred",
+    });
+  }
+
+  if (features.usbRouting) {
+    usb.push({
+      type: "USB routing",
+      count: null,
+      label: "USB routing / KVM behaviour",
+      confidence: "inferred",
+    });
+  }
+
+  pushIoGroup(audio, "audio input", audioIn, `${audioIn} audio in`, "explicit");
+  pushIoGroup(audio, "audio output", audioOut, `${audioOut} audio out`, "explicit");
+
+  if (features.dante || features.aes67) {
+    audio.push({
+      type: "network audio",
+      count: null,
+      label: features.dante && features.aes67 ? "Dante / AES67" : features.dante ? "Dante" : "AES67",
+      confidence: "inferred",
+    });
+  }
+
+  if (features.audioDeEmbed || features.audioBreakout) {
+    audio.push({
+      type: "audio breakout",
+      count: null,
+      label: "Audio embed/de-embed or breakout",
+      confidence: "inferred",
+    });
+  }
+
+  pushIoGroup(networkControl, "LAN", lan, `${lan} LAN / Ethernet`, "explicit");
+  pushIoGroup(networkControl, "RS-232", rs232, `${rs232} RS-232`, "explicit");
+  pushIoGroup(networkControl, "IR", ir, `${ir} IR`, "explicit");
+
+  if (features.control) {
+    networkControl.push({
+      type: "control",
+      count: null,
+      label: "Control supported",
+      confidence: "inferred",
+    });
+  }
+
+  const directInputs = firstNumericPortCount([input.inputCount, input.inputs, input.input_count, matrixInputs]);
+  const directOutputs = firstNumericPortCount([input.outputCount, input.outputs, input.output_count, matrixOutputs]);
+
+  if (matrixInputs !== null && matrixOutputs !== null) {
+    notes.push(`SKU/text suggests ${matrixInputs}x${matrixOutputs} headline switching.`);
+  }
+
+  const inferredInputs = directInputs !== null ? directInputs : totalIoCount(videoInputs);
+  const inferredOutputs = directOutputs !== null ? directOutputs : totalIoCount(videoOutputs);
+
+  if (videoInputs.length < 1 && inferredInputs !== null) {
+    videoInputs.push({
+      type: "video input",
+      count: inferredInputs,
+      label: `${inferredInputs} video input${inferredInputs === 1 ? "" : "s"}`,
+      confidence: "inferred",
+    });
+  }
+
+  if (videoOutputs.length < 1 && inferredOutputs !== null) {
+    videoOutputs.push({
+      type: "video output",
+      count: inferredOutputs,
+      label: `${inferredOutputs} video output${inferredOutputs === 1 ? "" : "s"}`,
+      confidence: "inferred",
+    });
+  }
+
+  if (inferredInputs === null || inferredOutputs === null) {
+    notes.push("Exact headline I/O needs datasheet verification.");
+  }
+
+  const headlineLabel = `${inferredInputs ?? "?"} in / ${inferredOutputs ?? "?"} out`;
+  const headlineConfidence = inferredInputs !== null && inferredOutputs !== null
+    ? (directInputs !== null || directOutputs !== null ? "explicit" : "inferred")
+    : "unknown";
+
+  return {
+    version: 1,
+    headline: {
+      inputs: inferredInputs,
+      outputs: inferredOutputs,
+      label: headlineLabel,
+      confidence: headlineConfidence,
+    },
+    videoInputs,
+    videoOutputs,
+    usb,
+    audio,
+    networkControl,
+    notes,
+    rawPorts: ports,
+  };
+}
 function toStructuredProfile(input) {
   const blob = [
     input.manufacturer,
@@ -598,6 +814,7 @@ function toStructuredProfile(input) {
     role: tidy(input.role || detectRole(blob)),
     video: input.video || detectVideo(blob),
     ports,
+    ioProfile: buildNormalizedIoProfile({ ...input, ports, rawText: blob }),
     features: input.features && typeof input.features === "object"
       ? input.features
       : detectFeatures(blob),
@@ -699,6 +916,7 @@ function buildCandidateFromCatalog(row) {
     category: detectCategory(blob),
     video: detectVideo(blob),
     ports: detectPortCounts(blob),
+    ioProfile: buildNormalizedIoProfile({ manufacturer: "WyreStorm", model: sku, title: name, ports: detectPortCounts(blob), rawText: blob }),
     features: detectFeatures(blob),
     formFactor: detectExactFormFactor(blob, sku),
     blob,

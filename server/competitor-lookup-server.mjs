@@ -41,8 +41,7 @@ import {
   handleWingmanWorkspaceSettingsPost,
 } from "./wingman-app-store.mjs";
 import { resolveCompetitorMatch } from "./competitor/resolve-match.mjs";
-import { resolveCompetitorLiveLookup } from "./competitor/live-lookup.mjs";
-
+import { resolveCompetitorLiveLookup } from "./competitor/live-lookup.mjs";
 let createSupabaseClient = null;
 try {
   ({ createClient: createSupabaseClient } = await import("@supabase/supabase-js"));
@@ -2233,7 +2232,7 @@ const server = http.createServer(async (req, res) => {
 
   sendJson(res, 404, {
     ok: false,
-    error: "Route not found.",
+error: "Route not found.",
     route: `${method} ${url.pathname}`,
   });
 });

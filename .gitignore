@@ -82,6 +82,9 @@ _RECOVERY/
 _IMPORT/
 _QUARANTINE/
 _AUDITS/
+_backups/
+backups/
+lighthouse-reports/
 _release/
 release/
 
@@ -93,6 +96,7 @@ wingman/build/
 wingman/package-lock.json
 
 # --- Archives ---
+archive/
 *.zip
 *.tar
 *.gz

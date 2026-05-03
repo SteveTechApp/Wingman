@@ -1,0 +1,554 @@
+/* ==========================================================================
+   Wingman Discovery Builder Layout
+   Purpose:
+   - Move Discovery source options away from a messy stacked pill list
+   - Create clean grouped decision blocks
+   - Keep source builder dominant
+   - Keep right rail compact
+   ========================================================================== */
+
+:root {
+  --wm-disc-bg: #f8fafc;
+  --wm-disc-card: rgba(255, 255, 255, 0.96);
+  --wm-disc-card-soft: rgba(248, 250, 252, 0.92);
+  --wm-disc-border: rgba(203, 213, 225, 0.82);
+  --wm-disc-border-strong: rgba(148, 163, 184, 0.72);
+  --wm-disc-text: #0f172a;
+  --wm-disc-muted: #64748b;
+  --wm-disc-blue: #2563eb;
+  --wm-disc-orange: #c05621;
+  --wm-disc-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+}
+
+/* --------------------------------------------------------------------------
+   Discovery page density
+   -------------------------------------------------------------------------- */
+
+.wingman-discovery-page,
+.discovery-page,
+[data-page="discovery"] {
+  --wm-page-pad: clamp(14px, 1.4vw, 22px);
+}
+
+.wingman-discovery-page main,
+.discovery-page main,
+[data-page="discovery"] main {
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Horizontal chevron workflow path
+   -------------------------------------------------------------------------- */
+
+.discovery-stepper,
+.wm-discovery-stepper,
+.discovery-workflow-stepper,
+[data-discovery-stepper="true"] {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  align-items: stretch !important;
+  margin: 0 0 14px 0 !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
+
+.discovery-stepper > *,
+.wm-discovery-stepper > *,
+.discovery-workflow-stepper > *,
+[data-discovery-stepper="true"] > * {
+  min-height: 42px !important;
+  padding: 8px 14px !important;
+  border-radius: 0 !important;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%, 16px 50%) !important;
+  margin-left: -12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 0.78rem !important;
+  font-weight: 850 !important;
+  white-space: nowrap !important;
+}
+
+.discovery-stepper > *:first-child,
+.wm-discovery-stepper > *:first-child,
+.discovery-workflow-stepper > *:first-child,
+[data-discovery-stepper="true"] > *:first-child {
+  margin-left: 0 !important;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%) !important;
+}
+
+/* Generic state support */
+.discovery-stepper [data-state="complete"],
+.wm-discovery-stepper [data-state="complete"],
+.discovery-workflow-stepper [data-state="complete"],
+[data-discovery-stepper="true"] [data-state="complete"],
+.discovery-stepper .complete,
+.wm-discovery-stepper .complete,
+.discovery-workflow-stepper .complete {
+  background: linear-gradient(180deg, #dcfce7, #bbf7d0) !important;
+  color: #065f46 !important;
+  border-color: rgba(16, 185, 129, 0.36) !important;
+}
+
+.discovery-stepper [data-state="current"],
+.wm-discovery-stepper [data-state="current"],
+.discovery-workflow-stepper [data-state="current"],
+[data-discovery-stepper="true"] [data-state="current"],
+.discovery-stepper .current,
+.wm-discovery-stepper .current,
+.discovery-workflow-stepper .current {
+  background: linear-gradient(180deg, #fff7ed, #ffedd5) !important;
+  color: #9a3412 !important;
+  border-color: rgba(249, 115, 22, 0.44) !important;
+}
+
+.discovery-stepper [data-state="upcoming"],
+.wm-discovery-stepper [data-state="upcoming"],
+.discovery-workflow-stepper [data-state="upcoming"],
+[data-discovery-stepper="true"] [data-state="upcoming"],
+.discovery-stepper .upcoming,
+.wm-discovery-stepper .upcoming,
+.discovery-workflow-stepper .upcoming {
+  background: linear-gradient(180deg, #ffffff, #f8fafc) !important;
+  color: #334155 !important;
+  border-color: rgba(203, 213, 225, 0.86) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Two-column Discovery workspace
+   -------------------------------------------------------------------------- */
+
+.discovery-workspace-grid,
+.wm-discovery-workspace-grid,
+.discovery-builder-shell,
+[data-discovery-workspace="true"] {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 22%) !important;
+  gap: 18px !important;
+  align-items: start !important;
+}
+
+.discovery-main-column,
+.wm-discovery-main-column,
+.discovery-source-workspace,
+[data-discovery-main="true"] {
+  min-width: 0 !important;
+}
+
+.discovery-right-rail,
+.wm-discovery-right-rail,
+.discovery-model-rail,
+[data-discovery-rail="true"] {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 12px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Top compact controls
+   -------------------------------------------------------------------------- */
+
+.discovery-control-strip,
+.wm-discovery-control-strip,
+[data-discovery-controls="true"] {
+  display: grid !important;
+  grid-template-columns: 1fr 0.9fr 0.9fr !important;
+  gap: 12px !important;
+  margin-bottom: 14px !important;
+}
+
+.discovery-control-card,
+.wm-discovery-control-card,
+[data-discovery-control-card="true"] {
+  border: 1px solid var(--wm-disc-border) !important;
+  border-radius: 16px !important;
+  background: var(--wm-disc-card) !important;
+  padding: 13px 14px !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05) !important;
+}
+
+.discovery-control-card h3,
+.wm-discovery-control-card h3,
+[data-discovery-control-card="true"] h3 {
+  margin: 0 0 5px 0 !important;
+  font-size: 0.86rem !important;
+  font-weight: 900 !important;
+  color: var(--wm-disc-text) !important;
+}
+
+.discovery-control-card p,
+.wm-discovery-control-card p,
+[data-discovery-control-card="true"] p {
+  margin: 0 !important;
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
+  color: var(--wm-disc-muted) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Source builder card
+   -------------------------------------------------------------------------- */
+
+.discovery-source-builder,
+.wm-discovery-source-builder,
+.source-builder-card,
+.source-path-card,
+.discovery-source-card,
+.wm-source-card,
+[data-source-card="true"],
+[data-section="source-builder"] {
+  border: 1px solid var(--wm-disc-border) !important;
+  border-radius: 18px !important;
+  background: var(--wm-disc-card) !important;
+  box-shadow: var(--wm-disc-shadow) !important;
+  padding: 16px !important;
+  min-width: 0 !important;
+}
+
+.discovery-source-builder-header,
+.wm-discovery-source-builder-header,
+[data-source-builder-header="true"] {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+}
+
+.discovery-source-builder-kicker,
+.wm-discovery-source-builder-kicker,
+[data-source-builder-kicker="true"] {
+  display: block !important;
+  font-size: 0.68rem !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #64748b !important;
+  margin-bottom: 3px !important;
+}
+
+.discovery-source-builder-title,
+.wm-discovery-source-builder-title,
+[data-source-builder-title="true"] {
+  margin: 0 !important;
+  color: var(--wm-disc-text) !important;
+  font-size: 1rem !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* --------------------------------------------------------------------------
+   Clean option group grid
+   -------------------------------------------------------------------------- */
+
+.discovery-source-group-grid,
+.wm-discovery-source-group-grid,
+.source-builder-groups,
+[data-source-group-grid="true"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+}
+
+.discovery-source-group,
+.wm-discovery-source-group,
+.source-option-group,
+.option-group,
+[data-source-group="true"],
+[data-option-group] {
+  border: 1px solid var(--wm-disc-border) !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9)) !important;
+  padding: 12px !important;
+  min-width: 0 !important;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04) !important;
+}
+
+.discovery-source-group:hover,
+.wm-discovery-source-group:hover,
+.source-option-group:hover,
+.option-group:hover,
+[data-source-group="true"]:hover,
+[data-option-group]:hover {
+  border-color: rgba(96, 165, 250, 0.58) !important;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.07) !important;
+}
+
+.discovery-source-group-title,
+.wm-discovery-source-group-title,
+.source-option-group-title,
+.option-group-title,
+[data-source-group-title="true"] {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin: 0 0 10px 0 !important;
+  color: var(--wm-disc-text) !important;
+  font-size: 0.8rem !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.discovery-source-group-title svg,
+.wm-discovery-source-group-title svg,
+.source-option-group-title svg,
+.option-group-title svg,
+[data-source-group-title="true"] svg {
+  width: 15px !important;
+  height: 15px !important;
+  color: #64748b !important;
+  flex: 0 0 auto !important;
+}
+
+/* --------------------------------------------------------------------------
+   Option chips in tidy grids
+   -------------------------------------------------------------------------- */
+
+.discovery-option-grid,
+.wm-discovery-option-grid,
+.option-grid,
+[data-option-grid="true"],
+.discovery-source-group [role="radiogroup"],
+.wm-discovery-source-group [role="radiogroup"],
+.source-option-group [role="radiogroup"],
+.option-group [role="radiogroup"],
+[data-source-group="true"] [role="radiogroup"],
+[data-option-group] [role="radiogroup"] {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)) !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+}
+
+.discovery-option-chip,
+.wm-discovery-option-chip,
+.option-chip,
+[data-option-chip="true"],
+.discovery-source-group button,
+.wm-discovery-source-group button,
+.source-option-group button,
+.option-group button,
+[data-source-group="true"] button,
+[data-option-group] button,
+.discovery-source-group [role="radio"],
+.wm-discovery-source-group [role="radio"],
+.source-option-group [role="radio"],
+.option-group [role="radio"],
+[data-source-group="true"] [role="radio"],
+[data-option-group] [role="radio"] {
+  min-height: 32px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(148, 163, 184, 0.48) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: #253044 !important;
+  font-size: 0.75rem !important;
+  font-weight: 820 !important;
+  line-height: 1.1 !important;
+  padding: 7px 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 7px !important;
+  text-align: left !important;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04) !important;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease,
+    transform 120ms ease,
+    box-shadow 120ms ease !important;
+}
+
+.discovery-option-chip:hover,
+.wm-discovery-option-chip:hover,
+.option-chip:hover,
+[data-option-chip="true"]:hover,
+.discovery-source-group button:hover,
+.wm-discovery-source-group button:hover,
+.source-option-group button:hover,
+.option-group button:hover,
+[data-source-group="true"] button:hover,
+[data-option-group] button:hover,
+.discovery-source-group [role="radio"]:hover,
+.wm-discovery-source-group [role="radio"]:hover,
+.source-option-group [role="radio"]:hover,
+.option-group [role="radio"]:hover,
+[data-source-group="true"] [role="radio"]:hover,
+[data-option-group] [role="radio"]:hover {
+  background: #eff6ff !important;
+  border-color: rgba(59, 130, 246, 0.62) !important;
+  box-shadow: 0 7px 15px rgba(37, 99, 235, 0.08) !important;
+  transform: translateY(-1px) !important;
+}
+
+.discovery-option-chip[aria-checked="true"],
+.wm-discovery-option-chip[aria-checked="true"],
+.option-chip[aria-checked="true"],
+[data-option-chip="true"][aria-checked="true"],
+.discovery-source-group [aria-checked="true"],
+.wm-discovery-source-group [aria-checked="true"],
+.source-option-group [aria-checked="true"],
+.option-group [aria-checked="true"],
+[data-source-group="true"] [aria-checked="true"],
+[data-option-group] [aria-checked="true"],
+.discovery-option-chip[data-selected="true"],
+.wm-discovery-option-chip[data-selected="true"],
+.option-chip[data-selected="true"],
+[data-option-chip="true"][data-selected="true"] {
+  background: #dbeafe !important;
+  border-color: rgba(37, 99, 235, 0.78) !important;
+  color: #1d4ed8 !important;
+}
+
+/* Smaller radio circles inside chips */
+.discovery-option-chip input[type="radio"],
+.wm-discovery-option-chip input[type="radio"],
+.option-chip input[type="radio"],
+[data-option-chip="true"] input[type="radio"],
+.discovery-source-group input[type="radio"],
+.wm-discovery-source-group input[type="radio"],
+.source-option-group input[type="radio"],
+.option-group input[type="radio"],
+[data-source-group="true"] input[type="radio"],
+[data-option-group] input[type="radio"] {
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+/* --------------------------------------------------------------------------
+   Right rail compact cards
+   -------------------------------------------------------------------------- */
+
+.discovery-right-rail > *,
+.wm-discovery-right-rail > *,
+.discovery-model-rail > *,
+[data-discovery-rail="true"] > *,
+.live-room-model,
+.wm-live-room-model,
+.architecture-direction,
+.wm-architecture-direction,
+[data-section="live-room-model"],
+[data-section="architecture-direction"] {
+  border: 1px solid var(--wm-disc-border) !important;
+  border-radius: 18px !important;
+  background: var(--wm-disc-card) !important;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06) !important;
+  padding: 14px !important;
+}
+
+.live-room-model,
+.wm-live-room-model,
+[data-section="live-room-model"] {
+  font-size: 0.76rem !important;
+  line-height: 1.24 !important;
+}
+
+.live-room-model h2,
+.live-room-model h3,
+.wm-live-room-model h2,
+.wm-live-room-model h3,
+[data-section="live-room-model"] h2,
+[data-section="live-room-model"] h3 {
+  font-size: 0.96rem !important;
+  margin-bottom: 10px !important;
+}
+
+.live-room-model dl,
+.wm-live-room-model dl,
+[data-section="live-room-model"] dl {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.live-room-model dt,
+.wm-live-room-model dt,
+[data-section="live-room-model"] dt {
+  color: var(--wm-disc-muted) !important;
+  font-size: 0.72rem !important;
+}
+
+.live-room-model dd,
+.wm-live-room-model dd,
+[data-section="live-room-model"] dd {
+  color: var(--wm-disc-text) !important;
+  font-weight: 800 !important;
+  margin: 1px 0 0 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .discovery-workspace-grid,
+  .wm-discovery-workspace-grid,
+  .discovery-builder-shell,
+  [data-discovery-workspace="true"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .discovery-right-rail,
+  .wm-discovery-right-rail,
+  .discovery-model-rail,
+  [data-discovery-rail="true"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 920px) {
+  .discovery-stepper,
+  .wm-discovery-stepper,
+  .discovery-workflow-stepper,
+  [data-discovery-stepper="true"] {
+    display: flex !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+  }
+
+  .discovery-stepper > *,
+  .wm-discovery-stepper > *,
+  .discovery-workflow-stepper > *,
+  [data-discovery-stepper="true"] > * {
+    min-width: 150px !important;
+  }
+
+  .discovery-control-strip,
+  .wm-discovery-control-strip,
+  [data-discovery-controls="true"],
+  .discovery-source-group-grid,
+  .wm-discovery-source-group-grid,
+  .source-builder-groups,
+  [data-source-group-grid="true"],
+  .discovery-right-rail,
+  .wm-discovery-right-rail,
+  .discovery-model-rail,
+  [data-discovery-rail="true"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ==========================================================================
+   Compatibility helpers for pages without dedicated data attributes
+   These selectors catch the common Wingman card/option patterns without needing
+   a full TSX rewrite first.
+   ========================================================================== */
+
+main button[type="button"] {
+  max-width: 100%;
+}
+
+main [class*="Source"] button[type="button"],
+main [class*="source"] button[type="button"] {
+  white-space: normal;
+}
+
+main [class*="Source"] [class*="grid"],
+main [class*="source"] [class*="grid"] {
+  min-width: 0;
+}

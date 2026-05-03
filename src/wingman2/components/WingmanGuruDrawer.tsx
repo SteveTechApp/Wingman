@@ -15,12 +15,40 @@ type GuruMessage = {
   time: string;
 };
 
+type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
+
+type ProductSalesVoice = {
+  label?: string;
+  headline?: string;
+  pitch?: string;
+  value?: string;
+  talkTrack?: string[];
+  discoveryPrompts?: string[];
+  positioningNotes?: string[];
+  avoidPositioningAs?: string[];
+};
+
+type ProductSalesLanguage = {
+  headline?: string;
+  plainEnglishSummary?: string;
+  customerValue?: string;
+  realWorldApplication?: string;
+  salespersonCue?: string;
+  thirdOutputUseCase?: string;
+  talkTrack?: string[];
+  discoveryPrompts?: string[];
+  positioningNotes?: string[];
+  avoidPositioningAs?: string[];
+  voices?: Partial<Record<ProductVoiceId, ProductSalesVoice>>;
+};
+
 type ProductEntry = {
   sku: string;
   title: string;
   family: string;
   category: string;
   description: string;
+  salesLanguage?: ProductSalesLanguage;
   text: string;
   raw: unknown;
 };
@@ -49,6 +77,7 @@ const GURU_EXTERNAL_LOOKUP_ENABLED = import.meta.env.VITE_WINGMAN_ENABLE_GURU_EX
 const quickPrompts = [
   "Which receiver can I use with the SW-130-TX-UK?",
   "Which receiver can I use with the SW-130-TX-UK if USB is not important and the run is 30m?",
+  "Explain MX-0403-H3-MST for an installer.",
   "What does HDBaseT mean?",
   "Explain AVoIP encoder vs decoder.",
   "What is EDID and why does it matter?",
@@ -391,6 +420,35 @@ function fieldValue(record: Record<string, unknown>, candidates: string[]) {
   return "";
 }
 
+function asSalesLanguage(value: unknown): ProductSalesLanguage | undefined {
+  if (value && typeof value === "object") return value as ProductSalesLanguage;
+  return undefined;
+}
+
+function salesLanguageFromRecord(record: Record<string, unknown>) {
+  const direct = asSalesLanguage(record.salesLanguage);
+
+  if (direct) {
+    return direct;
+  }
+
+  const technicalProfile = record.technicalProfile;
+
+  if (technicalProfile && typeof technicalProfile === "object") {
+    return asSalesLanguage((technicalProfile as Record<string, unknown>).salesLanguage);
+  }
+
+  return undefined;
+}
+
+function cleanGuruLine(value: unknown) {
+  return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function uniqueGuruLines(values: unknown[]) {
+  return Array.from(new Set(values.map(cleanGuruLine).filter(Boolean)));
+}
+
 function collectObjects(value: unknown, output: unknown[] = [], depth = 0) {
   if (value === null || value === undefined || depth > 5) {
     return output;
@@ -439,6 +497,7 @@ function toProductEntry(item: unknown): ProductEntry | null {
     family: fieldValue(record, ["family", "series", "productFamily", "product_family"]),
     category: fieldValue(record, ["category", "type", "technology", "technologyType", "technology_type"]),
     description: fieldValue(record, ["description", "summary", "shortDescription", "short_description"]),
+    salesLanguage: salesLanguageFromRecord(record),
     text,
     raw: item,
   };
@@ -723,6 +782,50 @@ function usefulLines(product: ProductEntry) {
   return Array.from(new Set(selected)).slice(0, 5);
 }
 
+function detectProductVoice(question: string): ProductVoiceId {
+  const lower = question.toLowerCase();
+
+  if (/\b(si|system integrator|integrator|installer|install|commissioning|commission)\b/.test(lower)) {
+    return "systemIntegrator";
+  }
+
+  if (/\b(consultant|technical|designer|specifier|architect|architecture|trade-off|tradeoff)\b/.test(lower)) {
+    return "consultant";
+  }
+
+  return "endUser";
+}
+
+function salesVoiceLines(product: ProductEntry, question: string) {
+  const language = product.salesLanguage;
+
+  if (!language) {
+    return [];
+  }
+
+  const voiceId = detectProductVoice(question);
+  const voice = language.voices?.[voiceId];
+  const heading = voice?.label || (voiceId === "systemIntegrator" ? "SI / installer" : voiceId === "consultant" ? "Consultant / technical" : "End user");
+  const pitch = cleanGuruLine(voice?.pitch || language.plainEnglishSummary);
+  const value = cleanGuruLine(voice?.value || language.customerValue || language.realWorldApplication);
+  const talkTrack = uniqueGuruLines([
+    ...(voice?.talkTrack ?? []),
+    ...(voiceId === "endUser" ? [language.salespersonCue, language.realWorldApplication] : []),
+    language.thirdOutputUseCase,
+  ]).slice(0, 3);
+  const prompts = uniqueGuruLines([...(voice?.discoveryPrompts ?? []), ...(language.discoveryPrompts ?? [])]).slice(0, 3);
+
+  return [
+    `${heading} view:`,
+    pitch ? `- ${pitch}` : "",
+    value ? `- ${value}` : "",
+    ...talkTrack.map((line) => `- ${line}`),
+    prompts.length ? "" : "",
+    prompts.length ? "Good questions to ask:" : "",
+    ...prompts.map((line) => `- ${line}`),
+  ].filter(Boolean);
+}
+
 function answerGlossary(question: string) {
   const lower = question.toLowerCase();
 
@@ -809,12 +912,15 @@ function answerProductQuestion(question: string, products: ProductEntry[]) {
   }
 
   const lines = usefulLines(product);
+  const voiceLines = salesVoiceLines(product, question);
 
   return [
     `${product.sku} - ${product.title}`,
     product.family ? `Family: ${product.family}` : "",
     product.category ? `Category: ${product.category}` : "",
     product.description ? `Summary: ${product.description}` : "",
+    voiceLines.length ? "" : "",
+    ...voiceLines,
     "",
     lines.length ? "Useful product notes:" : "I found the product but the local index does not expose detailed notes for it yet.",
     ...lines.map((line) => `- ${line}`),
@@ -865,56 +971,56 @@ function answerHdmiUsbExtenderIntent(question: string) {
 
   if (distance !== null) {
     return [
-      "Yes Ã¯Â¿Â½ treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
+      "Yes - treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
       "",
       `Based on the stated ${distance}m run, the primary design path should be a single extender system / Tx-Rx pair that carries both HDMI video and USB over the same transport architecture.`,
       "",
       "Recommended design logic:",
-      "Ã¯Â¿Â½ Use an integrated HDMI + USB extender path where the transmitter and receiver are designed to work together.",
-      "Ã¯Â¿Â½ Do not split HDMI and USB into separate extender products unless there is a clear reason, such as USB bandwidth, cable pathway limits, or the selected video extender cannot carry the required USB.",
-      `Ã¯Â¿Â½ If the requirement later becomes video-only, select the HDBaseT receiver family by distance: ${distanceChoice.sku}.`,
+      "- Use an integrated HDMI + USB extender path where the transmitter and receiver are designed to work together.",
+      "- Do not split HDMI and USB into separate extender products unless there is a clear reason, such as USB bandwidth, cable pathway limits, or the selected video extender cannot carry the required USB.",
+      `- If the requirement later becomes video-only, select the HDBaseT receiver family by distance: ${distanceChoice.sku}.`,
       "",
       "Likely WyreStorm paths to check first:",
       "- SW-130-TX-UK / SW-130-TX-US with RX-500 for shorter USB-required runs or RX-700 for the longer SW-130 receive path.",
-      "Ã¯Â¿Â½ SW-120-TX3 family with RX3-100 where a higher-performance HDBaseT 3.0 style transmitter/receiver path is more appropriate.",
+      "- SW-120-TX3 family with RX3-100 where a higher-performance HDBaseT 3.0 style transmitter/receiver path is more appropriate.",
       "",
       "Only consider a separate USB extender path when:",
-      "Ã¯Â¿Â½ The HDMI transport product does not support the required USB behaviour.",
-      "Ã¯Â¿Â½ The USB device needs more bandwidth than the combined AV extender supports.",
-      "Ã¯Â¿Â½ The USB device location is different from the HDMI display/source path.",
+      "- The HDMI transport product does not support the required USB behaviour.",
+      "- The USB device needs more bandwidth than the combined AV extender supports.",
+      "- The USB device location is different from the HDMI display/source path.",
       "",
       "Before customer issue, confirm:",
-      "Ã¯Â¿Â½ Cable distance and cable grade.",
-      "Ã¯Â¿Â½ Required resolution and refresh rate.",
-      "Ã¯Â¿Â½ USB device type: camera, speakerphone, touch, keyboard/mouse, or other.",
-      "Ã¯Â¿Â½ Whether USB 2.0 is enough or USB 3.x bandwidth is required.",
-      "Ã¯Â¿Â½ Whether the source location should be wall plate, desk, floor box, or rack.",
+      "- Cable distance and cable grade.",
+      "- Required resolution and refresh rate.",
+      "- USB device type: camera, speakerphone, touch, keyboard/mouse, or other.",
+      "- Whether USB 2.0 is enough or USB 3.x bandwidth is required.",
+      "- Whether the source location should be wall plate, desk, floor box, or rack.",
     ].join("\n");
   }
 
   return [
-    "Yes Ã¯Â¿Â½ treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
+    "Yes - treat this as a request for one integrated HDMI + USB extender solution, not separate HDMI and USB devices.",
     "",
     "Recommended design logic:",
-    "Ã¯Â¿Â½ Start with a single extender system / Tx-Rx pair that carries HDMI video and USB together.",
-    "Ã¯Â¿Â½ Do not recommend separate HDMI and USB extenders unless an integrated product cannot meet the distance, USB bandwidth, or physical installation requirement.",
-    "Ã¯Â¿Â½ If USB transport is important for camera, speakerphone, touch, keyboard, mouse, or BYOM, the product must explicitly support USB transport.",
+    "- Start with a single extender system / Tx-Rx pair that carries HDMI video and USB together.",
+    "- Do not recommend separate HDMI and USB extenders unless an integrated product cannot meet the distance, USB bandwidth, or physical installation requirement.",
+    "- If USB transport is important for camera, speakerphone, touch, keyboard, mouse, or BYOM, the product must explicitly support USB transport.",
     "",
     "Likely WyreStorm paths to check first:",
     "- SW-130-TX-UK / SW-130-TX-US with RX-500 for shorter USB-required runs or RX-700 for the longer SW-130 receive path.",
-    "Ã¯Â¿Â½ SW-120-TX3 family with RX3-100 for a higher-performance HDBaseT 3.0 style transmitter/receiver path.",
+    "- SW-120-TX3 family with RX3-100 for a higher-performance HDBaseT 3.0 style transmitter/receiver path.",
     "",
     "Only consider a separate USB extender path when:",
-    "Ã¯Â¿Â½ The selected HDMI extender does not carry the required USB.",
-    "Ã¯Â¿Â½ The USB peripheral needs more bandwidth than the integrated extender supports.",
-    "Ã¯Â¿Â½ The USB endpoint is in a different physical location from the HDMI endpoint.",
+    "- The selected HDMI extender does not carry the required USB.",
+    "- The USB peripheral needs more bandwidth than the integrated extender supports.",
+    "- The USB endpoint is in a different physical location from the HDMI endpoint.",
     "",
     "Ask the customer:",
-    "Ã¯Â¿Â½ How far is the cable run?",
-    "Ã¯Â¿Â½ What resolution is required: 1080p, 4K30, or 4K60?",
-    "Ã¯Â¿Â½ What USB device needs to work?",
-    "Ã¯Â¿Â½ Is this for BYOM conferencing, touch, KVM, or simple USB control?",
-    "Ã¯Â¿Â½ Is the source location wall plate, desk, floor box, or rack?",
+    "- How far is the cable run?",
+    "- What resolution is required: 1080p, 4K30, or 4K60?",
+    "- What USB device needs to work?",
+    "- Is this for BYOM conferencing, touch, KVM, or simple USB control?",
+    "- Is the source location wall plate, desk, floor box, or rack?",
   ].join("\n");
 }
 function answerFromSearch(question: string, products: ProductEntry[]) {
@@ -928,7 +1034,7 @@ function answerFromSearch(question: string, products: ProductEntry[]) {
     "Likely product matches from the local index:",
     "",
     ...matches.map((product) => {
-      const summary = product.description || product.category || product.family || "Matched by SKU/product text.";
+      const summary = product.salesLanguage?.plainEnglishSummary || product.description || product.category || product.family || "Matched by SKU/product text.";
       return `- ${product.sku} - ${product.title}. ${summary}`;
     }),
     "",
@@ -1164,8 +1270,8 @@ async function answerQuestion(question: string, products: ProductEntry[]) {
 const openingMessage = createMessage(
   "assistant",
   GURU_EXTERNAL_LOOKUP_ENABLED
-    ? "Hi, I'm Guru, Wingman's real-time AV and WyreStorm technical assistant. Ask me a product, AV terminology, acronym, or system design question. If I don't know it locally, I'll try a live lookup and store the answer in local Guru memory for next time."
-    : "Hi, I'm Guru, Wingman's real-time AV and WyreStorm technical assistant. Ask me a product, AV terminology, acronym, or system design question. External lookup is off, so I'll answer from the local Wingman glossary and product index."
+    ? "Hi, I'm Guru, Wingman's real-time AV and WyreStorm technical assistant. Ask me a product, AV terminology, acronym, or system design question. You can ask for an end-user, installer, or consultant view. If I don't know it locally, I'll try a live lookup and store the answer in local Guru memory for next time."
+    : "Hi, I'm Guru, Wingman's real-time AV and WyreStorm technical assistant. Ask me a product, AV terminology, acronym, or system design question. You can ask for an end-user, installer, or consultant view. External lookup is off, so I'll answer from the local Wingman glossary and product index."
 );
 
 export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
@@ -1282,7 +1388,7 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
       <aside
         className="wingman-guru-drawer"
         data-open={open ? "true" : "false"}
-        aria-hidden={open ? "false" : "true"}
+        hidden={!open}
       >
         <header className="wingman-guru-drawer-header">
           <div className="wingman-guru-drawer-heading">

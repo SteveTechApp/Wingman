@@ -1,0 +1,49 @@
+/*
+ * Wingman logo scale pass
+ * Increases the sidebar/header Wingman logo by 400% without enlarging menu icons.
+ */
+
+aside header img,
+aside [class*="brand" i] img,
+aside [class*="logo" i] img,
+[class*="sidebar" i] header img,
+[class*="sidebar" i] [class*="brand" i] img,
+[class*="sidebar" i] [class*="logo" i] img,
+[class*="side-nav" i] header img,
+[class*="sidenav" i] header img {
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 9rem !important;
+  min-height: 7.5rem !important;
+  object-fit: contain !important;
+}
+
+/* Give the larger logo enough space so it is not clipped */
+aside header,
+aside [class*="brand" i],
+aside [class*="logo" i],
+[class*="sidebar" i] header,
+[class*="sidebar" i] [class*="brand" i],
+[class*="sidebar" i] [class*="logo" i],
+[class*="side-nav" i] header,
+[class*="sidenav" i] header {
+  min-height: 8.5rem !important;
+  padding-top: 0.45rem !important;
+  padding-bottom: 0.45rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Do not let normal menu icons inherit the large logo sizing */
+aside nav img,
+aside ul img,
+aside a img,
+aside button img,
+[class*="sidebar" i] nav img,
+[class*="sidebar" i] ul img,
+[class*="sidebar" i] a img,
+[class*="sidebar" i] button img {
+  max-height: 1rem !important;
+  min-height: 0 !important;
+}

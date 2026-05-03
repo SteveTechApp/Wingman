@@ -13,15 +13,7 @@ export default [
       "coverage/**",
       "node_modules/**",
       "_*/**",
-      "_archive/**",
-      "_release/**",
-      "_RESCUE/**",
-      "_RECOVERY/**",
-      "_WORK/**",
-      "_STYLE_AUTHORITY_BACKUP/**",
-      "_AUTH_BACKUP/**",
-      "_COMPARE_BACKUP/**",
-      "_COMPARE_MIGRATION_BACKUP/**"
+      "_release/**"
     ]
   },
 

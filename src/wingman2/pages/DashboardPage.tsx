@@ -1,20 +1,26 @@
 import { useMemo } from "react";
-import { ArrowRight, ClipboardList, FileUp, LayoutTemplate, Scale } from "lucide-react";
+import {
+  ArrowRight,
+  ClipboardList,
+  FileText,
+  FileUp,
+  LayoutTemplate,
+  MonitorSmartphone,
+  PackageSearch,
+  Scale,
+  type LucideIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { routeCatalog } from "../app/routeCatalog";
+import "../styles/dashboard-visual-upgrade.css";
 
-type QuickAction = {
+type DashboardTile = {
   key: string;
   title: string;
   summary: string;
-  icon: typeof ClipboardList;
+  icon: LucideIcon;
   path: string;
-};
-
-type StatCard = {
-  label: string;
-  value: string;
-  helper: string;
+  group: "primary" | "secondary";
 };
 
 function getRoutePath(key: string, fallback: string) {
@@ -24,354 +30,159 @@ function getRoutePath(key: string, fallback: string) {
 export function DashboardPage() {
   const navigate = useNavigate();
 
-  const quickActions = useMemo<QuickAction[]>(
+  const dashboardTiles = useMemo<DashboardTile[]>(
     () => [
       {
         key: "discovery",
-        title: "Start Discovery",
-        summary: "Guide the conversation from room, workflow, sources, and outputs.",
+        title: "Discovery",
+        summary: "Capture the customer requirement and build the AV design brief.",
         icon: ClipboardList,
         path: getRoutePath("discovery", "/wingman/discovery"),
+        group: "primary",
       },
       {
-        key: "compare",
-        title: "Compare Competitor SKU",
-        summary: "Replace competitor products with the right WyreStorm direction.",
-        icon: Scale,
-        path: getRoutePath("compare", "/wingman/compare"),
+        key: "finder",
+        title: "Product Finder",
+        summary: "Match technical requirements to the right WyreStorm product direction.",
+        icon: PackageSearch,
+        path: getRoutePath("finder", "/wingman/finder"),
+        group: "primary",
       },
       {
         key: "templates",
-        title: "Browse Room Templates",
-        summary: "Start from a known room archetype and refine from there.",
+        title: "Room Templates",
+        summary: "Start from a familiar room type and refine the system quickly.",
         icon: LayoutTemplate,
         path: getRoutePath("templates", "/wingman/templates"),
+        group: "primary",
+      },
+      {
+        key: "proposal",
+        title: "Proposal Builder",
+        summary: "Turn scoped requirements into a customer-ready proposal structure.",
+        icon: FileText,
+        path: getRoutePath("proposal", "/wingman/proposal"),
+        group: "primary",
+      },
+      {
+        key: "compare",
+        title: "Competitor Compare",
+        summary: "Position WyreStorm clearly against an alternative product or SKU.",
+        icon: Scale,
+        path: getRoutePath("compare", "/wingman/compare"),
+        group: "secondary",
+      },
+      {
+        key: "videowall",
+        title: "Videowall Builder",
+        summary: "Shape LCD, LED, multiview and processor-led wall conversations.",
+        icon: MonitorSmartphone,
+        path: getRoutePath("videowall", "/wingman/videowall"),
+        group: "secondary",
       },
       {
         key: "ingest",
-        title: "Upload Customer Files",
-        summary: "Bring in customer documents and move them into a usable brief.",
+        title: "Document Ingest",
+        summary: "Upload customer files and convert them into usable project input.",
         icon: FileUp,
         path: getRoutePath("ingest", "/wingman/ingest"),
+        group: "secondary",
       },
     ],
-    []
+    [],
   );
 
-  const stats = useMemo<StatCard[]>(
-    () => [
-      {
-        label: "Primary focus",
-        value: "Sales motion",
-        helper: "Keep the dashboard focused on where to start, not what to buy.",
-      },
-      {
-        label: "Recommended use",
-        value: "Quick routing",
-        helper: "Use this page to hand the rep into the right workflow quickly.",
-      },
-      {
-        label: "Best behaviour",
-        value: "Keep it simple",
-        helper: "No recommendation panel and no proposal CTA needed here.",
-      },
-    ],
-    []
-  );
+  const primaryTiles = dashboardTiles.filter((tile) => tile.group === "primary");
+  const secondaryTiles = dashboardTiles.filter((tile) => tile.group === "secondary");
 
   return (
-    <div style={{ display: "grid", gap: 18 }}>
-      <section
-        style={{
-          display: "grid",
-          gap: 16,
-          padding: 24,
-          borderRadius: 28,
-          border: "1px solid rgba(255,255,255,0.08)",
-          background:
-            "radial-gradient(circle at top right, rgba(246,163,64,0.10), transparent 24rem), linear-gradient(180deg, rgba(3,17,29,0.98) 0%, rgba(2,12,22,0.98) 100%)",
-          boxShadow: "0 18px 48px rgba(0,0,0,0.24)",
-        }}
-      >
-        <div style={{ display: "grid", gap: 6 }}>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 800,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: "#8fa3ba",
-            }}
-          >
-            Dashboard
-          </div>
-
-          <h1
-            style={{
-              margin: 0,
-              maxWidth: 900,
-              fontSize: "clamp(2rem, 4.2vw, 4.25rem)",
-              lineHeight: 0.98,
-              letterSpacing: "-0.04em",
-              fontWeight: 900,
-              color: "#f2f7fc",
-            }}
-          >
-            Start from the sales motion, not the product list.
-          </h1>
-
-          <p
-            style={{
-              margin: 0,
-              maxWidth: 980,
-              fontSize: 15,
-              lineHeight: 1.5,
-              color: "rgba(226,236,246,0.86)",
-            }}
-          >
-            This workspace is the fast-control center for distributor reps who need to qualify demand,
-            position WyreStorm clearly, and move toward the right recommendation path without hesitation.
+    <div className="wm-dashboard-page">
+      <section className="wm-dashboard-hero">
+        <div className="wm-dashboard-hero-copy">
+          <p className="wm-dashboard-eyebrow">WyreStorm Wingman</p>
+          <h1>Start from the sales motion, not the product list.</h1>
+          <p>
+            Choose the right workflow for the conversation: discover the requirement, find products,
+            compare a competitor, build a room template, or move into proposal output.
           </p>
         </div>
 
-        <div
-          style={{
-            padding: "14px 16px",
-            borderRadius: 18,
-            border: "1px solid rgba(255,255,255,0.08)",
-            background: "rgba(255,255,255,0.05)",
-            maxWidth: 980,
-          }}
-        >
-          <div
-            style={{
-              marginBottom: 8,
-              fontSize: 12,
-              fontWeight: 900,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: "#f6a340",
-            }}
-          >
-            Next move
-          </div>
-          <div style={{ color: "#e5eef8", fontSize: 15, lineHeight: 1.45 }}>
-            Choose the workflow that matches the conversation: Discovery, Competitor Compare, Room Templates,
-            or Upload Customer Files.
-          </div>
-        </div>
-
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-          <button
-            type="button"
-            onClick={() => navigate(getRoutePath("projects", "/wingman/projects"))}
-            style={{
-              height: 44,
-              padding: "0 16px",
-              borderRadius: 999,
-              border: 0,
-              background: "linear-gradient(135deg, #f6b34d 0%, #f0a336 100%)",
-              color: "#1e160a",
-              fontWeight: 800,
-              fontSize: 15,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 10,
-              cursor: "pointer",
-            }}
-          >
-            Open projects
+        <div className="wm-dashboard-hero-actions">
+          <button type="button" onClick={() => navigate(getRoutePath("discovery", "/wingman/discovery"))}>
+            Start Discovery
             <ArrowRight size={16} />
           </button>
 
-          <button
-            type="button"
-            onClick={() => navigate(getRoutePath("support", "/wingman/support"))}
-            style={{
-              height: 44,
-              padding: "0 16px",
-              borderRadius: 999,
-              border: "1px solid rgba(255,255,255,0.10)",
-              background: "rgba(255,255,255,0.05)",
-              color: "#edf4fb",
-              fontWeight: 800,
-              fontSize: 15,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 10,
-              cursor: "pointer",
-            }}
-          >
-            Open support
+          <button type="button" onClick={() => navigate(getRoutePath("finder", "/wingman/finder"))}>
+            Open Product Finder
             <ArrowRight size={16} />
           </button>
         </div>
       </section>
 
-      <section
-        style={{
-          display: "grid",
-          gap: 16,
-          padding: 20,
-          borderRadius: 28,
-          background: "rgba(255,255,255,0.96)",
-          border: "1px solid rgba(148,163,184,0.26)",
-          boxShadow: "0 18px 44px rgba(15,23,42,0.12)",
-        }}
-      >
-        <div style={{ display: "grid", gap: 4 }}>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 900,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: "#c96b12",
-            }}
-          >
-            Wingman workspace
-          </div>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 22,
-              lineHeight: 1.1,
-              fontWeight: 900,
-              color: "#0f172a",
-            }}
-          >
-            Quick-start actions
-          </h2>
-          <p
-            style={{
-              margin: 0,
-              fontSize: 15,
-              lineHeight: 1.45,
-              color: "#64748b",
-            }}
-          >
-            Start from problem type rather than product taxonomy.
-          </p>
+      <section className="wm-dashboard-panel">
+        <div className="wm-dashboard-section-heading">
+          <p>Primary tools</p>
+          <h2>Choose where the sales workflow starts</h2>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: 14,
-          }}
-        >
-          {quickActions.map((action) => {
-            const Icon = action.icon;
+        <div className="wm-dashboard-tile-grid wm-dashboard-tile-grid-primary">
+          {primaryTiles.map((tile) => {
+            const Icon = tile.icon;
 
             return (
               <button
-                key={action.key}
+                key={tile.key}
                 type="button"
-                onClick={() => navigate(action.path)}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr auto",
-                  alignItems: "center",
-                  gap: 14,
-                  padding: 18,
-                  borderRadius: 18,
-                  border: "1px solid rgba(148,163,184,0.22)",
-                  background: "#f8fafc",
-                  cursor: "pointer",
-                  textAlign: "left",
-                }}
+                className={`wm-dashboard-tile wm-dashboard-tile-${tile.key}`}
+                onClick={() => navigate(tile.path)}
               >
-                <div style={{ display: "grid", gap: 6 }}>
-                  <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 800,
-                      lineHeight: 1.2,
-                      color: "#111827",
-                    }}
-                  >
-                    {action.title}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 14,
-                      lineHeight: 1.4,
-                      color: "#64748b",
-                    }}
-                  >
-                    {action.summary}
-                  </div>
-                </div>
+                <span className="wm-dashboard-tile-icon">
+                  <Icon size={24} />
+                </span>
 
-                <div
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 999,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "rgba(15,23,42,0.05)",
-                    color: "#64748b",
-                    flexShrink: 0,
-                  }}
-                >
-                  <Icon size={18} />
-                </div>
+                <span className="wm-dashboard-tile-copy">
+                  <strong>{tile.title}</strong>
+                  <span>{tile.summary}</span>
+                </span>
+
+                <ArrowRight className="wm-dashboard-tile-arrow" size={18} />
               </button>
             );
           })}
         </div>
+      </section>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: 14,
-          }}
-        >
-          {stats.map((item) => (
-            <div
-              key={item.label}
-              style={{
-                padding: 18,
-                borderRadius: 18,
-                border: "1px solid rgba(148,163,184,0.20)",
-                background: "#f8fafc",
-              }}
-            >
-              <div
-                style={{
-                  marginBottom: 10,
-                  fontSize: 14,
-                  color: "#64748b",
-                }}
+      <section className="wm-dashboard-panel wm-dashboard-panel-secondary">
+        <div className="wm-dashboard-section-heading">
+          <p>Supporting tools</p>
+          <h2>Use these when the conversation needs deeper support</h2>
+        </div>
+
+        <div className="wm-dashboard-tile-grid wm-dashboard-tile-grid-secondary">
+          {secondaryTiles.map((tile) => {
+            const Icon = tile.icon;
+
+            return (
+              <button
+                key={tile.key}
+                type="button"
+                className={`wm-dashboard-tile wm-dashboard-tile-${tile.key}`}
+                onClick={() => navigate(tile.path)}
               >
-                {item.label}
-              </div>
-              <div
-                style={{
-                  marginBottom: 8,
-                  fontSize: 20,
-                  fontWeight: 900,
-                  color: "#111827",
-                  lineHeight: 1.1,
-                }}
-              >
-                {item.value}
-              </div>
-              <div
-                style={{
-                  fontSize: 13,
-                  lineHeight: 1.4,
-                  color: "#64748b",
-                }}
-              >
-                {item.helper}
-              </div>
-            </div>
-          ))}
+                <span className="wm-dashboard-tile-icon">
+                  <Icon size={22} />
+                </span>
+
+                <span className="wm-dashboard-tile-copy">
+                  <strong>{tile.title}</strong>
+                  <span>{tile.summary}</span>
+                </span>
+
+                <ArrowRight className="wm-dashboard-tile-arrow" size={18} />
+              </button>
+            );
+          })}
         </div>
       </section>
     </div>

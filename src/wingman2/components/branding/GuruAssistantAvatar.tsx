@@ -18,7 +18,7 @@ export function GuruAssistantAvatar({
       className={["wingman-guru-avatar", className ?? ""].join(" ").trim()}
       style={{ width: size, height: size, ...style }}
     >
-      <img {...rest} src="/guru-bot.png" alt={alt} className="wingman-guru-avatar-image" />
+      <img {...rest} src="/guru-bot.png" alt={alt} className="wingman-guru-avatar-image" decoding="async" />
     </span>
   );
 }

@@ -9,18 +9,17 @@ type SectionCardProps = {
 
 export function SectionCard({ title, subtitle, children, rightSlot }: SectionCardProps) {
   return (
-    <section className="wingman-section-card wingman-surface">
-      <header className="wingman-section-card-header">
-        <div>
-          <p className="wingman-kicker">Wingman workspace</p>
+    <section className="wingman-section-card wingman-surface wm-balanced-section-card">
+      <header className="wm-balanced-section-card-header">
+        <div className="wm-balanced-section-card-copy">
           <h2>{title}</h2>
           {subtitle ? <p>{subtitle}</p> : null}
         </div>
 
-        {rightSlot ? <div className="wingman-section-card-actions">{rightSlot}</div> : null}
+        {rightSlot ? <div className="wm-balanced-section-card-actions">{rightSlot}</div> : null}
       </header>
 
-      <div className="wingman-section-card-body">{children}</div>
+      <div className="wm-balanced-section-card-body">{children}</div>
     </section>
   );
 }
