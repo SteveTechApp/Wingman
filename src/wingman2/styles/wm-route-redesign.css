@@ -14,6 +14,14 @@ body[data-wm-route="finder"] {
   --wm-route-accent: var(--wm-teal);
 }
 
+body[data-wm-route="productFamilies"] {
+  --wm-route-accent: #8bb5ff;
+}
+
+body[data-wm-route="productPitch"] {
+  --wm-route-accent: var(--wm-orange);
+}
+
 body[data-wm-route="compare"] {
   --wm-route-accent: var(--wm-coral);
 }

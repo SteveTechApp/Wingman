@@ -19,6 +19,7 @@ import { installWingmanSalesMode } from "./wingman2/utils/installWingmanSalesMod
 import "./wingman2/styles/wm-brand-reset.css";
 import "./wingman2/styles/wm-route-redesign.css";
 import "./wingman2/styles/wm-sales-mode-global.css";
+import "./wingman2/styles/wm-command-ui.css";
 
 installWingmanVisualIdentity();
 installWingmanSalesMode();

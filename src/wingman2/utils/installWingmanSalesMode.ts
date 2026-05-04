@@ -140,6 +140,14 @@ function getMountTarget(): HTMLElement {
 function mountToolbar(): void {
   const existing = document.querySelector(".wm-sales-mode-global");
 
+  if (document.body.dataset.wmRoute === "dashboard") {
+    if (existing instanceof HTMLElement) {
+      existing.remove();
+    }
+
+    return;
+  }
+
   if (existing instanceof HTMLElement) {
     refreshToolbarState();
     return;
@@ -234,6 +242,14 @@ export function installWingmanSalesMode(): void {
   observer.observe(document.body, {
     childList: true,
     subtree: true
+  });
+
+  window.addEventListener("wingman:sales-mode-request", (event) => {
+    const requested = event instanceof CustomEvent ? event.detail?.mode : null;
+
+    if (isSalesModeId(requested)) {
+      applySalesMode(requested);
+    }
   });
 
   window.addEventListener("load", queueRefreshSalesModeUi);
