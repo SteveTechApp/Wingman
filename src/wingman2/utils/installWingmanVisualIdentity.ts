@@ -3,6 +3,8 @@ type WingmanRouteId =
   | "projects"
   | "discovery"
   | "finder"
+  | "productFamilies"
+  | "productPitch"
   | "compare"
   | "templates"
   | "videowall"
@@ -21,12 +23,14 @@ const routeMatchers: Array<{ id: WingmanRouteId; patterns: string[] }> = [
   { id: "projects", patterns: ["/wingman/projects", "/projects"] },
   { id: "discovery", patterns: ["/wingman/discovery", "/app/tools/discovery", "/discovery"] },
   { id: "finder", patterns: ["/wingman/finder", "/app/tools/catalog", "/finder", "/catalog"] },
+  { id: "productFamilies", patterns: ["/wingman/product-families", "/product-families"] },
+  { id: "productPitch", patterns: ["/wingman/product-pitch", "/product-pitch"] },
   { id: "compare", patterns: ["/wingman/compare", "/app/tools/compare", "/compare"] },
   { id: "templates", patterns: ["/wingman/templates", "/app/tools/templates", "/templates"] },
   { id: "videowall", patterns: ["/wingman/videowall", "/videowall"] },
   { id: "proposal", patterns: ["/wingman/proposal", "/app/tools/proposal", "/proposal"] },
-  { id: "salesHelper", patterns: ["/wingman/saleshelper", "/saleshelper"] },
-  { id: "callCards", patterns: ["/wingman/callcards", "/callcards"] },
+  { id: "salesHelper", patterns: ["/wingman/sales-helper", "/wingman/saleshelper", "/sales-helper", "/saleshelper"] },
+  { id: "callCards", patterns: ["/wingman/call-cards", "/wingman/callcards", "/call-cards", "/callcards"] },
   { id: "ingest", patterns: ["/wingman/ingest", "/ingest"] },
   { id: "support", patterns: ["/wingman/support", "/support"] },
   { id: "guru", patterns: ["/wingman/guru", "/app/tools/guru", "/guru"] }
@@ -56,6 +60,8 @@ function applyWingmanRouteIdentity(): void {
     "wm-route-projects",
     "wm-route-discovery",
     "wm-route-finder",
+    "wm-route-productFamilies",
+    "wm-route-productPitch",
     "wm-route-compare",
     "wm-route-templates",
     "wm-route-videowall",
