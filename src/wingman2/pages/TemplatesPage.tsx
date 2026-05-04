@@ -14,8 +14,8 @@ import {
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
-import { SectionCard } from "../components/SectionCard";
 import { roomTemplates, roomTemplateVerticals, type RoomTemplate } from "../lib/roomTemplates";
+import "../styles/templates-discovery-layout.css";
 
 type VerticalVisual = {
   name: string;
@@ -283,8 +283,7 @@ export function TemplatesPage() {
   }
 
   return (
-    <div className="pb-10">
-      
+    <div className="wm-templates-discovery-page pb-10">
       <PageHero
         eyebrow="Room Solution Templates"
         title="Select a room design template."
@@ -296,141 +295,153 @@ export function TemplatesPage() {
         ]}
       />
 
-      <SectionCard
-        title="Template landing page"
-        subtitle={`${roomTemplates.length} real-room boilerplates across ${verticalCount} market verticals. Use the image cards to start from the closest customer environment.`}
-        rightSlot={
-          <button
-            type="button"
-            onClick={() => selectVertical("All")}
-            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-800 transition hover:bg-slate-50"
-          >
-            View all templates
+      <section className="wm-templates-design-canvas">
+        <span className="sr-only">Editable WyreStorm BOM</span>
+        <div className="wm-templates-canvas-head">
+          <div>
+            <p className="wingman-kicker">Room template workflow</p>
+            <h1>Template Design Canvas</h1>
+            <span>
+              Work from market to room type in the same structured style as Discovery. Pick the customer environment,
+              then choose the closest room template to review.
+            </span>
+          </div>
+
+          <aside>
+            <strong>{activeVertical === "All" ? "All markets" : activeVertical}</strong>
+            <span>
+              {activeVertical === "All"
+                ? `${roomTemplates.length} templates available`
+                : `${countTemplatesForVertical(activeVertical)} templates in this market`}
+            </span>
+          </aside>
+        </div>
+
+        <div className="wm-templates-step-row" aria-label="Template workflow steps">
+          <button type="button" className="is-active" onClick={() => selectVertical(activeVertical)}>
+            <span>1</span>
+            Market
           </button>
-        }
-      >
-        <div className="space-y-6">
-          <section className="wm-template-landing-panel">
-            <span className="sr-only">Editable WyreStorm BOM</span>
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="wingman-kicker">Vertical markets</p>
-                <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Start with the customer environment</h3>
-              </div>
-              <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-bold text-slate-600">
-                {activeVertical === "All" ? `${roomTemplates.length} templates` : `${countTemplatesForVertical(activeVertical)} templates`}
-              </span>
+          <button type="button" onClick={scrollToRoomTemplateSection}>
+            <span>2</span>
+            Room type
+          </button>
+          <Link to={routeCatalogByKey.templates.path}>
+            <span>3</span>
+            Review
+          </Link>
+          <Link to={routeCatalogByKey.proposal.path}>
+            <span>4</span>
+            Proposal
+          </Link>
+        </div>
+
+        <section className="wm-templates-work-panel">
+          <div className="wm-templates-panel-title">
+            <div>
+              <p className="wingman-kicker">1. Vertical market</p>
+              <h2>Start with the customer environment</h2>
             </div>
 
-            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
-              {verticalVisuals.map((market) => {
-                const Icon = market.Icon;
-                const count = countTemplatesForVertical(market.name);
-                const active = activeVertical === market.name;
+            <button type="button" onClick={() => selectVertical("All")}>
+              View all templates
+            </button>
+          </div>
+
+          <div className="wm-template-market-grid">
+            {verticalVisuals.map((market) => {
+              const Icon = market.Icon;
+              const count = countTemplatesForVertical(market.name);
+              const active = activeVertical === market.name;
+
+              return (
+                <button
+                  key={market.name}
+                  type="button"
+                  onClick={() => selectVertical(market.name)}
+                  className={`wm-template-market-tile ${active ? "is-active" : ""}`}
+                >
+                  <div className="wm-template-market-tile-image" style={{ backgroundImage: `url(${market.image})` }} />
+                  <div className="wm-template-market-tile-copy">
+                    <Icon className="h-4 w-4" />
+                    <strong>{market.name === "All" ? "All markets" : market.name}</strong>
+                    <span>{market.strapline}</span>
+                    <small>{count} templates</small>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        <section id={ROOM_TEMPLATE_SECTION_ID} className="wm-templates-work-panel scroll-mt-6">
+          <div className="wm-templates-panel-title">
+            <div>
+              <p className="wingman-kicker">2. Room templates</p>
+              <h2>Pick a room type to review</h2>
+            </div>
+
+            <Link to={routeCatalogByKey.proposal.path}>Build proposal</Link>
+          </div>
+
+          {visibleTemplates.length === 0 ? (
+            <div className="wm-template-empty-state">
+              <strong>No templates in this vertical yet.</strong>
+              <span>Choose another market or view all room templates.</span>
+              <button type="button" onClick={() => selectVertical("All")}>
+                View all templates
+              </button>
+            </div>
+          ) : (
+            <div className="wm-template-room-grid">
+              {visibleTemplates.map((template) => {
+                const difficulty = difficultyHint(template);
 
                 return (
-                  <button
-                    key={market.name}
-                    type="button"
-                    onClick={() =>
-       selectVertical(market.name)}
-                    className={`wm-template-market-card ${active ? "wm-template-market-card-active" : ""}`}
+                  <Link
+                    key={template.id}
+                    to={`${routeCatalogByKey.templates.path}/${template.id}`}
+                    className="wm-template-room-tile"
                   >
-                    <div className="wm-template-market-image" style={{ backgroundImage: `url(${market.image})` }} />
-                    <div className="wm-template-market-label">
-                      <Icon className="h-5 w-5 text-amber-400" />
-                      <div>
-                        <strong>{market.name === "All" ? "All markets" : market.name}</strong>
-                        <span>{market.strapline}</span>
-                      </div>
-                      <small>{count}</small>
+                    <div
+                      className="wm-template-room-tile-image"
+                      style={{
+                        backgroundImage: `linear-gradient(180deg, rgba(2,6,23,0.04), rgba(2,6,23,0.7)), url(${roomVisualFor(template)})`,
+                      }}
+                    >
+                      <span>{template.vertical}</span>
                     </div>
-                  </button>
+
+                    <div className="wm-template-room-tile-body">
+                      <div>
+                        <h3>{template.name}</h3>
+                        <p>{template.summary}</p>
+                      </div>
+
+                      <div className="wm-template-room-tile-meta">
+                        <span>
+                          <Users className="h-3.5 w-3.5" />
+                          {peopleHint(template)}
+                        </span>
+                        <span>
+                          <Monitor className="h-3.5 w-3.5" />
+                          {displayHint(template)}
+                        </span>
+                        <span>{difficulty}</span>
+                      </div>
+
+                      <div className="wm-template-room-tile-footer">
+                        <small>Review template</small>
+                        <ArrowRight className="h-4 w-4" />
+                      </div>
+                    </div>
+                  </Link>
                 );
               })}
             </div>
-          </section>
-
-          <section id={ROOM_TEMPLATE_SECTION_ID} className="wm-template-landing-panel scroll-mt-6">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="wingman-kicker">Room templates</p>
-                <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Pick a room type to review</h3>
-              </div>
-              <Link
-                to={routeCatalogByKey.proposal.path}
-                className="rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800"
-              >
-                Build proposal
-              </Link>
-            </div>
-
-            {visibleTemplates.length === 0 ? (
-              <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-                <p className="text-lg font-black text-slate-950">No templates in this vertical yet.</p>
-                <p className="mt-2 text-sm text-slate-600">Choose another market or view all room templates.</p>
-                <button
-                  type="button"
-                  onClick={() => selectVertical("All")}
-                  className="mt-4 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white"
-                >
-                  View all templates
-                </button>
-              </div>
-            ) : (
-              <div className="mt-4 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-                {visibleTemplates.map((template) => {
-                  const difficulty = difficultyHint(template);
-
-                  return (
-                    <Link
-                      key={template.id}
-                      to={`${routeCatalogByKey.templates.path}/${template.id}`}
-                      className="wm-template-room-card"
-                    >
-      
-                      <div
-                        className="wm-template-room-image"
-                        style={{
-                          backgroundImage: `linear-gradient(180deg, rgba(2,6,23,0.08), rgba(2,6,23,0.72)), url(${roomVisualFor(template)})`,
-                        }}
-                      >
-                        <span>{template.vertical}</span>
-                      </div>
-
-                      <div className="wm-template-room-body">
-                        <div>
-                          <h4>{template.name}</h4>
-                          <p>{template.summary}</p>
-                        </div>
-
-                        <div className="wm-template-room-meta">
-                          <span>
-                            <Users className="h-3.5 w-3.5" />
-                            {peopleHint(template)}
-                          </span>
-                          <span>
-                            <Monitor className="h-3.5 w-3.5" />
-                            {displayHint(template)}
-                          </span>
-                          <span className={difficultyClass(difficulty)}>{difficulty}</span>
-                        </div>
-
-                        <div className="wm-template-room-footer">
-                          <small>Review template</small>
-                          <ArrowRight className="h-5 w-5" />
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          
-        </div>
-      </SectionCard>
+          )}
+        </section>
+      </section>
     </div>
   );
 }
