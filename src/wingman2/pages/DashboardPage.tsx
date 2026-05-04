@@ -8,7 +8,6 @@ import {
   ExternalLink,
   FileText,
   FolderKanban,
-  Heart,
   Handshake,
   HelpCircle,
   LayoutTemplate,
@@ -17,14 +16,21 @@ import {
   RefreshCw,
   Search,
   Scale,
-  TrendingUp,
+  Users,
 } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
-
-type SalesModeId = "warm" | "problem" | "value" | "expert";
+import {
+  buildSalesConversationToneCopy,
+  DEFAULT_SALES_CONVERSATION_TONE_ID,
+  LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
+  normalizeSalesConversationToneId,
+  SALES_CONVERSATION_TYPE_STORAGE_KEY,
+  salesConversationToneOptions,
+  type SalesConversationToneId,
+} from "../lib/salesConversationTone";
 
 type SalesModeCard = {
-  id: SalesModeId;
+  id: SalesConversationToneId;
   title: string;
   summary: string;
   Icon: LucideIcon;
@@ -46,14 +52,18 @@ type RecentProject = {
   status: "In progress" | "Draft";
 };
 
-const SALES_MODE_STORAGE_KEY = "wingman:sales-mode";
+const iconByConversationType: Record<SalesConversationToneId, LucideIcon> = {
+  trade: Handshake,
+  user: Users,
+  consultant: ClipboardList,
+};
 
-const salesModeCards: SalesModeCard[] = [
-  { id: "warm", title: "Warm", summary: "Build rapport and explore", Icon: Heart },
-  { id: "problem", title: "Problem", summary: "Uncover challenges", Icon: HelpCircle },
-  { id: "value", title: "Value", summary: "Show impact and value", Icon: TrendingUp },
-  { id: "expert", title: "Expert handoff", summary: "Bring in WyreStorm", Icon: Handshake },
-];
+const salesModeCards: SalesModeCard[] = salesConversationToneOptions.map((option) => ({
+  id: option.id,
+  title: option.label,
+  summary: option.shortDescription,
+  Icon: iconByConversationType[option.id],
+}));
 
 const workflowCards: WorkflowCard[] = [
   {
@@ -141,27 +151,35 @@ const recentProjects: RecentProject[] = [
   },
 ];
 
-function getInitialSalesMode(): SalesModeId {
+function getInitialSalesMode(): SalesConversationToneId {
   if (typeof window === "undefined") {
-    return "warm";
+    return DEFAULT_SALES_CONVERSATION_TONE_ID;
   }
 
-  const saved = window.localStorage.getItem(SALES_MODE_STORAGE_KEY);
+  const saved = window.localStorage.getItem(SALES_CONVERSATION_TYPE_STORAGE_KEY);
 
-  if (saved === "problem" || saved === "value" || saved === "expert") {
-    return saved;
+  if (saved) {
+    return normalizeSalesConversationToneId(saved);
   }
 
-  return "warm";
+  for (const key of LEGACY_SALES_CONVERSATION_STORAGE_KEYS) {
+    const legacy = window.localStorage.getItem(key);
+
+    if (legacy) {
+      return normalizeSalesConversationToneId(legacy);
+    }
+  }
+
+  return DEFAULT_SALES_CONVERSATION_TONE_ID;
 }
 
-function requestSalesMode(mode: SalesModeId) {
+function requestSalesMode(mode: SalesConversationToneId) {
   if (typeof window === "undefined") {
     return;
   }
 
   window.dispatchEvent(new CustomEvent("wingman:sales-mode-request", { detail: { mode } }));
-  window.localStorage.setItem(SALES_MODE_STORAGE_KEY, mode);
+  window.localStorage.setItem(SALES_CONVERSATION_TYPE_STORAGE_KEY, mode);
 }
 
 function workflowTypeClass(type: string) {
@@ -172,13 +190,17 @@ function workflowTypeClass(type: string) {
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const [activeMode, setActiveMode] = useState<SalesModeId>(() => getInitialSalesMode());
+  const [activeMode, setActiveMode] = useState<SalesConversationToneId>(() => getInitialSalesMode());
 
   const activeSalesMode = useMemo(() => {
     return salesModeCards.find((mode) => mode.id === activeMode) ?? salesModeCards[0];
   }, [activeMode]);
 
-  const handleSalesMode = useCallback((mode: SalesModeId) => {
+  const activeConversationCopy = useMemo(() => {
+    return buildSalesConversationToneCopy("salesHelper", activeMode);
+  }, [activeMode]);
+
+  const handleSalesMode = useCallback((mode: SalesConversationToneId) => {
     setActiveMode(mode);
     requestSalesMode(mode);
   }, []);
@@ -190,6 +212,8 @@ export function DashboardPage() {
     [navigate],
   );
 
+  const ActiveConversationIcon = activeSalesMode.Icon;
+
   return (
     <div className="wm-command-dashboard">
       <div className="wm-command-dashboard__main">
@@ -197,11 +221,11 @@ export function DashboardPage() {
           <div className="wm-command-panel__header">
             <div>
               <h1>Start the conversation</h1>
-              <p>Choose the tone before opening the customer discussion.</p>
+              <p>Choose who you are selling to before opening the customer discussion.</p>
             </div>
-            <button type="button" className="wm-command-button wm-command-button--quiet" onClick={() => handleSalesMode("warm")}>
+            <button type="button" className="wm-command-button wm-command-button--quiet" onClick={() => handleSalesMode(DEFAULT_SALES_CONVERSATION_TONE_ID)}>
               <RefreshCw className="h-4 w-4" />
-              Reset tone
+              Reset type
             </button>
           </div>
 
@@ -313,15 +337,15 @@ export function DashboardPage() {
           <div className="wm-command-panel__header">
             <div>
               <h2>Wingman guidance</h2>
-              <p>{activeSalesMode.title} tone selected.</p>
+              <p>{activeSalesMode.title} selected.</p>
             </div>
           </div>
 
           <article className="wm-command-dashboard__guidance-card">
-            <Heart className="wm-command-dashboard__guidance-icon is-warm" />
+            <ActiveConversationIcon className="wm-command-dashboard__guidance-icon is-warm" />
             <div>
-              <h3>Conversation opener</h3>
-              <p>"What is most important for this space to accomplish?"</p>
+              <h3>{activeConversationCopy.title}</h3>
+              <p>"{activeConversationCopy.opener}"</p>
               <button type="button" className="wm-command-button wm-command-button--secondary">Use opener</button>
             </div>
           </article>
@@ -330,7 +354,7 @@ export function DashboardPage() {
             <HelpCircle className="wm-command-dashboard__guidance-icon is-question" />
             <div>
               <h3>Follow-up question</h3>
-              <p>"What challenges have you faced with your current AV setup?"</p>
+              <p>"{activeConversationCopy.followUp}"</p>
               <button type="button" className="wm-command-button wm-command-button--cyan">Use question</button>
             </div>
           </article>
@@ -339,7 +363,7 @@ export function DashboardPage() {
             <Handshake className="wm-command-dashboard__guidance-icon is-handoff" />
             <div>
               <h3>Handoff note</h3>
-              <p>When ready, connect the requirement to a WyreStorm expert for validation.</p>
+              <p>{activeConversationCopy.handoff}</p>
               <button type="button" className="wm-command-button wm-command-button--secondary">Request expert handoff</button>
             </div>
           </article>

@@ -3,13 +3,13 @@ import { MessageCircle, MoveRight } from "lucide-react";
 import {
   buildSalesConversationToneCopy,
   DEFAULT_SALES_CONVERSATION_TONE_ID,
+  LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
   normalizeSalesConversationToneId,
+  SALES_CONVERSATION_TYPE_STORAGE_KEY,
   salesConversationToneOptions,
   type SalesConversationContext,
   type SalesConversationToneId,
 } from "../lib/salesConversationTone";
-
-const STORAGE_KEY = "wingman.salesLanguageMode.v1";
 
 type SalesToneQuickSetterProps = {
   context: SalesConversationContext;
@@ -23,10 +23,33 @@ function readStoredTone(): SalesConversationToneId {
       return DEFAULT_SALES_CONVERSATION_TONE_ID;
     }
 
-    return normalizeSalesConversationToneId(window.localStorage.getItem(STORAGE_KEY));
+    const saved = window.localStorage.getItem(SALES_CONVERSATION_TYPE_STORAGE_KEY);
+
+    if (saved) {
+      return normalizeSalesConversationToneId(saved);
+    }
+
+    for (const key of LEGACY_SALES_CONVERSATION_STORAGE_KEYS) {
+      const legacy = window.localStorage.getItem(key);
+
+      if (legacy) {
+        return normalizeSalesConversationToneId(legacy);
+      }
+    }
   } catch {
     return DEFAULT_SALES_CONVERSATION_TONE_ID;
   }
+
+  return DEFAULT_SALES_CONVERSATION_TONE_ID;
+}
+
+function requestConversationType(typeId: SalesConversationToneId) {
+  setStoredConversationType(typeId);
+  window.dispatchEvent(new CustomEvent("wingman:sales-mode-request", { detail: { mode: typeId } }));
+}
+
+function setStoredConversationType(typeId: SalesConversationToneId) {
+  window.localStorage.setItem(SALES_CONVERSATION_TYPE_STORAGE_KEY, typeId);
 }
 
 export function SalesToneQuickSetter({ context, className = "", surface = "light" }: SalesToneQuickSetterProps) {
@@ -35,11 +58,29 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, activeToneId);
+      setStoredConversationType(activeToneId);
     } catch {
       return;
     }
   }, [activeToneId]);
+
+  useEffect(() => {
+    function handleTypeChange(event: Event) {
+      const requested = event instanceof CustomEvent ? event.detail?.mode : null;
+
+      if (!requested) {
+        return;
+      }
+
+      setActiveToneId(normalizeSalesConversationToneId(requested));
+    }
+
+    window.addEventListener("wingman:sales-mode-change", handleTypeChange);
+
+    return () => {
+      window.removeEventListener("wingman:sales-mode-change", handleTypeChange);
+    };
+  }, []);
 
   const activeCopy = useMemo(() => {
     return buildSalesConversationToneCopy(context, activeToneId);
@@ -54,7 +95,7 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
           : "border-amber-200 bg-amber-50/80 text-slate-950",
         className,
       ].join(" ")}
-      aria-label="Sales language mode"
+      aria-label="Sales conversation type"
     >
       <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.15fr)]">
         <div>
@@ -74,10 +115,10 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
                   isDark ? "text-amber-200" : "text-amber-900",
                 ].join(" ")}
               >
-                Sales language mode
+                Conversation type
               </p>
               <h2 className={["mt-1 text-lg font-black", isDark ? "text-white" : "text-slate-950"].join(" ")}>
-                Set the tone before the detail.
+                Choose who you are selling to.
               </h2>
             </div>
           </div>
@@ -90,7 +131,10 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
                 <button
                   key={option.id}
                   type="button"
-                  onClick={() => setActiveToneId(option.id)}
+                  onClick={() => {
+                    setActiveToneId(option.id);
+                    requestConversationType(option.id);
+                  }}
                   aria-pressed={isActive}
                   className={[
                     "rounded-2xl border px-3 py-2 text-left transition",
