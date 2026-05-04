@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { RecommendationCard } from "../components/RecommendationCard";
+import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { SectionCard } from "../components/SectionCard";
 
 const wallTypes = [
@@ -197,6 +198,8 @@ export function VideowallBuilderPage() {
           { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
         ]}
       />
+
+      <SalesToneQuickSetter context="videowall" />
 
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <SectionCard

@@ -14,6 +14,7 @@ import {
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
+import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { roomTemplates, roomTemplateVerticals, type RoomTemplate } from "../lib/roomTemplates";
 import "../styles/templates-discovery-layout.css";
 
@@ -294,6 +295,8 @@ export function TemplatesPage() {
           { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
         ]}
       />
+
+      <SalesToneQuickSetter context="templates" surface="dark" className="max-w-none" />
 
       <section className="wm-templates-design-canvas">
         <span className="sr-only">Editable WyreStorm BOM</span>

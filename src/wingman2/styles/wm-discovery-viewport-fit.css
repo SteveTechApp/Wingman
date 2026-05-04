@@ -1,0 +1,223 @@
+/* Discovery page viewport compression.
+   Goal: remove page-level vertical scrolling on desktop by making the Discovery workspace fit the visible screen. */
+
+@media (min-width: 1024px) {
+  body.wm-route-discovery,
+  body.wm-route-discovery #root,
+  body.wm-route-discovery .wingman-shell {
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  body.wm-route-discovery .wingman-app-main {
+    height: calc(100vh - 56px) !important;
+    height: calc(100dvh - 56px) !important;
+    max-height: calc(100vh - 56px) !important;
+    max-height: calc(100dvh - 56px) !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 6px clamp(8px, 1vw, 14px) 8px !important;
+  }
+
+  body.wm-route-discovery main,
+  body.wm-route-discovery .wm-page-frame,
+  body.wm-route-discovery .wingman-page-frame,
+  body.wm-route-discovery .wm-discovery-page,
+  body.wm-route-discovery .discovery-page,
+  body.wm-route-discovery [class*="DiscoveryPage"],
+  body.wm-route-discovery [class*="discovery-page"] {
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.wm-route-discovery .wm-page-frame,
+  body.wm-route-discovery .wingman-page-frame,
+  body.wm-route-discovery .wm-discovery-page,
+  body.wm-route-discovery .discovery-page,
+  body.wm-route-discovery [class*="DiscoveryPage"],
+  body.wm-route-discovery [class*="discovery-page"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  body.wm-route-discovery .wingman-page-hero,
+  body.wm-route-discovery .wm-page-hero,
+  body.wm-route-discovery .page-hero,
+  body.wm-route-discovery [class*="PageHero"],
+  body.wm-route-discovery [class*="pageHero"],
+  body.wm-route-discovery [class*="Hero"] {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    padding: 6px 10px !important;
+    min-height: 0 !important;
+  }
+
+  body.wm-route-discovery h1 {
+    font-size: clamp(1.1rem, 1.45vw, 1.45rem) !important;
+    line-height: 1.05 !important;
+    margin: 0 !important;
+  }
+
+  body.wm-route-discovery h2 {
+    font-size: clamp(0.98rem, 1.15vw, 1.15rem) !important;
+    line-height: 1.1 !important;
+    margin: 0 !important;
+  }
+
+  body.wm-route-discovery h3 {
+    font-size: 0.9rem !important;
+    line-height: 1.1 !important;
+    margin: 0 !important;
+  }
+
+  body.wm-route-discovery p {
+    margin-top: 0 !important;
+    margin-bottom: 4px !important;
+    line-height: 1.25 !important;
+  }
+
+  body.wm-route-discovery .wm-discovery-workspace,
+  body.wm-route-discovery .discovery-workspace,
+  body.wm-route-discovery .wm-discovery-layout,
+  body.wm-route-discovery .discovery-layout,
+  body.wm-route-discovery .wm-discovery-grid,
+  body.wm-route-discovery .discovery-grid,
+  body.wm-route-discovery [class*="discovery-workspace"],
+  body.wm-route-discovery [class*="discovery-layout"],
+  body.wm-route-discovery [class*="discovery-grid"],
+  body.wm-route-discovery [class*="DiscoveryWorkspace"],
+  body.wm-route-discovery [class*="DiscoveryLayout"],
+  body.wm-route-discovery [class*="DiscoveryGrid"] {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    gap: 8px !important;
+  }
+
+  body.wm-route-discovery .wm-discovery-stepper,
+  body.wm-route-discovery .discovery-stepper,
+  body.wm-route-discovery [class*="stepper"],
+  body.wm-route-discovery [class*="Stepper"],
+  body.wm-route-discovery [class*="steps"],
+  body.wm-route-discovery [class*="Steps"] {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 4px 6px !important;
+    gap: 5px !important;
+  }
+
+  body.wm-route-discovery .wm-discovery-stepper button,
+  body.wm-route-discovery .discovery-stepper button,
+  body.wm-route-discovery [class*="stepper"] button,
+  body.wm-route-discovery [class*="Stepper"] button,
+  body.wm-route-discovery [class*="steps"] button,
+  body.wm-route-discovery [class*="Steps"] button {
+    min-height: 28px !important;
+    padding: 4px 8px !important;
+    font-size: 0.75rem !important;
+    line-height: 1.05 !important;
+  }
+
+  body.wm-route-discovery section,
+  body.wm-route-discovery article,
+  body.wm-route-discovery .wm-card,
+  body.wm-route-discovery .wingman-card,
+  body.wm-route-discovery .wm-panel,
+  body.wm-route-discovery .wingman-panel,
+  body.wm-route-discovery .wm-discovery-card,
+  body.wm-route-discovery .discovery-card,
+  body.wm-route-discovery .wm-discovery-panel,
+  body.wm-route-discovery .discovery-panel {
+    min-height: 0 !important;
+    padding: 8px !important;
+  }
+
+  body.wm-route-discovery .wm-discovery-panel,
+  body.wm-route-discovery .discovery-panel,
+  body.wm-route-discovery .wm-discovery-card,
+  body.wm-route-discovery .discovery-card,
+  body.wm-route-discovery [class*="DiscoveryPanel"],
+  body.wm-route-discovery [class*="discovery-panel"],
+  body.wm-route-discovery [class*="DiscoveryCard"],
+  body.wm-route-discovery [class*="discovery-card"] {
+    max-height: 100% !important;
+    overflow: auto !important;
+    overscroll-behavior: contain !important;
+    scrollbar-gutter: stable !important;
+  }
+
+  body.wm-route-discovery label {
+    margin-bottom: 3px !important;
+    font-size: 0.74rem !important;
+    line-height: 1.1 !important;
+  }
+
+  body.wm-route-discovery input,
+  body.wm-route-discovery select,
+  body.wm-route-discovery textarea {
+    min-height: 30px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    font-size: 0.82rem !important;
+    line-height: 1.15 !important;
+  }
+
+  body.wm-route-discovery textarea {
+    min-height: 52px !important;
+  }
+
+  body.wm-route-discovery button {
+    min-height: 30px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    line-height: 1.1 !important;
+  }
+
+  body.wm-route-discovery .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0.65rem !important;
+  }
+
+  body.wm-route-discovery .space-y-5 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0.55rem !important;
+  }
+
+  body.wm-route-discovery .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0.45rem !important;
+  }
+
+  body.wm-route-discovery .gap-8 {
+    gap: 0.55rem !important;
+  }
+
+  body.wm-route-discovery .gap-6 {
+    gap: 0.45rem !important;
+  }
+
+  body.wm-route-discovery .gap-5 {
+    gap: 0.4rem !important;
+  }
+
+  body.wm-route-discovery .gap-4 {
+    gap: 0.35rem !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  body.wm-route-discovery,
+  body.wm-route-discovery #root,
+  body.wm-route-discovery .wingman-shell,
+  body.wm-route-discovery .wingman-app-main {
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+}

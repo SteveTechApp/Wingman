@@ -23,6 +23,7 @@ import {
   type StoredProject,
 } from "../data/projectStore";
 import { PageHero } from "../components/PageHero";
+import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { SectionCard } from "../components/SectionCard";
 
 import "../styles/finder-card-visual-polish.css";
@@ -2737,6 +2738,8 @@ export function FinderPage() {
           { label: "Open projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
         ]}
       />
+
+      <SalesToneQuickSetter context="finder" />
 
       <SectionCard
         title="Technical Product Finder"

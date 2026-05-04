@@ -20,6 +20,7 @@ import {
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
+import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { SectionCard } from "../components/SectionCard";
 import { saveDiscoveryBriefToProject } from "../data/projectStore";
 
@@ -2174,6 +2175,8 @@ export function DiscoveryPage() {
           { label: "Save to Projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
         ]}
       />
+
+      <SalesToneQuickSetter context="discovery" />
 
       
       <SourceDeviceCollator />

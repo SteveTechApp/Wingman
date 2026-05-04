@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { BookOpenCheck, Cable, CheckCircle2, HelpCircle, Network, Search, Sparkles, Workflow } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
+import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { SectionCard } from "../components/SectionCard";
 
 type ProductFamilyGuide = {
@@ -666,6 +667,8 @@ export function ProductFamilyPage() {
           { label: "Build proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
         ]}
       />
+
+      <SalesToneQuickSetter context="productFamilies" />
 
       <SectionCard
         title="Fast architecture rules"
