@@ -13,8 +13,6 @@ import {
   Trash2
 } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import "../styles/wm-dashboard-grid-refresh.css";
-
 type RouteCard = {
   title: string;
   description: string;

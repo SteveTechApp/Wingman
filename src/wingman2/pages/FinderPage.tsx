@@ -25,8 +25,6 @@ import {
 import { PageHero } from "../components/PageHero";
 import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { SectionCard } from "../components/SectionCard";
-
-import "../styles/finder-card-visual-polish.css";
 type MatchStatus = "recommended" | "alternative" | "caution";
 type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
 
