@@ -1,188 +1,231 @@
-import { useMemo } from "react";
+import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
   ClipboardList,
   FileText,
   FileUp,
   LayoutTemplate,
-  MonitorSmartphone,
-  PackageSearch,
+  PanelsTopLeft,
+  Search,
   Scale,
-  type LucideIcon,
+  Trash2
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { routeCatalog } from "../app/routeCatalog";
-import "../styles/dashboard-visual-upgrade.css";
+import { routeCatalogByKey } from "../app/routeCatalog";
+import "../styles/wm-dashboard-grid-refresh.css";
 
-type DashboardTile = {
-  key: string;
+type RouteCard = {
   title: string;
-  summary: string;
+  description: string;
+  route: string;
   icon: LucideIcon;
-  path: string;
-  group: "primary" | "secondary";
+  eyebrow?: string;
 };
 
-function getRoutePath(key: string, fallback: string) {
-  return routeCatalog.find((route) => route.key === key)?.path ?? fallback;
+const routeCards: RouteCard[] = [
+  {
+    title: "Discovery",
+    description: "Capture the customer requirement and build the AV design brief.",
+    route: routeCatalogByKey.discovery.path,
+    icon: ClipboardList,
+    eyebrow: "Discover"
+  },
+  {
+    title: "Product Finder",
+    description: "Match technical requirements to the right WyreStorm product direction.",
+    route: routeCatalogByKey.finder.path,
+    icon: Search,
+    eyebrow: "Find"
+  },
+  {
+    title: "Room Templates",
+    description: "Start from a familiar room type and refine the system quickly.",
+    route: routeCatalogByKey.templates.path,
+    icon: LayoutTemplate,
+    eyebrow: "Template"
+  },
+  {
+    title: "Proposal Builder",
+    description: "Turn scoped requirements into a customer-ready proposal structure.",
+    route: routeCatalogByKey.proposal.path,
+    icon: FileText,
+    eyebrow: "Output"
+  },
+  {
+    title: "Competitor Compare",
+    description: "Position WyreStorm clearly against an alternative product or SKU.",
+    route: routeCatalogByKey.compare.path,
+    icon: Scale,
+    eyebrow: "Compare"
+  },
+  {
+    title: "Videowall Builder",
+    description: "Shape LCD, LED, multiview and processor-led wall conversations.",
+    route: routeCatalogByKey.videowall.path,
+    icon: PanelsTopLeft,
+    eyebrow: "Wall"
+  },
+  {
+    title: "Document Ingest",
+    description: "Upload customer files and turn them into usable project input.",
+    route: routeCatalogByKey.ingest.path,
+    icon: FileUp,
+    eyebrow: "Import"
+  }
+];
+
+const clearProjectStorage = (): void => {
+  const keysToRemove: string[] = [];
+
+  for (let i = 0; i < window.localStorage.length; i += 1) {
+    const key = window.localStorage.key(i);
+
+    if (!key) {
+      continue;
+    }
+
+    const normalized = key.toLowerCase();
+
+    if (normalized.includes("wingman") && normalized.includes("project")) {
+      keysToRemove.push(key);
+      continue;
+    }
+
+    if (normalized.includes("discovery") && normalized.includes("handoff")) {
+      keysToRemove.push(key);
+      continue;
+    }
+
+    if (normalized.includes("proposal") && normalized.includes("handoff")) {
+      keysToRemove.push(key);
+      continue;
+    }
+
+    if (normalized.includes("finder") && normalized.includes("history")) {
+      keysToRemove.push(key);
+    }
+  }
+
+  keysToRemove.forEach((key) => window.localStorage.removeItem(key));
+  window.dispatchEvent(new CustomEvent("wingman:project-cleared"));
+};
+
+function DashboardCard(props: RouteCard & { onOpen: (route: string) => void }) {
+  const { title, description, route, icon: Icon, eyebrow, onOpen } = props;
+
+  return (
+    <button
+      type="button"
+      className="wm-dashboard-refresh__card"
+      onClick={() => onOpen(route)}
+    >
+      <div className="wm-dashboard-refresh__card-icon-wrap">
+        <Icon className="wm-dashboard-refresh__card-icon" />
+      </div>
+
+      <div className="wm-dashboard-refresh__card-body">
+        <div className="wm-dashboard-refresh__card-eyebrow">{eyebrow}</div>
+        <div className="wm-dashboard-refresh__card-title">{title}</div>
+        <p className="wm-dashboard-refresh__card-description">{description}</p>
+      </div>
+
+      <div className="wm-dashboard-refresh__card-link">
+        <span>Open</span>
+        <ArrowRight size={16} />
+      </div>
+    </button>
+  );
 }
 
 export function DashboardPage() {
   const navigate = useNavigate();
 
-  const dashboardTiles = useMemo<DashboardTile[]>(
-    () => [
-      {
-        key: "discovery",
-        title: "Discovery",
-        summary: "Capture the customer requirement and build the AV design brief.",
-        icon: ClipboardList,
-        path: getRoutePath("discovery", "/wingman/discovery"),
-        group: "primary",
-      },
-      {
-        key: "finder",
-        title: "Product Finder",
-        summary: "Match technical requirements to the right WyreStorm product direction.",
-        icon: PackageSearch,
-        path: getRoutePath("finder", "/wingman/finder"),
-        group: "primary",
-      },
-      {
-        key: "templates",
-        title: "Room Templates",
-        summary: "Start from a familiar room type and refine the system quickly.",
-        icon: LayoutTemplate,
-        path: getRoutePath("templates", "/wingman/templates"),
-        group: "primary",
-      },
-      {
-        key: "proposal",
-        title: "Proposal Builder",
-        summary: "Turn scoped requirements into a customer-ready proposal structure.",
-        icon: FileText,
-        path: getRoutePath("proposal", "/wingman/proposal"),
-        group: "primary",
-      },
-      {
-        key: "compare",
-        title: "Competitor Compare",
-        summary: "Position WyreStorm clearly against an alternative product or SKU.",
-        icon: Scale,
-        path: getRoutePath("compare", "/wingman/compare"),
-        group: "secondary",
-      },
-      {
-        key: "videowall",
-        title: "Videowall Builder",
-        summary: "Shape LCD, LED, multiview and processor-led wall conversations.",
-        icon: MonitorSmartphone,
-        path: getRoutePath("videowall", "/wingman/videowall"),
-        group: "secondary",
-      },
-      {
-        key: "ingest",
-        title: "Document Ingest",
-        summary: "Upload customer files and convert them into usable project input.",
-        icon: FileUp,
-        path: getRoutePath("ingest", "/wingman/ingest"),
-        group: "secondary",
-      },
-    ],
-    [],
+  const handleOpen = useCallback(
+    (route: string) => {
+      navigate(route);
+    },
+    [navigate]
   );
 
-  const primaryTiles = dashboardTiles.filter((tile) => tile.group === "primary");
-  const secondaryTiles = dashboardTiles.filter((tile) => tile.group === "secondary");
+  const handleClearProject = useCallback(() => {
+    clearProjectStorage();
+  }, []);
 
   return (
-    <div className="wm-dashboard-page">
-      <section className="wm-dashboard-hero">
-        <div className="wm-dashboard-hero-copy">
-          <p className="wm-dashboard-eyebrow">WyreStorm Wingman</p>
-          <h1>Start from the sales motion, not the product list.</h1>
-          <p>
-            Choose the right workflow for the conversation: discover the requirement, find products,
-            compare a competitor, build a room template, or move into proposal output.
+    <div className="wm-dashboard-refresh">
+      <section className="wm-dashboard-refresh__hero">
+        <div className="wm-dashboard-refresh__hero-copy">
+          <div className="wm-dashboard-refresh__eyebrow">Dashboard</div>
+          <h1 className="wm-dashboard-refresh__hero-title">
+            Start from the sales motion, not the product list.
+          </h1>
+          <p className="wm-dashboard-refresh__hero-text">
+            Choose the best workflow for the conversation: discover the
+            requirement, find products, compare a competitor, build a room
+            template, or move into proposal output.
           </p>
         </div>
 
-        <div className="wm-dashboard-hero-actions">
-          <button type="button" onClick={() => navigate(getRoutePath("discovery", "/wingman/discovery"))}>
-            Start Discovery
-            <ArrowRight size={16} />
-          </button>
-
-          <button type="button" onClick={() => navigate(getRoutePath("finder", "/wingman/finder"))}>
-            Open Product Finder
-            <ArrowRight size={16} />
+        <div className="wm-dashboard-refresh__hero-actions">
+          <button
+            type="button"
+            className="wm-dashboard-refresh__clear-button"
+            onClick={handleClearProject}
+          >
+            <Trash2 size={15} />
+            <span>Clear current project</span>
           </button>
         </div>
       </section>
 
-      <section className="wm-dashboard-panel">
-        <div className="wm-dashboard-section-heading">
-          <p>Primary tools</p>
-          <h2>Choose where the sales workflow starts</h2>
+      <section className="wm-dashboard-refresh__section">
+        <div className="wm-dashboard-refresh__section-head">
+          <div className="wm-dashboard-refresh__section-kicker">Sales workflows</div>
+          <h2 className="wm-dashboard-refresh__section-title">
+            Choose where the workflow starts
+          </h2>
         </div>
 
-        <div className="wm-dashboard-tile-grid wm-dashboard-tile-grid-primary">
-          {primaryTiles.map((tile) => {
-            const Icon = tile.icon;
+        <div className="wm-dashboard-refresh__grid">
+          {routeCards.map((card) => (
+            <DashboardCard
+              key={card.title}
+              {...card}
+              onOpen={handleOpen}
+            />
+          ))}
 
-            return (
+          <div className="wm-dashboard-refresh__action-card">
+            <div className="wm-dashboard-refresh__action-eyebrow">Quick start</div>
+            <div className="wm-dashboard-refresh__action-title">
+              Start the most common motions
+            </div>
+            <p className="wm-dashboard-refresh__action-text">
+              Use this last tile to launch the two most common starting points
+              and balance the 4 x 2 grid.
+            </p>
+
+            <div className="wm-dashboard-refresh__action-stack">
               <button
-                key={tile.key}
                 type="button"
-                className={`wm-dashboard-tile wm-dashboard-tile-${tile.key}`}
-                onClick={() => navigate(tile.path)}
+                className="wm-dashboard-refresh__primary-action"
+                onClick={() => handleOpen(routeCatalogByKey.discovery.path)}
               >
-                <span className="wm-dashboard-tile-icon">
-                  <Icon size={24} />
-                </span>
-
-                <span className="wm-dashboard-tile-copy">
-                  <strong>{tile.title}</strong>
-                  <span>{tile.summary}</span>
-                </span>
-
-                <ArrowRight className="wm-dashboard-tile-arrow" size={18} />
+                <span>Start Discovery</span>
+                <ArrowRight size={16} />
               </button>
-            );
-          })}
-        </div>
-      </section>
 
-      <section className="wm-dashboard-panel wm-dashboard-panel-secondary">
-        <div className="wm-dashboard-section-heading">
-          <p>Supporting tools</p>
-          <h2>Use these when the conversation needs deeper support</h2>
-        </div>
-
-        <div className="wm-dashboard-tile-grid wm-dashboard-tile-grid-secondary">
-          {secondaryTiles.map((tile) => {
-            const Icon = tile.icon;
-
-            return (
               <button
-                key={tile.key}
                 type="button"
-                className={`wm-dashboard-tile wm-dashboard-tile-${tile.key}`}
-                onClick={() => navigate(tile.path)}
+                className="wm-dashboard-refresh__secondary-action"
+                onClick={() => handleOpen(routeCatalogByKey.finder.path)}
               >
-                <span className="wm-dashboard-tile-icon">
-                  <Icon size={22} />
-                </span>
-
-                <span className="wm-dashboard-tile-copy">
-                  <strong>{tile.title}</strong>
-                  <span>{tile.summary}</span>
-                </span>
-
-                <ArrowRight className="wm-dashboard-tile-arrow" size={18} />
+                <span>Open Product Finder</span>
+                <ArrowRight size={16} />
               </button>
-            );
-          })}
+            </div>
+          </div>
         </div>
       </section>
     </div>

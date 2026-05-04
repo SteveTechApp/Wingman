@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { PageHero } from "../components/PageHero";
+import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { SectionCard } from "../components/SectionCard";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { getCurrentWorkflowProject, readProjectStore } from "../data/projectStore";
@@ -320,6 +321,8 @@ export function SalesHelperPage() {
           { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
         ]}
       />
+
+      <SalesToneQuickSetter context="salesHelper" />
 
       <div className="space-y-5">
         <SectionCard

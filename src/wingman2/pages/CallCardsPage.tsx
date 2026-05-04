@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 
 const CARD_STORAGE_KEY = "wingman.callCards.selected";
 const WORKFLOW_STORAGE_KEY = "wingman.callCards.workflowPage";
@@ -1015,6 +1016,8 @@ export function CallCardsPage() {
           </button>
         </div>
       </section>
+
+      <SalesToneQuickSetter context="callCards" surface="dark" className="max-w-none" />
 
       {workflowPage === "select" ? (
         <section className="ccs-selectPage" aria-label="Select call subject">

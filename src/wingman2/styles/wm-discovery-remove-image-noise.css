@@ -1,0 +1,150 @@
+/* Discovery visual clean-up.
+   Removes distracting photographic backgrounds and gives the workflow more readable, calmer cards. */
+
+body.wm-route-discovery .wingman-app-main {
+  background-image: none !important;
+}
+
+body.wm-route-discovery .wm-discovery-page,
+body.wm-route-discovery .discovery-page,
+body.wm-route-discovery [class*="DiscoveryPage"],
+body.wm-route-discovery [class*="discovery-page"] {
+  background-image: none !important;
+}
+
+/* Remove image noise from hero/header areas */
+body.wm-route-discovery .wingman-page-hero,
+body.wm-route-discovery .wm-page-hero,
+body.wm-route-discovery .page-hero,
+body.wm-route-discovery [class*="PageHero"],
+body.wm-route-discovery [class*="pageHero"],
+body.wm-route-discovery [class*="Hero"] {
+  background-image: linear-gradient(135deg, rgba(9, 24, 47, 0.96), rgba(5, 14, 29, 0.96)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 28px rgba(0,0,0,0.18) !important;
+}
+
+/* Remove images from option buttons/cards, including application tiles */
+body.wm-route-discovery button,
+body.wm-route-discovery [role="button"],
+body.wm-route-discovery .wm-card,
+body.wm-route-discovery .wingman-card,
+body.wm-route-discovery .wm-panel,
+body.wm-route-discovery .wingman-panel,
+body.wm-route-discovery .wm-discovery-card,
+body.wm-route-discovery .discovery-card,
+body.wm-route-discovery .wm-discovery-panel,
+body.wm-route-discovery .discovery-panel,
+body.wm-route-discovery [class*="Card"],
+body.wm-route-discovery [class*="card"],
+body.wm-route-discovery [class*="Panel"],
+body.wm-route-discovery [class*="panel"],
+body.wm-route-discovery [class*="Option"],
+body.wm-route-discovery [class*="option"],
+body.wm-route-discovery [class*="Tile"],
+body.wm-route-discovery [class*="tile"] {
+  background-image: none !important;
+}
+
+/* Neutral tile style for the large selectable discovery choices */
+body.wm-route-discovery button[class*="option"],
+body.wm-route-discovery button[class*="Option"],
+body.wm-route-discovery button[class*="tile"],
+body.wm-route-discovery button[class*="Tile"],
+body.wm-route-discovery button[aria-pressed] {
+  background:
+    linear-gradient(180deg, rgba(16, 31, 56, 0.96), rgba(9, 18, 35, 0.98)) !important;
+  border-color: rgba(129, 166, 230, 0.18) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04) !important;
+  text-shadow: none !important;
+}
+
+/* Selected / active option state */
+body.wm-route-discovery button[class*="option"][aria-pressed="true"],
+body.wm-route-discovery button[class*="Option"][aria-pressed="true"],
+body.wm-route-discovery button[class*="tile"][aria-pressed="true"],
+body.wm-route-discovery button[class*="Tile"][aria-pressed="true"] {
+  background:
+    linear-gradient(180deg, rgba(76, 57, 24, 0.98), rgba(39, 32, 22, 0.98)) !important;
+  border-color: rgba(241, 168, 59, 0.62) !important;
+}
+
+/* Remove overlay image gradients/pseudo layers that sit over the photo cards */
+body.wm-route-discovery button::before,
+body.wm-route-discovery button::after,
+body.wm-route-discovery [role="button"]::before,
+body.wm-route-discovery [role="button"]::after,
+body.wm-route-discovery [class*="Card"]::before,
+body.wm-route-discovery [class*="Card"]::after,
+body.wm-route-discovery [class*="card"]::before,
+body.wm-route-discovery [class*="card"]::after,
+body.wm-route-discovery [class*="Tile"]::before,
+body.wm-route-discovery [class*="Tile"]::after,
+body.wm-route-discovery [class*="tile"]::before,
+body.wm-route-discovery [class*="tile"]::after {
+  background-image: none !important;
+}
+
+/* Hide decorative thumbnail/images inside discovery selection tiles only */
+body.wm-route-discovery button[class*="option"] img,
+body.wm-route-discovery button[class*="Option"] img,
+body.wm-route-discovery button[class*="tile"] img,
+body.wm-route-discovery button[class*="Tile"] img,
+body.wm-route-discovery [role="button"][class*="option"] img,
+body.wm-route-discovery [role="button"][class*="Option"] img,
+body.wm-route-discovery [role="button"][class*="tile"] img,
+body.wm-route-discovery [role="button"][class*="Tile"] img {
+  display: none !important;
+}
+
+/* Make the application tiles easier to read without the image treatment */
+body.wm-route-discovery button[class*="option"] h3,
+body.wm-route-discovery button[class*="Option"] h3,
+body.wm-route-discovery button[class*="tile"] h3,
+body.wm-route-discovery button[class*="Tile"] h3,
+body.wm-route-discovery button[class*="option"] strong,
+body.wm-route-discovery button[class*="Option"] strong,
+body.wm-route-discovery button[class*="tile"] strong,
+body.wm-route-discovery button[class*="Tile"] strong {
+  text-shadow: none !important;
+  color: #ffffff !important;
+}
+
+body.wm-route-discovery button[class*="option"] p,
+body.wm-route-discovery button[class*="Option"] p,
+body.wm-route-discovery button[class*="tile"] p,
+body.wm-route-discovery button[class*="Tile"] p,
+body.wm-route-discovery button[class*="option"] span,
+body.wm-route-discovery button[class*="Option"] span,
+body.wm-route-discovery button[class*="tile"] span,
+body.wm-route-discovery button[class*="Tile"] span {
+  text-shadow: none !important;
+}
+
+/* Ease the over-compressed feel slightly without making the page huge again */
+@media (min-width: 1024px) {
+  body.wm-route-discovery .wm-discovery-panel,
+  body.wm-route-discovery .discovery-panel,
+  body.wm-route-discovery .wm-discovery-card,
+  body.wm-route-discovery .discovery-card,
+  body.wm-route-discovery [class*="DiscoveryPanel"],
+  body.wm-route-discovery [class*="discovery-panel"],
+  body.wm-route-discovery [class*="DiscoveryCard"],
+  body.wm-route-discovery [class*="discovery-card"] {
+    padding: 10px !important;
+  }
+
+  body.wm-route-discovery button[class*="option"],
+  body.wm-route-discovery button[class*="Option"],
+  body.wm-route-discovery button[class*="tile"],
+  body.wm-route-discovery button[class*="Tile"] {
+    min-height: 42px !important;
+    padding: 8px 10px !important;
+  }
+
+  body.wm-route-discovery button[class*="option"] p,
+  body.wm-route-discovery button[class*="Option"] p,
+  body.wm-route-discovery button[class*="tile"] p,
+  body.wm-route-discovery button[class*="Tile"] p {
+    line-height: 1.22 !important;
+  }
+}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import "../styles/product-pitch-clean-slate.css";
 
 type LoadState = "loading" | "ready" | "error";
@@ -521,6 +522,8 @@ export function ProductPitchPage() {
           <a href="/wingman/finder">Open Product Finder →</a>
         </div>
       </section>
+
+      <SalesToneQuickSetter context="productPitch" surface="dark" className="max-w-none" />
 
       <section className="wm-product-pitch-start">
         <div className="wm-product-pitch-start-copy">
