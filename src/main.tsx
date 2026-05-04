@@ -1,7 +1,3 @@
-import "./wingman2/styles/templates-rect-cards.css";
-import "./wingman2/app/templatesRectCards";
-import "./wingman2/styles/templates-landing-density.css";
-import "./wingman2/app/templatesLandingDensity";
 import "./wingman2/styles/wingman-page-uniformity.css";
 import "./wingman2/styles/results-clear-until-action.css";
 import "./wingman2/app/resultsClearUntilAction";
