@@ -16,8 +16,6 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { roomTemplates, roomTemplateVerticals, type RoomTemplate } from "../lib/roomTemplates";
-import "../styles/templates-discovery-layout.css";
-
 type VerticalVisual = {
   name: string;
   strapline: string;

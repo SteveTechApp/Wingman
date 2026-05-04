@@ -1,0 +1,440 @@
+/* ==========================================================================
+   Wingman Global Visual System
+   --------------------------------------------------------------------------
+   Purpose:
+   - Make all Wingman pages use one visual language.
+   - Standardise palette, backgrounds, cards, panels, buttons and headers.
+   - Reduce page-by-page visual drift.
+   - Imported last from main.tsx so it wins over older page-specific styling.
+   ========================================================================== */
+
+:root {
+  --wm-bg-950: #020814;
+  --wm-bg-925: #040d1d;
+  --wm-bg-900: #061426;
+  --wm-bg-850: #081a30;
+  --wm-bg-800: #0b203b;
+
+  --wm-panel-900: rgba(7, 18, 35, 0.94);
+  --wm-panel-850: rgba(10, 24, 46, 0.92);
+  --wm-panel-800: rgba(14, 31, 58, 0.88);
+  --wm-panel-soft: rgba(255, 255, 255, 0.045);
+
+  --wm-border-soft: rgba(129, 166, 230, 0.15);
+  --wm-border-medium: rgba(129, 166, 230, 0.24);
+  --wm-border-strong: rgba(241, 168, 59, 0.58);
+
+  --wm-text-main: #f6f8fc;
+  --wm-text-muted: rgba(226, 235, 248, 0.76);
+  --wm-text-soft: rgba(226, 235, 248, 0.58);
+
+  --wm-accent: #f1a83b;
+  --wm-accent-strong: #ffb64d;
+  --wm-accent-dark: #3b2811;
+
+  --wm-radius-page: 26px;
+  --wm-radius-panel: 22px;
+  --wm-radius-card: 18px;
+  --wm-radius-button: 14px;
+
+  --wm-shadow-panel:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 18px 42px rgba(0, 0, 0, 0.22);
+
+  --wm-shadow-card:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 10px 24px rgba(0, 0, 0, 0.18);
+
+  --wm-page-gap: 14px;
+  --wm-card-gap: 12px;
+}
+
+/* Base shell -------------------------------------------------------------- */
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--wm-bg-950) !important;
+  color: var(--wm-text-main) !important;
+}
+
+body {
+  overflow-x: hidden !important;
+}
+
+.wingman-shell {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(37, 94, 156, 0.24), transparent 34%),
+    radial-gradient(circle at 82% 18%, rgba(241, 168, 59, 0.08), transparent 28%),
+    linear-gradient(135deg, var(--wm-bg-950), var(--wm-bg-900) 54%, var(--wm-bg-950)) !important;
+  color: var(--wm-text-main) !important;
+}
+
+.wingman-app-main {
+  background:
+    radial-gradient(circle at 24% 0%, rgba(49, 114, 188, 0.16), transparent 30%),
+    linear-gradient(180deg, rgba(4, 13, 27, 0.96), rgba(2, 8, 20, 0.98)) !important;
+  color: var(--wm-text-main) !important;
+  padding: 14px clamp(14px, 1.5vw, 24px) 20px !important;
+  overflow-x: hidden !important;
+}
+
+/* Sidebar ---------------------------------------------------------------- */
+
+.wingman-shell aside {
+  background:
+    linear-gradient(180deg, rgba(5, 15, 29, 0.98), rgba(2, 8, 18, 0.98)) !important;
+  border-right: 1px solid rgba(129, 166, 230, 0.14) !important;
+  color: var(--wm-text-main) !important;
+}
+
+.wingman-shell aside a,
+.wingman-shell aside button,
+.wingman-shell aside [role="button"] {
+  color: var(--wm-text-muted) !important;
+  border-radius: 12px !important;
+  background-image: none !important;
+}
+
+.wingman-shell aside a:hover,
+.wingman-shell aside button:hover,
+.wingman-shell aside [role="button"]:hover {
+  background: rgba(255, 255, 255, 0.055) !important;
+  color: #ffffff !important;
+}
+
+.wingman-shell aside a[aria-current="page"],
+.wingman-shell aside button[aria-current="page"],
+.wingman-shell aside .active,
+.wingman-shell aside [class*="active"],
+.wingman-shell aside [class*="Active"] {
+  background:
+    linear-gradient(180deg, rgba(54, 38, 17, 0.94), rgba(28, 24, 19, 0.96)) !important;
+  border-color: rgba(241, 168, 59, 0.42) !important;
+  color: #ffffff !important;
+}
+
+/* Page wrappers ---------------------------------------------------------- */
+
+.wm-page-frame,
+.wingman-page-frame,
+[class*="PageFrame"],
+[class*="page-frame"],
+[class*="pageFrame"] {
+  color: var(--wm-text-main) !important;
+}
+
+.wm-page-frame > *,
+.wingman-page-frame > * {
+  min-width: 0;
+}
+
+/* Page hero/header ------------------------------------------------------- */
+
+.wingman-page-hero,
+.wm-page-hero,
+.page-hero,
+[class*="PageHero"],
+[class*="pageHero"] {
+  border: 1px solid var(--wm-border-soft) !important;
+  border-radius: var(--wm-radius-page) !important;
+  background:
+    linear-gradient(135deg, rgba(9, 25, 48, 0.96), rgba(5, 14, 29, 0.96)) !important;
+  background-image:
+    radial-gradient(circle at 0% 0%, rgba(72, 139, 220, 0.16), transparent 32%),
+    linear-gradient(135deg, rgba(9, 25, 48, 0.96), rgba(5, 14, 29, 0.96)) !important;
+  box-shadow: var(--wm-shadow-panel) !important;
+  color: var(--wm-text-main) !important;
+  overflow: visible !important;
+}
+
+.wingman-page-hero h1,
+.wm-page-hero h1,
+.page-hero h1,
+[class*="PageHero"] h1,
+[class*="pageHero"] h1 {
+  color: #ffffff !important;
+  letter-spacing: -0.035em !important;
+  text-shadow: none !important;
+}
+
+.wingman-page-hero p,
+.wm-page-hero p,
+.page-hero p,
+[class*="PageHero"] p,
+[class*="pageHero"] p {
+  color: var(--wm-text-muted) !important;
+}
+
+/* Cards and panels ------------------------------------------------------- */
+
+section,
+article,
+.wm-card,
+.wingman-card,
+.wm-panel,
+.wingman-panel,
+[class*="Card"],
+[class*="card"],
+[class*="Panel"],
+[class*="panel"] {
+  border-color: var(--wm-border-soft) !important;
+}
+
+.wm-card,
+.wingman-card,
+.wm-panel,
+.wingman-panel,
+[class*="Card"],
+[class*="card"],
+[class*="Panel"],
+[class*="panel"] {
+  color: var(--wm-text-main) !important;
+  text-shadow: none !important;
+}
+
+/* Only normalise application panels/cards, not raw browser/system elements */
+.wingman-app-main section,
+.wingman-app-main article,
+.wingman-app-main .wm-card,
+.wingman-app-main .wingman-card,
+.wingman-app-main .wm-panel,
+.wingman-app-main .wingman-panel,
+.wingman-app-main [class*="Card"],
+.wingman-app-main [class*="card"],
+.wingman-app-main [class*="Panel"],
+.wingman-app-main [class*="panel"] {
+  background:
+    linear-gradient(180deg, var(--wm-panel-850), rgba(5, 14, 28, 0.94)) !important;
+  background-image:
+    linear-gradient(180deg, var(--wm-panel-850), rgba(5, 14, 28, 0.94)) !important;
+  border: 1px solid var(--wm-border-soft) !important;
+  border-radius: var(--wm-radius-panel) !important;
+  box-shadow: var(--wm-shadow-card) !important;
+}
+
+/* Prevent old photographic card backgrounds from competing with the UI */
+.wingman-app-main button,
+.wingman-app-main [role="button"],
+.wingman-app-main .wm-card,
+.wingman-app-main .wingman-card,
+.wingman-app-main [class*="tile"],
+.wingman-app-main [class*="Tile"],
+.wingman-app-main [class*="option"],
+.wingman-app-main [class*="Option"] {
+  text-shadow: none !important;
+}
+
+/* Typography ------------------------------------------------------------- */
+
+.wingman-app-main h1,
+.wingman-app-main h2,
+.wingman-app-main h3,
+.wingman-app-main h4,
+.wingman-app-main h5,
+.wingman-app-main h6 {
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+.wingman-app-main p,
+.wingman-app-main li,
+.wingman-app-main span {
+  text-shadow: none !important;
+}
+
+.wingman-app-main p,
+.wingman-app-main li {
+  color: var(--wm-text-muted) !important;
+}
+
+/* Buttons --------------------------------------------------------------- */
+
+.wingman-app-main button,
+.wingman-app-main a[role="button"],
+.wingman-app-main [role="button"] {
+  border-radius: var(--wm-radius-button) !important;
+  background-image: none !important;
+  font-weight: 650 !important;
+  letter-spacing: 0 !important;
+}
+
+.wingman-app-main button:not([class*="primary"]):not([class*="Primary"]),
+.wingman-app-main [role="button"]:not([class*="primary"]):not([class*="Primary"]) {
+  border-color: rgba(129, 166, 230, 0.18) !important;
+  background:
+    linear-gradient(180deg, rgba(18, 35, 63, 0.96), rgba(9, 20, 39, 0.98)) !important;
+  color: var(--wm-text-main) !important;
+}
+
+.wingman-app-main button:hover,
+.wingman-app-main a[role="button"]:hover,
+.wingman-app-main [role="button"]:hover {
+  border-color: rgba(241, 168, 59, 0.42) !important;
+  transform: translateY(-1px);
+}
+
+.wingman-app-main button[aria-pressed="true"],
+.wingman-app-main button[data-state="active"],
+.wingman-app-main [role="button"][aria-pressed="true"],
+.wingman-app-main [role="button"][data-state="active"] {
+  border-color: var(--wm-border-strong) !important;
+  background:
+    linear-gradient(180deg, rgba(83, 56, 18, 0.98), rgba(42, 31, 18, 0.98)) !important;
+  color: #ffffff !important;
+}
+
+/* Primary / orange actions ---------------------------------------------- */
+
+.wingman-app-main .wm-primary,
+.wingman-app-main .primary,
+.wingman-app-main [class*="Primary"],
+.wingman-app-main [class*="primary"],
+.wingman-app-main button[class*="accent"],
+.wingman-app-main button[class*="Accent"] {
+  border-color: rgba(241, 168, 59, 0.62) !important;
+  background:
+    linear-gradient(180deg, var(--wm-accent-strong), var(--wm-accent)) !important;
+  color: #09111f !important;
+}
+
+/* Inputs ---------------------------------------------------------------- */
+
+.wingman-app-main input,
+.wingman-app-main select,
+.wingman-app-main textarea {
+  border: 1px solid rgba(129, 166, 230, 0.22) !important;
+  border-radius: 12px !important;
+  background: rgba(232, 238, 248, 0.92) !important;
+  color: #071225 !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.16) !important;
+}
+
+.wingman-app-main input::placeholder,
+.wingman-app-main textarea::placeholder {
+  color: rgba(7, 18, 37, 0.54) !important;
+}
+
+.wingman-app-main label {
+  color: rgba(232, 238, 248, 0.78) !important;
+}
+
+/* Pills / badges / chips ------------------------------------------------ */
+
+.wingman-app-main [class*="badge"],
+.wingman-app-main [class*="Badge"],
+.wingman-app-main [class*="chip"],
+.wingman-app-main [class*="Chip"],
+.wingman-app-main [class*="pill"],
+.wingman-app-main [class*="Pill"] {
+  border-radius: 999px !important;
+  border: 1px solid rgba(129, 166, 230, 0.2) !important;
+  background: rgba(16, 32, 58, 0.9) !important;
+  color: var(--wm-text-main) !important;
+}
+
+/* Tables / structured blocks ------------------------------------------- */
+
+.wingman-app-main table {
+  color: var(--wm-text-main) !important;
+}
+
+.wingman-app-main th {
+  color: #ffffff !important;
+  background: rgba(14, 31, 58, 0.88) !important;
+}
+
+.wingman-app-main td {
+  border-color: rgba(129, 166, 230, 0.12) !important;
+  color: var(--wm-text-muted) !important;
+}
+
+/* Global sales-mode selector -------------------------------------------- */
+
+.wm-sales-mode-global {
+  border-color: rgba(129, 166, 230, 0.16) !important;
+  background:
+    linear-gradient(180deg, rgba(6, 17, 34, 0.94), rgba(4, 12, 25, 0.96)) !important;
+  box-shadow: var(--wm-shadow-card) !important;
+}
+
+.wm-sales-mode-global__button {
+  background:
+    linear-gradient(180deg, rgba(18, 35, 63, 0.96), rgba(9, 20, 39, 0.98)) !important;
+  border-color: rgba(129, 166, 230, 0.18) !important;
+}
+
+.wm-sales-mode-global__button--active {
+  border-color: rgba(241, 168, 59, 0.72) !important;
+  background:
+    linear-gradient(180deg, rgba(83, 56, 18, 0.98), rgba(42, 31, 18, 0.98)) !important;
+}
+
+/* Discovery-specific clean-up ------------------------------------------ */
+
+body.wm-route-discovery .wingman-app-main {
+  background:
+    radial-gradient(circle at 28% 0%, rgba(49, 114, 188, 0.13), transparent 30%),
+    linear-gradient(180deg, rgba(4, 13, 27, 0.96), rgba(2, 8, 20, 0.98)) !important;
+}
+
+body.wm-route-discovery .wingman-page-hero,
+body.wm-route-discovery .wm-page-hero,
+body.wm-route-discovery .page-hero,
+body.wm-route-discovery [class*="PageHero"],
+body.wm-route-discovery [class*="pageHero"] {
+  min-height: 158px !important;
+  padding: 18px 20px 26px !important;
+  margin-bottom: 22px !important;
+}
+
+body.wm-route-discovery .wm-discovery-sales-mode-panel-hidden {
+  display: none !important;
+}
+
+/* Dashboard consistency ------------------------------------------------- */
+
+.wm-dashboard-refresh {
+  color: var(--wm-text-main) !important;
+}
+
+.wm-dashboard-refresh__hero,
+.wm-dashboard-refresh__section,
+.wm-dashboard-refresh__card,
+.wm-dashboard-refresh__action-card {
+  background:
+    linear-gradient(180deg, var(--wm-panel-850), rgba(5, 14, 28, 0.94)) !important;
+  border-color: var(--wm-border-soft) !important;
+  box-shadow: var(--wm-shadow-card) !important;
+}
+
+/* Kill inherited photo backgrounds on dashboard/cards where present */
+.wm-dashboard-refresh__hero,
+.wm-dashboard-refresh__card,
+.wm-dashboard-refresh__action-card {
+  background-image:
+    linear-gradient(180deg, var(--wm-panel-850), rgba(5, 14, 28, 0.94)) !important;
+}
+
+/* Keep actual content images available where they are intentional -------- */
+
+.wingman-app-main img {
+  object-fit: contain;
+}
+
+/* Responsive ------------------------------------------------------------ */
+
+@media (max-width: 1023px) {
+  .wingman-app-main {
+    padding: 12px !important;
+  }
+
+  .wingman-page-hero,
+  .wm-page-hero,
+  .page-hero,
+  [class*="PageHero"],
+  [class*="pageHero"] {
+    border-radius: 20px !important;
+  }
+}
