@@ -1,46 +1,62 @@
-type SalesModeId = "warm" | "problem" | "value" | "expert";
+import {
+  DEFAULT_SALES_CONVERSATION_TONE_ID,
+  LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
+  normalizeSalesConversationToneId,
+  SALES_CONVERSATION_TYPE_STORAGE_KEY,
+  salesConversationToneOptions,
+  type SalesConversationToneId,
+} from "../lib/salesConversationTone";
 
 type SalesMode = {
-  id: SalesModeId;
+  id: SalesConversationToneId;
   label: string;
   description: string;
 };
 
-const SALES_MODE_STORAGE_KEY = "wingman:sales-mode";
-
-const salesModes: SalesMode[] = [
-  { id: "warm", label: "Warm", description: "Friendly opener" },
-  { id: "problem", label: "Problem", description: "Pain first" },
-  { id: "value", label: "Value", description: "Outcome led" },
-  { id: "expert", label: "Expert", description: "Pre-sales handoff" }
-];
+const salesModes: SalesMode[] = salesConversationToneOptions.map((option) => ({
+  id: option.id,
+  label: option.label,
+  description: option.shortDescription,
+}));
 
 let installed = false;
 let refreshQueued = false;
 
-function isSalesModeId(value: string | null): value is SalesModeId {
-  return value === "warm" || value === "problem" || value === "value" || value === "expert";
+function isSalesModeId(value: unknown): value is SalesConversationToneId {
+  return salesConversationToneOptions.some((option) => option.id === value);
 }
 
-function getSavedSalesMode(): SalesModeId {
-  const saved = window.localStorage.getItem(SALES_MODE_STORAGE_KEY);
+function getSavedSalesMode(): SalesConversationToneId {
+  const saved = window.localStorage.getItem(SALES_CONVERSATION_TYPE_STORAGE_KEY);
 
-  if (isSalesModeId(saved)) {
-    return saved;
+  if (saved) {
+    return normalizeSalesConversationToneId(saved);
   }
 
-  return "warm";
+  for (const key of LEGACY_SALES_CONVERSATION_STORAGE_KEYS) {
+    const legacy = window.localStorage.getItem(key);
+
+    if (legacy) {
+      return normalizeSalesConversationToneId(legacy);
+    }
+  }
+
+  return DEFAULT_SALES_CONVERSATION_TONE_ID;
 }
 
-function applySalesMode(modeId: SalesModeId): void {
-  window.localStorage.setItem(SALES_MODE_STORAGE_KEY, modeId);
+function applySalesMode(modeId: SalesConversationToneId): void {
+  window.localStorage.setItem(SALES_CONVERSATION_TYPE_STORAGE_KEY, modeId);
   document.body.dataset.wingmanSalesMode = modeId;
 
   document.body.classList.remove(
+    "wm-sales-mode-trade",
+    "wm-sales-mode-user",
+    "wm-sales-mode-consultant",
     "wm-sales-mode-warm",
     "wm-sales-mode-problem",
     "wm-sales-mode-value",
-    "wm-sales-mode-expert"
+    "wm-sales-mode-expert",
+    "wm-sales-mode-handoff"
   );
 
   document.body.classList.add(`wm-sales-mode-${modeId}`);
@@ -60,11 +76,11 @@ function createToolbar(): HTMLElement {
   const toolbar = document.createElement("div");
   toolbar.className = "wm-sales-mode-global";
   toolbar.setAttribute("role", "group");
-  toolbar.setAttribute("aria-label", "Wingman sales mode");
+  toolbar.setAttribute("aria-label", "Wingman sales conversation type");
 
   const label = document.createElement("div");
   label.className = "wm-sales-mode-global__label";
-  label.textContent = "Sales mode";
+  label.textContent = "Conversation type";
 
   const buttons = document.createElement("div");
   buttons.className = "wm-sales-mode-global__buttons";
@@ -164,15 +180,28 @@ function normalizeText(value: string | null | undefined): string {
 }
 
 function hideLegacySalesPanels(): void {
+  if (document.body.dataset.wmRoute === "dashboard") {
+    return;
+  }
+
   const candidates = Array.from(document.querySelectorAll("section, article, aside, div")).filter(
     (node): node is HTMLElement => node instanceof HTMLElement
   );
 
   for (const candidate of candidates) {
+    if (candidate.classList.contains("wm-sales-mode-global") || candidate.closest(".wm-sales-mode-global")) {
+      continue;
+    }
+
     const text = normalizeText(candidate.textContent);
     const rect = candidate.getBoundingClientRect();
 
-    if (!text.includes("sales language mode") && !text.includes("keep the opening easy")) {
+    if (
+      !text.includes("sales language mode") &&
+      !text.includes("sales conversation type") &&
+      !text.includes("choose who you are selling to") &&
+      !text.includes("keep the opening easy")
+    ) {
       continue
     }
 
@@ -247,8 +276,14 @@ export function installWingmanSalesMode(): void {
   window.addEventListener("wingman:sales-mode-request", (event) => {
     const requested = event instanceof CustomEvent ? event.detail?.mode : null;
 
-    if (isSalesModeId(requested)) {
-      applySalesMode(requested);
+    if (!requested) {
+      return;
+    }
+
+    const normalized = normalizeSalesConversationToneId(requested);
+
+    if (isSalesModeId(normalized)) {
+      applySalesMode(normalized);
     }
   });
 

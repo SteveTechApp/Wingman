@@ -1,4 +1,4 @@
-export type SalesConversationToneId = "warm" | "problem" | "value" | "handoff";
+export type SalesConversationToneId = "trade" | "user" | "consultant";
 
 export type SalesConversationContext =
   | "salesHelper"
@@ -29,28 +29,30 @@ export type SalesConversationToneCopy = {
   handoff: string;
 };
 
-export const DEFAULT_SALES_CONVERSATION_TONE_ID: SalesConversationToneId = "warm";
+export const SALES_CONVERSATION_TYPE_STORAGE_KEY = "wingman:sales-conversation-type";
+
+export const LEGACY_SALES_CONVERSATION_STORAGE_KEYS = [
+  "wingman:sales-mode",
+  "wingman.salesLanguageMode.v1",
+];
+
+export const DEFAULT_SALES_CONVERSATION_TONE_ID: SalesConversationToneId = "trade";
 
 export const salesConversationToneOptions: SalesConversationToneOption[] = [
   {
-    id: "warm",
-    label: "Warm opener",
-    shortDescription: "Friendly, low-pressure start.",
+    id: "trade",
+    label: "Sell to Trade",
+    shortDescription: "Dealer and installer language.",
   },
   {
-    id: "problem",
-    label: "Problem first",
-    shortDescription: "Start with the pain point.",
+    id: "user",
+    label: "Sell to User",
+    shortDescription: "Outcome and experience language.",
   },
   {
-    id: "value",
-    label: "Value-led",
-    shortDescription: "Lead with the outcome.",
-  },
-  {
-    id: "handoff",
-    label: "Expert handoff",
-    shortDescription: "Capture enough for pre-sales.",
+    id: "consultant",
+    label: "Sell to Technical Consultant",
+    shortDescription: "Specification and risk language.",
   },
 ];
 
@@ -94,6 +96,18 @@ const contextCopy: Record<SalesConversationContext, SalesConversationContextCopy
 };
 
 export function normalizeSalesConversationToneId(value: unknown): SalesConversationToneId {
+  if (value === "warm" || value === "problem") {
+    return "trade";
+  }
+
+  if (value === "value") {
+    return "user";
+  }
+
+  if (value === "expert" || value === "handoff") {
+    return "consultant";
+  }
+
   const match = salesConversationToneOptions.find((option) => option.id === value);
 
   return match?.id ?? DEFAULT_SALES_CONVERSATION_TONE_ID;
@@ -105,37 +119,28 @@ export function buildSalesConversationToneCopy(
 ): SalesConversationToneCopy {
   const copy = contextCopy[context];
 
-  if (toneId === "problem") {
+  if (toneId === "user") {
     return {
-      title: "Open on the customer pain point.",
-      opener: `What is the main thing about ${copy.subject} that needs to be easier, cleaner, or more reliable?`,
-      followUp: "What is causing frustration today?",
-      handoff: "Capture the pain point, then leave detailed design validation for WyreStorm experts.",
+      title: "Sell the user experience.",
+      opener: `What should people be able to do with ${copy.subject} without thinking about the technology?`,
+      followUp: "What is frustrating users today, and what would make the space feel easier or more reliable?",
+      handoff: `Capture the user outcome in plain language, then move to ${copy.nextStep}.`,
     };
   }
 
-  if (toneId === "value") {
+  if (toneId === "consultant") {
     return {
-      title: "Start with the outcome.",
-      opener: `Let us start with the result you want from ${copy.subject}, then we can choose the simplest route.`,
-      followUp: "What would make this feel like a successful project for the user or dealer?",
-      handoff: `Tie the language to the outcome, then move to ${copy.nextStep}.`,
-    };
-  }
-
-  if (toneId === "handoff") {
-    return {
-      title: "Gather enough for expert review.",
-      opener: `I will capture the basics on ${copy.subject} so our WyreStorm specialists can validate the right path.`,
-      followUp: "What do we know about sources, displays, USB, audio, control, distance, network, and budget?",
-      handoff: "Do not force the answer. Capture unknowns and pass the summary to pre-sales.",
+      title: "Sell the design logic.",
+      opener: `Which parts of ${copy.subject} are fixed requirements, and which parts are still open for validation?`,
+      followUp: "What are the required I/O, resolution, USB, latency, audio, control and network constraints?",
+      handoff: "Capture hard requirements, assumptions and risks, then pass the summary to WyreStorm experts for validation.",
     };
   }
 
   return {
-    title: "Keep the opening easy.",
-    opener: `Can I get a quick feel for ${copy.subject} before we talk products?`,
-    followUp: "What should people be able to do without thinking about the technology?",
-    handoff: `Capture the headline need, then move to ${copy.nextStep}.`,
+    title: "Sell the route to a dealer or installer.",
+    opener: `For ${copy.subject}, what matters most to the trade: quick quoting, clean installation, supportability, or margin?`,
+    followUp: "What would make this easier to specify, install, hand over and support?",
+    handoff: `Capture install constraints and commercial priorities, then move to ${copy.nextStep}.`,
   };
 }
