@@ -29,7 +29,8 @@
     "wm:check-finder-density": "node tools/check-finder-density.mjs",
     "wm:check-page-density": "node tools/check-wingman-page-density.mjs",
     "wm:migrate-page-frames": "node tools/migrate-wingman-page-frames.mjs",
-    "wm:check-page-frames": "node tools/check-wingman-page-frames.mjs"
+    "wm:check-page-frames": "node tools/check-wingman-page-frames.mjs",
+    "wm:audit-legacy-retirement": "node tools/audit-legacy-override-retirement.mjs"
   },
   "dependencies": {
     "cors": "^2.8.6",
