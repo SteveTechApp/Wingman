@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T08:32:42.166Z",
+  "generatedAt": "2026-05-05T08:43:58.351Z",
   "pages": [
     {
       "file": "src/wingman2/pages/FinderPage.tsx",
@@ -103,11 +103,11 @@
     {
       "file": "src/wingman2/pages/ProductPitchPage.tsx",
       "cssImports": 0,
-      "paragraphs": 5,
-      "small": 1,
+      "paragraphs": 1,
+      "small": 0,
       "buttons": 2,
-      "helperMentions": 6,
-      "usesLayoutPrimitives": false
+      "helperMentions": 11,
+      "usesLayoutPrimitives": true
     },
     {
       "file": "src/wingman2/pages/IngestPage.tsx",
