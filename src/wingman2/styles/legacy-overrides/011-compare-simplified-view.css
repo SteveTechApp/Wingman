@@ -1,0 +1,131 @@
+/* ============================================================
+   LEGACY OVERRIDE BLOCK: COMPARE-SIMPLIFIED-VIEW
+
+   Extracted from wingman-entry-legacy-overrides.css.
+   Keep until replaced by shared Wingman layout/components.
+============================================================ */
+
+/* COMPARE-SIMPLIFIED-VIEW-START */
+.wm-compare-v2 {
+  --wm-compare-gap: 14px;
+}
+
+.wm-compare-v2 .grid {
+  gap: var(--wm-compare-gap) !important;
+}
+
+.wm-compare-v2 .wingman-section-card-header {
+  padding-top: 14px !important;
+  padding-bottom: 10px !important;
+}
+
+.wm-compare-v2 .wingman-section-card-body {
+  padding-top: 14px !important;
+}
+
+.wm-compare-v2 .wm-summary-card {
+  min-height: 0 !important;
+  padding: 14px !important;
+}
+
+.wm-compare-v2 .wm-summary-card h3 {
+  margin-top: 5px !important;
+  font-size: 1.28rem !important;
+  line-height: 1.1 !important;
+}
+
+.wm-compare-v2 .wm-summary-card p {
+  margin-top: 5px !important;
+  font-size: 0.84rem !important;
+  line-height: 1.35 !important;
+}
+
+.wm-compare-v2 .wm-summary-card small {
+  margin-top: 6px !important;
+  font-size: 0.72rem !important;
+}
+
+.wm-compare-v2 .wm-review-notes {
+  padding: 14px !important;
+}
+
+.wm-compare-v2 .wm-review-notes ul {
+  margin-top: 8px !important;
+}
+
+.wm-compare-v2 .wm-review-notes li:nth-of-type(n+4) {
+  display: none !important;
+}
+
+.wm-compare-v2 .wm-table-wrap {
+  max-height: 410px !important;
+  overflow: auto !important;
+}
+
+.wm-compare-v2 .wm-table-wrap th:nth-child(5),
+.wm-compare-v2 .wm-table-wrap td:nth-child(5) {
+  display: none !important;
+}
+
+.wm-compare-v2 .wm-table-wrap th,
+.wm-compare-v2 .wm-table-wrap td {
+  padding: 8px 10px !important;
+  font-size: 0.8rem !important;
+}
+
+.wm-compare-v2 .wm-shortlist,
+.wm-compare-v2 .wm-swot-block {
+  padding: 13px !important;
+}
+
+.wm-compare-v2 .wm-shortlist article {
+  padding: 10px !important;
+}
+
+.wm-compare-v2 .wm-shortlist article:nth-of-type(n+4) {
+  display: none !important;
+}
+
+.wm-compare-v2 .wm-shortlist article p {
+  margin-top: 4px !important;
+  font-size: 0.8rem !important;
+}
+
+.wm-compare-v2 .wm-shortlist article small {
+  display: none !important;
+}
+
+.wm-compare-v2 .wm-swot-grid {
+  gap: 10px !important;
+}
+
+.wm-compare-v2 .wm-swot-block h4 {
+  font-size: 0.92rem !important;
+}
+
+.wm-compare-v2 .wm-swot-block ul {
+  margin-top: 6px !important;
+}
+
+.wm-compare-v2 .wm-swot-block li {
+  margin-top: 4px !important;
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
+}
+
+.wm-compare-v2 .wm-evidence {
+  display: none !important;
+}
+
+.wm-compare-v2 .wm-history-button {
+  padding: 10px !important;
+}
+
+.wm-compare-v2 .wm-history-button span {
+  overflow: hidden !important;
+  display: block !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+/* COMPARE-SIMPLIFIED-VIEW-END */

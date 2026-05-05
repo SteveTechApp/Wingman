@@ -1,0 +1,27 @@
+/* ============================================================
+   LEGACY OVERRIDE BLOCK: HIDE-DEVELOPMENT-NOTES-UI
+
+   Extracted from wingman-entry-legacy-overrides.css.
+   Keep until replaced by shared Wingman layout/components.
+============================================================ */
+
+/* HIDE-DEVELOPMENT-NOTES-UI-START */
+:is(
+  .wm-dev-notes,
+  .wm-development-notes,
+  .wm-developer-notes,
+  .wm-reference-notes,
+  .wm-source-references,
+  .wm-debug-notes,
+  .wm-audit-notes,
+  .wm-canonical-notes,
+  .wm-workflow-markers,
+  [data-dev-note],
+  [data-development-note],
+  [data-reference-note],
+  [data-debug-note],
+  [data-audit-note]
+) {
+  display: none !important;
+}
+/* HIDE-DEVELOPMENT-NOTES-UI-END */
