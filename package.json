@@ -10,6 +10,7 @@
     "server:start": "npm --prefix server run start",
     "data:enrich-wyrestorm-products": "node tools/enrich-wyrestorm-product-intelligence.mjs",
     "data:audit-wyrestorm-products": "node tools/product-intelligence-audit.mjs",
+    "data:import-product-guide": "node tools/import-wyrestorm-product-guide.mjs",
     "data:product-intelligence-index": "node tools/generate-product-intelligence-index.mjs",
     "build": "npm run data:product-intelligence-index && vite build",
     "preview": "vite preview",

@@ -212253,5 +212253,3768 @@
         }
       }
     }
+  },
+  {
+    "id": "AMP-2120",
+    "url": "",
+    "role": "primary-hardware",
+    "capabilities": [
+      "Audio / Control",
+      "Analog audio",
+      "Network",
+      "Control",
+      "Audio",
+      "Power"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "AMP-2120",
+    "name": "Advanced 2 or 4 Channel Amplifier",
+    "title": "Advanced 2 or 4 Channel Amplifier",
+    "description": "Advanced 2 or 4 channel amplifier with flexible 240W output, built-in DSP processing, analog and digital I/O, LAN / RS-232 control, professional protection, and trigger input for paging or automation.",
+    "summary": "Advanced 2 or 4 channel amplifier with flexible 240W output, built-in DSP processing, analog and digital I/O, LAN / RS-232 control, professional protection, and trigger input for paging or automation.",
+    "category": "Audio / Control",
+    "family": "Audio / Control",
+    "technologies": [
+      "Audio / Control",
+      "Analog audio",
+      "Network",
+      "Control",
+      "Audio",
+      "Power"
+    ],
+    "connectors": [
+      "Speaker output",
+      "Mic/Line input",
+      "Line output",
+      "LAN",
+      "RS-232",
+      "Trigger input"
+    ],
+    "features": [
+      "Audio / Control",
+      "240W flexible amplifier output",
+      "Built-in DSP processing",
+      "Mic/Line and line-level audio I/O",
+      "LAN and RS-232 control",
+      "Paging and automation trigger input",
+      "Over-temperature, overload and over-voltage protection"
+    ],
+    "applications": [
+      "Meeting room",
+      "Classroom / lecture",
+      "Room audio",
+      "Installed speaker reinforcement"
+    ],
+    "tags": [
+      "Audio / Control",
+      "Analog audio",
+      "Network",
+      "Control",
+      "Audio",
+      "Power",
+      "240W flexible amplifier output",
+      "Built-in DSP processing",
+      "Mic/Line and line-level audio I/O",
+      "LAN and RS-232 control",
+      "Paging and automation trigger input",
+      "Over-temperature, overload and over-voltage protection",
+      "Meeting room",
+      "Classroom / lecture",
+      "Room audio",
+      "Installed speaker reinforcement",
+      "Amplification",
+      "DSP amplifier",
+      "Network amplifier",
+      "amplifier",
+      "dsp",
+      "room-audio",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "Other",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "primary-hardware",
+    "catalogVisibility": "default",
+    "technologyType": "Audio / Control",
+    "hardwareType": "Audio / Control",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Audio",
+      "category": "Amplification",
+      "subCategory": "DSP amplifier",
+      "productType": "Network amplifier",
+      "productSubType": "",
+      "systemRole": "Advanced 2 or 4 Channel Amplifier",
+      "applicationRole": "Meeting room",
+      "transportClass": [
+        "Analog audio",
+        "Network",
+        "Control"
+      ],
+      "signalDomains": [
+        "Audio",
+        "Control",
+        "Network",
+        "Power"
+      ],
+      "subClassifications": [
+        "amplifier",
+        "dsp",
+        "room-audio"
+      ],
+      "classificationPath": [
+        "Audio",
+        "Amplification",
+        "DSP amplifier",
+        "Network amplifier"
+      ],
+      "confidence": 0.84,
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "classificationPath": [
+      "Audio",
+      "Amplification",
+      "DSP amplifier",
+      "Network amplifier"
+    ],
+    "subClassifications": [
+      "amplifier",
+      "dsp",
+      "room-audio"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          14
+        ]
+      },
+      "signalDomains": [
+        "Audio",
+        "Control",
+        "Network",
+        "Power"
+      ],
+      "transports": [
+        "Analog audio",
+        "Network",
+        "Control"
+      ],
+      "io": {
+        "ports": [
+          {
+            "count": 1,
+            "connector": "Speaker output",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "Speaker output"
+          },
+          {
+            "count": 1,
+            "connector": "Mic/Line input",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "Mic/Line input"
+          },
+          {
+            "count": 1,
+            "connector": "Line output",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "Line output"
+          },
+          {
+            "count": 1,
+            "connector": "LAN",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "LAN"
+          },
+          {
+            "count": 1,
+            "connector": "RS-232",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "RS-232"
+          },
+          {
+            "count": 1,
+            "connector": "Trigger input",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "Trigger input"
+          }
+        ],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "240W flexible amplifier output",
+          "group": "Audio / Control",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 14"
+        },
+        {
+          "label": "Built-in DSP processing",
+          "group": "Audio / Control",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 14"
+        },
+        {
+          "label": "Mic/Line and line-level audio I/O",
+          "group": "Audio / Control",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 14"
+        },
+        {
+          "label": "LAN and RS-232 control",
+          "group": "Audio / Control",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 14"
+        },
+        {
+          "label": "Paging and automation trigger input",
+          "group": "Audio / Control",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 14"
+        },
+        {
+          "label": "Over-temperature, overload and over-voltage protection",
+          "group": "Audio / Control",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 14"
+        }
+      ],
+      "applications": [
+        "Meeting room",
+        "Classroom / lecture",
+        "Room audio",
+        "Installed speaker reinforcement"
+      ],
+      "processing": [
+        "Built-in DSP processing"
+      ],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "AMP-2120: Advanced 2 or 4 Channel Amplifier",
+        "plainEnglishSummary": "Use this when the meeting room needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "Meeting room, Classroom / lecture, Room audio, Installed speaker reinforcement",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "Meeting room",
+          "Classroom / lecture",
+          "Room audio",
+          "Installed speaker reinforcement"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "AMP-2120: Advanced 2 or 4 Channel Amplifier",
+      "plainEnglishSummary": "Use this when the meeting room needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "Meeting room, Classroom / lecture, Room audio, Installed speaker reinforcement",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "Meeting room",
+        "Classroom / lecture",
+        "Room audio",
+        "Installed speaker reinforcement"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
+  },
+  {
+    "id": "CAB-UAOC-15",
+    "url": "",
+    "role": "cable",
+    "capabilities": [
+      "Cable",
+      "USB 3.x",
+      "USB 2.0",
+      "USB",
+      "Power"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "CAB-UAOC-15",
+    "name": "USB 3.2 Active Optical Extension Cable",
+    "title": "USB 3.2 Active Optical Extension Cable",
+    "description": "15m USB 3.2 active optical extension cable with Type-A male to Type-A female connections, up to 10Gbps data transfer, backward USB 2.0 compatibility, and remote USB device power up to 5V 900mA.",
+    "summary": "15m USB 3.2 active optical extension cable with Type-A male to Type-A female connections, up to 10Gbps data transfer, backward USB 2.0 compatibility, and remote USB device power up to 5V 900mA.",
+    "category": "Cable",
+    "family": "Cable",
+    "technologies": [
+      "Cable",
+      "USB 3.x",
+      "USB 2.0",
+      "USB",
+      "Power"
+    ],
+    "connectors": [
+      "USB-A male",
+      "USB-A female"
+    ],
+    "features": [
+      "Cable",
+      "15m USB extension",
+      "USB 3.2 Gen 2 up to 10Gbps",
+      "Backward compatible with USB 2.0",
+      "Remote USB device power"
+    ],
+    "applications": [
+      "USB extension",
+      "Hybrid conferencing",
+      "Meeting room",
+      "Camera or peripheral extension"
+    ],
+    "tags": [
+      "Cable",
+      "USB 3.x",
+      "USB 2.0",
+      "USB",
+      "Power",
+      "15m USB extension",
+      "USB 3.2 Gen 2 up to 10Gbps",
+      "Backward compatible with USB 2.0",
+      "Remote USB device power",
+      "USB extension",
+      "Hybrid conferencing",
+      "Meeting room",
+      "Camera or peripheral extension",
+      "USB cable",
+      "Active optical USB extension",
+      "usb-extension",
+      "active-optical",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "Other",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "cable",
+    "catalogVisibility": "request-only",
+    "technologyType": "Cable",
+    "hardwareType": "Cable",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Cable",
+      "category": "USB cable",
+      "subCategory": "Active optical USB extension",
+      "productType": "Cable",
+      "productSubType": "",
+      "systemRole": "USB 3.2 Active Optical Extension Cable",
+      "applicationRole": "USB extension",
+      "transportClass": [
+        "USB 3.x",
+        "USB 2.0",
+        "USB"
+      ],
+      "signalDomains": [
+        "USB",
+        "Power"
+      ],
+      "subClassifications": [
+        "cable",
+        "usb-extension",
+        "active-optical"
+      ],
+      "classificationPath": [
+        "Cable",
+        "USB cable",
+        "Active optical USB extension",
+        "Cable"
+      ],
+      "confidence": 0.84,
+      "productRole": "cable",
+      "catalogVisibility": "request-only"
+    },
+    "classificationPath": [
+      "Cable",
+      "USB cable",
+      "Active optical USB extension",
+      "Cable"
+    ],
+    "subClassifications": [
+      "cable",
+      "usb-extension",
+      "active-optical"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          11
+        ]
+      },
+      "signalDomains": [
+        "USB",
+        "Power"
+      ],
+      "transports": [
+        "USB 3.x",
+        "USB 2.0",
+        "USB"
+      ],
+      "io": {
+        "ports": [
+          {
+            "count": 1,
+            "connector": "USB-A male",
+            "direction": "unspecified",
+            "category": "usb",
+            "evidence": "USB-A male"
+          },
+          {
+            "count": 1,
+            "connector": "USB-A female",
+            "direction": "unspecified",
+            "category": "usb",
+            "evidence": "USB-A female"
+          }
+        ],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "15m USB extension",
+          "group": "Cable",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 11"
+        },
+        {
+          "label": "USB 3.2 Gen 2 up to 10Gbps",
+          "group": "Cable",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 11"
+        },
+        {
+          "label": "Backward compatible with USB 2.0",
+          "group": "Cable",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 11"
+        },
+        {
+          "label": "Remote USB device power",
+          "group": "Cable",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 11"
+        }
+      ],
+      "applications": [
+        "USB extension",
+        "Hybrid conferencing",
+        "Meeting room",
+        "Camera or peripheral extension"
+      ],
+      "processing": [],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "CAB-UAOC-15: USB 3.2 Active Optical Extension Cable",
+        "plainEnglishSummary": "Use this when the usb extension needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "USB extension, Hybrid conferencing, Meeting room, Camera or peripheral extension",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "USB extension",
+          "Hybrid conferencing",
+          "Meeting room",
+          "Camera or peripheral extension"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "CAB-UAOC-15: USB 3.2 Active Optical Extension Cable",
+      "plainEnglishSummary": "Use this when the usb extension needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "USB extension, Hybrid conferencing, Meeting room, Camera or peripheral extension",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "USB extension",
+        "Hybrid conferencing",
+        "Meeting room",
+        "Camera or peripheral extension"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
+  },
+  {
+    "id": "EX-60D-KVM",
+    "url": "",
+    "role": "primary-hardware",
+    "capabilities": [
+      "Extender / HDBaseT",
+      "UTP",
+      "HDMI",
+      "USB 2.0",
+      "PoC",
+      "Video",
+      "USB",
+      "Power"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "EX-60D-KVM",
+    "name": "60m Dual HDMI KVM Extender",
+    "title": "60m Dual HDMI KVM Extender",
+    "description": "Dual HDMI KVM extender for 1080p dual-display workstation environments, extending dual HDMI signals up to 60m over Cat cable with integrated USB control and bi-directional PoC.",
+    "summary": "Dual HDMI KVM extender for 1080p dual-display workstation environments, extending dual HDMI signals up to 60m over Cat cable with integrated USB control and bi-directional PoC.",
+    "category": "Extender / HDBaseT",
+    "family": "Extender / HDBaseT",
+    "technologies": [
+      "Extender / HDBaseT",
+      "UTP",
+      "HDMI",
+      "USB 2.0",
+      "PoC",
+      "Video",
+      "USB",
+      "Power"
+    ],
+    "connectors": [
+      "2x HDMI input",
+      "2x HDMI output",
+      "USB host",
+      "4x remote USB-A",
+      "Cat cable"
+    ],
+    "features": [
+      "Extender / HDBaseT",
+      "Dual HDMI extension",
+      "60m Cat cable transport",
+      "Integrated USB KVM",
+      "Bi-directional PoC",
+      "Dual-display workstation support"
+    ],
+    "applications": [
+      "KVM extension",
+      "Control room",
+      "Operator workstation",
+      "Dual-display workstation"
+    ],
+    "tags": [
+      "Extender / HDBaseT",
+      "UTP",
+      "HDMI",
+      "USB 2.0",
+      "PoC",
+      "Video",
+      "USB",
+      "Power",
+      "Dual HDMI extension",
+      "60m Cat cable transport",
+      "Integrated USB KVM",
+      "Bi-directional PoC",
+      "Dual-display workstation support",
+      "KVM extension",
+      "Control room",
+      "Operator workstation",
+      "Dual-display workstation",
+      "Extension",
+      "KVM extender",
+      "Dual HDMI KVM extender",
+      "extender",
+      "kvm",
+      "dual-display",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "Extension",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "primary-hardware",
+    "catalogVisibility": "default",
+    "technologyType": "Extender / HDBaseT",
+    "hardwareType": "Extender / HDBaseT",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Video",
+      "category": "Extension",
+      "subCategory": "KVM extender",
+      "productType": "Dual HDMI KVM extender",
+      "productSubType": "",
+      "systemRole": "60m Dual HDMI KVM Extender",
+      "applicationRole": "KVM extension",
+      "transportClass": [
+        "UTP",
+        "HDMI",
+        "USB 2.0",
+        "PoC"
+      ],
+      "signalDomains": [
+        "Video",
+        "USB",
+        "Power"
+      ],
+      "subClassifications": [
+        "extender",
+        "kvm",
+        "dual-display"
+      ],
+      "classificationPath": [
+        "Video",
+        "Extension",
+        "KVM extender",
+        "Dual HDMI KVM extender"
+      ],
+      "confidence": 0.84,
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "classificationPath": [
+      "Video",
+      "Extension",
+      "KVM extender",
+      "Dual HDMI KVM extender"
+    ],
+    "subClassifications": [
+      "extender",
+      "kvm",
+      "dual-display"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          28,
+          30
+        ]
+      },
+      "signalDomains": [
+        "Video",
+        "USB",
+        "Power"
+      ],
+      "transports": [
+        "UTP",
+        "HDMI",
+        "USB 2.0",
+        "PoC"
+      ],
+      "io": {
+        "ports": [
+          {
+            "count": 1,
+            "connector": "2x HDMI input",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "2x HDMI input"
+          },
+          {
+            "count": 1,
+            "connector": "2x HDMI output",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "2x HDMI output"
+          },
+          {
+            "count": 1,
+            "connector": "USB host",
+            "direction": "unspecified",
+            "category": "usb",
+            "evidence": "USB host"
+          },
+          {
+            "count": 1,
+            "connector": "4x remote USB-A",
+            "direction": "unspecified",
+            "category": "usb",
+            "evidence": "4x remote USB-A"
+          },
+          {
+            "count": 1,
+            "connector": "Cat cable",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "Cat cable"
+          }
+        ],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "Dual HDMI extension",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 28, 30"
+        },
+        {
+          "label": "60m Cat cable transport",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 28, 30"
+        },
+        {
+          "label": "Integrated USB KVM",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 28, 30"
+        },
+        {
+          "label": "Bi-directional PoC",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 28, 30"
+        },
+        {
+          "label": "Dual-display workstation support",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 28, 30"
+        }
+      ],
+      "applications": [
+        "KVM extension",
+        "Control room",
+        "Operator workstation",
+        "Dual-display workstation"
+      ],
+      "processing": [
+        "Integrated USB KVM"
+      ],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "EX-60D-KVM: 60m Dual HDMI KVM Extender",
+        "plainEnglishSummary": "Use this when the kvm extension needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "KVM extension, Control room, Operator workstation, Dual-display workstation",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "KVM extension",
+          "Control room",
+          "Operator workstation",
+          "Dual-display workstation"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "EX-60D-KVM: 60m Dual HDMI KVM Extender",
+      "plainEnglishSummary": "Use this when the kvm extension needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "KVM extension, Control room, Operator workstation, Dual-display workstation",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "KVM extension",
+        "Control room",
+        "Operator workstation",
+        "Dual-display workstation"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
+  },
+  {
+    "id": "IDB-200-NA",
+    "url": "",
+    "role": "primary-hardware",
+    "capabilities": [
+      "Accessory",
+      "HDMI",
+      "USB-C",
+      "USB",
+      "Power",
+      "Video"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "IDB-200-NA",
+    "name": "Flip-Up In-Desk Box with USB-C, HDMI, USB Charging and Mains",
+    "title": "Flip-Up In-Desk Box with USB-C, HDMI, USB Charging and Mains",
+    "description": "Compact flip-up in-desk connectivity box with mains, USB charging, HDMI and USB-C passthrough for table or desk presentation connectivity.",
+    "summary": "Compact flip-up in-desk connectivity box with mains, USB charging, HDMI and USB-C passthrough for table or desk presentation connectivity.",
+    "category": "Accessory",
+    "family": "Accessory",
+    "technologies": [
+      "Accessory",
+      "HDMI",
+      "USB-C",
+      "USB",
+      "Power",
+      "Video"
+    ],
+    "connectors": [
+      "Mains",
+      "USB charging",
+      "HDMI",
+      "USB-C"
+    ],
+    "features": [
+      "Accessory",
+      "Flip-top in-desk connectivity",
+      "HDMI and USB-C 4K UHD passthrough",
+      "USB Type-A charging",
+      "Compact table installation"
+    ],
+    "applications": [
+      "Meeting room",
+      "Boardroom",
+      "Training room",
+      "Table connectivity"
+    ],
+    "tags": [
+      "Accessory",
+      "HDMI",
+      "USB-C",
+      "USB",
+      "Power",
+      "Video",
+      "Flip-top in-desk connectivity",
+      "HDMI and USB-C 4K UHD passthrough",
+      "USB Type-A charging",
+      "Compact table installation",
+      "Meeting room",
+      "Boardroom",
+      "Training room",
+      "Table connectivity",
+      "Accessory / Other",
+      "In-desk connectivity",
+      "Table box",
+      "in-desk",
+      "connectivity",
+      "table-box",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "Other",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "primary-hardware",
+    "catalogVisibility": "default",
+    "technologyType": "Accessory",
+    "hardwareType": "Accessory",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Accessory / Other",
+      "category": "Accessory",
+      "subCategory": "In-desk connectivity",
+      "productType": "Table box",
+      "productSubType": "",
+      "systemRole": "Flip-Up In-Desk Box with USB-C, HDMI, USB Charging and Mains",
+      "applicationRole": "Meeting room",
+      "transportClass": [
+        "HDMI",
+        "USB-C",
+        "USB",
+        "Power"
+      ],
+      "signalDomains": [
+        "Video",
+        "USB",
+        "Power"
+      ],
+      "subClassifications": [
+        "in-desk",
+        "connectivity",
+        "table-box"
+      ],
+      "classificationPath": [
+        "Accessory / Other",
+        "Accessory",
+        "In-desk connectivity",
+        "Table box"
+      ],
+      "confidence": 0.84,
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "classificationPath": [
+      "Accessory / Other",
+      "Accessory",
+      "In-desk connectivity",
+      "Table box"
+    ],
+    "subClassifications": [
+      "in-desk",
+      "connectivity",
+      "table-box"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          12
+        ]
+      },
+      "signalDomains": [
+        "Video",
+        "USB",
+        "Power"
+      ],
+      "transports": [
+        "HDMI",
+        "USB-C",
+        "USB",
+        "Power"
+      ],
+      "io": {
+        "ports": [
+          {
+            "count": 1,
+            "connector": "Mains",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "Mains"
+          },
+          {
+            "count": 1,
+            "connector": "USB charging",
+            "direction": "unspecified",
+            "category": "usb",
+            "evidence": "USB charging"
+          },
+          {
+            "count": 1,
+            "connector": "HDMI",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "HDMI"
+          },
+          {
+            "count": 1,
+            "connector": "USB-C",
+            "direction": "unspecified",
+            "category": "usb",
+            "evidence": "USB-C"
+          }
+        ],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "Flip-top in-desk connectivity",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        },
+        {
+          "label": "HDMI and USB-C 4K UHD passthrough",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        },
+        {
+          "label": "USB Type-A charging",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        },
+        {
+          "label": "Compact table installation",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        }
+      ],
+      "applications": [
+        "Meeting room",
+        "Boardroom",
+        "Training room",
+        "Table connectivity"
+      ],
+      "processing": [],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "IDB-200-NA: Flip-Up In-Desk Box with USB-C, HDMI, USB Charging and Mains",
+        "plainEnglishSummary": "Use this when the meeting room needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "Meeting room, Boardroom, Training room, Table connectivity",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "Meeting room",
+          "Boardroom",
+          "Training room",
+          "Table connectivity"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "IDB-200-NA: Flip-Up In-Desk Box with USB-C, HDMI, USB Charging and Mains",
+      "plainEnglishSummary": "Use this when the meeting room needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "Meeting room, Boardroom, Training room, Table connectivity",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "Meeting room",
+        "Boardroom",
+        "Training room",
+        "Table connectivity"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
+  },
+  {
+    "id": "IDB-400-EU-C",
+    "url": "",
+    "role": "primary-hardware",
+    "capabilities": [
+      "Accessory",
+      "HDMI",
+      "USB-C",
+      "USB",
+      "Ethernet",
+      "Power",
+      "Video",
+      "Network"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "IDB-400-EU-C",
+    "name": "Flip-Up In-Desk Box with USB-C, HDMI, USB Charging and RJ-45",
+    "title": "Flip-Up In-Desk Box with USB-C, HDMI, USB Charging and RJ-45",
+    "description": "Flip-up in-desk connectivity box with mains, USB charging, two HDMI connections, USB-C and RJ-45 passthrough for meeting table connectivity.",
+    "summary": "Flip-up in-desk connectivity box with mains, USB charging, two HDMI connections, USB-C and RJ-45 passthrough for meeting table connectivity.",
+    "category": "Accessory",
+    "family": "Accessory",
+    "technologies": [
+      "Accessory",
+      "HDMI",
+      "USB-C",
+      "USB",
+      "Ethernet",
+      "Power",
+      "Video",
+      "Network"
+    ],
+    "connectors": [
+      "Mains",
+      "USB charging",
+      "2x HDMI",
+      "USB-C",
+      "RJ-45"
+    ],
+    "features": [
+      "Accessory",
+      "Flip-up in-desk connectivity",
+      "HDMI and USB-C 4K UHD passthrough",
+      "USB Type-A charging",
+      "RJ-45 passthrough",
+      "Spring-loaded lid"
+    ],
+    "applications": [
+      "Meeting room",
+      "Boardroom",
+      "Training room",
+      "Table connectivity"
+    ],
+    "tags": [
+      "Accessory",
+      "HDMI",
+      "USB-C",
+      "USB",
+      "Ethernet",
+      "Power",
+      "Video",
+      "Network",
+      "Flip-up in-desk connectivity",
+      "HDMI and USB-C 4K UHD passthrough",
+      "USB Type-A charging",
+      "RJ-45 passthrough",
+      "Spring-loaded lid",
+      "Meeting room",
+      "Boardroom",
+      "Training room",
+      "Table connectivity",
+      "Accessory / Other",
+      "In-desk connectivity",
+      "Table box",
+      "in-desk",
+      "connectivity",
+      "table-box",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "Other",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "primary-hardware",
+    "catalogVisibility": "default",
+    "technologyType": "Accessory",
+    "hardwareType": "Accessory",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Accessory / Other",
+      "category": "Accessory",
+      "subCategory": "In-desk connectivity",
+      "productType": "Table box",
+      "productSubType": "",
+      "systemRole": "Flip-Up In-Desk Box with USB-C, HDMI, USB Charging and RJ-45",
+      "applicationRole": "Meeting room",
+      "transportClass": [
+        "HDMI",
+        "USB-C",
+        "USB",
+        "Ethernet",
+        "Power"
+      ],
+      "signalDomains": [
+        "Video",
+        "USB",
+        "Network",
+        "Power"
+      ],
+      "subClassifications": [
+        "in-desk",
+        "connectivity",
+        "table-box"
+      ],
+      "classificationPath": [
+        "Accessory / Other",
+        "Accessory",
+        "In-desk connectivity",
+        "Table box"
+      ],
+      "confidence": 0.84,
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "classificationPath": [
+      "Accessory / Other",
+      "Accessory",
+      "In-desk connectivity",
+      "Table box"
+    ],
+    "subClassifications": [
+      "in-desk",
+      "connectivity",
+      "table-box"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          12
+        ]
+      },
+      "signalDomains": [
+        "Video",
+        "USB",
+        "Network",
+        "Power"
+      ],
+      "transports": [
+        "HDMI",
+        "USB-C",
+        "USB",
+        "Ethernet",
+        "Power"
+      ],
+      "io": {
+        "ports": [
+          {
+            "count": 1,
+            "connector": "Mains",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "Mains"
+          },
+          {
+            "count": 1,
+            "connector": "USB charging",
+            "direction": "unspecified",
+            "category": "usb",
+            "evidence": "USB charging"
+          },
+          {
+            "count": 1,
+            "connector": "2x HDMI",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "2x HDMI"
+          },
+          {
+            "count": 1,
+            "connector": "USB-C",
+            "direction": "unspecified",
+            "category": "usb",
+            "evidence": "USB-C"
+          },
+          {
+            "count": 1,
+            "connector": "RJ-45",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "RJ-45"
+          }
+        ],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "Flip-up in-desk connectivity",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        },
+        {
+          "label": "HDMI and USB-C 4K UHD passthrough",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        },
+        {
+          "label": "USB Type-A charging",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        },
+        {
+          "label": "RJ-45 passthrough",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        },
+        {
+          "label": "Spring-loaded lid",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        }
+      ],
+      "applications": [
+        "Meeting room",
+        "Boardroom",
+        "Training room",
+        "Table connectivity"
+      ],
+      "processing": [],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "IDB-400-EU-C: Flip-Up In-Desk Box with USB-C, HDMI, USB Charging and RJ-45",
+        "plainEnglishSummary": "Use this when the meeting room needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "Meeting room, Boardroom, Training room, Table connectivity",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "Meeting room",
+          "Boardroom",
+          "Training room",
+          "Table connectivity"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "IDB-400-EU-C: Flip-Up In-Desk Box with USB-C, HDMI, USB Charging and RJ-45",
+      "plainEnglishSummary": "Use this when the meeting room needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "Meeting room, Boardroom, Training room, Table connectivity",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "Meeting room",
+        "Boardroom",
+        "Training room",
+        "Table connectivity"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
+  },
+  {
+    "id": "IDB-SPINE",
+    "url": "",
+    "role": "accessory",
+    "capabilities": [
+      "Accessory",
+      "Mechanical"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "IDB-SPINE",
+    "name": "Under-Desk Cable Management Spine with Adjustable Height",
+    "title": "Under-Desk Cable Management Spine with Adjustable Height",
+    "description": "Under-desk cable management spine for organizing wires below a table or desk, with adjustable height up to 36 inches and pairing with the IDB in-desk connectivity range.",
+    "summary": "Under-desk cable management spine for organizing wires below a table or desk, with adjustable height up to 36 inches and pairing with the IDB in-desk connectivity range.",
+    "category": "Accessory",
+    "family": "Accessory",
+    "technologies": [
+      "Accessory",
+      "Mechanical"
+    ],
+    "connectors": [],
+    "features": [
+      "Accessory",
+      "Under-desk cable management",
+      "Adjustable height up to 36 inches",
+      "Pairs with IDB in-desk connectivity"
+    ],
+    "applications": [
+      "Meeting room",
+      "Boardroom",
+      "Table cable management"
+    ],
+    "tags": [
+      "Accessory",
+      "Mechanical",
+      "Under-desk cable management",
+      "Adjustable height up to 36 inches",
+      "Pairs with IDB in-desk connectivity",
+      "Meeting room",
+      "Boardroom",
+      "Table cable management",
+      "Accessory / Other",
+      "Cable management",
+      "Under-desk spine",
+      "cable-management",
+      "idb-accessory",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "Other",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "accessory",
+    "catalogVisibility": "request-only",
+    "technologyType": "Accessory",
+    "hardwareType": "Accessory",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Accessory / Other",
+      "category": "Accessory",
+      "subCategory": "Cable management",
+      "productType": "Under-desk spine",
+      "productSubType": "",
+      "systemRole": "Under-Desk Cable Management Spine with Adjustable Height",
+      "applicationRole": "Meeting room",
+      "transportClass": [
+        "Mechanical"
+      ],
+      "signalDomains": [
+        "Mechanical"
+      ],
+      "subClassifications": [
+        "accessory",
+        "cable-management",
+        "idb-accessory"
+      ],
+      "classificationPath": [
+        "Accessory / Other",
+        "Accessory",
+        "Cable management",
+        "Under-desk spine"
+      ],
+      "confidence": 0.84,
+      "productRole": "accessory",
+      "catalogVisibility": "request-only"
+    },
+    "classificationPath": [
+      "Accessory / Other",
+      "Accessory",
+      "Cable management",
+      "Under-desk spine"
+    ],
+    "subClassifications": [
+      "accessory",
+      "cable-management",
+      "idb-accessory"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          12
+        ]
+      },
+      "signalDomains": [
+        "Mechanical"
+      ],
+      "transports": [
+        "Mechanical"
+      ],
+      "io": {
+        "ports": [],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "Under-desk cable management",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        },
+        {
+          "label": "Adjustable height up to 36 inches",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        },
+        {
+          "label": "Pairs with IDB in-desk connectivity",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 12"
+        }
+      ],
+      "applications": [
+        "Meeting room",
+        "Boardroom",
+        "Table cable management"
+      ],
+      "processing": [],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "IDB-SPINE: Under-Desk Cable Management Spine with Adjustable Height",
+        "plainEnglishSummary": "Use this when the meeting room needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "Meeting room, Boardroom, Table cable management",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "Meeting room",
+          "Boardroom",
+          "Table cable management"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "IDB-SPINE: Under-Desk Cable Management Spine with Adjustable Height",
+      "plainEnglishSummary": "Use this when the meeting room needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "Meeting room, Boardroom, Table cable management",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "Meeting room",
+        "Boardroom",
+        "Table cable management"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
+  },
+  {
+    "id": "MV-0401-PRO",
+    "url": "",
+    "role": "primary-hardware",
+    "capabilities": [
+      "Video Wall / Multiview",
+      "HDMI",
+      "NetworkHD",
+      "Video",
+      "Processing",
+      "Control"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "MV-0401-PRO",
+    "name": "4-Input 4K60 Multiview Processor for NetworkHD",
+    "title": "4-Input 4K60 Multiview Processor for NetworkHD",
+    "description": "4-input 4K60 multiview processor supporting up to four inputs simultaneously, standalone multiview operation, NetworkHD 400 / 500 integration, and NetworkHD Touch compatibility.",
+    "summary": "4-input 4K60 multiview processor supporting up to four inputs simultaneously, standalone multiview operation, NetworkHD 400 / 500 integration, and NetworkHD Touch compatibility.",
+    "category": "Video Wall / Multiview",
+    "family": "Video Processor",
+    "technologies": [
+      "Video Wall / Multiview",
+      "HDMI",
+      "NetworkHD",
+      "Video",
+      "Processing",
+      "Control"
+    ],
+    "connectors": [
+      "4x video inputs",
+      "Multiview output"
+    ],
+    "features": [
+      "Video Wall / Multiview",
+      "4K60 source support",
+      "Multiview processing up to 4 inputs",
+      "Standalone multiview processor",
+      "NetworkHD 400 / 500 compatible",
+      "NetworkHD Touch compatible"
+    ],
+    "applications": [
+      "Control room",
+      "Training room",
+      "Monitoring",
+      "Multiview display"
+    ],
+    "tags": [
+      "Video Wall / Multiview",
+      "Video Processor",
+      "HDMI",
+      "NetworkHD",
+      "Video",
+      "Processing",
+      "Control",
+      "4K60 source support",
+      "Multiview processing up to 4 inputs",
+      "Standalone multiview processor",
+      "NetworkHD 400 / 500 compatible",
+      "NetworkHD Touch compatible",
+      "Control room",
+      "Training room",
+      "Monitoring",
+      "Multiview display",
+      "Multiview",
+      "NetworkHD multiview processor",
+      "Multiview processor",
+      "video-processor",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "Video wall / multiview",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "primary-hardware",
+    "catalogVisibility": "default",
+    "technologyType": "Video Wall / Multiview",
+    "hardwareType": "Video Wall / Multiview",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Video",
+      "category": "Multiview",
+      "subCategory": "NetworkHD multiview processor",
+      "productType": "Multiview processor",
+      "productSubType": "",
+      "systemRole": "4-Input 4K60 Multiview Processor for NetworkHD",
+      "applicationRole": "Control room",
+      "transportClass": [
+        "HDMI",
+        "NetworkHD"
+      ],
+      "signalDomains": [
+        "Video",
+        "Processing",
+        "Control"
+      ],
+      "subClassifications": [
+        "multiview",
+        "video-processor",
+        "networkhd"
+      ],
+      "classificationPath": [
+        "Video",
+        "Multiview",
+        "NetworkHD multiview processor",
+        "Multiview processor"
+      ],
+      "confidence": 0.84,
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "classificationPath": [
+      "Video",
+      "Multiview",
+      "NetworkHD multiview processor",
+      "Multiview processor"
+    ],
+    "subClassifications": [
+      "multiview",
+      "video-processor",
+      "networkhd"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          7
+        ]
+      },
+      "signalDomains": [
+        "Video",
+        "Processing",
+        "Control"
+      ],
+      "transports": [
+        "HDMI",
+        "NetworkHD"
+      ],
+      "io": {
+        "ports": [
+          {
+            "count": 1,
+            "connector": "4x video inputs",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "4x video inputs"
+          },
+          {
+            "count": 1,
+            "connector": "Multiview output",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "Multiview output"
+          }
+        ],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "4K60 source support",
+          "group": "Video Wall / Multiview",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 7"
+        },
+        {
+          "label": "Multiview processing up to 4 inputs",
+          "group": "Video Wall / Multiview",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 7"
+        },
+        {
+          "label": "Standalone multiview processor",
+          "group": "Video Wall / Multiview",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 7"
+        },
+        {
+          "label": "NetworkHD 400 / 500 compatible",
+          "group": "Video Wall / Multiview",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 7"
+        },
+        {
+          "label": "NetworkHD Touch compatible",
+          "group": "Video Wall / Multiview",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 7"
+        }
+      ],
+      "applications": [
+        "Control room",
+        "Training room",
+        "Monitoring",
+        "Multiview display"
+      ],
+      "processing": [
+        "Multiview processing up to 4 inputs",
+        "Standalone multiview processor"
+      ],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "MV-0401-PRO: 4-Input 4K60 Multiview Processor for NetworkHD",
+        "plainEnglishSummary": "Use this when the control room needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "Control room, Training room, Monitoring, Multiview display",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "Control room",
+          "Training room",
+          "Monitoring",
+          "Multiview display"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "MV-0401-PRO: 4-Input 4K60 Multiview Processor for NetworkHD",
+      "plainEnglishSummary": "Use this when the control room needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "Control room, Training room, Monitoring, Multiview display",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "Control room",
+        "Training room",
+        "Monitoring",
+        "Multiview display"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
+  },
+  {
+    "id": "MXV-0808-H2A-MK2",
+    "url": "",
+    "role": "primary-hardware",
+    "capabilities": [
+      "Matrix",
+      "HDMI",
+      "Analog audio",
+      "S/PDIF",
+      "CEC",
+      "Control",
+      "Video",
+      "Audio"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "MXV-0808-H2A-MK2",
+    "name": "4K60 8x8 HDMI Matrix",
+    "title": "4K60 8x8 HDMI Matrix",
+    "description": "8x8 HDMI matrix supporting up to 4K60 4:4:4 pure HDMI content, automatic 4K to 1080p downscaling on each output, balanced analog and S/PDIF audio de-embedding from input or ARC, CEC power triggering via API, and A/V mute.",
+    "summary": "8x8 HDMI matrix supporting up to 4K60 4:4:4 pure HDMI content, automatic 4K to 1080p downscaling on each output, balanced analog and S/PDIF audio de-embedding from input or ARC, CEC power triggering via API, and A/V mute.",
+    "category": "Matrix",
+    "family": "Matrix Switcher",
+    "technologies": [
+      "Matrix",
+      "HDMI",
+      "Analog audio",
+      "S/PDIF",
+      "CEC",
+      "Control",
+      "Video",
+      "Audio"
+    ],
+    "connectors": [
+      "8x HDMI input",
+      "8x HDMI output",
+      "Balanced analog audio",
+      "S/PDIF audio"
+    ],
+    "features": [
+      "Matrix",
+      "8x8 HDMI matrix switching",
+      "4K60 4:4:4 HDMI",
+      "Automatic 4K to 1080p downscaling",
+      "Audio de-embed from input or ARC",
+      "CEC triggering via API",
+      "A/V mute"
+    ],
+    "applications": [
+      "Residential AV",
+      "Education",
+      "Commercial AV",
+      "HDMI matrix distribution"
+    ],
+    "tags": [
+      "Matrix",
+      "Matrix Switcher",
+      "HDMI",
+      "Analog audio",
+      "S/PDIF",
+      "CEC",
+      "Control",
+      "Video",
+      "Audio",
+      "8x8 HDMI matrix switching",
+      "4K60 4:4:4 HDMI",
+      "Automatic 4K to 1080p downscaling",
+      "Audio de-embed from input or ARC",
+      "CEC triggering via API",
+      "A/V mute",
+      "Residential AV",
+      "Education",
+      "Commercial AV",
+      "HDMI matrix distribution",
+      "Matrix switching",
+      "HDMI matrix",
+      "8x8 HDMI matrix",
+      "audio-deembed",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "Matrix",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "primary-hardware",
+    "catalogVisibility": "default",
+    "technologyType": "Matrix",
+    "hardwareType": "Matrix",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Video",
+      "category": "Matrix switching",
+      "subCategory": "HDMI matrix",
+      "productType": "8x8 HDMI matrix",
+      "productSubType": "",
+      "systemRole": "4K60 8x8 HDMI Matrix",
+      "applicationRole": "Residential AV",
+      "transportClass": [
+        "HDMI",
+        "Analog audio",
+        "S/PDIF",
+        "CEC",
+        "Control"
+      ],
+      "signalDomains": [
+        "Video",
+        "Audio",
+        "Control"
+      ],
+      "subClassifications": [
+        "matrix",
+        "hdmi",
+        "audio-deembed"
+      ],
+      "classificationPath": [
+        "Video",
+        "Matrix switching",
+        "HDMI matrix",
+        "8x8 HDMI matrix"
+      ],
+      "confidence": 0.84,
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "classificationPath": [
+      "Video",
+      "Matrix switching",
+      "HDMI matrix",
+      "8x8 HDMI matrix"
+    ],
+    "subClassifications": [
+      "matrix",
+      "hdmi",
+      "audio-deembed"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          22
+        ]
+      },
+      "signalDomains": [
+        "Video",
+        "Audio",
+        "Control"
+      ],
+      "transports": [
+        "HDMI",
+        "Analog audio",
+        "S/PDIF",
+        "CEC",
+        "Control"
+      ],
+      "io": {
+        "ports": [
+          {
+            "count": 1,
+            "connector": "8x HDMI input",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "8x HDMI input"
+          },
+          {
+            "count": 1,
+            "connector": "8x HDMI output",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "8x HDMI output"
+          },
+          {
+            "count": 1,
+            "connector": "Balanced analog audio",
+            "direction": "unspecified",
+            "category": "audio",
+            "evidence": "Balanced analog audio"
+          },
+          {
+            "count": 1,
+            "connector": "S/PDIF audio",
+            "direction": "unspecified",
+            "category": "audio",
+            "evidence": "S/PDIF audio"
+          }
+        ],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "8x8 HDMI matrix switching",
+          "group": "Matrix",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 22"
+        },
+        {
+          "label": "4K60 4:4:4 HDMI",
+          "group": "Matrix",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 22"
+        },
+        {
+          "label": "Automatic 4K to 1080p downscaling",
+          "group": "Matrix",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 22"
+        },
+        {
+          "label": "Audio de-embed from input or ARC",
+          "group": "Matrix",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 22"
+        },
+        {
+          "label": "CEC triggering via API",
+          "group": "Matrix",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 22"
+        },
+        {
+          "label": "A/V mute",
+          "group": "Matrix",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 22"
+        }
+      ],
+      "applications": [
+        "Residential AV",
+        "Education",
+        "Commercial AV",
+        "HDMI matrix distribution"
+      ],
+      "processing": [
+        "8x8 HDMI matrix switching",
+        "Automatic 4K to 1080p downscaling"
+      ],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "MXV-0808-H2A-MK2: 4K60 8x8 HDMI Matrix",
+        "plainEnglishSummary": "Use this when the residential av needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "Residential AV, Education, Commercial AV, HDMI matrix distribution",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "Residential AV",
+          "Education",
+          "Commercial AV",
+          "HDMI matrix distribution"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "MXV-0808-H2A-MK2: 4K60 8x8 HDMI Matrix",
+      "plainEnglishSummary": "Use this when the residential av needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "Residential AV, Education, Commercial AV, HDMI matrix distribution",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "Residential AV",
+        "Education",
+        "Commercial AV",
+        "HDMI matrix distribution"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
+  },
+  {
+    "id": "NHD-124-RACK-1U",
+    "url": "",
+    "role": "rack-mount",
+    "capabilities": [
+      "Accessory",
+      "Mechanical"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "NHD-124-RACK-1U",
+    "name": "1U 2-Slot Rack Mount for NetworkHD NHD-124-TX",
+    "title": "1U 2-Slot Rack Mount for NetworkHD NHD-124-TX",
+    "description": "1U shallow-depth rack mount designed to support two NHD-124-TX quad encoders, with front or rear facing mounting options and proper thermal dissipation.",
+    "summary": "1U shallow-depth rack mount designed to support two NHD-124-TX quad encoders, with front or rear facing mounting options and proper thermal dissipation.",
+    "category": "Accessory",
+    "family": "Accessory",
+    "technologies": [
+      "Accessory",
+      "Mechanical"
+    ],
+    "connectors": [],
+    "features": [
+      "Accessory",
+      "1U rack mount",
+      "Supports two NHD-124-TX quad encoders",
+      "Front or rear facing mounting",
+      "Thermal dissipation support"
+    ],
+    "applications": [
+      "AV rack",
+      "NetworkHD installation",
+      "Rack mounting"
+    ],
+    "tags": [
+      "Accessory",
+      "Mechanical",
+      "1U rack mount",
+      "Supports two NHD-124-TX quad encoders",
+      "Front or rear facing mounting",
+      "Thermal dissipation support",
+      "AV rack",
+      "NetworkHD installation",
+      "Rack mounting",
+      "Accessory / Other",
+      "Rack accessory",
+      "NetworkHD rack mount",
+      "Rack mount",
+      "rack-mount",
+      "networkhd-accessory",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "Other",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "rack-mount",
+    "catalogVisibility": "request-only",
+    "technologyType": "Accessory",
+    "hardwareType": "Accessory",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Accessory / Other",
+      "category": "Rack accessory",
+      "subCategory": "NetworkHD rack mount",
+      "productType": "Rack mount",
+      "productSubType": "",
+      "systemRole": "1U 2-Slot Rack Mount for NetworkHD NHD-124-TX",
+      "applicationRole": "AV rack",
+      "transportClass": [
+        "Mechanical"
+      ],
+      "signalDomains": [
+        "Mechanical"
+      ],
+      "subClassifications": [
+        "rack-mount",
+        "networkhd-accessory"
+      ],
+      "classificationPath": [
+        "Accessory / Other",
+        "Rack accessory",
+        "NetworkHD rack mount",
+        "Rack mount"
+      ],
+      "confidence": 0.84,
+      "productRole": "rack-mount",
+      "catalogVisibility": "request-only"
+    },
+    "classificationPath": [
+      "Accessory / Other",
+      "Rack accessory",
+      "NetworkHD rack mount",
+      "Rack mount"
+    ],
+    "subClassifications": [
+      "rack-mount",
+      "networkhd-accessory"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          7
+        ]
+      },
+      "signalDomains": [
+        "Mechanical"
+      ],
+      "transports": [
+        "Mechanical"
+      ],
+      "io": {
+        "ports": [],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "1U rack mount",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 7"
+        },
+        {
+          "label": "Supports two NHD-124-TX quad encoders",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 7"
+        },
+        {
+          "label": "Front or rear facing mounting",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 7"
+        },
+        {
+          "label": "Thermal dissipation support",
+          "group": "Accessory",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 7"
+        }
+      ],
+      "applications": [
+        "AV rack",
+        "NetworkHD installation",
+        "Rack mounting"
+      ],
+      "processing": [],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "NHD-124-RACK-1U: 1U 2-Slot Rack Mount for NetworkHD NHD-124-TX",
+        "plainEnglishSummary": "Use this when the av rack needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "AV rack, NetworkHD installation, Rack mounting",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "AV rack",
+          "NetworkHD installation",
+          "Rack mounting"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "NHD-124-RACK-1U: 1U 2-Slot Rack Mount for NetworkHD NHD-124-TX",
+      "plainEnglishSummary": "Use this when the av rack needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "AV rack, NetworkHD installation, Rack mounting",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "AV rack",
+        "NetworkHD installation",
+        "Rack mounting"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
+  },
+  {
+    "id": "NHD-600-E-RX",
+    "url": "",
+    "role": "endpoint-hardware",
+    "capabilities": [
+      "AVoIP",
+      "SDVoE",
+      "10GbE",
+      "HDMI",
+      "PoE+",
+      "Video",
+      "Audio",
+      "Network",
+      "Power"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "NHD-600-E-RX",
+    "name": "4K60 4:4:4 SDVoE Decoder with Zero-Latency Video and PoE+ Power",
+    "title": "4K60 4:4:4 SDVoE Decoder with Zero-Latency Video and PoE+ Power",
+    "description": "NetworkHD 600 Series SDVoE decoder supporting pixel-perfect 4K60 4:4:4 8-bit transmissions with Dolby Vision / HDR compatibility, zero-latency A/V transmission and PoE+ power.",
+    "summary": "NetworkHD 600 Series SDVoE decoder supporting pixel-perfect 4K60 4:4:4 8-bit transmissions with Dolby Vision / HDR compatibility, zero-latency A/V transmission and PoE+ power.",
+    "category": "AVoIP",
+    "family": "NetworkHD AVoIP",
+    "technologies": [
+      "AVoIP",
+      "SDVoE",
+      "10GbE",
+      "HDMI",
+      "PoE+",
+      "Video",
+      "Audio",
+      "Network",
+      "Power"
+    ],
+    "connectors": [
+      "HDMI output",
+      "10GbE network",
+      "PoE+"
+    ],
+    "features": [
+      "AVoIP",
+      "SDVoE decoding",
+      "Zero-latency video",
+      "4K60 4:4:4",
+      "Dolby Vision / HDR compatibility",
+      "PoE+ power"
+    ],
+    "applications": [
+      "AV over IP",
+      "NetworkHD 600",
+      "High-performance video distribution",
+      "Zero-latency routing"
+    ],
+    "tags": [
+      "AVoIP",
+      "NetworkHD AVoIP",
+      "SDVoE",
+      "10GbE",
+      "HDMI",
+      "PoE+",
+      "Video",
+      "Audio",
+      "Network",
+      "Power",
+      "SDVoE decoding",
+      "Zero-latency video",
+      "4K60 4:4:4",
+      "Dolby Vision / HDR compatibility",
+      "PoE+ power",
+      "AV over IP",
+      "NetworkHD 600",
+      "High-performance video distribution",
+      "Zero-latency routing",
+      "SDVoE decoder",
+      "decoder",
+      "networkhd-600",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "AV over IP",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "endpoint-hardware",
+    "catalogVisibility": "default",
+    "technologyType": "AVoIP",
+    "hardwareType": "AVoIP",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Video",
+      "category": "AV over IP",
+      "subCategory": "NetworkHD 600",
+      "productType": "SDVoE decoder",
+      "productSubType": "",
+      "systemRole": "4K60 4:4:4 SDVoE Decoder with Zero-Latency Video and PoE+ Power",
+      "applicationRole": "AV over IP",
+      "transportClass": [
+        "SDVoE",
+        "10GbE",
+        "HDMI",
+        "PoE+"
+      ],
+      "signalDomains": [
+        "Video",
+        "Audio",
+        "Network",
+        "Power"
+      ],
+      "subClassifications": [
+        "avoip",
+        "decoder",
+        "sdvoe",
+        "networkhd-600"
+      ],
+      "classificationPath": [
+        "Video",
+        "AV over IP",
+        "NetworkHD 600",
+        "SDVoE decoder"
+      ],
+      "confidence": 0.84,
+      "productRole": "endpoint-hardware",
+      "catalogVisibility": "default"
+    },
+    "classificationPath": [
+      "Video",
+      "AV over IP",
+      "NetworkHD 600",
+      "SDVoE decoder"
+    ],
+    "subClassifications": [
+      "avoip",
+      "decoder",
+      "sdvoe",
+      "networkhd-600"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          6
+        ]
+      },
+      "signalDomains": [
+        "Video",
+        "Audio",
+        "Network",
+        "Power"
+      ],
+      "transports": [
+        "SDVoE",
+        "10GbE",
+        "HDMI",
+        "PoE+"
+      ],
+      "io": {
+        "ports": [
+          {
+            "count": 1,
+            "connector": "HDMI output",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "HDMI output"
+          },
+          {
+            "count": 1,
+            "connector": "10GbE network",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "10GbE network"
+          },
+          {
+            "count": 1,
+            "connector": "PoE+",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "PoE+"
+          }
+        ],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "SDVoE decoding",
+          "group": "AVoIP",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 6"
+        },
+        {
+          "label": "Zero-latency video",
+          "group": "AVoIP",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 6"
+        },
+        {
+          "label": "4K60 4:4:4",
+          "group": "AVoIP",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 6"
+        },
+        {
+          "label": "Dolby Vision / HDR compatibility",
+          "group": "AVoIP",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 6"
+        },
+        {
+          "label": "PoE+ power",
+          "group": "AVoIP",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 6"
+        }
+      ],
+      "applications": [
+        "AV over IP",
+        "NetworkHD 600",
+        "High-performance video distribution",
+        "Zero-latency routing"
+      ],
+      "processing": [],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "NHD-600-E-RX: 4K60 4:4:4 SDVoE Decoder with Zero-Latency Video and PoE+ Power",
+        "plainEnglishSummary": "Use this when the av over ip needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "AV over IP, NetworkHD 600, High-performance video distribution, Zero-latency routing",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "AV over IP",
+          "NetworkHD 600",
+          "High-performance video distribution",
+          "Zero-latency routing"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "NHD-600-E-RX: 4K60 4:4:4 SDVoE Decoder with Zero-Latency Video and PoE+ Power",
+      "plainEnglishSummary": "Use this when the av over ip needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "AV over IP, NetworkHD 600, High-performance video distribution, Zero-latency routing",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "AV over IP",
+        "NetworkHD 600",
+        "High-performance video distribution",
+        "Zero-latency routing"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
+  },
+  {
+    "id": "NHD-600-E-TX",
+    "url": "",
+    "role": "endpoint-hardware",
+    "capabilities": [
+      "AVoIP",
+      "SDVoE",
+      "10GbE",
+      "HDMI",
+      "PoE+",
+      "Video",
+      "Audio",
+      "Network",
+      "Power"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "NHD-600-E-TX",
+    "name": "4K60 4:4:4 SDVoE Encoder with Zero-Latency Video and PoE+ Power",
+    "title": "4K60 4:4:4 SDVoE Encoder with Zero-Latency Video and PoE+ Power",
+    "description": "NetworkHD 600 Series SDVoE encoder supporting pixel-perfect 4K60 4:4:4 8-bit transmissions with Dolby Vision / HDR compatibility, zero-latency A/V transmission and PoE+ power.",
+    "summary": "NetworkHD 600 Series SDVoE encoder supporting pixel-perfect 4K60 4:4:4 8-bit transmissions with Dolby Vision / HDR compatibility, zero-latency A/V transmission and PoE+ power.",
+    "category": "AVoIP",
+    "family": "NetworkHD AVoIP",
+    "technologies": [
+      "AVoIP",
+      "SDVoE",
+      "10GbE",
+      "HDMI",
+      "PoE+",
+      "Video",
+      "Audio",
+      "Network",
+      "Power"
+    ],
+    "connectors": [
+      "HDMI input",
+      "10GbE network",
+      "PoE+"
+    ],
+    "features": [
+      "AVoIP",
+      "SDVoE encoding",
+      "Zero-latency video",
+      "4K60 4:4:4",
+      "Dolby Vision / HDR compatibility",
+      "PoE+ power"
+    ],
+    "applications": [
+      "AV over IP",
+      "NetworkHD 600",
+      "High-performance video distribution",
+      "Zero-latency routing"
+    ],
+    "tags": [
+      "AVoIP",
+      "NetworkHD AVoIP",
+      "SDVoE",
+      "10GbE",
+      "HDMI",
+      "PoE+",
+      "Video",
+      "Audio",
+      "Network",
+      "Power",
+      "SDVoE encoding",
+      "Zero-latency video",
+      "4K60 4:4:4",
+      "Dolby Vision / HDR compatibility",
+      "PoE+ power",
+      "AV over IP",
+      "NetworkHD 600",
+      "High-performance video distribution",
+      "Zero-latency routing",
+      "SDVoE encoder",
+      "encoder",
+      "networkhd-600",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "AV over IP",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "endpoint-hardware",
+    "catalogVisibility": "default",
+    "technologyType": "AVoIP",
+    "hardwareType": "AVoIP",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Video",
+      "category": "AV over IP",
+      "subCategory": "NetworkHD 600",
+      "productType": "SDVoE encoder",
+      "productSubType": "",
+      "systemRole": "4K60 4:4:4 SDVoE Encoder with Zero-Latency Video and PoE+ Power",
+      "applicationRole": "AV over IP",
+      "transportClass": [
+        "SDVoE",
+        "10GbE",
+        "HDMI",
+        "PoE+"
+      ],
+      "signalDomains": [
+        "Video",
+        "Audio",
+        "Network",
+        "Power"
+      ],
+      "subClassifications": [
+        "avoip",
+        "encoder",
+        "sdvoe",
+        "networkhd-600"
+      ],
+      "classificationPath": [
+        "Video",
+        "AV over IP",
+        "NetworkHD 600",
+        "SDVoE encoder"
+      ],
+      "confidence": 0.84,
+      "productRole": "endpoint-hardware",
+      "catalogVisibility": "default"
+    },
+    "classificationPath": [
+      "Video",
+      "AV over IP",
+      "NetworkHD 600",
+      "SDVoE encoder"
+    ],
+    "subClassifications": [
+      "avoip",
+      "encoder",
+      "sdvoe",
+      "networkhd-600"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          6
+        ]
+      },
+      "signalDomains": [
+        "Video",
+        "Audio",
+        "Network",
+        "Power"
+      ],
+      "transports": [
+        "SDVoE",
+        "10GbE",
+        "HDMI",
+        "PoE+"
+      ],
+      "io": {
+        "ports": [
+          {
+            "count": 1,
+            "connector": "HDMI input",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "HDMI input"
+          },
+          {
+            "count": 1,
+            "connector": "10GbE network",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "10GbE network"
+          },
+          {
+            "count": 1,
+            "connector": "PoE+",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "PoE+"
+          }
+        ],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "SDVoE encoding",
+          "group": "AVoIP",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 6"
+        },
+        {
+          "label": "Zero-latency video",
+          "group": "AVoIP",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 6"
+        },
+        {
+          "label": "4K60 4:4:4",
+          "group": "AVoIP",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 6"
+        },
+        {
+          "label": "Dolby Vision / HDR compatibility",
+          "group": "AVoIP",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 6"
+        },
+        {
+          "label": "PoE+ power",
+          "group": "AVoIP",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 6"
+        }
+      ],
+      "applications": [
+        "AV over IP",
+        "NetworkHD 600",
+        "High-performance video distribution",
+        "Zero-latency routing"
+      ],
+      "processing": [],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "NHD-600-E-TX: 4K60 4:4:4 SDVoE Encoder with Zero-Latency Video and PoE+ Power",
+        "plainEnglishSummary": "Use this when the av over ip needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "AV over IP, NetworkHD 600, High-performance video distribution, Zero-latency routing",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "AV over IP",
+          "NetworkHD 600",
+          "High-performance video distribution",
+          "Zero-latency routing"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "NHD-600-E-TX: 4K60 4:4:4 SDVoE Encoder with Zero-Latency Video and PoE+ Power",
+      "plainEnglishSummary": "Use this when the av over ip needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "AV over IP, NetworkHD 600, High-performance video distribution, Zero-latency routing",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "AV over IP",
+        "NetworkHD 600",
+        "High-performance video distribution",
+        "Zero-latency routing"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
+  },
+  {
+    "id": "SWX-100-IW-UX",
+    "url": "",
+    "role": "primary-hardware",
+    "capabilities": [
+      "Extender / HDBaseT",
+      "HDBaseT 3.0",
+      "HDMI",
+      "USB-C",
+      "USB 2.0",
+      "PoH+",
+      "Video",
+      "USB",
+      "Audio",
+      "Network",
+      "Power"
+    ],
+    "brand": "WyreStorm",
+    "vendorType": "wyrestorm",
+    "sku": "SWX-100-IW-UX",
+    "name": "100m 4K60 HDBaseT 3.0 In-Wall KVM Extender with USB-C and HDMI",
+    "title": "100m 4K60 HDBaseT 3.0 In-Wall KVM Extender with USB-C and HDMI",
+    "description": "HDBaseT 3.0 in-wall KVM extender supporting 4K60 4:4:4 over 100m, HDMI and USB-C source input, local USB host, three remote USB-A ports, audio de-embed and one-way PoH+.",
+    "summary": "HDBaseT 3.0 in-wall KVM extender supporting 4K60 4:4:4 over 100m, HDMI and USB-C source input, local USB host, three remote USB-A ports, audio de-embed and one-way PoH+.",
+    "category": "Extender / HDBaseT",
+    "family": "Extender / HDBaseT",
+    "technologies": [
+      "Extender / HDBaseT",
+      "HDBaseT 3.0",
+      "HDMI",
+      "USB-C",
+      "USB 2.0",
+      "PoH+",
+      "Video",
+      "USB",
+      "Audio",
+      "Network",
+      "Power"
+    ],
+    "connectors": [
+      "HDMI input",
+      "USB-C input",
+      "HDMI output",
+      "USB host",
+      "3x remote USB-A",
+      "Audio output"
+    ],
+    "features": [
+      "Extender / HDBaseT",
+      "100m HDBaseT 3.0 KVM extension",
+      "4K60 4:4:4",
+      "HDMI and USB-C inputs",
+      "USB host built into USB-C input",
+      "3x remote USB-A",
+      "Audio output",
+      "One-way PoH+"
+    ],
+    "applications": [
+      "KVM extension",
+      "Meeting room",
+      "Education",
+      "USB-C presentation extension"
+    ],
+    "tags": [
+      "Extender / HDBaseT",
+      "HDBaseT 3.0",
+      "HDMI",
+      "USB-C",
+      "USB 2.0",
+      "PoH+",
+      "Video",
+      "USB",
+      "Audio",
+      "Network",
+      "Power",
+      "100m HDBaseT 3.0 KVM extension",
+      "4K60 4:4:4",
+      "HDMI and USB-C inputs",
+      "USB host built into USB-C input",
+      "3x remote USB-A",
+      "Audio output",
+      "One-way PoH+",
+      "KVM extension",
+      "Meeting room",
+      "Education",
+      "USB-C presentation extension",
+      "Extension",
+      "HDBaseT 3.0 KVM extender",
+      "In-wall KVM extender",
+      "extender",
+      "hdbaset-3",
+      "kvm",
+      "2026 WyreStorm Product Guide PDF"
+    ],
+    "routingClass": "Extension",
+    "source": "2026 WyreStorm Product Guide PDF",
+    "productRole": "primary-hardware",
+    "catalogVisibility": "default",
+    "technologyType": "Extender / HDBaseT",
+    "hardwareType": "Extender / HDBaseT",
+    "productClassification": {
+      "taxonomyVersion": "wyrestorm-product-manager-v1",
+      "primaryCategory": "Video",
+      "category": "Extension",
+      "subCategory": "HDBaseT 3.0 KVM extender",
+      "productType": "In-wall KVM extender",
+      "productSubType": "",
+      "systemRole": "100m 4K60 HDBaseT 3.0 In-Wall KVM Extender with USB-C and HDMI",
+      "applicationRole": "KVM extension",
+      "transportClass": [
+        "HDBaseT 3.0",
+        "HDMI",
+        "USB-C",
+        "USB 2.0",
+        "PoH+"
+      ],
+      "signalDomains": [
+        "Video",
+        "USB",
+        "Audio",
+        "Network",
+        "Power"
+      ],
+      "subClassifications": [
+        "extender",
+        "hdbaset-3",
+        "kvm",
+        "usb-c"
+      ],
+      "classificationPath": [
+        "Video",
+        "Extension",
+        "HDBaseT 3.0 KVM extender",
+        "In-wall KVM extender"
+      ],
+      "confidence": 0.84,
+      "productRole": "primary-hardware",
+      "catalogVisibility": "default"
+    },
+    "classificationPath": [
+      "Video",
+      "Extension",
+      "HDBaseT 3.0 KVM extender",
+      "In-wall KVM extender"
+    ],
+    "subClassifications": [
+      "extender",
+      "hdbaset-3",
+      "kvm",
+      "usb-c"
+    ],
+    "technicalProfile": {
+      "profileVersion": "wyrestorm-product-manager-v1",
+      "sourceQuality": {
+        "officialPageStatus": "product-guide-pdf",
+        "livePageUsed": false,
+        "productGuidePdf": "Product.pdf",
+        "productGuideLastModified": "2026-05-05T11:19:13.370Z",
+        "productGuidePages": [
+          30
+        ]
+      },
+      "signalDomains": [
+        "Video",
+        "USB",
+        "Audio",
+        "Network",
+        "Power"
+      ],
+      "transports": [
+        "HDBaseT 3.0",
+        "HDMI",
+        "USB-C",
+        "USB 2.0",
+        "PoH+"
+      ],
+      "io": {
+        "ports": [
+          {
+            "count": 1,
+            "connector": "HDMI input",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "HDMI input"
+          },
+          {
+            "count": 1,
+            "connector": "USB-C input",
+            "direction": "unspecified",
+            "category": "usb",
+            "evidence": "USB-C input"
+          },
+          {
+            "count": 1,
+            "connector": "HDMI output",
+            "direction": "unspecified",
+            "category": "other",
+            "evidence": "HDMI output"
+          },
+          {
+            "count": 1,
+            "connector": "USB host",
+            "direction": "unspecified",
+            "category": "usb",
+            "evidence": "USB host"
+          },
+          {
+            "count": 1,
+            "connector": "3x remote USB-A",
+            "direction": "unspecified",
+            "category": "usb",
+            "evidence": "3x remote USB-A"
+          },
+          {
+            "count": 1,
+            "connector": "Audio output",
+            "direction": "unspecified",
+            "category": "audio",
+            "evidence": "Audio output"
+          }
+        ],
+        "video": [],
+        "audio": [],
+        "usb": [],
+        "network": [],
+        "control": [],
+        "power": []
+      },
+      "features": [
+        {
+          "label": "100m HDBaseT 3.0 KVM extension",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 30"
+        },
+        {
+          "label": "4K60 4:4:4",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 30"
+        },
+        {
+          "label": "HDMI and USB-C inputs",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 30"
+        },
+        {
+          "label": "USB host built into USB-C input",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 30"
+        },
+        {
+          "label": "3x remote USB-A",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 30"
+        },
+        {
+          "label": "Audio output",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 30"
+        },
+        {
+          "label": "One-way PoH+",
+          "group": "Extender / HDBaseT",
+          "evidence": "2026 WyreStorm Product Guide PDF, page 30"
+        }
+      ],
+      "applications": [
+        "KVM extension",
+        "Meeting room",
+        "Education",
+        "USB-C presentation extension"
+      ],
+      "processing": [
+        "100m HDBaseT 3.0 KVM extension"
+      ],
+      "salesLanguage": {
+        "voiceVersion": "wingman-sales-language-v1",
+        "headline": "SWX-100-IW-UX: 100m 4K60 HDBaseT 3.0 In-Wall KVM Extender with USB-C and HDMI",
+        "plainEnglishSummary": "Use this when the kvm extension needs this specific WyreStorm capability from the 2026 product guide.",
+        "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+        "realWorldApplication": "KVM extension, Meeting room, Education, USB-C presentation extension",
+        "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+        "talkTrack": [
+          "Open with the customer outcome before naming the product.",
+          "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+        ],
+        "discoveryPrompts": [
+          "What is the room or application?",
+          "What signal types, distances and USB needs are involved?",
+          "Is this a simple point solution or part of a wider system?"
+        ],
+        "positioningNotes": [
+          "Position from application fit, not a generic SKU list."
+        ],
+        "avoidPositioningAs": [
+          "Do not treat product-guide inclusion alone as a complete design recommendation."
+        ],
+        "marketApplications": [
+          "KVM extension",
+          "Meeting room",
+          "Education",
+          "USB-C presentation extension"
+        ],
+        "voices": {
+          "endUser": {
+            "label": "End user",
+            "audience": "Customer stakeholder",
+            "value": "Keeps the system easier to use and aligned with the room outcome.",
+            "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+          },
+          "systemIntegrator": {
+            "label": "System integrator",
+            "audience": "Dealer / installer",
+            "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+            "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+          },
+          "consultant": {
+            "label": "Technical consultant",
+            "audience": "Consultant / designer",
+            "value": "Provides a current product-guide reference for the technical design discussion.",
+            "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+          }
+        }
+      }
+    },
+    "salesLanguage": {
+      "voiceVersion": "wingman-sales-language-v1",
+      "headline": "SWX-100-IW-UX: 100m 4K60 HDBaseT 3.0 In-Wall KVM Extender with USB-C and HDMI",
+      "plainEnglishSummary": "Use this when the kvm extension needs this specific WyreStorm capability from the 2026 product guide.",
+      "customerValue": "It keeps the recommendation aligned with the latest WyreStorm guide and gives the sales person a credible opening position.",
+      "realWorldApplication": "KVM extension, Meeting room, Education, USB-C presentation extension",
+      "salespersonCue": "Confirm the room requirement first, then use this product as a WyreStorm-fit option rather than leading with the SKU.",
+      "talkTrack": [
+        "Open with the customer outcome before naming the product.",
+        "Use the product guide facts as confidence builders, then hand deeper specification detail to a WyreStorm expert when needed."
+      ],
+      "discoveryPrompts": [
+        "What is the room or application?",
+        "What signal types, distances and USB needs are involved?",
+        "Is this a simple point solution or part of a wider system?"
+      ],
+      "positioningNotes": [
+        "Position from application fit, not a generic SKU list."
+      ],
+      "avoidPositioningAs": [
+        "Do not treat product-guide inclusion alone as a complete design recommendation."
+      ],
+      "marketApplications": [
+        "KVM extension",
+        "Meeting room",
+        "Education",
+        "USB-C presentation extension"
+      ],
+      "voices": {
+        "endUser": {
+          "label": "End user",
+          "audience": "Customer stakeholder",
+          "value": "Keeps the system easier to use and aligned with the room outcome.",
+          "opener": "This is the WyreStorm option I would consider if the room needs that workflow."
+        },
+        "systemIntegrator": {
+          "label": "System integrator",
+          "audience": "Dealer / installer",
+          "value": "Gives you a current WyreStorm path with the key installation constraints visible.",
+          "opener": "This guide entry points us toward the right architecture, then we can validate the exact design details."
+        },
+        "consultant": {
+          "label": "Technical consultant",
+          "audience": "Consultant / designer",
+          "value": "Provides a current product-guide reference for the technical design discussion.",
+          "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
+        }
+      }
+    }
   }
 ]
