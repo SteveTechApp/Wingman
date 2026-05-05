@@ -38,4 +38,7 @@
 
 /* Final visual authority. This must stay last. */
 @import "./wingman-layout-primitives.css";
+
+/* Final visual authority and density governance. */
 @import "./wingman-authority-system.css";
+@import "./wingman-density-governance.css";
