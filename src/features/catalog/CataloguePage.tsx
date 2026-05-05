@@ -951,10 +951,10 @@ export default function CataloguePage() {
                       </div>
                       <div>
                         <div style={tinyMutedStyle}>{product.deploymentRole}</div>
-                        <div style={featureInlineStyle}>{badges.slice(0, 2).join(" • ")}</div>
+                        <div style={featureInlineStyle}>{badges.slice(0, 2).join(" â€¢ ")}</div>
                       </div>
-                      <div style={featureInlineStyle}>{product.families.join(" • ")}</div>
-                      <div style={featureInlineStyle}>{reasons.join(" • ")}</div>
+                      <div style={featureInlineStyle}>{product.families.join(" â€¢ ")}</div>
+                      <div style={featureInlineStyle}>{reasons.join(" â€¢ ")}</div>
                     </div>
                   );
                 })}
@@ -992,7 +992,7 @@ export default function CataloguePage() {
                       <p style={summaryStyle}>{product.summary}</p>
 
                       <div style={whyFitStyle}>
-                        <strong>Why this product:</strong> {reasons.join(" • ")}
+                        <strong>Why this product:</strong> {reasons.join(" â€¢ ")}
                       </div>
 
                       <div style={pillWrapStyle}>

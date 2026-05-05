@@ -22,7 +22,7 @@ const wallTypes = [
     ],
     exampleWallSize: "6.0m x 2.0m",
     targetEnvironment: "Corporate foyer / experience area",
-    signalPath: "Sources → processing / controller → LED controller → LED cabinet canvas",
+    signalPath: "Sources â†’ processing / controller â†’ LED controller â†’ LED cabinet canvas",
     caution: "Confirm viewing distance, pixel pitch, service access, heat, mounting structure, and controller architecture before final recommendation.",
     plainEnglish:
       "An LED wall is built from LED cabinets or modules. It behaves like one large canvas, but the processor or LED controller must correctly map the incoming image to the physical LED layout.",
@@ -43,7 +43,7 @@ const wallTypes = [
     ],
     exampleWallSize: "3 x 3 55in layout",
     targetEnvironment: "Control room / reception signage / teaching wall",
-    signalPath: "Sources → processor / matrix / AVoIP → individual LCD displays",
+    signalPath: "Sources â†’ processor / matrix / AVoIP â†’ individual LCD displays",
     caution: "Confirm bezel expectations, mount alignment, display model, processor layout support, and whether the customer needs one image or multiple layouts.",
     plainEnglish:
       "An LCD videowall is multiple flat panels working together. The design must decide whether the wall shows one large image, separate content on each display, or mixed layouts.",

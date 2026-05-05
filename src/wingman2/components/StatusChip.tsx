@@ -1,4 +1,4 @@
-﻿import type { StatusVariant } from "../types";
+import type { StatusVariant } from "../types";
 
 type StatusChipProps = {
   label: string;

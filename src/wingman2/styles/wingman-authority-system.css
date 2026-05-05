@@ -1,0 +1,418 @@
+/* ============================================================
+   WINGMAN AUTHORITY SYSTEM
+   Final override layer only.
+   Component/page CSS provides structure; this file normalises visual language.
+============================================================ */
+
+:root {
+  --wm-authority-bg: #030914;
+  --wm-authority-bg-2: #06111f;
+  --wm-authority-sidebar: rgba(2, 8, 17, 0.96);
+  --wm-authority-topbar: rgba(5, 13, 24, 0.92);
+  --wm-authority-panel: rgba(8, 20, 36, 0.88);
+  --wm-authority-panel-strong: rgba(9, 23, 43, 0.96);
+  --wm-authority-card: rgba(11, 27, 49, 0.82);
+  --wm-authority-border: rgba(126, 165, 217, 0.14);
+  --wm-authority-border-mid: rgba(126, 165, 217, 0.22);
+  --wm-authority-border-strong: rgba(245, 166, 35, 0.44);
+  --wm-authority-text: rgba(248, 250, 252, 0.94);
+  --wm-authority-soft: rgba(226, 234, 245, 0.72);
+  --wm-authority-muted: rgba(226, 234, 245, 0.54);
+  --wm-authority-field: rgba(239, 245, 251, 0.96);
+  --wm-authority-ink: #0b1728;
+  --wm-authority-orange: #f5a623;
+  --wm-authority-cyan: #32d6f6;
+  --wm-sidebar-width: 252px;
+  --wm-topbar-height: 56px;
+}
+
+/* Foundation */
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+  background: var(--wm-authority-bg) !important;
+  color: var(--wm-authority-text) !important;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+.wingman-shell,
+.wingman-shell *,
+.wingman-shell *::before,
+.wingman-shell *::after {
+  box-sizing: border-box;
+  text-shadow: none !important;
+}
+
+.wingman-shell {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(78, 144, 230, 0.14), transparent 34rem),
+    radial-gradient(circle at 94% 10%, rgba(245, 166, 35, 0.08), transparent 30rem),
+    linear-gradient(135deg, #030914 0%, #06111f 54%, #020711 100%) !important;
+  color: var(--wm-authority-text) !important;
+}
+
+/* Main frame: final correction only, not full layout replacement */
+html body .wingman-shell main.wingman-app-main,
+html body main.wingman-app-main {
+  min-height: 0 !important;
+  max-width: none !important;
+  overflow: auto !important;
+  overflow-x: hidden !important;
+  padding: 14px clamp(14px, 1.35vw, 22px) 22px !important;
+  background: transparent !important;
+  color: var(--wm-authority-text) !important;
+}
+
+/* Brand sizing */
+img.wingman-brand-image {
+  display: block !important;
+  width: 180px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+img.wingman-expert-handoff-avatar {
+  width: 28px !important;
+  height: 28px !important;
+  object-fit: contain !important;
+}
+
+img.wingman-guru-fab-image {
+  width: 64px !important;
+  height: 64px !important;
+  object-fit: contain !important;
+}
+
+/* Typography discipline */
+html body .wingman-app-main,
+html body .wingman-app-main p,
+html body .wingman-app-main li,
+html body .wingman-app-main span,
+html body .wingman-app-main small,
+html body .wingman-app-main div,
+html body .wingman-app-main dd,
+html body .wingman-app-main td {
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+}
+
+html body .wingman-app-main p,
+html body .wingman-app-main li {
+  color: var(--wm-authority-soft) !important;
+  font-size: 0.86rem !important;
+  line-height: 1.42 !important;
+}
+
+html body .wingman-app-main small {
+  color: var(--wm-authority-muted) !important;
+  font-size: 0.72rem !important;
+  line-height: 1.25 !important;
+}
+
+html body .wingman-app-main strong,
+html body .wingman-app-main b {
+  font-weight: 600 !important;
+}
+
+html body .wingman-app-main h1,
+html body .wingman-app-main h2,
+html body .wingman-app-main h3,
+html body .wingman-app-main h4,
+html body .wingman-app-main h5,
+html body .wingman-app-main h6 {
+  color: #ffffff !important;
+  font-weight: 720 !important;
+  letter-spacing: -0.026em !important;
+  text-wrap: balance;
+}
+
+html body .wingman-app-main h1 {
+  font-size: clamp(1.75rem, 2.35vw, 2.8rem) !important;
+  line-height: 1.02 !important;
+}
+
+html body .wingman-app-main h2 {
+  font-size: clamp(1.25rem, 1.55vw, 1.85rem) !important;
+  line-height: 1.08 !important;
+}
+
+html body .wingman-app-main h3 {
+  font-size: clamp(1rem, 1.05vw, 1.22rem) !important;
+  line-height: 1.14 !important;
+}
+
+html body .wingman-app-main [class*="description" i],
+html body .wingman-app-main [class*="helper" i],
+html body .wingman-app-main [class*="summary" i],
+html body .wingman-app-main [class*="subtitle" i],
+html body .wingman-app-main [class*="meta" i],
+html body .wingman-app-main [class*="body" i],
+html body .wingman-app-main [class*="copy" i],
+html body .wingman-app-main [class*="caption" i] {
+  font-weight: 400 !important;
+}
+
+/* Buttons */
+html body .wingman-app-main button,
+html body .wingman-app-main a[role="button"],
+html body .wingman-app-main [role="button"] {
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-shadow: none !important;
+  border-radius: 11px !important;
+}
+
+html body .wingman-app-main button *,
+html body .wingman-app-main a[role="button"] *,
+html body .wingman-app-main [role="button"] * {
+  font-weight: inherit !important;
+}
+
+html body .wingman-app-main button p,
+html body .wingman-app-main button small,
+html body .wingman-app-main [role="button"] p,
+html body .wingman-app-main [role="button"] small {
+  font-weight: 400 !important;
+  opacity: 0.72 !important;
+}
+
+/* Forms */
+html body .wingman-app-main input,
+html body .wingman-app-main textarea,
+html body .wingman-app-main select {
+  background: var(--wm-authority-field) !important;
+  color: var(--wm-authority-ink) !important;
+  border: 1px solid rgba(255, 255, 255, 0.34) !important;
+  border-radius: 11px !important;
+  font-weight: 500 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36) !important;
+}
+
+html body .wingman-app-main input::placeholder,
+html body .wingman-app-main textarea::placeholder {
+  color: rgba(12, 24, 42, 0.48) !important;
+  font-weight: 400 !important;
+}
+
+html body .wingman-app-main label,
+html body .wingman-app-main legend,
+html body .wingman-app-main [class*="label" i] {
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Cards and panels: soften only */
+html body .wingman-app-main [class*="hero" i],
+html body .wingman-app-main [class*="Hero" i],
+html body .wingman-app-main [class*="panel" i],
+html body .wingman-app-main [class*="canvas" i],
+html body .wingman-app-main [class*="workspace" i],
+html body .wingman-app-main [class*="board" i],
+html body .wingman-app-main [class*="card" i],
+html body .wingman-app-main [class*="tile" i],
+html body .wingman-app-main section,
+html body .wingman-app-main article {
+  border-color: var(--wm-authority-border) !important;
+}
+
+/* Sidebar copy discipline */
+html body [class*="sidebar" i] p,
+html body [class*="sidebar" i] small,
+html body .wingman-nav-description,
+html body [class*="nav-description" i] {
+  display: none !important;
+}
+
+html body [class*="sidebar" i],
+html body [class*="sidebar" i] * {
+  font-weight: 560 !important;
+}
+
+html body [class*="sidebar" i] a,
+html body [class*="sidebar" i] button {
+  text-decoration: none !important;
+}
+
+/* Right guidance panel */
+html body .wingman-app-main aside p,
+html body .wingman-app-main [class*="guidance" i] p {
+  color: rgba(226, 234, 245, 0.66) !important;
+  font-size: 0.8rem !important;
+  line-height: 1.34 !important;
+  font-weight: 400 !important;
+}
+
+/* Support button */
+html body .wm-authority-support-trigger,
+html body .wm-copy-support-trigger {
+  position: fixed !important;
+  right: 18px !important;
+  bottom: 26px !important;
+  z-index: 90 !important;
+  border: 1px solid rgba(0, 220, 255, 0.42) !important;
+  background: rgba(7, 24, 42, 0.94) !important;
+  color: #00e5ff !important;
+  border-radius: 12px !important;
+  padding: 11px 17px !important;
+  font-size: 0.82rem !important;
+  font-weight: 650 !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.42) !important;
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+}
+
+/* Product Finder rescue */
+body.wm-route-finder .wingman-app-main [class*="finder" i] {
+  min-width: 0;
+}
+
+body.wm-route-finder .wingman-app-main [class*="product" i] h3,
+body.wm-route-finder .wingman-app-main [class*="sku" i] {
+  font-weight: 680 !important;
+}
+
+body.wm-route-finder .wingman-app-main [class*="product" i] p {
+  font-size: 0.8rem !important;
+  font-weight: 400 !important;
+}
+
+/* Templates route */
+body.wm-route-templates .wingman-app-main [class*="market" i] small,
+body.wm-route-templates .wingman-app-main [class*="market" i] p,
+body.wm-route-templates .wingman-app-main [class*="template" i] small {
+  display: none !important;
+}
+
+/* Proposal route */
+body.wm-route-proposal .wingman-app-main [class*="proposal" i] p,
+body.wm-route-proposal .wingman-app-main [class*="output" i] p,
+body.wm-route-proposal .wingman-app-main [class*="draft" i] p {
+  display: block !important;
+  overflow: visible !important;
+  max-width: none !important;
+  -webkit-line-clamp: unset !important;
+}
+
+/* Scrollbars */
+.wingman-app-main::-webkit-scrollbar,
+.wingman-sidebar::-webkit-scrollbar,
+[class*="sidebar" i]::-webkit-scrollbar {
+  width: 10px;
+}
+
+.wingman-app-main::-webkit-scrollbar-thumb,
+.wingman-sidebar::-webkit-scrollbar-thumb,
+[class*="sidebar" i]::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.34);
+  background-clip: padding-box;
+}
+
+@media (max-width: 1023px) {
+  html body .wingman-shell main.wingman-app-main,
+  html body main.wingman-app-main {
+    padding: 12px !important;
+  }
+
+  html body .wingman-app-main h1 {
+    font-size: clamp(1.55rem, 6vw, 2.25rem) !important;
+  }
+
+  html body .wm-authority-support-trigger,
+  html body .wm-copy-support-trigger {
+    right: 14px !important;
+    bottom: 18px !important;
+  }
+}
+/* WM PAGE DENSITY GOVERNANCE BEGIN
+   Purpose:
+   - reduce overcrowded pages
+   - stop repeating support copy in cards/buttons
+   - keep body text and buttons less heavy
+   - keep technical detail available through panels/Guru rather than everywhere
+*/
+
+html body .wingman-app-main [class*="hero" i] p:nth-of-type(n+2),
+html body .wingman-app-main [class*="Hero" i] p:nth-of-type(n+2),
+html body .wingman-app-main [class*="page-header" i] p:nth-of-type(n+2),
+html body .wingman-app-main [class*="page-head" i] p:nth-of-type(n+2) {
+  display: none !important;
+}
+
+html body .wingman-app-main button p,
+html body .wingman-app-main button small,
+html body .wingman-app-main [role="button"] p,
+html body .wingman-app-main [role="button"] small {
+  display: none !important;
+}
+
+html body .wingman-app-main [class*="card" i] p,
+html body .wingman-app-main [class*="tile" i] p,
+html body .wingman-app-main [class*="option" i] p,
+html body .wingman-app-main [class*="choice" i] p {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+html body .wingman-app-main [class*="helper" i] p,
+html body .wingman-app-main [class*="guidance" i] p,
+html body .wingman-app-main [class*="support" i] p,
+html body .wingman-app-main [class*="callout" i] p {
+  font-size: 0.8rem !important;
+  line-height: 1.34 !important;
+  color: rgba(226, 234, 245, 0.64) !important;
+}
+
+html body .wingman-app-main [class*="helper" i] p:nth-of-type(n+2),
+html body .wingman-app-main [class*="guidance" i] p:nth-of-type(n+2),
+html body .wingman-app-main [class*="support" i] p:nth-of-type(n+2),
+html body .wingman-app-main [class*="callout" i] p:nth-of-type(n+2) {
+  display: none !important;
+}
+
+html body .wingman-app-main [class*="filter" i],
+html body .wingman-app-main [class*="toolbar" i],
+html body .wingman-app-main [class*="action" i] {
+  gap: 8px !important;
+}
+
+html body .wingman-app-main button,
+html body .wingman-app-main a[role="button"],
+html body .wingman-app-main [role="button"] {
+  font-weight: 560 !important;
+}
+
+html body .wingman-app-main p,
+html body .wingman-app-main li,
+html body .wingman-app-main span,
+html body .wingman-app-main div {
+  font-weight: 400 !important;
+}
+
+/* Do not clamp generated proposal/report outputs. */
+body.wm-route-proposal .wingman-app-main [class*="proposal" i] p,
+body.wm-route-proposal .wingman-app-main [class*="output" i] p,
+body.wm-route-proposal .wingman-app-main [class*="draft" i] p,
+body.wm-route-proposal .wingman-app-main [class*="section" i] p {
+  display: block !important;
+  overflow: visible !important;
+  max-width: none !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: initial !important;
+}
+
+/* WM PAGE DENSITY GOVERNANCE END */
