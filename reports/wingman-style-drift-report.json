@@ -1,27 +1,27 @@
 {
-  "generatedAt": "2026-05-05T08:27:06.921Z",
-  "cssFiles": 21,
+  "generatedAt": "2026-05-05T08:30:25.719Z",
+  "cssFiles": 22,
   "tsCssImports": 1,
-  "cssAtImports": 20,
-  "activeCssFiles": 21,
+  "cssAtImports": 21,
+  "activeCssFiles": 22,
   "inactiveCssFiles": 0,
   "reports": [
     {
-      "risk": 3425,
-      "file": "src/wingman2/styles/entry.css",
+      "risk": 3264,
+      "file": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
       "active": true,
-      "lines": 4542,
-      "sizeKb": 114.1,
-      "important": 1314,
-      "rootTokens": 4,
-      "shell": 29,
-      "main": 9,
-      "sidebar": 29,
-      "topbar": 56,
+      "lines": 3839,
+      "sizeKb": 106.5,
+      "important": 1272,
+      "rootTokens": 3,
+      "shell": 28,
+      "main": 5,
+      "sidebar": 21,
+      "topbar": 42,
       "route": 41,
       "conflict": 50,
       "importedBy": [
-        "src/wingman2/styles/wingman-style-stack.css -> ./entry.css"
+        "src/wingman2/styles/wingman-style-stack.css -> ./wingman-entry-legacy-overrides.css"
       ]
     },
     {
@@ -187,6 +187,24 @@
       ]
     },
     {
+      "risk": 161,
+      "file": "src/wingman2/styles/entry.css",
+      "active": true,
+      "lines": 715,
+      "sizeKb": 15.5,
+      "important": 42,
+      "rootTokens": 1,
+      "shell": 1,
+      "main": 4,
+      "sidebar": 8,
+      "topbar": 14,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-style-stack.css -> ./entry.css"
+      ]
+    },
+    {
       "risk": 100,
       "file": "src/wingman2/styles/discovery-calm.css",
       "active": true,
@@ -298,8 +316,8 @@
       "risk": 11,
       "file": "src/wingman2/styles/wingman-style-stack.css",
       "active": true,
-      "lines": 46,
-      "sizeKb": 1.5,
+      "lines": 41,
+      "sizeKb": 1.3,
       "important": 0,
       "rootTokens": 0,
       "shell": 0,
@@ -410,6 +428,14 @@
       "import": "./entry.css",
       "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\entry.css",
       "resolved": "src/wingman2/styles/entry.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-style-stack.css",
+      "import": "./wingman-entry-legacy-overrides.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\wingman-entry-legacy-overrides.css",
+      "resolved": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
       "exists": true
     },
     {
