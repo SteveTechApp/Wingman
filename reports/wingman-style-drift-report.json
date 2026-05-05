@@ -1,29 +1,11 @@
 {
-  "generatedAt": "2026-05-05T08:30:25.719Z",
-  "cssFiles": 22,
+  "generatedAt": "2026-05-05T08:32:42.422Z",
+  "cssFiles": 43,
   "tsCssImports": 1,
-  "cssAtImports": 21,
-  "activeCssFiles": 22,
+  "cssAtImports": 42,
+  "activeCssFiles": 43,
   "inactiveCssFiles": 0,
   "reports": [
-    {
-      "risk": 3264,
-      "file": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
-      "active": true,
-      "lines": 3839,
-      "sizeKb": 106.5,
-      "important": 1272,
-      "rootTokens": 3,
-      "shell": 28,
-      "main": 5,
-      "sidebar": 21,
-      "topbar": 42,
-      "route": 41,
-      "conflict": 50,
-      "importedBy": [
-        "src/wingman2/styles/wingman-style-stack.css -> ./wingman-entry-legacy-overrides.css"
-      ]
-    },
     {
       "risk": 736,
       "file": "src/wingman2/styles/wm-route-redesign.css",
@@ -79,6 +61,24 @@
       ]
     },
     {
+      "risk": 601,
+      "file": "src/wingman2/styles/legacy-overrides/018-new-wingman-design-pass.css",
+      "active": true,
+      "lines": 626,
+      "sizeKb": 16.7,
+      "important": 265,
+      "rootTokens": 1,
+      "shell": 3,
+      "main": 2,
+      "sidebar": 6,
+      "topbar": 9,
+      "route": 0,
+      "conflict": 2,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/018-new-wingman-design-pass.css"
+      ]
+    },
+    {
       "risk": 528,
       "file": "src/wingman2/styles/wm-brand-reset.css",
       "active": true,
@@ -94,6 +94,42 @@
       "conflict": 0,
       "importedBy": [
         "src/wingman2/styles/wingman-style-stack.css -> ./wm-brand-reset.css"
+      ]
+    },
+    {
+      "risk": 488,
+      "file": "src/wingman2/styles/legacy-overrides/017-workflow-clarity-pass.css",
+      "active": true,
+      "lines": 447,
+      "sizeKb": 10.7,
+      "important": 223,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 3,
+      "route": 0,
+      "conflict": 9,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/017-workflow-clarity-pass.css"
+      ]
+    },
+    {
+      "risk": 424,
+      "file": "src/wingman2/styles/legacy-overrides/021-product-finder-surface-hierarchy.css",
+      "active": true,
+      "lines": 157,
+      "sizeKb": 8,
+      "important": 41,
+      "rootTokens": 0,
+      "shell": 25,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 2,
+      "route": 41,
+      "conflict": 2,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/021-product-finder-surface-hierarchy.css"
       ]
     },
     {
@@ -133,6 +169,24 @@
       ]
     },
     {
+      "risk": 277,
+      "file": "src/wingman2/styles/legacy-overrides/019-balanced-compact-app-headers.css",
+      "active": true,
+      "lines": 217,
+      "sizeKb": 5.5,
+      "important": 119,
+      "rootTokens": 1,
+      "shell": 0,
+      "main": 1,
+      "sidebar": 0,
+      "topbar": 13,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/019-balanced-compact-app-headers.css"
+      ]
+    },
+    {
       "risk": 263,
       "file": "src/wingman2/styles/wingman-density-governance.css",
       "active": true,
@@ -151,6 +205,42 @@
       ]
     },
     {
+      "risk": 262,
+      "file": "src/wingman2/styles/legacy-overrides/015-declutter-guidance-popovers.css",
+      "active": true,
+      "lines": 265,
+      "sizeKb": 6.7,
+      "important": 120,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 3,
+      "route": 0,
+      "conflict": 4,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/015-declutter-guidance-popovers.css"
+      ]
+    },
+    {
+      "risk": 248,
+      "file": "src/wingman2/styles/legacy-overrides/006-wingman-compact-page-length.css",
+      "active": true,
+      "lines": 338,
+      "sizeKb": 7,
+      "important": 106,
+      "rootTokens": 1,
+      "shell": 0,
+      "main": 2,
+      "sidebar": 0,
+      "topbar": 9,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/006-wingman-compact-page-length.css"
+      ]
+    },
+    {
       "risk": 194,
       "file": "src/wingman2/styles/wm-sidebar-no-horizontal-scroll.css",
       "active": true,
@@ -166,6 +256,42 @@
       "conflict": 0,
       "importedBy": [
         "src/wingman2/styles/wingman-style-stack.css -> ./wm-sidebar-no-horizontal-scroll.css"
+      ]
+    },
+    {
+      "risk": 180,
+      "file": "src/wingman2/styles/legacy-overrides/010-compare-swot-engine.css",
+      "active": true,
+      "lines": 363,
+      "sizeKb": 6.5,
+      "important": 50,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 2,
+      "route": 0,
+      "conflict": 19,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/010-compare-swot-engine.css"
+      ]
+    },
+    {
+      "risk": 178,
+      "file": "src/wingman2/styles/legacy-overrides/014-prominent-card-buttons.css",
+      "active": true,
+      "lines": 197,
+      "sizeKb": 35.8,
+      "important": 89,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/014-prominent-card-buttons.css"
       ]
     },
     {
@@ -205,6 +331,24 @@
       ]
     },
     {
+      "risk": 116,
+      "file": "src/wingman2/styles/legacy-overrides/009-compare-accuracy-contrast-fix.css",
+      "active": true,
+      "lines": 95,
+      "sizeKb": 2.6,
+      "important": 30,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 14,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/009-compare-accuracy-contrast-fix.css"
+      ]
+    },
+    {
       "risk": 100,
       "file": "src/wingman2/styles/discovery-calm.css",
       "active": true,
@@ -220,6 +364,60 @@
       "conflict": 0,
       "importedBy": [
         "src/wingman2/styles/wingman-style-stack.css -> ./discovery-calm.css"
+      ]
+    },
+    {
+      "risk": 100,
+      "file": "src/wingman2/styles/legacy-overrides/008-compact-sidebar-tooltips.css",
+      "active": true,
+      "lines": 89,
+      "sizeKb": 2.4,
+      "important": 47,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 3,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/008-compact-sidebar-tooltips.css"
+      ]
+    },
+    {
+      "risk": 94,
+      "file": "src/wingman2/styles/legacy-overrides/020-discovery-application-step-restore.css",
+      "active": true,
+      "lines": 115,
+      "sizeKb": 3.1,
+      "important": 47,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/020-discovery-application-step-restore.css"
+      ]
+    },
+    {
+      "risk": 84,
+      "file": "src/wingman2/styles/legacy-overrides/011-compare-simplified-view.css",
+      "active": true,
+      "lines": 132,
+      "sizeKb": 2.7,
+      "important": 41,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 1,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/011-compare-simplified-view.css"
       ]
     },
     {
@@ -256,6 +454,96 @@
       "conflict": 0,
       "importedBy": [
         "src/wingman2/styles/wingman-style-stack.css -> ./wm-logo-scale.css"
+      ]
+    },
+    {
+      "risk": 54,
+      "file": "src/wingman2/styles/legacy-overrides/002-logo-sizing-fix.css",
+      "active": true,
+      "lines": 57,
+      "sizeKb": 1.5,
+      "important": 23,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 4,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/002-logo-sizing-fix.css"
+      ]
+    },
+    {
+      "risk": 46,
+      "file": "src/wingman2/styles/legacy-overrides/007-mobile-shade-desktop-fix.css",
+      "active": true,
+      "lines": 52,
+      "sizeKb": 1.4,
+      "important": 22,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 1,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/007-mobile-shade-desktop-fix.css"
+      ]
+    },
+    {
+      "risk": 38,
+      "file": "src/wingman2/styles/legacy-overrides/003-wingman-logo-svg-fix.css",
+      "active": true,
+      "lines": 39,
+      "sizeKb": 1.1,
+      "important": 15,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 4,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/003-wingman-logo-svg-fix.css"
+      ]
+    },
+    {
+      "risk": 38,
+      "file": "src/wingman2/styles/legacy-overrides/004-real-wingman-logo.css",
+      "active": true,
+      "lines": 39,
+      "sizeKb": 1.1,
+      "important": 15,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 4,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/004-real-wingman-logo.css"
+      ]
+    },
+    {
+      "risk": 28,
+      "file": "src/wingman2/styles/legacy-overrides/001-logo-reinstate.css",
+      "active": true,
+      "lines": 90,
+      "sizeKb": 1.9,
+      "important": 14,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/001-logo-reinstate.css"
       ]
     },
     {
@@ -349,6 +637,42 @@
       ]
     },
     {
+      "risk": 8,
+      "file": "src/wingman2/styles/legacy-overrides/005-guru-chat-refresh.css",
+      "active": true,
+      "lines": 332,
+      "sizeKb": 6.6,
+      "important": 3,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 1,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/005-guru-chat-refresh.css"
+      ]
+    },
+    {
+      "risk": 4,
+      "file": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "active": true,
+      "lines": 33,
+      "sizeKb": 1.7,
+      "important": 0,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 1,
+      "topbar": 1,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-style-stack.css -> ./wingman-entry-legacy-overrides.css"
+      ]
+    },
+    {
       "risk": 4,
       "file": "src/wingman2/styles/results-clear-until-action.css",
       "active": true,
@@ -364,6 +688,60 @@
       "conflict": 0,
       "importedBy": [
         "src/wingman2/styles/wingman-style-stack.css -> ./results-clear-until-action.css"
+      ]
+    },
+    {
+      "risk": 2,
+      "file": "src/wingman2/styles/legacy-overrides/012-call-cards-starter-visuals.css",
+      "active": true,
+      "lines": 30,
+      "sizeKb": 0.8,
+      "important": 1,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/012-call-cards-starter-visuals.css"
+      ]
+    },
+    {
+      "risk": 2,
+      "file": "src/wingman2/styles/legacy-overrides/013-hide-development-notes-ui.css",
+      "active": true,
+      "lines": 28,
+      "sizeKb": 0.7,
+      "important": 1,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/013-hide-development-notes-ui.css"
+      ]
+    },
+    {
+      "risk": 0,
+      "file": "src/wingman2/styles/legacy-overrides/016-visual-templates-landing.css",
+      "active": true,
+      "lines": 270,
+      "sizeKb": 5.9,
+      "important": 0,
+      "rootTokens": 0,
+      "shell": 0,
+      "main": 0,
+      "sidebar": 0,
+      "topbar": 0,
+      "route": 0,
+      "conflict": 0,
+      "importedBy": [
+        "src/wingman2/styles/wingman-entry-legacy-overrides.css -> ./legacy-overrides/016-visual-templates-landing.css"
       ]
     },
     {
@@ -420,6 +798,174 @@
       "import": "./theme.css",
       "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\theme.css",
       "resolved": "src/wingman2/styles/theme.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/001-logo-reinstate.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\001-logo-reinstate.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/001-logo-reinstate.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/002-logo-sizing-fix.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\002-logo-sizing-fix.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/002-logo-sizing-fix.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/003-wingman-logo-svg-fix.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\003-wingman-logo-svg-fix.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/003-wingman-logo-svg-fix.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/004-real-wingman-logo.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\004-real-wingman-logo.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/004-real-wingman-logo.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/005-guru-chat-refresh.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\005-guru-chat-refresh.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/005-guru-chat-refresh.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/006-wingman-compact-page-length.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\006-wingman-compact-page-length.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/006-wingman-compact-page-length.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/007-mobile-shade-desktop-fix.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\007-mobile-shade-desktop-fix.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/007-mobile-shade-desktop-fix.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/008-compact-sidebar-tooltips.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\008-compact-sidebar-tooltips.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/008-compact-sidebar-tooltips.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/009-compare-accuracy-contrast-fix.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\009-compare-accuracy-contrast-fix.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/009-compare-accuracy-contrast-fix.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/010-compare-swot-engine.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\010-compare-swot-engine.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/010-compare-swot-engine.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/011-compare-simplified-view.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\011-compare-simplified-view.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/011-compare-simplified-view.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/012-call-cards-starter-visuals.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\012-call-cards-starter-visuals.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/012-call-cards-starter-visuals.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/013-hide-development-notes-ui.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\013-hide-development-notes-ui.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/013-hide-development-notes-ui.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/014-prominent-card-buttons.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\014-prominent-card-buttons.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/014-prominent-card-buttons.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/015-declutter-guidance-popovers.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\015-declutter-guidance-popovers.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/015-declutter-guidance-popovers.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/016-visual-templates-landing.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\016-visual-templates-landing.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/016-visual-templates-landing.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/017-workflow-clarity-pass.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\017-workflow-clarity-pass.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/017-workflow-clarity-pass.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/018-new-wingman-design-pass.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\018-new-wingman-design-pass.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/018-new-wingman-design-pass.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/019-balanced-compact-app-headers.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\019-balanced-compact-app-headers.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/019-balanced-compact-app-headers.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/020-discovery-application-step-restore.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\020-discovery-application-step-restore.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/020-discovery-application-step-restore.css",
+      "exists": true
+    },
+    {
+      "type": "css-import",
+      "sourceFile": "src/wingman2/styles/wingman-entry-legacy-overrides.css",
+      "import": "./legacy-overrides/021-product-finder-surface-hierarchy.css",
+      "resolvedAbs": "C:\\Users\\steve\\wingman\\src\\wingman2\\styles\\legacy-overrides\\021-product-finder-surface-hierarchy.css",
+      "resolved": "src/wingman2/styles/legacy-overrides/021-product-finder-surface-hierarchy.css",
       "exists": true
     },
     {
