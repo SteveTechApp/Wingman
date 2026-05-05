@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T07:54:05.726Z",
+  "generatedAt": "2026-05-05T08:01:16.412Z",
   "cssFiles": 20,
   "tsCssImports": 1,
   "cssAtImports": 19,
@@ -25,18 +25,18 @@
       ]
     },
     {
-      "risk": 922,
+      "risk": 1701,
       "file": "src/wingman2/styles/wingman-authority-system.css",
       "active": true,
-      "lines": 419,
-      "sizeKb": 12.3,
-      "important": 111,
+      "lines": 589,
+      "sizeKb": 18.5,
+      "important": 154,
       "rootTokens": 1,
       "shell": 7,
-      "main": 111,
+      "main": 179,
       "sidebar": 13,
-      "topbar": 3,
-      "route": 14,
+      "topbar": 7,
+      "route": 83,
       "conflict": 0,
       "importedBy": [
         "src/wingman2/styles/wingman-style-stack.css -> ./wingman-authority-system.css"

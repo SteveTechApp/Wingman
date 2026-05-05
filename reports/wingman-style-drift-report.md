@@ -1,6 +1,6 @@
 # Wingman Style Drift Report
 
-Generated: 2026-05-05T07:54:05.726Z
+Generated: 2026-05-05T08:01:16.412Z
 
 ## Summary
 
@@ -15,7 +15,7 @@ Generated: 2026-05-05T07:54:05.726Z
 | Risk | Active | File | Lines | Size KB | !important | :root | Shell | Main | Sidebar | Topbar | Route | Light/Dark | Imported by |
 |---:|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 | 3425 | yes | `src/wingman2/styles/entry.css` | 4542 | 114.1 | 1314 | 4 | 29 | 9 | 29 | 56 | 41 | 50 | src/wingman2/styles/wingman-style-stack.css -> ./entry.css |
-| 922 | yes | `src/wingman2/styles/wingman-authority-system.css` | 419 | 12.3 | 111 | 1 | 7 | 111 | 13 | 3 | 14 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./wingman-authority-system.css |
+| 1701 | yes | `src/wingman2/styles/wingman-authority-system.css` | 589 | 18.5 | 154 | 1 | 7 | 179 | 13 | 7 | 83 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./wingman-authority-system.css |
 | 736 | yes | `src/wingman2/styles/wm-route-redesign.css` | 207 | 6.5 | 28 | 0 | 0 | 57 | 0 | 0 | 79 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./wm-route-redesign.css |
 | 716 | yes | `src/wingman2/styles/wm-av-workspace.css` | 819 | 21.6 | 313 | 1 | 1 | 9 | 4 | 12 | 0 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./wm-av-workspace.css |
 | 612 | yes | `src/wingman2/styles/wm-command-ui.css` | 992 | 24.2 | 269 | 1 | 5 | 1 | 2 | 16 | 0 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./wm-command-ui.css |
