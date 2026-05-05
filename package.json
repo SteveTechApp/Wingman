@@ -23,7 +23,9 @@
     "precommit:check": "npm run verify",
     "safe:verify": "npm run verify",
     "compare:server": "node server/compare-intelligence-server.mjs",
-    "data:check-wyrestorm-products": "node tools/check-wyrestorm-product-updates.mjs"
+    "data:check-wyrestorm-products": "node tools/check-wyrestorm-product-updates.mjs",
+    "wm:audit-css": "node tools/audit-wingman-style-drift.mjs",
+    "wm:guard-css": "node tools/guard-wingman-css-imports.mjs"
   },
   "dependencies": {
     "cors": "^2.8.6",

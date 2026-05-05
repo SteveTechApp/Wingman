@@ -1,4 +1,4 @@
-﻿type ConfidenceMeterProps = {
+type ConfidenceMeterProps = {
   score: number;
 };
 

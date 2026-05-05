@@ -1,0 +1,41 @@
+/* ============================================================
+   WINGMAN STYLE STACK
+
+   This is the only CSS file that should be imported by main.tsx.
+
+   Order matters:
+   1. legacy structural shell/layout CSS
+   2. feature/component layout CSS
+   3. guard/utility CSS
+   4. final authority system override
+============================================================ */
+
+/* Structural shell and legacy layout */
+@import "./entry.css";
+@import "./wm-av-workspace.css";
+@import "./wm-command-ui.css";
+@import "./wm-brand-reset.css";
+
+/* Sidebar, logo and navigation density */
+@import "./wm-sidebar-compact.css";
+@import "./wm-sidebar-no-horizontal-scroll.css";
+@import "./wm-logo-scale.css";
+
+/* Route and sales-mode behaviour */
+@import "./wm-route-redesign.css";
+@import "./wm-sales-mode-global.css";
+
+/* Discovery/component structural layouts */
+@import "../components/discovery/SourceDeviceCollator.css";
+@import "../../styles/wingman-discovery-builder-layout.css";
+@import "./discovery-clear-project-guard.css";
+@import "./discovery-answer-memory.css";
+@import "./discovery-calm.css";
+
+/* Result and page safety guards */
+@import "./results-clear-until-action.css";
+@import "./wingman-page-uniformity.css";
+
+/* Final visual authority. This must stay last. */
+@import "./wingman-layout-primitives.css";
+@import "./wingman-authority-system.css";

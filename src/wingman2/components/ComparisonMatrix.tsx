@@ -1,4 +1,4 @@
-﻿import type { CompareRow } from "../types";
+import type { CompareRow } from "../types";
 
 type ComparisonMatrixProps = {
   title: string;

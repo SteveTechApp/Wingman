@@ -1,0 +1,284 @@
+/* ============================================================
+   WINGMAN LAYOUT PRIMITIVES
+
+   Shared page layout components.
+   Use these instead of page-specific visual CSS.
+============================================================ */
+
+.wm-page-frame {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+}
+
+.wm-page-frame--wide {
+  max-width: none;
+}
+
+.wm-page-frame--compact {
+  max-width: 1280px;
+}
+
+.wm-page-frame--with-rail {
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  align-items: start;
+}
+
+.wm-page-frame__main,
+.wm-page-frame__rail {
+  min-width: 0;
+}
+
+.wm-page-frame__main {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-page-frame__rail {
+  position: sticky;
+  top: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.wm-page-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: end;
+  min-width: 0;
+  border: 1px solid rgba(126, 165, 217, 0.14);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(8, 20, 36, 0.82), rgba(7, 18, 34, 0.72));
+  padding: 16px 18px;
+}
+
+.wm-page-hero__copy {
+  min-width: 0;
+}
+
+.wm-page-hero__eyebrow {
+  margin: 0 0 6px;
+  color: rgba(245, 166, 35, 0.9) !important;
+  font-size: 0.72rem !important;
+  font-weight: 650 !important;
+  text-transform: uppercase;
+}
+
+.wm-page-hero h1 {
+  margin: 0;
+}
+
+.wm-page-hero__subtitle {
+  margin: 8px 0 0;
+  max-width: 76ch;
+}
+
+.wm-page-hero__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wm-page-hero__support {
+  grid-column: 1 / -1;
+  border-top: 1px solid rgba(126, 165, 217, 0.12);
+  padding-top: 10px;
+}
+
+.wm-panel {
+  border: 1px solid rgba(126, 165, 217, 0.14);
+  border-radius: 16px;
+  background: rgba(8, 20, 36, 0.74);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.wm-panel--muted {
+  background: rgba(8, 20, 36, 0.54);
+}
+
+.wm-panel--accent {
+  border-color: rgba(245, 166, 35, 0.34);
+  background: rgba(245, 166, 35, 0.08);
+}
+
+.wm-panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid rgba(126, 165, 217, 0.12);
+}
+
+.wm-panel__head h2 {
+  margin: 0;
+}
+
+.wm-panel__head p {
+  margin: 5px 0 0;
+}
+
+.wm-panel__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wm-panel__body {
+  padding: 14px 16px 16px;
+}
+
+.wm-card {
+  border: 1px solid rgba(126, 165, 217, 0.14);
+  border-radius: 14px;
+  background: rgba(11, 27, 49, 0.76);
+  padding: 13px 14px;
+  min-width: 0;
+}
+
+.wm-card--selected {
+  border-color: rgba(245, 166, 35, 0.54);
+  background: rgba(245, 166, 35, 0.12);
+}
+
+.wm-card__meta {
+  margin: 0 0 5px;
+  color: rgba(245, 166, 35, 0.88) !important;
+  font-size: 0.7rem !important;
+  font-weight: 650 !important;
+  text-transform: uppercase;
+}
+
+.wm-card h3 {
+  margin: 0;
+}
+
+.wm-card__subtitle {
+  margin: 6px 0 0;
+}
+
+.wm-card__body {
+  margin-top: 10px;
+}
+
+.wm-card__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.wm-action-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.wm-action-bar--start {
+  justify-content: flex-start;
+}
+
+.wm-action-bar--end {
+  justify-content: flex-end;
+}
+
+.wm-action-bar--between {
+  justify-content: space-between;
+}
+
+.wm-filter-bar {
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(126, 165, 217, 0.14);
+  border-radius: 14px;
+  background: rgba(8, 20, 36, 0.58);
+  padding: 11px 12px;
+}
+
+.wm-filter-bar__title {
+  margin: 0;
+  color: rgba(226, 234, 245, 0.66) !important;
+  font-size: 0.72rem !important;
+  font-weight: 650 !important;
+  text-transform: uppercase;
+}
+
+.wm-filter-bar__controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.wm-route-tabs-clean {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  overflow-x: auto;
+  border-bottom: 1px solid rgba(126, 165, 217, 0.16);
+  min-height: 40px;
+}
+
+.wm-route-tabs-clean a,
+.wm-route-tabs-clean button {
+  appearance: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: rgba(226, 234, 245, 0.66);
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 38px;
+  padding: 0 0 8px;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.wm-route-tabs-clean a span,
+.wm-route-tabs-clean button span {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.wm-route-tabs-clean a small,
+.wm-route-tabs-clean button small {
+  display: none;
+}
+
+.wm-route-tabs-clean a.is-active,
+.wm-route-tabs-clean button.is-active,
+.wm-route-tabs-clean a[aria-current="page"] {
+  color: #ffffff;
+  border-bottom-color: #f5a623;
+}
+
+@media (max-width: 1100px) {
+  .wm-page-frame--with-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-page-frame__rail {
+    position: static;
+  }
+
+  .wm-page-hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .wm-page-hero__actions {
+    justify-content: flex-start;
+  }
+}

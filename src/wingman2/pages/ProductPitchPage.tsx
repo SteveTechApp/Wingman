@@ -516,8 +516,8 @@ export function ProductPitchPage() {
         </div>
 
         <div className="wm-product-pitch-actions">
-          <a href="/wingman/product-families">Open Product Families â†’</a>
-          <a href="/wingman/finder">Open Product Finder â†’</a>
+          <a href="/wingman/product-families">Open Product Families Ã¢â€ â€™</a>
+          <a href="/wingman/finder">Open Product Finder Ã¢â€ â€™</a>
         </div>
       </section>
 
@@ -555,7 +555,7 @@ export function ProductPitchPage() {
 
       {loadState === "loading" && (
         <section className="wm-product-pitch-empty">
-          <strong>Loading product referenceâ€¦</strong>
+          <strong>Loading product referenceÃ¢â‚¬Â¦</strong>
           <span>The pitch area will remain blank until a SKU or filter is selected.</span>
         </section>
       )}
@@ -612,11 +612,11 @@ export function ProductPitchPage() {
             <div className="wm-product-pitch-sheet-links">
               {selectedProduct.url && (
                 <a href={selectedProduct.url} target="_blank" rel="noreferrer">
-                  Product page â†—
+                  Product page Ã¢â€ â€”
                 </a>
               )}
               <a href={productSearchUrl(selectedProduct.sku)} target="_blank" rel="noreferrer">
-                WyreStorm search â†—
+                WyreStorm search Ã¢â€ â€”
               </a>
             </div>
           </div>

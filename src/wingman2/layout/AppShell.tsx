@@ -175,7 +175,7 @@ export function AppShell({ children }: AppShellProps) {
     <div className="wingman-shell wingman-authority-shell">
       <aside className="wingman-sidebar" data-mobile-open={mobileNavOpen ? "true" : "false"}>
         <div className="wingman-brand wingman-brand-logo-only">
-          <img src={wingmanBrandLogo} alt="WyreStorm Wingman" className="wingman-brand-image" decoding="async" />
+          <img src={wingmanBrandLogo} alt="WyreStorm Wingman" className="wingman-brand-image" width={280} height={92} decoding="async" loading="eager" />
         </div>
 
         <nav className="wingman-nav" aria-label="Wingman navigation">
@@ -221,7 +221,7 @@ export function AppShell({ children }: AppShellProps) {
         </nav>
 
         <button type="button" className="wingman-expert-handoff-card" onClick={() => setGuruOpen(true)}>
-          <img src={guruBotIcon} alt="" className="wingman-expert-handoff-avatar" decoding="async" />
+          <img src={guruBotIcon} alt="" className="wingman-expert-handoff-avatar" width={36} height={36} decoding="async" loading="eager" />
           <span>
             <strong>Expert handoff</strong>
             <small>Get WyreStorm support</small>
