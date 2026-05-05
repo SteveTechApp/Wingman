@@ -1,6 +1,6 @@
 # Wingman Style Drift Report
 
-Generated: 2026-05-05T08:08:26.116Z
+Generated: 2026-05-05T08:27:06.921Z
 
 ## Summary
 
@@ -25,12 +25,12 @@ Generated: 2026-05-05T08:08:26.116Z
 | 194 | yes | `src/wingman2/styles/wm-sidebar-no-horizontal-scroll.css` | 80 | 1.7 | 24 | 0 | 28 | 0 | 3 | 0 | 0 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./wm-sidebar-no-horizontal-scroll.css |
 | 170 | yes | `src/wingman2/styles/wm-sidebar-compact.css` | 175 | 4.6 | 27 | 1 | 0 | 0 | 49 | 5 | 0 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./wm-sidebar-compact.css |
 | 100 | yes | `src/wingman2/styles/discovery-calm.css` | 163 | 4.7 | 50 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./discovery-calm.css |
-| 68 | yes | `src/wingman2/styles/wingman-layout-primitives.css` | 284 | 4.9 | 9 | 0 | 0 | 0 | 0 | 0 | 10 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./wingman-layout-primitives.css |
+| 68 | yes | `src/wingman2/styles/wingman-layout-primitives.css` | 317 | 5.5 | 9 | 0 | 0 | 0 | 0 | 0 | 10 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./wingman-layout-primitives.css |
 | 66 | yes | `src/wingman2/styles/wm-logo-scale.css` | 49 | 1.3 | 13 | 0 | 0 | 0 | 11 | 9 | 0 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./wm-logo-scale.css |
 | 18 | yes | `src/wingman2/components/discovery/SourceDeviceCollator.css` | 741 | 15.5 | 7 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | src/wingman2/styles/wingman-style-stack.css -> ../components/discovery/SourceDeviceCollator.css |
 | 14 | yes | `src/wingman2/styles/discovery-answer-memory.css` | 185 | 4.2 | 1 | 0 | 0 | 0 | 0 | 6 | 0 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./discovery-answer-memory.css |
 | 13 | yes | `src/wingman2/styles/theme.css` | 71 | 1.8 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | src/wingman2/styles/entry.css -> ./theme.css |
-| 11 | yes | `src/wingman2/styles/wingman-style-stack.css` | 45 | 1.4 | 0 | 0 | 0 | 0 | 3 | 0 | 1 | 0 | src/main.tsx -> ./wingman2/styles/wingman-style-stack.css |
+| 11 | yes | `src/wingman2/styles/wingman-style-stack.css` | 46 | 1.5 | 0 | 0 | 0 | 0 | 3 | 0 | 1 | 0 | src/main.tsx -> ./wingman2/styles/wingman-style-stack.css |
 | 10 | yes | `src/wingman2/styles/wingman-page-uniformity.css` | 180 | 3.6 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./wingman-page-uniformity.css |
 | 4 | yes | `src/wingman2/styles/results-clear-until-action.css` | 68 | 1.6 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./results-clear-until-action.css |
 | 0 | yes | `src/wingman2/styles/discovery-clear-project-guard.css` | 127 | 3 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | src/wingman2/styles/wingman-style-stack.css -> ./discovery-clear-project-guard.css |

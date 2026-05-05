@@ -27,7 +27,9 @@
     "wm:audit-css": "node tools/audit-wingman-style-drift.mjs",
     "wm:guard-css": "node tools/guard-wingman-css-imports.mjs",
     "wm:check-finder-density": "node tools/check-finder-density.mjs",
-    "wm:check-page-density": "node tools/check-wingman-page-density.mjs"
+    "wm:check-page-density": "node tools/check-wingman-page-density.mjs",
+    "wm:migrate-page-frames": "node tools/migrate-wingman-page-frames.mjs",
+    "wm:check-page-frames": "node tools/check-wingman-page-frames.mjs"
   },
   "dependencies": {
     "cors": "^2.8.6",

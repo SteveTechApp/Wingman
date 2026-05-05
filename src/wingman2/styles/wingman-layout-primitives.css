@@ -282,3 +282,35 @@
     justify-content: flex-start;
   }
 }
+/* WM PAGE FRAME MIGRATION SUPPORT BEGIN */
+
+.wm-page-migrated {
+  width: 100%;
+}
+
+.wm-page-migrated > .wm-page-frame__main > :first-child {
+  margin-top: 0;
+}
+
+.wm-page-migrated .wm-page-frame__main > section,
+.wm-page-migrated .wm-page-frame__main > article {
+  min-width: 0;
+}
+
+.wm-page-migrated--dashboard,
+.wm-page-migrated--templates,
+.wm-page-migrated--projects,
+.wm-page-migrated--support {
+  max-width: 1480px;
+}
+
+.wm-page-migrated--finder,
+.wm-page-migrated--compare,
+.wm-page-migrated--discovery,
+.wm-page-migrated--proposal,
+.wm-page-migrated--videowall,
+.wm-page-migrated--product-family {
+  max-width: none;
+}
+
+/* WM PAGE FRAME MIGRATION SUPPORT END */
