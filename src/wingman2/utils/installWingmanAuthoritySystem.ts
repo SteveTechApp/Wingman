@@ -52,16 +52,17 @@ function openGuru(): void {
 }
 
 function ensureSupportButton(): void {
+  return;
   const oldCopyButton = document.querySelector<HTMLButtonElement>(".wm-copy-support-trigger");
 
   if (oldCopyButton) {
-    oldCopyButton.remove();
+    oldCopyButton?.remove();
   }
 
   const existing = document.querySelector<HTMLButtonElement>(".wm-authority-support-trigger");
 
   if (existing) {
-    existing.onclick = openGuru;
+    existing?.addEventListener("click", openGuru);
     return;
   }
 
@@ -108,4 +109,3 @@ export function installWingmanAuthoritySystem(): void {
   window.addEventListener("popstate", updateRouteState);
   window.addEventListener("hashchange", updateRouteState);
 }
-

@@ -34,6 +34,10 @@ function rel(file) {
   return path.relative(root, file).replaceAll("\\", "/");
 }
 
+function stripCssComments(raw) {
+  return raw.replace(/\/\*[\s\S]*?\*\//g, "");
+}
+
 function count(raw, regex) {
   const matches = raw.match(regex);
   return matches ? matches.length : 0;

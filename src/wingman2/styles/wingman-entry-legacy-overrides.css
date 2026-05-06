@@ -14,7 +14,7 @@
 @import "./legacy-overrides/003-wingman-logo-svg-fix.css";
 @import "./legacy-overrides/004-real-wingman-logo.css";
 @import "./legacy-overrides/005-guru-chat-refresh.css";
-@import "./legacy-overrides/006-wingman-compact-page-length.css";
+/* isolated-density-test disabled 006-wingman-compact-page-length.css */
 @import "./legacy-overrides/007-mobile-shade-desktop-fix.css";
 @import "./legacy-overrides/008-compact-sidebar-tooltips.css";
 @import "./legacy-overrides/009-compare-accuracy-contrast-fix.css";
@@ -22,11 +22,11 @@
 @import "./legacy-overrides/011-compare-simplified-view.css";
 @import "./legacy-overrides/012-call-cards-starter-visuals.css";
 @import "./legacy-overrides/013-hide-development-notes-ui.css";
-@import "./legacy-overrides/014-prominent-card-buttons.css";
-@import "./legacy-overrides/015-declutter-guidance-popovers.css";
+/* isolated-density-test disabled 014-prominent-card-buttons.css */
+/* isolated-density-test disabled 015-declutter-guidance-popovers.css */
 @import "./legacy-overrides/016-visual-templates-landing.css";
-@import "./legacy-overrides/017-workflow-clarity-pass.css";
-@import "./legacy-overrides/018-new-wingman-design-pass.css";
-@import "./legacy-overrides/019-balanced-compact-app-headers.css";
+/* isolated-global-design-pass-test disabled 017-workflow-clarity-pass.css */
+/* isolated-global-design-pass-test disabled 018-new-wingman-design-pass.css */
+/* isolated-density-test disabled 019-balanced-compact-app-headers.css */
 @import "./legacy-overrides/020-discovery-application-step-restore.css";
-@import "./legacy-overrides/021-product-finder-surface-hierarchy.css";
+/* isolated-finder-surface-test disabled 021-product-finder-surface-hierarchy.css */

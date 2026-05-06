@@ -264,8 +264,7 @@ export function ProductPitchPage() {
   const [family, setFamily] = useState("All");
   const [audience, setAudience] = useState("trade");
   const [selectedSku, setSelectedSku] = useState("");
-
-  useEffect(() => {
+useEffect(() => {
     let cancelled = false;
 
     async function loadProducts() {
@@ -377,36 +376,20 @@ export function ProductPitchPage() {
             </select>
           </label>
 
-          <label>
-            Pitch audience
-            <select value={audience} onChange={(event) => setAudience(event.target.value)}>
-              <option value="trade">Trade / dealer</option>
-              <option value="user">End user</option>
-              <option value="consultant">Technical consultant</option>
-            </select>
-          </label>
+          
         </WingmanFilterBar>
 
-        <div className="wm-product-pitch-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10, marginTop: 14 }}>
+        <div className="wm-product-pitch-grid">
           {visibleProducts.map((product) => (
             <button
               key={product.id}
               type="button"
               className={product.sku === selectedSku ? "wm-product-pitch-choice is-selected" : "wm-product-pitch-choice"}
               onClick={() => setSelectedSku(product.sku)}
-              style={{
-                textAlign: "left",
-                border: product.sku === selectedSku ? "1px solid rgba(245,166,35,.72)" : "1px solid rgba(126,165,217,.18)",
-                background: product.sku === selectedSku ? "rgba(245,166,35,.12)" : "rgba(11,27,49,.76)",
-                color: "inherit",
-                borderRadius: 14,
-                padding: "12px 13px",
-                minHeight: 112
-              }}
             >
-              <strong style={{ display: "block", fontSize: ".95rem" }}>{product.sku}</strong>
-              <span style={{ display: "block", marginTop: 4, fontSize: ".8rem", opacity: .8 }}>{product.name}</span>
-              <span style={{ display: "block", marginTop: 8, fontSize: ".72rem", opacity: .62 }}>{product.family}</span>
+              <strong>{product.sku}</strong>
+              <span>{product.name}</span>
+              <small>{product.family}</small>
             </button>
           ))}
         </div>
@@ -424,17 +407,17 @@ export function ProductPitchPage() {
             </WingmanActionBar>
           }
         >
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(280px, .8fr)", gap: 14 }}>
+          <div className="wm-product-pitch-detail-grid">
             <WingmanCard
               meta="Overview"
               title="Positioning"
               subtitle={pitch.positioning}
             >
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <div className="wm-product-pitch-pill-list">
                 {[selectedProduct.family, selectedProduct.role, selectedProduct.category]
                   .filter(Boolean)
                   .map((item) => (
-                    <span key={item} style={{ border: "1px solid rgba(126,165,217,.22)", borderRadius: 999, padding: "5px 9px", fontSize: ".74rem" }}>
+                    <span key={item} className="wm-product-pitch-pill">
                       {item}
                     </span>
                   ))}
@@ -481,9 +464,9 @@ export function ProductPitchPage() {
               title="Useful feature points"
               className="wm-product-pitch-feature-card"
             >
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <div className="wm-product-pitch-pill-list">
                 {selectedProduct.features.map((feature) => (
-                  <span key={feature} style={{ border: "1px solid rgba(126,165,217,.22)", borderRadius: 999, padding: "5px 9px", fontSize: ".74rem" }}>
+                  <span key={feature} className="wm-product-pitch-pill">
                     {feature}
                   </span>
                 ))}

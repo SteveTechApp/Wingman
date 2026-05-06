@@ -332,7 +332,7 @@ export function DashboardPage() {
         </section>
       </div>
 
-      <aside className="wm-command-dashboard__guidance">
+      <aside className="wm-command-dashboard__guidance" hidden aria-hidden="true">
         <section className="wm-command-panel wm-command-dashboard__guidance-panel">
           <div className="wm-command-panel__header">
             <div>
