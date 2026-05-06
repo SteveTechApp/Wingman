@@ -124,12 +124,15 @@ assertSourceContains("src/wingman2/lib/projectRequirements.ts", [
   "getProjectRequirementRecords",
   "requirementReadiness",
 ]);
-assertSourceContains("src/wingman2/pages/TemplatesPage.tsx", [
-  "Editable WyreStorm BOM",
-  "saveTemplateProject",
-  "exportTemplateBom",
-  "Other AV design scope",
-]);
+const templateWorkflowSource = [
+  "src/wingman2/pages/TemplatesPage.tsx",
+  "src/wingman2/pages/TemplateReviewPage.tsx",
+].map((relativePath) => readFileSync(path.join(projectRoot, relativePath), "utf8")).join("\n");
+for (const marker of ["Editable WyreStorm BOM", "saveTemplateProject", "exportTemplateBom", "Other AV design scope"]) {
+  if (!templateWorkflowSource.includes(marker)) {
+    errors.push(`Template workflow is missing marker: ${marker}`);
+  }
+}
 if (
   readFileSync(path.join(projectRoot, "src/wingman2/pages/TemplatesPage.tsx"), "utf8").includes(
     "routeCatalogByKey.discovery.path",

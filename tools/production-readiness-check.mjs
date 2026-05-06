@@ -190,6 +190,11 @@ const templatesPageSource = readFileSync(
   path.join(projectRoot, "src", "wingman2", "pages", "TemplatesPage.tsx"),
   "utf8",
 );
+const templateReviewPageSource = readFileSync(
+  path.join(projectRoot, "src", "wingman2", "pages", "TemplateReviewPage.tsx"),
+  "utf8",
+);
+const templateWorkflowSource = `${templatesPageSource}\n${templateReviewPageSource}`;
 const roomTemplatesSource = readFileSync(
   path.join(projectRoot, "src", "wingman2", "lib", "roomTemplates.ts"),
   "utf8",
@@ -202,7 +207,7 @@ for (const marker of [
   "exportTemplateBom",
   "Other AV design scope",
 ]) {
-  if (!templatesPageSource.includes(marker)) {
+  if (!templateWorkflowSource.includes(marker)) {
     errors.push(`Standalone room template marker is missing: ${marker}.`);
   }
 }

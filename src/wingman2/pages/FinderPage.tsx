@@ -2096,6 +2096,126 @@ function shouldShowMatch(match: ProductMatch, need: FinderNeed) {
   return true;
 }
 
+
+/* FINDER RESULT HYGIENE BEGIN */
+
+function finderText(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  if (Array.isArray(value)) return value.map((item) => finderText(item)).join(" ");
+  if (typeof value === "object") return Object.values(value as Record<string, unknown>).map((item) => finderText(item)).join(" ");
+  return String(value).toLowerCase();
+}
+
+function finderSku(match: ProductMatch): string {
+  return String((match as { sku?: unknown }).sku ?? "").toUpperCase();
+}
+
+function finderIsSupportItem(match: ProductMatch): boolean {
+  const sku = finderSku(match);
+  const text = finderText(match);
+
+  if (/^(CAB|EXP-CAB|IDB|USB-HUB|HALO-COM-MIC|COM-MIC|PSU|RMK|RACK|CAB-)/i.test(sku)) return true;
+  if (/\b(cable|adapter|adaptor|mount|rack|psu|power supply|hub|microphone hub|companion mic|connectivity box|cablebox|accessory|request-only)\b/.test(text)) return true;
+
+  return false;
+}
+
+function finderNeedWantsSupportItems(need: FinderNeed): boolean {
+  const text = finderText(need);
+  return /\b(accessory|accessories|cable|adapter|adaptor|mount|rack|psu|power supply|hub|microphone|mic|in-desk|desk box|supporting item)\b/.test(text);
+}
+
+function finderNeedWantsSwitcher(need: FinderNeed): boolean {
+  const text = finderText(need);
+  return /\b(switcher|switching|presentation switcher|matrix|room core|wireless presentation)\b/.test(text);
+}
+
+function finderNeedWantsWirelessPresentation(need: FinderNeed): boolean {
+  const text = finderText(need);
+  return /\b(wireless presentation|wireless conferencing|wireless casting|casting|airplay|miracast|byod|byom|presentation)\b/.test(text);
+}
+
+function finderNeedWantsNdiCamera(need: FinderNeed): boolean {
+  const text = finderText(need);
+  return /\b(ndi camera|ndi|ptz|camera|streaming|recording|capture)\b/.test(text);
+}
+
+function finderIsSwitcherOrRoomCore(match: ProductMatch): boolean {
+  const sku = finderSku(match);
+  const text = finderText(match);
+
+  if (/^(SW|MX|MHD|EXP-SW|SW-)/i.test(sku)) return true;
+  if (/\b(switcher|switching|presentation switcher|matrix|room core|scaler|scaling matrix|wireless presentation|wireless conferencing)\b/.test(text)) return true;
+
+  return false;
+}
+
+function finderIsWirelessPresentationHardware(match: ProductMatch): boolean {
+  const sku = finderSku(match);
+  const text = finderText(match);
+
+  if (/^SW-/i.test(sku) && /\b(wireless|synergy|presentation|conferencing|switcher)\b/.test(text)) return true;
+  if (/\b(wireless presentation|wireless conferencing|wireless casting|synergy|presentation switcher|airplay|miracast|byod|byom)\b/.test(text)) return true;
+
+  return false;
+}
+
+function finderIsNdiCameraHardware(match: ProductMatch): boolean {
+  const sku = finderSku(match);
+  const text = finderText(match);
+
+  if (/^(CAM|APO-CAM|NHD-128-NDI)/i.test(sku)) return true;
+  if (/\b(ndi|ptz|camera|streaming|recording|capture)\b/.test(text)) return true;
+
+  return false;
+}
+
+function finderCleanScore(match: ProductMatch, need: FinderNeed, index: number): number {
+  let score = Math.min(82, Math.max(38, Number(match.score ?? 0)));
+
+  const wantsSupport = finderNeedWantsSupportItems(need);
+  const wantsSwitcher = finderNeedWantsSwitcher(need);
+  const wantsWireless = finderNeedWantsWirelessPresentation(need);
+  const wantsNdi = finderNeedWantsNdiCamera(need);
+
+  if (!wantsSupport && finderIsSupportItem(match)) score -= 38;
+  if (wantsSwitcher && finderIsSwitcherOrRoomCore(match)) score += 18;
+  if (wantsSwitcher && !finderIsSwitcherOrRoomCore(match)) score -= 30;
+  if (wantsWireless && finderIsWirelessPresentationHardware(match)) score += 22;
+  if (wantsWireless && !finderIsWirelessPresentationHardware(match)) score -= 24;
+  if (wantsNdi && !wantsWireless && !wantsSwitcher && finderIsNdiCameraHardware(match)) score += 18;
+
+  score -= Math.min(index, 10);
+
+  return Math.max(18, Math.min(96, score));
+}
+
+function applyFinderResultHygiene(matches: ProductMatch[], need: FinderNeed): ProductMatch[] {
+  const wantsSupport = finderNeedWantsSupportItems(need);
+  const wantsSwitcher = finderNeedWantsSwitcher(need);
+  const wantsWireless = finderNeedWantsWirelessPresentation(need);
+  const wantsNdi = finderNeedWantsNdiCamera(need);
+
+  const filtered = matches.filter((match) => {
+    if (!wantsSupport && finderIsSupportItem(match)) return false;
+    if (wantsSwitcher && !finderIsSwitcherOrRoomCore(match)) return false;
+    if (wantsWireless && !finderIsWirelessPresentationHardware(match)) return false;
+    if (wantsNdi && !wantsWireless && !wantsSwitcher && !finderIsNdiCameraHardware(match)) return false;
+    return true;
+  });
+
+  const usable = filtered.length ? filtered : matches.filter((match) => wantsSupport || !finderIsSupportItem(match));
+  const finalMatches = usable.length ? usable : matches;
+
+  return finalMatches
+    .map((match, index) => ({
+      ...match,
+      score: finderCleanScore(match, need, index)
+    }))
+    .sort((a, b) => b.score - a.score || finderSku(a).localeCompare(finderSku(b)));
+}
+
+/* FINDER RESULT HYGIENE END */
 function scoreProduct(product: FinderProduct, need: FinderNeed): ProductMatch {
   const cleanProduct = cleanFinderProduct(product);
   const text = normaliseText(`${cleanProduct.sku} ${cleanProduct.title} ${cleanProduct.family} ${cleanProduct.category} ${cleanProduct.description} ${cleanProduct.tags.join(" ")} ${cleanProduct.searchText}`);
@@ -2384,8 +2504,8 @@ function FieldSelect({
 }) {
   return (
     <label className="grid gap-1">
-      <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{label}</span>
-      <select
+      <span className="wm-finder-field-label">{label}</span>
+      <select id="finderAutoField1" name="finderAutoField1"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
@@ -2485,7 +2605,8 @@ export function FinderPage() {
       .slice(0, hasPointToPointOneInOneOutNeed(need) ? 4 : 8);
   }, [hasIntent, need, products]);
 
-  const bestMatch = matches[0] ?? null;
+  const hygienicMatches = useMemo(() => applyFinderResultHygiene(matches, need), [matches, need]);
+  const bestMatch = hygienicMatches[0] ?? null;
 
   const activeProject = useMemo(
     () => projects.find((project) => project.id === selectedProjectId),
@@ -2725,7 +2846,7 @@ export function FinderPage() {
   }
 
   return (
-    <div className="pb-8">
+    <div className="wm-finder-page">
       <PageHero
         eyebrow="Product Finder"
         title="Find products from technical requirements, not room labels."
@@ -2744,7 +2865,7 @@ export function FinderPage() {
         subtitle="Feature-led filtering replaces room-type filtering. Product selection is driven by signal path, transport, processing, USB, network, audio, and control needs."
       >
         <div className="grid gap-4">
-          <div className="wm-finder-quickstart grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <div className="wm-finder-quickstart">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-black text-amber-950">Quick-start filters</p>
@@ -2766,8 +2887,8 @@ export function FinderPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[340px_minmax(0,1fr)_330px]">
-            <aside className="grid content-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div className="wm-finder-workspace">
+            <aside className="wm-finder-filter-panel">
               
               <label className="grid gap-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
                 Technology Type
@@ -2775,7 +2896,7 @@ export function FinderPage() {
                   id="finder-technology-type"
                   value={need.technologyType}
                   onChange={(event) => setNeed((current) => ({ ...current, technologyType: event.target.value }))}
-                  className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold normal-case tracking-normal text-slate-900 shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  className="wm-finder-requirement-select"
                 >
                   {technologyTypeOptions.map((option) => (
                     <option key={option} value={option}>
@@ -2792,7 +2913,7 @@ export function FinderPage() {
                 <button
                   type="button"
                   onClick={clearFinder}
-                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-black text-slate-600 hover:bg-slate-100"
+                  className="wm-finder-reset-button"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   Reset
@@ -2800,14 +2921,14 @@ export function FinderPage() {
               </div>
 
               <label className="grid gap-1">
-                <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Search SKU or requirement</span>
-                <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
+                <span className="wm-finder-field-label">Search SKU or requirement</span>
+                <div className="wm-finder-search-box">
                   <Search className="h-4 w-4 text-slate-400" />
-                  <input
+                  <input id="finderAutoField2" name="finderAutoField2"
                     value={need.query}
                     onChange={(event) => setNeedField("query", event.target.value)}
                     placeholder="e.g. HDMI USB extender, NHD-150-RX, multiview"
-                    className="h-9 flex-1 border-0 bg-transparent px-0 text-sm text-slate-900 outline-none"
+                    className="wm-finder-search-input"
                   />
                 </div>
               </label>
@@ -2835,9 +2956,9 @@ export function FinderPage() {
               <FieldSelect label="Control" value={need.control} options={controlOptions} onChange={(value) => setNeedField("control", value)} />
             </aside>
 
-            <main className="grid content-start gap-3">
+            <main className="wm-finder-results-panel">
               {!hasIntent ? (
-                <div className="grid min-h-[360px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
+                <div className="wm-finder-empty-state">
                   <div className="max-w-xl">
                     <PackageSearch className="mx-auto h-12 w-12 text-slate-300" />
                     <h3 className="mt-4 text-xl font-black text-slate-950">Start with a technical requirement</h3>
@@ -2847,14 +2968,14 @@ export function FinderPage() {
                   </div>
                 </div>
               ) : matches.length ? (
-                matches.map((match, index) => {
+                hygienicMatches.map((match, index) => {
                   const resultKey = `${match.sku}-${index}`;
                   const isExpanded = expandedResultKey === resultKey;
                   const reasonLines = getReasonLines(match, need);
                   const cautionLines = getCautionLines(match, need);
 
                   return (
-                    <article key={resultKey} className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+                    <article key={resultKey} className="wm-finder-result-card">
                       <div className="grid gap-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <button
@@ -2912,7 +3033,7 @@ export function FinderPage() {
                             <p className="text-sm leading-6 text-slate-700">{finderSalesSummary(match)}</p>
 
                             {match.salesLanguage ? (
-                              <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3">
+                              <div className="wm-finder-detail-card wm-finder-detail-card--sky">
                                 <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-700">Sales read</p>
                                 <p className="mt-2 text-sm font-black text-slate-950">
                                   {cleanDisplayText(match.salesLanguage.headline || match.salesLanguage.voices?.endUser?.headline || match.sku)}
@@ -2927,7 +3048,7 @@ export function FinderPage() {
                             ) : null}
 
                             <div className="grid gap-3 lg:grid-cols-2">
-                              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
+                              <div className="wm-finder-detail-card wm-finder-detail-card--green">
                                 <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
                                 <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
                                   {reasonLines.map((reason) => (
@@ -2936,7 +3057,7 @@ export function FinderPage() {
                                 </ul>
                               </div>
 
-                              <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3">
+                              <div className="wm-finder-detail-card wm-finder-detail-card--amber">
                                 <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before issue</p>
                                 <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
                                   {cautionLines.map((caution) => (
@@ -2975,7 +3096,7 @@ export function FinderPage() {
                   );
                 })
               ) : (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                <div className="wm-finder-warning-card">
                   <div className="flex items-center gap-2 text-amber-900">
                     <AlertTriangle className="h-5 w-5" />
                     <p className="font-black">No strong match yet</p>
@@ -2987,8 +3108,8 @@ export function FinderPage() {
               )}
             </main>
 
-            <aside className="grid content-start gap-3">
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <aside className="wm-finder-side-panel">
+              <div className="wm-finder-side-card">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-amber-500" />
                   <p className="text-sm font-black text-slate-900">Selection logic</p>
@@ -2999,15 +3120,15 @@ export function FinderPage() {
                 </p>
 
                 {bestMatch ? (
-                  <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Current best match</p>
+                  <div className="wm-finder-current-need-card">
+                    <p className="wm-finder-field-label">Current best match</p>
                     <p className="mt-2 text-lg font-black text-slate-950">{bestMatch.sku}</p>
                     <p className="mt-1 text-sm text-slate-600">{bestMatch.title}</p>
                   </div>
                 ) : null}
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="wm-finder-side-card">
                 <p className="text-sm font-black text-slate-900">Standalone shortlist</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">Use this when there is no project yet.</p>
 
@@ -3020,7 +3141,7 @@ export function FinderPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-500">
+                    <p className="wm-finder-shortlist-empty">
                       No standalone products shortlisted yet.
                     </p>
                   )}
@@ -3063,7 +3184,7 @@ export function FinderPage() {
                 <p className="text-sm font-black">Add to existing project</p>
                 <p className="mt-1 text-xs leading-5 text-slate-400">Attach this product to an existing opportunity.</p>
 
-                <select
+                <select id="finderAutoField3" name="finderAutoField3"
                   value={selectedProjectId}
                   onChange={(event) => setSelectedProjectId(event.target.value)}
                   className="mt-4 h-11 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm text-white outline-none focus:border-amber-400"
@@ -3090,14 +3211,14 @@ export function FinderPage() {
                 <p className="text-sm font-black">Create new project</p>
                 <p className="mt-1 text-xs leading-5 text-slate-400">Start a new Finder-stage project with this product attached.</p>
 
-                <input
+                <input id="finderAutoField4" name="finderAutoField4"
                   value={newProjectName}
                   onChange={(event) => setNewProjectName(event.target.value)}
                   placeholder="Project name"
                   className="mt-4 h-11 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm text-white outline-none focus:border-amber-400"
                 />
 
-                <input
+                <input id="finderAutoField5" name="finderAutoField5"
                   value={newProjectOwner}
                   onChange={(event) => setNewProjectOwner(event.target.value)}
                   placeholder="Owner"

@@ -314,3 +314,305 @@
 }
 
 /* WM PAGE FRAME MIGRATION SUPPORT END */
+/* WM TEMPLATES REBUILD BEGIN */
+
+.wm-templates-rebuilt {
+  width: 100%;
+}
+
+.wm-template-market-grid,
+.wm-template-card-grid,
+.wm-template-review-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-template-market-grid {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.wm-template-card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 12px;
+}
+
+.wm-template-review-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.wm-template-workspace {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-template-market-card,
+.wm-template-choice-card {
+  appearance: none;
+  text-align: left;
+  border: 1px solid rgba(126, 165, 217, 0.18);
+  background: rgba(11, 27, 49, 0.76);
+  color: inherit;
+  border-radius: 14px;
+  padding: 12px 13px;
+  min-height: 94px;
+  cursor: pointer;
+}
+
+.wm-template-market-card:hover,
+.wm-template-choice-card:hover {
+  border-color: rgba(50, 214, 246, 0.38);
+  background: rgba(13, 33, 59, 0.86);
+}
+
+.wm-template-market-card.is-selected,
+.wm-template-choice-card.is-selected {
+  border-color: rgba(245, 166, 35, 0.7);
+  background: rgba(245, 166, 35, 0.12);
+}
+
+.wm-template-market-card span,
+.wm-template-choice-card strong {
+  display: block;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 660;
+  line-height: 1.15;
+}
+
+.wm-template-market-card small,
+.wm-template-choice-card small {
+  display: block !important;
+  margin-top: 6px;
+  color: rgba(226, 234, 245, 0.64);
+  font-size: 0.76rem;
+  line-height: 1.28;
+}
+
+.wm-template-choice-card__market,
+.wm-template-choice-card__meta {
+  display: block;
+  color: rgba(245, 166, 35, 0.86);
+  font-size: 0.7rem;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+
+.wm-template-choice-card__meta {
+  margin-top: 10px;
+  color: rgba(226, 234, 245, 0.58);
+  text-transform: none;
+}
+
+.wm-template-feature-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-template-feature-list span {
+  border: 1px solid rgba(126, 165, 217, 0.22);
+  border-radius: 999px;
+  padding: 5px 9px;
+  color: rgba(226, 234, 245, 0.78);
+  font-size: 0.74rem;
+}
+
+/* WM TEMPLATES REBUILD END */
+/* WM MIGRATED PAGE VISUAL HARDENING BEGIN
+   Purpose:
+   - stop old route CSS making migrated pages visually inconsistent
+   - keep cards, panels, filters, buttons and inputs using one Wingman visual language
+   - scoped to .wm-page-migrated only
+*/
+
+.wm-page-migrated {
+  --wm-migrated-panel: rgba(8, 20, 36, 0.82);
+  --wm-migrated-panel-strong: rgba(10, 25, 46, 0.92);
+  --wm-migrated-card: rgba(11, 27, 49, 0.82);
+  --wm-migrated-card-hover: rgba(13, 33, 59, 0.94);
+  --wm-migrated-border: rgba(126, 165, 217, 0.18);
+  --wm-migrated-border-strong: rgba(245, 166, 35, 0.58);
+  --wm-migrated-text: rgba(248, 250, 252, 0.94);
+  --wm-migrated-soft: rgba(226, 234, 245, 0.72);
+  --wm-migrated-muted: rgba(226, 234, 245, 0.54);
+  --wm-migrated-orange: #f5a623;
+  --wm-migrated-field: rgba(239, 245, 251, 0.96);
+  --wm-migrated-ink: #0b1728;
+  color: var(--wm-migrated-text) !important;
+}
+
+.wm-page-migrated,
+.wm-page-migrated * {
+  text-shadow: none !important;
+  letter-spacing: 0 !important;
+}
+
+.wm-page-migrated .wm-page-frame__main {
+  gap: 14px !important;
+}
+
+/* Page hero */
+
+.wm-page-migrated .wm-page-hero {
+  border: 1px solid var(--wm-migrated-border) !important;
+  background:
+    linear-gradient(180deg, rgba(8, 20, 36, 0.86), rgba(7, 18, 34, 0.78)) !important;
+  box-shadow: none !important;
+  color: var(--wm-migrated-text) !important;
+}
+
+.wm-page-migrated .wm-page-hero h1,
+.wm-page-migrated .wm-page-hero h2,
+.wm-page-migrated .wm-page-hero h3 {
+  color: #ffffff !important;
+}
+
+.wm-page-migrated .wm-page-hero p,
+.wm-page-migrated .wm-page-hero small {
+  color: var(--wm-migrated-soft) !important;
+  font-weight: 400 !important;
+}
+
+/* Panels and cards */
+
+.wm-page-migrated .wm-panel,
+.wm-page-migrated .wm-card,
+.wm-page-migrated section.wm-panel,
+.wm-page-migrated article.wm-card {
+  border: 1px solid var(--wm-migrated-border) !important;
+  background: var(--wm-migrated-card) !important;
+  box-shadow: none !important;
+  color: var(--wm-migrated-text) !important;
+}
+
+.wm-page-migrated .wm-panel {
+  background: var(--wm-migrated-panel) !important;
+}
+
+.wm-page-migrated .wm-panel__head {
+  border-bottom: 1px solid rgba(126, 165, 217, 0.13) !important;
+}
+
+.wm-page-migrated .wm-card--selected,
+.wm-page-migrated .is-selected {
+  border-color: var(--wm-migrated-border-strong) !important;
+  background: rgba(245, 166, 35, 0.12) !important;
+}
+
+.wm-page-migrated .wm-panel h2,
+.wm-page-migrated .wm-panel h3,
+.wm-page-migrated .wm-card h2,
+.wm-page-migrated .wm-card h3,
+.wm-page-migrated .wm-card strong {
+  color: #ffffff !important;
+  font-weight: 660 !important;
+}
+
+.wm-page-migrated .wm-panel p,
+.wm-page-migrated .wm-panel li,
+.wm-page-migrated .wm-card p,
+.wm-page-migrated .wm-card li,
+.wm-page-migrated .wm-card small {
+  color: var(--wm-migrated-soft) !important;
+  font-weight: 400 !important;
+}
+
+/* Stop legacy Tailwind-style light cards leaking into migrated pages */
+
+.wm-page-migrated :where(.bg-white, .bg-slate-50, .bg-gray-50, .text-slate-900, .text-gray-900) {
+  color: var(--wm-migrated-text) !important;
+}
+
+.wm-page-migrated :where(.bg-white, .bg-slate-50, .bg-gray-50) {
+  background: var(--wm-migrated-card) !important;
+  border-color: var(--wm-migrated-border) !important;
+}
+
+/* Buttons and action links */
+
+.wm-page-migrated button,
+.wm-page-migrated a[role="button"],
+.wm-page-migrated [role="button"] {
+  border: 1px solid rgba(126, 165, 217, 0.24) !important;
+  background: rgba(11, 27, 49, 0.82) !important;
+  color: var(--wm-migrated-text) !important;
+  border-radius: 12px !important;
+  font-weight: 560 !important;
+  box-shadow: none !important;
+}
+
+.wm-page-migrated button:hover,
+.wm-page-migrated a[role="button"]:hover,
+.wm-page-migrated [role="button"]:hover {
+  border-color: rgba(50, 214, 246, 0.42) !important;
+  background: var(--wm-migrated-card-hover) !important;
+}
+
+.wm-page-migrated button.is-selected,
+.wm-page-migrated .is-selected,
+.wm-page-migrated button[aria-pressed="true"] {
+  border-color: var(--wm-migrated-border-strong) !important;
+  background: rgba(245, 166, 35, 0.13) !important;
+}
+
+/* Forms and filters */
+
+.wm-page-migrated .wm-filter-bar {
+  border: 1px solid var(--wm-migrated-border) !important;
+  background: rgba(8, 20, 36, 0.62) !important;
+  color: var(--wm-migrated-text) !important;
+}
+
+.wm-page-migrated label {
+  color: var(--wm-migrated-soft) !important;
+  font-weight: 600 !important;
+}
+
+.wm-page-migrated input,
+.wm-page-migrated select,
+.wm-page-migrated textarea {
+  background: var(--wm-migrated-field) !important;
+  color: var(--wm-migrated-ink) !important;
+  border: 1px solid rgba(255, 255, 255, 0.34) !important;
+  border-radius: 11px !important;
+  font-weight: 500 !important;
+}
+
+.wm-page-migrated input::placeholder,
+.wm-page-migrated textarea::placeholder {
+  color: rgba(12, 24, 42, 0.48) !important;
+}
+
+/* Pills/tags */
+
+.wm-page-migrated :where(.wm-template-feature-list span, .wm-product-pitch-feature-card span, [class*="tag" i], [class*="pill" i]) {
+  border-color: rgba(126, 165, 217, 0.24) !important;
+  background: rgba(8, 20, 36, 0.44) !important;
+  color: var(--wm-migrated-soft) !important;
+}
+
+/* Keep rebuilt pages spacious but not oversized */
+
+.wm-page-migrated--templates,
+.wm-page-migrated--product-pitch,
+.wm-page-migrated--finder,
+.wm-page-migrated--dashboard,
+.wm-page-migrated--sales-helper {
+  width: 100% !important;
+}
+
+.wm-page-migrated--templates .wm-panel__body,
+.wm-page-migrated--product-pitch .wm-panel__body {
+  padding: 14px 16px 16px !important;
+}
+
+/* Mobile */
+
+@media (max-width: 900px) {
+  .wm-page-migrated .wm-page-hero,
+  .wm-page-migrated .wm-panel__body {
+    padding: 12px !important;
+  }
+}
+
+/* WM MIGRATED PAGE VISUAL HARDENING END */

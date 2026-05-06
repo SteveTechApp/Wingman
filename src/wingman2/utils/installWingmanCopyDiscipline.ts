@@ -39,9 +39,10 @@ function openGuru(): void {
   window.dispatchEvent(new CustomEvent("wingman:openGuru"));
 }
 function ensureSupportButton(): void {
+  return;
   const existing = document.querySelector<HTMLButtonElement>(".wm-copy-support-trigger");
   if (existing) {
-    existing.onclick = openGuru;
+    existing?.addEventListener("click", openGuru);
     return;
   }
   const button = document.createElement("button");

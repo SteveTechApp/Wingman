@@ -1,3 +1,4 @@
+import { installWingmanFormFieldIdentityGuard } from "./wingman2/utils/installWingmanFormFieldIdentityGuard";
 import { installWingmanLocalProjectApiFallback } from "./wingman2/utils/installWingmanLocalProjectApiFallback";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -8,16 +9,23 @@ import { installWingmanSalesMode } from "./wingman2/utils/installWingmanSalesMod
 import { installWingmanPerformanceGuards } from "./wingman2/utils/installWingmanPerformanceGuards";
 import { installWingmanAuthoritySystem } from "./wingman2/utils/installWingmanAuthoritySystem";
 import "./wingman2/styles/wingman-style-stack.css";
+import { installDiscoveryOutputPreviewEnhancer } from "./wingman2/discovery/outputPreviewEnhancer";
+
+installDiscoveryOutputPreviewEnhancer();
 
 installWingmanVisualIdentity();
 installWingmanSalesMode();
+
 const rootElement = document.getElementById("root");
 if (!rootElement) {
   throw new Error("Root element #root was not found.");
 }
+
 installWingmanLocalProjectApiFallback();
 installWingmanPerformanceGuards();
 installWingmanAuthoritySystem();
+installWingmanFormFieldIdentityGuard();
+
 createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter>

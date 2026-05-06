@@ -164,9 +164,8 @@ img {
   margin-top: 0 !important;
 }
 
-.wingman-app-main p,
-.wingman-app-main li {
-  color: var(--wm-text-muted) !important;
+body:not(.wm-polish-page) .wingman-app-main :where(p, li) {
+  color: var(--wm-text-muted);
 }
 
 .wingman-page-hero,
@@ -192,22 +191,12 @@ img {
   color: var(--wm-text-muted) !important;
 }
 
-.wingman-app-main section,
-.wingman-app-main article,
-.wingman-app-main .wm-card,
-.wingman-app-main .wingman-card,
-.wingman-app-main .wm-panel,
-.wingman-app-main .wingman-panel,
-.wingman-app-main [class*="Card"],
-.wingman-app-main [class*="card"],
-.wingman-app-main [class*="Panel"],
-.wingman-app-main [class*="panel"] {
-  border: 1px solid var(--wm-border-soft) !important;
-  border-radius: var(--wm-radius-panel) !important;
-  background:
-    linear-gradient(180deg, var(--wm-surface-2), rgba(6, 15, 28, 0.95)) !important;
-  box-shadow: var(--wm-shadow-card) !important;
-  color: var(--wm-text-main) !important;
+body:not(.wm-polish-page) .wingman-app-main :where(section, article, .wm-card, .wingman-card, .wm-panel, .wingman-panel, [class*="Card"], [class*="card"], [class*="Panel"], [class*="panel"]) {
+  border: 1px solid var(--wm-border-soft);
+  border-radius: var(--wm-radius-panel);
+  background: linear-gradient(180deg, var(--wm-surface-2), rgba(6, 15, 28, 0.95));
+  box-shadow: var(--wm-shadow-card);
+  color: var(--wm-text-main);
 }
 
 .wingman-app-main button,

@@ -137,7 +137,7 @@ export function AppShell({ children }: AppShellProps) {
   const activeLabel = activeRoute?.label ?? "Dashboard";
   const activeSummary = activeRoute?.summary ?? "WyreStorm technical sales workspace.";
   const activeRouteKey = activeRoute?.key ?? "dashboard";
-  const showWorkspaceGuidance = activeRouteKey !== "dashboard";
+  const showWorkspaceGuidance = false;
   const primaryNav = useMemo(() => primaryNavKeys.map((key) => routeCatalogByKey[key]), []);
   const secondaryNav = useMemo(() => secondaryNavKeys.map((key) => routeCatalogByKey[key]), []);
 
