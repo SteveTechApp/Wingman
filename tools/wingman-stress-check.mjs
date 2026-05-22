@@ -5,9 +5,14 @@ import { execFileSync } from "node:child_process";
 const root = process.cwd();
 const strict = process.argv.includes("--strict");
 const results = [];
+const incorrectNetworkHdMultiviewSku = ["MHD", "0401", "MV"].join("-");
 
 function add(status, area, name, detail = "") {
   results.push({ status, area, name, detail });
+}
+
+function npmExecutable() {
+  return process.platform === "win32" ? "npm.cmd" : "npm";
 }
 
 function exists(file) {
@@ -58,15 +63,25 @@ function checkProductMatchingGate() {
     return;
   }
   try {
-    execFileSync("npm", ["run", "check:product-matching", "--silent"], { cwd: root, stdio: "pipe", shell: process.platform === "win32", timeout: 120000 });
+    execFileSync(npmExecutable(), ["run", "--silent", "check:product-matching"], { cwd: root, stdio: "pipe", timeout: 120000 });
     add("PASS", "Product Finder", "Product matching scenario gate passes");
   } catch (error) {
-    add("FAIL", "Product Finder", "Product matching scenario gate fails", String(error.stdout || error.message));
+    const stdout = error.stdout ? String(error.stdout).trim() : "";
+    const stderr = error.stderr ? String(error.stderr).trim() : "";
+    const message = [stdout, stderr, error.message].filter(Boolean).join("\n").slice(0, 4000);
+    add("FAIL", "Product Finder", "Product matching scenario gate fails", message);
   }
 }
 
 function checkSkuAccuracy() {
-  const offenders = allTextFiles().filter((file) => read(file).includes("MHD-0401-MV"));
+  const offenders = [];
+  for (const file of allTextFiles()) {
+    if (file === "tools/wingman-stress-check.mjs" || file === "tools/check-product-matching-scenarios.mjs") continue;
+    const lines = read(file).split(/\r?\n/);
+    lines.forEach((line, index) => {
+      if (line.includes(incorrectNetworkHdMultiviewSku)) offenders.push(`${file}:${index + 1}`);
+    });
+  }
   add(offenders.length ? "FAIL" : "PASS", "AV accuracy", "Incorrect MHD-0401-MV reference check", offenders.join(", "));
   const combined = allTextFiles().map(read).join("\n");
   for (const sku of ["NHD-0401-MV", "NHD-150-RX", "NHD-128-NDI-TRX", "SW-0206-VW", "SW-0204-VW"]) {
