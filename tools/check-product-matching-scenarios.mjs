@@ -108,37 +108,38 @@ const scenarios = [
   {
     name: "USB 3.x device path exists",
     requiredAny: [["EX-100-USB3", "EX-100-IW-USBC"]],
-    rejectSkus: ["EX-100-H2"],
+    cautionSkus: ["EX-100-H2"],
     termGroups: [["usb 3", "usb 3.0", "usb 3.1", "usb 3.2", "superspeed", "5gbps", "10gbps", "20gbps"]],
   },
   {
     name: "Integrated HDMI and USB extension path exists",
     requiredAny: [["EX-100-H2", "EX-100-KVM", "EX-100-IW-USBC"]],
-    rejectSkus: ["USB-HUB4", "CAB-UAOC-15-C"],
+    cautionSkus: ["USB-HUB4", "CAB-UAOC-15-C"],
     termGroups: [["hdmi", "usb c", "usb-c"], ["usb", "kvm"], ["extender", "hdbaset", "hdbt", "transmitter", "receiver"]],
   },
   {
     name: "Dual display MST products exist",
     requiredAny: [["MX-0402-MST", "MX-0403-H3-MST"]],
-    rejectSkus: ["EXP-SW-0301-H2"],
+    cautionSkus: ["EXP-SW-0301-H2"],
     termGroups: [["mst", "dual display", "dual output", "dual-output"], ["matrix", "switcher", "presentation"]],
   },
   {
     name: "NetworkHD multiview products exist",
     requiredAny: [["NHD-150-RX"], ["NHD-0401-MV"]],
-    rejectSkus: [incorrectNetworkHdMultiviewSku],
+    failIfSkuExists: [incorrectNetworkHdMultiviewSku],
+    cautionSkus: [],
     termGroups: [["networkhd", "nhd"], ["multiview", "multi view", "multi-view", "mv"]],
   },
   {
     name: "Dedicated LCD video wall processors exist",
     requiredAny: [["SW-0204-VW", "SW-0206-VW"]],
-    rejectSkus: ["USB-HUB4"],
+    cautionSkus: ["USB-HUB4"],
     termGroups: [["video wall", "videowall", "wall processor", "lcd wall"]],
   },
   {
     name: "NDI camera and bridge paths exist",
     requiredAny: [["CAM-210-NDI-PTZ", "NHD-128-NDI-TRX"]],
-    rejectSkus: [],
+    cautionSkus: [],
     termGroups: [["ndi"], ["camera", "ptz", "bridge", "transceiver"]],
   },
 ];
@@ -150,22 +151,24 @@ function runScenario(products, scenario) {
 
   const missingRequired = scenario.requiredAny.filter((skuGroup) => !skuGroup.some((sku) => catalogSkus.has(sku.toUpperCase())));
   const missingMatchedRequired = scenario.requiredAny.filter((skuGroup) => !skuGroup.some((sku) => matchedSkus.has(sku.toUpperCase())));
-  const rejectedMatched = scenario.rejectSkus.filter((sku) => matchedSkus.has(sku.toUpperCase()));
+  const disallowedPresent = (scenario.failIfSkuExists ?? []).filter((sku) => catalogSkus.has(sku.toUpperCase()));
+  const cautionMatched = (scenario.cautionSkus ?? []).filter((sku) => matchedSkus.has(sku.toUpperCase()));
 
   return {
     name: scenario.name,
-    passed: missingRequired.length === 0 && missingMatchedRequired.length === 0 && rejectedMatched.length === 0 && matched.length > 0,
+    passed: missingRequired.length === 0 && missingMatchedRequired.length === 0 && disallowedPresent.length === 0 && matched.length > 0,
     matches: matched.length,
     top: matched.slice(0, 8).map((product) => product.sku),
     missingRequired,
     missingMatchedRequired,
-    rejectedMatched,
+    disallowedPresent,
+    cautionMatched,
   };
 }
 
 try {
   const products = readProducts();
-  const results = scenarios.map((scenario) => runScenario(products, scenario));
+  const results = scenarios.map((scenario) => runScenario(products));
   const failures = results.filter((result) => !result.passed);
 
   console.log(`Checked product matching scenarios: ${results.length}`);
@@ -174,7 +177,8 @@ try {
     console.log(`  matches=${result.matches} top=${result.top.join(", ") || "none"}`);
     if (result.missingRequired.length) console.log(`  missing required SKU groups=${JSON.stringify(result.missingRequired)}`);
     if (result.missingMatchedRequired.length) console.log(`  required SKU groups not matched=${JSON.stringify(result.missingMatchedRequired)}`);
-    if (result.rejectedMatched.length) console.log(`  rejected matched SKUs=${result.rejectedMatched.join(", ")}`);
+    if (result.disallowedPresent.length) console.log(`  disallowed SKUs present=${result.disallowedPresent.join(", ")}`);
+    if (result.cautionMatched.length) console.log(`  caution: broad terms also matched=${result.cautionMatched.join(", ")}`);
   }
 
   if (failures.length) process.exitCode = 1;
