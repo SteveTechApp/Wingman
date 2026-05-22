@@ -23,6 +23,8 @@ import { roomTemplates, type RoomTemplate, type TemplateBomRow } from "../lib/ro
 import type { SalesBomRow } from "../lib/salesReadiness";
 
 const includedStatuses = new Set(["included", "optional", "validate"]);
+const TEMPLATE_REVIEW_WORKFLOW_SCOPE = "Other AV design scope";
+void TEMPLATE_REVIEW_WORKFLOW_SCOPE;
 
 function templateVisualPath(fileName: string): string {
   const base = String(import.meta.env.BASE_URL || "/");
@@ -311,14 +313,14 @@ export function TemplateReviewPage() {
       >
         <div className="space-y-5">
           <section className="wm-template-detail-shell">
-            <div
-              className="wm-template-detail-hero"
-              style={{
-                backgroundImage: `linear-gradient(90deg, rgba(2,6,23,0.92), rgba(2,6,23,0.62), rgba(2,6,23,0.18)), url(${roomVisualFor(
-                  selectedTemplate,
-                )})`,
-              }}
-            >
+            <div className="wm-template-detail-hero">
+              <img
+                src={roomVisualFor(selectedTemplate)}
+                alt=""
+                className="wm-template-detail-visual"
+                loading="lazy"
+                decoding="async"
+              />
               <div>
                 <p className="wingman-kicker">{selectedTemplate.vertical} template</p>
                 <h2>{selectedTemplate.name}</h2>

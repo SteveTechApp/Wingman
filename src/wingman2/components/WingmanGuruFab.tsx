@@ -19,7 +19,7 @@ export function WingmanGuruFab({ open, onClick }: WingmanGuruFabProps) {
     >
       <span className="wingman-guru-fab-sweep" aria-hidden="true" />
       <span className="wingman-guru-fab-glow" aria-hidden="true" />
-      <img src="/guru-bot.png" alt="Guru" className="wingman-guru-fab-image" decoding="async" />
+      <img src="/guru-bot.png" alt="Guru" className="wingman-guru-fab-image" width={64} height={64} decoding="async" loading="eager" />
     </button>
   );
 }

@@ -1,4 +1,4 @@
-﻿export type StatusVariant = "recommended" | "alternative" | "caution";
+export type StatusVariant = "recommended" | "alternative" | "caution";
 
 export type CompareRow = {
   label: string;

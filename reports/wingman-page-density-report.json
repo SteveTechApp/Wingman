@@ -1,0 +1,149 @@
+{
+  "generatedAt": "2026-05-05T09:11:40.439Z",
+  "pages": [
+    {
+      "file": "src/wingman2/pages/FinderPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 28,
+      "small": 0,
+      "buttons": 10,
+      "helperMentions": 62,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/DiscoveryPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 32,
+      "small": 0,
+      "buttons": 6,
+      "helperMentions": 50,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/CallCardsPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 12,
+      "small": 0,
+      "buttons": 8,
+      "helperMentions": 38,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/ProductFamilyPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 6,
+      "small": 0,
+      "buttons": 1,
+      "helperMentions": 38,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/ProposalPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 25,
+      "small": 0,
+      "buttons": 3,
+      "helperMentions": 10,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/SalesHelperPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 14,
+      "small": 0,
+      "buttons": 3,
+      "helperMentions": 21,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/ComparePage.tsx",
+      "cssImports": 0,
+      "paragraphs": 29,
+      "small": 0,
+      "buttons": 5,
+      "helperMentions": 2,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/ProjectDetailPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 26,
+      "small": 0,
+      "buttons": 1,
+      "helperMentions": 0,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/VideowallBuilderPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 21,
+      "small": 0,
+      "buttons": 1,
+      "helperMentions": 4,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/DashboardPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 7,
+      "small": 4,
+      "buttons": 10,
+      "helperMentions": 12,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/TemplateReviewPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 15,
+      "small": 0,
+      "buttons": 4,
+      "helperMentions": 7,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/TemplatesPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 0,
+      "small": 2,
+      "buttons": 2,
+      "helperMentions": 12,
+      "usesLayoutPrimitives": true
+    },
+    {
+      "file": "src/wingman2/pages/ProductPitchPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 1,
+      "small": 0,
+      "buttons": 2,
+      "helperMentions": 11,
+      "usesLayoutPrimitives": true
+    },
+    {
+      "file": "src/wingman2/pages/IngestPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 8,
+      "small": 0,
+      "buttons": 1,
+      "helperMentions": 0,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/SupportPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 2,
+      "small": 0,
+      "buttons": 0,
+      "helperMentions": 4,
+      "usesLayoutPrimitives": false
+    },
+    {
+      "file": "src/wingman2/pages/ProjectsPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 2,
+      "small": 0,
+      "buttons": 5,
+      "helperMentions": 0,
+      "usesLayoutPrimitives": false
+    }
+  ]
+}

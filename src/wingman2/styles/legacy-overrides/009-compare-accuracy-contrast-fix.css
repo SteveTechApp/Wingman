@@ -1,0 +1,94 @@
+/* ============================================================
+   LEGACY OVERRIDE BLOCK: COMPARE-ACCURACY-CONTRAST-FIX
+
+   Extracted from wingman-entry-legacy-overrides.css.
+   Keep until replaced by shared Wingman layout/components.
+============================================================ */
+
+/* COMPARE-ACCURACY-CONTRAST-FIX-START */
+.wm-compare-page,
+.wm-compare-page .wingman-section-card,
+.wm-compare-page .wingman-section-card-body {
+  color: #0f172a !important;
+}
+
+.wm-compare-page .wingman-section-card {
+  background: linear-gradient(180deg, #f8fafc 0%, #eef4fb 100%) !important;
+  border: 1px solid rgba(100, 116, 139, 0.42) !important;
+}
+
+.wm-compare-page .wingman-section-card * {
+  text-shadow: none !important;
+}
+
+.wm-compare-page :where(div.rounded-3xl, div.rounded-2xl) {
+  background-color: #ffffff !important;
+  border-color: rgba(100, 116, 139, 0.38) !important;
+  color: #0f172a !important;
+}
+
+.wm-compare-page :where(.text-white, .text-slate-50, .text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400, .text-slate-500, .text-amber-50, .text-amber-100, .text-amber-200) {
+  color: #0f172a !important;
+}
+
+.wm-compare-page :where(.text-slate-600, .text-slate-700, .text-slate-800, .text-slate-900) {
+  color: #0f172a !important;
+}
+
+.wm-compare-page :where(input, select, textarea) {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+.wm-compare-page :where(input::placeholder, textarea::placeholder) {
+  color: #64748b !important;
+}
+
+.wm-compare-page table {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.wm-compare-page th {
+  background: #dbeafe !important;
+  color: #0f172a !important;
+}
+
+.wm-compare-page td {
+  color: #1e293b !important;
+  border-bottom-color: #cbd5e1 !important;
+}
+
+.wm-compare-page .rounded-full.bg-emerald-500\/15,
+.wm-compare-page .rounded-full.bg-sky-500\/15,
+.wm-compare-page .rounded-full.bg-amber-500\/15,
+.wm-compare-page .rounded-full.bg-slate-500\/15 {
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.2) !important;
+}
+
+.wm-compare-page a {
+  color: #92400e !important;
+}
+
+.wm-compare-page button[type="submit"] {
+  background: linear-gradient(135deg, #f59e0b, #f97316) !important;
+  color: #111827 !important;
+  border: 0 !important;
+}
+
+.wm-compare-page .bg-amber-300\/10,
+.wm-compare-page [class*="bg-amber-300"] {
+  background: #fffbeb !important;
+  color: #0f172a !important;
+}
+
+.wm-compare-page [class*="bg-slate-950"],
+.wm-compare-page [class*="bg-white/"],
+.wm-compare-page [class*="bg-white\\["] {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+/* COMPARE-ACCURACY-CONTRAST-FIX-END */

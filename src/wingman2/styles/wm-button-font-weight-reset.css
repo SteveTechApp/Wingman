@@ -1,0 +1,61 @@
+/*
+  Wingman button font-weight reset
+  Purpose: keep all button and button-like actions clean, simple and un-bold.
+*/
+
+:root {
+  --wm-button-font-weight: 400;
+}
+
+.wingman-shell button,
+.wingman-shell [role="button"],
+.wingman-shell input[type="button"],
+.wingman-shell input[type="submit"],
+.wingman-shell input[type="reset"],
+.wingman-shell .wm-button,
+.wingman-shell .wm-btn,
+.wingman-shell .btn,
+.wingman-shell .button,
+.wingman-shell .action-button,
+.wingman-shell .cta-button,
+.wingman-shell .primary-button,
+.wingman-shell .secondary-button,
+.wingman-shell .ghost-button,
+.wingman-shell a[class*="button" i],
+.wingman-shell a[class*="btn" i],
+.wingman-shell a[class*="action" i],
+.wingman-shell a[class*="cta" i] {
+  font-weight: var(--wm-button-font-weight) !important;
+}
+
+.wingman-shell button *,
+.wingman-shell [role="button"] *,
+.wingman-shell .wm-button *,
+.wingman-shell .wm-btn *,
+.wingman-shell .btn *,
+.wingman-shell .button *,
+.wingman-shell .action-button *,
+.wingman-shell .cta-button *,
+.wingman-shell .primary-button *,
+.wingman-shell .secondary-button *,
+.wingman-shell .ghost-button *,
+.wingman-shell a[class*="button" i] *,
+.wingman-shell a[class*="btn" i] *,
+.wingman-shell a[class*="action" i] *,
+.wingman-shell a[class*="cta" i] * {
+  font-weight: inherit !important;
+}
+
+.wingman-shell button strong,
+.wingman-shell [role="button"] strong,
+.wingman-shell .wm-button strong,
+.wingman-shell .wm-btn strong,
+.wingman-shell .btn strong,
+.wingman-shell .button strong,
+.wingman-shell .action-button strong,
+.wingman-shell .cta-button strong,
+.wingman-shell .primary-button strong,
+.wingman-shell .secondary-button strong,
+.wingman-shell .ghost-button strong {
+  font-weight: inherit !important;
+}

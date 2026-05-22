@@ -1,0 +1,126 @@
+/* Product Pitch interaction fix:
+   - Makes top conversation/language cards visibly active.
+   - Prevents pitch results leaking onto the picker landing page. */
+
+.wingman-shell .wm-audience-card-active {
+  border-color: rgba(241, 168, 59, 0.72) !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(241, 168, 59, 0.18), transparent 11rem),
+    linear-gradient(145deg, rgba(12, 31, 56, 0.96), rgba(8, 22, 41, 0.94)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(241, 168, 59, 0.18),
+    0 12px 26px rgba(0, 0, 0, 0.24) !important;
+}
+
+.wingman-shell .wm-audience-card-active::after {
+  content: "Active";
+  display: inline-flex;
+  width: fit-content;
+  margin-left: 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(241, 168, 59, 0.38);
+  background: rgba(241, 168, 59, 0.14);
+  color: #f1a83b;
+  font-size: 0.58rem;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.24rem 0.36rem;
+}
+
+.wingman-shell .wm-product-pitch-landing-only-hidden {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* WM Product Pitch field breathing room - start */
+
+/* Let the conversation/language cards use more horizontal space. */
+body[data-wm-route="product-pitch"] .wingman-shell [data-wm-audience-mode] {
+  min-width: clamp(15rem, 20vw, 22rem) !important;
+  min-height: 3.05rem !important;
+  padding: 0.82rem 1rem !important;
+  white-space: normal !important;
+  line-height: 1.22 !important;
+}
+
+body[data-wm-route="product-pitch"] .wingman-shell [data-wm-audience-mode] * {
+  white-space: normal !important;
+  line-height: 1.22 !important;
+}
+
+/* Give the product pitch setup form room to breathe. */
+body[data-wm-route="product-pitch"] .wingman-shell div:has(> input[placeholder*="NHD"]):has(> select),
+body[data-wm-route="product-pitch"] .wingman-shell div:has(> input[placeholder*="USB-C"]):has(> select),
+body[data-wm-route="product-pitch"] .wingman-shell div:has(> input[aria-label*="SKU"]):has(> select) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 0.75rem 1.25rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Widen the SKU / requirement input. */
+body[data-wm-route="product-pitch"] .wingman-shell input[placeholder*="NHD"],
+body[data-wm-route="product-pitch"] .wingman-shell input[placeholder*="USB-C"],
+body[data-wm-route="product-pitch"] .wingman-shell input[aria-label*="SKU"],
+body[data-wm-route="product-pitch"] .wingman-shell input[aria-label*="requirement"] {
+  width: clamp(24rem, 32vw, 38rem) !important;
+  min-width: 24rem !important;
+  height: 2.55rem !important;
+  padding-inline: 1rem !important;
+  font-size: 0.92rem !important;
+}
+
+/* Widen Product family and Pitch audience selects. */
+body[data-wm-route="product-pitch"] .wingman-shell select {
+  width: clamp(15rem, 18vw, 22rem) !important;
+  min-width: 15rem !important;
+  height: 2.55rem !important;
+  padding-inline: 0.95rem 2.4rem !important;
+  font-size: 0.92rem !important;
+}
+
+/* Give the small form labels more room and stop them crushing into controls. */
+body[data-wm-route="product-pitch"] .wingman-shell label,
+body[data-wm-route="product-pitch"] .wingman-shell legend {
+  margin-right: 0.35rem !important;
+  white-space: nowrap !important;
+}
+
+/* Make the hero action buttons readable. */
+body[data-wm-route="product-pitch"] .wingman-shell a[href*="finder"],
+body[data-wm-route="product-pitch"] .wingman-shell a[href*="families"],
+body[data-wm-route="product-pitch"] .wingman-shell button[title*="Product"],
+body[data-wm-route="product-pitch"] .wingman-shell button[aria-label*="Product"] {
+  min-width: max-content !important;
+  padding: 0.65rem 0.95rem !important;
+  white-space: nowrap !important;
+  line-height: 1.15 !important;
+}
+
+/* Stop the top search box from stealing too much horizontal space on this page. */
+body[data-wm-route="product-pitch"] .wingman-shell .wingman-command-search,
+body[data-wm-route="product-pitch"] .wingman-shell .wingman-topbar-title + label {
+  max-width: 34rem !important;
+}
+
+@media (max-width: 1180px) {
+  body[data-wm-route="product-pitch"] .wingman-shell input[placeholder*="NHD"],
+  body[data-wm-route="product-pitch"] .wingman-shell input[placeholder*="USB-C"],
+  body[data-wm-route="product-pitch"] .wingman-shell input[aria-label*="SKU"],
+  body[data-wm-route="product-pitch"] .wingman-shell input[aria-label*="requirement"],
+  body[data-wm-route="product-pitch"] .wingman-shell select {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  body[data-wm-route="product-pitch"] .wingman-shell [data-wm-audience-mode] {
+    min-width: 100% !important;
+  }
+}
+
+/* WM Product Pitch field breathing room - end */

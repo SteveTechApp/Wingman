@@ -1,8 +1,11 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { BookOpenCheck, Cable, CheckCircle2, HelpCircle, Network, Search, Sparkles, Workflow } from "lucide-react";
+import { BookOpenCheck, Cable, HelpCircle, Network, Search, Sparkles, Workflow } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
+import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { SectionCard } from "../components/SectionCard";
+import { WingmanSelectionCard } from "../components/ui/WingmanSelectionCard";
+import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
 
 type ProductFamilyGuide = {
   id: string;
@@ -649,6 +652,22 @@ function findGuide(id: string) {
   return familyGuides.find((guide) => guide.id === id) ?? familyGuides[0];
 }
 
+function familyAccent(id: string) {
+  if (id.includes("networkhd")) return "green" as const;
+  if (id.includes("matrix") || id.includes("wall")) return "purple" as const;
+  if (id.includes("presentation") || id.includes("uc")) return "teal" as const;
+  if (id.includes("hdbaset") || id.includes("extender")) return "blue" as const;
+  return "cyan" as const;
+}
+
+function familyIcon(id: string) {
+  if (id.includes("networkhd")) return Network;
+  if (id.includes("matrix") || id.includes("wall")) return Workflow;
+  if (id.includes("presentation") || id.includes("uc")) return Sparkles;
+  if (id.includes("hdbaset") || id.includes("extender")) return Cable;
+  return BookOpenCheck;
+}
+
 export function ProductFamilyPage() {
   const [activeFamilyId, setActiveFamilyId] = useState(familyGuides[0].id);
   const activeFamily = useMemo(() => findGuide(activeFamilyId), [activeFamilyId]);
@@ -666,6 +685,8 @@ export function ProductFamilyPage() {
           { label: "Build proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
         ]}
       />
+
+      <SalesToneQuickSetter context="productFamilies" />
 
       <SectionCard
         title="Fast architecture rules"
@@ -686,29 +707,25 @@ export function ProductFamilyPage() {
 
       <div className="grid gap-5 xl:grid-cols-[330px_minmax(0,1fr)]">
         <SectionCard title="Choose family" subtitle="Pick the family that best matches the customer application before discussing SKUs.">
-          <div className="space-y-2">
+          <WingmanSelectionGrid columns={1} compact>
             {familyGuides.map((guide) => {
               const active = guide.id === activeFamily.id;
 
               return (
-                <button
+                <WingmanSelectionCard
                   key={guide.id}
-                  type="button"
                   onClick={() => setActiveFamilyId(guide.id)}
-                  className={[
-                    "w-full rounded-2xl border p-4 text-left transition",
-                    active ? "border-orange-300 bg-orange-50 text-slate-950" : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50",
-                  ].join(" ")}
-                >
-                  <span className="flex items-center gap-2 text-sm font-black">
-                    {active ? <CheckCircle2 className="h-4 w-4 text-orange-600" /> : <BookOpenCheck className="h-4 w-4 text-slate-400" />}
-                    {guide.name}
-                  </span>
-                  <span className="mt-2 block text-xs font-semibold leading-5 text-slate-600">{guide.shortPosition}</span>
-                </button>
+                  compact
+                  title={guide.name}
+                  description={guide.shortPosition}
+                  icon={familyIcon(guide.id)}
+                  accent={familyAccent(guide.id)}
+                  selected={active}
+                  indicator={active ? "recommended" : undefined}
+                />
               );
             })}
-          </div>
+          </WingmanSelectionGrid>
         </SectionCard>
 
         <section className="wingman-section-card wingman-surface overflow-hidden rounded-3xl">

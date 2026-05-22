@@ -1,0 +1,206 @@
+body[data-wm-route="dashboard"] {
+  --wm-route-accent: var(--wm-blue);
+}
+
+body[data-wm-route="projects"] {
+  --wm-route-accent: var(--wm-blue);
+}
+
+body[data-wm-route="discovery"] {
+  --wm-route-accent: var(--wm-orange);
+}
+
+body[data-wm-route="finder"] {
+  --wm-route-accent: var(--wm-teal);
+}
+
+body[data-wm-route="productFamilies"] {
+  --wm-route-accent: #8bb5ff;
+}
+
+body[data-wm-route="productPitch"] {
+  --wm-route-accent: var(--wm-orange);
+}
+
+body[data-wm-route="compare"] {
+  --wm-route-accent: var(--wm-coral);
+}
+
+body[data-wm-route="templates"] {
+  --wm-route-accent: #8bb5ff;
+}
+
+body[data-wm-route="videowall"] {
+  --wm-route-accent: #b68cff;
+}
+
+body[data-wm-route="proposal"] {
+  --wm-route-accent: #72c6ff;
+}
+
+body[data-wm-route="salesHelper"] {
+  --wm-route-accent: var(--wm-orange);
+}
+
+body[data-wm-route="callCards"] {
+  --wm-route-accent: var(--wm-orange);
+}
+
+body[data-wm-route="ingest"] {
+  --wm-route-accent: var(--wm-teal);
+}
+
+body[data-wm-route="support"] {
+  --wm-route-accent: #8cb6ff;
+}
+
+body[data-wm-route="guru"] {
+  --wm-route-accent: var(--wm-orange);
+}
+
+body.wm-brand-active .wingman-page-hero,
+body.wm-brand-active .wm-page-hero,
+body.wm-brand-active .page-hero,
+body.wm-brand-active [class*="PageHero"],
+body.wm-brand-active [class*="pageHero"] {
+  border-color: color-mix(in srgb, var(--wm-route-accent, var(--wm-orange)) 22%, transparent) !important;
+}
+
+body.wm-brand-active .wingman-app-main [class*="section-title"],
+body.wm-brand-active .wingman-app-main [class*="SectionTitle"],
+body.wm-brand-active .wingman-app-main [class*="section-kicker"],
+body.wm-brand-active .wingman-app-main [class*="SectionKicker"] {
+  color: var(--wm-route-accent, var(--wm-orange)) !important;
+}
+
+body.wm-brand-active .wingman-app-main button[aria-pressed="true"],
+body.wm-brand-active .wingman-app-main button[data-state="active"],
+body.wm-brand-active .wingman-app-main [role="button"][aria-pressed="true"],
+body.wm-brand-active .wingman-app-main [role="button"][data-state="active"] {
+  border-color: color-mix(in srgb, var(--wm-route-accent, var(--wm-orange)) 66%, transparent) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--wm-route-accent, var(--wm-orange)) 20%, transparent) inset !important;
+}
+
+body.wm-route-dashboard .wingman-app-main,
+body.wm-route-projects .wingman-app-main {
+  gap: 14px !important;
+}
+
+body.wm-route-dashboard .wingman-page-hero,
+body.wm-route-projects .wingman-page-hero,
+body.wm-route-dashboard .wm-page-hero,
+body.wm-route-projects .wm-page-hero {
+  min-height: 140px !important;
+  padding: 18px 20px 20px !important;
+}
+
+body.wm-route-discovery .wingman-page-hero,
+body.wm-route-discovery .wm-page-hero,
+body.wm-route-discovery .page-hero,
+body.wm-route-discovery [class*="PageHero"],
+body.wm-route-discovery [class*="pageHero"] {
+  min-height: 156px !important;
+  padding: 18px 20px 24px !important;
+  margin-bottom: 18px !important;
+}
+
+body.wm-route-discovery .wingman-app-main [class*="step"],
+body.wm-route-discovery .wingman-app-main [class*="Step"] {
+  border-radius: 999px !important;
+}
+
+body.wm-route-discovery .wingman-app-main [class*="workspace"],
+body.wm-route-discovery .wingman-app-main [class*="Workspace"],
+body.wm-route-discovery .wingman-app-main [class*="layout"],
+body.wm-route-discovery .wingman-app-main [class*="Layout"],
+body.wm-route-discovery .wingman-app-main [class*="canvas"],
+body.wm-route-discovery .wingman-app-main [class*="Canvas"] {
+  gap: 10px !important;
+}
+
+body.wm-route-finder .wingman-app-main [class*="filter"],
+body.wm-route-finder .wingman-app-main [class*="Filter"] {
+  background:
+    linear-gradient(180deg, rgba(8, 21, 39, 0.96), rgba(6, 15, 28, 0.96)) !important;
+  border-color: rgba(101, 214, 173, 0.22) !important;
+}
+
+body.wm-route-finder .wingman-app-main [class*="results"],
+body.wm-route-finder .wingman-app-main [class*="Results"],
+body.wm-route-finder .wingman-app-main [class*="product"],
+body.wm-route-finder .wingman-app-main [class*="Product"] {
+  border-color: rgba(101, 214, 173, 0.18) !important;
+}
+
+body.wm-route-compare .wingman-app-main [class*="compare"],
+body.wm-route-compare .wingman-app-main [class*="Compare"] {
+  border-color: rgba(255, 127, 99, 0.20) !important;
+}
+
+body.wm-route-templates .wingman-app-main [class*="template"],
+body.wm-route-templates .wingman-app-main [class*="Template"] {
+  border-color: rgba(139, 181, 255, 0.18) !important;
+}
+
+body.wm-route-videowall .wingman-app-main [class*="wall"],
+body.wm-route-videowall .wingman-app-main [class*="Wall"],
+body.wm-route-videowall .wingman-app-main [class*="builder"],
+body.wm-route-videowall .wingman-app-main [class*="Builder"] {
+  border-color: rgba(182, 140, 255, 0.18) !important;
+}
+
+body.wm-route-proposal .wingman-app-main [class*="proposal"],
+body.wm-route-proposal .wingman-app-main [class*="Proposal"],
+body.wm-route-proposal .wingman-app-main [class*="summary"],
+body.wm-route-proposal .wingman-app-main [class*="Summary"] {
+  border-color: rgba(114, 198, 255, 0.18) !important;
+  background:
+    linear-gradient(180deg, rgba(10, 23, 43, 0.96), rgba(7, 17, 31, 0.97)) !important;
+}
+
+body.wm-route-salesHelper .wingman-app-main [class*="helper"],
+body.wm-route-salesHelper .wingman-app-main [class*="Helper"],
+body.wm-route-callCards .wingman-app-main [class*="card"],
+body.wm-route-callCards .wingman-app-main [class*="Card"] {
+  border-color: rgba(241, 168, 59, 0.18) !important;
+}
+
+body.wm-route-guru .wingman-app-main [class*="chat"],
+body.wm-route-guru .wingman-app-main [class*="Chat"],
+body.wm-route-guru .wingman-app-main [class*="message"],
+body.wm-route-guru .wingman-app-main [class*="Message"] {
+  border-color: rgba(241, 168, 59, 0.18) !important;
+}
+
+body.wm-brand-active .wingman-app-main [class*="hero"],
+body.wm-brand-active .wingman-app-main [class*="Hero"] {
+  overflow: visible !important;
+}
+
+body.wm-brand-active .wingman-app-main [class*="grid"],
+body.wm-brand-active .wingman-app-main [class*="Grid"] {
+  gap: 12px !important;
+}
+
+body.wm-brand-active .wingman-app-main [class*="toolbar"],
+body.wm-brand-active .wingman-app-main [class*="Toolbar"] {
+  border-radius: 16px !important;
+}
+
+body.wm-brand-active .wingman-app-main [class*="helper-text"],
+body.wm-brand-active .wingman-app-main [class*="HelperText"],
+body.wm-brand-active .wingman-app-main [class*="supporting-copy"],
+body.wm-brand-active .wingman-app-main [class*="SupportingCopy"] {
+  color: var(--wm-text-soft) !important;
+}
+
+body.wm-brand-active .wingman-app-main [class*="empty"],
+body.wm-brand-active .wingman-app-main [class*="Empty"] {
+  border-style: dashed !important;
+}
+
+@media (max-width: 1100px) {
+  body.wm-brand-active .wingman-app-main > * {
+    max-width: 100% !important;
+  }
+}
