@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
+  Cable,
+  Camera,
   Check,
   ChevronDown,
   ChevronRight,
   Database,
   FolderPlus,
+  Monitor,
+  Network,
   PackageSearch,
+  PanelsTopLeft,
   Plus,
   RotateCcw,
   Search,
@@ -25,6 +30,8 @@ import {
 import { PageHero } from "../components/PageHero";
 import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { SectionCard } from "../components/SectionCard";
+import { WingmanSelectionCard } from "../components/ui/WingmanSelectionCard";
+import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
 type MatchStatus = "recommended" | "alternative" | "caution";
 type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
 
@@ -149,6 +156,58 @@ const productPathOptions = [
   "Wireless presentation",
   "NDI / camera",
   "Audio / control",
+];
+type QuickStartKind = "hdmi" | "usb" | "usbC" | "wall" | "avoip" | "ndi";
+
+const quickStartCards: Array<{
+  kind: QuickStartKind;
+  title: string;
+  description: string;
+  accent: "cyan" | "blue" | "teal" | "amber" | "purple" | "green";
+  Icon: typeof Cable;
+}> = [
+  {
+    kind: "hdmi",
+    title: "HDMI over distance",
+    description: "Start with HDBaseT extension, long cable paths and display-side receiver logic.",
+    accent: "blue",
+    Icon: Cable,
+  },
+  {
+    kind: "usb",
+    title: "HDMI + USB together",
+    description: "Find extender paths where video and USB device transport must stay paired.",
+    accent: "teal",
+    Icon: Cable,
+  },
+  {
+    kind: "usbC",
+    title: "USB-C laptop input",
+    description: "Prioritise presentation switchers, room core and user connection points.",
+    accent: "cyan",
+    Icon: Monitor,
+  },
+  {
+    kind: "wall",
+    title: "Video wall processing",
+    description: "Filter toward wall processors, multiview and output mapping behaviour.",
+    accent: "purple",
+    Icon: PanelsTopLeft,
+  },
+  {
+    kind: "avoip",
+    title: "AVoIP distribution",
+    description: "Look for flexible NetworkHD routing, encoders, decoders and network needs.",
+    accent: "green",
+    Icon: Network,
+  },
+  {
+    kind: "ndi",
+    title: "NDI camera workflow",
+    description: "Focus camera, network video, bridge and NetworkHD interoperability paths.",
+    accent: "amber",
+    Icon: Camera,
+  },
 ];
 const technologyTypeOptions = [
   "Core hardware first",
@@ -2685,7 +2744,7 @@ export function FinderPage() {
     setMessage("");
   }
 
-  function applyQuickStart(kind: "hdmi" | "usb" | "usbC" | "wall" | "avoip" | "ndi") {
+  function applyQuickStart(kind: QuickStartKind) {
     if (kind === "hdmi") {
       setNeed({
         ...initialNeed,
@@ -2877,14 +2936,27 @@ export function FinderPage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <ChipButton active={false} label="HDMI over distance" onClick={() => applyQuickStart("hdmi")} />
-              <ChipButton active={false} label="HDMI + USB together" onClick={() => applyQuickStart("usb")} />
-              <ChipButton active={false} label="USB-C laptop input" onClick={() => applyQuickStart("usbC")} />
-              <ChipButton active={false} label="Video wall processing" onClick={() => applyQuickStart("wall")} />
-              <ChipButton active={false} label="AVoIP distribution" onClick={() => applyQuickStart("avoip")} />
-              <ChipButton active={false} label="NDI camera workflow" onClick={() => applyQuickStart("ndi")} />
-            </div>
+            <WingmanSelectionGrid columns={3} compact>
+              {quickStartCards.map(({ kind, title, description, accent, Icon }) => (
+                <WingmanSelectionCard
+                  key={kind}
+                  compact
+                  title={title}
+                  description={description}
+                  icon={Icon}
+                  accent={accent}
+                  selected={
+                    (kind === "hdmi" && need.technicalRequirement === "Extend HDMI over distance") ||
+                    (kind === "usb" && need.technicalRequirement === "Extend HDMI and USB together") ||
+                    (kind === "usbC" && need.technicalRequirement === "Connect USB-C laptop") ||
+                    (kind === "wall" && need.technicalRequirement === "Build LCD video wall") ||
+                    (kind === "avoip" && need.technicalRequirement === "Distribute AV over network") ||
+                    (kind === "ndi" && need.technicalRequirement === "Bring NDI camera into AV system")
+                  }
+                  onClick={() => applyQuickStart(kind)}
+                />
+              ))}
+            </WingmanSelectionGrid>
           </div>
 
           <div className="wm-finder-workspace">

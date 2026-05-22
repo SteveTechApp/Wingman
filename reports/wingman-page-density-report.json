@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T08:43:58.351Z",
+  "generatedAt": "2026-05-05T09:11:40.439Z",
   "pages": [
     {
       "file": "src/wingman2/pages/FinderPage.tsx",
@@ -101,6 +101,15 @@
       "usesLayoutPrimitives": false
     },
     {
+      "file": "src/wingman2/pages/TemplatesPage.tsx",
+      "cssImports": 0,
+      "paragraphs": 0,
+      "small": 2,
+      "buttons": 2,
+      "helperMentions": 12,
+      "usesLayoutPrimitives": true
+    },
+    {
       "file": "src/wingman2/pages/ProductPitchPage.tsx",
       "cssImports": 0,
       "paragraphs": 1,
@@ -125,15 +134,6 @@
       "small": 0,
       "buttons": 0,
       "helperMentions": 4,
-      "usesLayoutPrimitives": false
-    },
-    {
-      "file": "src/wingman2/pages/TemplatesPage.tsx",
-      "cssImports": 0,
-      "paragraphs": 4,
-      "small": 2,
-      "buttons": 5,
-      "helperMentions": 0,
       "usesLayoutPrimitives": false
     },
     {

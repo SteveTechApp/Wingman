@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
+import { WingmanSelectionCard, type WingmanSelectionAccent } from "../components/ui/WingmanSelectionCard";
+import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
 import {
   getCurrentWorkflowProject,
   readProjectStore,
@@ -34,6 +36,13 @@ const feedbackActions: Array<{
   { rating: "missing-accessory", label: "Missing accessory", Icon: Wrench },
   { rating: "wrong-fit", label: "Wrong fit", Icon: XCircle },
 ];
+
+const feedbackAccent: Record<(typeof feedbackActions)[number]["rating"], WingmanSelectionAccent> = {
+  accepted: "green",
+  "needs-review": "amber",
+  "missing-accessory": "blue",
+  "wrong-fit": "red",
+};
 
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -465,19 +474,19 @@ export function ProposalPage() {
               </div>
               <div className="lg:col-span-2">
                 <p className="wingman-kicker">Recommendation feedback</p>
-                <div className="mt-3 flex flex-wrap gap-3">
+                <WingmanSelectionGrid columns={4} compact className="mt-3">
                   {feedbackActions.map(({ rating, label, Icon }) => (
-                    <button
+                    <WingmanSelectionCard
                       key={rating}
-                      type="button"
                       onClick={() => captureFeedback(rating, label)}
-                      className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                    >
-                      <Icon className="h-4 w-4" />
-                      {label}
-                    </button>
+                      compact
+                      title={label}
+                      description="Record proposal fit feedback"
+                      icon={Icon}
+                      accent={feedbackAccent[rating]}
+                    />
                   ))}
-                </div>
+                </WingmanSelectionGrid>
                 {feedbackMessage ? <p className="mt-3 text-sm font-semibold text-slate-600">{feedbackMessage}</p> : null}
               </div>
             </div>

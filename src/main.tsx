@@ -11,6 +11,17 @@ import { installWingmanAuthoritySystem } from "./wingman2/utils/installWingmanAu
 import "./wingman2/styles/wingman-style-stack.css";
 import { installDiscoveryOutputPreviewEnhancer } from "./wingman2/discovery/outputPreviewEnhancer";
 
+import "./wingman2/styles/wm-button-font-weight-reset.css";
+import "./wingman2/styles/wm-orange-reduction.css";
+
+
+
+
+import "./wingman2/styles/wingman-dashboard-force-theme.css";
+import { installWingmanVisualRouteFlags } from "./wingman2/theme/wingmanVisualRouteFlags";
+
+installWingmanVisualRouteFlags();
+
 installDiscoveryOutputPreviewEnhancer();
 
 installWingmanVisualIdentity();

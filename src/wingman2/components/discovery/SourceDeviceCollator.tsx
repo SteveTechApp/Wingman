@@ -1,4 +1,27 @@
-import { type CSSProperties, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Building2,
+  Cable,
+  Camera,
+  ClipboardList,
+  FileText,
+  HelpCircle,
+  LayoutTemplate,
+  Monitor,
+  Network,
+  PanelTop,
+  PanelsTopLeft,
+  Search,
+  Settings2,
+  Sparkles,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+import {
+  WingmanSelectionCard,
+  type WingmanSelectionAccent,
+} from "../ui/WingmanSelectionCard";
+import { WingmanSelectionGrid } from "../ui/WingmanSelectionGrid";
 type Option<T extends string> = {
   value: T;
   label: string;
@@ -264,232 +287,6 @@ type Recommendation = {
 };
 
 const STORAGE_KEY = "wingman.discovery.engineeringCanvas.v1";
-
-/* Wingman discovery photo buttons */
-type PhotoButtonStyle = CSSProperties & {
-  "--wmg-photo"?: string;
-  "--wmg-photo-position"?: string;
-};
-
-const discoveryPhotoMap: Record<string, { url: string; position?: string }> = {
-  "meeting-room": {
-    url: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  boardroom: {
-    url: "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "training-room": {
-    url: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  classroom: {
-    url: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "lecture-theatre": {
-    url: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "divisible-room": {
-    url: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  auditorium: {
-    url: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "house-of-worship": {
-    url: "https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "retail-showroom": {
-    url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "reception-signage": {
-    url: "https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "command-control": {
-    url: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  hospitality: {
-    url: "https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  other: {
-    url: "https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-
-  "single-lcd": {
-    url: "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "dual-lcd": {
-    url: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "multiple-lcd": {
-    url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "lcd-video-wall": {
-    url: "https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "led-wall": {
-    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "single-projector": {
-    url: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "dual-projector": {
-    url: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  repeater: {
-    url: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  overflow: {
-    url: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "confidence-monitor": {
-    url: "https://images.unsplash.com/photo-1516387938699-a93567ec168e?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "preview-monitor": {
-    url: "https://images.unsplash.com/photo-1516387938699-a93567ec168e?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "stream-record-output": {
-    url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-
-  byod: {
-    url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "usb-c-laptop": {
-    url: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "hdmi-laptop": {
-    url: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "wireless-presentation": {
-    url: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "room-pc": {
-    url: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "mtr-device": {
-    url: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "media-player": {
-    url: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "external-feed": {
-    url: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "usb-camera": {
-    url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "hdmi-ptz-camera": {
-    url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "ndi-camera": {
-    url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  microphone: {
-    url: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "audio-dsp": {
-    url: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "camera-bridge": {
-    url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "streaming-recorder": {
-    url: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-
-  table: {
-    url: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  lectern: {
-    url: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  credenza: {
-    url: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "local-rack": {
-    url: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "central-rack": {
-    url: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "remote-comms": {
-    url: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  "display-wall": {
-    url: "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  ceiling: {
-    url: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-  network: {
-    url: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=70",
-    position: "center",
-  },
-};
-
-function getDiscoveryPhotoStyle(value: string): PhotoButtonStyle | undefined {
-  const photo = discoveryPhotoMap[value];
-
-  if (!photo) {
-    return undefined;
-  }
-
-  return {
-    "--wmg-photo": `url("${photo.url}")`,
-    "--wmg-photo-position": photo.position ?? "center",
-  };
-}
-
-function hasDiscoveryPhoto(value: string) {
-  return Boolean(discoveryPhotoMap[value]);
-}
-/* End Wingman discovery photo buttons */
 
 const applications: Option<ApplicationKey>[] = [
   { value: "meeting-room", label: "Meeting room", helper: "BYOD, UC, simple display operation" },
@@ -777,6 +574,81 @@ const controlOptions: Option<ControlKey>[] = [
   { value: "scheduled-content", label: "Scheduled content" },
   { value: "unknown", label: "Unknown" },
 ];
+
+function applicationIcon(value: ApplicationKey): LucideIcon {
+  if (value === "meeting-room" || value === "boardroom") return Users;
+  if (value === "training-room" || value === "classroom" || value === "lecture-theatre") return ClipboardList;
+  if (value === "divisible-room" || value === "auditorium") return PanelsTopLeft;
+  if (value === "house-of-worship") return Building2;
+  if (value === "retail-showroom") return LayoutTemplate;
+  if (value === "reception-signage") return Monitor;
+  if (value === "command-control") return Network;
+  if (value === "hospitality") return Building2;
+  return HelpCircle;
+}
+
+function applicationAccent(value: ApplicationKey): WingmanSelectionAccent {
+  if (value === "meeting-room" || value === "boardroom") return "cyan";
+  if (value === "training-room" || value === "classroom" || value === "lecture-theatre") return "blue";
+  if (value === "divisible-room" || value === "auditorium") return "purple";
+  if (value === "retail-showroom" || value === "reception-signage") return "teal";
+  if (value === "command-control") return "green";
+  if (value === "house-of-worship" || value === "hospitality") return "amber";
+  return "cyan";
+}
+
+function outputIcon(value: OutputType): LucideIcon {
+  if (value.includes("projector")) return Monitor;
+  if (value === "lcd-video-wall" || value === "led-wall") return PanelTop;
+  if (value === "interactive-display") return Sparkles;
+  if (value === "stream-record-output" || value === "preview-monitor") return Camera;
+  if (value === "dual-lcd" || value === "multiple-lcd") return PanelsTopLeft;
+  return Monitor;
+}
+
+function outputAccent(value: OutputType): WingmanSelectionAccent {
+  if (value === "lcd-video-wall" || value === "led-wall") return "purple";
+  if (value === "interactive-display") return "teal";
+  if (value.includes("projector")) return "blue";
+  if (value === "stream-record-output" || value === "preview-monitor") return "green";
+  return "cyan";
+}
+
+function sourceIcon(value: SourceKind): LucideIcon {
+  if (value.includes("camera")) return Camera;
+  if (value.includes("microphone") || value.includes("audio")) return Cable;
+  if (value.includes("wireless") || value.includes("ndi")) return Network;
+  if (value.includes("streaming")) return FileText;
+  if (value.includes("touch")) return Sparkles;
+  if (value.includes("room-pc") || value.includes("mtr")) return Monitor;
+  return Cable;
+}
+
+function sourceAccent(value: SourceKind): WingmanSelectionAccent {
+  if (value.includes("camera") || value.includes("ndi")) return "green";
+  if (value.includes("audio") || value.includes("microphone")) return "amber";
+  if (value.includes("wireless") || value.includes("streaming")) return "purple";
+  if (value.includes("usb")) return "teal";
+  return "cyan";
+}
+
+function genericOptionIcon(value: string): LucideIcon {
+  if (value.includes("network") || value.includes("fibre") || value.includes("avoip") || value.includes("ndi")) return Network;
+  if (value.includes("display") || value.includes("wall") || value.includes("projector")) return Monitor;
+  if (value.includes("control") || value.includes("switch")) return Settings2;
+  if (value.includes("rack") || value.includes("room") || value.includes("position")) return Building2;
+  if (value.includes("camera") || value.includes("stream")) return Camera;
+  return Cable;
+}
+
+function genericOptionAccent(value: string): WingmanSelectionAccent {
+  if (value.includes("unknown") || value.includes("limited")) return "red";
+  if (value.includes("network") || value.includes("fibre") || value.includes("avoip") || value.includes("ndi")) return "green";
+  if (value.includes("wall") || value.includes("multiview") || value.includes("video")) return "purple";
+  if (value.includes("usb") || value.includes("touch")) return "teal";
+  if (value.includes("audio") || value.includes("control")) return "amber";
+  return "blue";
+}
 
 const optionLabel = <T extends string>(options: Option<T>[], value: T) => {
   return options.find((option) => option.value === value)?.label ?? value;
@@ -1720,18 +1592,24 @@ function CompactChipGroup<T extends string>({
   onToggle: (value: T) => void;
 }) {
   return (
-    <div className="wmg-compact-chip-row">
-      {options.map((option) => (
-        <button
-          className={values.includes(option.value) ? "wmg-compact-chip is-on" : "wmg-compact-chip"}
-          key={option.value}
-          type="button"
-          onClick={() => onToggle(option.value)}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
+    <WingmanSelectionGrid columns={4} compact>
+      {options.map((option) => {
+        const selected = values.includes(option.value);
+
+        return (
+          <WingmanSelectionCard
+            key={option.value}
+            compact
+            title={option.label}
+            description={option.helper}
+            icon={genericOptionIcon(option.value)}
+            accent={genericOptionAccent(option.value)}
+            selected={selected}
+            onClick={() => onToggle(option.value)}
+          />
+        );
+      })}
+    </WingmanSelectionGrid>
   );
 }
 
@@ -2033,6 +1911,19 @@ export function SourceDeviceCollator() {
     "Processing",
     "Recommendation",
   ];
+  const summaryPills = [
+    { step: 0, label: "Application", value: optionLabel(applications, brief.application) },
+    {
+      step: 1,
+      label: "Environment",
+      value: `${optionLabel(roomSizes, brief.roomSize)} / ${optionLabel(resolutionOptions, brief.globalResolution)}`,
+    },
+    { step: 2, label: "Outputs", value: `${brief.outputs.length} selected` },
+    { step: 3, label: "Positions", value: `${brief.avPositions.length} mapped` },
+    { step: 4, label: "Sources", value: `${brief.sources.length} selected` },
+    { step: 5, label: "Paths", value: `${brief.paths.length} built` },
+    { step: 6, label: "Processing", value: `${brief.processing.length + brief.control.length} behaviours` },
+  ].filter((item) => item.step <= activeStep);
 
   return (
     <section className="wmg-engineering-canvas" aria-label="AV Engineering Design Canvas">
@@ -2067,7 +1958,21 @@ export function SourceDeviceCollator() {
         ))}
       </div>
 
-      
+      {summaryPills.length ? (
+        <div className="wm-selection-summary" aria-label="Captured discovery selections">
+          {summaryPills.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              className="wm-selection-summary__pill"
+              onClick={() => setActiveStep(item.step)}
+              aria-label={`Edit ${item.label}`}
+            >
+              {item.label}: <strong>{item.value}</strong>
+            </button>
+          ))}
+        </div>
+      ) : null}
 
 
       {activeStep === 0 ? (
@@ -2080,30 +1985,24 @@ export function SourceDeviceCollator() {
             </p>
           </div>
 
-          <div className="wmg-application-grid">
+          <WingmanSelectionGrid columns={4} className="wmg-application-grid">
             {applications.map((application) => {
               const selected = brief.application === application.value;
 
               return (
-                <button
+                <WingmanSelectionCard
                   key={application.value}
-                  type="button"
-                  className={[
-                    "wmg-application-card",
-                    selected ? "selected" : "",
-                    hasDiscoveryPhoto(application.value) ? "has-photo" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  style={getDiscoveryPhotoStyle(application.value)}
+                  title={application.label}
+                  description={application.helper}
+                  icon={applicationIcon(application.value)}
+                  accent={applicationAccent(application.value)}
+                  selected={selected}
+                  indicator={selected ? "recommended" : undefined}
                   onClick={() => applyPreset(application.value)}
-                >
-                  <span>{application.label}</span>
-                  <small>{application.helper}</small>
-                </button>
+                />
               );
             })}
-          </div>
+          </WingmanSelectionGrid>
         </article>
       ) : null}
       {activeStep === 1 ? (
@@ -2113,8 +2012,26 @@ export function SourceDeviceCollator() {
             <p>Capture the room constraints that usually decide whether the design is direct, extended, matrixed or AVoIP.</p>
           </div>
 
+          <h4>Room size / environment scale</h4>
+          <WingmanSelectionGrid columns={5} compact>
+            {roomSizes.map((option) => (
+              <WingmanSelectionCard
+                key={option.value}
+                compact
+                title={option.label}
+                description="Use this as the baseline for transport and output assumptions"
+                icon={Building2}
+                accent={option.value === "unknown" ? "red" : "blue"}
+                selected={brief.roomSize === option.value}
+                onClick={() => {
+                  patchBrief({ roomSize: option.value });
+                  setActiveStep(2);
+                }}
+              />
+            ))}
+          </WingmanSelectionGrid>
+
           <div className="wmg-field-grid">
-            <FieldSelect label="Room size" value={brief.roomSize} options={roomSizes} onChange={(value) => patchBrief({ roomSize: value })} />
             <FieldSelect label="Construction" value={brief.construction} options={constructionOptions} onChange={(value) => patchBrief({ construction: value })} />
             <FieldSelect label="Levels" value={brief.levels} options={levelOptions} onChange={(value) => patchBrief({ levels: value })} />
             <FieldSelect label="Global resolution" value={brief.globalResolution} options={resolutionOptions} onChange={(value) => patchBrief({ globalResolution: value })} />
@@ -2153,13 +2070,25 @@ export function SourceDeviceCollator() {
             </p>
           </div>
 
-          <div className="wmg-output-add-row">
-            {availableOutputOptions.map((option) => (
-              <button key={option.value} type="button" onClick={() => addOutput(option.value)}>
-                Add {option.label}
-              </button>
-            ))}
-          </div>
+          <WingmanSelectionGrid columns={3} compact className="wmg-output-add-row">
+            {availableOutputOptions.map((option) => {
+              const selectedCount = brief.outputs.filter((output) => output.type === option.value).length;
+
+              return (
+                <WingmanSelectionCard
+                  key={option.value}
+                  compact
+                  title={option.label}
+                  description={selectedCount ? `${selectedCount} already added` : "Add this output path"}
+                  icon={outputIcon(option.value)}
+                  accent={outputAccent(option.value)}
+                  selected={selectedCount > 0}
+                  onClick={() => addOutput(option.value)}
+                  metaBadges={selectedCount ? [`${selectedCount} selected`] : undefined}
+                />
+              );
+            })}
+          </WingmanSelectionGrid>
 
           {interactiveDisplayMissingHost ? (
             <div className="wmg-warning-card">
@@ -2343,20 +2272,19 @@ export function SourceDeviceCollator() {
               only the relevant signal paths for those selected devices.
             </div>
           ) : (
-            <div className="wmg-output-add-row">
+            <WingmanSelectionGrid columns={3} compact className="wmg-output-add-row">
               {selectedSourceOptions.map((option) => (
-                <button
-                  className="wmg-photo-action-button"
-                  data-has-photo={hasDiscoveryPhoto(option.value) ? "true" : undefined}
+                <WingmanSelectionCard
                   key={option.value}
-                  style={getDiscoveryPhotoStyle(option.value)}
-                  type="button"
+                  compact
+                  title={`Add path: ${option.label}`}
+                  description="Create a schematic signal route for this source"
+                  icon={sourceIcon(option.value)}
+                  accent={sourceAccent(option.value)}
                   onClick={() => addPath(option.value)}
-                >
-                  Add path: {option.label}
-                </button>
+                />
               ))}
-            </div>
+            </WingmanSelectionGrid>
           )}
 
           {brief.paths.length === 0 ? (

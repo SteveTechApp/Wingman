@@ -1,0 +1,284 @@
+/*
+  Wingman orange reduction layer
+  Purpose:
+  - Remove oversized amber/orange page panels.
+  - Keep the cleaner dashboard-style dark surfaces.
+  - Preserve orange/yellow only as a small accent where possible.
+*/
+
+:root {
+  --wm-clean-page: #07111b;
+  --wm-clean-panel: #0d1824;
+  --wm-clean-panel-2: #101f2d;
+  --wm-clean-panel-3: #142537;
+  --wm-clean-border: rgba(148, 163, 184, 0.18);
+  --wm-clean-border-strong: rgba(34, 211, 238, 0.38);
+  --wm-clean-text: #f8fafc;
+  --wm-clean-muted: #a7b4c5;
+  --wm-clean-accent: #22d3ee;
+  --wm-clean-accent-soft: rgba(34, 211, 238, 0.12);
+  --wm-clean-warning: #f8c44f;
+}
+
+/* Replace large Tailwind amber/orange/yellow backgrounds inside the app body. */
+.wingman-app-main :is(
+  [class*="bg-orange-"],
+  [class*="bg-amber-"],
+  [class*="bg-yellow-"],
+  [class*="from-orange-"],
+  [class*="from-amber-"],
+  [class*="from-yellow-"],
+  [class*="via-orange-"],
+  [class*="via-amber-"],
+  [class*="via-yellow-"],
+  [class*="to-orange-"],
+  [class*="to-amber-"],
+  [class*="to-yellow-"]
+):not(button):not(a):not(input):not(textarea):not(select):not([role="button"]) {
+  background: linear-gradient(180deg, var(--wm-clean-panel-2), var(--wm-clean-panel)) !important;
+  background-color: var(--wm-clean-panel) !important;
+  border-color: var(--wm-clean-border) !important;
+  color: var(--wm-clean-text) !important;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24) !important;
+}
+
+/* Catch gradient utility classes by overriding their Tailwind gradient variables. */
+.wingman-app-main :is(
+  [class*="from-orange-"],
+  [class*="from-amber-"],
+  [class*="from-yellow-"],
+  [class*="via-orange-"],
+  [class*="via-amber-"],
+  [class*="via-yellow-"],
+  [class*="to-orange-"],
+  [class*="to-amber-"],
+  [class*="to-yellow-"]
+):not(button):not(a):not([role="button"]) {
+  --tw-gradient-from: var(--wm-clean-panel-2) !important;
+  --tw-gradient-via: var(--wm-clean-panel-2) !important;
+  --tw-gradient-to: var(--wm-clean-panel) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+/* Catch inline orange/yellow backgrounds that came from older page-specific styling. */
+.wingman-app-main :is(
+  [style*="orange" i],
+  [style*="amber" i],
+  [style*="yellow" i],
+  [style*="#f97316" i],
+  [style*="#fb923c" i],
+  [style*="#f59e0b" i],
+  [style*="#fbbf24" i],
+  [style*="#facc15" i],
+  [style*="#eab308" i],
+  [style*="249, 115" i],
+  [style*="245, 158" i],
+  [style*="251, 191" i],
+  [style*="250, 204" i]
+):not(button):not(a):not(input):not(textarea):not(select):not([role="button"]) {
+  background: linear-gradient(180deg, var(--wm-clean-panel-2), var(--wm-clean-panel)) !important;
+  background-color: var(--wm-clean-panel) !important;
+  border-color: var(--wm-clean-border) !important;
+  color: var(--wm-clean-text) !important;
+}
+
+/* Give replaced hero/card surfaces the dashboard-style cyan edge instead of orange flood fill. */
+.wingman-app-main :is(
+  section,
+  article,
+  form,
+  div
+)[class*="orange" i]:not(button):not(a):not([role="button"]),
+.wingman-app-main :is(
+  section,
+  article,
+  form,
+  div
+)[class*="amber" i]:not(button):not(a):not([role="button"]),
+.wingman-app-main :is(
+  section,
+  article,
+  form,
+  div
+)[class*="yellow" i]:not(button):not(a):not([role="button"]) {
+  border: 1px solid var(--wm-clean-border) !important;
+}
+
+/* Keep form areas readable after orange panels are suppressed. */
+.wingman-app-main input,
+.wingman-app-main textarea,
+.wingman-app-main select {
+  background-color: #07111b !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+  color: var(--wm-clean-text) !important;
+}
+
+.wingman-app-main input::placeholder,
+.wingman-app-main textarea::placeholder {
+  color: #7f8ea3 !important;
+}
+
+/* Selected/active cards should use the same cyan language as the dashboard. */
+.wingman-app-main :is(
+  [aria-selected="true"],
+  [data-selected="true"],
+  [data-state="active"],
+  .active,
+  .selected,
+  .is-active,
+  .is-selected
+):not(button):not(a):not([role="button"]) {
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.16), rgba(15, 31, 45, 0.95)) !important;
+  border-color: var(--wm-clean-border-strong) !important;
+  color: var(--wm-clean-text) !important;
+}
+
+/* Keep small warning badges warm, but stop them becoming large orange slabs. */
+.wingman-app-main :is(.badge, .pill, .tag, [class*="badge" i], [class*="pill" i], [class*="tag" i]) {
+  box-shadow: none !important;
+}
+
+/* Body copy inside replaced sections should remain legible. */
+.wingman-app-main p,
+.wingman-app-main span,
+.wingman-app-main label,
+.wingman-app-main small {
+  text-shadow: none !important;
+}
+
+/* WM dashboard compare page de-orange - start */
+
+/* Competitor Compare had its own gold page theme. Force it back to dashboard navy. */
+body[data-wm-route="compare"] .wingman-shell main,
+body[data-wm-route="compare"] .wingman-shell .wingman-app-main,
+body[data-wm-route="compare"] .wingman-shell .wingman-workspace {
+  background:
+    radial-gradient(circle at 16% 0%, rgba(61, 122, 214, 0.14), transparent 34rem),
+    radial-gradient(circle at 88% 8%, rgba(241, 168, 59, 0.045), transparent 28rem),
+    linear-gradient(135deg, #030914, #071321 54%, #020711) !important;
+}
+
+/* Remove large orange/gold compare panels. */
+body[data-wm-route="compare"] .wingman-shell section,
+body[data-wm-route="compare"] .wingman-shell article,
+body[data-wm-route="compare"] .wingman-shell div[class*="compare"],
+body[data-wm-route="compare"] .wingman-shell div[class*="Compare"],
+body[data-wm-route="compare"] .wingman-shell form,
+body[data-wm-route="compare"] .wingman-shell fieldset {
+  background:
+    linear-gradient(145deg, rgba(12, 31, 56, 0.92), rgba(8, 22, 41, 0.88)) !important;
+  border-color: rgba(122, 160, 221, 0.18) !important;
+  color: #f8fafc !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 10px 24px rgba(0, 0, 0, 0.20) !important;
+}
+
+/* Hero area should match dashboard style, not gold block. */
+body[data-wm-route="compare"] .wingman-shell [class*="hero"],
+body[data-wm-route="compare"] .wingman-shell [class*="Hero"],
+body[data-wm-route="compare"] .wingman-shell [class*="page-hero"],
+body[data-wm-route="compare"] .wingman-shell [class*="PageHero"],
+body[data-wm-route="compare"] .wingman-shell header + section {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(127, 167, 255, 0.11), transparent 22rem),
+    linear-gradient(145deg, rgba(8, 22, 41, 0.94), rgba(4, 13, 25, 0.96)) !important;
+  border: 1px solid rgba(122, 160, 221, 0.18) !important;
+  border-radius: 22px !important;
+  color: #f8fafc !important;
+}
+
+/* Headings and copy must stay dashboard white/soft grey. */
+body[data-wm-route="compare"] .wingman-shell h1,
+body[data-wm-route="compare"] .wingman-shell h2,
+body[data-wm-route="compare"] .wingman-shell h3,
+body[data-wm-route="compare"] .wingman-shell h4,
+body[data-wm-route="compare"] .wingman-shell strong {
+  color: #f8fafc !important;
+}
+
+body[data-wm-route="compare"] .wingman-shell p,
+body[data-wm-route="compare"] .wingman-shell span,
+body[data-wm-route="compare"] .wingman-shell small,
+body[data-wm-route="compare"] .wingman-shell label,
+body[data-wm-route="compare"] .wingman-shell li {
+  color: rgba(226, 234, 245, 0.78) !important;
+}
+
+/* Eyebrow labels may use accent, but not whole panels. */
+body[data-wm-route="compare"] .wingman-shell legend,
+body[data-wm-route="compare"] .wingman-shell label > span:first-child,
+body[data-wm-route="compare"] .wingman-shell [class*="eyebrow"],
+body[data-wm-route="compare"] .wingman-shell [class*="Eyebrow"] {
+  color: #f1a83b !important;
+}
+
+/* Form fields use the same readable dashboard input style. */
+body[data-wm-route="compare"] .wingman-shell input,
+body[data-wm-route="compare"] .wingman-shell select,
+body[data-wm-route="compare"] .wingman-shell textarea {
+  background-color: #e8eef6 !important;
+  color: #081528 !important;
+  border: 1px solid rgba(148, 163, 184, 0.72) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    inset 0 1px 2px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Checkboxes and checkbox rows should not become giant blue/orange blocks. */
+body[data-wm-route="compare"] .wingman-shell input[type="checkbox"] {
+  width: 1.05rem !important;
+  min-width: 1.05rem !important;
+  height: 1.05rem !important;
+  min-height: 1.05rem !important;
+  accent-color: #f1a83b !important;
+}
+
+body[data-wm-route="compare"] .wingman-shell label:has(input[type="checkbox"]),
+body[data-wm-route="compare"] .wingman-shell div:has(> input[type="checkbox"]) {
+  background: rgba(8, 22, 41, 0.62) !important;
+  border: 1px solid rgba(122, 160, 221, 0.18) !important;
+  border-radius: 14px !important;
+  color: rgba(226, 234, 245, 0.82) !important;
+}
+
+/* Buttons remain consistent; only primary CTA can use orange. */
+body[data-wm-route="compare"] .wingman-shell button {
+  background: rgba(8, 22, 41, 0.82) !important;
+  border: 1px solid rgba(122, 160, 221, 0.28) !important;
+  color: #f8fafc !important;
+  border-radius: 999px !important;
+}
+
+body[data-wm-route="compare"] .wingman-shell button:hover {
+  background: rgba(241, 168, 59, 0.12) !important;
+  border-color: rgba(241, 168, 59, 0.46) !important;
+}
+
+body[data-wm-route="compare"] .wingman-shell button[class*="primary"],
+body[data-wm-route="compare"] .wingman-shell button[class*="Primary"],
+body[data-wm-route="compare"] .wingman-shell button[type="submit"] {
+  background: linear-gradient(135deg, #f6b24c, #f1a83b) !important;
+  border-color: rgba(255, 201, 111, 0.72) !important;
+  color: #081528 !important;
+}
+
+/* De-emphasise any remaining hard-coded gold overlays. */
+body[data-wm-route="compare"] .wingman-shell [style*="background"] {
+  background-color: transparent;
+}
+
+body[data-wm-route="compare"] .wingman-shell [class*="gold"],
+body[data-wm-route="compare"] .wingman-shell [class*="Gold"],
+body[data-wm-route="compare"] .wingman-shell [class*="amber"],
+body[data-wm-route="compare"] .wingman-shell [class*="Amber"],
+body[data-wm-route="compare"] .wingman-shell [class*="orange"],
+body[data-wm-route="compare"] .wingman-shell [class*="Orange"] {
+  background:
+    linear-gradient(145deg, rgba(12, 31, 56, 0.92), rgba(8, 22, 41, 0.88)) !important;
+  border-color: rgba(122, 160, 221, 0.18) !important;
+  color: #f8fafc !important;
+}
+
+/* WM dashboard compare page de-orange - end */

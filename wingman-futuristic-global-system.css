@@ -1,0 +1,298 @@
+/* ============================================================
+   WINGMAN FUTURISTIC GLOBAL SYSTEM
+
+   Premium dimensional visual layer inspired by the upgraded Finder mockup.
+   This is intentionally global, but it avoids route-specific repair logic.
+============================================================ */
+
+:root {
+  --wm-fx-bg-0: #030914;
+  --wm-fx-bg-1: #061426;
+  --wm-fx-bg-2: #0a1f38;
+
+  --wm-fx-panel: rgba(8, 22, 41, 0.88);
+  --wm-fx-panel-strong: rgba(10, 26, 48, 0.96);
+  --wm-fx-card: rgba(11, 29, 52, 0.86);
+  --wm-fx-card-soft: rgba(11, 24, 43, 0.72);
+
+  --wm-fx-border: rgba(116, 160, 225, 0.18);
+  --wm-fx-border-mid: rgba(116, 160, 225, 0.28);
+  --wm-fx-border-strong: rgba(241, 171, 63, 0.38);
+
+  --wm-fx-text: #f6f8fc;
+  --wm-fx-soft: rgba(228, 236, 246, 0.82);
+  --wm-fx-muted: rgba(200, 213, 230, 0.62);
+
+  --wm-fx-accent: #f2ad43;
+  --wm-fx-accent-2: #ffc15b;
+  --wm-fx-blue: #7eaafc;
+  --wm-fx-cyan: #38d5f5;
+
+  --wm-fx-field: rgba(238, 243, 250, 0.96);
+  --wm-fx-ink: #0b1728;
+
+  --wm-fx-shadow-xl: 0 24px 70px rgba(0, 0, 0, 0.34);
+  --wm-fx-shadow-lg: 0 16px 42px rgba(0, 0, 0, 0.26);
+  --wm-fx-shadow-md: 0 10px 26px rgba(0, 0, 0, 0.20);
+
+  --wm-fx-radius-xl: 22px;
+  --wm-fx-radius-lg: 18px;
+  --wm-fx-radius-md: 14px;
+}
+
+/* Shell depth */
+html,
+body,
+#root {
+  background:
+    radial-gradient(circle at 16% 0%, rgba(61, 122, 214, 0.18), transparent 34rem),
+    radial-gradient(circle at 88% 10%, rgba(241, 168, 59, 0.08), transparent 28rem),
+    linear-gradient(135deg, var(--wm-fx-bg-0), var(--wm-fx-bg-1) 52%, var(--wm-fx-bg-2)) !important;
+  color: var(--wm-fx-text) !important;
+}
+
+.wingman-shell {
+  background:
+    radial-gradient(circle at 14% 0%, rgba(61, 122, 214, 0.18), transparent 34rem),
+    radial-gradient(circle at 94% 10%, rgba(241, 168, 59, 0.08), transparent 28rem),
+    linear-gradient(135deg, var(--wm-fx-bg-0), var(--wm-fx-bg-1) 54%, #020711) !important;
+  color: var(--wm-fx-text) !important;
+}
+
+/* Main workspace */
+.wingman-app-main {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(56, 213, 245, 0.055), transparent 30rem),
+    linear-gradient(180deg, rgba(4, 11, 22, 0.18), rgba(4, 11, 22, 0.04)) !important;
+  padding: 14px clamp(14px, 1.4vw, 22px) 20px !important;
+  overflow-x: hidden !important;
+}
+
+.wingman-page-host {
+  display: grid;
+  gap: 14px;
+}
+
+/* Sidebar */
+.wingman-sidebar {
+  background:
+    linear-gradient(180deg, rgba(4, 14, 27, 0.98), rgba(2, 9, 18, 0.98)) !important;
+  border-right: 1px solid var(--wm-fx-border) !important;
+  box-shadow: inset -1px 0 0 rgba(255,255,255,0.02) !important;
+}
+
+.wingman-sidebar a,
+.wingman-sidebar button {
+  border-radius: 14px !important;
+}
+
+.wingman-sidebar [aria-current="page"],
+.wingman-sidebar a[aria-current="page"],
+.wingman-sidebar .is-active,
+.wingman-sidebar .active {
+  background:
+    linear-gradient(90deg, rgba(242, 173, 67, 0.22), rgba(242, 173, 67, 0.09)) !important;
+  border: 1px solid rgba(242, 173, 67, 0.36) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 8px 18px rgba(0,0,0,0.18) !important;
+}
+
+/* Topbar */
+.wingman-topbar,
+.wingman-mobile-topbar,
+header[class*="topbar"] {
+  background:
+    linear-gradient(180deg, rgba(8, 20, 36, 0.92), rgba(6, 16, 30, 0.94)) !important;
+  border: 1px solid var(--wm-fx-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--wm-fx-shadow-md) !important;
+  backdrop-filter: blur(14px);
+}
+
+/* General card and panel hierarchy */
+.wingman-page-host :where(section, article, aside, div)[class*="panel" i],
+.wingman-page-host :where(section, article, aside, div)[class*="card" i],
+.wingman-page-host :where(section, article, aside, div)[class*="tile" i],
+.wingman-page-host :where(.wm-card, .wingman-card, .wm-panel, .wingman-panel, .wingman-surface) {
+  border: 1px solid var(--wm-fx-border) !important;
+  border-radius: var(--wm-fx-radius-lg) !important;
+  background:
+    linear-gradient(180deg, var(--wm-fx-card), rgba(7, 18, 34, 0.84)) !important;
+  box-shadow: var(--wm-fx-shadow-md) !important;
+  color: var(--wm-fx-text) !important;
+}
+
+/* Convert old light utility cards into dark premium surfaces */
+.wingman-page-host :where(.bg-white, .bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-neutral-50) {
+  background:
+    linear-gradient(180deg, rgba(11, 27, 49, 0.86), rgba(7, 18, 34, 0.80)) !important;
+  color: var(--wm-fx-text) !important;
+}
+
+.wingman-page-host :where(.text-slate-950, .text-slate-900, .text-slate-800, .text-gray-900, .text-neutral-900) {
+  color: var(--wm-fx-text) !important;
+}
+
+.wingman-page-host :where(.text-slate-700, .text-slate-600, .text-slate-500, .text-gray-600, .text-neutral-600) {
+  color: var(--wm-fx-soft) !important;
+}
+
+.wingman-page-host :where(p, li, span, small, td, dd) {
+  color: var(--wm-fx-soft);
+}
+
+.wingman-page-host h1,
+.wingman-page-host h2,
+.wingman-page-host h3,
+.wingman-page-host h4 {
+  color: var(--wm-fx-text) !important;
+  letter-spacing: -0.02em;
+}
+
+/* Inputs stay visibly editable */
+.wingman-page-host :where(input, select, textarea) {
+  min-height: 38px !important;
+  border: 1px solid rgba(126, 165, 217, 0.24) !important;
+  border-radius: 12px !important;
+  background: var(--wm-fx-field) !important;
+  color: var(--wm-fx-ink) !important;
+  font-weight: 500 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.80) !important;
+}
+
+/* Buttons and active actions */
+.wingman-page-host :where(button, .button, [role="button"], a[class]) {
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.wingman-page-host :where(button, .button, [role="button"]):hover,
+.wingman-page-host a[class]:hover {
+  transform: translateY(-1px);
+}
+
+.wingman-page-host :where(.rounded-full.bg-slate-950, .rounded-full.bg-slate-900),
+.wingman-page-host :where(button[class*="primary" i], a[class*="primary" i]) {
+  background:
+    linear-gradient(180deg, var(--wm-fx-accent-2), var(--wm-fx-accent)) !important;
+  color: #0d1724 !important;
+  border: 1px solid rgba(255, 207, 125, 0.44) !important;
+  box-shadow: 0 8px 18px rgba(242, 173, 67, 0.18) !important;
+}
+
+/* Finder specific dimensional upgrade */
+.wm-finder-quickstart,
+.wm-finder-filter-panel,
+.wm-finder-results-panel,
+.wm-finder-side-panel,
+.wm-finder-warning-card,
+.wm-finder-empty-state,
+.wm-finder-result-card,
+.wm-finder-side-card,
+.wm-finder-detail-card {
+  background:
+    linear-gradient(180deg, rgba(10, 26, 48, 0.94), rgba(6, 17, 31, 0.92)) !important;
+  border: 1px solid var(--wm-fx-border) !important;
+  border-radius: var(--wm-fx-radius-lg) !important;
+  box-shadow: var(--wm-fx-shadow-lg) !important;
+}
+
+.wm-finder-results-panel {
+  min-height: 420px;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(56, 213, 245, 0.075), transparent 22rem),
+    linear-gradient(180deg, rgba(10, 26, 48, 0.94), rgba(6, 17, 31, 0.92)) !important;
+}
+
+.wm-finder-warning-card {
+  border-color: rgba(241, 171, 63, 0.34) !important;
+  background:
+    linear-gradient(180deg, rgba(53, 38, 12, 0.68), rgba(16, 19, 29, 0.90)) !important;
+}
+
+.wm-finder-page :where(.wm-finder-select, .wm-finder-requirement-select) {
+  min-height: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+  background: rgba(230, 236, 244, 0.98) !important;
+  color: #0b1728 !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+}
+
+/* Dashboard / command style cards */
+.wm-command-panel,
+.wm-command-dashboard__tone,
+.wm-command-dashboard__recent,
+.wm-command-dashboard__guidance-panel {
+  background:
+    linear-gradient(180deg, rgba(10, 26, 48, 0.94), rgba(6, 17, 31, 0.92)) !important;
+  border: 1px solid var(--wm-fx-border) !important;
+  border-radius: var(--wm-fx-radius-lg) !important;
+  box-shadow: var(--wm-fx-shadow-lg) !important;
+}
+
+/* Tables */
+.wingman-page-host :where(table, [role="table"]) {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--wm-fx-border);
+  background:
+    linear-gradient(180deg, rgba(10, 24, 43, 0.92), rgba(7, 18, 34, 0.88));
+}
+
+.wingman-page-host :where([role="row"], tr) {
+  border-bottom: 1px solid rgba(126, 165, 217, 0.10);
+}
+
+/* Floating guidance */
+.wingman-guru-fab,
+.wm-floating-guidance__button,
+.wm-floating-guidance button {
+  box-shadow: 0 14px 28px rgba(0,0,0,0.28) !important;
+}
+
+/* Scrollbars */
+.wingman-app-main::-webkit-scrollbar,
+.wingman-sidebar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.wingman-app-main::-webkit-scrollbar-thumb,
+.wingman-sidebar::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.34);
+  background-clip: padding-box;
+}
+
+@media (max-width: 1380px) {
+  .wingman-app-main {
+    padding: 12px 14px 18px !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  .wm-finder-workspace,
+  .wm-command-dashboard__main,
+  .wm-command-dashboard {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .wingman-app-main {
+    padding: 12px !important;
+  }
+
+  .wingman-topbar,
+  .wingman-mobile-topbar,
+  header[class*="topbar"] {
+    border-radius: 16px !important;
+  }
+}

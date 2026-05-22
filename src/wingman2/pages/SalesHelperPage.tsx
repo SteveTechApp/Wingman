@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import {
+  Cable,
   CheckCircle2,
   ClipboardList,
   Copy,
@@ -10,10 +11,16 @@ import {
   Search,
   Sparkles,
   Users,
+  Network,
+  PanelsTopLeft,
+  Scale,
+  type LucideIcon,
 } from "lucide-react";
 import { PageHero } from "../components/PageHero";
 import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { SectionCard } from "../components/SectionCard";
+import { WingmanSelectionCard, type WingmanSelectionAccent } from "../components/ui/WingmanSelectionCard";
+import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { getCurrentWorkflowProject, readProjectStore } from "../data/projectStore";
 import { buildSalesReadinessPackage } from "../lib/salesReadiness";
@@ -194,6 +201,26 @@ const coachingCards: CoachingCard[] = [
   },
 ];
 
+function coachingIcon(id: string): LucideIcon {
+  if (id === "room-fit") return Users;
+  if (id === "sources-displays") return Cable;
+  if (id === "usb-conferencing") return Sparkles;
+  if (id === "network-av") return Network;
+  if (id === "budget-risk") return CheckCircle2;
+  if (id === "competitor") return Scale;
+  if (id === "video-wall") return PanelsTopLeft;
+  return ClipboardList;
+}
+
+function coachingAccent(id: string): WingmanSelectionAccent {
+  if (id === "sources-displays" || id === "usb-conferencing") return "teal";
+  if (id === "network-av") return "green";
+  if (id === "budget-risk" || id === "close-next-step") return "amber";
+  if (id === "competitor") return "red";
+  if (id === "video-wall") return "purple";
+  return "cyan";
+}
+
 function readStoredReplies(): Record<string, string> {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -336,7 +363,7 @@ export function SalesHelperPage() {
                 Call angle
               </div>
 
-              <div className="mt-4 space-y-2">
+              <WingmanSelectionGrid columns={1} compact className="mt-4">
                 {coachingCards.map((card) => {
                   const active = activeCard.id === card.id;
                   const answeredCount = card.questions.filter((_, index) => {
@@ -345,31 +372,20 @@ export function SalesHelperPage() {
                   }).length;
 
                   return (
-                    <button
+                    <WingmanSelectionCard
                       key={card.id}
-                      type="button"
                       onClick={() => setActiveCardId(card.id)}
-                      className={`w-full rounded-2xl border px-4 py-3 text-left transition ${
-                        active
-                          ? "border-amber-300 bg-slate-950 text-white shadow-lg shadow-slate-950/15"
-                          : "border-slate-200 bg-white text-slate-700 hover:border-amber-200 hover:bg-amber-50"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-sm font-black">{card.title}</span>
-                        {answeredCount > 0 ? (
-                          <span className={`rounded-full px-2 py-0.5 text-xs font-black ${active ? "bg-amber-400 text-slate-950" : "bg-emerald-100 text-emerald-800"}`}>
-                            {answeredCount}
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className={`mt-1 line-clamp-2 text-xs leading-5 ${active ? "text-slate-300" : "text-slate-500"}`}>
-                        {card.plainPurpose}
-                      </p>
-                    </button>
+                      compact
+                      title={card.title}
+                      description={card.plainPurpose}
+                      icon={coachingIcon(card.id)}
+                      accent={coachingAccent(card.id)}
+                      selected={active}
+                      metaBadges={answeredCount > 0 ? [`${answeredCount} captured`] : undefined}
+                    />
                   );
                 })}
-              </div>
+              </WingmanSelectionGrid>
             </aside>
 
             <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
