@@ -10,7 +10,7 @@ This recovery pass stopped new feature work and focused on making GitHub the sou
 
 Recovered into this branch:
 
-- Product Matching domain folder at `src/wingman2/productMatching/`.
+- Product Matching domain folder at `src/wingman2/domain/productMatching/`.
 - `featureFilters.ts` with the existing Product Finder feature-filter logic represented as a reusable domain module.
 - Shared Product Matching types and text helpers.
 - `tools/check-product-matching-scenarios.mjs`.
