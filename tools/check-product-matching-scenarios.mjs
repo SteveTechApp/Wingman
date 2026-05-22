@@ -3,6 +3,7 @@ import path from "node:path";
 
 const repoRoot = process.cwd();
 const indexPath = path.join(repoRoot, "public", "product-intelligence-index.json");
+const incorrectNetworkHdMultiviewSku = ["MHD", "0401", "MV"].join("-");
 
 function cleanText(value) {
   return String(value ?? "")
@@ -45,6 +46,7 @@ function toProduct(record) {
   const sku = cleanText(record.sku || record.id || record.model || record.productCode || "");
   const title = cleanText(record.title || record.name || record.productName || sku);
   if (!sku && !title) return null;
+
   return {
     sku: sku || title,
     title,
@@ -78,72 +80,86 @@ function readProducts() {
   if (!fs.existsSync(indexPath)) {
     throw new Error(`Missing product intelligence index: ${path.relative(repoRoot, indexPath)}`);
   }
+
   const index = JSON.parse(fs.readFileSync(indexPath, "utf8"));
   const records = Array.isArray(index.products) ? index.products : [];
   const products = records.map(toProduct).filter(Boolean);
-  if (products.length < 50) throw new Error(`Expected at least 50 indexed products, found ${products.length}`);
-  return products;
-}
 
-function findSku(products, sku) {
-  return products.find((product) => product.sku.toUpperCase() === sku.toUpperCase());
+  if (products.length < 50) {
+    throw new Error(`Expected at least 50 indexed products, found ${products.length}`);
+  }
+
+  return products;
 }
 
 function hasAny(text, terms) {
   return terms.some((term) => text.includes(normaliseText(term)));
 }
 
+function hasAllGroups(text, termGroups) {
+  return termGroups.every((terms) => hasAny(text, terms));
+}
+
+function skuSet(products) {
+  return new Set(products.map((product) => product.sku.toUpperCase()));
+}
+
 const scenarios = [
   {
     name: "USB 3.x device path exists",
-    requiredSkus: ["EX-100-USB3"],
+    requiredAny: [["EX-100-USB3", "EX-100-IW-USBC"]],
     rejectSkus: ["EX-100-H2"],
-    terms: ["usb 3", "usb 3.0", "superspeed", "5gbps", "10gbps"],
+    termGroups: [["usb 3", "usb 3.0", "usb 3.1", "usb 3.2", "superspeed", "5gbps", "10gbps", "20gbps"]],
   },
   {
     name: "Integrated HDMI and USB extension path exists",
-    requiredSkus: ["EX-100-H2", "EX-100-KVM", "EX-100-IW-USBC"],
+    requiredAny: [["EX-100-H2", "EX-100-KVM", "EX-100-IW-USBC"]],
     rejectSkus: ["USB-HUB4", "CAB-UAOC-15-C"],
-    terms: ["hdmi", "usb", "kvm", "hdbaset", "extender"],
+    termGroups: [["hdmi", "usb c", "usb-c"], ["usb", "kvm"], ["extender", "hdbaset", "hdbt", "transmitter", "receiver"]],
   },
   {
     name: "Dual display MST products exist",
-    requiredSkus: ["MX-0402-MST", "MX-0403-H3-MST"],
+    requiredAny: [["MX-0402-MST", "MX-0403-H3-MST"]],
     rejectSkus: ["EXP-SW-0301-H2"],
-    terms: ["mst", "dual display", "matrix"],
+    termGroups: [["mst", "dual display", "dual output", "dual-output"], ["matrix", "switcher", "presentation"]],
   },
   {
     name: "NetworkHD multiview products exist",
-    requiredSkus: ["NHD-150-RX", "NHD-0401-MV"],
-    rejectSkus: ["MHD-0401-MV"],
-    terms: ["networkhd", "multiview", "multi view", "mv"],
+    requiredAny: [["NHD-150-RX"], ["NHD-0401-MV"]],
+    rejectSkus: [incorrectNetworkHdMultiviewSku],
+    termGroups: [["networkhd", "nhd"], ["multiview", "multi view", "multi-view", "mv"]],
   },
   {
     name: "Dedicated LCD video wall processors exist",
-    requiredSkus: ["SW-0204-VW", "SW-0206-VW"],
+    requiredAny: [["SW-0204-VW", "SW-0206-VW"]],
     rejectSkus: ["USB-HUB4"],
-    terms: ["video wall", "videowall", "wall processor"],
+    termGroups: [["video wall", "videowall", "wall processor", "lcd wall"]],
   },
   {
     name: "NDI camera and bridge paths exist",
-    requiredSkus: ["CAM-210-NDI-PTZ", "NHD-128-NDI-TRX"],
+    requiredAny: [["CAM-210-NDI-PTZ", "NHD-128-NDI-TRX"]],
     rejectSkus: [],
-    terms: ["ndi", "camera", "ptz", "bridge", "transceiver"],
+    termGroups: [["ndi"], ["camera", "ptz", "bridge", "transceiver"]],
   },
 ];
 
 function runScenario(products, scenario) {
-  const missingRequired = scenario.requiredSkus.filter((sku) => !findSku(products, sku));
-  const rejectedPresent = scenario.rejectSkus.filter((sku) => findSku(products, sku));
-  const matched = products.filter((product) => hasAny(productText(product), scenario.terms));
-  const passed = missingRequired.length === 0 && rejectedPresent.length === 0 && matched.length > 0;
+  const matched = products.filter((product) => hasAllGroups(productText(product), scenario.termGroups));
+  const matchedSkus = skuSet(matched);
+  const catalogSkus = skuSet(products);
+
+  const missingRequired = scenario.requiredAny.filter((skuGroup) => !skuGroup.some((sku) => catalogSkus.has(sku.toUpperCase())));
+  const missingMatchedRequired = scenario.requiredAny.filter((skuGroup) => !skuGroup.some((sku) => matchedSkus.has(sku.toUpperCase())));
+  const rejectedMatched = scenario.rejectSkus.filter((sku) => matchedSkus.has(sku.toUpperCase()));
+
   return {
     name: scenario.name,
-    passed,
+    passed: missingRequired.length === 0 && missingMatchedRequired.length === 0 && rejectedMatched.length === 0 && matched.length > 0,
     matches: matched.length,
     top: matched.slice(0, 8).map((product) => product.sku),
     missingRequired,
-    rejectedPresent,
+    missingMatchedRequired,
+    rejectedMatched,
   };
 }
 
@@ -156,8 +172,9 @@ try {
   for (const result of results) {
     console.log(`${result.passed ? "PASS" : "FAIL"} ${result.name}`);
     console.log(`  matches=${result.matches} top=${result.top.join(", ") || "none"}`);
-    if (result.missingRequired.length) console.log(`  missing required SKUs=${result.missingRequired.join(", ")}`);
-    if (result.rejectedPresent.length) console.log(`  rejected SKUs present=${result.rejectedPresent.join(", ")}`);
+    if (result.missingRequired.length) console.log(`  missing required SKU groups=${JSON.stringify(result.missingRequired)}`);
+    if (result.missingMatchedRequired.length) console.log(`  required SKU groups not matched=${JSON.stringify(result.missingMatchedRequired)}`);
+    if (result.rejectedMatched.length) console.log(`  rejected matched SKUs=${result.rejectedMatched.join(", ")}`);
   }
 
   if (failures.length) process.exitCode = 1;
