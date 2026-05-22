@@ -74,6 +74,6 @@ export const defaultVideoWallRules = [
 ];
 
 export const defaultProductIntelligenceNotes = [
-  "NHD-0401-MV is the correct SKU and should not be replaced with MHD-0401-MV.",
+  "NHD-0401-MV is the correct NetworkHD 500 multiview processor SKU.",
   "Gold and 500-series decisions should be checked against real project requirements before proposal generation.",
 ];
