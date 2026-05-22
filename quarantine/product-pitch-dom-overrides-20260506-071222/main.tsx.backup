@@ -1,0 +1,80 @@
+import { installWingmanFinderRenderStability } from "./wingman2/utils/installWingmanFinderRenderStability";
+import { installWingmanFormFieldIdentityGuard } from "./wingman2/utils/installWingmanFormFieldIdentityGuard";
+import { installWingmanPagePolishMode } from "./wingman2/utils/installWingmanPagePolishMode";
+import { installWingmanFixedGuidanceRetirement } from "./wingman2/utils/installWingmanFixedGuidanceRetirement";
+import { installWingmanFloatingGuidance } from "./wingman2/utils/installWingmanFloatingGuidance";
+import { installWingmanLocalProjectApiFallback } from "./wingman2/utils/installWingmanLocalProjectApiFallback";
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import AppRoot from "./wingman2/app/WingmanApp";
+import { installWingmanVisualIdentity } from "./wingman2/utils/installWingmanVisualIdentity";
+import { installWingmanSalesMode } from "./wingman2/utils/installWingmanSalesMode";
+import { installWingmanPerformanceGuards } from "./wingman2/utils/installWingmanPerformanceGuards";
+import { installWingmanAuthoritySystem } from "./wingman2/utils/installWingmanAuthoritySystem";
+import "./wingman2/styles/wingman-style-stack.css";
+
+import "./wingman2/styles/discovery-output-preview.css";
+import { installDiscoveryOutputPreviewEnhancer } from "./wingman2/discovery/outputPreviewEnhancer";
+
+import "./wingman2/styles/product-pitch-cleanup.css";
+import { installProductPitchPageEnhancer } from "./wingman2/product-pitch/productPitchPageEnhancer";
+
+import "./wingman2/styles/product-pitch-interaction-fix.css";
+import { installProductPitchInteractionFix } from "./wingman2/product-pitch/productPitchInteractionFix";
+
+import "./wingman2/styles/product-pitch-taxonomy-guard.css";
+import { installProductPitchTaxonomyGuard } from "./wingman2/product-pitch/productPitchTaxonomyGuard";
+
+
+
+import "./wingman2/styles/product-pitch-setup-single-line-fix.css";
+import { installProductPitchSetupSingleLineFix } from "./wingman2/product-pitch/productPitchSetupSingleLineFix";
+
+import "./wingman2/styles/product-pitch-setup-layout-fix.css";
+import { installProductPitchSetupLayoutFix } from "./wingman2/product-pitch/productPitchSetupLayoutFix";
+
+import "./wingman2/styles/product-pitch-audience-field-removal.css";
+import { installProductPitchAudienceFieldRemoval } from "./wingman2/product-pitch/productPitchAudienceFieldRemoval";
+
+import "./wingman2/styles/product-pitch-select-stability.css";
+installProductPitchAudienceFieldRemoval();
+
+installProductPitchSetupLayoutFix();
+
+installProductPitchSetupSingleLineFix();
+
+installProductPitchTaxonomyGuard();
+
+installProductPitchInteractionFix();
+
+installProductPitchPageEnhancer();
+
+installDiscoveryOutputPreviewEnhancer();
+
+installWingmanVisualIdentity();
+installWingmanSalesMode();
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Root element #root was not found.");
+}
+installWingmanLocalProjectApiFallback();
+installWingmanPerformanceGuards();
+installWingmanAuthoritySystem();
+installWingmanFloatingGuidance();
+installWingmanFixedGuidanceRetirement();
+installWingmanPagePolishMode();
+installWingmanFormFieldIdentityGuard();
+installWingmanFinderRenderStability();
+
+
+
+
+
+createRoot(rootElement).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <AppRoot />
+    </BrowserRouter>
+  </React.StrictMode>
+);

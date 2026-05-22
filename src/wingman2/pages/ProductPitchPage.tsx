@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Network, PackageSearch, PanelsTopLeft, Presentation, Settings2, type LucideIcon } from "lucide-react";
 import {
   WingmanActionBar,
   WingmanCard,
@@ -7,6 +8,8 @@ import {
   WingmanPageHero,
   WingmanPanel
 } from "../components/layout";
+import { WingmanSelectionCard, type WingmanSelectionAccent } from "../components/ui/WingmanSelectionCard";
+import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -38,6 +41,24 @@ const FAMILY_OPTIONS = [
   "Video Wall",
   "Accessory"
 ];
+
+function productPitchIcon(product: ProductPitchRecord): LucideIcon {
+  const text = `${product.family} ${product.category} ${product.role} ${product.tags.join(" ")}`.toLowerCase();
+  if (text.includes("networkhd") || text.includes("avoip")) return Network;
+  if (text.includes("wall") || text.includes("matrix") || text.includes("multiview")) return PanelsTopLeft;
+  if (text.includes("presentation") || text.includes("switcher") || text.includes("uc")) return Presentation;
+  if (text.includes("control") || text.includes("audio")) return Settings2;
+  return PackageSearch;
+}
+
+function productPitchAccent(product: ProductPitchRecord): WingmanSelectionAccent {
+  const text = `${product.family} ${product.category} ${product.role}`.toLowerCase();
+  if (text.includes("networkhd") || text.includes("avoip")) return "green";
+  if (text.includes("wall") || text.includes("matrix") || text.includes("multiview")) return "purple";
+  if (text.includes("presentation") || text.includes("uc")) return "teal";
+  if (text.includes("control") || text.includes("audio")) return "amber";
+  return "cyan";
+}
 
 function isRecord(value: unknown): value is UnknownRecord {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -379,20 +400,21 @@ useEffect(() => {
           
         </WingmanFilterBar>
 
-        <div className="wm-product-pitch-grid">
+        <WingmanSelectionGrid columns={4} compact className="wm-product-pitch-grid">
           {visibleProducts.map((product) => (
-            <button
+            <WingmanSelectionCard
               key={product.id}
-              type="button"
-              className={product.sku === selectedSku ? "wm-product-pitch-choice is-selected" : "wm-product-pitch-choice"}
+              compact
+              title={product.sku}
+              description={product.name}
+              eyebrow={product.family}
+              icon={productPitchIcon(product)}
+              accent={productPitchAccent(product)}
+              selected={product.sku === selectedSku}
               onClick={() => setSelectedSku(product.sku)}
-            >
-              <strong>{product.sku}</strong>
-              <span>{product.name}</span>
-              <small>{product.family}</small>
-            </button>
+            />
           ))}
-        </div>
+        </WingmanSelectionGrid>
       </WingmanPanel>
 
       {selectedProduct && pitch ? (

@@ -6,6 +6,8 @@ import { PageHero } from "../components/PageHero";
 import { RecommendationCard } from "../components/RecommendationCard";
 import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { SectionCard } from "../components/SectionCard";
+import { WingmanSelectionCard } from "../components/ui/WingmanSelectionCard";
+import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
 
 const wallTypes = [
   {
@@ -206,37 +208,26 @@ export function VideowallBuilderPage() {
           title="1. Choose wall type"
           subtitle="The design starts here. LED and LCD walls have different physical, commercial, and processing requirements."
         >
-          <div className="grid gap-4 lg:grid-cols-2">
+          <WingmanSelectionGrid columns={2}>
             {wallTypes.map((type) => {
               const isActive = type.key === selectedWallType;
 
               return (
-                <button
+                <WingmanSelectionCard
                   key={type.key}
-                  type="button"
                   onClick={() => setSelectedWallType(type.key)}
-                  className={`rounded-2xl border p-5 text-left shadow-sm transition ${
-                    isActive
-                      ? "border-amber-400 bg-amber-50 text-slate-950"
-                      : "border-slate-200 bg-white text-slate-800 hover:border-amber-300 hover:bg-amber-50/50"
-                  }`}
-                >
-                  <span className="text-xs font-black uppercase tracking-[0.16em] text-amber-700">
-                    {type.key === "led" ? "Bezel-free canvas" : "Tiled display wall"}
-                  </span>
-                  <h3 className="mt-2 text-lg font-black text-slate-950">{type.label}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">{type.summary}</p>
-                  <span
-                    className={`mt-5 inline-flex rounded-full px-4 py-2 text-sm font-black ${
-                      isActive ? "bg-slate-900 text-white" : "border border-slate-300 text-slate-700"
-                    }`}
-                  >
-                    {isActive ? "Selected" : `Select ${type.key.toUpperCase()}`}
-                  </span>
-                </button>
+                  title={type.label}
+                  description={type.summary}
+                  eyebrow={type.key === "led" ? "Bezel-free canvas" : "Tiled display wall"}
+                  icon={type.key === "led" ? PanelTop : Monitor}
+                  accent={type.key === "led" ? "purple" : "blue"}
+                  selected={isActive}
+                  indicator={isActive ? "recommended" : undefined}
+                  metaBadges={[isActive ? "Selected" : `Select ${type.key.toUpperCase()}`]}
+                />
               );
             })}
-          </div>
+          </WingmanSelectionGrid>
 
           {!wallType ? (
             <div className="mt-6 rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-5 text-amber-950">

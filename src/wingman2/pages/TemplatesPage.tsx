@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Building2, ClipboardList, HelpCircle, LayoutTemplate, Monitor, Network, PanelTop, Users, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
@@ -9,6 +10,8 @@ import {
   WingmanPageHero,
   WingmanPanel
 } from "../components/layout";
+import { WingmanSelectionCard, type WingmanSelectionAccent } from "../components/ui/WingmanSelectionCard";
+import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
 import { roomTemplates, roomTemplateVerticals, type RoomTemplate } from "../lib/roomTemplates";
 
 type MarketId = string;
@@ -52,6 +55,46 @@ function templateFeatureCues(template: RoomTemplate) {
 
 function requiredBomCount(template: RoomTemplate) {
   return template.bom.filter((row) => row.type === "Required").length;
+}
+
+function marketIcon(id: MarketId): LucideIcon {
+  if (id === "Corporate") return Users;
+  if (id === "Education") return ClipboardList;
+  if (id === "Retail") return LayoutTemplate;
+  if (id === "Hospitality") return Building2;
+  if (id === "Healthcare" || id === "Government") return Building2;
+  if (id === "Venue") return PanelTop;
+  if (id === "Transport") return Network;
+  if (id === "All") return LayoutTemplate;
+  return HelpCircle;
+}
+
+function marketAccent(id: MarketId): WingmanSelectionAccent {
+  if (id === "Corporate") return "cyan";
+  if (id === "Education") return "blue";
+  if (id === "Retail") return "teal";
+  if (id === "Hospitality" || id === "Venue") return "amber";
+  if (id === "Healthcare" || id === "Government") return "green";
+  if (id === "Transport") return "purple";
+  return "cyan";
+}
+
+function templateIcon(template: RoomTemplate): LucideIcon {
+  const text = `${template.name} ${template.application} ${template.architecture}`.toLowerCase();
+  if (text.includes("wall") || text.includes("led")) return PanelTop;
+  if (text.includes("meeting") || text.includes("boardroom") || text.includes("huddle")) return Users;
+  if (text.includes("class") || text.includes("lecture") || text.includes("teaching")) return ClipboardList;
+  if (text.includes("signage") || text.includes("display")) return Monitor;
+  if (text.includes("control") || text.includes("security")) return Network;
+  return LayoutTemplate;
+}
+
+function templateAccent(template: RoomTemplate): WingmanSelectionAccent {
+  if (template.vertical === "Retail") return "teal";
+  if (template.vertical === "Education") return "blue";
+  if (template.vertical === "Hospitality" || template.vertical === "Venue") return "amber";
+  if (template.vertical === "Government" || template.vertical === "Healthcare") return "green";
+  return "cyan";
 }
 
 export function TemplatesPage() {
@@ -104,19 +147,19 @@ export function TemplatesPage() {
         title="Start with the customer environment"
         subtitle="Choose the closest market first. Templates stay grouped so the page does not become a wall of options."
       >
-        <div className="wm-template-market-grid">
+        <WingmanSelectionGrid columns={4} className="wm-template-market-grid">
           {MARKETS.map((item) => (
-            <button
+            <WingmanSelectionCard
               key={item.id}
-              type="button"
-              className={item.id === market ? "wm-template-market-card is-selected" : "wm-template-market-card"}
+              title={item.label}
+              description={item.description}
+              icon={marketIcon(item.id)}
+              accent={marketAccent(item.id)}
+              selected={item.id === market}
               onClick={() => selectMarket(item.id)}
-            >
-              <span>{item.label}</span>
-              <small>{item.description}</small>
-            </button>
+            />
           ))}
-        </div>
+        </WingmanSelectionGrid>
       </WingmanPanel>
 
       <div className="wm-template-workspace">
@@ -129,21 +172,21 @@ export function TemplatesPage() {
             <span>{visibleTemplates.length} available</span>
           </WingmanFilterBar>
 
-          <div className="wm-template-card-grid">
+          <WingmanSelectionGrid columns={3} className="wm-template-card-grid">
             {visibleTemplates.map((template) => (
-              <button
+              <WingmanSelectionCard
                 key={template.id}
-                type="button"
-                className={template.id === selectedTemplate?.id ? "wm-template-choice-card is-selected" : "wm-template-choice-card"}
+                title={template.name}
+                description={template.summary}
+                eyebrow={template.vertical}
+                icon={templateIcon(template)}
+                accent={templateAccent(template)}
+                selected={template.id === selectedTemplate?.id}
                 onClick={() => setSelectedTemplateId(template.id)}
-              >
-                <span className="wm-template-choice-card__market">{template.vertical}</span>
-                <strong>{template.name}</strong>
-                <small>{template.summary}</small>
-                <span className="wm-template-choice-card__meta">{template.scale} · {requiredBomCount(template)} required rows</span>
-              </button>
+                metaBadges={[template.scale, `${requiredBomCount(template)} required rows`]}
+              />
             ))}
-          </div>
+          </WingmanSelectionGrid>
         </WingmanPanel>
 
         {selectedTemplate ? (
