@@ -4,6 +4,7 @@ import {
   CompareIntelligenceResult,
   lookupCompareIntelligence,
 } from "../lib/compareIntelligenceClient";
+import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 
 type StatusTone = "green" | "amber" | "red" | "slate";
 
@@ -736,6 +737,8 @@ function ComparePage() {
             </div>
           </div>
         </div>
+
+        <SalesToneQuickSetter context="compare" surface="dark" className="max-w-none" />
 
         <form
           onSubmit={runCompetitorMatch}

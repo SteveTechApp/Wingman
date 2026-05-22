@@ -1,5 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  Building2,
+  Cable,
+  Camera,
+  ClipboardList,
+  FileText,
+  Handshake,
+  Monitor,
+  Network,
+  PanelsTopLeft,
+  Scale,
+  Search,
+  Settings2,
+  ShieldCheck,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
+import { WingmanSelectionCard, type WingmanSelectionAccent } from "../components/ui/WingmanSelectionCard";
+import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
 
 const CARD_STORAGE_KEY = "wingman.callCards.selected";
 const WORKFLOW_STORAGE_KEY = "wingman.callCards.workflowPage";
@@ -754,6 +774,58 @@ const CALL_CARD_DECKS = [
 
 type CallCardId = (typeof CALL_CARD_DECKS)[number]["id"];
 
+function callCardIcon(id: CallCardId): LucideIcon {
+  switch (id) {
+    case "new-opportunity":
+      return Search;
+    case "meeting-room":
+      return Users;
+    case "sell-against-competitors":
+      return Scale;
+    case "ndi-camera-bridges":
+      return Camera;
+    case "matrix-switches-kits":
+      return PanelsTopLeft;
+    case "sygma-cloud":
+      return Network;
+    case "warranty-support":
+      return ShieldCheck;
+    case "extension":
+    case "usb-kvm":
+    case "cables-distance":
+      return Cable;
+    case "audio-microphones-dante":
+      return Settings2;
+    case "control-touch-panels":
+      return Monitor;
+    case "avoip":
+      return Network;
+    case "video-wall":
+      return PanelsTopLeft;
+    case "upgrade-refresh":
+      return Building2;
+    case "consultant-specification":
+      return ClipboardList;
+    case "dealer-attachment":
+      return Handshake;
+    case "commercial":
+      return FileText;
+    case "close-next-step":
+      return ClipboardList;
+    default:
+      return Search;
+  }
+}
+
+function callCardAccent(id: CallCardId): WingmanSelectionAccent {
+  if (id === "sell-against-competitors" || id === "commercial" || id === "close-next-step") return "amber";
+  if (id === "ndi-camera-bridges" || id === "avoip" || id === "sygma-cloud") return "green";
+  if (id === "video-wall" || id === "matrix-switches-kits") return "purple";
+  if (id === "extension" || id === "usb-kvm" || id === "meeting-room") return "teal";
+  if (id === "warranty-support") return "blue";
+  return "cyan";
+}
+
 function safeRead(key: string, fallback: string) {
   try {
     if (typeof window === "undefined") {
@@ -1016,6 +1088,8 @@ export function CallCardsPage() {
         </div>
       </section>
 
+      <SalesToneQuickSetter context="callCards" surface="dark" className="max-w-none" />
+
       {workflowPage === "select" ? (
         <section className="ccs-selectPage" aria-label="Select call subject">
           <div className="ccs-pageHeader">
@@ -1028,16 +1102,22 @@ export function CallCardsPage() {
             </div>
           </div>
 
-          <div className="ccs-subjectGrid">
+          <WingmanSelectionGrid columns={4} className="ccs-subjectGrid">
             {CALL_CARD_DECKS.map((card) => (
-              <button type="button" key={card.id} className={`ccs-subjectCard ccs-subject-${card.id}`} onClick={() => selectCard(card.id)}>
-                <span>{card.eyebrow}</span>
-                <strong>{card.title}</strong>
-                <p>{card.intent}</p>
-                <em>Start Q&A</em>
-              </button>
+              <WingmanSelectionCard
+                key={card.id}
+                title={card.title}
+                description={card.intent}
+                eyebrow={card.eyebrow}
+                icon={callCardIcon(card.id)}
+                accent={callCardAccent(card.id)}
+                selected={selectedCardId === card.id}
+                indicator={selectedCardId === card.id ? "recommended" : undefined}
+                onClick={() => selectCard(card.id)}
+                metaBadges={["Start Q&A"]}
+              />
             ))}
-          </div>
+          </WingmanSelectionGrid>
         </section>
       ) : (
         <section className="ccs-qaPage" aria-label="Call card Q and A capture">

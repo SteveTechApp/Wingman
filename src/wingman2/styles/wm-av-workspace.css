@@ -1,0 +1,818 @@
+:root {
+  --wm-av-graphite: #0b0f14;
+  --wm-av-ink: #111820;
+  --wm-av-panel: #161f2a;
+  --wm-av-panel-soft: #0f1720;
+  --wm-av-border: #27323f;
+  --wm-av-border-soft: rgba(151, 168, 188, 0.18);
+  --wm-av-amber: #ffb000;
+  --wm-av-amber-2: #ffc247;
+  --wm-av-cyan: #00d4ff;
+  --wm-av-green: #22c55e;
+  --wm-av-red: #ef4444;
+  --wm-av-text: #e6e9ee;
+  --wm-av-muted: #9aa4b2;
+  --wm-av-faint: #657181;
+  --wm-av-radius: 8px;
+  --wm-av-shadow: 0 22px 58px rgba(0, 0, 0, 0.34);
+  --wm-av-sidebar-width: 220px;
+  --wm-av-topbar-height: 76px;
+  --wm-command-bg: var(--wm-av-graphite);
+  --wm-command-bg-2: #071019;
+  --wm-command-panel: rgba(17, 24, 32, 0.96);
+  --wm-command-panel-2: rgba(22, 31, 42, 0.95);
+  --wm-command-card: rgba(15, 23, 32, 0.92);
+  --wm-command-border: var(--wm-av-border-soft);
+  --wm-command-text: var(--wm-av-text);
+  --wm-command-muted: var(--wm-av-muted);
+  --wm-command-amber: var(--wm-av-amber);
+  --wm-command-cyan: var(--wm-av-cyan);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--wm-av-graphite) !important;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+.wingman-shell {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(0, 212, 255, 0.055), transparent 220px),
+    radial-gradient(circle at 96% 0%, rgba(0, 212, 255, 0.08), transparent 320px),
+    linear-gradient(135deg, #071019, var(--wm-av-graphite) 58%, #05080d) !important;
+  color: var(--wm-av-text) !important;
+}
+
+.wingman-sidebar {
+  width: var(--wm-av-sidebar-width) !important;
+  padding: 14px 10px !important;
+  border-right: 1px solid rgba(154, 164, 178, 0.18) !important;
+  background: linear-gradient(180deg, #070c12, #05080d) !important;
+  box-shadow: 14px 0 34px rgba(0, 0, 0, 0.26) !important;
+}
+
+.wingman-workspace {
+  margin-left: var(--wm-av-sidebar-width) !important;
+  grid-template-rows: var(--wm-av-topbar-height) minmax(0, 1fr) !important;
+}
+
+.wingman-brand {
+  min-height: 84px !important;
+  margin: 0 2px 12px !important;
+  padding: 10px 8px !important;
+  justify-content: flex-start !important;
+}
+
+.wingman-brand-image {
+  width: 176px !important;
+  max-width: 176px !important;
+  max-height: 76px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+}
+
+.wingman-nav {
+  gap: 4px !important;
+}
+
+.wingman-nav-secondary {
+  margin-top: 14px !important;
+  padding-top: 12px !important;
+}
+
+.wingman-nav-link {
+  min-height: 38px !important;
+  grid-template-columns: 20px minmax(0, 1fr) !important;
+  gap: 11px !important;
+  padding: 7px 10px !important;
+  border-radius: var(--wm-av-radius) !important;
+  color: #c3cbd5 !important;
+}
+
+.wingman-nav-link:hover {
+  border-color: rgba(255, 176, 0, 0.28) !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+}
+
+.wingman-nav-link-active {
+  border-color: rgba(255, 176, 0, 0.44) !important;
+  background: linear-gradient(90deg, rgba(255, 176, 0, 0.23), rgba(22, 31, 42, 0.88)) !important;
+  box-shadow: inset 4px 0 0 var(--wm-av-amber) !important;
+  color: #ffe6aa !important;
+}
+
+.wingman-nav-copy span {
+  font-size: 0.82rem !important;
+  font-weight: 720 !important;
+}
+
+.wingman-topbar {
+  height: var(--wm-av-topbar-height) !important;
+  padding: 0 18px !important;
+  border-bottom: 1px solid rgba(154, 164, 178, 0.16) !important;
+  background: rgba(7, 12, 18, 0.88) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+.wingman-topbar-title p {
+  margin: 0 !important;
+  font-size: 1.02rem !important;
+  font-weight: 780 !important;
+  line-height: 1.1 !important;
+}
+
+.wingman-topbar-title span {
+  color: var(--wm-av-muted) !important;
+  font-size: 0.76rem !important;
+}
+
+.wingman-command-search {
+  width: min(420px, 31vw) !important;
+  border-color: rgba(154, 164, 178, 0.22) !important;
+  border-radius: var(--wm-av-radius) !important;
+  background: rgba(17, 24, 32, 0.88) !important;
+}
+
+.wingman-new-project-button {
+  flex: 0 0 auto !important;
+  min-width: 162px !important;
+  border-radius: var(--wm-av-radius) !important;
+  background: linear-gradient(180deg, var(--wm-av-amber-2), var(--wm-av-amber)) !important;
+  color: #0b0f14 !important;
+  font-weight: 820 !important;
+}
+
+.wingman-new-project-button span {
+  white-space: nowrap !important;
+}
+
+.wingman-topbar-icon-button,
+.wingman-user-avatar,
+.wingman-mobile-nav-button {
+  border-radius: var(--wm-av-radius) !important;
+  border-color: rgba(154, 164, 178, 0.22) !important;
+  background: rgba(17, 24, 32, 0.86) !important;
+}
+
+.wingman-expert-handoff-card {
+  grid-template-columns: 34px minmax(0, 1fr) !important;
+  margin-top: 14px !important;
+  border-color: rgba(0, 212, 255, 0.42) !important;
+  background: linear-gradient(180deg, rgba(0, 212, 255, 0.09), rgba(17, 24, 32, 0.9)) !important;
+}
+
+.wingman-expert-handoff-avatar {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 18px rgba(0, 212, 255, 0.18));
+}
+
+.wingman-app-main {
+  padding: 16px 18px 22px !important;
+  background: transparent !important;
+  overflow: auto !important;
+}
+
+.wingman-page-host {
+  width: 100% !important;
+  max-width: 1720px !important;
+  margin: 0 auto !important;
+}
+
+.wingman-page-frame {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 318px;
+  align-items: start;
+  gap: 14px;
+}
+
+.wingman-page-frame__body {
+  min-width: 0;
+  overflow: clip;
+}
+
+.wingman-route-tabs {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 42px;
+  margin: 0 0 12px;
+  padding: 0 4px;
+  border-bottom: 1px solid rgba(154, 164, 178, 0.18);
+}
+
+.wingman-route-tab {
+  min-height: 40px;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--wm-av-muted) !important;
+  padding: 0 0 2px !important;
+  font-size: 0.78rem;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.wingman-route-tab.is-active {
+  border-bottom-color: var(--wm-av-amber) !important;
+  color: var(--wm-av-text) !important;
+}
+
+.wingman-app-main .wingman-route-tabs button.wingman-route-tab,
+.wingman-app-main .wingman-route-tabs button.wingman-route-tab[aria-pressed="true"] {
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--wm-av-muted) !important;
+  transform: none !important;
+}
+
+.wingman-app-main .wingman-route-tabs button.wingman-route-tab.is-active,
+.wingman-app-main .wingman-route-tabs button.wingman-route-tab[aria-pressed="true"] {
+  border-bottom-color: var(--wm-av-amber) !important;
+  color: var(--wm-av-text) !important;
+}
+
+.wingman-page-guidance-rail {
+  position: sticky;
+  top: 0;
+  display: grid;
+  gap: 12px !important;
+  min-width: 0;
+  border: 1px solid rgba(154, 164, 178, 0.2);
+  border-radius: var(--wm-av-radius);
+  background: linear-gradient(180deg, rgba(22, 31, 42, 0.95), rgba(9, 15, 22, 0.95));
+  box-shadow: var(--wm-av-shadow);
+  padding: 14px !important;
+}
+
+.wingman-page-guidance-rail__head {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(154, 164, 178, 0.14);
+}
+
+.wingman-page-guidance-rail__icon {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.wingman-page-guidance-rail h2 {
+  margin: 0 !important;
+  color: var(--wm-av-text) !important;
+  font-size: 0.96rem !important;
+  font-weight: 820 !important;
+}
+
+.wingman-page-guidance-rail p {
+  margin: 3px 0 0 !important;
+  color: var(--wm-av-muted) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.42 !important;
+}
+
+.wingman-guidance-card {
+  display: grid !important;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(154, 164, 178, 0.16);
+  border-radius: var(--wm-av-radius);
+  background: rgba(11, 18, 26, 0.78);
+  padding: 12px;
+}
+
+.wingman-guidance-card span {
+  display: block;
+  min-width: 0;
+  color: var(--wm-av-cyan);
+  font-size: 0.7rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.wingman-guidance-card p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.wingman-guidance-action {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid rgba(255, 176, 0, 0.5);
+  border-radius: var(--wm-av-radius);
+  background: rgba(255, 176, 0, 0.11);
+  color: #ffd780;
+  padding: 0 12px;
+  font-size: 0.8rem;
+  font-weight: 820;
+  cursor: pointer;
+}
+
+.wingman-app-main .wingman-page-guidance-rail .wingman-guidance-card {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  align-content: center !important;
+  gap: 5px !important;
+  padding: 12px !important;
+}
+
+.wingman-app-main .wingman-page-guidance-rail .wingman-guidance-card span {
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
+.wingman-app-main .wingman-page-guidance-rail .wingman-guidance-action {
+  align-self: stretch !important;
+  border-color: rgba(255, 176, 0, 0.48) !important;
+  background: rgba(255, 176, 0, 0.11) !important;
+  color: #ffd780 !important;
+}
+
+.wm-balanced-page-hero,
+.wingman-page-hero,
+.wingman-panel,
+.wingman-section-card,
+.wingman-surface,
+.wm-balanced-section-card,
+.wm-command-panel,
+.wingman-page-host :where(.bg-white, .bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-gray-100) {
+  border: 1px solid rgba(154, 164, 178, 0.18) !important;
+  border-radius: var(--wm-av-radius) !important;
+  background: linear-gradient(180deg, rgba(22, 31, 42, 0.95), rgba(15, 23, 32, 0.95)) !important;
+  box-shadow: none !important;
+  color: var(--wm-av-text) !important;
+}
+
+.wm-balanced-page-hero {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  min-height: 128px !important;
+  padding: 22px !important;
+  margin-bottom: 12px !important;
+}
+
+.wm-balanced-hero-kicker,
+.wingman-kicker {
+  color: var(--wm-av-cyan) !important;
+  font-size: 0.7rem !important;
+  font-weight: 820 !important;
+}
+
+.wm-balanced-hero-title {
+  color: var(--wm-av-text) !important;
+  font-size: 1.85rem !important;
+  font-weight: 820 !important;
+  line-height: 1.08 !important;
+}
+
+.wm-balanced-hero-purpose {
+  max-width: 78ch !important;
+  color: #c4ccd6 !important;
+  font-size: 0.9rem !important;
+}
+
+.wm-balanced-section-card-header,
+.wm-command-panel__header {
+  border-bottom-color: rgba(154, 164, 178, 0.15) !important;
+}
+
+.wm-balanced-section-card-copy h2,
+.wm-command-panel__header h1,
+.wm-command-panel__header h2 {
+  font-size: 1rem !important;
+  font-weight: 820 !important;
+}
+
+.wm-balanced-section-card-copy p,
+.wm-command-panel__header p {
+  color: var(--wm-av-muted) !important;
+  font-size: 0.8rem !important;
+}
+
+.wm-balanced-hero-action,
+.wm-command-button,
+.wingman-page-host :where(button, a).rounded-full,
+.wingman-page-host :where(button, a).rounded-2xl,
+.wingman-page-host :where(button, a).rounded-xl {
+  border-radius: var(--wm-av-radius) !important;
+}
+
+.wm-balanced-hero-action-primary,
+.wm-command-button--primary,
+.wingman-page-host :where(button, a):where(.bg-slate-900, .bg-slate-950, .bg-amber-400, .bg-amber-500, .bg-orange-500) {
+  border-color: rgba(255, 176, 0, 0.56) !important;
+  background: linear-gradient(180deg, var(--wm-av-amber-2), var(--wm-av-amber)) !important;
+  color: #0b0f14 !important;
+}
+
+.wingman-page-host :where(input, select, textarea) {
+  border-color: rgba(154, 164, 178, 0.22) !important;
+  border-radius: var(--wm-av-radius) !important;
+  background: rgba(11, 18, 26, 0.9) !important;
+  color: var(--wm-av-text) !important;
+}
+
+.wingman-page-host :where(h1, h2, h3, h4, p, span, small, button, label, input, select, textarea, td, th) {
+  letter-spacing: 0 !important;
+  text-shadow: none !important;
+}
+
+.wingman-page-host :where(table, thead, tbody, tr, td, th) {
+  border-color: rgba(154, 164, 178, 0.15) !important;
+}
+
+.wingman-page-host .wmg-engineering-canvas {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 12px 0 0 !important;
+  padding: 14px !important;
+  border: 1px solid rgba(154, 164, 178, 0.18) !important;
+  border-radius: var(--wm-av-radius) !important;
+  background:
+    linear-gradient(180deg, rgba(13, 22, 32, 0.96), rgba(8, 14, 22, 0.96)),
+    var(--wm-av-graphite) !important;
+  box-shadow: none !important;
+  color: var(--wm-av-text) !important;
+}
+
+.wingman-page-host .wmg-engineering-canvas__hero {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(210px, 280px) !important;
+  gap: 14px !important;
+  align-items: stretch !important;
+  margin: 0 0 12px !important;
+  padding: 16px !important;
+  border: 1px solid rgba(154, 164, 178, 0.14) !important;
+  border-radius: var(--wm-av-radius) !important;
+  background: rgba(11, 18, 26, 0.72) !important;
+}
+
+.wingman-page-host .wmg-eyebrow {
+  margin: 0 0 6px !important;
+  color: var(--wm-av-cyan) !important;
+  font-size: 0.68rem !important;
+  font-weight: 780 !important;
+  letter-spacing: 0.08em !important;
+}
+
+.wingman-page-host .wmg-engineering-canvas h2 {
+  margin: 0 !important;
+  color: var(--wm-av-text) !important;
+  font-size: clamp(1.28rem, 1.6vw, 1.85rem) !important;
+  font-weight: 780 !important;
+  line-height: 1.1 !important;
+}
+
+.wingman-page-host .wmg-engineering-canvas h3 {
+  color: var(--wm-av-text) !important;
+  font-size: 1rem !important;
+  font-weight: 760 !important;
+  line-height: 1.18 !important;
+}
+
+.wingman-page-host .wmg-engineering-canvas h4 {
+  color: #ffd780 !important;
+  font-size: 0.78rem !important;
+  font-weight: 760 !important;
+}
+
+.wingman-page-host .wmg-engineering-canvas p,
+.wingman-page-host .wmg-engineering-canvas small {
+  color: var(--wm-av-muted) !important;
+  font-size: 0.8rem !important;
+  line-height: 1.42 !important;
+}
+
+.wingman-page-host .wmg-canvas-score {
+  display: grid !important;
+  align-content: center !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+  width: auto !important;
+  padding: 12px !important;
+  border: 1px solid rgba(255, 176, 0, 0.32) !important;
+  border-radius: var(--wm-av-radius) !important;
+  background: rgba(255, 176, 0, 0.1) !important;
+}
+
+.wingman-page-host .wmg-canvas-score strong {
+  color: #ffe0a0 !important;
+  font-size: 0.92rem !important;
+  font-weight: 780 !important;
+  line-height: 1.1 !important;
+}
+
+.wingman-page-host .wmg-canvas-score span {
+  color: var(--wm-av-muted) !important;
+  font-size: 0.76rem !important;
+  font-weight: 620 !important;
+  line-height: 1.3 !important;
+}
+
+.wingman-page-host .wmg-step-rail {
+  display: grid !important;
+  grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  margin: 0 0 12px !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.wingman-page-host .wmg-step-rail button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 34px !important;
+  min-width: 0 !important;
+  padding: 0 8px !important;
+  border: 1px solid rgba(154, 164, 178, 0.22) !important;
+  border-radius: var(--wm-av-radius) !important;
+  background: rgba(17, 24, 32, 0.88) !important;
+  box-shadow: none !important;
+  color: var(--wm-av-muted) !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+  white-space: nowrap !important;
+}
+
+.wingman-page-host .wmg-step-rail button span {
+  display: grid !important;
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  background: rgba(154, 164, 178, 0.12) !important;
+  color: var(--wm-av-muted) !important;
+  font-size: 0.64rem !important;
+}
+
+.wingman-page-host .wmg-step-rail button.is-active {
+  border-color: rgba(255, 176, 0, 0.68) !important;
+  background: rgba(255, 176, 0, 0.12) !important;
+  color: #ffd780 !important;
+}
+
+.wingman-page-host .wmg-step-rail button.is-complete {
+  border-color: rgba(34, 197, 94, 0.38) !important;
+  color: #bdf7ce !important;
+}
+
+.wingman-page-host .wmg-canvas-panel,
+.wingman-page-host .wmg-mini-card,
+.wingman-page-host .wmg-warning-card,
+.wingman-page-host .wmg-empty-card,
+.wingman-page-host .wmg-position-guide,
+.wingman-page-host .wmg-flow-summary,
+.wingman-page-host .wmg-topology-card {
+  border-radius: var(--wm-av-radius) !important;
+  border-color: rgba(154, 164, 178, 0.18) !important;
+  background: rgba(11, 18, 26, 0.72) !important;
+  box-shadow: none !important;
+}
+
+.wingman-page-host .wmg-panel-heading {
+  gap: 6px !important;
+  margin-bottom: 12px !important;
+}
+
+.wingman-page-host .wmg-application-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.wingman-page-host .wmg-application-card {
+  min-height: 118px !important;
+  border-radius: var(--wm-av-radius) !important;
+  border-color: rgba(0, 212, 255, 0.22) !important;
+  box-shadow: none !important;
+}
+
+.wingman-page-host .wmg-application-card:hover,
+.wingman-page-host .wmg-application-card.selected {
+  border-color: rgba(255, 176, 0, 0.72) !important;
+  transform: translateY(-1px) !important;
+}
+
+.wingman-page-host .wmg-application-card span {
+  color: #ffffff !important;
+  font-size: 0.92rem !important;
+  font-weight: 780 !important;
+  line-height: 1.12 !important;
+}
+
+.wingman-page-host .wmg-application-card small {
+  color: rgba(230, 233, 238, 0.88) !important;
+  font-size: 0.72rem !important;
+  font-weight: 620 !important;
+  line-height: 1.25 !important;
+}
+
+.wingman-page-host .wmg-choice-chip,
+.wingman-page-host .wmg-compact-chip,
+.wingman-page-host .wmg-inline-actions button,
+.wingman-page-host .wmg-output-add-row button,
+.wingman-page-host .wmg-mini-card__footer button,
+.wingman-page-host .wmg-secondary-toggle {
+  border-radius: var(--wm-av-radius) !important;
+  border-color: rgba(154, 164, 178, 0.22) !important;
+  background: rgba(17, 24, 32, 0.86) !important;
+  color: var(--wm-av-text) !important;
+  box-shadow: none !important;
+}
+
+.wingman-page-host .wmg-choice-chip.is-on,
+.wingman-page-host .wmg-compact-chip.is-on,
+.wingman-page-host .wmg-inline-actions button:hover,
+.wingman-page-host .wmg-output-add-row button:hover,
+.wingman-page-host .wmg-mini-card__footer button:hover {
+  border-color: rgba(255, 176, 0, 0.62) !important;
+  background: rgba(255, 176, 0, 0.12) !important;
+  color: #ffd780 !important;
+}
+
+.wingman-page-host .wmg-field-grid {
+  gap: 12px !important;
+}
+
+.wingman-page-host .wmg-field span {
+  color: var(--wm-av-muted) !important;
+  font-size: 0.68rem !important;
+  font-weight: 760 !important;
+  text-transform: uppercase !important;
+}
+
+.wm-sales-mode-global {
+  max-width: none !important;
+  border-radius: var(--wm-av-radius) !important;
+  border-color: rgba(154, 164, 178, 0.18) !important;
+  background: rgba(11, 18, 26, 0.84) !important;
+}
+
+.wm-sales-mode-global__button {
+  min-height: 38px !important;
+  border-radius: var(--wm-av-radius) !important;
+}
+
+.wm-command-dashboard {
+  grid-template-columns: minmax(0, 1fr) 318px !important;
+  gap: 14px !important;
+}
+
+.wm-command-dashboard__tone-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.wm-command-dashboard__tone-card,
+.wm-command-dashboard__workflow-card,
+.wm-command-dashboard__guidance-card,
+.wm-command-dashboard__active-project {
+  border-radius: var(--wm-av-radius) !important;
+}
+
+body.wm-copy-discipline-mode .wm-copy-support-trigger,
+body.wm-copy-discipline-mode .wm-copy-support-drawer,
+body.wm-copy-discipline-mode .wm-copy-guru-action,
+body.wm-copy-discipline-mode .wm-copy-support-close {
+  border-radius: var(--wm-av-radius) !important;
+}
+
+body.wm-copy-discipline-mode .wm-copy-support-trigger {
+  right: 18px !important;
+  top: auto !important;
+  bottom: 18px !important;
+  border-color: rgba(0, 212, 255, 0.35) !important;
+  background: rgba(17, 24, 32, 0.94) !important;
+  color: var(--wm-av-cyan) !important;
+}
+
+.wingman-guru-fab {
+  display: none !important;
+}
+
+@media (max-width: 1580px) {
+  .wingman-page-frame {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wingman-page-guidance-rail {
+    order: -1;
+    position: static;
+    grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1fr) minmax(0, 1fr) minmax(180px, 0.5fr);
+    margin-bottom: 12px;
+  }
+
+  .wingman-page-guidance-rail__head {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 1300px) {
+  .wingman-page-host .wmg-step-rail {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .wingman-page-host .wmg-application-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .wingman-workspace {
+    margin-left: 0 !important;
+  }
+
+  .wingman-page-frame,
+  .wm-command-dashboard {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wingman-page-guidance-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .wingman-page-host .wmg-engineering-canvas__hero {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wingman-page-host .wmg-step-rail {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .wingman-page-host .wmg-application-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .wingman-route-tabs {
+    overflow-x: auto;
+    gap: 14px;
+  }
+
+  .wm-balanced-page-hero {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .wingman-app-main {
+    padding: 14px 12px 18px !important;
+  }
+
+  body.wm-copy-discipline-mode .wm-copy-support-trigger {
+    top: 58px !important;
+    right: 12px !important;
+    bottom: auto !important;
+  }
+
+  .wingman-new-project-button {
+    width: 72px !important;
+    min-width: 72px !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .wingman-route-tabs {
+    margin-bottom: 10px;
+  }
+
+  .wm-balanced-page-hero {
+    min-height: 0 !important;
+    padding: 16px !important;
+  }
+
+  .wingman-page-host .wmg-engineering-canvas {
+    padding: 10px !important;
+  }
+
+  .wingman-page-host .wmg-step-rail,
+  .wingman-page-host .wmg-application-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

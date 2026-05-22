@@ -1,0 +1,13 @@
+/* Product Pitch taxonomy guard */
+
+.wingman-shell .wm-taxonomy-filter-hidden {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.wingman-shell .wm-taxonomy-corrected-family-label {
+  color: rgba(200, 213, 230, 0.72) !important;
+  font-size: 0.78rem !important;
+  font-weight: 750 !important;
+  margin-top: 0.28rem !important;
+}

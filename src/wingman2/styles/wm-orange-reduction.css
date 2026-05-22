@@ -1,0 +1,147 @@
+/*
+  Wingman orange reduction layer
+  Purpose:
+  - Remove oversized amber/orange page panels.
+  - Keep the cleaner dashboard-style dark surfaces.
+  - Preserve orange/yellow only as a small accent where possible.
+*/
+
+:root {
+  --wm-clean-page: #07111b;
+  --wm-clean-panel: #0d1824;
+  --wm-clean-panel-2: #101f2d;
+  --wm-clean-panel-3: #142537;
+  --wm-clean-border: rgba(148, 163, 184, 0.18);
+  --wm-clean-border-strong: rgba(34, 211, 238, 0.38);
+  --wm-clean-text: #f8fafc;
+  --wm-clean-muted: #a7b4c5;
+  --wm-clean-accent: #22d3ee;
+  --wm-clean-accent-soft: rgba(34, 211, 238, 0.12);
+  --wm-clean-warning: #f8c44f;
+}
+
+/* Replace large Tailwind amber/orange/yellow backgrounds inside the app body. */
+.wingman-app-main :is(
+  [class*="bg-orange-"],
+  [class*="bg-amber-"],
+  [class*="bg-yellow-"],
+  [class*="from-orange-"],
+  [class*="from-amber-"],
+  [class*="from-yellow-"],
+  [class*="via-orange-"],
+  [class*="via-amber-"],
+  [class*="via-yellow-"],
+  [class*="to-orange-"],
+  [class*="to-amber-"],
+  [class*="to-yellow-"]
+):not(button):not(a):not(input):not(textarea):not(select):not([role="button"]) {
+  background: linear-gradient(180deg, var(--wm-clean-panel-2), var(--wm-clean-panel)) !important;
+  background-color: var(--wm-clean-panel) !important;
+  border-color: var(--wm-clean-border) !important;
+  color: var(--wm-clean-text) !important;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24) !important;
+}
+
+/* Catch gradient utility classes by overriding their Tailwind gradient variables. */
+.wingman-app-main :is(
+  [class*="from-orange-"],
+  [class*="from-amber-"],
+  [class*="from-yellow-"],
+  [class*="via-orange-"],
+  [class*="via-amber-"],
+  [class*="via-yellow-"],
+  [class*="to-orange-"],
+  [class*="to-amber-"],
+  [class*="to-yellow-"]
+):not(button):not(a):not([role="button"]) {
+  --tw-gradient-from: var(--wm-clean-panel-2) !important;
+  --tw-gradient-via: var(--wm-clean-panel-2) !important;
+  --tw-gradient-to: var(--wm-clean-panel) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+/* Catch inline orange/yellow backgrounds that came from older page-specific styling. */
+.wingman-app-main :is(
+  [style*="orange" i],
+  [style*="amber" i],
+  [style*="yellow" i],
+  [style*="#f97316" i],
+  [style*="#fb923c" i],
+  [style*="#f59e0b" i],
+  [style*="#fbbf24" i],
+  [style*="#facc15" i],
+  [style*="#eab308" i],
+  [style*="249, 115" i],
+  [style*="245, 158" i],
+  [style*="251, 191" i],
+  [style*="250, 204" i]
+):not(button):not(a):not(input):not(textarea):not(select):not([role="button"]) {
+  background: linear-gradient(180deg, var(--wm-clean-panel-2), var(--wm-clean-panel)) !important;
+  background-color: var(--wm-clean-panel) !important;
+  border-color: var(--wm-clean-border) !important;
+  color: var(--wm-clean-text) !important;
+}
+
+/* Give replaced hero/card surfaces the dashboard-style cyan edge instead of orange flood fill. */
+.wingman-app-main :is(
+  section,
+  article,
+  form,
+  div
+)[class*="orange" i]:not(button):not(a):not([role="button"]),
+.wingman-app-main :is(
+  section,
+  article,
+  form,
+  div
+)[class*="amber" i]:not(button):not(a):not([role="button"]),
+.wingman-app-main :is(
+  section,
+  article,
+  form,
+  div
+)[class*="yellow" i]:not(button):not(a):not([role="button"]) {
+  border: 1px solid var(--wm-clean-border) !important;
+}
+
+/* Keep form areas readable after orange panels are suppressed. */
+.wingman-app-main input,
+.wingman-app-main textarea,
+.wingman-app-main select {
+  background-color: #07111b !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+  color: var(--wm-clean-text) !important;
+}
+
+.wingman-app-main input::placeholder,
+.wingman-app-main textarea::placeholder {
+  color: #7f8ea3 !important;
+}
+
+/* Selected/active cards should use the same cyan language as the dashboard. */
+.wingman-app-main :is(
+  [aria-selected="true"],
+  [data-selected="true"],
+  [data-state="active"],
+  .active,
+  .selected,
+  .is-active,
+  .is-selected
+):not(button):not(a):not([role="button"]) {
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.16), rgba(15, 31, 45, 0.95)) !important;
+  border-color: var(--wm-clean-border-strong) !important;
+  color: var(--wm-clean-text) !important;
+}
+
+/* Keep small warning badges warm, but stop them becoming large orange slabs. */
+.wingman-app-main :is(.badge, .pill, .tag, [class*="badge" i], [class*="pill" i], [class*="tag" i]) {
+  box-shadow: none !important;
+}
+
+/* Body copy inside replaced sections should remain legible. */
+.wingman-app-main p,
+.wingman-app-main span,
+.wingman-app-main label,
+.wingman-app-main small {
+  text-shadow: none !important;
+}
