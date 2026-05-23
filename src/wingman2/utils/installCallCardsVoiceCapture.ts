@@ -29,11 +29,6 @@ let initialStart = 0;
 let initialEnd = 0;
 let finalTranscript = "";
 
-function isSupportedRoute() {
-  const path = window.location.pathname;
-  return path.includes("/call-cards") || path.includes("/live-call-cards") || path.includes("/sales-helper") || path.includes("/sales-language");
-}
-
 function getSpeechRecognitionConstructor() {
   const speechWindow = window as WindowWithSpeechRecognition;
   return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
@@ -179,13 +174,21 @@ function handleVoiceButtonClick(event: Event) {
   startVoiceCapture(textarea, button);
 }
 
-function shouldAttachToTextarea(textarea: HTMLTextAreaElement) {
-  const placeholder = textarea.getAttribute("placeholder") || "";
-  const labelText = textarea.closest("label")?.textContent || "";
-  const cardText = textarea.closest(".ccs-answerCapture, .rounded-3xl, section, article")?.textContent || "";
-  const combined = `${placeholder} ${labelText} ${cardText}`.toLowerCase();
+function isVisibleTextarea(textarea: HTMLTextAreaElement) {
+  const rect = textarea.getBoundingClientRect();
+  return rect.width > 0 && rect.height > 0 && window.getComputedStyle(textarea).display !== "none";
+}
 
-  return combined.includes("customer") || combined.includes("answer") || combined.includes("reply") || combined.includes("capture");
+function shouldAttachToTextarea(textarea: HTMLTextAreaElement) {
+  if (!isVisibleTextarea(textarea)) return false;
+
+  const placeholder = textarea.getAttribute("placeholder") || "";
+  const ariaLabel = textarea.getAttribute("aria-label") || "";
+  const labelText = textarea.closest("label")?.textContent || "";
+  const rowText = textarea.closest("article, section, .ccs-questionRow, .rounded-3xl, .wm-question-focus, .wingman-page-host")?.textContent || "";
+  const combined = `${placeholder} ${ariaLabel} ${labelText} ${rowText}`.toLowerCase();
+
+  return combined.includes("customer") || combined.includes("answer") || combined.includes("reply") || combined.includes("capture") || combined.includes("note");
 }
 
 function attachVoiceControls() {
@@ -220,26 +223,26 @@ function installStyles() {
   const style = document.createElement("style");
   style.id = STYLE_ID;
   style.textContent = `
-    .wm-voice-capture-wrapper { position: relative; display: grid; }
-    .wm-voice-capture-wrapper textarea { padding-right: 4.8rem !important; }
+    .wm-voice-capture-wrapper { position: relative; display: grid; width: 100%; }
+    .wm-voice-capture-wrapper textarea { padding-right: 5.25rem !important; }
     .wm-voice-capture-button {
-      position: absolute; right: 8px; top: 8px; z-index: 2;
-      min-width: 3.4rem !important; min-height: 1.8rem !important; height: 1.8rem !important;
-      padding: 0 0.55rem !important; border-radius: 999px !important;
-      border: 1px solid rgba(14, 165, 233, 0.42) !important;
-      background: rgba(2, 132, 199, 0.94) !important; color: #fff !important;
-      font-size: 0.66rem !important; font-weight: 800 !important; letter-spacing: 0 !important;
-      text-transform: none !important; box-shadow: 0 8px 18px rgba(2, 132, 199, 0.25) !important;
+      position: absolute; right: 8px; top: 8px; z-index: 20;
+      min-width: 3.6rem !important; min-height: 1.9rem !important; height: 1.9rem !important;
+      padding: 0 0.6rem !important; border-radius: 999px !important;
+      border: 1px solid rgba(14, 165, 233, 0.52) !important;
+      background: #0284c7 !important; color: #fff !important;
+      font-size: 0.7rem !important; font-weight: 850 !important; letter-spacing: 0 !important;
+      text-transform: none !important; box-shadow: 0 8px 18px rgba(2, 132, 199, 0.3) !important;
+      cursor: pointer !important;
     }
     .wm-voice-capture-button[data-wm-voice-state="listening"] { background: #dc2626 !important; }
-    .wm-voice-capture-button[data-wm-voice-state="unsupported"] { background: rgba(71, 85, 105, 0.86) !important; opacity: 0.72; box-shadow: none !important; }
-    .wm-voice-capture-active { outline: 2px solid rgba(14, 165, 233, 0.55) !important; outline-offset: 2px !important; }
+    .wm-voice-capture-button[data-wm-voice-state="unsupported"] { background: rgba(71, 85, 105, 0.9) !important; opacity: 0.8; box-shadow: none !important; }
+    .wm-voice-capture-active { outline: 2px solid rgba(14, 165, 233, 0.65) !important; outline-offset: 2px !important; }
   `;
   document.head.appendChild(style);
 }
 
 function refreshVoiceCapture() {
-  if (!isSupportedRoute()) return;
   attachVoiceControls();
 }
 
@@ -263,4 +266,5 @@ export function installCallCardsVoiceCapture(): void {
 
   refreshVoiceCapture();
   window.setTimeout(refreshVoiceCapture, 300);
+  window.setTimeout(refreshVoiceCapture, 1000);
 }
