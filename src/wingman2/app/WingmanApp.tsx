@@ -1,9 +1,17 @@
 import { Navigate, useRoutes } from "react-router-dom";
+import { VoiceAnswerCaptureOverlay } from "../components/VoiceAnswerCaptureOverlay";
 import { wingmanRoutes } from "./routes";
 
 export default function WingmanApp() {
-  return useRoutes([
+  const routes = useRoutes([
     ...wingmanRoutes,
     { path: "*", element: <Navigate to="/wingman/dashboard" replace /> },
   ]);
+
+  return (
+    <>
+      {routes}
+      <VoiceAnswerCaptureOverlay />
+    </>
+  );
 }
