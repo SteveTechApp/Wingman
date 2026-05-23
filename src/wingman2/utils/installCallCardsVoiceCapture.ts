@@ -29,6 +29,11 @@ let initialStart = 0;
 let initialEnd = 0;
 let finalTranscript = "";
 
+function isSupportedRoute() {
+  const path = window.location.pathname;
+  return path.includes("/call-cards") || path.includes("/live-call-cards") || path.includes("/sales-helper") || path.includes("/sales-language");
+}
+
 function getSpeechRecognitionConstructor() {
   const speechWindow = window as WindowWithSpeechRecognition;
   return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
@@ -174,10 +179,19 @@ function handleVoiceButtonClick(event: Event) {
   startVoiceCapture(textarea, button);
 }
 
-function attachVoiceControls() {
-  const textareas = Array.from(document.querySelectorAll<HTMLTextAreaElement>(".ccs-answerCapture textarea, textarea[placeholder*='customer' i], textarea[placeholder*='answer' i]"));
+function shouldAttachToTextarea(textarea: HTMLTextAreaElement) {
+  const placeholder = textarea.getAttribute("placeholder") || "";
+  const labelText = textarea.closest("label")?.textContent || "";
+  const cardText = textarea.closest(".ccs-answerCapture, .rounded-3xl, section, article")?.textContent || "";
+  const combined = `${placeholder} ${labelText} ${cardText}`.toLowerCase();
 
-  textareas.forEach((textarea) => {
+  return combined.includes("customer") || combined.includes("answer") || combined.includes("reply") || combined.includes("capture");
+}
+
+function attachVoiceControls() {
+  const textareas = Array.from(document.querySelectorAll<HTMLTextAreaElement>("textarea"));
+
+  textareas.filter(shouldAttachToTextarea).forEach((textarea) => {
     if (textarea.dataset.wmVoiceCaptureAttached === "true") return;
     textarea.dataset.wmVoiceCaptureAttached = "true";
 
@@ -225,7 +239,7 @@ function installStyles() {
 }
 
 function refreshVoiceCapture() {
-  if (!window.location.pathname.includes("/live-call-cards")) return;
+  if (!isSupportedRoute()) return;
   attachVoiceControls();
 }
 
