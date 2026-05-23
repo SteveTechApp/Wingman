@@ -3,6 +3,11 @@ import { SALES_CONVERSATION_TYPE_STORAGE_KEY, normalizeSalesConversationToneId, 
 const INSTALL_FLAG = "wmCallCardsAudienceFramingInstalled";
 const STYLE_ID = "wm-call-cards-audience-framing-style";
 
+function isSupportedRoute() {
+  const path = window.location.pathname;
+  return path.includes("/call-cards") || path.includes("/live-call-cards") || path.includes("/sales-helper") || path.includes("/sales-language");
+}
+
 function getCurrentTone(): SalesConversationToneId {
   try {
     return normalizeSalesConversationToneId(window.localStorage.getItem(SALES_CONVERSATION_TYPE_STORAGE_KEY));
@@ -126,10 +131,7 @@ function frameQuestion(originalQuestion: string, originalPrompt: string, tone: S
   };
 }
 
-function applyQuestionFraming() {
-  if (!window.location.pathname.includes("/live-call-cards")) return;
-
-  const tone = getCurrentTone();
+function applyCallCardFraming(tone: SalesConversationToneId) {
   const rows = Array.from(document.querySelectorAll<HTMLElement>(".ccs-questionRow"));
 
   rows.forEach((row) => {
@@ -146,6 +148,31 @@ function applyQuestionFraming() {
     prompt.textContent = framed.prompt;
     row.dataset.wmAudienceTone = tone;
   });
+}
+
+function applySalesHelperFraming(tone: SalesConversationToneId) {
+  const cards = Array.from(document.querySelectorAll<HTMLElement>("section .rounded-3xl textarea"));
+
+  cards.forEach((textarea) => {
+    const card = textarea.closest<HTMLElement>(".rounded-3xl");
+    const ask = card?.querySelector<HTMLElement>("p.text-base");
+    if (!card || !ask) return;
+
+    if (!ask.dataset.wmOriginalQuestion) ask.dataset.wmOriginalQuestion = clean(ask.textContent || "");
+
+    const original = ask.dataset.wmOriginalQuestion;
+    const framed = frameQuestion(original, original, tone);
+    ask.textContent = framed.question;
+    card.dataset.wmAudienceTone = tone;
+  });
+}
+
+function applyQuestionFraming() {
+  if (!isSupportedRoute()) return;
+
+  const tone = getCurrentTone();
+  applyCallCardFraming(tone);
+  applySalesHelperFraming(tone);
 
   const headerText = document.querySelector<HTMLElement>(".ccs-questionPanel .ccs-pageHeader p");
   if (headerText) {
@@ -164,9 +191,9 @@ function installStyles() {
   const style = document.createElement("style");
   style.id = STYLE_ID;
   style.textContent = `
-    .ccs-questionRow[data-wm-audience-tone="user"] { border-color: rgba(34, 197, 94, 0.22) !important; }
-    .ccs-questionRow[data-wm-audience-tone="consultant"] { border-color: rgba(96, 165, 250, 0.24) !important; }
-    .ccs-questionRow[data-wm-audience-tone="trade"] { border-color: rgba(251, 191, 36, 0.22) !important; }
+    [data-wm-audience-tone="user"] { border-color: rgba(34, 197, 94, 0.24) !important; }
+    [data-wm-audience-tone="consultant"] { border-color: rgba(96, 165, 250, 0.26) !important; }
+    [data-wm-audience-tone="trade"] { border-color: rgba(251, 191, 36, 0.24) !important; }
   `;
   document.head.appendChild(style);
 }
