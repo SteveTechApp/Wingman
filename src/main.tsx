@@ -18,9 +18,11 @@ import "./wingman2/styles/wm-orange-reduction.css";
 
 
 import "./wingman2/styles/wingman-dashboard-force-theme.css";
+import { installDiscoveryDensityTuning } from "./wingman2/utils/installDiscoveryDensityTuning";
 import { installWingmanVisualRouteFlags } from "./wingman2/theme/wingmanVisualRouteFlags";
 
 installWingmanVisualRouteFlags();
+installDiscoveryDensityTuning();
 
 installDiscoveryOutputPreviewEnhancer();
 
