@@ -11,6 +11,7 @@ export type StartingPointId =
   | "document";
 
 export type AnswerMap = Record<string, string>;
+export type GuidedQuestionSelectionMode = "single" | "priority";
 
 export type ConversationMode = {
   id: ConversationModeId;
@@ -31,6 +32,7 @@ export type GuidedQuestion = {
   id: string;
   title: string;
   appliesTo: StartingPointId[] | "all";
+  selectionMode?: GuidedQuestionSelectionMode;
   prompt: Record<ConversationModeId, string>;
   why: string;
   options?: Array<{
@@ -285,6 +287,7 @@ export const guidedQuestions: GuidedQuestion[] = [
     id: "usbUc",
     title: "USB, cameras and conferencing",
     appliesTo: "all",
+    selectionMode: "priority",
     prompt: {
       endUser: "When someone plugs in a laptop, do they also need to use the room camera, microphone, speakerphone or touchscreen?",
       technical: "Is USB 2.0, USB 3.x, BYOD, BYOM, camera bridge, PTZ or KVM transport required?",
@@ -293,18 +296,17 @@ export const guidedQuestions: GuidedQuestion[] = [
     },
     why: "USB is often missed. A working meeting room needs the camera/mic/touch path designed separately from the video path.",
     options: [
-      { value: "none", label: "No USB needed", hint: "Video-only design may be enough." },
       { value: "camera-mic", label: "Camera / mic / speaker needed", hint: "UC or USB extension path required." },
       { value: "touch", label: "Interactive display / touch", hint: "Touchback USB must be included." },
       { value: "kvm", label: "Keyboard / mouse / KVM", hint: "Latency and USB reliability matter." },
-      { value: "ndi-camera", label: "NDI camera / IP camera", hint: "Consider NDI bridge / NetworkHD 100 H.265 workflows." },
-      { value: "unknown", label: "Not sure yet", hint: "Ask before choosing products." }
+      { value: "ndi-camera", label: "NDI camera / IP camera", hint: "Consider NDI bridge / NetworkHD 100 H.265 workflows." }
     ]
   },
   {
     id: "audio",
     title: "Audio path",
     appliesTo: "all",
+    selectionMode: "priority",
     prompt: {
       endUser: "Where should the sound come from: the screen, ceiling speakers, soundbar or something else?",
       technical: "Define embedded audio, de-embed, analogue, balanced, DSP, amplifier, Dante or ARC/eARC requirements.",
@@ -316,14 +318,14 @@ export const guidedQuestions: GuidedQuestion[] = [
       { value: "display-audio", label: "Display audio only", hint: "Simplest path if acceptable." },
       { value: "soundbar", label: "Soundbar / video bar", hint: "May combine audio, camera and USB." },
       { value: "amp-speakers", label: "Amp / ceiling speakers", hint: "Requires audio extraction or dedicated audio path." },
-      { value: "dsp-dante", label: "DSP / Dante", hint: "Network/audio design needs confirmation." },
-      { value: "unknown", label: "Not confirmed", hint: "Ask where the customer expects sound to come out." }
+      { value: "dsp-dante", label: "DSP / Dante", hint: "Network/audio design needs confirmation." }
     ]
   },
   {
     id: "control",
     title: "Control requirement",
     appliesTo: "all",
+    selectionMode: "priority",
     prompt: {
       endUser: "How does the customer want to change what appears on the screen?",
       technical: "Control requirement: auto-switching, IR, RS-232, TCP/IP, touch panel, app, API or third-party control?",
@@ -335,8 +337,7 @@ export const guidedQuestions: GuidedQuestion[] = [
       { value: "manual", label: "Manual switching", hint: "Simple button/remote/front panel may be enough." },
       { value: "auto", label: "Auto switching", hint: "Useful for simple meeting rooms." },
       { value: "touch-app", label: "Touch panel / app", hint: "More suitable for flexible or multi-screen systems." },
-      { value: "third-party", label: "Third-party control", hint: "Check RS-232, IR, IP and driver expectations." },
-      { value: "unknown", label: "Not confirmed", hint: "Ask how users will operate the room." }
+      { value: "third-party", label: "Third-party control", hint: "Check RS-232, IR, IP and driver expectations." }
     ]
   },
   {
@@ -405,6 +406,11 @@ export function findQuestion(id: string) {
   return guidedQuestions.find((question) => question.id === id);
 }
 
+function answerMentions(answer: string | undefined, terms: string[]) {
+  if (!answer) return false;
+  return terms.some((term) => answer === term || answer.includes(term));
+}
+
 export function deriveArchitecture(
   startingPoint: StartingPointId | null,
   answers: AnswerMap,
@@ -455,7 +461,19 @@ export function deriveArchitecture(
     likelyTechnology.push("Presentation / UC switching", "USB extension", "HDBaseT display output");
   }
 
-  if (startingPoint === "cameraUc" || usb === "camera-mic" || usb === "touch" || usb === "kvm" || usb === "ndi-camera") {
+  if (
+    startingPoint === "cameraUc" ||
+    answerMentions(usb, [
+      "camera-mic",
+      "touch",
+      "kvm",
+      "ndi-camera",
+      "Camera / mic / speaker needed",
+      "Interactive display / touch",
+      "Keyboard / mouse / KVM",
+      "NDI camera / IP camera",
+    ])
+  ) {
     why.push("USB, camera, microphone, touch or KVM changes this from video-only to a full signal-path design.");
     likelyTechnology.push("UC products", "USB extension", "Camera bridge", "NDI bridge / NetworkHD workflow where appropriate");
   }

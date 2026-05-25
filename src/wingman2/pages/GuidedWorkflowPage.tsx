@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   answerLabel,
@@ -11,11 +11,53 @@ import {
   startingPoints,
   type AnswerMap,
   type ConversationModeId,
+  type GuidedQuestion,
   type StartingPointId,
 } from "../components/guided/guidedWorkflowModel";
 
+type FeaturePriority = "must" | "nice" | "notNeeded";
+type FeaturePriorityDraft = Record<string, FeaturePriority>;
+
+const featurePriorityLevels: Array<{
+  id: FeaturePriority;
+  label: string;
+  description: string;
+}> = [
+  {
+    id: "must",
+    label: "Must have",
+    description: "Required for the solution to work.",
+  },
+  {
+    id: "nice",
+    label: "Nice to have",
+    description: "Useful, but not a blocker.",
+  },
+  {
+    id: "notNeeded",
+    label: "Not needed",
+    description: "Confirmed out of scope.",
+  },
+];
+
 function labelForAnswer(questionId: string, value: string) {
   return answerLabel(questionId, value);
+}
+
+function buildPriorityAnswer(question: GuidedQuestion, draft: FeaturePriorityDraft) {
+  if (!question.options) return "";
+
+  const groups = featurePriorityLevels
+    .map((priority) => {
+      const labels = question.options
+        ?.filter((option) => draft[option.value] === priority.id)
+        .map((option) => option.label);
+
+      return labels?.length ? `${priority.label}: ${labels.join(", ")}` : "";
+    })
+    .filter(Boolean);
+
+  return groups.join(" | ");
 }
 
 export function GuidedWorkflowPage() {
@@ -23,6 +65,7 @@ export function GuidedWorkflowPage() {
   const [startingPoint, setStartingPoint] = useState<StartingPointId | null>(null);
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [draft, setDraft] = useState("");
+  const [priorityDraft, setPriorityDraft] = useState<FeaturePriorityDraft>({});
 
   const activeQuestion = useMemo(() => getNextQuestion(startingPoint, answers), [startingPoint, answers]);
   const guidance = useMemo(() => deriveArchitecture(startingPoint, answers), [startingPoint, answers]);
@@ -31,33 +74,48 @@ export function GuidedWorkflowPage() {
   const complete = Boolean(startingPoint && totalQuestions > 0 && answeredIds.length >= totalQuestions);
   const selectedMode = conversationModes.find((item) => item.id === mode);
   const selectedStart = startingPoints.find((item) => item.id === startingPoint);
+  const isPriorityQuestion = Boolean(activeQuestion?.selectionMode === "priority" && activeQuestion.options?.length);
+  const priorityAnswer = activeQuestion ? buildPriorityAnswer(activeQuestion, priorityDraft) : "";
+
+  useEffect(() => {
+    setDraft("");
+    setPriorityDraft({});
+  }, [activeQuestion?.id]);
 
   function reset() {
     setMode(null);
     setStartingPoint(null);
     setAnswers({});
     setDraft("");
+    setPriorityDraft({});
   }
 
   function chooseMode(nextMode: ConversationModeId) {
     setMode(nextMode);
     setDraft("");
+    setPriorityDraft({});
   }
 
   function chooseStartingPoint(nextPoint: StartingPointId) {
     setStartingPoint(nextPoint);
     setAnswers({});
     setDraft("");
+    setPriorityDraft({});
   }
 
   function saveAnswer() {
-    if (!activeQuestion || !draft.trim()) return;
+    if (!activeQuestion) return;
+
+    const value = isPriorityQuestion ? priorityAnswer : draft.trim();
+
+    if (!value) return;
 
     setAnswers((current) => ({
       ...current,
-      [activeQuestion.id]: draft.trim(),
+      [activeQuestion.id]: value,
     }));
     setDraft("");
+    setPriorityDraft({});
   }
 
   function skipAnswer() {
@@ -68,6 +126,7 @@ export function GuidedWorkflowPage() {
       [activeQuestion.id]: "Not confirmed",
     }));
     setDraft("");
+    setPriorityDraft({});
   }
 
   function removeAnswer(id: string) {
@@ -77,6 +136,30 @@ export function GuidedWorkflowPage() {
       return next;
     });
     setDraft("");
+    setPriorityDraft({});
+  }
+
+  function setFeaturePriority(featureValue: string, priority: FeaturePriority) {
+    setPriorityDraft((current) => {
+      if (current[featureValue] === priority) {
+        const next = { ...current };
+        delete next[featureValue];
+        return next;
+      }
+
+      return {
+        ...current,
+        [featureValue]: priority,
+      };
+    });
+  }
+
+  function setAllFeaturesNotNeeded() {
+    if (!activeQuestion?.options) return;
+
+    setPriorityDraft(
+      Object.fromEntries(activeQuestion.options.map((option) => [option.value, "notNeeded" as FeaturePriority])),
+    );
   }
 
   return (
@@ -147,7 +230,52 @@ export function GuidedWorkflowPage() {
           <h2>{activeQuestion.title}</h2>
           <blockquote>{activeQuestion.prompt[mode]}</blockquote>
 
-          {activeQuestion.options ? (
+          {activeQuestion.options && isPriorityQuestion ? (
+            <div className="wm-calm-priority-selector" role="group" aria-label={`${activeQuestion.title} priorities`}>
+              <div className="wm-calm-priority-toolbar">
+                <p>
+                  Select the required features, then separate the customer&apos;s must-have items from nice-to-have items.
+                </p>
+                <button className="wm-calm-button" type="button" onClick={setAllFeaturesNotNeeded}>
+                  No feature requirement
+                </button>
+              </div>
+
+              <div className="wm-calm-priority-list">
+                {activeQuestion.options.map((option) => (
+                  <div key={option.value} className="wm-calm-priority-row">
+                    <div className="wm-calm-priority-feature">
+                      <strong>{option.label}</strong>
+                      {option.hint ? <span>{option.hint}</span> : null}
+                    </div>
+
+                    <div className="wm-calm-priority-controls" aria-label={`${option.label} priority`}>
+                      {featurePriorityLevels.map((priority) => (
+                        <button
+                          key={priority.id}
+                          type="button"
+                          className={
+                            priorityDraft[option.value] === priority.id
+                              ? `wm-calm-priority-button is-${priority.id}`
+                              : "wm-calm-priority-button"
+                          }
+                          title={priority.description}
+                          onClick={() => setFeaturePriority(option.value, priority.id)}
+                        >
+                          {priority.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className={priorityAnswer ? "wm-calm-priority-summary has-value" : "wm-calm-priority-summary"}>
+                <strong>Captured feature priority</strong>
+                <span>{priorityAnswer || "No feature priority selected yet."}</span>
+              </div>
+            </div>
+          ) : activeQuestion.options ? (
             <div className="wm-calm-choice-grid">
               {activeQuestion.options.map((option) => (
                 <button
@@ -174,7 +302,12 @@ export function GuidedWorkflowPage() {
             <button className="wm-calm-button" type="button" onClick={skipAnswer}>
               Not confirmed
             </button>
-            <button className="wm-calm-button primary" type="button" disabled={!draft.trim()} onClick={saveAnswer}>
+            <button
+              className="wm-calm-button primary"
+              type="button"
+              disabled={isPriorityQuestion ? !priorityAnswer : !draft.trim()}
+              onClick={saveAnswer}
+            >
               Save and continue
             </button>
           </div>

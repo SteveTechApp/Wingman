@@ -7923,4 +7923,137 @@ html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-documen
 ) {
   color: inherit !important;
 }
+
+/* Guided discovery feature priority selector */
+
+html body #root .wingman-page-host .wm-calm-priority-selector {
+  display: grid;
+  gap: 0.85rem;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-toolbar p {
+  margin: 0;
+  color: #cbd5e1 !important;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-row {
+  display: grid;
+  grid-template-columns: minmax(16rem, 1fr) minmax(22rem, 0.95fr);
+  gap: 0.85rem;
+  align-items: center;
+  min-height: 4.4rem;
+  border: 1px solid rgba(125, 180, 240, 0.24);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 10rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.96), rgba(7, 24, 42, 0.98));
+  padding: 0.8rem;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-feature strong,
+html body #root .wingman-page-host .wm-calm-priority-summary strong {
+  display: block;
+  color: #ffffff !important;
+  font-size: 0.98rem;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-feature span {
+  display: block;
+  margin-top: 0.32rem;
+  color: #cbd5e1 !important;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-button {
+  min-height: 2.55rem;
+  border: 1px solid rgba(148, 163, 184, 0.32) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #e2e8f0 !important;
+  box-shadow: none !important;
+  font-size: 0.8rem;
+  font-weight: 820;
+  line-height: 1.1;
+  padding: 0.55rem 0.6rem;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-button:hover {
+  border-color: rgba(251, 191, 36, 0.58) !important;
+  background: rgba(251, 191, 36, 0.13) !important;
+  color: #ffffff !important;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-button.is-must {
+  border-color: rgba(251, 191, 36, 0.92) !important;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  color: #111827 !important;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-button.is-nice {
+  border-color: rgba(56, 189, 248, 0.72) !important;
+  background: rgba(56, 189, 248, 0.16) !important;
+  color: #e0f7ff !important;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-button.is-notNeeded {
+  border-color: rgba(148, 163, 184, 0.36) !important;
+  background: rgba(15, 23, 42, 0.72) !important;
+  color: #94a3b8 !important;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-summary {
+  display: grid;
+  gap: 0.35rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.85rem;
+}
+
+html body #root .wingman-page-host .wm-calm-priority-summary.has-value {
+  border-color: rgba(251, 191, 36, 0.42);
+  background: rgba(251, 191, 36, 0.1);
+}
+
+html body #root .wingman-page-host .wm-calm-priority-summary span {
+  color: #cbd5e1 !important;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 980px) {
+  html body #root .wingman-page-host .wm-calm-priority-toolbar,
+  html body #root .wingman-page-host .wm-calm-priority-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  html body #root .wingman-page-host .wm-calm-priority-controls {
+    grid-template-columns: 1fr;
+  }
+}
 /* WINGMAN CENTRALIZED STYLE PATCHES END */
