@@ -26,6 +26,15 @@
     ]
   },
   {
+    "routeKey": "guidedDiscovery",
+    "status": "wired",
+    "summary": "Guided Discovery provides a one-question-at-a-time route for sales users, adapting the wording by conversation type and producing an architecture checkpoint before Product Finder or Proposal.",
+    "needed": [
+      "Persist guided answers into the active project requirement record.",
+      "Use saved guided answers to pre-fill Product Finder and Proposal assumptions."
+    ]
+  },
+  {
     "routeKey": "finder",
     "status": "partial",
     "summary": "Finder loads the generated product intelligence index, scores WyreStorm products client-side, stores evidence/caution notes with selected products, and keeps standalone shortlists separate from explicit project product selections.",

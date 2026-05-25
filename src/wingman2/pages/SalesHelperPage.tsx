@@ -1,577 +1,221 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Cable,
-  CheckCircle2,
   ClipboardList,
-  Copy,
-  Eraser,
+  GitCompare,
   MessageSquareText,
-  MoveRight,
-  Save,
-  Search,
-  Sparkles,
-  Users,
+  MonitorUp,
   Network,
-  PanelsTopLeft,
-  Scale,
+  Users,
+  Video,
   type LucideIcon,
 } from "lucide-react";
-import { PageHero } from "../components/PageHero";
 import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
-import { SectionCard } from "../components/SectionCard";
-import { WingmanSelectionCard, type WingmanSelectionAccent } from "../components/ui/WingmanSelectionCard";
-import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
-import { routeCatalogByKey } from "../app/routeCatalog";
-import { getCurrentWorkflowProject, readProjectStore } from "../data/projectStore";
-import { buildSalesReadinessPackage } from "../lib/salesReadiness";
-
-type CoachingCard = {
+
+type CallPath = {
   id: string;
   title: string;
-  plainPurpose: string;
-  usefulWhen: string;
+  description: string;
   opener: string;
   questions: string[];
-  listenFor: string[];
-  nextMove: string;
+  why: string;
+  Icon: LucideIcon;
 };
 
-const STORAGE_KEY = "wingman.salesHelper.callReplies.v2";
-
-const coachingCards: CoachingCard[] = [
+const callPaths: CallPath[] = [
   {
-    id: "room-fit",
-    title: "Understand the room",
-    plainPurpose: "Get a quick feel for the space before talking products.",
-    usefulWhen: "The customer says they need a meeting room, classroom, boardroom, venue, or general AV upgrade.",
-    opener: "Before I suggest hardware, can I get a quick picture of the room and how people use it?",
+    id: "room",
+    title: "Customer wants a room",
+    description: "Meeting room, boardroom, classroom or general room upgrade.",
+    opener: "Before I suggest hardware, can I understand how the room needs to be used?",
     questions: [
-      "What kind of room is this, and how many people normally use it?",
-      "What does a good session in this room need to feel like for the user?",
-      "Is this mainly for presenting, video calls, teaching, events, signage, or a mix of those?",
-      "What is frustrating people about the room today?",
+      "What kind of room is this and how many people normally use it?",
+      "Is the main use presenting, video calls, teaching, signage, or a mix?",
+      "What is frustrating people about the current setup?",
     ],
-    listenFor: [
-      "Room type",
-      "User experience",
-      "Current pain point",
-      "Simple vs flexible system",
-    ],
-    nextMove: "Use the room type and user pain point to choose whether Discovery, Finder, or Templates is the next best step.",
+    why: "The room use decides whether Wingman should steer toward presentation switching, UC, matrix, AVoIP or a template.",
+    Icon: Users,
   },
   {
-    id: "sources-displays",
-    title: "Map sources and displays",
-    plainPurpose: "Find out what needs to connect to what.",
-    usefulWhen: "The customer mentions screens, laptops, media players, signage, TV boxes, lecterns, or multiple displays.",
-    opener: "Let me map the signal flow so we do not over-spec or miss anything obvious.",
+    id: "io",
+    title: "Sources and screens",
+    description: "Map what connects to what.",
+    opener: "Let me quickly map the signal flow so we do not miss anything.",
     questions: [
-      "What sources need to be shown, and where are they physically located?",
-      "How many displays are there, and do they all show the same thing or different things?",
-      "Does anyone need to switch sources during use, or is it normally set-and-forget?",
-      "Are any cable runs likely to be long, awkward, or going between rooms?",
+      "How many source devices are there?",
+      "How many displays are there?",
+      "Do all displays show the same thing or different things?",
     ],
-    listenFor: [
-      "Source count",
-      "Display count",
-      "Same or different content",
-      "Distance and cable path",
-    ],
-    nextMove: "Use this to decide between a simple switcher, HDBaseT, matrix, AVoIP, or video wall route.",
+    why: "The I/O pattern is the fastest way to separate extenders, switchers, matrix and AVoIP.",
+    Icon: Cable,
   },
   {
-    id: "usb-conferencing",
-    title: "Check USB and conferencing",
-    plainPurpose: "Avoid missing cameras, microphones, speakers, and laptop USB needs.",
-    usefulWhen: "The room has Teams, Zoom, BYOD, cameras, PTZ, microphones, or USB peripherals.",
-    opener: "For calls, the video path is only half the story. I also need to understand the USB and room-peripheral side.",
+    id: "usb",
+    title: "Teams / Zoom / USB",
+    description: "Camera, microphone, speaker, BYOD, touch or KVM.",
+    opener: "For calls, I need to check both the video path and the USB path.",
     questions: [
       "Will users bring their own laptop, use a room PC, or both?",
-      "Which camera, microphone, speaker, or USB devices need to be shared?",
-      "Where is the USB host - at the table, lectern, rack, display, or somewhere else?",
-      "Does the customer need wired USB, wireless conferencing, or both?",
+      "Which camera, microphone or speaker devices need to be shared?",
+      "Where are those USB devices compared with the laptop or room PC?",
     ],
-    listenFor: [
-      "BYOD or room PC",
-      "USB host location",
-      "Camera and mic path",
-      "Wireless conferencing need",
-    ],
-    nextMove: "Use this to validate Apollo, USB extension, NetworkHD USB, camera bridge, or conferencing accessory choices.",
+    why: "USB is often missed. A working UC room needs the peripheral path designed separately from the video path.",
+    Icon: MonitorUp,
   },
   {
-    id: "network-av",
-    title: "Check the network angle",
-    plainPurpose: "Work out whether AVoIP is suitable before recommending it.",
-    usefulWhen: "The job may use NetworkHD, multiple rooms, central racks, flexible routing, or IT-managed infrastructure.",
-    opener: "If this goes onto the network, it needs to be simple for the customer and safe for IT.",
+    id: "network",
+    title: "AV-over-IP possibility",
+    description: "Multiple rooms, central racks, flexible routing or networked AV.",
+    opener: "If this might use the network, I need to check whether the network is ready for AV.",
     questions: [
-      "Is there a dedicated AV network, or would this share the customer network?",
-      "Who owns the network setup - the integrator, IT team, or someone else?",
-      "Do they already have suitable switches, VLANs, multicast setup, and PoE budget?",
-      "Is low latency or very high image quality a hard requirement?",
+      "Is there a dedicated AV network or will this share the customer LAN?",
+      "Who owns the switches and VLAN setup?",
+      "Is low latency or very high image quality critical?",
     ],
-    listenFor: [
-      "AV network ownership",
-      "Switch readiness",
-      "PoE and multicast",
-      "Latency requirement",
-    ],
-    nextMove: "Use this to validate whether NetworkHD 100, 500, or 600 is appropriate, and whether a Netgear AVLine switch should be proposed.",
+    why: "Network readiness decides whether AVoIP is suitable, and whether NetworkHD 100, 500 or 600 is the right level.",
+    Icon: Network,
   },
   {
-    id: "budget-risk",
-    title: "Handle budget naturally",
-    plainPurpose: "Talk about cost without sounding defensive or salesy.",
-    usefulWhen: "The customer asks for a cheaper option, compares brands, or seems unsure about value.",
-    opener: "We can usually look at a few ways to do this. The important bit is knowing where we can simplify without creating problems later.",
+    id: "wall",
+    title: "Video wall",
+    description: "LCD, LED, multiview, wall canvas or feature wall.",
+    opener: "Video walls can be simple or complex, so I need to check the behaviour first.",
     questions: [
-      "Is the priority lowest upfront cost, easiest installation, best user experience, or long-term flexibility?",
-      "What would be more painful: spending a little more now, or having to redesign it later?",
-      "Are there any parts of the system that must be premium, and any areas where a simpler option is acceptable?",
-      "Do you want a good/better/best option so the customer can choose the right level?",
+      "Is this LCD, LED, or a group of standard displays?",
+      "Is it one big image, independent content, signage or multiview?",
+      "How many sources feed the wall?",
     ],
-    listenFor: [
-      "Budget pressure",
-      "Must-have areas",
-      "Where to value-engineer",
-      "Good/better/best appetite",
-    ],
-    nextMove: "Use this to build Bronze, Silver, Gold positioning without making the cheaper option sound poor.",
+    why: "This separates dedicated wall processors from matrix, seamless switching and AVoIP wall workflows.",
+    Icon: Video,
   },
   {
     id: "competitor",
-    title: "When a competitor SKU is mentioned",
-    plainPurpose: "Use the competitor product as a clue, not as the whole design brief.",
-    usefulWhen: "The customer, dealer, or consultant asks for a direct match to another manufacturer.",
-    opener: "I can look for the closest WyreStorm fit, but I also want to check what role that product is playing in the system.",
+    title: "Competitor mentioned",
+    description: "Customer references another product or brand.",
+    opener: "I can look for a WyreStorm fit, but first I need to understand the role of that competitor product.",
     questions: [
-      "Is that competitor SKU a fixed requirement, or just an example of the kind of product they had in mind?",
-      "What part of that product matters most - I/O count, distance, USB, network, scaling, audio, or control?",
-      "Is the customer replacing one product, or are they trying to solve a bigger room workflow?",
-      "Would it help if I gave you a closest match plus a safer alternative?",
+      "Is the competitor SKU a fixed requirement or just an example?",
+      "What feature matters most: I/O, distance, USB, scaling, audio or control?",
+      "Is this a one-product replacement or a wider room design?",
     ],
-    listenFor: [
-      "Spec anchor or example",
-      "Feature that matters",
-      "One-SKU or system sale",
-      "Risk of false match",
-    ],
-    nextMove: "Open Compare for product matching, then use Finder if the actual requirement points to a different WyreStorm family.",
-  },
-  {
-    id: "video-wall",
-    title: "Video wall quick check",
-    plainPurpose: "Separate simple walls from routing-heavy or multiview designs.",
-    usefulWhen: "The customer mentions LCD wall, LED wall, feature wall, signage wall, multiview, or control room display.",
-    opener: "Video walls can be simple or quite involved, so I need to check the behaviour before suggesting the route.",
-    questions: [
-      "Is this an LCD wall, LED wall, or a group of standard displays?",
-      "Is it mainly one big image, repeated signage, independent content, or multiview?",
-      "How many sources feed the wall, and do they need to change often?",
-      "Is this a fixed feature wall, or does it need to be part of a wider routed AV system?",
-    ],
-    listenFor: [
-      "LCD vs LED",
-      "Canvas vs multiview",
-      "Source count",
-      "Processor vs AVoIP",
-    ],
-    nextMove: "Use this to choose between SW-0204/0206-VW, seamless matrix, NetworkHD 500 with multiview, or NetworkHD 600.",
-  },
-  {
-    id: "close-next-step",
-    title: "Confirm the next step",
-    plainPurpose: "End the call with clear actions instead of vague follow-up.",
-    usefulWhen: "You have enough information to move into Finder, Proposal, Compare, or pre-sales review.",
-    opener: "Let me play that back so I can check I have understood it properly.",
-    questions: [
-      "Have I got the main requirement right?",
-      "What information is still missing before this can be proposed safely?",
-      "Who needs to approve the direction - end user, consultant, dealer, IT, or finance?",
-      "Would you like the next output to be a product shortlist, a room template, or a proposal-style summary?",
-    ],
-    listenFor: [
-      "Decision maker",
-      "Missing information",
-      "Output needed",
-      "Urgency",
-    ],
-    nextMove: "Copy the captured notes, then move into Finder, Templates, Compare, or Customer Proposal Builder.",
+    why: "Matching role first avoids false product comparisons based only on ports.",
+    Icon: GitCompare,
   },
 ];
 
-function coachingIcon(id: string): LucideIcon {
-  if (id === "room-fit") return Users;
-  if (id === "sources-displays") return Cable;
-  if (id === "usb-conferencing") return Sparkles;
-  if (id === "network-av") return Network;
-  if (id === "budget-risk") return CheckCircle2;
-  if (id === "competitor") return Scale;
-  if (id === "video-wall") return PanelsTopLeft;
-  return ClipboardList;
-}
-
-function coachingAccent(id: string): WingmanSelectionAccent {
-  if (id === "sources-displays" || id === "usb-conferencing") return "teal";
-  if (id === "network-av") return "green";
-  if (id === "budget-risk" || id === "close-next-step") return "amber";
-  if (id === "competitor") return "red";
-  if (id === "video-wall") return "purple";
-  return "cyan";
-}
-
-function readStoredReplies(): Record<string, string> {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {};
-
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return {};
-
-    return parsed as Record<string, string>;
-  } catch {
-    return {};
-  }
-}
-
-function replyKey(cardId: string, questionIndex: number) {
-  return `${cardId}.${questionIndex}`;
-}
-
 export function SalesHelperPage() {
-  const [activeCardId, setActiveCardId] = useState(coachingCards[0].id);
-  const [replies, setReplies] = useState<Record<string, string>>(() => readStoredReplies());
-  const [copied, setCopied] = useState(false);
+  const [activeId, setActiveId] = useState(callPaths[0].id);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [notes, setNotes] = useState<string[]>([]);
 
-  const projectGuidance = useMemo(() => {
-    const project = getCurrentWorkflowProject(readProjectStore());
-    const roomModel = project?.discoveryBrief?.roomModel ?? {};
-    const discovery = {
-      projectTitle: String(roomModel.roomType || project?.name || "Standalone sales conversation"),
-      summary: String(project?.discoveryBrief?.inference?.summary || "Use discovery and Finder context to strengthen the sales conversation."),
-      roomSize: String(roomModel.roomSize || "Not confirmed"),
-      displays: String(roomModel.displayArrangement || "Not confirmed"),
-      usb: String(roomModel.usbTransport || "Not confirmed"),
-      distance: String(roomModel.longestRun || "Not confirmed"),
-      budget: String(roomModel.budgetStyle || "Not confirmed"),
-    };
-    const assumptions = [
-      ...(project?.ingest?.unknowns ?? []),
-      ...(project?.compareRuns?.[0]?.warnings ?? []),
-    ];
+  const active = callPaths.find((item) => item.id === activeId) ?? callPaths[0];
+  const ActiveIcon = active.Icon;
+  const currentQuestion = active.questions[questionIndex] ?? active.questions[0];
 
-    return buildSalesReadinessPackage({
-      products: project?.productSelections ?? [],
-      discovery,
-      assumptions,
-      ingest: project?.ingest,
-      compareRun: project?.compareRuns?.[0] ?? null,
-    });
-  }, []);
+  const noteText = useMemo(() => notes.join("\n"), [notes]);
 
-  const activeCard = coachingCards.find((card) => card.id === activeCardId) ?? coachingCards[0];
+  function selectPath(id: string) {
+    setActiveId(id);
+    setQuestionIndex(0);
+    setAnswer("");
+  }
 
-  useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(replies));
-  }, [replies]);
+  function saveAndNext() {
+    if (answer.trim()) {
+      setNotes((current) => [...current, `Q: ${currentQuestion}`, `A: ${answer.trim()}`, ""]);
+    }
 
-  const callNotes = useMemo(() => {
-    const lines: string[] = [];
-
-    lines.push("Wingman Sales Helper call notes");
-    lines.push("");
-    lines.push(`Readiness: ${projectGuidance.readinessScore}%`);
-    lines.push(`Motion: ${projectGuidance.outputPurpose.motion}`);
-    lines.push(`Suggested output: ${projectGuidance.outputPurpose.customerOutput}`);
-    lines.push("");
-
-    coachingCards.forEach((card) => {
-      const answeredQuestions = card.questions
-        .map((question, questionIndex) => ({
-          question,
-          answer: replies[replyKey(card.id, questionIndex)]?.trim() ?? "",
-        }))
-        .filter((item) => item.answer.length > 0);
-
-      if (answeredQuestions.length < 1) return;
-
-      lines.push(card.title);
-      answeredQuestions.forEach((item) => {
-        lines.push(`Q: ${item.question}`);
-        lines.push(`A: ${item.answer}`);
-      });
-      lines.push("");
-    });
-
-    return lines.join("\n");
-  }, [projectGuidance.outputPurpose.customerOutput, projectGuidance.outputPurpose.motion, projectGuidance.readinessScore, replies]);
-
-  const hasNotes = callNotes.includes("A:");
-
-  function updateReply(cardId: string, questionIndex: number, event: ChangeEvent<HTMLTextAreaElement>) {
-    const key = replyKey(cardId, questionIndex);
-    const value = event.target.value;
-
-    setReplies((current) => ({
-      ...current,
-      [key]: value,
-    }));
+    setAnswer("");
+    setQuestionIndex((current) => (current + 1 >= active.questions.length ? 0 : current + 1));
   }
 
   async function copyNotes() {
-    try {
-      await navigator.clipboard.writeText(callNotes);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
-  }
-
-  function clearNotes() {
-    setReplies({});
-    setCopied(false);
-    window.localStorage.removeItem(STORAGE_KEY);
+    if (!noteText.trim()) return;
+    await navigator.clipboard.writeText(noteText);
   }
 
   return (
-    <div className="pb-10">
-      <PageHero
-        eyebrow="Sales Helper"
-        title="Live call coaching, not sales theatre."
-        purpose="Use this during a customer or dealer call to ask better questions, capture the replies, and move into the right Wingman workflow without sounding scripted."
-        nextMove="Choose the call angle, ask the open questions, write the customer replies, then copy the notes into Finder, Compare, Templates, or Customer Proposal Builder."
-        actions={[
-          { label: "Open finder", to: routeCatalogByKey.finder.path },
-          { label: "Open compare", to: routeCatalogByKey.compare.path, variant: "secondary" },
-          { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
-        ]}
-      />
-
-      <SalesToneQuickSetter context="salesHelper" />
-
-      <div className="space-y-5">
-        <SectionCard
-          title="In-call coaching board"
-          subtitle="Larger working cards with natural language, open questions, and reply capture."
-        >
-          <div className="grid gap-5 xl:grid-cols-[300px_minmax(0,1fr)]">
-            <aside className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-              <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.14em] text-slate-500">
-                <ClipboardList className="h-4 w-4" />
-                Call angle
-              </div>
-
-              <WingmanSelectionGrid columns={1} compact className="mt-4">
-                {coachingCards.map((card) => {
-                  const active = activeCard.id === card.id;
-                  const answeredCount = card.questions.filter((_, index) => {
-                    const answer = replies[replyKey(card.id, index)]?.trim();
-                    return Boolean(answer);
-                  }).length;
-
-                  return (
-                    <WingmanSelectionCard
-                      key={card.id}
-                      onClick={() => setActiveCardId(card.id)}
-                      compact
-                      title={card.title}
-                      description={card.plainPurpose}
-                      icon={coachingIcon(card.id)}
-                      accent={coachingAccent(card.id)}
-                      selected={active}
-                      metaBadges={answeredCount > 0 ? [`${answeredCount} captured`] : undefined}
-                    />
-                  );
-                })}
-              </WingmanSelectionGrid>
-            </aside>
-
-            <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black uppercase tracking-[0.14em] text-amber-900">
-                      Active card
-                    </span>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
-                      Use during the call
-                    </span>
-                  </div>
-
-                  <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950">{activeCard.title}</h2>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{activeCard.usefulWhen}</p>
-
-                  <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-900">Natural opener</p>
-                    <p className="mt-2 text-lg font-black leading-7 text-slate-950">"{activeCard.opener}"</p>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="flex items-center gap-2 text-sm font-black text-slate-950">
-                    <Search className="h-4 w-4 text-amber-500" />
-                    Listen for
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {activeCard.listenFor.map((item) => (
-                      <span key={item} className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-600">
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                {activeCard.questions.map((question, questionIndex) => {
-                  const key = replyKey(activeCard.id, questionIndex);
-
-                  return (
-                    <div key={question} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1 rounded-full bg-slate-950 p-2 text-white">
-                          <MessageSquareText className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Ask</p>
-                          <p className="mt-1 text-base font-black leading-6 text-slate-950">{question}</p>
-                        </div>
-                      </div>
-
-                      <label className="mt-4 block">
-                        <span className="text-xs font-black uppercase tracking-[0.14em] text-amber-800">Capture the reply</span>
-                        <textarea
-                          value={replies[key] ?? ""}
-                          onChange={(event) => updateReply(activeCard.id, questionIndex, event)}
-                          rows={4}
-                          placeholder="Type the customer's answer here..."
-                          className="mt-2 min-h-[116px] w-full resize-y rounded-2xl border border-amber-200 bg-white px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
-                        />
-                      </label>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-4">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-900">Next best move</p>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-800">{activeCard.nextMove}</p>
-                </div>
-                <MoveRight className="h-6 w-6 text-sky-700" />
-              </div>
-            </section>
-          </div>
-        </SectionCard>
-
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(360px,0.55fr)]">
-          <SectionCard
-            title="Project-aware guidance"
-            subtitle="A compact view of what Wingman already knows from Discovery, Finder, Compare, or Proposal context."
-          >
-            <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-              <div
-                className={`rounded-2xl border p-5 ${
-                  projectGuidance.reviewRequired
-                    ? "border-amber-200 bg-amber-50 text-amber-950"
-                    : "border-emerald-200 bg-emerald-50 text-emerald-950"
-                }`}
-              >
-                <p className="text-sm font-black uppercase tracking-[0.14em]">Readiness</p>
-                <p className="mt-3 text-4xl font-black">{projectGuidance.readinessScore}%</p>
-                <p className="mt-2 text-sm leading-6">
-                  {projectGuidance.reviewRequired
-                    ? "Use this as call guidance. Validate before sending final customer output."
-                    : "Good enough to move toward a draft, with final checks before issue."}
-                </p>
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-2">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
-                  <p className="flex items-center gap-2 font-black text-slate-900">
-                    <Users className="h-4 w-4 text-amber-500" />
-                    {projectGuidance.outputPurpose.motion}
-                  </p>
-                  <p className="mt-2">{projectGuidance.outputPurpose.customerOutput}</p>
-                </div>
-                {projectGuidance.repGuidance.slice(0, 3).map((item) => (
-                  <div key={item} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </SectionCard>
-
-          <SectionCard
-            title="Captured call notes"
-            subtitle="Saved locally while you work. Copy them into the next Wingman step."
-            rightSlot={
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={copyNotes}
-                  disabled={!hasNotes}
-                  className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-                >
-                  {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  {copied ? "Copied" : "Copy"}
-                </button>
-                <button
-                  type="button"
-                  onClick={clearNotes}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
-                >
-                  <Eraser className="h-4 w-4" />
-                  Clear
-                </button>
-              </div>
-            }
-          >
-            <div className="rounded-2xl border border-slate-200 bg-slate-950 p-4 text-slate-100">
-              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.14em] text-amber-300">
-                <Save className="h-4 w-4" />
-                Live notes
-              </div>
-              <pre className="mt-3 max-h-[420px] overflow-auto whitespace-pre-wrap text-sm leading-6 text-slate-200">
-                {hasNotes ? callNotes : "No replies captured yet. Use the coaching card text boxes above during the call."}
-              </pre>
-            </div>
-          </SectionCard>
+    <main className="wm-calm-page wm-calm-stack">
+      <section className="wm-calm-hero">
+        <div>
+          <p className="wm-calm-kicker">Sales Language</p>
+          <h1>Ask the next useful question.</h1>
+          <p>
+            Choose the call situation, ask one question, capture the answer, then continue or send the opportunity into Discovery.
+          </p>
         </div>
 
-        <SectionCard
-          title="Simple conversation rule"
-          subtitle="Keep the language calm and practical."
-        >
-          <div className="grid gap-4 md:grid-cols-3">
-            {[
-              {
-                title: "Ask first",
-                text: "Do not jump straight to a SKU. Ask what the room needs to do and what is not working today.",
-              },
-              {
-                title: "Repeat back",
-                text: 'Use plain language: "So the main issue is getting laptop, camera and display working without fuss - correct?"',
-              },
-              {
-                title: "Move clearly",
-                text: "Finish with a next step: shortlist, compare match, room template, or proposal summary.",
-              },
-            ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-slate-200 bg-white p-5">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-amber-500" />
-                  <h3 className="text-lg font-black text-slate-950">{item.title}</h3>
-                </div>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
-              </div>
-            ))}
+        <div className="wm-calm-actions">
+          <Link className="wm-calm-link-button primary" to="/wingman/guided-discovery">
+            Guided Discovery
+          </Link>
+        </div>
+      </section>
+
+      <SalesToneQuickSetter context="salesHelper" surface="dark" />
+
+      <section className="wm-calm-task-card">
+        <p className="wm-calm-kicker">Conversation type</p>
+        <h2>What is the customer talking about?</h2>
+
+        <div className="wm-calm-choice-grid" style={{ marginTop: "1rem" }}>
+          {callPaths.map(({ id, title, description, Icon }) => (
+            <button
+              key={id}
+              type="button"
+              className={id === active.id ? "wm-calm-choice-card is-selected" : "wm-calm-choice-card"}
+              onClick={() => selectPath(id)}
+            >
+              <Icon aria-hidden="true" />
+              <strong>{title}</strong>
+              <span>{description}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="wm-calm-task-card wm-calm-question">
+        <p className="wm-calm-kicker">Ask this next</p>
+        <h2><ActiveIcon aria-hidden="true" /> {active.title}</h2>
+        <blockquote>{questionIndex === 0 ? active.opener : currentQuestion}</blockquote>
+
+        <textarea
+          className="wm-calm-textarea"
+          value={answer}
+          onChange={(event) => setAnswer(event.target.value)}
+          placeholder="Capture the customer answer here..."
+        />
+
+        <div className="wm-calm-actions">
+          <button className="wm-calm-button" type="button" onClick={() => setQuestionIndex((questionIndex + 1) % active.questions.length)}>
+            Skip
+          </button>
+          <button className="wm-calm-button primary" type="button" onClick={saveAndNext}>
+            Save and next
+          </button>
+        </div>
+      </section>
+
+      <details className="wm-calm-drawer">
+        <summary>Why this matters</summary>
+        <div className="wm-calm-drawer-body">
+          <p>{active.why}</p>
+        </div>
+      </details>
+
+      <details className="wm-calm-drawer">
+        <summary>Show captured call notes</summary>
+        <div className="wm-calm-drawer-body">
+          {notes.length ? <pre>{noteText}</pre> : <p>No answers captured yet.</p>}
+          <div className="wm-calm-actions">
+            <button className="wm-calm-button" type="button" onClick={copyNotes}>Copy notes</button>
+            <button className="wm-calm-button" type="button" onClick={() => setNotes([])}>Clear</button>
+            <Link className="wm-calm-link-button primary" to="/wingman/proposal">Send to Proposal</Link>
           </div>
-        </SectionCard>
-      </div>
-    </div>
+        </div>
+      </details>
+    </main>
   );
 }

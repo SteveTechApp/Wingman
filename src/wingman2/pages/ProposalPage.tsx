@@ -1,11 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, CheckCircle2, Download, ShieldCheck, Table, Wrench, XCircle, type LucideIcon } from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Download,
+  FileText,
+  ShieldCheck,
+  Table,
+  Wrench,
+  XCircle,
+  type LucideIcon,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import { PageHero } from "../components/PageHero";
-import { SectionCard } from "../components/SectionCard";
-import { WingmanSelectionCard, type WingmanSelectionAccent } from "../components/ui/WingmanSelectionCard";
-import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
 import {
   getCurrentWorkflowProject,
   readProjectStore,
@@ -24,28 +30,46 @@ type StoredSelection = StoredProductSelection & {
   category?: string;
 };
 
+type FeedbackRating = "accepted" | "needs-review" | "missing-accessory" | "wrong-fit";
+
 const PRODUCT_SELECTION_STORE_KEY = "wingman-project-product-selections-v1";
 const STANDALONE_SHORTLIST_KEY = "wingman-finder-standalone-shortlist-v1";
+
 const feedbackActions: Array<{
-  rating: "accepted" | "needs-review" | "missing-accessory" | "wrong-fit";
+  rating: FeedbackRating;
   label: string;
+  description: string;
   Icon: LucideIcon;
 }> = [
-  { rating: "accepted", label: "Accepted", Icon: CheckCircle2 },
-  { rating: "needs-review", label: "Needs review", Icon: AlertTriangle },
-  { rating: "missing-accessory", label: "Missing accessory", Icon: Wrench },
-  { rating: "wrong-fit", label: "Wrong fit", Icon: XCircle },
+  {
+    rating: "accepted",
+    label: "Accepted",
+    description: "Record that the proposal direction is suitable.",
+    Icon: CheckCircle2,
+  },
+  {
+    rating: "needs-review",
+    label: "Needs review",
+    description: "Flag for pre-sales or design validation.",
+    Icon: AlertTriangle,
+  },
+  {
+    rating: "missing-accessory",
+    label: "Missing accessory",
+    description: "Flag a missing receiver, cable, PSU, mount or dependency.",
+    Icon: Wrench,
+  },
+  {
+    rating: "wrong-fit",
+    label: "Wrong fit",
+    description: "Record that the recommendation is not suitable.",
+    Icon: XCircle,
+  },
 ];
-
-const feedbackAccent: Record<(typeof feedbackActions)[number]["rating"], WingmanSelectionAccent> = {
-  accepted: "green",
-  "needs-review": "amber",
-  "missing-accessory": "blue",
-  "wrong-fit": "red",
-};
 
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
+
   try {
     const raw = window.localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as T) : fallback;
@@ -98,8 +122,11 @@ function readDiscoveryBrief(project: StoredProject | null) {
       "wingman-discovery-brief",
       null,
     );
+
   const roomModel = brief?.roomModel ?? {};
-  const joinValues = (value: unknown) => (Array.isArray(value) ? value.map((item) => String(item ?? "")).filter(Boolean).join(", ") : String(value || ""));
+  const joinValues = (value: unknown) =>
+    Array.isArray(value) ? value.map((item) => String(item ?? "")).filter(Boolean).join(", ") : String(value || "");
+
   return {
     projectTitle: String(roomModel.roomType || project?.name || "Unqualified AV Opportunity"),
     summary: String(brief?.inference?.summary || "Discovery has not been saved into this proposal yet."),
@@ -121,8 +148,18 @@ function salesBomType(value: string | undefined): SalesBomType {
   return value === "Required" || value === "Optional" || value === "Validate" ? value : "Validate";
 }
 
+function InfoBlock({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="proposal-clean-info-block">
+      <p className="proposal-clean-kicker">{title}</p>
+      <div>{children}</div>
+    </section>
+  );
+}
+
 export function ProposalPage() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
+
   const context = useMemo(() => {
     const project = getCurrentWorkflowProject(readProjectStore());
     const discovery = readDiscoveryBrief(project);
@@ -138,7 +175,9 @@ export function ProposalPage() {
       products,
       ingest: project?.ingest,
       compareRun,
-      assumptions: assumptions.length ? assumptions : ["Validate final product specifications, accessories, firmware notes, lifecycle, and regional suitability before issue."],
+      assumptions: assumptions.length
+        ? assumptions
+        : ["Validate final product specifications, accessories, firmware notes, lifecycle, and regional suitability before issue."],
       hasLiveContext: Boolean(project || products.length || discovery.summary !== "Discovery has not been saved into this proposal yet."),
     };
   }, []);
@@ -156,6 +195,7 @@ export function ProposalPage() {
     ],
     [context.products.length],
   );
+
   const salesReadiness = useMemo(
     () =>
       buildSalesReadinessPackage({
@@ -167,6 +207,7 @@ export function ProposalPage() {
       }),
     [context.assumptions, context.compareRun, context.discovery, context.ingest, context.products],
   );
+
   const bomRows = useMemo<SalesBomRow[]>(() => {
     if (context.project?.stage === "Templates" && context.project.proposal?.bomRows?.length) {
       return context.project.proposal.bomRows.map((row, index) => ({
@@ -184,6 +225,7 @@ export function ProposalPage() {
 
     return salesReadiness.bomRows;
   }, [context.project, salesReadiness.bomRows]);
+
   const proposal = useMemo(
     () => ({
       title: context.discovery.projectTitle,
@@ -209,7 +251,7 @@ export function ProposalPage() {
     saveProjectProposalToProject(proposal);
   }, [context.hasLiveContext, context.project, proposal]);
 
-  function captureFeedback(rating: "accepted" | "needs-review" | "missing-accessory" | "wrong-fit", label: string) {
+  function captureFeedback(rating: FeedbackRating, label: string) {
     const saved = saveRecommendationFeedback(
       {
         scope: "proposal",
@@ -224,275 +266,240 @@ export function ProposalPage() {
   }
 
   return (
-    <div className="pb-10">
-      <PageHero
-        eyebrow="Customer Proposal Builder"
-        title="Turn requirements into SKUs and BOMs a sales person can present."
-        purpose="This page packages competitor replacement, one-off outcome, and full-room tender work into WyreStorm-first outputs with evidence, dependencies, and customer-safe assumptions."
-        nextMove="Confirm the sales motion, tighten the assumptions, and finalize the SKU or BOM output for customer presentation or internal approval."
-        actions={[
-          { label: "Open support", to: routeCatalogByKey.support.path },
-          { label: "Back to projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
-        ]}
-      />
+    <main className="proposal-clean-shell">
+      <section className="proposal-clean-hero">
+        <div>
+          <p className="proposal-clean-eyebrow">Customer Proposal Builder</p>
+          <h1>Turn requirements into SKUs and BOMs a sales person can present.</h1>
+          <p>
+            Package discovery, product selection, assumptions, governance and sales guidance into a clearer
+            customer-safe proposal preview.
+          </p>
+        </div>
 
-      <SectionCard
-        title="Proposal preview"
-        subtitle="Use polished sectioning, recommendation logic, assumptions, and next steps for a customer-presentable SKU or BOM."
-        rightSlot={
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => exportProposalHtml(proposal, bomRows)}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
-            >
-              <Download className="h-4 w-4" />
-              Export proposal
-            </button>
-            <button
-              type="button"
-              onClick={() => exportBomCsv(proposal, bomRows)}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
-            >
-              <Table className="h-4 w-4" />
-              Export BOM
-            </button>
-            <Link
-              to={routeCatalogByKey.support.path}
-              className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
-            >
-              Request review
-            </Link>
-            <Link
-              to={routeCatalogByKey.projects.path}
-              className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
-            >
-              Return to project
-            </Link>
+        <div className="proposal-clean-actions">
+          <Link className="proposal-clean-button secondary" to={routeCatalogByKey.support.path}>
+            Open support
+          </Link>
+          <Link className="proposal-clean-button secondary" to={routeCatalogByKey.projects.path}>
+            Back to projects
+          </Link>
+        </div>
+      </section>
+
+      <section className="proposal-clean-toolbar">
+        <div>
+          <p className="proposal-clean-eyebrow">Proposal preview</p>
+          <h2>Readable draft output</h2>
+          <p>Review the sales motion, recommended products, BOM, evidence and assumptions before export.</p>
+        </div>
+
+        <div className="proposal-clean-actions">
+          <button type="button" className="proposal-clean-button secondary" onClick={() => exportProposalHtml(proposal, bomRows)}>
+            <Download className="proposal-clean-button-icon" />
+            Export proposal
+          </button>
+          <button type="button" className="proposal-clean-button secondary" onClick={() => exportBomCsv(proposal, bomRows)}>
+            <Table className="proposal-clean-button-icon" />
+            Export BOM
+          </button>
+          <Link className="proposal-clean-button primary" to={routeCatalogByKey.projects.path}>
+            Return to project
+          </Link>
+        </div>
+      </section>
+
+      <section className="proposal-clean-layout">
+        <aside className="proposal-clean-sections">
+          <p className="proposal-clean-kicker">Sections</p>
+          <div>
+            {sections.map((item, index) => (
+              <button key={item} type="button" className={index === 0 ? "is-active" : ""}>
+                {item}
+              </button>
+            ))}
           </div>
-        }
-      >
-        <div className="grid gap-6 xl:grid-cols-[260px_1fr]">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-sm font-semibold text-slate-900">Sections</p>
-            <div className="mt-4 space-y-2 text-sm">
-              {sections.map((item, index) => (
-                <div
-                  key={item}
-                  className={`rounded-2xl px-4 py-3 ${
-                    index === 0
-                      ? "bg-slate-900 text-white"
-                      : "border border-slate-200 bg-white text-slate-700"
-                  }`}
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
+        </aside>
 
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-            <div className="bg-slate-950 px-8 py-10 text-white">
-              <p className="wingman-kicker text-slate-400">WyreStorm Wingman proposal</p>
-              <h2 className="wingman-display mt-3 text-5xl">{context.discovery.projectTitle}</h2>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">
-                {context.discovery.summary}
-              </p>
-            </div>
-            <div className="grid gap-6 p-8 lg:grid-cols-2">
-              <div className="lg:col-span-2">
-                <div className={`rounded-2xl border p-4 ${
-                  salesReadiness.reviewRequired
-                    ? "border-amber-200 bg-amber-50 text-amber-950"
-                    : "border-emerald-200 bg-emerald-50 text-emerald-950"
-                }`}>
-                  <p className="wingman-kicker">{salesReadiness.reviewRequired ? "Review required" : "Proposal draft readiness"}</p>
-                  <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-sm leading-6">
-                      Readiness score: <span className="font-black">{salesReadiness.readinessScore}%</span>.{" "}
-                      {salesReadiness.reviewRequired
-                        ? "Resolve validate items before this is treated as customer-ready."
-                        : "Suitable for proposal drafting after final validation checks."}
-                    </p>
-                    <Link
-                      to={routeCatalogByKey.support.path}
-                      className="rounded-full border border-current px-4 py-2 text-sm font-semibold"
-                    >
-                      Request review
-                    </Link>
-                  </div>
-                </div>
-              </div>
+        <article className="proposal-clean-document">
+          <header className="proposal-clean-cover">
+            <p>WyreStorm Wingman proposal</p>
+            <h2>{context.discovery.projectTitle}</h2>
+            <span>{context.discovery.summary}</span>
+          </header>
 
-              <div className="lg:col-span-2">
-                <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sky-950">
-                  <p className="wingman-kicker">Output purpose</p>
-                  <div className="mt-2 grid gap-4 lg:grid-cols-[220px_1fr]">
-                    <div>
-                      <p className="text-2xl font-black">{salesReadiness.outputPurpose.motion}</p>
-                      <p className="mt-2 text-sm leading-6">{salesReadiness.outputPurpose.summary}</p>
-                    </div>
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <div className="rounded-2xl border border-sky-200 bg-white p-3 text-sm leading-6">
-                        {salesReadiness.outputPurpose.customerOutput}
-                      </div>
-                      <div className="rounded-2xl border border-sky-200 bg-white p-3 text-sm leading-6">
-                        {salesReadiness.outputPurpose.nextAction}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
+          <div className="proposal-clean-document-body">
+            <section className={salesReadiness.reviewRequired ? "proposal-clean-readiness warning" : "proposal-clean-readiness good"}>
               <div>
-                <p className="wingman-kicker">Executive summary</p>
-                <p className="mt-2 text-sm leading-7 text-slate-700">
-                  Room size: {context.discovery.roomSize}. Display behaviour: {context.discovery.displays}. USB requirement:
-                  {" "}{context.discovery.usb}. Longest run: {context.discovery.distance}. Budget posture: {context.discovery.budget}.
+                <p className="proposal-clean-kicker">
+                  {salesReadiness.reviewRequired ? "Review required" : "Proposal draft readiness"}
                 </p>
+                <strong>{salesReadiness.readinessScore}% readiness</strong>
+                <span>
+                  {salesReadiness.reviewRequired
+                    ? "Resolve validate items before treating this as customer-ready."
+                    : "Suitable for proposal drafting after final validation checks."}
+                </span>
               </div>
+
+              <Link to={routeCatalogByKey.support.path}>Request review</Link>
+            </section>
+
+            <section className="proposal-clean-output">
+              <p className="proposal-clean-kicker">Output purpose</p>
               <div>
-                <p className="wingman-kicker">Recommended core products</p>
-                <p className="mt-2 text-sm leading-7 text-slate-700">
+                <div>
+                  <strong>{salesReadiness.outputPurpose.motion}</strong>
+                  <span>{salesReadiness.outputPurpose.summary}</span>
+                </div>
+                <div>{salesReadiness.outputPurpose.customerOutput}</div>
+                <div>{salesReadiness.outputPurpose.nextAction}</div>
+              </div>
+            </section>
+
+            <section className="proposal-clean-two-col">
+              <InfoBlock title="Executive summary">
+                <p>
+                  Room size: {context.discovery.roomSize}. Display behaviour: {context.discovery.displays}. USB requirement:{" "}
+                  {context.discovery.usb}. Longest run: {context.discovery.distance}. Budget posture: {context.discovery.budget}.
+                </p>
+              </InfoBlock>
+
+              <InfoBlock title="Recommended core products">
+                <p>
                   {context.products.length
-                    ? context.products.map((product) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`).join("; ")
+                    ? context.products
+                        .map((product) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`)
+                        .join("; ")
                     : "No product shortlist has been carried into the proposal yet. Add products from Finder before customer export."}
                 </p>
-              </div>
-              <div className="lg:col-span-2">
-                <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-indigo-950">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="wingman-kicker">Dependency governance</p>
-                      <p className="mt-2 text-sm leading-6">
-                        Exact rows come from governed SKU rules; prompt rows show what still needs design validation.
-                      </p>
-                    </div>
-                    <ShieldCheck className="h-5 w-5 text-indigo-700" />
-                  </div>
-                  <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                    {salesReadiness.governedDependencies.length ? (
-                      salesReadiness.governedDependencies.slice(0, 6).map((dependency) => {
-                        const governanceKind = dependency.governanceKind ?? (dependency.sku.startsWith("TBC-") ? "Prompt" : "Exact");
+              </InfoBlock>
+            </section>
 
-                        return (
-                          <div key={dependency.id} className="rounded-2xl border border-indigo-200 bg-white p-3 text-sm leading-6">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <p className="font-black text-indigo-950">{dependency.label}</p>
-                              <div className="flex flex-wrap gap-2">
-                                <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-black text-indigo-700">
-                                  {governanceKind}
-                                </span>
-                                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-700">
-                                  {dependency.confidence}
-                                </span>
-                              </div>
-                            </div>
-                            <p className="mt-1 font-mono text-xs font-semibold text-indigo-700">{dependency.sku}</p>
-                            <p className="mt-2 text-indigo-800">{dependency.trigger}</p>
-                            <p className="mt-2 font-semibold text-indigo-950">{dependency.validationQuestion}</p>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="rounded-2xl border border-indigo-200 bg-white p-3 text-sm text-indigo-800">
-                        No governed dependencies have been triggered yet.
+            <section className="proposal-clean-governance">
+              <div className="proposal-clean-governance-head">
+                <div>
+                  <p className="proposal-clean-kicker">Dependency governance</p>
+                  <span>Exact rows come from governed SKU rules. Prompt rows show what still needs validation.</span>
+                </div>
+                <ShieldCheck />
+              </div>
+
+              <div className="proposal-clean-governance-grid">
+                {salesReadiness.governedDependencies.length ? (
+                  salesReadiness.governedDependencies.slice(0, 6).map((dependency) => {
+                    const governanceKind = dependency.governanceKind ?? (dependency.sku.startsWith("TBC-") ? "Prompt" : "Exact");
+
+                    return (
+                      <div key={dependency.id} className="proposal-clean-governance-card">
+                        <div>
+                          <strong>{dependency.label}</strong>
+                          <span>{governanceKind}</span>
+                        </div>
+                        <p>{dependency.sku}</p>
+                        <small>{dependency.validationQuestion}</small>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:col-span-2">
-                <p className="wingman-kicker">Bill of materials</p>
-                <div className="mt-2 overflow-hidden rounded-2xl border border-slate-200">
-                  <table className="min-w-full text-left text-sm">
-                    <thead className="bg-slate-50 text-slate-600">
-                      <tr>
-                        <th className="px-4 py-3 font-semibold">SKU</th>
-                        <th className="px-4 py-3 font-semibold">Role</th>
-                        <th className="px-4 py-3 font-semibold">Qty</th>
-                        <th className="px-4 py-3 font-semibold">Type</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {bomRows.length ? (
-                        bomRows.map((row) => (
-                          <tr key={`${row.item}-${row.sku}`} className="border-t border-slate-100">
-                            <td className="px-4 py-3 font-semibold text-slate-900">{row.sku}</td>
-                            <td className="px-4 py-3 text-slate-700">{row.role}</td>
-                            <td className="px-4 py-3 text-slate-700">{row.qty}</td>
-                            <td className="px-4 py-3 text-slate-700">{row.type}</td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td className="px-4 py-4 text-slate-500" colSpan={4}>
-                            No WyreStorm BOM items are selected yet.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div className="lg:col-span-2">
-                <p className="wingman-kicker">Evidence basis</p>
-                <div className="mt-2 grid gap-2 text-sm leading-6 text-slate-700 md:grid-cols-2">
-                  {salesReadiness.evidence.slice(0, 8).map((item) => (
-                    <div key={item} className="rounded-2xl border border-slate-200 bg-white p-3">
-                      {item}
+                    );
+                  })
+                ) : (
+                  <div className="proposal-clean-governance-card">
+                    <div>
+                      <strong>Core WyreStorm selection</strong>
+                      <span>Low</span>
                     </div>
-                  ))}
-                </div>
+                    <p>TBC-CORE-SOLUTION</p>
+                    <small>No WyreStorm product has been selected yet. Confirm the outcome, signal path and architecture.</small>
+                  </div>
+                )}
               </div>
-              <div>
-                <p className="wingman-kicker">Rep guidance</p>
-                <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
+            </section>
+
+            <section>
+              <p className="proposal-clean-kicker">Bill of materials</p>
+              <div className="proposal-clean-table-wrap">
+                <table className="proposal-clean-table">
+                  <thead>
+                    <tr>
+                      <th>SKU</th>
+                      <th>Role</th>
+                      <th>Qty</th>
+                      <th>Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bomRows.length ? (
+                      bomRows.map((row) => (
+                        <tr key={`${row.item}-${row.sku}`}>
+                          <td>{row.sku}</td>
+                          <td>{row.role}</td>
+                          <td>{row.qty}</td>
+                          <td>{row.type}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4}>No WyreStorm BOM items are selected yet.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section className="proposal-clean-two-col">
+              <InfoBlock title="Evidence basis">
+                <ul>
+                  {salesReadiness.evidence.slice(0, 8).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </InfoBlock>
+
+              <InfoBlock title="Rep guidance">
+                <ul>
                   {salesReadiness.repGuidance.map((item) => (
-                    <li key={item} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">{item}</li>
+                    <li key={item}>{item}</li>
                   ))}
                 </ul>
-              </div>
-              <div>
-                <p className="wingman-kicker">Governance / validation</p>
-                <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
+              </InfoBlock>
+            </section>
+
+            <section className="proposal-clean-two-col">
+              <InfoBlock title="Governance / validation">
+                <ul>
                   {[...salesReadiness.governanceWarnings.slice(0, 3), ...salesReadiness.validationNotes].map((item) => (
-                    <li key={item} className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-amber-950">{item}</li>
+                    <li key={item}>{item}</li>
                   ))}
                 </ul>
-              </div>
-              <div className="lg:col-span-2">
-                <p className="wingman-kicker">Assumptions to validate</p>
-                <ul className="mt-2 grid gap-2 text-sm leading-6 text-slate-700 md:grid-cols-2">
+              </InfoBlock>
+
+              <InfoBlock title="Assumptions to validate">
+                <ul>
                   {context.assumptions.map((assumption) => (
-                    <li key={assumption} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                      {assumption}
-                    </li>
+                    <li key={assumption}>{assumption}</li>
                   ))}
                 </ul>
+              </InfoBlock>
+            </section>
+
+            <section>
+              <p className="proposal-clean-kicker">Recommendation feedback</p>
+              <div className="proposal-clean-feedback-grid">
+                {feedbackActions.map(({ rating, label, description, Icon }) => (
+                  <button key={rating} type="button" onClick={() => captureFeedback(rating, label)}>
+                    <Icon />
+                    <span>
+                      <strong>{label}</strong>
+                      <small>{description}</small>
+                    </span>
+                  </button>
+                ))}
               </div>
-              <div className="lg:col-span-2">
-                <p className="wingman-kicker">Recommendation feedback</p>
-                <WingmanSelectionGrid columns={4} compact className="mt-3">
-                  {feedbackActions.map(({ rating, label, Icon }) => (
-                    <WingmanSelectionCard
-                      key={rating}
-                      onClick={() => captureFeedback(rating, label)}
-                      compact
-                      title={label}
-                      description="Record proposal fit feedback"
-                      icon={Icon}
-                      accent={feedbackAccent[rating]}
-                    />
-                  ))}
-                </WingmanSelectionGrid>
-                {feedbackMessage ? <p className="mt-3 text-sm font-semibold text-slate-600">{feedbackMessage}</p> : null}
-              </div>
-            </div>
+              {feedbackMessage ? <p className="proposal-clean-feedback-message">{feedbackMessage}</p> : null}
+            </section>
           </div>
-        </div>
-      </SectionCard>
-    </div>
+        </article>
+      </section>
+    </main>
   );
 }

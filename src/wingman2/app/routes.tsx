@@ -22,6 +22,7 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   dashboard: lazy(fromNamedExport(() => import("../pages/DashboardPage"), "DashboardPage")),
   projects: lazy(fromNamedExport(() => import("../pages/ProjectsPage"), "ProjectsPage")),
   discovery: lazy(fromNamedExport(() => import("../pages/DiscoveryPage"), "DiscoveryPage")),
+  guidedDiscovery: lazy(fromNamedExport(() => import("../pages/GuidedWorkflowPage"), "GuidedWorkflowPage")),
   finder: lazy(fromNamedExport(() => import("../pages/FinderPage"), "FinderPage")),
   productFamilies: lazy(fromNamedExport(() => import("../pages/ProductFamilyPage"), "ProductFamilyPage")),
   productPitch: lazy(fromNamedExport(() => import("../pages/ProductPitchPage"), "ProductPitchPage")),

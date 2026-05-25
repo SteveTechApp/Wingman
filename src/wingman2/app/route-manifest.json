@@ -27,6 +27,15 @@
     "summary": "Turn vague customer requests into a structured brief."
   },
   {
+    "key": "guidedDiscovery",
+    "path": "/wingman/guided-discovery",
+    "segment": "guided-discovery",
+    "label": "Guided Discovery",
+    "navLabel": "Guided Discovery",
+    "pageFile": "GuidedWorkflowPage.tsx",
+    "summary": "Ask one relevant question at a time and classify the AV architecture before showing products."
+  },
+  {
     "key": "finder",
     "path": "/wingman/finder",
     "segment": "finder",

@@ -2,6 +2,276 @@
 @tailwind components;
 @tailwind utilities;
 
+/* WINGMAN CENTRALIZED PRE-STACK START */
+/* --- src/wingman2/styles/wingman-unified-ui.css --- */
+/* WINGMAN ACTIVE VITE UI UNIFICATION START */
+
+:root {
+  --wm-bg-app: #050b14;
+  --wm-bg-page: #07111f;
+  --wm-bg-sidebar: #050a12;
+  --wm-surface-1: #0b1a2d;
+  --wm-surface-2: #10233a;
+  --wm-surface-3: #172b44;
+  --wm-border-soft: rgba(126, 164, 205, 0.18);
+  --wm-border-strong: rgba(126, 164, 205, 0.34);
+  --wm-text-main: #f4f7fb;
+  --wm-text-muted: #9ba9bb;
+  --wm-text-soft: #718197;
+  --wm-accent-yellow: #ffb21a;
+  --wm-accent-yellow-2: #ff9900;
+  --wm-accent-cyan: #08d9ff;
+  --wm-accent-blue: #2f7df6;
+  --wm-radius-sm: 8px;
+  --wm-radius-md: 14px;
+  --wm-radius-lg: 22px;
+  --wm-page-max: 1500px;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--wm-bg-app) !important;
+  color: var(--wm-text-main) !important;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#root {
+  background:
+    radial-gradient(circle at top left, rgba(8, 217, 255, 0.08), transparent 34rem),
+    linear-gradient(180deg, #06101d 0%, var(--wm-bg-page) 42%, #050b14 100%) !important;
+}
+
+main,
+[class*="main" i],
+[class*="content" i],
+[class*="workspace" i] {
+  color: var(--wm-text-main);
+}
+
+aside,
+nav[class*="sidebar" i],
+[class*="sidebar" i],
+[class*="nav-rail" i],
+[class*="rail" i] {
+  background: linear-gradient(180deg, #050a12, #07111f) !important;
+  border-color: var(--wm-border-soft) !important;
+}
+
+a[aria-current="page"],
+[class*="active" i]:not(input):not(textarea):not(select) {
+  border-color: rgba(255, 178, 26, 0.72) !important;
+}
+
+[class*="page-frame" i],
+[class*="pageframe" i],
+[class*="page-shell" i],
+[class*="pageshell" i],
+[class*="route-shell" i],
+[class*="workspace-shell" i] {
+  max-width: var(--wm-page-max) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+[class*="page-hero" i],
+[class*="pagehero" i],
+[class*="hero" i]:not([class*="logo" i]) {
+  background:
+    linear-gradient(180deg, rgba(23, 43, 68, 0.88), rgba(11, 26, 45, 0.96)),
+    radial-gradient(circle at top right, rgba(8, 217, 255, 0.09), transparent 24rem) !important;
+  border: 1px solid var(--wm-border-soft) !important;
+  border-radius: var(--wm-radius-lg) !important;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.18) !important;
+}
+
+main h1,
+[class*="page-hero" i] h1,
+[class*="pagehero" i] h1,
+[class*="hero" i] h1 {
+  color: var(--wm-text-main) !important;
+  letter-spacing: -0.045em;
+}
+
+main h2,
+main h3 {
+  color: var(--wm-text-main);
+}
+
+main p,
+main small,
+[class*="description" i],
+[class*="subtitle" i],
+[class*="helper" i],
+[class*="muted" i] {
+  color: var(--wm-text-muted);
+}
+
+[class*="panel" i],
+[class*="surface" i],
+[class*="section" i]:not(section),
+article:not([class*="proposal" i]),
+[class*="card" i]:not([class*="discard" i]),
+[class*="tile" i] {
+  background:
+    linear-gradient(180deg, rgba(16, 35, 58, 0.92), rgba(8, 24, 42, 0.98)),
+    radial-gradient(circle at top left, rgba(8, 217, 255, 0.05), transparent 22rem) !important;
+  border-color: var(--wm-border-soft) !important;
+  border-radius: var(--wm-radius-md) !important;
+  color: var(--wm-text-main) !important;
+}
+
+[class*="card" i]:not([class*="discard" i]),
+[class*="tile" i] {
+  overflow: hidden;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+[class*="card" i]:not([class*="discard" i]):hover,
+[class*="tile" i]:hover {
+  transform: translateY(-1px);
+  border-color: rgba(8, 217, 255, 0.45) !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22) !important;
+}
+
+[class*="selected" i],
+[class*="current" i],
+[data-active="true"],
+[aria-selected="true"] {
+  border-color: rgba(255, 178, 26, 0.78) !important;
+  box-shadow: inset 4px 0 0 var(--wm-accent-yellow) !important;
+}
+
+[class*="badge" i],
+[class*="tag" i],
+[class*="pill" i] {
+  border-radius: 999px !important;
+  border-color: var(--wm-border-soft) !important;
+  background: rgba(5, 12, 22, 0.55) !important;
+  color: var(--wm-text-main) !important;
+  font-weight: 800;
+}
+
+button,
+a[role="button"],
+[class*="button" i]:not([class*="card" i]) {
+  border-radius: 11px !important;
+  font-weight: 850;
+}
+
+button:not([class*="secondary" i]):not([class*="ghost" i]):not([class*="card" i]),
+a[role="button"]:not([class*="secondary" i]):not([class*="ghost" i]) {
+  background: linear-gradient(135deg, var(--wm-accent-yellow), var(--wm-accent-yellow-2)) !important;
+  border-color: rgba(255, 178, 26, 0.9) !important;
+  color: #100c00 !important;
+  box-shadow: 0 12px 30px rgba(255, 178, 26, 0.16) !important;
+}
+
+button[class*="secondary" i],
+a[class*="secondary" i],
+button[class*="ghost" i],
+a[class*="ghost" i] {
+  background: rgba(11, 26, 45, 0.88) !important;
+  border-color: var(--wm-border-strong) !important;
+  color: var(--wm-text-main) !important;
+  box-shadow: none !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background: #0a1728 !important;
+  border: 1px solid var(--wm-border-strong) !important;
+  border-radius: 12px !important;
+  color: var(--wm-text-main) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--wm-text-soft) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: rgba(8, 217, 255, 0.65) !important;
+  outline: none !important;
+  box-shadow:
+    0 0 0 3px rgba(8, 217, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+[class*="compare" i] input,
+[class*="compare" i] textarea,
+[class*="competitor" i] input,
+[class*="competitor" i] textarea {
+  background: #0a1728 !important;
+  color: var(--wm-text-main) !important;
+}
+
+[class*="template" i] [class*="card" i],
+[class*="call" i] [class*="card" i] {
+  background:
+    linear-gradient(135deg, rgba(8, 217, 255, 0.07), transparent 44%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 13px),
+    var(--wm-surface-1) !important;
+}
+
+[class*="proposal" i] {
+  color: var(--wm-text-main);
+}
+
+[class*="proposal" i] [class*="preview" i],
+[class*="proposal" i] [class*="document" i],
+[class*="proposal" i] [class*="paper" i] {
+  border-radius: var(--wm-radius-lg) !important;
+}
+
+[class*="proposal" i] [class*="document" i],
+[class*="proposal" i] [class*="paper" i] {
+  background: #f6f8fc !important;
+  color: #182235 !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28) !important;
+}
+
+[class*="proposal" i] h1,
+[class*="proposal" i] h2,
+[class*="proposal" i] h3 {
+  color: inherit;
+}
+
+[class*="proposal" i] [class*="header" i] {
+  border-radius: var(--wm-radius-md) var(--wm-radius-md) 0 0;
+}
+
+@media (max-width: 1100px) {
+  [class*="page-hero" i],
+  [class*="pagehero" i],
+  [class*="hero" i]:not([class*="logo" i]) {
+    align-items: flex-start !important;
+  }
+}
+
+@media (max-width: 720px) {
+  [class*="page-frame" i],
+  [class*="pageframe" i],
+  [class*="page-shell" i],
+  [class*="pageshell" i],
+  main {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* WINGMAN ACTIVE VITE UI UNIFICATION END */
+/* WINGMAN CENTRALIZED PRE-STACK END */
+
 /* ==========================================================================
    WINGMAN GLOBAL DESIGN SYSTEM
 
@@ -2335,3 +2605,5322 @@ html body .wingman-shell button.wm-selection-summary__pill:hover {
     border-radius: 16px;
   }
 }
+
+/* WINGMAN CENTRALIZED STYLE PATCHES START */
+/* --- src/wingman2/styles/wm-button-font-weight-reset.css --- */
+/*
+  Wingman button font-weight reset
+  Purpose: keep all button and button-like actions clean, simple and un-bold.
+*/
+
+:root {
+  --wm-button-font-weight: 400;
+}
+
+.wingman-shell button,
+.wingman-shell [role="button"],
+.wingman-shell input[type="button"],
+.wingman-shell input[type="submit"],
+.wingman-shell input[type="reset"],
+.wingman-shell .wm-button,
+.wingman-shell .wm-btn,
+.wingman-shell .btn,
+.wingman-shell .button,
+.wingman-shell .action-button,
+.wingman-shell .cta-button,
+.wingman-shell .primary-button,
+.wingman-shell .secondary-button,
+.wingman-shell .ghost-button,
+.wingman-shell a[class*="button" i],
+.wingman-shell a[class*="btn" i],
+.wingman-shell a[class*="action" i],
+.wingman-shell a[class*="cta" i] {
+  font-weight: var(--wm-button-font-weight) !important;
+}
+
+.wingman-shell button *,
+.wingman-shell [role="button"] *,
+.wingman-shell .wm-button *,
+.wingman-shell .wm-btn *,
+.wingman-shell .btn *,
+.wingman-shell .button *,
+.wingman-shell .action-button *,
+.wingman-shell .cta-button *,
+.wingman-shell .primary-button *,
+.wingman-shell .secondary-button *,
+.wingman-shell .ghost-button *,
+.wingman-shell a[class*="button" i] *,
+.wingman-shell a[class*="btn" i] *,
+.wingman-shell a[class*="action" i] *,
+.wingman-shell a[class*="cta" i] * {
+  font-weight: inherit !important;
+}
+
+.wingman-shell button strong,
+.wingman-shell [role="button"] strong,
+.wingman-shell .wm-button strong,
+.wingman-shell .wm-btn strong,
+.wingman-shell .btn strong,
+.wingman-shell .button strong,
+.wingman-shell .action-button strong,
+.wingman-shell .cta-button strong,
+.wingman-shell .primary-button strong,
+.wingman-shell .secondary-button strong,
+.wingman-shell .ghost-button strong {
+  font-weight: inherit !important;
+}
+
+/* --- src/wingman2/styles/wm-orange-reduction.css --- */
+/*
+  Wingman orange reduction layer
+  Purpose:
+  - Remove oversized amber/orange page panels.
+  - Keep the cleaner dashboard-style dark surfaces.
+  - Preserve orange/yellow only as a small accent where possible.
+*/
+
+:root {
+  --wm-clean-page: #07111b;
+  --wm-clean-panel: #0d1824;
+  --wm-clean-panel-2: #101f2d;
+  --wm-clean-panel-3: #142537;
+  --wm-clean-border: rgba(148, 163, 184, 0.18);
+  --wm-clean-border-strong: rgba(34, 211, 238, 0.38);
+  --wm-clean-text: #f8fafc;
+  --wm-clean-muted: #a7b4c5;
+  --wm-clean-accent: #22d3ee;
+  --wm-clean-accent-soft: rgba(34, 211, 238, 0.12);
+  --wm-clean-warning: #f8c44f;
+}
+
+/* Replace large Tailwind amber/orange/yellow backgrounds inside the app body. */
+.wingman-app-main :is(
+  [class*="bg-orange-"],
+  [class*="bg-amber-"],
+  [class*="bg-yellow-"],
+  [class*="from-orange-"],
+  [class*="from-amber-"],
+  [class*="from-yellow-"],
+  [class*="via-orange-"],
+  [class*="via-amber-"],
+  [class*="via-yellow-"],
+  [class*="to-orange-"],
+  [class*="to-amber-"],
+  [class*="to-yellow-"]
+):not(button):not(a):not(input):not(textarea):not(select):not([role="button"]) {
+  background: linear-gradient(180deg, var(--wm-clean-panel-2), var(--wm-clean-panel)) !important;
+  background-color: var(--wm-clean-panel) !important;
+  border-color: var(--wm-clean-border) !important;
+  color: var(--wm-clean-text) !important;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24) !important;
+}
+
+/* Catch gradient utility classes by overriding their Tailwind gradient variables. */
+.wingman-app-main :is(
+  [class*="from-orange-"],
+  [class*="from-amber-"],
+  [class*="from-yellow-"],
+  [class*="via-orange-"],
+  [class*="via-amber-"],
+  [class*="via-yellow-"],
+  [class*="to-orange-"],
+  [class*="to-amber-"],
+  [class*="to-yellow-"]
+):not(button):not(a):not([role="button"]) {
+  --tw-gradient-from: var(--wm-clean-panel-2) !important;
+  --tw-gradient-via: var(--wm-clean-panel-2) !important;
+  --tw-gradient-to: var(--wm-clean-panel) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+/* Catch inline orange/yellow backgrounds that came from older page-specific styling. */
+.wingman-app-main :is(
+  [style*="orange" i],
+  [style*="amber" i],
+  [style*="yellow" i],
+  [style*="#f97316" i],
+  [style*="#fb923c" i],
+  [style*="#f59e0b" i],
+  [style*="#fbbf24" i],
+  [style*="#facc15" i],
+  [style*="#eab308" i],
+  [style*="249, 115" i],
+  [style*="245, 158" i],
+  [style*="251, 191" i],
+  [style*="250, 204" i]
+):not(button):not(a):not(input):not(textarea):not(select):not([role="button"]) {
+  background: linear-gradient(180deg, var(--wm-clean-panel-2), var(--wm-clean-panel)) !important;
+  background-color: var(--wm-clean-panel) !important;
+  border-color: var(--wm-clean-border) !important;
+  color: var(--wm-clean-text) !important;
+}
+
+/* Give replaced hero/card surfaces the dashboard-style cyan edge instead of orange flood fill. */
+.wingman-app-main :is(
+  section,
+  article,
+  form,
+  div
+)[class*="orange" i]:not(button):not(a):not([role="button"]),
+.wingman-app-main :is(
+  section,
+  article,
+  form,
+  div
+)[class*="amber" i]:not(button):not(a):not([role="button"]),
+.wingman-app-main :is(
+  section,
+  article,
+  form,
+  div
+)[class*="yellow" i]:not(button):not(a):not([role="button"]) {
+  border: 1px solid var(--wm-clean-border) !important;
+}
+
+/* Keep form areas readable after orange panels are suppressed. */
+.wingman-app-main input,
+.wingman-app-main textarea,
+.wingman-app-main select {
+  background-color: #07111b !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+  color: var(--wm-clean-text) !important;
+}
+
+.wingman-app-main input::placeholder,
+.wingman-app-main textarea::placeholder {
+  color: #7f8ea3 !important;
+}
+
+/* Selected/active cards should use the same cyan language as the dashboard. */
+.wingman-app-main :is(
+  [aria-selected="true"],
+  [data-selected="true"],
+  [data-state="active"],
+  .active,
+  .selected,
+  .is-active,
+  .is-selected
+):not(button):not(a):not([role="button"]) {
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.16), rgba(15, 31, 45, 0.95)) !important;
+  border-color: var(--wm-clean-border-strong) !important;
+  color: var(--wm-clean-text) !important;
+}
+
+/* Keep small warning badges warm, but stop them becoming large orange slabs. */
+.wingman-app-main :is(.badge, .pill, .tag, [class*="badge" i], [class*="pill" i], [class*="tag" i]) {
+  box-shadow: none !important;
+}
+
+/* Body copy inside replaced sections should remain legible. */
+.wingman-app-main p,
+.wingman-app-main span,
+.wingman-app-main label,
+.wingman-app-main small {
+  text-shadow: none !important;
+}
+
+/* --- src/wingman2/styles/wingman-dashboard-force-theme.css --- */
+/* ==========================================================================
+   Wingman Dashboard Force Theme
+   Final override layer for stubborn page-specific themes.
+   ========================================================================== */
+
+/* Single dashboard visual baseline. */
+html,
+body,
+#root,
+.wingman-shell {
+  background:
+    radial-gradient(circle at 16% 0%, rgba(61, 122, 214, 0.14), transparent 34rem),
+    radial-gradient(circle at 88% 8%, rgba(241, 168, 59, 0.045), transparent 28rem),
+    linear-gradient(135deg, #030914, #071321 54%, #020711) !important;
+  color: #f8fafc !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+/* General dashboard card/panel treatment across all pages. */
+html body .wingman-shell main section,
+html body .wingman-shell main article,
+html body .wingman-shell main form,
+html body .wingman-shell main fieldset,
+html body .wingman-shell main [class*="panel"],
+html body .wingman-shell main [class*="Panel"],
+html body .wingman-shell main [class*="card"],
+html body .wingman-shell main [class*="Card"] {
+  background:
+    linear-gradient(145deg, rgba(12, 31, 56, 0.92), rgba(8, 22, 41, 0.88)) !important;
+  border-color: rgba(122, 160, 221, 0.18) !important;
+  color: #f8fafc !important;
+}
+
+/* Text consistency. */
+html body .wingman-shell h1,
+html body .wingman-shell h2,
+html body .wingman-shell h3,
+html body .wingman-shell h4,
+html body .wingman-shell h5,
+html body .wingman-shell h6,
+html body .wingman-shell strong {
+  color: #f8fafc !important;
+}
+
+html body .wingman-shell p,
+html body .wingman-shell span,
+html body .wingman-shell small,
+html body .wingman-shell label,
+html body .wingman-shell li {
+  color: rgba(226, 234, 245, 0.78) !important;
+}
+
+/* Form controls. */
+html body .wingman-shell input,
+html body .wingman-shell select,
+html body .wingman-shell textarea {
+  background-color: #e8eef6 !important;
+  color: #081528 !important;
+  border: 1px solid rgba(148, 163, 184, 0.72) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    inset 0 1px 2px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+}
+
+html body .wingman-shell select {
+  appearance: auto !important;
+  -webkit-appearance: menulist !important;
+}
+
+html body .wingman-shell select option,
+html body .wingman-shell select optgroup {
+  background-color: #e8eef6 !important;
+  color: #081528 !important;
+}
+
+/* Button baseline. */
+html body .wingman-shell button,
+html body .wingman-shell [role="button"],
+html body .wingman-shell a[class*="button"],
+html body .wingman-shell a[class*="Button"] {
+  background: rgba(8, 22, 41, 0.82) !important;
+  border: 1px solid rgba(122, 160, 221, 0.28) !important;
+  border-radius: 999px !important;
+  color: #f8fafc !important;
+  font-weight: 750 !important;
+  text-shadow: none !important;
+}
+
+html body .wingman-shell button:hover,
+html body .wingman-shell [role="button"]:hover,
+html body .wingman-shell a[class*="button"]:hover,
+html body .wingman-shell a[class*="Button"]:hover {
+  background: rgba(241, 168, 59, 0.12) !important;
+  border-color: rgba(241, 168, 59, 0.46) !important;
+  color: #f8fafc !important;
+}
+
+/* Primary CTA only. */
+html body .wingman-shell button[class*="primary"],
+html body .wingman-shell button[class*="Primary"],
+html body .wingman-shell a[class*="primary"],
+html body .wingman-shell a[class*="Primary"],
+html body .wingman-shell .wingman-new-project-button {
+  background: linear-gradient(135deg, #f6b24c, #f1a83b) !important;
+  border-color: rgba(255, 201, 111, 0.72) !important;
+  color: #081528 !important;
+}
+
+/* ==========================================================================
+   Competitor Compare hard override
+   Uses body[data-wm-visual-route="compare"], which is set from the actual URL.
+   ========================================================================== */
+
+html body[data-wm-visual-route="compare"] .wingman-shell main,
+html body[data-wm-visual-route="compare"] .wingman-shell .wingman-app-main,
+html body[data-wm-visual-route="compare"] .wingman-shell .wingman-workspace {
+  background:
+    radial-gradient(circle at 16% 0%, rgba(61, 122, 214, 0.14), transparent 34rem),
+    radial-gradient(circle at 88% 8%, rgba(241, 168, 59, 0.035), transparent 28rem),
+    linear-gradient(135deg, #030914, #071321 54%, #020711) !important;
+}
+
+/* Kill the large gold/orange blocks on Compare. */
+html body[data-wm-visual-route="compare"] .wingman-shell main > *,
+html body[data-wm-visual-route="compare"] .wingman-shell main section,
+html body[data-wm-visual-route="compare"] .wingman-shell main article,
+html body[data-wm-visual-route="compare"] .wingman-shell main form,
+html body[data-wm-visual-route="compare"] .wingman-shell main fieldset,
+html body[data-wm-visual-route="compare"] .wingman-shell main div[class*="compare"],
+html body[data-wm-visual-route="compare"] .wingman-shell main div[class*="Compare"],
+html body[data-wm-visual-route="compare"] .wingman-shell main div[class*="competitor"],
+html body[data-wm-visual-route="compare"] .wingman-shell main div[class*="Competitor"],
+html body[data-wm-visual-route="compare"] .wingman-shell main [class*="gold"],
+html body[data-wm-visual-route="compare"] .wingman-shell main [class*="Gold"],
+html body[data-wm-visual-route="compare"] .wingman-shell main [class*="amber"],
+html body[data-wm-visual-route="compare"] .wingman-shell main [class*="Amber"],
+html body[data-wm-visual-route="compare"] .wingman-shell main [class*="orange"],
+html body[data-wm-visual-route="compare"] .wingman-shell main [class*="Orange"] {
+  background:
+    linear-gradient(145deg, rgba(12, 31, 56, 0.94), rgba(8, 22, 41, 0.90)) !important;
+  background-color: rgba(12, 31, 56, 0.94) !important;
+  border-color: rgba(122, 160, 221, 0.18) !important;
+  color: #f8fafc !important;
+}
+
+/* Any inline background on Compare gets forced back to dashboard navy. */
+html body[data-wm-visual-route="compare"] .wingman-shell main [style*="background"] {
+  background:
+    linear-gradient(145deg, rgba(12, 31, 56, 0.94), rgba(8, 22, 41, 0.90)) !important;
+  background-color: rgba(12, 31, 56, 0.94) !important;
+}
+
+/* Compare hero/header. */
+html body[data-wm-visual-route="compare"] .wingman-shell main h1,
+html body[data-wm-visual-route="compare"] .wingman-shell main h2,
+html body[data-wm-visual-route="compare"] .wingman-shell main h3,
+html body[data-wm-visual-route="compare"] .wingman-shell main strong {
+  color: #f8fafc !important;
+}
+
+html body[data-wm-visual-route="compare"] .wingman-shell main p,
+html body[data-wm-visual-route="compare"] .wingman-shell main span,
+html body[data-wm-visual-route="compare"] .wingman-shell main small,
+html body[data-wm-visual-route="compare"] .wingman-shell main label {
+  color: rgba(226, 234, 245, 0.78) !important;
+}
+
+/* Keep accent labels orange only where appropriate. */
+html body[data-wm-visual-route="compare"] .wingman-shell main legend,
+html body[data-wm-visual-route="compare"] .wingman-shell main label > span:first-child,
+html body[data-wm-visual-route="compare"] .wingman-shell main [class*="eyebrow"],
+html body[data-wm-visual-route="compare"] .wingman-shell main [class*="Eyebrow"] {
+  color: #f1a83b !important;
+}
+
+/* Compare checkbox rows. */
+html body[data-wm-visual-route="compare"] .wingman-shell main input[type="checkbox"] {
+  width: 1rem !important;
+  min-width: 1rem !important;
+  height: 1rem !important;
+  min-height: 1rem !important;
+  accent-color: #f1a83b !important;
+}
+
+html body[data-wm-visual-route="compare"] .wingman-shell main label:has(input[type="checkbox"]),
+html body[data-wm-visual-route="compare"] .wingman-shell main div:has(> input[type="checkbox"]) {
+  background: rgba(8, 22, 41, 0.62) !important;
+  border: 1px solid rgba(122, 160, 221, 0.18) !important;
+  border-radius: 14px !important;
+}
+
+/* Compare inputs. */
+html body[data-wm-visual-route="compare"] .wingman-shell main input,
+html body[data-wm-visual-route="compare"] .wingman-shell main select,
+html body[data-wm-visual-route="compare"] .wingman-shell main textarea {
+  background-color: #e8eef6 !important;
+  color: #081528 !important;
+}
+
+/* --- src/app/globals.css --- */
+/* WINGMAN UI SYSTEM START */
+
+:root {
+  --wm-bg-app: #050b14;
+  --wm-bg-page: #07111f;
+  --wm-surface-1: #0b1a2d;
+  --wm-surface-2: #10233a;
+  --wm-surface-3: #172b44;
+  --wm-border-soft: rgba(126, 164, 205, 0.18);
+  --wm-border-strong: rgba(126, 164, 205, 0.34);
+  --wm-text-main: #f4f7fb;
+  --wm-text-muted: #9ba9bb;
+  --wm-text-soft: #718197;
+  --wm-accent-yellow: #ffb21a;
+  --wm-accent-yellow-2: #ff9900;
+  --wm-accent-cyan: #08d9ff;
+  --wm-accent-blue: #2f7df6;
+  --wm-radius-sm: 8px;
+  --wm-radius-md: 14px;
+  --wm-radius-lg: 22px;
+  --wm-space-3: 12px;
+  --wm-space-4: 16px;
+  --wm-space-5: 24px;
+  --wm-page-max: 1500px;
+}
+
+html, body {
+  background: var(--wm-bg-app);
+}
+
+body {
+  color: var(--wm-text-main);
+}
+
+.wm-page,
+.wingman-page {
+  min-height: 100vh;
+  color: var(--wm-text-main);
+  background:
+    radial-gradient(circle at top left, rgba(8, 217, 255, 0.08), transparent 34rem),
+    linear-gradient(180deg, #06101d 0%, var(--wm-bg-page) 42%, #050b14 100%);
+}
+
+.wm-content,
+.wingman-content {
+  width: 100%;
+  max-width: var(--wm-page-max);
+  margin: 0 auto;
+  padding: 24px 32px 56px;
+}
+
+.wm-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--wm-space-4);
+}
+
+.wm-page-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wm-space-5);
+  padding: 28px 32px;
+  margin-bottom: var(--wm-space-4);
+  background:
+    linear-gradient(180deg, rgba(23, 43, 68, 0.86), rgba(11, 26, 45, 0.96)),
+    radial-gradient(circle at top right, rgba(8, 217, 255, 0.08), transparent 24rem);
+  border: 1px solid var(--wm-border-soft);
+  border-radius: var(--wm-radius-lg);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.18);
+}
+
+.wm-page-hero-main {
+  min-width: 0;
+}
+
+.wm-eyebrow {
+  margin-bottom: 7px;
+  color: var(--wm-text-muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.wm-page-title {
+  margin: 0;
+  max-width: 920px;
+  color: var(--wm-text-main);
+  font-size: clamp(26px, 2.15vw, 36px);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.wm-page-description {
+  max-width: 960px;
+  margin: 10px 0 0;
+  color: var(--wm-text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.wm-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--wm-space-3);
+}
+
+.wm-panel {
+  background:
+    linear-gradient(180deg, rgba(16, 35, 58, 0.92), rgba(8, 24, 42, 0.98)),
+    radial-gradient(circle at top left, rgba(8, 217, 255, 0.05), transparent 22rem);
+  border: 1px solid var(--wm-border-soft);
+  border-radius: var(--wm-radius-lg);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+}
+
+.wm-panel-body {
+  padding: 24px;
+}
+
+.wm-card {
+  position: relative;
+  min-height: 176px;
+  padding: 20px;
+  overflow: hidden;
+  color: var(--wm-text-main);
+  background:
+    linear-gradient(135deg, rgba(8, 217, 255, 0.07), transparent 44%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 13px),
+    var(--wm-surface-1);
+  border: 1px solid var(--wm-border-soft);
+  border-radius: var(--wm-radius-md);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+button.wm-card {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wm-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(8, 217, 255, 0.45);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+}
+
+.wm-card[data-active="true"],
+.wm-card.is-active {
+  border-color: rgba(255, 178, 26, 0.75);
+  box-shadow: inset 4px 0 0 var(--wm-accent-yellow), 0 18px 44px rgba(0, 0, 0, 0.22);
+}
+
+.wm-card-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 16px;
+  color: var(--wm-accent-cyan);
+  background: #071321;
+  border: 1px solid var(--wm-border-soft);
+  border-radius: 14px;
+}
+
+.wm-card-kicker,
+.wm-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 22px;
+  padding: 3px 9px;
+  color: var(--wm-text-main);
+  background: rgba(5, 12, 22, 0.55);
+  border: 1px solid var(--wm-border-soft);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-badge-cyan {
+  color: #dffaff;
+  border-color: rgba(8, 217, 255, 0.38);
+  background: rgba(8, 217, 255, 0.09);
+}
+
+.wm-badge-yellow {
+  color: #1b1300;
+  border-color: rgba(255, 178, 26, 0.9);
+  background: var(--wm-accent-yellow);
+}
+
+.wm-card-title {
+  margin: 10px 0 6px;
+  color: var(--wm-text-main);
+  font-size: 18px;
+  line-height: 1.14;
+  letter-spacing: -0.025em;
+}
+
+.wm-card-text {
+  margin: 0;
+  color: var(--wm-text-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.wm-button,
+button.wm-button,
+a.wm-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 16px;
+  color: #100c00;
+  background: linear-gradient(135deg, var(--wm-accent-yellow), var(--wm-accent-yellow-2));
+  border: 1px solid rgba(255, 178, 26, 0.9);
+  border-radius: 11px;
+  box-shadow: 0 12px 30px rgba(255, 178, 26, 0.18);
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.wm-button-secondary,
+button.wm-button-secondary,
+a.wm-button-secondary {
+  color: var(--wm-text-main);
+  background: rgba(11, 26, 45, 0.88);
+  border-color: var(--wm-border-strong);
+  box-shadow: none;
+}
+
+.wm-field {
+  display: grid;
+  gap: 7px;
+}
+
+.wm-label {
+  color: var(--wm-accent-yellow);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-input,
+.wm-textarea,
+.wm-select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  color: var(--wm-text-main);
+  background: #0a1728;
+  border: 1px solid var(--wm-border-strong);
+  border-radius: 12px;
+  outline: none;
+}
+
+.wm-textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+.wm-input::placeholder,
+.wm-textarea::placeholder {
+  color: var(--wm-text-soft);
+}
+
+.wm-conversation-bar {
+  display: grid;
+  grid-template-columns: 140px repeat(3, minmax(0, 1fr));
+  gap: var(--wm-space-3);
+  align-items: center;
+  padding: 12px;
+  margin-bottom: var(--wm-space-4);
+  background: rgba(11, 26, 45, 0.78);
+  border: 1px solid var(--wm-border-soft);
+  border-radius: var(--wm-radius-md);
+}
+
+.wm-conversation-label {
+  color: var(--wm-accent-cyan);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-conversation-option {
+  padding: 12px 16px;
+  background: #07182b;
+  border: 1px solid var(--wm-border-strong);
+  border-radius: 999px;
+}
+
+.wm-conversation-option-title {
+  display: block;
+  color: var(--wm-text-main);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.wm-conversation-option-text {
+  display: block;
+  margin-top: 3px;
+  color: var(--wm-text-muted);
+  font-size: 12px;
+}
+
+.wm-proposal-preview {
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(7, 17, 31, 0.9), rgba(5, 11, 20, 0.98));
+  border: 1px solid var(--wm-border-soft);
+  border-radius: var(--wm-radius-lg);
+}
+
+.wm-proposal-document {
+  overflow: hidden;
+  background: #f6f8fc;
+  color: #182235;
+  border-radius: var(--wm-radius-md);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+.wm-proposal-document-header {
+  padding: 22px 28px;
+  color: #10192a;
+  background: linear-gradient(135deg, var(--wm-accent-yellow), var(--wm-accent-yellow-2));
+}
+
+.wm-proposal-document-body {
+  padding: 28px;
+}
+
+@media (max-width: 1100px) {
+  .wm-conversation-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-page-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 720px) {
+  .wm-content,
+  .wingman-content {
+    padding: 16px;
+  }
+
+  .wm-page-hero {
+    padding: 22px;
+  }
+}
+
+/* WINGMAN UI SYSTEM END */
+
+/* --- src/wingman2/styles/wingman-topbar-cleanup.css --- */
+/* Simplifies the top workspace header and removes non-working controls. */
+
+.wingman-topbar {
+  gap: 0.75rem !important;
+}
+
+.wingman-command-search,
+.wingman-new-project-button,
+.wingman-topbar-icon-button,
+.wingman-user-avatar {
+  display: none !important;
+}
+
+.wingman-topbar-title {
+  min-width: 15rem;
+  max-width: min(32rem, 44vw);
+}
+
+.wingman-language-profile-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  padding: 0.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.wingman-language-profile-switcher button {
+  display: inline-flex;
+  min-height: 2.15rem;
+  align-items: center;
+  gap: 0.36rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(226, 232, 240, 0.82);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.48rem 0.68rem;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.wingman-language-profile-switcher button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.wingman-language-profile-switcher button.is-active {
+  border-color: rgba(251, 191, 36, 0.55);
+  background: #f59e0b;
+  color: #111827;
+  box-shadow: 0 10px 22px rgba(245, 158, 11, 0.22);
+}
+
+.wingman-language-flag {
+  display: inline-flex;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+@media (max-width: 900px) {
+  .wingman-language-profile-switcher {
+    margin-left: 0;
+  }
+
+  .wingman-language-profile-switcher button span:not(.wingman-language-flag) {
+    display: none;
+  }
+
+  .wingman-topbar-title {
+    max-width: 52vw;
+  }
+}
+
+/* --- src/wingman2/styles/wingman-unified-buttons.css --- */
+/* ==========================================================================
+   Wingman unified button authority layer
+   Purpose:
+   - Make selection/action buttons feel intentionally designed.
+   - Fix low-contrast orange-on-dark text.
+   - Stop oval buttons looking like unfinished wireframes.
+   - Keep a consistent look across Guided Discovery and the wider app.
+   ========================================================================== */
+
+:root {
+  --wm-button-surface: #ffffff;
+  --wm-button-surface-soft: #f8fafc;
+  --wm-button-surface-warm: #fff7ed;
+  --wm-button-text: #0f172a;
+  --wm-button-muted: #475569;
+  --wm-button-subtle: #64748b;
+  --wm-button-border: rgba(148, 163, 184, 0.38);
+  --wm-button-border-strong: rgba(245, 158, 11, 0.72);
+  --wm-button-accent: #f59e0b;
+  --wm-button-accent-dark: #92400e;
+  --wm-button-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+  --wm-button-shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* --------------------------------------------------------------------------
+   Guided Discovery page surface correction
+   -------------------------------------------------------------------------- */
+
+.guided-shell {
+  color: var(--wm-button-text) !important;
+}
+
+.guided-shell .guided-hero,
+.guided-shell .guided-panel-card,
+.guided-shell .guided-progress-card,
+.guided-shell .guided-task-card {
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  background:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.08), transparent 22rem),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  color: var(--wm-button-text) !important;
+  box-shadow: var(--wm-button-shadow-soft) !important;
+}
+
+.guided-shell .guided-hero h1,
+.guided-shell .guided-task-card h2,
+.guided-shell .guided-panel-card h2,
+.guided-shell .guided-progress-card h2,
+.guided-shell .guided-checkpoint-grid h3 {
+  font-weight: 750 !important;
+}
+
+.guided-shell .guided-hero p,
+.guided-shell .guided-muted,
+.guided-shell .guided-panel-card p,
+.guided-shell .guided-complete-card p,
+.guided-shell .guided-panel-card li,
+.guided-shell .guided-complete-card li {
+  color: var(--wm-button-muted) !important;
+}
+
+.guided-shell .guided-eyebrow,
+.guided-shell .guided-panel-kicker,
+.guided-shell .guided-step-label {
+  color: var(--wm-button-accent-dark) !important;
+  font-weight: 750 !important;
+}
+
+.guided-shell .guided-progress-track {
+  background: #e2e8f0 !important;
+}
+
+.guided-shell .guided-progress-track span {
+  background: linear-gradient(90deg, #f59e0b, #fb923c) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Main decision buttons: Guided Discovery tile and answer cards
+   -------------------------------------------------------------------------- */
+
+.guided-shell .guided-choice-card,
+.guided-shell .guided-answer-button {
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 7.6rem !important;
+  border: 1px solid var(--wm-button-border) !important;
+  border-radius: 20px !important;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  color: var(--wm-button-text) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.94),
+    0 10px 24px rgba(15, 23, 42, 0.07) !important;
+  text-align: left !important;
+  transform: none !important;
+}
+
+.guided-shell .guided-choice-card::before,
+.guided-shell .guided-answer-button::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 auto 0 0 !important;
+  width: 5px !important;
+  background: linear-gradient(180deg, #f59e0b, #fb923c) !important;
+  opacity: 0.72 !important;
+}
+
+.guided-shell .guided-choice-card::after,
+.guided-shell .guided-answer-button::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 0.82rem !important;
+  right: 0.82rem !important;
+  width: 0.55rem !important;
+  height: 0.55rem !important;
+  border-radius: 999px !important;
+  background: #cbd5e1 !important;
+  box-shadow: 0 0 0 4px rgba(203, 213, 225, 0.28) !important;
+}
+
+.guided-shell .guided-choice-card:hover,
+.guided-shell .guided-answer-button:hover,
+.guided-shell .guided-answer-button.is-selected {
+  border-color: var(--wm-button-border-strong) !important;
+  background:
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.13), transparent 9rem),
+    linear-gradient(180deg, #ffffff 0%, #fffbeb 100%) !important;
+  box-shadow: var(--wm-button-shadow) !important;
+  transform: translateY(-2px) !important;
+}
+
+.guided-shell .guided-choice-card:hover::after,
+.guided-shell .guided-answer-button:hover::after,
+.guided-shell .guided-answer-button.is-selected::after {
+  background: #f59e0b !important;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18) !important;
+}
+
+.guided-shell .guided-choice-card span,
+.guided-shell .guided-answer-button span {
+  color: var(--wm-button-text) !important;
+  font-size: 0.96rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+.guided-shell .guided-choice-card small,
+.guided-shell .guided-answer-button small {
+  color: var(--wm-button-muted) !important;
+  font-size: 0.82rem !important;
+  font-weight: 450 !important;
+  line-height: 1.42 !important;
+}
+
+.guided-shell .guided-choice-card em {
+  color: var(--wm-button-accent-dark) !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Guided Discovery action buttons and chips
+   -------------------------------------------------------------------------- */
+
+.guided-shell .guided-primary-button,
+.guided-shell .guided-secondary-button,
+.guided-shell a.guided-primary-button,
+.guided-shell a.guided-secondary-button {
+  min-height: 2.55rem !important;
+  border-radius: 14px !important;
+  font-size: 0.86rem !important;
+  font-weight: 650 !important;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08) !important;
+}
+
+.guided-shell .guided-primary-button,
+.guided-shell a.guided-primary-button {
+  border-color: #f59e0b !important;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  color: #111827 !important;
+}
+
+.guided-shell .guided-secondary-button,
+.guided-shell a.guided-secondary-button {
+  border-color: rgba(148, 163, 184, 0.42) !important;
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+.guided-shell .guided-primary-button:hover,
+.guided-shell .guided-secondary-button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12) !important;
+}
+
+.guided-shell .guided-route-pill,
+.guided-shell .guided-confidence,
+.guided-shell .guided-chip {
+  border: 1px solid rgba(245, 158, 11, 0.36) !important;
+  background: #fffbeb !important;
+  color: #78350f !important;
+  font-weight: 700 !important;
+}
+
+.guided-shell .guided-question-prompt {
+  border-left-color: #f59e0b !important;
+  background: #fffbeb !important;
+  color: #111827 !important;
+}
+
+.guided-shell .guided-why {
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  background: #f8fafc !important;
+  color: #334155 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar nav button consistency
+   -------------------------------------------------------------------------- */
+
+.wingman-sidebar .wingman-nav-link {
+  border-radius: 14px !important;
+  font-weight: 600 !important;
+}
+
+.wingman-sidebar .wingman-nav-link .wingman-nav-copy span {
+  font-weight: 650 !important;
+}
+
+.wingman-sidebar .wingman-nav-link-active {
+  border-color: rgba(245, 158, 11, 0.58) !important;
+  background:
+    linear-gradient(90deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.08)) !important;
+  color: #ffffff !important;
+  box-shadow:
+    inset 4px 0 0 #f59e0b,
+    0 10px 28px rgba(245, 158, 11, 0.12) !important;
+}
+
+.wingman-sidebar .wingman-nav-link:hover {
+  border-color: rgba(245, 158, 11, 0.34) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #ffffff !important;
+}
+
+/* --------------------------------------------------------------------------
+   Topbar language/profile selector visibility and contrast
+   -------------------------------------------------------------------------- */
+
+.wingman-language-profile-switcher {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  margin-left: auto !important;
+  padding: 0.25rem !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.wingman-language-profile-switcher button {
+  min-height: 2.12rem !important;
+  border: 1px solid transparent !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: #dbeafe !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+}
+
+.wingman-language-profile-switcher button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.wingman-language-profile-switcher button.is-active {
+  border-color: rgba(251, 191, 36, 0.64) !important;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  color: #111827 !important;
+}
+
+.wingman-language-flag {
+  font-size: 1rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   General Wingman page action consistency
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  .wingman-hero-action,
+  .wingman-guidance-action,
+  .wingman-clear-project-button,
+  .quick-action-button,
+  .template-action,
+  .finder-action,
+  .proposal-action
+) {
+  border-radius: 14px !important;
+  font-weight: 650 !important;
+}
+
+.wingman-page-host :where(
+  button[class*="primary"],
+  a[class*="primary"],
+  button[class*="action"],
+  a[class*="action"]
+):not(.wingman-nav-link):not(.guided-choice-card):not(.guided-answer-button) {
+  text-decoration: none !important;
+}
+
+.wingman-page-host :where(button, a[role="button"]) {
+  text-underline-offset: 3px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Contrast rescue for amber/orange text on dark surfaces
+   -------------------------------------------------------------------------- */
+
+.wingman-shell :where(
+  .text-orange-500,
+  .text-orange-600,
+  .text-amber-500,
+  .text-amber-600
+) {
+  color: #fbbf24 !important;
+}
+
+.guided-shell :where(
+  .text-orange-500,
+  .text-orange-600,
+  .text-amber-500,
+  .text-amber-600
+) {
+  color: #92400e !important;
+}
+
+/* --------------------------------------------------------------------------
+   Mobile density
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .guided-shell .guided-choice-card,
+  .guided-shell .guided-answer-button {
+    min-height: 6.4rem !important;
+  }
+
+  .wingman-language-profile-switcher button span:not(.wingman-language-flag) {
+    display: none !important;
+  }
+}
+
+/* --- src/wingman2/styles/zz-wingman-layout-authority.css --- */
+/* ==========================================================================
+   Wingman final layout authority layer
+   Purpose:
+   - Stop AppShell/page-host restrictions fighting page-level CSS.
+   - Make every route reload into a predictable full-width workspace.
+   - Prevent bottom overlays and fixed-height containers from hiding page content.
+   - Keep this file structural only; do not use it for page-specific colours.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Shell sizing
+   -------------------------------------------------------------------------- */
+
+html,
+body,
+#root {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  margin: 0 !important;
+}
+
+body {
+  overflow: hidden !important;
+}
+
+.wingman-shell {
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.wingman-workspace {
+  min-width: 0 !important;
+  width: calc(100vw - var(--wm-sidebar-width, 268px)) !important;
+  max-width: none !important;
+  overflow: hidden !important;
+}
+
+/* --------------------------------------------------------------------------
+   Main scrolling region
+   -------------------------------------------------------------------------- */
+
+.wingman-app-main {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: calc(100vh - var(--wm-topbar-height, 64px)) !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding: 18px clamp(14px, 1.6vw, 24px) 7rem !important;
+  scroll-behavior: auto !important;
+  scrollbar-gutter: stable !important;
+}
+
+/* --------------------------------------------------------------------------
+   Page host should not box pages into a hidden max width.
+   Individual pages can still create their own internal max-width if needed.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: calc(100vh - var(--wm-topbar-height, 64px) - 36px) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.wingman-page-host > * {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+/* Remove accidental fixed-height clipping in page roots. */
+
+.wingman-page-host :where(
+  .guided-shell,
+  .sales-language-shell,
+  .proposal-clean-shell,
+  .discovery-page,
+  .finder-page,
+  .support-page,
+  .templates-page,
+  .videowall-page,
+  .compare-page
+) {
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: auto !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+}
+
+/* --------------------------------------------------------------------------
+   Grid children must be allowed to shrink. This prevents hidden right panels,
+   horizontal overflow, and cards forcing the page wider than the viewport.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  section,
+  article,
+  aside,
+  div,
+  main,
+  header,
+  footer
+) {
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Stop old utility overrides from forcing all custom page cards to inherit
+   unwanted max-width, padding, and border-radius behaviour.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  .guided-shell,
+  .sales-language-shell,
+  .proposal-clean-shell
+) :where(.rounded-3xl, .rounded-2xl) {
+  border-radius: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   Topbar consistency.
+   -------------------------------------------------------------------------- */
+
+.wingman-topbar {
+  flex-shrink: 0 !important;
+  min-width: 0 !important;
+}
+
+.wingman-topbar-title {
+  min-width: 0 !important;
+}
+
+.wingman-topbar-title span {
+  max-width: 100% !important;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar/mobile width safety.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1023px) {
+  .wingman-workspace {
+    width: 100vw !important;
+    margin-left: 0 !important;
+  }
+
+  .wingman-app-main {
+    height: calc(100vh - var(--wm-topbar-height, 64px)) !important;
+    padding: 14px 12px 7rem !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Prevent floating assistant/help surfaces from blocking page content.
+   This keeps them visible, but the page gets enough bottom padding to scroll
+   clear of them.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host {
+  padding-bottom: 2rem !important;
+}
+
+/* If a fixed suggestion rail exists at the bottom, it should not trap clicks
+   across the full page width unless the user is interacting with its controls. */
+
+[class*="suggestion"],
+[class*="Suggestion"] {
+  max-width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Route reload sanity.
+   During route changes, keep page paint deterministic and avoid inherited
+   animations causing apparent hangs.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host > * {
+  animation-duration: 0.001ms;
+  animation-iteration-count: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wingman-page-host > * {
+    animation-duration: initial;
+  }
+}
+
+/* --- src/wingman2/styles/zz-wingman-calm-ui.css --- */
+/* ==========================================================================
+   Wingman Calm UI Reset - Phase 1
+   Principle:
+   - One task visible at a time.
+   - Hide advisory clutter until requested.
+   - Remove dashboard/admin-style noise from sales-facing pages.
+   - Use one consistent card/button language.
+   ========================================================================== */
+
+:root {
+  --wm-calm-bg: #061524;
+  --wm-calm-panel: #0b2138;
+  --wm-calm-panel-2: #0f2b46;
+  --wm-calm-border: rgba(125, 180, 240, 0.22);
+  --wm-calm-border-strong: rgba(251, 191, 36, 0.58);
+  --wm-calm-text: #f8fafc;
+  --wm-calm-muted: #cbd5e1;
+  --wm-calm-soft: #e2e8f0;
+  --wm-calm-accent: #fbbf24;
+  --wm-calm-accent-2: #f59e0b;
+  --wm-calm-dark: #0f172a;
+  --wm-calm-light: #ffffff;
+  --wm-calm-shadow: 0 20px 46px rgba(0, 0, 0, 0.22);
+  --wm-calm-radius: 28px;
+  --wm-calm-button-radius: 16px;
+}
+
+.wm-calm-page {
+  width: 100%;
+  max-width: 1180px !important;
+  margin: 0 auto !important;
+  color: var(--wm-calm-text);
+}
+
+.wm-calm-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.wm-calm-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  border: 1px solid var(--wm-calm-border);
+  border-radius: var(--wm-calm-radius);
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.13), transparent 26rem),
+    linear-gradient(180deg, rgba(8, 28, 48, 0.98), rgba(6, 21, 36, 0.98));
+  box-shadow: var(--wm-calm-shadow);
+  padding: clamp(1rem, 2vw, 1.45rem);
+}
+
+.wm-calm-kicker {
+  margin: 0 0 0.42rem;
+  color: var(--wm-calm-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.wm-calm-hero h1,
+.wm-calm-task-card h2,
+.wm-calm-result-card h2 {
+  margin: 0;
+  color: var(--wm-calm-text);
+  font-size: clamp(1.35rem, 2.2vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.wm-calm-hero p,
+.wm-calm-task-card p,
+.wm-calm-result-card p,
+.wm-calm-muted {
+  margin: 0.5rem 0 0;
+  color: var(--wm-calm-muted);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.wm-calm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: flex-end;
+}
+
+.wm-calm-button,
+.wm-calm-link-button {
+  display: inline-flex;
+  min-height: 2.55rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: var(--wm-calm-button-radius);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--wm-calm-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1;
+  padding: 0.68rem 0.95rem;
+  text-decoration: none;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease;
+}
+
+.wm-calm-button:hover,
+.wm-calm-link-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--wm-calm-border-strong);
+  background: rgba(251, 191, 36, 0.12);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
+}
+
+.wm-calm-button.primary,
+.wm-calm-link-button.primary {
+  border-color: var(--wm-calm-accent-2);
+  background: linear-gradient(135deg, var(--wm-calm-accent), var(--wm-calm-accent-2));
+  color: #111827;
+}
+
+.wm-calm-button:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.wm-calm-task-card,
+.wm-calm-result-card,
+.wm-calm-choice-card,
+.wm-calm-drawer {
+  border: 1px solid var(--wm-calm-border);
+  border-radius: var(--wm-calm-radius);
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 18rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(7, 24, 42, 0.98));
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.18);
+}
+
+.wm-calm-task-card,
+.wm-calm-result-card {
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+.wm-calm-question {
+  display: grid;
+  gap: 1rem;
+}
+
+.wm-calm-question blockquote {
+  margin: 0;
+  border-left: 5px solid var(--wm-calm-accent);
+  border-radius: 20px;
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--wm-calm-text);
+  font-size: clamp(1.1rem, 1.7vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.38;
+  padding: 1rem;
+}
+
+.wm-calm-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.wm-calm-conversation-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.wm-calm-conversation-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.9fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.wm-calm-compact-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wm-calm-subhead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.75rem;
+  color: var(--wm-calm-accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.wm-calm-subhead svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.wm-calm-segment-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.wm-calm-segment-row button {
+  min-height: 3.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--wm-calm-text);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.55rem;
+  text-align: left;
+}
+
+.wm-calm-segment-row button.is-active {
+  border-color: var(--wm-calm-accent-2);
+  background: linear-gradient(135deg, var(--wm-calm-accent), var(--wm-calm-accent-2));
+  color: #111827;
+}
+
+.wm-calm-segment-row span,
+.wm-calm-segment-row small {
+  display: block;
+}
+
+.wm-calm-segment-row span {
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.wm-calm-segment-row small {
+  margin-top: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  opacity: 0.76;
+}
+
+.wm-calm-copy-panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  padding: 1rem;
+}
+
+.wm-calm-copy-panel > svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--wm-calm-accent);
+}
+
+.wm-calm-copy-panel h3,
+.wm-calm-copy-panel blockquote,
+.wm-calm-copy-panel p,
+.wm-calm-copy-panel small {
+  margin: 0;
+}
+
+.wm-calm-copy-panel h3 {
+  color: var(--wm-calm-text);
+  font-size: 1.04rem;
+  font-weight: 850;
+}
+
+.wm-calm-copy-panel blockquote {
+  margin-top: 0.65rem;
+  border-left: 4px solid var(--wm-calm-accent);
+  color: var(--wm-calm-text);
+  font-size: 1.05rem;
+  font-weight: 720;
+  line-height: 1.42;
+  padding-left: 0.8rem;
+}
+
+.wm-calm-copy-panel p {
+  margin-top: 0.7rem;
+  color: var(--wm-calm-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.wm-calm-copy-panel small {
+  display: block;
+  margin-top: 0.7rem;
+  color: #fde68a;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.wm-calm-choice-card {
+  position: relative;
+  min-height: 7.4rem;
+  overflow: hidden;
+  padding: 1rem 1rem 1rem 1.15rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wm-calm-choice-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, var(--wm-calm-accent), #f97316);
+}
+
+.wm-calm-choice-card:hover,
+.wm-calm-choice-card.is-selected {
+  border-color: var(--wm-calm-border-strong);
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.14), transparent 9rem),
+    linear-gradient(180deg, rgba(15, 42, 68, 0.98), rgba(10, 31, 52, 0.98));
+  transform: translateY(-1px);
+}
+
+.wm-calm-choice-card strong {
+  display: block;
+  color: var(--wm-calm-text);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.24;
+}
+
+.wm-calm-choice-card span {
+  display: block;
+  margin-top: 0.42rem;
+  color: var(--wm-calm-muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.wm-calm-choice-card small {
+  display: block;
+  margin-top: 0.7rem;
+  color: var(--wm-calm-accent);
+  font-size: 0.78rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.wm-calm-textarea,
+.wm-calm-input {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 18px;
+  background: #f8fafc;
+  color: #0f172a;
+  font: inherit;
+  font-size: 0.94rem;
+  line-height: 1.5;
+  padding: 0.85rem;
+}
+
+.wm-calm-textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.wm-calm-textarea:focus,
+.wm-calm-input:focus {
+  border-color: rgba(251, 191, 36, 0.78);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.18);
+  outline: none;
+}
+
+.wm-calm-drawer {
+  padding: 0.9rem 1rem;
+}
+
+.wm-calm-drawer summary {
+  color: var(--wm-calm-text);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.wm-calm-drawer-body {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.8rem;
+  color: var(--wm-calm-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.wm-calm-captured-list {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wm-calm-captured-list li {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.65rem;
+}
+
+.wm-calm-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.wm-calm-pill {
+  display: inline-flex;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.1);
+  color: #fde68a;
+  font-size: 0.78rem;
+  font-weight: 750;
+  padding: 0.42rem 0.62rem;
+}
+
+.wm-calm-launch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.wm-calm-launch-card {
+  min-height: 10rem;
+  border: 1px solid var(--wm-calm-border);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 10rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(7, 24, 42, 0.98));
+  color: var(--wm-calm-text);
+  padding: 1rem;
+  text-decoration: none;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.wm-calm-launch-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--wm-calm-border-strong);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+}
+
+.wm-calm-launch-card svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--wm-calm-accent);
+}
+
+.wm-calm-launch-card strong {
+  display: block;
+  margin-top: 0.85rem;
+  color: var(--wm-calm-text);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.wm-calm-launch-card span {
+  display: block;
+  margin-top: 0.45rem;
+  color: var(--wm-calm-muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.wm-calm-panel-light {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 24px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 1rem;
+}
+
+.wm-calm-panel-light h2,
+.wm-calm-panel-light h3,
+.wm-calm-panel-light strong {
+  color: #0f172a;
+}
+
+.wm-calm-panel-light p,
+.wm-calm-panel-light li {
+  color: #475569;
+}
+
+/* Quiet older busy blocks without deleting data/components from source. */
+.wm-calm-hide-busy,
+.feature-readiness-audit,
+.readiness-audit,
+.guided-progress-card,
+.guided-side-panel,
+.guided-summary-panel {
+  display: none !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-calm-page {
+    max-width: none !important;
+  }
+
+  .wm-calm-launch-grid,
+  .wm-calm-conversation-grid,
+  .wm-calm-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-calm-hero,
+  .wm-calm-conversation-grid,
+  .wm-calm-launch-grid,
+  .wm-calm-choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-calm-compact-grid,
+  .wm-calm-segment-row {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-calm-actions {
+    justify-content: stretch;
+  }
+
+  .wm-calm-button,
+  .wm-calm-link-button {
+    width: 100%;
+  }
+}
+
+/* --- src/wingman2/styles/zz-wingman-visual-navigation.css --- */
+/* ==========================================================================
+   Wingman Visual Navigation Redesign
+   Purpose:
+   - Make Wingman feel less flat.
+   - Improve navigation confidence.
+   - Add depth, selected states, page rhythm and clear action affordance.
+   - Keep pages calm: no extra information, just better structure.
+   ========================================================================== */
+
+:root {
+  --wm-vn-bg-0: #020812;
+  --wm-vn-bg-1: #061524;
+  --wm-vn-bg-2: #0a2036;
+  --wm-vn-bg-3: #102b46;
+
+  --wm-vn-text: #f8fafc;
+  --wm-vn-muted: #cbd5e1;
+  --wm-vn-subtle: #94a3b8;
+
+  --wm-vn-accent: #fbbf24;
+  --wm-vn-accent-2: #f59e0b;
+  --wm-vn-cyan: #38bdf8;
+  --wm-vn-blue: #60a5fa;
+  --wm-vn-green: #34d399;
+
+  --wm-vn-border: rgba(125, 180, 240, 0.22);
+  --wm-vn-border-strong: rgba(251, 191, 36, 0.58);
+
+  --wm-vn-shadow-soft: 0 14px 30px rgba(0, 0, 0, 0.18);
+  --wm-vn-shadow-card: 0 20px 44px rgba(0, 0, 0, 0.24);
+  --wm-vn-shadow-lift: 0 26px 56px rgba(0, 0, 0, 0.32);
+
+  --wm-vn-radius-page: 30px;
+  --wm-vn-radius-card: 24px;
+  --wm-vn-radius-control: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   App background and working surface
+   -------------------------------------------------------------------------- */
+
+html body #root {
+  background:
+    radial-gradient(circle at 22% 0%, rgba(56, 189, 248, 0.09), transparent 30rem),
+    radial-gradient(circle at 88% 12%, rgba(251, 191, 36, 0.09), transparent 24rem),
+    linear-gradient(180deg, var(--wm-vn-bg-0), var(--wm-vn-bg-1)) !important;
+}
+
+.wingman-shell,
+.wingman-workspace,
+.wingman-app-main {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(56, 189, 248, 0.08), transparent 26rem),
+    radial-gradient(circle at 95% 5%, rgba(245, 158, 11, 0.08), transparent 24rem),
+    linear-gradient(180deg, #03101d 0%, #061524 48%, #03101d 100%) !important;
+}
+
+.wingman-page-host {
+  position: relative;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar navigation: clearer active state and better scan pattern
+   -------------------------------------------------------------------------- */
+
+.wingman-sidebar {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.11), transparent 14rem),
+    linear-gradient(180deg, rgba(2, 8, 18, 0.98), rgba(3, 13, 24, 0.98)) !important;
+  border-right: 1px solid rgba(125, 180, 240, 0.14) !important;
+  box-shadow: 14px 0 34px rgba(0, 0, 0, 0.24) !important;
+}
+
+.wingman-sidebar .wingman-nav-link,
+.wingman-sidebar a {
+  position: relative;
+  border-radius: 16px !important;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease !important;
+}
+
+.wingman-sidebar .wingman-nav-link:hover,
+.wingman-sidebar a:hover {
+  background: rgba(96, 165, 250, 0.09) !important;
+  transform: translateX(2px);
+}
+
+.wingman-sidebar .wingman-nav-link-active,
+.wingman-sidebar a[aria-current="page"] {
+  border: 1px solid rgba(251, 191, 36, 0.52) !important;
+  background:
+    radial-gradient(circle at 10% 50%, rgba(251, 191, 36, 0.22), transparent 8rem),
+    linear-gradient(90deg, rgba(251, 191, 36, 0.22), rgba(96, 165, 250, 0.08)) !important;
+  box-shadow:
+    inset 4px 0 0 var(--wm-vn-accent),
+    0 12px 30px rgba(245, 158, 11, 0.14) !important;
+  color: #ffffff !important;
+}
+
+.wingman-sidebar .wingman-nav-link-active svg,
+.wingman-sidebar a[aria-current="page"] svg {
+  color: var(--wm-vn-accent) !important;
+  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.28));
+}
+
+.wingman-sidebar .wingman-nav-copy span {
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+}
+
+/* --------------------------------------------------------------------------
+   Topbar: make it useful but less visually dominant
+   -------------------------------------------------------------------------- */
+
+.wingman-topbar {
+  background:
+    linear-gradient(180deg, rgba(2, 8, 18, 0.96), rgba(4, 16, 29, 0.96)) !important;
+  border-bottom: 1px solid rgba(125, 180, 240, 0.16) !important;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22) !important;
+}
+
+.wingman-topbar-title strong,
+.wingman-topbar-title span:first-child {
+  color: #f8fafc !important;
+}
+
+.wingman-topbar-title small,
+.wingman-topbar-title span:last-child {
+  color: #94a3b8 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Calm UI page rhythm
+   -------------------------------------------------------------------------- */
+
+.wm-calm-page {
+  max-width: 1220px !important;
+}
+
+.wm-calm-stack {
+  gap: 1.05rem !important;
+}
+
+.wm-calm-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(125, 180, 240, 0.24) !important;
+  border-radius: var(--wm-vn-radius-page) !important;
+  background:
+    linear-gradient(135deg, rgba(251, 191, 36, 0.14), transparent 32%),
+    radial-gradient(circle at 92% 18%, rgba(56, 189, 248, 0.12), transparent 16rem),
+    linear-gradient(180deg, rgba(11, 33, 56, 0.98), rgba(6, 21, 36, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    var(--wm-vn-shadow-card) !important;
+}
+
+.wm-calm-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 1.2rem 0 1.2rem;
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(90deg, var(--wm-vn-accent), rgba(56, 189, 248, 0.72), transparent);
+  opacity: 0.78;
+}
+
+.wm-calm-kicker {
+  color: var(--wm-vn-accent) !important;
+}
+
+.wm-calm-hero h1 {
+  max-width: 54rem;
+}
+
+.wm-calm-hero p {
+  max-width: 60rem;
+}
+
+/* --------------------------------------------------------------------------
+   Cards: stronger visual hierarchy
+   -------------------------------------------------------------------------- */
+
+.wm-calm-task-card,
+.wm-calm-result-card,
+.wm-calm-drawer,
+.wm-calm-launch-card,
+.wm-calm-choice-card {
+  position: relative;
+  border-color: rgba(125, 180, 240, 0.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    var(--wm-vn-shadow-soft) !important;
+}
+
+.wm-calm-task-card,
+.wm-calm-result-card {
+  overflow: hidden;
+  border-radius: var(--wm-vn-radius-page) !important;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.1), transparent 20rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(6, 21, 36, 0.98)) !important;
+}
+
+.wm-calm-task-card::before,
+.wm-calm-result-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(251, 191, 36, 0.12), transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 34%);
+  opacity: 0.85;
+}
+
+.wm-calm-task-card > *,
+.wm-calm-result-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Choice/launch cards: more obvious clickable surfaces
+   -------------------------------------------------------------------------- */
+
+.wm-calm-launch-card,
+.wm-calm-choice-card {
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--wm-vn-radius-card) !important;
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 9rem),
+    linear-gradient(180deg, rgba(14, 42, 68, 0.96), rgba(8, 27, 46, 0.98)) !important;
+}
+
+.wm-calm-launch-card::before,
+.wm-calm-choice-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, var(--wm-vn-accent), #f97316);
+  opacity: 0.92;
+  z-index: -1;
+}
+
+.wm-calm-launch-card::after,
+.wm-calm-choice-card::after {
+  content: "";
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: rgba(203, 213, 225, 0.82);
+  box-shadow: 0 0 0 4px rgba(203, 213, 225, 0.13);
+  opacity: 0.92;
+}
+
+.wm-calm-launch-card:hover,
+.wm-calm-choice-card:hover,
+.wm-calm-choice-card.is-selected {
+  border-color: rgba(251, 191, 36, 0.68) !important;
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.16), transparent 9rem),
+    linear-gradient(180deg, rgba(18, 51, 80, 1), rgba(10, 32, 54, 1)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    var(--wm-vn-shadow-lift) !important;
+}
+
+.wm-calm-choice-card.is-selected::after,
+.wm-calm-choice-card:hover::after,
+.wm-calm-launch-card:hover::after {
+  background: var(--wm-vn-accent);
+  box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.18);
+}
+
+.wm-calm-launch-card svg,
+.wm-calm-choice-card svg {
+  color: var(--wm-vn-accent) !important;
+  filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.18));
+}
+
+.wm-calm-choice-card strong,
+.wm-calm-launch-card strong {
+  color: #ffffff !important;
+  letter-spacing: -0.02em;
+}
+
+.wm-calm-choice-card span,
+.wm-calm-launch-card span {
+  color: var(--wm-vn-muted) !important;
+}
+
+.wm-calm-choice-card small {
+  color: #fde68a !important;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons: clearer primary/secondary hierarchy
+   -------------------------------------------------------------------------- */
+
+.wm-calm-button,
+.wm-calm-link-button,
+button,
+a[class*="button"],
+a[class*="Button"] {
+  border-radius: var(--wm-vn-radius-control);
+}
+
+.wm-calm-button,
+.wm-calm-link-button {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 22px rgba(0, 0, 0, 0.14);
+}
+
+.wm-calm-button.primary,
+.wm-calm-link-button.primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 14px 28px rgba(245, 158, 11, 0.24);
+}
+
+.wm-calm-button.primary:hover,
+.wm-calm-link-button.primary:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 18px 36px rgba(245, 158, 11, 0.32);
+}
+
+/* --------------------------------------------------------------------------
+   Inputs and text capture: make form areas obvious
+   -------------------------------------------------------------------------- */
+
+.wm-calm-textarea,
+.wm-calm-input,
+textarea,
+input,
+select {
+  border-radius: 18px !important;
+}
+
+.wm-calm-textarea,
+.wm-calm-input {
+  background:
+    linear-gradient(180deg, #ffffff, #f8fafc) !important;
+  border-color: rgba(148, 163, 184, 0.46) !important;
+  box-shadow:
+    inset 0 1px 3px rgba(15, 23, 42, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.wm-calm-textarea::placeholder,
+.wm-calm-input::placeholder {
+  color: #64748b !important;
+}
+
+.wm-calm-question blockquote {
+  position: relative;
+  border-left-width: 6px !important;
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.16), transparent 12rem),
+    rgba(251, 191, 36, 0.1) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* --------------------------------------------------------------------------
+   Drawers: useful but secondary
+   -------------------------------------------------------------------------- */
+
+.wm-calm-drawer {
+  border-radius: 20px !important;
+  background:
+    linear-gradient(180deg, rgba(9, 28, 48, 0.92), rgba(6, 21, 36, 0.92)) !important;
+}
+
+.wm-calm-drawer summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wm-calm-drawer summary::-webkit-details-marker {
+  display: none;
+}
+
+.wm-calm-drawer summary::after {
+  content: "+";
+  display: grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  place-items: center;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.1);
+  color: var(--wm-vn-accent);
+  font-weight: 800;
+}
+
+.wm-calm-drawer[open] summary::after {
+  content: "-";
+}
+
+/* --------------------------------------------------------------------------
+   Older Wingman pages: improve without redesigning each page
+   -------------------------------------------------------------------------- */
+
+.wm-balanced-page-hero,
+.wingman-section-card,
+[class*="section-card"],
+[class*="SectionCard"] {
+  border-color: rgba(125, 180, 240, 0.24) !important;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.09), transparent 18rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(6, 21, 36, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    var(--wm-vn-shadow-card) !important;
+}
+
+.wm-balanced-hero-kicker,
+.wm-balanced-section-card-header p:first-child,
+.wingman-kicker {
+  color: var(--wm-vn-accent) !important;
+}
+
+.wm-balanced-hero-title,
+.wm-balanced-section-card-header h2 {
+  color: var(--wm-vn-text) !important;
+}
+
+.wm-balanced-hero-purpose,
+.wm-balanced-section-card-header p {
+  color: var(--wm-vn-muted) !important;
+}
+
+/* Card grids and generic clickable cards on older pages */
+
+.wingman-page-host :where(
+  .rounded-2xl,
+  .rounded-3xl
+) {
+  border-color: rgba(125, 180, 240, 0.22);
+}
+
+/* Avoid making pure white document surfaces dark on proposal-style pages */
+
+.proposal-clean-document,
+.proposal-clean-document *,
+.wm-calm-panel-light,
+.wm-calm-panel-light * {
+  box-shadow: none;
+}
+
+/* --------------------------------------------------------------------------
+   Focus and accessibility cues
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(a, button, input, textarea, select):focus-visible {
+  outline: 3px solid rgba(251, 191, 36, 0.84) !important;
+  outline-offset: 3px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Page navigation confidence: subtle bottom breathing room
+   -------------------------------------------------------------------------- */
+
+.wingman-app-main {
+  padding-bottom: 8rem !important;
+}
+
+@media (max-width: 900px) {
+  .wm-calm-page {
+    max-width: none !important;
+  }
+
+  .wm-calm-hero,
+  .wm-calm-task-card,
+  .wm-calm-result-card {
+    border-radius: 22px !important;
+  }
+
+  .wm-calm-choice-card,
+  .wm-calm-launch-card {
+    min-height: 7.5rem;
+  }
+}
+
+/* --- src/wingman2/styles/zz-wingman-rectangular-buttons.css --- */
+/* ==========================================================================
+   Wingman rectangular button authority layer
+   Purpose:
+   - Replace oval/pill buttons with rounded-corner rectangles.
+   - Keep small icon-only controls, avatars and status dots circular.
+   - Imported late so it wins over page-level button styles.
+   ========================================================================== */
+
+:root {
+  --wm-button-radius-rect: 14px;
+  --wm-button-radius-card: 18px;
+  --wm-button-radius-small: 10px;
+}
+
+/* --------------------------------------------------------------------------
+   Primary button families across Wingman
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  .wm-calm-button,
+  .wm-calm-link-button,
+  .discovery-mini-button,
+  .guided-primary-button,
+  .guided-secondary-button,
+  .sales-language-button,
+  .sales-language-icon-button,
+  .proposal-clean-button,
+  .proposal-clean-readiness a,
+  .wingman-hero-action,
+  .wingman-guidance-action,
+  .wingman-clear-project-button,
+  .quick-action-button,
+  .template-action,
+  .finder-action,
+  .proposal-action,
+  .wm-balanced-hero-action-primary,
+  .wm-balanced-hero-action-secondary
+) {
+  border-radius: var(--wm-button-radius-rect) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Common button/link patterns
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  button[class*="button"],
+  button[class*="Button"],
+  a[class*="button"],
+  a[class*="Button"],
+  [role="button"]
+):not(
+  .wingman-topbar-icon-button
+):not(
+  .wingman-user-avatar
+):not(
+  .discovery-mini-icon-button
+):not(
+  .sales-language-active-icon
+):not(
+  .wingman-language-profile-switcher button
+):not(
+  .guru-avatar
+):not(
+  .guru-assistant-avatar
+) {
+  border-radius: var(--wm-button-radius-rect) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Selection cards should be rounded rectangles, not stretched ovals.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  .wm-calm-choice-card,
+  .wm-calm-launch-card,
+  .discovery-mini-card,
+  .guided-choice-card,
+  .guided-answer-button,
+  .sales-language-card-button,
+  .proposal-clean-feedback-grid button
+) {
+  border-radius: var(--wm-button-radius-card) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar navigation: rounded rectangle, not pill.
+   -------------------------------------------------------------------------- */
+
+.wingman-sidebar :where(
+  .wingman-nav-link,
+  a
+) {
+  border-radius: 13px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Top conversation/language selector buttons: rectangular chips, not ovals.
+   -------------------------------------------------------------------------- */
+
+.wingman-language-profile-switcher,
+.wingman-conversation-type,
+[class*="conversation-type"],
+[class*="ConversationType"] {
+  border-radius: var(--wm-button-radius-rect) !important;
+}
+
+.wingman-language-profile-switcher button,
+.wingman-page-host :where(
+  button[class*="conversation"],
+  button[class*="Conversation"]
+) {
+  border-radius: var(--wm-button-radius-small) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Tailwind rounded-full rescue for button-like elements.
+   This does not affect non-button badges unless they are interactive.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  button.rounded-full,
+  a.rounded-full,
+  [role="button"].rounded-full
+) {
+  border-radius: var(--wm-button-radius-rect) !important;
+}
+
+.wingman-page-host :where(
+  button[class*="rounded-full"],
+  a[class*="rounded-full"],
+  [role="button"][class*="rounded-full"]
+) {
+  border-radius: var(--wm-button-radius-rect) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Keep true circular controls circular.
+   -------------------------------------------------------------------------- */
+
+.wingman-topbar-icon-button,
+.wingman-user-avatar,
+.discovery-mini-icon-button,
+.sales-language-active-icon,
+.wingman-language-flag,
+.guru-avatar,
+.guru-assistant-avatar,
+[class*="avatar"],
+[class*="Avatar"],
+[class*="status-dot"],
+[class*="StatusDot"] {
+  border-radius: 999px !important;
+}
+
+/* Keep tiny indicator dots circular. */
+
+.wm-calm-choice-card::after,
+.wm-calm-launch-card::after,
+.guided-choice-card::after,
+.guided-answer-button::after,
+.discovery-mini-card::after,
+.sales-language-card-button::after {
+  border-radius: 999px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Details/drawer controls should also avoid pill styling.
+   -------------------------------------------------------------------------- */
+
+.wm-calm-drawer summary::after,
+.discovery-mini-details summary::after {
+  border-radius: var(--wm-button-radius-small) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Hover/focus consistency for the new rectangular shape.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  .wm-calm-button,
+  .wm-calm-link-button,
+  .discovery-mini-button,
+  .guided-primary-button,
+  .guided-secondary-button,
+  .sales-language-button,
+  .proposal-clean-button,
+  button[class*="button"],
+  a[class*="button"]
+):focus-visible {
+  outline: 3px solid rgba(251, 191, 36, 0.84) !important;
+  outline-offset: 3px !important;
+}
+
+/* --- src/wingman2/styles/zzz-wingman-dashboard-design-standard.css --- */
+/* ==========================================================================
+   Wingman Dashboard Design Standard
+   Final visual authority layer.
+
+   Design source:
+   - Dashboard page is the reference style.
+   - Pages should feel like simple task launchers or one-task workflows.
+   - Use rounded rectangles, not oval buttons.
+   - Reduce visual density and avoid always-visible advisory clutter.
+   ========================================================================== */
+
+:root {
+  --wm-ds-page-max: 1180px;
+  --wm-ds-bg: #061524;
+  --wm-ds-panel: #0b2138;
+  --wm-ds-panel-soft: #0f2b46;
+  --wm-ds-border: rgba(125, 180, 240, 0.22);
+  --wm-ds-border-strong: rgba(251, 191, 36, 0.56);
+  --wm-ds-text: #f8fafc;
+  --wm-ds-muted: #cbd5e1;
+  --wm-ds-subtle: #94a3b8;
+  --wm-ds-accent: #fbbf24;
+  --wm-ds-accent-strong: #f59e0b;
+  --wm-ds-radius-page: 26px;
+  --wm-ds-radius-card: 20px;
+  --wm-ds-radius-button: 14px;
+  --wm-ds-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+  --wm-ds-shadow-soft: 0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+/* --------------------------------------------------------------------------
+   Page width and rhythm
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host > *,
+.wm-calm-page,
+.discovery-mini-page,
+.proposal-clean-shell,
+.sales-language-shell,
+.guided-shell {
+  max-width: var(--wm-ds-page-max) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.wingman-page-host {
+  color: var(--wm-ds-text);
+}
+
+/* --------------------------------------------------------------------------
+   Dashboard-style hero standard
+   -------------------------------------------------------------------------- */
+
+.wm-calm-hero,
+.discovery-mini-hero,
+.proposal-clean-hero,
+.proposal-clean-toolbar,
+.sales-language-hero,
+.guided-hero,
+.wm-balanced-page-hero {
+  border: 1px solid var(--wm-ds-border) !important;
+  border-radius: var(--wm-ds-radius-page) !important;
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.12), transparent 24rem),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 22rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(6, 21, 36, 0.98)) !important;
+  box-shadow: var(--wm-ds-shadow) !important;
+  color: var(--wm-ds-text) !important;
+}
+
+.wm-calm-hero h1,
+.discovery-mini-hero h1,
+.proposal-clean-hero h1,
+.proposal-clean-toolbar h2,
+.sales-language-hero h1,
+.guided-hero h1,
+.wm-balanced-hero-title {
+  color: var(--wm-ds-text) !important;
+  font-size: clamp(1.3rem, 2vw, 2rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1.08 !important;
+}
+
+.wm-calm-hero p,
+.discovery-mini-hero p,
+.proposal-clean-hero p,
+.proposal-clean-toolbar p,
+.sales-language-hero p,
+.guided-hero p,
+.wm-balanced-hero-purpose {
+  max-width: 64rem !important;
+  color: var(--wm-ds-muted) !important;
+  font-size: 0.92rem !important;
+  line-height: 1.55 !important;
+}
+
+.wm-calm-kicker,
+.discovery-mini-kicker,
+.proposal-clean-eyebrow,
+.proposal-clean-kicker,
+.sales-language-eyebrow,
+.guided-eyebrow,
+.guided-panel-kicker,
+.guided-step-label,
+.wm-balanced-hero-kicker,
+.wingman-kicker {
+  color: var(--wm-ds-accent) !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+/* --------------------------------------------------------------------------
+   Button standard: rounded rectangles, not ovals
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  button,
+  a,
+  [role="button"]
+):not(
+  .wingman-topbar-icon-button
+):not(
+  .wingman-user-avatar
+):not(
+  .guru-avatar
+):not(
+  .guru-assistant-avatar
+):not(
+  [class*="avatar"]
+):not(
+  [class*="Avatar"]
+) {
+  border-radius: var(--wm-ds-radius-button) !important;
+}
+
+.wm-calm-button,
+.wm-calm-link-button,
+.discovery-mini-button,
+.proposal-clean-button,
+.sales-language-button,
+.guided-primary-button,
+.guided-secondary-button,
+.wm-balanced-hero-action-primary,
+.wm-balanced-hero-action-secondary,
+.wm-balanced-section-card-actions button,
+.wm-balanced-section-card-actions a {
+  min-height: 2.45rem !important;
+  border-radius: var(--wm-ds-radius-button) !important;
+  font-size: 0.86rem !important;
+  font-weight: 650 !important;
+  padding: 0.62rem 0.9rem !important;
+}
+
+.wm-calm-link-button.primary,
+.wm-calm-button.primary,
+.discovery-mini-button.primary,
+.proposal-clean-button.primary,
+.sales-language-button.primary,
+.guided-primary-button,
+.wm-balanced-hero-action-primary {
+  border-color: var(--wm-ds-accent-strong) !important;
+  background: linear-gradient(135deg, var(--wm-ds-accent), var(--wm-ds-accent-strong)) !important;
+  color: #111827 !important;
+  box-shadow: 0 12px 24px rgba(245, 158, 11, 0.22) !important;
+}
+
+.wm-calm-link-button:not(.primary),
+.wm-calm-button:not(.primary),
+.discovery-mini-button:not(.primary),
+.proposal-clean-button:not(.primary),
+.sales-language-button:not(.primary),
+.guided-secondary-button,
+.wm-balanced-hero-action-secondary {
+  border-color: rgba(148, 163, 184, 0.34) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--wm-ds-text) !important;
+}
+
+.wingman-page-host :where(button, a[role="button"], a[class*="button"]):hover {
+  border-color: var(--wm-ds-border-strong) !important;
+}
+
+/* Keep true circles circular */
+
+.wingman-topbar-icon-button,
+.wingman-user-avatar,
+.guru-avatar,
+.guru-assistant-avatar,
+[class*="avatar"],
+[class*="Avatar"],
+[class*="status-dot"],
+[class*="StatusDot"] {
+  border-radius: 999px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Card standard: use dashboard-style launch cards
+   -------------------------------------------------------------------------- */
+
+.wm-calm-launch-card,
+.wm-calm-choice-card,
+.discovery-mini-card,
+.discovery-mini-option-grid button,
+.sales-language-card-button,
+.guided-choice-card,
+.guided-answer-button,
+.proposal-clean-feedback-grid button {
+  border: 1px solid var(--wm-ds-border) !important;
+  border-radius: var(--wm-ds-radius-card) !important;
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 9rem),
+    linear-gradient(180deg, rgba(14, 42, 68, 0.96), rgba(8, 27, 46, 0.98)) !important;
+  color: var(--wm-ds-text) !important;
+  box-shadow: var(--wm-ds-shadow-soft) !important;
+}
+
+.wm-calm-launch-card:hover,
+.wm-calm-choice-card:hover,
+.wm-calm-choice-card.is-selected,
+.discovery-mini-card:hover,
+.discovery-mini-option-grid button:hover,
+.discovery-mini-option-grid button.is-selected,
+.sales-language-card-button:hover,
+.sales-language-card-button.active,
+.guided-choice-card:hover,
+.guided-answer-button:hover,
+.guided-answer-button.is-selected,
+.proposal-clean-feedback-grid button:hover {
+  border-color: var(--wm-ds-border-strong) !important;
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.13), transparent 9rem),
+    linear-gradient(180deg, rgba(18, 51, 80, 1), rgba(10, 32, 54, 1)) !important;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.26) !important;
+  transform: translateY(-1px) !important;
+}
+
+.wm-calm-launch-card strong,
+.wm-calm-choice-card strong,
+.discovery-mini-card strong,
+.sales-language-card-button strong,
+.guided-choice-card span,
+.guided-answer-button span,
+.proposal-clean-feedback-grid strong {
+  color: var(--wm-ds-text) !important;
+  font-weight: 800 !important;
+}
+
+.wm-calm-launch-card span,
+.wm-calm-choice-card span,
+.discovery-mini-card span,
+.sales-language-card-button small,
+.guided-choice-card small,
+.guided-answer-button small,
+.proposal-clean-feedback-grid small {
+  color: var(--wm-ds-muted) !important;
+}
+
+.wm-calm-launch-card small,
+.wm-calm-choice-card small,
+.discovery-mini-card small,
+.discovery-mini-card em,
+.guided-choice-card em {
+  color: #fde68a !important;
+}
+
+/* --------------------------------------------------------------------------
+   Reduce busy visual spread
+   -------------------------------------------------------------------------- */
+
+.wm-calm-launch-grid,
+.discovery-mini-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0.85rem !important;
+}
+
+.wm-calm-choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0.85rem !important;
+}
+
+.wm-calm-launch-card,
+.discovery-mini-card {
+  min-height: 9.2rem !important;
+}
+
+.wm-calm-choice-card,
+.discovery-mini-option-grid button,
+.guided-choice-card,
+.guided-answer-button {
+  min-height: 5.4rem !important;
+}
+
+/* Hide or soften informational clutter when it is not the main task */
+
+.discovery-mini-guidance,
+.wm-calm-drawer,
+.discovery-mini-details.page-level {
+  opacity: 0.88;
+}
+
+.discovery-mini-guidance {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.discovery-mini-guidance > div {
+  min-height: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Modal/wizard standard: clean, centred, one-task focus
+   -------------------------------------------------------------------------- */
+
+.discovery-mini-modal,
+.wm-calm-task-card,
+.wm-calm-result-card {
+  border-radius: var(--wm-ds-radius-page) !important;
+  border-color: var(--wm-ds-border) !important;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 20rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(6, 21, 36, 0.98)) !important;
+  box-shadow: var(--wm-ds-shadow) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar follows dashboard: clear but not loud
+   -------------------------------------------------------------------------- */
+
+.wingman-sidebar .wingman-nav-link,
+.wingman-sidebar a {
+  border-radius: 13px !important;
+}
+
+.wingman-sidebar .wingman-nav-link-active,
+.wingman-sidebar a[aria-current="page"] {
+  border-color: rgba(251, 191, 36, 0.48) !important;
+  background:
+    linear-gradient(90deg, rgba(251, 191, 36, 0.18), rgba(96, 165, 250, 0.06)) !important;
+  box-shadow: inset 4px 0 0 var(--wm-ds-accent) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Form fields
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(input, textarea, select) {
+  border-radius: var(--wm-ds-radius-button) !important;
+}
+
+.wm-calm-textarea,
+.wm-calm-input,
+.discovery-mini-question textarea,
+.sales-language-question textarea {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* --------------------------------------------------------------------------
+   Proposal document exception:
+   Keep proposal preview readable and white; do not force dashboard-dark cards
+   into document body.
+   -------------------------------------------------------------------------- */
+
+.proposal-clean-document,
+.proposal-clean-document-body {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.proposal-clean-document .proposal-clean-info-block li,
+.proposal-clean-document .proposal-clean-table,
+.proposal-clean-document .proposal-clean-table td,
+.proposal-clean-document .proposal-clean-output > div > div {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .wm-calm-launch-grid,
+  .discovery-mini-grid,
+  .discovery-mini-guidance {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-calm-launch-grid,
+  .wm-calm-choice-grid,
+  .discovery-mini-grid,
+  .discovery-mini-guidance,
+  .discovery-mini-option-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-calm-hero,
+  .discovery-mini-hero,
+  .proposal-clean-hero,
+  .proposal-clean-toolbar,
+  .sales-language-hero,
+  .guided-hero {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* --- src/wingman2/styles/zzz-remove-user-facing-design-notes.css --- */
+/* ==========================================================================
+   Remove user-facing design notes
+   Purpose:
+   Hide internal explanation panels and design-justification copy from live pages.
+   This keeps useful workflow UI visible while removing non-customer-facing notes.
+   ========================================================================== */
+
+.finder-simple-drawer,
+.finder-simple-status,
+.finder-calm-drawer,
+.finder-calm-bottom-note,
+.discovery-mini-details.page-level,
+.discovery-mini-guidance,
+.feature-readiness-audit,
+.readiness-audit {
+  display: none !important;
+}
+
+/* Hide generic "this page is simplified" / "what changed" style notes if they
+   survive from earlier components. */
+.wingman-page-host details:has(summary) summary {
+  cursor: pointer;
+}
+
+.wingman-page-host details:has(summary)::part(user-facing-design-note) {
+  display: none !important;
+}
+
+/* --- src/wingman2/styles/zzzz-wingman-compact-density.css --- */
+/* ==========================================================================
+   Wingman Compact Density Sweep
+   Final layout density layer.
+
+   Purpose:
+   - Reduce wasted page space across the whole app.
+   - Keep the clean dashboard style.
+   - Make pages use more available width.
+   - Reduce oversized hero/card/button padding.
+   - Keep buttons as rounded rectangles, not ovals.
+   ========================================================================== */
+
+:root {
+  --wm-compact-page-max: 1500px;
+  --wm-compact-radius-page: 18px;
+  --wm-compact-radius-card: 14px;
+  --wm-compact-radius-button: 11px;
+  --wm-compact-gap: 0.65rem;
+  --wm-sidebar-width: 230px;
+  --wm-topbar-height: 56px;
+}
+
+/* --------------------------------------------------------------------------
+   App shell density
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-shell {
+  --wm-sidebar-width: 230px;
+  --wm-topbar-height: 56px;
+}
+
+html body #root .wingman-workspace {
+  width: calc(100vw - var(--wm-sidebar-width, 230px)) !important;
+}
+
+html body #root .wingman-topbar {
+  min-height: 56px !important;
+  height: 56px !important;
+  padding: 0.5rem 0.9rem !important;
+}
+
+html body #root .wingman-topbar-title {
+  gap: 0.1rem !important;
+}
+
+html body #root .wingman-topbar-title strong,
+html body #root .wingman-topbar-title span:first-child {
+  font-size: 0.92rem !important;
+  line-height: 1.15 !important;
+}
+
+html body #root .wingman-topbar-title small,
+html body #root .wingman-topbar-title span:last-child {
+  font-size: 0.76rem !important;
+  line-height: 1.2 !important;
+  max-width: 42rem !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+html body #root .wingman-app-main {
+  height: calc(100vh - var(--wm-topbar-height, 56px)) !important;
+  padding: 10px 12px 4.5rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Use more available page width
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+html body #root .wingman-page-host > *,
+html body #root .wingman-page-host .wm-calm-page,
+html body #root .wingman-page-host .discovery-mini-page,
+html body #root .wingman-page-host .finder-simple-page,
+html body #root .wingman-page-host .proposal-clean-shell,
+html body #root .wingman-page-host .sales-language-shell,
+html body #root .wingman-page-host .guided-shell {
+  width: 100% !important;
+  max-width: min(var(--wm-compact-page-max), 100%) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* --------------------------------------------------------------------------
+   Hero panels
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-hero,
+  .discovery-mini-hero,
+  .finder-simple-hero,
+  .proposal-clean-hero,
+  .proposal-clean-toolbar,
+  .sales-language-hero,
+  .guided-hero,
+  .wm-balanced-page-hero
+) {
+  min-height: 0 !important;
+  border-radius: var(--wm-compact-radius-page) !important;
+  padding: 0.85rem 1rem !important;
+  gap: 0.7rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-hero h1,
+  .discovery-mini-hero h1,
+  .finder-simple-hero h1,
+  .proposal-clean-hero h1,
+  .proposal-clean-toolbar h2,
+  .sales-language-hero h1,
+  .guided-hero h1,
+  .wm-balanced-hero-title
+) {
+  font-size: clamp(1.15rem, 1.55vw, 1.6rem) !important;
+  line-height: 1.08 !important;
+  margin: 0 !important;
+  max-width: 58rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-hero p,
+  .discovery-mini-hero p,
+  .finder-simple-hero p,
+  .proposal-clean-hero p,
+  .proposal-clean-toolbar p,
+  .sales-language-hero p,
+  .guided-hero p,
+  .wm-balanced-hero-purpose
+) {
+  font-size: 0.82rem !important;
+  line-height: 1.35 !important;
+  margin-top: 0.35rem !important;
+  max-width: 68rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-kicker,
+  .discovery-mini-kicker,
+  .finder-simple-kicker,
+  .proposal-clean-eyebrow,
+  .proposal-clean-kicker,
+  .sales-language-eyebrow,
+  .guided-eyebrow,
+  .wingman-kicker,
+  .wm-balanced-hero-kicker
+) {
+  font-size: 0.64rem !important;
+  letter-spacing: 0.1em !important;
+  margin-bottom: 0.25rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Page stack and grid gaps
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-stack,
+  .discovery-mini-page,
+  .finder-simple-page,
+  .proposal-clean-shell,
+  .sales-language-shell
+) {
+  gap: var(--wm-compact-gap) !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-grid,
+  .wm-calm-choice-grid,
+  .discovery-mini-grid,
+  .discovery-mini-guidance,
+  .finder-simple-route-grid,
+  .finder-simple-option-grid,
+  .finder-simple-product-grid,
+  .proposal-clean-feedback-grid
+) {
+  gap: 0.55rem !important;
+}
+
+/* Make route/launch grids fill the available width more naturally. */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-grid,
+  .discovery-mini-grid,
+  .finder-simple-route-grid
+) {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-choice-grid,
+  .finder-simple-option-grid,
+  .discovery-mini-option-grid
+) {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Cards
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card,
+  .wm-calm-choice-card,
+  .discovery-mini-card,
+  .finder-simple-route-card,
+  .sales-language-card-button,
+  .guided-choice-card,
+  .guided-answer-button,
+  .proposal-clean-feedback-grid button
+) {
+  min-height: 5.8rem !important;
+  border-radius: var(--wm-compact-radius-card) !important;
+  padding: 0.72rem 0.82rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card svg,
+  .wm-calm-choice-card svg,
+  .discovery-mini-card svg,
+  .finder-simple-route-card svg,
+  .sales-language-card-button svg,
+  .guided-choice-card svg,
+  .guided-answer-button svg
+) {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card strong,
+  .wm-calm-choice-card strong,
+  .discovery-mini-card strong,
+  .finder-simple-route-card strong,
+  .sales-language-card-button strong,
+  .guided-choice-card strong,
+  .guided-answer-button strong,
+  .proposal-clean-feedback-grid strong
+) {
+  margin-top: 0.38rem !important;
+  font-size: 0.88rem !important;
+  line-height: 1.18 !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card span,
+  .wm-calm-choice-card span,
+  .discovery-mini-card span,
+  .finder-simple-route-card span,
+  .sales-language-card-button small,
+  .guided-choice-card small,
+  .guided-answer-button small,
+  .proposal-clean-feedback-grid small
+) {
+  margin-top: 0.28rem !important;
+  font-size: 0.76rem !important;
+  line-height: 1.32 !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card small,
+  .wm-calm-choice-card small,
+  .discovery-mini-card small,
+  .discovery-mini-card em,
+  .finder-simple-route-card small
+) {
+  margin-top: 0.38rem !important;
+  font-size: 0.72rem !important;
+  line-height: 1.25 !important;
+}
+
+/* Reduce decorative dots inside route cards. */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card::after,
+  .wm-calm-choice-card::after,
+  .guided-choice-card::after,
+  .guided-answer-button::after
+) {
+  width: 0.45rem !important;
+  height: 0.45rem !important;
+  top: 0.55rem !important;
+  right: 0.55rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Task cards, modals, panels
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-task-card,
+  .wm-calm-result-card,
+  .discovery-mini-modal,
+  .finder-simple-modal,
+  .proposal-clean-document,
+  .sales-language-workspace,
+  .sales-language-card-list,
+  .sales-language-notes,
+  .wingman-section-card,
+  .wm-balanced-page-hero
+) {
+  border-radius: var(--wm-compact-radius-page) !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-task-card,
+  .wm-calm-result-card,
+  .sales-language-workspace,
+  .sales-language-card-list,
+  .sales-language-notes
+) {
+  padding: 0.85rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .discovery-mini-modal,
+  .finder-simple-modal
+) {
+  padding: 0.9rem !important;
+  gap: 0.7rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons and controls
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-button,
+  .wm-calm-link-button,
+  .discovery-mini-button,
+  .finder-simple-button,
+  .proposal-clean-button,
+  .sales-language-button,
+  .guided-primary-button,
+  .guided-secondary-button,
+  .wm-balanced-hero-action-primary,
+  .wm-balanced-hero-action-secondary
+) {
+  min-height: 2.12rem !important;
+  border-radius: var(--wm-compact-radius-button) !important;
+  font-size: 0.78rem !important;
+  padding: 0.48rem 0.7rem !important;
+  gap: 0.35rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-button svg,
+  .wm-calm-link-button svg,
+  .discovery-mini-button svg,
+  .finder-simple-button svg,
+  .proposal-clean-button svg,
+  .sales-language-button svg
+) {
+  width: 0.9rem !important;
+  height: 0.9rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  input,
+  select,
+  textarea,
+  .finder-simple-field input,
+  .discovery-mini-question textarea,
+  .wm-calm-input,
+  .wm-calm-textarea
+) {
+  border-radius: var(--wm-compact-radius-button) !important;
+  font-size: 0.82rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  input,
+  select,
+  .finder-simple-field input
+) {
+  min-height: 2.25rem !important;
+  padding: 0.45rem 0.6rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  textarea,
+  .wm-calm-textarea,
+  .discovery-mini-question textarea
+) {
+  min-height: 6.5rem !important;
+  padding: 0.6rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Drawers and non-primary supporting text
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-drawer,
+  .discovery-mini-details,
+  .finder-simple-drawer,
+  .finder-calm-drawer
+) {
+  border-radius: var(--wm-compact-radius-card) !important;
+  padding: 0.62rem 0.75rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-drawer summary,
+  .discovery-mini-details summary,
+  .finder-simple-drawer summary
+) {
+  font-size: 0.8rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-drawer p,
+  .discovery-mini-details p,
+  .finder-simple-drawer p
+) {
+  font-size: 0.76rem !important;
+  line-height: 1.32 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar compacting
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-sidebar {
+  width: 230px !important;
+}
+
+html body #root .wingman-sidebar nav {
+  gap: 0.22rem !important;
+}
+
+html body #root .wingman-sidebar :where(
+  .wingman-nav-link,
+  a
+) {
+  min-height: 2.15rem !important;
+  border-radius: 10px !important;
+  padding: 0.45rem 0.58rem !important;
+  gap: 0.52rem !important;
+}
+
+html body #root .wingman-sidebar :where(
+  .wingman-nav-link svg,
+  a svg
+) {
+  width: 0.95rem !important;
+  height: 0.95rem !important;
+}
+
+html body #root .wingman-sidebar :where(
+  .wingman-nav-copy span,
+  .wingman-nav-link span,
+  a span
+) {
+  font-size: 0.78rem !important;
+  line-height: 1.15 !important;
+}
+
+html body #root .wingman-sidebar :where(
+  .wingman-nav-copy small,
+  a small
+) {
+  font-size: 0.66rem !important;
+  line-height: 1.1 !important;
+}
+
+/* Reduce the expert handoff/support card if present. */
+
+html body #root .wingman-sidebar :where(
+  [class*="handoff"],
+  [class*="Handoff"],
+  [class*="support-card"],
+  [class*="SupportCard"]
+) {
+  min-height: 2.6rem !important;
+  padding: 0.45rem 0.58rem !important;
+  border-radius: 14px !important;
+}
+
+html body #root .wingman-sidebar :where(
+  [class*="handoff"] *,
+  [class*="Handoff"] *,
+  [class*="support-card"] *,
+  [class*="SupportCard"] *
+) {
+  font-size: 0.72rem !important;
+  line-height: 1.15 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Conversation type strip
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wingman-language-profile-switcher,
+  .wingman-conversation-type,
+  [class*="conversation-type"],
+  [class*="ConversationType"]
+) {
+  min-height: 2.35rem !important;
+  border-radius: var(--wm-compact-radius-card) !important;
+  padding: 0.35rem 0.45rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wingman-language-profile-switcher button,
+  button[class*="conversation"],
+  button[class*="Conversation"]
+) {
+  min-height: 1.85rem !important;
+  border-radius: var(--wm-compact-radius-button) !important;
+  padding: 0.35rem 0.55rem !important;
+  font-size: 0.72rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Proposal exception: compact but keep document readable
+   -------------------------------------------------------------------------- */
+
+html body #root .proposal-clean-document-body {
+  gap: 0.65rem !important;
+  padding: 0.85rem !important;
+}
+
+html body #root .proposal-clean-cover {
+  padding: 1.25rem !important;
+}
+
+html body #root .proposal-clean-cover h2 {
+  font-size: clamp(1.25rem, 1.8vw, 1.8rem) !important;
+}
+
+html body #root .proposal-clean-info-block,
+html body #root .proposal-clean-output,
+html body #root .proposal-clean-readiness,
+html body #root .proposal-clean-governance {
+  padding: 0.75rem !important;
+  border-radius: 14px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  :root {
+    --wm-compact-page-max: 100%;
+  }
+
+  html body #root .wingman-page-host :where(
+    .wm-calm-launch-grid,
+    .discovery-mini-grid,
+    .finder-simple-route-grid
+  ) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body #root .wingman-page-host :where(
+    .wm-calm-launch-grid,
+    .wm-calm-choice-grid,
+    .discovery-mini-grid,
+    .finder-simple-route-grid,
+    .finder-simple-option-grid
+  ) {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body #root .wingman-page-host :where(
+    .wm-calm-hero,
+    .discovery-mini-hero,
+    .finder-simple-hero,
+    .proposal-clean-hero,
+    .sales-language-hero
+  ) {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* --- src/wingman2/styles/discovery-task-hub.css --- */
+.discovery-mini-page {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  color: #f8fafc;
+}
+
+.discovery-mini-hero,
+.discovery-mini-guidance,
+.discovery-mini-details.page-level {
+  border: 1px solid rgba(125, 180, 240, 0.24);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.12), transparent 24rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(6, 21, 36, 0.98));
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.24);
+}
+
+.discovery-mini-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.35rem;
+}
+
+.discovery-mini-kicker {
+  margin: 0 0 0.4rem;
+  color: #fbbf24;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.discovery-mini-hero h1,
+.discovery-mini-modal h2 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: clamp(1.45rem, 2.4vw, 2.4rem);
+  font-weight: 850;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.discovery-mini-hero p {
+  max-width: 60rem;
+  margin: 0.55rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.discovery-mini-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: flex-end;
+}
+
+.discovery-mini-button,
+.discovery-mini-icon-button {
+  display: inline-flex;
+  min-height: 2.55rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 0.68rem 0.95rem;
+  text-decoration: none;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.discovery-mini-button svg,
+.discovery-mini-icon-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.discovery-mini-button:hover,
+.discovery-mini-icon-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(251, 191, 36, 0.58);
+  background: rgba(251, 191, 36, 0.12);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.discovery-mini-button.primary {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #111827;
+}
+
+.discovery-mini-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.discovery-mini-icon-button {
+  width: 2.7rem;
+  padding: 0;
+}
+
+.discovery-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.discovery-mini-card {
+  position: relative;
+  display: block;
+  min-height: 12rem;
+  overflow: hidden;
+  border: 1px solid rgba(125, 180, 240, 0.24);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 9rem),
+    linear-gradient(180deg, rgba(14, 42, 68, 0.96), rgba(8, 27, 46, 0.98));
+  color: #f8fafc;
+  cursor: pointer;
+  padding: 1rem;
+  text-align: left;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.discovery-mini-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, #fbbf24, #f97316);
+}
+
+.discovery-mini-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(251, 191, 36, 0.68);
+  box-shadow: 0 26px 56px rgba(0, 0, 0, 0.32);
+}
+
+.discovery-mini-card svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: #fbbf24;
+}
+
+.discovery-mini-card strong {
+  display: block;
+  margin-top: 0.8rem;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.discovery-mini-card span {
+  display: block;
+  margin-top: 0.45rem;
+  color: #cbd5e1;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.discovery-mini-card small,
+.discovery-mini-card em {
+  display: block;
+  margin-top: 0.65rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.discovery-mini-card small {
+  color: #93c5fd;
+  font-weight: 700;
+}
+
+.discovery-mini-card em {
+  color: #fde68a;
+  font-style: normal;
+  font-weight: 750;
+}
+
+.discovery-mini-guidance {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  padding: 1rem;
+}
+
+.discovery-mini-guidance > div {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.7rem;
+  align-items: start;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.85rem;
+}
+
+.discovery-mini-guidance svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: #fbbf24;
+}
+
+.discovery-mini-guidance strong {
+  display: block;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.discovery-mini-guidance span {
+  display: block;
+  margin-top: 0.25rem;
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.discovery-mini-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 8, 18, 0.72);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+}
+
+.discovery-mini-modal {
+  display: grid;
+  gap: 1rem;
+  width: min(760px, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  border: 1px solid rgba(125, 180, 240, 0.28);
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.1), transparent 20rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.99), rgba(6, 21, 36, 0.99));
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.48);
+  padding: 1.2rem;
+}
+
+.discovery-mini-modal header,
+.discovery-mini-modal footer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.discovery-mini-modal header span {
+  display: block;
+  margin-top: 0.35rem;
+  color: #cbd5e1;
+  font-size: 0.84rem;
+}
+
+.discovery-mini-question {
+  display: grid;
+  gap: 1rem;
+}
+
+.discovery-mini-question blockquote {
+  margin: 0;
+  border-left: 6px solid #fbbf24;
+  border-radius: 20px;
+  background: rgba(251, 191, 36, 0.11);
+  color: #f8fafc;
+  font-size: clamp(1.1rem, 1.8vw, 1.45rem);
+  font-weight: 750;
+  line-height: 1.4;
+  padding: 1rem;
+}
+
+.discovery-mini-option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.discovery-mini-option-grid button {
+  min-height: 3.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(14, 42, 68, 0.96), rgba(8, 27, 46, 0.98));
+  color: #f8fafc;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 750;
+  padding: 0.85rem;
+  text-align: left;
+}
+
+.discovery-mini-option-grid button:hover,
+.discovery-mini-option-grid button.is-selected {
+  border-color: rgba(251, 191, 36, 0.68);
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.16), transparent 8rem),
+    linear-gradient(180deg, rgba(18, 51, 80, 1), rgba(10, 32, 54, 1));
+}
+
+.discovery-mini-question textarea {
+  width: 100%;
+  min-height: 10rem;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 20px;
+  background: #f8fafc;
+  color: #0f172a;
+  font: inherit;
+  font-size: 0.94rem;
+  line-height: 1.5;
+  padding: 0.9rem;
+  resize: vertical;
+}
+
+.discovery-mini-question textarea:focus {
+  border-color: rgba(251, 191, 36, 0.78);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.18);
+  outline: none;
+}
+
+.discovery-mini-details {
+  border: 1px solid rgba(125, 180, 240, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.85rem 1rem;
+}
+
+.discovery-mini-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #f8fafc;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 800;
+  list-style: none;
+}
+
+.discovery-mini-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.discovery-mini-details summary::after {
+  content: "+";
+  display: grid;
+  width: 1.55rem;
+  height: 1.55rem;
+  place-items: center;
+  border: 1px solid rgba(251, 191, 36, 0.34);
+  border-radius: 999px;
+  color: #fbbf24;
+}
+
+.discovery-mini-details[open] summary::after {
+  content: "-";
+}
+
+.discovery-mini-details p,
+.discovery-mini-details li {
+  color: #cbd5e1;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.discovery-mini-details ul {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.discovery-mini-details.page-level {
+  padding: 0.95rem 1rem;
+}
+
+.discovery-mini-result {
+  border: 1px solid rgba(52, 211, 153, 0.34);
+  border-radius: 22px;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 1rem;
+}
+
+.discovery-mini-result strong {
+  display: block;
+  color: #d1fae5;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 1180px) {
+  .discovery-mini-grid,
+  .discovery-mini-guidance {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .discovery-mini-hero,
+  .discovery-mini-grid,
+  .discovery-mini-guidance,
+  .discovery-mini-option-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .discovery-mini-actions,
+  .discovery-mini-modal footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .discovery-mini-button {
+    width: 100%;
+  }
+}
+
+/* --- src/wingman2/styles/product-finder-simple-force.css --- */
+.finder-simple-page {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  color: #f8fafc;
+}
+
+.finder-simple-hero,
+.finder-simple-drawer,
+.finder-simple-status {
+  border: 1px solid rgba(125, 180, 240, 0.24);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.12), transparent 24rem),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 22rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(6, 21, 36, 0.98));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+}
+
+.finder-simple-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.3rem;
+}
+
+.finder-simple-kicker {
+  margin: 0 0 0.4rem;
+  color: #fbbf24;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.finder-simple-hero h1,
+.finder-simple-modal h2,
+.finder-simple-results h3 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+
+.finder-simple-hero p,
+.finder-simple-modal header span {
+  max-width: 64rem;
+  margin: 0.5rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.finder-simple-actions,
+.finder-simple-modal footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: flex-end;
+}
+
+.finder-simple-button,
+.finder-simple-icon-button {
+  display: inline-flex;
+  min-height: 2.45rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 650;
+  padding: 0.62rem 0.9rem;
+  text-decoration: none;
+}
+
+.finder-simple-button svg,
+.finder-simple-icon-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.finder-simple-button:hover,
+.finder-simple-icon-button:hover {
+  border-color: rgba(251, 191, 36, 0.56);
+  background: rgba(251, 191, 36, 0.12);
+}
+
+.finder-simple-button.primary {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #111827;
+}
+
+.finder-simple-icon-button {
+  width: 2.65rem;
+  padding: 0;
+}
+
+.finder-simple-route-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.finder-simple-route-card {
+  position: relative;
+  display: block;
+  min-height: 9.2rem;
+  overflow: hidden;
+  border: 1px solid rgba(125, 180, 240, 0.24);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 9rem),
+    linear-gradient(180deg, rgba(14, 42, 68, 0.96), rgba(8, 27, 46, 0.98));
+  color: #f8fafc;
+  cursor: pointer;
+  padding: 1rem;
+  text-align: left;
+}
+
+.finder-simple-route-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, #fbbf24, #f97316);
+}
+
+.finder-simple-route-card:hover {
+  border-color: rgba(251, 191, 36, 0.56);
+  transform: translateY(-1px);
+}
+
+.finder-simple-route-card svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #fbbf24;
+}
+
+.finder-simple-route-card strong {
+  display: block;
+  margin-top: 0.8rem;
+  color: #f8fafc;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.finder-simple-route-card span {
+  display: block;
+  margin-top: 0.45rem;
+  color: #cbd5e1;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.finder-simple-route-card small {
+  display: block;
+  margin-top: 0.65rem;
+  color: #fde68a;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.finder-simple-drawer {
+  padding: 0.9rem 1rem;
+}
+
+.finder-simple-drawer summary {
+  color: #f8fafc;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.finder-simple-drawer p {
+  color: #cbd5e1;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.finder-simple-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 8, 18, 0.72);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+}
+
+.finder-simple-modal {
+  display: grid;
+  gap: 1rem;
+  width: min(980px, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  border: 1px solid rgba(125, 180, 240, 0.28);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.1), transparent 20rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.99), rgba(6, 21, 36, 0.99));
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.48);
+  padding: 1.2rem;
+}
+
+.finder-simple-modal header,
+.finder-simple-modal footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.finder-simple-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.finder-simple-field span {
+  color: #fbbf24;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.finder-simple-field input {
+  width: 100%;
+  min-height: 2.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #0f172a;
+  font: inherit;
+  font-size: 0.92rem;
+  padding: 0.7rem 0.8rem;
+}
+
+.finder-simple-option-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.finder-simple-option-grid button {
+  min-height: 3.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(14, 42, 68, 0.96), rgba(8, 27, 46, 0.98));
+  color: #f8fafc;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 750;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.finder-simple-option-grid button:hover,
+.finder-simple-option-grid button.is-selected {
+  border-color: rgba(251, 191, 36, 0.68);
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.16), transparent 8rem),
+    linear-gradient(180deg, rgba(18, 51, 80, 1), rgba(10, 32, 54, 1));
+}
+
+.finder-simple-note,
+.finder-simple-empty,
+.finder-simple-status {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  padding: 1rem;
+}
+
+.finder-simple-note,
+.finder-simple-empty {
+  border: 1px solid rgba(125, 180, 240, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.finder-simple-note svg,
+.finder-simple-empty svg,
+.finder-simple-status svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: #fbbf24;
+}
+
+.finder-simple-note strong,
+.finder-simple-empty strong,
+.finder-simple-status strong {
+  display: block;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.finder-simple-note p,
+.finder-simple-empty p,
+.finder-simple-status span {
+  margin: 0.3rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.finder-simple-results {
+  display: grid;
+  gap: 1rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  padding-top: 1rem;
+}
+
+.finder-simple-results-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.finder-simple-results-heading em {
+  border: 1px solid rgba(52, 211, 153, 0.34);
+  border-radius: 14px;
+  background: rgba(16, 185, 129, 0.11);
+  color: #bbf7d0;
+  font-size: 0.82rem;
+  font-style: normal;
+  font-weight: 750;
+  padding: 0.55rem 0.7rem;
+}
+
+.finder-simple-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.finder-simple-product-card {
+  display: grid;
+  gap: 0.85rem;
+  border: 1px solid rgba(125, 180, 240, 0.24);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 9rem),
+    linear-gradient(180deg, rgba(14, 42, 68, 0.96), rgba(8, 27, 46, 0.98));
+  padding: 1rem;
+}
+
+.finder-simple-product-card strong {
+  color: #fbbf24;
+  font-size: 0.82rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+}
+
+.finder-simple-product-card h4 {
+  margin: 0.25rem 0 0;
+  color: #f8fafc;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.finder-simple-product-card p {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.finder-simple-product-card div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.finder-simple-product-card div span {
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 10px;
+  background: rgba(251, 191, 36, 0.1);
+  color: #fde68a;
+  font-size: 0.75rem;
+  font-weight: 750;
+  padding: 0.35rem 0.48rem;
+}
+
+@media (max-width: 1180px) {
+  .finder-simple-route-grid,
+  .finder-simple-option-grid,
+  .finder-simple-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .finder-simple-hero,
+  .finder-simple-route-grid,
+  .finder-simple-option-grid,
+  .finder-simple-product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .finder-simple-actions,
+  .finder-simple-modal footer {
+    justify-content: stretch;
+  }
+
+  .finder-simple-button {
+    width: 100%;
+  }
+}
+
+/* --- src/wingman2/styles/proposal-page-clean.css --- */
+.proposal-clean-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: #0f172a;
+}
+
+.proposal-clean-hero,
+.proposal-clean-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.12), transparent 24rem),
+    linear-gradient(180deg, rgba(9, 28, 48, 0.98) 0%, rgba(7, 24, 42, 0.98) 100%);
+  color: #f8fafc;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.22);
+  padding: 1.25rem;
+}
+
+.proposal-clean-toolbar {
+  align-items: center;
+  border-radius: 22px;
+  padding: 1rem;
+}
+
+.proposal-clean-eyebrow,
+.proposal-clean-kicker {
+  margin: 0 0 0.35rem;
+  color: #fbbf24;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.proposal-clean-hero h1,
+.proposal-clean-toolbar h2 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: clamp(1.3rem, 2vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+
+.proposal-clean-hero p,
+.proposal-clean-toolbar p {
+  margin: 0.45rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.proposal-clean-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+
+.proposal-clean-button,
+.proposal-clean-readiness a {
+  display: inline-flex;
+  min-height: 2.45rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 650;
+  padding: 0.6rem 0.9rem;
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.proposal-clean-button.primary {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #111827;
+}
+
+.proposal-clean-button:hover,
+.proposal-clean-readiness a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+}
+
+.proposal-clean-button-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.proposal-clean-layout {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.32fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.proposal-clean-sections {
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(15, 38, 63, 0.98), rgba(10, 30, 52, 0.98));
+  padding: 1rem;
+}
+
+.proposal-clean-sections > div {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.proposal-clean-sections button {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 650;
+  min-height: 2.45rem;
+  padding: 0.55rem 0.75rem;
+  text-align: left;
+}
+
+.proposal-clean-sections button.is-active {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #111827;
+}
+
+.proposal-clean-document {
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.36);
+  border-radius: 28px;
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 20px 46px rgba(0, 0, 0, 0.22);
+}
+
+.proposal-clean-cover {
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.22), transparent 26rem),
+    linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #111827;
+  padding: 2rem;
+}
+
+.proposal-clean-cover p {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.proposal-clean-cover h2 {
+  margin: 0.5rem 0 0;
+  color: #111827;
+  font-size: clamp(1.45rem, 2.5vw, 2.6rem);
+  font-weight: 850;
+  letter-spacing: -0.05em;
+  line-height: 1.02;
+}
+
+.proposal-clean-cover span {
+  display: block;
+  max-width: 70rem;
+  margin-top: 0.75rem;
+  color: #1f2937;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.proposal-clean-document-body {
+  display: grid;
+  gap: 1rem;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 1.25rem;
+}
+
+.proposal-clean-readiness,
+.proposal-clean-output,
+.proposal-clean-info-block,
+.proposal-clean-governance {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 20px;
+  background: #f8fafc;
+  color: #0f172a;
+  padding: 1rem;
+}
+
+.proposal-clean-readiness {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.proposal-clean-readiness.warning {
+  border-color: rgba(245, 158, 11, 0.34);
+  background: #fffbeb;
+}
+
+.proposal-clean-readiness.good {
+  border-color: rgba(16, 185, 129, 0.34);
+  background: #ecfdf5;
+}
+
+.proposal-clean-readiness strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.proposal-clean-readiness span {
+  display: block;
+  margin-top: 0.25rem;
+  color: #475569;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.proposal-clean-readiness a {
+  flex-shrink: 0;
+  border-color: #0f172a;
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.proposal-clean-output > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.proposal-clean-output > div > div {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 16px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  padding: 0.85rem;
+}
+
+.proposal-clean-output strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.proposal-clean-output span {
+  display: block;
+  margin-top: 0.35rem;
+}
+
+.proposal-clean-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.proposal-clean-info-block p,
+.proposal-clean-info-block li {
+  color: #334155;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.proposal-clean-info-block ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.proposal-clean-info-block li {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 0.75rem;
+}
+
+.proposal-clean-governance {
+  background: #eef2ff;
+  border-color: rgba(99, 102, 241, 0.24);
+}
+
+.proposal-clean-governance-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.proposal-clean-governance-head span {
+  color: #334155;
+  font-size: 0.88rem;
+}
+
+.proposal-clean-governance-head svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  color: #4338ca;
+}
+
+.proposal-clean-governance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.proposal-clean-governance-card {
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  border-radius: 16px;
+  background: #ffffff;
+  color: #312e81;
+  padding: 0.85rem;
+}
+
+.proposal-clean-governance-card > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.proposal-clean-governance-card strong {
+  color: #312e81;
+  font-size: 0.9rem;
+}
+
+.proposal-clean-governance-card span {
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.32rem 0.5rem;
+}
+
+.proposal-clean-governance-card p {
+  margin: 0.45rem 0 0;
+  color: #4338ca;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.proposal-clean-governance-card small {
+  display: block;
+  margin-top: 0.45rem;
+  color: #312e81;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.proposal-clean-table-wrap {
+  overflow: hidden;
+  margin-top: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 16px;
+}
+
+.proposal-clean-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.88rem;
+}
+
+.proposal-clean-table th {
+  background: #f1f5f9;
+  color: #334155;
+  font-weight: 800;
+  text-align: left;
+}
+
+.proposal-clean-table th,
+.proposal-clean-table td {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  padding: 0.75rem;
+}
+
+.proposal-clean-table td {
+  color: #0f172a;
+}
+
+.proposal-clean-feedback-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.proposal-clean-feedback-grid button {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  color: #0f172a;
+  cursor: pointer;
+  font: inherit;
+  min-height: 5.4rem;
+  padding: 0.85rem;
+  text-align: left;
+}
+
+.proposal-clean-feedback-grid button:hover {
+  border-color: rgba(245, 158, 11, 0.7);
+  background: #fffbeb;
+}
+
+.proposal-clean-feedback-grid svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #92400e;
+}
+
+.proposal-clean-feedback-grid strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.proposal-clean-feedback-grid small {
+  display: block;
+  margin-top: 0.2rem;
+  color: #475569;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.proposal-clean-feedback-message {
+  margin: 0.75rem 0 0;
+  color: #475569;
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+@media (max-width: 1180px) {
+  .proposal-clean-layout,
+  .proposal-clean-two-col,
+  .proposal-clean-output > div,
+  .proposal-clean-governance-grid,
+  .proposal-clean-feedback-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .proposal-clean-hero,
+  .proposal-clean-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .proposal-clean-actions {
+    justify-content: stretch;
+  }
+
+  .proposal-clean-button {
+    width: 100%;
+  }
+
+  .proposal-clean-readiness {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+/* --- src/wingman2/styles/proposal-clean-final-contrast.css --- */
+/* ==========================================================================
+   Proposal clean final contrast lock
+   This file intentionally uses high specificity because older global Wingman
+   dark-theme layers are still overriding the Proposal document surface.
+   ========================================================================== */
+
+/* Keep the outer Proposal page dark and Wingman-like */
+
+html body #root .wingman-page-host .proposal-clean-shell {
+  color: #e2e8f0 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-hero,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-toolbar,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-sections {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 20rem),
+    linear-gradient(180deg, rgba(9, 28, 48, 0.98) 0%, rgba(7, 24, 42, 0.98) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.24) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-hero h1,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-toolbar h2 {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-hero p,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-toolbar p {
+  color: #cbd5e1 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-eyebrow,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-sections .proposal-clean-kicker {
+  color: #fbbf24 !important;
+}
+
+/* Force the proposal preview itself to be a readable white document */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-document {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(148, 163, 184, 0.36) !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-document-body {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Cover band */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-cover {
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.24), transparent 24rem),
+    linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+  color: #111827 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-cover p,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-cover h2,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-cover span {
+  color: #111827 !important;
+}
+
+/* Dark readability band directly below cover */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-readiness {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 18rem),
+    linear-gradient(180deg, #1e293b 0%, #172033 100%) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-readiness .proposal-clean-kicker {
+  color: #fbbf24 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-readiness strong {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-readiness span {
+  color: #cbd5e1 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-readiness a {
+  background: #0f172a !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  color: #ffffff !important;
+}
+
+/* Output purpose block */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 18rem),
+    linear-gradient(180deg, #1e293b 0%, #172033 100%) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output .proposal-clean-kicker {
+  color: #fbbf24 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output > div > div {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 0.34) !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output strong {
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output span,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output div {
+  color: #0f172a !important;
+}
+
+/* Executive summary and recommended products blocks */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-info-block {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 16rem),
+    linear-gradient(180deg, #1e293b 0%, #172033 100%) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-info-block .proposal-clean-kicker {
+  color: #fbbf24 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-info-block p {
+  color: #e2e8f0 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-info-block ul {
+  color: inherit !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-info-block li {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
+  color: #0f172a !important;
+}
+
+/* Governance panel */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance {
+  background: #eef2ff !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+  color: #312e81 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance .proposal-clean-kicker {
+  color: #312e81 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance span,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance p,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance small,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance strong {
+  color: #312e81 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance-card {
+  background: #ffffff !important;
+  border-color: rgba(99, 102, 241, 0.26) !important;
+  color: #312e81 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance-card span {
+  background: #eef2ff !important;
+  color: #4338ca !important;
+}
+
+/* BOM table */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-table-wrap {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-table {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-table thead,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-table th {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-table td {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Feedback cards */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-feedback-grid button {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 7rem),
+    linear-gradient(180deg, rgba(15, 38, 63, 0.98) 0%, rgba(10, 30, 52, 0.98) 100%) !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-feedback-grid button:hover {
+  border-color: rgba(251, 191, 36, 0.72) !important;
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.13), transparent 8rem),
+    linear-gradient(180deg, rgba(20, 48, 78, 1) 0%, rgba(12, 35, 60, 1) 100%) !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-feedback-grid svg {
+  color: #fbbf24 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-feedback-grid strong {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-feedback-grid small {
+  color: #cbd5e1 !important;
+}
+
+/* Left nav */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-sections button {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #e2e8f0 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-sections button.is-active {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  border-color: #f59e0b !important;
+  color: #111827 !important;
+}
+
+/* Final text safety net */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-document :where(
+  .proposal-clean-document-body,
+  .proposal-clean-document-body section,
+  .proposal-clean-document-body article
+) {
+  color: inherit !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-document-body :where(
+  .text-slate-950,
+  .text-slate-900,
+  .text-slate-800,
+  .text-gray-950,
+  .text-gray-900,
+  .text-gray-800
+) {
+  color: inherit !important;
+}
+/* WINGMAN CENTRALIZED STYLE PATCHES END */

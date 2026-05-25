@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { MessageCircle, MoveRight } from "lucide-react";
+import { Languages, MessageCircle, MoveRight } from "lucide-react";
 import {
   buildSalesConversationToneCopy,
+  DEFAULT_SALES_CONVERSATION_LOCALE,
   DEFAULT_SALES_CONVERSATION_TONE_ID,
   LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
+  normalizeSalesConversationLocale,
   normalizeSalesConversationToneId,
+  SALES_CONVERSATION_LOCALE_STORAGE_KEY,
   SALES_CONVERSATION_TYPE_STORAGE_KEY,
+  salesConversationLocaleOptions,
   salesConversationToneOptions,
+  type SalesConversationLocale,
   type SalesConversationContext,
   type SalesConversationToneId,
 } from "../lib/salesConversationTone";
@@ -43,9 +48,26 @@ function readStoredTone(): SalesConversationToneId {
   return DEFAULT_SALES_CONVERSATION_TONE_ID;
 }
 
+function readStoredLocale(): SalesConversationLocale {
+  try {
+    if (typeof window === "undefined") {
+      return DEFAULT_SALES_CONVERSATION_LOCALE;
+    }
+
+    return normalizeSalesConversationLocale(window.localStorage.getItem(SALES_CONVERSATION_LOCALE_STORAGE_KEY));
+  } catch {
+    return DEFAULT_SALES_CONVERSATION_LOCALE;
+  }
+}
+
 function requestConversationType(typeId: SalesConversationToneId) {
   setStoredConversationType(typeId);
   window.dispatchEvent(new CustomEvent("wingman:sales-mode-request", { detail: { mode: typeId } }));
+}
+
+function requestConversationLocale(locale: SalesConversationLocale) {
+  window.localStorage.setItem(SALES_CONVERSATION_LOCALE_STORAGE_KEY, locale);
+  window.dispatchEvent(new CustomEvent("wingman:sales-locale-request", { detail: { locale } }));
 }
 
 function setStoredConversationType(typeId: SalesConversationToneId) {
@@ -54,6 +76,7 @@ function setStoredConversationType(typeId: SalesConversationToneId) {
 
 export function SalesToneQuickSetter({ context, className = "", surface = "light" }: SalesToneQuickSetterProps) {
   const [activeToneId, setActiveToneId] = useState<SalesConversationToneId>(() => readStoredTone());
+  const [activeLocale, setActiveLocale] = useState<SalesConversationLocale>(() => readStoredLocale());
   const isDark = surface === "dark";
 
   useEffect(() => {
@@ -63,6 +86,14 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
       return;
     }
   }, [activeToneId]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(SALES_CONVERSATION_LOCALE_STORAGE_KEY, activeLocale);
+    } catch {
+      return;
+    }
+  }, [activeLocale]);
 
   useEffect(() => {
     function handleTypeChange(event: Event) {
@@ -82,9 +113,22 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
     };
   }, []);
 
+  useEffect(() => {
+    function handleLocaleChange(event: Event) {
+      const requested = event instanceof CustomEvent ? event.detail?.locale : null;
+      setActiveLocale(normalizeSalesConversationLocale(requested));
+    }
+
+    window.addEventListener("wingman:sales-locale-change", handleLocaleChange);
+
+    return () => {
+      window.removeEventListener("wingman:sales-locale-change", handleLocaleChange);
+    };
+  }, []);
+
   const activeCopy = useMemo(() => {
-    return buildSalesConversationToneCopy(context, activeToneId);
-  }, [activeToneId, context]);
+    return buildSalesConversationToneCopy(context, activeToneId, activeLocale);
+  }, [activeLocale, activeToneId, context]);
 
   return (
     <section
@@ -151,6 +195,44 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
                   <span className={["mt-0.5 block text-xs", isActive ? "opacity-80" : "opacity-65"].join(" ")}>
                     {option.shortDescription}
                   </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div
+            className={[
+              "mt-3 flex flex-wrap gap-2 rounded-2xl border p-2",
+              isDark ? "border-white/10 bg-white/[0.04]" : "border-amber-200 bg-white",
+            ].join(" ")}
+            role="group"
+            aria-label="Conversation language"
+          >
+            {salesConversationLocaleOptions.map((option) => {
+              const isActive = option.id === activeLocale;
+
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveLocale(option.id);
+                    requestConversationLocale(option.id);
+                  }}
+                  aria-pressed={isActive}
+                  className={[
+                    "inline-flex min-h-9 items-center gap-2 rounded-xl border px-3 text-sm font-black transition",
+                    isActive
+                      ? isDark
+                        ? "border-sky-300 bg-sky-300 text-slate-950"
+                        : "border-sky-900 bg-sky-900 text-white"
+                      : isDark
+                        ? "border-white/10 bg-transparent text-slate-200 hover:border-sky-300/60"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-sky-500",
+                  ].join(" ")}
+                >
+                  <Languages className="h-4 w-4" />
+                  <span>{option.shortLabel}</span>
                 </button>
               );
             })}

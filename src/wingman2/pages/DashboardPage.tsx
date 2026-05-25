@@ -1,392 +1,227 @@
-import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import type { LucideIcon } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
-  ArrowRight,
-  Building2,
+  Bot,
   ClipboardList,
-  ExternalLink,
   FileText,
-  FolderKanban,
-  Handshake,
-  HelpCircle,
+  GitCompare,
+  Languages,
   LayoutTemplate,
-  MoreHorizontal,
-  PanelsTopLeft,
-  RefreshCw,
   Search,
-  Scale,
-  Users,
+  Video,
 } from "lucide-react";
-import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   buildSalesConversationToneCopy,
+  DEFAULT_SALES_CONVERSATION_LOCALE,
   DEFAULT_SALES_CONVERSATION_TONE_ID,
-  LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
+  normalizeSalesConversationLocale,
   normalizeSalesConversationToneId,
+  SALES_CONVERSATION_LOCALE_STORAGE_KEY,
   SALES_CONVERSATION_TYPE_STORAGE_KEY,
+  salesConversationLocaleOptions,
   salesConversationToneOptions,
+  type SalesConversationLocale,
   type SalesConversationToneId,
 } from "../lib/salesConversationTone";
 
-type SalesModeCard = {
-  id: SalesConversationToneId;
-  title: string;
-  summary: string;
-  Icon: LucideIcon;
-};
-
-type WorkflowCard = {
-  title: string;
-  summary: string;
-  route: string;
-  Icon: LucideIcon;
-};
-
-type RecentProject = {
-  name: string;
-  note: string;
-  type: string;
-  updated: string;
-  owner: string;
-  status: "In progress" | "Draft";
-};
-
-const iconByConversationType: Record<SalesConversationToneId, LucideIcon> = {
-  trade: Handshake,
-  user: Users,
-  consultant: ClipboardList,
-};
-
-const salesModeCards: SalesModeCard[] = salesConversationToneOptions.map((option) => ({
-  id: option.id,
-  title: option.label,
-  summary: option.shortDescription,
-  Icon: iconByConversationType[option.id],
-}));
-
-const workflowCards: WorkflowCard[] = [
+const launchItems = [
   {
-    title: "Discovery",
-    summary: "Ask the right questions",
-    route: routeCatalogByKey.discovery.path,
+    title: "Start guided discovery",
+    description: "Ask one question at a time and let Wingman infer the likely AV route.",
+    path: "/wingman/guided-discovery",
     Icon: ClipboardList,
   },
   {
-    title: "Product Finder",
-    summary: "Find the right fit",
-    route: routeCatalogByKey.finder.path,
+    title: "Find a product",
+    description: "Search by I/O, feature, family or SKU when the requirement is already clear.",
+    path: "/wingman/finder",
     Icon: Search,
   },
   {
-    title: "Room Templates",
-    summary: "Start from a proven room",
-    route: routeCatalogByKey.templates.path,
+    title: "Compare competitor product",
+    description: "Use a competitor SKU or link as a clue, then find the WyreStorm fit.",
+    path: "/wingman/compare",
+    Icon: GitCompare,
+  },
+  {
+    title: "Build proposal",
+    description: "Turn known requirements and shortlisted SKUs into a customer-safe output.",
+    path: "/wingman/proposal",
+    Icon: FileText,
+  },
+  {
+    title: "Use a room template",
+    description: "Start from a common room type instead of a blank discovery form.",
+    path: "/wingman/templates",
     Icon: LayoutTemplate,
   },
   {
-    title: "Competitor Compare",
-    summary: "Win with confidence",
-    route: routeCatalogByKey.compare.path,
-    Icon: Scale,
-  },
-  {
-    title: "Video Wall",
-    summary: "Design and visualize",
-    route: routeCatalogByKey.videowall.path,
-    Icon: PanelsTopLeft,
-  },
-  {
-    title: "Sales Language",
-    summary: "Talk the right way",
-    route: routeCatalogByKey.salesHelper.path,
-    Icon: FileText,
-  },
-  {
-    title: "Proposal",
-    summary: "Create and share",
-    route: routeCatalogByKey.proposal.path,
-    Icon: FileText,
-  },
-  {
-    title: "Projects",
-    summary: "Manage opportunities",
-    route: routeCatalogByKey.projects.path,
-    Icon: FolderKanban,
+    title: "Video wall route",
+    description: "Separate simple wall processing from AVoIP, multiview and canvas workflows.",
+    path: "/wingman/videowall",
+    Icon: Video,
   },
 ];
 
-const recentProjects: RecentProject[] = [
-  {
-    name: "Acme Corp - Executive Briefing Center",
-    note: "RFP due May 28",
-    type: "Proposal",
-    updated: "May 16, 2025 10:42 AM",
-    owner: "AP",
-    status: "In progress",
-  },
-  {
-    name: "Northwind - Training Rooms (3)",
-    note: "Initial discovery",
-    type: "Discovery",
-    updated: "May 15, 2025 4:18 PM",
-    owner: "AP",
-    status: "In progress",
-  },
-  {
-    name: "Global Finance HQ - Boardroom",
-    note: "Solution review",
-    type: "Room Template",
-    updated: "May 14, 2025 9:05 AM",
-    owner: "KH",
-    status: "Draft",
-  },
-  {
-    name: "TechCore - All Hands Space",
-    note: "Video wall design",
-    type: "Video Wall",
-    updated: "May 12, 2025 2:33 PM",
-    owner: "AP",
-    status: "In progress",
-  },
-];
-
-function getInitialSalesMode(): SalesConversationToneId {
+function readStoredTone(): SalesConversationToneId {
   if (typeof window === "undefined") {
     return DEFAULT_SALES_CONVERSATION_TONE_ID;
   }
 
-  const saved = window.localStorage.getItem(SALES_CONVERSATION_TYPE_STORAGE_KEY);
-
-  if (saved) {
-    return normalizeSalesConversationToneId(saved);
-  }
-
-  for (const key of LEGACY_SALES_CONVERSATION_STORAGE_KEYS) {
-    const legacy = window.localStorage.getItem(key);
-
-    if (legacy) {
-      return normalizeSalesConversationToneId(legacy);
-    }
-  }
-
-  return DEFAULT_SALES_CONVERSATION_TONE_ID;
+  return normalizeSalesConversationToneId(window.localStorage.getItem(SALES_CONVERSATION_TYPE_STORAGE_KEY));
 }
 
-function requestSalesMode(mode: SalesConversationToneId) {
+function readStoredLocale(): SalesConversationLocale {
+  if (typeof window === "undefined") {
+    return DEFAULT_SALES_CONVERSATION_LOCALE;
+  }
+
+  return normalizeSalesConversationLocale(window.localStorage.getItem(SALES_CONVERSATION_LOCALE_STORAGE_KEY));
+}
+
+function requestTone(toneId: SalesConversationToneId) {
   if (typeof window === "undefined") {
     return;
   }
 
-  window.dispatchEvent(new CustomEvent("wingman:sales-mode-request", { detail: { mode } }));
-  window.localStorage.setItem(SALES_CONVERSATION_TYPE_STORAGE_KEY, mode);
+  window.localStorage.setItem(SALES_CONVERSATION_TYPE_STORAGE_KEY, toneId);
+  window.dispatchEvent(new CustomEvent("wingman:sales-mode-request", { detail: { mode: toneId } }));
 }
 
-function workflowTypeClass(type: string) {
-  return `wm-command-dashboard__project-type wm-command-dashboard__project-type-${type
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")}`;
+function requestLocale(locale: SalesConversationLocale) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(SALES_CONVERSATION_LOCALE_STORAGE_KEY, locale);
+  window.dispatchEvent(new CustomEvent("wingman:sales-locale-request", { detail: { locale } }));
 }
 
 export function DashboardPage() {
-  const navigate = useNavigate();
-  const [activeMode, setActiveMode] = useState<SalesConversationToneId>(() => getInitialSalesMode());
+  const [activeToneId, setActiveToneId] = useState<SalesConversationToneId>(() => readStoredTone());
+  const [activeLocale, setActiveLocale] = useState<SalesConversationLocale>(() => readStoredLocale());
 
-  const activeSalesMode = useMemo(() => {
-    return salesModeCards.find((mode) => mode.id === activeMode) ?? salesModeCards[0];
-  }, [activeMode]);
+  useEffect(() => {
+    function handleToneChange(event: Event) {
+      const requested = event instanceof CustomEvent ? event.detail?.mode : null;
+      setActiveToneId(normalizeSalesConversationToneId(requested));
+    }
 
-  const activeConversationCopy = useMemo(() => {
-    return buildSalesConversationToneCopy("salesHelper", activeMode);
-  }, [activeMode]);
+    function handleLocaleChange(event: Event) {
+      const requested = event instanceof CustomEvent ? event.detail?.locale : null;
+      setActiveLocale(normalizeSalesConversationLocale(requested));
+    }
 
-  const handleSalesMode = useCallback((mode: SalesConversationToneId) => {
-    setActiveMode(mode);
-    requestSalesMode(mode);
+    window.addEventListener("wingman:sales-mode-change", handleToneChange);
+    window.addEventListener("wingman:sales-locale-change", handleLocaleChange);
+
+    return () => {
+      window.removeEventListener("wingman:sales-mode-change", handleToneChange);
+      window.removeEventListener("wingman:sales-locale-change", handleLocaleChange);
+    };
   }, []);
 
-  const handleOpen = useCallback(
-    (route: string) => {
-      navigate(route);
-    },
-    [navigate],
-  );
-
-  const ActiveConversationIcon = activeSalesMode.Icon;
+  const activeCopy = useMemo(() => {
+    return buildSalesConversationToneCopy("salesHelper", activeToneId, activeLocale);
+  }, [activeLocale, activeToneId]);
 
   return (
-    <div className="wm-command-dashboard">
-      <div className="wm-command-dashboard__main">
-        <section className="wm-command-panel wm-command-dashboard__tone">
-          <div className="wm-command-panel__header">
-            <div>
-              <h1>Start the conversation</h1>
-              <p>Choose who you are selling to before opening the customer discussion.</p>
+    <main className="wm-calm-page wm-calm-stack">
+      <section className="wm-calm-hero">
+        <div>
+          <p className="wm-calm-kicker">WyreStorm Wingman</p>
+          <h1>Start with the task, not the technology.</h1>
+          <p>
+            Choose the customer conversation, language and workflow. Wingman keeps the next step focused and only
+            expands detail when it helps the sale.
+          </p>
+        </div>
+
+        <div className="wm-calm-actions">
+          <Link className="wm-calm-link-button primary" to="/wingman/guided-discovery">
+            Start Discovery
+          </Link>
+          <Link className="wm-calm-link-button" to="/wingman/support">
+            Ask Guru
+          </Link>
+        </div>
+      </section>
+
+      <section className="wm-calm-task-card wm-calm-conversation-panel">
+        <div>
+          <p className="wm-calm-kicker">Conversation setup</p>
+          <h2>Make the wording match the person in front of you.</h2>
+          <p className="wm-calm-muted">
+            Switching audience or language changes the live opener, follow-up and handoff guidance.
+          </p>
+        </div>
+
+        <div className="wm-calm-conversation-grid">
+          <div>
+            <p className="wm-calm-subhead">Audience mode</p>
+            <div className="wm-calm-choice-grid wm-calm-compact-grid">
+              {salesConversationToneOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={option.id === activeToneId ? "wm-calm-choice-card is-selected" : "wm-calm-choice-card"}
+                  onClick={() => {
+                    setActiveToneId(option.id);
+                    requestTone(option.id);
+                  }}
+                  aria-pressed={option.id === activeToneId}
+                >
+                  <strong>{option.label}</strong>
+                  <span>{option.shortDescription}</span>
+                </button>
+              ))}
             </div>
-            <button type="button" className="wm-command-button wm-command-button--quiet" onClick={() => handleSalesMode(DEFAULT_SALES_CONVERSATION_TONE_ID)}>
-              <RefreshCw className="h-4 w-4" />
-              Reset type
-            </button>
           </div>
 
-          <div className="wm-command-dashboard__tone-grid">
-            {salesModeCards.map(({ id, title, summary, Icon }) => (
-              <button
-                key={id}
-                type="button"
-                className={`wm-command-dashboard__tone-card ${activeMode === id ? "is-active" : ""}`}
-                onClick={() => handleSalesMode(id)}
-                aria-pressed={activeMode === id}
-              >
-                <Icon className="wm-command-dashboard__tone-icon" />
-                <span>
-                  <strong>{title}</strong>
-                  <small>{summary}</small>
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="wm-command-panel">
-          <div className="wm-command-panel__header">
-            <div>
-              <h2>Your workflow</h2>
-              <p>Start from the application, then move into products and proposal output.</p>
-            </div>
-          </div>
-
-          <div className="wm-command-dashboard__workflow-grid">
-            {workflowCards.map(({ title, summary, route, Icon }) => (
-              <button
-                key={title}
-                type="button"
-                className="wm-command-dashboard__workflow-card"
-                onClick={() => handleOpen(route)}
-              >
-                <Icon className="wm-command-dashboard__workflow-icon" />
-                <span>
-                  <strong>{title}</strong>
-                  <small>{summary}</small>
-                </span>
-                <ArrowRight className="wm-command-dashboard__workflow-arrow" />
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="wm-command-panel wm-command-dashboard__recent">
-          <div className="wm-command-panel__header">
-            <div>
-              <h2>Recent work</h2>
-              <p>Proposal, discovery and design work ready to resume.</p>
-            </div>
-            <button type="button" className="wm-command-button wm-command-button--link" onClick={() => handleOpen(routeCatalogByKey.projects.path)}>
-              View all projects
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
-
-          <div className="wm-command-dashboard__table" role="table" aria-label="Recent Wingman work">
-            <div className="wm-command-dashboard__table-row wm-command-dashboard__table-head" role="row">
-              <span role="columnheader">Name</span>
-              <span role="columnheader">Type</span>
-              <span role="columnheader">Last updated</span>
-              <span role="columnheader">Owner</span>
-              <span role="columnheader">Status</span>
-              <span role="columnheader">Actions</span>
+          <div>
+            <p className="wm-calm-subhead">
+              <Languages aria-hidden="true" /> Language
+            </p>
+            <div className="wm-calm-segment-row" role="group" aria-label="Conversation language">
+              {salesConversationLocaleOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={option.id === activeLocale ? "is-active" : ""}
+                  onClick={() => {
+                    setActiveLocale(option.id);
+                    requestLocale(option.id);
+                  }}
+                  aria-pressed={option.id === activeLocale}
+                >
+                  <span>{option.shortLabel}</span>
+                  <small>{option.label}</small>
+                </button>
+              ))}
             </div>
 
-            {recentProjects.map((project) => (
-              <div key={project.name} className="wm-command-dashboard__table-row" role="row">
-                <span className="wm-command-dashboard__project-name" role="cell">
-                  <Building2 className="wm-command-dashboard__project-icon" />
-                  <span>
-                    <strong>{project.name}</strong>
-                    <small>{project.note}</small>
-                  </span>
-                </span>
-                <span role="cell">
-                  <em className={workflowTypeClass(project.type)}>{project.type}</em>
-                </span>
-                <span role="cell">{project.updated}</span>
-                <span role="cell">
-                  <i className="wm-command-dashboard__owner-avatar">{project.owner}</i>
-                </span>
-                <span role="cell">
-                  <em className={`wm-command-dashboard__status wm-command-dashboard__status-${project.status.toLowerCase().replace(" ", "-")}`}>
-                    {project.status}
-                  </em>
-                </span>
-                <span className="wm-command-dashboard__row-actions" role="cell">
-                  <button type="button" aria-label={`Open ${project.name}`}>
-                    <ExternalLink className="h-4 w-4" />
-                  </button>
-                  <button type="button" aria-label={`More actions for ${project.name}`}>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </button>
-                </span>
+            <article className="wm-calm-copy-panel">
+              <Bot aria-hidden="true" />
+              <div>
+                <h3>{activeCopy.title}</h3>
+                <blockquote>{activeCopy.opener}</blockquote>
+                <p>{activeCopy.followUp}</p>
+                <small>{activeCopy.handoff}</small>
               </div>
-            ))}
+            </article>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
-      <aside className="wm-command-dashboard__guidance" hidden aria-hidden="true">
-        <section className="wm-command-panel wm-command-dashboard__guidance-panel">
-          <div className="wm-command-panel__header">
-            <div>
-              <h2>Wingman guidance</h2>
-              <p>{activeSalesMode.title} selected.</p>
-            </div>
-          </div>
-
-          <article className="wm-command-dashboard__guidance-card">
-            <ActiveConversationIcon className="wm-command-dashboard__guidance-icon is-warm" />
-            <div>
-              <h3>{activeConversationCopy.title}</h3>
-              <p>"{activeConversationCopy.opener}"</p>
-              <button type="button" className="wm-command-button wm-command-button--secondary">Use opener</button>
-            </div>
-          </article>
-
-          <article className="wm-command-dashboard__guidance-card">
-            <HelpCircle className="wm-command-dashboard__guidance-icon is-question" />
-            <div>
-              <h3>Follow-up question</h3>
-              <p>"{activeConversationCopy.followUp}"</p>
-              <button type="button" className="wm-command-button wm-command-button--cyan">Use question</button>
-            </div>
-          </article>
-
-          <article className="wm-command-dashboard__guidance-card">
-            <Handshake className="wm-command-dashboard__guidance-icon is-handoff" />
-            <div>
-              <h3>Handoff note</h3>
-              <p>{activeConversationCopy.handoff}</p>
-              <button type="button" className="wm-command-button wm-command-button--secondary">Request expert handoff</button>
-            </div>
-          </article>
-
-          <article className="wm-command-dashboard__active-project">
-            <span>Active project</span>
-            <strong>Acme Corp - Executive Briefing Center</strong>
-            <small>Proposal</small>
-            <div className="wm-command-dashboard__progress" aria-label="Project progress">
-              <i className="is-done" />
-              <i className="is-done" />
-              <i className="is-active" />
-              <i />
-            </div>
-            <button type="button" className="wm-command-button wm-command-button--secondary" onClick={() => handleOpen(routeCatalogByKey.projects.path)}>
-              Open project
-              <ExternalLink className="h-4 w-4" />
-            </button>
-          </article>
-        </section>
-      </aside>
-    </div>
+      <section className="wm-calm-launch-grid" aria-label="Wingman start actions">
+        {launchItems.map(({ title, description, path, Icon }) => (
+          <Link key={title} className="wm-calm-launch-card" to={path}>
+            <Icon aria-hidden="true" />
+            <strong>{title}</strong>
+            <span>{description}</span>
+          </Link>
+        ))}
+      </section>
+    </main>
   );
 }
-
-export default DashboardPage;

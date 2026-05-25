@@ -6,6 +6,13 @@ import { routeByPath, routeCatalogByKey, type WingmanRouteKey } from "../app/rou
 import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { clearActiveProject } from "../data/projectStore";
+import {
+  DEFAULT_SALES_CONVERSATION_LOCALE,
+  normalizeSalesConversationLocale,
+  SALES_CONVERSATION_LOCALE_STORAGE_KEY,
+  salesConversationLocaleOptions,
+  type SalesConversationLocale,
+} from "../lib/salesConversationTone";
 import guruBotIcon from "../../assets/branding/guru-bot.png";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
 type AppShellProps = {
@@ -37,6 +44,7 @@ const transientStoragePrefixes = [
 const primaryNavKeys: WingmanRouteKey[] = [
   "dashboard",
   "discovery",
+  "guidedDiscovery",
   "finder",
   "templates",
   "compare",
@@ -62,6 +70,14 @@ const preservedStorageKeys = [
 ];
 
 const routeStageTabs = ["Overview", "Requirements", "Architecture", "Products", "Next Steps"];
+
+function readStoredSalesLocale(): SalesConversationLocale {
+  if (typeof window === "undefined") {
+    return DEFAULT_SALES_CONVERSATION_LOCALE;
+  }
+
+  return normalizeSalesConversationLocale(window.localStorage.getItem(SALES_CONVERSATION_LOCALE_STORAGE_KEY));
+}
 
 function shouldRemoveTransientKey(key: string) {
   if (storedProjectKeys.includes(key)) {
@@ -130,6 +146,7 @@ export function AppShell({ children }: AppShellProps) {
   const [guruOpen, setGuruOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pageResetVersion, setPageResetVersion] = useState(0);
+  const [languageProfile, setLanguageProfile] = useState<SalesConversationLocale>(() => readStoredSalesLocale());
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -155,7 +172,34 @@ export function AppShell({ children }: AppShellProps) {
       window.removeEventListener("wingman:open-guru", handleOpenGuru);
     };
   }, []);
+  function handleLanguageProfileChange(nextProfile: SalesConversationLocale) {
+    const normalizedProfile = normalizeSalesConversationLocale(nextProfile);
+    setLanguageProfile(normalizedProfile);
 
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(SALES_CONVERSATION_LOCALE_STORAGE_KEY, normalizedProfile);
+    window.dispatchEvent(
+      new CustomEvent("wingman:sales-locale-change", {
+        detail: { locale: normalizedProfile },
+      }),
+    );
+  }
+
+  useEffect(() => {
+    function handleLocaleRequest(event: Event) {
+      const requested = event instanceof CustomEvent ? event.detail?.locale : null;
+      handleLanguageProfileChange(normalizeSalesConversationLocale(requested));
+    }
+
+    window.addEventListener("wingman:sales-locale-request", handleLocaleRequest);
+
+    return () => {
+      window.removeEventListener("wingman:sales-locale-request", handleLocaleRequest);
+    };
+  }, []);
 
   function handleClearCurrentProject() {
     clearStoredProjectContext();
@@ -258,6 +302,21 @@ export function AppShell({ children }: AppShellProps) {
           </div>
 
           <label className="wingman-command-search">
+          <div className="wingman-language-profile-switcher" aria-label="Wingman language">
+            {salesConversationLocaleOptions.map((profile) => (
+              <button
+                key={profile.id}
+                type="button"
+                className={languageProfile === profile.id ? "is-active" : ""}
+                title={profile.label}
+                aria-pressed={languageProfile === profile.id}
+                onClick={() => handleLanguageProfileChange(profile.id)}
+              >
+                <span className="wingman-language-flag" aria-hidden="true">{profile.shortLabel}</span>
+                <span>{profile.label}</span>
+              </button>
+            ))}
+          </div>
             <Search className="wingman-command-search-icon" />
             <input type="search" placeholder="Search projects, rooms, products..." aria-label="Search projects, rooms, products" />
             <kbd>Ctrl K</kbd>
