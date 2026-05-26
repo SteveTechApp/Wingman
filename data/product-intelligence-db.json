@@ -3445,510 +3445,6 @@
     {
       "brand": "WyreStorm",
       "vendorType": "wyrestorm",
-      "sku": "APO-DG1",
-      "name": "Apollo TM 1080p USB-C(DP Atl mode) dongle for wireless casting",
-      "title": "Apollo TM 1080p USB-C(DP Atl mode) dongle for wireless casting",
-      "description": "Apollo TM 1080p USB-C(DP Atl mode) dongle for wireless casting",
-      "summary": "Apollo TM 1080p USB-C(DP Atl mode) dongle for wireless casting",
-      "category": "UC / conferencing",
-      "family": "Unified Comms",
-      "technologies": [
-        "USB-C",
-        "Wireless",
-        "Control",
-        "UC / conferencing",
-        "Unified Comms",
-        "USB",
-        "USB-C video input",
-        "Wireless presentation",
-        "Audio"
-      ],
-      "connectors": [
-        "USB-C",
-        "USB-A/B"
-      ],
-      "features": [
-        "Wireless presentation",
-        "USB transport",
-        "USB-C input",
-        "Control passthrough",
-        "Unified Comms",
-        "Unified Communications",
-        "Wireless collaboration accessory",
-        "Apollo wireless dongle",
-        "Wireless casting endpoint",
-        "USB-C video input",
-        "USB-C",
-        "IR control"
-      ],
-      "applications": [
-        "Hybrid conferencing",
-        "Meeting room",
-        "UC space",
-        "BYOD presentation",
-        "Meeting room, BYOD/BYOM and conferencing workflows"
-      ],
-      "tags": [
-        "UC / conferencing",
-        "USB-C",
-        "Wireless",
-        "Control",
-        "USB-A/B",
-        "Wireless presentation",
-        "USB transport",
-        "USB-C input",
-        "Control passthrough",
-        "Hybrid conferencing",
-        "Meeting room",
-        "UC space",
-        "Unified Comms",
-        "Unified Communications",
-        "Wireless collaboration accessory",
-        "Apollo wireless dongle",
-        "Wireless casting endpoint",
-        "wireless-dongle",
-        "USB-C video input",
-        "IR control",
-        "BYOD presentation",
-        "Meeting room, BYOD/BYOM and conferencing workflows"
-      ],
-      "routingClass": "Other",
-      "source": "2026 WyreStorm SKU spreadsheet",
-      "productRole": "workflow-endpoint",
-      "catalogVisibility": "conditional-default",
-      "technologyType": "Unified Comms",
-      "hardwareType": "Unified Comms",
-      "productClassification": {
-        "taxonomyVersion": "wyrestorm-product-manager-v1",
-        "primaryCategory": "Unified Communications",
-        "category": "Wireless collaboration accessory",
-        "subCategory": "Apollo wireless dongle",
-        "productType": "Wireless casting endpoint",
-        "productSubType": "",
-        "systemRole": "Optional collaboration endpoint",
-        "applicationRole": "Meeting room, BYOD/BYOM and conferencing workflows",
-        "transportClass": [
-          "USB",
-          "Wireless"
-        ],
-        "signalDomains": [
-          "Audio",
-          "USB"
-        ],
-        "subClassifications": [
-          "wireless-dongle"
-        ],
-        "classificationPath": [
-          "Unified Communications",
-          "Wireless collaboration accessory",
-          "Apollo wireless dongle",
-          "Wireless casting endpoint"
-        ],
-        "confidence": 0.92,
-        "productRole": "workflow-endpoint",
-        "catalogVisibility": "conditional-default"
-      },
-      "classificationPath": [
-        "Unified Communications",
-        "Wireless collaboration accessory",
-        "Apollo wireless dongle",
-        "Wireless casting endpoint"
-      ],
-      "subClassifications": [
-        "wireless-dongle"
-      ],
-      "technicalProfile": {
-        "profileVersion": "wyrestorm-product-manager-v1",
-        "sourceQuality": {
-          "officialProductUrl": "https://www.wyrestorm.com/product/apo-dg1/",
-          "officialPageStatus": 200,
-          "livePageUsed": true,
-          "capturedTechnicalLineCount": 0
-        },
-        "signalDomains": [
-          "Audio",
-          "USB",
-          "Video",
-          "Control",
-          "Collaboration"
-        ],
-        "transports": [
-          "USB",
-          "Wireless",
-          "USB-C video input",
-          "USB-C",
-          "Wireless presentation"
-        ],
-        "io": {
-          "ports": [],
-          "video": [],
-          "audio": [],
-          "usb": [],
-          "network": [],
-          "control": [],
-          "other": []
-        },
-        "video": {
-          "present": true,
-          "maxResolutions": [
-            "1080p USB-C(DP Atl mode) dongle for wireless casti"
-          ],
-          "standards": [],
-          "bandwidth": [],
-          "distance": [],
-          "processing": [],
-          "evidence": [
-            "presentation switchers. Simply pair this dongle with a compatible Apollo or presentation product. The DG1 uses a single USB-C connection to power the dongle and transmit video. Tap the casting button to start sharing content, press it again to stop sharing. Getting connected couldn't be easier!"
-          ]
-        },
-        "audio": {
-          "present": false,
-          "formats": [],
-          "networkAudio": [],
-          "amplifierPower": [],
-          "microphone": [
-            "presentation switchers. Simply pair this dongle with a compatible Apollo or presentation product. The DG1 uses a single USB-C connection to power the dongle and transmit video. Tap the casting button to start sharing content, press it again to stop sharing. Getting connected couldn't be easier!"
-          ],
-          "speaker": [],
-          "processing": []
-        },
-        "usb": {
-          "present": true,
-          "versions": [],
-          "connectors": [
-            "USB-C"
-          ],
-          "roles": [],
-          "bandwidth": [],
-          "powerDelivery": false
-        },
-        "network": {
-          "present": false,
-          "interfaces": [],
-          "protocols": [],
-          "linkSpeeds": [],
-          "powerOverNetwork": []
-        },
-        "control": {
-          "present": true,
-          "protocols": [
-            "IR"
-          ],
-          "evidence": [
-            "presentation switchers. Simply pair this dongle with a compatible Apollo or presentation product. The DG1 uses a single USB-C connection to power the dongle and transmit video. Tap the casting button to start sharing content, press it again to stop sharing. Getting connected couldn't be easier!"
-          ]
-        },
-        "processing": [],
-        "power": {
-          "poe": false,
-          "powerDelivery": false,
-          "evidence": [
-            "presentation switchers. Simply pair this dongle with a compatible Apollo or presentation product. The DG1 uses a single USB-C connection to power the dongle and transmit video. Tap the casting button to start sharing content, press it again to stop sharing. Getting connected couldn't be easier!"
-          ]
-        },
-        "mechanical": {
-          "installation": [],
-          "evidence": []
-        },
-        "featureGroups": {
-          "Video": [
-            "USB-C video input"
-          ],
-          "USB": [
-            "USB-C"
-          ],
-          "Control": [
-            "IR control"
-          ],
-          "Collaboration": [
-            "Wireless presentation"
-          ]
-        },
-        "features": [
-          {
-            "id": "usb-c-video",
-            "label": "USB-C video input",
-            "group": "Video",
-            "evidence": "The APO-DG1 is a USB-C 1080p casting dongle compatible with a number of WyreStorm solutions including Apollo series and the SW-220-TX-W",
-            "confidence": 0.94
-          },
-          {
-            "id": "usb-c",
-            "label": "USB-C",
-            "group": "USB",
-            "evidence": "The APO-DG1 is a USB-C 1080p casting dongle compatible with a number of WyreStorm solutions including Apollo series and the SW-220-TX-W",
-            "confidence": 0.94
-          },
-          {
-            "id": "ir",
-            "label": "IR control",
-            "group": "Control",
-            "evidence": "presentation switchers. Simply pair this dongle with a compatible Apollo or presentation product. The DG1 uses a single USB-C connection to power the dongle and transmit video. Tap the casting button to start sharing content, press it again to stop sharing. Getting connected couldn't be easier!",
-            "confidence": 0.94
-          },
-          {
-            "id": "wireless-presentation",
-            "label": "Wireless presentation",
-            "group": "Collaboration",
-            "evidence": "wireless casting",
-            "confidence": 0.72
-          }
-        ],
-        "applications": [
-          "BYOD presentation",
-          "Meeting room, BYOD/BYOM and conferencing workflows"
-        ],
-        "selectionGuidance": {
-          "recommendedWhen": [
-            "Camera, microphone, speakerphone, USB peripheral or conferencing workflows are part of the requirement."
-          ],
-          "cautionWhen": [
-            "Avoid using UC endpoints as generic AV switchers unless the conferencing/audio role is also required."
-          ],
-          "betterAlternativesWhen": [
-            "Use presentation switchers, extenders, matrix products or NetworkHD when the requirement is only video transport or routing."
-          ]
-        },
-        "salesLanguage": {
-          "voiceVersion": "wingman-sales-language-v1",
-          "headline": "APO-DG1: improves the meeting experience for people in and outside the room",
-          "plainEnglishSummary": "Use this when the room needs to support video meetings, shared audio, cameras, microphones or BYOM/BYOD collaboration.",
-          "customerValue": "It helps make the meeting feel joined-up: people can be seen, heard and shared with more reliably than using loose laptop accessories.",
-          "realWorldApplication": "Huddle rooms, boardrooms, classrooms and hybrid meeting spaces.",
-          "salespersonCue": "Ask what the remote participant needs to see and hear, then position the product around that experience.",
-          "talkTrack": [
-            "It is about the meeting workflow, not only the hardware.",
-            "It helps remove friction around camera, microphone, speaker and USB connectivity.",
-            "It should be selected when conferencing is part of the use case."
-          ],
-          "discoveryPrompts": [
-            "Which meeting platform is being used?",
-            "Do users bring their own laptop, use a room PC, or both?",
-            "What camera, microphone and speaker coverage does the room need?"
-          ],
-          "positioningNotes": [
-            "Use for UC-led rooms where audio, camera or USB device behaviour matters."
-          ],
-          "avoidPositioningAs": [
-            "Do not lead with UC products for simple video switching if there is no conferencing requirement."
-          ],
-          "marketApplications": [
-            "BYOD presentation",
-            "Meeting room, BYOD/BYOM and conferencing workflows"
-          ],
-          "voices": {
-            "endUser": {
-              "label": "End user",
-              "audience": "Customer stakeholder",
-              "headline": "APO-DG1: improves the meeting experience for people in and outside the room",
-              "pitch": "Use this when the room needs to support video meetings, shared audio, cameras, microphones or BYOM/BYOD collaboration.",
-              "value": "It helps make the meeting feel joined-up: people can be seen, heard and shared with more reliably than using loose laptop accessories.",
-              "talkTrack": [
-                "Ask what the remote participant needs to see and hear, then position the product around that experience.",
-                "Huddle rooms, boardrooms, classrooms and hybrid meeting spaces.",
-                "It is about the meeting workflow, not only the hardware.",
-                "It helps remove friction around camera, microphone, speaker and USB connectivity."
-              ],
-              "discoveryPrompts": [
-                "What do users need to do when they walk into the room?",
-                "What would make the room feel easier or more reliable for everyday use?",
-                "Which meeting platform is being used?",
-                "Do users bring their own laptop, use a room PC, or both?"
-              ],
-              "positioningNotes": [
-                "Keep the language about outcomes and the user experience before talking about ports.",
-                "Use for UC-led rooms where audio, camera or USB device behaviour matters."
-              ],
-              "avoidPositioningAs": [
-                "Do not lead with UC products for simple video switching if there is no conferencing requirement."
-              ]
-            },
-            "systemIntegrator": {
-              "label": "SI / installer",
-              "audience": "Installer or system integrator",
-              "headline": "APO-DG1: deployment and commissioning view",
-              "pitch": "Use this view when the installer needs to validate the camera, microphone, speaker, USB and meeting-platform path before the room is quoted or commissioned.",
-              "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
-              "talkTrack": [
-                "Check the practical signal path around USB, Wireless, USB-C video input, USB-C before finalising the design.",
-                "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
-                "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
-              ],
-              "discoveryPrompts": [
-                "Where will the product physically live: table, wall, display, rack, lectern or network closet?",
-                "What cable type, distance and route are available between each endpoint?",
-                "Which products, receivers, USB devices, controllers or network switches must be present for this to work?",
-                "Which meeting platform is being used?",
-                "Do users bring their own laptop, use a room PC, or both?"
-              ],
-              "positioningNotes": [
-                "Good installer language should make dependencies visible before a quote is issued.",
-                "Call out install risk early when the product depends on USB bandwidth, network design, endpoint pairing or control integration.",
-                "Use for UC-led rooms where audio, camera or USB device behaviour matters."
-              ],
-              "avoidPositioningAs": [
-                "Do not imply it is plug-and-play where cable distance, USB class, endpoint compatibility, network design or control programming still needs validation.",
-                "Do not lead with UC products for simple video switching if there is no conferencing requirement."
-              ]
-            },
-            "consultant": {
-              "label": "Consultant / technical",
-              "audience": "Consultant or technical designer",
-              "headline": "APO-DG1: architecture fit and trade-off view",
-              "pitch": "Use this view to test whether conferencing is genuinely part of the requirement. If the room does not need camera, microphone, speakerphone or USB collaboration, there may be cleaner product paths.",
-              "value": "Helps separate a technically possible product choice from the strongest design choice for the application, budget, risk and future expansion.",
-              "talkTrack": [
-                "Validate the application first, then decide whether this product family is the cleanest architecture.",
-                "Compare against simpler or more scalable alternatives where the requirement is fixed, expandable, distance-led or conferencing-led.",
-                "Use the specification as evidence after the room workflow and signal architecture are clear."
-              ],
-              "discoveryPrompts": [
-                "Is this requirement driven by user experience, source/display routing, distance, USB, collaboration, network distribution, processing or control?",
-                "What would make this product the wrong choice even if it technically works?",
-                "Is the system expected to grow, change rooms, add endpoints, record, stream or integrate with a wider AV platform?",
-                "Which meeting platform is being used?",
-                "Do users bring their own laptop, use a room PC, or both?"
-              ],
-              "positioningNotes": [
-                "Use for architectural judgement, product-family selection and proposal-safe trade-off language.",
-                "Be explicit when the product is technically possible but unlikely to be the most natural choice.",
-                "Use for UC-led rooms where audio, camera or USB device behaviour matters."
-              ],
-              "avoidPositioningAs": [
-                "Do not let a feature match override the real application, architecture or operational requirement.",
-                "Do not lead with UC products for simple video switching if there is no conferencing requirement."
-              ]
-            }
-          }
-        },
-        "evidence": {
-          "technicalLines": [],
-          "featureLines": [
-            "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
-            "The APO-DG1 is a USB-C 1080p casting dongle compatible with a number of WyreStorm solutions including Apollo series and the SW-220-TX-W",
-            "presentation switchers. Simply pair this dongle with a compatible Apollo or presentation product. The DG1 uses a single USB-C connection to power the dongle and transmit video. Tap the casting button to start sharing content, press it again to stop sharing. Getting connected couldn't be easier!",
-            "Supported file types: jpg, jpeg, png, txt, pdf, doc, docx",
-            "WyreStorm Technologies is committed to protecting and respecting your privacy, and we’ll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, as well as other content that may be of interest to you. You can unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy policies, and how we are committed to protecting and respecting your privacy, please review our privacy policy .",
-            "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
-          ]
-        }
-      },
-      "salesLanguage": {
-        "voiceVersion": "wingman-sales-language-v1",
-        "headline": "APO-DG1: improves the meeting experience for people in and outside the room",
-        "plainEnglishSummary": "Use this when the room needs to support video meetings, shared audio, cameras, microphones or BYOM/BYOD collaboration.",
-        "customerValue": "It helps make the meeting feel joined-up: people can be seen, heard and shared with more reliably than using loose laptop accessories.",
-        "realWorldApplication": "Huddle rooms, boardrooms, classrooms and hybrid meeting spaces.",
-        "salespersonCue": "Ask what the remote participant needs to see and hear, then position the product around that experience.",
-        "talkTrack": [
-          "It is about the meeting workflow, not only the hardware.",
-          "It helps remove friction around camera, microphone, speaker and USB connectivity.",
-          "It should be selected when conferencing is part of the use case."
-        ],
-        "discoveryPrompts": [
-          "Which meeting platform is being used?",
-          "Do users bring their own laptop, use a room PC, or both?",
-          "What camera, microphone and speaker coverage does the room need?"
-        ],
-        "positioningNotes": [
-          "Use for UC-led rooms where audio, camera or USB device behaviour matters."
-        ],
-        "avoidPositioningAs": [
-          "Do not lead with UC products for simple video switching if there is no conferencing requirement."
-        ],
-        "marketApplications": [
-          "BYOD presentation",
-          "Meeting room, BYOD/BYOM and conferencing workflows"
-        ],
-        "voices": {
-          "endUser": {
-            "label": "End user",
-            "audience": "Customer stakeholder",
-            "headline": "APO-DG1: improves the meeting experience for people in and outside the room",
-            "pitch": "Use this when the room needs to support video meetings, shared audio, cameras, microphones or BYOM/BYOD collaboration.",
-            "value": "It helps make the meeting feel joined-up: people can be seen, heard and shared with more reliably than using loose laptop accessories.",
-            "talkTrack": [
-              "Ask what the remote participant needs to see and hear, then position the product around that experience.",
-              "Huddle rooms, boardrooms, classrooms and hybrid meeting spaces.",
-              "It is about the meeting workflow, not only the hardware.",
-              "It helps remove friction around camera, microphone, speaker and USB connectivity."
-            ],
-            "discoveryPrompts": [
-              "What do users need to do when they walk into the room?",
-              "What would make the room feel easier or more reliable for everyday use?",
-              "Which meeting platform is being used?",
-              "Do users bring their own laptop, use a room PC, or both?"
-            ],
-            "positioningNotes": [
-              "Keep the language about outcomes and the user experience before talking about ports.",
-              "Use for UC-led rooms where audio, camera or USB device behaviour matters."
-            ],
-            "avoidPositioningAs": [
-              "Do not lead with UC products for simple video switching if there is no conferencing requirement."
-            ]
-          },
-          "systemIntegrator": {
-            "label": "SI / installer",
-            "audience": "Installer or system integrator",
-            "headline": "APO-DG1: deployment and commissioning view",
-            "pitch": "Use this view when the installer needs to validate the camera, microphone, speaker, USB and meeting-platform path before the room is quoted or commissioned.",
-            "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
-            "talkTrack": [
-              "Check the practical signal path around USB, Wireless, USB-C video input, USB-C before finalising the design.",
-              "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
-              "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
-            ],
-            "discoveryPrompts": [
-              "Where will the product physically live: table, wall, display, rack, lectern or network closet?",
-              "What cable type, distance and route are available between each endpoint?",
-              "Which products, receivers, USB devices, controllers or network switches must be present for this to work?",
-              "Which meeting platform is being used?",
-              "Do users bring their own laptop, use a room PC, or both?"
-            ],
-            "positioningNotes": [
-              "Good installer language should make dependencies visible before a quote is issued.",
-              "Call out install risk early when the product depends on USB bandwidth, network design, endpoint pairing or control integration.",
-              "Use for UC-led rooms where audio, camera or USB device behaviour matters."
-            ],
-            "avoidPositioningAs": [
-              "Do not imply it is plug-and-play where cable distance, USB class, endpoint compatibility, network design or control programming still needs validation.",
-              "Do not lead with UC products for simple video switching if there is no conferencing requirement."
-            ]
-          },
-          "consultant": {
-            "label": "Consultant / technical",
-            "audience": "Consultant or technical designer",
-            "headline": "APO-DG1: architecture fit and trade-off view",
-            "pitch": "Use this view to test whether conferencing is genuinely part of the requirement. If the room does not need camera, microphone, speakerphone or USB collaboration, there may be cleaner product paths.",
-            "value": "Helps separate a technically possible product choice from the strongest design choice for the application, budget, risk and future expansion.",
-            "talkTrack": [
-              "Validate the application first, then decide whether this product family is the cleanest architecture.",
-              "Compare against simpler or more scalable alternatives where the requirement is fixed, expandable, distance-led or conferencing-led.",
-              "Use the specification as evidence after the room workflow and signal architecture are clear."
-            ],
-            "discoveryPrompts": [
-              "Is this requirement driven by user experience, source/display routing, distance, USB, collaboration, network distribution, processing or control?",
-              "What would make this product the wrong choice even if it technically works?",
-              "Is the system expected to grow, change rooms, add endpoints, record, stream or integrate with a wider AV platform?",
-              "Which meeting platform is being used?",
-              "Do users bring their own laptop, use a room PC, or both?"
-            ],
-            "positioningNotes": [
-              "Use for architectural judgement, product-family selection and proposal-safe trade-off language.",
-              "Be explicit when the product is technically possible but unlikely to be the most natural choice.",
-              "Use for UC-led rooms where audio, camera or USB device behaviour matters."
-            ],
-            "avoidPositioningAs": [
-              "Do not let a feature match override the real application, architecture or operational requirement.",
-              "Do not lead with UC products for simple video switching if there is no conferencing requirement."
-            ]
-          }
-        }
-      }
-    },
-    {
-      "brand": "WyreStorm",
-      "vendorType": "wyrestorm",
       "sku": "APO-DG2",
       "name": "Apollo TM 4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing(...",
       "title": "Apollo TM 4K USB-C(DP Atl mode) dongle for wireless casting and wireless conferencing(...",
@@ -119300,7 +118796,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "id": "AMP-2120-DNT",
@@ -121049,7 +120547,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "id": "CAM-0402-BRG",
@@ -126479,7 +125979,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "id": "EX-70-H2C",
@@ -129151,7 +128653,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "brand": "WyreStorm",
@@ -129475,7 +128979,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "id": "IDB-400-NA",
@@ -130514,7 +130020,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "brand": "WyreStorm",
@@ -130804,7 +130312,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "brand": "WyreStorm",
@@ -131127,7 +130637,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "id": "NHD-110-RX",
@@ -133830,7 +133342,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "id": "NHD-128-NDI-TRX",
@@ -135011,7 +134525,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "brand": "WyreStorm",
@@ -135319,7 +134835,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "id": "SP-0102-H2",
@@ -140388,7 +139906,9 @@
             "opener": "We can use this as the WyreStorm basis of design, subject to final signal path and control validation."
           }
         }
-      }
+      },
+      "activeSku": "Review",
+      "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
     },
     {
       "id": "SYN-KIT-130-EU",

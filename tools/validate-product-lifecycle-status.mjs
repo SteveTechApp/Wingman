@@ -47,7 +47,9 @@ for (const product of products) {
   lifecycleCounts.set(activeSku || "(blank)", (lifecycleCounts.get(activeSku || "(blank)") ?? 0) + 1);
 
   if (!activeSku) failures.push(`${sku}: missing activeSku`);
-  if (activeSku !== "Yes" && activeSku !== "EOL") failures.push(`${sku}: invalid activeSku "${activeSku}"`);
+  if (activeSku !== "Yes" && activeSku !== "EOL" && activeSku !== "Review") {
+    failures.push(`${sku}: invalid activeSku "${activeSku}"`);
+  }
 
   if (/^NHD-(200|300|400)(\b|-|_)/.test(sku) && activeSku !== "EOL") {
     failures.push(`${sku}: expected EOL`);
@@ -55,6 +57,10 @@ for (const product of products) {
 
   if (requiredEol.has(sku) && activeSku !== "EOL") {
     failures.push(`${sku}: expected EOL`);
+  }
+
+  if (activeSku === "Review" && !clean(product.manualReviewNotes)) {
+    failures.push(`${sku}: review lifecycle status requires manualReviewNotes`);
   }
 
   if (sku === "APO-DG1") {

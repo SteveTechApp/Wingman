@@ -43,6 +43,10 @@ export type FinderProduct = {
   dependencyType?: string;
   primarySystemFamily?: string;
   showWhenRequestedBy?: string[];
+  activeSku?: string;
+  lifecycleStatus?: string;
+  recommendationStatus?: string;
+  lifecycleWarning?: string;
 };
 
 export type FinderNeed = {

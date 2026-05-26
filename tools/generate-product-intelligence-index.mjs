@@ -10,6 +10,9 @@ const sourceCandidates = [
   "data/product-intelligence-db.json",
 ];
 
+const activeSkuMasterPath = "data/catalog/wyrestormSkuCatalog.2026.json";
+const removedSkuBlocklist = new Set(["APO-DG1"]);
+
 const outputTargets = [
   { type: "json", path: "public/product-intelligence-index.json" },
 ];
@@ -95,6 +98,10 @@ function normaliseText(value) {
   return cleanText(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
+function skuKey(value) {
+  return asString(value).toUpperCase();
+}
+
 function textIncludesAny(text, terms) {
   const normalised = normaliseText(text);
   return terms.some((term) => normalised.includes(normaliseText(term)));
@@ -115,6 +122,69 @@ function buildTextBlob(product) {
     ...(Array.isArray(product.features) ? product.features : []),
     ...(Array.isArray(product.applications) ? product.applications : []),
   ].map(asString).join(" ");
+}
+
+async function loadActiveSkuMaster() {
+  const absolutePath = path.join(projectRoot, activeSkuMasterPath);
+
+  if (!(await pathExists(absolutePath))) {
+    return { source: "", skus: new Set() };
+  }
+
+  const parsed = await readJsonFile(absolutePath);
+  const items = ensureArrayPayload(parsed);
+
+  return {
+    source: activeSkuMasterPath,
+    skus: new Set(items.map((item) => skuKey(item?.sku || item?.SKU || item?.model || item?.id)).filter(Boolean)),
+  };
+}
+
+function inferLifecycleGuard(item, sku, vendorType, activeSkuMaster) {
+  const explicit = asString(item?.activeSku);
+  const normalizedVendor = normaliseText(vendorType);
+
+  if (explicit === "Yes") {
+    return {
+      activeSku: "Yes",
+      lifecycleStatus: "active",
+      recommendationStatus: "recommendable",
+      lifecycleSource: "record.activeSku",
+      lifecycleWarning: "",
+    };
+  }
+
+  if (explicit === "EOL") {
+    return {
+      activeSku: "EOL",
+      lifecycleStatus: "eol",
+      recommendationStatus: "blocked",
+      lifecycleSource: "record.activeSku",
+      lifecycleWarning: "Product is marked EOL and must not be recommended as an active SKU.",
+    };
+  }
+
+  if (sku && activeSkuMaster.skus.has(skuKey(sku))) {
+    return {
+      activeSku: "Yes",
+      lifecycleStatus: "active",
+      recommendationStatus: "recommendable",
+      lifecycleSource: activeSkuMaster.source || "active SKU master",
+      lifecycleWarning: "",
+    };
+  }
+
+  const isWyrestorm = !normalizedVendor || normalizedVendor === "wyrestorm";
+
+  return {
+    activeSku: isWyrestorm ? "Review" : "",
+    lifecycleStatus: isWyrestorm ? "review-required" : "unknown",
+    recommendationStatus: "review-required",
+    lifecycleSource: activeSkuMaster.source || "not verified",
+    lifecycleWarning: isWyrestorm
+      ? "No activeSku flag and SKU was not found in the 2026 active SKU master. Treat as review-only until verified."
+      : "Lifecycle status is not verified.",
+  };
 }
 
 function classifyFamily(product, text) {
@@ -331,7 +401,7 @@ function classifyProductGranularity(product) {
   };
 }
 
-function normalizeProduct(item, index, sourceFile) {
+function normalizeProduct(item, index, sourceFile, context = {}) {
   const brand =
     asString(item?.brand) ||
     asString(item?.manufacturer) ||
@@ -443,6 +513,9 @@ function normalizeProduct(item, index, sourceFile) {
   };
 
   const granularity = classifyProductGranularity(provisionalProduct);
+  const lifecycle = inferLifecycleGuard(item, sku, vendorType, context.activeSkuMaster || { source: "", skus: new Set() });
+  const finderVisibility =
+    lifecycle.recommendationStatus === "recommendable" ? granularity.finderVisibility : "request-only";
 
   const searchTerms = unique([
     brand,
@@ -452,7 +525,9 @@ function normalizeProduct(item, index, sourceFile) {
     category,
     summary,
     granularity.commercialRole,
-    granularity.finderVisibility,
+    finderVisibility,
+    lifecycle.lifecycleStatus,
+    lifecycle.recommendationStatus,
     granularity.bomRole,
     granularity.dependencyType,
     granularity.primarySystemFamily,
@@ -489,11 +564,16 @@ function normalizeProduct(item, index, sourceFile) {
     ]),
     searchTerms,
     commercialRole: granularity.commercialRole,
-    finderVisibility: granularity.finderVisibility,
+    finderVisibility,
     bomRole: granularity.bomRole,
     dependencyType: granularity.dependencyType,
     primarySystemFamily: granularity.primarySystemFamily,
     showWhenRequestedBy: granularity.showWhenRequestedBy,
+    activeSku: lifecycle.activeSku,
+    lifecycleStatus: lifecycle.lifecycleStatus,
+    recommendationStatus: lifecycle.recommendationStatus,
+    lifecycleSource: lifecycle.lifecycleSource,
+    lifecycleWarning: lifecycle.lifecycleWarning,
     productRole: asString(item?.productRole),
     catalogVisibility: asString(item?.catalogVisibility),
     technologyType: asString(item?.technologyType),
@@ -507,11 +587,16 @@ function normalizeProduct(item, index, sourceFile) {
     raw: {
       ...item,
       commercialRole: granularity.commercialRole,
-      finderVisibility: granularity.finderVisibility,
+      finderVisibility,
       bomRole: granularity.bomRole,
       dependencyType: granularity.dependencyType,
       primarySystemFamily: granularity.primarySystemFamily,
       showWhenRequestedBy: granularity.showWhenRequestedBy,
+      activeSku: lifecycle.activeSku,
+      lifecycleStatus: lifecycle.lifecycleStatus,
+      recommendationStatus: lifecycle.recommendationStatus,
+      lifecycleSource: lifecycle.lifecycleSource,
+      lifecycleWarning: lifecycle.lifecycleWarning,
     },
   };
 }
@@ -548,6 +633,19 @@ function buildRoleSummary(products) {
   return summary;
 }
 
+function buildLifecycleSummary(products) {
+  const summary = {};
+
+  for (const product of products) {
+    const status = product.lifecycleStatus || "unknown";
+    const recommendation = product.recommendationStatus || "unknown";
+    const key = `${status} / ${recommendation}`;
+    summary[key] = (summary[key] || 0) + 1;
+  }
+
+  return summary;
+}
+
 function buildIndex(products, discoveredSources) {
   const bySku = {};
   const byName = {};
@@ -566,6 +664,7 @@ function buildIndex(products, discoveredSources) {
       count: products.length,
       generator: "tools/generate-product-intelligence-index.mjs",
       roleSummary: buildRoleSummary(products),
+      lifecycleSummary: buildLifecycleSummary(products),
     },
     products,
     lookup: {
@@ -588,6 +687,7 @@ function toTsModule(indexObject) {
 async function main() {
   const discoveredSources = [];
   const normalizedProducts = [];
+  const activeSkuMaster = await loadActiveSkuMaster();
 
   for (const relativePath of sourceCandidates) {
     const absolutePath = path.join(projectRoot, relativePath);
@@ -603,7 +703,13 @@ async function main() {
       discoveredSources.push(absolutePath);
 
       items.forEach((item, index) => {
-        normalizedProducts.push(normalizeProduct(item, index, absolutePath));
+        const product = normalizeProduct(item, index, absolutePath, { activeSkuMaster });
+
+        if (removedSkuBlocklist.has(skuKey(product.sku))) {
+          return;
+        }
+
+        normalizedProducts.push(product);
       });
     } catch (error) {
       console.warn(`[product-intelligence-index] Skipping ${relativePath}: ${error.message}`);
@@ -639,6 +745,8 @@ async function main() {
     );
     console.log("[product-intelligence-index] Role summary:");
     console.log(JSON.stringify(index.meta.roleSummary, null, 2));
+    console.log("[product-intelligence-index] Lifecycle summary:");
+    console.log(JSON.stringify(index.meta.lifecycleSummary, null, 2));
   }
 }
 

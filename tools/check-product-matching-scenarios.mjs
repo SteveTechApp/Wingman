@@ -4,6 +4,7 @@ import path from "node:path";
 const repoRoot = process.cwd();
 const indexPath = path.join(repoRoot, "public", "product-intelligence-index.json");
 const incorrectNetworkHdMultiviewSku = ["MHD", "0401", "MV"].join("-");
+const disallowedIndexedSkus = ["APO-DG1"];
 
 function cleanText(value) {
   return String(value ?? "")
@@ -168,7 +169,9 @@ function runScenario(products, scenario) {
 
 try {
   const products = readProducts();
-  const results = scenarios.map((scenario) => runScenario(products));
+  const results = scenarios.map((scenario) => runScenario(products, scenario));
+  const catalogSkus = skuSet(products);
+  const disallowedPresent = disallowedIndexedSkus.filter((sku) => catalogSkus.has(sku.toUpperCase()));
   const failures = results.filter((result) => !result.passed);
 
   console.log(`Checked product matching scenarios: ${results.length}`);
@@ -181,7 +184,11 @@ try {
     if (result.cautionMatched.length) console.log(`  caution: broad terms also matched=${result.cautionMatched.join(", ")}`);
   }
 
-  if (failures.length) process.exitCode = 1;
+  if (disallowedPresent.length) {
+    console.log(`FAIL Disallowed retired SKUs are not indexed: ${disallowedPresent.join(", ")}`);
+  }
+
+  if (failures.length || disallowedPresent.length) process.exitCode = 1;
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);
   process.exitCode = 1;

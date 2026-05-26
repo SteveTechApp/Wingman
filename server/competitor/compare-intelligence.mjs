@@ -14,6 +14,9 @@ const WYRESTORM_PRODUCT_FILES = [
   "data/products.json",
   "src/data/products.json"
 ];
+const ACTIVE_SKU_MASTER_FILE = "data/catalog/wyrestormSkuCatalog.2026.json";
+const MINIMUM_PROFESSIONAL_MATCH_SCORE = 70;
+const MINIMUM_ANY_MATCH_SCORE = 42;
 
 async function loadLocalEnvFile() {
   try {
@@ -52,6 +55,24 @@ function cleanText(value) {
 
 function lower(value) {
   return cleanText(value).toLowerCase();
+}
+
+function skuKey(value) {
+  return cleanText(value).toUpperCase();
+}
+
+function ensureArrayPayload(value) {
+  if (Array.isArray(value)) return value;
+
+  if (value && typeof value === "object") {
+    if (Array.isArray(value.records)) return value.records;
+    if (Array.isArray(value.products)) return value.products;
+    if (Array.isArray(value.items)) return value.items;
+    if (Array.isArray(value.catalog)) return value.catalog;
+    if (Array.isArray(value.data)) return value.data;
+  }
+
+  return [];
 }
 
 function hasAny(text, patterns) {
@@ -1167,6 +1188,101 @@ function purposeRolesAreCompatible(category, competitorPurpose, candidatePurpose
   return { ok: true, reason: "role check passed for this product type" };
 }
 
+let activeSkuMasterCache;
+
+async function loadActiveSkuMaster() {
+  if (activeSkuMasterCache) {
+    return activeSkuMasterCache;
+  }
+
+  try {
+    const raw = await fs.readFile(path.join(repoRoot, ACTIVE_SKU_MASTER_FILE), "utf8");
+    const parsed = JSON.parse(raw);
+    const items = ensureArrayPayload(parsed);
+
+    activeSkuMasterCache = {
+      source: ACTIVE_SKU_MASTER_FILE,
+      skus: new Set(items.map((item) => skuKey(item?.sku || item?.SKU || item?.model || item?.id)).filter(Boolean)),
+    };
+  } catch {
+    activeSkuMasterCache = { source: "", skus: new Set() };
+  }
+
+  return activeSkuMasterCache;
+}
+
+function recordValue(candidate, key) {
+  if (!candidate || typeof candidate !== "object") return "";
+
+  const raw = candidate.raw && typeof candidate.raw === "object" ? candidate.raw : null;
+  const nestedRaw = raw?.raw && typeof raw.raw === "object" ? raw.raw : null;
+
+  return cleanText(candidate[key] || raw?.[key] || nestedRaw?.[key]);
+}
+
+function inferCandidateLifecycle(candidate, activeSkuMaster) {
+  const sku = candidateSku(candidate);
+  const explicitActiveSku = recordValue(candidate, "activeSku");
+  const explicitLifecycleStatus = lower(recordValue(candidate, "lifecycleStatus"));
+  const explicitRecommendationStatus = lower(recordValue(candidate, "recommendationStatus"));
+  const explicitWarning = recordValue(candidate, "lifecycleWarning") || recordValue(candidate, "manualReviewNotes");
+  const lifecycleSource = recordValue(candidate, "lifecycleSource");
+
+  if (explicitActiveSku === "Yes" || (explicitLifecycleStatus === "active" && explicitRecommendationStatus === "recommendable")) {
+    return {
+      activeSku: "Yes",
+      lifecycleStatus: "active",
+      recommendationStatus: "recommendable",
+      lifecycleSource: lifecycleSource || "product record",
+      lifecycleWarning: "",
+    };
+  }
+
+  if (explicitActiveSku === "EOL" || explicitLifecycleStatus === "eol") {
+    return {
+      activeSku: "EOL",
+      lifecycleStatus: "eol",
+      recommendationStatus: "blocked",
+      lifecycleSource: lifecycleSource || "product record",
+      lifecycleWarning: explicitWarning || "Product is marked EOL and must not be recommended as an active SKU.",
+    };
+  }
+
+  if (explicitActiveSku === "Review" || explicitLifecycleStatus === "review-required" || explicitRecommendationStatus === "review-required") {
+    return {
+      activeSku: "Review",
+      lifecycleStatus: "review-required",
+      recommendationStatus: "review-required",
+      lifecycleSource: lifecycleSource || "product record",
+      lifecycleWarning: explicitWarning || "Lifecycle status requires manual review before positioning.",
+    };
+  }
+
+  if (sku && activeSkuMaster?.skus?.has(sku)) {
+    return {
+      activeSku: "Yes",
+      lifecycleStatus: "active",
+      recommendationStatus: "recommendable",
+      lifecycleSource: activeSkuMaster.source || "active SKU master",
+      lifecycleWarning: "",
+    };
+  }
+
+  return {
+    activeSku: "Review",
+    lifecycleStatus: "review-required",
+    recommendationStatus: "review-required",
+    lifecycleSource: activeSkuMaster?.source || "not verified",
+    lifecycleWarning: "SKU was not found in the active SKU master. Treat as review-only until verified against current WyreStorm source data.",
+  };
+}
+
+function lifecycleIsRecommendable(lifecycle) {
+  return lifecycle?.activeSku === "Yes" &&
+    lifecycle?.lifecycleStatus === "active" &&
+    lifecycle?.recommendationStatus === "recommendable";
+}
+
 function normaliseProductRecord(record) {
   if (!record || typeof record !== "object") {
     return null;
@@ -1200,7 +1316,19 @@ function normaliseProductRecord(record) {
     JSON.stringify(record)
   ].filter(Boolean).join(" ");
 
-  return { sku, name, family, raw: record, text };
+  return {
+    sku,
+    name,
+    family,
+    activeSku: cleanText(record.activeSku),
+    lifecycleStatus: cleanText(record.lifecycleStatus),
+    recommendationStatus: cleanText(record.recommendationStatus),
+    lifecycleSource: cleanText(record.lifecycleSource),
+    lifecycleWarning: cleanText(record.lifecycleWarning),
+    manualReviewNotes: cleanText(record.manualReviewNotes),
+    raw: record,
+    text,
+  };
 }
 
 function collectProducts(value, products = []) {
@@ -1233,6 +1361,7 @@ function collectProducts(value, products = []) {
 
 async function loadWyrestormProducts() {
   const found = [];
+  const activeSkuMaster = await loadActiveSkuMaster();
 
   for (const relativePath of WYRESTORM_PRODUCT_FILES) {
     try {
@@ -1241,7 +1370,8 @@ async function loadWyrestormProducts() {
       const products = collectProducts(parsed).filter(Boolean);
 
       for (const product of products) {
-        found.push({ ...product, sourceFile: relativePath });
+        const lifecycle = inferCandidateLifecycle(product, activeSkuMaster);
+        found.push({ ...product, ...lifecycle, sourceFile: relativePath });
       }
     } catch {
       continue;
@@ -1367,7 +1497,13 @@ function candidateSupportsAvoipEvidence(candidate, competitorProfile, competitor
   return true;
 }
 
-function scoreWyrestormCandidate(competitorClassification, competitorProfile, product, competitorEvidenceText = "") {
+function scoreWyrestormCandidate(competitorClassification, competitorProfile, product, competitorEvidenceText = "", activeSkuMaster) {
+  const lifecycle = inferCandidateLifecycle(product, activeSkuMaster);
+
+  if (!lifecycleIsRecommendable(lifecycle)) {
+    return null;
+  }
+
   let candidateClassification = classifyProduct({
     brand: "WyreStorm",
     sku: product.sku,
@@ -1420,6 +1556,11 @@ function scoreWyrestormCandidate(competitorClassification, competitorProfile, pr
     sourceFile: product.sourceFile,
     score: total,
     confidence: Math.min(0.96, total / 100),
+    activeSku: lifecycle.activeSku,
+    lifecycleStatus: lifecycle.lifecycleStatus,
+    recommendationStatus: lifecycle.recommendationStatus,
+    lifecycleSource: lifecycle.lifecycleSource,
+    lifecycleWarning: lifecycle.lifecycleWarning,
     candidateCategory: candidateClassification.category,
     candidateCategoryLabel: candidateClassification.categoryLabel,
     competitorPurpose: competitorPurpose.label,
@@ -1812,6 +1953,7 @@ function buildCuratedWyrestormCandidates(classification, profile) {
 
 async function matchWyrestormProducts(classification, profile) {
   const products = await loadWyrestormProducts();
+  const activeSkuMaster = await loadActiveSkuMaster();
   const evidenceText = String(profile.__evidenceText || "");
   const competitorPurpose = inferProductPurpose(classification, evidenceText);
   const hdbasetSpecificity = identifyHdbasetSpecificity(evidenceText);
@@ -1819,22 +1961,31 @@ async function matchWyrestormProducts(classification, profile) {
   const hdbasetMatrixSpecificity = identifyHdbasetMatrixSpecificity(evidenceText);
 
   const scoredCandidates = products
-    .map((product) => scoreWyrestormCandidate(classification, profile, product, evidenceText))
+    .map((product) => scoreWyrestormCandidate(classification, profile, product, evidenceText, activeSkuMaster))
     .filter(Boolean);
 
   const curatedCandidates = buildCuratedWyrestormCandidates(classification, profile);
   const bySku = new Map();
+  let lifecycleFilteredCount = 0;
 
   for (const rawCandidate of [...curatedCandidates, ...scoredCandidates]) {
     if (!rawCandidate) {
       continue;
     }
 
-    if (classification.category === "av_over_ip" && !candidateSupportsAvoipEvidence(rawCandidate, profile, competitorPurpose)) {
+    const lifecycle = inferCandidateLifecycle(rawCandidate, activeSkuMaster);
+    const candidate = { ...rawCandidate, ...lifecycle };
+
+    if (!lifecycleIsRecommendable(lifecycle)) {
+      lifecycleFilteredCount += 1;
       continue;
     }
 
-    const key = candidateSku(rawCandidate);
+    if (classification.category === "av_over_ip" && !candidateSupportsAvoipEvidence(candidate, profile, competitorPurpose)) {
+      continue;
+    }
+
+    const key = candidateSku(candidate);
 
     if (!key) {
       continue;
@@ -1858,8 +2009,8 @@ async function matchWyrestormProducts(classification, profile) {
 
     const existing = bySku.get(key);
 
-    if (!existing || Number(rawCandidate.score || 0) > Number(existing.score || 0)) {
-      bySku.set(key, rawCandidate);
+    if (!existing || Number(candidate.score || 0) > Number(existing.score || 0)) {
+      bySku.set(key, candidate);
     }
   }
 
@@ -1875,12 +2026,23 @@ async function matchWyrestormProducts(classification, profile) {
 
   const top = candidates[0];
 
-  if (!top || Number(top.score || 0) < 42) {
+  if (!top || Number(top.score || 0) < MINIMUM_ANY_MATCH_SCORE) {
     return {
       attempted: true,
       matchStatus: "no_genuine_match",
       candidates,
-      message: "Wingman identified the competitor product type, but no WyreStorm product reached the minimum confidence threshold for a professional comparison."
+      message: lifecycleFilteredCount > 0
+        ? "Wingman found possible WyreStorm product areas, but the closest SKUs were not verified as active/recommendable. No customer-safe comparison is being forced."
+        : "Wingman identified the competitor product type, but no WyreStorm product reached the minimum confidence threshold for a professional comparison."
+    };
+  }
+
+  if (Number(top.score || 0) < MINIMUM_PROFESSIONAL_MATCH_SCORE) {
+    return {
+      attempted: true,
+      matchStatus: "review_required",
+      candidates,
+      message: "Wingman found a same-area WyreStorm product, but the evidence is not strong enough to position it as a recommendation without manual review."
     };
   }
 

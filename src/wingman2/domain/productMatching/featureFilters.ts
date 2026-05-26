@@ -93,6 +93,30 @@ function getFinderMetadataValue(product: FinderProduct, key: string) {
   return String(value ?? "");
 }
 
+function productRequiresLifecycleReview(product: FinderProduct) {
+  const activeSku = getFinderMetadataValue(product, "activeSku").trim();
+  const lifecycleStatus = normaliseText(getFinderMetadataValue(product, "lifecycleStatus"));
+  const recommendationStatus = normaliseText(getFinderMetadataValue(product, "recommendationStatus"));
+
+  if (!activeSku && !lifecycleStatus && !recommendationStatus) {
+    return false;
+  }
+
+  if (activeSku && activeSku !== "Yes") {
+    return true;
+  }
+
+  if (lifecycleStatus && lifecycleStatus !== "active") {
+    return true;
+  }
+
+  if (recommendationStatus && recommendationStatus !== "recommendable") {
+    return true;
+  }
+
+  return false;
+}
+
 function inferFinderCommercialRole(product: FinderProduct) {
   const explicitRole = getFinderMetadataValue(product, "commercialRole").trim();
 
@@ -586,11 +610,12 @@ export function toFeatureSearchMatch(product: FinderProduct, _need: FinderNeed, 
   const cleanProduct = cleanFinderProduct(product);
   const matchingFilters = filters.filter((filter) => filter.matches(cleanProduct));
   const featureScore = 40 + matchingFilters.reduce((sum, filter) => sum + filter.weight, 0) + (strictMatch ? 12 : 0);
-  const score = Math.min(99, featureScore);
+  const lifecycleReview = productRequiresLifecycleReview(cleanProduct);
+  const score = lifecycleReview ? Math.min(49, featureScore) : Math.min(99, featureScore);
 
   return {
     ...cleanProduct,
     score,
-    status: strictMatch && score >= 72 ? "recommended" : score >= 52 ? "alternative" : "caution",
+    status: lifecycleReview ? "caution" : strictMatch && score >= 72 ? "recommended" : score >= 52 ? "alternative" : "caution",
   };
 }

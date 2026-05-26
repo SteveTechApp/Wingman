@@ -46,6 +46,7 @@ function expectedFor(product) {
   if (/^EXP-MX-/.test(sku)) return "Matrix";
   if (/^EXP-SW-/.test(sku)) return "Presentation / Room Core";
   if (/^IDB-/.test(sku)) return "Accessory";
+  if (/^NHD-/.test(sku) && includesAny(text, ["companion control", "control app", "control application"])) return "Audio / Control";
   if (/^NHD-/.test(sku)) {
     if (includesAny(text, ["controller", "touchscreen", "touchscreen control", "control application"])) return "AVoIP Infrastructure";
     return "AVoIP";
@@ -54,10 +55,12 @@ function expectedFor(product) {
   if (/^SWX-/.test(sku)) return "Extender / HDBaseT";
   if (/^(EX-|EX3-|EXA-|EXF-|RX-|RX3-|RXF-|RXV-|TX-)/.test(sku)) return "Extender / HDBaseT";
   if (/^(MX-|MXV-|TX-H2X-)/.test(sku)) {
+    const headline = `${product.title ?? ""} ${product.name ?? ""}`;
+    if (!sku.includes("KIT") && includesAny(headline, ["hdbaset receiver", "receiver for mx", "receiver for mxv", "scaling 70m", "70m 4k60 hdbaset receiver"])) return "Extender / HDBaseT";
     if (/^MX-.*MST/.test(sku)) return "Presentation / Room Core";
     return "Matrix";
   }
-  if (/^SP-/.test(sku) || /^EXP-SP-/.test(sku) || includesAny(text, ["splitter", "distribution amplifier"])) return "Splitter / Distribution";
+  if (/^SP-/.test(sku) || /^EXP-SP-/.test(sku) || (!/^SW-/.test(sku) && includesAny(text, ["splitter", "distribution amplifier"]))) return "Splitter / Distribution";
   if (/^SW-020/.test(sku)) return "Video Wall / Multiview";
   if (/^SW-/.test(sku) || /^SYN-KIT/.test(sku)) {
     if (includesAny(text, ["wireless conferencing", "speakerphone", "video bar"])) return "Unified Comms";
@@ -76,7 +79,7 @@ for (const product of products) {
   const sku = clean(product.sku || product.id || product.model);
   const title = clean(product.title || product.name);
   const expected = expectedFor(product);
-  const actual = clean(product.technologyType || product.hardwareType || "Missing");
+  const actual = clean(product.hardwareType || product.technologyType || "Missing");
   const issues = [];
 
   if (!sku) issues.push("missing SKU");

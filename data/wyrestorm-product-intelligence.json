@@ -217561,13 +217561,13 @@
     "id": "USB-HUB4",
     "brand": "WyreStorm",
     "vendorType": "wyrestorm",
-    "sku": "CAB-UAOC-15",
+    "sku": "USB-HUB4",
     "name": "4-Port USB 3.0 Superspeed Hub - WyreStorm",
     "title": "4-Port USB 3.0 Superspeed Hub - WyreStorm",
     "url": "https://www.wyrestorm.com/product/usb-hub4/",
     "description": "The USB-HUB4 is a simple add-on accessory for expanding USB connectivity of your devices. Pair this hub with a number of WyreStorm products to help build your full solution. Connect the hub to the CAB-UAOC-15 USB 3.0 extension cable to provide long distance transmission of high-speed USB 3.0. The USB-HUB4 is also a great companion to the Apollo line of unified communication solutions. Although simple, we’ve kept pro installations in mind by including a set of mounting brackets to easily install the hub under a desk...",
-    "family": "Cable",
-    "role": "Active optical cable",
+    "family": "Accessory",
+    "role": "USB hub accessory",
     "productRole": "accessory",
     "catalogVisibility": "request-only",
     "features": [
@@ -217705,7 +217705,7 @@
       "wingmanClassificationConfidence": "medium",
       "wingmanClassificationReason": "General fallback classification"
     },
-    "technologyType": "HDMI / USB-C / optical cable",
+    "technologyType": "Accessory",
     "hardwareType": "Accessory",
     "roleCorrectionSource": "product-manager-profile:wyrestorm-product-manager-v1",
     "productClassification": {
@@ -219422,7 +219422,9 @@
       "category": "Audio",
       "technologyType": "Amplification",
       "routingClass": "Audio output / amplification"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   },
   {
     "id": "CAB-UAOC-15",
@@ -219726,7 +219728,9 @@
       "category": "Cables",
       "technologyType": "HDMI / USB-C / optical cable",
       "routingClass": "Signal cable"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   },
   {
     "id": "EX-60D-KVM",
@@ -220079,7 +220083,9 @@
       "category": "Extension",
       "technologyType": "Signal extension",
       "routingClass": "Point-to-point extension"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   },
   {
     "id": "IDB-200-NA",
@@ -220408,7 +220414,9 @@
       "category": "Cable management",
       "technologyType": "BYOD table connectivity",
       "routingClass": "Table connectivity"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   },
   {
     "id": "IDB-400-EU-C",
@@ -220762,7 +220770,9 @@
       "category": "Cable management",
       "technologyType": "BYOD table connectivity",
       "routingClass": "Table connectivity"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   },
   {
     "id": "IDB-SPINE",
@@ -221022,7 +221032,9 @@
       "category": "Cable management",
       "technologyType": "BYOD table connectivity",
       "routingClass": "Table connectivity"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   },
   {
     "id": "MV-0401-PRO",
@@ -221340,7 +221352,9 @@
       "category": "Video processing",
       "technologyType": "HDMI multiview processing",
       "routingClass": "Multiview processing"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   },
   {
     "id": "MXV-0808-H2A-MK2",
@@ -221693,7 +221707,9 @@
       "category": "Matrix switching",
       "technologyType": "HDBaseT / HDMI matrix",
       "routingClass": "Fixed I/O HDBaseT matrix routing"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   },
   {
     "id": "NHD-124-RACK-1U",
@@ -221959,7 +221975,9 @@
       "category": "AV-over-IP accessory",
       "technologyType": "NetworkHD system accessory",
       "routingClass": "Control / mounting / USB support"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   },
   {
     "id": "NHD-600-E-RX",
@@ -222298,7 +222316,9 @@
       "category": "AV-over-IP",
       "technologyType": "10G SDVoE AV-over-IP",
       "routingClass": "NetworkHD 600 distributed routing"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   },
   {
     "id": "NHD-600-E-TX",
@@ -222637,7 +222657,9 @@
       "category": "AV-over-IP",
       "technologyType": "10G SDVoE AV-over-IP",
       "routingClass": "NetworkHD 600 distributed routing"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   },
   {
     "id": "SWX-100-IW-UX",
@@ -223028,6 +223050,8 @@
       "category": "Extension",
       "technologyType": "HDBaseT",
       "routingClass": "Point-to-point extension"
-    }
+    },
+    "activeSku": "Review",
+    "manualReviewNotes": "Lifecycle review required: no activeSku flag was present and this SKU was not found in the local 2026 WyreStorm SKU master. Keep review-only until confirmed against current WyreStorm source data."
   }
 ]

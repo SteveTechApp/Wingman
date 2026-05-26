@@ -68,17 +68,17 @@ function updateFile(relativePath) {
 
     const before = JSON.stringify(product);
 
-    if (!clean(product.activeSku)) {
-      product.activeSku = "Yes";
-    }
-
     if (isEolSku(sku)) {
+      const eolNote = "Lifecycle confirmed EOL.";
+
       product.activeSku = "EOL";
       product.lifecycleStatus = "EOL";
       product.catalogVisibility = product.catalogVisibility || "request-only";
       product.manualReviewNotes = clean(product.manualReviewNotes)
-        ? `${clean(product.manualReviewNotes)}; Lifecycle confirmed EOL.`
-        : "Lifecycle confirmed EOL.";
+        ? clean(product.manualReviewNotes).includes(eolNote)
+          ? clean(product.manualReviewNotes)
+          : `${clean(product.manualReviewNotes)}; ${eolNote}`
+        : eolNote;
 
       product.searchTerms = addUnique(product.searchTerms, "EOL");
       product.tags = addUnique(product.tags, "EOL");

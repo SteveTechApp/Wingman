@@ -50,6 +50,7 @@ const BAD_ENCODING_RE = /[\u00c3\u00c2\ufffd]|\u00e2(?:\u20ac|\u201e|\u0153|\u21
 
 const statusTone: Record<string, StatusTone> = {
   candidate_match: "green",
+  review_required: "amber",
   no_genuine_match: "amber",
   no_wyrestorm_category: "slate",
   insufficient_type_confidence: "amber",
@@ -262,6 +263,7 @@ function specRows(result: CompareIntelligenceResult | null): SpecRow[] {
 function statusLabel(value?: string) {
   const labels: Record<string, string> = {
     candidate_match: "Credible WyreStorm option found",
+    review_required: "Manual review required before positioning",
     no_genuine_match: "No strong WyreStorm alternative found",
     no_wyrestorm_category: "WyreStorm does not directly compete with this product type",
     insufficient_type_confidence: "Need more product detail before recommending",
@@ -323,6 +325,14 @@ function salesRecommendation(result: CompareIntelligenceResult | null) {
     return `Treat ${candidate.sku} as a provisional same-role starting point only. Add a product page or datasheet text before expanding to other WyreStorm families or quoting.`;
   }
 
+  if (status === "review_required" && candidate?.sku) {
+    return `Do not position ${candidate.sku} as a recommendation yet. Use it as a review-only lead, then confirm current SKU status, feature parity, distance, signal format, USB/audio/control needs and package contents before quoting.`;
+  }
+
+  if (status === "review_required") {
+    return "Do not position a WyreStorm recommendation yet. The closest product area needs manual review before it is safe for a customer proposal.";
+  }
+
   if (status === "candidate_match" && candidate?.sku) {
     return `Position ${candidate.sku} first. Treat this as the leading WyreStorm option, then confirm distance, signal format, USB/audio/control needs, and any project-specific constraints before quoting.`;
   }
@@ -356,6 +366,10 @@ function resultHeadline(result: CompareIntelligenceResult | null) {
 
   if (status === "candidate_match" && candidate?.sku && isProvisionalMatch(result)) {
     return `${candidate.sku} is the provisional same-role option`;
+  }
+
+  if (status === "review_required" && candidate?.sku) {
+    return `${candidate.sku} needs manual review before positioning`;
   }
 
   if (status === "candidate_match" && candidate?.sku) {
@@ -449,6 +463,14 @@ function competitorOverviewText(result: CompareIntelligenceResult | null) {
 function candidateFit(candidate: Candidate | null, index = 0, result: CompareIntelligenceResult | null = null) {
   const score = Number(candidate?.score || 0);
   const provisional = isProvisionalMatch(result);
+  const matchStatus = result?.wyrestorm?.matchStatus || "";
+  const lifecycleStatus = displaySafe(candidate?.lifecycleStatus).toLowerCase();
+  const recommendationStatus = displaySafe(candidate?.recommendationStatus).toLowerCase();
+  const needsLifecycleReview = Boolean(
+    candidate &&
+      ((lifecycleStatus && lifecycleStatus !== "active") ||
+        (recommendationStatus && recommendationStatus !== "recommendable")),
+  );
   const reasons = (candidate?.reasons || []).map((reason) => reason.toLowerCase());
   const hasDirectLanguage = reasons.some((reason) =>
     reason.includes("same") ||
@@ -468,6 +490,22 @@ function candidateFit(candidate: Candidate | null, index = 0, result: CompareInt
       label: "No fit",
       summary: "No WyreStorm product should be positioned from the current evidence.",
       className: "border-slate-400/20 bg-slate-400/10 text-slate-200",
+    };
+  }
+
+  if (needsLifecycleReview) {
+    return {
+      label: "Review only",
+      summary: candidate.lifecycleWarning || "Current SKU status is not verified. Confirm against WyreStorm source data before positioning or quoting.",
+      className: "border-amber-300/35 bg-amber-300/10 text-amber-100",
+    };
+  }
+
+  if (matchStatus === "review_required" || score < 70) {
+    return {
+      label: "Review only",
+      summary: "Related product area, but the evidence is not strong enough for a customer-safe recommendation. Confirm facts manually before positioning.",
+      className: "border-amber-300/35 bg-amber-300/10 text-amber-100",
     };
   }
 
@@ -1014,21 +1052,31 @@ function ComparePage() {
 
                 {result.wyrestorm?.candidates?.length ? (
                   <div className="mt-4 flex flex-col gap-3">
-                    {result.wyrestorm.candidates.map((item, index) => (
+                    {result.wyrestorm.candidates.map((item, index) => {
+                      const reviewOnly = result.wyrestorm?.matchStatus === "review_required" ||
+                        (item.recommendationStatus && item.recommendationStatus !== "recommendable") ||
+                        (item.lifecycleStatus && item.lifecycleStatus !== "active");
+                      const leadClass = reviewOnly
+                        ? "border-amber-300/40 bg-amber-300/10"
+                        : "border-cyan-300/40 bg-cyan-300/10";
+                      const leadBadgeClass = reviewOnly
+                        ? "border-amber-300/30 bg-amber-300/15 text-amber-100"
+                        : "border-cyan-300/30 bg-cyan-300/15 text-cyan-100";
+                      const scoreClass = reviewOnly
+                        ? "border-amber-300/30 bg-amber-300/10 text-amber-100"
+                        : "border-cyan-300/30 bg-cyan-300/10 text-cyan-100";
+
+                      return (
                       <article
                         key={`${item.sku}-${item.name}-${index}`}
-                        className={`rounded-3xl border p-4 ${
-                          index === 0
-                            ? "border-cyan-300/40 bg-cyan-300/10"
-                            : "border-white/10 bg-white/[0.04]"
-                        }`}
+                        className={`rounded-3xl border p-4 ${index === 0 ? leadClass : "border-white/10 bg-white/[0.04]"}`}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
                               {index === 0 ? (
-                                <span className="rounded-full border border-cyan-300/30 bg-cyan-300/15 px-2 py-1 text-xs font-bold text-cyan-100">
-                                  Lead option
+                                <span className={`rounded-full border px-2 py-1 text-xs font-bold ${leadBadgeClass}`}>
+                                  {reviewOnly ? "Review lead" : "Lead option"}
                                 </span>
                               ) : null}
                               {item.family ? (
@@ -1064,9 +1112,15 @@ function ComparePage() {
                                 </div>
                               );
                             })()}
+
+                            {item.lifecycleWarning ? (
+                              <p className="mt-2 text-xs leading-5 text-amber-100/90">
+                                SKU status: {item.lifecycleWarning}
+                              </p>
+                            ) : null}
                           </div>
 
-                          <span className="rounded-2xl border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-sm font-black text-cyan-100">
+                          <span className={`rounded-2xl border px-3 py-2 text-sm font-black ${scoreClass}`}>
                             {item.score ?? 0}
                           </span>
                         </div>
@@ -1084,7 +1138,8 @@ function ComparePage() {
                           </div>
                         ) : null}
                       </article>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="mt-3 text-sm leading-6 text-slate-400">

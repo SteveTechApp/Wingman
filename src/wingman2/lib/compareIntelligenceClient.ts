@@ -40,6 +40,11 @@ export type CompareIntelligenceResult = {
       family?: string;
       score?: number;
       confidence?: number;
+      activeSku?: string;
+      lifecycleStatus?: string;
+      recommendationStatus?: string;
+      lifecycleSource?: string;
+      lifecycleWarning?: string;
       candidateCategory?: string;
       candidateCategoryLabel?: string;
       competitorPurpose?: string;
