@@ -264,6 +264,32 @@ function sourceExcerpt(text, sku, productName) {
   return readable.slice(Math.max(0, index - 260), Math.min(readable.length, index + 900));
 }
 
+function evidencePageScore({ source, response, readable, sku, productName, productUrl }) {
+  const url = response.finalUrl || source.url || "";
+  const combined = lower([source.title, url, readable.slice(0, 4000)].join(" "));
+  const compactSku = lower(sku).replace(/[-\s]/g, "");
+  const containsSku = sku ? combined.includes(lower(sku)) || combined.includes(compactSku) : false;
+  const containsName = productName ? combined.includes(lower(productName)) : false;
+  const directKnownUrl = productUrl ? lower(url).includes(lower(productUrl).replace(/^https?:\/\//, "").split("/")[0]) : false;
+  const datasheetLike = /datasheet|data-sheet|specification|specifications|manual|product/i.test(combined);
+  const avProductLanguage = hasAny(readable, [/hdbaset/i, /hdbt/i, /extender/i, /encoder/i, /decoder/i, /presentation/i, /switcher/i, /matrix/i, /video\s*wall/i, /multiview/i, /usb[-\s]?c/i]);
+  const score =
+    (directKnownUrl ? 5 : 0) +
+    (containsSku ? 4 : 0) +
+    (containsName ? 3 : 0) +
+    (datasheetLike ? 2 : 0) +
+    (avProductLanguage ? 1 : 0);
+
+  return {
+    score,
+    containsSku,
+    containsName,
+    directKnownUrl,
+    likelyProductPage: score >= 4 || (avProductLanguage && (containsSku || containsName || directKnownUrl)),
+    sourceConfidence: score >= 9 ? "high" : score >= 5 ? "medium" : score >= 3 ? "low" : "weak",
+  };
+}
+
 async function lookupPublicWebSpecs(input = {}) {
   const brand = cleanText(input.brand || input.manufacturer);
   const sku = cleanText(input.sku || input.model);
@@ -323,30 +349,27 @@ async function lookupPublicWebSpecs(input = {}) {
   for (const source of discovered.slice(0, MAX_PAGES_TO_READ)) {
     const response = await fetchText(source.url);
     const readable = stripHtml(response.text);
-    const compactSku = lower(sku).replace(/[-\s]/g, "");
-    const containsSku = sku ? lower(readable).includes(lower(sku)) || lower(readable).includes(compactSku) : false;
-    const containsName = productName ? lower(readable).includes(lower(productName)) : false;
-    const directKnownUrl = productUrl ? lower(source.url).includes(lower(productUrl).replace(/^https?:\/\//, "").split("/")[0]) : false;
-    const likelyProductPage =
-      containsSku ||
-      containsName ||
-      directKnownUrl ||
-      hasAny(readable, [/hdbaset/i, /hdbt/i, /extender/i, /encoder/i, /decoder/i, /presentation/i, /switcher/i, /matrix/i]);
+    const pageEvidence = evidencePageScore({ source, response, readable, sku, productName, productUrl });
 
     pages.push({
       url: response.finalUrl || source.url,
       title: source.title,
       status: response.status,
       ok: response.ok,
-      containsSku,
-      containsName,
-      likelyProductPage,
+      containsSku: pageEvidence.containsSku,
+      containsName: pageEvidence.containsName,
+      directKnownUrl: pageEvidence.directKnownUrl,
+      likelyProductPage: pageEvidence.likelyProductPage,
+      sourceConfidence: pageEvidence.sourceConfidence,
+      evidenceScore: pageEvidence.score,
       excerpt: sourceExcerpt(response.text, sku, productName),
       text: readable.slice(0, 24000)
     });
   }
 
-  const usefulPages = pages.filter((page) => page.ok && page.likelyProductPage && (page.containsSku || page.containsName || productUrl));
+  const usefulPages = pages
+    .filter((page) => page.ok && page.likelyProductPage && (page.containsSku || page.containsName || page.directKnownUrl || page.evidenceScore >= 6))
+    .sort((a, b) => b.evidenceScore - a.evidenceScore);
   const aggregateText = usefulPages.map((page) => [page.title, page.url, page.text].join("\n")).join("\n\n");
 
   return {
@@ -360,12 +383,63 @@ async function lookupPublicWebSpecs(input = {}) {
       ok: page.ok,
       containsSku: page.containsSku,
       containsName: page.containsName,
+      directKnownUrl: page.directKnownUrl,
       likelyProductPage: page.likelyProductPage,
+      sourceConfidence: page.sourceConfidence,
+      evidenceScore: page.evidenceScore,
       excerpt: page.excerpt
     })),
     text: aggregateText,
     pagesRead: pages.length,
     usefulPages: usefulPages.length
+  };
+}
+
+function buildEvidenceQuality({ web, rawNotes, verifiedProfile }) {
+  if (verifiedProfile?.verifiedSource) {
+    return {
+      level: "high",
+      basis: "Known verified product profile",
+      sourcesUsed: 1,
+      guidance: "Use as a trusted comparison starting point, then confirm project-specific requirements before quoting.",
+    };
+  }
+
+  const highConfidenceSources = (web.sources || []).filter((source) => source.sourceConfidence === "high").length;
+  const mediumConfidenceSources = (web.sources || []).filter((source) => source.sourceConfidence === "medium").length;
+
+  if (highConfidenceSources > 0 || web.usefulPages >= 2) {
+    return {
+      level: "high",
+      basis: "Direct product-page or datasheet-style evidence",
+      sourcesUsed: web.usefulPages,
+      guidance: "Major product facts were extracted from public source evidence. Still confirm final package contents and project-specific requirements.",
+    };
+  }
+
+  if (mediumConfidenceSources > 0 || web.usefulPages === 1) {
+    return {
+      level: "medium",
+      basis: "Single useful public source",
+      sourcesUsed: web.usefulPages,
+      guidance: "Use as a comparison lead. Add a datasheet or product page before treating minor feature differences as final.",
+    };
+  }
+
+  if (cleanText(rawNotes)) {
+    return {
+      level: "user-provided",
+      basis: "User-provided notes only",
+      sourcesUsed: 0,
+      guidance: "Treat the match as provisional unless the pasted notes include the key ports, transport, resolution and role.",
+    };
+  }
+
+  return {
+    level: "low",
+    basis: "Insufficient product evidence",
+    sourcesUsed: 0,
+    guidance: "Add a product URL, datasheet text, or quoted specification before positioning a WyreStorm alternative.",
   };
 }
 
@@ -387,6 +461,9 @@ function emptyVerifiedSpecProfile() {
       dante: false,
       aes67: false
     },
+    videoProcessing: {},
+    network: {},
+    power: {},
     features: {
       scaling: false,
       seamless: false,
@@ -607,17 +684,96 @@ function hasOnlyMultipleOutputsNotMultiview(sourceText) {
   return hasOutputCount && !hasExplicitMultiviewFeature(text);
 }
 
+function maxRegexNumber(text, patterns, groupIndex = 1) {
+  let max = 0;
+
+  for (const pattern of patterns) {
+    for (const match of String(text || "").matchAll(pattern)) {
+      const value = Number(match[groupIndex]);
+
+      if (Number.isFinite(value) && value > 0 && value <= 128) {
+        max = Math.max(max, value);
+      }
+    }
+  }
+
+  return max;
+}
+
+function resolutionRankFromText(text) {
+  const value = String(text || "");
+
+  if (/\b8k\b|\b7680\s*[x×]\s*4320\b/i.test(value)) return { rank: 6, label: "8K / specialist" };
+  if (/\b4k\s*120\b|\b120\s*hz\b/i.test(value)) return { rank: 5, label: "4K120" };
+  if (/\b4k\s*60\s*4\s*:?4\s*:?4\b|\b4:4:4\b|\b18\s*gbps\b/i.test(value)) return { rank: 4, label: "4K60 4:4:4" };
+  if (/\b4k\s*60\b|\b4k60\b|\b60\s*hz\b/i.test(value)) return { rank: 3, label: "4K60" };
+  if (/\b4k\s*30\b|\b4k30\b/i.test(value)) return { rank: 2, label: "4K30" };
+  if (/\b1080p\b|\bfull\s*hd\b|\b1920\s*[x×]\s*1080\b/i.test(value)) return { rank: 1, label: "1080p" };
+
+  return { rank: 0, label: "" };
+}
+
 function extractSpecProfile(sourceText = "") {
   const text = lower(sourceText);
   const profile = emptyVerifiedSpecProfile();
+  const matrixMatch = String(sourceText || "").match(/\b(\d{1,2})\s*[xX×]\s*(\d{1,2})\b/);
+  const matrixInputs = matrixMatch ? Number(matrixMatch[1]) : 0;
+  const matrixOutputs = matrixMatch ? Number(matrixMatch[2]) : 0;
+  const resolution = resolutionRankFromText(sourceText);
 
   if (/\bhdmi\b/i.test(text)) {
     profile.evidenceHints.hdmiMentions = 1;
   }
 
+  const inputFromMatrixNotation = matrixInputs && /\bmatrix\b|\bswitcher\b|\bpresentation\b|\binput/i.test(String(sourceText || "")) ? matrixInputs : 0;
+  const explicitHdmiInputs = maxRegexNumber(sourceText, [
+    /\b(\d{1,2})\s*(?:x|×)?\s*hdmi\s*(?:inputs?|in\b)/gi,
+    /\bhdmi\s*(?:inputs?|in\b)\s*(?:x\s*)?(\d{1,2})\b/gi,
+  ]);
+  const hdmiInputs = inputFromMatrixNotation || explicitHdmiInputs;
+
+  if (hdmiInputs > 0) {
+    profile.videoInputs.hdmi = hdmiInputs;
+  }
+
+  const outputFromMatrixNotation = matrixOutputs && /\bmatrix\b|\bswitcher\b|\boutput/i.test(String(sourceText || "")) ? matrixOutputs : 0;
+  const explicitHdmiOutputs = maxRegexNumber(sourceText, [
+    /\b(\d{1,2})\s*(?:x|×)?\s*hdmi\s*(?:outputs?|out\b)/gi,
+    /\bhdmi\s*(?:outputs?|out\b)\s*(?:x\s*)?(\d{1,2})\b/gi,
+  ]);
+  const hdmiOutputs = outputFromMatrixNotation || explicitHdmiOutputs;
+
+  if (hdmiOutputs > 0) {
+    profile.videoOutputs.hdmi = hdmiOutputs;
+  }
+
+  const usbCInputs = maxRegexNumber(sourceText, [
+    /\b(\d{1,2})\s*(?:x|×)?\s*usb[-\s]?c\s*(?:inputs?|in\b)/gi,
+    /\busb[-\s]?c\s*(?:inputs?|in\b)\s*(?:x\s*)?(\d{1,2})\b/gi,
+  ]);
+
+  if (usbCInputs > 0) {
+    profile.videoInputs.usbC = usbCInputs;
+    profile.evidenceHints.usbCMentions = usbCInputs;
+  } else if (/\busb[-\s]?c\b/i.test(sourceText)) {
+    profile.evidenceHints.usbCMentions = 1;
+  }
+
   if (/\bhdbaset\b|\bhdbt\b/i.test(text)) {
     profile.features.hdbasetExtension = true;
     profile.evidenceHints.hdbasetMentions = 1;
+
+    const hdbasetOutputs = Math.max(
+      maxRegexNumber(sourceText, [
+        /\b(\d{1,2})\s*(?:x|×)?\s*(?:hdbaset|hdbt)\s*(?:outputs?|out\b)/gi,
+        /\b(?:hdbaset|hdbt)\s*(?:outputs?|out\b)\s*(?:x\s*)?(\d{1,2})\b/gi,
+      ]),
+      matrixOutputs && /\b(?:hdbaset|hdbt)\b/i.test(String(sourceText || "")) ? matrixOutputs : 0,
+    );
+
+    if (hdbasetOutputs > 0) {
+      profile.videoOutputs.hdbaset = hdbasetOutputs;
+    }
   }
 
   if (/\brs[-\s]?232\b/i.test(text)) {
@@ -666,6 +822,30 @@ function extractSpecProfile(sourceText = "") {
     profile.audio.aes67 = true;
   }
 
+  if (/de[-\s]?embed|audio\s+extract|audio\s+breakout/i.test(text)) {
+    profile.audio.audioDeEmbedding = true;
+  }
+
+  if (/embed(?:ding)?\s+audio|audio\s+embed/i.test(text)) {
+    profile.audio.audioEmbedding = true;
+  }
+
+  if (/balanced\s+audio|phoenix\s+audio|xlr|line\s+out|analogue\s+audio|analog\s+audio/i.test(text)) {
+    profile.audio.analogueOutput = true;
+  }
+
+  if (/airplay|miracast|chromecast|wireless\s+casting|wireless\s+presentation|casting\s+dongle/i.test(text) && !/\bno\s+wireless\s+casting\b|\bwithout\s+wireless\s+casting\b/i.test(text)) {
+    profile.features.wirelessCasting = true;
+  }
+
+  if (/wireless\s+conferencing|wireless\s+byom|wireless\s+byod/i.test(text) && !/\bno\s+wireless\s+conferencing\b|\bwithout\s+wireless\s+conferencing\b/i.test(text)) {
+    profile.features.wirelessConferencing = true;
+  }
+
+  if (/seamless\s+switch/i.test(text)) {
+    profile.features.seamless = true;
+  }
+
   if (hasExplicitMultiviewFeature(text)) {
     profile.features.multiview = true;
   }
@@ -676,6 +856,11 @@ function extractSpecProfile(sourceText = "") {
 
   if (/\bscaler\b|\bscaling\b|\bscale\b|\bupscal|\bdownscal/i.test(text)) {
     profile.features.scaling = true;
+  }
+
+  if (resolution.rank > 0) {
+    profile.videoProcessing.maxResolution = resolution.label;
+    profile.videoProcessing.maxResolutionRank = resolution.rank;
   }
 
   if (hasOnlyMultipleOutputsNotMultiview(text)) {
@@ -763,6 +948,9 @@ const CATEGORY_RULES = [
       /presentation\s+scaler/i,
       /switcher\s*\/\s*scaler/i,
       /room\s+switcher/i,
+      /\bhdmi\s+switcher\b/i,
+      /\b\d+\s*[xX×]\s*1\b[^.]{0,80}\bswitcher\b/i,
+      /\b\d+\s*hdmi\s+inputs?\b/i,
       /\bbyod\b/i,
       /\bbyom\b/i,
       /\bvp[-\s]?\d+/i
@@ -1397,43 +1585,364 @@ function featureNames(profile) {
     .map(([name]) => name);
 }
 
-function portScore(competitorProfile, candidateProfile) {
-  let score = 0;
-  const reasons = [];
+function profileValue(profile, group, key) {
+  return profile?.[group]?.[key];
+}
 
-  for (const group of ["videoInputs", "videoOutputs", "control", "audio", "usb", "features"]) {
-    const competitorGroup = competitorProfile[group] || {};
-    const candidateGroup = candidateProfile[group] || {};
+function profileNumber(profile, group, key) {
+  const value = profileValue(profile, group, key);
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
 
-    for (const [key, value] of Object.entries(competitorGroup)) {
-      if (value === null || value === undefined || value === false) {
-        continue;
-      }
+function profileBoolean(profile, group, key) {
+  return profileValue(profile, group, key) === true;
+}
 
-      const candidateValue = candidateGroup[key];
+function resolutionRank(profile) {
+  const explicit = Number(profile?.videoProcessing?.maxResolutionRank || 0);
 
-      if (candidateValue === true && value === true) {
-        score += 2;
-        reasons.push(group + "." + key);
-      }
-
-      if (typeof value === "number" && typeof candidateValue === "number") {
-        const delta = Math.abs(value - candidateValue);
-
-        if (delta === 0) {
-          score += 2;
-          reasons.push(group + "." + key + " exact");
-        }
-
-        if (delta > 0 && delta <= 2) {
-          score += 1;
-          reasons.push(group + "." + key + " near");
-        }
-      }
-    }
+  if (Number.isFinite(explicit) && explicit > 0) {
+    return explicit;
   }
 
-  return { score, reasons };
+  return resolutionRankFromText(profile?.videoProcessing?.maxResolution || "").rank;
+}
+
+function pushUniqueText(items, value) {
+  const text = cleanText(value);
+
+  if (text && !items.includes(text)) {
+    items.push(text);
+  }
+}
+
+function addFitBreakdown(fit, item) {
+  fit.specFitBreakdown.push({
+    label: item.label,
+    importance: item.importance,
+    status: item.status,
+    weight: item.weight,
+    score: item.score,
+    note: item.note,
+  });
+}
+
+function addFitMatch(fit, label, weight, importance = "major", note = "") {
+  fit.score += weight;
+  addFitBreakdown(fit, { label, importance, status: "match", weight, score: weight, note });
+  pushUniqueText(importance === "useful" ? fit.usefulMatches : fit.majorMatches, note || label);
+}
+
+function addFitAdvantage(fit, label, weight = 0, note = "") {
+  fit.score += weight;
+  addFitBreakdown(fit, { label, importance: "advantage", status: "exceeds", weight, score: weight, note });
+  pushUniqueText(fit.advantages, note || label);
+}
+
+function addFitDifference(fit, label, weight, importance = "major", note = "") {
+  addFitBreakdown(fit, { label, importance, status: "difference", weight, score: 0, note });
+  pushUniqueText(fit.differences, note || label);
+}
+
+function addFitUnknown(fit, label, importance = "major", note = "") {
+  addFitBreakdown(fit, { label, importance, status: "unknown", weight: 0, score: 0, note });
+  pushUniqueText(fit.unknowns, note || label);
+}
+
+function scoreNumericFit(fit, options) {
+  const competitorValue = Number(options.competitorValue || 0);
+  const candidateValue = Number(options.candidateValue || 0);
+
+  if (!competitorValue) {
+    return;
+  }
+
+  if (!candidateValue) {
+    addFitUnknown(fit, options.label, options.importance, `${options.label} not confirmed on WyreStorm candidate`);
+    return;
+  }
+
+  if (candidateValue >= competitorValue) {
+    addFitMatch(fit, options.label, options.weight, options.importance, `${options.label}: ${candidateValue} covers competitor ${competitorValue}`);
+
+    if (candidateValue > competitorValue) {
+      addFitAdvantage(fit, `${options.label} exceeds competitor`, Math.min(2, options.weight * 0.2), `${options.label}: WyreStorm has ${candidateValue} vs competitor ${competitorValue}`);
+    }
+
+    return;
+  }
+
+  const partial = Math.max(0, Math.round(options.weight * (candidateValue / competitorValue) * 0.45));
+
+  if (partial > 0) {
+    fit.score += partial;
+    addFitBreakdown(fit, {
+      label: options.label,
+      importance: options.importance,
+      status: "partial",
+      weight: options.weight,
+      score: partial,
+      note: `${options.label}: WyreStorm has ${candidateValue} vs competitor ${competitorValue}`,
+    });
+  }
+
+  addFitDifference(fit, options.label, options.weight, options.importance, `${options.label}: WyreStorm appears lower (${candidateValue} vs ${competitorValue})`);
+}
+
+function scoreBooleanFit(fit, options) {
+  if (options.competitorRequired !== true) {
+    if (options.candidateHas === true && options.extraAdvantage) {
+      addFitAdvantage(fit, options.label, options.extraWeight || 0, options.extraAdvantage);
+    }
+
+    return;
+  }
+
+  if (options.candidateHas === true || options.satisfiedBy === true) {
+    addFitMatch(fit, options.label, options.weight, options.importance, options.matchNote || `${options.label} covered`);
+    return;
+  }
+
+  addFitDifference(fit, options.label, options.weight, options.importance, options.gapNote || `${options.label} not confirmed on WyreStorm candidate`);
+}
+
+function scoreResolutionFit(fit, competitorProfile, candidateProfile) {
+  const competitorRank = resolutionRank(competitorProfile);
+  const candidateRank = resolutionRank(candidateProfile);
+
+  if (!competitorRank) {
+    return;
+  }
+
+  const competitorLabel = cleanText(competitorProfile?.videoProcessing?.maxResolution) || "competitor requirement";
+  const candidateLabel = cleanText(candidateProfile?.videoProcessing?.maxResolution) || "not confirmed";
+
+  if (!candidateRank) {
+    addFitUnknown(fit, "Video resolution", "major", `WyreStorm resolution not confirmed against ${competitorLabel}`);
+    return;
+  }
+
+  if (candidateRank >= competitorRank) {
+    addFitMatch(fit, "Video resolution", 12, "major", `Resolution covers ${competitorLabel}`);
+
+    if (candidateRank > competitorRank) {
+      addFitAdvantage(fit, "Video resolution exceeds competitor", 2, `WyreStorm ${candidateLabel} exceeds ${competitorLabel}`);
+    }
+
+    return;
+  }
+
+  fit.score += 4;
+  addFitBreakdown(fit, {
+    label: "Video resolution",
+    importance: "major",
+    status: "partial",
+    weight: 12,
+    score: 4,
+    note: `WyreStorm ${candidateLabel} appears below ${competitorLabel}`,
+  });
+  addFitDifference(fit, "Video resolution", 12, "major", `WyreStorm ${candidateLabel} appears below ${competitorLabel}`);
+}
+
+function addExtraCandidateAdvantages(fit, competitorProfile, candidateProfile) {
+  const extras = [
+    ["features", "wirelessCasting", "adds wireless casting"],
+    ["features", "wirelessConferencing", "adds wireless conferencing"],
+    ["features", "scaling", "adds scaling"],
+    ["features", "seamless", "adds seamless switching"],
+    ["features", "webUi", "adds web UI management"],
+    ["features", "poe", "adds PoE / remote power option"],
+    ["audio", "dante", "adds Dante audio integration"],
+    ["audio", "aes67", "adds AES67 audio integration"],
+  ];
+
+  let bonusCount = 0;
+
+  for (const [group, key, label] of extras) {
+    if (profileBoolean(candidateProfile, group, key) && !profileBoolean(competitorProfile, group, key)) {
+      addFitAdvantage(fit, key, bonusCount < 4 ? 1 : 0, label);
+      bonusCount += 1;
+    }
+  }
+}
+
+function fitSummaryForScore(score) {
+  if (score >= 88) return "Strong functional alternative";
+  if (score >= 70) return "Realistic functional alternative";
+  if (score >= 55) return "Related option requiring manual review";
+  return "Weak or incomplete functional fit";
+}
+
+function evaluateFunctionalFit({
+  competitorClassification,
+  competitorProfile,
+  candidateClassification,
+  candidateProfile,
+  competitorPurpose,
+  candidatePurpose,
+  purposeCompatibility,
+  directCategory,
+}) {
+  const fit = {
+    score: 0,
+    majorMatches: [],
+    usefulMatches: [],
+    advantages: [],
+    differences: [],
+    unknowns: [],
+    specFitBreakdown: [],
+  };
+
+  if (directCategory) {
+    addFitMatch(fit, "Product type", 26, "major", "same product type");
+  } else {
+    addFitMatch(fit, "Product type", 14, "major", "related product type");
+    addFitDifference(fit, "Product type", 12, "major", "related, not identical product type");
+  }
+
+  if (competitorPurpose.role === "not_directional" || candidatePurpose.role === "not_directional") {
+    addFitMatch(fit, "Product role", 16, "major", "role check not directional for this product type");
+  } else if (purposeCompatibility.ok && competitorPurpose.role !== "unknown" && candidatePurpose.role !== "unknown") {
+    addFitMatch(fit, "Product role", 24, "major", purposeCompatibility.reason);
+  } else if (purposeCompatibility.ok) {
+    addFitMatch(fit, "Product role", 8, "major", "role compatible, but not fully confirmed");
+  }
+
+  if (competitorClassification.category === "av_over_ip") {
+    addFitMatch(fit, "Transport architecture", 14, "major", "AV-over-IP architecture");
+  }
+
+  scoreBooleanFit(fit, {
+    label: "HDBaseT transport",
+    competitorRequired: competitorClassification.category === "hdbaset_extender" || profileBoolean(competitorProfile, "features", "hdbasetExtension"),
+    candidateHas: profileBoolean(candidateProfile, "features", "hdbasetExtension"),
+    weight: 14,
+    importance: "major",
+    matchNote: "HDBaseT transport covered",
+  });
+
+  scoreNumericFit(fit, {
+    label: "HDMI inputs",
+    competitorValue: profileNumber(competitorProfile, "videoInputs", "hdmi"),
+    candidateValue: profileNumber(candidateProfile, "videoInputs", "hdmi"),
+    weight: 10,
+    importance: "major",
+  });
+  scoreNumericFit(fit, {
+    label: "USB-C inputs",
+    competitorValue: profileNumber(competitorProfile, "videoInputs", "usbC"),
+    candidateValue: profileNumber(candidateProfile, "videoInputs", "usbC"),
+    weight: 6,
+    importance: "major",
+  });
+  scoreNumericFit(fit, {
+    label: "HDMI outputs",
+    competitorValue: profileNumber(competitorProfile, "videoOutputs", "hdmi"),
+    candidateValue: profileNumber(candidateProfile, "videoOutputs", "hdmi"),
+    weight: 10,
+    importance: "major",
+  });
+  scoreNumericFit(fit, {
+    label: "HDBaseT outputs",
+    competitorValue: profileNumber(competitorProfile, "videoOutputs", "hdbaset"),
+    candidateValue: profileNumber(candidateProfile, "videoOutputs", "hdbaset"),
+    weight: 14,
+    importance: "major",
+  });
+
+  scoreResolutionFit(fit, competitorProfile, candidateProfile);
+
+  scoreBooleanFit(fit, {
+    label: "USB 3 transport",
+    competitorRequired: profileBoolean(competitorProfile, "usb", "usb3"),
+    candidateHas: profileBoolean(candidateProfile, "usb", "usb3"),
+    weight: 10,
+    importance: "major",
+    matchNote: "USB 3 transport covered",
+  });
+  scoreBooleanFit(fit, {
+    label: "USB 2 transport",
+    competitorRequired: profileBoolean(competitorProfile, "usb", "usb2"),
+    candidateHas: profileBoolean(candidateProfile, "usb", "usb2"),
+    satisfiedBy: profileBoolean(candidateProfile, "usb", "usb3"),
+    weight: 8,
+    importance: "major",
+    matchNote: "USB transport covered",
+  });
+  scoreBooleanFit(fit, {
+    label: "Multiview processing",
+    competitorRequired: profileBoolean(competitorProfile, "features", "multiview"),
+    candidateHas: profileBoolean(candidateProfile, "features", "multiview"),
+    weight: 12,
+    importance: "major",
+  });
+  scoreBooleanFit(fit, {
+    label: "Video wall processing",
+    competitorRequired: profileBoolean(competitorProfile, "features", "videoWall"),
+    candidateHas: profileBoolean(candidateProfile, "features", "videoWall"),
+    weight: 12,
+    importance: "major",
+  });
+
+  for (const [group, key, label] of [
+    ["control", "rs232", "RS-232 control"],
+    ["control", "ir", "IR control"],
+    ["control", "lan", "LAN control"],
+    ["audio", "audioDeEmbedding", "audio de-embedding"],
+    ["audio", "audioEmbedding", "audio embedding"],
+    ["audio", "analogueOutput", "analogue audio output"],
+    ["audio", "dante", "Dante audio"],
+    ["audio", "aes67", "AES67 audio"],
+    ["features", "scaling", "scaling"],
+    ["features", "seamless", "seamless switching"],
+  ]) {
+    scoreBooleanFit(fit, {
+      label,
+      competitorRequired: profileBoolean(competitorProfile, group, key),
+      candidateHas: profileBoolean(candidateProfile, group, key),
+      weight: 3,
+      importance: "useful",
+      matchNote: `${label} covered`,
+      gapNote: `${label} not confirmed on WyreStorm candidate`,
+    });
+  }
+
+  for (const [group, key, label] of [
+    ["features", "hdcp", "HDCP support"],
+    ["features", "edid", "EDID management"],
+    ["features", "webUi", "web UI"],
+    ["features", "poe", "PoE / remote power"],
+    ["features", "cec", "CEC"],
+  ]) {
+    scoreBooleanFit(fit, {
+      label,
+      competitorRequired: profileBoolean(competitorProfile, group, key),
+      candidateHas: profileBoolean(candidateProfile, group, key),
+      weight: 1.5,
+      importance: "useful",
+      matchNote: `${label} covered`,
+      gapNote: `${label} not confirmed on WyreStorm candidate`,
+    });
+  }
+
+  addExtraCandidateAdvantages(fit, competitorProfile, candidateProfile);
+
+  const score = Math.max(0, Math.min(100, Math.round(fit.score)));
+
+  return {
+    score,
+    confidence: Math.min(0.96, score / 100),
+    fitSummary: fitSummaryForScore(score),
+    matchBasis: score >= 70
+      ? "Major architecture, role and functional requirements are covered. Differences should be reviewed, but exact feature parity is not required."
+      : "Some major requirements are missing or not confirmed. Treat as review-only before positioning.",
+    majorMatches: fit.majorMatches.slice(0, 10),
+    usefulMatches: fit.usefulMatches.slice(0, 10),
+    advantages: fit.advantages.slice(0, 10),
+    differences: fit.differences.slice(0, 10),
+    unknowns: fit.unknowns.slice(0, 10),
+    specFitBreakdown: fit.specFitBreakdown.slice(0, 24),
+  };
 }
 
 function candidateSku(candidate) {
@@ -1542,25 +2051,38 @@ function scoreWyrestormCandidate(competitorClassification, competitorProfile, pr
 
   const candidateProfile = extractSpecProfile(product.text);
   const directCategory = competitorClassification.category === candidateClassification.category;
-  const categoryScore = directCategory ? 42 : 18;
-  const purposeScore = competitorPurpose.role !== "unknown" && candidatePurpose.role !== "unknown" ? 25 : 6;
   const matchedFeatures = featureNames(competitorProfile).filter((feature) => candidateProfile.features?.[feature] === true);
-  const featureScore = matchedFeatures.length * 3;
-  const scoredPorts = portScore(competitorProfile, candidateProfile);
-  const total = Math.min(100, categoryScore + purposeScore + featureScore + scoredPorts.score);
+  const fit = evaluateFunctionalFit({
+    competitorClassification,
+    competitorProfile,
+    candidateClassification,
+    candidateProfile,
+    competitorPurpose,
+    candidatePurpose,
+    purposeCompatibility,
+    directCategory,
+  });
 
   return {
     sku: product.sku,
     name: product.name,
     family: product.family,
     sourceFile: product.sourceFile,
-    score: total,
-    confidence: Math.min(0.96, total / 100),
+    score: fit.score,
+    confidence: fit.confidence,
     activeSku: lifecycle.activeSku,
     lifecycleStatus: lifecycle.lifecycleStatus,
     recommendationStatus: lifecycle.recommendationStatus,
     lifecycleSource: lifecycle.lifecycleSource,
     lifecycleWarning: lifecycle.lifecycleWarning,
+    fitSummary: fit.fitSummary,
+    matchBasis: fit.matchBasis,
+    majorMatches: fit.majorMatches,
+    usefulMatches: fit.usefulMatches,
+    advantages: fit.advantages,
+    differences: fit.differences,
+    unknowns: fit.unknowns,
+    specFitBreakdown: fit.specFitBreakdown,
     candidateCategory: candidateClassification.category,
     candidateCategoryLabel: candidateClassification.categoryLabel,
     competitorPurpose: competitorPurpose.label,
@@ -1570,8 +2092,11 @@ function scoreWyrestormCandidate(competitorClassification, competitorProfile, pr
     reasons: [
       directCategory ? "same type of product" : "related product type",
       purposeCompatibility.reason,
+      fit.fitSummary,
+      ...fit.majorMatches,
       ...matchedFeatures.map((feature) => "matches " + feature),
-      ...scoredPorts.reasons.map((reason) => "similar ports: " + reason)
+      ...fit.advantages.map((advantage) => "WyreStorm advantage: " + advantage),
+      ...fit.differences.map((difference) => "check difference: " + difference)
     ].slice(0, 12)
   };
 }
@@ -1954,6 +2479,7 @@ function buildCuratedWyrestormCandidates(classification, profile) {
 async function matchWyrestormProducts(classification, profile) {
   const products = await loadWyrestormProducts();
   const activeSkuMaster = await loadActiveSkuMaster();
+  const productsBySku = new Map(products.map((product) => [candidateSku(product), product]).filter(([sku]) => Boolean(sku)));
   const evidenceText = String(profile.__evidenceText || "");
   const competitorPurpose = inferProductPurpose(classification, evidenceText);
   const hdbasetSpecificity = identifyHdbasetSpecificity(evidenceText);
@@ -1973,8 +2499,55 @@ async function matchWyrestormProducts(classification, profile) {
       continue;
     }
 
-    const lifecycle = inferCandidateLifecycle(rawCandidate, activeSkuMaster);
-    const candidate = { ...rawCandidate, ...lifecycle };
+    const rawKey = candidateSku(rawCandidate);
+    const productRecord = productsBySku.get(rawKey);
+    const candidateSeed = productRecord
+      ? {
+          ...productRecord,
+          ...rawCandidate,
+          text: [productRecord.text, rawCandidate.name, rawCandidate.family, rawCandidate.candidatePurpose, rawCandidate.purposeMatch].filter(Boolean).join(" "),
+        }
+      : rawCandidate;
+    const lifecycle = inferCandidateLifecycle(candidateSeed, activeSkuMaster);
+    const candidate = { ...candidateSeed, ...lifecycle };
+
+    if (!candidate.fitSummary && productRecord?.text) {
+      const candidateProfile = extractSpecProfile(candidate.text);
+      const candidateClassification = {
+        category: candidate.candidateCategory || classification.category,
+        categoryLabel: candidate.candidateCategoryLabel || classification.categoryLabel,
+      };
+      const candidatePurpose = {
+        role: candidate.purposeRole || "not_directional",
+        label: candidate.candidatePurpose || "candidate role",
+      };
+      const fit = evaluateFunctionalFit({
+        competitorClassification: classification,
+        competitorProfile: profile,
+        candidateClassification,
+        candidateProfile,
+        competitorPurpose,
+        candidatePurpose,
+        purposeCompatibility: { ok: true, reason: candidate.purposeMatch || "curated role mapping" },
+        directCategory: classification.category === candidateClassification.category,
+      });
+
+      candidate.fitSummary = fit.fitSummary;
+      candidate.matchBasis = fit.matchBasis;
+      candidate.majorMatches = fit.majorMatches;
+      candidate.usefulMatches = fit.usefulMatches;
+      candidate.advantages = fit.advantages;
+      candidate.differences = fit.differences;
+      candidate.unknowns = fit.unknowns;
+      candidate.specFitBreakdown = fit.specFitBreakdown;
+      candidate.reasons = [
+        ...(candidate.reasons || []),
+        fit.fitSummary,
+        ...fit.majorMatches,
+        ...fit.advantages.map((advantage) => "WyreStorm advantage: " + advantage),
+        ...fit.differences.map((difference) => "check difference: " + difference),
+      ].slice(0, 12);
+    }
 
     if (!lifecycleIsRecommendable(lifecycle)) {
       lifecycleFilteredCount += 1;
@@ -2121,6 +2694,7 @@ export async function resolveCompetitorIntelligence(input = {}) {
 
   const verifiedProfile = buildVerifiedSpecProfile({ brand, sku, productName, evidenceText });
   const profile = verifiedProfile || extractSpecProfile(evidenceText);
+  const dataQuality = buildEvidenceQuality({ web, rawNotes, verifiedProfile });
 
   Object.defineProperty(profile, "__evidenceText", {
     value: evidenceText,
@@ -2171,6 +2745,7 @@ export async function resolveCompetitorIntelligence(input = {}) {
       searchRuns: web.searchRuns,
       pagesRead: web.pagesRead,
       usefulPages: web.usefulPages,
+      dataQuality,
       sources: web.sources
     }
   };

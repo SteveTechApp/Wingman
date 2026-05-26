@@ -45,6 +45,21 @@ export type CompareIntelligenceResult = {
       recommendationStatus?: string;
       lifecycleSource?: string;
       lifecycleWarning?: string;
+      fitSummary?: string;
+      matchBasis?: string;
+      majorMatches?: string[];
+      usefulMatches?: string[];
+      advantages?: string[];
+      differences?: string[];
+      unknowns?: string[];
+      specFitBreakdown?: Array<{
+        label?: string;
+        importance?: string;
+        status?: string;
+        weight?: number;
+        score?: number;
+        note?: string;
+      }>;
       candidateCategory?: string;
       candidateCategoryLabel?: string;
       competitorPurpose?: string;
@@ -59,6 +74,12 @@ export type CompareIntelligenceResult = {
     queries?: string[];
     pagesRead?: number;
     usefulPages?: number;
+    dataQuality?: {
+      level?: string;
+      basis?: string;
+      sourcesUsed?: number;
+      guidance?: string;
+    };
     sources?: Array<{
       url?: string;
       title?: string;
@@ -66,7 +87,10 @@ export type CompareIntelligenceResult = {
       ok?: boolean;
       containsSku?: boolean;
       containsName?: boolean;
+      directKnownUrl?: boolean;
       excerpt?: string;
+      sourceConfidence?: string;
+      evidenceScore?: number;
     }>;
   };
   error?: string;

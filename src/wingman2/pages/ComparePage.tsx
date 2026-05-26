@@ -334,7 +334,7 @@ function salesRecommendation(result: CompareIntelligenceResult | null) {
   }
 
   if (status === "candidate_match" && candidate?.sku) {
-    return `Position ${candidate.sku} first. Treat this as the leading WyreStorm option, then confirm distance, signal format, USB/audio/control needs, and any project-specific constraints before quoting.`;
+    return `Position ${candidate.sku} first as a realistic functional alternative, not a guaranteed line-for-line clone. Confirm the listed differences, distance, signal format, USB/audio/control needs, and any project-specific constraints before quoting.`;
   }
 
   if (status === "candidate_match") {
@@ -460,6 +460,16 @@ function competitorOverviewText(result: CompareIntelligenceResult | null) {
   return `Appears to be ${productType}. Verified headline facts: ${facts}.`;
 }
 
+function evidenceQualityText(result: CompareIntelligenceResult | null) {
+  const quality = result?.evidence?.dataQuality;
+
+  if (!quality?.basis) {
+    return "Evidence basis not available.";
+  }
+
+  return `${quality.basis}. ${quality.guidance || ""}`.trim();
+}
+
 function candidateFit(candidate: Candidate | null, index = 0, result: CompareIntelligenceResult | null = null) {
   const score = Number(candidate?.score || 0);
   const provisional = isProvisionalMatch(result);
@@ -556,7 +566,7 @@ function matchOverviewText(result: CompareIntelligenceResult | null) {
     return fit.summary;
   }
 
-  return `${fit.label}: ${fit.summary}`;
+  return `${fit.label}: ${candidate.matchBasis || fit.summary}`;
 }
 
 
@@ -954,6 +964,9 @@ function ComparePage() {
                     <p className="mt-2 text-sm leading-6 opacity-90">
                       {competitorOverviewText(result)}
                     </p>
+                    <p className="mt-2 text-xs leading-5 opacity-80">
+                      Evidence basis: {evidenceQualityText(result)}
+                    </p>
                     <p className="mt-3 text-sm font-semibold opacity-95">
                       {matchOverviewText(result)}
                     </p>
@@ -1135,6 +1148,49 @@ function ComparePage() {
                                 {friendlyReason(reason)}
                               </span>
                             ))}
+                          </div>
+                        ) : null}
+
+                        {item.majorMatches?.length || item.advantages?.length || item.differences?.length ? (
+                          <div className="mt-4 grid gap-3 md:grid-cols-3">
+                            {item.majorMatches?.length ? (
+                              <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-3">
+                                <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-100">
+                                  Major fit
+                                </p>
+                                <ul className="mt-2 space-y-1 text-xs leading-5 text-emerald-50/90">
+                                  {item.majorMatches.slice(0, 4).map((match) => (
+                                    <li key={match}>- {match}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : null}
+
+                            {item.advantages?.length ? (
+                              <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-3">
+                                <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-100">
+                                  WyreStorm adds
+                                </p>
+                                <ul className="mt-2 space-y-1 text-xs leading-5 text-cyan-50/90">
+                                  {item.advantages.slice(0, 4).map((advantage) => (
+                                    <li key={advantage}>- {advantage}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : null}
+
+                            {item.differences?.length ? (
+                              <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 p-3">
+                                <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-100">
+                                  Check differences
+                                </p>
+                                <ul className="mt-2 space-y-1 text-xs leading-5 text-amber-50/90">
+                                  {item.differences.slice(0, 4).map((difference) => (
+                                    <li key={difference}>- {difference}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : null}
                           </div>
                         ) : null}
                       </article>
