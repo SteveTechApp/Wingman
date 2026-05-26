@@ -1,0 +1,266 @@
+﻿/* WINGMAN ACTIVE VITE UI UNIFICATION START */
+
+:root {
+  --wm-bg-app: #050b14;
+  --wm-bg-page: #07111f;
+  --wm-bg-sidebar: #050a12;
+  --wm-surface-1: #0b1a2d;
+  --wm-surface-2: #10233a;
+  --wm-surface-3: #172b44;
+  --wm-border-soft: rgba(126, 164, 205, 0.18);
+  --wm-border-strong: rgba(126, 164, 205, 0.34);
+  --wm-text-main: #f4f7fb;
+  --wm-text-muted: #9ba9bb;
+  --wm-text-soft: #718197;
+  --wm-accent-yellow: #ffb21a;
+  --wm-accent-yellow-2: #ff9900;
+  --wm-accent-cyan: #08d9ff;
+  --wm-accent-blue: #2f7df6;
+  --wm-radius-sm: 8px;
+  --wm-radius-md: 14px;
+  --wm-radius-lg: 22px;
+  --wm-page-max: 1500px;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--wm-bg-app) !important;
+  color: var(--wm-text-main) !important;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#root {
+  background:
+    radial-gradient(circle at top left, rgba(8, 217, 255, 0.08), transparent 34rem),
+    linear-gradient(180deg, #06101d 0%, var(--wm-bg-page) 42%, #050b14 100%) !important;
+}
+
+main,
+[class*="main" i],
+[class*="content" i],
+[class*="workspace" i] {
+  color: var(--wm-text-main);
+}
+
+aside,
+nav[class*="sidebar" i],
+[class*="sidebar" i],
+[class*="nav-rail" i],
+[class*="rail" i] {
+  background: linear-gradient(180deg, #050a12, #07111f) !important;
+  border-color: var(--wm-border-soft) !important;
+}
+
+a[aria-current="page"],
+[class*="active" i]:not(input):not(textarea):not(select) {
+  border-color: rgba(255, 178, 26, 0.72) !important;
+}
+
+[class*="page-frame" i],
+[class*="pageframe" i],
+[class*="page-shell" i],
+[class*="pageshell" i],
+[class*="route-shell" i],
+[class*="workspace-shell" i] {
+  max-width: var(--wm-page-max) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+[class*="page-hero" i],
+[class*="pagehero" i],
+[class*="hero" i]:not([class*="logo" i]) {
+  background:
+    linear-gradient(180deg, rgba(23, 43, 68, 0.88), rgba(11, 26, 45, 0.96)),
+    radial-gradient(circle at top right, rgba(8, 217, 255, 0.09), transparent 24rem) !important;
+  border: 1px solid var(--wm-border-soft) !important;
+  border-radius: var(--wm-radius-lg) !important;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.18) !important;
+}
+
+main h1,
+[class*="page-hero" i] h1,
+[class*="pagehero" i] h1,
+[class*="hero" i] h1 {
+  color: var(--wm-text-main) !important;
+  letter-spacing: -0.045em;
+}
+
+main h2,
+main h3 {
+  color: var(--wm-text-main);
+}
+
+main p,
+main small,
+[class*="description" i],
+[class*="subtitle" i],
+[class*="helper" i],
+[class*="muted" i] {
+  color: var(--wm-text-muted);
+}
+
+[class*="panel" i],
+[class*="surface" i],
+[class*="section" i]:not(section),
+article:not([class*="proposal" i]),
+[class*="card" i]:not([class*="discard" i]),
+[class*="tile" i] {
+  background:
+    linear-gradient(180deg, rgba(16, 35, 58, 0.92), rgba(8, 24, 42, 0.98)),
+    radial-gradient(circle at top left, rgba(8, 217, 255, 0.05), transparent 22rem) !important;
+  border-color: var(--wm-border-soft) !important;
+  border-radius: var(--wm-radius-md) !important;
+  color: var(--wm-text-main) !important;
+}
+
+[class*="card" i]:not([class*="discard" i]),
+[class*="tile" i] {
+  overflow: hidden;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+[class*="card" i]:not([class*="discard" i]):hover,
+[class*="tile" i]:hover {
+  transform: translateY(-1px);
+  border-color: rgba(8, 217, 255, 0.45) !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22) !important;
+}
+
+[class*="selected" i],
+[class*="current" i],
+[data-active="true"],
+[aria-selected="true"] {
+  border-color: rgba(255, 178, 26, 0.78) !important;
+  box-shadow: inset 4px 0 0 var(--wm-accent-yellow) !important;
+}
+
+[class*="badge" i],
+[class*="tag" i],
+[class*="pill" i] {
+  border-radius: 999px !important;
+  border-color: var(--wm-border-soft) !important;
+  background: rgba(5, 12, 22, 0.55) !important;
+  color: var(--wm-text-main) !important;
+  font-weight: 800;
+}
+
+button,
+a[role="button"],
+[class*="button" i]:not([class*="card" i]) {
+  border-radius: 11px !important;
+  font-weight: 850;
+}
+
+button:not([class*="secondary" i]):not([class*="ghost" i]):not([class*="card" i]),
+a[role="button"]:not([class*="secondary" i]):not([class*="ghost" i]) {
+  background: linear-gradient(135deg, var(--wm-accent-yellow), var(--wm-accent-yellow-2)) !important;
+  border-color: rgba(255, 178, 26, 0.9) !important;
+  color: #100c00 !important;
+  box-shadow: 0 12px 30px rgba(255, 178, 26, 0.16) !important;
+}
+
+button[class*="secondary" i],
+a[class*="secondary" i],
+button[class*="ghost" i],
+a[class*="ghost" i] {
+  background: rgba(11, 26, 45, 0.88) !important;
+  border-color: var(--wm-border-strong) !important;
+  color: var(--wm-text-main) !important;
+  box-shadow: none !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background: #0a1728 !important;
+  border: 1px solid var(--wm-border-strong) !important;
+  border-radius: 12px !important;
+  color: var(--wm-text-main) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--wm-text-soft) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: rgba(8, 217, 255, 0.65) !important;
+  outline: none !important;
+  box-shadow:
+    0 0 0 3px rgba(8, 217, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+[class*="compare" i] input,
+[class*="compare" i] textarea,
+[class*="competitor" i] input,
+[class*="competitor" i] textarea {
+  background: #0a1728 !important;
+  color: var(--wm-text-main) !important;
+}
+
+[class*="template" i] [class*="card" i],
+[class*="call" i] [class*="card" i] {
+  background:
+    linear-gradient(135deg, rgba(8, 217, 255, 0.07), transparent 44%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 13px),
+    var(--wm-surface-1) !important;
+}
+
+[class*="proposal" i] {
+  color: var(--wm-text-main);
+}
+
+[class*="proposal" i] [class*="preview" i],
+[class*="proposal" i] [class*="document" i],
+[class*="proposal" i] [class*="paper" i] {
+  border-radius: var(--wm-radius-lg) !important;
+}
+
+[class*="proposal" i] [class*="document" i],
+[class*="proposal" i] [class*="paper" i] {
+  background: #f6f8fc !important;
+  color: #182235 !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28) !important;
+}
+
+[class*="proposal" i] h1,
+[class*="proposal" i] h2,
+[class*="proposal" i] h3 {
+  color: inherit;
+}
+
+[class*="proposal" i] [class*="header" i] {
+  border-radius: var(--wm-radius-md) var(--wm-radius-md) 0 0;
+}
+
+@media (max-width: 1100px) {
+  [class*="page-hero" i],
+  [class*="pagehero" i],
+  [class*="hero" i]:not([class*="logo" i]) {
+    align-items: flex-start !important;
+  }
+}
+
+@media (max-width: 720px) {
+  [class*="page-frame" i],
+  [class*="pageframe" i],
+  [class*="page-shell" i],
+  [class*="pageshell" i],
+  main {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* WINGMAN ACTIVE VITE UI UNIFICATION END */

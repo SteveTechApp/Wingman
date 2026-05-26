@@ -1,0 +1,584 @@
+/* ==========================================================================
+   Wingman Compact Density Sweep
+   Final layout density layer.
+
+   Purpose:
+   - Reduce wasted page space across the whole app.
+   - Keep the clean dashboard style.
+   - Make pages use more available width.
+   - Reduce oversized hero/card/button padding.
+   - Keep buttons as rounded rectangles, not ovals.
+   ========================================================================== */
+
+:root {
+  --wm-compact-page-max: 1500px;
+  --wm-compact-radius-page: 18px;
+  --wm-compact-radius-card: 14px;
+  --wm-compact-radius-button: 11px;
+  --wm-compact-gap: 0.65rem;
+  --wm-sidebar-width: 230px;
+  --wm-topbar-height: 56px;
+}
+
+/* --------------------------------------------------------------------------
+   App shell density
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-shell {
+  --wm-sidebar-width: 230px;
+  --wm-topbar-height: 56px;
+}
+
+html body #root .wingman-workspace {
+  width: calc(100vw - var(--wm-sidebar-width, 230px)) !important;
+}
+
+html body #root .wingman-topbar {
+  min-height: 56px !important;
+  height: 56px !important;
+  padding: 0.5rem 0.9rem !important;
+}
+
+html body #root .wingman-topbar-title {
+  gap: 0.1rem !important;
+}
+
+html body #root .wingman-topbar-title strong,
+html body #root .wingman-topbar-title span:first-child {
+  font-size: 0.92rem !important;
+  line-height: 1.15 !important;
+}
+
+html body #root .wingman-topbar-title small,
+html body #root .wingman-topbar-title span:last-child {
+  font-size: 0.76rem !important;
+  line-height: 1.2 !important;
+  max-width: 42rem !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+html body #root .wingman-app-main {
+  height: calc(100vh - var(--wm-topbar-height, 56px)) !important;
+  padding: 10px 12px 4.5rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Use more available page width
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+html body #root .wingman-page-host > *,
+html body #root .wingman-page-host .wm-calm-page,
+html body #root .wingman-page-host .discovery-mini-page,
+html body #root .wingman-page-host .finder-simple-page,
+html body #root .wingman-page-host .proposal-clean-shell,
+html body #root .wingman-page-host .sales-language-shell,
+html body #root .wingman-page-host .guided-shell {
+  width: 100% !important;
+  max-width: min(var(--wm-compact-page-max), 100%) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* --------------------------------------------------------------------------
+   Hero panels
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-hero,
+  .discovery-mini-hero,
+  .finder-simple-hero,
+  .proposal-clean-hero,
+  .proposal-clean-toolbar,
+  .sales-language-hero,
+  .guided-hero,
+  .wm-balanced-page-hero
+) {
+  min-height: 0 !important;
+  border-radius: var(--wm-compact-radius-page) !important;
+  padding: 0.85rem 1rem !important;
+  gap: 0.7rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-hero h1,
+  .discovery-mini-hero h1,
+  .finder-simple-hero h1,
+  .proposal-clean-hero h1,
+  .proposal-clean-toolbar h2,
+  .sales-language-hero h1,
+  .guided-hero h1,
+  .wm-balanced-hero-title
+) {
+  font-size: clamp(1.15rem, 1.55vw, 1.6rem) !important;
+  line-height: 1.08 !important;
+  margin: 0 !important;
+  max-width: 58rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-hero p,
+  .discovery-mini-hero p,
+  .finder-simple-hero p,
+  .proposal-clean-hero p,
+  .proposal-clean-toolbar p,
+  .sales-language-hero p,
+  .guided-hero p,
+  .wm-balanced-hero-purpose
+) {
+  font-size: 0.82rem !important;
+  line-height: 1.35 !important;
+  margin-top: 0.35rem !important;
+  max-width: 68rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-kicker,
+  .discovery-mini-kicker,
+  .finder-simple-kicker,
+  .proposal-clean-eyebrow,
+  .proposal-clean-kicker,
+  .sales-language-eyebrow,
+  .guided-eyebrow,
+  .wingman-kicker,
+  .wm-balanced-hero-kicker
+) {
+  font-size: 0.64rem !important;
+  letter-spacing: 0.1em !important;
+  margin-bottom: 0.25rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Page stack and grid gaps
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-stack,
+  .discovery-mini-page,
+  .finder-simple-page,
+  .proposal-clean-shell,
+  .sales-language-shell
+) {
+  gap: var(--wm-compact-gap) !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-grid,
+  .wm-calm-choice-grid,
+  .discovery-mini-grid,
+  .discovery-mini-guidance,
+  .finder-simple-route-grid,
+  .finder-simple-option-grid,
+  .finder-simple-product-grid,
+  .proposal-clean-feedback-grid
+) {
+  gap: 0.55rem !important;
+}
+
+/* Make route/launch grids fill the available width more naturally. */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-grid,
+  .discovery-mini-grid,
+  .finder-simple-route-grid
+) {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-choice-grid,
+  .finder-simple-option-grid,
+  .discovery-mini-option-grid
+) {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Cards
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card,
+  .wm-calm-choice-card,
+  .discovery-mini-card,
+  .finder-simple-route-card,
+  .sales-language-card-button,
+  .guided-choice-card,
+  .guided-answer-button,
+  .proposal-clean-feedback-grid button
+) {
+  min-height: 5.8rem !important;
+  border-radius: var(--wm-compact-radius-card) !important;
+  padding: 0.72rem 0.82rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card svg,
+  .wm-calm-choice-card svg,
+  .discovery-mini-card svg,
+  .finder-simple-route-card svg,
+  .sales-language-card-button svg,
+  .guided-choice-card svg,
+  .guided-answer-button svg
+) {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card strong,
+  .wm-calm-choice-card strong,
+  .discovery-mini-card strong,
+  .finder-simple-route-card strong,
+  .sales-language-card-button strong,
+  .guided-choice-card strong,
+  .guided-answer-button strong,
+  .proposal-clean-feedback-grid strong
+) {
+  margin-top: 0.38rem !important;
+  font-size: 0.88rem !important;
+  line-height: 1.18 !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card span,
+  .wm-calm-choice-card span,
+  .discovery-mini-card span,
+  .finder-simple-route-card span,
+  .sales-language-card-button small,
+  .guided-choice-card small,
+  .guided-answer-button small,
+  .proposal-clean-feedback-grid small
+) {
+  margin-top: 0.28rem !important;
+  font-size: 0.76rem !important;
+  line-height: 1.32 !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card small,
+  .wm-calm-choice-card small,
+  .discovery-mini-card small,
+  .discovery-mini-card em,
+  .finder-simple-route-card small
+) {
+  margin-top: 0.38rem !important;
+  font-size: 0.72rem !important;
+  line-height: 1.25 !important;
+}
+
+/* Reduce decorative dots inside route cards. */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-launch-card::after,
+  .wm-calm-choice-card::after,
+  .guided-choice-card::after,
+  .guided-answer-button::after
+) {
+  width: 0.45rem !important;
+  height: 0.45rem !important;
+  top: 0.55rem !important;
+  right: 0.55rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Task cards, modals, panels
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-task-card,
+  .wm-calm-result-card,
+  .discovery-mini-modal,
+  .finder-simple-modal,
+  .proposal-clean-document,
+  .sales-language-workspace,
+  .sales-language-card-list,
+  .sales-language-notes,
+  .wingman-section-card,
+  .wm-balanced-page-hero
+) {
+  border-radius: var(--wm-compact-radius-page) !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-task-card,
+  .wm-calm-result-card,
+  .sales-language-workspace,
+  .sales-language-card-list,
+  .sales-language-notes
+) {
+  padding: 0.85rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .discovery-mini-modal,
+  .finder-simple-modal
+) {
+  padding: 0.9rem !important;
+  gap: 0.7rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons and controls
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-button,
+  .wm-calm-link-button,
+  .discovery-mini-button,
+  .finder-simple-button,
+  .proposal-clean-button,
+  .sales-language-button,
+  .guided-primary-button,
+  .guided-secondary-button,
+  .wm-balanced-hero-action-primary,
+  .wm-balanced-hero-action-secondary
+) {
+  min-height: 2.12rem !important;
+  border-radius: var(--wm-compact-radius-button) !important;
+  font-size: 0.78rem !important;
+  padding: 0.48rem 0.7rem !important;
+  gap: 0.35rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-button svg,
+  .wm-calm-link-button svg,
+  .discovery-mini-button svg,
+  .finder-simple-button svg,
+  .proposal-clean-button svg,
+  .sales-language-button svg
+) {
+  width: 0.9rem !important;
+  height: 0.9rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  input,
+  select,
+  textarea,
+  .finder-simple-field input,
+  .discovery-mini-question textarea,
+  .wm-calm-input,
+  .wm-calm-textarea
+) {
+  border-radius: var(--wm-compact-radius-button) !important;
+  font-size: 0.82rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  input,
+  select,
+  .finder-simple-field input
+) {
+  min-height: 2.25rem !important;
+  padding: 0.45rem 0.6rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  textarea,
+  .wm-calm-textarea,
+  .discovery-mini-question textarea
+) {
+  min-height: 6.5rem !important;
+  padding: 0.6rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Drawers and non-primary supporting text
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wm-calm-drawer,
+  .discovery-mini-details,
+  .finder-simple-drawer,
+  .finder-calm-drawer
+) {
+  border-radius: var(--wm-compact-radius-card) !important;
+  padding: 0.62rem 0.75rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-drawer summary,
+  .discovery-mini-details summary,
+  .finder-simple-drawer summary
+) {
+  font-size: 0.8rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wm-calm-drawer p,
+  .discovery-mini-details p,
+  .finder-simple-drawer p
+) {
+  font-size: 0.76rem !important;
+  line-height: 1.32 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar compacting
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-sidebar {
+  width: 230px !important;
+}
+
+html body #root .wingman-sidebar nav {
+  gap: 0.22rem !important;
+}
+
+html body #root .wingman-sidebar :where(
+  .wingman-nav-link,
+  a
+) {
+  min-height: 2.15rem !important;
+  border-radius: 10px !important;
+  padding: 0.45rem 0.58rem !important;
+  gap: 0.52rem !important;
+}
+
+html body #root .wingman-sidebar :where(
+  .wingman-nav-link svg,
+  a svg
+) {
+  width: 0.95rem !important;
+  height: 0.95rem !important;
+}
+
+html body #root .wingman-sidebar :where(
+  .wingman-nav-copy span,
+  .wingman-nav-link span,
+  a span
+) {
+  font-size: 0.78rem !important;
+  line-height: 1.15 !important;
+}
+
+html body #root .wingman-sidebar :where(
+  .wingman-nav-copy small,
+  a small
+) {
+  font-size: 0.66rem !important;
+  line-height: 1.1 !important;
+}
+
+/* Reduce the expert handoff/support card if present. */
+
+html body #root .wingman-sidebar :where(
+  [class*="handoff"],
+  [class*="Handoff"],
+  [class*="support-card"],
+  [class*="SupportCard"]
+) {
+  min-height: 2.6rem !important;
+  padding: 0.45rem 0.58rem !important;
+  border-radius: 14px !important;
+}
+
+html body #root .wingman-sidebar :where(
+  [class*="handoff"] *,
+  [class*="Handoff"] *,
+  [class*="support-card"] *,
+  [class*="SupportCard"] *
+) {
+  font-size: 0.72rem !important;
+  line-height: 1.15 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Conversation type strip
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host :where(
+  .wingman-language-profile-switcher,
+  .wingman-conversation-type,
+  [class*="conversation-type"],
+  [class*="ConversationType"]
+) {
+  min-height: 2.35rem !important;
+  border-radius: var(--wm-compact-radius-card) !important;
+  padding: 0.35rem 0.45rem !important;
+}
+
+html body #root .wingman-page-host :where(
+  .wingman-language-profile-switcher button,
+  button[class*="conversation"],
+  button[class*="Conversation"]
+) {
+  min-height: 1.85rem !important;
+  border-radius: var(--wm-compact-radius-button) !important;
+  padding: 0.35rem 0.55rem !important;
+  font-size: 0.72rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   Proposal exception: compact but keep document readable
+   -------------------------------------------------------------------------- */
+
+html body #root .proposal-clean-document-body {
+  gap: 0.65rem !important;
+  padding: 0.85rem !important;
+}
+
+html body #root .proposal-clean-cover {
+  padding: 1.25rem !important;
+}
+
+html body #root .proposal-clean-cover h2 {
+  font-size: clamp(1.25rem, 1.8vw, 1.8rem) !important;
+}
+
+html body #root .proposal-clean-info-block,
+html body #root .proposal-clean-output,
+html body #root .proposal-clean-readiness,
+html body #root .proposal-clean-governance {
+  padding: 0.75rem !important;
+  border-radius: 14px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  :root {
+    --wm-compact-page-max: 100%;
+  }
+
+  html body #root .wingman-page-host :where(
+    .wm-calm-launch-grid,
+    .discovery-mini-grid,
+    .finder-simple-route-grid
+  ) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body #root .wingman-page-host :where(
+    .wm-calm-launch-grid,
+    .wm-calm-choice-grid,
+    .discovery-mini-grid,
+    .finder-simple-route-grid,
+    .finder-simple-option-grid
+  ) {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body #root .wingman-page-host :where(
+    .wm-calm-hero,
+    .discovery-mini-hero,
+    .finder-simple-hero,
+    .proposal-clean-hero,
+    .sales-language-hero
+  ) {
+    grid-template-columns: 1fr !important;
+  }
+}

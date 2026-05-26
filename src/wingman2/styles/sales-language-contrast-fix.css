@@ -1,0 +1,240 @@
+/* ==========================================================================
+   Sales Language contrast repair
+   Scoped only to SalesHelperPage / sales-language-shell.
+   Fixes global Wingman dark-theme overrides causing unreadable text.
+   ========================================================================== */
+
+html body #root .wingman-page-host .sales-language-shell {
+  color: #e2e8f0 !important;
+}
+
+/* Main page hero stays dark and readable */
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-hero {
+  background:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.12), transparent 24rem),
+    linear-gradient(180deg, rgba(9, 28, 48, 0.98) 0%, rgba(7, 24, 42, 0.98) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-hero h1 {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-hero p {
+  color: #cbd5e1 !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-eyebrow {
+  color: #fbbf24 !important;
+}
+
+/* Dark working panels */
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-card-list,
+html body #root .wingman-page-host .sales-language-shell .sales-language-workspace {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 18rem),
+    linear-gradient(180deg, rgba(9, 28, 48, 0.98) 0%, rgba(7, 24, 42, 0.98) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.22) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-card-list *,
+html body #root .wingman-page-host .sales-language-shell .sales-language-workspace * {
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+/* Call angle buttons */
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-card-button {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 7rem),
+    linear-gradient(180deg, rgba(15, 38, 63, 0.98) 0%, rgba(10, 30, 52, 0.98) 100%) !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-card-button:hover,
+html body #root .wingman-page-host .sales-language-shell .sales-language-card-button.active {
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.13), transparent 8rem),
+    linear-gradient(180deg, rgba(20, 48, 78, 1) 0%, rgba(12, 35, 60, 1) 100%) !important;
+  border-color: rgba(251, 191, 36, 0.72) !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-card-button strong {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-card-button small {
+  color: #cbd5e1 !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-card-icon {
+  color: #fbbf24 !important;
+}
+
+/* Active call card */
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-active-card {
+  background:
+    linear-gradient(180deg, rgba(12, 35, 60, 0.96), rgba(8, 26, 46, 0.96)) !important;
+  border-color: rgba(96, 165, 250, 0.22) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-active-card h2 {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-active-card .sales-language-useful {
+  color: #cbd5e1 !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-active-icon {
+  background: #fffbeb !important;
+  color: #92400e !important;
+}
+
+/* Natural opener: cream box must use dark text */
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-opener {
+  background: #fffbeb !important;
+  border-color: rgba(245, 158, 11, 0.42) !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-opener p {
+  color: #92400e !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-opener strong {
+  color: #0f172a !important;
+}
+
+/* Listen-for section */
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-panel-header {
+  color: #fbbf24 !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-listen span {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(148, 163, 184, 0.26) !important;
+  color: #e2e8f0 !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-listen span:hover {
+  background: rgba(251, 191, 36, 0.14) !important;
+  border-color: rgba(251, 191, 36, 0.34) !important;
+  color: #fde68a !important;
+}
+
+/* Question cards */
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-question {
+  background:
+    linear-gradient(180deg, rgba(15, 38, 63, 0.98), rgba(10, 30, 52, 0.98)) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-question p,
+html body #root .wingman-page-host .sales-language-shell .sales-language-question label span {
+  color: #fbbf24 !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-question h3 {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-question-heading svg {
+  color: #fbbf24 !important;
+}
+
+/* Text entry */
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-question textarea {
+  background: #f8fafc !important;
+  border-color: rgba(148, 163, 184, 0.45) !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-question textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Next move card */
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-next {
+  background: rgba(14, 165, 233, 0.1) !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+  color: #e0f2fe !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-next p {
+  color: #7dd3fc !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-next strong {
+  color: #f8fafc !important;
+}
+
+/* Captured notes panel is light, so force dark text */
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-notes {
+  background:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.08), transparent 20rem),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  border-color: rgba(148, 163, 184, 0.34) !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-notes h2 {
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-notes .sales-language-eyebrow {
+  color: #92400e !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-notes pre {
+  background: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.18) !important;
+  color: #e2e8f0 !important;
+}
+
+/* Notes buttons and route links */
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-icon-button,
+html body #root .wingman-page-host .sales-language-shell .sales-language-route-links a,
+html body #root .wingman-page-host .sales-language-shell .sales-language-button {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 0.42) !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-icon-button:hover,
+html body #root .wingman-page-host .sales-language-shell .sales-language-route-links a:hover,
+html body #root .wingman-page-host .sales-language-shell .sales-language-button:hover {
+  border-color: rgba(245, 158, 11, 0.66) !important;
+  background: #fffbeb !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-button.primary {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  border-color: #f59e0b !important;
+  color: #111827 !important;
+}
+
+/* Utility-class safety net inside this page */
+
+html body #root .wingman-page-host .sales-language-shell :where(.text-slate-950, .text-slate-900, .text-gray-900) {
+  color: inherit !important;
+}
+
+html body #root .wingman-page-host .sales-language-shell .sales-language-notes :where(.text-slate-950, .text-slate-900, .text-gray-900) {
+  color: #0f172a !important;
+}

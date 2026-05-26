@@ -1,0 +1,496 @@
+/* ==========================================================================
+   Wingman Visual Navigation Redesign
+   Purpose:
+   - Make Wingman feel less flat.
+   - Improve navigation confidence.
+   - Add depth, selected states, page rhythm and clear action affordance.
+   - Keep pages calm: no extra information, just better structure.
+   ========================================================================== */
+
+:root {
+  --wm-vn-bg-0: #020812;
+  --wm-vn-bg-1: #061524;
+  --wm-vn-bg-2: #0a2036;
+  --wm-vn-bg-3: #102b46;
+
+  --wm-vn-text: #f8fafc;
+  --wm-vn-muted: #cbd5e1;
+  --wm-vn-subtle: #94a3b8;
+
+  --wm-vn-accent: #fbbf24;
+  --wm-vn-accent-2: #f59e0b;
+  --wm-vn-cyan: #38bdf8;
+  --wm-vn-blue: #60a5fa;
+  --wm-vn-green: #34d399;
+
+  --wm-vn-border: rgba(125, 180, 240, 0.22);
+  --wm-vn-border-strong: rgba(251, 191, 36, 0.58);
+
+  --wm-vn-shadow-soft: 0 14px 30px rgba(0, 0, 0, 0.18);
+  --wm-vn-shadow-card: 0 20px 44px rgba(0, 0, 0, 0.24);
+  --wm-vn-shadow-lift: 0 26px 56px rgba(0, 0, 0, 0.32);
+
+  --wm-vn-radius-page: 30px;
+  --wm-vn-radius-card: 24px;
+  --wm-vn-radius-control: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   App background and working surface
+   -------------------------------------------------------------------------- */
+
+html body #root {
+  background:
+    radial-gradient(circle at 22% 0%, rgba(56, 189, 248, 0.09), transparent 30rem),
+    radial-gradient(circle at 88% 12%, rgba(251, 191, 36, 0.09), transparent 24rem),
+    linear-gradient(180deg, var(--wm-vn-bg-0), var(--wm-vn-bg-1)) !important;
+}
+
+.wingman-shell,
+.wingman-workspace,
+.wingman-app-main {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(56, 189, 248, 0.08), transparent 26rem),
+    radial-gradient(circle at 95% 5%, rgba(245, 158, 11, 0.08), transparent 24rem),
+    linear-gradient(180deg, #03101d 0%, #061524 48%, #03101d 100%) !important;
+}
+
+.wingman-page-host {
+  position: relative;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar navigation: clearer active state and better scan pattern
+   -------------------------------------------------------------------------- */
+
+.wingman-sidebar {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.11), transparent 14rem),
+    linear-gradient(180deg, rgba(2, 8, 18, 0.98), rgba(3, 13, 24, 0.98)) !important;
+  border-right: 1px solid rgba(125, 180, 240, 0.14) !important;
+  box-shadow: 14px 0 34px rgba(0, 0, 0, 0.24) !important;
+}
+
+.wingman-sidebar .wingman-nav-link,
+.wingman-sidebar a {
+  position: relative;
+  border-radius: 16px !important;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease !important;
+}
+
+.wingman-sidebar .wingman-nav-link:hover,
+.wingman-sidebar a:hover {
+  background: rgba(96, 165, 250, 0.09) !important;
+  transform: translateX(2px);
+}
+
+.wingman-sidebar .wingman-nav-link-active,
+.wingman-sidebar a[aria-current="page"] {
+  border: 1px solid rgba(251, 191, 36, 0.52) !important;
+  background:
+    radial-gradient(circle at 10% 50%, rgba(251, 191, 36, 0.22), transparent 8rem),
+    linear-gradient(90deg, rgba(251, 191, 36, 0.22), rgba(96, 165, 250, 0.08)) !important;
+  box-shadow:
+    inset 4px 0 0 var(--wm-vn-accent),
+    0 12px 30px rgba(245, 158, 11, 0.14) !important;
+  color: #ffffff !important;
+}
+
+.wingman-sidebar .wingman-nav-link-active svg,
+.wingman-sidebar a[aria-current="page"] svg {
+  color: var(--wm-vn-accent) !important;
+  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.28));
+}
+
+.wingman-sidebar .wingman-nav-copy span {
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+}
+
+/* --------------------------------------------------------------------------
+   Topbar: make it useful but less visually dominant
+   -------------------------------------------------------------------------- */
+
+.wingman-topbar {
+  background:
+    linear-gradient(180deg, rgba(2, 8, 18, 0.96), rgba(4, 16, 29, 0.96)) !important;
+  border-bottom: 1px solid rgba(125, 180, 240, 0.16) !important;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22) !important;
+}
+
+.wingman-topbar-title strong,
+.wingman-topbar-title span:first-child {
+  color: #f8fafc !important;
+}
+
+.wingman-topbar-title small,
+.wingman-topbar-title span:last-child {
+  color: #94a3b8 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Calm UI page rhythm
+   -------------------------------------------------------------------------- */
+
+.wm-calm-page {
+  max-width: 1220px !important;
+}
+
+.wm-calm-stack {
+  gap: 1.05rem !important;
+}
+
+.wm-calm-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(125, 180, 240, 0.24) !important;
+  border-radius: var(--wm-vn-radius-page) !important;
+  background:
+    linear-gradient(135deg, rgba(251, 191, 36, 0.14), transparent 32%),
+    radial-gradient(circle at 92% 18%, rgba(56, 189, 248, 0.12), transparent 16rem),
+    linear-gradient(180deg, rgba(11, 33, 56, 0.98), rgba(6, 21, 36, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    var(--wm-vn-shadow-card) !important;
+}
+
+.wm-calm-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 1.2rem 0 1.2rem;
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(90deg, var(--wm-vn-accent), rgba(56, 189, 248, 0.72), transparent);
+  opacity: 0.78;
+}
+
+.wm-calm-kicker {
+  color: var(--wm-vn-accent) !important;
+}
+
+.wm-calm-hero h1 {
+  max-width: 54rem;
+}
+
+.wm-calm-hero p {
+  max-width: 60rem;
+}
+
+/* --------------------------------------------------------------------------
+   Cards: stronger visual hierarchy
+   -------------------------------------------------------------------------- */
+
+.wm-calm-task-card,
+.wm-calm-result-card,
+.wm-calm-drawer,
+.wm-calm-launch-card,
+.wm-calm-choice-card {
+  position: relative;
+  border-color: rgba(125, 180, 240, 0.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    var(--wm-vn-shadow-soft) !important;
+}
+
+.wm-calm-task-card,
+.wm-calm-result-card {
+  overflow: hidden;
+  border-radius: var(--wm-vn-radius-page) !important;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.1), transparent 20rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(6, 21, 36, 0.98)) !important;
+}
+
+.wm-calm-task-card::before,
+.wm-calm-result-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(251, 191, 36, 0.12), transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 34%);
+  opacity: 0.85;
+}
+
+.wm-calm-task-card > *,
+.wm-calm-result-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Choice/launch cards: more obvious clickable surfaces
+   -------------------------------------------------------------------------- */
+
+.wm-calm-launch-card,
+.wm-calm-choice-card {
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--wm-vn-radius-card) !important;
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 9rem),
+    linear-gradient(180deg, rgba(14, 42, 68, 0.96), rgba(8, 27, 46, 0.98)) !important;
+}
+
+.wm-calm-launch-card::before,
+.wm-calm-choice-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, var(--wm-vn-accent), #f97316);
+  opacity: 0.92;
+  z-index: -1;
+}
+
+.wm-calm-launch-card::after,
+.wm-calm-choice-card::after {
+  content: "";
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: rgba(203, 213, 225, 0.82);
+  box-shadow: 0 0 0 4px rgba(203, 213, 225, 0.13);
+  opacity: 0.92;
+}
+
+.wm-calm-launch-card:hover,
+.wm-calm-choice-card:hover,
+.wm-calm-choice-card.is-selected {
+  border-color: rgba(251, 191, 36, 0.68) !important;
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.16), transparent 9rem),
+    linear-gradient(180deg, rgba(18, 51, 80, 1), rgba(10, 32, 54, 1)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    var(--wm-vn-shadow-lift) !important;
+}
+
+.wm-calm-choice-card.is-selected::after,
+.wm-calm-choice-card:hover::after,
+.wm-calm-launch-card:hover::after {
+  background: var(--wm-vn-accent);
+  box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.18);
+}
+
+.wm-calm-launch-card svg,
+.wm-calm-choice-card svg {
+  color: var(--wm-vn-accent) !important;
+  filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.18));
+}
+
+.wm-calm-choice-card strong,
+.wm-calm-launch-card strong {
+  color: #ffffff !important;
+  letter-spacing: -0.02em;
+}
+
+.wm-calm-choice-card span,
+.wm-calm-launch-card span {
+  color: var(--wm-vn-muted) !important;
+}
+
+.wm-calm-choice-card small {
+  color: #fde68a !important;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons: clearer primary/secondary hierarchy
+   -------------------------------------------------------------------------- */
+
+.wm-calm-button,
+.wm-calm-link-button,
+button,
+a[class*="button"],
+a[class*="Button"] {
+  border-radius: var(--wm-vn-radius-control);
+}
+
+.wm-calm-button,
+.wm-calm-link-button {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 22px rgba(0, 0, 0, 0.14);
+}
+
+.wm-calm-button.primary,
+.wm-calm-link-button.primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 14px 28px rgba(245, 158, 11, 0.24);
+}
+
+.wm-calm-button.primary:hover,
+.wm-calm-link-button.primary:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 18px 36px rgba(245, 158, 11, 0.32);
+}
+
+/* --------------------------------------------------------------------------
+   Inputs and text capture: make form areas obvious
+   -------------------------------------------------------------------------- */
+
+.wm-calm-textarea,
+.wm-calm-input,
+textarea,
+input,
+select {
+  border-radius: 18px !important;
+}
+
+.wm-calm-textarea,
+.wm-calm-input {
+  background:
+    linear-gradient(180deg, #ffffff, #f8fafc) !important;
+  border-color: rgba(148, 163, 184, 0.46) !important;
+  box-shadow:
+    inset 0 1px 3px rgba(15, 23, 42, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.wm-calm-textarea::placeholder,
+.wm-calm-input::placeholder {
+  color: #64748b !important;
+}
+
+.wm-calm-question blockquote {
+  position: relative;
+  border-left-width: 6px !important;
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.16), transparent 12rem),
+    rgba(251, 191, 36, 0.1) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* --------------------------------------------------------------------------
+   Drawers: useful but secondary
+   -------------------------------------------------------------------------- */
+
+.wm-calm-drawer {
+  border-radius: 20px !important;
+  background:
+    linear-gradient(180deg, rgba(9, 28, 48, 0.92), rgba(6, 21, 36, 0.92)) !important;
+}
+
+.wm-calm-drawer summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wm-calm-drawer summary::-webkit-details-marker {
+  display: none;
+}
+
+.wm-calm-drawer summary::after {
+  content: "+";
+  display: grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  place-items: center;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.1);
+  color: var(--wm-vn-accent);
+  font-weight: 800;
+}
+
+.wm-calm-drawer[open] summary::after {
+  content: "-";
+}
+
+/* --------------------------------------------------------------------------
+   Older Wingman pages: improve without redesigning each page
+   -------------------------------------------------------------------------- */
+
+.wm-balanced-page-hero,
+.wingman-section-card,
+[class*="section-card"],
+[class*="SectionCard"] {
+  border-color: rgba(125, 180, 240, 0.24) !important;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.09), transparent 18rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(6, 21, 36, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    var(--wm-vn-shadow-card) !important;
+}
+
+.wm-balanced-hero-kicker,
+.wm-balanced-section-card-header p:first-child,
+.wingman-kicker {
+  color: var(--wm-vn-accent) !important;
+}
+
+.wm-balanced-hero-title,
+.wm-balanced-section-card-header h2 {
+  color: var(--wm-vn-text) !important;
+}
+
+.wm-balanced-hero-purpose,
+.wm-balanced-section-card-header p {
+  color: var(--wm-vn-muted) !important;
+}
+
+/* Card grids and generic clickable cards on older pages */
+
+.wingman-page-host :where(
+  .rounded-2xl,
+  .rounded-3xl
+) {
+  border-color: rgba(125, 180, 240, 0.22);
+}
+
+/* Avoid making pure white document surfaces dark on proposal-style pages */
+
+.proposal-clean-document,
+.proposal-clean-document *,
+.wm-calm-panel-light,
+.wm-calm-panel-light * {
+  box-shadow: none;
+}
+
+/* --------------------------------------------------------------------------
+   Focus and accessibility cues
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(a, button, input, textarea, select):focus-visible {
+  outline: 3px solid rgba(251, 191, 36, 0.84) !important;
+  outline-offset: 3px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Page navigation confidence: subtle bottom breathing room
+   -------------------------------------------------------------------------- */
+
+.wingman-app-main {
+  padding-bottom: 8rem !important;
+}
+
+@media (max-width: 900px) {
+  .wm-calm-page {
+    max-width: none !important;
+  }
+
+  .wm-calm-hero,
+  .wm-calm-task-card,
+  .wm-calm-result-card {
+    border-radius: 22px !important;
+  }
+
+  .wm-calm-choice-card,
+  .wm-calm-launch-card {
+    min-height: 7.5rem;
+  }
+}

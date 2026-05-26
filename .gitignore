@@ -55,6 +55,39 @@ New Text Document.txt
 # --- PowerShell / script scratch ---
 *.ps1.bak
 
+# --- Local Wingman UI migration scratch ---
+.wingman-ui-backup/
+/src/app/globals.css
+/src/components/wingman/
+/Apply-Wingman-Active-Vite-UI.ps1
+/Apply-Wingman-UI-System.ps1
+/Check-Wingman-UI-Wiring.ps1
+/Wire-Wingman-CSS-Into-Vite.ps1
+/fix-guided-discovery-contrast.ps1
+/fix-proposal-clean-final-contrast.ps1
+/fix-proposal-page-contrast.ps1
+/fix-sales-language-contrast.ps1
+/force-replace-product-finder-simple.ps1
+/remove-user-facing-design-notes.ps1
+/repair-guided-discovery-contrast-polish.ps1
+/repair-guided-discovery-routing.ps1
+/repair-sales-language-page-hang.ps1
+/replace-proposal-page-clean.ps1
+/simplify-product-finder-page.ps1
+/stabilise-wingman-layout-container.ps1
+/upgrade-guided-discovery-ui-cleanup.ps1
+/upgrade-guided-discovery.ps1
+/upgrade-wingman-button-visual-system.ps1
+/wingman-calm-ui-reset-phase1.ps1
+/wingman-compact-density-sweep.ps1
+/wingman-dashboard-design-standard.ps1
+/wingman-rectangular-button-sweep.ps1
+/wingman-simplify-discovery-phase.ps1
+/wingman-visual-navigation-redesign.ps1
+/button-style-audit-latest.txt
+/WINGMAN_UI_MIGRATION.txt
+/wingman-active-ui-report.txt
+
 # --- Runtime / generated data ---
 data/*.json
 !data/.gitkeep

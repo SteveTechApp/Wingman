@@ -1,0 +1,351 @@
+/* ==========================================================================
+   Proposal page contrast repair
+   Scoped to ProposalPage only via .proposal-page-shell.
+   Purpose:
+   - Restore readable proposal preview surfaces.
+   - Stop global dark-theme overrides making document text too small/dim.
+   - Make action buttons and section tabs consistent.
+   - Improve table, evidence, governance and feedback card contrast.
+   ========================================================================== */
+
+html body #root .wingman-page-host .proposal-page-shell {
+  color: #e2e8f0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Page hero
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-page-hero {
+  background:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.12), transparent 24rem),
+    linear-gradient(180deg, rgba(9, 28, 48, 0.98) 0%, rgba(7, 24, 42, 0.98) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.22) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-hero-kicker {
+  color: #fbbf24 !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-hero-title {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-hero-purpose {
+  color: #cbd5e1 !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-hero-action-primary {
+  border-color: #f59e0b !important;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  color: #111827 !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-hero-action-secondary {
+  border-color: rgba(148, 163, 184, 0.34) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+}
+
+/* --------------------------------------------------------------------------
+   SectionCard shell
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host .proposal-page-shell .wingman-section-card {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 20rem),
+    linear-gradient(180deg, rgba(9, 28, 48, 0.98) 0%, rgba(7, 24, 42, 0.98) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.22) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24) !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-header {
+  border-bottom-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-header h2 {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-header p {
+  color: #cbd5e1 !important;
+}
+
+/* Header action buttons */
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-actions :where(button, a) {
+  border: 1px solid rgba(148, 163, 184, 0.34) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+  font-weight: 650 !important;
+  text-decoration: none !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-actions :where(button, a):hover {
+  border-color: rgba(251, 191, 36, 0.58) !important;
+  background: rgba(251, 191, 36, 0.13) !important;
+  color: #fde68a !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-actions a:last-child {
+  border-color: #f59e0b !important;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  color: #111827 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Left section navigation
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:first-child {
+  background:
+    linear-gradient(180deg, rgba(15, 38, 63, 0.98), rgba(10, 30, 52, 0.98)) !important;
+  border-color: rgba(148, 163, 184, 0.26) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:first-child p {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:first-child .space-y-2 > div {
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #e2e8f0 !important;
+  font-weight: 650 !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:first-child .space-y-2 > div:first-child {
+  border-color: #f59e0b !important;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  color: #111827 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Main proposal preview document
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:last-child {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 0.34) !important;
+  color: #0f172a !important;
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.2) !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:last-child > div:first-child {
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.2), transparent 26rem),
+    linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+  color: #111827 !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:last-child > div:first-child .wingman-kicker,
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:last-child > div:first-child h2,
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:last-child > div:first-child p {
+  color: #111827 !important;
+}
+
+/* Body of the proposal preview */
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:last-child > div:last-child {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:last-child > div:last-child :where(h2, h3, p, li, td, th, span, div) {
+  color: inherit;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:last-child .wingman-kicker {
+  color: #92400e !important;
+}
+
+/* --------------------------------------------------------------------------
+   Light information blocks inside the proposal preview
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host .proposal-page-shell .rounded-2xl.bg-amber-50,
+html body #root .wingman-page-host .proposal-page-shell .rounded-2xl.bg-emerald-50,
+html body #root .wingman-page-host .proposal-page-shell .rounded-2xl.bg-sky-50,
+html body #root .wingman-page-host .proposal-page-shell .rounded-2xl.bg-indigo-50 {
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .rounded-2xl.bg-amber-50 * {
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .rounded-2xl.bg-emerald-50 * {
+  color: #064e3b !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .rounded-2xl.bg-sky-50 * {
+  color: #0c4a6e !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .rounded-2xl.bg-indigo-50 * {
+  color: #312e81 !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .bg-white {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .bg-white :where(p, div, span, li, td, th) {
+  color: #0f172a !important;
+}
+
+/* Dependency cards */
+
+html body #root .wingman-page-host .proposal-page-shell .bg-indigo-50 .bg-white {
+  border-color: rgba(99, 102, 241, 0.25) !important;
+  background: #ffffff !important;
+  color: #312e81 !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .bg-indigo-50 .bg-white * {
+  color: #312e81 !important;
+}
+
+/* --------------------------------------------------------------------------
+   BOM table
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host .proposal-page-shell table {
+  border-color: rgba(148, 163, 184, 0.34) !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell thead {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell th {
+  color: #334155 !important;
+  font-weight: 750 !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell td {
+  border-color: rgba(148, 163, 184, 0.22) !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell tbody tr {
+  background: #ffffff !important;
+}
+
+/* --------------------------------------------------------------------------
+   Evidence, guidance, assumptions
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host .proposal-page-shell .grid .border-slate-200.bg-white,
+html body #root .wingman-page-host .proposal-page-shell li.bg-slate-50,
+html body #root .wingman-page-host .proposal-page-shell .bg-slate-50 {
+  background: #f8fafc !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell li.bg-slate-50 *,
+html body #root .wingman-page-host .proposal-page-shell .bg-slate-50 * {
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell li.bg-amber-50 {
+  background: #fffbeb !important;
+  border-color: rgba(245, 158, 11, 0.34) !important;
+  color: #78350f !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell li.bg-amber-50 * {
+  color: #78350f !important;
+}
+
+/* --------------------------------------------------------------------------
+   Recommendation feedback cards
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host .proposal-page-shell [class*="selection"],
+html body #root .wingman-page-host .proposal-page-shell [class*="Selection"] {
+  color: inherit;
+}
+
+html body #root .wingman-page-host .proposal-page-shell button {
+  text-decoration: none !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wingman-selection-card,
+html body #root .wingman-page-host .proposal-page-shell button[class*="selection"],
+html body #root .wingman-page-host .proposal-page-shell button[class*="Selection"] {
+  border-color: rgba(148, 163, 184, 0.32) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Text utility safety net within proposal document
+   -------------------------------------------------------------------------- */
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body :where(
+  .text-slate-950,
+  .text-slate-900,
+  .text-slate-800,
+  .text-slate-700,
+  .text-gray-950,
+  .text-gray-900,
+  .text-gray-800,
+  .text-gray-700
+) {
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body :where(
+  .text-slate-600,
+  .text-slate-500,
+  .text-gray-600,
+  .text-gray-500
+) {
+  color: #475569 !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body :where(
+  .text-amber-950,
+  .text-amber-900,
+  .text-amber-800
+) {
+  color: #78350f !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body :where(
+  .text-indigo-950,
+  .text-indigo-900,
+  .text-indigo-800,
+  .text-indigo-700
+) {
+  color: #312e81 !important;
+}
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body :where(
+  .text-sky-950,
+  .text-sky-900,
+  .text-sky-800
+) {
+  color: #0c4a6e !important;
+}
+
+/* Keep section header and left dark panels light despite safety net */
+
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-header :where(h2, p, span, div),
+html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div > div:first-child :where(p, div, span) {
+  color: inherit !important;
+}
+
+@media (max-width: 1180px) {
+  html body #root .wingman-page-host .proposal-page-shell .wm-balanced-section-card-body > div {
+    grid-template-columns: 1fr !important;
+  }
+}

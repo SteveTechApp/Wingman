@@ -1,0 +1,82 @@
+/* Simplifies the top workspace header and removes non-working controls. */
+
+.wingman-topbar {
+  gap: 0.75rem !important;
+}
+
+.wingman-command-search,
+.wingman-new-project-button,
+.wingman-topbar-icon-button,
+.wingman-user-avatar {
+  display: none !important;
+}
+
+.wingman-topbar-title {
+  min-width: 15rem;
+  max-width: min(32rem, 44vw);
+}
+
+.wingman-language-profile-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  padding: 0.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.wingman-language-profile-switcher button {
+  display: inline-flex;
+  min-height: 2.15rem;
+  align-items: center;
+  gap: 0.36rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(226, 232, 240, 0.82);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.48rem 0.68rem;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.wingman-language-profile-switcher button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.wingman-language-profile-switcher button.is-active {
+  border-color: rgba(251, 191, 36, 0.55);
+  background: #f59e0b;
+  color: #111827;
+  box-shadow: 0 10px 22px rgba(245, 158, 11, 0.22);
+}
+
+.wingman-language-flag {
+  display: inline-flex;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+@media (max-width: 900px) {
+  .wingman-language-profile-switcher {
+    margin-left: 0;
+  }
+
+  .wingman-language-profile-switcher button span:not(.wingman-language-flag) {
+    display: none;
+  }
+
+  .wingman-topbar-title {
+    max-width: 52vw;
+  }
+}

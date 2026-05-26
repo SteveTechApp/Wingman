@@ -1,0 +1,192 @@
+/* ==========================================================================
+   Wingman rectangular button authority layer
+   Purpose:
+   - Replace oval/pill buttons with rounded-corner rectangles.
+   - Keep small icon-only controls, avatars and status dots circular.
+   - Imported late so it wins over page-level button styles.
+   ========================================================================== */
+
+:root {
+  --wm-button-radius-rect: 14px;
+  --wm-button-radius-card: 18px;
+  --wm-button-radius-small: 10px;
+}
+
+/* --------------------------------------------------------------------------
+   Primary button families across Wingman
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  .wm-calm-button,
+  .wm-calm-link-button,
+  .discovery-mini-button,
+  .guided-primary-button,
+  .guided-secondary-button,
+  .sales-language-button,
+  .sales-language-icon-button,
+  .proposal-clean-button,
+  .proposal-clean-readiness a,
+  .wingman-hero-action,
+  .wingman-guidance-action,
+  .wingman-clear-project-button,
+  .quick-action-button,
+  .template-action,
+  .finder-action,
+  .proposal-action,
+  .wm-balanced-hero-action-primary,
+  .wm-balanced-hero-action-secondary
+) {
+  border-radius: var(--wm-button-radius-rect) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Common button/link patterns
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  button[class*="button"],
+  button[class*="Button"],
+  a[class*="button"],
+  a[class*="Button"],
+  [role="button"]
+):not(
+  .wingman-topbar-icon-button
+):not(
+  .wingman-user-avatar
+):not(
+  .discovery-mini-icon-button
+):not(
+  .sales-language-active-icon
+):not(
+  .wingman-language-profile-switcher button
+):not(
+  .guru-avatar
+):not(
+  .guru-assistant-avatar
+) {
+  border-radius: var(--wm-button-radius-rect) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Selection cards should be rounded rectangles, not stretched ovals.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  .wm-calm-choice-card,
+  .wm-calm-launch-card,
+  .discovery-mini-card,
+  .guided-choice-card,
+  .guided-answer-button,
+  .sales-language-card-button,
+  .proposal-clean-feedback-grid button
+) {
+  border-radius: var(--wm-button-radius-card) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar navigation: rounded rectangle, not pill.
+   -------------------------------------------------------------------------- */
+
+.wingman-sidebar :where(
+  .wingman-nav-link,
+  a
+) {
+  border-radius: 13px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Top conversation/language selector buttons: rectangular chips, not ovals.
+   -------------------------------------------------------------------------- */
+
+.wingman-language-profile-switcher,
+.wingman-conversation-type,
+[class*="conversation-type"],
+[class*="ConversationType"] {
+  border-radius: var(--wm-button-radius-rect) !important;
+}
+
+.wingman-language-profile-switcher button,
+.wingman-page-host :where(
+  button[class*="conversation"],
+  button[class*="Conversation"]
+) {
+  border-radius: var(--wm-button-radius-small) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Tailwind rounded-full rescue for button-like elements.
+   This does not affect non-button badges unless they are interactive.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  button.rounded-full,
+  a.rounded-full,
+  [role="button"].rounded-full
+) {
+  border-radius: var(--wm-button-radius-rect) !important;
+}
+
+.wingman-page-host :where(
+  button[class*="rounded-full"],
+  a[class*="rounded-full"],
+  [role="button"][class*="rounded-full"]
+) {
+  border-radius: var(--wm-button-radius-rect) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Keep true circular controls circular.
+   -------------------------------------------------------------------------- */
+
+.wingman-topbar-icon-button,
+.wingman-user-avatar,
+.discovery-mini-icon-button,
+.sales-language-active-icon,
+.wingman-language-flag,
+.guru-avatar,
+.guru-assistant-avatar,
+[class*="avatar"],
+[class*="Avatar"],
+[class*="status-dot"],
+[class*="StatusDot"] {
+  border-radius: 999px !important;
+}
+
+/* Keep tiny indicator dots circular. */
+
+.wm-calm-choice-card::after,
+.wm-calm-launch-card::after,
+.guided-choice-card::after,
+.guided-answer-button::after,
+.discovery-mini-card::after,
+.sales-language-card-button::after {
+  border-radius: 999px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Details/drawer controls should also avoid pill styling.
+   -------------------------------------------------------------------------- */
+
+.wm-calm-drawer summary::after,
+.discovery-mini-details summary::after {
+  border-radius: var(--wm-button-radius-small) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Hover/focus consistency for the new rectangular shape.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  .wm-calm-button,
+  .wm-calm-link-button,
+  .discovery-mini-button,
+  .guided-primary-button,
+  .guided-secondary-button,
+  .sales-language-button,
+  .proposal-clean-button,
+  button[class*="button"],
+  a[class*="button"]
+):focus-visible {
+  outline: 3px solid rgba(251, 191, 36, 0.84) !important;
+  outline-offset: 3px !important;
+}

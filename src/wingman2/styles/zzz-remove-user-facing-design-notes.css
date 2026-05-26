@@ -1,0 +1,27 @@
+/* ==========================================================================
+   Remove user-facing design notes
+   Purpose:
+   Hide internal explanation panels and design-justification copy from live pages.
+   This keeps useful workflow UI visible while removing non-customer-facing notes.
+   ========================================================================== */
+
+.finder-simple-drawer,
+.finder-simple-status,
+.finder-calm-drawer,
+.finder-calm-bottom-note,
+.discovery-mini-details.page-level,
+.discovery-mini-guidance,
+.feature-readiness-audit,
+.readiness-audit {
+  display: none !important;
+}
+
+/* Hide generic "this page is simplified" / "what changed" style notes if they
+   survive from earlier components. */
+.wingman-page-host details:has(summary) summary {
+  cursor: pointer;
+}
+
+.wingman-page-host details:has(summary)::part(user-facing-design-note) {
+  display: none !important;
+}

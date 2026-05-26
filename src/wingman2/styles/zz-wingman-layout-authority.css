@@ -1,0 +1,196 @@
+/* ==========================================================================
+   Wingman final layout authority layer
+   Purpose:
+   - Stop AppShell/page-host restrictions fighting page-level CSS.
+   - Make every route reload into a predictable full-width workspace.
+   - Prevent bottom overlays and fixed-height containers from hiding page content.
+   - Keep this file structural only; do not use it for page-specific colours.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Shell sizing
+   -------------------------------------------------------------------------- */
+
+html,
+body,
+#root {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  margin: 0 !important;
+}
+
+body {
+  overflow: hidden !important;
+}
+
+.wingman-shell {
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.wingman-workspace {
+  min-width: 0 !important;
+  width: calc(100vw - var(--wm-sidebar-width, 268px)) !important;
+  max-width: none !important;
+  overflow: hidden !important;
+}
+
+/* --------------------------------------------------------------------------
+   Main scrolling region
+   -------------------------------------------------------------------------- */
+
+.wingman-app-main {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: calc(100vh - var(--wm-topbar-height, 64px)) !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding: 18px clamp(14px, 1.6vw, 24px) 7rem !important;
+  scroll-behavior: auto !important;
+  scrollbar-gutter: stable !important;
+}
+
+/* --------------------------------------------------------------------------
+   Page host should not box pages into a hidden max width.
+   Individual pages can still create their own internal max-width if needed.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: calc(100vh - var(--wm-topbar-height, 64px) - 36px) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.wingman-page-host > * {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+/* Remove accidental fixed-height clipping in page roots. */
+
+.wingman-page-host :where(
+  .guided-shell,
+  .sales-language-shell,
+  .proposal-clean-shell,
+  .discovery-page,
+  .finder-page,
+  .support-page,
+  .templates-page,
+  .videowall-page,
+  .compare-page
+) {
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: auto !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+}
+
+/* --------------------------------------------------------------------------
+   Grid children must be allowed to shrink. This prevents hidden right panels,
+   horizontal overflow, and cards forcing the page wider than the viewport.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  section,
+  article,
+  aside,
+  div,
+  main,
+  header,
+  footer
+) {
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Stop old utility overrides from forcing all custom page cards to inherit
+   unwanted max-width, padding, and border-radius behaviour.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  .guided-shell,
+  .sales-language-shell,
+  .proposal-clean-shell
+) :where(.rounded-3xl, .rounded-2xl) {
+  border-radius: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   Topbar consistency.
+   -------------------------------------------------------------------------- */
+
+.wingman-topbar {
+  flex-shrink: 0 !important;
+  min-width: 0 !important;
+}
+
+.wingman-topbar-title {
+  min-width: 0 !important;
+}
+
+.wingman-topbar-title span {
+  max-width: 100% !important;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar/mobile width safety.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1023px) {
+  .wingman-workspace {
+    width: 100vw !important;
+    margin-left: 0 !important;
+  }
+
+  .wingman-app-main {
+    height: calc(100vh - var(--wm-topbar-height, 64px)) !important;
+    padding: 14px 12px 7rem !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Prevent floating assistant/help surfaces from blocking page content.
+   This keeps them visible, but the page gets enough bottom padding to scroll
+   clear of them.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host {
+  padding-bottom: 2rem !important;
+}
+
+/* If a fixed suggestion rail exists at the bottom, it should not trap clicks
+   across the full page width unless the user is interacting with its controls. */
+
+[class*="suggestion"],
+[class*="Suggestion"] {
+  max-width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Route reload sanity.
+   During route changes, keep page paint deterministic and avoid inherited
+   animations causing apparent hangs.
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host > * {
+  animation-duration: 0.001ms;
+  animation-iteration-count: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wingman-page-host > * {
+    animation-duration: initial;
+  }
+}

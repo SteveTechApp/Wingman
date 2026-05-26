@@ -1,0 +1,546 @@
+/* ==========================================================================
+   Wingman Calm UI Reset - Phase 1
+   Principle:
+   - One task visible at a time.
+   - Hide advisory clutter until requested.
+   - Remove dashboard/admin-style noise from sales-facing pages.
+   - Use one consistent card/button language.
+   ========================================================================== */
+
+:root {
+  --wm-calm-bg: #061524;
+  --wm-calm-panel: #0b2138;
+  --wm-calm-panel-2: #0f2b46;
+  --wm-calm-border: rgba(125, 180, 240, 0.22);
+  --wm-calm-border-strong: rgba(251, 191, 36, 0.58);
+  --wm-calm-text: #f8fafc;
+  --wm-calm-muted: #cbd5e1;
+  --wm-calm-soft: #e2e8f0;
+  --wm-calm-accent: #fbbf24;
+  --wm-calm-accent-2: #f59e0b;
+  --wm-calm-dark: #0f172a;
+  --wm-calm-light: #ffffff;
+  --wm-calm-shadow: 0 20px 46px rgba(0, 0, 0, 0.22);
+  --wm-calm-radius: 28px;
+  --wm-calm-button-radius: 16px;
+}
+
+.wm-calm-page {
+  width: 100%;
+  max-width: 1180px !important;
+  margin: 0 auto !important;
+  color: var(--wm-calm-text);
+}
+
+.wm-calm-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.wm-calm-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  border: 1px solid var(--wm-calm-border);
+  border-radius: var(--wm-calm-radius);
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.13), transparent 26rem),
+    linear-gradient(180deg, rgba(8, 28, 48, 0.98), rgba(6, 21, 36, 0.98));
+  box-shadow: var(--wm-calm-shadow);
+  padding: clamp(1rem, 2vw, 1.45rem);
+}
+
+.wm-calm-kicker {
+  margin: 0 0 0.42rem;
+  color: var(--wm-calm-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.wm-calm-hero h1,
+.wm-calm-task-card h2,
+.wm-calm-result-card h2 {
+  margin: 0;
+  color: var(--wm-calm-text);
+  font-size: clamp(1.35rem, 2.2vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.wm-calm-hero p,
+.wm-calm-task-card p,
+.wm-calm-result-card p,
+.wm-calm-muted {
+  margin: 0.5rem 0 0;
+  color: var(--wm-calm-muted);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.wm-calm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: flex-end;
+}
+
+.wm-calm-button,
+.wm-calm-link-button {
+  display: inline-flex;
+  min-height: 2.55rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: var(--wm-calm-button-radius);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--wm-calm-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1;
+  padding: 0.68rem 0.95rem;
+  text-decoration: none;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease;
+}
+
+.wm-calm-button:hover,
+.wm-calm-link-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--wm-calm-border-strong);
+  background: rgba(251, 191, 36, 0.12);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
+}
+
+.wm-calm-button.primary,
+.wm-calm-link-button.primary {
+  border-color: var(--wm-calm-accent-2);
+  background: linear-gradient(135deg, var(--wm-calm-accent), var(--wm-calm-accent-2));
+  color: #111827;
+}
+
+.wm-calm-button:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.wm-calm-task-card,
+.wm-calm-result-card,
+.wm-calm-choice-card,
+.wm-calm-drawer {
+  border: 1px solid var(--wm-calm-border);
+  border-radius: var(--wm-calm-radius);
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 18rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(7, 24, 42, 0.98));
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.18);
+}
+
+.wm-calm-task-card,
+.wm-calm-result-card {
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+.wm-calm-question {
+  display: grid;
+  gap: 1rem;
+}
+
+.wm-calm-question blockquote {
+  margin: 0;
+  border-left: 5px solid var(--wm-calm-accent);
+  border-radius: 20px;
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--wm-calm-text);
+  font-size: clamp(1.1rem, 1.7vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.38;
+  padding: 1rem;
+}
+
+.wm-calm-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.wm-calm-conversation-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.wm-calm-conversation-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.9fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.wm-calm-compact-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wm-calm-subhead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.75rem;
+  color: var(--wm-calm-accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.wm-calm-subhead svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.wm-calm-segment-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.wm-calm-segment-row button {
+  min-height: 3.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--wm-calm-text);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.55rem;
+  text-align: left;
+}
+
+.wm-calm-segment-row button.is-active {
+  border-color: var(--wm-calm-accent-2);
+  background: linear-gradient(135deg, var(--wm-calm-accent), var(--wm-calm-accent-2));
+  color: #111827;
+}
+
+.wm-calm-segment-row span,
+.wm-calm-segment-row small {
+  display: block;
+}
+
+.wm-calm-segment-row span {
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.wm-calm-segment-row small {
+  margin-top: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  opacity: 0.76;
+}
+
+.wm-calm-copy-panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  padding: 1rem;
+}
+
+.wm-calm-copy-panel > svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--wm-calm-accent);
+}
+
+.wm-calm-copy-panel h3,
+.wm-calm-copy-panel blockquote,
+.wm-calm-copy-panel p,
+.wm-calm-copy-panel small {
+  margin: 0;
+}
+
+.wm-calm-copy-panel h3 {
+  color: var(--wm-calm-text);
+  font-size: 1.04rem;
+  font-weight: 850;
+}
+
+.wm-calm-copy-panel blockquote {
+  margin-top: 0.65rem;
+  border-left: 4px solid var(--wm-calm-accent);
+  color: var(--wm-calm-text);
+  font-size: 1.05rem;
+  font-weight: 720;
+  line-height: 1.42;
+  padding-left: 0.8rem;
+}
+
+.wm-calm-copy-panel p {
+  margin-top: 0.7rem;
+  color: var(--wm-calm-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.wm-calm-copy-panel small {
+  display: block;
+  margin-top: 0.7rem;
+  color: #fde68a;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.wm-calm-choice-card {
+  position: relative;
+  min-height: 7.4rem;
+  overflow: hidden;
+  padding: 1rem 1rem 1rem 1.15rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wm-calm-choice-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, var(--wm-calm-accent), #f97316);
+}
+
+.wm-calm-choice-card:hover,
+.wm-calm-choice-card.is-selected {
+  border-color: var(--wm-calm-border-strong);
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.14), transparent 9rem),
+    linear-gradient(180deg, rgba(15, 42, 68, 0.98), rgba(10, 31, 52, 0.98));
+  transform: translateY(-1px);
+}
+
+.wm-calm-choice-card strong {
+  display: block;
+  color: var(--wm-calm-text);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.24;
+}
+
+.wm-calm-choice-card span {
+  display: block;
+  margin-top: 0.42rem;
+  color: var(--wm-calm-muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.wm-calm-choice-card small {
+  display: block;
+  margin-top: 0.7rem;
+  color: var(--wm-calm-accent);
+  font-size: 0.78rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.wm-calm-textarea,
+.wm-calm-input {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 18px;
+  background: #f8fafc;
+  color: #0f172a;
+  font: inherit;
+  font-size: 0.94rem;
+  line-height: 1.5;
+  padding: 0.85rem;
+}
+
+.wm-calm-textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.wm-calm-textarea:focus,
+.wm-calm-input:focus {
+  border-color: rgba(251, 191, 36, 0.78);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.18);
+  outline: none;
+}
+
+.wm-calm-drawer {
+  padding: 0.9rem 1rem;
+}
+
+.wm-calm-drawer summary {
+  color: var(--wm-calm-text);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.wm-calm-drawer-body {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.8rem;
+  color: var(--wm-calm-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.wm-calm-captured-list {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wm-calm-captured-list li {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.65rem;
+}
+
+.wm-calm-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.wm-calm-pill {
+  display: inline-flex;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.1);
+  color: #fde68a;
+  font-size: 0.78rem;
+  font-weight: 750;
+  padding: 0.42rem 0.62rem;
+}
+
+.wm-calm-launch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.wm-calm-launch-card {
+  min-height: 10rem;
+  border: 1px solid var(--wm-calm-border);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 10rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(7, 24, 42, 0.98));
+  color: var(--wm-calm-text);
+  padding: 1rem;
+  text-decoration: none;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.wm-calm-launch-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--wm-calm-border-strong);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+}
+
+.wm-calm-launch-card svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--wm-calm-accent);
+}
+
+.wm-calm-launch-card strong {
+  display: block;
+  margin-top: 0.85rem;
+  color: var(--wm-calm-text);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.wm-calm-launch-card span {
+  display: block;
+  margin-top: 0.45rem;
+  color: var(--wm-calm-muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.wm-calm-panel-light {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 24px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 1rem;
+}
+
+.wm-calm-panel-light h2,
+.wm-calm-panel-light h3,
+.wm-calm-panel-light strong {
+  color: #0f172a;
+}
+
+.wm-calm-panel-light p,
+.wm-calm-panel-light li {
+  color: #475569;
+}
+
+/* Quiet older busy blocks without deleting data/components from source. */
+.wm-calm-hide-busy,
+.feature-readiness-audit,
+.readiness-audit,
+.guided-progress-card,
+.guided-side-panel,
+.guided-summary-panel {
+  display: none !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-calm-page {
+    max-width: none !important;
+  }
+
+  .wm-calm-launch-grid,
+  .wm-calm-conversation-grid,
+  .wm-calm-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-calm-hero,
+  .wm-calm-conversation-grid,
+  .wm-calm-launch-grid,
+  .wm-calm-choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-calm-compact-grid,
+  .wm-calm-segment-row {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-calm-actions {
+    justify-content: stretch;
+  }
+
+  .wm-calm-button,
+  .wm-calm-link-button {
+    width: 100%;
+  }
+}

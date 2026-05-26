@@ -1,0 +1,352 @@
+/* ==========================================================================
+   Wingman unified button authority layer
+   Purpose:
+   - Make selection/action buttons feel intentionally designed.
+   - Fix low-contrast orange-on-dark text.
+   - Stop oval buttons looking like unfinished wireframes.
+   - Keep a consistent look across Guided Discovery and the wider app.
+   ========================================================================== */
+
+:root {
+  --wm-button-surface: #ffffff;
+  --wm-button-surface-soft: #f8fafc;
+  --wm-button-surface-warm: #fff7ed;
+  --wm-button-text: #0f172a;
+  --wm-button-muted: #475569;
+  --wm-button-subtle: #64748b;
+  --wm-button-border: rgba(148, 163, 184, 0.38);
+  --wm-button-border-strong: rgba(245, 158, 11, 0.72);
+  --wm-button-accent: #f59e0b;
+  --wm-button-accent-dark: #92400e;
+  --wm-button-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+  --wm-button-shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* --------------------------------------------------------------------------
+   Guided Discovery page surface correction
+   -------------------------------------------------------------------------- */
+
+.guided-shell {
+  color: var(--wm-button-text) !important;
+}
+
+.guided-shell .guided-hero,
+.guided-shell .guided-panel-card,
+.guided-shell .guided-progress-card,
+.guided-shell .guided-task-card {
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  background:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.08), transparent 22rem),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  color: var(--wm-button-text) !important;
+  box-shadow: var(--wm-button-shadow-soft) !important;
+}
+
+.guided-shell .guided-hero h1,
+.guided-shell .guided-task-card h2,
+.guided-shell .guided-panel-card h2,
+.guided-shell .guided-progress-card h2,
+.guided-shell .guided-checkpoint-grid h3 {
+  font-weight: 750 !important;
+}
+
+.guided-shell .guided-hero p,
+.guided-shell .guided-muted,
+.guided-shell .guided-panel-card p,
+.guided-shell .guided-complete-card p,
+.guided-shell .guided-panel-card li,
+.guided-shell .guided-complete-card li {
+  color: var(--wm-button-muted) !important;
+}
+
+.guided-shell .guided-eyebrow,
+.guided-shell .guided-panel-kicker,
+.guided-shell .guided-step-label {
+  color: var(--wm-button-accent-dark) !important;
+  font-weight: 750 !important;
+}
+
+.guided-shell .guided-progress-track {
+  background: #e2e8f0 !important;
+}
+
+.guided-shell .guided-progress-track span {
+  background: linear-gradient(90deg, #f59e0b, #fb923c) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Main decision buttons: Guided Discovery tile and answer cards
+   -------------------------------------------------------------------------- */
+
+.guided-shell .guided-choice-card,
+.guided-shell .guided-answer-button {
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 7.6rem !important;
+  border: 1px solid var(--wm-button-border) !important;
+  border-radius: 20px !important;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  color: var(--wm-button-text) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.94),
+    0 10px 24px rgba(15, 23, 42, 0.07) !important;
+  text-align: left !important;
+  transform: none !important;
+}
+
+.guided-shell .guided-choice-card::before,
+.guided-shell .guided-answer-button::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 auto 0 0 !important;
+  width: 5px !important;
+  background: linear-gradient(180deg, #f59e0b, #fb923c) !important;
+  opacity: 0.72 !important;
+}
+
+.guided-shell .guided-choice-card::after,
+.guided-shell .guided-answer-button::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 0.82rem !important;
+  right: 0.82rem !important;
+  width: 0.55rem !important;
+  height: 0.55rem !important;
+  border-radius: 999px !important;
+  background: #cbd5e1 !important;
+  box-shadow: 0 0 0 4px rgba(203, 213, 225, 0.28) !important;
+}
+
+.guided-shell .guided-choice-card:hover,
+.guided-shell .guided-answer-button:hover,
+.guided-shell .guided-answer-button.is-selected {
+  border-color: var(--wm-button-border-strong) !important;
+  background:
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.13), transparent 9rem),
+    linear-gradient(180deg, #ffffff 0%, #fffbeb 100%) !important;
+  box-shadow: var(--wm-button-shadow) !important;
+  transform: translateY(-2px) !important;
+}
+
+.guided-shell .guided-choice-card:hover::after,
+.guided-shell .guided-answer-button:hover::after,
+.guided-shell .guided-answer-button.is-selected::after {
+  background: #f59e0b !important;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18) !important;
+}
+
+.guided-shell .guided-choice-card span,
+.guided-shell .guided-answer-button span {
+  color: var(--wm-button-text) !important;
+  font-size: 0.96rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+.guided-shell .guided-choice-card small,
+.guided-shell .guided-answer-button small {
+  color: var(--wm-button-muted) !important;
+  font-size: 0.82rem !important;
+  font-weight: 450 !important;
+  line-height: 1.42 !important;
+}
+
+.guided-shell .guided-choice-card em {
+  color: var(--wm-button-accent-dark) !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Guided Discovery action buttons and chips
+   -------------------------------------------------------------------------- */
+
+.guided-shell .guided-primary-button,
+.guided-shell .guided-secondary-button,
+.guided-shell a.guided-primary-button,
+.guided-shell a.guided-secondary-button {
+  min-height: 2.55rem !important;
+  border-radius: 14px !important;
+  font-size: 0.86rem !important;
+  font-weight: 650 !important;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08) !important;
+}
+
+.guided-shell .guided-primary-button,
+.guided-shell a.guided-primary-button {
+  border-color: #f59e0b !important;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  color: #111827 !important;
+}
+
+.guided-shell .guided-secondary-button,
+.guided-shell a.guided-secondary-button {
+  border-color: rgba(148, 163, 184, 0.42) !important;
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+.guided-shell .guided-primary-button:hover,
+.guided-shell .guided-secondary-button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12) !important;
+}
+
+.guided-shell .guided-route-pill,
+.guided-shell .guided-confidence,
+.guided-shell .guided-chip {
+  border: 1px solid rgba(245, 158, 11, 0.36) !important;
+  background: #fffbeb !important;
+  color: #78350f !important;
+  font-weight: 700 !important;
+}
+
+.guided-shell .guided-question-prompt {
+  border-left-color: #f59e0b !important;
+  background: #fffbeb !important;
+  color: #111827 !important;
+}
+
+.guided-shell .guided-why {
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  background: #f8fafc !important;
+  color: #334155 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar nav button consistency
+   -------------------------------------------------------------------------- */
+
+.wingman-sidebar .wingman-nav-link {
+  border-radius: 14px !important;
+  font-weight: 600 !important;
+}
+
+.wingman-sidebar .wingman-nav-link .wingman-nav-copy span {
+  font-weight: 650 !important;
+}
+
+.wingman-sidebar .wingman-nav-link-active {
+  border-color: rgba(245, 158, 11, 0.58) !important;
+  background:
+    linear-gradient(90deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.08)) !important;
+  color: #ffffff !important;
+  box-shadow:
+    inset 4px 0 0 #f59e0b,
+    0 10px 28px rgba(245, 158, 11, 0.12) !important;
+}
+
+.wingman-sidebar .wingman-nav-link:hover {
+  border-color: rgba(245, 158, 11, 0.34) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #ffffff !important;
+}
+
+/* --------------------------------------------------------------------------
+   Topbar language/profile selector visibility and contrast
+   -------------------------------------------------------------------------- */
+
+.wingman-language-profile-switcher {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  margin-left: auto !important;
+  padding: 0.25rem !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.wingman-language-profile-switcher button {
+  min-height: 2.12rem !important;
+  border: 1px solid transparent !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: #dbeafe !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+}
+
+.wingman-language-profile-switcher button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.wingman-language-profile-switcher button.is-active {
+  border-color: rgba(251, 191, 36, 0.64) !important;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  color: #111827 !important;
+}
+
+.wingman-language-flag {
+  font-size: 1rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   General Wingman page action consistency
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  .wingman-hero-action,
+  .wingman-guidance-action,
+  .wingman-clear-project-button,
+  .quick-action-button,
+  .template-action,
+  .finder-action,
+  .proposal-action
+) {
+  border-radius: 14px !important;
+  font-weight: 650 !important;
+}
+
+.wingman-page-host :where(
+  button[class*="primary"],
+  a[class*="primary"],
+  button[class*="action"],
+  a[class*="action"]
+):not(.wingman-nav-link):not(.guided-choice-card):not(.guided-answer-button) {
+  text-decoration: none !important;
+}
+
+.wingman-page-host :where(button, a[role="button"]) {
+  text-underline-offset: 3px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Contrast rescue for amber/orange text on dark surfaces
+   -------------------------------------------------------------------------- */
+
+.wingman-shell :where(
+  .text-orange-500,
+  .text-orange-600,
+  .text-amber-500,
+  .text-amber-600
+) {
+  color: #fbbf24 !important;
+}
+
+.guided-shell :where(
+  .text-orange-500,
+  .text-orange-600,
+  .text-amber-500,
+  .text-amber-600
+) {
+  color: #92400e !important;
+}
+
+/* --------------------------------------------------------------------------
+   Mobile density
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .guided-shell .guided-choice-card,
+  .guided-shell .guided-answer-button {
+    min-height: 6.4rem !important;
+  }
+
+  .wingman-language-profile-switcher button span:not(.wingman-language-flag) {
+    display: none !important;
+  }
+}

@@ -1,0 +1,409 @@
+/* ==========================================================================
+   Wingman Dashboard Design Standard
+   Final visual authority layer.
+
+   Design source:
+   - Dashboard page is the reference style.
+   - Pages should feel like simple task launchers or one-task workflows.
+   - Use rounded rectangles, not oval buttons.
+   - Reduce visual density and avoid always-visible advisory clutter.
+   ========================================================================== */
+
+:root {
+  --wm-ds-page-max: 1180px;
+  --wm-ds-bg: #061524;
+  --wm-ds-panel: #0b2138;
+  --wm-ds-panel-soft: #0f2b46;
+  --wm-ds-border: rgba(125, 180, 240, 0.22);
+  --wm-ds-border-strong: rgba(251, 191, 36, 0.56);
+  --wm-ds-text: #f8fafc;
+  --wm-ds-muted: #cbd5e1;
+  --wm-ds-subtle: #94a3b8;
+  --wm-ds-accent: #fbbf24;
+  --wm-ds-accent-strong: #f59e0b;
+  --wm-ds-radius-page: 26px;
+  --wm-ds-radius-card: 20px;
+  --wm-ds-radius-button: 14px;
+  --wm-ds-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+  --wm-ds-shadow-soft: 0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+/* --------------------------------------------------------------------------
+   Page width and rhythm
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host > *,
+.wm-calm-page,
+.discovery-mini-page,
+.proposal-clean-shell,
+.sales-language-shell,
+.guided-shell {
+  max-width: var(--wm-ds-page-max) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.wingman-page-host {
+  color: var(--wm-ds-text);
+}
+
+/* --------------------------------------------------------------------------
+   Dashboard-style hero standard
+   -------------------------------------------------------------------------- */
+
+.wm-calm-hero,
+.discovery-mini-hero,
+.proposal-clean-hero,
+.proposal-clean-toolbar,
+.sales-language-hero,
+.guided-hero,
+.wm-balanced-page-hero {
+  border: 1px solid var(--wm-ds-border) !important;
+  border-radius: var(--wm-ds-radius-page) !important;
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.12), transparent 24rem),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 22rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(6, 21, 36, 0.98)) !important;
+  box-shadow: var(--wm-ds-shadow) !important;
+  color: var(--wm-ds-text) !important;
+}
+
+.wm-calm-hero h1,
+.discovery-mini-hero h1,
+.proposal-clean-hero h1,
+.proposal-clean-toolbar h2,
+.sales-language-hero h1,
+.guided-hero h1,
+.wm-balanced-hero-title {
+  color: var(--wm-ds-text) !important;
+  font-size: clamp(1.3rem, 2vw, 2rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1.08 !important;
+}
+
+.wm-calm-hero p,
+.discovery-mini-hero p,
+.proposal-clean-hero p,
+.proposal-clean-toolbar p,
+.sales-language-hero p,
+.guided-hero p,
+.wm-balanced-hero-purpose {
+  max-width: 64rem !important;
+  color: var(--wm-ds-muted) !important;
+  font-size: 0.92rem !important;
+  line-height: 1.55 !important;
+}
+
+.wm-calm-kicker,
+.discovery-mini-kicker,
+.proposal-clean-eyebrow,
+.proposal-clean-kicker,
+.sales-language-eyebrow,
+.guided-eyebrow,
+.guided-panel-kicker,
+.guided-step-label,
+.wm-balanced-hero-kicker,
+.wingman-kicker {
+  color: var(--wm-ds-accent) !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+/* --------------------------------------------------------------------------
+   Button standard: rounded rectangles, not ovals
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(
+  button,
+  a,
+  [role="button"]
+):not(
+  .wingman-topbar-icon-button
+):not(
+  .wingman-user-avatar
+):not(
+  .guru-avatar
+):not(
+  .guru-assistant-avatar
+):not(
+  [class*="avatar"]
+):not(
+  [class*="Avatar"]
+) {
+  border-radius: var(--wm-ds-radius-button) !important;
+}
+
+.wm-calm-button,
+.wm-calm-link-button,
+.discovery-mini-button,
+.proposal-clean-button,
+.sales-language-button,
+.guided-primary-button,
+.guided-secondary-button,
+.wm-balanced-hero-action-primary,
+.wm-balanced-hero-action-secondary,
+.wm-balanced-section-card-actions button,
+.wm-balanced-section-card-actions a {
+  min-height: 2.45rem !important;
+  border-radius: var(--wm-ds-radius-button) !important;
+  font-size: 0.86rem !important;
+  font-weight: 650 !important;
+  padding: 0.62rem 0.9rem !important;
+}
+
+.wm-calm-link-button.primary,
+.wm-calm-button.primary,
+.discovery-mini-button.primary,
+.proposal-clean-button.primary,
+.sales-language-button.primary,
+.guided-primary-button,
+.wm-balanced-hero-action-primary {
+  border-color: var(--wm-ds-accent-strong) !important;
+  background: linear-gradient(135deg, var(--wm-ds-accent), var(--wm-ds-accent-strong)) !important;
+  color: #111827 !important;
+  box-shadow: 0 12px 24px rgba(245, 158, 11, 0.22) !important;
+}
+
+.wm-calm-link-button:not(.primary),
+.wm-calm-button:not(.primary),
+.discovery-mini-button:not(.primary),
+.proposal-clean-button:not(.primary),
+.sales-language-button:not(.primary),
+.guided-secondary-button,
+.wm-balanced-hero-action-secondary {
+  border-color: rgba(148, 163, 184, 0.34) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--wm-ds-text) !important;
+}
+
+.wingman-page-host :where(button, a[role="button"], a[class*="button"]):hover {
+  border-color: var(--wm-ds-border-strong) !important;
+}
+
+/* Keep true circles circular */
+
+.wingman-topbar-icon-button,
+.wingman-user-avatar,
+.guru-avatar,
+.guru-assistant-avatar,
+[class*="avatar"],
+[class*="Avatar"],
+[class*="status-dot"],
+[class*="StatusDot"] {
+  border-radius: 999px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Card standard: use dashboard-style launch cards
+   -------------------------------------------------------------------------- */
+
+.wm-calm-launch-card,
+.wm-calm-choice-card,
+.discovery-mini-card,
+.discovery-mini-option-grid button,
+.sales-language-card-button,
+.guided-choice-card,
+.guided-answer-button,
+.proposal-clean-feedback-grid button {
+  border: 1px solid var(--wm-ds-border) !important;
+  border-radius: var(--wm-ds-radius-card) !important;
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 9rem),
+    linear-gradient(180deg, rgba(14, 42, 68, 0.96), rgba(8, 27, 46, 0.98)) !important;
+  color: var(--wm-ds-text) !important;
+  box-shadow: var(--wm-ds-shadow-soft) !important;
+}
+
+.wm-calm-launch-card:hover,
+.wm-calm-choice-card:hover,
+.wm-calm-choice-card.is-selected,
+.discovery-mini-card:hover,
+.discovery-mini-option-grid button:hover,
+.discovery-mini-option-grid button.is-selected,
+.sales-language-card-button:hover,
+.sales-language-card-button.active,
+.guided-choice-card:hover,
+.guided-answer-button:hover,
+.guided-answer-button.is-selected,
+.proposal-clean-feedback-grid button:hover {
+  border-color: var(--wm-ds-border-strong) !important;
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.13), transparent 9rem),
+    linear-gradient(180deg, rgba(18, 51, 80, 1), rgba(10, 32, 54, 1)) !important;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.26) !important;
+  transform: translateY(-1px) !important;
+}
+
+.wm-calm-launch-card strong,
+.wm-calm-choice-card strong,
+.discovery-mini-card strong,
+.sales-language-card-button strong,
+.guided-choice-card span,
+.guided-answer-button span,
+.proposal-clean-feedback-grid strong {
+  color: var(--wm-ds-text) !important;
+  font-weight: 800 !important;
+}
+
+.wm-calm-launch-card span,
+.wm-calm-choice-card span,
+.discovery-mini-card span,
+.sales-language-card-button small,
+.guided-choice-card small,
+.guided-answer-button small,
+.proposal-clean-feedback-grid small {
+  color: var(--wm-ds-muted) !important;
+}
+
+.wm-calm-launch-card small,
+.wm-calm-choice-card small,
+.discovery-mini-card small,
+.discovery-mini-card em,
+.guided-choice-card em {
+  color: #fde68a !important;
+}
+
+/* --------------------------------------------------------------------------
+   Reduce busy visual spread
+   -------------------------------------------------------------------------- */
+
+.wm-calm-launch-grid,
+.discovery-mini-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0.85rem !important;
+}
+
+.wm-calm-choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0.85rem !important;
+}
+
+.wm-calm-launch-card,
+.discovery-mini-card {
+  min-height: 9.2rem !important;
+}
+
+.wm-calm-choice-card,
+.discovery-mini-option-grid button,
+.guided-choice-card,
+.guided-answer-button {
+  min-height: 5.4rem !important;
+}
+
+/* Hide or soften informational clutter when it is not the main task */
+
+.discovery-mini-guidance,
+.wm-calm-drawer,
+.discovery-mini-details.page-level {
+  opacity: 0.88;
+}
+
+.discovery-mini-guidance {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.discovery-mini-guidance > div {
+  min-height: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Modal/wizard standard: clean, centred, one-task focus
+   -------------------------------------------------------------------------- */
+
+.discovery-mini-modal,
+.wm-calm-task-card,
+.wm-calm-result-card {
+  border-radius: var(--wm-ds-radius-page) !important;
+  border-color: var(--wm-ds-border) !important;
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 20rem),
+    linear-gradient(180deg, rgba(10, 32, 54, 0.98), rgba(6, 21, 36, 0.98)) !important;
+  box-shadow: var(--wm-ds-shadow) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar follows dashboard: clear but not loud
+   -------------------------------------------------------------------------- */
+
+.wingman-sidebar .wingman-nav-link,
+.wingman-sidebar a {
+  border-radius: 13px !important;
+}
+
+.wingman-sidebar .wingman-nav-link-active,
+.wingman-sidebar a[aria-current="page"] {
+  border-color: rgba(251, 191, 36, 0.48) !important;
+  background:
+    linear-gradient(90deg, rgba(251, 191, 36, 0.18), rgba(96, 165, 250, 0.06)) !important;
+  box-shadow: inset 4px 0 0 var(--wm-ds-accent) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Form fields
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host :where(input, textarea, select) {
+  border-radius: var(--wm-ds-radius-button) !important;
+}
+
+.wm-calm-textarea,
+.wm-calm-input,
+.discovery-mini-question textarea,
+.sales-language-question textarea {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* --------------------------------------------------------------------------
+   Proposal document exception:
+   Keep proposal preview readable and white; do not force dashboard-dark cards
+   into document body.
+   -------------------------------------------------------------------------- */
+
+.proposal-clean-document,
+.proposal-clean-document-body {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.proposal-clean-document .proposal-clean-info-block li,
+.proposal-clean-document .proposal-clean-table,
+.proposal-clean-document .proposal-clean-table td,
+.proposal-clean-document .proposal-clean-output > div > div {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .wm-calm-launch-grid,
+  .discovery-mini-grid,
+  .discovery-mini-guidance {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-calm-launch-grid,
+  .wm-calm-choice-grid,
+  .discovery-mini-grid,
+  .discovery-mini-guidance,
+  .discovery-mini-option-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-calm-hero,
+  .discovery-mini-hero,
+  .proposal-clean-hero,
+  .proposal-clean-toolbar,
+  .sales-language-hero,
+  .guided-hero {
+    grid-template-columns: 1fr !important;
+  }
+}

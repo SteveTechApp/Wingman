@@ -1,0 +1,266 @@
+/* ==========================================================================
+   Proposal clean final contrast lock
+   This file intentionally uses high specificity because older global Wingman
+   dark-theme layers are still overriding the Proposal document surface.
+   ========================================================================== */
+
+/* Keep the outer Proposal page dark and Wingman-like */
+
+html body #root .wingman-page-host .proposal-clean-shell {
+  color: #e2e8f0 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-hero,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-toolbar,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-sections {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 20rem),
+    linear-gradient(180deg, rgba(9, 28, 48, 0.98) 0%, rgba(7, 24, 42, 0.98) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.24) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-hero h1,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-toolbar h2 {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-hero p,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-toolbar p {
+  color: #cbd5e1 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-eyebrow,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-sections .proposal-clean-kicker {
+  color: #fbbf24 !important;
+}
+
+/* Force the proposal preview itself to be a readable white document */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-document {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(148, 163, 184, 0.36) !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-document-body {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Cover band */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-cover {
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.24), transparent 24rem),
+    linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+  color: #111827 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-cover p,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-cover h2,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-cover span {
+  color: #111827 !important;
+}
+
+/* Dark readability band directly below cover */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-readiness {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 18rem),
+    linear-gradient(180deg, #1e293b 0%, #172033 100%) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-readiness .proposal-clean-kicker {
+  color: #fbbf24 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-readiness strong {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-readiness span {
+  color: #cbd5e1 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-readiness a {
+  background: #0f172a !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  color: #ffffff !important;
+}
+
+/* Output purpose block */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 18rem),
+    linear-gradient(180deg, #1e293b 0%, #172033 100%) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output .proposal-clean-kicker {
+  color: #fbbf24 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output > div > div {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 0.34) !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output strong {
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output span,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-output div {
+  color: #0f172a !important;
+}
+
+/* Executive summary and recommended products blocks */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-info-block {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 16rem),
+    linear-gradient(180deg, #1e293b 0%, #172033 100%) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-info-block .proposal-clean-kicker {
+  color: #fbbf24 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-info-block p {
+  color: #e2e8f0 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-info-block ul {
+  color: inherit !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-info-block li {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
+  color: #0f172a !important;
+}
+
+/* Governance panel */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance {
+  background: #eef2ff !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+  color: #312e81 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance .proposal-clean-kicker {
+  color: #312e81 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance span,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance p,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance small,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance strong {
+  color: #312e81 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance-card {
+  background: #ffffff !important;
+  border-color: rgba(99, 102, 241, 0.26) !important;
+  color: #312e81 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-governance-card span {
+  background: #eef2ff !important;
+  color: #4338ca !important;
+}
+
+/* BOM table */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-table-wrap {
+  background: #ffffff !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-table {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-table thead,
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-table th {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-table td {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Feedback cards */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-feedback-grid button {
+  background:
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 7rem),
+    linear-gradient(180deg, rgba(15, 38, 63, 0.98) 0%, rgba(10, 30, 52, 0.98) 100%) !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-feedback-grid button:hover {
+  border-color: rgba(251, 191, 36, 0.72) !important;
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.13), transparent 8rem),
+    linear-gradient(180deg, rgba(20, 48, 78, 1) 0%, rgba(12, 35, 60, 1) 100%) !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-feedback-grid svg {
+  color: #fbbf24 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-feedback-grid strong {
+  color: #f8fafc !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-feedback-grid small {
+  color: #cbd5e1 !important;
+}
+
+/* Left nav */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-sections button {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #e2e8f0 !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-sections button.is-active {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  border-color: #f59e0b !important;
+  color: #111827 !important;
+}
+
+/* Final text safety net */
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-document :where(
+  .proposal-clean-document-body,
+  .proposal-clean-document-body section,
+  .proposal-clean-document-body article
+) {
+  color: inherit !important;
+}
+
+html body #root .wingman-page-host .proposal-clean-shell .proposal-clean-document-body :where(
+  .text-slate-950,
+  .text-slate-900,
+  .text-slate-800,
+  .text-gray-950,
+  .text-gray-900,
+  .text-gray-800
+) {
+  color: inherit !important;
+}
