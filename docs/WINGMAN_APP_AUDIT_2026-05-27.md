@@ -2,68 +2,52 @@
 
 ## Current Position
 
-Wingman is now much closer to a live sales-call workspace. The recovered template, product family, product pitch, lazy-route, and product-matching features are wired back into the active app, and the main UI has been simplified so pages lead with the current decision rather than exposing every model detail.
+Wingman has been consolidated back into a single active app surface. The restored shell brings back the Wingman sidebar menu, secondary workflow navigation, topbar search/actions, and route-aware styling without relying on DOM patch installers or emergency CSS imports.
 
-## Restored Useful Features
+The active runtime now enters through `src/main.tsx`, mounts `src/wingman2/app/WingmanApp.tsx`, and uses `src/wingman2/styles/entry.css` as the authoritative style entry. Legacy archive trees, one-off restore scripts, ignored backups, and stale styling shims have been removed from the working app.
 
-- Room templates, template review, editable BOM rows, save-to-project, proposal export, and BOM export.
-- Lazy route loading for the routed Wingman pages and detail routes.
-- Product Families and Product Pitch routes for rep-friendly product explanations.
-- Product matching engine and scenario checks for USB, MST, AVoIP, video wall, and NDI workflows.
-- Runtime product intelligence index generation with 151 indexed products.
-- React-driven route state for route-specific styling, replacing the old DOM patch utility approach.
+## Restored And Consolidated
 
-## Strong Points
+- Restored the Wingman menu layout with primary tools, secondary workflow links, settings access, language profile controls, project actions, and the expert handoff card.
+- Reconnected the production entrypoint to the canonical Wingman style stack instead of temporary patch imports.
+- Kept route-specific styling through React route metadata and document route attributes.
+- Restored Discovery live-call guidance markers, application-specific question strategy, current model summary, and full-model view.
+- Preserved the live-call Call Cards, Discovery, Finder, Compare, Proposal, Sales Helper, Templates, Product Family, Product Pitch, and Video Wall routes.
+- Removed legacy archive code and backup artifacts that were no longer part of the build or route graph.
+- Cleared lint warnings in active app/server files after the consolidation pass.
 
-- Routes are lazy-loaded, which keeps initial load smaller while preserving the larger tools.
-- Product matching now has scenario coverage for the most important technical lanes.
-- Discovery keeps its inference, validation, project-save, and routing logic while presenting a cleaner live-call UI.
-- Proposal and template flows preserve export/save paths, which is essential for moving from call capture to customer output.
-- The generated product index no longer writes a wall-clock timestamp, so builds do not create noisy dirty diffs.
-- Browser smoke, route smoke, readiness, typecheck, build, and matching checks are all passing.
+## UI Structure Audit
 
-## Weaknesses To Strengthen
+- Navigation is back to a stable app shell: sidebar for workflow switching, topbar for workspace actions, content region for the active tool.
+- App layout no longer depends on source-time DOM installer utilities for route flags, dashboard theming, or call-card overlays.
+- The current shell keeps desktop density while retaining the mobile menu path.
+- Discovery now has an explicit live-call question strategy so reps can ask the next useful question without exposing the whole model by default.
+- The CSS is functional and centralized, but `entry.css` remains large and still contains historical patch blocks. The next structural cleanup should extract common shell, toolbar, model-panel, chip-group, and action-row components before further CSS deletion.
 
-1. **Client-side persistence is still the main operational risk.** Project state is local and browser-based. Live sales calls need durable autosave, user identity, recovery, and cross-device continuity.
-   - Improve with a real backend project store, per-user auth, autosave conflict resolution, and server-side backups.
+## Performance Audit
 
-2. **CSS has accumulated too many override layers.** The app now looks cleaner, but `entry.css` still contains historical patches and repeated density overrides.
-   - Improve by extracting shared `PageHeader`, `DecisionCard`, `SideSummary`, `ActionBar`, and `DetailDrawer` patterns, then deleting old CSS patch blocks.
+- Production build completed in about 1.4s with 1667 transformed modules.
+- Main CSS bundle: `index` 99.64 kB, 18.07 kB gzip.
+- Main app JS bundle: `index` 47.84 kB, 16.14 kB gzip.
+- Largest lazy/browser chunks remain document-processing libraries:
+  - `mammoth.browser` 491.70 kB, 118.82 kB gzip.
+  - `pdf` 373.76 kB, 111.82 kB gzip.
+  - `pdf.worker` 2.35 MB raw worker asset.
+- Route chunks are acceptably split: Discovery 20.62 kB, Compare 54.12 kB, Finder 71.11 kB, Sales Helper 36.35 kB, Call Cards 29.18 kB.
+- Recommendation: keep PDF/DOCX extraction behind lazy routes and avoid importing document extraction helpers into shared shell or dashboard code.
 
-3. **Product intelligence is large and diff-heavy.** The product JSON and generated public index are useful, but current updates create very large diffs and make review harder.
-   - Improve with a canonical source file, generated artifacts policy, schema validation, lifecycle metadata, and smaller incremental update files.
+## Remaining Risks
 
-4. **Live-call confidence is not yet backed by full evidence trails.** Discovery, Finder, Compare, and Proposal expose confidence, but reps still need clearer "safe to say" versus "needs validation" states.
-   - Improve with a shared confidence contract and customer-safe wording gates before proposal/export.
-
-5. **Document ingest needs deeper test coverage.** PDF/DOCX ingest is important for tenders, but extraction quality and edge cases need repeatable fixtures.
-   - Improve with sample tender fixtures, parser regression tests, and extraction confidence scoring.
-
-6. **Accessibility and keyboard flow need a focused pass.** The new collapsed panels reduce clutter, but drawers, details controls, and route changes should be checked with keyboard and screen-reader expectations.
-   - Improve with focus trapping for drawers, escape-to-close, clear labels, and Playwright accessibility checks.
-
-7. **Security posture needs hardening before customer data is stored centrally.** Local-only use lowers immediate risk, but live sales usage will involve customer files, project notes, and exports.
-   - Improve with content security policy, sanitized HTML export review, file upload constraints, secret scanning, audit logging, and role-based access.
-
-8. **Proposal output still needs commercial governance.** The restored BOM/export path works, but quote-ready output needs availability, lifecycle, region, and accessory dependency checks.
-   - Improve with lifecycle validation, region-aware product availability, mandatory accessory rules, and final review gates.
-
-## Live Sales-Call Readiness Priorities
-
-1. Add durable project autosave and recovery.
-2. Standardize confidence states across Discovery, Finder, Compare, and Proposal.
-3. Add a single call workspace mode that can move between question, notes, confidence, next action, and save-to-project without page switching.
-4. Consolidate CSS into reusable app components.
-5. Add fixture-based tests for ingest, matching, template save/export, and proposal generation.
-6. Add source/date metadata to product intelligence and proposal evidence.
+1. Client-side persistence is still the main operational risk. Project state needs durable backend autosave, user identity, and recovery before heavier live usage.
+2. CSS is centralized but not yet componentized. It is no longer broken, but it should be reduced into reusable component styles.
+3. Product intelligence remains large and should keep a strict generated-artifact policy.
+4. Proposal output still needs lifecycle, availability, dependency, and commercial review gates before quote-ready use.
+5. Accessibility still needs a focused pass for keyboard flow, focus management, and drawer behaviour.
 
 ## Verification Run
 
-- `npm run typecheck`
-- `npm run build`
-- `node tools/route-smoke-check.mjs`
-- `node tools/production-readiness-check.mjs`
-- `node tools/workflow-integration-check.mjs`
-- `node tools/check-product-matching-scenarios.mjs`
-- `node tools/browser-smoke-check.mjs`
-- In-app browser visual pass across Dashboard, Discovery, Finder, Sales Helper, Proposal, Templates, and Product Pitch.
+- `npm run verify`
+- `npm run lint`
+- `npm run check:browser`
+
+All checks passed. The browser smoke verified the built app pages and project detail route in a real browser.

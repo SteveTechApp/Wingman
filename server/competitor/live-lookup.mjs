@@ -78,20 +78,12 @@ function isAllowedCompetitorLookupUrl(rawUrl) {
   return Boolean(normalizeAllowedProductUrl(rawUrl));
 }
 
-function isAllowedVendorLookupUrl(rawUrl) {
-  return isAllowedCompetitorLookupUrl(rawUrl);
-}
-
 function assertAllowedCompetitorLookupUrl(rawUrl) {
   if (isAllowedCompetitorLookupUrl(rawUrl)) {
     return;
   }
 
   throw new Error(`Competitor live lookup URL blocked by allowlist guard: ${String(rawUrl || "").slice(0, 160)}`);
-}
-
-function assertAllowedVendorLookupUrl(rawUrl) {
-  assertAllowedCompetitorLookupUrl(rawUrl);
 }
 /* COMPETITOR-LIVE-LOOKUP-ALLOWLIST-GUARD-END */
 const DEFAULT_TIMEOUT_MS = Math.max(3500, Number(process.env.LOOKUP_TIMEOUT_MS || 9000));

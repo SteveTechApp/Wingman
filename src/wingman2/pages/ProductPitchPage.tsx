@@ -556,7 +556,7 @@ export function ProductPitchPage() {
 
       {loadState === "loading" && (
         <section className="wm-product-pitch-empty">
-          <strong>Loading product reference…</strong>
+          <strong>Loading product reference...</strong>
           <span>The pitch area will remain blank until a SKU or filter is selected.</span>
         </section>
       )}
@@ -613,11 +613,11 @@ export function ProductPitchPage() {
             <div className="wm-product-pitch-sheet-links">
               {selectedProduct.url && (
                 <a href={selectedProduct.url} target="_blank" rel="noreferrer">
-                  Product page ↗
+                  Product page ?
                 </a>
               )}
               <a href={productSearchUrl(selectedProduct.sku)} target="_blank" rel="noreferrer">
-                WyreStorm search ↗
+                WyreStorm search ?
               </a>
             </div>
           </div>
