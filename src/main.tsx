@@ -10,20 +10,17 @@ import { installWingmanPerformanceGuards } from "./wingman2/utils/installWingman
 import { installWingmanAuthoritySystem } from "./wingman2/utils/installWingmanAuthoritySystem";
 import "./wingman2/styles/wingman-style-stack.css";
 import { installDiscoveryOutputPreviewEnhancer } from "./wingman2/discovery/outputPreviewEnhancer";
-
 import "./wingman2/styles/wm-button-font-weight-reset.css";
 import "./wingman2/styles/wm-orange-reduction.css";
-
-
-
-
 import "./wingman2/styles/wingman-dashboard-force-theme.css";
+import { installDiscoveryDensityTuning } from "./wingman2/utils/installDiscoveryDensityTuning";
+import { installDiscoveryProportionTuning } from "./wingman2/utils/installDiscoveryProportionTuning";
 import { installWingmanVisualRouteFlags } from "./wingman2/theme/wingmanVisualRouteFlags";
 
 installWingmanVisualRouteFlags();
-
+installDiscoveryDensityTuning();
+installDiscoveryProportionTuning();
 installDiscoveryOutputPreviewEnhancer();
-
 installWingmanVisualIdentity();
 installWingmanSalesMode();
 
