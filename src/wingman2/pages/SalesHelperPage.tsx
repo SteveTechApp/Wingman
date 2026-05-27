@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
   AlertTriangle,
@@ -14,9 +14,7 @@ import {
   MessageSquareText,
   Monitor,
   MoveRight,
-  Network,
   PackageSearch,
-  PanelsTopLeft,
   Save,
   Scale,
   Search,
@@ -642,9 +640,9 @@ export function SalesHelperPage() {
   const safeQuestionIndex = Math.min(activeQuestionIndex, activeConversation.questions.length - 1);
   const activeQuestion = activeConversation.questions[safeQuestionIndex];
 
-  function getAnswer(conversationId: string, questionId: string) {
+  const getAnswer = useCallback((conversationId: string, questionId: string) => {
     return answers[answerKey(conversationId, questionId)] ?? emptyAnswer;
-  }
+  }, [answers]);
 
   const currentAnswer = getAnswer(activeConversation.id, activeQuestion.id);
 
@@ -754,7 +752,7 @@ export function SalesHelperPage() {
     lines.push(`Next action: Open ${recommendedDestination.label} in Wingman.`);
 
     return lines.join("\n");
-  }, [activeConversation, answers, projectGuidance.outputPurpose.motion, projectGuidance.readinessScore, recommendedDestination.label, riskFlags]);
+  }, [activeConversation, getAnswer, projectGuidance.outputPurpose.motion, projectGuidance.readinessScore, recommendedDestination.label, riskFlags]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

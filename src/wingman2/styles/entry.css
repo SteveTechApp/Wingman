@@ -1766,6 +1766,496 @@ textarea {
   }
 }
 /* COMPACT-SIDEBAR-TOOLTIPS-END */
+
+/* WINGMAN-MENU-RESTORE-START */
+.wingman-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+
+.wingman-nav-secondary {
+  margin-top: 12px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.wingman-nav-link-secondary {
+  min-height: 38px !important;
+  color: rgba(218, 230, 246, 0.82) !important;
+}
+
+.wingman-expert-handoff-card,
+.wingman-settings-link {
+  width: 100% !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: var(--wm-text) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease !important;
+}
+
+.wingman-expert-handoff-card {
+  min-height: 58px !important;
+  display: grid !important;
+  grid-template-columns: 36px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-top: 14px !important;
+  padding: 10px !important;
+  border-radius: 16px !important;
+  text-align: left !important;
+}
+
+.wingman-expert-handoff-card:hover,
+.wingman-settings-link:hover {
+  transform: translateY(-1px) !important;
+  border-color: var(--wm-orange-border) !important;
+  background: rgba(246, 163, 64, 0.12) !important;
+}
+
+.wingman-expert-handoff-avatar {
+  width: 36px !important;
+  height: 36px !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.32)) !important;
+}
+
+.wingman-expert-handoff-card strong,
+.wingman-expert-handoff-card small {
+  display: block !important;
+}
+
+.wingman-expert-handoff-card strong {
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+}
+
+.wingman-expert-handoff-card small {
+  margin-top: 2px !important;
+  color: var(--wm-text-muted) !important;
+  font-size: 0.68rem !important;
+  line-height: 1.2 !important;
+}
+
+.wingman-settings-link {
+  min-height: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-top: 8px !important;
+  padding: 0 11px !important;
+  border-radius: 14px !important;
+  font-size: 0.78rem !important;
+  font-weight: 760 !important;
+}
+
+.wingman-topbar.wm-balanced-topbar {
+  gap: 10px !important;
+  overflow: hidden !important;
+}
+
+.wm-balanced-topbar-title {
+  flex: 1 1 auto !important;
+  min-width: 150px !important;
+}
+
+.wm-balanced-topbar-title p {
+  font-size: 0.88rem !important;
+}
+
+.wm-balanced-topbar-title span {
+  max-width: 100% !important;
+}
+
+.wingman-command-search {
+  min-width: 280px !important;
+  max-width: 540px !important;
+  flex: 0 1 38vw !important;
+  height: 40px !important;
+  display: grid !important;
+  grid-template-columns: auto 18px minmax(120px, 1fr) auto !important;
+  align-items: center !important;
+  gap: 9px !important;
+  padding: 0 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 14px !important;
+  color: var(--wm-text-muted) !important;
+  background: rgba(255, 255, 255, 0.065) !important;
+}
+
+.wingman-language-profile-switcher {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.wingman-language-profile-switcher button {
+  min-height: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  padding: 0 8px !important;
+  color: rgba(226, 236, 248, 0.78) !important;
+  background: transparent !important;
+  font-size: 0.7rem !important;
+  font-weight: 800 !important;
+}
+
+.wingman-language-profile-switcher button:hover,
+.wingman-language-profile-switcher button.is-active {
+  border-color: rgba(246, 163, 64, 0.32) !important;
+  color: #fff7eb !important;
+  background: rgba(246, 163, 64, 0.14) !important;
+}
+
+.wingman-language-flag {
+  width: 18px !important;
+  height: 18px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  color: #211506 !important;
+  background: var(--wm-orange) !important;
+  font-size: 0.62rem !important;
+  line-height: 1 !important;
+}
+
+.wingman-command-search-icon {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.wingman-command-search input {
+  min-width: 0 !important;
+  width: 100% !important;
+  height: 34px !important;
+  border: 0 !important;
+  outline: 0 !important;
+  color: var(--wm-text) !important;
+  background: transparent !important;
+  font-size: 0.78rem !important;
+}
+
+.wingman-command-search input::placeholder {
+  color: rgba(198, 212, 230, 0.58) !important;
+}
+
+.wingman-command-search kbd {
+  min-width: 42px !important;
+  border: 1px solid rgba(255, 255, 255, 0.13) !important;
+  border-radius: 8px !important;
+  padding: 3px 6px !important;
+  color: rgba(226, 236, 248, 0.72) !important;
+  background: rgba(0, 0, 0, 0.16) !important;
+  font-size: 0.64rem !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+}
+
+.wingman-new-project-button,
+.wingman-topbar-icon-button,
+.wingman-user-avatar {
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: var(--wm-text) !important;
+  background: rgba(255, 255, 255, 0.065) !important;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease !important;
+}
+
+.wingman-new-project-button {
+  gap: 8px !important;
+  min-height: 40px !important;
+  padding: 0 12px !important;
+  border-color: rgba(246, 163, 64, 0.38) !important;
+  border-radius: 14px !important;
+  color: #231605 !important;
+  background: linear-gradient(180deg, #ffc86d, var(--wm-orange)) !important;
+  font-size: 0.78rem !important;
+  font-weight: 850 !important;
+}
+
+.wingman-topbar-icon-button,
+.wingman-user-avatar {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 14px !important;
+}
+
+.wingman-user-avatar {
+  color: #211506 !important;
+  background: #f7b452 !important;
+  font-size: 0.74rem !important;
+  font-weight: 900 !important;
+}
+
+.wingman-topbar-icon-button:hover,
+.wingman-user-avatar:hover {
+  transform: translateY(-1px) !important;
+  border-color: var(--wm-orange-border) !important;
+  background: rgba(246, 163, 64, 0.14) !important;
+}
+
+.wingman-topbar-icon-button-alert {
+  color: #ffe6bd !important;
+}
+
+@media (max-width: 1320px) {
+  .wingman-command-search {
+    max-width: 380px !important;
+    grid-template-columns: auto 18px minmax(80px, 1fr) !important;
+  }
+
+  .wingman-command-search kbd,
+  .wingman-language-profile-switcher button span:not(.wingman-language-flag) {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1120px) {
+  .wingman-command-search {
+    display: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .wingman-new-project-button span,
+  .wingman-new-project-button svg:last-child,
+  .wingman-topbar-icon-button,
+  .wingman-user-avatar {
+    display: none !important;
+  }
+
+  .wm-balanced-topbar-title p {
+    font-size: 0.8rem !important;
+  }
+}
+/* WINGMAN-MENU-RESTORE-END */
+
+/* WINGMAN-DASHBOARD-CONSOLIDATION-START */
+html[data-wingman-route="dashboard"] .wm-dashboard-page {
+  min-height: calc(100vh - var(--wm-topbar-height) - 36px) !important;
+  display: grid !important;
+  gap: 16px !important;
+  color: #0f172a !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-hero {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  min-height: 118px !important;
+  padding: 24px 28px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 24px !important;
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.88)),
+    #0f172a !important;
+  box-shadow: 0 20px 46px rgba(0, 0, 0, 0.24) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-eyebrow {
+  margin: 0 0 7px !important;
+  color: var(--wm-orange) !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.11em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-hero h1 {
+  margin: 0 !important;
+  color: #ffffff !important;
+  font-size: clamp(1.9rem, 3vw, 3rem) !important;
+  line-height: 0.98 !important;
+  letter-spacing: -0.045em !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-hero p:not(.wm-dashboard-eyebrow) {
+  max-width: 760px !important;
+  margin: 12px 0 0 !important;
+  color: rgba(226, 232, 240, 0.86) !important;
+  font-size: 0.98rem !important;
+  line-height: 1.55 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-hero-actions {
+  min-width: 220px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-hero-actions a {
+  min-height: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-radius: 12px !important;
+  padding: 0 16px !important;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  font-size: 0.86rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-hero-actions a:first-child {
+  border-color: var(--wm-orange) !important;
+  color: #211506 !important;
+  background: var(--wm-orange) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-section-heading {
+  display: flex !important;
+  align-items: end !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  margin: 0 0 14px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-section-heading h2 {
+  margin: 0 !important;
+  color: #eef6ff !important;
+  font-size: 1.25rem !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.025em !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-grid,
+html[data-wingman-route="dashboard"] .wm-dashboard-secondary-section {
+  display: grid !important;
+  gap: 14px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-secondary-section {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card {
+  position: relative !important;
+  min-height: 142px !important;
+  overflow: hidden !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 16px !important;
+  border: 1px solid rgba(197, 213, 235, 0.28) !important;
+  border-radius: 22px !important;
+  padding: 22px !important;
+  color: #0f172a !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18) !important;
+  text-decoration: none !important;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-secondary-section .wm-dashboard-card {
+  min-height: 104px !important;
+  padding: 18px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(246, 163, 64, 0.46) !important;
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.22) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-icon,
+html[data-wingman-route="dashboard"] .wm-dashboard-card-arrow {
+  width: 46px !important;
+  height: 46px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 16px !important;
+  color: #0369a1 !important;
+  background: #e0f2fe !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-arrow {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 999px !important;
+  color: #334155 !important;
+  background: rgba(15, 23, 42, 0.06) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-copy {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 6px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-copy strong {
+  display: block !important;
+  overflow-wrap: anywhere !important;
+  color: #0f172a !important;
+  font-size: 1.03rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.015em !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-copy span {
+  display: block !important;
+  color: #64748b !important;
+  font-size: 0.9rem !important;
+  line-height: 1.42 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-violet .wm-dashboard-card-icon {
+  color: #6d28d9 !important;
+  background: #ede9fe !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-emerald .wm-dashboard-card-icon {
+  color: #047857 !important;
+  background: #dcfce7 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-slate .wm-dashboard-card-icon {
+  color: #334155 !important;
+  background: #e2e8f0 !important;
+}
+
+@media (max-width: 980px) {
+  html[data-wingman-route="dashboard"] .wm-dashboard-hero {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dashboard-hero-actions {
+    justify-content: flex-start !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dashboard-grid,
+  html[data-wingman-route="dashboard"] .wm-dashboard-secondary-section {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 720px) {
+  html[data-wingman-route="dashboard"] .wm-dashboard-card {
+    grid-template-columns: auto minmax(0, 1fr) !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dashboard-card-arrow {
+    display: none !important;
+  }
+}
+/* WINGMAN-DASHBOARD-CONSOLIDATION-END */
 /* COMPARE-ACCURACY-CONTRAST-FIX-START */
 .wm-compare-page,
 .wm-compare-page .wingman-section-card,
@@ -2491,7 +2981,7 @@ textarea {
 }
 
 .wm-callcard-action-card::after {
-  content: "Ã¢â€ â€™" !important;
+  content: "->" !important;
   position: absolute !important;
   right: 14px !important;
   top: 12px !important;

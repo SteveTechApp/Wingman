@@ -10,20 +10,10 @@ import {
   saveProjectProposalToProject,
   saveRecommendationFeedback,
   type StoredProject,
-  type StoredProductSelection,
 } from "../data/projectStore";
 import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
 import { buildSalesReadinessPackage, type SalesBomRow, type SalesBomType } from "../lib/salesReadiness";
 
-type StoredSelection = StoredProductSelection & {
-  sku?: string;
-  title?: string;
-  family?: string;
-  category?: string;
-};
-
-const PRODUCT_SELECTION_STORE_KEY = "wingman-project-product-selections-v1";
-const STANDALONE_SHORTLIST_KEY = "wingman-finder-standalone-shortlist-v1";
 const feedbackActions: Array<{
   rating: "accepted" | "needs-review" | "missing-accessory" | "wrong-fit";
   label: string;
@@ -35,37 +25,38 @@ const feedbackActions: Array<{
   { rating: "wrong-fit", label: "Wrong fit", Icon: XCircle },
 ];
 
-function readJson<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
 function readSelectedProducts(project: StoredProject | null) {
-  if (project?.productSelections?.length) {
+  if (!project) {
+    return [];
+  }
+
+  if (project.productSelections?.length) {
     return project.productSelections.slice(0, 5);
   }
 
-  const standalone = readJson<StoredSelection[]>(STANDALONE_SHORTLIST_KEY, []);
-  const byProject = readJson<Record<string, StoredSelection[]>>(PRODUCT_SELECTION_STORE_KEY, {});
-  const projectSelections = Object.values(byProject).flat();
-  const bySku = new Map<string, StoredSelection>();
-
-  [...standalone, ...projectSelections].forEach((selection) => {
-    if (selection?.sku && !bySku.has(selection.sku)) {
-      bySku.set(selection.sku, selection);
-    }
-  });
-
-  return Array.from(bySku.values()).slice(0, 5);
+  return [];
 }
 
 function readDiscoveryBrief(project: StoredProject | null) {
-  if (!project?.discoveryBrief && project?.proposal) {
+  if (!project) {
+    return {
+      projectTitle: "No active project",
+      summary: "Proposal Builder is locked until a project is selected.",
+      roomSize: "Not available",
+      displays: "Not available",
+      displayCount: "",
+      displayBehaviour: "Not available",
+      sourceCount: "",
+      usb: "Not available",
+      distance: "Not available",
+      network: "",
+      audio: "",
+      control: "",
+      budget: "Not available",
+    };
+  }
+
+  if (!project.discoveryBrief && project.proposal) {
     return {
       projectTitle: project.proposal.title || project.name,
       summary: project.proposal.summary || "Template boilerplate proposal content.",
@@ -83,17 +74,13 @@ function readDiscoveryBrief(project: StoredProject | null) {
     };
   }
 
-  const brief =
-    project?.discoveryBrief ??
-    readJson<{ roomModel?: Record<string, unknown>; inference?: Record<string, unknown> } | null>(
-      "wingman-discovery-brief",
-      null,
-    );
+  const brief = project.discoveryBrief;
   const roomModel = brief?.roomModel ?? {};
   const joinValues = (value: unknown) => (Array.isArray(value) ? value.map((item) => String(item ?? "")).filter(Boolean).join(", ") : String(value || ""));
+
   return {
-    projectTitle: String(roomModel.roomType || project?.name || "Unqualified AV Opportunity"),
-    summary: String(brief?.inference?.summary || "Discovery has not been saved into this proposal yet."),
+    projectTitle: String(roomModel.roomType || project.name || "Project proposal"),
+    summary: String(brief?.inference?.summary || "No discovery brief has been saved to this project yet."),
     roomSize: String(roomModel.roomSize || "Not confirmed"),
     displays: String(roomModel.displayArrangement || "Not confirmed"),
     displayCount: String(roomModel.displayCount || ""),
@@ -130,7 +117,7 @@ export function ProposalPage() {
       ingest: project?.ingest,
       compareRun,
       assumptions: assumptions.length ? assumptions : ["Validate final product specifications, accessories, firmware notes, lifecycle, and regional suitability before issue."],
-      hasLiveContext: Boolean(project || products.length || discovery.summary !== "Discovery has not been saved into this proposal yet."),
+      hasLiveContext: Boolean(project),
     };
   }, []);
 
@@ -214,6 +201,65 @@ export function ProposalPage() {
     setFeedbackMessage(saved ? "Feedback saved to the active project." : "Feedback is available when a project is active.");
   }
 
+  if (!context.project) {
+    return (
+      <div className="pb-10">
+        <PageHero
+          eyebrow="Customer Proposal Builder"
+          title="Open a project before building a proposal."
+          purpose="Proposal Builder is locked until there is an active project. This prevents old discovery notes, standalone shortlists, or unrelated product selections being mixed into a customer proposal."
+          nextMove="Open Project Management, choose or create the correct project, then return to Proposal Builder."
+          actions={[
+            { label: "Open projects", to: routeCatalogByKey.projects.path },
+            { label: "Start discovery", to: routeCatalogByKey.discovery.path, variant: "secondary" },
+          ]}
+        />
+
+        <SectionCard
+          title="No active project selected"
+          subtitle="Proposal output must belong to a real project before Wingman can create a customer-safe proposal or BOM."
+        >
+          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-amber-950">
+            <div className="flex flex-wrap items-start gap-4">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-amber-700">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <h2 className="text-2xl font-black text-amber-950">Proposal Builder is inactive</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+                  There is no current project in play. Open or create a project first so the proposal can use only that project's discovery brief, product shortlist, assumptions, BOM rows, and approval notes.
+                </p>
+
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <Link
+                    to={routeCatalogByKey.projects.path}
+                    className="rounded-full bg-slate-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  >
+                    Open Project Management
+                  </Link>
+
+                  <Link
+                    to={routeCatalogByKey.discovery.path}
+                    className="rounded-full border border-amber-300 bg-white px-5 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100"
+                  >
+                    Start Discovery
+                  </Link>
+
+                  <Link
+                    to={routeCatalogByKey.finder.path}
+                    className="rounded-full border border-amber-300 bg-white px-5 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100"
+                  >
+                    Open Product Finder
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+      </div>
+    );
+  }
   return (
     <div className="pb-10">
       <PageHero

@@ -879,13 +879,24 @@ function normaliseProductIndex(data: unknown) {
 }
 
 function hasFinderIntent(need: FinderNeed) {
+  const neutralValues = new Set([
+    "",
+    "Unknown",
+    "Any / not known",
+    "Core hardware first",
+    "All hardware types",
+  ]);
+
   return (Object.keys(need) as (keyof FinderNeed)[]).some((key) => {
     const value = need[key].trim();
+
     if (!value) return false;
-    return key === "query" ? value.length >= 2 : true;
+    if (key === "query") return value.length >= 2;
+    if (key === "technologyType") return value !== "Core hardware first" && value !== "All hardware types";
+
+    return !neutralValues.has(value);
   });
 }
-
 
 function getFinderMetadataValue(product: FinderProduct, key: string) {
   const value = (product as FinderProduct & Record<string, unknown>)[key];
@@ -2728,9 +2739,9 @@ export function FinderPage() {
     <div className="pb-8">
       <PageHero
         eyebrow="Product Finder"
-        title="Find products from technical requirements, not room labels."
-        purpose="Use Finder as a technical selector. Start with the required feature or signal path: HDMI extension, USB transport, USB-C input, AVoIP, multiview, video wall processing, NDI camera integration, audio, or control."
-        nextMove="Pick the technical requirement first. Finder will infer the likely product family, then refine using signal type, connectors, distance, USB, processing, network, audio, and control."
+        title="Find products from filters, not room labels."
+        purpose="Start with one clear technical need. Finder will stay empty until the user chooses a filter, quick-start path, or search term."
+        nextMove="Select a quick-start filter or choose a technical requirement to begin."
         actions={[
           { label: "Load Discovery brief", variant: "secondary", onClick: applyDiscoveryBrief },
           { label: "Open projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
@@ -2739,7 +2750,7 @@ export function FinderPage() {
 
       <SectionCard
         title="Technical Product Finder"
-        subtitle="Feature-led filtering replaces room-type filtering. Product selection is driven by signal path, transport, processing, USB, network, audio, and control needs."
+        subtitle="Start with a technical requirement, quick-start filter, or SKU search. Products appear only after the user makes a selection."
       >
         <div className="grid gap-4">
           <div className="wm-finder-quickstart grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
@@ -2837,9 +2848,9 @@ export function FinderPage() {
                 <div className="grid min-h-[360px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
                   <div className="max-w-xl">
                     <PackageSearch className="mx-auto h-12 w-12 text-slate-300" />
-                    <h3 className="mt-4 text-xl font-black text-slate-950">Start with a technical requirement</h3>
+                    <h3 className="mt-4 text-xl font-black text-slate-950">No products shown yet</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Finder waits for a feature, signal path, connector, distance, USB, network, processing, audio, or control requirement before showing products.
+                      Use the filters on the left to start. Choose one technical requirement, quick-start button, SKU search, connector, distance, USB need, processing need, network requirement, audio path, or control requirement. Finder will then show matching WyreStorm products.
                     </p>
                   </div>
                 </div>

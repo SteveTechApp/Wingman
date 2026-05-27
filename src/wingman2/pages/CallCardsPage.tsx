@@ -1,738 +1,1329 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
-import { SectionCard } from "../components/SectionCard";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-type Audience = "End user" | "Dealer" | "Consultant";
-type CallCardCategory = "Discovery" | "Product" | "Competitor" | "Objection" | "Technology" | "Close";
+type WizardStep = "type" | "context" | "capture" | "handoff";
+type ConversationTypeId = "displayAttach" | "meetingRoom" | "productSku" | "competitor" | "supportRisk";
+type AudienceId = "endUser" | "dealer" | "consultant" | "internal";
+type CaptureStyle = "wholeConversation" | "questionLed";
+type LanguageId = "en-GB" | "nl-NL" | "zh-CN";
 
-type AnswerPair = {
-  question: string;
-  answer: string;
-};
-
-type ObjectionPair = {
-  objection: string;
-  response: string;
-};
-
-type CallCard = {
-  id: string;
+type ConversationType = {
+  id: ConversationTypeId;
   title: string;
-  category: CallCardCategory;
-  stage: string;
-  routeKey: WingmanRouteKey;
-  headline: string;
-  confidenceCue: string;
+  shortTitle: string;
+  description: string;
   opener: string;
-  discoveryQuestions: string[];
-  likelyQuestions: AnswerPair[];
-  wyrestormPositioning: string[];
-  competitorAwareness: string[];
-  objections: ObjectionPair[];
-  productPointers: string[];
-  nextMove: string;
-  audienceGuidance: Record<Audience, string>;
+  firstQuestion: string;
+  questions: string[];
+  route: string;
+  routeLabel: string;
+  likelyDirection: string[];
 };
 
-const audiences: Audience[] = ["End user", "Dealer", "Consultant"];
+type Audience = {
+  id: AudienceId;
+  label: string;
+  helper: string;
+};
 
-const callCards: CallCard[] = [
+type Language = {
+  id: LanguageId;
+  label: string;
+  speechLang: string;
+};
+
+type Interpretation = {
+  summary: string;
+  askNext: string;
+  missing: string[];
+  direction: string[];
+  suggestedType: ConversationTypeId;
+};
+
+const CONVERSATION_TYPES: ConversationType[] = [
   {
-    id: "meeting-room-byod",
-    title: "Meeting room / BYOD conversation",
-    category: "Product",
-    stage: "Qualify the room workflow",
-    routeKey: "discovery",
-    headline: "Help the customer describe how people actually join, present and share content.",
-    confidenceCue: "Anchor the call around user behaviour before discussing SKUs.",
+    id: "displayAttach",
+    title: "Display / LED / video wall add-on",
+    shortTitle: "Display / wall add-on",
+    description: "Use when the conversation starts from a display, LED wall, signage screen or video wall sale.",
+    opener: "The display is only one part of the job. Let us check what needs to feed it, control it and make it useful every day.",
+    firstQuestion: "What display, LED wall or video wall is already being sold?",
+    questions: [
+      "What display, LED wall or video wall is already being sold?",
+      "What sources need to feed it?",
+      "Where are those sources located?",
+      "Does it need switching, extension, processing, multiview or AV-over-IP?",
+      "Who controls the content day to day?"
+    ],
+    route: "/wingman/videowall",
+    routeLabel: "Open Video Wall",
+    likelyDirection: [
+      "Dedicated video wall processing if wall behaviour is fixed and defined.",
+      "NetworkHD if routing flexibility or future expansion matters.",
+      "Seamless matrix if fixed switching plus processing is a better fit."
+    ]
+  },
+  {
+    id: "meetingRoom",
+    title: "Meeting room / BYOD / BYOM",
+    shortTitle: "Meeting room",
+    description: "Use for meeting spaces, presentation rooms, UC rooms and USB-C / conferencing workflows.",
     opener: "Before we look at products, can I check how people actually use the room on a normal day?",
-    discoveryQuestions: [
-      "Do users bring laptops, use a room PC, or both?",
-      "Is the priority wired presentation, wireless presentation, conferencing, or all three?",
-      "How many displays are in the room and should they show the same or different content?",
-      "Are USB cameras, speakerphones, touch displays or interactive boards involved?",
-      "Where do the cables land: table, lectern, wall plate, floor box or rack?",
+    firstQuestion: "Do users bring laptops, use a room PC, or need both?",
+    questions: [
+      "Do users bring laptops, use a room PC, or need both?",
+      "Is the priority presentation, conferencing, or both?",
+      "How many displays are in the room?",
+      "Are USB cameras, touch displays or speakerphones involved?",
+      "Where do the cables land: table, lectern, wall plate, floor box or rack?"
     ],
-    likelyQuestions: [
-      {
-        question: "Can one device handle USB-C, HDMI, wireless and conferencing?",
-        answer: "Yes, in many meeting rooms the right presentation switcher or wireless conferencing product can reduce complexity by combining AV, USB and control into one room-core device.",
-      },
-      {
-        question: "Do we need AV-over-IP for this room?",
-        answer: "Not always. For a single room, a presentation switcher or HDBaseT extension path is often simpler and more cost-effective. AV-over-IP makes more sense when routing needs to expand across rooms or many endpoints.",
-      },
-      {
-        question: "What should we check before proposing?",
-        answer: "Confirm display count, USB device direction, camera/speakerphone requirements, cable route, distance and whether users expect BYOD, BYOM or fixed-room operation.",
-      },
-    ],
-    wyrestormPositioning: [
-      "Position WyreStorm around practical room workflow, not box count.",
-      "Use presentation switchers where the customer needs USB-C, HDMI, wireless or local switching.",
-      "Use NetworkHD where the room is part of a wider routed or distributed system.",
-    ],
-    competitorAwareness: [
-      "Competitor room products may look similar on input count but differ heavily on USB routing, MST, wireless conferencing and control.",
-      "Do not compare a simple switcher against a full room collaboration system without checking USB and conferencing behaviour.",
-    ],
-    objections: [
-      {
-        objection: "The customer only asked for HDMI switching.",
-        response: "That may be the immediate need, but it is worth checking USB-C, conferencing and future display expansion now to avoid a second redesign later.",
-      },
-      {
-        objection: "They already have Teams or Zoom in the room.",
-        response: "Good. Then we need to confirm how the room camera, audio and display switching connect to the meeting host.",
-      },
-    ],
-    productPointers: [
-      "SW-640L-TX-W / SW-620-TX-W for wireless presentation and conferencing-led rooms.",
-      "MX-0403-H3-MST where dual display, USB-C, MST and HDBaseT extension are needed.",
-      "SW-510-TX and SW-515-RX where presentation switching and HDBaseT transport are the focus.",
-    ],
-    nextMove: "Capture the room workflow in Discovery, then use Finder to narrow the product family.",
-    audienceGuidance: {
-      "End user": "Talk about meeting experience, fewer cables, reliable joining and easier day-to-day use.",
-      Dealer: "Talk about install simplicity, predictable wiring, supportability and upsell paths.",
-      Consultant: "Talk about topology, USB direction, signal routing, control, standards and expansion limits.",
-    },
+    route: "/wingman/discovery",
+    routeLabel: "Open Discovery",
+    likelyDirection: [
+      "Presentation switcher or UC-focused workflow if the room is local and user-led.",
+      "USB-aware switching if conferencing devices or touch devices must follow the source.",
+      "NetworkHD or HDBaseT if distance and topology push beyond a simple local room solution."
+    ]
   },
   {
-    id: "competitor-replacement",
-    title: "Competitor replacement conversation",
-    category: "Competitor",
-    stage: "Classify before matching",
-    routeKey: "compare",
-    headline: "Stop SKU-for-SKU guessing by first identifying technology class, role and application.",
-    confidenceCue: "Ask what job the competitor product is doing before offering an equivalent.",
-    opener: "Are we replacing that exact model, or is it being used as a reference for the type of solution required?",
-    discoveryQuestions: [
-      "Is the competitor product a switcher, extender, matrix, AV-over-IP endpoint, controller or processor?",
-      "Is it being used as a kit, and are receivers or accessories included?",
-      "What are the required input and output counts?",
-      "Which features are essential: USB, audio de-embed, ARC, scaling, Dante, control, video wall or multiview?",
-      "Is the customer tied to the competitor ecosystem or just looking for an equivalent outcome?",
+    id: "productSku",
+    title: "Product / SKU conversation",
+    shortTitle: "Product / SKU",
+    description: "Use when the customer starts by asking for a product, product family or exact SKU.",
+    opener: "Let me check the application first so we do not force the wrong product into the wrong job.",
+    firstQuestion: "Which product or SKU is the customer asking about?",
+    questions: [
+      "Which product or SKU is the customer asking about?",
+      "What job do they expect that product to do?",
+      "How many sources, displays or endpoints are involved?",
+      "What resolution, USB, audio, control or network features are required?",
+      "Is this like-for-like or should we recommend a better-fit option?"
     ],
-    likelyQuestions: [
-      {
-        question: "Can WyreStorm replace this competitor product?",
-        answer: "Possibly, but the correct match depends on technology class and application. A matrix kit must be compared with a matrix solution, not a single extender. An AV-over-IP transceiver must be compared with the right NetworkHD endpoint family.",
-      },
-      {
-        question: "Why is the WyreStorm SKU bigger than the competitor SKU?",
-        answer: "More inputs or outputs should not be a negative if the required function is covered. It may provide expansion headroom, but we should explain the commercial impact clearly.",
-      },
-      {
-        question: "Can we claim exact equivalence?",
-        answer: "Only after checking the required features, included accessories, control method, distance, resolution and ecosystem dependencies.",
-      },
-    ],
-    wyrestormPositioning: [
-      "Use Compare to classify role first: matrix, extender, AVoIP, presentation, controller or processor.",
-      "Position WyreStorm as application-equivalent, not always identical hardware-equivalent.",
-      "State assumptions clearly when the competitor bundle includes receivers, licences or control accessories.",
-    ],
-    competitorAwareness: [
-      "Competitor kits often include receivers; the WyreStorm BOM must include compatible receivers if not bundled.",
-      "Some competitor AVoIP endpoints are transceivers; do not compare them against only a decoder or only an encoder unless the use case is one-way.",
-      "Controller products should be compared to controller/control-layer products, not video endpoints.",
-    ],
-    objections: [
-      {
-        objection: "The competitor is a known brand.",
-        response: "Absolutely. The important point is whether the design requirement is brand-specific or outcome-specific. If it is outcome-specific, we can compare the topology and required functions objectively.",
-      },
-      {
-        objection: "WyreStorm has more I/O, so it is not like-for-like.",
-        response: "More I/O is additional capacity, not a mismatch. The key is whether the required I/O, transport and control features are met or exceeded.",
-      },
-    ],
-    productPointers: [
-      "NetworkHD 600 for premium 10G lossless AVoIP transceiver comparisons.",
-      "NetworkHD 500 for 1G 4K60 4:4:4 AVoIP with strong USB and Dante-ready workflows.",
-      "MXV / MX / SCL matrix families for true matrix requirements.",
-      "NHD-CTL-PRO v2 for NetworkHD control-layer comparisons.",
-    ],
-    nextMove: "Open Compare, classify the competitor product, then move the result into Proposal only when the confidence is high enough.",
-    audienceGuidance: {
-      "End user": "Avoid naming too many SKUs. Focus on the customer outcome and risk reduction.",
-      Dealer: "Talk about equivalent function, stockable alternatives, accessories and margin protection.",
-      Consultant: "Talk about matching by topology, I/O, transport, control API, latency, bandwidth and dependencies.",
-    },
+    route: "/wingman/finder",
+    routeLabel: "Open Finder",
+    likelyDirection: [
+      "Do not confirm a SKU until the application is clear.",
+      "Move into Product Finder after confirming the real use case.",
+      "Use Proposal only once dependencies are understood."
+    ]
   },
   {
-    id: "avoip-positioning",
-    title: "AV-over-IP positioning",
-    category: "Technology",
-    stage: "Choose architecture",
-    routeKey: "finder",
-    headline: "Explain when AV-over-IP is the right architecture and when it is not.",
-    confidenceCue: "Use AVoIP for flexibility, scale and routing, not as a default answer for every room.",
-    opener: "Is this a fixed room-to-display layout, or do sources and displays need to route flexibly now or in future?",
-    discoveryQuestions: [
-      "How many sources and displays need to be routed?",
-      "Is the system single-room, multi-room or building-wide?",
-      "What resolution, latency and image-quality expectations exist?",
-      "Does USB/KVM, Dante, video wall or multiview matter?",
-      "Is there an AV-ready network, or does the project need dedicated switching?",
+    id: "competitor",
+    title: "Competitor / replacement",
+    shortTitle: "Competitor",
+    description: "Use when WyreStorm is being compared with another manufacturer or legacy system.",
+    opener: "Let us compare the requirement, not just the logo on the box.",
+    firstQuestion: "What competitor product or existing system is involved?",
+    questions: [
+      "What competitor product or existing system is involved?",
+      "Is the decision technical, commercial or familiarity-led?",
+      "Which features are essential?",
+      "What would make the customer confident enough to choose WyreStorm?",
+      "Is stock, support, warranty or price driving the decision?"
     ],
-    likelyQuestions: [
-      {
-        question: "Why use AV-over-IP instead of a matrix?",
-        answer: "AV-over-IP is stronger when the system needs flexible routing, future expansion, distributed endpoints or integration with video wall and multiview workflows.",
-      },
-      {
-        question: "Which NetworkHD family should we discuss?",
-        answer: "NetworkHD 100 is cost-effective low-bandwidth 4K distribution. NetworkHD 500 is premium 1G 4K60 4:4:4 with strong USB. NetworkHD 600 is 10G lossless zero-latency for highest performance.",
-      },
-      {
-        question: "Do we need a special network switch?",
-        answer: "Yes, the network design matters. For NetworkHD 600, assume a suitable 10G AV network switch. For 1G systems, confirm multicast, VLAN, PoE and commissioning requirements.",
-      },
-    ],
-    wyrestormPositioning: [
-      "WyreStorm can scale from value 1G to premium 10G depending on performance need.",
-      "NetworkHD is strongest when the customer values routing flexibility, expansion and centralised management.",
-      "Do not oversell AVoIP where a simple switcher or HDBaseT extender is enough.",
-    ],
-    competitorAwareness: [
-      "Competitors may use encoder/decoder/transceiver language differently; always identify actual endpoint role.",
-      "Low bandwidth, visually lossless and lossless systems are not the same conversation.",
-      "Check whether USB, Dante, multiview or video wall features are native or require accessories/licences.",
-    ],
-    objections: [
-      {
-        objection: "AV-over-IP sounds complicated.",
-        response: "It can be, which is why we only recommend it where the flexibility justifies the network design. For simpler rooms, we keep the architecture simpler.",
-      },
-      {
-        objection: "The network team is nervous.",
-        response: "That is normal. We should define switch requirements, VLAN/multicast expectations and commissioning responsibility early.",
-      },
-    ],
-    productPointers: [
-      "NetworkHD 100: low-bandwidth and cost-effective 4K distribution.",
-      "NetworkHD 500: 4K60 4:4:4, ultra-low latency, USB and Dante-ready workflows.",
-      "NetworkHD 600: 10G lossless zero-latency transceiver architecture.",
-      "NHD-0401-MV and NHD-150-RX for specific multiview workflows.",
-    ],
-    nextMove: "Use Finder to choose NetworkHD family, then Discovery to capture endpoint count and network assumptions.",
-    audienceGuidance: {
-      "End user": "Talk about flexibility, future changes and reliability.",
-      Dealer: "Talk about scalable design, repeatable deployment and support expectations.",
-      Consultant: "Talk about bandwidth, latency, compression, multicast, VLANs, USB, Dante and control.",
-    },
+    route: "/wingman/compare",
+    routeLabel: "Open Compare",
+    likelyDirection: [
+      "Compare product purpose, not just port count.",
+      "Look for signal-path, USB, control and support differences.",
+      "Use Compare after the competitor SKU or family is clear."
+    ]
   },
   {
-    id: "hdbaset-matrix",
-    title: "HDBaseT matrix / kit conversation",
-    category: "Product",
-    stage: "Confirm routing and receiver bundle",
-    routeKey: "finder",
-    headline: "Protect against misclassifying matrix kits as simple extenders.",
-    confidenceCue: "A matrix kit is a routing system with receivers, not a point-to-point extender.",
-    opener: "Is this a matrix kit with multiple receivers, or a single extender path?",
-    discoveryQuestions: [
-      "How many HDMI inputs and HDBaseT outputs are required?",
-      "Are receivers included in the competitor kit or must they be added separately?",
-      "What distance is required at 4K and at 1080p?",
-      "Is audio de-embedding, ARC, IR, RS-232, Ethernet or PoH required?",
-      "Does the project need a 4x4 exact match, or is 8x8 acceptable for expansion?",
+    id: "supportRisk",
+    title: "Support / risk / warranty",
+    shortTitle: "Support / risk",
+    description: "Use when the conversation is about warranty, support confidence, project risk or customer-safe wording.",
+    opener: "Let us make sure the customer understands the support route and protection behind the system, not just the hardware price.",
+    firstQuestion: "What concern needs to be dealt with?",
+    questions: [
+      "What concern needs to be dealt with?",
+      "Who is asking and what stage is the project at?",
+      "Which products and region are involved?",
+      "Is this a pre-sale confidence issue or a post-sale support issue?",
+      "Do they need formal customer-facing wording?"
     ],
-    likelyQuestions: [
-      {
-        question: "Can we use a larger WyreStorm matrix?",
-        answer: "Yes. More inputs or outputs can be a benefit if the required function is met. We should explain that it provides expansion capacity and confirm budget impact.",
-      },
-      {
-        question: "Why not use an extender kit?",
-        answer: "A single extender kit does not replace a matrix kit. A matrix routes multiple sources to multiple displays and usually requires compatible receivers.",
-      },
-      {
-        question: "What should be included in the BOM?",
-        answer: "Include the matrix chassis, required receivers, control accessories, rack/power considerations and any audio/control dependencies.",
-      },
-    ],
-    wyrestormPositioning: [
-      "Use matrix-class WyreStorm products for matrix-class competitor kits.",
-      "Call out receiver dependencies clearly.",
-      "Treat additional WyreStorm I/O as expansion value, not a mismatch.",
-    ],
-    competitorAwareness: [
-      "Competitor kit SKUs may include receivers, which changes the commercial comparison.",
-      "Some matrix kits provide simultaneous HDMI and HDBaseT outputs on selected outputs; verify this before claiming equivalence.",
-      "Check if competitor outputs are HDBaseT 2.0, HDBaseT 3.0 or compressed variants.",
-    ],
-    objections: [
-      {
-        objection: "The competitor kit includes receivers.",
-        response: "Then we must include compatible WyreStorm receivers in the BOM or clearly state that they are separate.",
-      },
-      {
-        objection: "WyreStorm is 8x8 and they asked for 4x4.",
-        response: "That is not a technical problem if budget allows. It gives the customer spare capacity and avoids maxing out the system on day one.",
-      },
-    ],
-    productPointers: [
-      "MXV-0404-H2A-KIT / MX-0404-KIT / MX-0808-KIT-V2 where kit-style comparison is required.",
-      "MXV-0808-H2A-V3 / MXV-0808-H2A-70-V3 for larger HDBaseT matrix requirements.",
-      "Check compatible receiver SKUs and distance class before proposal.",
-    ],
-    nextMove: "Use Finder for matrix family selection, then Proposal for a kit-aware BOM.",
-    audienceGuidance: {
-      "End user": "Talk about routing flexibility and included display locations.",
-      Dealer: "Talk about kit contents, receivers, stock availability and installation clarity.",
-      Consultant: "Talk about I/O count, distance, receiver class, PoH, control paths and audio features.",
-    },
-  },
-  {
-    id: "video-wall",
-    title: "Video wall opportunity",
-    category: "Technology",
-    stage: "Choose processor vs matrix vs AVoIP",
-    routeKey: "videowall",
-    headline: "Clarify wall behaviour before selecting product family.",
-    confidenceCue: "Do not assume every wall needs AV-over-IP.",
-    opener: "Is the wall mainly one large image, multiple sources, signage, monitoring or mixed layouts?",
-    discoveryQuestions: [
-      "What is the wall layout: 2x2, 3x3, 1x4, LED canvas or custom?",
-      "How many sources need to appear at once?",
-      "Does the customer need full canvas, multiview, presets or per-display routing?",
-      "Is latency critical?",
-      "Is this LCD, LED or projection?",
-    ],
-    likelyQuestions: [
-      {
-        question: "Should we use AV-over-IP for a video wall?",
-        answer: "Sometimes. AV-over-IP is strong when the wall is part of a flexible routed system. A dedicated processor can be simpler and better value for fixed wall behaviour.",
-      },
-      {
-        question: "What is the difference between video wall and multiview?",
-        answer: "Video wall spreads image content across displays. Multiview combines multiple sources into one display or canvas layout. Some systems can do both, but they are different requirements.",
-      },
-      {
-        question: "What must we know before quoting?",
-        answer: "Wall size, source count, layout behaviour, resolution, bezel/LED requirements, control method and whether the wall needs future expansion.",
-      },
-    ],
-    wyrestormPositioning: [
-      "Consider SW-0206-VW and SW-0204-VW for dedicated non-AVoIP wall processing.",
-      "Use NetworkHD 500 or 600 where the wall is part of a routed distributed architecture.",
-      "Use NHD-0401-MV where advanced multiview composition is the real requirement.",
-    ],
-    competitorAwareness: [
-      "Some competitor endpoints advertise video wall support, but that does not make them dedicated processors.",
-      "Check whether the competitor supports free layout, fixed presets, rotation, bezel correction or cascading.",
-    ],
-    objections: [
-      {
-        objection: "The customer just asked for a video wall.",
-        response: "That is a display outcome, not enough to select architecture. We need to know whether it is one image, many images, or a flexible operating mode.",
-      },
-      {
-        objection: "AV-over-IP feels more flexible.",
-        response: "It is, but it can add network complexity. If the behaviour is fixed, a processor may be cleaner.",
-      },
-    ],
-    productPointers: [
-      "SW-0206-VW for dedicated flexible video wall processing.",
-      "SW-0204-VW for simpler preset wall layouts.",
-      "NetworkHD 500/600 for routed walls and distributed systems.",
-      "NHD-0401-MV for NetworkHD 500 multiview workflows.",
-    ],
-    nextMove: "Open Video Wall Builder and define wall size, source count and layout behaviour.",
-    audienceGuidance: {
-      "End user": "Talk about how they want the wall to look and operate day to day.",
-      Dealer: "Talk about installation complexity, commissioning and display/source count.",
-      Consultant: "Talk about processing mode, scaling, latency, wall layouts, rotation and control.",
-    },
-  },
-  {
-    id: "objection-price",
-    title: "Price and value objection",
-    category: "Objection",
-    stage: "Defend value without being defensive",
-    routeKey: "proposal",
-    headline: "Move the conversation from box price to risk, usability and system outcome.",
-    confidenceCue: "Do not apologise for value. Explain what the system protects.",
-    opener: "I understand price matters. Can we separate the hardware cost from the risk of the system not doing what users need?",
-    discoveryQuestions: [
-      "Which part of the proposal feels high: hardware, accessories, installation or system scope?",
-      "Is the customer comparing like-for-like including receivers, USB, control and support?",
-      "What happens if the selected product cannot handle the real room workflow?",
-      "Is future expansion likely?",
-    ],
-    likelyQuestions: [
-      {
-        question: "Why is this more expensive?",
-        answer: "Usually because the WyreStorm solution may include additional capability, better routing flexibility, stronger USB/control support or required accessories that were not included in the comparison.",
-      },
-      {
-        question: "Can we reduce cost?",
-        answer: "Yes, but we should value-engineer deliberately: reduce features that are not needed, avoid removing critical transport, USB, control or receiver requirements.",
-      },
-      {
-        question: "How do we justify the recommendation?",
-        answer: "Tie the recommendation back to the room workflow, reliability, supportability and the cost of rework if the wrong product is chosen.",
-      },
-    ],
-    wyrestormPositioning: [
-      "Position WyreStorm as practical, reliable and application-led.",
-      "Show where the recommendation reduces risk: compatibility, installation clarity, support and future changes.",
-      "Offer a value-engineered option only after identifying what can safely be removed.",
-    ],
-    competitorAwareness: [
-      "Competitor comparisons often omit accessories, licences, receivers or control components.",
-      "A cheaper product may be adequate if the requirement is simpler. Do not oversell when a simpler architecture fits.",
-    ],
-    objections: [
-      {
-        objection: "The competitor is cheaper.",
-        response: "It may be. The fair comparison is whether both proposals include the same signal paths, accessories, control, USB and support requirements.",
-      },
-      {
-        objection: "We do not need all those features.",
-        response: "That is fine. Let us identify which features are essential and which can be removed without creating risk.",
-      },
-    ],
-    productPointers: [
-      "Use tiered options: simple, balanced and premium.",
-      "Use NetworkHD 100 vs 500 vs 600 as a value ladder.",
-      "Use dedicated processors or HDBaseT where they are simpler than AVoIP.",
-    ],
-    nextMove: "Open Proposal and create a clear base option plus value-engineered alternative.",
-    audienceGuidance: {
-      "End user": "Talk about reliability, usability and avoiding wasted spend.",
-      Dealer: "Talk about complete BOM, fewer surprises and margin-safe alternatives.",
-      Consultant: "Talk about scope control, feature trade-offs and risk register assumptions.",
-    },
-  },
+    route: "/wingman/proposal",
+    routeLabel: "Open Proposal",
+    likelyDirection: [
+      "Do not invent official warranty or SLA wording.",
+      "Capture the concern cleanly and move into proposal-safe output.",
+      "Use Support or Proposal once the exact concern is understood."
+    ]
+  }
 ];
 
-function escapeStarterSvgText(value: string): string {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+const AUDIENCES: Audience[] = [
+  { id: "endUser", label: "End user", helper: "Simple and outcome-led language." },
+  { id: "dealer", label: "Dealer / reseller", helper: "Practical and commercial language." },
+  { id: "consultant", label: "Consultant / designer", helper: "More technical and architecture-led." },
+  { id: "internal", label: "Internal sales / pre-sales", helper: "Structured and qualification-led." }
+];
+
+const LANGUAGES: Language[] = [
+  { id: "en-GB", label: "English UK", speechLang: "en-GB" },
+  { id: "nl-NL", label: "Dutch", speechLang: "nl-NL" },
+  { id: "zh-CN", label: "Mandarin", speechLang: "zh-CN" }
+];
+
+function getConversationType(id: ConversationTypeId) {
+  return CONVERSATION_TYPES.find((item) => item.id === id) ?? CONVERSATION_TYPES[0];
 }
 
-function starterCardScene(card: CallCard): string {
-  if (card.category === "Competitor") return "competitor";
-  if (card.category === "Objection") return "objection";
-  if (card.id.includes("video")) return "videowall";
-  if (card.id.includes("matrix")) return "matrix";
-  if (card.id.includes("avoip")) return "network";
-  if (card.id.includes("meeting")) return "meeting";
-  return "generic";
+function getAudience(id: AudienceId) {
+  return AUDIENCES.find((item) => item.id === id) ?? AUDIENCES[1];
 }
 
-function starterCardVisual(card: CallCard): string {
-  const scene = starterCardScene(card);
-  const title = escapeStarterSvgText(card.title);
+function getLanguage(id: LanguageId) {
+  return LANGUAGES.find((item) => item.id === id) ?? LANGUAGES[0];
+}
 
-  const sceneMarkup: Record<string, string> = {
-    meeting: '<rect x="35" y="28" width="130" height="72" rx="12" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.28)" /><rect x="56" y="45" width="88" height="36" rx="7" fill="rgba(255,255,255,0.12)" /><rect x="70" y="112" width="60" height="16" rx="8" fill="rgba(255,255,255,0.18)" /><circle cx="54" cy="120" r="10" fill="rgba(255,255,255,0.18)" /><circle cx="146" cy="120" r="10" fill="rgba(255,255,255,0.18)" />',
-    competitor: '<rect x="28" y="40" width="56" height="56" rx="12" fill="rgba(255,255,255,0.13)" stroke="rgba(255,255,255,0.28)" /><rect x="116" y="40" width="56" height="56" rx="12" fill="rgba(255,255,255,0.13)" stroke="rgba(255,255,255,0.28)" /><path d="M86 68h28" stroke="rgba(255,255,255,0.34)" stroke-width="8" stroke-linecap="round" /><path d="M104 58l12 10-12 10" stroke="rgba(255,255,255,0.40)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" />',
-    videowall: '<rect x="36" y="24" width="128" height="88" rx="12" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.30)" /><path d="M100 24v88M36 68h128" stroke="rgba(255,255,255,0.24)" /><rect x="50" y="38" width="36" height="20" rx="4" fill="rgba(255,255,255,0.10)" /><rect x="114" y="80" width="36" height="20" rx="4" fill="rgba(255,255,255,0.10)" />',
-    matrix: '<circle cx="44" cy="42" r="8" fill="rgba(255,255,255,0.24)" /><circle cx="44" cy="74" r="8" fill="rgba(255,255,255,0.24)" /><circle cx="44" cy="106" r="8" fill="rgba(255,255,255,0.24)" /><circle cx="156" cy="42" r="8" fill="rgba(255,255,255,0.24)" /><circle cx="156" cy="74" r="8" fill="rgba(255,255,255,0.24)" /><circle cx="156" cy="106" r="8" fill="rgba(255,255,255,0.24)" /><rect x="82" y="34" width="36" height="80" rx="10" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.28)" /><path d="M52 42h30M52 74h30M52 106h30M118 42h30M118 74h30M118 106h30" stroke="rgba(255,255,255,0.26)" />',
-    network: '<rect x="36" y="34" width="34" height="34" rx="9" fill="rgba(255,255,255,0.16)" /><rect x="130" y="34" width="34" height="34" rx="9" fill="rgba(255,255,255,0.16)" /><rect x="36" y="94" width="34" height="34" rx="9" fill="rgba(255,255,255,0.16)" /><rect x="130" y="94" width="34" height="34" rx="9" fill="rgba(255,255,255,0.16)" /><circle cx="100" cy="80" r="17" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.28)" /><path d="M70 51l18 18M130 51l-18 18M70 111l18-18M130 111l-18-18" stroke="rgba(255,255,255,0.30)" stroke-width="6" stroke-linecap="round" />',
-    objection: '<rect x="42" y="36" width="116" height="70" rx="16" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.30)" /><path d="M62 60h76M62 78h56M62 96h70" stroke="rgba(255,255,255,0.26)" stroke-width="7" stroke-linecap="round" /><circle cx="156" cy="44" r="18" fill="rgba(255,255,255,0.12)" /><path d="M150 44h12M156 38v12" stroke="rgba(255,255,255,0.36)" stroke-width="4" stroke-linecap="round" />',
-    generic: '<rect x="38" y="32" width="124" height="80" rx="16" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.28)" /><path d="M60 56h80M60 76h54M60 96h70" stroke="rgba(255,255,255,0.24)" stroke-width="7" stroke-linecap="round" />',
+function includesAny(text: string, terms: string[]) {
+  return terms.some((term) => text.includes(term));
+}
+
+function interpretConversation(
+  transcript: string,
+  clue: string,
+  selectedType: ConversationTypeId
+): Interpretation {
+  const text = `${clue}\n${transcript}`.toLowerCase();
+
+  let suggestedType: ConversationTypeId = selectedType;
+  let summary = "Wingman is waiting for a clearer requirement before it narrows the opportunity.";
+  let askNext = getConversationType(selectedType).firstQuestion;
+  let missing = ["source count", "source locations", "signal path", "control method"];
+  let direction = getConversationType(selectedType).likelyDirection;
+
+  const wallDetected = includesAny(text, ["led wall", "video wall", "videowall", "lcd wall", "3x3", "2x2", "menu board", "signage"]);
+  const meetingDetected = includesAny(text, ["meeting room", "boardroom", "teams", "zoom", "byod", "byom", "usb-c", "camera", "speakerphone", "touch display"]);
+  const productDetected = includesAny(text, ["sku", "nhd", "networkhd", "hdbaset", "apollo", "matrix", "switcher", "receiver", "transmitter"]);
+  const competitorDetected = includesAny(text, ["hdanywhere", "just add power", "jap", "kramer", "blustream", "competitor", "replacement"]);
+  const supportDetected = includesAny(text, ["warranty", "support", "sla", "fault", "failure", "risk", "tender"]);
+
+  if (wallDetected) {
+    suggestedType = "displayAttach";
+    summary = "This sounds like a display-led opportunity where WyreStorm can attach signal management, wall processing or routing.";
+    askNext = "What sources need to feed the wall, and where are they located?";
+    missing = ["source count", "source locations", "wall size / layout", "control method", "cable distance"];
+    direction = getConversationType("displayAttach").likelyDirection;
+  }
+
+  if (meetingDetected) {
+    suggestedType = "meetingRoom";
+    summary = "This sounds like a meeting-room workflow with presentation, USB and conferencing decisions.";
+    askNext = "Do users bring laptops, use a room PC, or need both?";
+    missing = ["display count", "USB requirement", "camera / audio requirement", "cable landing point"];
+    direction = getConversationType("meetingRoom").likelyDirection;
+  }
+
+  if (productDetected && !wallDetected && !meetingDetected) {
+    suggestedType = "productSku";
+    summary = "The customer is asking about a product, but the application still needs qualifying.";
+    askNext = "What job does the customer expect that product to do?";
+    missing = ["application", "source / display count", "USB / audio / control requirement"];
+    direction = getConversationType("productSku").likelyDirection;
+  }
+
+  if (competitorDetected) {
+    suggestedType = "competitor";
+    summary = "This sounds like a competitor or legacy-system comparison and needs purpose-based matching.";
+    askNext = "What competitor product or existing system is involved?";
+    missing = ["competitor model", "must-have features", "decision driver"];
+    direction = getConversationType("competitor").likelyDirection;
+  }
+
+  if (supportDetected) {
+    suggestedType = "supportRisk";
+    summary = "This sounds like a support, warranty or risk-confidence conversation.";
+    askNext = "What is the exact concern and who is asking it?";
+    missing = ["exact concern", "product / region", "customer-safe wording needed?"];
+    direction = getConversationType("supportRisk").likelyDirection;
+  }
+
+  return {
+    summary,
+    askNext,
+    missing,
+    direction,
+    suggestedType
   };
-
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="720" height="405" viewBox="0 0 200 150">
-      <defs>
-        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#111827" />
-          <stop offset="55%" stop-color="#1e3a5f" />
-          <stop offset="100%" stop-color="#f59e0b" />
-        </linearGradient>
-      </defs>
-      <rect width="200" height="150" rx="18" fill="url(#bg)" />
-      <circle cx="170" cy="20" r="30" fill="rgba(255,255,255,0.08)" />
-      <circle cx="24" cy="132" r="36" fill="rgba(255,255,255,0.06)" />
-      ${sceneMarkup[scene] || sceneMarkup.generic}
-      <rect x="16" y="120" width="168" height="18" rx="9" fill="rgba(0,0,0,0.24)" />
-      <text x="24" y="133" font-family="Inter, Arial, sans-serif" font-size="9" font-weight="800" fill="rgba(255,255,255,0.94)">${title.slice(0, 35)}</text>
-    </svg>
-  `;
-
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-}
-
-function cardSearchText(card: CallCard): string {
-  return [
-    card.title,
-    card.category,
-    card.stage,
-    card.headline,
-    card.discoveryQuestions.join(" "),
-    card.productPointers.join(" "),
-    card.competitorAwareness.join(" "),
-    card.objections.map((item) => `${item.objection} ${item.response}`).join(" "),
-  ].join(" ").toLowerCase();
-}
-
-function CardList({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="wingman-kicker">{title}</p>
-      <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
-        {items.map((item) => (
-          <li key={item} className="flex gap-2">
-            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function AnswerList({ items }: { items: AnswerPair[] }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="wingman-kicker">Likely questions and confident answers</p>
-      <div className="mt-3 space-y-3">
-        {items.map((item) => (
-          <div key={item.question} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
-            <p className="text-sm font-semibold text-slate-950">{item.question}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-700">{item.answer}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ObjectionList({ items }: { items: ObjectionPair[] }) {
-  return (
-    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
-      <p className="wingman-kicker text-amber-900">Objection handling</p>
-      <div className="mt-3 space-y-3">
-        {items.map((item) => (
-          <div key={item.objection} className="rounded-xl border border-amber-200 bg-white p-3">
-            <p className="text-sm font-semibold text-slate-950">{item.objection}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-700">{item.response}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 export function CallCardsPage() {
-  const [activeId, setActiveId] = useState(callCards[0].id);
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<CallCardCategory | "All">("All");
-  const [audience, setAudience] = useState<Audience>("Dealer");
+  const navigate = useNavigate();
+  const recognitionRef = useRef<any>(null);
 
-  const activeCard = useMemo(() => {
-    return callCards.find((card) => card.id === activeId) || callCards[0];
-  }, [activeId]);
+  const [step, setStep] = useState<WizardStep>("type");
+  const [conversationTypeId, setConversationTypeId] = useState<ConversationTypeId>("displayAttach");
+  const [audienceId, setAudienceId] = useState<AudienceId>("dealer");
+  const [languageId, setLanguageId] = useState<LanguageId>("en-GB");
+  const [captureStyle, setCaptureStyle] = useState<CaptureStyle>("wholeConversation");
+  const [clue, setClue] = useState("");
+  const [transcript, setTranscript] = useState("");
+  const [notes, setNotes] = useState("");
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [listening, setListening] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [copied, setCopied] = useState(false);
 
-  const filteredCards = useMemo(() => {
-    const cleanQuery = query.trim().toLowerCase();
+  const conversationType = getConversationType(conversationTypeId);
+  const audience = getAudience(audienceId);
+  const language = getLanguage(languageId);
 
-    return callCards.filter((card) => {
-      const categoryMatches = category === "All" || card.category === category;
-      const queryMatches = !cleanQuery || cardSearchText(card).includes(cleanQuery);
-      return categoryMatches && queryMatches;
-    });
-  }, [category, query]);
+  const interpretation = useMemo(() => {
+    return interpretConversation(transcript, clue, conversationTypeId);
+  }, [transcript, clue, conversationTypeId]);
 
-  const categories = useMemo(() => {
-    return ["All", ...Array.from(new Set(callCards.map((card) => card.category)))] as Array<CallCardCategory | "All">;
+  const currentQuestion = conversationType.questions[questionIndex] ?? conversationType.firstQuestion;
+
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
   }, []);
 
+  useEffect(() => {
+    setQuestionIndex(0);
+  }, [conversationTypeId, captureStyle]);
+
+  const appendText = (text: string) => {
+    const cleanText = text.trim();
+
+    if (!cleanText) {
+      return;
+    }
+
+    setTranscript((current) => {
+      const prefix = current.trim() ? `${current.trim()}\n` : "";
+      return `${prefix}${cleanText}`;
+    });
+  };
+
+  const saveSession = () => {
+    try {
+      window.localStorage.setItem(
+        "wingman.liveCallAssistant.latest",
+        JSON.stringify({
+          createdAt: new Date().toISOString(),
+          step,
+          conversationTypeId,
+          audienceId,
+          languageId,
+          captureStyle,
+          clue,
+          transcript,
+          notes,
+          interpretation
+        })
+      );
+    } catch {
+      setStatusMessage("Could not save locally, but you can still continue.");
+    }
+  };
+
+  const goToRoute = (path: string) => {
+    saveSession();
+    navigate(path);
+  };
+
+  const copySummary = () => {
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+      setStatusMessage("Copy is not available in this browser.");
+      return;
+    }
+
+    const summary = [
+      `Conversation type: ${conversationType.title}`,
+      `Audience: ${audience.label}`,
+      `Language: ${language.label}`,
+      `Capture style: ${captureStyle === "wholeConversation" ? "Whole conversation" : "Question-led"}`,
+      clue.trim() ? `Clue: ${clue.trim()}` : "",
+      "",
+      `Wingman summary: ${interpretation.summary}`,
+      `Ask next: ${interpretation.askNext}`,
+      interpretation.missing.length ? `Missing: ${interpretation.missing.join(", ")}` : "",
+      "",
+      "Transcript / captured detail:",
+      transcript.trim() || "(none)",
+      "",
+      "Notes:",
+      notes.trim() || "(none)"
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    void navigator.clipboard.writeText(summary).then(() => {
+      setCopied(true);
+      setStatusMessage("Call summary copied.");
+      window.setTimeout(() => setCopied(false), 1400);
+    });
+  };
+
+  const toggleMic = () => {
+    setStatusMessage("");
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (listening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setListening(false);
+      setStatusMessage("Microphone stopped.");
+      return;
+    }
+
+    const SpeechRecognitionConstructor =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionConstructor) {
+      setStatusMessage("Voice capture is not available in this browser. Use Chrome or Edge.");
+      return;
+    }
+
+    const recognition = new SpeechRecognitionConstructor();
+    recognition.lang = language.speechLang;
+    recognition.interimResults = true;
+    recognition.continuous = true;
+
+    recognition.onstart = () => {
+      setListening(true);
+      setLiveTranscript("");
+      setStatusMessage(`Listening in ${language.label}.`);
+    };
+
+    recognition.onresult = (event: any) => {
+      let interimText = "";
+      let finalText = "";
+
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        const transcriptChunk = event.results[index][0]?.transcript ?? "";
+
+        if (event.results[index].isFinal) {
+          finalText += transcriptChunk;
+        }
+
+        if (!event.results[index].isFinal) {
+          interimText += transcriptChunk;
+        }
+      }
+
+      setLiveTranscript(interimText.trim());
+
+      if (finalText.trim()) {
+        if (captureStyle === "questionLed") {
+          const prefixed = `Q${questionIndex + 1}: ${currentQuestion}\nA: ${finalText.trim()}`;
+          appendText(prefixed);
+        }
+
+        if (captureStyle === "wholeConversation") {
+          appendText(finalText.trim());
+        }
+
+        setLiveTranscript("");
+      }
+    };
+
+    recognition.onerror = () => {
+      setListening(false);
+      setStatusMessage("Voice capture stopped or microphone permission was blocked.");
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+      setLiveTranscript("");
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const shiftConversation = (targetId: ConversationTypeId) => {
+    setConversationTypeId(targetId);
+    setQuestionIndex(0);
+    setStatusMessage(`Conversation shifted to ${getConversationType(targetId).shortTitle}.`);
+  };
+
+  const startNewCall = () => {
+    setStep("type");
+    setConversationTypeId("displayAttach");
+    setAudienceId("dealer");
+    setLanguageId("en-GB");
+    setCaptureStyle("wholeConversation");
+    setClue("");
+    setTranscript("");
+    setNotes("");
+    setQuestionIndex(0);
+    setStatusMessage("");
+    setLiveTranscript("");
+  };
+
   return (
-    <div className="pb-4">
-      <SectionCard
-        title="Live call command centre"
-        subtitle="Choose the conversation type and audience. Keep the answer panel open while speaking to the customer."
-      >
-        <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
-          <div className="space-y-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <label className="grid gap-2">
-                <span className="wingman-kicker">Find a card</span>
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search product, objection, competitor, room type..."
-                  className="rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-amber-500"
-                />
-              </label>
+    <main className="cca-page">
+      <style>{pageStyles}</style>
 
-              <div className="mt-4">
-                <p className="wingman-kicker">Conversation type</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {categories.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => setCategory(item)}
-                      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                        category === item ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
+      <section className="cca-shell">
+        <header className="cca-header">
+          <div>
+            <p>Wingman workspace</p>
+            <h1>Live Call Wizard</h1>
+            <span>Pick the conversation type, capture the call, then move the opportunity into the right workflow.</span>
+          </div>
+        </header>
 
-              <div className="mt-4">
-                <p className="wingman-kicker">Audience mode</p>
-                <div className="mt-2 grid grid-cols-3 gap-2">
-                  {audiences.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => setAudience(item)}
-                      className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
-                        audience === item ? "bg-amber-500 text-slate-950" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+        <nav className="cca-stepper" aria-label="Live call wizard steps">
+          <button type="button" className={step === "type" ? "is-active" : ""} onClick={() => setStep("type")}>
+            <strong>1</strong>
+            <span>Choose type</span>
+          </button>
+          <button type="button" className={step === "context" ? "is-active" : ""} onClick={() => setStep("context")}>
+            <strong>2</strong>
+            <span>Set context</span>
+          </button>
+          <button type="button" className={step === "capture" ? "is-active" : ""} onClick={() => setStep("capture")}>
+            <strong>3</strong>
+            <span>Capture</span>
+          </button>
+          <button type="button" className={step === "handoff" ? "is-active" : ""} onClick={() => setStep("handoff")}>
+            <strong>4</strong>
+            <span>Hand off</span>
+          </button>
+        </nav>
 
-            <div className="grid gap-3">
-              {filteredCards.map((card) => (
+        {step === "type" ? (
+          <section className="cca-card">
+            <p className="cca-kicker">Step 1 of 4</p>
+            <h2>What is this call mainly about?</h2>
+            <p className="cca-lead">Choose the conversation type first. This lets Wingman switch quickly to the right question style and next-step route.</p>
+
+            <div className="cca-typeGrid">
+              {CONVERSATION_TYPES.map((item) => (
                 <button
-                  key={card.id}
+                  key={item.id}
                   type="button"
-                  onClick={() => setActiveId(card.id)}
-                  className={`overflow-hidden rounded-2xl border text-left shadow-sm transition ${
-                    activeCard.id === card.id
-                      ? "border-amber-400 bg-amber-50 ring-2 ring-amber-300"
-                      : "border-slate-200 bg-white hover:border-slate-300"
-                  }`}
+                  className={conversationTypeId === item.id ? "is-selected" : ""}
+                  onClick={() => setConversationTypeId(item.id)}
                 >
-                  <div
-                    className="h-28 bg-cover bg-center"
-                    aria-hidden="true"
-                    style={{ backgroundImage: `url(${starterCardVisual(card)})` }}
-                  />
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-bold text-slate-950">{card.title}</p>
-                        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{card.category}</p>
-                      </div>
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[0.68rem] font-bold text-slate-700">
-                        {card.stage}
-                      </span>
-                    </div>
-                    <p className="mt-3 text-sm leading-5 text-slate-700">{card.headline}</p>
-                  </div>
+                  <strong>{item.title}</strong>
+                  <span>{item.description}</span>
                 </button>
               ))}
             </div>
-          </div>
 
-          <div className="space-y-4">
-            <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <p className="wingman-kicker">Active call card</p>
-                  <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950">{activeCard.title}</h2>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-700">{activeCard.confidenceCue}</p>
-                </div>
+            <footer className="cca-footer">
+              <span>Selected: {conversationType.title}</span>
+              <button type="button" className="cca-primary" onClick={() => setStep("context")}>Continue</button>
+            </footer>
+          </section>
+        ) : null}
 
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    to={routeCatalogByKey[activeCard.routeKey].path}
-                    className="inline-flex rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+        {step === "context" ? (
+          <section className="cca-card">
+            <p className="cca-kicker">Step 2 of 4</p>
+            <h2>Set the call context</h2>
+            <p className="cca-lead">Choose who you are talking to and how you want to capture the conversation.</p>
+
+            <div className="cca-section">
+              <h3>Who are you talking to?</h3>
+              <div className="cca-chipRow">
+                {AUDIENCES.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={audienceId === item.id ? "is-selected" : ""}
+                    onClick={() => setAudienceId(item.id)}
                   >
-                    Open {routeCatalogByKey[activeCard.routeKey].label}
-                  </Link>
-                  <Link
-                    to={routeCatalogByKey.proposal.path}
-                    className="inline-flex rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <p className="cca-helper">{audience.helper}</p>
+            </div>
+
+            <div className="cca-twoCols">
+              <label className="cca-field">
+                <span>Language</span>
+                <select value={languageId} onChange={(event) => setLanguageId(event.target.value as LanguageId)}>
+                  {LANGUAGES.map((item) => (
+                    <option key={item.id} value={item.id}>{item.label}</option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="cca-field">
+                <span>Capture style</span>
+                <div className="cca-chipRow">
+                  <button
+                    type="button"
+                    className={captureStyle === "wholeConversation" ? "is-selected" : ""}
+                    onClick={() => setCaptureStyle("wholeConversation")}
                   >
-                    Proposal
-                  </Link>
+                    Whole conversation
+                  </button>
+                  <button
+                    type="button"
+                    className={captureStyle === "questionLed" ? "is-selected" : ""}
+                    onClick={() => setCaptureStyle("questionLed")}
+                  >
+                    Question-led
+                  </button>
                 </div>
               </div>
+            </div>
 
-              <div className="wm-callcard-action-grid" aria-label="Call card handoff actions">
-                <Link to={routeCatalogByKey.discovery.path} className="wm-callcard-action-card">
-                  <span>Discovery</span>
-                  <small>Capture requirements</small>
-                </Link>
-                <Link to={routeCatalogByKey.finder.path} className="wm-callcard-action-card">
-                  <span>Finder</span>
-                  <small>Choose WyreStorm products</small>
-                </Link>
-                <Link to={routeCatalogByKey.compare.path} className="wm-callcard-action-card">
-                  <span>Compare</span>
-                  <small>Handle competitor SKUs</small>
-                </Link>
-                <Link to={routeCatalogByKey.videowall.path} className="wm-callcard-action-card">
-                  <span>Video Wall</span>
-                  <small>Qualify wall behaviour</small>
-                </Link>
-                <Link to={routeCatalogByKey.proposal.path} className="wm-callcard-action-card wm-callcard-action-card-primary">
-                  <span>Proposal</span>
-                  <small>Turn call into output</small>
-                </Link>
-              </div>
-              <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                <p className="wingman-kicker text-amber-900">Say this first</p>
-                <p className="mt-2 text-lg font-semibold leading-7 text-slate-950">"{activeCard.opener}"</p>
+            <label className="cca-field">
+              <span>Starting clue</span>
+              <input
+                value={clue}
+                onChange={(event) => setClue(event.target.value)}
+                placeholder={conversationType.firstQuestion}
+              />
+            </label>
+
+            <footer className="cca-footer">
+              <button type="button" onClick={() => setStep("type")}>Back</button>
+              <span>Next: start capturing the conversation.</span>
+              <button type="button" className="cca-primary" onClick={() => setStep("capture")}>Start capture</button>
+            </footer>
+          </section>
+        ) : null}
+
+        {step === "capture" ? (
+          <section className="cca-liveCard">
+            <div className="cca-liveHeader">
+              <div>
+                <p className="cca-kicker">Step 3 of 4</p>
+                <h2>Capture the conversation</h2>
+                <p className="cca-lead">
+                  {captureStyle === "wholeConversation"
+                    ? "Open mic and capture the whole discussion. Wingman will suggest the next question and likely direction."
+                    : "Use the current prompt, capture the response, then move to the next question."}
+                </p>
               </div>
 
-              <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4">
-                <p className="wingman-kicker text-sky-900">Speak to this audience</p>
-                <p className="mt-2 text-sm leading-6 text-slate-800">{activeCard.audienceGuidance[audience]}</p>
+              <div className="cca-quickShift">
+                <span>Shift conversation to</span>
+                <div className="cca-chipRow">
+                  {CONVERSATION_TYPES.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={conversationTypeId === item.id ? "is-selected" : ""}
+                      onClick={() => shiftConversation(item.id)}
+                    >
+                      {item.shortTitle}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-2">
-              <CardList title="Ask these next" items={activeCard.discoveryQuestions} />
-              <CardList title="WyreStorm positioning" items={activeCard.wyrestormPositioning} />
-              <AnswerList items={activeCard.likelyQuestions} />
-              <ObjectionList items={activeCard.objections} />
-              <CardList title="Competitor awareness" items={activeCard.competitorAwareness} />
-              <CardList title="Product pointers" items={activeCard.productPointers} />
+            <div className="cca-liveLayout">
+              <section className="cca-capturePanel">
+                {captureStyle === "questionLed" ? (
+                  <article className="cca-questionCard">
+                    <span>Ask this now</span>
+                    <h3>{currentQuestion}</h3>
+                    <div className="cca-questionActions">
+                      <button
+                        type="button"
+                        onClick={() => setQuestionIndex((current) => Math.max(0, current - 1))}
+                        disabled={questionIndex === 0}
+                      >
+                        Previous
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQuestionIndex((current) => Math.min(conversationType.questions.length - 1, current + 1))}
+                        disabled={questionIndex === conversationType.questions.length - 1}
+                      >
+                        Next question
+                      </button>
+                    </div>
+                  </article>
+                ) : null}
+
+                <button type="button" className={listening ? "cca-openMic is-listening" : "cca-openMic"} onClick={toggleMic}>
+                  {listening ? "Stop mic" : "Open mic"}
+                </button>
+
+                <label className="cca-field cca-grow">
+                  <span>Captured conversation</span>
+                  <textarea
+                    value={transcript}
+                    onChange={(event) => setTranscript(event.target.value)}
+                    placeholder={
+                      captureStyle === "wholeConversation"
+                        ? "Transcript appears here. You can also paste a meeting transcript or type a summary."
+                        : "Captured answers appear here. You can also type notes manually."
+                    }
+                  />
+                </label>
+
+                <label className="cca-field">
+                  <span>Extra notes</span>
+                  <textarea
+                    className="cca-notesArea"
+                    value={notes}
+                    onChange={(event) => setNotes(event.target.value)}
+                    placeholder="Add any extra notes or customer wording here..."
+                  />
+                </label>
+
+                {liveTranscript ? <p className="cca-statusLive">Listening: {liveTranscript}</p> : null}
+                {statusMessage ? <p className="cca-statusText">{statusMessage}</p> : null}
+              </section>
+
+              <aside className="cca-helperPanel">
+                <article className="cca-helperHero">
+                  <span>Wingman thinks</span>
+                  <h3>{interpretation.summary}</h3>
+                </article>
+
+                <article className="cca-helperCard cca-actionCard">
+                  <span>Ask this next</span>
+                  <strong>{interpretation.askNext}</strong>
+                </article>
+
+                <article className="cca-helperCard">
+                  <span>Missing detail</span>
+                  <div className="cca-chipCloud">
+                    {interpretation.missing.map((item) => (
+                      <em key={item}>{item}</em>
+                    ))}
+                  </div>
+                </article>
+
+                <article className="cca-helperCard">
+                  <span>Likely WyreStorm direction</span>
+                  <ul>
+                    {interpretation.direction.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </article>
+
+                {interpretation.suggestedType !== conversationTypeId ? (
+                  <article className="cca-helperCard cca-suggestionCard">
+                    <span>Suggested shift</span>
+                    <strong>{getConversationType(interpretation.suggestedType).title}</strong>
+                    <button type="button" className="cca-primary" onClick={() => shiftConversation(interpretation.suggestedType)}>
+                      Switch now
+                    </button>
+                  </article>
+                ) : null}
+              </aside>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-950 p-4 text-white shadow-sm">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">Next move</p>
-              <p className="mt-2 text-sm leading-6 text-slate-100">{activeCard.nextMove}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link to={routeCatalogByKey.discovery.path} className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20">
-                  Discovery
-                </Link>
-                <Link to={routeCatalogByKey.finder.path} className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20">
-                  Finder
-                </Link>
-                <Link to={routeCatalogByKey.compare.path} className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20">
-                  Compare
-                </Link>
-                <Link to={routeCatalogByKey.videowall.path} className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20">
-                  Video Wall
-                </Link>
-                <Link to={routeCatalogByKey.proposal.path} className="rounded-full bg-amber-400 px-3 py-1.5 text-xs font-bold text-slate-950 hover:bg-amber-300">
-                  Proposal
-                </Link>
-              </div>
+            <footer className="cca-footer">
+              <button type="button" onClick={() => setStep("context")}>Back</button>
+              <span>{captureStyle === "wholeConversation" ? "Capture the call, then hand it off." : `Current path: ${conversationType.shortTitle}`}</span>
+              <button type="button" className="cca-primary" onClick={() => setStep("handoff")}>Continue to handoff</button>
+            </footer>
+          </section>
+        ) : null}
+
+        {step === "handoff" ? (
+          <section className="cca-card">
+            <p className="cca-kicker">Step 4 of 4</p>
+            <h2>Hand off the opportunity</h2>
+            <p className="cca-lead">Move the captured conversation into the most useful Wingman workflow.</p>
+
+            <div className="cca-handoffGrid">
+              <button type="button" className="is-primary" onClick={() => goToRoute(conversationType.route)}>
+                <strong>{conversationType.routeLabel}</strong>
+                <span>Best next route for this conversation type.</span>
+              </button>
+
+              <button type="button" onClick={() => goToRoute("/wingman/discovery")}>
+                <strong>Open Discovery</strong>
+                <span>Use when the requirement still needs structured qualification.</span>
+              </button>
+
+              <button type="button" onClick={() => goToRoute("/wingman/proposal")}>
+                <strong>Open Proposal</strong>
+                <span>Use when the call needs customer-safe wording or output.</span>
+              </button>
+
+              <button type="button" onClick={copySummary}>
+                <strong>{copied ? "Copied" : "Copy summary"}</strong>
+                <span>Copy the captured conversation and Wingman interpretation.</span>
+              </button>
             </div>
-          </div>
-        </div>
-      </SectionCard>
-    </div>
+
+            <div className="cca-summaryBox">
+              <article>
+                <span>Conversation type</span>
+                <strong>{conversationType.title}</strong>
+              </article>
+              <article>
+                <span>Audience</span>
+                <strong>{audience.label}</strong>
+              </article>
+              <article>
+                <span>Ask next</span>
+                <strong>{interpretation.askNext}</strong>
+              </article>
+            </div>
+
+            <label className="cca-field">
+              <span>Captured conversation / notes</span>
+              <textarea
+                className="cca-summaryArea"
+                value={transcript + (notes.trim() ? `\n\nNotes:\n${notes}` : "")}
+                onChange={() => {}}
+                readOnly
+              />
+            </label>
+
+            {statusMessage ? <p className="cca-statusText">{statusMessage}</p> : null}
+
+            <footer className="cca-footer">
+              <button type="button" onClick={() => setStep("capture")}>Back</button>
+              <span>Ready to start another call?</span>
+              <button type="button" className="cca-primary" onClick={startNewCall}>Start new call</button>
+            </footer>
+          </section>
+        ) : null}
+      </section>
+    </main>
   );
 }
 
 export default CallCardsPage;
+
+const pageStyles = `
+.cca-page {
+  min-height: 100%;
+  padding: 10px 14px;
+  color: #111827;
+  background:
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 34%),
+    linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
+}
+
+.cca-page * {
+  box-sizing: border-box;
+}
+
+.cca-shell {
+  width: min(1220px, 100%);
+  min-height: calc(100vh - 104px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 10px;
+}
+
+.cca-header,
+.cca-stepper,
+.cca-card,
+.cca-liveCard {
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+}
+
+.cca-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 22px;
+  padding: 12px 16px;
+}
+
+.cca-header p,
+.cca-kicker {
+  margin: 0;
+  color: #b45309;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cca-header h1 {
+  margin: 4px 0 0;
+  color: #0f172a;
+  font-size: clamp(1.45rem, 2.4vw, 1.95rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.cca-header span {
+  display: block;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.cca-stepper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  border-radius: 18px;
+  padding: 10px;
+}
+
+.cca-stepper button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 14px;
+  padding: 8px 10px;
+  color: #64748b;
+  background: #f8fafc;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cca-stepper button strong {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 999px;
+  color: #64748b;
+  background: #e2e8f0;
+  font-size: 0.78rem;
+}
+
+.cca-stepper button span {
+  font-size: 0.8rem;
+  font-weight: 620;
+}
+
+.cca-stepper button.is-active {
+  color: #111827;
+  border-color: rgba(245, 158, 11, 0.85);
+  background: #fffbeb;
+}
+
+.cca-stepper button.is-active strong {
+  color: #111827;
+  background: #fbbf24;
+}
+
+.cca-card,
+.cca-liveCard {
+  border-radius: 24px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.cca-card h2,
+.cca-liveCard h2 {
+  margin: 8px 0 0;
+  color: #0f172a;
+  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+  line-height: 1.06;
+  letter-spacing: -0.05em;
+}
+
+.cca-lead {
+  max-width: 820px;
+  margin: 10px 0 20px;
+  color: #64748b;
+  font-size: 0.96rem;
+  line-height: 1.38;
+}
+
+.cca-section {
+  margin-top: 20px;
+}
+
+.cca-section h3 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.cca-typeGrid,
+.cca-handoffGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cca-typeGrid button,
+.cca-handoffGrid button {
+  min-height: 110px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 20px;
+  padding: 14px;
+  color: #0f172a;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cca-typeGrid button.is-selected,
+.cca-handoffGrid button.is-primary {
+  border-color: rgba(245, 158, 11, 0.92);
+  background: #fffbeb;
+  box-shadow: inset 5px 0 0 #f59e0b, 0 12px 24px rgba(245, 158, 11, 0.12);
+}
+
+.cca-typeGrid strong,
+.cca-handoffGrid strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.cca-typeGrid span,
+.cca-handoffGrid span {
+  display: block;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 0.86rem;
+  line-height: 1.32;
+}
+
+.cca-twoCols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.cca-field {
+  display: grid;
+  gap: 7px;
+  color: #92400e;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cca-field input,
+.cca-field select,
+.cca-field textarea {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 16px;
+  padding: 0 12px;
+  color: #0f172a;
+  background: #ffffff;
+  font: inherit;
+  outline: none;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+}
+
+.cca-field input,
+.cca-field select {
+  height: 42px;
+  font-size: 0.86rem;
+}
+
+.cca-field textarea {
+  resize: none;
+  padding: 12px;
+  font-size: 0.88rem;
+  line-height: 1.36;
+}
+
+.cca-grow textarea {
+  min-height: 260px;
+}
+
+.cca-notesArea {
+  min-height: 120px;
+}
+
+.cca-summaryArea {
+  min-height: 180px;
+}
+
+.cca-chipRow,
+.cca-questionActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cca-chipRow button,
+.cca-questionActions button,
+.cca-footer button,
+.cca-helperCard button {
+  min-height: 32px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  padding: 0 12px;
+  color: #334155;
+  background: #f8fafc;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.cca-chipRow button.is-selected,
+.cca-primary,
+.cca-footer .cca-primary,
+.cca-helperCard .cca-primary {
+  color: #ffffff;
+  border-color: #0f172a;
+  background: #0f172a;
+}
+
+.cca-helper {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.cca-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.cca-footer span {
+  color: #64748b;
+  font-size: 0.84rem;
+}
+
+.cca-liveCard {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 14px;
+}
+
+.cca-liveHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 12px;
+  align-items: start;
+}
+
+.cca-quickShift {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.cca-quickShift span {
+  display: block;
+  margin-bottom: 8px;
+  color: #92400e;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cca-liveLayout {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 12px;
+}
+
+.cca-capturePanel,
+.cca-helperPanel {
+  min-height: 0;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 20px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.cca-capturePanel {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+  gap: 12px;
+}
+
+.cca-questionCard {
+  border: 1px solid rgba(245, 158, 11, 0.36);
+  border-radius: 20px;
+  padding: 16px;
+  background: #fffbeb;
+}
+
+.cca-questionCard span,
+.cca-helperHero span,
+.cca-helperCard span,
+.cca-summaryBox span {
+  color: #92400e;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cca-questionCard h3 {
+  margin: 10px 0 0;
+  color: #111827;
+  font-size: clamp(1.25rem, 2vw, 1.8rem);
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+}
+
+.cca-openMic {
+  min-height: 60px;
+  border: 0;
+  border-radius: 18px;
+  color: #ffffff;
+  background: #0f172a;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.18);
+}
+
+.cca-openMic.is-listening {
+  background: #dc2626;
+}
+
+.cca-helperPanel {
+  display: grid;
+  grid-template-rows: auto auto auto auto auto;
+  gap: 10px;
+}
+
+.cca-helperHero,
+.cca-helperCard {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.cca-helperHero h3 {
+  margin: 8px 0 0;
+  color: #111827;
+  font-size: 1rem;
+  line-height: 1.28;
+}
+
+.cca-actionCard {
+  border-color: rgba(245, 158, 11, 0.34);
+  background: #fffbeb;
+}
+
+.cca-actionCard strong,
+.cca-suggestionCard strong,
+.cca-summaryBox strong {
+  display: block;
+  margin-top: 6px;
+  color: #0f172a;
+  font-size: 0.96rem;
+  line-height: 1.26;
+}
+
+.cca-chipCloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.cca-chipCloud em {
+  border-radius: 999px;
+  padding: 5px 8px;
+  color: #334155;
+  background: #e2e8f0;
+  font-size: 0.72rem;
+  font-style: normal;
+}
+
+.cca-helperCard ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.cca-helperCard li {
+  color: #334155;
+  font-size: 0.82rem;
+  line-height: 1.32;
+}
+
+.cca-suggestionCard {
+  display: grid;
+  gap: 8px;
+}
+
+.cca-summaryBox {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.cca-summaryBox article {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.cca-statusLive,
+.cca-statusText {
+  margin: 0;
+  color: #0f766e;
+  font-size: 0.78rem;
+  line-height: 1.28;
+}
+
+.cca-statusText {
+  color: #475569;
+}
+
+button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1120px) {
+  .cca-shell {
+    min-height: 0;
+  }
+
+  .cca-stepper,
+  .cca-typeGrid,
+  .cca-handoffGrid,
+  .cca-twoCols,
+  .cca-liveHeader,
+  .cca-liveLayout,
+  .cca-summaryBox {
+    grid-template-columns: 1fr;
+  }
+
+  .cca-card,
+  .cca-liveCard {
+    overflow: visible;
+  }
+
+  .cca-grow textarea {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 720px) {
+  .cca-page {
+    padding: 10px;
+  }
+
+  .cca-stepper {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cca-footer {
+    display: grid;
+  }
+}
+`;

@@ -1,98 +1,139 @@
-import { useMemo } from "react";
-import { ClipboardList, FileUp, LayoutTemplate, Scale } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { routeCatalog } from "../app/routeCatalog";
-import { PageHero } from "../components/PageHero";
-import { SectionCard } from "../components/SectionCard";
+import {
+  ArrowRight,
+  Boxes,
+  ClipboardList,
+  FileUp,
+  GitCompare,
+  LayoutTemplate,
+  Search,
+  Video,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
-type QuickAction = {
-  key: string;
+type DashboardAction = {
   title: string;
-  summary: string;
-  icon: typeof ClipboardList;
+  description: string;
   path: string;
+  icon: typeof ClipboardList;
+  tone: "blue" | "slate" | "violet" | "emerald";
 };
 
-function getRoutePath(key: string, fallback: string) {
-  return routeCatalog.find((route) => route.key === key)?.path ?? fallback;
+const primaryActions: DashboardAction[] = [
+  {
+    title: "Start Discovery",
+    description: "Guide a customer conversation from room, workflow, sources and outputs.",
+    path: "/wingman/discovery",
+    icon: ClipboardList,
+    tone: "blue",
+  },
+  {
+    title: "Compare Competitor SKU",
+    description: "Position WyreStorm against a known competitor product.",
+    path: "/wingman/compare",
+    icon: GitCompare,
+    tone: "violet",
+  },
+  {
+    title: "Browse Room Templates",
+    description: "Start from a known room type and refine the system design.",
+    path: "/wingman/templates",
+    icon: LayoutTemplate,
+    tone: "emerald",
+  },
+  {
+    title: "Upload Customer Files",
+    description: "Bring in customer notes, schedules or documents and turn them into useful project data.",
+    path: "/wingman/ingest",
+    icon: FileUp,
+    tone: "slate",
+  },
+];
+
+const secondaryActions: DashboardAction[] = [
+  {
+    title: "Product Finder",
+    description: "Filter WyreStorm products by application, signal type and workflow.",
+    path: "/wingman/finder",
+    icon: Search,
+    tone: "blue",
+  },
+  {
+    title: "Video Wall Builder",
+    description: "Build LCD or LED wall requirements before choosing architecture.",
+    path: "/wingman/videowall",
+    icon: Video,
+    tone: "violet",
+  },
+  {
+    title: "Proposal Builder",
+    description: "Turn captured requirements into customer-safe proposal wording.",
+    path: "/wingman/proposal",
+    icon: Boxes,
+    tone: "emerald",
+  },
+];
+
+function DashboardCard({ action, compact = false }: { action: DashboardAction; compact?: boolean }) {
+  const Icon = action.icon;
+
+  return (
+    <Link className={`wm-dashboard-card wm-dashboard-card-${action.tone}`} to={action.path}>
+      <span className="wm-dashboard-card-icon">
+        <Icon size={compact ? 18 : 22} strokeWidth={1.9} />
+      </span>
+
+      <span className="wm-dashboard-card-copy">
+        <strong>{action.title}</strong>
+        <span>{action.description}</span>
+      </span>
+
+      <span className="wm-dashboard-card-arrow">
+        <ArrowRight size={18} strokeWidth={1.9} />
+      </span>
+    </Link>
+  );
 }
 
 export function DashboardPage() {
-  const navigate = useNavigate();
-
-  const quickActions = useMemo<QuickAction[]>(
-    () => [
-      {
-        key: "discovery",
-        title: "Start Discovery",
-        summary: "Guide the conversation from room, workflow, sources, and outputs.",
-        icon: ClipboardList,
-        path: getRoutePath("discovery", "/wingman/discovery"),
-      },
-      {
-        key: "compare",
-        title: "Compare Competitor SKU",
-        summary: "Replace competitor products with the right WyreStorm direction.",
-        icon: Scale,
-        path: getRoutePath("compare", "/wingman/compare"),
-      },
-      {
-        key: "templates",
-        title: "Browse Room Templates",
-        summary: "Start from a known room archetype and refine from there.",
-        icon: LayoutTemplate,
-        path: getRoutePath("templates", "/wingman/templates"),
-      },
-      {
-        key: "ingest",
-        title: "Upload Customer Files",
-        summary: "Bring in customer documents and move them into a usable brief.",
-        icon: FileUp,
-        path: getRoutePath("ingest", "/wingman/ingest"),
-      },
-    ],
-    []
-  );
-
   return (
-    <div className="space-y-4 pb-6">
-      <PageHero
-        eyebrow="Dashboard"
-        title="Start from the sales motion."
-        purpose="This workspace helps reps qualify demand, position WyreStorm clearly, and move toward the right recommendation path without hesitation."
-        nextMove="Choose the workflow that matches the conversation: Discovery, Compare, Templates, or Upload Customer Files."
-        actions={[
-          { label: "Open projects", to: getRoutePath("projects", "/wingman/projects") },
-          { label: "Open support", to: getRoutePath("support", "/wingman/support"), variant: "secondary" },
-        ]}
-      />
-
-      <SectionCard title="Choose the next move" subtitle="Start from problem type rather than product taxonomy.">
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {quickActions.map((action) => {
-            const Icon = action.icon;
-
-            return (
-              <button
-                key={action.key}
-                type="button"
-                onClick={() => navigate(action.path)}
-                className="grid min-h-[116px] grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-amber-300 hover:bg-amber-50"
-              >
-                <div className="grid gap-2">
-                  <p className="text-sm font-semibold leading-5 text-slate-950">{action.title}</p>
-                  <p className="line-clamp-2 text-xs leading-5 text-slate-600">{action.summary}</p>
-                </div>
-
-                <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600">
-                  <Icon className="h-4 w-4" />
-                </div>
-              </button>
-            );
-          })}
+    <main className="wm-dashboard-page">
+      <section className="wm-dashboard-hero" aria-labelledby="wingman-dashboard-title">
+        <div>
+          <p className="wm-dashboard-eyebrow">WyreStorm Wingman</p>
+          <h1 id="wingman-dashboard-title">Start from the sales motion.</h1>
+          <p>
+            Choose the task you need now. Wingman will guide the conversation, capture useful
+            requirements and move towards a practical WyreStorm recommendation.
+          </p>
         </div>
-      </SectionCard>
-    </div>
+
+        <div className="wm-dashboard-hero-actions">
+          <Link to="/wingman/discovery">New project</Link>
+          <Link to="/wingman/finder">Find product</Link>
+        </div>
+      </section>
+
+      <section className="wm-dashboard-section" aria-labelledby="wingman-next-move-title">
+        <div className="wm-dashboard-section-heading">
+          <div>
+            <p className="wm-dashboard-eyebrow">Choose the next move</p>
+            <h2 id="wingman-next-move-title">What do you want Wingman to help with?</h2>
+          </div>
+        </div>
+
+        <div className="wm-dashboard-grid">
+          {primaryActions.map((action) => (
+            <DashboardCard key={action.path} action={action} />
+          ))}
+        </div>
+      </section>
+
+      <section className="wm-dashboard-secondary-section" aria-label="Other Wingman tools">
+        {secondaryActions.map((action) => (
+          <DashboardCard key={action.path} action={action} compact />
+        ))}
+      </section>
+    </main>
   );
 }
 
