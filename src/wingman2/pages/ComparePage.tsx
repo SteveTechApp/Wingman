@@ -2217,82 +2217,92 @@ export function ComparePage() {
                 </ul>
               </div>
 
-              <div className="wm-table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Check</th>
-                      <th>Competitor</th>
-                      <th>WyreStorm</th>
-                      <th>Verdict</th>
-                      <th>Why it matters</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {simplifiedCompareRows(result.rows).map((row) => (
-                      <tr key={displayText(row.label)}>
-                        <td>{displayText(row.label)}</td>
-                        <td>{displayText(row.competitor)}</td>
-                        <td>{displayText(row.wyrestorm)}</td>
-                        <td><span className={`wm-verdict ${verdictClass(row.verdict)}`}>{row.verdict}</span></td>
-                        <td>{displayText(row.note || "Review against the application requirement.")}</td>
+              <details className="wm-decision-details">
+                <summary>Side-by-side checks</summary>
+                <div className="wm-table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Check</th>
+                        <th>Competitor</th>
+                        <th>WyreStorm</th>
+                        <th>Verdict</th>
+                        <th>Why it matters</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {simplifiedCompareRows(result.rows).map((row) => (
+                        <tr key={displayText(row.label)}>
+                          <td>{displayText(row.label)}</td>
+                          <td>{displayText(row.competitor)}</td>
+                          <td>{displayText(row.wyrestorm)}</td>
+                          <td><span className={`wm-verdict ${verdictClass(row.verdict)}`}>{row.verdict}</span></td>
+                          <td>{displayText(row.note || "Review against the application requirement.")}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
 
-              <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-                <div className="wm-shortlist">
-                  <p className="wm-kicker-dark">Other options</p>
-                  <div className="space-y-3">
-                    {simplifiedShortlist(result.shortlist).map((candidate) => (
-                      <article key={candidate.sku}>
-                        <div>
-                          <strong>{candidate.sku}</strong>
-                          <span>{candidate.confidence}/100</span>
-                        </div>
-                        <p>{displayText(candidate.title)}</p>
-                        <small>{displayText(candidate.whyConsider)}</small>
-                      </article>
+              <details className="wm-decision-details">
+                <summary>Other options and SWOT</summary>
+                <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+                  <div className="wm-shortlist">
+                    <p className="wm-kicker-dark">Other options</p>
+                    <div className="space-y-3">
+                      {simplifiedShortlist(result.shortlist).map((candidate) => (
+                        <article key={candidate.sku}>
+                          <div>
+                            <strong>{candidate.sku}</strong>
+                            <span>{candidate.confidence}/100</span>
+                          </div>
+                          <p>{displayText(candidate.title)}</p>
+                          <small>{displayText(candidate.whyConsider)}</small>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="wm-swot-grid">
+                    <SwotBlock title="Strengths" items={result.swot.strengths} />
+                    <SwotBlock title="Weaknesses" items={result.swot.weaknesses} />
+                    <SwotBlock title="Opportunities" items={result.swot.opportunities} />
+                    <SwotBlock title="Threats" items={result.swot.threats} />
+                  </div>
+                </div>
+              </details>
+
+              <details className="wm-decision-details">
+                <summary>Match evidence</summary>
+                <div className="wm-evidence">
+                  <div>
+                    {result.competitor.evidence?.map((item) => (
+                      <span key={item}>{item}</span>
+                    ))}
+                    {featureList(result.competitor.features).map((item) => (
+                      <span key={item}>{displayText(featureLabel(item))}</span>
                     ))}
                   </div>
                 </div>
+              </details>
 
-                <div className="wm-swot-grid">
-                  <SwotBlock title="Strengths" items={result.swot.strengths} />
-                  <SwotBlock title="Weaknesses" items={result.swot.weaknesses} />
-                  <SwotBlock title="Opportunities" items={result.swot.opportunities} />
-                  <SwotBlock title="Threats" items={result.swot.threats} />
+              <details className="wm-decision-details">
+                <summary>Recommendation feedback</summary>
+                <div className="wm-evidence">
+                  <div>
+                    <button type="button" onClick={() => { saveRecommendationFeedback(result, "useful"); setStatus("Recommendation feedback saved as useful."); }}>
+                      Useful match
+                    </button>
+                    <button type="button" onClick={() => { saveRecommendationFeedback(result, "review"); setStatus("Recommendation feedback saved for review."); }}>
+                      Needs review
+                    </button>
+                    <button type="button" onClick={() => { saveRecommendationFeedback(result, "wrong"); setStatus("Recommendation feedback saved as wrong match."); }}>
+                      Wrong match
+                    </button>
+                  </div>
                 </div>
-              </div>
-
-              <div className="wm-evidence">
-                <p className="wm-kicker-dark">Match evidence</p>
-                <div>
-                  {result.competitor.evidence?.map((item) => (
-                    <span key={item}>{item}</span>
-                  ))}
-                  {featureList(result.competitor.features).map((item) => (
-                    <span key={item}>{displayText(featureLabel(item))}</span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="wm-evidence">
-                <p className="wm-kicker-dark">Was this recommendation useful?</p>
-                <div>
-                  <button type="button" onClick={() => { saveRecommendationFeedback(result, "useful"); setStatus("Recommendation feedback saved as useful."); }}>
-                    Useful match
-                  </button>
-                  <button type="button" onClick={() => { saveRecommendationFeedback(result, "review"); setStatus("Recommendation feedback saved for review."); }}>
-                    Needs review
-                  </button>
-                  <button type="button" onClick={() => { saveRecommendationFeedback(result, "wrong"); setStatus("Recommendation feedback saved as wrong match."); }}>
-                    Wrong match
-                  </button>
-                </div>
-              </div>
+              </details>
             </div>
           )}
         </SectionCard>

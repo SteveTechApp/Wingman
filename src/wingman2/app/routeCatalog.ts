@@ -9,6 +9,7 @@ import {
   LayoutTemplate,
   LifeBuoy,
   Monitor,
+  PackageCheck,
   Scale,
   Search,
 } from "lucide-react";
@@ -19,6 +20,8 @@ export type WingmanRouteKey =
   | "projects"
   | "discovery"
   | "finder"
+  | "productFamilies"
+  | "productPitch"
   | "compare"
   | "templates"
   | "videowall"
@@ -47,6 +50,8 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   projects: FolderKanban,
   discovery: ClipboardList,
   finder: Search,
+  productFamilies: LayoutTemplate,
+  productPitch: PackageCheck,
   compare: Scale,
   templates: LayoutTemplate,
   videowall: Monitor,
@@ -71,6 +76,10 @@ export const routeCatalogByKey = Object.fromEntries(
 export function routeByPath(pathname: string) {
   if (pathname.startsWith("/wingman/projects/")) {
     return routeCatalogByKey.projects;
+  }
+
+  if (pathname.startsWith("/wingman/templates/")) {
+    return routeCatalogByKey.templates;
   }
 
   return routeCatalog.find((route) => route.path === pathname);

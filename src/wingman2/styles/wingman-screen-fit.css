@@ -1,0 +1,229 @@
+/*
+  Wingman Screen Fit System
+
+  Purpose:
+  - Stop key workflow pages behaving like long centred documents.
+  - Keep the sidebar stable.
+  - Make Call Cards and Templates behave more like application screens.
+  - Avoid whole-app zoom scaling.
+*/
+
+/* Global safety */
+html,
+body,
+#root {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+main,
+main * {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* Shared workflow route reset */
+html.wm-route-call-cards main,
+html.wm-route-templates main {
+  width: 100% !important;
+  max-width: 100vw !important;
+  min-height: calc(100vh - 4rem) !important;
+  overflow-x: hidden !important;
+}
+
+/* The top-level page wrapper should use the available workspace, not a narrow centred document. */
+html.wm-route-call-cards main > div,
+html.wm-route-templates main > div {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding: 1rem 1.15rem !important;
+  gap: 1rem !important;
+}
+
+/* Compact the dark hero/header blocks on workflow pages. */
+html.wm-route-call-cards main section:first-of-type,
+html.wm-route-templates main section:first-of-type {
+  min-height: auto !important;
+  padding: 1rem 1.15rem !important;
+  border-radius: 1.25rem !important;
+}
+
+html.wm-route-call-cards main h1,
+html.wm-route-templates main h1 {
+  font-size: clamp(1.65rem, 2.4vw, 2.8rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.045em !important;
+}
+
+html.wm-route-call-cards main h2,
+html.wm-route-templates main h2 {
+  font-size: clamp(1.05rem, 1.45vw, 1.45rem) !important;
+  line-height: 1.12 !important;
+}
+
+html.wm-route-call-cards main h3,
+html.wm-route-templates main h3 {
+  font-size: clamp(0.95rem, 1.2vw, 1.2rem) !important;
+  line-height: 1.15 !important;
+}
+
+html.wm-route-call-cards main p,
+html.wm-route-templates main p,
+html.wm-route-call-cards main li,
+html.wm-route-templates main li {
+  line-height: 1.35 !important;
+}
+
+/* Reduce excessive Tailwind spacing only on these workflow pages. */
+html.wm-route-call-cards main .p-8,
+html.wm-route-templates main .p-8 {
+  padding: 1.35rem !important;
+}
+
+html.wm-route-call-cards main .p-7,
+html.wm-route-templates main .p-7 {
+  padding: 1.2rem !important;
+}
+
+html.wm-route-call-cards main .p-6,
+html.wm-route-templates main .p-6 {
+  padding: 1rem !important;
+}
+
+html.wm-route-call-cards main .gap-8,
+html.wm-route-templates main .gap-8 {
+  gap: 1.25rem !important;
+}
+
+html.wm-route-call-cards main .gap-7,
+html.wm-route-templates main .gap-7 {
+  gap: 1.1rem !important;
+}
+
+html.wm-route-call-cards main .gap-6,
+html.wm-route-templates main .gap-6 {
+  gap: 1rem !important;
+}
+
+/* CALL CARDS: turn the long stacked page into a bounded workspace. */
+html.wm-route-call-cards main {
+  height: calc(100vh - 4rem) !important;
+  overflow: hidden !important;
+}
+
+html.wm-route-call-cards main > div {
+  height: 100% !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+}
+
+/* Main content card below the hero */
+html.wm-route-call-cards main section:nth-of-type(2) {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  border-radius: 1.25rem !important;
+}
+
+/* Most Call Card layouts are nested grids. Keep them inside the viewport. */
+html.wm-route-call-cards main section:nth-of-type(2) > div {
+  min-height: 0 !important;
+  max-height: 100% !important;
+}
+
+/* Any large internal columns/panels should scroll internally, not make the full page huge. */
+html.wm-route-call-cards main section:nth-of-type(2) article,
+html.wm-route-call-cards main section:nth-of-type(2) aside,
+html.wm-route-call-cards main section:nth-of-type(2) [class*="overflow-y-auto"],
+html.wm-route-call-cards main section:nth-of-type(2) [class*="space-y-"] {
+  min-height: 0 !important;
+}
+
+/* Left subject/call-card list */
+html.wm-route-call-cards main section:nth-of-type(2) aside,
+html.wm-route-call-cards main section:nth-of-type(2) nav {
+  max-height: calc(100vh - 13rem) !important;
+  overflow-y: auto !important;
+}
+
+/* The main working panels should be visible without full-page scroll. */
+html.wm-route-call-cards main section:nth-of-type(2) article,
+html.wm-route-call-cards main section:nth-of-type(2) > div > div {
+  max-height: calc(100vh - 13rem) !important;
+  overflow-y: auto !important;
+}
+
+/* Reduce over-tall input/capture cards. */
+html.wm-route-call-cards textarea {
+  min-height: 3.25rem !important;
+}
+
+html.wm-route-call-cards button {
+  min-height: auto !important;
+}
+
+/* TEMPLATES: prevent the selected template/package area making a giant document. */
+html.wm-route-templates main {
+  height: calc(100vh - 4rem) !important;
+  overflow: hidden !important;
+}
+
+html.wm-route-templates main > div {
+  height: 100% !important;
+  display: grid !important;
+  grid-template-rows: auto auto minmax(0, 1fr) !important;
+}
+
+html.wm-route-templates main section {
+  min-width: 0 !important;
+}
+
+html.wm-route-templates main section:nth-of-type(3) {
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+html.wm-route-templates main section:nth-of-type(3) > div,
+html.wm-route-templates main section:nth-of-type(3) aside {
+  min-height: 0 !important;
+  max-height: calc(100vh - 22rem) !important;
+  overflow-y: auto !important;
+}
+
+/* Keep thumbnails proportional. */
+html.wm-route-templates img {
+  max-width: 100% !important;
+  object-fit: cover !important;
+}
+
+/* Guru should not dominate the workflow pages. */
+html.wm-route-call-cards [class*="Guru"],
+html.wm-route-call-cards [class*="guru"],
+html.wm-route-templates [class*="Guru"],
+html.wm-route-templates [class*="guru"] {
+  max-width: 5.25rem !important;
+  max-height: 5.25rem !important;
+}
+
+/* Smaller laptops/tablets should be allowed to scroll normally. */
+@media (max-width: 1100px) {
+  html.wm-route-call-cards main,
+  html.wm-route-templates main {
+    height: auto !important;
+    min-height: calc(100vh - 4rem) !important;
+    overflow-y: auto !important;
+  }
+
+  html.wm-route-call-cards main > div,
+  html.wm-route-templates main > div {
+    height: auto !important;
+    display: flex !important;
+  }
+
+  html.wm-route-call-cards main section:nth-of-type(2),
+  html.wm-route-templates main section:nth-of-type(3) {
+    overflow: visible !important;
+  }
+}

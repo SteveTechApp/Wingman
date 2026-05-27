@@ -1,26 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  AlertTriangle,
   ArrowLeft,
   ArrowRight,
   Cable,
-  Camera,
   Check,
   Circle,
   HelpCircle,
   Layers,
-  MapPin,
   Minus,
   Monitor,
   Network,
   Plus,
   Save,
-  Wand2,
+  X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import { PageHero } from "../components/PageHero";
-import { SectionCard } from "../components/SectionCard";
 import { saveDiscoveryBriefToProject } from "../data/projectStore";
 
 type StepId =
@@ -123,7 +118,7 @@ const steps: { id: StepId; label: string; description: string }[] = [
   },
   {
     id: "usb",
-    label: "USB / Conferencing",
+    label: "USB",
     description: "Choose the USB transport class first, then only compatible USB devices are shown.",
   },
   {
@@ -1218,7 +1213,7 @@ function ChipButton({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex min-h-[34px] items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
+      className={`inline-flex min-h-[30px] items-center gap-1.5 rounded-full border px-2.5 py-1 text-sm font-semibold transition ${
         active
           ? "border-slate-900 bg-slate-900 text-white"
           : "border-slate-200 bg-white text-slate-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800"
@@ -1303,80 +1298,28 @@ function CountControl({
   );
 }
 
-function StepBadge({
-  index,
-  activeStepIndex,
-  label,
-  description,
-  onClick,
-}: {
-  index: number;
-  activeStepIndex: number;
-  label: string;
-  description: string;
-  onClick: () => void;
-}) {
-  const stateClass =
-    index < activeStepIndex
-      ? "border-emerald-300 bg-emerald-100 text-emerald-800"
-      : index === activeStepIndex
-        ? "border-amber-300 bg-amber-100 text-amber-900"
-        : "border-slate-200 bg-white text-slate-700";
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm transition ${stateClass}`}
-    >
-      <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/70 text-xs font-black">
-        {index < activeStepIndex ? <Check className="h-4 w-4" /> : index + 1}
-      </span>
-      <span>
-        <span className="block font-black">{label}</span>
-        <span className="mt-1 block text-xs opacity-75">{description}</span>
-      </span>
-    </button>
-  );
-}
-
 function QuestionStrategyCard({
-  askFirst,
   why,
   ifUnknown,
-  unresolvedCount,
 }: {
-  askFirst: string;
   why: string;
   ifUnknown: string;
-  unresolvedCount: number;
 }) {
   return (
-    <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sky-950">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <HelpCircle className="h-5 w-5 text-sky-700" />
-          <p className="text-sm font-black">Ask less, explain more</p>
-        </div>
-        <span className="rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-black text-sky-700">
-          {unresolvedCount} validation item{unresolvedCount === 1 ? "" : "s"}
-        </span>
-      </div>
-
-      <div className="mt-3 grid gap-3 text-sm leading-6 lg:grid-cols-3">
-        <div className="rounded-xl border border-sky-200 bg-white p-3">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">Ask first</p>
-          <p className="mt-1 font-semibold">{askFirst}</p>
-        </div>
-        <div className="rounded-xl border border-sky-200 bg-white p-3">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">Why it matters</p>
-          <p className="mt-1">{why}</p>
-        </div>
-        <div className="rounded-xl border border-sky-200 bg-white p-3">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-600">If they do not know</p>
-          <p className="mt-1">{ifUnknown}</p>
-        </div>
-      </div>
+    <div className="flex flex-wrap gap-2 text-sm leading-6 text-slate-900">
+      <details className="rounded-full border border-slate-200 bg-white px-3 py-1.5">
+        <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+          <HelpCircle className="mr-1 inline h-3.5 w-3.5" />
+          Why it matters
+        </summary>
+        <p className="mt-2 text-slate-600">{why}</p>
+      </details>
+      <details className="rounded-full border border-slate-200 bg-white px-3 py-1.5">
+        <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+          If they do not know
+        </summary>
+        <p className="mt-2 text-slate-600">{ifUnknown}</p>
+      </details>
     </div>
   );
 }
@@ -1394,9 +1337,203 @@ function ListLine({ label, values }: { label: string; values: string[] }) {
   return <ValueLine label={label} value={values.length ? values.join(", ") : "Not captured yet"} />;
 }
 
+function ProgressStepper({
+  activeStepIndex,
+  onSelect,
+}: {
+  activeStepIndex: number;
+  onSelect: (index: number) => void;
+}) {
+  return (
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white px-2 py-2 shadow-sm">
+      <div className="flex min-w-max items-center gap-1.5">
+        {steps.map((step, index) => {
+          const active = index === activeStepIndex;
+          const complete = index < activeStepIndex;
+
+          return (
+            <div key={step.id} className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => onSelect(index)}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition ${
+                  active
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : complete
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                      : "border-slate-200 bg-slate-50 text-slate-600 hover:border-amber-300 hover:bg-amber-50"
+                }`}
+              >
+                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/80 text-[10px] text-slate-700">
+                  {complete ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                </span>
+                {step.label}
+              </button>
+              {index < steps.length - 1 ? <span className="text-slate-300">→</span> : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ConfidenceBadge({ confidence }: { confidence: Inference["confidence"] }) {
+  const className =
+    confidence === "High"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : confidence === "Medium"
+        ? "border-amber-200 bg-amber-50 text-amber-800"
+        : "border-red-200 bg-red-50 text-red-700";
+
+  return (
+    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${className}`}>
+      {confidence} confidence
+    </span>
+  );
+}
+
+function CurrentModelPanel({
+  state,
+  inference,
+  onViewFullModel,
+}: {
+  state: DiscoveryState;
+  inference: Inference;
+  onViewFullModel: () => void;
+}) {
+  const missingItems = inference.missing.slice(0, 3);
+
+  return (
+    <aside className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Monitor className="h-5 w-5 text-slate-500" />
+          <p className="text-sm font-semibold text-slate-900">Current model</p>
+        </div>
+        <ConfidenceBadge confidence={inference.confidence} />
+      </div>
+
+      <div className="mt-4 space-y-4 text-sm">
+        <ValueLine label="Room type" value={state.roomType} />
+        <ValueLine label="Display arrangement" value={state.displayArrangement} />
+        <ValueLine label="Design direction" value={inference.architecture} />
+        <div>
+          <p className="text-slate-500">Top missing items</p>
+          <ul className="mt-2 space-y-1 text-slate-700">
+            {missingItems.length ? (
+              missingItems.map((item) => <li key={item}>- {item}</li>)
+            ) : (
+              <li>- No major missing details detected.</li>
+            )}
+          </ul>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onViewFullModel}
+        className="mt-5 w-full rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+      >
+        View full model
+      </button>
+    </aside>
+  );
+}
+
+function FullRoomModelDrawer({
+  state,
+  inference,
+  open,
+  onClose,
+}: {
+  state: DiscoveryState;
+  inference: Inference;
+  open: boolean;
+  onClose: () => void;
+}) {
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[160] flex justify-end bg-slate-950/30 backdrop-blur-sm">
+      <button type="button" className="absolute inset-0 cursor-default" aria-label="Close full model" onClick={onClose} />
+      <aside className="relative h-full w-full max-w-xl overflow-y-auto bg-white p-6 text-slate-900 shadow-2xl">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="wingman-kicker">Discovery model</p>
+            <h2 className="mt-2 text-2xl font-black tracking-tight">Full room model</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Detailed model remains available for review without sitting in the live-call workspace.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
+            aria-label="Close full model"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
+          <ValueLine label="Room type" value={state.roomType} />
+          <ValueLine label="Room size" value={state.roomSize} />
+          <ValueLine label="User position" value={state.userPosition} />
+          <ValueLine label="Equipment position" value={state.equipmentLocation} />
+          <ListLine label="Sources" values={state.sourceTypes} />
+          <ListLine label="Source locations" values={state.sourceLocations} />
+          <ListLine label="Source connections" values={state.sourceConnections} />
+          <ValueLine label="Display arrangement" value={state.displayArrangement} />
+          <ValueLine label="Display position" value={state.displayPosition} />
+          <ValueLine label="Display behaviour" value={state.displayBehaviour} />
+          <ValueLine label="USB transport" value={state.usbTransport} />
+          <ListLine label="USB devices" values={state.usbNeeds} />
+          <ValueLine label="Longest run" value={state.longestRun} />
+          <ListLine label="Available cable" values={state.cableAvailable} />
+          <ValueLine label="Network" value={state.networkAvailability} />
+          <ListLine label="Control" values={state.controlNeeds} />
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-slate-900">Design direction</p>
+            <ConfidenceBadge confidence={inference.confidence} />
+          </div>
+          <p className="mt-2 text-base font-semibold text-slate-950">{inference.architecture}</p>
+          <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
+            <div>
+              <p className="font-semibold text-slate-900">Missing detail</p>
+              <ul className="mt-2 space-y-1 text-slate-600">
+                {inference.missing.length ? (
+                  inference.missing.map((item) => <li key={item}>- {item}</li>)
+                ) : (
+                  <li>- No major missing details detected.</li>
+                )}
+              </ul>
+            </div>
+            {inference.risks.length ? (
+              <div>
+                <p className="font-semibold text-slate-900">Risks</p>
+                <ul className="mt-2 space-y-1 text-slate-600">
+                  {inference.risks.map((item) => <li key={item}>- {item}</li>)}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
 export function DiscoveryPage() {
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [state, setState] = useState<DiscoveryState>(() => normaliseDiscoveryState(initialState));
+  const [fullModelOpen, setFullModelOpen] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
 
 
   useEffect(() => {
@@ -1414,6 +1551,13 @@ export function DiscoveryPage() {
   const inference = useMemo(() => inferDesign(state), [state]);
   const currentStep = steps[activeStepIndex];
   const currentQuestionStrategy = useMemo(() => getQuestionStrategy(currentStep.id, state), [currentStep.id, state]);
+  const currentTaskQuestion =
+    currentStep.id === "useCase" ? "What type of space is this?" : currentQuestionStrategy.askFirst;
+  const helperSentence =
+    currentStep.id === "useCase"
+      ? "Choose the closest application so Wingman can keep the rest of the call focused."
+      : currentStep.description;
+  const nextAction = activeStepIndex < steps.length - 1 ? `Next: ${steps[activeStepIndex + 1].label}` : "Save and continue to Product Finder";
   const isFirstStep = activeStepIndex === 0;
   const isLastStep = activeStepIndex === steps.length - 1;
 
@@ -1723,6 +1867,7 @@ export function DiscoveryPage() {
     );
 
     window.dispatchEvent(new CustomEvent("wingman:discovery-brief-saved", { detail: brief }));
+    setSaveMessage("Saved to project.");
   }
 
   function renderSourcePathCard(source: SourcePath, index: number) {
@@ -1879,28 +2024,20 @@ export function DiscoveryPage() {
       return (
         <div className="grid gap-5">
           <ChipGroup
-            title="Room / application type"
-            helper="Select the application. Wingman applies sensible defaults and filters later options."
+            title="Room / application"
+            helper="Pick the closest room or application type. You can refine the details later."
             options={roomTypes}
             value={state.roomType}
             onSelect={applyRoomType}
           />
 
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-            <div className="flex items-center gap-2">
-              <Wand2 className="h-5 w-5 text-amber-700" />
-              <p className="text-sm font-black text-amber-950">Wingman assumption</p>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-amber-900">{profile.note}</p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-sm font-black text-slate-900">Customer wording / unusual notes</p>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <p className="text-sm font-black text-slate-900">Quick notes</p>
             <textarea
               value={state.notes}
               onChange={(event) => setField("notes", event.target.value)}
-              placeholder="Optional. Capture anything the customer says that does not fit the quick-click options."
-              className="mt-3 min-h-[88px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+              placeholder="Optional customer wording."
+              className="mt-2 min-h-[48px] w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
             />
           </div>
         </div>
@@ -2163,100 +2300,91 @@ export function DiscoveryPage() {
 
   return (
     <div className="pb-10">
-      <PageHero
-        eyebrow="Guided Customer Discovery"
-        title="Ask only the questions that move the design forward."
-        purpose="Wingman now adapts discovery questions to the selected application and likely technical path, then explains why each answer matters so sales users are not forced through a blind AV checklist."
-        nextMove="Select the use case, follow the ask-first guidance, and leave unknown details as validation items instead of guessing."
-        actions={[
-          { label: "Open Product Finder", to: routeCatalogByKey.finder.path },
-          { label: "Save to Projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
-        ]}
-      />
-
-      <SectionCard
-        title="Dynamic discovery workflow"
-        subtitle="The workflow behaves like a guided conversation: application-specific questions, filtered choices, visible assumptions, and a safe path when the customer does not know."
-      >
-        <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-black text-slate-900">Workflow path</p>
-              <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-600">
-                {activeStepIndex + 1} / {steps.length}
-              </span>
-            </div>
-
-            <div className="mt-4 space-y-2">
-              {steps.map((step, index) => (
-                <StepBadge
-                  key={step.id}
-                  index={index}
-                  activeStepIndex={activeStepIndex}
-                  label={step.label}
-                  description={step.description}
-                  onClick={() => setActiveStepIndex(index)}
-                />
-              ))}
-            </div>
+      <section className="wingman-surface rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="wingman-kicker">Wingman workspace</p>
+            <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Wingman workspace / Discovery</h1>
+            <p className="mt-2 text-sm leading-6 text-slate-500">{helperSentence}</p>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
+              Live call mode
+            </span>
+            <ConfidenceBadge confidence={inference.confidence} />
+          </div>
+        </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="mt-4">
+          <ProgressStepper activeStepIndex={activeStepIndex} onSelect={setActiveStepIndex} />
+        </div>
+
+        <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-black text-slate-900">Current step: {currentStep.label}</p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">{currentStep.description}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                  Step {activeStepIndex + 1} of {steps.length} — {currentStep.label}
+                </p>
+                <h2 className="mt-2 text-xl font-black tracking-tight text-slate-950">{currentTaskQuestion}</h2>
               </div>
-
-              <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-800">
-                {capturedPercent}% design model captured
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                {nextAction}
               </span>
             </div>
 
-            <div className="mt-6 grid gap-5">
+            <div className="mt-4 grid gap-4">
               <QuestionStrategyCard
-                askFirst={currentQuestionStrategy.askFirst}
                 why={currentQuestionStrategy.why}
                 ifUnknown={currentQuestionStrategy.ifUnknown}
-                unresolvedCount={inference.missing.length + inference.risks.length}
               />
               {renderStep(currentStep.id)}
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-3">
               <button
                 type="button"
                 onClick={() => setActiveStepIndex((current) => Math.max(0, current - 1))}
                 disabled={isFirstStep}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back
               </button>
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {saveMessage ? <span className="text-xs font-semibold text-emerald-700">{saveMessage}</span> : null}
                 <Link
                   to={routeCatalogByKey.callCards.path}
                   onClick={saveDiscoveryBrief}
-                  className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                  className="rounded-full border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                 >
                   Open call cards
                 </Link>
+
+                <button
+                  type="button"
+                  onClick={saveDiscoveryBrief}
+                  className="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100"
+                >
+                  <Save className="h-4 w-4" />
+                  Save to project
+                </button>
 
                 {isLastStep ? (
                   <Link
                     to={routeCatalogByKey.finder.path}
                     onClick={saveDiscoveryBrief}
-                    className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-black text-white transition hover:bg-emerald-700"
+                    className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
-                    <Save className="h-4 w-4" />
-                    Save & push to Finder
+                    Continue to Finder
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setActiveStepIndex((current) => Math.min(steps.length - 1, current + 1))}
-                    className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800"
+                    className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
                     Next
                     <ArrowRight className="h-4 w-4" />
@@ -2266,98 +2394,16 @@ export function DiscoveryPage() {
             </div>
           </div>
 
-          <div className="grid gap-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <div className="flex items-center gap-2">
-                <Monitor className="h-5 w-5 text-slate-500" />
-                <p className="text-sm font-black text-slate-900">Live room model</p>
-              </div>
-
-              <div className="mt-4 space-y-4 text-sm">
-                <ValueLine label="Room type" value={state.roomType} />
-                <ValueLine label="Room size" value={state.roomSize} />
-                <ValueLine label="User position" value={state.userPosition} />
-                <ValueLine label="Equipment position" value={state.equipmentLocation} />
-                <ListLine label="Sources" values={state.sourceTypes} />
-                <ListLine label="Source locations" values={state.sourceLocations} />
-                <ListLine label="Source connections" values={state.sourceConnections} />
-                <ValueLine label="Display arrangement" value={state.displayArrangement} />
-                <ValueLine label="Display position" value={state.displayPosition} />
-                <ValueLine label="Display behaviour" value={state.displayBehaviour} />
-                <ValueLine label="USB transport" value={state.usbTransport} />
-                <ListLine label="USB devices" values={state.usbNeeds} />
-                <ValueLine label="Longest run" value={state.longestRun} />
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <div className="flex items-center gap-2">
-                <Cable className="h-5 w-5 text-amber-600" />
-                <p className="text-sm font-black text-slate-900">Architecture direction</p>
-              </div>
-
-              <p className="mt-3 text-base font-black text-slate-950">{inference.architecture}</p>
-
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Confidence</p>
-                <p
-                  className={`mt-1 text-lg font-black ${
-                    inference.confidence === "High"
-                      ? "text-emerald-700"
-                      : inference.confidence === "Medium"
-                        ? "text-amber-700"
-                        : "text-red-700"
-                  }`}
-                >
-                  {inference.confidence}
-                </p>
-              </div>
-
-              <div className="mt-4 space-y-3 text-sm">
-                <div>
-                  <div className="flex items-center gap-2 font-black text-slate-900">
-                    <MapPin className="h-4 w-4 text-slate-500" />
-                    Missing detail
-                  </div>
-                  <ul className="mt-2 space-y-1 text-slate-600">
-                    {inference.missing.length ? (
-                      inference.missing.slice(0, 6).map((item) => <li key={item}>- {item}</li>)
-                    ) : (
-                      <li>- No major missing details detected.</li>
-                    )}
-                  </ul>
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-2 font-black text-slate-900">
-                    <AlertTriangle className="h-4 w-4 text-amber-600" />
-                    Risks
-                  </div>
-                  <ul className="mt-2 space-y-1 text-slate-600">
-                    {inference.risks.length ? (
-                      inference.risks.slice(0, 6).map((item) => <li key={item}>- {item}</li>)
-                    ) : (
-                      <li>- No major risk flags yet.</li>
-                    )}
-                  </ul>
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-2 font-black text-slate-900">
-                    <Camera className="h-4 w-4 text-slate-500" />
-                    Next design move
-                  </div>
-                  <p className="mt-2 text-slate-600">
-                    {isLastStep
-                      ? "Save the structured brief and continue into Product Finder."
-                      : "Continue the dynamic workflow until the room model is complete enough to recommend with confidence."}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CurrentModelPanel state={state} inference={inference} onViewFullModel={() => setFullModelOpen(true)} />
         </div>
-      </SectionCard>
+      </section>
+
+      <FullRoomModelDrawer
+        state={state}
+        inference={inference}
+        open={fullModelOpen}
+        onClose={() => setFullModelOpen(false)}
+      />
     </div>
   );
 }

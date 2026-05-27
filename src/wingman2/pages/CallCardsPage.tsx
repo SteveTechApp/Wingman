@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
-import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 
 type Audience = "End user" | "Dealer" | "Consultant";
@@ -552,18 +551,7 @@ export function CallCardsPage() {
   }, []);
 
   return (
-    <div className="pb-10">
-      <PageHero
-        eyebrow="Sales Call Helper Cards"
-        title="Use confident talk tracks during live customer and dealer conversations."
-        purpose="Call Cards help sales users ask better questions, explain WyreStorm product value, answer common AV questions, handle objections, and position the brand without needing a senior engineer on every call."
-        nextMove="Pick the closest conversation card, use the talk track live, then hand the outcome into Discovery, Finder, Compare, Video Wall Builder, or Proposal Builder."
-        actions={[
-          { label: "Open discovery", to: routeCatalogByKey.discovery.path },
-          { label: "Open compare", to: routeCatalogByKey.compare.path, variant: "secondary" },
-        ]}
-      />
-
+    <div className="pb-4">
       <SectionCard
         title="Live call command centre"
         subtitle="Choose the conversation type and audience. Keep the answer panel open while speaking to the customer."

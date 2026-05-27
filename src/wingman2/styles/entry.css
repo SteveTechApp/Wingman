@@ -3092,3 +3092,199 @@ textarea {
   }
 }
 /* VISUAL-TEMPLATES-LANDING-END */
+
+/* FOCUSED-WORKSPACE-POLISH-START */
+/*
+  Final focused-workspace layer.
+  Keep every routed page closer to a live-call decision surface: compact header,
+  one visible decision area, and secondary evidence collapsed until requested.
+*/
+
+.wingman-page-host :where(.pb-10, .pb-8) {
+  padding-bottom: 16px !important;
+}
+
+.wingman-page-host :where(h1, h2, h3, h4, .wingman-display) {
+  letter-spacing: 0 !important;
+}
+
+.wingman-hero-copy .wingman-display,
+.wingman-page-hero-compact .wingman-hero-copy .wingman-display {
+  font-size: 2rem !important;
+  line-height: 1.08 !important;
+}
+
+.wingman-page-hero-compact {
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 340px) !important;
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+  padding: 14px 16px !important;
+}
+
+.wingman-hero-quick-actions {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+}
+
+.wingman-guidance-details > summary {
+  min-height: 54px !important;
+  border-radius: 16px !important;
+  padding: 10px !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.wingman-guidance-card span,
+.wingman-guidance-details > summary span {
+  font-size: 0.82rem !important;
+}
+
+.wingman-guidance-card small,
+.wingman-guidance-details > summary small {
+  font-size: 0.68rem !important;
+}
+
+.wingman-page-hero-compact .wingman-hero-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  grid-area: actions !important;
+  gap: 8px !important;
+  margin-top: 0 !important;
+}
+
+.wingman-page-hero-compact .wingman-hero-action {
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  font-size: 0.8rem !important;
+}
+
+.wingman-section-card-header {
+  padding: 12px 14px 10px !important;
+}
+
+.wingman-section-card-title-row {
+  align-items: center !important;
+}
+
+.wingman-section-card-header h2 {
+  font-size: 1.16rem !important;
+  letter-spacing: 0 !important;
+}
+
+.wingman-section-help > summary {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.wingman-section-card-body {
+  padding: 12px 14px 14px !important;
+}
+
+.wm-decision-details {
+  overflow: visible;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 11px 12px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+.wm-decision-details > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 750;
+  list-style: none;
+}
+
+.wm-decision-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.wm-decision-details > summary::after {
+  content: "+";
+  margin-left: auto;
+  color: #b45309;
+  font-weight: 850;
+}
+
+.wm-decision-details[open] > summary::after {
+  content: "-";
+}
+
+.wm-decision-details[open] > summary {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.wingman-page-host :where(.font-black) {
+  font-weight: 780 !important;
+}
+
+.wingman-page-host :where(.leading-8, .leading-7, .leading-6) {
+  line-height: 1.42 !important;
+}
+
+.wingman-page-host :where(.shadow-xl, .shadow-2xl) {
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12) !important;
+}
+
+.wm-template-landing-panel,
+.wm-template-detail-shell {
+  border-radius: 18px !important;
+  padding: 14px !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08) !important;
+}
+
+.wm-template-detail-hero {
+  gap: 14px !important;
+  padding: 16px !important;
+}
+
+.wm-template-detail-hero h2 {
+  font-size: 2rem !important;
+  line-height: 1.08 !important;
+  letter-spacing: 0 !important;
+}
+
+.wm-template-detail-hero p:not(.wingman-kicker) {
+  margin-top: 8px !important;
+  font-size: 0.88rem !important;
+  line-height: 1.42 !important;
+}
+
+.wm-template-detail-actions {
+  gap: 8px !important;
+}
+
+.wm-template-detail-actions button {
+  min-height: 42px !important;
+  border-radius: 14px !important;
+  padding: 9px 11px !important;
+}
+
+@media (max-width: 900px) {
+  .wingman-page-hero-compact {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wingman-hero-quick-actions {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .wingman-hero-copy .wingman-display,
+  .wingman-page-hero-compact .wingman-hero-copy .wingman-display {
+    font-size: 1.55rem !important;
+  }
+
+  .wingman-hero-quick-actions,
+  .wingman-page-hero-compact .wingman-hero-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+}
+/* FOCUSED-WORKSPACE-POLISH-END */

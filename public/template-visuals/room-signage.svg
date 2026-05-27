@@ -1,23 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="Retail Signage">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#07111d"/>
-      <stop offset="48%" stop-color="#14304f"/>
-      <stop offset="100%" stop-color="#06b6d4"/>
+      <stop offset="48%" stop-color="#102842"/>
+      <stop offset="100%" stop-color="#db2777"/>
     </linearGradient>
-    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
-      <stop offset="100%" stop-color="rgba(0,0,0,0.72)"/>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#020617" stop-opacity="0.56"/>
     </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
   </defs>
   <rect width="960" height="540" rx="44" fill="url(#bg)"/>
-  <circle cx="810" cy="80" r="155" fill="rgba(255,255,255,0.08)"/>
-  <circle cx="130" cy="470" r="185" fill="rgba(255,255,255,0.06)"/>
-  <path d="M90 165h780" stroke="rgba(255,255,255,0.16)" stroke-width="22" stroke-linecap="round"/>
-  <path d="M145 245h300" stroke="rgba(255,255,255,0.22)" stroke-width="34" stroke-linecap="round"/>
-  <path d="M515 245h300" stroke="rgba(255,255,255,0.13)" stroke-width="34" stroke-linecap="round"/>
-  <rect x="165" y="300" width="630" height="90" rx="30" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.24)"/>
-  <rect y="315" width="960" height="225" fill="url(#fade)"/>
-  <text x="70" y="420" font-family="Inter, Arial, sans-serif" font-size="52" font-weight="850" fill="#ffffff">Reception / Signage</text>
-  <text x="72" y="468" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="rgba(255,255,255,0.78)">Public display and messaging</text>
+  <circle cx="820" cy="82" r="165" fill="#ffffff" opacity="0.08"/>
+  <circle cx="120" cy="472" r="190" fill="#ffffff" opacity="0.06"/>
+  <rect x="0" y="314" width="960" height="226" fill="url(#floor)"/>
+  <g filter="url(#softShadow)">
+    <rect x="108" y="98" width="154" height="248" rx="22" fill="#0f172a" stroke="#f8fafc" stroke-opacity="0.2" stroke-width="3"/>
+    <rect x="304" y="92" width="164" height="116" rx="20" fill="#0f172a" stroke="#f8fafc" stroke-opacity="0.2" stroke-width="3"/>
+    <rect x="492" y="92" width="164" height="116" rx="20" fill="#0f172a" stroke="#f8fafc" stroke-opacity="0.2" stroke-width="3"/>
+    <rect x="698" y="98" width="154" height="248" rx="22" fill="#0f172a" stroke="#f8fafc" stroke-opacity="0.2" stroke-width="3"/>
+    <rect x="344" y="276" width="272" height="70" rx="24" fill="#f59e0b" opacity="0.82"/>
+    <path d="M480 276v-68M344 312H262M616 312h82M386 208v68M574 208v68" stroke="#ffffff" stroke-opacity="0.32" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <rect x="0" y="350" width="960" height="190" fill="#020617" opacity="0.42"/>
+  <text x="62" y="424" font-family="Inter, Arial, sans-serif" font-size="48" font-weight="850" fill="#ffffff">Retail Signage</text>
+  <text x="64" y="468" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="700" fill="#e2e8f0" opacity="0.88">Media players feeding multiple display zones</text>
 </svg>
