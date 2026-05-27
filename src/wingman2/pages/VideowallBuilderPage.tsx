@@ -162,7 +162,7 @@ export function VideowallBuilderPage() {
   const wallType = wallTypes.find((item) => item.key === selectedWallType) ?? wallTypes[0];
 
   return (
-    <div className="pb-10">
+    <div className="pb-6">
       <PageHero
         eyebrow="LED / LCD Videowall Builder"
         title="Visualise how a videowall system works before choosing the product path."
@@ -235,9 +235,9 @@ export function VideowallBuilderPage() {
             </div>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5 text-sky-950">
-            <p className="text-sm font-black uppercase tracking-[0.14em]">How this AV system works</p>
-            <p className="mt-2 text-sm leading-6">{wallType.plainEnglish}</p>
+          <details className="wm-decision-details mt-6">
+            <summary>How this AV system works</summary>
+            <p className="mt-2 text-sm leading-6 text-slate-700">{wallType.plainEnglish}</p>
 
             <div className="mt-5 grid gap-3 lg:grid-cols-5">
               {signalFlow.map(({ label, Icon, led, lcd }, index) => (
@@ -269,10 +269,10 @@ export function VideowallBuilderPage() {
                 </p>
               </div>
             </div>
-          </div>
+          </details>
 
-          <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-sm font-semibold text-slate-900">Questions that teach the design</p>
+          <details className="wm-decision-details mt-6">
+            <summary>Questions that teach the design</summary>
             <div className="mt-4 grid gap-2 text-sm text-slate-700 md:grid-cols-2">
               {teachingQuestions.map((question) => (
                 <div key={question} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
@@ -280,7 +280,7 @@ export function VideowallBuilderPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </details>
         </SectionCard>
 
         <div className="space-y-6">

@@ -1,0 +1,63 @@
+/* Product Finder route polish.
+   Keep the tool quiet and scannable for live calls: light panels, subtle depth,
+   no decorative glows, and compact result cards. */
+
+body.wm-product-finder-active {
+  --wm-finder-panel: rgba(255, 255, 255, 0.96);
+  --wm-finder-muted: #f8fafc;
+  --wm-finder-border: rgba(148, 163, 184, 0.3);
+  --wm-finder-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  --wm-finder-shadow-hover: 0 14px 34px rgba(15, 23, 42, 0.12);
+  --wm-finder-accent: #d97706;
+}
+
+body.wm-product-finder-active main {
+  background: linear-gradient(180deg, #f8fafc, #eef3f8);
+}
+
+body.wm-product-finder-active main :is(article, aside, section, div):has(> :is(h2, h3, h4, header)) {
+  border-color: var(--wm-finder-border);
+}
+
+body.wm-product-finder-active main article {
+  background: var(--wm-finder-panel);
+  border: 1px solid var(--wm-finder-border);
+  box-shadow: var(--wm-finder-shadow);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+body.wm-product-finder-active main article:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--wm-finder-shadow-hover);
+  border-color: rgba(217, 119, 6, 0.32);
+}
+
+body.wm-product-finder-active main :is(.bg-white, [class*="bg-white"]) {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+}
+
+body.wm-product-finder-active main :is(.bg-slate-50, [class*="bg-slate-50"]) {
+  background-color: var(--wm-finder-muted) !important;
+}
+
+body.wm-product-finder-active main :is(button, a[role="button"]) {
+  box-shadow: none;
+}
+
+body.wm-product-finder-active main :is(button, a[role="button"]):hover {
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+body.wm-product-finder-active main :is(.text-amber-500, .text-amber-600, .text-orange-600) {
+  color: var(--wm-finder-accent) !important;
+}
+
+@media (max-width: 900px) {
+  body.wm-product-finder-active main article {
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+  }
+}

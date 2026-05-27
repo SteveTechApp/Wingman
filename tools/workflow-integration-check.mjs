@@ -112,7 +112,9 @@ assertSourceContains("src/wingman2/pages/ComparePage.tsx", [
 assertSourceContains("src/wingman2/pages/DiscoveryPage.tsx", [
   "baseQuestionStrategyByStep",
   "getQuestionStrategy",
-  "Ask less, explain more",
+  "Live call mode",
+  "Current model",
+  "View full model",
 ]);
 assertSourceContains("src/wingman2/pages/ProjectDetailPage.tsx", [
   "Editable requirements",

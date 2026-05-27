@@ -11,6 +11,8 @@ type AppShellProps = {
   children?: ReactNode;
 };
 
+const routeClassNames = routeCatalog.map((route) => `wm-route-${route.segment}`);
+
 const storedProjectKeys = [
   "wingman-current-project",
   "wingman-current-project-id",
@@ -98,6 +100,23 @@ export function AppShell({ children }: AppShellProps) {
   const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
   const activeLabel = activeRoute?.label ?? "Dashboard";
   const activeSummary = activeRoute?.summary ?? "WyreStorm technical sales workspace.";
+  const activeRouteClass = activeRoute ? `wm-route-${activeRoute.segment}` : "wm-route-dashboard";
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const root = document.documentElement;
+    root.classList.remove(...routeClassNames);
+    root.classList.add(activeRouteClass);
+    root.dataset.wingmanRoute = activeRoute?.key ?? "dashboard";
+
+    return () => {
+      root.classList.remove(...routeClassNames);
+      delete root.dataset.wingmanRoute;
+    };
+  }, [activeRoute?.key, activeRouteClass]);
 
   useEffect(() => {
     setMobileNavOpen(false);
@@ -111,7 +130,7 @@ export function AppShell({ children }: AppShellProps) {
   }
 
   return (
-    <div className="wingman-shell wingman-authority-shell">
+    <div className={`wingman-shell wingman-authority-shell ${activeRouteClass}`}>
       <aside className="wingman-sidebar" data-mobile-open={mobileNavOpen ? "true" : "false"}>
         <div className="wingman-brand wingman-brand-logo-only">
           <img src="/wingman-logo.png" alt="WyreStorm Wingman" className="wingman-brand-image" />

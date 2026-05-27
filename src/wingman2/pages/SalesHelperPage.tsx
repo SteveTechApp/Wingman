@@ -912,7 +912,7 @@ export function SalesHelperPage() {
   const ConversationIcon = activeConversation.Icon;
 
   return (
-    <div className="pb-10">
+    <div className="pb-6">
       <PageHero
         eyebrow="Sales Helper"
         title="Guide the sales conversation one question at a time."
@@ -1000,12 +1000,13 @@ export function SalesHelperPage() {
                     {activeQuestion.prompt}
                   </h2>
 
-                  <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sky-950">
-                    <div className="flex items-start gap-2">
-                      <HelpCircle className="mt-0.5 h-4 w-4 shrink-0 text-sky-700" />
-                      <p className="text-sm leading-6">{activeQuestion.why}</p>
-                    </div>
-                  </div>
+                  <details className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-slate-700">
+                    <summary className="flex cursor-pointer items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                      <HelpCircle className="h-4 w-4 text-slate-500" />
+                      Why this matters
+                    </summary>
+                    <p className="mt-2 text-sm leading-6">{activeQuestion.why}</p>
+                  </details>
 
                   <div className="mt-5">
                     <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
@@ -1040,9 +1041,9 @@ export function SalesHelperPage() {
                     <textarea
                       value={currentAnswer.note}
                       onChange={updateNote}
-                      rows={5}
+                      rows={3}
                       placeholder={activeQuestion.notePlaceholder}
-                      className="mt-2 min-h-[132px] w-full resize-y rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+                      className="mt-2 min-h-[84px] w-full resize-y rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
                     />
                   </label>
 
@@ -1133,17 +1134,7 @@ export function SalesHelperPage() {
                         ))}
                       </ul>
                     </div>
-                  ) : (
-                    <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950">
-                      <div className="flex items-center gap-2 text-sm font-black">
-                        <CheckCircle2 className="h-4 w-4" />
-                        No review flags yet
-                      </div>
-                      <p className="mt-2 text-sm leading-6">
-                        Keep capturing answers. Wingman will flag risk when unknowns or specialist requirements appear.
-                      </p>
-                    </div>
-                  )}
+                  ) : null}
                 </aside>
               </div>
             </div>
@@ -1180,7 +1171,7 @@ export function SalesHelperPage() {
                   <ClipboardList className="h-4 w-4" />
                   Live sales capture
                 </div>
-                <pre className="mt-3 max-h-[520px] overflow-auto whitespace-pre-wrap text-sm leading-6 text-slate-200">
+                <pre className="mt-3 max-h-[240px] overflow-auto whitespace-pre-wrap text-sm leading-6 text-slate-200">
                   {hasCapturedAnswers ? summaryText : "No answers captured yet. Start with the active question and use quick chips or notes."}
                 </pre>
               </div>
@@ -1239,35 +1230,6 @@ export function SalesHelperPage() {
           </div>
         </div>
 
-        <SectionCard title="How to use this page" subtitle="The page is designed to guide action rather than act as a static script.">
-          <div className="grid gap-4 md:grid-cols-3">
-            {[
-              {
-                title: "Pick the call type",
-                text: "Start with the sales situation: room, display attach, conferencing, competitor SKU, distributor account call, or closing follow-up.",
-                Icon: ClipboardList,
-              },
-              {
-                title: "Ask one question",
-                text: "Use the active question, click quick answer chips, and add a short note only where useful.",
-                Icon: MessageSquareText,
-              },
-              {
-                title: "Move to the next workflow",
-                text: "Use the recommended route to continue into Discovery, Finder, Compare, Video Wall, Call Cards, Proposal or Support.",
-                Icon: MoveRight,
-              },
-            ].map(({ title, text, Icon }) => (
-              <div key={title} className="rounded-2xl border border-slate-200 bg-white p-5">
-                <div className="flex items-center gap-2">
-                  <Icon className="h-4 w-4 text-amber-500" />
-                  <h3 className="text-lg font-black text-slate-950">{title}</h3>
-                </div>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{text}</p>
-              </div>
-            ))}
-          </div>
-        </SectionCard>
       </div>
     </div>
   );

@@ -35,6 +35,24 @@
     ]
   },
   {
+    "routeKey": "productFamilies",
+    "status": "wired",
+    "summary": "Product Families gives reps practical positioning for WyreStorm families, covering what each family is, why it exists, how it connects, useful functionality, special features, discovery questions, and when not to lead with it.",
+    "needed": [
+      "Add approved product-manager copy review and regional availability notes.",
+      "Link each family to live example SKUs from the product intelligence index."
+    ]
+  },
+  {
+    "routeKey": "productPitch",
+    "status": "wired",
+    "summary": "Product Pitch turns a selected SKU into plain customer language with helps-with, best-fit, quoting questions, technical-term explanations, and architecture checks for AVoIP and matrix decisions.",
+    "needed": [
+      "Add copy-to-proposal export for the generated pitch.",
+      "Connect family-level context directly to the selected SKU."
+    ]
+  },
+  {
     "routeKey": "compare",
     "status": "partial",
     "summary": "Compare now builds its review from saved discovery/Finder context, accepts editable competitor input, calls protected lookup and match resolver endpoints, shows scored evidence, and captures feedback only when an active project exists.",

@@ -350,7 +350,8 @@ export function ProposalPage() {
                     : "No product shortlist has been carried into the proposal yet. Add products from Finder before customer export."}
                 </p>
               </div>
-              <div className="lg:col-span-2">
+              <details className="wm-decision-details lg:col-span-2">
+                <summary>Dependency governance</summary>
                 <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-indigo-950">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -392,7 +393,7 @@ export function ProposalPage() {
                     )}
                   </div>
                 </div>
-              </div>
+              </details>
 
               <div className="lg:col-span-2">
                 <p className="wingman-kicker">Bill of materials</p>
@@ -427,8 +428,8 @@ export function ProposalPage() {
                   </table>
                 </div>
               </div>
-              <div className="lg:col-span-2">
-                <p className="wingman-kicker">Evidence basis</p>
+              <details className="wm-decision-details lg:col-span-2">
+                <summary>Evidence basis</summary>
                 <div className="mt-2 grid gap-2 text-sm leading-6 text-slate-700 md:grid-cols-2">
                   {salesReadiness.evidence.slice(0, 8).map((item) => (
                     <div key={item} className="rounded-2xl border border-slate-200 bg-white p-3">
@@ -436,25 +437,25 @@ export function ProposalPage() {
                     </div>
                   ))}
                 </div>
-              </div>
-              <div>
-                <p className="wingman-kicker">Rep guidance</p>
+              </details>
+              <details className="wm-decision-details">
+                <summary>Rep guidance</summary>
                 <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                   {salesReadiness.repGuidance.map((item) => (
                     <li key={item} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">{item}</li>
                   ))}
                 </ul>
-              </div>
-              <div>
-                <p className="wingman-kicker">Governance / validation</p>
+              </details>
+              <details className="wm-decision-details">
+                <summary>Governance / validation</summary>
                 <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                   {[...salesReadiness.governanceWarnings.slice(0, 3), ...salesReadiness.validationNotes].map((item) => (
                     <li key={item} className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-amber-950">{item}</li>
                   ))}
                 </ul>
-              </div>
-              <div className="lg:col-span-2">
-                <p className="wingman-kicker">Assumptions to validate</p>
+              </details>
+              <details className="wm-decision-details lg:col-span-2">
+                <summary>Assumptions to validate</summary>
                 <ul className="mt-2 grid gap-2 text-sm leading-6 text-slate-700 md:grid-cols-2">
                   {context.assumptions.map((assumption) => (
                     <li key={assumption} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
@@ -462,9 +463,9 @@ export function ProposalPage() {
                     </li>
                   ))}
                 </ul>
-              </div>
-              <div className="lg:col-span-2">
-                <p className="wingman-kicker">Recommendation feedback</p>
+              </details>
+              <details className="wm-decision-details lg:col-span-2">
+                <summary>Recommendation feedback</summary>
                 <div className="mt-3 flex flex-wrap gap-3">
                   {feedbackActions.map(({ rating, label, Icon }) => (
                     <button
@@ -479,7 +480,7 @@ export function ProposalPage() {
                   ))}
                 </div>
                 {feedbackMessage ? <p className="mt-3 text-sm font-semibold text-slate-600">{feedbackMessage}</p> : null}
-              </div>
+              </details>
             </div>
           </div>
         </div>
