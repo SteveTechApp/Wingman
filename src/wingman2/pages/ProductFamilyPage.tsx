@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { BookOpenCheck, Cable, CheckCircle2, HelpCircle, Network, Search, Sparkles, Workflow } from "lucide-react";
+import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
@@ -20,6 +21,8 @@ type ProductFamilyGuide = {
   positionAgainst: string;
   whenNotToLead: string[];
   salesRule: string;
+  productSkus: string[];
+  pitchQuery: string;
 };
 
 const familyGuides: ProductFamilyGuide[] = [
@@ -27,6 +30,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "networkhd-100",
     name: "NetworkHD 100",
     shortPosition: "Cost-effective AV-over-IP for flexible 4K distribution where low bandwidth and simple expansion matter.",
+    productSkus: ["NHD-110-TX", "NHD-110-RX", "NHD-120-TX", "NHD-120-RX", "NHD-150-RX", "NHD-128-NDI-TRX"],
+    pitchQuery: "NetworkHD 100",
     customerPitch:
       "NetworkHD 100 is the practical entry point into WyreStorm AV-over-IP. Use it when the customer needs flexible source-to-display routing across rooms or zones, but the project does not justify a premium ultra-low-latency or 10G architecture.",
     whatItIs:
@@ -78,6 +83,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "networkhd-500",
     name: "NetworkHD 500",
     shortPosition: "Premium 4K60 4:4:4 AV-over-IP with low latency, strong USB support and Dante-ready workflows.",
+    productSkus: ["NHD-500-TX", "NHD-500-RX", "NHD-0401-MV"],
+    pitchQuery: "NetworkHD 500",
     customerPitch:
       "NetworkHD 500 is the stronger AV-over-IP conversation when the customer wants flexible distribution without treating image quality, USB or latency as afterthoughts.",
     whatItIs:
@@ -130,6 +137,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "networkhd-600",
     name: "NetworkHD 600",
     shortPosition: "Highest-performance NetworkHD architecture for lossless zero-latency AV-over-IP over 10G.",
+    productSkus: ["NHD-600-TRX"],
+    pitchQuery: "NetworkHD 600",
     customerPitch:
       "NetworkHD 600 is for customers who need the flexibility of AV-over-IP but cannot accept the compromises of lower-bandwidth systems.",
     whatItIs:
@@ -181,6 +190,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "matrix",
     name: "Matrix and seamless matrix",
     shortPosition: "Centralised source-to-display routing for fixed or predictable systems, often stronger than AVoIP below around 12 outputs.",
+    productSkus: ["MX-0404-HDBT-H2A-KIT", "MX-0808-HDBT-H2-KIT", "MX-1007-HYB", "MXV-0808-H2A", "MXV-0404-H2A"],
+    pitchQuery: "WyreStorm matrix seamless matrix MX SCL",
     customerPitch:
       "A matrix is often the cleanest way to route multiple sources to multiple displays when the system is centralised, predictable and not expected to expand heavily.",
     whatItIs:
@@ -232,6 +243,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "video-wall",
     name: "Video wall processors",
     shortPosition: "Dedicated wall processing for LCD/LED feature walls, with SW-0206-VW and SW-0204-VW considered alongside AVoIP wall options.",
+    productSkus: ["SW-0206-VW", "SW-0204-VW", "NHD-150-RX", "NHD-0401-MV"],
+    pitchQuery: "WyreStorm video wall processor",
     customerPitch:
       "Video wall processors are for customers who need several displays to behave as one visual system without necessarily building a full AV-over-IP estate.",
     whatItIs:
@@ -283,6 +296,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "presentation-uc",
     name: "Presentation switchers and UC",
     shortPosition: "Meeting-room and classroom products for USB-C, wireless presentation, BYOD/BYOM and conferencing-led spaces.",
+    productSkus: ["MX-0402-MST", "MX-0403-H3-MST", "SW-640L-TX-W", "APO-VX20-UC", "IDB-300"],
+    pitchQuery: "WyreStorm presentation UC USB-C BYOM",
     customerPitch:
       "Presentation and UC products are about making the room easy for users, especially where laptops, USB-C, wireless sharing and conferencing devices all need to work together.",
     whatItIs:
@@ -334,6 +349,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "hdbaset-extension",
     name: "HDBaseT extenders and switchers",
     shortPosition: "Reliable point-to-point or local switching transport when HDMI distance is impractical.",
+    productSkus: ["EX-70-H2", "EX-70-H2X", "EX-100-H2", "EX-100-H2-PRO", "RX-70-4K"],
+    pitchQuery: "WyreStorm HDBaseT extender",
     customerPitch:
       "HDBaseT is the practical choice when the source and display are too far apart for normal HDMI, but the system does not need full network-routed AV.",
     whatItIs:
@@ -385,6 +402,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "usb-kvm",
     name: "USB and KVM extenders",
     shortPosition: "Peripheral transport for cameras, speakerphones, touch displays, room PCs and interactive workflows.",
+    productSkus: ["EX-100-USB", "CAB-USB-3M", "CAB-USB-5M"],
+    pitchQuery: "WyreStorm USB KVM extender",
     customerPitch:
       "USB extension protects the user experience in conferencing and control rooms because cameras, microphones and touch devices must work from the correct host location.",
     whatItIs:
@@ -436,6 +455,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "cameras-bridges",
     name: "Cameras, bridges and NDI",
     shortPosition: "Capture and bridging products for meetings, teaching, streaming, recording and multi-camera rooms.",
+    productSkus: ["APO-CAM210-NDI-PTZ", "CAM-210-NDI-PTZ", "CAM-420-PTZ", "CAM-0402-BRG", "CAM-0402-NDI-BRG", "NHD-128-NDI-TRX"],
+    pitchQuery: "WyreStorm camera bridge NDI PTZ",
     customerPitch:
       "Camera and bridge products help the customer capture the right people or content and deliver it into the platform that needs it, such as USB conferencing, HDMI display, streaming or NDI workflows.",
     whatItIs:
@@ -487,6 +508,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "audio-dante",
     name: "Audio, microphones and Dante",
     shortPosition: "Audio products and network-audio workflows that complete the room experience beyond video.",
+    productSkus: ["AMP-260-DNT", "APO-VX20-UC"],
+    pitchQuery: "WyreStorm audio Dante amplifier microphone",
     customerPitch:
       "Audio is often the part users judge first. WyreStorm audio products help connect, process, amplify or network the sound path so the room works properly.",
     whatItIs:
@@ -537,6 +560,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "cables-aoc",
     name: "Cables and active optical",
     shortPosition: "Reliable signal-path products for high-bandwidth and awkward cable-run requirements.",
+    productSkus: ["CAB-HAOC-10", "CAB-HAOC-15", "CAB-HAOC-20", "CAB-HAOC-30"],
+    pitchQuery: "WyreStorm cable active optical HDMI",
     customerPitch:
       "Cables and active optical products are not glamorous, but they protect the system from avoidable signal problems when a passive cable is not the right answer.",
     whatItIs:
@@ -588,6 +613,8 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "control-management",
     name: "Control and management",
     shortPosition: "Control interfaces and management tools that make the AV system usable, supportable and easier to operate.",
+    productSkus: ["SYGMA", "NHD-CTL-PRO", "NHD-000-CTL"],
+    pitchQuery: "WyreStorm control management SYGMA touch",
     customerPitch:
       "Control and management products help the customer operate the system confidently after installation, reducing confusion and support effort.",
     whatItIs:
@@ -649,6 +676,13 @@ function findGuide(id: string) {
   return familyGuides.find((guide) => guide.id === id) ?? familyGuides[0];
 }
 
+function productPitchSkuPath(sku: string) {
+  return `${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(sku)}`;
+}
+
+function productPitchRangePath(query: string) {
+  return `${routeCatalogByKey.productPitch.path}?q=${encodeURIComponent(query)}`;
+}
 export function ProductFamilyPage() {
   const [activeFamilyId, setActiveFamilyId] = useState(familyGuides[0].id);
   const activeFamily = useMemo(() => findGuide(activeFamilyId), [activeFamilyId]);
@@ -719,6 +753,41 @@ export function ProductFamilyPage() {
           </header>
 
           <div className="space-y-5 p-5">
+            <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="wingman-kicker">Representative SKUs</p>
+                  <h3 className="mt-2 text-xl font-semibold text-slate-950">Products to start the conversation</h3>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                    Use this as a quick range view. Open a specific SKU for a one-page pitch, or pitch the whole range when the exact model is not fixed yet.
+                  </p>
+                </div>
+
+                <Link
+                  to={productPitchRangePath(activeFamily.pitchQuery)}
+                  className="inline-flex shrink-0 items-center justify-center rounded-full border border-slate-300 bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+                >
+                  Pitch this range
+                </Link>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {activeFamily.productSkus.map((sku) => (
+                  <Link
+                    key={sku}
+                    to={productPitchSkuPath(sku)}
+                    className="group rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-orange-300 hover:bg-orange-50"
+                  >
+                    <span className="block text-xs font-medium uppercase tracking-[0.22em] text-slate-500">SKU</span>
+                    <strong className="mt-1 block text-base font-semibold text-slate-950">{sku}</strong>
+                    <span className="mt-3 inline-flex text-sm font-medium text-orange-700 group-hover:text-orange-800">
+                      Open pitch
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
             <div className="grid gap-4 lg:grid-cols-3">
               <FamilyTextBlock icon={<Sparkles className="h-4 w-4 text-orange-600" />} title="What it is" text={activeFamily.whatItIs} />
               <FamilyTextBlock icon={<HelpCircle className="h-4 w-4 text-sky-600" />} title="Why it exists" text={activeFamily.whyItExists} />

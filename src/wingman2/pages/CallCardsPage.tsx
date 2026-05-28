@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { WingmanLanguageSelector } from "../components/WingmanLanguageSelector";
+import { SUPPORTED_WINGMAN_LANGUAGES, getStoredWingmanCaptureLanguage, setStoredWingmanCaptureLanguage, type WingmanLanguageId, useWingmanLanguage } from "../data/wingmanLanguage";
 
-type WizardStep = "type" | "context" | "capture" | "handoff";
 type ConversationTypeId = "displayAttach" | "meetingRoom" | "productSku" | "competitor" | "supportRisk";
 type AudienceId = "endUser" | "dealer" | "consultant" | "internal";
-type CaptureStyle = "wholeConversation" | "questionLed";
-type LanguageId = "en-GB" | "nl-NL" | "zh-CN";
+type LanguageId = WingmanLanguageId;
+type MicTarget = "wholeCall" | "currentQuestion";
 
 type ConversationType = {
   id: ConversationTypeId;
@@ -26,12 +27,6 @@ type Audience = {
   helper: string;
 };
 
-type Language = {
-  id: LanguageId;
-  label: string;
-  speechLang: string;
-};
-
 type Interpretation = {
   summary: string;
   askNext: string;
@@ -44,8 +39,8 @@ const CONVERSATION_TYPES: ConversationType[] = [
   {
     id: "displayAttach",
     title: "Display / LED / video wall add-on",
-    shortTitle: "Display / wall add-on",
-    description: "Use when the conversation starts from a display, LED wall, signage screen or video wall sale.",
+    shortTitle: "Display / wall",
+    description: "Use when the customer conversation starts with a display, LED wall, signage screen or video wall.",
     opener: "The display is only one part of the job. Let us check what needs to feed it, control it and make it useful every day.",
     firstQuestion: "What display, LED wall or video wall is already being sold?",
     questions: [
@@ -58,7 +53,7 @@ const CONVERSATION_TYPES: ConversationType[] = [
     route: "/wingman/videowall",
     routeLabel: "Open Video Wall",
     likelyDirection: [
-      "Dedicated video wall processing if wall behaviour is fixed and defined.",
+      "Dedicated video wall processing if the wall behaviour is fixed and defined.",
       "NetworkHD if routing flexibility or future expansion matters.",
       "Seamless matrix if fixed switching plus processing is a better fit."
     ]
@@ -111,7 +106,7 @@ const CONVERSATION_TYPES: ConversationType[] = [
     id: "competitor",
     title: "Competitor / replacement",
     shortTitle: "Competitor",
-    description: "Use when WyreStorm is being compared with another manufacturer or legacy system.",
+    description: "Use when WyreStorm is being compared with another manufacturer or a legacy system.",
     opener: "Let us compare the requirement, not just the logo on the box.",
     firstQuestion: "What competitor product or existing system is involved?",
     questions: [
@@ -133,7 +128,7 @@ const CONVERSATION_TYPES: ConversationType[] = [
     id: "supportRisk",
     title: "Support / risk / warranty",
     shortTitle: "Support / risk",
-    description: "Use when the conversation is about warranty, support confidence, project risk or customer-safe wording.",
+    description: "Use for warranty, support confidence, project risk or customer-safe wording.",
     opener: "Let us make sure the customer understands the support route and protection behind the system, not just the hardware price.",
     firstQuestion: "What concern needs to be dealt with?",
     questions: [
@@ -154,17 +149,13 @@ const CONVERSATION_TYPES: ConversationType[] = [
 ];
 
 const AUDIENCES: Audience[] = [
-  { id: "endUser", label: "End user", helper: "Simple and outcome-led language." },
-  { id: "dealer", label: "Dealer / reseller", helper: "Practical and commercial language." },
-  { id: "consultant", label: "Consultant / designer", helper: "More technical and architecture-led." },
-  { id: "internal", label: "Internal sales / pre-sales", helper: "Structured and qualification-led." }
+  { id: "endUser", label: "End user", helper: "Simple, outcome-led wording." },
+  { id: "dealer", label: "Dealer / reseller", helper: "Practical installation and commercial wording." },
+  { id: "consultant", label: "Consultant / designer", helper: "More technical and architecture-led wording." },
+  { id: "internal", label: "Internal sales / pre-sales", helper: "Structured qualification and handoff wording." }
 ];
 
-const LANGUAGES: Language[] = [
-  { id: "en-GB", label: "English UK", speechLang: "en-GB" },
-  { id: "nl-NL", label: "Dutch", speechLang: "nl-NL" },
-  { id: "zh-CN", label: "Mandarin", speechLang: "zh-CN" }
-];
+const LANGUAGES = SUPPORTED_WINGMAN_LANGUAGES;
 
 function getConversationType(id: ConversationTypeId) {
   return CONVERSATION_TYPES.find((item) => item.id === id) ?? CONVERSATION_TYPES[0];
@@ -182,12 +173,20 @@ function includesAny(text: string, terms: string[]) {
   return terms.some((term) => text.includes(term));
 }
 
+function answersToText(answers: Record<string, string>) {
+  return Object.entries(answers)
+    .filter(([, answer]) => answer.trim())
+    .map(([question, answer]) => `Q: ${question}\nA: ${answer.trim()}`)
+    .join("\n\n");
+}
+
 function interpretConversation(
   transcript: string,
   clue: string,
-  selectedType: ConversationTypeId
+  selectedType: ConversationTypeId,
+  answers: Record<string, string>
 ): Interpretation {
-  const text = `${clue}\n${transcript}`.toLowerCase();
+  const text = `${clue}\n${transcript}\n${answersToText(answers)}`.toLowerCase();
 
   let suggestedType: ConversationTypeId = selectedType;
   let summary = "Wingman is waiting for a clearer requirement before it narrows the opportunity.";
@@ -253,17 +252,18 @@ function interpretConversation(
 export function CallCardsPage() {
   const navigate = useNavigate();
   const recognitionRef = useRef<any>(null);
+  const { language: uiLanguage } = useWingmanLanguage();
 
-  const [step, setStep] = useState<WizardStep>("type");
   const [conversationTypeId, setConversationTypeId] = useState<ConversationTypeId>("displayAttach");
   const [audienceId, setAudienceId] = useState<AudienceId>("dealer");
-  const [languageId, setLanguageId] = useState<LanguageId>("en-GB");
-  const [captureStyle, setCaptureStyle] = useState<CaptureStyle>("wholeConversation");
+  const [languageId, setLanguageId] = useState<LanguageId>(() => getStoredWingmanCaptureLanguage().id);
   const [clue, setClue] = useState("");
   const [transcript, setTranscript] = useState("");
   const [notes, setNotes] = useState("");
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [questionIndex, setQuestionIndex] = useState(0);
   const [listening, setListening] = useState(false);
+  const [micTarget, setMicTarget] = useState<MicTarget | null>(null);
   const [liveTranscript, setLiveTranscript] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [copied, setCopied] = useState(false);
@@ -271,12 +271,11 @@ export function CallCardsPage() {
   const conversationType = getConversationType(conversationTypeId);
   const audience = getAudience(audienceId);
   const language = getLanguage(languageId);
+  const currentQuestion = conversationType.questions[questionIndex] ?? conversationType.firstQuestion;
 
   const interpretation = useMemo(() => {
-    return interpretConversation(transcript, clue, conversationTypeId);
-  }, [transcript, clue, conversationTypeId]);
-
-  const currentQuestion = conversationType.questions[questionIndex] ?? conversationType.firstQuestion;
+    return interpretConversation(transcript, clue, conversationTypeId, answers);
+  }, [transcript, clue, conversationTypeId, answers]);
 
   useEffect(() => {
     return () => {
@@ -288,9 +287,9 @@ export function CallCardsPage() {
 
   useEffect(() => {
     setQuestionIndex(0);
-  }, [conversationTypeId, captureStyle]);
+  }, [conversationTypeId]);
 
-  const appendText = (text: string) => {
+  const appendTranscript = (text: string) => {
     const cleanText = text.trim();
 
     if (!cleanText) {
@@ -303,19 +302,136 @@ export function CallCardsPage() {
     });
   };
 
+  const appendAnswer = (question: string, text: string) => {
+    const cleanText = text.trim();
+
+    if (!cleanText) {
+      return;
+    }
+
+    setAnswers((current) => {
+      const existing = current[question]?.trim();
+      return {
+        ...current,
+        [question]: existing ? `${existing}\n${cleanText}` : cleanText
+      };
+    });
+  };
+
+  const setAnswer = (question: string, value: string) => {
+    setAnswers((current) => ({
+      ...current,
+      [question]: value
+    }));
+  };
+
+  const stopMic = (message = "Microphone stopped.") => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+
+    setListening(false);
+    setMicTarget(null);
+    setLiveTranscript("");
+    setStatusMessage(message);
+  };
+
+  const startMic = (target: MicTarget) => {
+    setStatusMessage("");
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (listening && micTarget === target) {
+      stopMic();
+      return;
+    }
+
+    if (listening && micTarget !== target) {
+      stopMic("Microphone mode changed.");
+    }
+
+    const SpeechRecognitionConstructor =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionConstructor) {
+      setStatusMessage("Voice capture is not available in this browser. Use Chrome or Edge.");
+      return;
+    }
+
+    const recognition = new SpeechRecognitionConstructor();
+    recognition.lang = language.speechLang;
+    recognition.interimResults = true;
+    recognition.continuous = true;
+
+    recognition.onstart = () => {
+      setListening(true);
+      setMicTarget(target);
+      setLiveTranscript("");
+      setStatusMessage(target === "wholeCall" ? `Whole-call mic open in ${language.label}.` : `Capturing answer in ${language.label}.`);
+    };
+
+    recognition.onresult = (event: any) => {
+      let interimText = "";
+      let finalText = "";
+
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        const transcriptChunk = event.results[index][0]?.transcript ?? "";
+
+        if (event.results[index].isFinal) {
+          finalText += transcriptChunk;
+        }
+
+        if (!event.results[index].isFinal) {
+          interimText += transcriptChunk;
+        }
+      }
+
+      setLiveTranscript(interimText.trim());
+
+      if (finalText.trim()) {
+        if (target === "wholeCall") {
+          appendTranscript(finalText.trim());
+        }
+
+        if (target === "currentQuestion") {
+          appendAnswer(currentQuestion, finalText.trim());
+        }
+
+        setLiveTranscript("");
+      }
+    };
+
+    recognition.onerror = () => {
+      setListening(false);
+      setMicTarget(null);
+      setStatusMessage("Voice capture stopped or microphone permission was blocked.");
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+      setMicTarget(null);
+      setLiveTranscript("");
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
   const saveSession = () => {
     try {
       window.localStorage.setItem(
         "wingman.liveCallAssistant.latest",
         JSON.stringify({
           createdAt: new Date().toISOString(),
-          step,
           conversationTypeId,
           audienceId,
+          uiLanguageId: uiLanguage.id,
           languageId,
-          captureStyle,
           clue,
           transcript,
+          answers,
           notes,
           interpretation
         })
@@ -339,16 +455,19 @@ export function CallCardsPage() {
     const summary = [
       `Conversation type: ${conversationType.title}`,
       `Audience: ${audience.label}`,
-      `Language: ${language.label}`,
-      `Capture style: ${captureStyle === "wholeConversation" ? "Whole conversation" : "Question-led"}`,
-      clue.trim() ? `Clue: ${clue.trim()}` : "",
+      `UI language: ${uiLanguage.label}`,
+      `Capture language: ${language.label}`,
+      clue.trim() ? `Opening clue: ${clue.trim()}` : "",
       "",
       `Wingman summary: ${interpretation.summary}`,
       `Ask next: ${interpretation.askNext}`,
       interpretation.missing.length ? `Missing: ${interpretation.missing.join(", ")}` : "",
       "",
-      "Transcript / captured detail:",
+      "Captured conversation:",
       transcript.trim() || "(none)",
+      "",
+      "Question answers:",
+      answersToText(answers) || "(none)",
       "",
       "Notes:",
       notes.trim() || "(none)"
@@ -363,103 +482,24 @@ export function CallCardsPage() {
     });
   };
 
-  const toggleMic = () => {
-    setStatusMessage("");
-
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    if (listening && recognitionRef.current) {
-      recognitionRef.current.stop();
-      setListening(false);
-      setStatusMessage("Microphone stopped.");
-      return;
-    }
-
-    const SpeechRecognitionConstructor =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognitionConstructor) {
-      setStatusMessage("Voice capture is not available in this browser. Use Chrome or Edge.");
-      return;
-    }
-
-    const recognition = new SpeechRecognitionConstructor();
-    recognition.lang = language.speechLang;
-    recognition.interimResults = true;
-    recognition.continuous = true;
-
-    recognition.onstart = () => {
-      setListening(true);
-      setLiveTranscript("");
-      setStatusMessage(`Listening in ${language.label}.`);
-    };
-
-    recognition.onresult = (event: any) => {
-      let interimText = "";
-      let finalText = "";
-
-      for (let index = event.resultIndex; index < event.results.length; index += 1) {
-        const transcriptChunk = event.results[index][0]?.transcript ?? "";
-
-        if (event.results[index].isFinal) {
-          finalText += transcriptChunk;
-        }
-
-        if (!event.results[index].isFinal) {
-          interimText += transcriptChunk;
-        }
-      }
-
-      setLiveTranscript(interimText.trim());
-
-      if (finalText.trim()) {
-        if (captureStyle === "questionLed") {
-          const prefixed = `Q${questionIndex + 1}: ${currentQuestion}\nA: ${finalText.trim()}`;
-          appendText(prefixed);
-        }
-
-        if (captureStyle === "wholeConversation") {
-          appendText(finalText.trim());
-        }
-
-        setLiveTranscript("");
-      }
-    };
-
-    recognition.onerror = () => {
-      setListening(false);
-      setStatusMessage("Voice capture stopped or microphone permission was blocked.");
-    };
-
-    recognition.onend = () => {
-      setListening(false);
-      setLiveTranscript("");
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-  };
-
-  const shiftConversation = (targetId: ConversationTypeId) => {
-    setConversationTypeId(targetId);
-    setQuestionIndex(0);
-    setStatusMessage(`Conversation shifted to ${getConversationType(targetId).shortTitle}.`);
-  };
-
   const startNewCall = () => {
-    setStep("type");
+    stopMic("Ready for a new call.");
     setConversationTypeId("displayAttach");
     setAudienceId("dealer");
     setLanguageId("en-GB");
-    setCaptureStyle("wholeConversation");
     setClue("");
     setTranscript("");
     setNotes("");
+    setAnswers({});
     setQuestionIndex(0);
     setStatusMessage("");
     setLiveTranscript("");
+  };
+
+  const applySuggestedShift = () => {
+    setConversationTypeId(interpretation.suggestedType);
+    setQuestionIndex(0);
+    setStatusMessage(`Conversation shifted to ${getConversationType(interpretation.suggestedType).shortTitle}.`);
   };
 
   return (
@@ -470,113 +510,84 @@ export function CallCardsPage() {
         <header className="cca-header">
           <div>
             <p>Wingman workspace</p>
-            <h1>Live Call Wizard</h1>
-            <span>Pick the conversation type, capture the call, then move the opportunity into the right workflow.</span>
+            <h1>Live Call Cards</h1>
+            <span>One page for call capture, editable notes, live prompts and handoff.</span>
+          </div>
+
+          <div className="cca-headerActions">
+            <button type="button" onClick={copySummary}>{copied ? "Copied" : "Copy summary"}</button>
+            <button type="button" onClick={startNewCall}>New call</button>
           </div>
         </header>
 
-        <nav className="cca-stepper" aria-label="Live call wizard steps">
-          <button type="button" className={step === "type" ? "is-active" : ""} onClick={() => setStep("type")}>
-            <strong>1</strong>
-            <span>Choose type</span>
-          </button>
-          <button type="button" className={step === "context" ? "is-active" : ""} onClick={() => setStep("context")}>
-            <strong>2</strong>
-            <span>Set context</span>
-          </button>
-          <button type="button" className={step === "capture" ? "is-active" : ""} onClick={() => setStep("capture")}>
-            <strong>3</strong>
-            <span>Capture</span>
-          </button>
-          <button type="button" className={step === "handoff" ? "is-active" : ""} onClick={() => setStep("handoff")}>
-            <strong>4</strong>
-            <span>Hand off</span>
-          </button>
-        </nav>
+        <section className="cca-commandBar">
+          <div className="cca-typeStrip" aria-label="Conversation type">
+            {CONVERSATION_TYPES.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={conversationTypeId === item.id ? "is-selected" : ""}
+                onClick={() => setConversationTypeId(item.id)}
+              >
+                <strong>{item.shortTitle}</strong>
+                <span>{item.description}</span>
+              </button>
+            ))}
+          </div>
 
-        {step === "type" ? (
-          <section className="cca-card">
-            <p className="cca-kicker">Step 1 of 4</p>
-            <h2>What is this call mainly about?</h2>
-            <p className="cca-lead">Choose the conversation type first. This lets Wingman switch quickly to the right question style and next-step route.</p>
-
-            <div className="cca-typeGrid">
-              {CONVERSATION_TYPES.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={conversationTypeId === item.id ? "is-selected" : ""}
-                  onClick={() => setConversationTypeId(item.id)}
-                >
-                  <strong>{item.title}</strong>
-                  <span>{item.description}</span>
-                </button>
-              ))}
-            </div>
-
-            <footer className="cca-footer">
-              <span>Selected: {conversationType.title}</span>
-              <button type="button" className="cca-primary" onClick={() => setStep("context")}>Continue</button>
-            </footer>
-          </section>
-        ) : null}
-
-        {step === "context" ? (
-          <section className="cca-card">
-            <p className="cca-kicker">Step 2 of 4</p>
-            <h2>Set the call context</h2>
-            <p className="cca-lead">Choose who you are talking to and how you want to capture the conversation.</p>
-
-            <div className="cca-section">
-              <h3>Who are you talking to?</h3>
-              <div className="cca-chipRow">
+          <div className="cca-compactSettings">
+            <label>
+              Audience
+              <select value={audienceId} onChange={(event) => setAudienceId(event.target.value as AudienceId)}>
                 {AUDIENCES.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={audienceId === item.id ? "is-selected" : ""}
-                    onClick={() => setAudienceId(item.id)}
-                  >
-                    {item.label}
-                  </button>
+                  <option key={item.id} value={item.id}>{item.label}</option>
                 ))}
-              </div>
-              <p className="cca-helper">{audience.helper}</p>
-            </div>
+              </select>
+            </label>
 
-            <div className="cca-twoCols">
-              <label className="cca-field">
-                <span>Language</span>
-                <select value={languageId} onChange={(event) => setLanguageId(event.target.value as LanguageId)}>
-                  {LANGUAGES.map((item) => (
-                    <option key={item.id} value={item.id}>{item.label}</option>
-                  ))}
-                </select>
-              </label>
+            <label>
+              Language
+              <select value={languageId} onChange={(event) => {
+                  const nextLanguage = event.target.value as LanguageId;
+                  setLanguageId(nextLanguage);
+                  setStoredWingmanCaptureLanguage(nextLanguage);
+                }}>
+                {LANGUAGES.map((item) => (
+                  <option key={item.id} value={item.id}>{item.label}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </section>
 
-              <div className="cca-field">
-                <span>Capture style</span>
-                <div className="cca-chipRow">
-                  <button
-                    type="button"
-                    className={captureStyle === "wholeConversation" ? "is-selected" : ""}
-                    onClick={() => setCaptureStyle("wholeConversation")}
-                  >
-                    Whole conversation
-                  </button>
-                  <button
-                    type="button"
-                    className={captureStyle === "questionLed" ? "is-selected" : ""}
-                    onClick={() => setCaptureStyle("questionLed")}
-                  >
-                    Question-led
-                  </button>
-                </div>
-              </div>
+        <section className="cca-liveWorkspace">
+          <section className="cca-mainCapture">
+            <article className="cca-openerCard">
+              <span>{conversationType.title}</span>
+              <strong>{conversationType.opener}</strong>
+              <small>{audience.helper}</small>
+            </article>
+
+            <div className="cca-micBar">
+              <button
+                type="button"
+                className={listening && micTarget === "wholeCall" ? "cca-openMic is-listening" : "cca-openMic"}
+                onClick={() => startMic("wholeCall")}
+              >
+                {listening && micTarget === "wholeCall" ? "Stop whole-call mic" : "Open whole-call mic"}
+              </button>
+
+              <button
+                type="button"
+                className={listening && micTarget === "currentQuestion" ? "cca-captureMic is-listening" : "cca-captureMic"}
+                onClick={() => startMic("currentQuestion")}
+              >
+                {listening && micTarget === "currentQuestion" ? "Stop answer capture" : "Capture this answer"}
+              </button>
             </div>
 
             <label className="cca-field">
-              <span>Starting clue</span>
+              <span>Opening clue / customer wording</span>
               <input
                 value={clue}
                 onChange={(event) => setClue(event.target.value)}
@@ -584,211 +595,117 @@ export function CallCardsPage() {
               />
             </label>
 
-            <footer className="cca-footer">
-              <button type="button" onClick={() => setStep("type")}>Back</button>
-              <span>Next: start capturing the conversation.</span>
-              <button type="button" className="cca-primary" onClick={() => setStep("capture")}>Start capture</button>
-            </footer>
-          </section>
-        ) : null}
-
-        {step === "capture" ? (
-          <section className="cca-liveCard">
-            <div className="cca-liveHeader">
-              <div>
-                <p className="cca-kicker">Step 3 of 4</p>
-                <h2>Capture the conversation</h2>
-                <p className="cca-lead">
-                  {captureStyle === "wholeConversation"
-                    ? "Open mic and capture the whole discussion. Wingman will suggest the next question and likely direction."
-                    : "Use the current prompt, capture the response, then move to the next question."}
-                </p>
-              </div>
-
-              <div className="cca-quickShift">
-                <span>Shift conversation to</span>
-                <div className="cca-chipRow">
-                  {CONVERSATION_TYPES.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      className={conversationTypeId === item.id ? "is-selected" : ""}
-                      onClick={() => shiftConversation(item.id)}
-                    >
-                      {item.shortTitle}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="cca-liveLayout">
-              <section className="cca-capturePanel">
-                {captureStyle === "questionLed" ? (
-                  <article className="cca-questionCard">
-                    <span>Ask this now</span>
-                    <h3>{currentQuestion}</h3>
-                    <div className="cca-questionActions">
-                      <button
-                        type="button"
-                        onClick={() => setQuestionIndex((current) => Math.max(0, current - 1))}
-                        disabled={questionIndex === 0}
-                      >
-                        Previous
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setQuestionIndex((current) => Math.min(conversationType.questions.length - 1, current + 1))}
-                        disabled={questionIndex === conversationType.questions.length - 1}
-                      >
-                        Next question
-                      </button>
-                    </div>
-                  </article>
-                ) : null}
-
-                <button type="button" className={listening ? "cca-openMic is-listening" : "cca-openMic"} onClick={toggleMic}>
-                  {listening ? "Stop mic" : "Open mic"}
-                </button>
-
-                <label className="cca-field cca-grow">
-                  <span>Captured conversation</span>
-                  <textarea
-                    value={transcript}
-                    onChange={(event) => setTranscript(event.target.value)}
-                    placeholder={
-                      captureStyle === "wholeConversation"
-                        ? "Transcript appears here. You can also paste a meeting transcript or type a summary."
-                        : "Captured answers appear here. You can also type notes manually."
-                    }
-                  />
-                </label>
-
-                <label className="cca-field">
-                  <span>Extra notes</span>
-                  <textarea
-                    className="cca-notesArea"
-                    value={notes}
-                    onChange={(event) => setNotes(event.target.value)}
-                    placeholder="Add any extra notes or customer wording here..."
-                  />
-                </label>
-
-                {liveTranscript ? <p className="cca-statusLive">Listening: {liveTranscript}</p> : null}
-                {statusMessage ? <p className="cca-statusText">{statusMessage}</p> : null}
-              </section>
-
-              <aside className="cca-helperPanel">
-                <article className="cca-helperHero">
-                  <span>Wingman thinks</span>
-                  <h3>{interpretation.summary}</h3>
-                </article>
-
-                <article className="cca-helperCard cca-actionCard">
-                  <span>Ask this next</span>
-                  <strong>{interpretation.askNext}</strong>
-                </article>
-
-                <article className="cca-helperCard">
-                  <span>Missing detail</span>
-                  <div className="cca-chipCloud">
-                    {interpretation.missing.map((item) => (
-                      <em key={item}>{item}</em>
-                    ))}
-                  </div>
-                </article>
-
-                <article className="cca-helperCard">
-                  <span>Likely WyreStorm direction</span>
-                  <ul>
-                    {interpretation.direction.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </article>
-
-                {interpretation.suggestedType !== conversationTypeId ? (
-                  <article className="cca-helperCard cca-suggestionCard">
-                    <span>Suggested shift</span>
-                    <strong>{getConversationType(interpretation.suggestedType).title}</strong>
-                    <button type="button" className="cca-primary" onClick={() => shiftConversation(interpretation.suggestedType)}>
-                      Switch now
-                    </button>
-                  </article>
-                ) : null}
-              </aside>
-            </div>
-
-            <footer className="cca-footer">
-              <button type="button" onClick={() => setStep("context")}>Back</button>
-              <span>{captureStyle === "wholeConversation" ? "Capture the call, then hand it off." : `Current path: ${conversationType.shortTitle}`}</span>
-              <button type="button" className="cca-primary" onClick={() => setStep("handoff")}>Continue to handoff</button>
-            </footer>
-          </section>
-        ) : null}
-
-        {step === "handoff" ? (
-          <section className="cca-card">
-            <p className="cca-kicker">Step 4 of 4</p>
-            <h2>Hand off the opportunity</h2>
-            <p className="cca-lead">Move the captured conversation into the most useful Wingman workflow.</p>
-
-            <div className="cca-handoffGrid">
-              <button type="button" className="is-primary" onClick={() => goToRoute(conversationType.route)}>
-                <strong>{conversationType.routeLabel}</strong>
-                <span>Best next route for this conversation type.</span>
-              </button>
-
-              <button type="button" onClick={() => goToRoute("/wingman/discovery")}>
-                <strong>Open Discovery</strong>
-                <span>Use when the requirement still needs structured qualification.</span>
-              </button>
-
-              <button type="button" onClick={() => goToRoute("/wingman/proposal")}>
-                <strong>Open Proposal</strong>
-                <span>Use when the call needs customer-safe wording or output.</span>
-              </button>
-
-              <button type="button" onClick={copySummary}>
-                <strong>{copied ? "Copied" : "Copy summary"}</strong>
-                <span>Copy the captured conversation and Wingman interpretation.</span>
-              </button>
-            </div>
-
-            <div className="cca-summaryBox">
-              <article>
-                <span>Conversation type</span>
-                <strong>{conversationType.title}</strong>
-              </article>
-              <article>
-                <span>Audience</span>
-                <strong>{audience.label}</strong>
-              </article>
-              <article>
-                <span>Ask next</span>
-                <strong>{interpretation.askNext}</strong>
-              </article>
-            </div>
-
-            <label className="cca-field">
-              <span>Captured conversation / notes</span>
+            <label className="cca-field cca-grow">
+              <span>Editable whole-call transcript</span>
               <textarea
-                className="cca-summaryArea"
-                value={transcript + (notes.trim() ? `\n\nNotes:\n${notes}` : "")}
-                onChange={() => {}}
-                readOnly
+                value={transcript}
+                onChange={(event) => setTranscript(event.target.value)}
+                placeholder="Open the whole-call mic, paste a transcript, or type the call summary here. This field is fully editable."
               />
             </label>
 
-            {statusMessage ? <p className="cca-statusText">{statusMessage}</p> : null}
+            <label className="cca-field">
+              <span>Editable extra notes</span>
+              <textarea
+                className="cca-notesArea"
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                placeholder="Add customer wording, price pressure, competitor names, product hints, or follow-up notes."
+              />
+            </label>
 
-            <footer className="cca-footer">
-              <button type="button" onClick={() => setStep("capture")}>Back</button>
-              <span>Ready to start another call?</span>
-              <button type="button" className="cca-primary" onClick={startNewCall}>Start new call</button>
-            </footer>
+            {liveTranscript ? <p className="cca-statusLive">Listening: {liveTranscript}</p> : null}
+            {statusMessage ? <p className="cca-statusText">{statusMessage}</p> : null}
           </section>
-        ) : null}
+
+          <aside className="cca-sideCoach">
+            <article className="cca-nextQuestion">
+              <span>Ask this now</span>
+              <strong>{currentQuestion}</strong>
+
+              <div className="cca-questionActions">
+                <button
+                  type="button"
+                  onClick={() => setQuestionIndex((current) => Math.max(0, current - 1))}
+                  disabled={questionIndex === 0}
+                >
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuestionIndex((current) => Math.min(conversationType.questions.length - 1, current + 1))}
+                  disabled={questionIndex === conversationType.questions.length - 1}
+                >
+                  Next question
+                </button>
+              </div>
+
+              <textarea
+                value={answers[currentQuestion] ?? ""}
+                onChange={(event) => setAnswer(currentQuestion, event.target.value)}
+                placeholder="Type or capture the customer's answer here. This answer is editable."
+              />
+            </article>
+
+            <article className="cca-insightCard">
+              <span>Wingman thinks</span>
+              <strong>{interpretation.summary}</strong>
+            </article>
+
+            <article className="cca-insightCard cca-actionCard">
+              <span>Ask next</span>
+              <strong>{interpretation.askNext}</strong>
+            </article>
+
+            <article className="cca-insightCard">
+              <span>Missing detail</span>
+              <div className="cca-chipCloud">
+                {interpretation.missing.map((item) => (
+                  <em key={item}>{item}</em>
+                ))}
+              </div>
+            </article>
+
+            <article className="cca-insightCard">
+              <span>Likely WyreStorm direction</span>
+              <ul>
+                {interpretation.direction.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+
+            {interpretation.suggestedType !== conversationTypeId ? (
+              <article className="cca-insightCard cca-suggestionCard">
+                <span>Suggested shift</span>
+                <strong>{getConversationType(interpretation.suggestedType).title}</strong>
+                <button type="button" onClick={applySuggestedShift}>Switch now</button>
+              </article>
+            ) : null}
+          </aside>
+        </section>
+
+        <section className="cca-handoffRail">
+          <button type="button" className="is-primary" onClick={() => goToRoute(conversationType.route)}>
+            <strong>{conversationType.routeLabel}</strong>
+            <span>Best route for this call type</span>
+          </button>
+
+          <button type="button" onClick={() => goToRoute("/wingman/discovery")}>
+            <strong>Open Discovery</strong>
+            <span>Use when the requirement still needs qualification</span>
+          </button>
+
+          <button type="button" onClick={() => goToRoute("/wingman/finder")}>
+            <strong>Open Finder</strong>
+            <span>Use when a product path or SKU needs checking</span>
+          </button>
+
+          <button type="button" onClick={() => goToRoute("/wingman/proposal")}>
+            <strong>Open Proposal</strong>
+            <span>Use when customer-safe wording is needed</span>
+          </button>
+        </section>
       </section>
     </main>
   );
@@ -802,7 +719,7 @@ const pageStyles = `
   padding: 10px 14px;
   color: #111827;
   background:
-    radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 34%),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.1), transparent 34%),
     linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
 }
 
@@ -811,18 +728,19 @@ const pageStyles = `
 }
 
 .cca-shell {
-  width: min(1220px, 100%);
+  width: min(1260px, 100%);
   min-height: calc(100vh - 104px);
   margin: 0 auto;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 10px;
 }
 
 .cca-header,
-.cca-stepper,
-.cca-card,
-.cca-liveCard {
+.cca-commandBar,
+.cca-mainCapture,
+.cca-sideCoach,
+.cca-handoffRail {
   border: 1px solid rgba(148, 163, 184, 0.26);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
@@ -830,17 +748,17 @@ const pageStyles = `
 
 .cca-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
   border-radius: 22px;
   padding: 12px 16px;
 }
 
-.cca-header p,
-.cca-kicker {
+.cca-header p {
   margin: 0;
   color: #b45309;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -849,187 +767,224 @@ const pageStyles = `
 .cca-header h1 {
   margin: 4px 0 0;
   color: #0f172a;
-  font-size: clamp(1.45rem, 2.4vw, 1.95rem);
+  font-size: clamp(1.35rem, 2.2vw, 1.9rem);
   line-height: 1;
   letter-spacing: -0.04em;
 }
 
 .cca-header span {
   display: block;
-  margin-top: 6px;
+  margin-top: 5px;
   color: #64748b;
-  font-size: 0.88rem;
-  line-height: 1.35;
+  font-size: 0.82rem;
+  line-height: 1.32;
 }
 
-.cca-stepper {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  border-radius: 18px;
-  padding: 10px;
-}
-
-.cca-stepper button {
+.cca-headerActions,
+.cca-questionActions {
   display: flex;
-  align-items: center;
   gap: 8px;
-  min-height: 44px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  border-radius: 14px;
-  padding: 8px 10px;
-  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.cca-headerActions button,
+.cca-questionActions button,
+.cca-insightCard button {
+  min-height: 32px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 999px;
+  padding: 0 12px;
+  color: #334155;
   background: #f8fafc;
-  text-align: left;
+  font-size: 0.76rem;
+  font-weight: 760;
   cursor: pointer;
 }
 
-.cca-stepper button strong {
+.cca-commandBar {
   display: grid;
-  width: 26px;
-  height: 26px;
-  place-items: center;
-  border-radius: 999px;
-  color: #64748b;
-  background: #e2e8f0;
-  font-size: 0.78rem;
-}
-
-.cca-stepper button span {
-  font-size: 0.8rem;
-  font-weight: 620;
-}
-
-.cca-stepper button.is-active {
-  color: #111827;
-  border-color: rgba(245, 158, 11, 0.85);
-  background: #fffbeb;
-}
-
-.cca-stepper button.is-active strong {
-  color: #111827;
-  background: #fbbf24;
-}
-
-.cca-card,
-.cca-liveCard {
-  border-radius: 24px;
-  padding: 20px;
-  overflow: hidden;
-}
-
-.cca-card h2,
-.cca-liveCard h2 {
-  margin: 8px 0 0;
-  color: #0f172a;
-  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
-  line-height: 1.06;
-  letter-spacing: -0.05em;
-}
-
-.cca-lead {
-  max-width: 820px;
-  margin: 10px 0 20px;
-  color: #64748b;
-  font-size: 0.96rem;
-  line-height: 1.38;
-}
-
-.cca-section {
-  margin-top: 20px;
-}
-
-.cca-section h3 {
-  margin: 0 0 10px;
-  color: #0f172a;
-  font-size: 1rem;
-}
-
-.cca-typeGrid,
-.cca-handoffGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 12px;
+  border-radius: 20px;
+  padding: 12px;
 }
 
-.cca-typeGrid button,
-.cca-handoffGrid button {
-  min-height: 110px;
+.cca-typeStrip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cca-typeStrip button {
+  min-height: 76px;
   border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 20px;
-  padding: 14px;
+  border-radius: 16px;
+  padding: 10px;
   color: #0f172a;
   background: #ffffff;
   text-align: left;
   cursor: pointer;
 }
 
-.cca-typeGrid button.is-selected,
-.cca-handoffGrid button.is-primary {
-  border-color: rgba(245, 158, 11, 0.92);
+.cca-typeStrip button.is-selected {
+  border-color: rgba(245, 158, 11, 0.9);
   background: #fffbeb;
-  box-shadow: inset 5px 0 0 #f59e0b, 0 12px 24px rgba(245, 158, 11, 0.12);
+  box-shadow: inset 4px 0 0 #f59e0b;
 }
 
-.cca-typeGrid strong,
-.cca-handoffGrid strong {
+.cca-typeStrip strong {
   display: block;
-  font-size: 1rem;
+  font-size: 0.82rem;
+  line-height: 1.12;
 }
 
-.cca-typeGrid span,
-.cca-handoffGrid span {
+.cca-typeStrip span {
   display: block;
-  margin-top: 6px;
+  margin-top: 5px;
   color: #64748b;
-  font-size: 0.86rem;
-  line-height: 1.32;
+  font-size: 0.68rem;
+  line-height: 1.25;
 }
 
-.cca-twoCols {
+.cca-compactSettings {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 16px;
+  gap: 10px;
+  align-items: end;
 }
 
+.cca-compactSettings label,
 .cca-field {
   display: grid;
-  gap: 7px;
+  gap: 6px;
   color: #92400e;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
+.cca-compactSettings select,
 .cca-field input,
-.cca-field select,
-.cca-field textarea {
+.cca-field textarea,
+.cca-nextQuestion textarea {
   width: 100%;
   border: 1px solid rgba(148, 163, 184, 0.34);
-  border-radius: 16px;
-  padding: 0 12px;
+  border-radius: 14px;
   color: #0f172a;
   background: #ffffff;
   font: inherit;
   outline: none;
   text-transform: none;
   letter-spacing: normal;
-  font-weight: 400;
+  font-weight: 450;
 }
 
-.cca-field input,
-.cca-field select {
-  height: 42px;
+.cca-compactSettings select,
+.cca-field input {
+  height: 38px;
+  padding: 0 11px;
+  font-size: 0.84rem;
+}
+
+.cca-field textarea,
+.cca-nextQuestion textarea {
+  resize: vertical;
+  padding: 11px;
   font-size: 0.86rem;
+  line-height: 1.36;
 }
 
-.cca-field textarea {
-  resize: none;
+.cca-liveWorkspace {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+  gap: 12px;
+}
+
+.cca-mainCapture,
+.cca-sideCoach {
+  min-height: 0;
+  border-radius: 22px;
+  padding: 14px;
+  overflow: hidden;
+}
+
+.cca-mainCapture {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+  gap: 11px;
+}
+
+.cca-openerCard,
+.cca-nextQuestion,
+.cca-insightCard {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  background: #f8fafc;
   padding: 12px;
-  font-size: 0.88rem;
-  line-height: 1.36;
+}
+
+.cca-openerCard {
+  border-color: rgba(245, 158, 11, 0.32);
+  background: #fffbeb;
+}
+
+.cca-openerCard span,
+.cca-nextQuestion span,
+.cca-insightCard span {
+  display: block;
+  color: #92400e;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cca-openerCard strong,
+.cca-nextQuestion strong,
+.cca-insightCard strong {
+  display: block;
+  margin-top: 6px;
+  color: #0f172a;
+  font-size: 0.96rem;
+  line-height: 1.28;
+}
+
+.cca-openerCard small {
+  display: block;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.cca-micBar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.cca-openMic,
+.cca-captureMic {
+  min-height: 54px;
+  border: 0;
+  border-radius: 18px;
+  color: #ffffff;
+  background: #0f172a;
+  font-size: 0.94rem;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.16);
+}
+
+.cca-captureMic {
+  background: #1d4ed8;
+}
+
+.cca-openMic.is-listening,
+.cca-captureMic.is-listening {
+  background: #dc2626;
 }
 
 .cca-grow textarea {
@@ -1037,192 +992,33 @@ const pageStyles = `
 }
 
 .cca-notesArea {
-  min-height: 120px;
+  min-height: 92px;
 }
 
-.cca-summaryArea {
-  min-height: 180px;
-}
-
-.cca-chipRow,
-.cca-questionActions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.cca-chipRow button,
-.cca-questionActions button,
-.cca-footer button,
-.cca-helperCard button {
-  min-height: 32px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 999px;
-  padding: 0 12px;
-  color: #334155;
-  background: #f8fafc;
-  font-size: 0.76rem;
-  cursor: pointer;
-}
-
-.cca-chipRow button.is-selected,
-.cca-primary,
-.cca-footer .cca-primary,
-.cca-helperCard .cca-primary {
-  color: #ffffff;
-  border-color: #0f172a;
-  background: #0f172a;
-}
-
-.cca-helper {
-  margin: 8px 0 0;
-  color: #64748b;
-  font-size: 0.82rem;
-}
-
-.cca-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin-top: 22px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
-}
-
-.cca-footer span {
-  color: #64748b;
-  font-size: 0.84rem;
-}
-
-.cca-liveCard {
+.cca-sideCoach {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 14px;
+  grid-template-rows: auto auto auto auto auto auto;
+  gap: 10px;
+  overflow-y: auto;
 }
 
-.cca-liveHeader {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 380px;
-  gap: 12px;
-  align-items: start;
-}
-
-.cca-quickShift {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 18px;
-  padding: 12px;
-  background: #f8fafc;
-}
-
-.cca-quickShift span {
-  display: block;
-  margin-bottom: 8px;
-  color: #92400e;
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.cca-liveLayout {
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-  gap: 12px;
-}
-
-.cca-capturePanel,
-.cca-helperPanel {
-  min-height: 0;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 20px;
-  padding: 14px;
-  background: #ffffff;
-}
-
-.cca-capturePanel {
-  display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
-  gap: 12px;
-}
-
-.cca-questionCard {
-  border: 1px solid rgba(245, 158, 11, 0.36);
-  border-radius: 20px;
-  padding: 16px;
+.cca-nextQuestion {
+  border-color: rgba(245, 158, 11, 0.34);
   background: #fffbeb;
 }
 
-.cca-questionCard span,
-.cca-helperHero span,
-.cca-helperCard span,
-.cca-summaryBox span {
-  color: #92400e;
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.cca-nextQuestion textarea {
+  min-height: 120px;
+  margin-top: 10px;
 }
 
-.cca-questionCard h3 {
-  margin: 10px 0 0;
-  color: #111827;
-  font-size: clamp(1.25rem, 2vw, 1.8rem);
-  line-height: 1.18;
-  letter-spacing: -0.03em;
-}
-
-.cca-openMic {
-  min-height: 60px;
-  border: 0;
-  border-radius: 18px;
-  color: #ffffff;
-  background: #0f172a;
-  font-size: 1rem;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.18);
-}
-
-.cca-openMic.is-listening {
-  background: #dc2626;
-}
-
-.cca-helperPanel {
-  display: grid;
-  grid-template-rows: auto auto auto auto auto;
-  gap: 10px;
-}
-
-.cca-helperHero,
-.cca-helperCard {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 18px;
-  padding: 12px;
-  background: #f8fafc;
-}
-
-.cca-helperHero h3 {
-  margin: 8px 0 0;
-  color: #111827;
-  font-size: 1rem;
-  line-height: 1.28;
+.cca-questionActions {
+  margin-top: 10px;
 }
 
 .cca-actionCard {
   border-color: rgba(245, 158, 11, 0.34);
   background: #fffbeb;
-}
-
-.cca-actionCard strong,
-.cca-suggestionCard strong,
-.cca-summaryBox strong {
-  display: block;
-  margin-top: 6px;
-  color: #0f172a;
-  font-size: 0.96rem;
-  line-height: 1.26;
 }
 
 .cca-chipCloud {
@@ -1241,15 +1037,15 @@ const pageStyles = `
   font-style: normal;
 }
 
-.cca-helperCard ul {
+.cca-insightCard ul {
   margin: 8px 0 0;
   padding-left: 18px;
 }
 
-.cca-helperCard li {
+.cca-insightCard li {
   color: #334155;
   font-size: 0.82rem;
-  line-height: 1.32;
+  line-height: 1.34;
 }
 
 .cca-suggestionCard {
@@ -1257,18 +1053,42 @@ const pageStyles = `
   gap: 8px;
 }
 
-.cca-summaryBox {
+.cca-handoffRail {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
-  margin: 18px 0;
+  border-radius: 20px;
+  padding: 12px;
 }
 
-.cca-summaryBox article {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 18px;
-  padding: 12px;
-  background: #f8fafc;
+.cca-handoffRail button {
+  min-height: 64px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 16px;
+  padding: 10px 12px;
+  color: #0f172a;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cca-handoffRail button.is-primary {
+  border-color: rgba(245, 158, 11, 0.92);
+  background: #fffbeb;
+  box-shadow: inset 4px 0 0 #f59e0b;
+}
+
+.cca-handoffRail strong {
+  display: block;
+  font-size: 0.86rem;
+}
+
+.cca-handoffRail span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 0.72rem;
+  line-height: 1.25;
 }
 
 .cca-statusLive,
@@ -1288,23 +1108,23 @@ button:disabled {
   cursor: not-allowed;
 }
 
-@media (max-width: 1120px) {
+@media (max-width: 1180px) {
   .cca-shell {
     min-height: 0;
   }
 
-  .cca-stepper,
-  .cca-typeGrid,
-  .cca-handoffGrid,
-  .cca-twoCols,
-  .cca-liveHeader,
-  .cca-liveLayout,
-  .cca-summaryBox {
+  .cca-commandBar,
+  .cca-liveWorkspace,
+  .cca-handoffRail {
     grid-template-columns: 1fr;
   }
 
-  .cca-card,
-  .cca-liveCard {
+  .cca-typeStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cca-mainCapture,
+  .cca-sideCoach {
     overflow: visible;
   }
 
@@ -1318,12 +1138,19 @@ button:disabled {
     padding: 10px;
   }
 
-  .cca-stepper {
-    grid-template-columns: repeat(2, 1fr);
+  .cca-header,
+  .cca-compactSettings,
+  .cca-micBar,
+  .cca-typeStrip {
+    grid-template-columns: 1fr;
   }
 
-  .cca-footer {
+  .cca-header {
     display: grid;
+  }
+
+  .cca-headerActions {
+    justify-content: flex-start;
   }
 }
 `;

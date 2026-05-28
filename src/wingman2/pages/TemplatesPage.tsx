@@ -265,30 +265,54 @@ function difficultyClass(label: string) {
 }
 
 export function TemplatesPage() {
-  const [activeVertical, setActiveVertical] = useState("All");
+  const [activeVertical, setActiveVertical] = useState<string | null>(null);
 
-  const visibleTemplates = useMemo(
-    () =>
-      activeVertical === "All"
-        ? roomTemplates
-        : roomTemplates.filter((template) => template.vertical === activeVertical),
-    [activeVertical],
-  );
+  const visibleTemplates = useMemo(() => {
+    if (activeVertical === null) {
+      return [];
+    }
+
+    if (activeVertical === "All") {
+      return roomTemplates;
+    }
+
+    return roomTemplates.filter((template) => template.vertical === activeVertical);
+  }, [activeVertical]);
 
   const verticalCount = roomTemplateVerticals.length - 1;
+  const isChoosing = activeVertical === null;
+  const selectedLabel = activeVertical === "All" ? "All templates" : activeVertical ?? "Choose type";
+  const selectedCount = activeVertical === null ? 0 : activeVertical === "All" ? roomTemplates.length : countTemplatesForVertical(activeVertical);
 
   function selectVertical(vertical: string) {
     setActiveVertical(vertical);
     scrollToRoomTemplateSection();
   }
 
+  function showAllTemplates() {
+    setActiveVertical("All");
+    scrollToRoomTemplateSection();
+  }
+
+  function changeTemplateType() {
+    setActiveVertical(null);
+  }
+
   return (
-    <div className="pb-10">
+    <div className="wm-templates-workflow-page" data-template-step={isChoosing ? "choose" : "results"}>
       <PageHero
         eyebrow="Room Solution Templates"
-        title="Select a room design template."
-        purpose="Choose the closest customer environment first. The selected template opens on a dedicated review page with architecture notes, validation items, editable BOM rows, and export actions."
-        nextMove="Choose a market, pick the closest room type, adjust the BOM rows that differ, then export or save the boilerplate as project-ready proposal content."
+        title={isChoosing ? "Choose the room type or application." : `Templates for ${selectedLabel}.`}
+        purpose={
+          isChoosing
+            ? "Start with the customer environment. Wingman will then show only the matching room templates so the page stays clear."
+            : "Review the matching templates, choose the closest room, then adjust the design, BOM and proposal wording."
+        }
+        nextMove={
+          isChoosing
+            ? "Pick the closest application, or choose See all templates when you want to browse the full library."
+            : "Open the closest template, or change the type if the customer requirement is different."
+        }
         actions={[
           { label: "Open projects", to: routeCatalogByKey.projects.path },
           { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
@@ -296,51 +320,65 @@ export function TemplatesPage() {
       />
 
       <SectionCard
-        title="Template landing page"
-        subtitle={`${roomTemplates.length} real-room boilerplates across ${verticalCount} market verticals. Use the image cards to start from the closest customer environment.`}
+        title={isChoosing ? "Step 1: choose the application" : `Step 2: choose a ${selectedLabel} template`}
+        subtitle={
+          isChoosing
+            ? `${roomTemplates.length} room templates across ${verticalCount} market verticals. Choose one type first to avoid an overcrowded results page.`
+            : `${selectedCount} matching templates. Results scroll vertically when there are more cards than fit on screen.`
+        }
         rightSlot={
-          <button
-            type="button"
-            onClick={() => selectVertical("All")}
-            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-800 transition hover:bg-slate-50"
-          >
-            View all templates
-          </button>
+          isChoosing ? (
+            <button
+              type="button"
+              onClick={showAllTemplates}
+              className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+            >
+              See all templates
+            </button>
+          ) : (
+            <div className="wm-template-result-actions">
+              <button type="button" onClick={changeTemplateType}>
+                Change type
+              </button>
+              {activeVertical !== "All" && (
+                <button type="button" onClick={showAllTemplates}>
+                  See all
+                </button>
+              )}
+              <Link to={routeCatalogByKey.proposal.path}>Build proposal</Link>
+            </div>
+          )
         }
       >
-        <div className="space-y-6">
-          <section className="wm-template-landing-panel">
-            <span className="sr-only">Editable WyreStorm BOM</span>
-            <div className="flex flex-wrap items-end justify-between gap-3">
+        {isChoosing ? (
+          <section className="wm-template-step-panel">
+            <div className="wm-template-step-heading">
               <div>
-                <p className="wingman-kicker">Vertical markets</p>
-                <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Start with the customer environment</h3>
+                <p className="wingman-kicker">Room type / application</p>
+                <h3>What best describes the customer space?</h3>
+                <span>Use the closest match. This only filters the template list; it does not lock the design.</span>
               </div>
-              <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-bold text-slate-600">
-                {activeVertical === "All" ? `${roomTemplates.length} templates` : `${countTemplatesForVertical(activeVertical)} templates`}
-              </span>
             </div>
 
-            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
+            <div className="wm-template-market-grid">
               {verticalVisuals.map((market) => {
                 const Icon = market.Icon;
                 const count = countTemplatesForVertical(market.name);
-                const active = activeVertical === market.name;
+                const isAll = market.name === "All";
 
                 return (
                   <button
                     key={market.name}
                     type="button"
-                    onClick={() =>
-       selectVertical(market.name)}
-                    className={`wm-template-market-card ${active ? "wm-template-market-card-active" : ""}`}
+                    onClick={() => selectVertical(market.name)}
+                    className={`wm-template-market-card ${isAll ? "wm-template-market-card-see-all" : ""}`}
                   >
                     <div className="wm-template-market-image" style={{ backgroundImage: `url(${market.image})` }} />
                     <div className="wm-template-market-label">
                       <Icon className="h-5 w-5 text-amber-400" />
                       <div>
-                        <strong>{market.name === "All" ? "All markets" : market.name}</strong>
-                        <span>{market.strapline}</span>
+                        <strong>{isAll ? "See all templates" : market.name}</strong>
+                        <span>{isAll ? "Browse the full template library" : market.strapline}</span>
                       </div>
                       <small>{count}</small>
                     </div>
@@ -349,35 +387,29 @@ export function TemplatesPage() {
               })}
             </div>
           </section>
-
-          <section id={ROOM_TEMPLATE_SECTION_ID} className="wm-template-landing-panel scroll-mt-6">
-            <div className="flex flex-wrap items-end justify-between gap-3">
+        ) : (
+          <section id={ROOM_TEMPLATE_SECTION_ID} className="wm-template-results-panel">
+            <div className="wm-template-results-heading">
               <div>
                 <p className="wingman-kicker">Room templates</p>
-                <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Pick a room type to review</h3>
+                <h3>{selectedLabel}</h3>
+                <span>
+                  Select the closest room boilerplate. The next screen can hold the detailed architecture notes, validation items and BOM.
+                </span>
               </div>
-              <Link
-                to={routeCatalogByKey.proposal.path}
-                className="rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800"
-              >
-                Build proposal
-              </Link>
+              <strong>{selectedCount} templates</strong>
             </div>
 
             {visibleTemplates.length === 0 ? (
-              <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-                <p className="text-lg font-black text-slate-950">No templates in this vertical yet.</p>
-                <p className="mt-2 text-sm text-slate-600">Choose another market or view all room templates.</p>
-                <button
-                  type="button"
-                  onClick={() => selectVertical("All")}
-                  className="mt-4 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white"
-                >
-                  View all templates
+              <div className="wm-template-empty-state">
+                <p>No templates in this group yet.</p>
+                <span>Choose another type or browse the full template library.</span>
+                <button type="button" onClick={showAllTemplates}>
+                  See all templates
                 </button>
               </div>
             ) : (
-              <div className="mt-4 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+              <div className="wm-template-room-scroll-grid">
                 {visibleTemplates.map((template) => {
                   const difficulty = difficultyHint(template);
 
@@ -425,7 +457,7 @@ export function TemplatesPage() {
               </div>
             )}
           </section>
-        </div>
+        )}
       </SectionCard>
     </div>
   );

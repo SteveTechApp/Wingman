@@ -190,6 +190,7 @@ const PROJECT_STORE_EVENT = "wingman:project-store-updated";
 const PROJECT_SYNC_ENDPOINT = "/api/wingman/projects/sync";
 const PROJECTS_ENDPOINT = "/api/wingman/projects";
 const BACKEND_SYNC_DEBOUNCE_MS = 600;
+const PROJECT_BACKEND_SYNC_ENABLED = String(import.meta.env.VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC ?? "").toLowerCase() === "true";
 const projectStages: ProjectStage[] = [
   "Discovery",
   "Competitor Compare",
@@ -642,6 +643,10 @@ function statusVariant(value: unknown): StatusVariant {
   if (normalized === "recommended" || normalized.includes("ready") || normalized.includes("track")) return "recommended";
   if (normalized === "caution" || normalized.includes("risk") || normalized.includes("block")) return "caution";
   return "alternative";
+}
+
+function projectBackendSyncEnabled() {
+  return PROJECT_BACKEND_SYNC_ENABLED;
 }
 
 function storedProjectFromBackend(value: Record<string, unknown>): StoredProject {

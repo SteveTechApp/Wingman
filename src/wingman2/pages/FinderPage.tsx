@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { classifyWingmanProduct, isWingmanProductEligibleForFinderNeed, wingmanHardwareTypePriority } from "../lib/productClassification";
 import {
   AlertTriangle,
   Check,
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { ProductSalesKnowledgePanel } from "../components/ProductSalesKnowledgePanel";
 import {
   saveProductSelectionToProject,
   upsertStoredProject,
@@ -701,46 +703,11 @@ function classifyProduct(product: FinderProduct) {
 }
 
 function classifyTechnologyType(product: FinderProduct) {
-  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
-  const sku = product.sku.toUpperCase();
-
-  if (/^(CAB-|CBL-|EXP-CAB-|EXP-4KUHD-|EXP-8KUHD-)/.test(sku) || textIncludesAny(text, ["cable", "active optical", "hdmi aoc", "usb c cable", "usb-c cable"])) return "Cable";
-  if (/^(APO-DG|IDB-)/.test(sku) || textIncludesAny(text, ["dongle", "casting dongle", "apollo dongle", "in desk", "in-desk", "cable management"])) return "Dongle";
-  if (textIncludesAny(text, ["rack", "mount", "bracket", "cradle", "adapter", "faceplate", "module", "accessory", "accessories"])) return "Accessory";
-
-  if (textIncludesAny(text, ["video wall", "videowall", "multiview", "multi view", "sw 0204 vw", "sw 0206 vw", "nhd 0401 mv"])) return "Video Wall / Multiview";
-  if (textIncludesAny(text, ["networkhd", "av over ip", "avoip", "encoder", "decoder", "transceiver", "nhd"])) return "AVoIP";
-  if (textIncludesAny(text, ["seamless matrix", "hdbaset matrix", "matrix routing", "matrix", "mxv", "mx 0404", "mx 0808", "mx 0812", "mx 1616"])) return "Matrix";
-  if (textIncludesAny(text, ["presentation switcher", "room core", "conference room switcher", "mx 0402 mst", "mx 0403 h3 mst", "mx 0804 edc", "mx 1007 hyb"])) return "Presentation / Room Core";
-  if (textIncludesAny(text, ["unified comms", "unified communications", "video bar", "wireless conferencing", "wireless presentation", "conference", "speakerphone", "apollo", "halo"])) return "Unified Comms";
-  if (textIncludesAny(text, ["camera", "ptz", "ndi", "camera bridge", "video bridge", "focus"])) return "Camera / Capture";
-  if (textIncludesAny(text, ["splitter", "distribution amplifier", "1x2", "1x4", "1x8", "sp 0104", "sp 0108"])) return "Splitter / Distribution";
-  if (textIncludesAny(text, ["extender", "hdbaset", "kvm", "receiver", "transmitter", "wall plate", "wall-plate", "rx3", "rx 500", "rx 700", "ex 100", "ex 70", "ex 35", "swx"])) return "Extender / HDBaseT";
-  if (textIncludesAny(text, ["switcher", "switching", "sw 510", "sw 515", "exp sw"])) return "Switcher";
-  if (textIncludesAny(text, ["audio", "dante", "aes67", "microphone", "amplifier", "control", "touch panel", "keypad", "controller", "syn"])) return "Audio / Control";
-
-  return "Core Hardware";
+  return classifyWingmanProduct(product).technologyType;
 }
 
 function hardwareTypePriority(product: FinderProduct) {
-  const technologyType = classifyTechnologyType(product);
-
-  if (technologyType === "AVoIP") return 10;
-  if (technologyType === "Presentation / Room Core") return 12;
-  if (technologyType === "Matrix") return 14;
-  if (technologyType === "Unified Comms") return 16;
-  if (technologyType === "Video Wall / Multiview") return 18;
-  if (technologyType === "Camera / Capture") return 22;
-  if (technologyType === "Switcher") return 24;
-  if (technologyType === "Splitter / Distribution") return 26;
-  if (technologyType === "Extender / HDBaseT") return 28;
-  if (technologyType === "Audio / Control") return 34;
-  if (technologyType === "Core Hardware") return 40;
-  if (technologyType === "Dongle") return 95;
-  if (technologyType === "Accessory") return 100;
-  if (technologyType === "Cable") return 110;
-
-  return 60;
+  return wingmanHardwareTypePriority(product);
 }
 
 function matchesTechnologyType(product: FinderProduct, selectedTechnologyType: string) {
@@ -748,7 +715,7 @@ function matchesTechnologyType(product: FinderProduct, selectedTechnologyType: s
   if (selectedTechnologyType === "Core hardware first") return true;
   if (selectedTechnologyType === "All hardware types") return true;
 
-  return classifyTechnologyType(product) === selectedTechnologyType;
+  return classifyWingmanProduct(product).technologyType === selectedTechnologyType;
 }
 
 function compareProductMatches(a: ProductMatch, b: ProductMatch) {
@@ -1828,9 +1795,194 @@ function getActiveFeatureFilters(need: FinderNeed) {
     .filter((filter): filter is FinderFeatureFilter => Boolean(filter));
 }
 
+
+function makeFinderClassSet(values: string[]) {
+  return new Set(values.filter(Boolean));
+}
+
+function normalisedFinderClassForTechnology(technologyType: string) {
+  const value = normaliseText(technologyType);
+
+  if (!value) return "";
+  if (value.includes("cable")) return "cable";
+  if (value.includes("accessory")) return "accessory";
+  if (value.includes("dongle")) return "dongle";
+  if (value.includes("video wall") || value.includes("multiview")) return "video-wall";
+  if (value.includes("avoip")) return "avoip";
+  if (value.includes("matrix")) return "matrix";
+  if (value.includes("presentation") || value.includes("room core")) return "presentation";
+  if (value.includes("unified comms")) return "uc";
+  if (value.includes("camera") || value.includes("capture")) return "camera";
+  if (value.includes("splitter") || value.includes("distribution")) return "splitter";
+  if (value.includes("extender") || value.includes("hdbaset")) return "hdbaset";
+  if (value.includes("switcher")) return "switcher";
+  if (value.includes("audio") || value.includes("control")) return "audio-control";
+  if (value.includes("core hardware")) return "core";
+
+  return "";
+}
+
+function inferFinderStrictProductClass(product: FinderProduct) {
+  const sku = product.sku.toUpperCase();
+  const text = normaliseText(`${product.sku} ${product.title} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")} ${product.searchText}`);
+
+  if (/^(CAB-|CBL-|EXP-CAB-|EXP-4KUHD-|EXP-8KUHD-)/.test(sku)) return "cable";
+  if (textIncludesAny(text, ["active optical cable", "hdmi cable", "usb-c cable", "usb c cable", "aoc cable"])) return "cable";
+
+  if (/^(APO-DG|IDB-)/.test(sku)) return "dongle";
+  if (textIncludesAny(text, ["casting dongle", "apollo dongle", "in-desk", "in desk", "cable management"])) return "dongle";
+
+  if (textIncludesAny(text, ["rack mount", "rackmount", "rack kit", "mounting bracket", "faceplate", "replacement psu", "power supply", "accessory only"])) return "accessory";
+
+  if (sku.startsWith("NHD-") || textIncludesAny(text, ["networkhd", "av over ip", "avoip", "encoder", "decoder", "transceiver"])) return "avoip";
+
+  if (
+    sku === "SW-0204-VW" ||
+    sku === "SW-0206-VW" ||
+    textIncludesAny(text, ["video wall", "videowall", "wall processor", "lcd wall", "led wall"])
+  ) {
+    return "video-wall";
+  }
+
+  if (
+    sku === "MX-0402-MST" ||
+    sku === "MX-0403-H3-MST" ||
+    sku === "MX-1007-HYB" ||
+    textIncludesAny(text, ["presentation switcher", "room core", "conference room switcher", "usb-c presentation", "usb c presentation"])
+  ) {
+    return "presentation";
+  }
+
+  if (textIncludesAny(text, ["seamless matrix", "hdbaset matrix", "matrix switch", "matrix switching", "matrix routing", "mxv", "mx-0404", "mx-0808", "mx-0812", "mx-1616"])) return "matrix";
+  if (textIncludesAny(text, ["apollo", "halo", "unified comms", "unified communications", "video bar", "speakerphone", "conference", "conferencing", "byod", "byom"])) return "uc";
+  if (textIncludesAny(text, ["camera", "ptz", "ndi", "camera bridge", "video bridge"])) return "camera";
+  if (textIncludesAny(text, ["splitter", "distribution amplifier", "sp-0104", "sp-0108", "1x2", "1x4", "1x8"])) return "splitter";
+  if (textIncludesAny(text, ["hdbaset", "hdbt", "extender", "kvm extender", "receiver", "transmitter", "wall plate", "wall-plate", "rx3", "rx-500", "rx-700", "ex-100", "ex-70", "ex-35", "swx"])) return "hdbaset";
+  if (textIncludesAny(text, ["switcher", "switching", "sw-510", "sw-515", "exp-sw"])) return "switcher";
+  if (textIncludesAny(text, ["audio", "dante", "aes67", "amplifier", "microphone", "touch panel", "keypad", "controller", "rs-232", "rs232", "ir control", "syn-"])) return "audio-control";
+
+  return normalisedFinderClassForTechnology(classifyTechnologyType(product)) || "core";
+}
+
+function classesForFinderTechnologyType(technologyType: string) {
+  if (!technologyType) return makeFinderClassSet([]);
+  if (technologyType === "Core hardware first") return makeFinderClassSet([]);
+  if (technologyType === "All hardware types") return makeFinderClassSet([]);
+
+  const mapped = normalisedFinderClassForTechnology(technologyType);
+  return mapped ? makeFinderClassSet([mapped]) : makeFinderClassSet([]);
+}
+
+function classesForFinderProductPath(productPath: string) {
+  if (productPath === "Presentation switcher") return makeFinderClassSet(["presentation"]);
+  if (productPath === "HDMI / USB extender") return makeFinderClassSet(["hdbaset", "presentation"]);
+  if (productPath === "HDBaseT extender") return makeFinderClassSet(["hdbaset"]);
+  if (productPath === "Matrix / routing") return makeFinderClassSet(["matrix", "avoip", "presentation"]);
+  if (productPath === "AVoIP") return makeFinderClassSet(["avoip"]);
+  if (productPath === "Video wall") return makeFinderClassSet(["video-wall", "avoip", "matrix"]);
+  if (productPath === "UC / conferencing") return makeFinderClassSet(["uc", "presentation"]);
+  if (productPath === "Wireless presentation") return makeFinderClassSet(["uc", "presentation", "dongle"]);
+  if (productPath === "NDI / camera") return makeFinderClassSet(["camera", "avoip"]);
+  if (productPath === "Audio / control") return makeFinderClassSet(["audio-control"]);
+  return makeFinderClassSet([]);
+}
+
+function classesForFinderTechnicalRequirement(requirement: string) {
+  if (requirement === "Extend HDMI over distance") return makeFinderClassSet(["hdbaset"]);
+  if (requirement === "Extend HDMI and USB together") return makeFinderClassSet(["hdbaset", "presentation"]);
+  if (requirement === "Connect USB-C laptop") return makeFinderClassSet(["presentation", "uc", "hdbaset"]);
+  if (requirement === "Wireless presentation") return makeFinderClassSet(["uc", "presentation", "dongle"]);
+  if (requirement === "BYOD / BYOM conferencing") return makeFinderClassSet(["uc", "presentation", "hdbaset"]);
+  if (requirement === "Route sources to multiple displays") return makeFinderClassSet(["matrix", "avoip", "presentation"]);
+  if (requirement === "Dual display / MST") return makeFinderClassSet(["presentation", "matrix", "avoip"]);
+  if (requirement === "Create multiview layout") return makeFinderClassSet(["video-wall", "avoip", "matrix"]);
+  if (requirement === "Build LCD video wall") return makeFinderClassSet(["video-wall", "avoip"]);
+  if (requirement === "Feed LED wall processor") return makeFinderClassSet(["video-wall", "presentation", "matrix"]);
+  if (requirement === "Distribute AV over network") return makeFinderClassSet(["avoip"]);
+  if (requirement === "Bring NDI camera into AV system") return makeFinderClassSet(["camera", "avoip"]);
+  if (requirement === "Extract or route audio") return makeFinderClassSet(["audio-control", "matrix", "presentation", "avoip"]);
+  if (requirement === "Control displays / system") return makeFinderClassSet(["audio-control"]);
+  return makeFinderClassSet([]);
+}
+
+function expectedStrictFinderClassesForNeed(need: FinderNeed) {
+  const technologyClasses = classesForFinderTechnologyType(need.technologyType);
+
+  if (technologyClasses.size > 0) {
+    return technologyClasses;
+  }
+
+  const requirementClasses = classesForFinderTechnicalRequirement(need.technicalRequirement);
+
+  if (requirementClasses.size > 0) {
+    return requirementClasses;
+  }
+
+  const pathClasses = classesForFinderProductPath(need.productPath);
+
+  if (pathClasses.size > 0) {
+    return pathClasses;
+  }
+
+  return makeFinderClassSet([]);
+}
+
+function isSupportOnlyFinderClass(productClass: string) {
+  return productClass === "cable" || productClass === "accessory" || productClass === "dongle";
+}
+
+function needExplicitlyRequestsSupportClass(need: FinderNeed, productClass: string) {
+  const needText = normaliseText(Object.values(need).join(" "));
+
+  if (productClass === "cable") {
+    return need.technologyType === "Cable" || textIncludesAny(needText, ["cable", "active optical", "aoc", "hdmi cable", "usb-c cable", "usb c cable"]);
+  }
+
+  if (productClass === "accessory") {
+    return need.technologyType === "Accessory" || textIncludesAny(needText, ["accessory", "rack", "mount", "bracket", "psu", "power supply", "faceplate"]);
+  }
+
+  if (productClass === "dongle") {
+    return need.technologyType === "Dongle" || textIncludesAny(needText, ["dongle", "adapter", "adaptor", "dock", "wireless dongle", "apo-dg2", "dg2"]);
+  }
+
+  return false;
+}
+
+function isFinderStrictClassAllowed(product: FinderProduct, need: FinderNeed) {
+  const productClass = inferFinderStrictProductClass(product);
+  const expectedClasses = expectedStrictFinderClassesForNeed(need);
+
+  if (expectedClasses.has(productClass)) {
+    return true;
+  }
+
+  if (isSupportOnlyFinderClass(productClass)) {
+    return needExplicitlyRequestsSupportClass(need, productClass);
+  }
+
+  if (expectedClasses.size === 0) {
+    return true;
+  }
+
+  return false;
+}
+
+function suppressedFinderClassMatch(product: FinderProduct): ProductMatch {
+  return {
+    ...cleanFinderProduct(product),
+    score: -999,
+    status: "caution",
+  };
+}
 function toFeatureSearchMatch(product: FinderProduct, need: FinderNeed, filters: FinderFeatureFilter[], strictMatch: boolean): ProductMatch {
+  const suppressedByWingmanClassification = !isWingmanProductEligibleForFinderNeed(product, need);
   const cleanProduct = cleanFinderProduct(product);
   const matchingFilters = filters.filter((filter) => filter.matches(cleanProduct));
+
+  if (!isFinderStrictClassAllowed(cleanProduct, need)) {
+    return suppressedFinderClassMatch(cleanProduct);
+  }
   const featureScore = 40 + matchingFilters.reduce((sum, filter) => sum + filter.weight, 0) + (strictMatch ? 12 : 0);
   const score = Math.min(99, featureScore);
 
@@ -2020,6 +2172,7 @@ function shouldSuppressEndpointOnlyProduct(product: FinderProduct, need: FinderN
 }
 
 function isProductAllowedForNeed(product: FinderProduct, need: FinderNeed) {
+  if (!isWingmanProductEligibleForFinderNeed(product, need)) return false;
   if (!isWyreStormProduct(product)) return false;
 
   const query = normaliseText(need.query);
@@ -2103,6 +2256,7 @@ function isProductAllowedForNeed(product: FinderProduct, need: FinderNeed) {
 
 function shouldShowMatch(match: ProductMatch, need: FinderNeed) {
   if (!isProductAllowedForNeed(match, need)) return false;
+  if (!isFinderStrictClassAllowed(match, need)) return false;
   if (match.score < 42) return false;
   return true;
 }
@@ -2735,12 +2889,12 @@ export function FinderPage() {
   }
 
   return (
-    <div className="pb-8">
+    <div className="wm-finder-redesign-page pb-0">
       <PageHero
         eyebrow="Product Finder"
-        title="Find products from filters, not room labels."
-        purpose="Start with one clear technical need. Finder will stay empty until the user chooses a filter, quick-start path, or search term."
-        nextMove="Select a quick-start filter or choose a technical requirement to begin."
+        title="Find the right WyreStorm product path."
+        purpose="Search by SKU, application or technical need. Use the compact top filters to narrow the result set without sacrificing product result space."
+        nextMove="Start with a quick-start path, SKU search or one technical requirement. Then refine using the top filter rail."
         actions={[
           { label: "Load Discovery brief", variant: "secondary", onClick: applyDiscoveryBrief },
           { label: "Open projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
@@ -2749,7 +2903,7 @@ export function FinderPage() {
 
       <SectionCard
         title="Technical Product Finder"
-        subtitle="Start with a technical requirement, quick-start filter, or SKU search. Products appear only after the user makes a selection."
+        subtitle="Use the top filter rail to describe the signal problem. Results stay clear and occupy the main workspace."
       >
         <div className="grid gap-4">
           <div className="wm-finder-quickstart grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
@@ -2774,26 +2928,15 @@ export function FinderPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[340px_minmax(0,1fr)_330px]">
-            <aside className="grid content-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <label className="grid gap-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-                Technology Type
-                <select
-                  id="finder-technology-type"
-                  value={need.technologyType}
-                  onChange={(event) => setNeed((current) => ({ ...current, technologyType: event.target.value }))}
-                  className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold normal-case tracking-normal text-slate-900 shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-                >
-                  {technologyTypeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label><div className="flex items-center justify-between gap-3">
+          <div className="wm-finder-workbench grid gap-4">
+                        <aside className="wm-finder-filter-panel grid content-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="wm-finder-filter-header flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4 text-slate-500" />
-                  <p className="text-sm font-black text-slate-900">Technical filters</p>
+                  <div>
+                    <p className="text-sm font-black text-slate-900">Technical filters</p>
+                    <span className="text-xs text-slate-500">Work left to right: product type, signal path, system size, then specialist needs.</span>
+                  </div>
                 </div>
 
                 <button
@@ -2806,50 +2949,110 @@ export function FinderPage() {
                 </button>
               </div>
 
-              <label className="grid gap-1">
-                <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Search SKU or requirement</span>
-                <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
-                  <Search className="h-4 w-4 text-slate-400" />
-                  <input
-                    value={need.query}
-                    onChange={(event) => setNeedField("query", event.target.value)}
-                    placeholder="e.g. HDMI USB extender, NHD-150-RX, multiview"
-                    className="h-9 flex-1 border-0 bg-transparent px-0 text-sm text-slate-900 outline-none"
-                  />
+              <section className="wm-finder-filter-group wm-finder-filter-group-start">
+                <div className="wm-finder-filter-group-title">
+                  <span>1</span>
+                  <div>
+                    <strong>Start here</strong>
+                    <small>Choose the product direction or search directly.</small>
+                  </div>
                 </div>
-              </label>
 
-              <FieldSelect label="Technical requirement" value={need.technicalRequirement} options={technicalRequirementOptions} onChange={(value) => setNeedField("technicalRequirement", value)} />
-              <FieldSelect label="Likely product path" value={need.productPath} options={productPathOptions} onChange={(value) => setNeedField("productPath", value)} />
-              <FieldSelect label="Signal type" value={need.signalType} options={signalTypeOptions} onChange={(value) => setNeedField("signalType", value)} />
+                <div className="wm-finder-filter-group-body wm-finder-filter-group-body-start">
+                  <label className="wm-finder-technology-field grid gap-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+                    Technology Type
+                    <select
+                      id="finder-technology-type"
+                      value={need.technologyType}
+                      onChange={(event) => setNeed((current) => ({ ...current, technologyType: event.target.value }))}
+                      className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold normal-case tracking-normal text-slate-900 shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                    >
+                      {technologyTypeOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-              <div className="grid grid-cols-2 gap-3">
-                <FieldSelect label="Source connector" value={need.sourceConnector} options={connectorOptions} onChange={(value) => setNeedField("sourceConnector", value)} />
-                <FieldSelect label="Display / output" value={need.displayConnector} options={connectorOptions} onChange={(value) => setNeedField("displayConnector", value)} />
-              </div>
+                  <label className="wm-finder-search-field grid gap-1">
+                    <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Search SKU or requirement</span>
+                    <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
+                      <Search className="h-4 w-4 text-slate-400" />
+                      <input
+                        value={need.query}
+                        onChange={(event) => setNeedField("query", event.target.value)}
+                        placeholder="e.g. HDMI USB extender, NHD-150-RX, multiview"
+                        className="h-9 flex-1 border-0 bg-transparent px-0 text-sm text-slate-900 outline-none"
+                      />
+                    </div>
+                  </label>
 
-              <div className="grid grid-cols-2 gap-3">
-                <FieldSelect label="Inputs" value={need.inputs} options={inputOptions} onChange={(value) => setNeedField("inputs", value)} />
-                <FieldSelect label="Outputs" value={need.outputs} options={outputOptions} onChange={(value) => setNeedField("outputs", value)} />
-              </div>
+                  <FieldSelect label="Technical requirement" value={need.technicalRequirement} options={technicalRequirementOptions} onChange={(value) => setNeedField("technicalRequirement", value)} />
+                  <FieldSelect label="Likely product path" value={need.productPath} options={productPathOptions} onChange={(value) => setNeedField("productPath", value)} />
+                </div>
+              </section>
 
-              <FieldSelect label="Distance" value={need.distance} options={distanceOptions} onChange={(value) => setNeedField("distance", value)} />
-              <FieldSelect label="Resolution" value={need.resolution} options={resolutionOptions} onChange={(value) => setNeedField("resolution", value)} />
-              <FieldSelect label="USB" value={need.usb} options={usbOptions} onChange={(value) => setNeedField("usb", value)} />
-              <FieldSelect label="Processing" value={need.processing} options={processingOptions} onChange={(value) => setNeedField("processing", value)} />
-              <FieldSelect label="Network" value={need.network} options={networkOptions} onChange={(value) => setNeedField("network", value)} />
-              <FieldSelect label="Audio" value={need.audio} options={audioOptions} onChange={(value) => setNeedField("audio", value)} />
-              <FieldSelect label="Control" value={need.control} options={controlOptions} onChange={(value) => setNeedField("control", value)} />
+              <section className="wm-finder-filter-group">
+                <div className="wm-finder-filter-group-title">
+                  <span>2</span>
+                  <div>
+                    <strong>Signal path</strong>
+                    <small>Define what signal is moving and how it connects.</small>
+                  </div>
+                </div>
+
+                <div className="wm-finder-filter-group-body">
+                  <FieldSelect label="Signal type" value={need.signalType} options={signalTypeOptions} onChange={(value) => setNeedField("signalType", value)} />
+                  <FieldSelect label="Source connector" value={need.sourceConnector} options={connectorOptions} onChange={(value) => setNeedField("sourceConnector", value)} />
+                  <FieldSelect label="Display / output" value={need.displayConnector} options={connectorOptions} onChange={(value) => setNeedField("displayConnector", value)} />
+                </div>
+              </section>
+
+              <section className="wm-finder-filter-group">
+                <div className="wm-finder-filter-group-title">
+                  <span>3</span>
+                  <div>
+                    <strong>System size</strong>
+                    <small>Use count, distance and resolution to separate extender, matrix and AVoIP designs.</small>
+                  </div>
+                </div>
+
+                <div className="wm-finder-filter-group-body">
+                  <FieldSelect label="Inputs" value={need.inputs} options={inputOptions} onChange={(value) => setNeedField("inputs", value)} />
+                  <FieldSelect label="Outputs" value={need.outputs} options={outputOptions} onChange={(value) => setNeedField("outputs", value)} />
+                  <FieldSelect label="Distance" value={need.distance} options={distanceOptions} onChange={(value) => setNeedField("distance", value)} />
+                  <FieldSelect label="Resolution" value={need.resolution} options={resolutionOptions} onChange={(value) => setNeedField("resolution", value)} />
+                </div>
+              </section>
+
+              <section className="wm-finder-filter-group wm-finder-filter-group-advanced">
+                <div className="wm-finder-filter-group-title">
+                  <span>4</span>
+                  <div>
+                    <strong>Advanced needs</strong>
+                    <small>Add USB, audio, processing, network and control requirements only when they matter.</small>
+                  </div>
+                </div>
+
+                <div className="wm-finder-filter-group-body">
+                  <FieldSelect label="USB" value={need.usb} options={usbOptions} onChange={(value) => setNeedField("usb", value)} />
+                  <FieldSelect label="Processing" value={need.processing} options={processingOptions} onChange={(value) => setNeedField("processing", value)} />
+                  <FieldSelect label="Network" value={need.network} options={networkOptions} onChange={(value) => setNeedField("network", value)} />
+                  <FieldSelect label="Audio" value={need.audio} options={audioOptions} onChange={(value) => setNeedField("audio", value)} />
+                  <FieldSelect label="Control" value={need.control} options={controlOptions} onChange={(value) => setNeedField("control", value)} />
+                </div>
+              </section>
             </aside>
 
-            <main className="grid content-start gap-3">
+            <main className="wm-finder-results-panel grid content-start gap-3">
               {!hasIntent ? (
                 <div className="grid min-h-[360px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
                   <div className="max-w-xl">
                     <PackageSearch className="mx-auto h-12 w-12 text-slate-300" />
                     <h3 className="mt-4 text-xl font-black text-slate-950">No products shown yet</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Use the filters on the left to start. Choose one technical requirement, quick-start button, SKU search, connector, distance, USB need, processing need, network requirement, audio path, or control requirement. Finder will then show matching WyreStorm products.
+                      Use the top filter rail to start. Choose one technical requirement, quick-start button, SKU search, connector, distance, USB need, processing need, network requirement, audio path, or control requirement. Finder will then show matching WyreStorm products.
                     </p>
                   </div>
                 </div>
@@ -2861,7 +3064,7 @@ export function FinderPage() {
                   const cautionLines = getCautionLines(match, need);
 
                   return (
-                    <article key={resultKey} className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+                    <article key={resultKey} className="wm-finder-result-card rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
                       <div className="grid gap-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <button
@@ -2917,6 +3120,8 @@ export function FinderPage() {
                         {isExpanded ? (
                           <div className="grid gap-3 border-t border-slate-100 pt-3">
                             <p className="text-sm leading-6 text-slate-700">{finderSalesSummary(match)}</p>
+
+                            <ProductSalesKnowledgePanel product={match} mode="finder" />
 
                             {match.salesLanguage ? (
                               <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3">
@@ -3002,7 +3207,7 @@ export function FinderPage() {
                 </summary>
 
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Finder scores WyreStorm products by technical requirement, product family, signal type, source/output connector, distance, USB class, resolution, processing, network, audio, and control.
+                  Finder first checks the product class and role, then scores eligible WyreStorm products by technical requirement, signal path, I/O count, source/output connector, distance, USB, resolution, processing, network, audio and control.
                 </p>
 
                 {bestMatch ? (
