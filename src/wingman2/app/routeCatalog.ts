@@ -78,5 +78,9 @@ export function routeByPath(pathname: string) {
     return routeCatalogByKey.projects;
   }
 
+  if (pathname.startsWith("/wingman/templates/")) {
+    return routeCatalogByKey.templates;
+  }
+
   return routeCatalog.find((route) => route.path === pathname);
 }

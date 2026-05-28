@@ -11,7 +11,6 @@ import {
   Network,
   PanelTop,
   PanelsTopLeft,
-  Search,
   Settings2,
   Sparkles,
   Users,

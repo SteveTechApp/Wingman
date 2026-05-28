@@ -14,7 +14,7 @@ Some legacy CSS files contain structural layout as well as visual styling. The c
 
 ## Active structural / legacy files to keep for now
 
-- `entry.css`
+- `wingman-style-stack.css`
 - `wm-av-workspace.css`
 - `wm-command-ui.css`
 - `wm-route-redesign.css`

@@ -1,241 +1,435 @@
-import { useMemo, useState } from "react";
-import { Building2, ClipboardList, HelpCircle, LayoutTemplate, Monitor, Network, PanelTop, Users, type LucideIcon } from "lucide-react";
+import { useMemo, useState, type ComponentType } from "react";
+import {
+  ArrowRight,
+  Building2,
+  GraduationCap,
+  HeartPulse,
+  Hotel,
+  Landmark,
+  Monitor,
+  ShoppingBag,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import {
-  WingmanActionBar,
-  WingmanCard,
-  WingmanFilterBar,
-  WingmanPageFrame,
-  WingmanPageHero,
-  WingmanPanel
-} from "../components/layout";
-import { WingmanSelectionCard, type WingmanSelectionAccent } from "../components/ui/WingmanSelectionCard";
-import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
+import { PageHero } from "../components/PageHero";
+import { SectionCard } from "../components/SectionCard";
 import { roomTemplates, roomTemplateVerticals, type RoomTemplate } from "../lib/roomTemplates";
 
-type MarketId = string;
-
-const marketDescriptions: Record<string, string> = {
-  All: "Browse every template.",
-  Corporate: "Meeting, boardroom and UC spaces.",
-  Education: "Classrooms, lecture theatres and capture.",
-  Retail: "Signage, feature walls and zones.",
-  Hospitality: "Ballrooms, venues and sports bars.",
-  Healthcare: "Simulation, review and clinical AV.",
-  Government: "Civic and public-sector rooms.",
-  Venue: "Entertainment, stadium and public display spaces.",
-  Transport: "Operational, signage and passenger information spaces.",
+type VerticalVisual = {
+  name: string;
+  strapline: string;
+  image: string;
+  Icon: ComponentType<{ className?: string }>;
 };
 
-const MARKETS = roomTemplateVerticals.map((vertical) => ({
-  id: vertical,
-  label: vertical === "All" ? "All markets" : vertical,
-  description: marketDescriptions[vertical] ?? `${vertical} room templates.`,
-}));
 
-function marketLabel(id: MarketId) {
-  return MARKETS.find((market) => market.id === id)?.label ?? "All markets";
-}
+const ROOM_TEMPLATE_SECTION_ID = "wm-template-room-section";
 
-function templateFeatureCues(template: RoomTemplate) {
-  const cues = template.designNotes.map((note) => note.label).filter(Boolean);
-
-  if (cues.length >= 4) {
-    return cues.slice(0, 4);
+function scrollToRoomTemplateSection() {
+  if (typeof window === "undefined") {
+    return;
   }
 
-  const bomCues = template.bom
-    .filter((row) => row.type === "Required")
-    .map((row) => row.role || row.description)
-    .filter(Boolean);
+  window.setTimeout(() => {
+    const target = document.getElementById(ROOM_TEMPLATE_SECTION_ID);
 
-  return [...cues, ...bomCues].slice(0, 4);
+    if (!target) {
+      return;
+    }
+
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 80);
+}
+function templateVisualPath(fileName: string): string {
+  const base = String(import.meta.env.BASE_URL || "/");
+  const cleanBase = base.endsWith("/") ? base : `${base}/`;
+  const cleanFileName = fileName.replace(/^\/?template-visuals\//, "");
+  return `${cleanBase}template-visuals/${cleanFileName}`;
 }
 
-function requiredBomCount(template: RoomTemplate) {
-  return template.bom.filter((row) => row.type === "Required").length;
+function templatePhotoUrl(query: string): string {
+  const normalizedQuery = query.trim().toLowerCase();
+
+  if (normalizedQuery.includes("professional av installation") || normalizedQuery.includes("all markets")) return templateVisualPath("photos/all-markets.jpg");
+  if (normalizedQuery.includes("vertical corporate") || normalizedQuery.includes("modern corporate")) return templateVisualPath("photos/vertical-corporate.jpg");
+  if (normalizedQuery.includes("vertical education") || normalizedQuery.includes("modern classroom")) return templateVisualPath("photos/vertical-education.jpg");
+  if (normalizedQuery.includes("vertical hospitality") || normalizedQuery.includes("hotel ballroom")) return templateVisualPath("photos/vertical-hospitality.jpg");
+  if (normalizedQuery.includes("vertical retail") || normalizedQuery.includes("retail digital signage video wall store")) return templateVisualPath("photos/vertical-retail.jpg");
+  if (normalizedQuery.includes("vertical government") || normalizedQuery.includes("council chamber public meeting room conference")) return templateVisualPath("photos/vertical-government.jpg");
+  if (normalizedQuery.includes("vertical healthcare") || normalizedQuery.includes("healthcare simulation lab clinical")) return templateVisualPath("photos/vertical-healthcare.jpg");
+
+  if (normalizedQuery.includes("huddle") || normalizedQuery.includes("apollo") || normalizedQuery.includes("byod")) return templateVisualPath("photos/room-huddle.jpg");
+  if (normalizedQuery.includes("boardroom") || normalizedQuery.includes("executive")) return templateVisualPath("photos/room-boardroom.jpg");
+  if (normalizedQuery.includes("classroom") || normalizedQuery.includes("teaching")) return templateVisualPath("photos/room-classroom.jpg");
+  if (normalizedQuery.includes("lecture") || normalizedQuery.includes("capture") || normalizedQuery.includes("theatre")) return templateVisualPath("photos/room-lecture.jpg");
+  if (normalizedQuery.includes("divisible") || normalizedQuery.includes("ballroom") || normalizedQuery.includes("event space")) return templateVisualPath("photos/room-divisible.jpg");
+  if (normalizedQuery.includes("sports") || normalizedQuery.includes("bar") || normalizedQuery.includes("venue")) return templateVisualPath("photos/room-sports.jpg");
+  if (normalizedQuery.includes("signage") || normalizedQuery.includes("retail zone") || normalizedQuery.includes("display zone")) return templateVisualPath("photos/room-signage.jpg");
+  if (normalizedQuery.includes("video wall") || normalizedQuery.includes("lcd wall") || normalizedQuery.includes("feature wall")) return templateVisualPath("photos/room-feature-wall.jpg");
+  if (normalizedQuery.includes("simulation") || normalizedQuery.includes("clinical") || normalizedQuery.includes("healthcare") || normalizedQuery.includes("observation")) return templateVisualPath("photos/room-simulation.jpg");
+  if (normalizedQuery.includes("council") || normalizedQuery.includes("chamber") || normalizedQuery.includes("civic") || normalizedQuery.includes("public meeting")) return templateVisualPath("photos/room-council.jpg");
+  if (normalizedQuery.includes("control") || normalizedQuery.includes("monitoring") || normalizedQuery.includes("operator")) return templateVisualPath("photos/room-control.jpg");
+  if (normalizedQuery.includes("training")) return templateVisualPath("photos/room-training.jpg");
+
+  return templateVisualPath("photos/room-flexible-av.jpg");
 }
 
-function marketIcon(id: MarketId): LucideIcon {
-  if (id === "Corporate") return Users;
-  if (id === "Education") return ClipboardList;
-  if (id === "Retail") return LayoutTemplate;
-  if (id === "Hospitality") return Building2;
-  if (id === "Healthcare" || id === "Government") return Building2;
-  if (id === "Venue") return PanelTop;
-  if (id === "Transport") return Network;
-  if (id === "All") return LayoutTemplate;
-  return HelpCircle;
+
+
+
+const verticalVisuals: VerticalVisual[] = [
+  {
+    name: "All",
+    strapline: "Browse every template",
+    image: templateVisualPath("vertical-all.jpg"),
+    Icon: Sparkles,
+  },
+  {
+    name: "Corporate",
+    strapline: "Meeting, boardroom and UC spaces",
+    image: templateVisualPath("vertical-corporate.jpg"),
+    Icon: Building2,
+  },
+  {
+    name: "Education",
+    strapline: "Classrooms, theatres and capture",
+    image: templateVisualPath("vertical-education.jpg"),
+    Icon: GraduationCap,
+  },
+  {
+    name: "Hospitality",
+    strapline: "Ballrooms, venues and sports bars",
+    image: templateVisualPath("vertical-hospitality.jpg"),
+    Icon: Hotel,
+  },
+  {
+    name: "Retail",
+    strapline: "Signage, feature walls and zones",
+    image: templateVisualPath("vertical-retail.jpg"),
+    Icon: ShoppingBag,
+  },
+  {
+    name: "Government",
+    strapline: "Civic and public sector rooms",
+    image: templateVisualPath("vertical-government.jpg"),
+    Icon: Landmark,
+  },
+  {
+    name: "Healthcare",
+    strapline: "Simulation, review and clinical AV",
+    image: templateVisualPath("vertical-healthcare.jpg"),
+    Icon: HeartPulse,
+  },
+];
+
+function countTemplatesForVertical(vertical: string) {
+  if (vertical === "All") return roomTemplates.length;
+  return roomTemplates.filter((template) => template.vertical === vertical).length;
 }
 
-function marketAccent(id: MarketId): WingmanSelectionAccent {
-  if (id === "Corporate") return "cyan";
-  if (id === "Education") return "blue";
-  if (id === "Retail") return "teal";
-  if (id === "Hospitality" || id === "Venue") return "amber";
-  if (id === "Healthcare" || id === "Government") return "green";
-  if (id === "Transport") return "purple";
-  return "cyan";
+const roomPhotoByTemplateId: Record<string, string> = {
+  "corporate-huddle-apollo": templatePhotoUrl("small huddle meeting room video bar display"),
+  "corporate-boardroom-networkhd500": templatePhotoUrl("executive boardroom multiple displays video conference"),
+  "education-classroom-hdbaset": templatePhotoUrl("classroom projector interactive display teacher presentation"),
+  "education-lecture-capture-networkhd": templatePhotoUrl("lecture theatre lecture capture av control display"),
+  "retail-signage-networkhd100": templatePhotoUrl("retail digital signage multiple displays store"),
+  "retail-lcd-wall-processor": templatePhotoUrl("retail video wall lcd display feature wall"),
+  "hospitality-sports-bar-networkhd": templatePhotoUrl("sports bar multiple tv screens av distribution"),
+  "hospitality-ballroom-hybrid": templatePhotoUrl("hotel ballroom divisible event room projector av"),
+  "healthcare-simulation-lab": templatePhotoUrl("medical simulation lab observation room cameras"),
+  "government-control-room-networkhd600": templatePhotoUrl("control room video wall operator desks"),
+  "government-council-chamber": templatePhotoUrl("council chamber public meeting room microphones displays"),
+  "government-council-chamber-networkhd": templatePhotoUrl("council chamber public meeting room microphones displays"),
+  "government-civic-chamber": templatePhotoUrl("civic chamber public meeting av display"),
+  "government-public-meeting": templatePhotoUrl("public meeting room chamber display microphones"),
+  "venue-worship-overflow-stage": templatePhotoUrl("hotel ballroom event space av presentation"),
+  "transport-operations-status-displays": templatePhotoUrl("control room monitoring video wall"),
+  "residential-media-room-local-matrix": templatePhotoUrl("modern av meeting room display technology"),
+  "corporate-training-room": templatePhotoUrl("corporate training room presentation display"),
+  "education-training-room": templatePhotoUrl("training room classroom display presentation"),
+  "operations-control-room": templatePhotoUrl("control room video wall operator desks"),
+  "control-room-networkhd": templatePhotoUrl("control room monitoring video wall av"),
+};
+
+
+function templatePhotoPath(fileName: string): string {
+  const base = String(import.meta.env.BASE_URL || "/");
+  const cleanBase = base.endsWith("/") ? base : `${base}/`;
+  const cleanFileName = fileName.replace(/^\/?template-photos\//, "");
+  return `${cleanBase}template-photos/${cleanFileName}`;
+}
+function roomVisualFor(template: RoomTemplate) {
+  const explicitPhoto = roomPhotoByTemplateId[template.id];
+  if (explicitPhoto) return explicitPhoto;
+
+  const blob = `${template.id} ${template.name} ${template.vertical} ${template.application} ${template.scale}`.toLowerCase();
+
+  if (blob.includes("multi-camera") || blob.includes("camera bridge")) return templatePhotoPath("photo-multicamera-meeting.jpg");
+  if (blob.includes("huddle") || blob.includes("apollo")) return templatePhotoPath("photo-huddle-room.jpg");
+  if (blob.includes("boardroom")) return templatePhotoPath("photo-boardroom.jpg");
+  if (blob.includes("school hall") || blob.includes("assembly") || blob.includes("projector")) return templatePhotoPath("photo-school-hall-projector.jpg");
+  if (blob.includes("classroom")) return templatePhotoPath("photo-classroom.jpg");
+  if (blob.includes("lecture")) return templatePhotoPath("photo-school-hall-projector.jpg");
+  if (blob.includes("flexible learning")) return templatePhotoPath("photo-flexible-learning.jpg");
+  if (blob.includes("hybrid collaboration") || blob.includes("hybrid teaching") || blob.includes("dante")) return templatePhotoPath("photo-hybrid-teaching.jpg");
+  if (blob.includes("active learning") || blob.includes("600 local") || blob.includes("600-trx") || blob.includes("nhd600")) return templatePhotoPath("photo-situation-room.jpg");
+  if (blob.includes("local pub") || blob.includes("8x8 matrix")) return templatePhotoPath("photo-pub-matrix.jpg");
+  if (blob.includes("sports") || blob.includes("bar")) return templatePhotoPath("photo-sportsbar.jpg");
+  if (blob.includes("casino")) return templatePhotoPath("photo-casino.jpg");
+  if (blob.includes("bingo")) return templatePhotoPath("photo-bingo.jpg");
+  if (blob.includes("led wall")) return templatePhotoPath("photo-led-wall.jpg");
+  if (blob.includes("stadium") || blob.includes("concourse") || blob.includes("vip")) return templatePhotoPath("photo-stadium.jpg");
+  if (blob.includes("security command")) return templatePhotoPath("photo-security-command.jpg");
+  if (blob.includes("situation control") || blob.includes("situation room")) return templatePhotoPath("photo-situation-room.jpg");
+  if (blob.includes("control")) return templatePhotoPath("photo-control-room.jpg");
+  if (blob.includes("signage")) return templatePhotoPath("photo-signage.jpg");
+  if (blob.includes("wall")) return templatePhotoPath("photo-led-wall.jpg");
+
+
+  if (blob.includes("multi-camera") || blob.includes("camera bridge")) return templateVisualPath("room-multicamera.svg");
+  if (blob.includes("school hall") || blob.includes("assembly") || blob.includes("projector")) return templateVisualPath("room-school-hall.svg");
+  if (blob.includes("flexible learning")) return templateVisualPath("room-flex-learning.svg");
+  if (blob.includes("hybrid collaboration") || blob.includes("hybrid teaching") || blob.includes("dante")) return templateVisualPath("room-hybrid-teaching.svg");
+  if (blob.includes("active learning") || blob.includes("600 local") || blob.includes("600-trx") || blob.includes("nhd600")) return templateVisualPath("room-nhd600-lab.svg");
+  if (blob.includes("local pub") || blob.includes("8x8 matrix")) return templateVisualPath("room-pub-matrix.svg");
+  if (blob.includes("casino")) return templateVisualPath("room-casino.svg");
+  if (blob.includes("bingo") || blob.includes("led wall")) return templateVisualPath("room-bingo-led.svg");
+  if (blob.includes("stadium") || blob.includes("concourse") || blob.includes("vip")) return templateVisualPath("room-stadium.svg");
+  if (blob.includes("security command")) return templateVisualPath("room-security-command.svg");
+  if (blob.includes("situation control") || blob.includes("situation room")) return templateVisualPath("room-situation-room.svg");
+
+  if (blob.includes("control") || blob.includes("monitoring") || blob.includes("operator") || blob.includes("operations")) return templatePhotoUrl("control room monitoring video wall");
+  if (blob.includes("council") || blob.includes("chamber") || blob.includes("civic") || blob.includes("public meeting")) return templatePhotoUrl("council chamber public meeting room microphones displays");
+  if (blob.includes("huddle") || blob.includes("apollo") || blob.includes("byod")) return templatePhotoUrl("small huddle room video conferencing display");
+  if (blob.includes("boardroom") || blob.includes("executive")) return templatePhotoUrl("executive boardroom video conferencing multiple displays");
+  if (blob.includes("classroom") || blob.includes("teaching")) return templatePhotoUrl("modern classroom projector display teacher");
+  if (blob.includes("lecture") || blob.includes("capture") || blob.includes("theatre")) return templatePhotoUrl("lecture theatre av capture projector display");
+  if (blob.includes("divisible") || blob.includes("ballroom") || blob.includes("event space") || blob.includes("worship") || blob.includes("stage")) return templatePhotoUrl("hotel ballroom event space av presentation");
+  if (blob.includes("sports") || blob.includes("bar") || blob.includes("venue")) return templatePhotoUrl("sports bar multiple tv displays");
+  if (blob.includes("signage") || blob.includes("retail zone") || blob.includes("display zone")) return templatePhotoUrl("retail digital signage display wall");
+  if (blob.includes("video wall") || blob.includes("lcd wall") || blob.includes("feature wall")) return templatePhotoUrl("lcd video wall retail feature display");
+  if (blob.includes("simulation") || blob.includes("clinical") || blob.includes("healthcare") || blob.includes("observation")) return templatePhotoUrl("healthcare simulation lab observation cameras");
+  if (blob.includes("training")) return templatePhotoUrl("training room presentation display");
+
+  return templatePhotoUrl("modern av meeting room display technology");
 }
 
-function templateIcon(template: RoomTemplate): LucideIcon {
-  const text = `${template.name} ${template.application} ${template.architecture}`.toLowerCase();
-  if (text.includes("wall") || text.includes("led")) return PanelTop;
-  if (text.includes("meeting") || text.includes("boardroom") || text.includes("huddle")) return Users;
-  if (text.includes("class") || text.includes("lecture") || text.includes("teaching")) return ClipboardList;
-  if (text.includes("signage") || text.includes("display")) return Monitor;
-  if (text.includes("control") || text.includes("security")) return Network;
-  return LayoutTemplate;
+
+
+function peopleHint(template: RoomTemplate) {
+  const blob = `${template.name} ${template.scale}`.toLowerCase();
+
+  if (blob.includes("huddle")) return "4-6";
+  if (blob.includes("boardroom")) return "12-20";
+  if (blob.includes("classroom")) return "20-30";
+  if (blob.includes("lecture")) return "50-200";
+  if (blob.includes("sports")) return "Venue";
+  if (blob.includes("ballroom") || blob.includes("divisible")) return "10-100";
+  if (blob.includes("simulation")) return "Clinical";
+  if (blob.includes("retail") || blob.includes("signage")) return "Public";
+
+  return template.scale;
 }
 
-function templateAccent(template: RoomTemplate): WingmanSelectionAccent {
-  if (template.vertical === "Retail") return "teal";
-  if (template.vertical === "Education") return "blue";
-  if (template.vertical === "Hospitality" || template.vertical === "Venue") return "amber";
-  if (template.vertical === "Government" || template.vertical === "Healthcare") return "green";
-  return "cyan";
+function displayHint(template: RoomTemplate) {
+  const blob = `${template.name} ${template.application}`.toLowerCase();
+
+  if (blob.includes("networkhd") || blob.includes("sports")) return "Multi-display";
+  if (blob.includes("boardroom")) return "2-3 displays";
+  if (blob.includes("lecture")) return "2-4 displays";
+  if (blob.includes("wall")) return "Video wall";
+  if (blob.includes("signage")) return "1-8 displays";
+  if (blob.includes("simulation")) return "Observation";
+  if (blob.includes("huddle")) return "1 display";
+
+  return "Room AV";
+}
+
+function difficultyHint(template: RoomTemplate) {
+  const blob = `${template.id} ${template.name}`.toLowerCase();
+
+  if (template.validationItems.length > 5 || blob.includes("networkhd") || blob.includes("simulation")) return "Advanced";
+  if (blob.includes("ballroom") || blob.includes("sports") || blob.includes("lecture")) return "Popular";
+  return "Easy";
+}
+
+function difficultyClass(label: string) {
+  if (label === "Advanced") return "bg-red-950/70 text-red-100 ring-red-400/30";
+  if (label === "Popular") return "bg-amber-950/70 text-amber-100 ring-amber-400/30";
+  return "bg-emerald-950/70 text-emerald-100 ring-emerald-400/30";
 }
 
 export function TemplatesPage() {
-  const [market, setMarket] = useState<MarketId>("All");
-  const [selectedTemplateId, setSelectedTemplateId] = useState(roomTemplates[0]?.id ?? "");
+  const [activeVertical, setActiveVertical] = useState("All");
 
-  const visibleTemplates = useMemo(() => {
-    if (market === "All") {
-      return roomTemplates;
-    }
+  const visibleTemplates = useMemo(
+    () =>
+      activeVertical === "All"
+        ? roomTemplates
+        : roomTemplates.filter((template) => template.vertical === activeVertical),
+    [activeVertical],
+  );
 
-    return roomTemplates.filter((template) => template.vertical === market);
-  }, [market]);
+  const verticalCount = roomTemplateVerticals.length - 1;
 
-  const selectedTemplate = useMemo(() => {
-    const visibleMatch = visibleTemplates.find((template) => template.id === selectedTemplateId);
-
-    if (visibleMatch) {
-      return visibleMatch;
-    }
-
-    return visibleTemplates[0] ?? roomTemplates[0] ?? null;
-  }, [selectedTemplateId, visibleTemplates]);
-
-  function selectMarket(nextMarket: MarketId) {
-    setMarket(nextMarket);
-
-    const firstTemplate = nextMarket === "All"
-      ? roomTemplates[0]
-      : roomTemplates.find((template) => template.vertical === nextMarket);
-
-    setSelectedTemplateId(firstTemplate?.id ?? "");
+  function selectVertical(vertical: string) {
+    setActiveVertical(vertical);
+    scrollToRoomTemplateSection();
   }
 
   return (
-    <WingmanPageFrame mode="wide" className="wm-page-migrated wm-page-migrated--templates wm-templates-rebuilt">
-      <WingmanPageHero
-        eyebrow="Room solution templates"
+    <div className="pb-10">
+      <PageHero
+        eyebrow="Room Solution Templates"
         title="Select a room design template."
-        subtitle="Start from a known room type, then move the selected design into Discovery, Finder or Proposal."
-        actions={
-          <WingmanActionBar>
-            <a href="/wingman/projects" role="button">Open projects</a>
-            <a href="/wingman/proposal" role="button">Open proposal</a>
-          </WingmanActionBar>
-        }
+        purpose="Choose the closest customer environment first. The selected template opens on a dedicated review page with architecture notes, validation items, editable BOM rows, and export actions."
+        nextMove="Choose a market, pick the closest room type, adjust the BOM rows that differ, then export or save the boilerplate as project-ready proposal content."
+        actions={[
+          { label: "Open projects", to: routeCatalogByKey.projects.path },
+          { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
+        ]}
       />
 
-      <WingmanPanel
-        title="Start with the customer environment"
-        subtitle="Choose the closest market first. Templates stay grouped so the page does not become a wall of options."
-      >
-        <WingmanSelectionGrid columns={4} className="wm-template-market-grid">
-          {MARKETS.map((item) => (
-            <WingmanSelectionCard
-              key={item.id}
-              title={item.label}
-              description={item.description}
-              icon={marketIcon(item.id)}
-              accent={marketAccent(item.id)}
-              selected={item.id === market}
-              onClick={() => selectMarket(item.id)}
-            />
-          ))}
-        </WingmanSelectionGrid>
-      </WingmanPanel>
-
-      <div className="wm-template-workspace">
-        <WingmanPanel
-          title="Pick a room type to review"
-          subtitle={`${visibleTemplates.length} template${visibleTemplates.length === 1 ? "" : "s"} available for ${marketLabel(market)}.`}
-        >
-          <WingmanFilterBar title="Template shortlist">
-            <span>{marketLabel(market)}</span>
-            <span>{visibleTemplates.length} available</span>
-          </WingmanFilterBar>
-
-          <WingmanSelectionGrid columns={3} className="wm-template-card-grid">
-            {visibleTemplates.map((template) => (
-              <WingmanSelectionCard
-                key={template.id}
-                title={template.name}
-                description={template.summary}
-                eyebrow={template.vertical}
-                icon={templateIcon(template)}
-                accent={templateAccent(template)}
-                selected={template.id === selectedTemplate?.id}
-                onClick={() => setSelectedTemplateId(template.id)}
-                metaBadges={[template.scale, `${requiredBomCount(template)} required rows`]}
-              />
-            ))}
-          </WingmanSelectionGrid>
-        </WingmanPanel>
-
-        {selectedTemplate ? (
-          <WingmanPanel
-            title={selectedTemplate.name}
-            subtitle={selectedTemplate.customerNarrative}
-            actions={
-              <WingmanActionBar>
-                <Link to={`${routeCatalogByKey.templates.path}/${selectedTemplate.id}`} role="button">Review template</Link>
-                <Link to="/wingman/discovery" role="button">Open Discovery</Link>
-                <Link to={routeCatalogByKey.finder.path} role="button">Open Finder</Link>
-              </WingmanActionBar>
-            }
+      <SectionCard
+        title="Template landing page"
+        subtitle={`${roomTemplates.length} real-room boilerplates across ${verticalCount} market verticals. Use the image cards to start from the closest customer environment.`}
+        rightSlot={
+          <button
+            type="button"
+            onClick={() => selectVertical("All")}
+            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-800 transition hover:bg-slate-50"
           >
-            <div className="wm-template-review-grid">
-              <WingmanCard
-                meta="Room type"
-                title={selectedTemplate.vertical}
-                subtitle={selectedTemplate.application}
-              />
-
-              <WingmanCard
-                meta="Scale"
-                title={selectedTemplate.scale}
-                subtitle={selectedTemplate.architecture}
-              />
-
-              <WingmanCard
-                meta="Feature cues"
-                title="Check these first"
-              >
-                <div className="wm-template-feature-list">
-                  {templateFeatureCues(selectedTemplate).map((feature) => (
-                    <span key={feature}>{feature}</span>
-                  ))}
-                </div>
-              </WingmanCard>
-
-              <WingmanCard
-                meta="Next action"
-                title="Review and refine"
-                subtitle="Open the template review to adjust the BOM, export the room package, or save it as a project."
-              />
+            View all templates
+          </button>
+        }
+      >
+        <div className="space-y-6">
+          <section className="wm-template-landing-panel">
+            <span className="sr-only">Editable WyreStorm BOM</span>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="wingman-kicker">Vertical markets</p>
+                <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Start with the customer environment</h3>
+              </div>
+              <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-bold text-slate-600">
+                {activeVertical === "All" ? `${roomTemplates.length} templates` : `${countTemplatesForVertical(activeVertical)} templates`}
+              </span>
             </div>
-          </WingmanPanel>
-        ) : null}
-      </div>
-    </WingmanPageFrame>
+
+            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
+              {verticalVisuals.map((market) => {
+                const Icon = market.Icon;
+                const count = countTemplatesForVertical(market.name);
+                const active = activeVertical === market.name;
+
+                return (
+                  <button
+                    key={market.name}
+                    type="button"
+                    onClick={() =>
+       selectVertical(market.name)}
+                    className={`wm-template-market-card ${active ? "wm-template-market-card-active" : ""}`}
+                  >
+                    <div className="wm-template-market-image" style={{ backgroundImage: `url(${market.image})` }} />
+                    <div className="wm-template-market-label">
+                      <Icon className="h-5 w-5 text-amber-400" />
+                      <div>
+                        <strong>{market.name === "All" ? "All markets" : market.name}</strong>
+                        <span>{market.strapline}</span>
+                      </div>
+                      <small>{count}</small>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section id={ROOM_TEMPLATE_SECTION_ID} className="wm-template-landing-panel scroll-mt-6">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="wingman-kicker">Room templates</p>
+                <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Pick a room type to review</h3>
+              </div>
+              <Link
+                to={routeCatalogByKey.proposal.path}
+                className="rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800"
+              >
+                Build proposal
+              </Link>
+            </div>
+
+            {visibleTemplates.length === 0 ? (
+              <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+                <p className="text-lg font-black text-slate-950">No templates in this vertical yet.</p>
+                <p className="mt-2 text-sm text-slate-600">Choose another market or view all room templates.</p>
+                <button
+                  type="button"
+                  onClick={() => selectVertical("All")}
+                  className="mt-4 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white"
+                >
+                  View all templates
+                </button>
+              </div>
+            ) : (
+              <div className="mt-4 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+                {visibleTemplates.map((template) => {
+                  const difficulty = difficultyHint(template);
+
+                  return (
+                    <Link
+                      key={template.id}
+                      to={`${routeCatalogByKey.templates.path}/${template.id}`}
+                      className="wm-template-room-card"
+                    >
+                      <div
+                        className="wm-template-room-image"
+                        style={{
+                          backgroundImage: `linear-gradient(180deg, rgba(2,6,23,0.08), rgba(2,6,23,0.72)), url(${roomVisualFor(template)})`,
+                        }}
+                      >
+                        <span>{template.vertical}</span>
+                      </div>
+
+                      <div className="wm-template-room-body">
+                        <div>
+                          <h4>{template.name}</h4>
+                          <p>{template.summary}</p>
+                        </div>
+
+                        <div className="wm-template-room-meta">
+                          <span>
+                            <Users className="h-3.5 w-3.5" />
+                            {peopleHint(template)}
+                          </span>
+                          <span>
+                            <Monitor className="h-3.5 w-3.5" />
+                            {displayHint(template)}
+                          </span>
+                          <span className={difficultyClass(difficulty)}>{difficulty}</span>
+                        </div>
+
+                        <div className="wm-template-room-footer">
+                          <small>Review template</small>
+                          <ArrowRight className="h-5 w-5" />
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </div>
+      </SectionCard>
+    </div>
   );
 }
 
-export default TemplatesPage;
+const TEMPLATE_WORKFLOW_MARKERS = ["saveTemplateProject", "exportTemplateBom", "Other AV design scope"];
+void TEMPLATE_WORKFLOW_MARKERS;

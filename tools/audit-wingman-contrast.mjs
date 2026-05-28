@@ -41,18 +41,6 @@ function csvEscape(value) {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
-function shortSelector(nodes) {
-  if (!Array.isArray(nodes) || nodes.length === 0) return "";
-  const target = nodes[0]?.target;
-  if (Array.isArray(target)) return target.join(" ");
-  return String(target ?? "");
-}
-
-function affectedText(nodes) {
-  if (!Array.isArray(nodes) || nodes.length === 0) return "";
-  return cleanText(nodes[0]?.html ?? "").slice(0, 260);
-}
-
 function htmlEscape(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")

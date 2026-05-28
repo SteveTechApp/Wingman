@@ -6,8 +6,6 @@ import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
 
-import "./wingman2/utils/applyRedXCleanup";
-import "./wingman2/utils/applyGuruRoaming";
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {

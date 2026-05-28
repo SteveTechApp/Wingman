@@ -681,7 +681,6 @@ async function main() {
   const records = Array.isArray(productDbRaw.records) ? productDbRaw.records : [];
   const sourceRecords = Array.isArray(sourceProducts) ? sourceProducts : [];
   const guideEntries = buildGuideEntries(extraction.rawHits);
-  const existingByKey = new Map(records.map((record) => [normaliseSkuKey(record.sku), record]));
   const sourceByKey = new Map(sourceRecords.map((record) => [normaliseSkuKey(record.sku), record]));
 
   const updatedRecords = [...records];
