@@ -6,7 +6,9 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { routeByPath, routeCatalog, routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
+import { WingmanLanguageSelector } from "../components/WingmanLanguageSelector";
 import { clearActiveProject } from "../data/projectStore";
+import { useWingmanLanguage } from "../data/wingmanLanguage";
 import guruBotIcon from "../../assets/branding/guru-bot.png";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
 
@@ -134,6 +136,7 @@ export function AppShell({ children }: AppShellProps) {
   const [pageResetVersion, setPageResetVersion] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
+  const { uiText } = useWingmanLanguage();
 
   const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
   const activeLabel = activeRoute?.label ?? "Dashboard";
@@ -283,15 +286,17 @@ export function AppShell({ children }: AppShellProps) {
           </button>
 
           <div className="wingman-topbar-title wm-balanced-topbar-title" title={`${activeLabel}: ${activeSummary}`}>
-            <p>Good morning, Wingman</p>
+            <p>{uiText.goodMorning}</p>
             <span>
               {activeLabel}: {activeSummary}
             </span>
           </div>
 
+          <WingmanLanguageSelector compact />
+
           <button type="button" className="wingman-new-project-button" onClick={handleNewProject}>
             <Plus className="h-4 w-4" />
-            <span>New Project</span>
+            <span>{uiText.newProject}</span>
           </button>
         </header>
 

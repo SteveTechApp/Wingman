@@ -1,3 +1,4 @@
+import { extraRoomTemplates } from "./roomTemplatesExtra";
 export type TemplateBomType = "Required" | "Optional" | "Validate";
 
 export type TemplateBomRow = {
@@ -31,7 +32,7 @@ export type RoomTemplate = {
   upgradePaths: string[];
 };
 
-export const roomTemplates: RoomTemplate[] = [
+const coreRoomTemplates: RoomTemplate[] = [
   {
     id: "corporate-huddle-apollo",
     name: "Corporate Huddle Room - Apollo BYOD",
@@ -1861,5 +1862,7 @@ export const roomTemplates: RoomTemplate[] = [
     upgradePaths: ["Add more NHD-600-TRX endpoints for additional sources or displays", "Integrate with third-party control for secure workflows", "Create phased deployment for briefing room, operations room, and incident room areas"],
   }
 ];
+
+export const roomTemplates: RoomTemplate[] = [...coreRoomTemplates, ...extraRoomTemplates];
 
 export const roomTemplateVerticals = ["All", ...Array.from(new Set(roomTemplates.map((template) => template.vertical)))];

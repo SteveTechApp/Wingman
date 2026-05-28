@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { ProductSalesKnowledgePanel } from "../components/ProductSalesKnowledgePanel";
 
 type LoadState = "loading" | "ready" | "error";
 
@@ -419,6 +420,7 @@ export function ProductPitchPage() {
   const [family, setFamily] = useState("All");
   const [selectedSku, setSelectedSku] = useState("");
   const [userStarted, setUserStarted] = useState(false);
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     let cancelled = false;
@@ -457,6 +459,33 @@ export function ProductPitchPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    const skuParam = (searchParams.get("sku") ?? "").trim().toUpperCase();
+    const queryParam = (searchParams.get("q") ?? "").trim();
+    const familyParam = (searchParams.get("family") ?? "").trim();
+
+    if (skuParam) {
+      setQuery(skuParam);
+      setSelectedSku(skuParam);
+      setUserStarted(true);
+      return;
+    }
+
+    if (queryParam) {
+      setQuery(queryParam);
+      setSelectedSku("");
+      setUserStarted(true);
+      return;
+    }
+
+    if (familyParam) {
+      setFamily(familyParam);
+      setSelectedSku("");
+      setUserStarted(true);
+      return;
+    }
+  }, [searchParams]);
 
   const families = useMemo(() => {
     return ["All", ...Array.from(new Set(products.map((product) => product.family).filter(Boolean))).sort()];
@@ -509,12 +538,12 @@ export function ProductPitchPage() {
   }
 
   return (
-    <div className="wm-product-pitch-page">
+    <div className="wm-product-pitch-page" data-has-product={selectedProduct ? "true" : "false"} data-user-started={userStarted ? "true" : "false"}>
       <section className="wm-product-pitch-hero">
         <div>
           <p>Product Pitch</p>
-          <h1>Simple WyreStorm sales pitch</h1>
-          <span>Create a one-page sales overview only after a SKU is selected.</span>
+          <h1>Product sales and system-positioning crib sheet</h1>
+          <span>Explain what the product is, where it sits, what it works with, and how to position it to the right audience.</span>
         </div>
 
         <div className="wm-product-pitch-actions">
@@ -585,7 +614,7 @@ export function ProductPitchPage() {
         <section className="wm-product-pitch-results">
           <div className="wm-product-pitch-results-head">
             <p>Matching products</p>
-            <strong>Select one SKU to generate the sales crib sheet.</strong>
+            <strong>Select one SKU to generate the sales, system-positioning and in-situ diagram crib sheet.</strong>
           </div>
 
           <div className="wm-product-pitch-grid">
@@ -626,35 +655,7 @@ export function ProductPitchPage() {
             <h3>{buildPitchHeadline(selectedProduct)}</h3>
             <span>{selectedProduct.summary}</span>
           </article>
-
-          <div className="wm-product-pitch-info-grid">
-            <article>
-              <h4>What it helps with</h4>
-              <ul>
-                {buildWhatItHelps(selectedProduct).map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </article>
-
-            <article>
-              <h4>Best fit</h4>
-              <ul>
-                {buildBestFit(selectedProduct).map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </article>
-
-            <article>
-              <h4>Ask before quoting</h4>
-              <ul>
-                {buildQuestions(selectedProduct).map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </article>
-          </div>
+          <ProductSalesKnowledgePanel product={selectedProduct} mode="pitch" />
 
           {selectedProduct.features.length > 0 && (
             <div className="wm-product-pitch-tags">

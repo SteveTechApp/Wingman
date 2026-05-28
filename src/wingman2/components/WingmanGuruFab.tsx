@@ -14,6 +14,7 @@ const storageKey = "wingmanGuruPosition";
 const dragThreshold = 4;
 const mouseDragId = -1;
 const clickDelayMs = 320;
+const mobileGuruWidthLimit = 760;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -140,6 +141,36 @@ export function WingmanGuruFab({ open, onClick }: WingmanGuruFabProps) {
       window.removeEventListener("mouseup", handleMouseUp);
     };
   }, []);
+
+  useEffect(() => {
+    if (open) {
+      return undefined;
+    }
+
+    const button = buttonRef.current;
+
+    if (!button) {
+      return undefined;
+    }
+
+    function handleNativeMouseDown(event: globalThis.MouseEvent) {
+      if (event.button !== 0 || dragRef.current.pointerId !== null) {
+        return;
+      }
+
+      if (!button) {
+        return;
+      }
+
+      startDrag(button, event.clientX, event.clientY, mouseDragId);
+    }
+
+    button.addEventListener("mousedown", handleNativeMouseDown);
+
+    return () => {
+      button.removeEventListener("mousedown", handleNativeMouseDown);
+    };
+  }, [open]);
 
   if (open) {
     return null;
@@ -284,6 +315,22 @@ export function WingmanGuruFab({ open, onClick }: WingmanGuruFabProps) {
     startDrag(event.currentTarget, event.clientX, event.clientY, mouseDragId);
   }
 
+  function handleMouseMove(event: MouseEvent<HTMLButtonElement>) {
+    if (dragRef.current.pointerId !== mouseDragId) {
+      return;
+    }
+
+    moveDrag(event.currentTarget, event.clientX, event.clientY, event);
+  }
+
+  function handleMouseUp(event: MouseEvent<HTMLButtonElement>) {
+    if (dragRef.current.pointerId !== mouseDragId) {
+      return;
+    }
+
+    finishDrag(event.currentTarget);
+  }
+
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
     if (suppressClickRef.current) {
       event.preventDefault();
@@ -339,6 +386,8 @@ export function WingmanGuruFab({ open, onClick }: WingmanGuruFabProps) {
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
       aria-label="Open Guru technical assistant"
       aria-pressed="false"
       className="wingman-guru-fab"
