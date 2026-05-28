@@ -989,9 +989,10 @@ textarea {
 /* GURU-CHAT-REFRESH-START */
 .wingman-guru-fab {
   position: fixed;
-  right: 18px !important;
-  left: auto !important;
-  bottom: 18px;
+  right: var(--wingman-guru-right, 18px) !important;
+  left: var(--wingman-guru-left, auto) !important;
+  top: var(--wingman-guru-top, auto) !important;
+  bottom: var(--wingman-guru-bottom, 18px) !important;
   z-index: 140;
   width: 82px;
   height: 82px;
@@ -1282,8 +1283,10 @@ textarea {
 
 @media (max-width: 1023px) {
   .wingman-guru-fab {
-    right: 14px !important;
-    bottom: 14px;
+    right: var(--wingman-guru-right, 14px) !important;
+    left: var(--wingman-guru-left, auto) !important;
+    top: var(--wingman-guru-top, auto) !important;
+    bottom: var(--wingman-guru-bottom, 14px) !important;
     width: 72px;
     height: 72px;
   }
