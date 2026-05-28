@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { Bell, ChevronDown, Menu, MessageSquareText, Plus, RotateCcw, Search, Settings, X } from "lucide-react";
+import { Menu, Plus, Settings, X } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { routeByPath, routeCatalog, routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
@@ -13,8 +13,6 @@ import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
 type AppShellProps = {
   children?: ReactNode;
 };
-
-type WingmanLanguageProfile = "sales" | "plain" | "technical";
 
 const routeClassNames = routeCatalog.map((route) => `wm-route-${route.segment}`);
 
@@ -66,50 +64,6 @@ const preservedStorageKeys = [
   "wingman-guru-local-memory-v1",
   "wingman-guru-glossary-v1",
 ];
-
-const languageProfiles: Array<{
-  id: WingmanLanguageProfile;
-  marker: string;
-  label: string;
-  description: string;
-}> = [
-  {
-    id: "sales",
-    marker: "S",
-    label: "Sales",
-    description: "Dealer and installer language",
-  },
-  {
-    id: "plain",
-    marker: "P",
-    label: "Plain",
-    description: "Outcome and experience language",
-  },
-  {
-    id: "technical",
-    marker: "T",
-    label: "Tech",
-    description: "Specification and risk language",
-  },
-];
-
-function readStoredLanguageProfile(): WingmanLanguageProfile {
-  if (typeof window === "undefined") {
-    return "sales";
-  }
-
-  const stored = window.localStorage.getItem("wingman-language-profile");
-
-  if (stored === "plain" || stored === "customer") {
-    return "plain";
-  }
-
-  if (stored === "technical") {
-    return "technical";
-  }
-
-  return "sales";
-}
 
 function shouldRemoveTransientKey(key: string) {
   if (storedProjectKeys.includes(key)) {
@@ -178,7 +132,6 @@ export function AppShell({ children }: AppShellProps) {
   const [guruOpen, setGuruOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pageResetVersion, setPageResetVersion] = useState(0);
-  const [languageProfile, setLanguageProfile] = useState<WingmanLanguageProfile>(() => readStoredLanguageProfile());
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -220,28 +173,6 @@ export function AppShell({ children }: AppShellProps) {
       window.removeEventListener("wingman:open-guru", handleOpenGuru);
     };
   }, []);
-
-  function handleLanguageProfileChange(nextProfile: WingmanLanguageProfile) {
-    setLanguageProfile(nextProfile);
-
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.localStorage.setItem("wingman-language-profile", nextProfile);
-    window.dispatchEvent(
-      new CustomEvent("wingman:language-profile-changed", {
-        detail: { profile: nextProfile },
-      }),
-    );
-  }
-
-  function handleClearCurrentProject() {
-    clearStoredProjectContext();
-    setGuruOpen(false);
-    setPageResetVersion((current) => current + 1);
-    window.setTimeout(resetMainScrollPosition, 0);
-  }
 
   function handleNewProject() {
     clearStoredProjectContext();
@@ -358,49 +289,9 @@ export function AppShell({ children }: AppShellProps) {
             </span>
           </div>
 
-          <div className="wingman-command-search" role="search">
-            <div className="wingman-language-profile-switcher" aria-label="Wingman language profile">
-              {languageProfiles.map((profile) => (
-                <button
-                  key={profile.id}
-                  type="button"
-                  className={languageProfile === profile.id ? "is-active" : ""}
-                  title={profile.description}
-                  aria-pressed={languageProfile === profile.id}
-                  onClick={() => handleLanguageProfileChange(profile.id)}
-                >
-                  <span className="wingman-language-flag" aria-hidden="true">
-                    {profile.marker}
-                  </span>
-                  <span>{profile.label}</span>
-                </button>
-              ))}
-            </div>
-            <Search className="wingman-command-search-icon" />
-            <input type="search" placeholder="Search projects, rooms, products..." aria-label="Search projects, rooms, products" />
-            <kbd>Ctrl K</kbd>
-          </div>
-
           <button type="button" className="wingman-new-project-button" onClick={handleNewProject}>
             <Plus className="h-4 w-4" />
             <span>New Project</span>
-            <ChevronDown className="h-4 w-4" />
-          </button>
-
-          <button type="button" className="wingman-topbar-icon-button" onClick={() => setGuruOpen(true)} aria-label="Open messages">
-            <MessageSquareText className="h-4 w-4" />
-          </button>
-
-          <button type="button" className="wingman-topbar-icon-button" onClick={handleClearCurrentProject} aria-label="Reset current project">
-            <RotateCcw className="h-4 w-4" />
-          </button>
-
-          <button type="button" className="wingman-topbar-icon-button wingman-topbar-icon-button-alert" aria-label="Notifications">
-            <Bell className="h-4 w-4" />
-          </button>
-
-          <button type="button" className="wingman-user-avatar" onClick={() => setGuruOpen(true)} aria-label="Open Wingman expert support">
-            WM
           </button>
         </header>
 

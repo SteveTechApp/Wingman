@@ -1,12 +1,9 @@
 import {
   ArrowRight,
-  Boxes,
   ClipboardList,
   FileUp,
   GitCompare,
   LayoutTemplate,
-  Search,
-  Video,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -46,30 +43,6 @@ const primaryActions: DashboardAction[] = [
     path: "/wingman/ingest",
     icon: FileUp,
     tone: "slate",
-  },
-];
-
-const secondaryActions: DashboardAction[] = [
-  {
-    title: "Product Finder",
-    description: "Filter WyreStorm products by application, signal type and workflow.",
-    path: "/wingman/finder",
-    icon: Search,
-    tone: "blue",
-  },
-  {
-    title: "Video Wall Builder",
-    description: "Build LCD or LED wall requirements before choosing architecture.",
-    path: "/wingman/videowall",
-    icon: Video,
-    tone: "violet",
-  },
-  {
-    title: "Proposal Builder",
-    description: "Turn captured requirements into customer-safe proposal wording.",
-    path: "/wingman/proposal",
-    icon: Boxes,
-    tone: "emerald",
   },
 ];
 
@@ -128,11 +101,6 @@ export function DashboardPage() {
         </div>
       </section>
 
-      <section className="wm-dashboard-secondary-section" aria-label="Other Wingman tools">
-        {secondaryActions.map((action) => (
-          <DashboardCard key={action.path} action={action} compact />
-        ))}
-      </section>
     </main>
   );
 }
