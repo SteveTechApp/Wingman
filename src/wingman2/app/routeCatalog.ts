@@ -12,6 +12,7 @@ import {
   PackageCheck,
   Scale,
   Search,
+  Settings,
 } from "lucide-react";
 import routeManifest from "./route-manifest.json";
 
@@ -29,7 +30,8 @@ export type WingmanRouteKey =
   | "callCards"
   | "ingest"
   | "proposal"
-  | "support";
+  | "support"
+  | "profile";
 
 type RouteManifestEntry = {
   key: WingmanRouteKey;
@@ -60,6 +62,7 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   ingest: FileUp,
   proposal: FileText,
   support: LifeBuoy,
+  profile: Settings,
 };
 
 const manifest = routeManifest as RouteManifestEntry[];

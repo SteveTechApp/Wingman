@@ -12,6 +12,7 @@ import {
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
+import { TemplateSchematic } from "../components/TemplateSchematic";
 import {
   upsertStoredProject,
   type StoredProductSelection,
@@ -354,6 +355,8 @@ export function TemplateReviewPage() {
                 </Link>
               </div>
             ) : null}
+
+            <TemplateSchematic template={selectedTemplate} rows={selectedRows} />
 
             <div className="mt-5 grid gap-4 lg:grid-cols-3">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
