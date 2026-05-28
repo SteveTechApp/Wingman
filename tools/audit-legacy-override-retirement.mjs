@@ -38,7 +38,7 @@ function classify(fileName, raw) {
   return "unknown";
 }
 
-function recommendation(category, fileName) {
+function recommendation(category, _fileName) {
   if (category === "safe-hide-rule") {
     return "Keep for now unless the hidden UI no longer exists.";
   }

@@ -23,7 +23,7 @@
     "check:readiness": "node tools/production-readiness-check.mjs",
     "check:workflow": "node tools/workflow-integration-check.mjs",
     "check:browser": "node tools/browser-smoke-check.mjs",
-    "verify": "npm run wm:guard-css && npm run typecheck && npm run build && npm run check:routes && npm run check:readiness && npm run check:workflow",
+    "verify": "npm run wm:guard-css && npm run typecheck && npm run build && npm run check:product-matching && npm run check:routes && npm run check:readiness && npm run check:workflow",
     "precommit:check": "npm run verify",
     "safe:verify": "npm run verify",
     "compare:server": "node server/compare-intelligence-server.mjs",

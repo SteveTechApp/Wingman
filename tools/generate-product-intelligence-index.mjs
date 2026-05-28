@@ -14,6 +14,8 @@ const outputTargets = [
   { type: "json", path: "public/product-intelligence-index.json" },
 ];
 
+const generatedAt = "source-controlled";
+
 async function pathExists(targetPath) {
   try {
     await fs.access(targetPath);
@@ -559,7 +561,7 @@ function buildIndex(products, discoveredSources) {
 
   return {
     meta: {
-      generatedAt: new Date().toISOString(),
+      generatedAt,
       sourceFiles: discoveredSources.map((filePath) =>
         path.relative(projectRoot, filePath).replace(/\\/g, "/")
       ),

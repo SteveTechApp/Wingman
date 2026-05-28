@@ -1,11 +1,8 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { BookOpenCheck, Cable, HelpCircle, Network, Search, Sparkles, Workflow } from "lucide-react";
+import { BookOpenCheck, Cable, CheckCircle2, HelpCircle, Network, Search, Sparkles, Workflow } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
-import { SalesToneQuickSetter } from "../components/SalesToneQuickSetter";
 import { SectionCard } from "../components/SectionCard";
-import { WingmanSelectionCard } from "../components/ui/WingmanSelectionCard";
-import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
 
 type ProductFamilyGuide = {
   id: string;
@@ -652,28 +649,12 @@ function findGuide(id: string) {
   return familyGuides.find((guide) => guide.id === id) ?? familyGuides[0];
 }
 
-function familyAccent(id: string) {
-  if (id.includes("networkhd")) return "green" as const;
-  if (id.includes("matrix") || id.includes("wall")) return "purple" as const;
-  if (id.includes("presentation") || id.includes("uc")) return "teal" as const;
-  if (id.includes("hdbaset") || id.includes("extender")) return "blue" as const;
-  return "cyan" as const;
-}
-
-function familyIcon(id: string) {
-  if (id.includes("networkhd")) return Network;
-  if (id.includes("matrix") || id.includes("wall")) return Workflow;
-  if (id.includes("presentation") || id.includes("uc")) return Sparkles;
-  if (id.includes("hdbaset") || id.includes("extender")) return Cable;
-  return BookOpenCheck;
-}
-
 export function ProductFamilyPage() {
   const [activeFamilyId, setActiveFamilyId] = useState(familyGuides[0].id);
   const activeFamily = useMemo(() => findGuide(activeFamilyId), [activeFamilyId]);
 
   return (
-    <div className="space-y-5 pb-10">
+    <div className="space-y-5 pb-6">
       <PageHero
         eyebrow="Product families"
         title="WyreStorm range positioning for sales conversations"
@@ -685,8 +666,6 @@ export function ProductFamilyPage() {
           { label: "Build proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
         ]}
       />
-
-      <SalesToneQuickSetter context="productFamilies" />
 
       <SectionCard
         title="Fast architecture rules"
@@ -707,32 +686,36 @@ export function ProductFamilyPage() {
 
       <div className="grid gap-5 xl:grid-cols-[330px_minmax(0,1fr)]">
         <SectionCard title="Choose family" subtitle="Pick the family that best matches the customer application before discussing SKUs.">
-          <WingmanSelectionGrid columns={1} compact>
+          <div className="space-y-2">
             {familyGuides.map((guide) => {
               const active = guide.id === activeFamily.id;
 
               return (
-                <WingmanSelectionCard
+                <button
                   key={guide.id}
+                  type="button"
                   onClick={() => setActiveFamilyId(guide.id)}
-                  compact
-                  title={guide.name}
-                  description={guide.shortPosition}
-                  icon={familyIcon(guide.id)}
-                  accent={familyAccent(guide.id)}
-                  selected={active}
-                  indicator={active ? "recommended" : undefined}
-                />
+                  className={[
+                    "w-full rounded-2xl border p-4 text-left transition",
+                    active ? "border-orange-300 bg-orange-50 text-slate-950" : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50",
+                  ].join(" ")}
+                >
+                  <span className="flex items-center gap-2 text-sm font-black">
+                    {active ? <CheckCircle2 className="h-4 w-4 text-orange-600" /> : <BookOpenCheck className="h-4 w-4 text-slate-400" />}
+                    {guide.name}
+                  </span>
+                  <span className="mt-2 block text-xs font-semibold leading-5 text-slate-600">{guide.shortPosition}</span>
+                </button>
               );
             })}
-          </WingmanSelectionGrid>
+          </div>
         </SectionCard>
 
         <section className="wingman-section-card wingman-surface overflow-hidden rounded-3xl">
           <header className="border-b border-slate-200 p-5">
             <p className="wingman-kicker">Family crib sheet</p>
             <h2 className="mt-2 text-3xl font-black text-slate-950">{activeFamily.name}</h2>
-            <p className="mt-3 max-w-4xl text-base font-semibold leading-8 text-slate-700">{activeFamily.customerPitch}</p>
+            <p className="mt-3 max-w-4xl text-sm font-semibold leading-6 text-slate-700">{activeFamily.customerPitch}</p>
           </header>
 
           <div className="space-y-5 p-5">
@@ -742,45 +725,48 @@ export function ProductFamilyPage() {
               <FamilyTextBlock icon={<Workflow className="h-4 w-4 text-emerald-600" />} title="How it works" text={activeFamily.howItWorks} />
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-2">
-              <FamilyListBlock icon={<Cable className="h-4 w-4 text-orange-600" />} title="Connectivity" items={activeFamily.connectivity} />
-              <FamilyListBlock icon={<Network className="h-4 w-4 text-sky-600" />} title="Useful functionality" items={activeFamily.usefulFunctionality} />
-            </div>
-
-            <div className="grid gap-4 xl:grid-cols-3">
-              <FamilyListBlock title="Special features" items={activeFamily.specialFeatures} />
-              <FamilyListBlock title="Best-fit applications" items={activeFamily.bestFit} />
-              <FamilyListBlock title="When not to lead" items={activeFamily.whenNotToLead} />
-            </div>
-
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.72fr)]">
-              <div className="rounded-3xl border border-slate-200 bg-white p-5">
-                <h3 className="flex items-center gap-2 text-sm font-black text-slate-950">
-                  <Search className="h-4 w-4 text-orange-600" />
-                  Discovery questions
-                </h3>
-                <ul className="mt-3 space-y-2">
-                  {activeFamily.discoveryQuestions.map((question) => (
-                    <li key={question} className="flex gap-2 text-sm font-semibold leading-6 text-slate-700">
-                      <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-orange-500" />
-                      <span>{question}</span>
-                    </li>
-                  ))}
-                </ul>
+            <details className="wm-decision-details">
+              <summary>More product detail</summary>
+              <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                <FamilyListBlock icon={<Cable className="h-4 w-4 text-orange-600" />} title="Connectivity" items={activeFamily.connectivity} />
+                <FamilyListBlock icon={<Network className="h-4 w-4 text-sky-600" />} title="Useful functionality" items={activeFamily.usefulFunctionality} />
               </div>
 
-              <div className="space-y-4">
-                <div className="rounded-3xl border border-slate-200 bg-slate-950 p-5 text-white">
-                  <h3 className="text-sm font-black">Position against alternatives</h3>
-                  <p className="mt-3 text-sm font-semibold leading-6 text-slate-200">{activeFamily.positionAgainst}</p>
+              <div className="mt-4 grid gap-4 xl:grid-cols-3">
+                <FamilyListBlock title="Special features" items={activeFamily.specialFeatures} />
+                <FamilyListBlock title="Best-fit applications" items={activeFamily.bestFit} />
+                <FamilyListBlock title="When not to lead" items={activeFamily.whenNotToLead} />
+              </div>
+
+              <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.72fr)]">
+                <div className="rounded-3xl border border-slate-200 bg-white p-5">
+                  <h3 className="flex items-center gap-2 text-sm font-black text-slate-950">
+                    <Search className="h-4 w-4 text-orange-600" />
+                    Discovery questions
+                  </h3>
+                  <ul className="mt-3 space-y-2">
+                    {activeFamily.discoveryQuestions.map((question) => (
+                      <li key={question} className="flex gap-2 text-sm font-semibold leading-6 text-slate-700">
+                        <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-orange-500" />
+                        <span>{question}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
-                <div className="rounded-3xl border border-orange-200 bg-orange-50 p-5">
-                  <h3 className="text-sm font-black text-slate-950">Sales rule</h3>
-                  <p className="mt-3 text-sm font-black leading-6 text-slate-800">{activeFamily.salesRule}</p>
+                <div className="space-y-4">
+                  <div className="rounded-3xl border border-slate-200 bg-slate-950 p-5 text-white">
+                    <h3 className="text-sm font-black">Position against alternatives</h3>
+                    <p className="mt-3 text-sm font-semibold leading-6 text-slate-200">{activeFamily.positionAgainst}</p>
+                  </div>
+
+                  <div className="rounded-3xl border border-orange-200 bg-orange-50 p-5">
+                    <h3 className="text-sm font-black text-slate-950">Sales rule</h3>
+                    <p className="mt-3 text-sm font-black leading-6 text-slate-800">{activeFamily.salesRule}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </details>
           </div>
         </section>
       </div>

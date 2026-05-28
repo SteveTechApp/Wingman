@@ -4,28 +4,16 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
-import { WingmanSelectionCard, type WingmanSelectionAccent } from "../components/ui/WingmanSelectionCard";
-import { WingmanSelectionGrid } from "../components/ui/WingmanSelectionGrid";
 import {
   getCurrentWorkflowProject,
   readProjectStore,
   saveProjectProposalToProject,
   saveRecommendationFeedback,
   type StoredProject,
-  type StoredProductSelection,
 } from "../data/projectStore";
 import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
 import { buildSalesReadinessPackage, type SalesBomRow, type SalesBomType } from "../lib/salesReadiness";
 
-type StoredSelection = StoredProductSelection & {
-  sku?: string;
-  title?: string;
-  family?: string;
-  category?: string;
-};
-
-const PRODUCT_SELECTION_STORE_KEY = "wingman-project-product-selections-v1";
-const STANDALONE_SHORTLIST_KEY = "wingman-finder-standalone-shortlist-v1";
 const feedbackActions: Array<{
   rating: "accepted" | "needs-review" | "missing-accessory" | "wrong-fit";
   label: string;
@@ -37,44 +25,38 @@ const feedbackActions: Array<{
   { rating: "wrong-fit", label: "Wrong fit", Icon: XCircle },
 ];
 
-const feedbackAccent: Record<(typeof feedbackActions)[number]["rating"], WingmanSelectionAccent> = {
-  accepted: "green",
-  "needs-review": "amber",
-  "missing-accessory": "blue",
-  "wrong-fit": "red",
-};
-
-function readJson<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
 function readSelectedProducts(project: StoredProject | null) {
-  if (project?.productSelections?.length) {
+  if (!project) {
+    return [];
+  }
+
+  if (project.productSelections?.length) {
     return project.productSelections.slice(0, 5);
   }
 
-  const standalone = readJson<StoredSelection[]>(STANDALONE_SHORTLIST_KEY, []);
-  const byProject = readJson<Record<string, StoredSelection[]>>(PRODUCT_SELECTION_STORE_KEY, {});
-  const projectSelections = Object.values(byProject).flat();
-  const bySku = new Map<string, StoredSelection>();
-
-  [...standalone, ...projectSelections].forEach((selection) => {
-    if (selection?.sku && !bySku.has(selection.sku)) {
-      bySku.set(selection.sku, selection);
-    }
-  });
-
-  return Array.from(bySku.values()).slice(0, 5);
+  return [];
 }
 
 function readDiscoveryBrief(project: StoredProject | null) {
-  if (!project?.discoveryBrief && project?.proposal) {
+  if (!project) {
+    return {
+      projectTitle: "No active project",
+      summary: "Proposal Builder is locked until a project is selected.",
+      roomSize: "Not available",
+      displays: "Not available",
+      displayCount: "",
+      displayBehaviour: "Not available",
+      sourceCount: "",
+      usb: "Not available",
+      distance: "Not available",
+      network: "",
+      audio: "",
+      control: "",
+      budget: "Not available",
+    };
+  }
+
+  if (!project.discoveryBrief && project.proposal) {
     return {
       projectTitle: project.proposal.title || project.name,
       summary: project.proposal.summary || "Template boilerplate proposal content.",
@@ -92,17 +74,13 @@ function readDiscoveryBrief(project: StoredProject | null) {
     };
   }
 
-  const brief =
-    project?.discoveryBrief ??
-    readJson<{ roomModel?: Record<string, unknown>; inference?: Record<string, unknown> } | null>(
-      "wingman-discovery-brief",
-      null,
-    );
+  const brief = project.discoveryBrief;
   const roomModel = brief?.roomModel ?? {};
   const joinValues = (value: unknown) => (Array.isArray(value) ? value.map((item) => String(item ?? "")).filter(Boolean).join(", ") : String(value || ""));
+
   return {
-    projectTitle: String(roomModel.roomType || project?.name || "Unqualified AV Opportunity"),
-    summary: String(brief?.inference?.summary || "Discovery has not been saved into this proposal yet."),
+    projectTitle: String(roomModel.roomType || project.name || "Project proposal"),
+    summary: String(brief?.inference?.summary || "No discovery brief has been saved to this project yet."),
     roomSize: String(roomModel.roomSize || "Not confirmed"),
     displays: String(roomModel.displayArrangement || "Not confirmed"),
     displayCount: String(roomModel.displayCount || ""),
@@ -139,7 +117,7 @@ export function ProposalPage() {
       ingest: project?.ingest,
       compareRun,
       assumptions: assumptions.length ? assumptions : ["Validate final product specifications, accessories, firmware notes, lifecycle, and regional suitability before issue."],
-      hasLiveContext: Boolean(project || products.length || discovery.summary !== "Discovery has not been saved into this proposal yet."),
+      hasLiveContext: Boolean(project),
     };
   }, []);
 
@@ -223,10 +201,69 @@ export function ProposalPage() {
     setFeedbackMessage(saved ? "Feedback saved to the active project." : "Feedback is available when a project is active.");
   }
 
+  if (!context.project) {
+    return (
+      <div className="pb-10">
+        <PageHero
+          eyebrow="Customer Proposal Builder"
+          title="Open a project before building a proposal."
+          purpose="Proposal Builder is locked until there is an active project. This prevents old discovery notes, standalone shortlists, or unrelated product selections being mixed into a customer proposal."
+          nextMove="Open Project Management, choose or create the correct project, then return to Proposal Builder."
+          actions={[
+            { label: "Open projects", to: routeCatalogByKey.projects.path },
+            { label: "Start discovery", to: routeCatalogByKey.discovery.path, variant: "secondary" },
+          ]}
+        />
+
+        <SectionCard
+          title="No active project selected"
+          subtitle="Proposal output must belong to a real project before Wingman can create a customer-safe proposal or BOM."
+        >
+          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-amber-950">
+            <div className="flex flex-wrap items-start gap-4">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-amber-700">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <h2 className="text-2xl font-black text-amber-950">Proposal Builder is inactive</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+                  There is no current project in play. Open or create a project first so the proposal can use only that project's discovery brief, product shortlist, assumptions, BOM rows, and approval notes.
+                </p>
+
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <Link
+                    to={routeCatalogByKey.projects.path}
+                    className="rounded-full bg-slate-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  >
+                    Open Project Management
+                  </Link>
+
+                  <Link
+                    to={routeCatalogByKey.discovery.path}
+                    className="rounded-full border border-amber-300 bg-white px-5 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100"
+                  >
+                    Start Discovery
+                  </Link>
+
+                  <Link
+                    to={routeCatalogByKey.finder.path}
+                    className="rounded-full border border-amber-300 bg-white px-5 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100"
+                  >
+                    Open Product Finder
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+      </div>
+    );
+  }
   return (
     <div className="pb-10">
       <PageHero
-        eyebrow="Customer Proposal Builder"
+        eyebrow="Proposal Builder"
         title="Turn requirements into SKUs and BOMs a sales person can present."
         purpose="This page packages competitor replacement, one-off outcome, and full-room tender work into WyreStorm-first outputs with evidence, dependencies, and customer-safe assumptions."
         nextMove="Confirm the sales motion, tighten the assumptions, and finalize the SKU or BOM output for customer presentation or internal approval."
@@ -359,7 +396,8 @@ export function ProposalPage() {
                     : "No product shortlist has been carried into the proposal yet. Add products from Finder before customer export."}
                 </p>
               </div>
-              <div className="lg:col-span-2">
+              <details className="wm-decision-details lg:col-span-2">
+                <summary>Dependency governance</summary>
                 <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-indigo-950">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -401,7 +439,7 @@ export function ProposalPage() {
                     )}
                   </div>
                 </div>
-              </div>
+              </details>
 
               <div className="lg:col-span-2">
                 <p className="wingman-kicker">Bill of materials</p>
@@ -436,8 +474,8 @@ export function ProposalPage() {
                   </table>
                 </div>
               </div>
-              <div className="lg:col-span-2">
-                <p className="wingman-kicker">Evidence basis</p>
+              <details className="wm-decision-details lg:col-span-2">
+                <summary>Evidence basis</summary>
                 <div className="mt-2 grid gap-2 text-sm leading-6 text-slate-700 md:grid-cols-2">
                   {salesReadiness.evidence.slice(0, 8).map((item) => (
                     <div key={item} className="rounded-2xl border border-slate-200 bg-white p-3">
@@ -445,25 +483,25 @@ export function ProposalPage() {
                     </div>
                   ))}
                 </div>
-              </div>
-              <div>
-                <p className="wingman-kicker">Rep guidance</p>
+              </details>
+              <details className="wm-decision-details">
+                <summary>Rep guidance</summary>
                 <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                   {salesReadiness.repGuidance.map((item) => (
                     <li key={item} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">{item}</li>
                   ))}
                 </ul>
-              </div>
-              <div>
-                <p className="wingman-kicker">Governance / validation</p>
+              </details>
+              <details className="wm-decision-details">
+                <summary>Governance / validation</summary>
                 <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                   {[...salesReadiness.governanceWarnings.slice(0, 3), ...salesReadiness.validationNotes].map((item) => (
                     <li key={item} className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-amber-950">{item}</li>
                   ))}
                 </ul>
-              </div>
-              <div className="lg:col-span-2">
-                <p className="wingman-kicker">Assumptions to validate</p>
+              </details>
+              <details className="wm-decision-details lg:col-span-2">
+                <summary>Assumptions to validate</summary>
                 <ul className="mt-2 grid gap-2 text-sm leading-6 text-slate-700 md:grid-cols-2">
                   {context.assumptions.map((assumption) => (
                     <li key={assumption} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
@@ -471,24 +509,24 @@ export function ProposalPage() {
                     </li>
                   ))}
                 </ul>
-              </div>
-              <div className="lg:col-span-2">
-                <p className="wingman-kicker">Recommendation feedback</p>
-                <WingmanSelectionGrid columns={4} compact className="mt-3">
+              </details>
+              <details className="wm-decision-details lg:col-span-2">
+                <summary>Recommendation feedback</summary>
+                <div className="mt-3 flex flex-wrap gap-3">
                   {feedbackActions.map(({ rating, label, Icon }) => (
-                    <WingmanSelectionCard
+                    <button
                       key={rating}
+                      type="button"
                       onClick={() => captureFeedback(rating, label)}
-                      compact
-                      title={label}
-                      description="Record proposal fit feedback"
-                      icon={Icon}
-                      accent={feedbackAccent[rating]}
-                    />
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    >
+                      <Icon className="h-4 w-4" />
+                      {label}
+                    </button>
                   ))}
-                </WingmanSelectionGrid>
+                </div>
                 {feedbackMessage ? <p className="mt-3 text-sm font-semibold text-slate-600">{feedbackMessage}</p> : null}
-              </div>
+              </details>
             </div>
           </div>
         </div>

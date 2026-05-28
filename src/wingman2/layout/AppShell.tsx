@@ -1,16 +1,40 @@
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { Bell, ChevronDown, Menu, MessageSquareText, Plus, RotateCcw, Search, Settings, X } from "lucide-react";
+import { Menu, Plus, Settings, X } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { routeByPath, routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
+
+import { routeByPath, routeCatalog, routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { clearActiveProject } from "../data/projectStore";
 import guruBotIcon from "../../assets/branding/guru-bot.png";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
+
 type AppShellProps = {
   children?: ReactNode;
 };
+
+const routeClassNames = routeCatalog.map((route) => `wm-route-${route.segment}`);
+
+const primaryNavKeys: WingmanRouteKey[] = [
+  "dashboard",
+  "discovery",
+  "finder",
+  "templates",
+  "compare",
+  "videowall",
+  "salesHelper",
+  "proposal",
+];
+
+const secondaryNavKeys: WingmanRouteKey[] = [
+  "projects",
+  "ingest",
+  "productFamilies",
+  "productPitch",
+  "callCards",
+  "support",
+];
 
 const storedProjectKeys = [
   "wingman-current-project",
@@ -34,34 +58,12 @@ const transientStoragePrefixes = [
   "wingman-brief-draft",
 ];
 
-const primaryNavKeys: WingmanRouteKey[] = [
-  "dashboard",
-  "discovery",
-  "finder",
-  "templates",
-  "compare",
-  "videowall",
-  "salesHelper",
-  "proposal",
-];
-
-const secondaryNavKeys: WingmanRouteKey[] = [
-  "projects",
-  "ingest",
-  "productFamilies",
-  "productPitch",
-  "callCards",
-  "support",
-];
-
 const preservedStorageKeys = [
   "wingman-project-store-v1",
   "wingman-project-product-selections-v1",
   "wingman-guru-local-memory-v1",
   "wingman-guru-glossary-v1",
 ];
-
-const routeStageTabs = ["Overview", "Requirements", "Architecture", "Products", "Next Steps"];
 
 function shouldRemoveTransientKey(key: string) {
   if (storedProjectKeys.includes(key)) {
@@ -116,11 +118,11 @@ function navDisplayLabel(key: WingmanRouteKey, navLabel: string) {
   const compactLabels: Partial<Record<WingmanRouteKey, string>> = {
     compare: "Competitor Compare",
     proposal: "Proposal",
-    projects: "Projects",
-    salesHelper: "Sales Language",
+    salesHelper: "Sales Strategy",
     videowall: "Video Wall",
     productFamilies: "Product Families",
     productPitch: "Product Pitch",
+    callCards: "Call Cards",
   };
 
   return compactLabels[key] ?? navLabel;
@@ -136,14 +138,30 @@ export function AppShell({ children }: AppShellProps) {
   const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
   const activeLabel = activeRoute?.label ?? "Dashboard";
   const activeSummary = activeRoute?.summary ?? "WyreStorm technical sales workspace.";
-  const activeRouteKey = activeRoute?.key ?? "dashboard";
-  const showWorkspaceGuidance = false;
+  const activeRouteClass = activeRoute ? `wm-route-${activeRoute.segment}` : "wm-route-dashboard";
   const primaryNav = useMemo(() => primaryNavKeys.map((key) => routeCatalogByKey[key]), []);
   const secondaryNav = useMemo(() => secondaryNavKeys.map((key) => routeCatalogByKey[key]), []);
 
   useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const root = document.documentElement;
+    root.classList.remove(...routeClassNames);
+    root.classList.add(activeRouteClass);
+    root.dataset.wingmanRoute = activeRoute?.key ?? "dashboard";
+
+    return () => {
+      root.classList.remove(...routeClassNames);
+      delete root.dataset.wingmanRoute;
+    };
+  }, [activeRoute?.key, activeRouteClass]);
+
+  useEffect(() => {
     setMobileNavOpen(false);
   }, [location.pathname]);
+
   useEffect(() => {
     function handleOpenGuru() {
       setGuruOpen(true);
@@ -156,14 +174,6 @@ export function AppShell({ children }: AppShellProps) {
     };
   }, []);
 
-
-  function handleClearCurrentProject() {
-    clearStoredProjectContext();
-    setGuruOpen(false);
-    setPageResetVersion((current) => current + 1);
-    window.setTimeout(resetMainScrollPosition, 0);
-  }
-
   function handleNewProject() {
     clearStoredProjectContext();
     setPageResetVersion((current) => current + 1);
@@ -172,10 +182,18 @@ export function AppShell({ children }: AppShellProps) {
   }
 
   return (
-    <div className="wingman-shell wingman-authority-shell">
+    <div className={`wingman-shell wingman-authority-shell ${activeRouteClass}`}>
       <aside className="wingman-sidebar" data-mobile-open={mobileNavOpen ? "true" : "false"}>
         <div className="wingman-brand wingman-brand-logo-only">
-          <img src={wingmanBrandLogo} alt="WyreStorm Wingman" className="wingman-brand-image" width={280} height={92} decoding="async" loading="eager" />
+          <img
+            src={wingmanBrandLogo}
+            alt="WyreStorm Wingman"
+            className="wingman-brand-image"
+            width={280}
+            height={92}
+            decoding="async"
+            loading="eager"
+          />
         </div>
 
         <nav className="wingman-nav" aria-label="Wingman navigation">
@@ -193,7 +211,9 @@ export function AppShell({ children }: AppShellProps) {
               <span className="wingman-nav-copy">
                 <span>{navDisplayLabel(key, navLabel)}</span>
               </span>
-              <span className="wingman-nav-tooltip" role="tooltip">{summary}</span>
+              <span className="wingman-nav-tooltip" role="tooltip">
+                {summary}
+              </span>
             </NavLink>
           ))}
         </nav>
@@ -215,13 +235,23 @@ export function AppShell({ children }: AppShellProps) {
               <span className="wingman-nav-copy">
                 <span>{navDisplayLabel(key, navLabel)}</span>
               </span>
-              <span className="wingman-nav-tooltip" role="tooltip">{summary}</span>
+              <span className="wingman-nav-tooltip" role="tooltip">
+                {summary}
+              </span>
             </NavLink>
           ))}
         </nav>
 
         <button type="button" className="wingman-expert-handoff-card" onClick={() => setGuruOpen(true)}>
-          <img src={guruBotIcon} alt="" className="wingman-expert-handoff-avatar" width={36} height={36} decoding="async" loading="eager" />
+          <img
+            src={guruBotIcon}
+            alt=""
+            className="wingman-expert-handoff-avatar"
+            width={36}
+            height={36}
+            decoding="async"
+            loading="eager"
+          />
           <span>
             <strong>Expert handoff</strong>
             <small>Get WyreStorm support</small>
@@ -254,86 +284,20 @@ export function AppShell({ children }: AppShellProps) {
 
           <div className="wingman-topbar-title wm-balanced-topbar-title" title={`${activeLabel}: ${activeSummary}`}>
             <p>Good morning, Wingman</p>
-            <span>{activeLabel}: {activeSummary}</span>
+            <span>
+              {activeLabel}: {activeSummary}
+            </span>
           </div>
-
-          <label className="wingman-command-search">
-            <Search className="wingman-command-search-icon" />
-            <input type="search" placeholder="Search projects, rooms, products..." aria-label="Search projects, rooms, products" />
-            <kbd>Ctrl K</kbd>
-          </label>
 
           <button type="button" className="wingman-new-project-button" onClick={handleNewProject}>
             <Plus className="h-4 w-4" />
             <span>New Project</span>
-            <ChevronDown className="h-4 w-4" />
-          </button>
-
-          <button type="button" className="wingman-topbar-icon-button" onClick={() => setGuruOpen(true)} aria-label="Open messages">
-            <MessageSquareText className="h-4 w-4" />
-          </button>
-
-          <button type="button" className="wingman-topbar-icon-button" onClick={handleClearCurrentProject} aria-label="Reset current project">
-            <RotateCcw className="h-4 w-4" />
-          </button>
-
-          <button type="button" className="wingman-topbar-icon-button wingman-topbar-icon-button-alert" aria-label="Notifications">
-            <Bell className="h-4 w-4" />
-          </button>
-
-          <button type="button" className="wingman-user-avatar" onClick={() => setGuruOpen(true)} aria-label="Open Wingman expert support">
-            WM
           </button>
         </header>
 
         <main className="wingman-app-main">
           <div className="wingman-page-host" key={`${location.pathname}-${pageResetVersion}`}>
-            {showWorkspaceGuidance ? (
-              <div className="wingman-page-frame">
-                <section className="wingman-page-frame__body">
-                  <nav className="wingman-route-tabs" aria-label={`${activeLabel} workflow stages`}>
-                    {routeStageTabs.map((tab, index) => (
-                      <button
-                        key={tab}
-                        type="button"
-                        className={index === 0 ? "wingman-route-tab is-active" : "wingman-route-tab"}
-                        aria-pressed={index === 0}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                  </nav>
-                  {children ?? <Outlet />}
-                </section>
-
-                <aside className="wingman-page-guidance-rail" aria-label="Wingman guidance">
-                  <div className="wingman-page-guidance-rail__head">
-                    <img src={guruBotIcon} alt="" className="wingman-page-guidance-rail__icon" decoding="async" />
-                    <div>
-                      <h2>Wingman Guidance</h2>
-                      <p>{activeLabel}</p>
-                    </div>
-                  </div>
-
-                  <div className="wingman-guidance-card">
-                    <span>Page focus</span>
-                    <p>{activeSummary}</p>
-                  </div>
-
-                  <div className="wingman-guidance-card">
-                    <span>Conversation type</span>
-                    <p>Use the audience switch to match Trade, User, or Technical Consultant language.</p>
-                  </div>
-
-                  <button type="button" className="wingman-guidance-action" onClick={() => setGuruOpen(true)}>
-                    Ask WyreStorm expert
-                    <MessageSquareText className="h-4 w-4" />
-                  </button>
-                </aside>
-              </div>
-            ) : (
-              children ?? <Outlet />
-            )}
+            {children ?? <Outlet />}
           </div>
         </main>
       </div>

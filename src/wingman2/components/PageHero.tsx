@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, HelpCircle, MoveRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type PageHeroAction = {
@@ -18,27 +18,54 @@ type PageHeroProps = {
 
 function actionClass(variant: PageHeroAction["variant"]) {
   return [
-    "wm-balanced-hero-action",
-    variant === "secondary" ? "wm-balanced-hero-action-secondary" : "wm-balanced-hero-action-primary",
+    "wingman-hero-action",
+    variant === "secondary" ? "wingman-hero-action-secondary" : "wingman-hero-action-primary",
   ].join(" ");
 }
 
-export function PageHero({ eyebrow, title, purpose, actions }: PageHeroProps) {
+export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHeroProps) {
   return (
-    <section className="wm-balanced-page-hero wingman-panel" aria-label={`${eyebrow}: ${title}`}>
-      <div className="wm-balanced-hero-copy">
-        <p className="wm-balanced-hero-kicker">{eyebrow}</p>
-        <h1 className="wm-balanced-hero-title">{title}</h1>
-        <p className="wm-balanced-hero-purpose">{purpose}</p>
+    <section className="wingman-page-hero wingman-page-hero-compact wingman-panel wingman-grid">
+      <div className="wingman-hero-copy">
+        <p className="wingman-kicker">{eyebrow}</p>
+        <h1 className="wingman-display">{title}</h1>
+      </div>
+
+      <div className="wingman-hero-quick-actions">
+        <details className="wingman-guidance-details">
+          <summary>
+            <HelpCircle className="h-5 w-5" />
+            <span>
+              Why this page
+              <small>Open only if useful</small>
+            </span>
+          </summary>
+          <div className="wingman-guidance-popover">
+            <p>{purpose}</p>
+          </div>
+        </details>
+
+        <details className="wingman-guidance-details">
+          <summary>
+            <MoveRight className="h-5 w-5" />
+            <span>
+              Next move
+              <small>Keep the call moving</small>
+            </span>
+          </summary>
+          <div className="wingman-guidance-popover">
+            <p>{nextMove}</p>
+          </div>
+        </details>
       </div>
 
       {actions?.length ? (
-        <div className="wm-balanced-hero-actions">
+        <div className="wingman-hero-actions">
           {actions.map((action) =>
             action.to ? (
               <Link key={action.label} to={action.to} className={actionClass(action.variant)}>
                 {action.label}
-                <ArrowRight className="wm-balanced-hero-action-icon" />
+                <ArrowRight className="h-4 w-4" />
               </Link>
             ) : (
               <button
@@ -48,7 +75,7 @@ export function PageHero({ eyebrow, title, purpose, actions }: PageHeroProps) {
                 className={actionClass(action.variant)}
               >
                 {action.label}
-                <ArrowRight className="wm-balanced-hero-action-icon" />
+                <ArrowRight className="h-4 w-4" />
               </button>
             ),
           )}
