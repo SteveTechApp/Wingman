@@ -18,6 +18,7 @@ import {
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { ProductSalesKnowledgePanel } from "../components/ProductSalesKnowledgePanel";
+import { WingmanCoachPanel } from "../components/WingmanCoachPanel";
 import {
   saveProductSelectionToProject,
   upsertStoredProject,
@@ -27,6 +28,7 @@ import {
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { discoveryBriefToFinderNeed, readLatestDiscoveryBrief } from "../data/workflowHandoff";
+import { buildWingmanCoachState } from "../lib/wingmanCoach";
 
 type MatchStatus = "recommended" | "alternative" | "caution";
 type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
@@ -2686,6 +2688,24 @@ export function FinderPage() {
     () => projects.find((project) => project.id === selectedProjectId),
     [projects, selectedProjectId],
   );
+  const workflowProject = useMemo(
+    () => projects.find((project) => project.id === activeProjectId),
+    [activeProjectId, projects],
+  );
+
+  const finderCoach = useMemo(
+    () =>
+      buildWingmanCoachState({
+        source: "finder",
+        audience: "dealer",
+        finderNeed: need,
+        totalProducts: products.length,
+        visibleMatches: matches,
+        shortlistedCount: shortlist.length,
+        selectedProducts: activeProject?.productSelections ?? workflowProject?.productSelections ?? [],
+      }),
+    [activeProject?.productSelections, matches, need, products.length, shortlist.length, workflowProject?.productSelections],
+  );
 
   function setNeedField<K extends keyof FinderNeed>(key: K, value: FinderNeed[K]) {
     setNeed((current) => {
@@ -2933,6 +2953,8 @@ export function FinderPage() {
               <ChipButton active={false} label="NDI camera workflow" onClick={() => applyQuickStart("ndi")} />
             </div>
           </div>
+
+          <WingmanCoachPanel coach={finderCoach} compact showFunnel showVisuals={false} />
 
           <div className="wm-finder-workbench grid gap-4">
                         <aside className="wm-finder-filter-panel grid content-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">

@@ -91,6 +91,7 @@ export type StoredProjectProposal = {
   repGuidance?: string[];
   governanceWarnings?: string[];
   validationNotes?: string[];
+  visualBlocks?: StoredProposalVisualBlock[];
   readinessScore?: number;
   companyName?: string;
   preparedBy?: string;
@@ -150,6 +151,15 @@ export type StoredProposalBomRow = {
   status: string;
   evidence?: string;
   notes: string;
+};
+
+export type StoredProposalVisualBlock = {
+  id: string;
+  kind: string;
+  title: string;
+  summary: string;
+  proposalUse: string;
+  exportLabel: string;
 };
 
 export type StoredWorkflowState = {
@@ -416,6 +426,7 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
     repGuidance: stringArray(record.repGuidance),
     governanceWarnings: stringArray(record.governanceWarnings),
     validationNotes: stringArray(record.validationNotes),
+    visualBlocks: normalizeProposalVisualBlocks(record.visualBlocks),
     readinessScore: Number.isFinite(Number(record.readinessScore)) ? Number(record.readinessScore) : undefined,
     companyName: stringValue(record.companyName, undefined),
     preparedBy: stringValue(record.preparedBy, undefined),
@@ -425,6 +436,30 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
     contactPhone: stringValue(record.contactPhone, undefined),
     updatedAt: stringValue(record.updatedAt, nowIso()),
   };
+}
+
+function normalizeProposalVisualBlocks(value: unknown): StoredProposalVisualBlock[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((item): StoredProposalVisualBlock | null => {
+      const record = objectRecord(item);
+      if (!record) return null;
+
+      const title = stringValue(record.title);
+      const summary = stringValue(record.summary);
+      if (!title && !summary) return null;
+
+      return {
+        id: stringValue(record.id, createId("visual-block")),
+        kind: stringValue(record.kind, "signal-flow"),
+        title: title || "Proposal visual",
+        summary: summary || "Visual support for the customer proposal.",
+        proposalUse: stringValue(record.proposalUse, "Use this to make the recommendation easier to understand and sell onward."),
+        exportLabel: stringValue(record.exportLabel, "Proposal visual"),
+      };
+    })
+    .filter((item): item is StoredProposalVisualBlock => Boolean(item));
 }
 
 function normalizeGovernedDependencies(value: unknown): StoredGovernedDependency[] {

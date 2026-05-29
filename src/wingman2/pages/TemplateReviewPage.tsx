@@ -20,6 +20,7 @@ import {
   type StoredProjectProposal,
 } from "../data/projectStore";
 import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
+import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { roomTemplates, type RoomTemplate, type TemplateBomRow } from "../lib/roomTemplates";
 import type { SalesBomRow } from "../lib/salesReadiness";
 
@@ -128,6 +129,22 @@ function templateProducts(rows: TemplateBomRow[]): StoredProductSelection[] {
 
 function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomRow[]): StoredProjectProposal {
   const bomRows = templateBomRows(template, rows);
+  const products = templateProducts(rows);
+  const readinessScore = template.validationItems.length > 4 ? 78 : 84;
+  const coach = buildWingmanCoachState({
+    source: "proposal-template",
+    audience: "dealer",
+    discovery: {
+      projectTitle: template.name,
+      summary: template.customerNarrative,
+      roomSize: template.application,
+      displays: template.vertical,
+    },
+    selectedProducts: products,
+    bomRows,
+    assumptions: template.assumptions,
+    readinessScore,
+  });
 
   return {
     title: template.name,
@@ -142,7 +159,7 @@ function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomRow[]): 
       "Validation",
       "Upgrade Paths",
     ],
-    products: templateProducts(rows),
+    products,
     assumptions: template.assumptions,
     outputPurpose: {
       motion: "Room/tender BOM",
@@ -160,7 +177,8 @@ function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomRow[]): 
     ],
     governanceWarnings: template.validationItems,
     validationNotes: template.designNotes.map((item) => `${item.label}: ${item.description}`),
-    readinessScore: template.validationItems.length > 4 ? 78 : 84,
+    visualBlocks: coach.visualBlocks,
+    readinessScore,
     updatedAt: new Date().toISOString(),
   };
 }
