@@ -2669,7 +2669,7 @@ export function ComparePage() {
                     <div key={row.label} className={["wm-feature-audit-row", `is-${row.result.toLowerCase()}`].join(" ")}>
                       <div>
                         <span className="wm-feature-audit-icon" aria-hidden="true">
-                          {row.result === "Match" || row.result === "Better" ? "Ã¢Å“â€œ" : row.result === "Gap" ? "Ãƒâ€”" : "?"}
+                          {row.result === "Match" || row.result === "Better" ? "OK" : row.result === "Gap" ? "Gap" : "?"}
                         </span>
                         <strong>{row.label}</strong>
                         <small>{row.note}</small>

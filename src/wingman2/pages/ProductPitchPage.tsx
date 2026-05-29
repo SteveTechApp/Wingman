@@ -340,10 +340,10 @@ function searchHaystack(product: ProductRecord): string {
 
 function buildPitchHeadline(product: ProductRecord): string {
   if (product.category) {
-    return `${product.sku}: ${product.category} for real AV projects`;
+    return `${product.sku}: ${product.category} in a real application`;
   }
 
-  return `${product.sku}: simple WyreStorm sales pitch`;
+  return `${product.sku}: product context for a customer conversation`;
 }
 
 function buildWhatItHelps(product: ProductRecord): string[] {
@@ -353,7 +353,7 @@ function buildWhatItHelps(product: ProductRecord): string[] {
   ];
 
   if (product.features.length > 0) {
-    output.push(`Connect the pitch to ${product.features.slice(0, 3).join(", ")}.`);
+    output.push(`Connect the explanation to ${product.features.slice(0, 3).join(", ")}.`);
   }
 
   return output;
@@ -542,8 +542,8 @@ export function ProductPitchPage() {
       <section className="wm-product-pitch-hero">
         <div>
           <p>Product Pitch</p>
-          <h1>Product sales and system-positioning crib sheet</h1>
-          <span>Explain what the product is, where it sits, what it works with, and how to position it to the right audience.</span>
+          <h1>Product conversation and system-positioning crib sheet</h1>
+          <span>Explain what the product is, where it sits, what it works with, and how to talk about it with the right audience.</span>
         </div>
 
         <div className="wm-product-pitch-actions">
@@ -641,17 +641,17 @@ export function ProductPitchPage() {
             <div className="wm-product-pitch-sheet-links">
               {selectedProduct.url && (
                 <a href={selectedProduct.url} target="_blank" rel="noreferrer">
-                  Product page ?
+                  Product page
                 </a>
               )}
               <a href={productSearchUrl(selectedProduct.sku)} target="_blank" rel="noreferrer">
-                WyreStorm search ?
+                WyreStorm search
               </a>
             </div>
           </div>
 
           <article className="wm-product-pitch-main-card">
-            <p>Simple customer pitch</p>
+            <p>Customer explanation</p>
             <h3>{buildPitchHeadline(selectedProduct)}</h3>
             <span>{selectedProduct.summary}</span>
           </article>

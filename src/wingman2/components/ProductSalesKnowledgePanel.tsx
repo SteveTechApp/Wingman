@@ -52,9 +52,9 @@ function buildConversationCards(knowledge: ResolvedProductSalesKnowledge): Conve
     {
       kind: "endUser",
       eyebrow: "Customer conversation",
-      title: "Pitch to an end-user",
+      title: "Talk to an end user",
       summary: "Outcome-led wording for a non-technical customer who cares about usability and business value.",
-      cta: "Open end-user pitch",
+      cta: "Open end-user wording",
     },
     {
       kind: "dealer",
@@ -73,7 +73,7 @@ function buildConversationCards(knowledge: ResolvedProductSalesKnowledge): Conve
     {
       kind: "distributor",
       eyebrow: "Channel conversation",
-      title: "Help another salesperson",
+      title: "Equip another salesperson",
       summary: "Simple qualification prompts for a distributor or reseller salesperson.",
       cta: "Open sales prompts",
     },
@@ -112,10 +112,10 @@ function ConversationModal({
 }) {
   const titleMap: Record<ConversationKind, string> = {
     explain: "Explain the product",
-    endUser: "Pitch to an end-user",
+    endUser: "Talk to an end user",
     dealer: "Support a dealer / installer",
     consultant: "Answer a technical consultant",
-    distributor: "Help another salesperson",
+    distributor: "Equip another salesperson",
     validate: "Check before quoting",
     diagram: "Product in-situ diagram",
     scope: "Complete-system scope",
@@ -134,7 +134,7 @@ function ConversationModal({
           <div>
             <p>{knowledge.sku}</p>
             <h3>{titleMap[kind]}</h3>
-            <span>{knowledge.classLabel} Ã‚Â· {knowledge.productName}</span>
+            <span>{knowledge.classLabel} - {knowledge.productName}</span>
           </div>
 
           <button type="button" onClick={onClose} aria-label="Close product conversation">

@@ -118,7 +118,7 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
                 Conversation type
               </p>
               <h2 className={["mt-1 text-lg font-black", isDark ? "text-white" : "text-slate-950"].join(" ")}>
-                Choose who you are selling to.
+                Choose who you are speaking with.
               </h2>
             </div>
           </div>

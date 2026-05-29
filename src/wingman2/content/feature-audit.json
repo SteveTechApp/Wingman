@@ -115,6 +115,24 @@
     ]
   },
   {
+    "routeKey": "intelligence",
+    "status": "partial",
+    "summary": "Product Intelligence exposes the product data review surface for WyreStorm and competitor records so classifications, lifecycle notes, and generated sales-language fields can be checked before they affect customer-facing workflows.",
+    "needed": [
+      "Add reviewer assignment, approval history, and clearer duplicate-field warnings.",
+      "Prioritise enrichment for repeated product-language fields that currently rely on family-level fallback copy."
+    ]
+  },
+  {
+    "routeKey": "profile",
+    "status": "wired",
+    "summary": "Profile / Admin stores local user, company, language, and proposal branding settings that influence generated output and localisation-sensitive customer wording.",
+    "needed": [
+      "Add visible validation for incomplete branding fields before proposal export.",
+      "Expose language and terminology preferences more directly in customer-facing copy tools."
+    ]
+  },
+  {
     "routeKey": "support",
     "status": "wired",
     "summary": "Support now acts as the completion and escalation hub, including the current feature audit view. Guru remains available globally as a standalone real-time AV/WyreStorm technical assistant, not only as a proposal helper.",
