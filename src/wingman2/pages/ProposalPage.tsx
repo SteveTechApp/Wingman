@@ -285,7 +285,7 @@ export function ProposalPage() {
     <div className="pb-10">
       <PageHero
         eyebrow="Proposal Builder"
-        title="Turn requirements into SKUs and BOMs a sales person can present."
+        title="Turn requirements into SKUs and BOMs a salesperson can present."
         purpose="This page packages competitor replacement, one-off outcome, and full-room tender work into WyreStorm-first outputs with evidence, dependencies, and customer-safe assumptions."
         nextMove="Confirm the sales motion, tighten the assumptions, and finalize the SKU or BOM output for customer presentation or internal approval."
         actions={[

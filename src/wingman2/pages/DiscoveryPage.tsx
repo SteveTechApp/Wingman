@@ -49,6 +49,12 @@ type OptionCard = {
   tags?: string[];
 };
 
+type QuestionStrategy = {
+  prompt: string;
+  customerFrame: string;
+  reasoning: string;
+};
+
 const steps: Step[] = [
   { id: "outcome", label: "Outcome", helper: "Start with what the customer wants to achieve." },
   { id: "room", label: "Room", helper: "Apply realistic room assumptions." },
@@ -285,6 +291,39 @@ const initialState: DiscoveryState = {
   notes: "",
 };
 
+const baseQuestionStrategyByStep: Record<StepId, QuestionStrategy> = {
+  outcome: {
+    prompt: "What does the room need to let people do?",
+    customerFrame: "Keep the first question about the job the room has to perform, not the product family.",
+    reasoning: "Outcome-first discovery avoids over-specifying AV hardware before the customer has described the experience they recognise.",
+  },
+  room: {
+    prompt: "Where will this be used, and what makes that space awkward?",
+    customerFrame: "A meeting room, classroom and training room can be similar sizes but need different defaults for control, source ownership and repeatability.",
+    reasoning: "Application context changes the assumed workflow before it changes the SKU shortlist.",
+  },
+  devices: {
+    prompt: "Which real devices do people bring, touch or rely on every day?",
+    customerFrame: "Ask for laptops, room PCs, cameras and microphones before translating them into HDMI, USB-C, USB host or NDI paths.",
+    reasoning: "Device language keeps the conversation natural while still building a useful engineering model.",
+  },
+  displays: {
+    prompt: "What should each viewer actually see?",
+    customerFrame: "The important difference is whether displays mirror, show independent content, support a call, or act as a wall/canvas.",
+    reasoning: "Display behaviour drives matrix, AVoIP, MST, scaler and wall-processor decisions.",
+  },
+  exceptions: {
+    prompt: "What could make the simple answer fail?",
+    customerFrame: "Only ask deeper questions when the chosen outcome suggests USB ownership, distance, HDR, network or audio risk.",
+    reasoning: "Triggered checks keep discovery short for simple rooms and deeper for rooms that need technical validation.",
+  },
+  review: {
+    prompt: "Does this sound like the room the customer described?",
+    customerFrame: "Read the inferred path back in plain language before moving to Finder or Proposal.",
+    reasoning: "A quick recap catches gaps while the customer still recognises the problem being solved.",
+  },
+};
+
 function selected(values: string[], option: string) {
   return values.includes(option);
 }
@@ -410,6 +449,47 @@ function getInputModel(state: DiscoveryState) {
   return inputs;
 }
 
+function getQuestionStrategy(stepId: StepId, state: DiscoveryState): QuestionStrategy {
+  const base = baseQuestionStrategyByStep[stepId];
+
+  if (stepId === "room" && state.outcome === "Create meeting / UC room") {
+    return {
+      ...base,
+      customerFrame: "For a UC room, find out who owns the call, where people sit, and whether BYOD has to feel as easy as the fixed room system.",
+    };
+  }
+
+  if (stepId === "room" && state.outcome === "Route sources to multiple displays") {
+    return {
+      ...base,
+      customerFrame: "For routing spaces, frame the room around who chooses content, which displays move together, and what must be simple for staff.",
+    };
+  }
+
+  if (stepId === "devices" && state.roomType === "Classroom") {
+    return {
+      ...base,
+      customerFrame: "For a classroom, ask what the teacher uses first, then confirm student-facing displays, capture, audio and any visiting-device path.",
+    };
+  }
+
+  if (stepId === "displays" && state.roomType === "Meeting room") {
+    return {
+      ...base,
+      customerFrame: "For a meeting room, separate presentation display behaviour from conferencing display behaviour so the recommendation matches the user journey.",
+    };
+  }
+
+  if (stepId === "exceptions" && getUsbTopology(state).risk !== "Low USB design risk") {
+    return {
+      ...base,
+      customerFrame: "Explain the USB question as camera and microphone ownership, not as a technical bus-routing problem.",
+    };
+  }
+
+  return base;
+}
+
 function getUsbTopology(state: DiscoveryState) {
   const inputModel = getInputModel(state);
   const warnings: string[] = [];
@@ -533,7 +613,7 @@ function getDownstreamQualityTags(state: DiscoveryState) {
 
   if (state.signalStandard === "1080p is acceptable") {
     tags.push("1080p acceptable");
-    tags.push("Do not over-specify premium 4K path unless future-proofing is required");
+    tags.push("Do not over-specify premium 4K path unless future expansion or later 4K upgrade is required");
   }
 
   if (state.signalStandard === "Not sure - validate downstream") {
@@ -729,6 +809,7 @@ export function DiscoveryPage() {
   const inputModel = getInputModel(state);
   const usbTopology = getUsbTopology(state);
   const triggeredChecks = getTriggeredChecks(state);
+  const questionStrategy = useMemo(() => getQuestionStrategy(currentStep.id, state), [currentStep.id, state]);
   const isFirstStep = activeStepIndex === 0;
   const isLastStep = activeStepIndex === steps.length - 1;
 
@@ -1148,7 +1229,8 @@ export function DiscoveryPage() {
               <Sparkles className="h-4 w-4" />
               <div>
                 <p>{currentStep.label} guidance</p>
-                <span>{currentStep.helper}</span>
+                <span>{questionStrategy.prompt}</span>
+                <small>{questionStrategy.customerFrame}</small>
               </div>
             </div>
 
@@ -1162,7 +1244,7 @@ export function DiscoveryPage() {
 
               <div>
                 <button type="button" onClick={() => { saveDiscoveryBrief(); navigate(routeCatalogByKey.callCards.path); }}>
-                  Open call cards
+                  Live call mode
                 </button>
 
                 <button type="button" onClick={openProposal}>

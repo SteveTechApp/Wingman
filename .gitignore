@@ -46,6 +46,8 @@ $RECYCLE.BIN/
 *.temp
 *.bak
 *.bak-*
+*.backup
+*.backup-*
 *.old
 *.orig
 *.rej
@@ -81,9 +83,11 @@ _RESCUE/
 _RECOVERY/
 _IMPORT/
 _QUARANTINE/
+quarantine/
 _AUDITS/
 _backups/
 backups/
+.codex/
 lighthouse-reports/
 _release/
 release/

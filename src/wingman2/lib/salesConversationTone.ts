@@ -41,18 +41,18 @@ export const DEFAULT_SALES_CONVERSATION_TONE_ID: SalesConversationToneId = "trad
 export const salesConversationToneOptions: SalesConversationToneOption[] = [
   {
     id: "trade",
-    label: "Sell to Trade",
-    shortDescription: "Dealer and installer language.",
+    label: "Dealer / installer",
+    shortDescription: "Qualification, install and handover checks.",
   },
   {
     id: "user",
-    label: "Sell to User",
-    shortDescription: "Outcome and experience language.",
+    label: "End user",
+    shortDescription: "Outcome and day-to-day experience language.",
   },
   {
     id: "consultant",
-    label: "Sell to Technical Consultant",
-    shortDescription: "Specification and risk language.",
+    label: "Technical consultant",
+    shortDescription: "Specification, trade-off and risk language.",
   },
 ];
 
@@ -121,7 +121,7 @@ export function buildSalesConversationToneCopy(
 
   if (toneId === "user") {
     return {
-      title: "Sell the user experience.",
+      title: "Frame the user experience.",
       opener: `What should people be able to do with ${copy.subject} without thinking about the technology?`,
       followUp: "What is frustrating users today, and what would make the space feel easier or more reliable?",
       handoff: `Capture the user outcome in plain language, then move to ${copy.nextStep}.`,
@@ -130,7 +130,7 @@ export function buildSalesConversationToneCopy(
 
   if (toneId === "consultant") {
     return {
-      title: "Sell the design logic.",
+      title: "Frame the design logic.",
       opener: `Which parts of ${copy.subject} are fixed requirements, and which parts are still open for validation?`,
       followUp: "What are the required I/O, resolution, USB, latency, audio, control and network constraints?",
       handoff: "Capture hard requirements, assumptions and risks, then pass the summary to WyreStorm experts for validation.",
@@ -138,8 +138,8 @@ export function buildSalesConversationToneCopy(
   }
 
   return {
-    title: "Sell the route to a dealer or installer.",
-    opener: `For ${copy.subject}, what matters most to the trade: quick quoting, clean installation, supportability, or margin?`,
+    title: "Frame the dealer or installer route.",
+    opener: `For ${copy.subject}, what would help the dealer quote, install, hand over or support this confidently?`,
     followUp: "What would make this easier to specify, install, hand over and support?",
     handoff: `Capture install constraints and commercial priorities, then move to ${copy.nextStep}.`,
   };
