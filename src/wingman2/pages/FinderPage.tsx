@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { classifyWingmanProduct, isWingmanProductEligibleForFinderNeed, wingmanHardwareTypePriority } from "../lib/productClassification";
 import {
   AlertTriangle,
@@ -26,6 +26,7 @@ import {
 } from "../data/projectStore";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
+import { discoveryBriefToFinderNeed, readLatestDiscoveryBrief } from "../data/workflowHandoff";
 
 type MatchStatus = "recommended" | "alternative" | "caution";
 type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
@@ -128,7 +129,7 @@ const technicalRequirementOptions = [
   "Extend HDMI and USB together",
   "Connect USB-C laptop",
   "Wireless presentation",
-  "BYOD / BYOM conferencing",
+  "BYOD / UC conferencing",
   "Route sources to multiple displays",
   "Dual display / MST",
   "Create multiview layout",
@@ -271,8 +272,8 @@ const seedProducts: FinderProduct[] = [
     family: "Presentation / HDBaseT",
     category: "HDMI / USB extender",
     description:
-      "Use when the user needs a single room input point carrying HDMI, USB-C video, and USB for BYOD or BYOM style workflows.",
-    tags: ["HDMI", "USB-C", "USB 2.0", "HDBaseT", "BYOD / BYOM", "Presentation Switcher"],
+      "Use when the user needs a single room input point carrying HDMI, USB-C video, and USB for BYOD or BYOD style workflows.",
+    tags: ["HDMI", "USB-C", "USB 2.0", "HDBaseT", "BYOD / UC", "Presentation Switcher"],
     searchText: "sw-130-tx-uk in wall hdmi usb-c usb hdbaset transmitter byod byom hdmi usb extender",
     source: "seed",
   },
@@ -518,7 +519,7 @@ const seedProducts: FinderProduct[] = [
       "Wireless presentation",
       "Wireless conferencing",
       "USB-C",
-      "BYOD / BYOM",
+      "BYOD / UC",
       "Apollo",
       "Dongle",
       "Workflow endpoint",
@@ -540,7 +541,7 @@ const seedProducts: FinderProduct[] = [
       "Wireless presentation",
       "Wireless conferencing",
       "USB-C",
-      "BYOD / BYOM",
+      "BYOD / UC",
       "Apollo",
       "Dongle",
       "Workflow endpoint",
@@ -958,7 +959,7 @@ function needRequestsWirelessCollaborationEndpoint(need: FinderNeed) {
 
   return (
     need.technicalRequirement === "Wireless presentation" ||
-    need.technicalRequirement === "BYOD / BYOM conferencing" ||
+    need.technicalRequirement === "BYOD / UC conferencing" ||
     need.productPath === "Wireless presentation" ||
     textIncludesAny(text, [
       "wireless presentation",
@@ -1219,7 +1220,7 @@ function expectedProductPathForRequirement(requirement: string) {
   if (requirement === "Extend HDMI over distance") return "HDBaseT extender";
   if (requirement === "Connect USB-C laptop") return "Presentation switcher";
   if (requirement === "Wireless presentation") return "Wireless presentation";
-  if (requirement === "BYOD / BYOM conferencing") return "UC / conferencing";
+  if (requirement === "BYOD / UC conferencing") return "UC / conferencing";
   if (requirement === "Route sources to multiple displays") return "Matrix / routing";
   if (requirement === "Dual display / MST") return "Presentation switcher";
   if (requirement === "Create multiview layout") return "AVoIP";
@@ -1415,7 +1416,7 @@ function needHasUcAudioOrCameraContext(need: FinderNeed) {
   const text = getFinderNeedText(need);
 
   return (
-    need.technicalRequirement === "BYOD / BYOM conferencing" ||
+    need.technicalRequirement === "BYOD / UC conferencing" ||
     need.productPath === "UC / conferencing" ||
     need.usb === "USB camera" ||
     need.usb === "Speakerphone / audio USB" ||
@@ -1624,7 +1625,7 @@ function technicalRequirementFeatureFilter(value: string): FinderFeatureFilter |
     "Extend HDMI over distance": ["hdbaset", "hdbt", "extender", "receiver", "transmitter", "hdmi"],
     "Connect USB-C laptop": ["usb-c", "usb c", "presentation switcher", "byod", "byom", "laptop"],
     "Wireless presentation": ["wireless", "airplay", "miracast", "casting", "apollo", "dongle"],
-    "BYOD / BYOM conferencing": ["byod", "byom", "conference", "conferencing", "speakerphone", "camera", "usb-c", "usb c"],
+    "BYOD / UC conferencing": ["byod", "byom", "conference", "conferencing", "speakerphone", "camera", "usb-c", "usb c"],
     "Route sources to multiple displays": ["matrix", "routing", "multi output", "multiple outputs", "switcher", "networkhd"],
     "Dual display / MST": ["dual display", "dual-output", "multi output", "mst", "matrix", "presentation"],
     "Create multiview layout": ["multiview", "multi view", "multi-view", "pip", "quad view", "processor"],
@@ -1892,7 +1893,7 @@ function classesForFinderTechnicalRequirement(requirement: string) {
   if (requirement === "Extend HDMI and USB together") return makeFinderClassSet(["hdbaset", "presentation"]);
   if (requirement === "Connect USB-C laptop") return makeFinderClassSet(["presentation", "uc", "hdbaset"]);
   if (requirement === "Wireless presentation") return makeFinderClassSet(["uc", "presentation", "dongle"]);
-  if (requirement === "BYOD / BYOM conferencing") return makeFinderClassSet(["uc", "presentation", "hdbaset"]);
+  if (requirement === "BYOD / UC conferencing") return makeFinderClassSet(["uc", "presentation", "hdbaset"]);
   if (requirement === "Route sources to multiple displays") return makeFinderClassSet(["matrix", "avoip", "presentation"]);
   if (requirement === "Dual display / MST") return makeFinderClassSet(["presentation", "matrix", "avoip"]);
   if (requirement === "Create multiview layout") return makeFinderClassSet(["video-wall", "avoip", "matrix"]);
@@ -2392,7 +2393,7 @@ function getCautionLines(match: ProductMatch, need: FinderNeed) {
   const lines = ["Confirm current datasheet, receiver/accessory set, firmware notes, and cable assumptions."];
 
   if (isUcCentricSwitcher(match)) {
-    lines.unshift("UC-centred switcher: normally position with conferencing, camera, speakerphone, microphone, or BYOM requirements rather than as a generic room matrix.");
+    lines.unshift("UC-centred switcher: normally position with conferencing, camera, speakerphone, microphone, or BYOD requirements rather than as a generic room matrix.");
   }
 
   if (isEndpointOnlyProduct(match)) {
@@ -2578,9 +2579,25 @@ function StatusPill({ status }: { status: MatchStatus }) {
 }
 
 export function FinderPage() {
+  const discoveryHandoffAppliedRef = useRef(false);
+
   useEffect(() => {
     document.body.classList.add("wm-product-finder-active");
     return () => document.body.classList.remove("wm-product-finder-active");
+  }, []);
+
+  useEffect(() => {
+    if (discoveryHandoffAppliedRef.current) return;
+
+    const draftNeed = discoveryBriefToFinderNeed(readLatestDiscoveryBrief());
+    if (!draftNeed) return;
+
+    discoveryHandoffAppliedRef.current = true;
+    setNeed((current) => ({
+      ...current,
+      ...draftNeed,
+    }));
+    setMessage("Discovery brief automatically loaded into Finder. Results now reflect the collected room requirement.");
   }, []);
 
   const { projects, activeProjectId } = useProjectStore();
@@ -2623,6 +2640,20 @@ export function FinderPage() {
     return () => {
       active = false;
     };
+  }, []);
+
+  useEffect(() => {
+    if (discoveryHandoffAppliedRef.current) return;
+
+    const draftNeed = discoveryBriefToFinderNeed(readLatestDiscoveryBrief());
+    if (!draftNeed) return;
+
+    discoveryHandoffAppliedRef.current = true;
+    setNeed((current) => ({
+      ...current,
+      ...draftNeed,
+    }));
+    setMessage("Discovery brief automatically loaded into Finder. Results now reflect the collected room requirement.");
   }, []);
 
   const hasIntent = hasFinderIntent(need);
@@ -2814,44 +2845,19 @@ export function FinderPage() {
   }
 
   function applyDiscoveryBrief() {
-    if (typeof window === "undefined") return;
+    const draftNeed = discoveryBriefToFinderNeed(readLatestDiscoveryBrief());
 
-    const raw = window.localStorage.getItem("wingman-discovery-brief");
-
-    if (!raw) {
-      setMessage("No saved Discovery brief found yet.");
+    if (!draftNeed) {
+      setMessage("No Discovery brief found yet. Complete Discovery or open a project with a saved Discovery brief.");
       return;
     }
 
-    try {
-      const parsed = JSON.parse(raw) as { roomModel?: Record<string, unknown> };
-      const roomModel = parsed.roomModel ?? {};
-      const sourceConnections = Array.isArray(roomModel.sourceConnections) ? roomModel.sourceConnections.join(" ") : "";
-      const usbNeeds = Array.isArray(roomModel.usbNeeds) ? roomModel.usbNeeds.join(" ") : "";
+    setNeed((current) => ({
+      ...current,
+      ...draftNeed,
+    }));
 
-      setNeed((current) => ({
-        ...current,
-        inputs: valueAsString(roomModel.sourceCount),
-        outputs: valueAsString(roomModel.displayCount),
-        distance: valueAsString(roomModel.longestRun),
-        sourceConnector: sourceConnections.includes("USB-C")
-          ? "USB-C"
-          : sourceConnections.includes("HDMI")
-            ? "HDMI"
-            : current.sourceConnector,
-        usb: usbNeeds.includes("USB 3")
-          ? "USB 3.x required"
-          : usbNeeds.includes("USB")
-            ? "USB 2.0 enough"
-            : current.usb,
-        network: sourceConnections.includes("NDI") ? "NDI source present" : current.network,
-        processing: valueAsString(roomModel.wallLayout) ? "Video wall processing" : current.processing,
-      }));
-
-      setMessage("Discovery brief loaded into technical Finder filters.");
-    } catch {
-      setMessage("Discovery brief exists, but Finder could not read it.");
-    }
+    setMessage("Discovery brief loaded into technical Finder filters.");
   }
 
   function openAddPanel(product: ProductMatch) {

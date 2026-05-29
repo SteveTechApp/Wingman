@@ -13,6 +13,7 @@ import {
 } from "../data/projectStore";
 import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
 import { buildSalesReadinessPackage, type SalesBomRow, type SalesBomType } from "../lib/salesReadiness";
+import { getStoredWingmanProfile } from "../data/wingmanProfile";
 
 const feedbackActions: Array<{
   rating: "accepted" | "needs-review" | "missing-accessory" | "wrong-fit";
@@ -103,6 +104,7 @@ export function ProposalPage() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const context = useMemo(() => {
     const project = getCurrentWorkflowProject(readProjectStore());
+    const profile = getStoredWingmanProfile();
     const discovery = readDiscoveryBrief(project);
     const products = readSelectedProducts(project);
     const ingestUnknowns = project?.ingest?.unknowns ?? [];
@@ -114,6 +116,7 @@ export function ProposalPage() {
       project,
       discovery,
       products,
+      profile,
       ingest: project?.ingest,
       compareRun,
       assumptions: assumptions.length ? assumptions : ["Validate final product specifications, accessories, firmware notes, lifecycle, and regional suitability before issue."],
@@ -162,6 +165,18 @@ export function ProposalPage() {
 
     return salesReadiness.bomRows;
   }, [context.project, salesReadiness.bomRows]);
+  const hasCoreProducts = context.products.length > 0;
+  const readinessLabel = !hasCoreProducts
+    ? "Not proposal ready"
+    : salesReadiness.reviewRequired
+      ? "Review required"
+      : "Proposal draft readiness";
+  const readinessMessage = !hasCoreProducts
+    ? "Discovery is saved, but no WyreStorm core products have been selected. Open Product Finder and add the recommended product path before export."
+    : salesReadiness.reviewRequired
+      ? "Resolve validate items before this is treated as customer-ready."
+      : "Suitable for proposal drafting after final validation checks.";
+
   const proposal = useMemo(
     () => ({
       title: context.discovery.projectTitle,
@@ -177,9 +192,15 @@ export function ProposalPage() {
       governanceWarnings: salesReadiness.governanceWarnings,
       validationNotes: salesReadiness.validationNotes,
       readinessScore: salesReadiness.readinessScore,
+      companyName: context.profile.companyName,
+      preparedBy: context.profile.reportPreparedBy || context.profile.userName,
+      proposalFooter: context.profile.proposalFooter,
+      companyLogoDataUrl: context.profile.companyLogoDataUrl,
+      contactEmail: context.profile.email,
+      contactPhone: context.profile.phone,
       updatedAt: new Date().toISOString(),
     }),
-    [bomRows, context.assumptions, context.discovery.projectTitle, context.discovery.summary, context.products, salesReadiness, sections],
+    [bomRows, context.assumptions, context.discovery.projectTitle, context.discovery.summary, context.products, context.profile, salesReadiness, sections],
   );
 
   useEffect(() => {
@@ -339,17 +360,17 @@ export function ProposalPage() {
             <div className="grid gap-6 p-8 lg:grid-cols-2">
               <div className="lg:col-span-2">
                 <div className={`rounded-2xl border p-4 ${
-                  salesReadiness.reviewRequired
-                    ? "border-amber-200 bg-amber-50 text-amber-950"
-                    : "border-emerald-200 bg-emerald-50 text-emerald-950"
+                  !hasCoreProducts
+                    ? "border-rose-200 bg-rose-50 text-rose-950"
+                    : salesReadiness.reviewRequired
+                      ? "border-amber-200 bg-amber-50 text-amber-950"
+                      : "border-emerald-200 bg-emerald-50 text-emerald-950"
                 }`}>
-                  <p className="wingman-kicker">{salesReadiness.reviewRequired ? "Review required" : "Proposal draft readiness"}</p>
+                  <p className="wingman-kicker">{readinessLabel}</p>
                   <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
                     <p className="text-sm leading-6">
                       Readiness score: <span className="font-black">{salesReadiness.readinessScore}%</span>.{" "}
-                      {salesReadiness.reviewRequired
-                        ? "Resolve validate items before this is treated as customer-ready."
-                        : "Suitable for proposal drafting after final validation checks."}
+                      {readinessMessage}
                     </p>
                     <Link
                       to={routeCatalogByKey.support.path}
@@ -393,7 +414,7 @@ export function ProposalPage() {
                 <p className="mt-2 text-sm leading-7 text-slate-700">
                   {context.products.length
                     ? context.products.map((product) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`).join("; ")
-                    : "No product shortlist has been carried into the proposal yet. Add products from Finder before customer export."}
+                    : "No WyreStorm product has been selected yet. Open Product Finder, choose the core product path, and add it to this project before exporting a customer proposal."}
                 </p>
               </div>
               <details className="wm-decision-details lg:col-span-2">
@@ -466,7 +487,7 @@ export function ProposalPage() {
                       ) : (
                         <tr>
                           <td className="px-4 py-4 text-slate-500" colSpan={4}>
-                            No WyreStorm BOM items are selected yet.
+                            No WyreStorm BOM items are selected yet. Open Product Finder and add the required products before exporting.
                           </td>
                         </tr>
                       )}

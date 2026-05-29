@@ -6,7 +6,7 @@ import {
 } from "./dependencyGovernance";
 
 export type SalesBomType = "Required" | "Optional" | "Validate";
-export type SalesMotionType = "Competitor replacement" | "Outcome SKU" | "Room/tender BOM";
+export type SalesMotionType = "Product gap" | "Competitor replacement" | "Outcome SKU" | "Room/tender BOM";
 
 export type SalesBomRow = {
   item: number;
@@ -76,6 +76,15 @@ function determineOutputPurpose(input: SalesReadinessInput): SalesReadinessPacka
     .join(" ")
     .toLowerCase();
 
+  if (!input.products.length) {
+    return {
+      motion: "Product gap",
+      summary: "Discovery has captured the room requirement, but no WyreStorm product has been selected yet.",
+      customerOutput: "This is an internal design brief, not a customer-ready proposal. It should not be exported as a BOM until Product Finder adds at least one core WyreStorm product.",
+      nextAction: "Open Product Finder, load the Discovery brief, select the core WyreStorm product path, then return to Proposal Builder.",
+    };
+  }
+
   if (input.compareRun?.competitorSku || input.compareRun?.competitorName || input.compareRun?.competitorBrand) {
     const competitor = input.compareRun.competitorSku || input.compareRun.competitorName || "the competitor product";
     return {
@@ -109,15 +118,15 @@ function determineOutputPurpose(input: SalesReadinessInput): SalesReadinessPacka
   ) {
     return {
       motion: "Room/tender BOM",
-      summary: "Use Wingman to turn requirements into a complete WyreStorm room or tender BOM.",
-      customerOutput: "A proposal-ready BOM with required WyreStorm SKUs, dependency prompts, assumptions, and evidence basis.",
-      nextAction: "Resolve validate rows that affect architecture, endpoint counts, USB, network, audio, control, or wall behaviour.",
+      summary: "Use Wingman to package the selected WyreStorm product path into a room or tender BOM.",
+      customerOutput: "A proposal draft with selected WyreStorm SKUs, design assumptions, dependency prompts, and evidence basis.",
+      nextAction: "Validate architecture-sensitive items: endpoint counts, USB topology, network requirements, audio, control, wall behaviour, accessories, power and mounting.",
     };
   }
 
   return {
     motion: "Outcome SKU",
-    summary: "Use Wingman to find a specific WyreStorm product or compact BOM for a defined customer outcome.",
+    summary: "Use Wingman to present a specific WyreStorm product or compact BOM for a defined customer outcome.",
     customerOutput: "A focused SKU recommendation with the reason it fits and the dependencies that must be checked.",
     nextAction: "Confirm the outcome, signal path, distance, USB/audio/control needs, then present the recommended SKU.",
   };
@@ -178,7 +187,9 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
     if (product.cautions?.length) governanceWarnings.push(...product.cautions.map((item) => `${product.sku}: ${item}`));
   });
 
-  bomRows.push(...governedDependencies.map((dependency) => governedDependencyToBomRow(dependency)));
+  if (input.products.length) {
+    bomRows.push(...governedDependencies.map((dependency) => governedDependencyToBomRow(dependency)));
+  }
   evidence.push(
     ...governedDependencies.map((dependency) => {
       const governanceKind = dependency.governanceKind ?? (dependency.sku.startsWith("TBC-") ? "Prompt" : "Exact");
@@ -201,10 +212,17 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
 
   const openAssumptionCount = input.assumptions.filter((item) => !/validate final product specifications/i.test(item)).length;
   const validateRowCount = bomRows.filter((row) => row.type === "Validate").length;
-  const readinessScore = Math.max(25, Math.min(92, 88 - openAssumptionCount * 6 - validateRowCount * 5 + input.products.length * 4));
-  const reviewRequired = readinessScore < 74 || validateRowCount > 2 || openAssumptionCount > 2;
+  const noCoreProductSelected = input.products.length === 0;
+  const readinessScore = noCoreProductSelected
+    ? Math.max(10, Math.min(42, 34 - openAssumptionCount * 4))
+    : Math.max(25, Math.min(92, 88 - openAssumptionCount * 6 - validateRowCount * 5 + input.products.length * 4));
+  const reviewRequired = noCoreProductSelected || readinessScore < 74 || validateRowCount > 2 || openAssumptionCount > 2;
 
-  if (reviewRequired) {
+  if (noCoreProductSelected) {
+    governanceWarnings.unshift("No WyreStorm core product has been selected. Open Product Finder and add the recommended product path before customer export.");
+    validationNotes.unshift("This proposal is currently a discovery/design brief only. The BOM is intentionally blank until products are selected.");
+    repGuidance.unshift("Do not present this as a customer proposal yet. Use it to continue qualification or move into Product Finder.");
+  } else if (reviewRequired) {
     repGuidance.unshift("Position this as a design direction until the validate items are resolved.");
   } else {
     repGuidance.unshift("This is suitable for a proposal draft after final datasheet and dependency validation.");

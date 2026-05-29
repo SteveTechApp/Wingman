@@ -66,6 +66,19 @@ export function buildBomCsv(rows: BomRow[]) {
 }
 
 export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomRow[]) {
+  const preparedBy = proposal.preparedBy || "";
+  const companyName = proposal.companyName || "WyreStorm Wingman";
+  const contactLine = [proposal.contactEmail, proposal.contactPhone].filter(Boolean).join(" | ");
+  const footer = proposal.proposalFooter || "Prepared using WyreStorm Wingman.";
+  const logoHtml = proposal.companyLogoDataUrl
+    ? `<img src="${escapeHtml(proposal.companyLogoDataUrl)}" alt="${escapeHtml(companyName)} logo" style="max-height:64px;max-width:220px;object-fit:contain;margin-bottom:16px;" />`
+    : "";
+
+  const hasCoreProducts = proposal.products.length > 0;
+  const readinessNotice = hasCoreProducts
+    ? "This proposal draft includes selected WyreStorm products. Validate final product specifications, accessories and dependencies before issue."
+    : "This export is a discovery/design brief only. No WyreStorm core products have been selected, so it must not be issued as a customer BOM.";
+
   const assumptions = proposal.assumptions.length
     ? proposal.assumptions
     : ["Validate final product specifications, accessories, firmware notes, lifecycle, and regional suitability before issue."];
@@ -89,9 +102,11 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   </style>
 </head>
 <body>
-  <p class="meta">WyreStorm Wingman proposal draft</p>
+  ${logoHtml}
+  <p class="meta">${escapeHtml(companyName)} proposal draft${preparedBy ? ` | Prepared by ${escapeHtml(preparedBy)}` : ""}</p>
   <h1>${escapeHtml(proposal.title)}</h1>
   <p>${escapeHtml(proposal.summary)}</p>
+  ${contactLine ? `<p class="meta">${escapeHtml(contactLine)}</p>` : ""}
 
   <h2>Output Purpose</h2>
   ${
@@ -136,7 +151,9 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <h2>Assumptions</h2>
   <ul>${assumptions.map((assumption) => `<li>${escapeHtml(assumption)}</li>`).join("")}</ul>
 
+  <div class="notice">${escapeHtml(readinessNotice)}</div>
   <div class="notice">Competitor products are excluded from this proposal and BOM unless a comparison-only output is explicitly requested.</div>
+  <p class="meta">${escapeHtml(footer)}</p>
 </body>
 </html>`;
 }

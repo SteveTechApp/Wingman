@@ -127,6 +127,44 @@ type CompareRecord = {
   lookupMode: string;
 };
 
+type CompareStageStatus = "queued" | "active" | "done" | "failed";
+
+type CompareStage = {
+  id: string;
+  label: string;
+  detail: string;
+  status: CompareStageStatus;
+};
+
+type FeatureAuditRow = {
+  label: string;
+  competitor: string;
+  wyrestorm: string;
+  result: "Match" | "Better" | "Gap" | "Verify";
+  note: string;
+};
+
+type NoMatchDetails = {
+  manufacturer: string;
+  model: string;
+  productUrl: string;
+  context: string;
+  lookupMode: string;
+  reason: string;
+  competitor: ProductProfile;
+  checkedCount: number;
+  checkedCandidates: Array<{
+    sku: string;
+    title: string;
+    domain: Domain;
+    role: Role;
+    score: number;
+    confidence: number;
+    notes: string[];
+  }>;
+  nextActions: string[];
+};
+
 type TextInputField = "sku" | "productUrl" | "context";
 
 type TextInputHistoryStore = {
@@ -392,7 +430,12 @@ function genericKnownCompetitorProfile(manufacturer: string, model: string, prod
     });
   }
 
+
   return null;
+}
+
+function blobIncludesWireless(value: string): boolean {
+  return /wireless|airplay|miracast|casting|wi-fi|wifi/i.test(value);
 }
 
 function knownCompetitorFingerprint(manufacturer: string, model: string, productUrl: string): ProductProfile | null {
@@ -1462,6 +1505,256 @@ function buildShortlist(competitor: ProductProfile): ScoredCandidate[] {
     .slice(0, 5);
 }
 
+
+function buildInitialCompareStages(input: { manufacturer: string; model: string; productUrl: string; context: string }): CompareStage[] {
+  const sku = tidy(input.model) || "entered SKU";
+  return [
+    {
+      id: "validate",
+      label: "Checking request",
+      detail: `Checking manufacturer, SKU and supplied context for ${tidy(input.manufacturer)} ${sku}.`,
+      status: "queued",
+    },
+    {
+      id: "lookup",
+      label: "Searching known resources",
+      detail: "Checking local fingerprints, saved records and live lookup resources when available.",
+      status: "queued",
+    },
+    {
+      id: "profile",
+      label: "Building competitor profile",
+      detail: "Classifying product type, role, transport, I/O and feature evidence.",
+      status: "queued",
+    },
+    {
+      id: "gate",
+      label: "Gating WyreStorm candidates",
+      detail: "Rejecting wrong product classes before scoring features.",
+      status: "queued",
+    },
+    {
+      id: "audit",
+      label: "Building feature comparison",
+      detail: "Creating an applicable side-by-side check table for this product type.",
+      status: "queued",
+    },
+  ];
+}
+
+function updateStageRows(stages: CompareStage[], id: string, patch: Partial<CompareStage>): CompareStage[] {
+  return stages.map((stage) => stage.id === id ? { ...stage, ...patch } : stage);
+}
+
+function uiPause(ms = 140): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function buildNoMatchDetails(args: {
+  manufacturer: string;
+  model: string;
+  productUrl: string;
+  context: string;
+  lookupMode: string;
+  competitor: ProductProfile;
+}): NoMatchDetails {
+  const scored = WYRESTORM_CANDIDATES
+    .map((candidate) => scoreCandidate(args.competitor, candidate))
+    .sort((a, b) => b.score - a.score);
+
+  const unknownClassification = args.competitor.domain === "UNKNOWN" || args.competitor.role === "Unknown";
+  const reason = unknownClassification
+    ? "Wingman could not classify the competitor into a trusted technology class/role, so it refused to create a shortlist."
+    : "Wingman classified the competitor, but every WyreStorm candidate was rejected by the hard gate or scored below the shortlist threshold.";
+
+  const nextActions = unknownClassification
+    ? [
+        "Add a product URL or datasheet URL so Wingman can read product evidence.",
+        "Add application context such as presentation switcher, matrix replacement, AVoIP endpoint, USB-C meeting room, or video wall processor.",
+        "Create or approve a Product Intelligence record for this competitor SKU.",
+      ]
+    : [
+        "Review the candidate audit table and confirm whether the hard gate is too strict.",
+        "Check whether the correct WyreStorm product family is present in the comparison candidate set.",
+        "Create or approve a Product Intelligence record with exact I/O and feature evidence.",
+      ];
+
+  return {
+    manufacturer: tidy(args.manufacturer),
+    model: tidy(args.model),
+    productUrl: tidy(args.productUrl),
+    context: tidy(args.context),
+    lookupMode: args.lookupMode,
+    reason,
+    competitor: args.competitor,
+    checkedCount: WYRESTORM_CANDIDATES.length,
+    checkedCandidates: scored.slice(0, 10).map((candidate) => ({
+      sku: candidate.sku,
+      title: candidate.title,
+      domain: candidate.domain,
+      role: candidate.role,
+      score: candidate.score,
+      confidence: candidate.confidence,
+      notes: candidate.scoreNotes.length ? candidate.scoreNotes : ["Scored by technology class, role, transport, I/O and features."],
+    })),
+    nextActions,
+  };
+}
+
+function yesNo(value: unknown): string {
+  return value ? "Yes" : "No";
+}
+
+function inputConnectionTypes(profile: ProductProfile): string {
+  const types: string[] = [];
+  if (profile.domain === "PRESENTATION" || profile.domain === "MATRIX" || profile.domain === "HDBASET" || profile.features.hdmiOutput) types.push("HDMI-class");
+  if (profile.features.usbC) types.push("USB-C");
+  if (profile.features.wireless) types.push("Wireless");
+  if (profile.domain === "AVOIP") types.push("Network / IP");
+  if (profile.features.fibre) types.push("Fibre/SFP");
+  if (profile.features.vga) types.push("VGA");
+  if (profile.features.microphone) types.push("Mic/audio");
+  return unique(types).join(" + ") || "Verify";
+}
+
+function outputConnectionTypes(profile: ProductProfile): string {
+  const types: string[] = [];
+  if (profile.features.hdmiOutput || profile.domain === "PRESENTATION" || profile.domain === "MATRIX" || profile.domain === "VIDEO_WALL") types.push("HDMI");
+  if (profile.features.hdbtOutput || profile.transport.toLowerCase().includes("hdbaset") || profile.transport.toLowerCase().includes("hdbt")) types.push("HDBaseT");
+  if (profile.domain === "AVOIP") types.push("Network / IP");
+  if (profile.features.fibre) types.push("Fibre/SFP");
+  return unique(types).join(" + ") || "Verify";
+}
+
+function countWithConnector(count: unknown, connectorText: string): string {
+  return `${countLabel(count)} / ${connectorText}`;
+}
+
+function featureResult(competitorValue: string, wyrestormValue: string): FeatureAuditRow["result"] {
+  if (competitorValue === "Unknown" || competitorValue === "Verify" || wyrestormValue === "Unknown" || wyrestormValue === "Verify") return "Verify";
+  if (competitorValue === wyrestormValue) return "Match";
+  if (competitorValue === "Yes" && wyrestormValue === "No") return "Gap";
+  if (competitorValue === "No" && wyrestormValue === "Yes") return "Better";
+
+  const competitorNumber = Number(competitorValue.split("/")[0].trim());
+  const wyrestormNumber = Number(wyrestormValue.split("/")[0].trim());
+
+  if (Number.isFinite(competitorNumber) && Number.isFinite(wyrestormNumber) && competitorNumber > 0) {
+    if (wyrestormNumber >= competitorNumber) return wyrestormNumber > competitorNumber ? "Better" : "Match";
+    return "Gap";
+  }
+
+  return "Verify";
+}
+
+function auditRow(label: string, competitor: string, wyrestorm: string, note: string): FeatureAuditRow {
+  return {
+    label,
+    competitor,
+    wyrestorm,
+    result: featureResult(competitor, wyrestorm),
+    note,
+  };
+}
+
+function applicableFeatureKeys(profile: ProductProfile): Array<keyof FeatureFlags> {
+  if (profile.domain === "PRESENTATION") {
+    return [
+      "usbC",
+      "wireless",
+      "usbRouting",
+      "conferencing",
+      "mst",
+      "scaling",
+      "audioDeEmbed",
+      "microphone",
+      "hdbtOutput",
+      "hdmiOutput",
+      "simultaneousOutputs",
+      "hdr",
+      "control",
+    ];
+  }
+
+  if (profile.domain === "MATRIX") {
+    return [
+      "hdbtOutput",
+      "hdmiOutput",
+      "simultaneousOutputs",
+      "receiverKit",
+      "arc",
+      "audioDeEmbed",
+      "ethernet",
+      "irRs232",
+      "poc",
+      "hdr",
+      "control",
+    ];
+  }
+
+  if (profile.domain === "AVOIP") {
+    return [
+      "usbRouting",
+      "dante",
+      "aes67",
+      "videoWall",
+      "multiview",
+      "fibre",
+      "zeroLatency",
+      "lossless",
+      "tenGig",
+      "oneGig",
+      "control",
+    ];
+  }
+
+  if (profile.domain === "VIDEO_WALL") {
+    return ["videoWall", "scaling", "hdmiOutput", "multiview", "control"];
+  }
+
+  if (profile.domain === "MULTIVIEW") {
+    return ["multiview", "scaling", "hdmiOutput", "videoWall", "control"];
+  }
+
+  if (profile.domain === "USB_EXTENSION") {
+    return ["usbRouting", "hdbt3", "hdbt2", "control"];
+  }
+
+  if (profile.domain === "HDBASET") {
+    return ["hdbt3", "hdbt2", "usbRouting", "hdmiOutput", "hdbtOutput", "irRs232", "poc", "control"];
+  }
+
+  return ["control"];
+}
+
+function buildApplicableFeatureAudit(competitor: ProductProfile, top: ScoredCandidate): FeatureAuditRow[] {
+  const rows: FeatureAuditRow[] = [
+    auditRow("Technology class", competitor.domain, top.domain, "Product families must match before features are considered."),
+    auditRow("Product role", competitor.role, top.role, "Prevents encoder/decoder/transceiver/switcher confusion."),
+    auditRow("Video inputs", countWithConnector(competitor.inputCount, inputConnectionTypes(competitor)), countWithConnector(top.inputCount, inputConnectionTypes(top)), "Counts and connector types must match the application, not just the headline SKU."),
+    auditRow("Video outputs", countWithConnector(competitor.outputCount, outputConnectionTypes(competitor)), countWithConnector(top.outputCount, outputConnectionTypes(top)), "Check whether outputs are HDMI, HDBaseT, network/IP, mirrored, simultaneous or routable."),
+    auditRow("Transport", competitor.transport, top.transport, "HDMI, HDBaseT, AVoIP and USB-C are not interchangeable."),
+    auditRow("Max resolution", competitor.maxResolution, top.maxResolution, "Resolution and chroma must be verified before proposal use."),
+  ];
+
+  const applicableKeys = applicableFeatureKeys(competitor);
+
+  for (const key of applicableKeys) {
+    const competitorHas = Boolean(competitor.features[key]);
+    const wyrestormHas = Boolean(top.features[key]);
+
+    if (!competitorHas && !wyrestormHas) continue;
+
+    rows.push(auditRow(
+      featureLabel(key),
+      yesNo(competitorHas),
+      yesNo(wyrestormHas),
+      `${featureLabel(key)} is applicable to ${competitor.domain} / ${competitor.role} comparisons.`,
+    ));
+  }
+
+  return rows.slice(0, 18);
+}
 function boolLabel(value: unknown): string {
   return value ? "Yes" : "No";
 }
@@ -1911,10 +2204,16 @@ export function ComparePage() {
   const [running, setRunning] = useState(false);
   const [status, setStatus] = useState("Enter a competitor SKU, then run the comparison.");
   const [result, setResult] = useState<CompareRecord | null>(null);
+  const [noMatchDetails, setNoMatchDetails] = useState<NoMatchDetails | null>(null);
+  const [compareStages, setCompareStages] = useState<CompareStage[]>([]);
   const [history, setHistory] = useState<CompareRecord[]>([]);
   const [textSuggestions, setTextSuggestions] = useState<TextInputSuggestions>(() => buildTextInputSuggestions("Crestron"));
   const searchRunRef = useRef(0);
 
+
+  function setCompareStage(id: string, patch: Partial<CompareStage>): void {
+    setCompareStages((current) => updateStageRows(current, id, patch));
+  }
   function refreshTextSuggestions(nextManufacturer = manufacturer): void {
     setTextSuggestions(buildTextInputSuggestions(nextManufacturer));
   }
@@ -1929,6 +2228,8 @@ export function ComparePage() {
   function clearCurrentResult(message = "Ready for a new independent comparison."): void {
     searchRunRef.current += 1;
     setResult(null);
+    setNoMatchDetails(null);
+    setCompareStages([]);
     setStatus(message);
   }
 
@@ -1976,8 +2277,18 @@ export function ComparePage() {
     searchRunRef.current = searchRunId;
 
     setResult(null);
+    setNoMatchDetails(null);
+
+    const initialStages = buildInitialCompareStages({ manufacturer, model, productUrl, context });
+    setCompareStages(initialStages);
     setRunning(true);
-    setStatus("Classifying competitor product and scoring WyreStorm candidates.");
+    setStatus("Active check started. Wingman is validating the request.");
+    setCompareStage("validate", { status: "active", detail: "Checking the manufacturer, SKU, URL and application context." });
+    await uiPause();
+
+    setCompareStage("validate", { status: "done", detail: "Request is valid. Moving into known resources and live lookup." });
+    setCompareStage("lookup", { status: "active", detail: "Searching local competitor fingerprints and live lookup endpoints where enabled." });
+    setStatus("Actively checking known resources and live lookup sources.");
 
     const backend = await tryBackendLookup({
       manufacturer,
@@ -1985,6 +2296,11 @@ export function ComparePage() {
       productUrl,
       context,
     });
+
+    setCompareStage("lookup", { status: "done", detail: backend.mode });
+    setCompareStage("profile", { status: "active", detail: "Building competitor product profile and classifying the SKU." });
+    setStatus("Building competitor profile: class, role, transport, I/O and feature flags.");
+    await uiPause();
 
     if (searchRunRef.current !== searchRunId) {
       return;
@@ -1998,16 +2314,42 @@ export function ComparePage() {
       backend: backend.payload,
     });
 
+    setCompareStage("profile", {
+      status: "done",
+      detail: `Classified as ${competitor.domain} / ${competitor.role}. Transport: ${competitor.transport}.`,
+    });
+    setCompareStage("gate", { status: "active", detail: "Checking WyreStorm candidates against hard product-class gates." });
+    setStatus(`Competitor appears to be ${competitor.domain} / ${competitor.role}. Checking WyreStorm candidates.`);
+    await uiPause();
+
     const shortlist = buildShortlist(competitor);
     const top = shortlist[0];
 
     if (!top) {
       if (searchRunRef.current === searchRunId) {
-        setStatus("No compatible WyreStorm shortlist was produced. Add more context or check the SKU.");
+        setCompareStage("gate", { status: "failed", detail: "No WyreStorm candidate passed the technology/role/transport gate with enough confidence." });
+        setCompareStage("audit", { status: "failed", detail: "Feature comparison could not be completed because no trusted shortlist exists." });
+        setNoMatchDetails(buildNoMatchDetails({
+          manufacturer,
+          model,
+          productUrl,
+          context,
+          lookupMode: backend.mode,
+          competitor,
+        }));
+        setStatus("NO COMPATIBLE MATCH: Wingman could not produce a trusted WyreStorm shortlist. Review the diagnostic panel.");
         setRunning(false);
       }
       return;
     }
+
+    setCompareStage("gate", {
+      status: "done",
+      detail: `Shortlist produced. Primary candidate: ${top.sku} (${top.confidence}/100 confidence).`,
+    });
+    setCompareStage("audit", { status: "active", detail: "Building applicable feature audit and side-by-side comparison." });
+    setStatus(`Match found: ${top.sku}. Building applicable feature comparison.`);
+    await uiPause();
 
     const rows = buildComparisonRows(competitor, top);
     const swot = buildSwot(competitor, top, shortlist);
@@ -2036,6 +2378,8 @@ export function ComparePage() {
     saveRecord(record);
     setHistory(readRecords());
     setResult(record);
+    setNoMatchDetails(null);
+    setCompareStage("audit", { status: "done", detail: "Applicable feature comparison is ready." });
     setStatus("Comparison complete. Result saved locally for reuse.");
     setRunning(false);
   }
@@ -2112,6 +2456,20 @@ export function ComparePage() {
 
             <p className="wm-status">{status}</p>
 
+            {compareStages.length > 0 ? (
+              <div className="wm-compare-progress">
+                {compareStages.map((stage) => (
+                  <div key={stage.id} className={`wm-compare-progress-row is-${stage.status}`}>
+                    <span />
+                    <div>
+                      <strong>{stage.label}</strong>
+                      <small>{stage.detail}</small>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
             <datalist id={suggestionId("sku")}>
               {textSuggestions.sku.map((item) => (
                 <option key={`sku-${item}`} value={item} />
@@ -2161,7 +2519,6 @@ export function ComparePage() {
             </div>
           )}
         </SectionCard>
-
         <SectionCard
           title="Result review"
           subtitle="Quickly decide whether the match is usable, needs checking, or should be rejected."
@@ -2173,10 +2530,82 @@ export function ComparePage() {
           }
         >
           {!result || !top ? (
-            <div className="wm-empty-state">
-              <h3>No comparison run yet.</h3>
-              <p>Run a comparison to see a gated match, shortlist, side-by-side differences and SWOT review notes.</p>
-            </div>
+            noMatchDetails ? (
+              <div className="wm-no-match-state">
+                <div className="wm-no-match-banner">
+                  <p>No compatible match</p>
+                  <h3>{noMatchDetails.manufacturer} {noMatchDetails.model}</h3>
+                  <span>{noMatchDetails.reason}</span>
+                </div>
+
+                <div className="wm-no-match-grid">
+                  <article>
+                    <span>Lookup mode</span>
+                    <strong>{noMatchDetails.lookupMode}</strong>
+                  </article>
+                  <article>
+                    <span>Competitor profile</span>
+                    <strong>{noMatchDetails.competitor.domain} / {noMatchDetails.competitor.role}</strong>
+                  </article>
+                  <article>
+                    <span>Candidates checked</span>
+                    <strong>{noMatchDetails.checkedCount}</strong>
+                  </article>
+                </div>
+
+                <div className="wm-no-match-explain">
+                  <h4>What Wingman actually checked</h4>
+                  <ul>
+                    <li>Manufacturer: {noMatchDetails.manufacturer}</li>
+                    <li>SKU: {noMatchDetails.model}</li>
+                    <li>Product URL: {noMatchDetails.productUrl || "Not supplied"}</li>
+                    <li>Application context: {noMatchDetails.context || "Not supplied"}</li>
+                    <li>Evidence: {(noMatchDetails.competitor.evidence || []).join(" | ") || "No trusted evidence captured."}</li>
+                  </ul>
+                </div>
+
+                <details className="wm-no-match-audit" open>
+                  <summary>Candidate gate audit</summary>
+                  <div className="wm-table-wrap">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>WyreStorm candidate</th>
+                          <th>Class / role</th>
+                          <th>Score</th>
+                          <th>Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {noMatchDetails.checkedCandidates.map((candidate) => (
+                          <tr key={candidate.sku}>
+                            <td>
+                              <strong>{candidate.sku}</strong>
+                              <small>{candidate.title}</small>
+                            </td>
+                            <td>{candidate.domain} / {candidate.role}</td>
+                            <td>{candidate.score} / {candidate.confidence}</td>
+                            <td>{candidate.notes.join(" | ")}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </details>
+
+                <div className="wm-no-match-next">
+                  <h4>Next action</h4>
+                  <ul>
+                    {noMatchDetails.nextActions.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              <div className="wm-empty-state">
+                <h3>No comparison run yet.</h3>
+                <p>Run a comparison to see a gated match, shortlist, side-by-side differences and SWOT review notes.</p>
+              </div>
+            )
           ) : (
             <div className="space-y-5">
               <div className="grid gap-4 lg:grid-cols-3">
@@ -2202,6 +2631,28 @@ export function ComparePage() {
                 </div>
               </div>
 
+              <div className="wm-profile-evidence-card">
+                <div>
+                  <p className="wm-kicker-dark">Competitor profile built by Wingman</p>
+                  <h3>{result.competitor.title}</h3>
+                  <span>{result.competitor.summary}</span>
+                </div>
+                <dl>
+                  <div>
+                    <dt>Inputs</dt>
+                    <dd>{countWithConnector(result.competitor.inputCount, inputConnectionTypes(result.competitor))}</dd>
+                  </div>
+                  <div>
+                    <dt>Outputs</dt>
+                    <dd>{countWithConnector(result.competitor.outputCount, outputConnectionTypes(result.competitor))}</dd>
+                  </div>
+                  <div>
+                    <dt>Features checked</dt>
+                    <dd>{applicableFeatureKeys(result.competitor).map((key) => featureLabel(key)).join(", ")}</dd>
+                  </div>
+                </dl>
+              </div>
+
               <div className="wm-review-notes">
                 <p className="wm-kicker-dark">Decision notes</p>
                 <ul>
@@ -2210,6 +2661,25 @@ export function ComparePage() {
                   ))}
                 </ul>
               </div>
+
+              <details className="wm-decision-details wm-feature-audit" open>
+                <summary>Applicable feature check</summary>
+                <div className="wm-feature-audit-table">
+                  {buildApplicableFeatureAudit(result.competitor, top).map((row) => (
+                    <div key={row.label} className={["wm-feature-audit-row", `is-${row.result.toLowerCase()}`].join(" ")}>
+                      <div>
+                        <span className="wm-feature-audit-icon" aria-hidden="true">
+                          {row.result === "Match" || row.result === "Better" ? "Ã¢Å“â€œ" : row.result === "Gap" ? "Ãƒâ€”" : "?"}
+                        </span>
+                        <strong>{row.label}</strong>
+                        <small>{row.note}</small>
+                      </div>
+                      <p>{row.competitor}</p>
+                      <p>{row.wyrestorm}</p>
+                    </div>
+                  ))}
+                </div>
+              </details>
 
               <details className="wm-decision-details">
                 <summary>Side-by-side checks</summary>

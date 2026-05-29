@@ -137,7 +137,7 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       endUser:
         "This gives users one simple place to connect and present. They do not need to understand the AV system; they connect their laptop and the room display, camera and audio behave as expected.",
       dealer:
-        "Treat this as the room input hub. Check table-to-display cable routes, USB host location, display count and whether the room needs wired, wireless or BYOM operation before choosing the model.",
+        "Treat this as the room input hub. Check table-to-display cable routes, USB host location, display count and whether the room needs wired, wireless or BYOD operation before choosing the model.",
       consultant:
         "Validate input count, output count, EDID, scaling, MST, USB speed, USB routing, HDBaseT path, control handoff and audio integration before specifying.",
       distributorSales:
@@ -168,7 +168,7 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
         {
           label: "USB return",
           cable: "USB-C, USB-A/B or USB extension",
-          note: "Needed for BYOM, camera, speakerphone or interactive touch workflows.",
+          note: "Needed for BYOD, camera, speakerphone or interactive touch workflows.",
           tone: "usb",
         },
       ],
@@ -609,7 +609,7 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
     howItWorks: "It connects the room display, camera/audio functions and user device or room PC into a simpler meeting workflow.",
     specialFeatures: ["Supports meeting-room workflows", "May combine camera, speaker, microphone, presentation and wireless casting", "User experience matters more than raw routing"],
     worksWith: ["Displays", "laptops", "room PCs", "Teams/Zoom platforms", "USB peripherals", "microphones", "DSPs"],
-    commonUseCases: ["Huddle rooms", "small meeting rooms", "hotel meeting rooms", "telemedicine rooms", "BYOM spaces"],
+    commonUseCases: ["Huddle rooms", "small meeting rooms", "hotel meeting rooms", "telemedicine rooms", "BYOD spaces"],
     discoveryQuestions: ["Is the host a laptop, room PC or Teams/Zoom appliance?", "Where are users seated?", "Is the room small enough for built-in camera/audio?", "Is wireless casting required?", "Does the customer have IT/security restrictions?"],
     doNotUseWhen: ["Do not use where the room needs complex multi-source routing.", "Do not assume it replaces a DSP in larger rooms.", "Do not ignore USB host location."],
     pitch: {
@@ -650,15 +650,15 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
     specialFeatures: ["Reduces cable clutter", "Useful for guest presentation", "IT policy and network design are essential"],
     worksWith: ["Displays", "presentation switchers", "laptops", "mobile devices", "UC systems", "guest networks"],
     commonUseCases: ["Meeting rooms", "classrooms", "training rooms", "hospitality meeting rooms"],
-    discoveryQuestions: ["Which devices need to cast?", "Is AirPlay/Miracast required?", "Is guest network access allowed?", "Is USB/BYOM required as well as content sharing?"],
+    discoveryQuestions: ["Which devices need to cast?", "Is AirPlay/Miracast required?", "Is guest network access allowed?", "Is USB/BYOD required as well as content sharing?"],
     doNotUseWhen: ["Do not assume wireless is allowed on every corporate network.", "Do not use when guaranteed zero-latency video is required."],
     pitch: {
       endUser: "This lets people share content quickly without hunting for the right cable.",
       dealer: "Confirm the IT policy, guest access and whether wireless conferencing is needed, not just screen sharing.",
-      consultant: "Validate protocols, network segmentation, security, latency, resolution and USB/BYOM requirements.",
+      consultant: "Validate protocols, network segmentation, security, latency, resolution and USB/BYOD requirements.",
       distributorSales: "Ask whether users currently struggle with cables or visitors need to present from their own device.",
     },
-    companionProducts: ["Presentation switcher", "display", "network by others", "USB devices if BYOM"],
+    companionProducts: ["Presentation switcher", "display", "network by others", "USB devices if BYOD"],
     byOthersChecklist: ["Network access", "display", "IT approval", "guest policy", "device support"],
     diagram: {
       title: "Wireless presentation in a room",
@@ -893,7 +893,7 @@ function featureHints(product: ProductSalesKnowledgeProduct) {
   if (profile.features.multiview) hints.push("Multiview means multiple source windows on one output, not simply several outputs.");
   if (profile.features.videoWall) hints.push("Video wall processing needs wall size, layout and canvas behaviour before quoting.");
   if (profile.features.kvm) hints.push("KVM means USB/device control matters; confirm host and peripheral locations.");
-  if (profile.features.usb3) hints.push("USB 3.x can matter for cameras and capture devices; check bandwidth before promising BYOM behaviour.");
+  if (profile.features.usb3) hints.push("USB 3.x can matter for cameras and capture devices; check bandwidth before promising BYOD behaviour.");
   if (profile.features.usb2 && !profile.features.usb3) hints.push("USB 2.0 may be fine for HID and many conference devices, but validate camera bandwidth.");
   if (profile.features.dante) hints.push("Dante/AES67 should involve the audio/network stakeholder before the proposal is issued.");
   if (profile.features.audioDeEmbed) hints.push("Audio de-embedding can help feed DSP, PA or local amplification, but confirm whether audio follows video.");

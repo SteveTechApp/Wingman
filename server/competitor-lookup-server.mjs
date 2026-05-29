@@ -41,7 +41,13 @@ import {
   handleWingmanWorkspaceSettingsPost,
 } from "./wingman-app-store.mjs";
 import { resolveCompetitorMatch } from "./competitor/resolve-match.mjs";
-import { resolveCompetitorLiveLookup } from "./competitor/live-lookup.mjs";
+import { resolveCompetitorLiveLookup } from "./competitor/live-lookup.mjs";
+import {
+  handleIntelligenceDraftBuildCompetitorPost,
+  handleIntelligenceDraftBuildWyrestormPost,
+  handleIntelligenceDraftsGet,
+  handleIntelligenceDraftStatusPost,
+} from "./intelligence/auto-draft-builder.mjs";
 let createSupabaseClient = null;
 try {
   ({ createClient: createSupabaseClient } = await import("@supabase/supabase-js"));
@@ -1940,6 +1946,9 @@ function buildHealthPayload() {
     approvalsEndpoint: `http://${HOST}:${PORT}/api/competitor-approvals`,
     productIntelligenceEndpoint: `http://${HOST}:${PORT}/api/product-intelligence`,
     productIntelligenceHealthEndpoint: `http://${HOST}:${PORT}/api/product-intelligence/health`,
+    intelligenceDraftsEndpoint: `http://${HOST}:${PORT}/api/intelligence/drafts`,
+    competitorDraftBuildEndpoint: `http://${HOST}:${PORT}/api/intelligence/build-competitor`,
+    wyrestormDraftBuildEndpoint: `http://${HOST}:${PORT}/api/intelligence/build-wyrestorm`,
     wingmanDeploymentEndpoint: `http://${HOST}:${PORT}/api/wingman`,
     retryAttempts: RETRY_ATTEMPTS,
     fetchTimeoutMs: FETCH_TIMEOUT_MS,
@@ -1961,9 +1970,64 @@ function buildHealthPayload() {
   };
 }
 
+
+function allowLocalIntelligenceDraftBypass(req, url) {
+  const enabled = !["0", "false", "off", "no"].includes(
+    String(process.env.WINGMAN_ALLOW_LOCAL_INTELLIGENCE_DRAFT_BYPASS ?? "true").trim().toLowerCase()
+  );
+
+  if (!enabled) {
+    return false;
+  }
+
+  const pathname = String(url?.pathname || "");
+  const allowedPath = [
+    "/api/intelligence/drafts",
+    "/api/intelligence/build-competitor",
+    "/api/intelligence/build-wyrestorm",
+    "/api/intelligence/drafts/status"
+  ].includes(pathname);
+
+  if (!allowedPath) {
+    return false;
+  }
+
+  const remoteAddress = String(req.socket?.remoteAddress || "");
+  const host = String(req.headers?.host || "").toLowerCase();
+
+  return (
+    remoteAddress === "127.0.0.1" ||
+    remoteAddress === "::1" ||
+    remoteAddress === "::ffff:127.0.0.1" ||
+    host.startsWith("127.0.0.1:") ||
+    host.startsWith("localhost:")
+  );
+}
 const server = http.createServer(async (req, res) => {
   const method = req.method || "GET";
   const url = new URL(req.url || "/", `http://${req.headers.host || `${HOST}:${PORT}`}`);
+
+  if (allowLocalIntelligenceDraftBypass(req, url)) {
+    if (method === "GET" && url.pathname === "/api/intelligence/drafts") {
+      await runProtectedRoute(res, () => handleIntelligenceDraftsGet(req, res, url, { sendJson }));
+      return;
+    }
+
+    if (method === "POST" && url.pathname === "/api/intelligence/build-competitor") {
+      await runProtectedRoute(res, () => handleIntelligenceDraftBuildCompetitorPost(req, res, url, { sendJson, parseJsonBody }));
+      return;
+    }
+
+    if (method === "POST" && url.pathname === "/api/intelligence/build-wyrestorm") {
+      await runProtectedRoute(res, () => handleIntelligenceDraftBuildWyrestormPost(req, res, url, { sendJson, parseJsonBody }));
+      return;
+    }
+
+    if (method === "POST" && url.pathname === "/api/intelligence/drafts/status") {
+      await runProtectedRoute(res, () => handleIntelligenceDraftStatusPost(req, res, url, { sendJson, parseJsonBody }));
+      return;
+    }
+  }
 
   try {
     if (await handleAgentsRoute(req, res)) {
@@ -2200,6 +2264,45 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (method === "GET" && url.pathname === "/api/intelligence/drafts") {
+    if (!(await requireWingmanPermission(req, res, url, {
+      permission: "canManageWorkspace",
+      deniedMessage: "Product intelligence drafts are restricted to workspace admins.",
+    }))) return;
+
+    await runProtectedRoute(res, () => handleIntelligenceDraftsGet(req, res, url, { sendJson }));
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/intelligence/build-competitor") {
+    if (!(await requireWingmanPermission(req, res, url, {
+      permission: "canViewDiagnostics",
+      deniedMessage: "Competitor intelligence build requires an authenticated Wingman workspace session.",
+    }))) return;
+
+    await runProtectedRoute(res, () => handleIntelligenceDraftBuildCompetitorPost(req, res, url, { sendJson, parseJsonBody }));
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/intelligence/build-wyrestorm") {
+    if (!(await requireWingmanPermission(req, res, url, {
+      permission: "canViewDiagnostics",
+      deniedMessage: "WyreStorm intelligence build requires an authenticated Wingman workspace session.",
+    }))) return;
+
+    await runProtectedRoute(res, () => handleIntelligenceDraftBuildWyrestormPost(req, res, url, { sendJson, parseJsonBody }));
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/intelligence/drafts/status") {
+    if (!(await requireWingmanPermission(req, res, url, {
+      permission: "canManageWorkspace",
+      deniedMessage: "Product intelligence draft approval is restricted to workspace admins.",
+    }))) return;
+
+    await runProtectedRoute(res, () => handleIntelligenceDraftStatusPost(req, res, url, { sendJson, parseJsonBody }));
+    return;
+  }
   if (method === "GET" && url.pathname === "/api/product-intelligence/health") {
     await runProtectedRoute(res, () => handleProductIntelligenceHealthGet(req, res, { sendJson }));
     return;

@@ -104,7 +104,7 @@ const FALLBACK_PRODUCTS: ProductRecord[] = [
     category: "Wireless collaboration",
     summary: "Wireless presentation and conferencing system for modern meeting rooms.",
     features: ["Wireless casting", "Wireless conferencing", "USB-C", "Dual output"],
-    tags: ["Presentation", "Wireless", "BYOM"],
+    tags: ["Presentation", "Wireless", "BYOD"],
     url: "",
     sourceText: ""
   },
@@ -391,7 +391,7 @@ function buildQuestions(product: ProductRecord): string[] {
   const output = ["What sources, displays and room locations need to be connected?"];
 
   if (text.includes("usb") || text.includes("camera") || text.includes("conference") || text.includes("uc")) {
-    output.push("Are USB cameras, speakerphones, touch displays or BYOM workflows required?");
+    output.push("Are USB cameras, speakerphones, touch displays or BYOD workflows required?");
   }
 
   if (text.includes("networkhd") || text.includes("avoip") || text.includes("dante")) {

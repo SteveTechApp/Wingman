@@ -64,13 +64,13 @@ export const extraRoomTemplates: RoomTemplate[] = [
     id: "corporate-reception-townhall-networkhd100",
     name: "Corporate Reception and Town Hall Displays - NetworkHD 100",
     vertical: "Corporate",
-    application: "Reception, staff cafÃ© or town hall area with signage, company announcements, live laptop inputs and occasional all-hands presentation feeds.",
+    application: "Reception, staff cafÃƒÂ© or town hall area with signage, company announcements, live laptop inputs and occasional all-hands presentation feeds.",
     scale: "Corporate front-of-house / all-hands area",
     summary: "Recognisable corporate template for lobby signage and town hall display routing using a cost-effective NetworkHD 100 backbone.",
     customerNarrative:
-      "The customer can route signage, welcome messages, company updates and occasional presentation feeds to reception, staff cafÃ© and all-hands displays without building a complex boardroom system.",
+      "The customer can route signage, welcome messages, company updates and occasional presentation feeds to reception, staff cafÃƒÂ© and all-hands displays without building a complex boardroom system.",
     architecture:
-      "NetworkHD 100 encoders sit at signage/player and presentation source locations. Decoders feed reception, cafÃ© and town hall displays. A controller provides basic routing and presets for normal signage, event mode and all-hands presentation mode.",
+      "NetworkHD 100 encoders sit at signage/player and presentation source locations. Decoders feed reception, cafÃƒÂ© and town hall displays. A controller provides basic routing and presets for normal signage, event mode and all-hands presentation mode.",
     bom: [
       {
         id: "corp-reception-ctl",
@@ -102,7 +102,7 @@ export const extraRoomTemplates: RoomTemplate[] = [
         qty: 6,
         type: "Required",
         status: "included",
-        evidence: "Assumes displays in reception, cafÃ©, waiting area and all-hands space.",
+        evidence: "Assumes displays in reception, cafÃƒÂ©, waiting area and all-hands space.",
         notes: "Adjust to confirmed display count and display locations.",
       },
       {

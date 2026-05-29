@@ -117,6 +117,24 @@
     "summary": "Package the recommendation into customer-safe output."
   },
   {
+    "key": "intelligence",
+    "path": "/wingman/intelligence",
+    "segment": "intelligence",
+    "label": "Product Intelligence",
+    "navLabel": "Product Intelligence",
+    "pageFile": "IntelligencePage.tsx",
+    "summary": "Review, classify and approve WyreStorm and competitor product intelligence."
+  },
+  {
+    "key": "profile",
+    "path": "/wingman/profile",
+    "segment": "profile",
+    "label": "Profile / Admin",
+    "navLabel": "Profile / Admin",
+    "pageFile": "ProfilePage.tsx",
+    "summary": "Store local user, company, language and proposal branding settings."
+  },
+  {
     "key": "support",
     "path": "/wingman/support",
     "segment": "support",

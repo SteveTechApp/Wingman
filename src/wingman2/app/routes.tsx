@@ -33,6 +33,7 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   ingest: lazy(fromNamedExport(() => import("../pages/IngestPage"), "IngestPage")),
   proposal: lazy(fromNamedExport(() => import("../pages/ProposalPage"), "ProposalPage")),
   support: lazy(fromNamedExport(() => import("../pages/SupportPage"), "SupportPage")),
+  intelligence: lazy(fromNamedExport(() => import("../pages/IntelligencePage"), "IntelligencePage")),
   profile: lazy(fromNamedExport(() => import("../pages/ProfilePage"), "ProfilePage")),
 };
 

@@ -732,7 +732,7 @@ export function buildGovernedDependencies(input: DependencyGovernanceInput): Gov
         status: "validate",
         confidence: input.discovery.usb && input.discovery.usb !== "Not confirmed" ? "Medium" : "Low",
         governanceKind: "Prompt",
-        trigger: "USB, camera, BYOM/BYOD, or conferencing language detected.",
+        trigger: "USB, camera, BYOD/BYOD, or conferencing language detected.",
         evidence: `USB basis: ${input.discovery.usb || "not confirmed"}.`,
         validationQuestion: "Which device is the USB host, which peripherals are required, and is USB 2.0 or USB 3.x needed?",
         customerSafeNote: "USB host/device direction and bandwidth must be confirmed before a final BOM.",

@@ -129,7 +129,7 @@ function buildNodes(template: RoomTemplate, rows: TemplateBomRow[]): SchematicNo
     nodes.push({
       label: "5",
       title: "USB / camera / UC",
-      detail: "Camera, USB host, microphone, BYOM/BYOD, room PC or conferencing appliance path.",
+      detail: "Camera, USB host, microphone, BYOD/BYOD, room PC or conferencing appliance path.",
       count: "Validate USB topology",
       tone: "usb",
     });
@@ -204,7 +204,7 @@ function buildCableRows(template: RoomTemplate, rows: TemplateBomRow[]): CableRo
       label: "USB / UC path",
       cable: "USB-C / USB-A / USB over IP / USB extension as validated",
       appliesTo: "Laptop host, room PC, camera, speakerphone, touch display or conferencing device",
-      reminder: "Confirm host location, USB speed, camera bandwidth, touch requirement and BYOM/BYOD workflow.",
+      reminder: "Confirm host location, USB speed, camera bandwidth, touch requirement and BYOD/BYOD workflow.",
       type: "usb",
     });
   }
