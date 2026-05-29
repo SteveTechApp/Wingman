@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
+import { WingmanCoachPanel } from "../components/WingmanCoachPanel";
 import {
   getCurrentWorkflowProject,
   readProjectStore,
@@ -14,6 +15,7 @@ import {
 import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
 import { buildSalesReadinessPackage, type SalesBomRow, type SalesBomType } from "../lib/salesReadiness";
 import { getStoredWingmanProfile } from "../data/wingmanProfile";
+import { buildWingmanCoachState } from "../lib/wingmanCoach";
 
 const feedbackActions: Array<{
   rating: "accepted" | "needs-review" | "missing-accessory" | "wrong-fit";
@@ -131,6 +133,7 @@ export function ProposalPage() {
       "Sales Motion",
       "Discovered Requirements",
       "Recommended Solution",
+      "Visual Support",
       context.products.length ? "Product Shortlist" : "Product Gaps",
       "Assumptions",
       "Contact",
@@ -165,6 +168,20 @@ export function ProposalPage() {
 
     return salesReadiness.bomRows;
   }, [context.project, salesReadiness.bomRows]);
+  const proposalCoach = useMemo(
+    () =>
+      buildWingmanCoachState({
+        source: "proposal",
+        audience: "dealer",
+        discovery: context.discovery,
+        selectedProducts: context.products,
+        bomRows,
+        assumptions: context.assumptions,
+        readinessScore: salesReadiness.readinessScore,
+        compareRun: context.compareRun,
+      }),
+    [bomRows, context.assumptions, context.compareRun, context.discovery, context.products, salesReadiness.readinessScore],
+  );
   const hasCoreProducts = context.products.length > 0;
   const readinessLabel = !hasCoreProducts
     ? "Not proposal ready"
@@ -188,9 +205,10 @@ export function ProposalPage() {
       governedDependencies: salesReadiness.governedDependencies,
       bomRows,
       evidence: salesReadiness.evidence,
-      repGuidance: salesReadiness.repGuidance,
+      repGuidance: [proposalCoach.playback, proposalCoach.nextAction, ...salesReadiness.repGuidance].slice(0, 8),
       governanceWarnings: salesReadiness.governanceWarnings,
       validationNotes: salesReadiness.validationNotes,
+      visualBlocks: proposalCoach.visualBlocks,
       readinessScore: salesReadiness.readinessScore,
       companyName: context.profile.companyName,
       preparedBy: context.profile.reportPreparedBy || context.profile.userName,
@@ -200,7 +218,7 @@ export function ProposalPage() {
       contactPhone: context.profile.phone,
       updatedAt: new Date().toISOString(),
     }),
-    [bomRows, context.assumptions, context.discovery.projectTitle, context.discovery.summary, context.products, context.profile, salesReadiness, sections],
+    [bomRows, context.assumptions, context.discovery.projectTitle, context.discovery.summary, context.products, context.profile, proposalCoach, salesReadiness, sections],
   );
 
   useEffect(() => {
@@ -330,6 +348,8 @@ export function ProposalPage() {
           </div>
         }
       >
+        <WingmanCoachPanel coach={proposalCoach} compact showFunnel={false} showVisuals />
+
         <div className="grid gap-6 xl:grid-cols-[260px_1fr]">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <p className="text-sm font-semibold text-slate-900">Sections</p>
@@ -399,6 +419,19 @@ export function ProposalPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-2">
+                <p className="wingman-kicker">Transferable visuals</p>
+                <div className="mt-2 grid gap-3 md:grid-cols-2">
+                  {proposalCoach.visualBlocks.slice(0, 4).map((block) => (
+                    <div key={block.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
+                      <p className="font-black text-slate-950">{block.title}</p>
+                      <p className="mt-1">{block.summary}</p>
+                      <p className="mt-2 font-semibold text-sky-800">{block.proposalUse}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
 

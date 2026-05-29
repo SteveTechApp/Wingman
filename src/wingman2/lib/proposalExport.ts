@@ -73,6 +73,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   const logoHtml = proposal.companyLogoDataUrl
     ? `<img src="${escapeHtml(proposal.companyLogoDataUrl)}" alt="${escapeHtml(companyName)} logo" style="max-height:64px;max-width:220px;object-fit:contain;margin-bottom:16px;" />`
     : "";
+  const visualBlocks = proposal.visualBlocks ?? [];
 
   const hasCoreProducts = proposal.products.length > 0;
   const readinessNotice = hasCoreProducts
@@ -99,6 +100,10 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
     th { background: #f1f5f9; }
     .meta { color: #475569; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
     .notice { background: #fff7ed; border: 1px solid #fed7aa; padding: 12px; margin-top: 18px; }
+    .visual-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+    .visual-card { border: 1px solid #cbd5e1; padding: 12px; background: #f8fafc; }
+    .visual-card strong, .visual-card span { display: block; }
+    .visual-card span { margin-top: 8px; color: #0369a1; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
   </style>
 </head>
 <body>
@@ -117,6 +122,13 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 
   <h2>Recommended Solution</h2>
   <p>${proposal.products.length ? escapeHtml(proposal.products.map((product) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`).join("; ")) : "No WyreStorm product shortlist has been added yet."}</p>
+
+  <h2>Visual Support</h2>
+  ${
+    visualBlocks.length
+      ? `<div class="visual-grid">${visualBlocks.map((block) => `<div class="visual-card"><strong>${escapeHtml(block.title)}</strong><p>${escapeHtml(block.summary)}</p><p>${escapeHtml(block.proposalUse)}</p><span>${escapeHtml(block.exportLabel)}</span></div>`).join("")}</div>`
+      : "<p>No proposal visuals have been generated yet.</p>"
+  }
 
   <h2>Bill Of Materials</h2>
   <table>

@@ -11236,3 +11236,305 @@ table {
   color: #075985 !important;
 }
 /* WINGMAN-DISCOVERY-SMART-SIGNAL-CHECKS-END */
+
+/* WINGMAN-COACH-PANEL-START */
+.wm-coach-panel {
+  display: grid !important;
+  gap: 16px !important;
+  border: 1px solid rgba(15, 23, 42, 0.14) !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  padding: 18px !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07) !important;
+}
+
+.wm-coach-panel[data-compact="true"] {
+  gap: 12px !important;
+  padding: 14px !important;
+  box-shadow: none !important;
+}
+
+.wm-coach-panel[data-compact="true"] .wm-coach-title-block p {
+  font-size: 0.84rem !important;
+}
+
+.wm-coach-panel[data-compact="true"] .wm-coach-localization {
+  display: none !important;
+}
+
+.wm-coach-panel[data-compact="true"] .wm-coach-fact-list span:nth-of-type(n+3) {
+  display: none !important;
+}
+
+.wm-coach-head {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 172px !important;
+  gap: 16px !important;
+  align-items: start !important;
+}
+
+.wm-coach-title-block {
+  min-width: 0 !important;
+}
+
+.wm-coach-kicker,
+.wm-coach-question-row span,
+.wm-coach-subhead span {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  color: #0369a1 !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.09em !important;
+  text-transform: uppercase !important;
+}
+
+.wm-coach-title-block h2 {
+  margin: 8px 0 0 !important;
+  color: #0f172a !important;
+  font-size: 1.35rem !important;
+  line-height: 1.15 !important;
+  font-weight: 950 !important;
+}
+
+.wm-coach-title-block p,
+.wm-coach-question-row p,
+.wm-coach-visual-grid p,
+.wm-coach-funnel-step p {
+  margin: 7px 0 0 !important;
+  color: #334155 !important;
+  font-size: 0.9rem !important;
+  line-height: 1.55 !important;
+}
+
+.wm-coach-confidence {
+  border: 1px solid rgba(14, 165, 233, 0.24) !important;
+  border-radius: 8px !important;
+  background: #f0f9ff !important;
+  padding: 12px !important;
+}
+
+.wm-coach-confidence span {
+  display: block !important;
+  color: #0369a1 !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.wm-coach-confidence strong {
+  display: block !important;
+  margin-top: 6px !important;
+  color: #0f172a !important;
+  font-size: 1.45rem !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.wm-coach-confidence div {
+  height: 7px !important;
+  margin-top: 10px !important;
+  overflow: hidden !important;
+  border-radius: 999px !important;
+  background: rgba(15, 23, 42, 0.12) !important;
+}
+
+.wm-coach-confidence i {
+  display: block !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: #0284c7 !important;
+}
+
+.wm-coach-question-row {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.wm-coach-question-row > div,
+.wm-coach-grid > div,
+.wm-coach-visual-grid article,
+.wm-coach-funnel-step,
+.wm-coach-localization {
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  border-radius: 8px !important;
+  background: #f8fafc !important;
+  padding: 12px !important;
+}
+
+.wm-coach-funnel {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.wm-coach-funnel-step {
+  min-height: 120px !important;
+}
+
+.wm-coach-funnel-step span {
+  display: block !important;
+  color: #475569 !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.wm-coach-funnel-step strong {
+  display: block !important;
+  margin-top: 8px !important;
+  color: #0f172a !important;
+  font-size: 1.8rem !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.wm-coach-funnel-step-active {
+  border-color: rgba(14, 165, 233, 0.34) !important;
+  background: #f0f9ff !important;
+}
+
+.wm-coach-funnel-step-good {
+  border-color: rgba(16, 185, 129, 0.34) !important;
+  background: #ecfdf5 !important;
+}
+
+.wm-coach-funnel-step-warning {
+  border-color: rgba(245, 158, 11, 0.38) !important;
+  background: #fffbeb !important;
+}
+
+.wm-coach-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.wm-coach-grid h3 {
+  margin: 0 0 10px !important;
+  color: #0f172a !important;
+  font-size: 0.8rem !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.wm-coach-fact-list {
+  display: grid !important;
+  gap: 7px !important;
+}
+
+.wm-coach-fact-list span {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+  color: #334155 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.4 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.wm-coach-fact-list-known svg {
+  color: #059669 !important;
+}
+
+.wm-coach-fact-list-unknown svg {
+  color: #0369a1 !important;
+}
+
+.wm-coach-fact-list-risk svg {
+  color: #b45309 !important;
+}
+
+.wm-coach-visuals {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.wm-coach-subhead {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+}
+
+.wm-coach-subhead small {
+  color: #64748b !important;
+  font-size: 0.78rem !important;
+  line-height: 1.4 !important;
+}
+
+.wm-coach-visual-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.wm-coach-visual-grid strong {
+  display: block !important;
+  color: #0f172a !important;
+  font-size: 0.92rem !important;
+  line-height: 1.25 !important;
+  font-weight: 950 !important;
+}
+
+.wm-coach-visual-grid span {
+  display: inline-flex !important;
+  margin-top: 9px !important;
+  border-radius: 999px !important;
+  background: #e0f2fe !important;
+  padding: 5px 8px !important;
+  color: #075985 !important;
+  font-size: 0.7rem !important;
+  font-weight: 900 !important;
+}
+
+.wm-coach-localization summary {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  color: #334155 !important;
+  font-size: 0.82rem !important;
+  font-weight: 900 !important;
+}
+
+.wm-coach-localization ul {
+  display: grid !important;
+  gap: 7px !important;
+  margin: 10px 0 0 !important;
+  padding-left: 18px !important;
+  color: #475569 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.45 !important;
+}
+
+.wm-coach-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+@media (max-width: 980px) {
+  .wm-coach-head,
+  .wm-coach-question-row,
+  .wm-coach-grid,
+  .wm-coach-funnel {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-coach-funnel-step {
+    min-height: auto !important;
+  }
+
+  .wm-coach-panel[data-compact="true"] .wm-coach-grid {
+    display: none !important;
+  }
+}
+/* WINGMAN-COACH-PANEL-END */
