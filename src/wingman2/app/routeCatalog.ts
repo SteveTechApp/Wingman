@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bot,
   ClipboardList,
+  Database,
   FileText,
   FileUp,
   FolderKanban,
@@ -31,6 +32,7 @@ export type WingmanRouteKey =
   | "ingest"
   | "proposal"
   | "support"
+  | "intelligence"
   | "profile";
 
 type RouteManifestEntry = {
@@ -62,6 +64,7 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   ingest: FileUp,
   proposal: FileText,
   support: LifeBuoy,
+  intelligence: Database,
   profile: Settings,
 };
 

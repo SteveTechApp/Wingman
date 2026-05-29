@@ -134,7 +134,7 @@ function ConversationModal({
           <div>
             <p>{knowledge.sku}</p>
             <h3>{titleMap[kind]}</h3>
-            <span>{knowledge.classLabel} Â· {knowledge.productName}</span>
+            <span>{knowledge.classLabel} Ã‚Â· {knowledge.productName}</span>
           </div>
 
           <button type="button" onClick={onClose} aria-label="Close product conversation">

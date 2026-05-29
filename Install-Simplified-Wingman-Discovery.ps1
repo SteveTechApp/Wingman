@@ -1,3 +1,346 @@
+$ErrorActionPreference = "Stop"
+
+function Write-Step {
+  param([string]$Message)
+  Write-Host ""
+  Write-Host "==> $Message" -ForegroundColor Cyan
+}
+
+function Save-Utf8NoBom {
+  param([string]$Path, [string]$Content)
+  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($Path, $Content, $utf8NoBom)
+}
+
+function Backup-File {
+  param([string]$Path)
+  if (Test-Path $Path) {
+    $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+    Copy-Item -LiteralPath $Path -Destination "$Path.bak-$stamp" -Force
+    Write-Host "Backup created: $Path.bak-$stamp" -ForegroundColor DarkGray
+  }
+}
+
+$root = (Get-Location).Path
+$discoveryPath = Join-Path $root "src\wingman2\pages\DiscoveryPage.tsx"
+$handoffPath = Join-Path $root "src\wingman2\data\workflowHandoff.ts"
+$cssPath = Join-Path $root "src\wingman2\styles\wingman-style-stack.css"
+
+Write-Step "Checking files"
+
+foreach ($path in @($discoveryPath, $cssPath)) {
+  if (-not (Test-Path $path)) {
+    throw "Missing file: $path"
+  }
+}
+
+foreach ($path in @($discoveryPath, $handoffPath, $cssPath)) {
+  Backup-File $path
+}
+
+Write-Step "Writing simplified Discovery handoff model"
+
+$handoff = @'
+import { routeCatalogByKey } from "../app/routeCatalog";
+import {
+  getCurrentWorkflowProject,
+  readProjectStore,
+  type StoredDiscoveryBrief,
+} from "./projectStore";
+
+export const DISCOVERY_BRIEF_KEY = "wingman-discovery-brief";
+export const DISCOVERY_SNAPSHOT_KEY = "wingman-discovery-snapshot-v3";
+
+export type DiscoverySnapshot = {
+  activeStepIndex: number;
+  state: Record<string, unknown>;
+  brief: StoredDiscoveryBrief;
+  savedAt: string;
+};
+
+export type FinderNeedDraft = {
+  query: string;
+  technicalRequirement: string;
+  productPath: string;
+  technologyType: string;
+  signalType: string;
+  sourceConnector: string;
+  displayConnector: string;
+  inputs: string;
+  outputs: string;
+  distance: string;
+  resolution: string;
+  usb: string;
+  audio: string;
+  network: string;
+  processing: string;
+  control: string;
+};
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+}
+
+function text(value: unknown, fallback = "") {
+  const valueText = String(value ?? "").trim();
+  return valueText || fallback;
+}
+
+function lower(value: unknown) {
+  return text(value).toLowerCase();
+}
+
+function list(value: unknown) {
+  return Array.isArray(value) ? value.map((item) => text(item)).filter(Boolean) : [];
+}
+
+function countBand(count: number) {
+  if (!Number.isFinite(count) || count <= 0) return "Unknown";
+  if (count === 1) return "1";
+  if (count === 2) return "2";
+  if (count <= 4) return "3-4";
+  if (count <= 8) return "5-8";
+  return "9+";
+}
+
+function includesAny(value: string, terms: string[]) {
+  const haystack = value.toLowerCase();
+  return terms.some((term) => haystack.includes(term.toLowerCase()));
+}
+
+function mapDistance(value: unknown) {
+  const run = lower(value);
+  if (includesAny(run, ["under 5m"])) return "Local <5m";
+  if (includesAny(run, ["5-10m"])) return "Short 5-10m";
+  if (includesAny(run, ["10-35m"])) return "Medium 10-35m";
+  if (includesAny(run, ["35-70m"])) return "Long 35-70m";
+  if (includesAny(run, ["70-100m", "100m+"])) return "Very long 70-100m";
+  return "Unknown";
+}
+
+function technicalRequirementFromBrief(roomModel: Record<string, unknown>) {
+  const outcome = lower(roomModel.outcome);
+  const devices = list(roomModel.devices).join(" ").toLowerCase();
+  const displays = lower(roomModel.displayBehaviour);
+  const roomType = lower(roomModel.roomType);
+
+  if (includesAny(outcome + displays, ["video wall", "signage", "large format", "wall"])) return "Build video wall or signage display";
+  if (includesAny(outcome + devices, ["capture", "stream", "record", "ndi camera"])) return "Capture, stream or route camera/video sources";
+  if (includesAny(outcome + roomType, ["route", "several displays", "multi-zone", "sports bar", "hospitality"])) return "Route sources to multiple displays";
+  if (includesAny(outcome + devices, ["meeting", "teams", "zoom", "uc", "mtr", "camera", "microphone"])) return "Create meeting / UC room";
+  return "Present device to display";
+}
+
+function productPathFromRequirement(requirement: string, roomModel: Record<string, unknown>) {
+  const blob = [
+    requirement,
+    roomModel.recommendedProductPath,
+    roomModel.displayBehaviour,
+    roomModel.usbOwnership,
+    roomModel.audioPath,
+    list(roomModel.devices).join(" "),
+  ].join(" ").toLowerCase();
+
+  if (includesAny(blob, ["video wall", "signage", "wall"])) return "Video wall / signage";
+  if (includesAny(blob, ["ndi", "camera", "capture", "stream"])) return "Camera / capture";
+  if (includesAny(blob, ["multi-zone", "several displays", "route", "distributed", "av over ip", "avoip"])) return "AVoIP / matrix routing";
+  if (includesAny(blob, ["uc", "meeting", "teams", "zoom", "mtr", "usb"])) return "Presentation / UC switcher";
+  if (includesAny(blob, ["long", "hdbaset", "extension"])) return "Extender / HDBaseT";
+  return "Presentation switcher";
+}
+
+function technologyTypeFromPath(path: string) {
+  if (path.includes("AVoIP")) return "AVoIP";
+  if (path.includes("matrix")) return "Matrix";
+  if (path.includes("UC")) return "Presentation / Room Core";
+  if (path.includes("Extender")) return "Extender / HDBaseT";
+  if (path.includes("Camera")) return "Camera / Capture";
+  if (path.includes("Video wall")) return "Video Wall / Multiview";
+  return "Core hardware first";
+}
+
+function sourceConnectorFromDevices(devices: string[]) {
+  const blob = devices.join(" ").toLowerCase();
+  const connectors: string[] = [];
+  if (blob.includes("hdmi")) connectors.push("HDMI");
+  if (blob.includes("usb-c")) connectors.push("USB-C");
+  if (blob.includes("wireless")) connectors.push("Wireless");
+  if (blob.includes("ndi") || blob.includes("network")) connectors.push("RJ45 / network");
+  return connectors.length ? connectors.join(" + ") : "Unknown";
+}
+
+function usbFromBrief(roomModel: Record<string, unknown>) {
+  const blob = [
+    roomModel.usbOwnership,
+    roomModel.usbTopologyRisk,
+    list(roomModel.devices).join(" "),
+  ].join(" ").toLowerCase();
+
+  if (includesAny(blob, ["usb 3", "high bandwidth"])) return "USB 3.x required";
+  if (includesAny(blob, ["conflict", "multiple", "switchable"])) return "USB host switching required";
+  if (includesAny(blob, ["mtr", "room pc", "camera", "microphone", "uc", "teams", "zoom"])) return "USB / UC path required";
+  return "No USB";
+}
+
+function audioFromBrief(roomModel: Record<string, unknown>) {
+  const blob = [roomModel.audioPath, list(roomModel.devices).join(" ")].join(" ").toLowerCase();
+  if (includesAny(blob, ["dante", "aes67"])) return "Dante / AES67";
+  if (includesAny(blob, ["amp-2210", "100v", "speaker"])) return "Amplifier / speakers";
+  if (includesAny(blob, ["soundbar", "apo-vx20", "apo-210"])) return "UC soundbar";
+  if (includesAny(blob, ["dsp", "microphone"])) return "DSP / microphone";
+  return "Not confirmed";
+}
+
+function processingFromBrief(roomModel: Record<string, unknown>) {
+  const blob = [roomModel.outcome, roomModel.displayBehaviour, roomModel.recommendedProductPath].join(" ").toLowerCase();
+  if (includesAny(blob, ["video wall", "wall"])) return "Video wall processing";
+  if (includesAny(blob, ["multiview"])) return "Multiview";
+  if (includesAny(blob, ["same content"])) return "Distribution / mirrored output";
+  if (includesAny(blob, ["different content", "source per display"])) return "Matrix / routing";
+  return "Presentation switching";
+}
+
+export function buildDiscoveryBriefFromState(
+  state: Record<string, unknown>,
+  meta: {
+    designDirection: string;
+    confidence: string;
+    missingItems: string[];
+    capturedPercent: number;
+    returnRoute?: string;
+  },
+): StoredDiscoveryBrief {
+  const devices = list(state.devices);
+  const technicalTags = list(state.technicalTags);
+  const timestamp = nowIso();
+
+  const roomModel = {
+    ...state,
+    sourceTypes: devices,
+    sourceLocations: list(state.locations),
+    sourceConnections: technicalTags,
+    sourceCount: countBand(devices.filter((item) => !/microphone|speaker|camera/i.test(item) || /ndi|ptz/i.test(item)).length),
+    displayCount: text(state.displayCount, "Unknown"),
+    displays: text(state.displayBehaviour, "Not confirmed"),
+    longestRun: text(state.cableRun, "Unknown"),
+    usbNeeds: [usbFromBrief(state)].filter(Boolean),
+    usbTransport: usbFromBrief(state),
+    audioNeeds: [audioFromBrief(state)].filter(Boolean),
+    controlNeeds: list(state.controlNeeds),
+    networkAvailability: text(state.network, "Unknown"),
+    budgetStyle: "Not confirmed",
+    designDirection: meta.designDirection,
+  };
+
+  return {
+    savedAt: timestamp,
+    roomModel,
+    inference: {
+      architecture: meta.designDirection,
+      summary: `${text(state.roomType, "Room")} / ${text(state.outcome, "Customer outcome")}. ${meta.designDirection}.`,
+      confidence: meta.confidence,
+      missing: meta.missingItems,
+      risks: meta.missingItems,
+      productDirection: [],
+      avoid: [],
+    },
+    capturedPercent: meta.capturedPercent,
+    returnRoute: meta.returnRoute ?? routeCatalogByKey.discovery.path,
+  };
+}
+
+export function writeLatestDiscoverySnapshot(snapshot: DiscoverySnapshot) {
+  if (typeof window === "undefined") return;
+
+  const payload = {
+    ...snapshot,
+    savedAt: nowIso(),
+  };
+
+  window.localStorage.setItem(DISCOVERY_SNAPSHOT_KEY, JSON.stringify(payload));
+  window.localStorage.setItem(DISCOVERY_BRIEF_KEY, JSON.stringify(payload.brief));
+  window.dispatchEvent(new CustomEvent("wingman:discovery-handoff-updated"));
+}
+
+export function readLatestDiscoverySnapshot(): DiscoverySnapshot | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.localStorage.getItem(DISCOVERY_SNAPSHOT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as DiscoverySnapshot;
+    if (!parsed || typeof parsed !== "object" || !parsed.brief) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export function readLatestDiscoveryBrief(): StoredDiscoveryBrief | null {
+  if (typeof window === "undefined") return null;
+
+  const projectBrief = getCurrentWorkflowProject(readProjectStore())?.discoveryBrief;
+  if (projectBrief) return projectBrief;
+
+  const snapshotBrief = readLatestDiscoverySnapshot()?.brief;
+  if (snapshotBrief) return snapshotBrief;
+
+  try {
+    const raw = window.localStorage.getItem(DISCOVERY_BRIEF_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredDiscoveryBrief;
+    return parsed?.roomModel ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export function discoveryBriefToFinderNeed(brief: StoredDiscoveryBrief | null): Partial<FinderNeedDraft> | null {
+  if (!brief?.roomModel) return null;
+
+  const roomModel = asRecord(brief.roomModel);
+  const devices = list(roomModel.devices).length ? list(roomModel.devices) : list(roomModel.sourceTypes);
+  const requirement = technicalRequirementFromBrief(roomModel);
+  const productPath = productPathFromRequirement(requirement, roomModel);
+
+  return {
+    query: [
+      text(roomModel.roomType),
+      text(roomModel.outcome),
+      requirement,
+      devices.join(" "),
+      text(roomModel.usbOwnership),
+      text(roomModel.audioPath),
+      text(roomModel.notes),
+    ].filter(Boolean).join(" | ").slice(0, 260),
+    technicalRequirement: requirement,
+    productPath,
+    technologyType: technologyTypeFromPath(productPath),
+    signalType: devices.join(" ").toLowerCase().includes("usb") ? "HDMI + USB" : "HDMI video",
+    sourceConnector: sourceConnectorFromDevices(devices),
+    displayConnector: "",
+    inputs: text(roomModel.sourceCount, countBand(devices.length)),
+    outputs: text(roomModel.displayCount, "Unknown"),
+    distance: mapDistance(roomModel.cableRun ?? roomModel.longestRun),
+    resolution: "Unknown",
+    usb: usbFromBrief(roomModel),
+    audio: audioFromBrief(roomModel),
+    network: text(roomModel.network, ""),
+    processing: processingFromBrief(roomModel),
+    control: list(roomModel.controlNeeds).join(" + "),
+  };
+}
+'@
+
+Save-Utf8NoBom -Path $handoffPath -Content $handoff
+
+Write-Step "Replacing Discovery page with simplified progressive workflow"
+
+$discovery = @'
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -30,7 +373,6 @@ type DiscoveryState = {
   displayCount: string;
   cableRun: string;
   network: string;
-  signalStandard: string;
   usbOwnership: string;
   audioPath: string;
   controlNeeds: string[];
@@ -206,29 +548,6 @@ const usbOwnershipOptions: OptionCard[] = [
   },
 ];
 
-
-const signalStandardOptions: OptionCard[] = [
-  {
-    label: "4K60 4:4:4 HDR10 required",
-    helper: "Use when Sky Q, premium streaming or high-quality 4K content must remain intact through the full signal path.",
-    tags: ["18Gbps+", "HDR", "HDCP"],
-  },
-  {
-    label: "4K60 SDR is acceptable",
-    helper: "Use where 4K resolution matters but HDR is not customer-critical.",
-    tags: ["4K60"],
-  },
-  {
-    label: "1080p is acceptable",
-    helper: "Use for legacy displays, lower-cost venue zones or simple monitoring.",
-    tags: ["1080p"],
-  },
-  {
-    label: "Not sure - validate downstream",
-    helper: "Keep HDR, HDCP, EDID and display compatibility as validation items.",
-    tags: ["Validate"],
-  },
-];
 const audioPathOptions: OptionCard[] = [
   {
     label: "APO-VX20 / APO-210-UC soundbar",
@@ -278,7 +597,6 @@ const initialState: DiscoveryState = {
   displayCount: "1",
   cableRun: "",
   network: "",
-  signalStandard: "",
   usbOwnership: "",
   audioPath: "",
   controlNeeds: [],
@@ -466,7 +784,6 @@ function getTriggeredChecks(state: DiscoveryState) {
   if (state.cableRun.includes("35-70m") || state.cableRun.includes("70-100m") || state.cableRun.includes("100m+")) checks.push("Long cable transport");
   if (state.audioPath.includes("Dante") || state.audioPath.includes("AMP-2210")) checks.push("Audio system design");
   if (state.network.includes("10G")) checks.push("10G network / NHD-600 consideration");
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required") checks.push("Premium 4K / HDR signal path");
 
   return checks.length ? checks : ["No major exception triggered yet"];
 }
@@ -492,109 +809,6 @@ function getRecommendedProductPath(state: DiscoveryState) {
 
 function getDesignDirection(state: DiscoveryState) {
   return getRecommendedProductPath(state);
-}
-
-
-function getSignalStandardSummary(state: DiscoveryState) {
-  if (state.signalStandard) return state.signalStandard;
-
-  if (state.devices.includes("Satellite decoder / Sky Q")) {
-    return "Sky Q selected - confirm whether HDR / premium 4K must be preserved.";
-  }
-
-  if (
-    state.devices.includes("Apple TV") ||
-    state.devices.includes("ROKU player") ||
-    state.devices.includes("Media player") ||
-    state.devices.includes("Signage player")
-  ) {
-    return "Premium video source selected - confirm 4K/HDR requirement.";
-  }
-
-  return "Not triggered yet";
-}
-
-function getDownstreamQualityTags(state: DiscoveryState) {
-  const tags: string[] = [];
-
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required") {
-    tags.push("Require 4K60 4:4:4 HDR10-capable signal path");
-    tags.push("Validate HDMI bandwidth / 18Gbps-class or better");
-    tags.push("Validate HDCP 2.2/2.3");
-    tags.push("Validate EDID management");
-    tags.push("Validate scaler/downsample behaviour");
-    tags.push("Validate display HDR capability");
-  }
-
-  if (state.signalStandard === "4K60 SDR is acceptable") {
-    tags.push("Require 4K60-capable signal path");
-    tags.push("HDR not critical");
-  }
-
-  if (state.signalStandard === "1080p is acceptable") {
-    tags.push("1080p acceptable");
-    tags.push("Do not over-specify premium 4K path unless future-proofing is required");
-  }
-
-  if (state.signalStandard === "Not sure - validate downstream") {
-    tags.push("Keep resolution/HDR/HDCP/EDID as validation items");
-  }
-
-  return tags;
-}
-
-function getSignalStandardWarnings(state: DiscoveryState) {
-  const warnings: string[] = [];
-
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required") {
-    warnings.push("Treat the whole downstream chain as premium 4K/HDR: source, switcher, extender/AVoIP, receivers, displays, cable path and EDID/HDCP handling must all be validated.");
-    warnings.push("Do not assume every '4K' product is suitable. Check HDMI bandwidth class, HDR10 support, HDCP 2.2/2.3, EDID management and any scaler/downsample behaviour.");
-  }
-
-  if (state.devices.includes("Satellite decoder / Sky Q") && !state.signalStandard) {
-    warnings.push("Sky Q selected: ask whether HDR is important before selecting product family or cable/transport path.");
-  }
-
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required" && ["35-70m", "70-100m", "100m+"].includes(state.cableRun)) {
-    warnings.push("Premium 4K/HDR over distance: verify HDBaseT/AVoIP/fibre path supports the required HDMI bandwidth, HDR metadata, HDCP and display EDID behaviour.");
-  }
-
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required" && ["9-16", "17-32", "33-49", "50+"].includes(state.displayCount)) {
-    warnings.push("Large venue with premium 4K/HDR: every endpoint and zone may not need HDR. Confirm which displays/zones require full quality and where scaling/downconversion is acceptable.");
-  }
-
-  return warnings;
-}
-
-function getVenueAssumptions(state: DiscoveryState) {
-  const assumptions: string[] = [];
-
-  if (["9-16", "17-32", "33-49", "50+"].includes(state.displayCount)) {
-    assumptions.push("Large display count: favour AV-over-IP, matrix zoning or managed distribution rather than simple splitter logic.");
-    assumptions.push("Confirm whether all screens show the same content, groups/zones, or independent source selection.");
-  }
-
-  if (state.displayCount === "50+") {
-    assumptions.push("50+ displays: assume casino/large venue scale. Network design, control, monitoring and staged deployment become design-critical.");
-  }
-
-  if (state.devices.includes("Satellite decoder / Sky Q")) {
-    assumptions.push("Sky/Satellite source: confirm number of decoders, legal viewing zones, HDCP handling and whether each zone needs independent channel selection.");
-  }
-
-  if (state.devices.includes("Apple TV") || state.devices.includes("ROKU player")) {
-    assumptions.push("Streaming players: confirm network access, account ownership, control method and whether players are local to displays or centralised.");
-  }
-
-  if (state.devices.includes("Visualiser / document camera")) {
-    assumptions.push("Visualiser/document camera: confirm HDMI vs USB output and whether it also needs capture/recording.");
-  }
-
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required") {
-    assumptions.push("Premium 4K/HDR selected: every downstream device must be validated for the required HDMI standard, HDR10, HDCP and EDID behaviour.");
-  }
-
-  return assumptions;
 }
 
 function getMissingItems(state: DiscoveryState) {
@@ -767,16 +981,11 @@ export function DiscoveryPage() {
     return buildDiscoveryBriefFromState(
       {
         ...state,
-        technicalTags: [...inputModel.tags, ...getDownstreamQualityTags(state)],
+        technicalTags: inputModel.tags,
         usbTopology,
         usbTopologyRisk: usbTopology.risk,
         usbTopologySummary: usbTopology.summary,
-        signalStandard: state.signalStandard,
-        signalStandardSummary: getSignalStandardSummary(state),
-        downstreamQualityTags: getDownstreamQualityTags(state),
-        signalStandardWarnings: getSignalStandardWarnings(state),
         triggeredChecks,
-        venueAssumptions: getVenueAssumptions(state),
         recommendedProductPath: designDirection,
       },
       {
@@ -1202,7 +1411,6 @@ export function DiscoveryPage() {
               <ValueLine label="USB risk" value={usbTopology.risk} />
               <ValueLine label="Audio path" value={state.audioPath} />
               <ValueLine label="Cable run" value={state.cableRun} />
-              <ValueLine label="Signal standard" value={getSignalStandardSummary(state)} />
             </div>
 
             <button type="button" onClick={() => setFullModelOpen((open) => !open)}>
@@ -1239,3 +1447,639 @@ export function DiscoveryPage() {
 }
 
 export default DiscoveryPage;
+'@
+
+Save-Utf8NoBom -Path $discoveryPath -Content $discovery
+
+Write-Step "Adding simplified Discovery CSS"
+
+$css = Get-Content -LiteralPath $cssPath -Raw
+$css = $css -replace "`r`n", "`n"
+
+$block = @'
+
+/* WINGMAN-SIMPLIFIED-DISCOVERY-START */
+
+.wm-simple-discovery-page {
+  min-height: calc(100vh - var(--wm-topbar-height) - 24px) !important;
+  display: grid !important;
+  overflow: hidden !important;
+}
+
+.wm-simple-discovery-shell {
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-rows: auto auto minmax(0, 1fr) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  border-radius: 24px !important;
+  background: #ffffff !important;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.1) !important;
+}
+
+.wm-simple-discovery-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  padding: 18px 20px !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+.wm-simple-discovery-head p,
+.wm-simple-step > div:first-child > p,
+.wm-simple-guidance p {
+  margin: 0 !important;
+  color: #b45309 !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+}
+
+.wm-simple-discovery-head h1 {
+  margin: 5px 0 0 !important;
+  color: #0f172a !important;
+  font-size: clamp(1.55rem, 2.4vw, 2.4rem) !important;
+  line-height: 1 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.045em !important;
+}
+
+.wm-simple-discovery-head span,
+.wm-simple-step > div:first-child > span,
+.wm-simple-guidance span {
+  display: block !important;
+  margin-top: 5px !important;
+  color: #64748b !important;
+  font-size: 0.86rem !important;
+  line-height: 1.42 !important;
+}
+
+.wm-simple-discovery-head-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.wm-simple-discovery-head-actions > span,
+.wm-simple-discovery-head-actions > a {
+  min-height: 34px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  padding: 0 12px !important;
+  font-size: 0.78rem !important;
+  font-weight: 850 !important;
+  text-decoration: none !important;
+}
+
+.wm-simple-discovery-head-actions > span {
+  border: 1px solid rgba(245, 158, 11, 0.34) !important;
+  background: #fff7ed !important;
+  color: #b45309 !important;
+}
+
+.wm-simple-discovery-head-actions > a {
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.wm-simple-discovery-steps {
+  display: flex !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  padding: 12px 20px !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+.wm-simple-discovery-steps button {
+  min-height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex: 0 0 auto !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  color: #475569 !important;
+  padding: 0 12px !important;
+  font-size: 0.8rem !important;
+  font-weight: 850 !important;
+}
+
+.wm-simple-discovery-steps button span {
+  width: 20px !important;
+  height: 20px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  font-size: 0.72rem !important;
+}
+
+.wm-simple-discovery-steps button.is-active {
+  border-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.wm-simple-discovery-steps button.is-complete {
+  border-color: rgba(16, 185, 129, 0.32) !important;
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+}
+
+.wm-simple-discovery-body {
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 330px !important;
+  gap: 14px !important;
+  overflow: hidden !important;
+  padding: 14px 20px 20px !important;
+  background: #f8fafc !important;
+}
+
+.wm-simple-discovery-main,
+.wm-simple-model-panel {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  border-radius: 22px !important;
+  background: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07) !important;
+}
+
+.wm-simple-discovery-main {
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  gap: 12px !important;
+  padding: 14px !important;
+}
+
+.wm-simple-guidance {
+  display: flex !important;
+  gap: 10px !important;
+  align-items: flex-start !important;
+  border: 1px solid rgba(245, 158, 11, 0.2) !important;
+  border-radius: 16px !important;
+  background: #fff7ed !important;
+  padding: 12px !important;
+}
+
+.wm-simple-guidance svg {
+  color: #b45309 !important;
+  flex: 0 0 auto !important;
+  margin-top: 2px !important;
+}
+
+.wm-simple-step {
+  min-height: 0 !important;
+  display: grid !important;
+  align-content: start !important;
+  gap: 14px !important;
+  overflow-y: auto !important;
+  padding-right: 4px !important;
+}
+
+.wm-simple-step > div:first-child h2 {
+  margin: 4px 0 0 !important;
+  color: #0f172a !important;
+  font-size: clamp(1.3rem, 2.1vw, 2rem) !important;
+  line-height: 1.06 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.wm-simple-discovery-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.wm-simple-discovery-grid.compact {
+  grid-template-columns: 1fr !important;
+}
+
+.wm-simple-discovery-card {
+  min-height: 112px !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  grid-template-areas:
+    "check title"
+    "check helper"
+    "check tags" !important;
+  align-content: start !important;
+  gap: 5px 10px !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 13px !important;
+  text-align: left !important;
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.05) !important;
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease !important;
+}
+
+.wm-simple-discovery-card:hover {
+  border-color: rgba(245, 158, 11, 0.55) !important;
+  background: #fffbeb !important;
+  transform: translateY(-1px) !important;
+}
+
+.wm-simple-discovery-card.is-active {
+  border-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.wm-simple-discovery-check {
+  grid-area: check !important;
+  width: 26px !important;
+  height: 26px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(148, 163, 184, 0.34) !important;
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  font-size: 0.9rem !important;
+  font-weight: 850 !important;
+}
+
+.wm-simple-discovery-card strong {
+  grid-area: title !important;
+  color: inherit !important;
+  font-size: 0.96rem !important;
+  line-height: 1.18 !important;
+  font-weight: 850 !important;
+}
+
+.wm-simple-discovery-card small {
+  grid-area: helper !important;
+  color: inherit !important;
+  opacity: 0.72 !important;
+  font-size: 0.8rem !important;
+  line-height: 1.36 !important;
+}
+
+.wm-simple-discovery-tags {
+  grid-area: tags !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 5px !important;
+  margin-top: 4px !important;
+}
+
+.wm-simple-discovery-tags em,
+.wm-simple-inference-panel span,
+.wm-simple-full-model span {
+  border-radius: 999px !important;
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  padding: 4px 8px !important;
+  font-size: 0.68rem !important;
+  font-style: normal !important;
+  font-weight: 850 !important;
+}
+
+.wm-simple-discovery-card.is-active .wm-simple-discovery-tags em {
+  background: rgba(255,255,255,0.16) !important;
+  color: #ffffff !important;
+}
+
+.wm-simple-two-col {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.wm-simple-discovery-field,
+.wm-simple-option-section,
+.wm-simple-inference-panel,
+.wm-simple-alert,
+.wm-simple-review-grid > div {
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  padding: 14px !important;
+}
+
+.wm-simple-discovery-field > p,
+.wm-simple-option-section > p,
+.wm-simple-inference-panel > p,
+.wm-simple-review-grid p,
+.wm-simple-model-panel > div:first-child p,
+.wm-simple-missing p,
+.wm-simple-full-model p {
+  margin: 0 !important;
+  color: #0f172a !important;
+  font-size: 0.86rem !important;
+  font-weight: 850 !important;
+}
+
+.wm-simple-discovery-field > span {
+  display: block !important;
+  margin-top: 4px !important;
+  color: #64748b !important;
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
+}
+
+.wm-simple-discovery-field > div,
+.wm-simple-inference-panel > div,
+.wm-simple-full-model > div {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 7px !important;
+  margin-top: 10px !important;
+}
+
+.wm-simple-discovery-field button {
+  min-height: 32px !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  padding: 0 10px !important;
+  font-size: 0.76rem !important;
+  font-weight: 800 !important;
+}
+
+.wm-simple-discovery-field button.is-active {
+  border-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.wm-simple-alert {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.wm-simple-alert[data-risk="high"] {
+  border-color: rgba(244, 63, 94, 0.35) !important;
+  background: #fff1f2 !important;
+}
+
+.wm-simple-alert[data-risk="medium"] {
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  background: #fffbeb !important;
+}
+
+.wm-simple-alert[data-risk="low"] {
+  border-color: rgba(16, 185, 129, 0.28) !important;
+  background: #ecfdf5 !important;
+}
+
+.wm-simple-alert > div {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+.wm-simple-alert h3,
+.wm-simple-review-grid h3 {
+  margin: 4px 0 0 !important;
+  color: #0f172a !important;
+  font-size: 1.1rem !important;
+  line-height: 1.2 !important;
+  font-weight: 850 !important;
+}
+
+.wm-simple-alert span {
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.85) !important;
+  color: #0f172a !important;
+  padding: 5px 9px !important;
+  font-size: 0.72rem !important;
+  font-weight: 850 !important;
+}
+
+.wm-simple-alert ul,
+.wm-simple-review-grid ul,
+.wm-simple-missing ul {
+  margin: 0 !important;
+  padding-left: 16px !important;
+  color: #475569 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.45 !important;
+}
+
+.wm-simple-review-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.wm-simple-review-grid span {
+  display: block !important;
+  margin-top: 7px !important;
+  color: #64748b !important;
+  font-size: 0.82rem !important;
+}
+
+.wm-simple-notes {
+  min-height: 95px !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 12px !important;
+  font-size: 0.88rem !important;
+  outline: none !important;
+  resize: vertical !important;
+}
+
+.wm-simple-review-actions,
+.wm-simple-discovery-footer,
+.wm-simple-discovery-footer > div {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.wm-simple-review-actions button,
+.wm-simple-discovery-footer button {
+  min-height: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  border: 1px solid rgba(148, 163, 184, 0.32) !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  padding: 0 13px !important;
+  font-size: 0.8rem !important;
+  font-weight: 850 !important;
+}
+
+.wm-simple-discovery-footer {
+  justify-content: space-between !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.2) !important;
+  padding-top: 12px !important;
+}
+
+.wm-simple-discovery-footer button.primary,
+.wm-simple-review-actions button:first-child {
+  border-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.wm-simple-discovery-footer button:disabled {
+  opacity: 0.42 !important;
+}
+
+.wm-simple-model-panel {
+  display: grid !important;
+  align-content: start !important;
+  gap: 14px !important;
+  padding: 15px !important;
+  background: #f8fafc !important;
+}
+
+.wm-simple-model-panel > div:first-child {
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+}
+
+.wm-simple-model-panel > div:first-child svg {
+  color: #64748b !important;
+}
+
+.wm-simple-model-panel > div:first-child span {
+  margin-left: auto !important;
+  border-radius: 999px !important;
+  background: #fff7ed !important;
+  color: #b45309 !important;
+  padding: 5px 9px !important;
+  font-size: 0.72rem !important;
+  font-weight: 850 !important;
+}
+
+.wm-simple-model-lines {
+  display: grid !important;
+  gap: 11px !important;
+}
+
+.wm-simple-model-lines div {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18) !important;
+  padding-bottom: 9px !important;
+}
+
+.wm-simple-model-lines p {
+  margin: 0 !important;
+  color: #64748b !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.wm-simple-model-lines strong {
+  display: block !important;
+  margin-top: 4px !important;
+  color: #0f172a !important;
+  font-size: 0.82rem !important;
+  line-height: 1.3 !important;
+  font-weight: 780 !important;
+}
+
+.wm-simple-model-panel > button {
+  min-height: 36px !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  font-size: 0.78rem !important;
+  font-weight: 850 !important;
+}
+
+.wm-simple-full-model,
+.wm-simple-missing {
+  display: grid !important;
+  gap: 10px !important;
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  padding: 12px !important;
+}
+
+.wm-simple-missing > div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.wm-simple-missing svg {
+  color: #64748b !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-simple-discovery-page,
+  .wm-simple-discovery-shell,
+  .wm-simple-discovery-body {
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  .wm-simple-discovery-body {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-simple-discovery-main,
+  .wm-simple-model-panel,
+  .wm-simple-step {
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .wm-simple-discovery-head,
+  .wm-simple-discovery-footer,
+  .wm-simple-discovery-footer > div {
+    display: grid !important;
+  }
+
+  .wm-simple-discovery-grid,
+  .wm-simple-two-col,
+  .wm-simple-review-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+/* WINGMAN-SIMPLIFIED-DISCOVERY-END */
+'@
+
+if ($css -match "/\* WINGMAN-SIMPLIFIED-DISCOVERY-START \*/[\s\S]*?/\* WINGMAN-SIMPLIFIED-DISCOVERY-END \*/") {
+  $css = [regex]::Replace($css, "/\* WINGMAN-SIMPLIFIED-DISCOVERY-START \*/[\s\S]*?/\* WINGMAN-SIMPLIFIED-DISCOVERY-END \*/", $block.Trim(), 1)
+} else {
+  $css = $css.TrimEnd() + "`n" + $block + "`n"
+}
+
+Save-Utf8NoBom -Path $cssPath -Content $css
+
+Write-Step "Running validation"
+
+npm run typecheck
+npm run build
+
+Write-Host ""
+Write-Host "Simplified Discovery workflow installed." -ForegroundColor Green
+Write-Host ""
+Write-Host "Test:"
+Write-Host "npm run dev"
+Write-Host "Open http://127.0.0.1:3000/wingman/discovery"
+Write-Host ""
+Write-Host "Expected behaviour:"
+Write-Host "- 6 clearer pages: Outcome, Room, Devices, Displays, Checks, Review"
+Write-Host "- No redundant Main source connection selector"
+Write-Host "- Device selection infers HDMI, USB-C, USB host, USB peripheral, NDI and audio tags"
+Write-Host "- USB conflict checks appear only when triggered"
+Write-Host "- Back/Next saves the current model"
+Write-Host "- Finder receives the Discovery brief automatically"

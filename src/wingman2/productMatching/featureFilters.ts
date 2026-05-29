@@ -16,7 +16,7 @@ export function expectedProductPathForRequirement(requirement: string) {
   if (requirement === "Extend HDMI over distance") return "HDBaseT extender";
   if (requirement === "Connect USB-C laptop") return "Presentation switcher";
   if (requirement === "Wireless presentation") return "Wireless presentation";
-  if (requirement === "BYOD / BYOM conferencing") return "UC / conferencing";
+  if (requirement === "BYOD / UC conferencing") return "UC / conferencing";
   if (requirement === "Route sources to multiple displays") return "Matrix / routing";
   if (requirement === "Dual display / MST") return "Presentation switcher";
   if (requirement === "Create multiview layout") return "AVoIP";
@@ -230,7 +230,7 @@ function needHasUcAudioOrCameraContext(need: FinderNeed) {
   const text = getFinderNeedText(need);
 
   return (
-    need.technicalRequirement === "BYOD / BYOM conferencing" ||
+    need.technicalRequirement === "BYOD / UC conferencing" ||
     need.productPath === "UC / conferencing" ||
     need.usb === "USB camera" ||
     need.usb === "Speakerphone / audio USB" ||
@@ -412,7 +412,7 @@ export function technicalRequirementFeatureFilter(value: string): FinderFeatureF
     "Extend HDMI over distance": ["hdbaset", "hdbt", "extender", "receiver", "transmitter", "hdmi"],
     "Connect USB-C laptop": ["usb-c", "usb c", "presentation switcher", "byod", "byom", "laptop"],
     "Wireless presentation": ["wireless", "airplay", "miracast", "casting", "apollo", "dongle"],
-    "BYOD / BYOM conferencing": ["byod", "byom", "conference", "conferencing", "speakerphone", "camera", "usb-c", "usb c"],
+    "BYOD / UC conferencing": ["byod", "byom", "conference", "conferencing", "speakerphone", "camera", "usb-c", "usb c"],
     "Route sources to multiple displays": ["matrix", "routing", "multi output", "multiple outputs", "switcher", "networkhd"],
     "Dual display / MST": ["dual display", "dual-output", "multi output", "mst", "matrix", "presentation"],
     "Create multiview layout": ["multiview", "multi view", "multi-view", "pip", "quad view", "processor"],

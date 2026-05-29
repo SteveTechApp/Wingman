@@ -503,7 +503,7 @@ function allowedClassesForTechnicalRequirement(value: string | undefined) {
   if (value === "Extend HDMI and USB together") return new Set<WingmanProductClass>(["signal-extender-kit", "presentation-switcher"]);
   if (value === "Connect USB-C laptop") return new Set<WingmanProductClass>(["presentation-switcher", "uc-room-core", "signal-extender-kit"]);
   if (value === "Wireless presentation") return new Set<WingmanProductClass>(["wireless-presentation", "uc-room-core", "presentation-switcher"]);
-  if (value === "BYOD / BYOM conferencing") return new Set<WingmanProductClass>(["uc-room-core", "presentation-switcher", "signal-extender-kit"]);
+  if (value === "BYOD / UC conferencing") return new Set<WingmanProductClass>(["uc-room-core", "presentation-switcher", "signal-extender-kit"]);
   if (value === "Route sources to multiple displays") return new Set<WingmanProductClass>(["matrix-switch", "presentation-switcher", "avoip-encoder", "avoip-decoder", "avoip-transceiver"]);
   if (value === "Dual display / MST") return new Set<WingmanProductClass>(["presentation-switcher", "matrix-switch", "avoip-decoder", "avoip-transceiver"]);
   if (value === "Create multiview layout") return new Set<WingmanProductClass>(["multiview-processor", "video-wall-processor", "avoip-decoder"]);
@@ -553,7 +553,7 @@ function supportsUsbNeed(profile: WingmanProductProfile, requested: string | und
   if (requested === "USB 2.0 enough") return profile.features.usb2 || profile.features.usb3 || profile.transport.includes("usb");
   if (requested === "USB 3.x required") return profile.features.usb3;
   if (requested === "KVM / HID") return profile.features.kvm || profile.transport.includes("usb");
-  if (requested === "BYOD / BYOM") return profile.productClass === "uc-room-core" || profile.productClass === "presentation-switcher" || profile.features.usb2 || profile.features.usb3;
+  if (requested === "BYOD / UC") return profile.productClass === "uc-room-core" || profile.productClass === "presentation-switcher" || profile.features.usb2 || profile.features.usb3;
   return true;
 }
 

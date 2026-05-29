@@ -160,7 +160,7 @@ const avGlossary: GlossaryEntry[] = [
       "Identify which device is the computer and which devices are peripherals before selecting extenders or switchers.",
     watchOut:
       "USB host and USB device ports are not interchangeable. Getting this wrong is a common reason conferencing systems fail.",
-    related: ["USB device", "KVM", "BYOM", "camera"],
+    related: ["USB device", "KVM", "BYOD", "camera"],
   },
   {
     terms: ["usb device", "usb peripheral", "device port", "usb camera", "usb speakerphone"],
@@ -204,15 +204,15 @@ const avGlossary: GlossaryEntry[] = [
       "Ask whether the laptop only needs to share video, or whether it also needs access to the room camera, microphone, speakers, touch display, and network.",
     watchOut:
       "BYOD can mean simple presentation or full conferencing. USB requirements change the product choice.",
-    related: ["BYOM", "USB-C", "wireless conferencing", "presentation switcher"],
+    related: ["BYOD", "USB-C", "wireless conferencing", "presentation switcher"],
   },
   {
     terms: ["byom", "bring your own meeting"],
-    title: "BYOM",
+    title: "BYOD",
     answer:
-      "BYOM means Bring Your Own Meeting. The user runs Teams, Zoom, Webex, or similar from their own laptop while using the room camera, microphone, speakers, and display.",
+      "BYOD means Bring Your Own Meeting. The user runs Teams, Zoom, Webex, or similar from their own laptop while using the room camera, microphone, speakers, and display.",
     salesUse:
-      "BYOM normally requires USB routing as well as video routing.",
+      "BYOD normally requires USB routing as well as video routing.",
     watchOut:
       "Wireless presentation is not automatically wireless conferencing. Confirm whether the camera and microphone return to the laptop.",
     related: ["BYOD", "USB host", "wireless conferencing", "camera"],
@@ -333,7 +333,7 @@ const applicationAnswers = [
   {
     terms: ["meeting room", "conference room", "boardroom", "huddle"],
     answer:
-      "For a meeting room, start with the collaboration workflow rather than the product.\n\nLikely WyreStorm paths:\n- Small/simple room: APO video bar or simple presentation switching.\n- Medium BYOD/BYOM room: consider wireless conferencing or USB-C presentation products.\n- More technical dual-display room: consider MST/presentation matrix routes.\n\nQualify next:\n- How many displays?\n- Is USB-C laptop connection required?\n- Is wireless conferencing required or only wireless casting?\n- Are cameras/microphones local or remote?\n- Is this BYOD, MTR, Zoom Room, or flexible use?",
+      "For a meeting room, start with the collaboration workflow rather than the product.\n\nLikely WyreStorm paths:\n- Small/simple room: APO video bar or simple presentation switching.\n- Medium BYOD/BYOD room: consider wireless conferencing or USB-C presentation products.\n- More technical dual-display room: consider MST/presentation matrix routes.\n\nQualify next:\n- How many displays?\n- Is USB-C laptop connection required?\n- Is wireless conferencing required or only wireless casting?\n- Are cameras/microphones local or remote?\n- Is this BYOD, MTR, Zoom Room, or flexible use?",
   },
   {
     terms: ["ndi", "camera", "ptz", "streaming", "capture"],
@@ -1004,7 +1004,7 @@ function answerHdmiUsbExtenderIntent(question: string) {
     "Recommended design logic:",
     "- Start with a single extender system / Tx-Rx pair that carries HDMI video and USB together.",
     "- Do not recommend separate HDMI and USB extenders unless an integrated product cannot meet the distance, USB bandwidth, or physical installation requirement.",
-    "- If USB transport is important for camera, speakerphone, touch, keyboard, mouse, or BYOM, the product must explicitly support USB transport.",
+    "- If USB transport is important for camera, speakerphone, touch, keyboard, mouse, or BYOD, the product must explicitly support USB transport.",
     "",
     "Likely WyreStorm paths to check first:",
     "- SW-130-TX-UK / SW-130-TX-US with RX-500 for shorter USB-required runs or RX-700 for the longer SW-130 receive path.",
@@ -1019,7 +1019,7 @@ function answerHdmiUsbExtenderIntent(question: string) {
     "- How far is the cable run?",
     "- What resolution is required: 1080p, 4K30, or 4K60?",
     "- What USB device needs to work?",
-    "- Is this for BYOM conferencing, touch, KVM, or simple USB control?",
+    "- Is this for BYOD conferencing, touch, KVM, or simple USB control?",
     "- Is the source location wall plate, desk, floor box, or rack?",
   ].join("\n");
 }

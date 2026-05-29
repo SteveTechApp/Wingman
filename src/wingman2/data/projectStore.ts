@@ -92,6 +92,12 @@ export type StoredProjectProposal = {
   governanceWarnings?: string[];
   validationNotes?: string[];
   readinessScore?: number;
+  companyName?: string;
+  preparedBy?: string;
+  proposalFooter?: string;
+  companyLogoDataUrl?: string;
+  contactEmail?: string;
+  contactPhone?: string;
   updatedAt: string;
 };
 
@@ -411,6 +417,12 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
     governanceWarnings: stringArray(record.governanceWarnings),
     validationNotes: stringArray(record.validationNotes),
     readinessScore: Number.isFinite(Number(record.readinessScore)) ? Number(record.readinessScore) : undefined,
+    companyName: stringValue(record.companyName, undefined),
+    preparedBy: stringValue(record.preparedBy, undefined),
+    proposalFooter: stringValue(record.proposalFooter, undefined),
+    companyLogoDataUrl: stringValue(record.companyLogoDataUrl, undefined),
+    contactEmail: stringValue(record.contactEmail, undefined),
+    contactPhone: stringValue(record.contactPhone, undefined),
     updatedAt: stringValue(record.updatedAt, nowIso()),
   };
 }

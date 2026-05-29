@@ -261,10 +261,16 @@ export function AppShell({ children }: AppShellProps) {
           </span>
         </button>
 
-        <button type="button" className="wingman-settings-link" onClick={() => setGuruOpen(true)}>
+        <NavLink
+          to="/wingman/profile"
+          className={({ isActive }) =>
+            ["wingman-settings-link", isActive ? "wingman-settings-link-active" : ""].filter(Boolean).join(" ")
+          }
+          onClick={() => setMobileNavOpen(false)}
+        >
           <Settings className="wingman-nav-icon" />
           <span>Settings</span>
-        </button>
+        </NavLink>
       </aside>
 
       <div

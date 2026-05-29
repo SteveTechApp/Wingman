@@ -60,7 +60,7 @@ const CONVERSATION_TYPES: ConversationType[] = [
   },
   {
     id: "meetingRoom",
-    title: "Meeting room / BYOD / BYOM",
+    title: "Meeting room / BYOD / UC",
     shortTitle: "Meeting room",
     description: "Use for meeting spaces, presentation rooms, UC rooms and USB-C / conferencing workflows.",
     opener: "Before we look at products, can I check how people actually use the room on a normal day?",

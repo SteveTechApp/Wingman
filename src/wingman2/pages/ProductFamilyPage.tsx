@@ -103,7 +103,7 @@ const familyGuides: ProductFamilyGuide[] = [
     usefulFunctionality: [
       "High-quality 4K60 4:4:4 routing.",
       "Low-latency AV distribution for interactive or operational spaces.",
-      "Stronger USB story for BYOM, KVM-style and room-peripheral workflows.",
+      "Stronger USB story for BYOD, KVM-style and room-peripheral workflows.",
       "NHD-0401-MV is the correct NetworkHD 500 multiview processor discussion point.",
     ],
     specialFeatures: [
@@ -295,9 +295,9 @@ const familyGuides: ProductFamilyGuide[] = [
   {
     id: "presentation-uc",
     name: "Presentation switchers and UC",
-    shortPosition: "Meeting-room and classroom products for USB-C, wireless presentation, BYOD/BYOM and conferencing-led spaces.",
+    shortPosition: "Meeting-room and classroom products for USB-C, wireless presentation, BYOD/BYOD and conferencing-led spaces.",
     productSkus: ["MX-0402-MST", "MX-0403-H3-MST", "SW-640L-TX-W", "APO-VX20-UC", "IDB-300"],
-    pitchQuery: "WyreStorm presentation UC USB-C BYOM",
+    pitchQuery: "WyreStorm presentation UC USB-C BYOD",
     customerPitch:
       "Presentation and UC products are about making the room easy for users, especially where laptops, USB-C, wireless sharing and conferencing devices all need to work together.",
     whatItIs:
@@ -313,7 +313,7 @@ const familyGuides: ProductFamilyGuide[] = [
       "Network or control connections for management and room integration.",
     ],
     usefulFunctionality: [
-      "BYOD and BYOM workflows.",
+      "BYOD and BYOD workflows.",
       "USB-C laptop connection and charging where supported.",
       "Wireless presentation or wireless conferencing where supported.",
       "Cleaner user operation for meeting rooms and classrooms.",
@@ -326,7 +326,7 @@ const familyGuides: ProductFamilyGuide[] = [
     bestFit: [
       "Huddle rooms and meeting rooms.",
       "Classrooms and training rooms.",
-      "BYOD/BYOM spaces.",
+      "BYOD/BYOD spaces.",
       "Rooms where ease of use is the main buying reason.",
     ],
     discoveryQuestions: [
@@ -426,11 +426,11 @@ const familyGuides: ProductFamilyGuide[] = [
     ],
     specialFeatures: [
       "Turns a video-only design into a usable meeting or control workflow.",
-      "Good add-on conversation for BYOM and room PC projects.",
+      "Good add-on conversation for BYOD and room PC projects.",
       "Useful independently of the main video architecture.",
     ],
     bestFit: [
-      "BYOM rooms with remote cameras or microphones.",
+      "BYOD rooms with remote cameras or microphones.",
       "Touch displays.",
       "Rack-mounted room PCs.",
       "Operator workstations and KVM-style environments.",
@@ -668,7 +668,7 @@ const decisionRules = [
   "Use AVoIP when flexibility, expansion, distributed locations or shared sources are the value.",
   "Check matrix for fewer than around 12 outputs, fixed routing or tight budgets.",
   "Use HDBaseT or extension when the main problem is distance, not routing.",
-  "Use presentation/UC when the room workflow is laptops, USB-C, BYOD/BYOM or conferencing.",
+  "Use presentation/UC when the room workflow is laptops, USB-C, BYOD/BYOD or conferencing.",
   "Treat USB, audio and control as design paths, not afterthoughts.",
 ];
 

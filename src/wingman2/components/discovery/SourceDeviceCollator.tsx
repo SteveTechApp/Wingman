@@ -1418,7 +1418,7 @@ function inferRecommendations(brief: EngineeringBrief): Recommendation[] {
 
   if (hasMtr || hasByod || hasUsbComplexity) {
     recommendations.push({
-      title: "UC / BYOM presentation architecture",
+      title: "UC / BYOD presentation architecture",
       confidence: hasMtr && hasByod ? "High" : "Medium",
       reason: "The design includes MTR/BYOD/USB camera or microphone paths, so the system is not just video switching.",
       productDirection:
