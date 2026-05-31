@@ -25,6 +25,7 @@ export type WingmanJourneyStage =
 
 type JourneyItem = {
   label: WingmanJourneyStage;
+  displayLabel: string;
   helper: string;
   path: string;
 };
@@ -32,31 +33,37 @@ type JourneyItem = {
 const journeyItems: JourneyItem[] = [
   {
     label: "Discovery",
+    displayLabel: "Discovery",
     helper: "Capture customer outcome and room evidence.",
     path: routeCatalogByKey.discovery.path,
   },
   {
     label: "Qualification",
-    helper: "Check project confidence, blockers and next question.",
+    displayLabel: "Qualify",
+    helper: "Check confidence, blockers and next question.",
     path: routeCatalogByKey.callCards.path,
   },
   {
     label: "Solution Design",
+    displayLabel: "Design",
     helper: "Translate the requirement into a product path.",
     path: routeCatalogByKey.finder.path,
   },
   {
     label: "Comparison",
+    displayLabel: "Compare",
     helper: "Position WyreStorm against known alternatives.",
     path: routeCatalogByKey.compare.path,
   },
   {
     label: "Proposal",
+    displayLabel: "Proposal",
     helper: "Turn the selected direction into customer-safe wording.",
     path: routeCatalogByKey.proposal.path,
   },
   {
     label: "Close",
+    displayLabel: "Close",
     helper: "Keep the opportunity moving with risks and actions visible.",
     path: routeCatalogByKey.projects.path,
   },
@@ -84,7 +91,7 @@ export function JourneyProgress({
           <Link key={item.label} to={item.path} className="wm-journey-step" data-state={state} title={item.helper}>
             <span className="wm-journey-step-node">{state === "complete" ? <CheckCircle2 size={14} /> : index + 1}</span>
             <span className="wm-journey-step-copy">
-              <strong>{item.label}</strong>
+              <strong>{item.displayLabel}</strong>
               {!compact ? <small>{item.helper}</small> : null}
             </span>
           </Link>
@@ -127,7 +134,7 @@ export function WingmanAIRail({
         </div>
       </div>
 
-      <div className="wm-ai-rail-card wm-ai-rail-card-emphasis">
+      <div className="wm-ai-rail-card wm-ai-rail-customer-card">
         <span>Customer type</span>
         <strong>{customerType}</strong>
       </div>
@@ -170,7 +177,7 @@ export function WingmanAIRail({
       </div>
 
       <div className="wm-ai-evidence-list">
-        <span>Evidence still visible</span>
+        <span>Evidence visible</span>
         <div>
           {visibleEvidence.map((item) => (
             <small key={item}>{item}</small>
