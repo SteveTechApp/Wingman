@@ -1,5 +1,6 @@
 import "./wingman2/styles/wingman-style-stack.css";
 import "./wingman2/styles/wingman-ui-redesign.css";
+import "./wingman2/styles/wingman-dashboard-density.css";
 
 import React from "react";
 import { createRoot } from "react-dom/client";
