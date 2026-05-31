@@ -4,13 +4,13 @@
 .cca-page {
   padding: 8px 10px !important;
   background:
-    radial-gradient(circle at 14% 12%, rgba(14, 165, 233, 0.12), transparent 22rem),
-    radial-gradient(circle at 86% 6%, rgba(246, 163, 64, 0.16), transparent 20rem),
+    radial-gradient(circle at 14% 12%, rgba(14, 165, 233, 0.13), transparent 22rem),
+    radial-gradient(circle at 86% 6%, rgba(246, 163, 64, 0.18), transparent 20rem),
     linear-gradient(180deg, #edf4fa 0%, #f8fafc 42%, #eef3f8 100%) !important;
 }
 
 .cca-shell {
-  width: min(1540px, 100%) !important;
+  width: min(1580px, 100%) !important;
   min-height: calc(100vh - 78px) !important;
   gap: 8px !important;
   grid-template-rows: auto auto minmax(0, 1fr) auto !important;
@@ -21,16 +21,15 @@
 .cca-mainCapture,
 .cca-sideCoach,
 .cca-handoffRail {
+  border-color: rgba(148, 163, 184, 0.2) !important;
   backdrop-filter: blur(18px) !important;
 }
 
 .cca-header {
-  min-height: 72px !important;
+  min-height: 70px !important;
   border-radius: 24px !important;
   padding: 12px 16px !important;
-  border-color: rgba(148, 163, 184, 0.2) !important;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.92)) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.92)) !important;
   box-shadow: 0 22px 46px rgba(15, 23, 42, 0.12) !important;
 }
 
@@ -54,7 +53,6 @@
   gap: 8px !important;
   padding: 9px !important;
   border-radius: 22px !important;
-  border-color: rgba(148, 163, 184, 0.2) !important;
   background: rgba(255, 255, 255, 0.92) !important;
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08) !important;
 }
@@ -81,9 +79,7 @@
   background:
     radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.16), transparent 10rem),
     linear-gradient(180deg, #fff7ed, #ffffff) !important;
-  box-shadow:
-    inset 4px 0 0 #f6a340,
-    0 12px 26px rgba(246, 163, 64, 0.13) !important;
+  box-shadow: inset 4px 0 0 #f6a340, 0 12px 26px rgba(246, 163, 64, 0.13) !important;
 }
 
 .cca-typeStrip strong {
@@ -101,8 +97,8 @@
 .cca-compactSettings select,
 .cca-field input {
   height: 36px !important;
-  font-size: 0.8rem !important;
   border-radius: 999px !important;
+  font-size: 0.8rem !important;
 }
 
 .cca-liveWorkspace {
@@ -113,7 +109,8 @@
 
 .cca-mainCapture {
   position: relative !important;
-  grid-template-rows: auto auto auto minmax(390px, 1fr) auto auto !important;
+  display: grid !important;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto !important;
   gap: 10px !important;
   padding: 14px !important;
   border-radius: 26px !important;
@@ -209,16 +206,24 @@
 .cca-field textarea,
 .cca-nextQuestion textarea {
   border-radius: 18px !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
   padding: 12px !important;
   font-size: 0.86rem !important;
   line-height: 1.38 !important;
-  border-color: rgba(148, 163, 184, 0.28) !important;
+}
+
+.cca-field.cca-grow {
+  min-height: 460px !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  align-items: stretch !important;
 }
 
 .cca-grow textarea {
-  min-height: 460px !important;
+  min-height: 0 !important;
   height: 100% !important;
   resize: vertical !important;
+  align-self: stretch !important;
   background:
     linear-gradient(rgba(14, 165, 233, 0.035) 1px, transparent 1px),
     linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98)) !important;
@@ -254,9 +259,9 @@
 
 .cca-sideCoach::before {
   content: "Guru live reaction";
+  min-height: 30px;
   display: flex;
   align-items: center;
-  min-height: 30px;
   border-radius: 999px;
   padding: 0 11px;
   color: #1a1208;
@@ -330,8 +335,8 @@
 
 .cca-chipCloud em {
   padding: 4px 7px !important;
-  font-size: 0.64rem !important;
   background: rgba(226, 232, 240, 0.9) !important;
+  font-size: 0.64rem !important;
 }
 
 .cca-insightCard ul {
@@ -347,7 +352,6 @@
   gap: 8px !important;
   padding: 9px !important;
   border-radius: 22px !important;
-  border-color: rgba(148, 163, 184, 0.2) !important;
   background: rgba(255, 255, 255, 0.92) !important;
 }
 
@@ -359,9 +363,7 @@
 }
 
 .cca-handoffRail button.is-primary {
-  background:
-    radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.16), transparent 12rem),
-    #fffbeb !important;
+  background: radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.16), transparent 12rem), #fffbeb !important;
 }
 
 .cca-handoffRail strong {
@@ -380,26 +382,13 @@
 }
 
 html[data-wingman-route="callCards"] .wingman-guru-fab {
-  right: auto !important;
-  left: 274px !important;
-  bottom: 28px !important;
-  transform: scale(0.9) !important;
+  display: none !important;
 }
 
-html[data-wingman-route="callCards"] .wingman-guru-fab::after {
-  content: "Open Guru";
-  position: absolute;
-  left: 72px;
-  top: 50%;
-  transform: translateY(-50%);
-  white-space: nowrap;
-  border-radius: 999px;
-  padding: 6px 10px;
-  color: #1a1208;
-  background: #ffc36a;
-  font-size: 0.68rem;
-  font-weight: 900;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+html[data-wingman-route="callCards"] .wingman-expert-handoff-card {
+  border-color: rgba(246, 163, 64, 0.42) !important;
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.14), rgba(255, 255, 255, 0.06)) !important;
+  box-shadow: inset 3px 0 0 #f6a340 !important;
 }
 
 @media (max-width: 1280px) {
@@ -411,7 +400,7 @@ html[data-wingman-route="callCards"] .wingman-guru-fab::after {
     overflow: visible !important;
   }
 
-  .cca-grow textarea {
+  .cca-field.cca-grow {
     min-height: 380px !important;
   }
 }
@@ -424,12 +413,6 @@ html[data-wingman-route="callCards"] .wingman-guru-fab::after {
 
   .cca-typeStrip {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  html[data-wingman-route="callCards"] .wingman-guru-fab {
-    left: auto !important;
-    right: 22px !important;
-    bottom: 22px !important;
   }
 }
 
@@ -449,8 +432,7 @@ html[data-wingman-route="callCards"] .wingman-guru-fab::after {
     padding-right: 10px !important;
   }
 
-  .cca-mainCapture::before,
-  html[data-wingman-route="callCards"] .wingman-guru-fab::after {
+  .cca-mainCapture::before {
     display: none !important;
   }
 }
