@@ -7,6 +7,7 @@ import {
   Hotel,
   Landmark,
   Monitor,
+  Search,
   ShoppingBag,
   Sparkles,
   Users,
@@ -265,24 +266,39 @@ function difficultyClass(label: string) {
 }
 
 export function TemplatesPage() {
-  const [activeVertical, setActiveVertical] = useState<string | null>(null);
+  const [activeVertical, setActiveVertical] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const visibleTemplates = useMemo(() => {
-    if (activeVertical === null) {
-      return [];
+    const templatesForVertical =
+      activeVertical === "All"
+        ? roomTemplates
+        : roomTemplates.filter((template) => template.vertical === activeVertical);
+
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    if (!normalizedQuery) {
+      return templatesForVertical;
     }
 
-    if (activeVertical === "All") {
-      return roomTemplates;
-    }
-
-    return roomTemplates.filter((template) => template.vertical === activeVertical);
-  }, [activeVertical]);
+    return templatesForVertical.filter((template) =>
+      [
+        template.name,
+        template.vertical,
+        template.application,
+        template.scale,
+        template.summary,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery),
+    );
+  }, [activeVertical, searchQuery]);
 
   const verticalCount = roomTemplateVerticals.length - 1;
-  const isChoosing = activeVertical === null;
-  const selectedLabel = activeVertical === "All" ? "All templates" : activeVertical ?? "Choose type";
-  const selectedCount = activeVertical === null ? 0 : activeVertical === "All" ? roomTemplates.length : countTemplatesForVertical(activeVertical);
+  const selectedLabel = activeVertical === "All" ? "All templates" : activeVertical;
+  const selectedCount = visibleTemplates.length;
+  const hasSearch = searchQuery.trim().length > 0;
 
   function selectVertical(vertical: string) {
     setActiveVertical(vertical);
@@ -294,25 +310,22 @@ export function TemplatesPage() {
     scrollToRoomTemplateSection();
   }
 
-  function changeTemplateType() {
-    setActiveVertical(null);
+  function verticalFilterVisual(vertical: string) {
+    return verticalVisuals.find((market) => market.name === vertical) ?? {
+      name: vertical,
+      strapline: `${vertical} templates`,
+      image: "",
+      Icon: Building2,
+    };
   }
 
   return (
-    <div className="wm-templates-workflow-page" data-template-step={isChoosing ? "choose" : "results"}>
+    <div className="wm-templates-workflow-page" data-template-step="results">
       <PageHero
         eyebrow="Room Solution Templates"
-        title={isChoosing ? "Choose the room type or application." : `Templates for ${selectedLabel}.`}
-        purpose={
-          isChoosing
-            ? "Start with the customer environment. Wingman will then show only the matching room templates so the page stays clear."
-            : "Review the matching templates, choose the closest room, then adjust the design, BOM and proposal wording."
-        }
-        nextMove={
-          isChoosing
-            ? "Pick the closest application, or choose See all templates when you want to browse the full library."
-            : "Open the closest template, or change the type if the customer requirement is different."
-        }
+        title="Choose a room template."
+        purpose="Browse every template starter card up front, then filter by market or search for the customer application."
+        nextMove="Open the closest room starter, then adjust the detailed architecture notes, validation items, BOM and proposal wording."
         actions={[
           { label: "Open projects", to: routeCatalogByKey.projects.path },
           { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
@@ -320,144 +333,146 @@ export function TemplatesPage() {
       />
 
       <SectionCard
-        title={isChoosing ? "Step 1: choose the application" : `Step 2: choose a ${selectedLabel} template`}
-        subtitle={
-          isChoosing
-            ? `${roomTemplates.length} room templates across ${verticalCount} market verticals. Choose one type first to avoid an overcrowded results page.`
-            : `${selectedCount} matching templates. Results scroll vertically when there are more cards than fit on screen.`
-        }
+        title="Choose a room template"
+        subtitle={`${roomTemplates.length} starter cards across ${verticalCount} market verticals. Filters narrow the launcher without hiding the full library by default.`}
         rightSlot={
-          isChoosing ? (
-            <button
-              type="button"
-              onClick={showAllTemplates}
-              className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-            >
-              See all templates
-            </button>
-          ) : (
-            <div className="wm-template-result-actions">
-              <button type="button" onClick={changeTemplateType}>
-                Change type
+          <div className="wm-template-result-actions">
+            {activeVertical !== "All" || hasSearch ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  showAllTemplates();
+                }}
+              >
+                Show all
               </button>
-              {activeVertical !== "All" && (
-                <button type="button" onClick={showAllTemplates}>
-                  See all
-                </button>
-              )}
-              <Link to={routeCatalogByKey.proposal.path}>Build proposal</Link>
-            </div>
-          )
+            ) : null}
+            <Link to={routeCatalogByKey.proposal.path}>Build proposal</Link>
+          </div>
         }
       >
-        {isChoosing ? (
-          <section className="wm-template-step-panel">
-            <div className="wm-template-step-heading">
-              <div>
-                <p className="wingman-kicker">Room type / application</p>
-                <h3>What best describes the customer space?</h3>
-                <span>Use the closest match. This only filters the template list; it does not lock the design.</span>
-              </div>
-            </div>
-
-            <div className="wm-template-market-grid">
-              {verticalVisuals.map((market) => {
-                const Icon = market.Icon;
-                const count = countTemplatesForVertical(market.name);
-                const isAll = market.name === "All";
+        <section id={ROOM_TEMPLATE_SECTION_ID} className="wm-template-results-panel">
+          <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {roomTemplateVerticals.map((vertical) => {
+                const visual = verticalFilterVisual(vertical);
+                const Icon = visual.Icon;
+                const isActive = activeVertical === vertical;
 
                 return (
                   <button
-                    key={market.name}
+                    key={vertical}
                     type="button"
-                    onClick={() => selectVertical(market.name)}
-                    className={`wm-template-market-card ${isAll ? "wm-template-market-card-see-all" : ""}`}
+                    onClick={() => selectVertical(vertical)}
+                    className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3 py-2 text-sm font-black transition ${
+                      isActive
+                        ? "border-slate-950 bg-slate-950 text-white"
+                        : "border-slate-200 bg-slate-50 text-slate-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800"
+                    }`}
+                    aria-pressed={isActive}
                   >
-                    <div className="wm-template-market-image" style={{ backgroundImage: `url(${market.image})` }} />
-                    <div className="wm-template-market-label">
-                      <Icon className="h-5 w-5 text-amber-400" />
-                      <div>
-                        <strong>{isAll ? "See all templates" : market.name}</strong>
-                        <span>{isAll ? "Browse the full template library" : market.strapline}</span>
-                      </div>
-                      <small>{count}</small>
-                    </div>
+                    <Icon className="h-4 w-4" />
+                    {vertical}
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${isActive ? "bg-white/15 text-white" : "bg-white text-slate-500"}`}>
+                      {countTemplatesForVertical(vertical)}
+                    </span>
                   </button>
                 );
               })}
             </div>
-          </section>
-        ) : (
-          <section id={ROOM_TEMPLATE_SECTION_ID} className="wm-template-results-panel">
-            <div className="wm-template-results-heading">
-              <div>
-                <p className="wingman-kicker">Room templates</p>
-                <h3>{selectedLabel}</h3>
-                <span>
-                  Select the closest room boilerplate. The next screen can hold the detailed architecture notes, validation items and BOM.
-                </span>
+
+            <label className="grid gap-1">
+              <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Search templates</span>
+              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3">
+                <Search className="h-4 w-4 text-slate-400" />
+                <input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search by room name, application, scale or summary"
+                  className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-slate-900 outline-none"
+                />
               </div>
-              <strong>{selectedCount} templates</strong>
+            </label>
+          </div>
+
+          <div className="wm-template-results-heading">
+            <div>
+              <p className="wingman-kicker">Room templates</p>
+              <h3>{selectedLabel}</h3>
+              <span>
+                {hasSearch
+                  ? `Showing templates matching "${searchQuery.trim()}".`
+                  : "Select the closest room boilerplate. The next screen can hold the detailed architecture notes, validation items and BOM."}
+              </span>
             </div>
+            <strong>{selectedCount} templates</strong>
+          </div>
 
-            {visibleTemplates.length === 0 ? (
-              <div className="wm-template-empty-state">
-                <p>No templates in this group yet.</p>
-                <span>Choose another type or browse the full template library.</span>
-                <button type="button" onClick={showAllTemplates}>
-                  See all templates
-                </button>
-              </div>
-            ) : (
-              <div className="wm-template-room-scroll-grid">
-                {visibleTemplates.map((template) => {
-                  const difficulty = difficultyHint(template);
+          {visibleTemplates.length === 0 ? (
+            <div className="wm-template-empty-state">
+              <p>No templates match this filter yet.</p>
+              <span>Clear the search or browse the full template library.</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  showAllTemplates();
+                }}
+              >
+                See all templates
+              </button>
+            </div>
+          ) : (
+            <div className="wm-template-room-scroll-grid">
+              {visibleTemplates.map((template) => {
+                const difficulty = difficultyHint(template);
 
-                  return (
-                    <Link
-                      key={template.id}
-                      to={`${routeCatalogByKey.templates.path}/${template.id}`}
-                      className="wm-template-room-card"
+                return (
+                  <Link
+                    key={template.id}
+                    to={`${routeCatalogByKey.templates.path}/${template.id}`}
+                    className="wm-template-room-card"
+                  >
+                    <div
+                      className="wm-template-room-image"
+                      style={{
+                        backgroundImage: `linear-gradient(180deg, rgba(2,6,23,0.08), rgba(2,6,23,0.72)), url(${roomVisualFor(template)})`,
+                      }}
                     >
-                      <div
-                        className="wm-template-room-image"
-                        style={{
-                          backgroundImage: `linear-gradient(180deg, rgba(2,6,23,0.08), rgba(2,6,23,0.72)), url(${roomVisualFor(template)})`,
-                        }}
-                      >
-                        <span>{template.vertical}</span>
+                      <span>{template.vertical}</span>
+                    </div>
+
+                    <div className="wm-template-room-body">
+                      <div>
+                        <h4>{template.name}</h4>
+                        <p>{template.summary}</p>
+                        <p>{template.application}</p>
                       </div>
 
-                      <div className="wm-template-room-body">
-                        <div>
-                          <h4>{template.name}</h4>
-                          <p>{template.summary}</p>
-                        </div>
-
-                        <div className="wm-template-room-meta">
-                          <span>
-                            <Users className="h-3.5 w-3.5" />
-                            {peopleHint(template)}
-                          </span>
-                          <span>
-                            <Monitor className="h-3.5 w-3.5" />
-                            {displayHint(template)}
-                          </span>
-                          <span className={difficultyClass(difficulty)}>{difficulty}</span>
-                        </div>
-
-                        <div className="wm-template-room-footer">
-                          <small>Review template</small>
-                          <ArrowRight className="h-5 w-5" />
-                        </div>
+                      <div className="wm-template-room-meta">
+                        <span>
+                          <Users className="h-3.5 w-3.5" />
+                          {peopleHint(template)}
+                        </span>
+                        <span>
+                          <Monitor className="h-3.5 w-3.5" />
+                          {displayHint(template)}
+                        </span>
+                        <span className={difficultyClass(difficulty)}>{difficulty}</span>
                       </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-        )}
+
+                      <div className="wm-template-room-footer">
+                        <small>Open template</small>
+                        <ArrowRight className="h-5 w-5" />
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </SectionCard>
     </div>
   );
