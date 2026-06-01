@@ -3035,8 +3035,8 @@ export function FinderPage() {
       <PageHero
         eyebrow="Product Finder"
         title="Find the right WyreStorm product path."
-        purpose="Search by SKU, application or technical need. Use the compact top filters to narrow the result set without sacrificing product result space."
-        nextMove="Start with a quick-start path, SKU search or one technical requirement. Then refine using the top filter rail."
+        purpose="Work through a guided sales intelligence flow: start with the problem, confirm the signal path, size the system, add specialist needs, then review the recommendation."
+        nextMove="Choose a quick-start path or search term, then move through each step. The recommendation step stays available whenever you want to check products."
         actions={[
           { label: "Load Discovery brief", variant: "secondary", onClick: applyDiscoveryBrief },
           { label: "Open projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
@@ -3044,348 +3044,399 @@ export function FinderPage() {
       />
 
       <SectionCard
-        title="Technical Product Finder"
-        subtitle="Use the top filter rail to describe the signal problem. Results stay clear and occupy the main workspace."
+        title="Guided Product Finder"
+        subtitle="Describe the opportunity one decision at a time. Existing matching, shortlist and project handoff stay connected as you move."
       >
         <div className="grid gap-4">
-          <div className="wm-finder-two-column-layout">
-            <section className="wm-finder-input-column" aria-label="Finder input filters">
-          <div className="wm-finder-quickstart grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-sm font-black text-amber-950">Quick-start filters</p>
-              </div>
+          <nav className="grid gap-2 md:grid-cols-5" aria-label="Finder workflow steps">
+            {finderSteps.map((step, index) => {
+              const isActive = step.id === activeStep;
+              const isComplete = index < activeStepIndex;
 
-              <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-3 py-1 text-xs font-black text-amber-800">
-                <Database className="h-3.5 w-3.5" />
-                {indexState === "ready" ? `${products.length} indexed products` : indexState === "loading" ? "Loading index" : "Clean fallback library"}
-              </div>
-            </div>
+              return (
+                <button
+                  key={step.id}
+                  type="button"
+                  onClick={() => setActiveStep(step.id)}
+                  aria-current={isActive ? "step" : undefined}
+                  className={`flex min-h-[76px] items-start gap-3 rounded-2xl border p-3 text-left transition ${
+                    isActive
+                      ? "border-slate-950 bg-slate-950 text-white shadow-lg"
+                      : isComplete
+                        ? "border-emerald-200 bg-emerald-50 text-slate-900 hover:border-emerald-300"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-amber-300 hover:bg-amber-50"
+                  }`}
+                >
+                  <span
+                    className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black ${
+                      isActive ? "bg-white text-slate-950" : isComplete ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    {isComplete ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-black">{step.label}</span>
+                    <span className={`mt-1 block text-xs leading-4 ${isActive ? "text-slate-300" : "text-slate-500"}`}>
+                      {step.description}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
 
-            <div className="flex flex-wrap gap-2">
-              <ChipButton active={false} label="HDMI over distance" onClick={() => applyQuickStart("hdmi")} />
-              <ChipButton active={false} label="HDMI + USB together" onClick={() => applyQuickStart("usb")} />
-              <ChipButton active={false} label="USB-C laptop input" onClick={() => applyQuickStart("usbC")} />
-              <ChipButton active={false} label="Video wall processing" onClick={() => applyQuickStart("wall")} />
-              <ChipButton active={false} label="AVoIP distribution" onClick={() => applyQuickStart("avoip")} />
-              <ChipButton active={false} label="NDI camera workflow" onClick={() => applyQuickStart("ndi")} />
-            </div>
-          </div>
-
-<aside className="wm-finder-filter-panel grid content-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="wm-finder-filter-header flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="h-4 w-4 text-slate-500" />
-                  <div>
-                    <p className="text-sm font-black text-slate-900">Technical filters</p>
-                    <span className="text-xs text-slate-500">Work left to right: product type, signal path, system size, then specialist needs.</span>
-                  </div>
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm" aria-labelledby="finder-active-step-title">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-4">
+                <div className="min-w-0">
+                  <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">{activeStepDefinition.eyebrow}</p>
+                  <h2 id="finder-active-step-title" className="mt-1 text-2xl font-black tracking-tight text-slate-950">
+                    {activeStepDefinition.label}
+                  </h2>
+                  <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">{activeStepDefinition.description}</p>
                 </div>
 
                 <button
                   type="button"
                   onClick={clearFinder}
-                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-black text-slate-600 hover:bg-slate-100"
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-100"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   Reset
                 </button>
               </div>
 
-              <section className="wm-finder-filter-group wm-finder-filter-group-start">
-                <div className="wm-finder-filter-group-title">
-                  <span>1</span>
-                  <div>
-                    <strong>Start here</strong>
-                    <small>Choose the product direction or search directly.</small>
-                  </div>
-                </div>
+              {activeStep === "start" ? (
+                <div className="mt-4 grid gap-4">
+                  <div className="wm-finder-quickstart grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-black text-amber-950">Quick-start filters</p>
+                        <p className="mt-1 text-xs leading-5 text-amber-900">Choose the closest customer problem. Finder fills the need data and moves to the next useful step.</p>
+                      </div>
 
-                <div className="wm-finder-filter-group-body wm-finder-filter-group-body-start">
-                  <label className="wm-finder-technology-field grid gap-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-                    Technology Type
-                    <select
-                      id="finder-technology-type"
-                      value={need.technologyType}
-                      onChange={(event) => setNeed((current) => ({ ...current, technologyType: event.target.value }))}
-                      className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold normal-case tracking-normal text-slate-900 shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
-                    >
-                      {technologyTypeOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="wm-finder-search-field grid gap-1">
-                    <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Search SKU or requirement</span>
-                    <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
-                      <Search className="h-4 w-4 text-slate-400" />
-                      <input
-                        value={need.query}
-                        onChange={(event) => setNeedField("query", event.target.value)}
-                        placeholder="e.g. HDMI USB extender, NHD-150-RX, multiview"
-                        className="h-9 flex-1 border-0 bg-transparent px-0 text-sm text-slate-900 outline-none"
-                      />
+                      <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-3 py-1 text-xs font-black text-amber-800">
+                        <Database className="h-3.5 w-3.5" />
+                        {indexState === "ready" ? `${products.length} indexed products` : indexState === "loading" ? "Loading index" : "Clean fallback library"}
+                      </div>
                     </div>
-                  </label>
 
-                  <FieldSelect label="Technical requirement" value={need.technicalRequirement} options={technicalRequirementOptions} onChange={(value) => setNeedField("technicalRequirement", value)} />
-                  <FieldSelect label="Likely product path" value={need.productPath} options={productPathOptions} onChange={(value) => setNeedField("productPath", value)} />
-                </div>
-              </section>
+                    <div className="flex flex-wrap gap-2">
+                      <ChipButton active={need.technicalRequirement === "Extend HDMI over distance"} label="HDMI over distance" onClick={() => applyQuickStart("hdmi")} />
+                      <ChipButton active={need.technicalRequirement === "Extend HDMI and USB together"} label="HDMI + USB together" onClick={() => applyQuickStart("usb")} />
+                      <ChipButton active={need.technicalRequirement === "Connect USB-C laptop"} label="USB-C laptop input" onClick={() => applyQuickStart("usbC")} />
+                      <ChipButton active={need.technicalRequirement === "Build LCD video wall"} label="Video wall processing" onClick={() => applyQuickStart("wall")} />
+                      <ChipButton active={need.technicalRequirement === "Distribute AV over network"} label="AVoIP distribution" onClick={() => applyQuickStart("avoip")} />
+                      <ChipButton active={need.technicalRequirement === "Bring NDI camera into AV system"} label="NDI camera workflow" onClick={() => applyQuickStart("ndi")} />
+                    </div>
+                  </div>
 
-              <section className="wm-finder-filter-group">
-                <div className="wm-finder-filter-group-title">
-                  <span>2</span>
-                  <div>
-                    <strong>Signal path</strong>
-                    <small>Define what signal is moving and how it connects.</small>
+                  <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-2">
+                    <label className="grid gap-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 md:col-span-2">
+                      Technology Type
+                      <select
+                        id="finder-technology-type"
+                        value={need.technologyType}
+                        onChange={(event) => setNeedField("technologyType", event.target.value)}
+                        className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold normal-case tracking-normal text-slate-900 shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                      >
+                        {technologyTypeOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="grid gap-1 md:col-span-2">
+                      <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Search SKU or requirement</span>
+                      <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
+                        <Search className="h-4 w-4 text-slate-400" />
+                        <input
+                          value={need.query}
+                          onChange={(event) => setNeedField("query", event.target.value)}
+                          placeholder="e.g. HDMI USB extender, NHD-150-RX, multiview"
+                          className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-slate-900 outline-none"
+                        />
+                      </div>
+                    </label>
+
+                    <FieldSelect label="Technical requirement" value={need.technicalRequirement} options={technicalRequirementOptions} onChange={(value) => setNeedField("technicalRequirement", value)} />
+                    <FieldSelect label="Likely product path" value={need.productPath} options={productPathOptions} onChange={(value) => setNeedField("productPath", value)} />
                   </div>
                 </div>
+              ) : null}
 
-                <div className="wm-finder-filter-group-body">
+              {activeStep === "signal" ? (
+                <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-3">
                   <FieldSelect label="Signal type" value={need.signalType} options={signalTypeOptions} onChange={(value) => setNeedField("signalType", value)} />
                   <FieldSelect label="Source connector" value={need.sourceConnector} options={connectorOptions} onChange={(value) => setNeedField("sourceConnector", value)} />
                   <FieldSelect label="Display / output" value={need.displayConnector} options={connectorOptions} onChange={(value) => setNeedField("displayConnector", value)} />
                 </div>
-              </section>
+              ) : null}
 
-              <section className="wm-finder-filter-group">
-                <div className="wm-finder-filter-group-title">
-                  <span>3</span>
-                  <div>
-                    <strong>System size</strong>
-                    <small>Use count, distance and resolution to separate extender, matrix and AVoIP designs.</small>
-                  </div>
-                </div>
-
-                <div className="wm-finder-filter-group-body">
+              {activeStep === "size" ? (
+                <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-2 xl:grid-cols-4">
                   <FieldSelect label="Inputs" value={need.inputs} options={inputOptions} onChange={(value) => setNeedField("inputs", value)} />
                   <FieldSelect label="Outputs" value={need.outputs} options={outputOptions} onChange={(value) => setNeedField("outputs", value)} />
                   <FieldSelect label="Distance" value={need.distance} options={distanceOptions} onChange={(value) => setNeedField("distance", value)} />
                   <FieldSelect label="Resolution" value={need.resolution} options={resolutionOptions} onChange={(value) => setNeedField("resolution", value)} />
                 </div>
-              </section>
+              ) : null}
 
-              <section className="wm-finder-filter-group wm-finder-filter-group-advanced">
-                <div className="wm-finder-filter-group-title">
-                  <span>4</span>
-                  <div>
-                    <strong>Advanced needs</strong>
-                    <small>Add USB, audio, processing, network and control requirements only when they matter.</small>
-                  </div>
-                </div>
-
-                <div className="wm-finder-filter-group-body">
+              {activeStep === "specialist" ? (
+                <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-2 xl:grid-cols-5">
                   <FieldSelect label="USB" value={need.usb} options={usbOptions} onChange={(value) => setNeedField("usb", value)} />
                   <FieldSelect label="Processing" value={need.processing} options={processingOptions} onChange={(value) => setNeedField("processing", value)} />
                   <FieldSelect label="Network" value={need.network} options={networkOptions} onChange={(value) => setNeedField("network", value)} />
                   <FieldSelect label="Audio" value={need.audio} options={audioOptions} onChange={(value) => setNeedField("audio", value)} />
                   <FieldSelect label="Control" value={need.control} options={controlOptions} onChange={(value) => setNeedField("control", value)} />
                 </div>
-              </section>
-            </aside>
-            </section>
-
-            <section className="wm-finder-output-column" aria-label="Finder guidance and results">
-          <WingmanCoachPanel coach={finderCoach} compact showFunnel showVisuals={false} />
-
-              <div className="wm-finder-results-and-logic">
-            <main className="wm-finder-results-panel grid content-start gap-3">
-              {!hasIntent ? (
-                <div className="grid min-h-[360px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
-                  <div className="max-w-xl">
-                    <PackageSearch className="mx-auto h-12 w-12 text-slate-300" />
-                    <h3 className="mt-4 text-xl font-black text-slate-950">No products shown yet</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Use the top filter rail to start. Choose one technical requirement, quick-start button, SKU search, connector, distance, USB need, processing need, network requirement, audio path, or control requirement. Finder will then show matching WyreStorm products.
-                    </p>
-                  </div>
-                </div>
-              ) : matches.length ? (
-                matches.map((match, index) => {
-                  const resultKey = `${match.sku}-${index}`;
-                  const isExpanded = expandedResultKey === resultKey;
-                  const reasonLines = getReasonLines(match, need);
-                  const cautionLines = getCautionLines(match, need);
-
-                  return (
-                    <article key={resultKey} className="wm-finder-result-card rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-                      <div className="grid gap-3">
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <button
-                            type="button"
-                            onClick={() => toggleExpandedResult(resultKey)}
-                            className="flex min-w-0 flex-1 items-start gap-3 text-left"
-                            aria-expanded={isExpanded}
-                          >
-                            <span className="mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600">
-                              {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                            </span>
-
-                            <span className="min-w-0">
-                              <span className="flex flex-wrap items-center gap-2">
-                                <span className="text-lg font-black text-slate-950">{match.sku}</span>
-                                <StatusPill status={match.status} />
-                              </span>
-
-                              <span className="mt-1 block text-sm font-semibold text-slate-700">{match.title}</span>
-                              <span className="mt-1 block text-xs text-slate-500">{match.family} | {match.category}</span>
-
-                              {!isExpanded ? (
-                                <span className="mt-2 block text-sm leading-5 text-slate-600">
-                                  {finderSalesSummary(match)}
-                                </span>
-                              ) : null}
-                            </span>
-                          </button>
-
-                          <div className="flex shrink-0 flex-col items-end gap-2">
-                            <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
-                              Fit score {Math.min(99, match.score)}%
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() => toggleExpandedResult(resultKey)}
-                              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-black text-slate-700 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800"
-                            >
-                              {isExpanded ? "Close details" : "Open details"}
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                          {match.tags.slice(0, isExpanded ? 7 : 4).map((tag) => (
-                            <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-
-                        {isExpanded ? (
-                          <div className="grid gap-3 border-t border-slate-100 pt-3">
-                            <p className="text-sm leading-6 text-slate-700">{finderSalesSummary(match)}</p>
-
-                            <ProductSalesKnowledgePanel product={match} mode="finder" />
-
-                            {match.salesLanguage ? (
-                              <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3">
-                                <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-700">Sales read</p>
-                                <p className="mt-2 text-sm font-black text-slate-950">
-                                  {cleanDisplayText(match.salesLanguage.headline || match.salesLanguage.voices?.endUser?.headline || match.sku)}
-                                </p>
-                                <p className="mt-1 text-sm leading-6 text-slate-700">
-                                  {cleanDisplayText(match.salesLanguage.salespersonCue || match.salesLanguage.customerValue || match.salesLanguage.realWorldApplication)}
-                                </p>
-                                {match.salesLanguage.thirdOutputUseCase ? (
-                                  <p className="mt-2 text-sm leading-6 text-sky-950">{cleanDisplayText(match.salesLanguage.thirdOutputUseCase)}</p>
-                                ) : null}
-                              </div>
-                            ) : null}
-
-                            <div className="grid gap-3 lg:grid-cols-2">
-                              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
-                                <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Why it appears</p>
-                                <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
-                                  {reasonLines.map((reason) => (
-                                    <li key={reason}>- {reason}</li>
-                                  ))}
-                                </ul>
-                              </div>
-
-                              <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3">
-                                <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Validate before issue</p>
-                                <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
-                                  {cautionLines.map((caution) => (
-                                    <li key={caution}>- {caution}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </div>
-                          </div>
-                        ) : null}
-
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => addToStandaloneShortlist(match)}
-                            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
-                          >
-                            Shortlist only
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => openAddPanel(match)}
-                            className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800"
-                          >
-                            <FolderPlus className="h-4 w-4" />
-                            Add to project
-                          </button>
-
-                          <Link to={routeCatalogByKey.compare.path} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50">
-                            Compare
-                          </Link>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })
-              ) : (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-                  <div className="flex items-center gap-2 text-amber-900">
-                    <AlertTriangle className="h-5 w-5" />
-                    <p className="font-black">No strong match yet</p>
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-amber-900">
-                    Broaden the technical requirement, remove one constraint, or search by SKU.
-                  </p>
-                </div>
-              )}
-            </main>
-
-            <aside className="grid content-start gap-3">
-              <details className="wm-decision-details">
-                <summary>
-                  <Sparkles className="h-4 w-4 text-amber-500" />
-                  Selection logic
-                </summary>
-
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Finder first checks the product class and role, then scores eligible WyreStorm products by technical requirement, signal path, I/O count, source/output connector, distance, USB, resolution, processing, network, audio and control.
-                </p>
-
-                {bestMatch ? (
-                  <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Current best match</p>
-                    <p className="mt-2 text-lg font-black text-slate-950">{bestMatch.sku}</p>
-                    <p className="mt-1 text-sm text-slate-600">{bestMatch.title}</p>
-                  </div>
-                ) : null}
-              </details>
-
-              {shortlist.length ? (
-                <details className="wm-decision-details">
-                  <summary>Standalone shortlist</summary>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">Use this when there is no project yet.</p>
-
-                  <div className="mt-3 space-y-2">
-                    {shortlist.slice(0, 6).map((item) => (
-                      <div key={`${item.sku}-${item.addedAt}`} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                        <p className="text-sm font-black text-slate-900">{item.sku}</p>
-                        <p className="mt-1 text-xs text-slate-500">{item.title}</p>
-                      </div>
-                    ))}
-                  </div>
-                </details>
               ) : null}
 
-            </aside>
-              </div>
+              {activeStep === "results" ? (
+                <div className="mt-4 grid gap-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+                    <div>
+                      <p className="text-sm font-black text-slate-950">Product results</p>
+                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                        {hasIntent ? `${matches.length} matching product${matches.length === 1 ? "" : "s"} from the current Finder need.` : "Add a starting requirement to generate recommendations."}
+                      </p>
+                    </div>
+
+                    {bestMatch ? (
+                      <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
+                        Best fit: {bestMatch.sku}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_320px]">
+                    <main className="wm-finder-results-panel grid content-start gap-3">
+                      {!hasIntent ? (
+                        <div className="grid min-h-[360px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
+                          <div className="max-w-xl">
+                            <PackageSearch className="mx-auto h-12 w-12 text-slate-300" />
+                            <h3 className="mt-4 text-xl font-black text-slate-950">No products shown yet</h3>
+                            <p className="mt-2 text-sm leading-6 text-slate-500">
+                              Start with a quick-start path, SKU search, technical requirement, connector, distance, USB need, processing need, network requirement, audio path or control requirement. Finder will then show matching WyreStorm products.
+                            </p>
+                          </div>
+                        </div>
+                      ) : matches.length ? (
+                        matches.map((match, index) => {
+                          const resultKey = `${match.sku}-${index}`;
+                          const isExpanded = expandedResultKey === resultKey;
+                          const reasonLines = getReasonLines(match, need);
+                          const cautionLines = getCautionLines(match, need);
+
+                          return (
+                            <article key={resultKey} className="wm-finder-result-card rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+                              <div className="grid gap-3">
+                                <div className="flex flex-wrap items-start justify-between gap-3">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleExpandedResult(resultKey)}
+                                    className="flex min-w-0 flex-1 items-start gap-3 text-left"
+                                    aria-expanded={isExpanded}
+                                  >
+                                    <span className="mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600">
+                                      {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                    </span>
+
+                                    <span className="min-w-0">
+                                      <span className="flex flex-wrap items-center gap-2">
+                                        <span className="text-lg font-black text-slate-950">{match.sku}</span>
+                                        <StatusPill status={match.status} />
+                                      </span>
+
+                                      <span className="mt-1 block text-sm font-semibold text-slate-700">{match.title}</span>
+                                      <span className="mt-1 block text-xs text-slate-500">{match.family} | {match.category}</span>
+
+                                      {!isExpanded ? (
+                                        <span className="mt-2 block text-sm leading-5 text-slate-600">
+                                          {finderSalesSummary(match)}
+                                        </span>
+                                      ) : null}
+                                    </span>
+                                  </button>
+
+                                  <div className="flex shrink-0 flex-col items-end gap-2">
+                                    <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
+                                      Fit score {Math.min(99, match.score)}%
+                                    </div>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleExpandedResult(resultKey)}
+                                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-black text-slate-700 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800"
+                                    >
+                                      {isExpanded ? "Close details" : "Open details"}
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-wrap gap-2">
+                                  {match.tags.slice(0, isExpanded ? 7 : 4).map((tag) => (
+                                    <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+
+                                {isExpanded ? (
+                                  <div className="grid gap-3 border-t border-slate-100 pt-3">
+                                    <p className="text-sm leading-6 text-slate-700">{finderSalesSummary(match)}</p>
+
+                                    <ProductSalesKnowledgePanel product={match} mode="finder" />
+
+                                    {match.salesLanguage ? (
+                                      <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3">
+                                        <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-700">Sales read</p>
+                                        <p className="mt-2 text-sm font-black text-slate-950">
+                                          {cleanDisplayText(match.salesLanguage.headline || match.salesLanguage.voices?.endUser?.headline || match.sku)}
+                                        </p>
+                                        <p className="mt-1 text-sm leading-6 text-slate-700">
+                                          {cleanDisplayText(match.salesLanguage.salespersonCue || match.salesLanguage.customerValue || match.salesLanguage.realWorldApplication)}
+                                        </p>
+                                        {match.salesLanguage.thirdOutputUseCase ? (
+                                          <p className="mt-2 text-sm leading-6 text-sky-950">{cleanDisplayText(match.salesLanguage.thirdOutputUseCase)}</p>
+                                        ) : null}
+                                      </div>
+                                    ) : null}
+
+                                    <div className="grid gap-3 lg:grid-cols-2">
+                                      <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
+                                        <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Fit evidence</p>
+                                        <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
+                                          {reasonLines.map((reason) => (
+                                            <li key={reason}>- {reason}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+
+                                      <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3">
+                                        <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">Cautions</p>
+                                        <ul className="mt-2 space-y-1 text-sm leading-5 text-amber-950">
+                                          {cautionLines.map((caution) => (
+                                            <li key={caution}>- {caution}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : null}
+
+                                <div className="flex flex-wrap gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => addToStandaloneShortlist(match)}
+                                    className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                                  >
+                                    Shortlist only
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => openAddPanel(match)}
+                                    className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800"
+                                  >
+                                    <FolderPlus className="h-4 w-4" />
+                                    Add to project
+                                  </button>
+
+                                  <Link to={routeCatalogByKey.compare.path} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+                                    Compare
+                                  </Link>
+                                </div>
+                              </div>
+                            </article>
+                          );
+                        })
+                      ) : (
+                        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                          <div className="flex items-center gap-2 text-amber-900">
+                            <AlertTriangle className="h-5 w-5" />
+                            <p className="font-black">No strong match yet</p>
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-amber-900">
+                            Broaden the technical requirement, remove one constraint, or search by SKU.
+                          </p>
+                        </div>
+                      )}
+                    </main>
+
+                    <aside className="grid content-start gap-3">
+                      <details className="wm-decision-details">
+                        <summary>
+                          <Sparkles className="h-4 w-4 text-amber-500" />
+                          Selection logic
+                        </summary>
+
+                        <p className="mt-3 text-sm leading-6 text-slate-600">
+                          Finder first checks the product class and role, then scores eligible WyreStorm products by technical requirement, signal path, I/O count, source/output connector, distance, USB, resolution, processing, network, audio and control.
+                        </p>
+
+                        {bestMatch ? (
+                          <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Current best match</p>
+                            <p className="mt-2 text-lg font-black text-slate-950">{bestMatch.sku}</p>
+                            <p className="mt-1 text-sm text-slate-600">{bestMatch.title}</p>
+                          </div>
+                        ) : null}
+                      </details>
+
+                      {shortlist.length ? (
+                        <details className="wm-decision-details">
+                          <summary>Standalone shortlist</summary>
+                          <p className="mt-1 text-xs leading-5 text-slate-500">Use this when there is no project yet.</p>
+
+                          <div className="mt-3 space-y-2">
+                            {shortlist.slice(0, 6).map((item) => (
+                              <div key={`${item.sku}-${item.addedAt}`} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                <p className="text-sm font-black text-slate-900">{item.sku}</p>
+                                <p className="mt-1 text-xs text-slate-500">{item.title}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </details>
+                      ) : null}
+                    </aside>
+                  </div>
+                </div>
+              ) : null}
+
+              <FinderStepFooter
+                activeStep={activeStep}
+                onPrevious={goToPreviousStep}
+                onNext={goToNextStep}
+                onRecommendation={() => setActiveStep("results")}
+              />
             </section>
+
+            <aside className="grid content-start gap-3" aria-label="Finder guidance">
+              <WingmanCoachPanel coach={finderCoach} compact showFunnel showVisuals={false} />
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="h-4 w-4 text-slate-500" />
+                  <p className="text-sm font-black text-slate-950">Current need</p>
+                </div>
+
+                {needSummaryItems.length ? (
+                  <dl className="mt-3 grid gap-2">
+                    {needSummaryItems.slice(0, 9).map(([label, value]) => (
+                      <div key={label} className="rounded-xl border border-slate-100 bg-slate-50 p-2">
+                        <dt className="text-[0.68rem] font-black uppercase tracking-[0.12em] text-slate-500">{label}</dt>
+                        <dd className="mt-1 text-sm font-semibold text-slate-800">{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : (
+                  <p className="mt-3 text-sm leading-6 text-slate-500">No requirement selected yet. Start with a quick-start path or search by SKU.</p>
+                )}
+              </div>
+            </aside>
           </div>
         </div>
       </SectionCard>
