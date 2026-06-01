@@ -3348,6 +3348,13 @@ export function FinderPage() {
                                   <Link to={routeCatalogByKey.compare.path} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50">
                                     Compare
                                   </Link>
+
+                                  <Link
+                                    to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(match.sku)}&source=finder`}
+                                    className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                                  >
+                                    Pitch {match.sku}
+                                  </Link>
                                 </div>
                               </div>
                             </article>

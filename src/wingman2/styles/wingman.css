@@ -1,0 +1,2260 @@
+@import "@xyflow/react/dist/style.css";
+
+/* WINGMAN VISUAL STUDIO START */
+
+.wm-vs-page {
+  min-height: 100vh;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(0, 133, 116, 0.08), transparent 34%),
+    linear-gradient(180deg, #f6f7fb 0%, #eef1f6 100%);
+  color: #17202a;
+}
+
+.wm-vs-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 20px;
+}
+
+.wm-vs-header h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.wm-vs-header p {
+  max-width: 860px;
+  margin: 12px 0 0;
+  color: #5c6673;
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.wm-vs-header-card,
+.wm-vs-panel,
+.wm-vs-canvas-shell {
+  border: 1px solid rgba(22, 32, 42, 0.1);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 18px 55px rgba(19, 33, 52, 0.08);
+}
+
+.wm-vs-header-card {
+  padding: 20px;
+  display: grid;
+  align-content: center;
+  gap: 6px;
+}
+
+.wm-vs-header-card span,
+.wm-vs-header-card small {
+  color: #687384;
+  font-size: 0.82rem;
+}
+
+.wm-vs-header-card strong {
+  font-size: 1.18rem;
+}
+
+.wm-vs-eyebrow {
+  margin: 0 0 8px;
+  color: #007a68;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.wm-vs-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) 340px;
+  gap: 18px;
+  align-items: start;
+}
+
+.wm-vs-left-rail,
+.wm-vs-right-rail {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-vs-panel {
+  padding: 16px;
+}
+
+.wm-vs-panel h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.wm-vs-panel p {
+  margin: 0;
+  color: #5c6673;
+  line-height: 1.5;
+}
+
+.wm-vs-diagram-list,
+.wm-vs-mode-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-vs-choice,
+.wm-vs-mode {
+  width: 100%;
+  border: 1px solid rgba(22, 32, 42, 0.1);
+  border-radius: 16px;
+  background: #ffffff;
+  color: #17202a;
+  padding: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.wm-vs-choice span,
+.wm-vs-mode span {
+  display: block;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.wm-vs-choice small,
+.wm-vs-mode small {
+  display: block;
+  margin-top: 5px;
+  color: #687384;
+  line-height: 1.35;
+}
+
+.wm-vs-choice:hover,
+.wm-vs-mode:hover {
+  transform: translateY(-1px);
+  border-color: rgba(0, 122, 104, 0.35);
+  box-shadow: 0 14px 30px rgba(19, 33, 52, 0.08);
+}
+
+.wm-vs-choice.is-active,
+.wm-vs-mode.is-active {
+  border-color: rgba(0, 122, 104, 0.68);
+  box-shadow: inset 0 0 0 1px rgba(0, 122, 104, 0.36), 0 14px 30px rgba(0, 122, 104, 0.11);
+}
+
+.wm-vs-canvas-shell {
+  overflow: hidden;
+}
+
+.wm-vs-canvas-toolbar {
+  min-height: 78px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(22, 32, 42, 0.08);
+}
+
+.wm-vs-canvas-toolbar h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.wm-vs-toolbar-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.wm-vs-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wm-vs-button-primary {
+  background: #008574;
+  color: #ffffff;
+}
+
+.wm-vs-button-secondary {
+  background: #eef4f3;
+  color: #006d5f;
+}
+
+.wm-vs-canvas {
+  width: 100%;
+  height: 660px;
+  background:
+    linear-gradient(90deg, rgba(22, 32, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(22, 32, 42, 0.035) 1px, transparent 1px),
+    #f6f7fb;
+  background-size: 40px 40px;
+}
+
+.wm-vs-flow-node {
+  min-width: 190px;
+  max-width: 230px;
+  border-radius: 20px;
+  border: 1px solid rgba(22, 32, 42, 0.14);
+  background: #ffffff;
+  box-shadow: 0 14px 40px rgba(19, 33, 52, 0.14);
+  padding: 14px;
+  color: #17202a;
+}
+
+.wm-vs-node-kicker {
+  margin-bottom: 8px;
+  color: #687384;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.wm-vs-node-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.wm-vs-node-subtitle {
+  margin-top: 7px;
+  color: #5c6673;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.wm-vs-node-recommended {
+  border-color: rgba(0, 133, 116, 0.55);
+  box-shadow: 0 16px 44px rgba(0, 133, 116, 0.17);
+}
+
+.wm-vs-node-optional {
+  border-style: dashed;
+}
+
+.wm-vs-node-missing {
+  border-color: rgba(218, 141, 0, 0.65);
+  background: #fff8eb;
+}
+
+.wm-vs-node-risk {
+  border-color: rgba(204, 63, 63, 0.6);
+  background: #fff2f2;
+}
+
+.wm-vs-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #4e5966;
+  line-height: 1.45;
+  font-size: 0.9rem;
+}
+
+.wm-vs-list li + li {
+  margin-top: 8px;
+}
+
+.wm-vs-warning-panel {
+  border-color: rgba(218, 141, 0, 0.28);
+}
+
+.wm-vs-risk-panel {
+  border-color: rgba(204, 63, 63, 0.24);
+}
+
+.react-flow__edge.wm-vs-edge-risk path,
+.react-flow__edge.wm-vs-edge-missing path {
+  stroke-width: 2.5;
+}
+
+.react-flow__edge-text {
+  font-size: 11px;
+}
+
+@media (max-width: 1280px) {
+  .wm-vs-layout {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+
+  .wm-vs-right-rail {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 920px) {
+  .wm-vs-page {
+    padding: 16px;
+  }
+
+  .wm-vs-header,
+  .wm-vs-layout,
+  .wm-vs-right-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-vs-canvas-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .wm-vs-canvas {
+    height: 560px;
+  }
+}
+
+/* WINGMAN VISUAL STUDIO END */
+
+/* WINGMAN AUDIENCE COACHING START */
+
+.wm-audience-coaching-panel {
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+  margin: 0 0 18px;
+  padding: 14px;
+  border: 1px solid rgba(20, 30, 45, 0.1);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(0, 133, 116, 0.08), transparent 34%),
+    rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 50px rgba(20, 30, 45, 0.08);
+}
+
+.wm-audience-coaching-panel-compact {
+  margin-top: 0;
+}
+
+.wm-audience-selector {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(20, 30, 45, 0.08);
+  border-radius: 20px;
+  background: #ffffff;
+}
+
+.wm-audience-selector-heading h2,
+.wm-audience-coaching-copy h2 {
+  margin: 0;
+  color: #17202a;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.wm-audience-selector-heading p,
+.wm-audience-coaching-copy p {
+  margin: 7px 0 0;
+  color: #5c6673;
+  font-size: 0.92rem;
+  line-height: 1.48;
+}
+
+.wm-audience-eyebrow {
+  margin: 0 0 6px !important;
+  color: #007a68 !important;
+  font-size: 0.68rem !important;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wm-audience-options {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-audience-option {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  width: 100%;
+  padding: 11px;
+  border: 1px solid rgba(20, 30, 45, 0.1);
+  border-radius: 16px;
+  background: #f8fafc;
+  color: #17202a;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+.wm-audience-option:hover {
+  transform: translateY(-1px);
+  border-color: rgba(0, 133, 116, 0.35);
+  box-shadow: 0 12px 26px rgba(20, 30, 45, 0.08);
+}
+
+.wm-audience-option.is-active {
+  border-color: rgba(0, 133, 116, 0.68);
+  background: #f2fbf9;
+  box-shadow: inset 0 0 0 1px rgba(0, 133, 116, 0.22);
+}
+
+.wm-audience-radio {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  border: 1px solid rgba(20, 30, 45, 0.28);
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.wm-audience-option.is-active .wm-audience-radio {
+  border: 5px solid #008574;
+}
+
+.wm-audience-option strong {
+  display: block;
+  color: #17202a;
+  font-size: 0.88rem;
+  line-height: 1.2;
+}
+
+.wm-audience-option small {
+  display: block;
+  margin-top: 4px;
+  color: #667282;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.wm-audience-coaching-copy {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid rgba(20, 30, 45, 0.08);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.wm-audience-coaching-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wm-audience-coaching-grid article {
+  padding: 12px;
+  border: 1px solid rgba(20, 30, 45, 0.08);
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.wm-audience-coaching-grid article span {
+  display: block;
+  color: #007a68;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-audience-coaching-grid article p {
+  margin-top: 7px;
+  font-size: 0.86rem;
+}
+
+.wm-audience-tone-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-audience-tone-strip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 9px;
+  border: 1px solid rgba(0, 133, 116, 0.18);
+  border-radius: 999px;
+  background: #eef8f6;
+  color: #006d5f;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+@media (max-width: 1180px) {
+  .wm-audience-coaching-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 820px) {
+  .wm-audience-coaching-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* WINGMAN AUDIENCE COACHING END */
+
+/* WINGMAN TOPBAR UTILITY ACTIONS START */
+
+.wm-topbar-utility-actions {
+  position: sticky;
+  top: 10px;
+  z-index: 80;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  max-width: min(1440px, calc(100vw - 32px));
+  margin: 10px auto 12px;
+  pointer-events: none;
+}
+
+.wm-topbar-utility-action {
+  pointer-events: auto;
+  display: inline-grid;
+  grid-template-columns: 34px minmax(0, auto);
+  gap: 10px;
+  align-items: center;
+  min-height: 48px;
+  padding: 8px 14px 8px 9px;
+  border: 1px solid rgba(226, 232, 240, 0.18);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(22, 31, 43, 0.94), rgba(12, 19, 30, 0.94));
+  color: #f8fafc;
+  text-decoration: none;
+  box-shadow: 0 16px 42px rgba(2, 8, 23, 0.28);
+  backdrop-filter: blur(14px);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.wm-topbar-utility-action:hover {
+  transform: translateY(-1px);
+  border-color: rgba(56, 189, 248, 0.42);
+  background:
+    linear-gradient(180deg, rgba(26, 38, 54, 0.98), rgba(14, 24, 38, 0.98));
+  box-shadow: 0 18px 46px rgba(2, 8, 23, 0.36);
+}
+
+.wm-topbar-utility-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2f4ff;
+}
+
+.wm-topbar-utility-copy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.wm-topbar-utility-copy strong {
+  color: #ffffff;
+  font-size: 0.88rem;
+  line-height: 1.1;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.wm-topbar-utility-copy small {
+  color: #9fb0c5;
+  font-size: 0.74rem;
+  line-height: 1.1;
+}
+
+.wm-topbar-utility-action-settings {
+  grid-template-columns: 34px auto;
+  padding-right: 13px;
+}
+
+.wm-topbar-utility-action-settings .wm-topbar-utility-copy small {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .wm-topbar-utility-actions {
+    top: 8px;
+    justify-content: center;
+    max-width: calc(100vw - 20px);
+    margin-top: 8px;
+  }
+
+  .wm-topbar-utility-action {
+    min-height: 44px;
+    grid-template-columns: 30px auto;
+    padding: 7px 11px 7px 7px;
+  }
+
+  .wm-topbar-utility-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .wm-topbar-utility-copy strong {
+    font-size: 0.78rem;
+  }
+
+  .wm-topbar-utility-copy small {
+    display: none;
+  }
+}
+
+/* WINGMAN TOPBAR UTILITY ACTIONS END */
+
+/* WINGMAN TOPBAR AUDIENCE UX REPAIR START */
+
+/* The old large in-page coaching panel is no longer the right UX.
+   The audience selector now belongs in the persistent top utility dock. */
+.wm-audience-coaching-panel {
+  display: none !important;
+}
+
+.wm-topbar-utility-actions {
+  position: sticky !important;
+  top: 8px !important;
+  z-index: 120 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 10px !important;
+  max-width: min(1440px, calc(100vw - 32px)) !important;
+  margin: 10px auto 12px !important;
+  pointer-events: none !important;
+}
+
+.wm-topbar-utility-actions > * {
+  pointer-events: auto !important;
+}
+
+.wm-topbar-utility-action,
+.wm-topbar-audience-selector {
+  display: inline-grid !important;
+  align-items: center !important;
+  min-height: 46px !important;
+  border: 1px solid rgba(226, 232, 240, 0.18) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, rgba(22, 31, 43, 0.95), rgba(12, 19, 30, 0.96)) !important;
+  color: #f8fafc !important;
+  text-decoration: none !important;
+  box-shadow: 0 16px 42px rgba(2, 8, 23, 0.24) !important;
+  backdrop-filter: blur(14px) !important;
+}
+
+.wm-topbar-utility-action {
+  grid-template-columns: 34px minmax(0, auto) !important;
+  gap: 10px !important;
+  padding: 7px 13px 7px 8px !important;
+}
+
+.wm-topbar-audience-selector {
+  position: relative !important;
+  grid-template-columns: 34px auto 18px !important;
+  gap: 9px !important;
+  padding: 7px 10px 7px 8px !important;
+  cursor: pointer !important;
+}
+
+.wm-topbar-audience-selector select {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+}
+
+.wm-topbar-utility-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e2f4ff !important;
+}
+
+.wm-topbar-utility-copy,
+.wm-topbar-audience-copy {
+  display: grid !important;
+  gap: 1px !important;
+  min-width: 0 !important;
+}
+
+.wm-topbar-audience-copy span,
+.wm-topbar-utility-copy small {
+  color: #9fb0c5 !important;
+  font-size: 0.72rem !important;
+  line-height: 1.05 !important;
+}
+
+.wm-topbar-audience-copy strong,
+.wm-topbar-utility-copy strong {
+  color: #ffffff !important;
+  font-size: 0.84rem !important;
+  line-height: 1.08 !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.wm-topbar-utility-action-settings .wm-topbar-utility-copy small {
+  display: none !important;
+}
+
+/* Best-effort visual suppression for old sidebar utility cards if any text-removal missed them. */
+aside a[href*="/wingman/support"]:has(small),
+aside a[href*="/wingman/profile"]:has(small),
+aside a[href*="/wingman/settings"]:has(small),
+aside button:has(small) {
+  display: none !important;
+}
+
+@media (max-width: 980px) {
+  .wm-topbar-utility-actions {
+    justify-content: center !important;
+    max-width: calc(100vw - 20px) !important;
+    overflow-x: auto !important;
+    padding-bottom: 2px !important;
+  }
+
+  .wm-topbar-utility-action,
+  .wm-topbar-audience-selector {
+    min-height: 42px !important;
+    grid-template-columns: 30px auto !important;
+    padding: 6px 10px 6px 6px !important;
+  }
+
+  .wm-topbar-utility-icon {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .wm-topbar-utility-copy small,
+  .wm-topbar-audience-copy span {
+    display: none !important;
+  }
+
+  .wm-topbar-audience-selector {
+    min-width: 132px !important;
+  }
+}
+
+/* WINGMAN TOPBAR AUDIENCE UX REPAIR END */
+
+/* WINGMAN PERSISTENT HEADER DOCK FINAL START */
+
+/* Large coaching panels were useful for testing, but not correct for the live workflow UI. */
+.wm-audience-coaching-panel {
+  display: none !important;
+}
+
+/* Persistent compact utility dock. This is deliberately fixed so it remains visible even if the page body scrolls. */
+.wm-header-dock,
+.wm-topbar-utility-actions {
+  position: fixed !important;
+  top: 112px !important;
+  right: 186px !important;
+  left: auto !important;
+  z-index: 3000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  width: auto !important;
+  max-width: calc(100vw - 540px) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+}
+
+.wm-header-dock > *,
+.wm-topbar-utility-actions > * {
+  pointer-events: auto !important;
+}
+
+.wm-header-dock-action,
+.wm-header-dock-audience,
+.wm-topbar-utility-action,
+.wm-topbar-audience-selector {
+  position: relative !important;
+  display: inline-grid !important;
+  grid-template-columns: 30px auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+  min-height: 40px !important;
+  padding: 5px 10px 5px 5px !important;
+  border: 1px solid rgba(226, 232, 240, 0.18) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, rgba(20, 29, 41, 0.95), rgba(10, 17, 28, 0.96)) !important;
+  color: #f8fafc !important;
+  text-decoration: none !important;
+  box-shadow: 0 12px 34px rgba(2, 8, 23, 0.24) !important;
+  backdrop-filter: blur(14px) !important;
+  white-space: nowrap !important;
+}
+
+.wm-header-dock-action:hover,
+.wm-header-dock-audience:hover,
+.wm-topbar-utility-action:hover,
+.wm-topbar-audience-selector:hover {
+  transform: translateY(-1px) !important;
+  border-color: rgba(56, 189, 248, 0.42) !important;
+}
+
+.wm-header-dock-icon,
+.wm-topbar-utility-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e2f4ff !important;
+}
+
+.wm-header-dock-copy,
+.wm-topbar-utility-copy,
+.wm-topbar-audience-copy {
+  display: grid !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+}
+
+.wm-header-dock-copy small,
+.wm-topbar-utility-copy small,
+.wm-topbar-audience-copy span {
+  color: #9fb0c5 !important;
+  font-size: 0.66rem !important;
+  line-height: 1.05 !important;
+  font-weight: 650 !important;
+}
+
+.wm-header-dock-copy strong,
+.wm-topbar-utility-copy strong,
+.wm-topbar-audience-copy strong {
+  color: #ffffff !important;
+  font-size: 0.78rem !important;
+  line-height: 1.08 !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.wm-header-dock-audience select,
+.wm-topbar-audience-selector select {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+}
+
+/* Hide old bottom-left card style if any older JSX survived. Keep the normal Support nav item visible. */
+aside a[href*="/wingman/support"]:has(small),
+aside a[href*="/wingman/profile"]:has(small),
+aside a[href*="/wingman/settings"]:has(small) {
+  display: none !important;
+}
+
+/* Keep notification/toast popups away from the right-hand requirement rail where possible. */
+[data-sonner-toaster],
+.Toastify__toast-container,
+[class*="toast-container"],
+[class*="ToastContainer"] {
+  right: auto !important;
+  left: 292px !important;
+}
+
+@media (max-width: 1240px) {
+  .wm-header-dock,
+  .wm-topbar-utility-actions {
+    right: 16px !important;
+    top: 112px !important;
+    max-width: calc(100vw - 300px) !important;
+  }
+
+  .wm-header-dock-copy small,
+  .wm-topbar-utility-copy small,
+  .wm-topbar-audience-copy span {
+    display: none !important;
+  }
+}
+
+@media (max-width: 860px) {
+  .wm-header-dock,
+  .wm-topbar-utility-actions {
+    top: 104px !important;
+    right: 10px !important;
+    max-width: calc(100vw - 20px) !important;
+    overflow-x: auto !important;
+  }
+
+  .wm-header-dock-action,
+  .wm-header-dock-audience,
+  .wm-topbar-utility-action,
+  .wm-topbar-audience-selector {
+    min-height: 38px !important;
+    grid-template-columns: 28px auto !important;
+    padding: 5px 9px 5px 5px !important;
+  }
+
+  .wm-header-dock-icon,
+  .wm-topbar-utility-icon {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+/* WINGMAN PERSISTENT HEADER DOCK FINAL END */
+
+/* WINGMAN FORCE VISIBLE UTILITY DOCK START */
+
+/* Hide earlier experimental in-page coaching block. */
+.wm-audience-coaching-panel {
+  display: none !important;
+}
+
+/* Hide earlier dock variants if they still exist. */
+.wm-header-dock,
+.wm-topbar-utility-actions {
+  display: none !important;
+}
+
+/* Portal-mounted utility dock. This is deliberately fixed to the viewport, not the app layout. */
+.wm-force-utility-dock {
+  position: fixed !important;
+  top: 112px !important;
+  right: 18px !important;
+  z-index: 2147483000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  width: auto !important;
+  max-width: calc(100vw - 310px) !important;
+  pointer-events: none !important;
+}
+
+.wm-force-utility-dock > * {
+  pointer-events: auto !important;
+}
+
+.wm-force-dock-action,
+.wm-force-dock-audience {
+  position: relative !important;
+  display: inline-grid !important;
+  grid-template-columns: 30px auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+  min-height: 40px !important;
+  padding: 5px 10px 5px 5px !important;
+  border: 1px solid rgba(226, 232, 240, 0.24) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, rgba(20, 29, 41, 0.98), rgba(9, 16, 27, 0.98)) !important;
+  color: #f8fafc !important;
+  text-decoration: none !important;
+  box-shadow: 0 12px 34px rgba(2, 8, 23, 0.35) !important;
+  backdrop-filter: blur(14px) !important;
+  white-space: nowrap !important;
+}
+
+.wm-force-dock-action:hover,
+.wm-force-dock-audience:hover {
+  transform: translateY(-1px) !important;
+  border-color: rgba(56, 189, 248, 0.58) !important;
+}
+
+.wm-force-dock-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #e2f4ff !important;
+}
+
+.wm-force-dock-copy {
+  display: grid !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+}
+
+.wm-force-dock-copy small {
+  color: #9fb0c5 !important;
+  font-size: 0.66rem !important;
+  line-height: 1.05 !important;
+  font-weight: 650 !important;
+}
+
+.wm-force-dock-copy strong {
+  color: #ffffff !important;
+  font-size: 0.78rem !important;
+  line-height: 1.08 !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.wm-force-dock-audience select {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+}
+
+/* Keep normal Support navigation visible, but suppress old large utility cards if any remain. */
+aside a[href*="/wingman/profile"]:has(small),
+aside a[href*="/wingman/settings"]:has(small) {
+  display: none !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-force-utility-dock {
+    top: 108px !important;
+    right: 12px !important;
+    max-width: calc(100vw - 286px) !important;
+  }
+
+  .wm-force-dock-copy small {
+    display: none !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .wm-force-utility-dock {
+    top: 96px !important;
+    left: 10px !important;
+    right: 10px !important;
+    justify-content: center !important;
+    max-width: calc(100vw - 20px) !important;
+    overflow-x: auto !important;
+  }
+
+  .wm-force-dock-action,
+  .wm-force-dock-audience {
+    min-height: 38px !important;
+    grid-template-columns: 28px auto !important;
+    padding: 5px 9px 5px 5px !important;
+  }
+
+  .wm-force-dock-icon {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+/* WINGMAN FORCE VISIBLE UTILITY DOCK END */
+
+/* WINGMAN FORCE MAIN MOUNT DOCK START */
+
+.wm-audience-coaching-panel,
+.wm-header-dock,
+.wm-topbar-utility-actions {
+  display: none !important;
+}
+
+.wm-force-utility-dock {
+  position: fixed !important;
+  top: 116px !important;
+  right: 18px !important;
+  z-index: 2147483000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  width: auto !important;
+  max-width: calc(100vw - 310px) !important;
+  pointer-events: none !important;
+}
+
+.wm-force-utility-dock > * {
+  pointer-events: auto !important;
+}
+
+.wm-force-dock-action,
+.wm-force-dock-audience {
+  position: relative !important;
+  display: inline-grid !important;
+  grid-template-columns: 30px auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+  min-height: 40px !important;
+  padding: 5px 10px 5px 5px !important;
+  border: 1px solid rgba(226, 232, 240, 0.26) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, rgba(20, 29, 41, 0.98), rgba(9, 16, 27, 0.98)) !important;
+  color: #f8fafc !important;
+  text-decoration: none !important;
+  box-shadow: 0 12px 34px rgba(2, 8, 23, 0.38) !important;
+  backdrop-filter: blur(14px) !important;
+  white-space: nowrap !important;
+}
+
+.wm-force-dock-action:hover,
+.wm-force-dock-audience:hover {
+  transform: translateY(-1px) !important;
+  border-color: rgba(56, 189, 248, 0.58) !important;
+}
+
+.wm-force-dock-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #e2f4ff !important;
+}
+
+.wm-force-dock-copy {
+  display: grid !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+}
+
+.wm-force-dock-copy small {
+  color: #9fb0c5 !important;
+  font-size: 0.66rem !important;
+  line-height: 1.05 !important;
+  font-weight: 650 !important;
+}
+
+.wm-force-dock-copy strong {
+  color: #ffffff !important;
+  font-size: 0.78rem !important;
+  line-height: 1.08 !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.wm-force-dock-audience select {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-force-utility-dock {
+    top: 108px !important;
+    right: 12px !important;
+    max-width: calc(100vw - 286px) !important;
+  }
+
+  .wm-force-dock-copy small {
+    display: none !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .wm-force-utility-dock {
+    top: 96px !important;
+    left: 10px !important;
+    right: 10px !important;
+    justify-content: center !important;
+    max-width: calc(100vw - 20px) !important;
+    overflow-x: auto !important;
+  }
+
+  .wm-force-dock-action,
+  .wm-force-dock-audience {
+    min-height: 38px !important;
+    grid-template-columns: 28px auto !important;
+    padding: 5px 9px 5px 5px !important;
+  }
+
+  .wm-force-dock-icon {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+/* WINGMAN FORCE MAIN MOUNT DOCK END */
+
+/* WINGMAN COMPACT WORKSPACE DENSITY RESET START */
+
+/*
+  Purpose:
+  Rebalance Wingman so the working area dominates.
+  The header and hero should guide the user, not consume the screen.
+*/
+
+/* Temporarily hide the failed experimental utility dock until it is placed properly. */
+.wm-force-utility-dock,
+.wm-header-dock,
+.wm-topbar-utility-actions,
+.wm-audience-coaching-panel {
+  display: none !important;
+}
+
+/* Keep the main app tighter and reduce oversized vertical padding. */
+main,
+.wm-main,
+.wm-page,
+.wm-page-main,
+.wm-workspace,
+.wingman-page,
+.wingman-workspace,
+[class*="PageFrame"],
+[class*="page-frame"],
+[class*="Workspace"],
+[class*="workspace"] {
+  scroll-margin-top: 0 !important;
+}
+
+/* Reduce the top application bar height without removing useful context. */
+[class*="topbar"],
+[class*="TopBar"],
+[class*="page-top"],
+[class*="PageTop"],
+[class*="app-header"],
+[class*="AppHeader"] {
+  min-height: 48px !important;
+}
+
+[class*="topbar"] h1,
+[class*="TopBar"] h1,
+[class*="page-top"] h1,
+[class*="PageTop"] h1,
+[class*="app-header"] h1,
+[class*="AppHeader"] h1 {
+  font-size: 0.95rem !important;
+  line-height: 1.15 !important;
+}
+
+[class*="topbar"] p,
+[class*="TopBar"] p,
+[class*="page-top"] p,
+[class*="PageTop"] p,
+[class*="app-header"] p,
+[class*="AppHeader"] p {
+  font-size: 0.78rem !important;
+  line-height: 1.2 !important;
+}
+
+/* Reduce all large hero/header panels. */
+[class*="hero" i],
+[class*="PageHero"],
+[class*="Hero"],
+.wm-hero,
+.wm-page-hero,
+.wingman-hero,
+[data-wingman-hero="true"] {
+  min-height: 0 !important;
+  margin-top: 10px !important;
+  margin-bottom: 12px !important;
+  padding: 18px 22px !important;
+  border-radius: 22px !important;
+}
+
+/* Large hero titles were consuming the page. */
+[class*="hero" i] h1,
+[class*="PageHero"] h1,
+[class*="Hero"] h1,
+.wm-hero h1,
+.wm-page-hero h1,
+.wingman-hero h1,
+[data-wingman-hero="true"] h1 {
+  max-width: 920px !important;
+  margin: 0 !important;
+  font-size: clamp(2rem, 3.2vw, 3.6rem) !important;
+  line-height: 0.96 !important;
+  letter-spacing: -0.055em !important;
+}
+
+/* Smaller hero copy. */
+[class*="hero" i] p,
+[class*="PageHero"] p,
+[class*="Hero"] p,
+.wm-hero p,
+.wm-page-hero p,
+.wingman-hero p,
+[data-wingman-hero="true"] p {
+  max-width: 760px !important;
+  margin-top: 8px !important;
+  font-size: 0.9rem !important;
+  line-height: 1.32 !important;
+}
+
+/* Make hero action buttons compact. */
+[class*="hero" i] button,
+[class*="hero" i] a,
+[class*="PageHero"] button,
+[class*="PageHero"] a,
+[class*="Hero"] button,
+[class*="Hero"] a,
+.wm-hero button,
+.wm-hero a,
+.wm-page-hero button,
+.wm-page-hero a,
+.wingman-hero button,
+.wingman-hero a {
+  min-height: 32px !important;
+  padding: 7px 13px !important;
+  font-size: 0.78rem !important;
+}
+
+/* Workspace cards should begin higher and give more screen to the actual task. */
+[class*="workspace-card" i],
+[class*="WorkspaceCard"],
+[class*="workspace-panel" i],
+[class*="WorkspacePanel"],
+.wm-workspace-card,
+.wm-workspace-panel,
+.wingman-workspace-card {
+  margin-top: 10px !important;
+  padding: 14px !important;
+  border-radius: 22px !important;
+}
+
+/* Tighten section headers inside workspaces. */
+[class*="workspace" i] header,
+[class*="Workspace"] header,
+.wm-workspace header,
+.wingman-workspace header {
+  padding-top: 8px !important;
+  padding-bottom: 10px !important;
+}
+
+[class*="workspace" i] h1,
+[class*="Workspace"] h1,
+.wm-workspace h1,
+.wingman-workspace h1 {
+  font-size: clamp(1.4rem, 2vw, 2.1rem) !important;
+  line-height: 1.05 !important;
+}
+
+[class*="workspace" i] h2,
+[class*="Workspace"] h2,
+.wm-workspace h2,
+.wingman-workspace h2 {
+  font-size: clamp(1rem, 1.45vw, 1.35rem) !important;
+  line-height: 1.12 !important;
+}
+
+/* Reduce large decorative spacing around grids and cards. */
+[class*="grid" i],
+[class*="Grid"] {
+  gap: 12px !important;
+}
+
+[class*="card" i],
+[class*="Card"] {
+  border-radius: 18px !important;
+}
+
+/* Make cards slightly denser without flattening the UI. */
+[class*="card" i] h2,
+[class*="Card"] h2,
+[class*="card" i] h3,
+[class*="Card"] h3 {
+  margin-top: 0 !important;
+  margin-bottom: 6px !important;
+  line-height: 1.12 !important;
+}
+
+[class*="card" i] p,
+[class*="Card"] p {
+  line-height: 1.34 !important;
+}
+
+/* Compact category chips and option buttons. */
+button,
+a[role="button"],
+[class*="chip" i],
+[class*="Chip"],
+[class*="pill" i],
+[class*="Pill"] {
+  line-height: 1.15 !important;
+}
+
+/* Do not make every button tiny, but reduce excess padding where components are oversized. */
+[class*="chip" i],
+[class*="Chip"],
+[class*="pill" i],
+[class*="Pill"],
+[class*="filter" i] button,
+[class*="Filter"] button,
+[class*="tabs" i] button,
+[class*="Tabs"] button {
+  min-height: 30px !important;
+  padding: 6px 12px !important;
+  font-size: 0.78rem !important;
+}
+
+/* Template/product cards need to show more options above the fold. */
+[class*="template" i] [class*="card" i],
+[class*="Template"] [class*="Card"],
+[class*="product" i] [class*="card" i],
+[class*="Product"] [class*="Card"] {
+  min-height: 0 !important;
+}
+
+/* Reduce empty page gutters on content-heavy pages. */
+@media (min-width: 980px) {
+  main,
+  .wm-page-main,
+  .wm-content,
+  .wingman-content,
+  [class*="content" i],
+  [class*="Content"] {
+    padding-top: 10px !important;
+  }
+}
+
+/* Left navigation: slightly tighter but still readable. */
+aside nav a,
+aside nav button,
+[class*="sidebar" i] nav a,
+[class*="Sidebar"] nav a,
+[class*="sidebar" i] nav button,
+[class*="Sidebar"] nav button {
+  min-height: 36px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+/* Reduce oversized logo/header area in the left rail. */
+aside [class*="brand" i],
+aside [class*="Brand"],
+[class*="sidebar" i] [class*="brand" i],
+[class*="Sidebar"] [class*="Brand"] {
+  margin-bottom: 14px !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* Make sidebars less dominant on large screens. */
+@media (min-width: 1100px) {
+  [class*="sidebar" i],
+  [class*="Sidebar"],
+  aside[class*="nav" i],
+  aside[class*="Nav"] {
+    max-width: 236px !important;
+  }
+}
+
+/* Keep right-hand assistant/summary rails usable but less dominant. */
+[class*="rail" i],
+[class*="Rail"],
+[class*="aside" i],
+[class*="Aside"] {
+  gap: 10px !important;
+}
+
+/* Toasts should not hide the active requirement or finder rail. */
+[data-sonner-toaster],
+.Toastify__toast-container,
+[class*="toast-container"],
+[class*="ToastContainer"] {
+  right: 20px !important;
+  bottom: 78px !important;
+  top: auto !important;
+}
+
+/* On medium screens, be even more aggressive with hero size. */
+@media (max-width: 1280px) {
+  [class*="hero" i],
+  [class*="PageHero"],
+  [class*="Hero"],
+  .wm-hero,
+  .wm-page-hero,
+  .wingman-hero,
+  [data-wingman-hero="true"] {
+    padding: 14px 18px !important;
+  }
+
+  [class*="hero" i] h1,
+  [class*="PageHero"] h1,
+  [class*="Hero"] h1,
+  .wm-hero h1,
+  .wm-page-hero h1,
+  .wingman-hero h1,
+  [data-wingman-hero="true"] h1 {
+    font-size: clamp(1.8rem, 3vw, 2.8rem) !important;
+  }
+}
+
+/* Mobile/tablet: remove hero dominance almost completely. */
+@media (max-width: 820px) {
+  [class*="hero" i],
+  [class*="PageHero"],
+  [class*="Hero"],
+  .wm-hero,
+  .wm-page-hero,
+  .wingman-hero,
+  [data-wingman-hero="true"] {
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+  }
+
+  [class*="hero" i] h1,
+  [class*="PageHero"] h1,
+  [class*="Hero"] h1,
+  .wm-hero h1,
+  .wm-page-hero h1,
+  .wingman-hero h1,
+  [data-wingman-hero="true"] h1 {
+    font-size: 1.7rem !important;
+    line-height: 1 !important;
+  }
+
+  [class*="hero" i] p,
+  [class*="PageHero"] p,
+  [class*="Hero"] p,
+  .wm-hero p,
+  .wm-page-hero p,
+  .wingman-hero p,
+  [data-wingman-hero="true"] p {
+    font-size: 0.82rem !important;
+  }
+}
+
+/* WINGMAN COMPACT WORKSPACE DENSITY RESET END */
+
+/* WINGMAN TASK FIRST LAYOUT START */
+
+/*
+  Task-first layout rule:
+  The page header should orient the user.
+  The workspace should own the screen.
+*/
+
+/* Hide failed/experimental utility dock while layout is stabilised. */
+.wm-force-utility-dock,
+.wm-header-dock,
+.wm-topbar-utility-actions,
+.wm-audience-coaching-panel {
+  display: none !important;
+}
+
+/* Reduce global page gutters. */
+main,
+[class*="page" i],
+[class*="workspace" i] {
+  --wingman-task-gap: 10px;
+}
+
+/* App content should start higher and use available width. */
+main,
+.wm-page,
+.wm-main,
+.wm-content,
+.wingman-content,
+[class*="PageFrame"],
+[class*="page-frame"],
+[class*="Content"],
+[class*="content"] {
+  padding-top: 8px !important;
+}
+
+/* Convert hero/banner panels into compact command strips. */
+[class*="hero" i],
+[class*="PageHero"],
+[class*="Hero"],
+.wm-hero,
+.wm-page-hero,
+.wingman-hero,
+[data-wingman-hero="true"],
+section:has(> div > h1):has(a[href*="/wingman/projects"]),
+section:has(> h1):has(a[href*="/wingman/projects"]) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  min-height: 0 !important;
+  max-height: 96px !important;
+  overflow: hidden !important;
+  margin: 6px 0 10px !important;
+  padding: 12px 16px !important;
+  border-radius: 18px !important;
+}
+
+/* Hero titles become page labels, not billboards. */
+[class*="hero" i] h1,
+[class*="PageHero"] h1,
+[class*="Hero"] h1,
+.wm-hero h1,
+.wm-page-hero h1,
+.wingman-hero h1,
+[data-wingman-hero="true"] h1,
+section:has(a[href*="/wingman/projects"]) h1 {
+  margin: 0 !important;
+  max-width: 760px !important;
+  font-size: clamp(1.5rem, 2.4vw, 2.35rem) !important;
+  line-height: 0.98 !important;
+  letter-spacing: -0.045em !important;
+}
+
+/* Hero kicker text stays but gets compact. */
+[class*="hero" i] [class*="eyebrow" i],
+[class*="PageHero"] [class*="eyebrow" i],
+[class*="Hero"] [class*="eyebrow" i],
+.wm-hero [class*="eyebrow" i],
+.wm-page-hero [class*="eyebrow" i],
+.wingman-hero [class*="eyebrow" i] {
+  margin-bottom: 5px !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.14em !important;
+}
+
+/* Hide hero explanatory paragraphs on task pages unless they are inside the actual workspace. */
+[class*="hero" i] p,
+[class*="PageHero"] p,
+[class*="Hero"] p,
+.wm-hero p,
+.wm-page-hero p,
+.wingman-hero p,
+[data-wingman-hero="true"] p {
+  display: none !important;
+}
+
+/* Make hero action buttons compact and inline. */
+[class*="hero" i] a,
+[class*="hero" i] button,
+[class*="PageHero"] a,
+[class*="PageHero"] button,
+[class*="Hero"] a,
+[class*="Hero"] button,
+.wm-hero a,
+.wm-hero button,
+.wm-page-hero a,
+.wm-page-hero button,
+.wingman-hero a,
+.wingman-hero button {
+  min-height: 30px !important;
+  padding: 6px 12px !important;
+  font-size: 0.76rem !important;
+  border-radius: 999px !important;
+}
+
+/* The helper cards on the right of hero are too prominent. */
+[class*="hero" i] article,
+[class*="PageHero"] article,
+[class*="Hero"] article,
+.wm-hero article,
+.wm-page-hero article,
+.wingman-hero article {
+  min-height: 0 !important;
+  padding: 8px 12px !important;
+  border-radius: 14px !important;
+}
+
+[class*="hero" i] article p,
+[class*="PageHero"] article p,
+[class*="Hero"] article p,
+.wm-hero article p,
+.wm-page-hero article p,
+.wingman-hero article p {
+  display: none !important;
+}
+
+/* Workspace card moves closer to top and becomes the main screen object. */
+[class*="workspace" i],
+[class*="Workspace"],
+.wm-workspace,
+.wingman-workspace {
+  margin-top: 8px !important;
+}
+
+[class*="workspace-card" i],
+[class*="WorkspaceCard"],
+[class*="workspace-panel" i],
+[class*="WorkspacePanel"],
+.wm-workspace-card,
+.wm-workspace-panel,
+.wingman-workspace-card,
+section:has(input[placeholder*="Search"]) {
+  margin-top: 8px !important;
+  padding: 12px !important;
+  border-radius: 20px !important;
+}
+
+/* Workspace header should not consume a row. */
+[class*="workspace" i] > header,
+[class*="Workspace"] > header,
+.wm-workspace > header,
+.wingman-workspace > header,
+section:has(input[placeholder*="Search"]) > header {
+  min-height: 0 !important;
+  padding: 8px 10px !important;
+}
+
+/* Workspace titles are functional labels. */
+[class*="workspace" i] h1,
+[class*="Workspace"] h1,
+[class*="workspace" i] h2,
+[class*="Workspace"] h2,
+.wm-workspace h1,
+.wm-workspace h2,
+.wingman-workspace h1,
+.wingman-workspace h2 {
+  margin: 0 !important;
+  font-size: clamp(1rem, 1.4vw, 1.35rem) !important;
+  line-height: 1.1 !important;
+}
+
+/* Category/filter chips should occupy less height. */
+[class*="filter" i],
+[class*="Filter"],
+[class*="category" i],
+[class*="Category"],
+[class*="tabs" i],
+[class*="Tabs"] {
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+[class*="filter" i] button,
+[class*="Filter"] button,
+[class*="category" i] button,
+[class*="Category"] button,
+[class*="tabs" i] button,
+[class*="Tabs"] button,
+button[class*="chip" i],
+button[class*="pill" i] {
+  min-height: 30px !important;
+  padding: 6px 11px !important;
+  font-size: 0.76rem !important;
+  border-radius: 999px !important;
+}
+
+/* Search bars should not create a large visual dead-zone. */
+input[type="search"],
+input[placeholder*="Search"],
+input[placeholder*="search"] {
+  min-height: 34px !important;
+  height: 34px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+/* Release internal scroll panels where possible so content uses page height. */
+[class*="scroll" i],
+[class*="Scroll"],
+[class*="list" i],
+[class*="List"] {
+  scrollbar-gutter: stable !important;
+}
+
+/* Template/product result areas should show more cards before scrolling. */
+section:has(input[placeholder*="Search"]) [class*="grid" i],
+section:has(input[placeholder*="Search"]) [class*="Grid"],
+section:has(input[placeholder*="Search"]) [class*="list" i],
+section:has(input[placeholder*="Search"]) [class*="List"],
+[class*="template" i] [class*="grid" i],
+[class*="Template"] [class*="Grid"],
+[class*="product" i] [class*="grid" i],
+[class*="Product"] [class*="Grid"] {
+  gap: 10px !important;
+}
+
+/* Remove fixed shallow heights that trap template/product cards. */
+section:has(input[placeholder*="Search"]) > div,
+section:has(input[placeholder*="Search"]) > div > div,
+[class*="template" i] > div,
+[class*="Template"] > div,
+[class*="product" i] > div,
+[class*="Product"] > div {
+  max-height: none !important;
+}
+
+/* Cards become denser, but still readable. */
+[class*="card" i],
+[class*="Card"] {
+  border-radius: 16px !important;
+}
+
+[class*="card" i] h2,
+[class*="Card"] h2,
+[class*="card" i] h3,
+[class*="Card"] h3 {
+  margin-top: 0 !important;
+  margin-bottom: 5px !important;
+  line-height: 1.12 !important;
+}
+
+[class*="card" i] p,
+[class*="Card"] p {
+  font-size: 0.88rem !important;
+  line-height: 1.32 !important;
+}
+
+/* Images inside template cards should not dominate the card height. */
+[class*="template" i] img,
+[class*="Template"] img,
+[class*="room" i] img,
+[class*="Room"] img {
+  max-height: 150px !important;
+  object-fit: cover !important;
+}
+
+/* Dashboard journey strip and similar progress strips should be compact. */
+[class*="journey" i],
+[class*="Journey"],
+[class*="progress" i],
+[class*="Progress"] {
+  min-height: 0 !important;
+  padding: 8px !important;
+  gap: 8px !important;
+}
+
+[class*="journey" i] button,
+[class*="Journey"] button,
+[class*="progress" i] button,
+[class*="Progress"] button {
+  min-height: 34px !important;
+  padding: 6px 10px !important;
+}
+
+/* Tighten the left rail so it does not dominate vertical space. */
+aside nav a,
+aside nav button,
+[class*="sidebar" i] nav a,
+[class*="Sidebar"] nav a,
+[class*="sidebar" i] nav button,
+[class*="Sidebar"] nav button {
+  min-height: 34px !important;
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+  font-size: 0.86rem !important;
+}
+
+/* Brand block should be present but smaller. */
+aside [class*="brand" i],
+aside [class*="Brand"],
+[class*="sidebar" i] [class*="brand" i],
+[class*="Sidebar"] [class*="Brand"] {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+/* If the logo image is oversized, constrain it. */
+aside img[src*="logo"],
+aside img[alt*="WyreStorm"],
+aside img[alt*="Wingman"],
+[class*="sidebar" i] img {
+  max-height: 64px !important;
+  object-fit: contain !important;
+}
+
+/* The app top greeting strip should stay shallow. */
+header:has(+ main),
+[class*="topbar" i],
+[class*="TopBar"],
+[class*="app-header" i],
+[class*="AppHeader"] {
+  min-height: 44px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+header:has(+ main) h1,
+[class*="topbar" i] h1,
+[class*="TopBar"] h1,
+[class*="app-header" i] h1,
+[class*="AppHeader"] h1 {
+  font-size: 0.92rem !important;
+  line-height: 1.1 !important;
+}
+
+header:has(+ main) p,
+[class*="topbar" i] p,
+[class*="TopBar"] p,
+[class*="app-header" i] p,
+[class*="AppHeader"] p {
+  font-size: 0.76rem !important;
+  line-height: 1.15 !important;
+}
+
+/* The New Project button is useful but should not determine header height. */
+a[href*="project"],
+button:has(+ span),
+button {
+  line-height: 1.1 !important;
+}
+
+/* Keep Guru visible but slightly lower/right and less intrusive. */
+[class*="guru" i],
+[class*="Guru"],
+button[aria-label*="Guru"],
+button[title*="Guru"] {
+  z-index: 2500 !important;
+}
+
+/* Page background should not create unnecessary blank visual weight. */
+body {
+  overflow-x: hidden !important;
+}
+
+/* Medium screens: make hero even smaller. */
+@media (max-width: 1280px) {
+  [class*="hero" i],
+  [class*="PageHero"],
+  [class*="Hero"],
+  .wm-hero,
+  .wm-page-hero,
+  .wingman-hero,
+  [data-wingman-hero="true"] {
+    max-height: 82px !important;
+    padding: 10px 14px !important;
+  }
+
+  [class*="hero" i] h1,
+  [class*="PageHero"] h1,
+  [class*="Hero"] h1,
+  .wm-hero h1,
+  .wm-page-hero h1,
+  .wingman-hero h1,
+  [data-wingman-hero="true"] h1 {
+    font-size: clamp(1.35rem, 2.4vw, 2rem) !important;
+  }
+}
+
+/* Mobile/tablet: hero should nearly disappear into a command header. */
+@media (max-width: 820px) {
+  [class*="hero" i],
+  [class*="PageHero"],
+  [class*="Hero"],
+  .wm-hero,
+  .wm-page-hero,
+  .wingman-hero,
+  [data-wingman-hero="true"] {
+    display: block !important;
+    max-height: none !important;
+    padding: 10px 12px !important;
+  }
+
+  [class*="hero" i] h1,
+  [class*="PageHero"] h1,
+  [class*="Hero"] h1,
+  .wm-hero h1,
+  .wm-page-hero h1,
+  .wingman-hero h1,
+  [data-wingman-hero="true"] h1 {
+    font-size: 1.35rem !important;
+    line-height: 1 !important;
+  }
+}
+
+/* WINGMAN TASK FIRST LAYOUT END */
+
+/* WINGMAN RUNTIME DENSITY CONTROLLER START */
+
+body.wm-runtime-density-active .wm-audience-coaching-panel,
+body.wm-runtime-density-active .wm-force-utility-dock,
+body.wm-runtime-density-active .wm-header-dock,
+body.wm-runtime-density-active .wm-topbar-utility-actions {
+  display: none !important;
+}
+
+body.wm-runtime-density-active .wm-runtime-hero-compact {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+}
+
+body.wm-runtime-density-active .wm-runtime-hero-compact h1 {
+  max-width: 760px !important;
+}
+
+body.wm-runtime-density-active .wm-runtime-hero-compact a,
+body.wm-runtime-density-active .wm-runtime-hero-compact button {
+  min-height: 28px !important;
+  padding: 5px 11px !important;
+  font-size: 0.74rem !important;
+  border-radius: 999px !important;
+}
+
+body.wm-runtime-density-active .wm-runtime-hero-compact article {
+  min-height: 0 !important;
+  padding: 7px 10px !important;
+  border-radius: 12px !important;
+}
+
+body.wm-runtime-density-active .wm-runtime-workspace-compact {
+  width: 100% !important;
+}
+
+body.wm-runtime-template-density .wm-runtime-template-panel {
+  display: block !important;
+}
+
+body.wm-runtime-template-density .wm-runtime-template-panel input {
+  margin-bottom: 4px !important;
+}
+
+body.wm-runtime-template-density .wm-runtime-template-card {
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* On template pages, use more of the available vertical space. */
+body.wm-runtime-template-density main {
+  padding-bottom: 16px !important;
+}
+
+/* Keep the Guru button, but prevent it from blocking the working grid. */
+body.wm-runtime-density-active [class*="guru" i],
+body.wm-runtime-density-active [class*="Guru"],
+body.wm-runtime-density-active button[aria-label*="Guru"],
+body.wm-runtime-density-active button[title*="Guru"] {
+  z-index: 2400 !important;
+}
+
+/* WINGMAN RUNTIME DENSITY CONTROLLER END */
+
+/* WINGMAN STABLE TASK FIRST LAYOUT FIX START */
+
+/*
+  This replaces the failed runtime density experiment.
+  Do not use DOM mutation for layout density.
+  Keep layout changes predictable and CSS-only.
+*/
+
+/* Disable earlier failed/experimental UI layers. */
+.wm-audience-coaching-panel,
+.wm-force-utility-dock,
+.wm-header-dock,
+.wm-topbar-utility-actions {
+  display: none !important;
+}
+
+/* Restore normal route body behaviour if old runtime classes remain until refresh. */
+body.wm-runtime-density-active,
+body.wm-runtime-template-density {
+  overflow-x: hidden !important;
+}
+
+/* Persistent compact utility dock. */
+.wm-fixed-utility-dock {
+  position: fixed !important;
+  top: 116px !important;
+  right: 18px !important;
+  z-index: 2147483000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  width: auto !important;
+  max-width: calc(100vw - 320px) !important;
+  pointer-events: none !important;
+}
+
+.wm-fixed-utility-dock > * {
+  pointer-events: auto !important;
+}
+
+.wm-fixed-dock-action,
+.wm-fixed-dock-audience {
+  position: relative !important;
+  display: inline-grid !important;
+  grid-template-columns: 28px auto !important;
+  gap: 7px !important;
+  align-items: center !important;
+  min-height: 38px !important;
+  padding: 5px 10px 5px 5px !important;
+  border: 1px solid rgba(226, 232, 240, 0.26) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, rgba(20, 29, 41, 0.98), rgba(9, 16, 27, 0.98)) !important;
+  color: #f8fafc !important;
+  text-decoration: none !important;
+  box-shadow: 0 12px 34px rgba(2, 8, 23, 0.38) !important;
+  backdrop-filter: blur(14px) !important;
+  white-space: nowrap !important;
+}
+
+.wm-fixed-dock-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #e2f4ff !important;
+}
+
+.wm-fixed-dock-copy {
+  display: grid !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+}
+
+.wm-fixed-dock-copy small {
+  color: #9fb0c5 !important;
+  font-size: 0.64rem !important;
+  line-height: 1.05 !important;
+  font-weight: 650 !important;
+}
+
+.wm-fixed-dock-copy strong {
+  color: #ffffff !important;
+  font-size: 0.76rem !important;
+  line-height: 1.08 !important;
+  font-weight: 750 !important;
+}
+
+.wm-fixed-dock-audience select {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+}
+
+/* App shell density. */
+.wingman-workspace {
+  overflow: visible !important;
+}
+
+.wingman-app-main {
+  padding-top: 10px !important;
+  padding-bottom: 16px !important;
+}
+
+/* Route-specific: Room Templates needs a working layout, not a landing-page layout. */
+body.wm-route-templates .wingman-app-main {
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 10px !important;
+}
+
+/* Compact the first large banner/hero on Room Templates. */
+body.wm-route-templates .wingman-app-main > section:first-of-type {
+  min-height: 0 !important;
+  max-height: 92px !important;
+  overflow: hidden !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 12px 16px !important;
+  border-radius: 18px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+}
+
+body.wm-route-templates .wingman-app-main > section:first-of-type h1 {
+  margin: 0 !important;
+  font-size: clamp(1.45rem, 2.1vw, 2.2rem) !important;
+  line-height: 0.98 !important;
+}
+
+body.wm-route-templates .wingman-app-main > section:first-of-type p {
+  display: none !important;
+}
+
+body.wm-route-templates .wingman-app-main > section:first-of-type a,
+body.wm-route-templates .wingman-app-main > section:first-of-type button {
+  min-height: 28px !important;
+  padding: 5px 11px !important;
+  font-size: 0.74rem !important;
+}
+
+/* Make the workspace panel the dominant part of the page. */
+body.wm-route-templates .wingman-app-main > section:not(:first-of-type) {
+  min-height: calc(100vh - 270px) !important;
+  max-height: none !important;
+  overflow: visible !important;
+  margin-top: 0 !important;
+  padding: 10px 12px !important;
+  border-radius: 18px !important;
+}
+
+/* Release the internal template content from shallow scroll traps. */
+body.wm-route-templates .wingman-app-main > section:not(:first-of-type) div,
+body.wm-route-templates .wingman-app-main > section:not(:first-of-type) section,
+body.wm-route-templates .wingman-app-main > section:not(:first-of-type) article {
+  max-height: none !important;
+}
+
+body.wm-route-templates .wingman-app-main > section:not(:first-of-type) input {
+  min-height: 32px !important;
+  height: 32px !important;
+}
+
+/* Template cards should show more above the fold. */
+body.wm-route-templates article {
+  border-radius: 14px !important;
+}
+
+body.wm-route-templates article img {
+  max-height: 122px !important;
+  object-fit: cover !important;
+}
+
+/* General route hero reduction for other large pages. */
+body[class*="wm-route-"] .wingman-app-main > section:first-of-type h1 {
+  font-size: clamp(1.5rem, 2.4vw, 2.45rem) !important;
+  line-height: 1 !important;
+}
+
+body[class*="wm-route-"] .wingman-app-main > section:first-of-type {
+  margin-bottom: 10px !important;
+}
+
+/* Sidebar should remain usable but less dominant. */
+.wingman-sidebar nav a,
+.wingman-sidebar nav button {
+  min-height: 34px !important;
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+}
+
+.wingman-sidebar img {
+  max-height: 62px !important;
+  object-fit: contain !important;
+}
+
+/* Keep Guru visible. */
+.wingman-guru-fab,
+button[aria-label*="Guru"],
+button[title*="Guru"] {
+  z-index: 2500 !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-fixed-utility-dock {
+    right: 12px !important;
+    max-width: calc(100vw - 300px) !important;
+  }
+
+  .wm-fixed-dock-copy small {
+    display: none !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .wm-fixed-utility-dock {
+    top: 96px !important;
+    left: 10px !important;
+    right: 10px !important;
+    justify-content: center !important;
+    max-width: calc(100vw - 20px) !important;
+    overflow-x: auto !important;
+  }
+
+  body.wm-route-templates .wingman-app-main > section:first-of-type {
+    max-height: none !important;
+    display: block !important;
+  }
+}
+
+/* WINGMAN STABLE TASK FIRST LAYOUT FIX END */

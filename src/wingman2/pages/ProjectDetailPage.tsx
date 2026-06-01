@@ -12,6 +12,7 @@ import {
   type StoredRequirementStatus,
   useProjectStore,
 } from "../data/projectStore";
+import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { getProjectRequirementRecords, requirementReadiness } from "../lib/projectRequirements";
 
 const statusOptions: StoredRequirementStatus[] = ["confirmed", "review", "unknown"];
@@ -33,6 +34,21 @@ export function ProjectDetailPage() {
   const [requirements, setRequirements] = useState<StoredRequirementRecord[]>(initialRequirements);
   const [message, setMessage] = useState("");
   const readiness = useMemo(() => requirementReadiness(requirements), [requirements]);
+  const recommendationEvidence = useMemo(
+    () =>
+      project
+        ? project.recommendationEvidence ??
+          project.discoveryBrief?.recommendationEvidence ??
+          buildRecommendationEvidence({
+            source: "Project Detail",
+            project,
+            discoveryBrief: project.discoveryBrief,
+            product: project.productSelections?.[0] ?? null,
+            compare: project.compareRuns?.[0] ?? null,
+          })
+        : null,
+    [project],
+  );
 
   useEffect(() => {
     setRequirements(initialRequirements);
@@ -212,6 +228,21 @@ export function ProjectDetailPage() {
           subtitle="Use this to see what Wingman will carry forward into Finder, Compare, and Proposal."
         >
           <div className="grid gap-4 lg:grid-cols-3">
+            {recommendationEvidence ? (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+                <p className="text-sm font-black">Quote safety</p>
+                <p className="mt-2 text-lg font-black">
+                  {recommendationEvidence.quoteSafetyStatus === "quote-ready"
+                    ? "Quote-ready draft"
+                    : recommendationEvidence.quoteSafetyStatus === "validate-before-quote"
+                      ? "Validate before quote"
+                      : "Do not quote yet"}
+                </p>
+                <p className="mt-2 text-sm leading-6">{recommendationEvidence.quoteSafetyMessage}</p>
+                <p className="mt-2 text-xs leading-5">{recommendationEvidence.nextBestQuestion}</p>
+              </div>
+            ) : null}
+
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
               <p className="text-sm font-black text-slate-900">Selected products</p>
               <div className="mt-3 space-y-2 text-sm text-slate-700">
@@ -228,9 +259,34 @@ export function ProjectDetailPage() {
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <p className="text-sm font-black text-slate-900">Evidence used</p>
+              <div className="mt-3 space-y-2 text-sm text-slate-700">
+                {recommendationEvidence?.evidenceUsed.length ? (
+                  recommendationEvidence.evidenceUsed.slice(0, 5).map((item) => (
+                    <p key={item} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                      {item}
+                    </p>
+                  ))
+                ) : (
+                  <p>No structured recommendation evidence has been captured yet.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
               <p className="text-sm font-black text-slate-900">Governed dependencies</p>
               <div className="mt-3 space-y-2 text-sm text-slate-700">
-                {project.proposal?.governedDependencies?.length ? (
+                {recommendationEvidence?.requiredDependencies.length ? (
+                  recommendationEvidence.requiredDependencies.slice(0, 4).map((dependency) => (
+                    <p key={dependency} className="rounded-xl border border-indigo-200 bg-indigo-50 p-3 text-indigo-950">
+                      <span className="inline-flex items-center gap-2 font-black">
+                        <ShieldCheck className="h-4 w-4" />
+                        Required
+                      </span>
+                      <span className="mt-1 block text-xs">{dependency}</span>
+                    </p>
+                  ))
+                ) : project.proposal?.governedDependencies?.length ? (
                   project.proposal.governedDependencies.slice(0, 4).map((dependency) => (
                     <p key={dependency.id} className="rounded-xl border border-indigo-200 bg-indigo-50 p-3 text-indigo-950">
                       <span className="inline-flex items-center gap-2 font-black">

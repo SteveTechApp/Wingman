@@ -2,8 +2,10 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   getCurrentWorkflowProject,
   readProjectStore,
+  type StoredQuoteSafetyStatus,
   type StoredDiscoveryBrief,
 } from "./projectStore";
+import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
 
 export const DISCOVERY_BRIEF_KEY = "wingman-discovery-brief";
 export const DISCOVERY_SNAPSHOT_KEY = "wingman-discovery-snapshot-v3";
@@ -147,6 +149,19 @@ function signalStandardAssumptions(roomModel: Record<string, unknown>) {
 
   return tags;
 }
+
+function quoteSafetyStatus(missingItems: string[]): StoredQuoteSafetyStatus {
+  if (missingItems.length >= 3) return "do-not-quote-yet";
+  if (missingItems.length > 0) return "validate-before-quote";
+  return "quote-ready";
+}
+
+function nextQuestionFromMissingItems(missingItems: string[]) {
+  const firstMissing = missingItems[0];
+  if (!firstMissing) return "Can we confirm final product quantities, accessories and install constraints before quote?";
+  return `Can we confirm ${firstMissing.toLowerCase()}?`;
+}
+
 function sourceConnectorFromDevices(devices: string[]) {
   const blob = devices.join(" ").toLowerCase();
   const connectors: string[] = [];
@@ -201,9 +216,17 @@ export function buildDiscoveryBriefFromState(
   const devices = list(state.devices);
   const technicalTags = list(state.technicalTags);
   const timestamp = nowIso();
+  const resolutionRequirement = resolutionFromBrief(state);
+  const usbTransport = usbFromBrief(state);
+  const audioPath = audioFromBrief(state);
+  const processing = processingFromBrief(state);
+  const status = quoteSafetyStatus(meta.missingItems);
+  const nextBestQuestion = nextQuestionFromMissingItems(meta.missingItems);
 
   const roomModel = {
     ...state,
+    customerWording: text(state.notes, text(state.outcome, "Customer outcome not captured yet")),
+    applicationType: text(state.outcome, "Not confirmed"),
     sourceTypes: devices,
     sourceLocations: list(state.locations),
     sourceConnections: technicalTags,
@@ -211,16 +234,26 @@ export function buildDiscoveryBriefFromState(
     displayCount: text(state.displayCount, "Unknown"),
     displays: text(state.displayBehaviour, "Not confirmed"),
     longestRun: text(state.cableRun, "Unknown"),
-    usbNeeds: [usbFromBrief(state)].filter(Boolean),
-    usbTransport: usbFromBrief(state),
-    audioNeeds: [audioFromBrief(state)].filter(Boolean),
+    distanceInfrastructureNotes: text(state.cableRun, "Unknown"),
+    resolutionRequirement,
+    usbNeeds: [usbTransport].filter(Boolean),
+    usbTransport,
+    audioNeeds: [audioPath].filter(Boolean),
+    audioPath,
     controlNeeds: list(state.controlNeeds),
     networkAvailability: text(state.network, "Unknown"),
+    videoWallRequirement: /wall|signage|multiview/i.test([state.outcome, state.displayBehaviour].join(" "))
+      ? text(state.displayBehaviour, text(state.outcome, "Video wall or multiview requirement detected"))
+      : "Not indicated",
     budgetStyle: "Not confirmed",
     designDirection: meta.designDirection,
+    inferredArchitectureDirection: meta.designDirection,
+    nextBestQuestion,
+    quoteSafetyStatus: status,
+    missingInformation: meta.missingItems,
   };
 
-  return {
+  const brief: StoredDiscoveryBrief = {
     savedAt: timestamp,
     roomModel,
     inference: {
@@ -229,11 +262,22 @@ export function buildDiscoveryBriefFromState(
       confidence: meta.confidence,
       missing: meta.missingItems,
       risks: meta.missingItems,
+      evidence: signalStandardAssumptions(roomModel),
+      quoteSafetyStatus: status,
+      nextBestQuestion,
       productDirection: [],
       avoid: [],
     },
     capturedPercent: meta.capturedPercent,
     returnRoute: meta.returnRoute ?? routeCatalogByKey.discovery.path,
+    missingInformation: meta.missingItems,
+    nextBestQuestion,
+    quoteSafetyStatus: status,
+  };
+
+  return {
+    ...brief,
+    recommendationEvidence: buildDiscoveryRecommendationEvidence(brief),
   };
 }
 
