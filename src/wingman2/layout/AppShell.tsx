@@ -8,6 +8,7 @@ import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { clearActiveProject } from "../data/projectStore";
 import { useWingmanLanguage } from "../data/wingmanLanguage";
+import { useWingmanProfile } from "../data/wingmanProfile";
 import guruBotIcon from "../../assets/branding/guru-bot.png";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
 
@@ -33,6 +34,8 @@ const secondaryNavKeys: WingmanRouteKey[] = [
   "ingest",
   "productFamilies",
   "productPitch",
+  "visualDesign",
+  "glossary",
   "callCards",
   "support",
 ];
@@ -123,6 +126,8 @@ function navDisplayLabel(key: WingmanRouteKey, navLabel: string) {
     videowall: "Video Wall",
     productFamilies: "Product Families",
     productPitch: "Product Pitch",
+    visualDesign: "Visual Studio",
+    glossary: "AV Glossary",
     callCards: "Call Cards",
   };
 
@@ -136,6 +141,7 @@ export function AppShell({ children }: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { uiText } = useWingmanLanguage();
+  const { profile } = useWingmanProfile();
 
   const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
   const activeLabel = activeRoute?.label ?? "Dashboard";
@@ -143,6 +149,13 @@ export function AppShell({ children }: AppShellProps) {
   const activeRouteClass = activeRoute ? `wm-route-${activeRoute.segment}` : "wm-route-dashboard";
   const primaryNav = useMemo(() => primaryNavKeys.map((key) => routeCatalogByKey[key]), []);
   const secondaryNav = useMemo(() => secondaryNavKeys.map((key) => routeCatalogByKey[key]), []);
+  const topbarGreeting = useMemo(() => {
+    const displayName = profile.userName.trim() || profile.reportPreparedBy.trim() || "Wingman";
+
+    return uiText.goodMorning.includes("Wingman")
+      ? uiText.goodMorning.replace("Wingman", displayName)
+      : `${uiText.goodMorning}, ${displayName}`;
+  }, [profile.reportPreparedBy, profile.userName, uiText.goodMorning]);
 
   useEffect(() => {
     if (typeof document === "undefined") {
@@ -291,7 +304,7 @@ export function AppShell({ children }: AppShellProps) {
           </button>
 
           <div className="wingman-topbar-title wm-balanced-topbar-title" title={`${activeLabel}: ${activeSummary}`}>
-            <p>{uiText.goodMorning}</p>
+            <p>{topbarGreeting}</p>
             <span>
               {activeLabel}: {activeSummary}
             </span>

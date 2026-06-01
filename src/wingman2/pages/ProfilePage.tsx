@@ -1,10 +1,22 @@
-import type { ChangeEvent } from "react";
+import { useState, type ChangeEvent } from "react";
+import { Save } from "lucide-react";
 import { WingmanLanguageSelector } from "../components/WingmanLanguageSelector";
 import { setStoredWingmanCaptureLanguage, setStoredWingmanLanguage, type WingmanLanguageId } from "../data/wingmanLanguage";
 import { useWingmanProfile } from "../data/wingmanProfile";
 
 export function ProfilePage() {
   const { profile, updateProfile, resetProfile } = useWingmanProfile();
+  const [saveMessage, setSaveMessage] = useState("");
+
+  const saveProfile = () => {
+    updateProfile({});
+    setSaveMessage(`${profile.userName.trim() || profile.reportPreparedBy.trim() || "Wingman"} saved for the welcome header.`);
+  };
+
+  const resetLocalProfile = () => {
+    resetProfile();
+    setSaveMessage("");
+  };
 
   const handleLogoUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -21,6 +33,7 @@ export function ProfilePage() {
 
     reader.onload = () => {
       updateProfile({ companyLogoDataUrl: String(reader.result || "") });
+      setSaveMessage("");
     };
 
     reader.readAsDataURL(file);
@@ -29,11 +42,18 @@ export function ProfilePage() {
   const updateUiLanguage = (value: WingmanLanguageId) => {
     setStoredWingmanLanguage(value);
     updateProfile({ uiLanguage: value });
+    setSaveMessage("");
   };
 
   const updateCaptureLanguage = (value: WingmanLanguageId) => {
     setStoredWingmanCaptureLanguage(value);
     updateProfile({ captureLanguage: value });
+    setSaveMessage("");
+  };
+
+  const patchProfile = (patch: Parameters<typeof updateProfile>[0]) => {
+    updateProfile(patch);
+    setSaveMessage("");
   };
 
   return (
@@ -70,7 +90,7 @@ export function ProfilePage() {
           </label>
 
           {profile.companyLogoDataUrl ? (
-            <button type="button" className="wm-profile-secondary-button" onClick={() => updateProfile({ companyLogoDataUrl: "" })}>
+            <button type="button" className="wm-profile-secondary-button" onClick={() => patchProfile({ companyLogoDataUrl: "" })}>
               Remove logo
             </button>
           ) : null}
@@ -83,22 +103,22 @@ export function ProfilePage() {
           <div className="wm-profile-form-grid">
             <label>
               Company name
-              <input value={profile.companyName} onChange={(event) => updateProfile({ companyName: event.target.value })} />
+              <input value={profile.companyName} onChange={(event) => patchProfile({ companyName: event.target.value })} />
             </label>
 
             <label>
               Region / market
-              <input value={profile.region} onChange={(event) => updateProfile({ region: event.target.value })} />
+              <input value={profile.region} onChange={(event) => patchProfile({ region: event.target.value })} />
             </label>
 
             <label>
               Prepared by
-              <input value={profile.reportPreparedBy} onChange={(event) => updateProfile({ reportPreparedBy: event.target.value })} />
+              <input value={profile.reportPreparedBy} onChange={(event) => patchProfile({ reportPreparedBy: event.target.value })} />
             </label>
 
             <label>
               Default audience
-              <select value={profile.defaultAudience} onChange={(event) => updateProfile({ defaultAudience: event.target.value as typeof profile.defaultAudience })}>
+              <select value={profile.defaultAudience} onChange={(event) => patchProfile({ defaultAudience: event.target.value as typeof profile.defaultAudience })}>
                 <option value="endUser">End user</option>
                 <option value="dealer">Dealer / reseller</option>
                 <option value="consultant">Consultant / designer</option>
@@ -117,24 +137,24 @@ export function ProfilePage() {
               Display name
               <input
                 value={profile.userName}
-                onChange={(event) => updateProfile({ userName: event.target.value })}
+                onChange={(event) => patchProfile({ userName: event.target.value })}
                 placeholder="e.g. Steve Goodwin"
               />
             </label>
 
             <label>
               Role
-              <input value={profile.userRole} onChange={(event) => updateProfile({ userRole: event.target.value })} />
+              <input value={profile.userRole} onChange={(event) => patchProfile({ userRole: event.target.value })} />
             </label>
 
             <label>
               Email
-              <input value={profile.email} onChange={(event) => updateProfile({ email: event.target.value })} />
+              <input value={profile.email} onChange={(event) => patchProfile({ email: event.target.value })} />
             </label>
 
             <label>
               Phone
-              <input value={profile.phone} onChange={(event) => updateProfile({ phone: event.target.value })} />
+              <input value={profile.phone} onChange={(event) => patchProfile({ phone: event.target.value })} />
             </label>
           </div>
         </article>
@@ -169,7 +189,7 @@ export function ProfilePage() {
 
           <label>
             Footer text
-            <textarea value={profile.proposalFooter} onChange={(event) => updateProfile({ proposalFooter: event.target.value })} />
+            <textarea value={profile.proposalFooter} onChange={(event) => patchProfile({ proposalFooter: event.target.value })} />
           </label>
         </article>
 
@@ -179,7 +199,7 @@ export function ProfilePage() {
 
           <label>
             Intelligence update mode
-            <select value={profile.intelligenceMode} onChange={(event) => updateProfile({ intelligenceMode: event.target.value as typeof profile.intelligenceMode })}>
+            <select value={profile.intelligenceMode} onChange={(event) => patchProfile({ intelligenceMode: event.target.value as typeof profile.intelligenceMode })}>
               <option value="manual">Manual only</option>
               <option value="reviewed">Auto-draft, require approval</option>
               <option value="autoDraft">Auto-draft intelligence records</option>
@@ -194,8 +214,13 @@ export function ProfilePage() {
       </section>
 
       <section className="wm-profile-actions">
+        {saveMessage ? <span className="wm-profile-save-status" role="status">{saveMessage}</span> : null}
+        <button type="button" className="wm-profile-primary-button" onClick={saveProfile}>
+          <Save className="h-4 w-4" />
+          <span>Save profile</span>
+        </button>
         <button type="button" onClick={() => window.print()}>Print profile</button>
-        <button type="button" onClick={resetProfile}>Reset local profile</button>
+        <button type="button" onClick={resetLocalProfile}>Reset local profile</button>
       </section>
     </main>
   );

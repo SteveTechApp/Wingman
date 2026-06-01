@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Bot,
+  BookOpen,
   ClipboardList,
   Database,
   FileText,
@@ -14,6 +15,7 @@ import {
   Scale,
   Search,
   Settings,
+  Workflow,
 } from "lucide-react";
 import routeManifest from "./route-manifest.json";
 
@@ -28,6 +30,8 @@ export type WingmanRouteKey =
   | "templates"
   | "videowall"
   | "salesHelper"
+  | "visualDesign"
+  | "glossary"
   | "callCards"
   | "ingest"
   | "proposal"
@@ -60,6 +64,8 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   templates: LayoutTemplate,
   videowall: Monitor,
   salesHelper: Bot,
+  visualDesign: Workflow,
+  glossary: BookOpen,
   callCards: ClipboardList,
   ingest: FileUp,
   proposal: FileText,
