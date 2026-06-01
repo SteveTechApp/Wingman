@@ -26,6 +26,7 @@ export type StoredProject = {
   compareRuns?: StoredCompareRun[];
   proposal?: StoredProjectProposal;
   requirements?: StoredRequirementRecord[];
+  recommendationEvidence?: StoredRecommendationEvidence;
   feedback?: StoredRecommendationFeedback[];
   workflow?: StoredWorkflowState;
 };
@@ -36,6 +37,10 @@ export type StoredDiscoveryBrief = {
   inference?: Record<string, unknown>;
   capturedPercent?: number;
   returnRoute?: string;
+  missingInformation?: string[];
+  nextBestQuestion?: string;
+  quoteSafetyStatus?: StoredQuoteSafetyStatus;
+  recommendationEvidence?: StoredRecommendationEvidence;
 };
 
 export type StoredProductSelection = {
@@ -191,6 +196,41 @@ export type StoredProjectSyncStatus = {
   updatedAt: string;
 };
 
+export type StoredQuoteSafetyStatus = "quote-ready" | "validate-before-quote" | "do-not-quote-yet";
+
+export type StoredRecommendationEvidence = {
+  updatedAt: string;
+  source: string;
+  customerRequirement: string;
+  productDirection: string;
+  systemShape: string;
+  whyThisFits: string[];
+  evidenceUsed: string[];
+  quoteChecks: string[];
+  missingInformation: string[];
+  requiredDependencies: string[];
+  optionalUpgrades: string[];
+  alternatives: string[];
+  customerSafeWording: string[];
+  internalGuidance: string[];
+  quoteSafetyStatus: StoredQuoteSafetyStatus;
+  quoteSafetyMessage: string;
+  confidence: "high" | "medium" | "low";
+  nextBestQuestion?: string;
+};
+
+type LocalProjectStorageMode = {
+  kind: "local";
+  reason: "server" | "sync-disabled" | "missing-auth" | "remote-rejected";
+};
+
+type RemoteProjectStorageMode = {
+  kind: "remote";
+  authToken: string;
+};
+
+type ProjectStorageMode = LocalProjectStorageMode | RemoteProjectStorageMode;
+
 export type StoredRecommendationFeedback = {
   id: string;
   createdAt: string;
@@ -207,6 +247,14 @@ const PROJECT_SYNC_ENDPOINT = "/api/wingman/projects/sync";
 const PROJECTS_ENDPOINT = "/api/wingman/projects";
 const BACKEND_SYNC_DEBOUNCE_MS = 600;
 const PROJECT_BACKEND_SYNC_ENABLED = String(import.meta.env.VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC ?? "").toLowerCase() === "true";
+const LOCAL_PROJECT_MODE_MESSAGE = "Projects are running in local mode. Remote project sync is not signed in.";
+const PROJECT_SYNC_AUTH_STORAGE_KEYS = [
+  "wingman.projectSyncToken",
+  "wingman.sessionToken",
+  "wingman.authToken",
+  "wingman.auth.token",
+  "wingman_session",
+];
 const projectStages: ProjectStage[] = [
   "Discovery",
   "Competitor Compare",
@@ -217,6 +265,8 @@ const projectStages: ProjectStage[] = [
 ];
 
 let backendSyncTimer: ReturnType<typeof window.setTimeout> | null = null;
+let backendHydrationPromise: Promise<void> | null = null;
+let backendSyncRejectedForSession = false;
 
 function nowIso() {
   return new Date().toISOString();
@@ -268,7 +318,7 @@ function defaultStore(): ProjectStoreSnapshot {
     activeProjectId: null,
     syncStatus: {
       state: "local",
-      message: "Local sample data is available without a workspace session.",
+      message: LOCAL_PROJECT_MODE_MESSAGE,
       updatedAt: timestamp,
     },
     proposalDrafts: [
@@ -345,6 +395,55 @@ function normalizeProductSelections(value: unknown): StoredProductSelection[] {
     .filter((item): item is StoredProductSelection => Boolean(item));
 }
 
+function normalizeQuoteSafetyStatus(value: unknown): StoredQuoteSafetyStatus {
+  const status = stringValue(value);
+  if (status === "quote-ready" || status === "validate-before-quote" || status === "do-not-quote-yet") {
+    return status;
+  }
+
+  return "do-not-quote-yet";
+}
+
+function normalizeEvidenceConfidence(value: unknown): StoredRecommendationEvidence["confidence"] {
+  const confidence = stringValue(value);
+  if (confidence === "high" || confidence === "medium" || confidence === "low") {
+    return confidence;
+  }
+
+  return "low";
+}
+
+function normalizeRecommendationEvidence(value: unknown): StoredRecommendationEvidence | undefined {
+  const record = objectRecord(value);
+  if (!record) return undefined;
+
+  const customerRequirement = stringValue(record.customerRequirement);
+  const productDirection = stringValue(record.productDirection);
+  const systemShape = stringValue(record.systemShape);
+  if (!customerRequirement && !productDirection && !systemShape) return undefined;
+
+  return {
+    updatedAt: stringValue(record.updatedAt, nowIso()),
+    source: stringValue(record.source, "Wingman"),
+    customerRequirement: customerRequirement || "Customer requirement not confirmed.",
+    productDirection: productDirection || "Product direction not selected.",
+    systemShape: systemShape || "System shape not confirmed.",
+    whyThisFits: stringArray(record.whyThisFits),
+    evidenceUsed: stringArray(record.evidenceUsed),
+    quoteChecks: stringArray(record.quoteChecks),
+    missingInformation: stringArray(record.missingInformation),
+    requiredDependencies: stringArray(record.requiredDependencies),
+    optionalUpgrades: stringArray(record.optionalUpgrades),
+    alternatives: stringArray(record.alternatives),
+    customerSafeWording: stringArray(record.customerSafeWording),
+    internalGuidance: stringArray(record.internalGuidance),
+    quoteSafetyStatus: normalizeQuoteSafetyStatus(record.quoteSafetyStatus),
+    quoteSafetyMessage: stringValue(record.quoteSafetyMessage, "Do not quote yet - confirm the missing information first."),
+    confidence: normalizeEvidenceConfidence(record.confidence),
+    nextBestQuestion: stringValue(record.nextBestQuestion, undefined),
+  };
+}
+
 function normalizeDiscoveryBrief(value: unknown): StoredDiscoveryBrief | undefined {
   const record = objectRecord(value);
   if (!record) return undefined;
@@ -355,6 +454,10 @@ function normalizeDiscoveryBrief(value: unknown): StoredDiscoveryBrief | undefin
     inference: objectRecord(record.inference) ?? undefined,
     capturedPercent: Number.isFinite(Number(record.capturedPercent)) ? Number(record.capturedPercent) : undefined,
     returnRoute: stringValue(record.returnRoute, undefined),
+    missingInformation: stringArray(record.missingInformation),
+    nextBestQuestion: stringValue(record.nextBestQuestion, undefined),
+    quoteSafetyStatus: normalizeQuoteSafetyStatus(record.quoteSafetyStatus),
+    recommendationEvidence: normalizeRecommendationEvidence(record.recommendationEvidence),
   };
 }
 
@@ -627,6 +730,9 @@ function normalizeStoredProject(value: unknown): StoredProject | null {
   const requirements = normalizeRequirementRecords(record.requirements);
   if (requirements.length) project.requirements = requirements;
 
+  const recommendationEvidence = normalizeRecommendationEvidence(record.recommendationEvidence);
+  if (recommendationEvidence) project.recommendationEvidence = recommendationEvidence;
+
   const feedback = normalizeFeedback(record.feedback);
   if (feedback.length) project.feedback = feedback;
 
@@ -696,6 +802,92 @@ function projectBackendSyncEnabled() {
   return PROJECT_BACKEND_SYNC_ENABLED;
 }
 
+function localProjectSyncStatus(previous?: StoredProjectSyncStatus | null): StoredProjectSyncStatus {
+  return {
+    state: "local",
+    message: LOCAL_PROJECT_MODE_MESSAGE,
+    updatedAt: previous?.updatedAt ?? nowIso(),
+  };
+}
+
+function readBrowserStorageValue(storageKey: "localStorage" | "sessionStorage", key: string) {
+  try {
+    return window[storageKey].getItem(key)?.trim() ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function readVisibleCookieValue(name: string) {
+  if (typeof document === "undefined") return "";
+
+  const cookies = document.cookie
+    .split(";")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  for (const cookie of cookies) {
+    const separatorIndex = cookie.indexOf("=");
+    if (separatorIndex <= 0) continue;
+    if (cookie.slice(0, separatorIndex).trim() !== name) continue;
+
+    const rawValue = cookie.slice(separatorIndex + 1).trim();
+    try {
+      return decodeURIComponent(rawValue);
+    } catch {
+      return rawValue;
+    }
+  }
+
+  return "";
+}
+
+function getProjectSyncAuthToken() {
+  if (typeof window === "undefined") return "";
+
+  for (const key of PROJECT_SYNC_AUTH_STORAGE_KEYS) {
+    const sessionValue = readBrowserStorageValue("sessionStorage", key);
+    if (sessionValue) return sessionValue;
+
+    const localValue = readBrowserStorageValue("localStorage", key);
+    if (localValue) return localValue;
+  }
+
+  return readVisibleCookieValue("wingman_session");
+}
+
+function getProjectStorageMode(): ProjectStorageMode {
+  if (typeof window === "undefined") {
+    return { kind: "local", reason: "server" };
+  }
+
+  if (!projectBackendSyncEnabled()) {
+    return { kind: "local", reason: "sync-disabled" };
+  }
+
+  if (backendSyncRejectedForSession) {
+    return { kind: "local", reason: "remote-rejected" };
+  }
+
+  const authToken = getProjectSyncAuthToken();
+  if (!authToken) {
+    return { kind: "local", reason: "missing-auth" };
+  }
+
+  return { kind: "remote", authToken };
+}
+
+function buildProjectApiRequest(init: RequestInit, storageMode: RemoteProjectStorageMode): RequestInit {
+  const headers = new Headers(init.headers);
+  headers.set("Authorization", `Bearer ${storageMode.authToken}`);
+
+  return {
+    ...init,
+    credentials: "include",
+    headers,
+  };
+}
+
 function storedProjectFromBackend(value: Record<string, unknown>): StoredProject {
   return normalizeStoredProject(value) ?? {
     id: createId("backend-project"),
@@ -720,15 +912,24 @@ function backendProjectFromStored(project: StoredProject) {
   };
 }
 
-async function fetchBackendProjectStore() {
+async function fetchBackendProjectStore(storageMode: RemoteProjectStorageMode) {
   if (typeof window === "undefined") return null;
 
   try {
-    const response = await fetch(PROJECTS_ENDPOINT, {
-      credentials: "include",
-      cache: "no-store",
-    });
+    const response = await fetch(
+      PROJECTS_ENDPOINT,
+      buildProjectApiRequest(
+        {
+          cache: "no-store",
+        },
+        storageMode,
+      ),
+    );
 
+    if (response.status === 401) {
+      backendSyncRejectedForSession = true;
+      return null;
+    }
     if (!response.ok) return null;
     const payload = (await response.json()) as { projects?: unknown[] };
     if (!Array.isArray(payload.projects)) return null;
@@ -754,8 +955,16 @@ function setProjectSyncStatus(syncStatus: StoredProjectSyncStatus) {
   );
 }
 
-function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot) {
+function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode: ProjectStorageMode = getProjectStorageMode()) {
   if (typeof window === "undefined") return;
+
+  if (storageMode.kind === "local") {
+    if (backendSyncTimer) {
+      window.clearTimeout(backendSyncTimer);
+      backendSyncTimer = null;
+    }
+    return;
+  }
 
   setProjectSyncStatus({
     state: "syncing",
@@ -771,20 +980,26 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot) {
     backendSyncTimer = null;
     const store = safeStore(snapshot);
 
-    fetch(PROJECT_SYNC_ENDPOINT, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        activeProjectId: store.activeProjectId ?? null,
-        projects: store.projects.map(backendProjectFromStored),
-      }),
-    })
+    fetch(
+      PROJECT_SYNC_ENDPOINT,
+      buildProjectApiRequest(
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            activeProjectId: store.activeProjectId ?? null,
+            projects: store.projects.map(backendProjectFromStored),
+          }),
+        },
+        storageMode,
+      ),
+    )
       .then((response) => {
         if (response.status === 401) {
+          backendSyncRejectedForSession = true;
           setProjectSyncStatus({
             state: "local",
-            message: "Project changes are saved locally. Sign in to sync them to a workspace.",
+            message: LOCAL_PROJECT_MODE_MESSAGE,
             updatedAt: nowIso(),
           });
           return;
@@ -839,16 +1054,20 @@ export function writeProjectStore(snapshot: ProjectStoreSnapshot, options: { syn
     return;
   }
 
-  const store = safeStore(snapshot);
+  const storageMode = getProjectStorageMode();
+  const store = safeStore({
+    ...snapshot,
+    syncStatus: storageMode.kind === "local" ? localProjectSyncStatus(snapshot.syncStatus) : snapshot.syncStatus,
+  });
   window.localStorage.setItem(PROJECT_STORE_KEY, JSON.stringify(store));
-  if (options.syncBackend !== false) {
-    scheduleBackendProjectSync(store);
+  if (options.syncBackend !== false && storageMode.kind === "remote") {
+    scheduleBackendProjectSync(store, storageMode);
   }
   window.dispatchEvent(new CustomEvent(PROJECT_STORE_EVENT));
 }
 
-export async function hydrateProjectStoreFromBackend() {
-  const backendProjects = await fetchBackendProjectStore();
+async function hydrateProjectStoreFromBackendOnce(storageMode: RemoteProjectStorageMode) {
+  const backendProjects = await fetchBackendProjectStore(storageMode);
   if (!backendProjects) return;
   const currentStore = readProjectStore();
   let conflictDetected = false;
@@ -893,6 +1112,17 @@ export async function hydrateProjectStoreFromBackend() {
     },
     { syncBackend: false },
   );
+}
+
+export async function hydrateProjectStoreFromBackend() {
+  const storageMode = getProjectStorageMode();
+  if (storageMode.kind === "local") return;
+
+  if (!backendHydrationPromise) {
+    backendHydrationPromise = hydrateProjectStoreFromBackendOnce(storageMode);
+  }
+
+  return backendHydrationPromise;
 }
 
 export function resetProjectStore() {
@@ -974,9 +1204,13 @@ export function deleteStoredProposalDraft(draftId: string) {
 }
 
 export function getProjectSyncStatus(snapshot: ProjectStoreSnapshot = readProjectStore()) {
+  if (getProjectStorageMode().kind === "local") {
+    return localProjectSyncStatus(snapshot.syncStatus);
+  }
+
   return snapshot.syncStatus ?? {
     state: "local",
-    message: "Project data is stored locally.",
+    message: LOCAL_PROJECT_MODE_MESSAGE,
     updatedAt: nowIso(),
   };
 }
@@ -1094,6 +1328,7 @@ function createWorkflowProject(input: {
   compareRuns?: StoredCompareRun[];
   proposal?: StoredProjectProposal;
   requirements?: StoredRequirementRecord[];
+  recommendationEvidence?: StoredRecommendationEvidence;
   workflow: StoredWorkflowState;
 }) {
   const timestamp = nowIso();
@@ -1114,6 +1349,7 @@ function createWorkflowProject(input: {
     compareRuns: input.compareRuns,
     proposal: input.proposal,
     requirements: input.requirements,
+    recommendationEvidence: input.recommendationEvidence,
     workflow: input.workflow,
   } satisfies StoredProject;
 }
@@ -1231,6 +1467,65 @@ export function saveProductSelectionToCurrentProject(selection: StoredProductSel
   }
 
   return saveProductSelectionToProject(project.id, selection);
+}
+
+export function saveRecommendationEvidenceToProject(
+  evidence: StoredRecommendationEvidence,
+  selection?: StoredProductSelection,
+) {
+  const timestamp = nowIso();
+  const snapshot = readProjectStore();
+  const existing = getCurrentWorkflowProject(snapshot);
+  const normalizedSelection = selection ? normalizeProductSelections([selection])[0] ?? selection : null;
+  const productSelections = normalizedSelection
+    ? [
+        normalizedSelection,
+        ...((existing?.productSelections ?? []).filter((item) => item.sku !== normalizedSelection.sku)),
+      ].slice(0, 20)
+    : existing?.productSelections;
+  const status: StatusVariant =
+    evidence.quoteSafetyStatus === "quote-ready"
+      ? "recommended"
+      : evidence.quoteSafetyStatus === "do-not-quote-yet"
+        ? "caution"
+        : "alternative";
+  const workflow: StoredWorkflowState = {
+    source: "Product Pitch",
+    lastStep: "Recommendation evidence saved",
+    nextRoute: routeCatalogByKey.proposal.path,
+    updatedAt: timestamp,
+  };
+  const normalizedEvidence = normalizeRecommendationEvidence({
+    ...evidence,
+    updatedAt: timestamp,
+    source: evidence.source || "Product Pitch",
+  }) ?? evidence;
+
+  const project = existing
+    ? {
+        ...existing,
+        stage: "Finder" as const,
+        status,
+        updated: "Just now",
+        resumeTo: routeCatalogByKey.productPitch.path,
+        updatedAt: timestamp,
+        productSelections,
+        recommendationEvidence: normalizedEvidence,
+        workflow,
+      }
+    : createWorkflowProject({
+        name: normalizedSelection
+          ? `${normalizedSelection.sku} Product Pitch`
+          : evidence.productDirection || "Product Pitch Direction",
+        stage: "Finder",
+        status,
+        resumeTo: routeCatalogByKey.productPitch.path,
+        productSelections: normalizedSelection ? [normalizedSelection] : undefined,
+        recommendationEvidence: normalizedEvidence,
+        workflow,
+      });
+
+  return upsertStoredProject(project);
 }
 
 export function saveIngestAnalysisToProject(

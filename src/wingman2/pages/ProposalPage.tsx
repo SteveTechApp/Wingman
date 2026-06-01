@@ -85,7 +85,7 @@ function readDiscoveryBrief(project: StoredProject | null) {
     projectTitle: String(roomModel.roomType || project.name || "Project proposal"),
     summary: String(brief?.inference?.summary || "No discovery brief has been saved to this project yet."),
     roomSize: String(roomModel.roomSize || "Not confirmed"),
-    displays: String(roomModel.displayArrangement || "Not confirmed"),
+    displays: String(roomModel.displayArrangement || roomModel.displays || roomModel.displayBehaviour || "Not confirmed"),
     displayCount: String(roomModel.displayCount || ""),
     displayBehaviour: String(roomModel.displayBehaviour || ""),
     sourceCount: String(roomModel.sourceCount || ""),
@@ -112,7 +112,14 @@ export function ProposalPage() {
     const ingestUnknowns = project?.ingest?.unknowns ?? [];
     const compareRun = project?.compareRuns?.[0] ?? null;
     const compareWarnings = compareRun?.warnings ?? [];
-    const assumptions = [...ingestUnknowns, ...compareWarnings].slice(0, 6);
+    const recommendationEvidence = project?.recommendationEvidence ?? project?.discoveryBrief?.recommendationEvidence;
+    const evidenceWarnings = recommendationEvidence
+      ? [
+          recommendationEvidence.quoteSafetyMessage,
+          ...recommendationEvidence.missingInformation.map((item) => `Missing for quote: ${item}`),
+        ]
+      : [];
+    const assumptions = [...ingestUnknowns, ...compareWarnings, ...evidenceWarnings].slice(0, 8);
 
     return {
       project,
@@ -121,6 +128,7 @@ export function ProposalPage() {
       profile,
       ingest: project?.ingest,
       compareRun,
+      recommendationEvidence,
       assumptions: assumptions.length ? assumptions : ["Validate final product specifications, accessories, firmware notes, lifecycle, and regional suitability before issue."],
       hasLiveContext: Boolean(project),
     };
@@ -204,9 +212,19 @@ export function ProposalPage() {
       outputPurpose: salesReadiness.outputPurpose,
       governedDependencies: salesReadiness.governedDependencies,
       bomRows,
-      evidence: salesReadiness.evidence,
-      repGuidance: [proposalCoach.playback, proposalCoach.nextAction, ...salesReadiness.repGuidance].slice(0, 8),
-      governanceWarnings: salesReadiness.governanceWarnings,
+      evidence: Array.from(new Set([...salesReadiness.evidence, ...(context.recommendationEvidence?.evidenceUsed ?? [])])),
+      repGuidance: [
+        proposalCoach.playback,
+        proposalCoach.nextAction,
+        ...(context.recommendationEvidence?.internalGuidance ?? []),
+        ...salesReadiness.repGuidance,
+      ].slice(0, 10),
+      governanceWarnings: Array.from(new Set([
+        ...(context.recommendationEvidence?.quoteSafetyStatus === "do-not-quote-yet"
+          ? [context.recommendationEvidence.quoteSafetyMessage]
+          : []),
+        ...salesReadiness.governanceWarnings,
+      ])),
       validationNotes: salesReadiness.validationNotes,
       visualBlocks: proposalCoach.visualBlocks,
       readinessScore: salesReadiness.readinessScore,
@@ -218,7 +236,7 @@ export function ProposalPage() {
       contactPhone: context.profile.phone,
       updatedAt: new Date().toISOString(),
     }),
-    [bomRows, context.assumptions, context.discovery.projectTitle, context.discovery.summary, context.products, context.profile, proposalCoach, salesReadiness, sections],
+    [bomRows, context.assumptions, context.discovery.projectTitle, context.discovery.summary, context.products, context.profile, context.recommendationEvidence, proposalCoach, salesReadiness, sections],
   );
 
   useEffect(() => {
@@ -531,6 +549,12 @@ export function ProposalPage() {
               <details className="wm-decision-details lg:col-span-2">
                 <summary>Evidence basis</summary>
                 <div className="mt-2 grid gap-2 text-sm leading-6 text-slate-700 md:grid-cols-2">
+                  {context.recommendationEvidence ? (
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-amber-950">
+                      <p className="font-black">Quote safety: {context.recommendationEvidence.quoteSafetyStatus === "quote-ready" ? "Quote-ready draft" : context.recommendationEvidence.quoteSafetyStatus === "validate-before-quote" ? "Validate before quote" : "Do not quote yet"}</p>
+                      <p className="mt-1">{context.recommendationEvidence.quoteSafetyMessage}</p>
+                    </div>
+                  ) : null}
                   {salesReadiness.evidence.slice(0, 8).map((item) => (
                     <div key={item} className="rounded-2xl border border-slate-200 bg-white p-3">
                       {item}

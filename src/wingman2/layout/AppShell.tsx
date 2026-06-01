@@ -256,33 +256,6 @@ export function AppShell({ children }: AppShellProps) {
             </NavLink>
           ))}
         </nav>
-
-        <button type="button" className="wingman-expert-handoff-card" onClick={() => setGuruOpen(true)}>
-          <img
-            src={guruBotIcon}
-            alt=""
-            className="wingman-expert-handoff-avatar"
-            width={36}
-            height={36}
-            decoding="async"
-            loading="eager"
-          />
-          <span>
-            <strong>Expert handoff</strong>
-            <small>Get WyreStorm support</small>
-          </span>
-        </button>
-
-        <NavLink
-          to="/wingman/profile"
-          className={({ isActive }) =>
-            ["wingman-settings-link", isActive ? "wingman-settings-link-active" : ""].filter(Boolean).join(" ")
-          }
-          onClick={() => setMobileNavOpen(false)}
-        >
-          <Settings className="wingman-nav-icon" />
-          <span>Settings</span>
-        </NavLink>
       </aside>
 
       <div

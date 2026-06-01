@@ -26,7 +26,8 @@ export function WingmanPageFrame({
 
   return (
     <section className={classes}>
-      <div className="wm-page-frame__main">{children}</div>
+      <div className="wm-page-frame__main">
+        {children}</div>
       {rightRail ? <aside className="wm-page-frame__rail">{rightRail}</aside> : null}
     </section>
   );

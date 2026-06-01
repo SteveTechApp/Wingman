@@ -37,7 +37,7 @@ export type WingmanRouteKey =
   | "proposal"
   | "support"
   | "intelligence"
-  | "profile";
+  | "profile" | "visualStudio";
 
 type RouteManifestEntry = {
   key: WingmanRouteKey;
@@ -72,6 +72,7 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   support: LifeBuoy,
   intelligence: Database,
   profile: Settings,
+  visualStudio: Workflow,
 };
 
 const manifest = routeManifest as RouteManifestEntry[];
