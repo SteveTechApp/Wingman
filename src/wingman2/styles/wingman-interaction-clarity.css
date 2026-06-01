@@ -1,0 +1,161 @@
+/* Wingman interaction clarity layer.
+   Purpose: make static intelligence read-only and make real actions visibly clickable. */
+
+.wm-opportunity-signal-card,
+.wm-signal-path-navigator article,
+.wm-ai-rail-card,
+.wm-ai-rail-mini,
+.wm-ai-evidence-list {
+  cursor: default !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.wm-opportunity-signal-card,
+.wm-signal-path-navigator article {
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(248, 250, 252, 0.64)) !important;
+}
+
+.wm-opportunity-signal-card:hover,
+.wm-signal-path-navigator article:hover,
+.wm-ai-rail-card:hover,
+.wm-ai-rail-mini:hover,
+.wm-ai-evidence-list:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.wm-signal-path-arrow {
+  display: none !important;
+}
+
+.wm-signal-path-navigator article {
+  position: relative !important;
+}
+
+.wm-signal-path-navigator article:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: -13px;
+  top: 50%;
+  width: 14px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.28);
+  transform: translateY(-50%);
+}
+
+.wm-journey-progress {
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: none !important;
+}
+
+.wm-journey-step {
+  min-height: 36px !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+.wm-journey-step-copy small {
+  display: none !important;
+}
+
+.wm-dashboard-card {
+  position: relative !important;
+  cursor: pointer !important;
+  border: 1px solid rgba(14, 165, 233, 0.28) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.08), transparent 14rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98)) !important;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12) !important;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease !important;
+}
+
+.wm-dashboard-card::before {
+  content: "Action";
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  min-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 8px;
+  color: #075985;
+  background: rgba(14, 165, 233, 0.1);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.78;
+}
+
+.wm-dashboard-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(246, 163, 64, 0.46) !important;
+  box-shadow: 0 24px 52px rgba(15, 23, 42, 0.16) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.1), transparent 14rem),
+    linear-gradient(180deg, #ffffff, #fffaf0) !important;
+}
+
+.wm-dashboard-card-arrow {
+  width: 34px !important;
+  height: 34px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #0f172a, #164e63) !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.18) !important;
+}
+
+.wm-dashboard-card:hover .wm-dashboard-card-arrow {
+  background: linear-gradient(135deg, #f6a340, #f59e0b) !important;
+  color: #1a1208 !important;
+}
+
+.wm-opportunity-hero-actions a {
+  min-height: 38px !important;
+  border-radius: 999px !important;
+  padding: 0 16px !important;
+  font-weight: 850 !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1) !important;
+  cursor: pointer !important;
+}
+
+.wm-opportunity-hero-actions a:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.14) !important;
+}
+
+.wm-ai-rail-card,
+.wm-ai-rail-mini,
+.wm-ai-evidence-list {
+  border-color: rgba(148, 163, 184, 0.2) !important;
+  background: rgba(255, 255, 255, 0.64) !important;
+}
+
+.wm-ai-rail-customer-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(20, 36, 56, 0.96)) !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-signal-path-navigator article:not(:last-child)::after {
+    display: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-dashboard-card::before {
+    display: none !important;
+  }
+}

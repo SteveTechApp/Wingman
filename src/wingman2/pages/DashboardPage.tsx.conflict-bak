@@ -220,20 +220,20 @@ export function DashboardPage() {
                 <DashboardCard key={action.path} action={action} />
               ))}
             </div>
+          </section>
 
-            <div className="wm-dashboard-support-inline">
-              <div className="wm-dashboard-section-heading wm-opportunity-section-head">
-                <div>
-                  <p className="wm-dashboard-eyebrow">Supporting intelligence</p>
-                  <h3>Open the right support workspace</h3>
-                </div>
+          <section className="wm-dashboard-section" aria-labelledby="wingman-support-paths-title">
+            <div className="wm-dashboard-section-heading wm-opportunity-section-head">
+              <div>
+                <p className="wm-dashboard-eyebrow">Supporting intelligence</p>
+                <h2 id="wingman-support-paths-title">Open the right support workspace</h2>
               </div>
+            </div>
 
-              <div className="wm-dashboard-grid wm-dashboard-grid-compact">
-                {supportActions.map((action) => (
-                  <DashboardCard key={action.path} action={action} compact />
-                ))}
-              </div>
+            <div className="wm-dashboard-grid wm-dashboard-grid-compact">
+              {supportActions.map((action) => (
+                <DashboardCard key={action.path} action={action} compact />
+              ))}
             </div>
           </section>
         </div>
