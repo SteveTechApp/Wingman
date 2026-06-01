@@ -1,3 +1,4 @@
+
 /* Consolidated Wingman style stack. Keep imported once from src/main.tsx. */
 
 @tailwind base;
@@ -10888,7 +10889,7 @@ table {
 }
 
 .wm-compare-progress-row.is-done > span::after {
-  content: "ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¾ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“" !important;
+  content: "ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“" !important;
   position: absolute !important;
   inset: -4px 0 0 2px !important;
   color: #ffffff !important;
@@ -10907,7 +10908,7 @@ table {
 }
 
 .wm-compare-progress-row.is-failed > span::after {
-  content: "ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¾ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¾ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â" !important;
+  content: "ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â" !important;
   position: absolute !important;
   inset: -6px 0 0 3px !important;
   color: #ffffff !important;
@@ -11538,11 +11539,11 @@ table {
   }
 }
 /* WINGMAN-COACH-PANEL-END */
-
-
-/* WINGMAN CENTRALISED DASHBOARD REDESIGN CSS START
-   Centralised because main.tsx may only import wingman-style-stack.css.
+/* WINGMAN CENTRALISED VISUAL DESIGN LAYER START
+   These rules are intentionally centralised here because src/main.tsx is only allowed
+   to import wingman-style-stack.css and the CSS guard blocks route/page/patch imports.
 */
+
 
 /* ---- Inlined from wingman-ui-redesign.css ---- */
 /* Wingman guided sales intelligence redesign layer.
@@ -13368,613 +13369,1225 @@ table {
   }
 }
 
-/* WINGMAN CENTRALISED DASHBOARD REDESIGN CSS END */
-
-/* WINGMAN DASHBOARD SIMPLIFY START
-   Purpose: simplify Dashboard into a clearer Opportunity Navigator.
-   Hide the heavy diagnostic intelligence blocks and right-side AI rail.
-*/
-
-html[data-wingman-route="dashboard"] .wm-ai-rail,
-html[data-wingman-route="dashboard"] .wm-opportunity-radar,
-html[data-wingman-route="dashboard"] .wm-signal-path-navigator {
-  display: none !important;
-}
-
-/* Make the main Dashboard content reclaim the space previously used by the AI rail */
-html[data-wingman-route="dashboard"] .wm-opportunity-navigator-layout,
-html[data-wingman-route="dashboard"] .wm-opportunity-navigator-shell,
-html[data-wingman-route="dashboard"] .wm-dashboard-layout {
-  grid-template-columns: 1fr !important;
-}
-
-/* Keep the core Dashboard page centred and clean */
-html[data-wingman-route="dashboard"] .wm-opportunity-navigator-page {
-  width: min(100%, 1280px) !important;
-  max-width: 1280px !important;
-  margin: 0 auto !important;
-  gap: 14px !important;
-}
-
-/* Hero should remain the primary orientation point */
-html[data-wingman-route="dashboard"] .wm-opportunity-hero {
-  min-height: 150px !important;
-  padding: 30px !important;
-  border-radius: 28px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-hero h1 {
-  font-size: clamp(2.4rem, 4.6vw, 5rem) !important;
-  line-height: 0.95 !important;
-}
-
-/* Journey strip remains visible but not dominant */
-html[data-wingman-route="dashboard"] .wm-journey-progress {
-  padding: 8px !important;
-  border-radius: 18px !important;
-}
-
-/* Main action cards should become the real working area */
-html[data-wingman-route="dashboard"] .wm-dashboard-section {
-  padding: 18px !important;
-  border-radius: 26px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-section h2 {
-  margin-bottom: 12px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-card {
-  min-height: 112px !important;
-  border-radius: 22px !important;
-  padding: 20px !important;
-}
-
-/* Guru should not sit on top of the Proposal action card */
-html[data-wingman-route="dashboard"] .wingman-guru-fab {
-  right: 34px !important;
-  bottom: 34px !important;
-  transform: scale(0.86) !important;
-}
-
-/* WINGMAN DASHBOARD SIMPLIFY END */
-
-/* WINGMAN DASHBOARD COMMAND TILE SIZE START
-   Purpose: make the single Dashboard action section visibly fuller without returning to heavy diagnostic panels.
-*/
-
-html[data-wingman-route="dashboard"] .wm-opportunity-navigator-page {
-  width: min(100%, 1340px) !important;
-  max-width: 1340px !important;
-  gap: 14px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-hero {
-  min-height: 132px !important;
-  padding: 24px 30px !important;
-  border-radius: 28px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-hero h1 {
-  font-size: clamp(2.35rem, 4.1vw, 4.7rem) !important;
-  line-height: 0.95 !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-hero span {
-  max-width: 1000px !important;
-  font-size: 0.92rem !important;
-  line-height: 1.44 !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-section[aria-labelledby="wingman-next-move-title"] {
-  min-height: 410px !important;
-  padding: 20px !important;
-  border-radius: 28px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-section-heading {
-  margin-bottom: 14px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-section-heading h2 {
-  font-size: 1.28rem !important;
-  line-height: 1.12 !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-section-heading h3 {
-  font-size: 1.08rem !important;
-  line-height: 1.12 !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-eyebrow {
-  font-size: 0.68rem !important;
-  letter-spacing: 0.18em !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 14px !important;
-}
-
-/* Primary tiles */
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card {
-  min-height: 128px !important;
-  padding: 20px !important;
-  border-radius: 24px !important;
-  gap: 15px !important;
-  align-items: center !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-icon {
-  width: 48px !important;
-  height: 48px !important;
-  min-width: 48px !important;
-  border-radius: 18px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-icon svg {
-  width: 24px !important;
-  height: 24px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-copy {
-  gap: 5px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-copy small {
-  font-size: 0.66rem !important;
-  letter-spacing: 0.15em !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-copy strong {
-  font-size: 1.1rem !important;
-  line-height: 1.08 !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-copy span {
-  font-size: 0.86rem !important;
-  line-height: 1.35 !important;
-  display: -webkit-box !important;
-  -webkit-line-clamp: 3 !important;
-  -webkit-box-orient: vertical !important;
-  overflow: hidden !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-arrow {
-  width: 38px !important;
-  height: 38px !important;
-  min-width: 38px !important;
-}
-
-/* Support row sits inside same section, but remains secondary */
-html[data-wingman-route="dashboard"] .wm-dashboard-support-inline {
-  margin-top: 18px !important;
-  padding-top: 18px !important;
-  border-top: 1px solid rgba(148, 163, 184, 0.22) !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card {
-  min-height: 104px !important;
-  padding: 16px 18px !important;
-  border-radius: 22px !important;
-  gap: 13px !important;
-  align-items: center !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-icon {
-  width: 42px !important;
-  height: 42px !important;
-  min-width: 42px !important;
-  border-radius: 16px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-icon svg {
-  width: 21px !important;
-  height: 21px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-copy small {
-  font-size: 0.62rem !important;
-  letter-spacing: 0.14em !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-copy strong {
-  font-size: 0.98rem !important;
-  line-height: 1.08 !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-copy span {
-  font-size: 0.8rem !important;
-  line-height: 1.3 !important;
-  display: -webkit-box !important;
-  -webkit-line-clamp: 2 !important;
-  -webkit-box-orient: vertical !important;
-  overflow: hidden !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-card:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 22px 44px rgba(15, 23, 42, 0.16) !important;
-}
-
-/* Move Guru out of the visual centre of the working area */
-html[data-wingman-route="dashboard"] .wingman-guru-fab {
-  right: 34px !important;
-  bottom: 30px !important;
-  transform: scale(0.82) !important;
-  opacity: 0.86 !important;
-}
-
-@media (max-width: 1280px) {
-  html[data-wingman-route="dashboard"] .wm-opportunity-action-grid,
-  html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  html[data-wingman-route="dashboard"] .wm-dashboard-section[aria-labelledby="wingman-next-move-title"] {
-    min-height: auto !important;
-  }
-}
-
-@media (max-width: 760px) {
-  html[data-wingman-route="dashboard"] .wm-opportunity-action-grid,
-  html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* WINGMAN DASHBOARD COMMAND TILE SIZE END */
-
-/* WINGMAN DASHBOARD CARD TEXT FIT START
-   Purpose: make Dashboard action-card text readable while keeping one-screen layout.
-*/
-
-/* Tighten surrounding space to compensate for taller cards */
-html[data-wingman-route="dashboard"] .wm-opportunity-navigator-page {
+/* ---- Inlined from wingman-discovery-radar.css ---- */
+.wm-simple-discovery-shell {
   gap: 10px !important;
+  padding: 12px !important;
 }
 
-html[data-wingman-route="dashboard"] .wm-dashboard-section[aria-labelledby="wingman-next-move-title"] {
-  min-height: 435px !important;
-  padding: 16px !important;
+.wm-simple-discovery-head {
+  min-height: 94px !important;
+  margin-bottom: 0 !important;
+  padding: 12px 14px !important;
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,251,255,0.9)) !important;
 }
 
-html[data-wingman-route="dashboard"] .wm-dashboard-section-heading {
-  margin-bottom: 9px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact {
-  gap: 9px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-support-inline {
-  margin-top: 10px !important;
-  padding-top: 10px !important;
-}
-
-/* Primary action cards: taller, but slightly tighter inside */
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card {
-  min-height: 148px !important;
-  padding: 18px 16px !important;
-  gap: 12px !important;
-  align-items: flex-start !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-copy {
-  gap: 5px !important;
-  min-width: 0 !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-copy strong {
-  font-size: 1.08rem !important;
-  line-height: 1.12 !important;
-  white-space: normal !important;
-  overflow: visible !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-copy span {
-  font-size: 0.84rem !important;
-  line-height: 1.32 !important;
-  -webkit-line-clamp: 4 !important;
-}
-
-/* Secondary support cards: taller enough to avoid harsh truncation */
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card {
-  min-height: 118px !important;
-  padding: 15px 15px !important;
-  gap: 11px !important;
-  align-items: flex-start !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-copy {
-  gap: 4px !important;
-  min-width: 0 !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-copy strong {
-  font-size: 0.96rem !important;
-  line-height: 1.12 !important;
-  white-space: normal !important;
-  overflow: visible !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-copy span {
-  font-size: 0.78rem !important;
-  line-height: 1.3 !important;
-  -webkit-line-clamp: 3 !important;
-}
-
-/* Keep arrows compact so they do not steal text width */
-html[data-wingman-route="dashboard"] .wm-dashboard-card-arrow {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-}
-
-/* Reduce excess lower blank space */
-html[data-wingman-route="dashboard"] .wingman-guru-fab {
-  bottom: 22px !important;
-  transform: scale(0.78) !important;
-}
-
-/* WINGMAN DASHBOARD CARD TEXT FIT END */
-
-/* WINGMAN DASHBOARD EQUAL BUTTON SIZE START
-   Purpose: make all Dashboard action tiles the same size.
-*/
-
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact {
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 10px !important;
-}
-
-/* Same card sizing for primary and supporting tiles */
-html[data-wingman-route="dashboard"] .wm-dashboard-card,
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card {
-  min-height: 142px !important;
-  height: 142px !important;
-  padding: 17px 16px !important;
-  border-radius: 22px !important;
-  gap: 12px !important;
-  align-items: flex-start !important;
-}
-
-/* Same icon size */
-html[data-wingman-route="dashboard"] .wm-dashboard-card-icon,
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-icon,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-icon {
-  width: 44px !important;
-  height: 44px !important;
-  min-width: 44px !important;
-  border-radius: 16px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-card-icon svg,
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-icon svg,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-icon svg {
-  width: 22px !important;
-  height: 22px !important;
-}
-
-/* Same copy layout */
-html[data-wingman-route="dashboard"] .wm-dashboard-card-copy,
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-copy,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-copy {
-  gap: 4px !important;
-  min-width: 0 !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-card-copy small,
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-copy small,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-copy small {
-  font-size: 0.62rem !important;
-  letter-spacing: 0.14em !important;
-  line-height: 1.1 !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-card-copy strong,
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-copy strong,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-copy strong {
-  font-size: 1rem !important;
-  line-height: 1.12 !important;
-  white-space: normal !important;
-  overflow: visible !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-card-copy span,
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-copy span,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-copy span {
-  font-size: 0.78rem !important;
-  line-height: 1.3 !important;
-  display: -webkit-box !important;
-  -webkit-line-clamp: 3 !important;
-  -webkit-box-orient: vertical !important;
-  overflow: hidden !important;
-}
-
-/* Same arrow size */
-html[data-wingman-route="dashboard"] .wm-dashboard-card-arrow,
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-arrow,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-arrow {
-  width: 34px !important;
-  height: 34px !important;
-  min-width: 34px !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-card-arrow svg,
-html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card-arrow svg,
-html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card-arrow svg {
-  width: 17px !important;
-  height: 17px !important;
-}
-
-/* Keep the support row visually part of the same section */
-html[data-wingman-route="dashboard"] .wm-dashboard-support-inline {
-  margin-top: 10px !important;
-  padding-top: 10px !important;
-}
-
-/* Allow the section to contain equal-height tiles without creating excessive scroll */
-html[data-wingman-route="dashboard"] .wm-dashboard-section[aria-labelledby="wingman-next-move-title"] {
-  min-height: 455px !important;
-  padding: 16px !important;
-}
-
-/* Responsive fallbacks */
-@media (max-width: 1280px) {
-  html[data-wingman-route="dashboard"] .wm-opportunity-action-grid,
-  html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 760px) {
-  html[data-wingman-route="dashboard"] .wm-opportunity-action-grid,
-  html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact {
-    grid-template-columns: 1fr !important;
-  }
-
-  html[data-wingman-route="dashboard"] .wm-dashboard-card,
-  html[data-wingman-route="dashboard"] .wm-opportunity-action-grid .wm-dashboard-card,
-  html[data-wingman-route="dashboard"] .wm-dashboard-grid-compact .wm-dashboard-card {
-    height: auto !important;
-    min-height: 128px !important;
-  }
-}
-
-/* WINGMAN DASHBOARD EQUAL BUTTON SIZE END */
-
-/* WINGMAN FINDER STABLE RECOVERY START
-   Purpose: remove broken forced Finder grids and restore a readable full-width Product Finder.
-*/
-
-html[data-wingman-route="finder"] .wingman-page-host {
-  display: block !important;
-  width: 100% !important;
-  padding: 12px 18px 22px !important;
-}
-
-html[data-wingman-route="finder"] .wm-finder-redesign-page {
-  width: min(100%, 1480px) !important;
-  max-width: 1480px !important;
-  margin: 0 auto !important;
-  display: grid !important;
-  gap: 14px !important;
-}
-
-html[data-wingman-route="finder"] .wingman-page-hero {
-  width: 100% !important;
-  min-height: 96px !important;
-  padding: 16px 20px !important;
-  border-radius: 22px !important;
-}
-
-html[data-wingman-route="finder"] .wingman-page-hero .wingman-display {
-  font-size: clamp(2rem, 3vw, 3.2rem) !important;
+.wm-simple-discovery-head h1 {
+  margin-top: 3px !important;
+  font-size: clamp(1.46rem, 2.15vw, 2.18rem) !important;
   line-height: 1 !important;
 }
 
-html[data-wingman-route="finder"] .wingman-section-card {
-  width: 100% !important;
-  max-width: none !important;
-  border-radius: 24px !important;
-  overflow: visible !important;
+.wm-simple-discovery-head span {
+  max-width: 760px !important;
+  margin-top: 6px !important;
+  font-size: 0.8rem !important;
+  line-height: 1.36 !important;
 }
 
-html[data-wingman-route="finder"] .wingman-section-card-body {
-  padding: 14px !important;
+.wm-simple-discovery-head-actions > span,
+.wm-simple-discovery-head-actions a {
+  min-height: 31px !important;
+  padding: 0 11px !important;
+  font-size: 0.72rem !important;
 }
 
-html[data-wingman-route="finder"] .wingman-section-card-body > .grid {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  gap: 14px !important;
+.wm-simple-discovery-steps {
+  gap: 6px !important;
+  margin-bottom: 0 !important;
 }
 
-html[data-wingman-route="finder"] .wm-finder-quickstart {
-  width: 100% !important;
-  border-radius: 18px !important;
-  padding: 14px !important;
+.wm-simple-discovery-steps button {
+  min-height: 36px !important;
+  gap: 6px !important;
+  border-radius: 14px !important;
+  padding: 5px 7px !important;
+  font-size: 0.72rem !important;
+  white-space: nowrap !important;
 }
 
-html[data-wingman-route="finder"] .wm-coach-panel {
-  width: 100% !important;
-  border-radius: 18px !important;
+.wm-simple-discovery-steps button span {
+  width: 22px !important;
+  height: 22px !important;
+  font-size: 0.68rem !important;
 }
 
-html[data-wingman-route="finder"] .wm-coach-funnel,
-html[data-wingman-route="finder"] .wm-coach-grid,
-html[data-wingman-route="finder"] .wm-coach-localization,
-html[data-wingman-route="finder"] .wm-coach-visuals {
-  display: none !important;
-}
-
-html[data-wingman-route="finder"] .wm-finder-workbench {
-  display: grid !important;
-  grid-template-columns: minmax(520px, 0.92fr) minmax(620px, 1.08fr) !important;
-  gap: 14px !important;
-  align-items: start !important;
-}
-
-html[data-wingman-route="finder"] .wm-finder-filter-panel {
-  position: static !important;
-  max-height: none !important;
-  overflow: visible !important;
-  display: grid !important;
-  gap: 12px !important;
-  padding: 14px !important;
-  border-radius: 20px !important;
-}
-
-html[data-wingman-route="finder"] .wm-finder-filter-group {
-  padding: 13px !important;
-  border-radius: 18px !important;
-}
-
-html[data-wingman-route="finder"] .wm-finder-filter-group-body,
-html[data-wingman-route="finder"] .wm-finder-filter-group-body-start {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+.wm-simple-discovery-body {
+  grid-template-columns: minmax(0, 1fr) minmax(276px, 318px) !important;
   gap: 10px !important;
 }
 
-html[data-wingman-route="finder"] .wm-finder-filter-group-start .wm-finder-technology-field,
-html[data-wingman-route="finder"] .wm-finder-filter-group-start .wm-finder-search-field {
-  grid-column: 1 / -1 !important;
-}
-
-html[data-wingman-route="finder"] .wm-finder-results-panel {
-  min-width: 0 !important;
+.wm-simple-discovery-main {
+  gap: 10px !important;
+  padding: 10px !important;
   border-radius: 20px !important;
 }
 
-html[data-wingman-route="finder"] .wm-finder-workbench > aside:last-child {
-  min-width: 0 !important;
+.wm-simple-guidance {
+  position: relative !important;
+  min-height: 72px !important;
+  padding: 11px 12px 11px 48px !important;
+  overflow: hidden !important;
+  border-color: rgba(246, 163, 64, 0.3) !important;
+  background: linear-gradient(135deg, rgba(255,247,237,0.96), rgba(255,255,255,0.9)) !important;
 }
 
-html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.right-5 {
-  right: 24px !important;
-  bottom: 96px !important;
-  max-width: 360px !important;
+.wm-simple-guidance::before {
+  content: "Ask next";
+  position: absolute;
+  left: 11px;
+  top: 11px;
+  color: #b45309;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-html[data-wingman-route="finder"] .wingman-guru-fab {
-  right: 24px !important;
-  bottom: 24px !important;
-  transform: scale(0.84) !important;
+.wm-simple-guidance > svg {
+  position: absolute !important;
+  left: 18px !important;
+  top: 31px !important;
+  color: #f59e0b !important;
 }
 
-@media (max-width: 1280px) {
-  html[data-wingman-route="finder"] .wm-finder-workbench,
-  html[data-wingman-route="finder"] .wm-finder-filter-group-body,
-  html[data-wingman-route="finder"] .wm-finder-filter-group-body-start {
+.wm-simple-guidance p {
+  font-size: 0.6rem !important;
+  letter-spacing: 0.14em !important;
+}
+
+.wm-simple-guidance span {
+  margin-top: 3px !important;
+  font-size: 0.9rem !important;
+  line-height: 1.26 !important;
+}
+
+.wm-simple-guidance small {
+  margin-top: 3px !important;
+  font-size: 0.72rem !important;
+  line-height: 1.3 !important;
+}
+
+.wm-simple-step {
+  gap: 10px !important;
+  padding: 12px !important;
+  border-radius: 20px !important;
+}
+
+.wm-simple-step > div:first-child p {
+  font-size: 0.6rem !important;
+  letter-spacing: 0.14em !important;
+}
+
+.wm-simple-step h2 {
+  margin: 0 !important;
+  font-size: clamp(1.05rem, 1.4vw, 1.36rem) !important;
+  line-height: 1.08 !important;
+}
+
+.wm-simple-step > div:first-child span {
+  margin-top: 2px !important;
+  font-size: 0.76rem !important;
+  line-height: 1.33 !important;
+}
+
+.wm-simple-discovery-grid {
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)) !important;
+  gap: 7px !important;
+}
+
+.wm-simple-discovery-grid.compact {
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)) !important;
+}
+
+.wm-simple-discovery-grid button {
+  min-height: 68px !important;
+  border-radius: 15px !important;
+  padding: 9px !important;
+}
+
+.wm-simple-discovery-grid button.is-active {
+  box-shadow: inset 3px 0 0 var(--wm-orange), 0 10px 24px rgba(246, 163, 64, 0.12) !important;
+}
+
+.wm-simple-two-col {
+  gap: 8px !important;
+}
+
+.wm-simple-pill-group,
+.wm-simple-option-section,
+.wm-simple-inference-panel,
+.wm-simple-alert,
+.wm-simple-model-panel {
+  padding: 10px !important;
+  border-radius: 18px !important;
+}
+
+.wm-simple-pill-group button {
+  min-height: 30px !important;
+  border-radius: 999px !important;
+  padding: 0 9px !important;
+  font-size: 0.68rem !important;
+  text-align: center !important;
+}
+
+.wm-simple-alert {
+  display: grid !important;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr) !important;
+  gap: 10px !important;
+}
+
+.wm-simple-alert h3,
+.wm-simple-review-grid h3 {
+  margin: 3px 0 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.18 !important;
+}
+
+.wm-simple-alert ul,
+.wm-simple-review-grid ul {
+  margin-top: 5px !important;
+  font-size: 0.7rem !important;
+  line-height: 1.35 !important;
+}
+
+.wm-simple-review-grid {
+  gap: 8px !important;
+}
+
+.wm-simple-review-grid > div {
+  padding: 10px !important;
+  border-radius: 16px !important;
+}
+
+.wm-simple-notes {
+  min-height: 72px !important;
+  padding: 10px !important;
+  font-size: 0.8rem !important;
+}
+
+.wm-simple-discovery-footer button,
+.wm-simple-review-actions button {
+  min-height: 31px !important;
+  padding: 0 10px !important;
+  font-size: 0.72rem !important;
+}
+
+.wm-simple-model-panel {
+  top: 8px !important;
+  gap: 9px !important;
+  max-height: calc(100vh - 88px) !important;
+  overflow: auto !important;
+}
+
+.wm-simple-model-lines {
+  gap: 6px !important;
+}
+
+.wm-simple-model-lines > div {
+  display: grid !important;
+  grid-template-columns: minmax(82px, 0.8fr) minmax(0, 1.2fr) !important;
+  gap: 8px !important;
+  align-items: start !important;
+  padding-bottom: 5px !important;
+}
+
+.wm-simple-model-lines p {
+  font-size: 0.58rem !important;
+  letter-spacing: 0.12em !important;
+}
+
+.wm-simple-model-lines strong {
+  font-size: 0.72rem !important;
+  line-height: 1.24 !important;
+  text-align: right !important;
+}
+
+.wm-simple-missing {
+  border-radius: 16px !important;
+  border: 1px solid rgba(246, 163, 64, 0.2) !important;
+  background: rgba(255,247,237,0.72) !important;
+  padding: 9px !important;
+}
+
+.wm-simple-missing ul {
+  margin-top: 6px !important;
+  font-size: 0.68rem !important;
+  line-height: 1.34 !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-simple-discovery-body {
     grid-template-columns: 1fr !important;
+  }
+
+  .wm-simple-model-panel {
+    position: static !important;
+    max-height: none !important;
   }
 }
 
-/* WINGMAN FINDER STABLE RECOVERY END */
+@media (max-width: 760px) {
+  .wm-simple-discovery-head {
+    min-height: auto !important;
+  }
+
+  .wm-simple-discovery-steps,
+  .wm-simple-two-col,
+  .wm-simple-alert,
+  .wm-simple-review-grid,
+  .wm-simple-model-lines > div {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-simple-model-lines strong {
+    text-align: left !important;
+  }
+}
+
+/* ---- Inlined from wingman-live-capture-guru.css ---- */
+/* Live Capture + Guru Reaction refinement for Call Cards.
+   Visual-only pass: keeps call capture, speech capture, interpretation and handoff logic intact. */
+
+.cca-page {
+  padding: 8px 10px !important;
+  background:
+    radial-gradient(circle at 14% 12%, rgba(14, 165, 233, 0.13), transparent 22rem),
+    radial-gradient(circle at 86% 6%, rgba(246, 163, 64, 0.18), transparent 20rem),
+    linear-gradient(180deg, #edf4fa 0%, #f8fafc 42%, #eef3f8 100%) !important;
+}
+
+.cca-shell {
+  width: min(1580px, 100%) !important;
+  min-height: calc(100vh - 78px) !important;
+  gap: 8px !important;
+  grid-template-rows: auto auto minmax(0, 1fr) auto !important;
+}
+
+.cca-header,
+.cca-commandBar,
+.cca-mainCapture,
+.cca-sideCoach,
+.cca-handoffRail {
+  border-color: rgba(148, 163, 184, 0.2) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+.cca-header {
+  min-height: 70px !important;
+  border-radius: 24px !important;
+  padding: 12px 16px !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.92)) !important;
+  box-shadow: 0 22px 46px rgba(15, 23, 42, 0.12) !important;
+}
+
+.cca-header h1 {
+  font-size: clamp(1.28rem, 1.9vw, 1.85rem) !important;
+  letter-spacing: -0.045em !important;
+}
+
+.cca-header span {
+  font-size: 0.76rem !important;
+  line-height: 1.25 !important;
+}
+
+.cca-headerActions button {
+  min-height: 30px !important;
+  background: rgba(248, 250, 252, 0.78) !important;
+}
+
+.cca-commandBar {
+  grid-template-columns: minmax(0, 1fr) 300px !important;
+  gap: 8px !important;
+  padding: 9px !important;
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08) !important;
+}
+
+.cca-typeStrip {
+  gap: 7px !important;
+}
+
+.cca-typeStrip button {
+  min-height: 54px !important;
+  border-radius: 16px !important;
+  padding: 9px 10px !important;
+  background: linear-gradient(180deg, #ffffff, #f8fafc) !important;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
+}
+
+.cca-typeStrip button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08) !important;
+}
+
+.cca-typeStrip button.is-selected {
+  border-color: rgba(246, 163, 64, 0.9) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.16), transparent 10rem),
+    linear-gradient(180deg, #fff7ed, #ffffff) !important;
+  box-shadow: inset 4px 0 0 #f6a340, 0 12px 26px rgba(246, 163, 64, 0.13) !important;
+}
+
+.cca-typeStrip strong {
+  font-size: 0.78rem !important;
+}
+
+.cca-typeStrip span {
+  display: none !important;
+}
+
+.cca-compactSettings {
+  gap: 8px !important;
+}
+
+.cca-compactSettings select,
+.cca-field input {
+  height: 36px !important;
+  border-radius: 999px !important;
+  font-size: 0.8rem !important;
+}
+
+.cca-liveWorkspace {
+  min-height: min(700px, calc(100vh - 264px)) !important;
+  grid-template-columns: minmax(0, 1.62fr) minmax(330px, 0.38fr) !important;
+  gap: 10px !important;
+}
+
+.cca-mainCapture {
+  position: relative !important;
+  display: grid !important;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto !important;
+  gap: 12px !important;
+  padding: 16px !important;
+  border-radius: 28px !important;
+  border-color: rgba(14, 165, 233, 0.24) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.1), transparent 24rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 248, 252, 0.94)) !important;
+  box-shadow: 0 24px 54px rgba(15, 23, 42, 0.12) !important;
+}
+
+.cca-mainCapture::before {
+  content: "Live Capture";
+  position: absolute;
+  right: 16px;
+  top: 14px;
+  z-index: 1;
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 12px;
+  color: #075985;
+  background: rgba(14, 165, 233, 0.12);
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cca-openerCard {
+  padding: 14px 140px 14px 16px !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(246, 163, 64, 0.34) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.16), transparent 14rem),
+    linear-gradient(180deg, #fffaf0, #fffdf7) !important;
+  box-shadow: 0 10px 24px rgba(146, 64, 14, 0.08) !important;
+}
+
+.cca-openerCard span {
+  font-size: 0.6rem !important;
+  letter-spacing: 0.14em !important;
+}
+
+.cca-openerCard strong {
+  margin-top: 6px !important;
+  font-size: 0.98rem !important;
+  line-height: 1.24 !important;
+}
+
+.cca-openerCard small {
+  margin-top: 5px !important;
+  font-size: 0.76rem !important;
+  color: #64748b !important;
+}
+
+/* Prominent live-call controls */
+
+.cca-micBar {
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr) !important;
+  gap: 12px !important;
+  margin-top: 2px !important;
+}
+
+.cca-openMic,
+.cca-captureMic {
+  position: relative !important;
+  min-height: 58px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 18px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  font-size: 1rem !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.015em !important;
+  text-transform: none !important;
+  box-shadow:
+    0 14px 30px rgba(15, 23, 42, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease,
+    border-color 160ms ease !important;
+  overflow: hidden !important;
+}
+
+.cca-openMic::before,
+.cca-captureMic::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0.02)
+  ) !important;
+}
+
+.cca-openMic:hover,
+.cca-captureMic:hover {
+  transform: translateY(-2px) !important;
+  filter: brightness(1.04) !important;
+}
+
+.cca-openMic:active,
+.cca-captureMic:active {
+  transform: translateY(0) scale(0.99) !important;
+}
+
+.cca-openMic {
+  border-color: rgba(8, 47, 73, 0.8) !important;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(96, 165, 250, 0.18), transparent 9rem),
+    linear-gradient(135deg, #07111f 0%, #0f2941 55%, #164e63 100%) !important;
+  box-shadow:
+    0 18px 34px rgba(8, 17, 31, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+}
+
+.cca-openMic:hover {
+  box-shadow:
+    0 22px 40px rgba(8, 17, 31, 0.3),
+    0 0 0 4px rgba(14, 165, 233, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+.cca-captureMic {
+  border-color: rgba(29, 78, 216, 0.85) !important;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.18), transparent 8rem),
+    linear-gradient(135deg, #1d4ed8 0%, #2563eb 45%, #0284c7 100%) !important;
+  box-shadow:
+    0 18px 34px rgba(29, 78, 216, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+.cca-captureMic:hover {
+  box-shadow:
+    0 22px 40px rgba(29, 78, 216, 0.3),
+    0 0 0 4px rgba(59, 130, 246, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.cca-openMic.is-listening,
+.cca-captureMic.is-listening {
+  border-color: rgba(153, 27, 27, 0.85) !important;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.14), transparent 8rem),
+    linear-gradient(135deg, #dc2626 0%, #b91c1c 52%, #7f1d1d 100%) !important;
+  box-shadow:
+    0 20px 40px rgba(127, 29, 29, 0.34),
+    0 0 0 5px rgba(220, 38, 38, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+.cca-openMic.is-listening::after,
+.cca-captureMic.is-listening::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 16px !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  animation: ccaMicPulse 1.4s infinite !important;
+}
+
+@keyframes ccaMicPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255,255,255,0.65);
+  }
+
+  70% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 10px rgba(255,255,255,0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255,255,255,0);
+  }
+}
+
+.cca-field {
+  gap: 5px !important;
+  font-size: 0.6rem !important;
+  letter-spacing: 0.13em !important;
+}
+
+.cca-field textarea,
+.cca-nextQuestion textarea {
+  border-radius: 18px !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  padding: 12px !important;
+  font-size: 0.86rem !important;
+  line-height: 1.38 !important;
+}
+
+.cca-field.cca-grow {
+  min-height: 460px !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  align-items: stretch !important;
+}
+
+.cca-grow textarea {
+  min-height: 0 !important;
+  height: 100% !important;
+  resize: vertical !important;
+  align-self: stretch !important;
+  background:
+    linear-gradient(rgba(14, 165, 233, 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98)) !important;
+  background-size: 100% 32px, auto !important;
+  font-size: 0.94rem !important;
+  line-height: 1.48 !important;
+  box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.04) !important;
+}
+
+.cca-grow textarea:focus,
+.cca-notesArea:focus,
+.cca-field input:focus,
+.cca-nextQuestion textarea:focus {
+  border-color: rgba(14, 165, 233, 0.55) !important;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1) !important;
+}
+
+.cca-notesArea {
+  min-height: 82px !important;
+}
+
+.cca-sideCoach {
+  position: relative !important;
+  gap: 9px !important;
+  padding: 12px !important;
+  border-radius: 26px !important;
+  border-color: rgba(246, 163, 64, 0.24) !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(246, 163, 64, 0.18), transparent 18rem),
+    linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,247,237,0.9)) !important;
+  box-shadow: 0 24px 54px rgba(146, 64, 14, 0.12) !important;
+}
+
+.cca-sideCoach::before {
+  content: "Guru live reaction";
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 11px;
+  color: #1a1208;
+  background: linear-gradient(135deg, #ffc36a, #f6a340);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  box-shadow: 0 12px 24px rgba(246, 163, 64, 0.18);
+}
+
+.cca-nextQuestion,
+.cca-insightCard {
+  border-radius: 18px !important;
+  padding: 11px !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+}
+
+.cca-nextQuestion {
+  order: 1 !important;
+  border-color: rgba(246, 163, 64, 0.42) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.14), transparent 12rem),
+    rgba(255, 251, 235, 0.96) !important;
+}
+
+.cca-actionCard {
+  order: 2 !important;
+  border-color: rgba(246, 163, 64, 0.34) !important;
+  background: rgba(255, 251, 235, 0.94) !important;
+}
+
+.cca-insightCard:nth-of-type(2) {
+  order: 0 !important;
+}
+
+.cca-insightCard span,
+.cca-nextQuestion span {
+  font-size: 0.58rem !important;
+  letter-spacing: 0.13em !important;
+}
+
+.cca-nextQuestion strong,
+.cca-insightCard strong {
+  margin-top: 4px !important;
+  font-size: 0.84rem !important;
+  line-height: 1.25 !important;
+}
+
+.cca-questionActions {
+  margin-top: 8px !important;
+  gap: 6px !important;
+}
+
+.cca-questionActions button,
+.cca-insightCard button {
+  min-height: 28px !important;
+  padding: 0 9px !important;
+  font-size: 0.68rem !important;
+}
+
+.cca-nextQuestion textarea {
+  min-height: 90px !important;
+  margin-top: 8px !important;
+}
+
+.cca-chipCloud {
+  gap: 5px !important;
+  margin-top: 6px !important;
+}
+
+.cca-chipCloud em {
+  padding: 4px 7px !important;
+  background: rgba(226, 232, 240, 0.9) !important;
+  font-size: 0.64rem !important;
+}
+
+.cca-insightCard ul {
+  margin-top: 6px !important;
+}
+
+.cca-insightCard li {
+  font-size: 0.72rem !important;
+  line-height: 1.28 !important;
+}
+
+.cca-handoffRail {
+  gap: 8px !important;
+  padding: 9px !important;
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+}
+
+.cca-handoffRail button {
+  min-height: 52px !important;
+  border-radius: 16px !important;
+  padding: 8px 10px !important;
+  background: linear-gradient(180deg, #ffffff, #f8fafc) !important;
+}
+
+.cca-handoffRail button.is-primary {
+  background: radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.16), transparent 12rem), #fffbeb !important;
+}
+
+.cca-handoffRail strong {
+  font-size: 0.76rem !important;
+}
+
+.cca-handoffRail span {
+  margin-top: 2px !important;
+  font-size: 0.64rem !important;
+  line-height: 1.18 !important;
+}
+
+.cca-statusLive,
+.cca-statusText {
+  font-size: 0.72rem !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-guru-fab {
+  display: none !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-expert-handoff-card {
+  border-color: rgba(246, 163, 64, 0.42) !important;
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.14), rgba(255, 255, 255, 0.06)) !important;
+  box-shadow: inset 3px 0 0 #f6a340 !important;
+}
+
+@media (max-width: 1280px) {
+  .cca-liveWorkspace {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cca-sideCoach {
+    overflow: visible !important;
+  }
+
+  .cca-field.cca-grow {
+    min-height: 380px !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  .cca-commandBar,
+  .cca-handoffRail {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cca-typeStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .cca-page {
+    padding: 8px !important;
+  }
+
+  .cca-header,
+  .cca-compactSettings,
+  .cca-micBar,
+  .cca-typeStrip {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cca-openerCard {
+    padding-right: 10px !important;
+  }
+
+  .cca-mainCapture::before {
+    display: none !important;
+  }
+}
+
+/* ---- Inlined from wingman-interaction-clarity.css ---- */
+/* Wingman interaction clarity layer.
+   Purpose: make static intelligence read-only and make real actions visibly clickable. */
+
+.wm-opportunity-signal-card,
+.wm-signal-path-navigator article,
+.wm-ai-rail-card,
+.wm-ai-rail-mini,
+.wm-ai-evidence-list {
+  cursor: default !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.wm-opportunity-signal-card,
+.wm-signal-path-navigator article {
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(248, 250, 252, 0.64)) !important;
+}
+
+.wm-opportunity-signal-card:hover,
+.wm-signal-path-navigator article:hover,
+.wm-ai-rail-card:hover,
+.wm-ai-rail-mini:hover,
+.wm-ai-evidence-list:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.wm-signal-path-arrow {
+  display: none !important;
+}
+
+.wm-signal-path-navigator article {
+  position: relative !important;
+}
+
+.wm-signal-path-navigator article:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: -13px;
+  top: 50%;
+  width: 14px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.28);
+  transform: translateY(-50%);
+}
+
+.wm-journey-progress {
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: none !important;
+}
+
+.wm-journey-step {
+  min-height: 36px !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+.wm-journey-step-copy small {
+  display: none !important;
+}
+
+.wm-dashboard-card {
+  position: relative !important;
+  cursor: pointer !important;
+  border: 1px solid rgba(14, 165, 233, 0.28) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.08), transparent 14rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98)) !important;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12) !important;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease !important;
+}
+
+.wm-dashboard-card::before {
+  content: "Action";
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  min-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 8px;
+  color: #075985;
+  background: rgba(14, 165, 233, 0.1);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.78;
+}
+
+.wm-dashboard-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(246, 163, 64, 0.46) !important;
+  box-shadow: 0 24px 52px rgba(15, 23, 42, 0.16) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.1), transparent 14rem),
+    linear-gradient(180deg, #ffffff, #fffaf0) !important;
+}
+
+.wm-dashboard-card-arrow {
+  width: 34px !important;
+  height: 34px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #0f172a, #164e63) !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.18) !important;
+}
+
+.wm-dashboard-card:hover .wm-dashboard-card-arrow {
+  background: linear-gradient(135deg, #f6a340, #f59e0b) !important;
+  color: #1a1208 !important;
+}
+
+.wm-opportunity-hero-actions a {
+  min-height: 38px !important;
+  border-radius: 999px !important;
+  padding: 0 16px !important;
+  font-weight: 850 !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1) !important;
+  cursor: pointer !important;
+}
+
+.wm-opportunity-hero-actions a:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.14) !important;
+}
+
+.wm-ai-rail-card,
+.wm-ai-rail-mini,
+.wm-ai-evidence-list {
+  border-color: rgba(148, 163, 184, 0.2) !important;
+  background: rgba(255, 255, 255, 0.64) !important;
+}
+
+.wm-ai-rail-customer-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(20, 36, 56, 0.96)) !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-signal-path-navigator article:not(:last-child)::after {
+    display: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-dashboard-card::before {
+    display: none !important;
+  }
+}
+
+/* ---- Inlined from wingman-time-context.css ---- */
+.wingman-topbar-day-context {
+  margin-left: 0.45rem;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.wingman-topbar-day-context::before {
+  content: "";
+}
+
+@media (max-width: 980px) {
+  .wingman-topbar-day-context {
+    display: block;
+    margin-left: 0;
+    margin-top: 0.15rem;
+    white-space: normal;
+  }
+}
+
+/* WINGMAN CENTRALISED VISUAL DESIGN LAYER END */
+
+/* WINGMAN PROFILE LAYOUT REPAIR START */
+
+html[data-wingman-route="profile"] .wingman-page-host {
+  align-items: stretch !important;
+}
+
+html[data-wingman-route="profile"] .wingman-page-host > main,
+.wm-profile-page {
+  width: min(100%, 1320px) !important;
+  max-width: 1320px !important;
+  margin: 0 auto !important;
+  padding: 12px 16px 20px !important;
+  display: grid !important;
+  gap: 12px !important;
+  align-content: start !important;
+}
+
+.wm-profile-hero {
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  display: block !important;
+  padding: 18px 20px !important;
+  border-radius: 24px !important;
+}
+
+.wm-profile-hero p {
+  margin: 0 !important;
+}
+
+.wm-profile-hero h1 {
+  margin: 6px 0 8px !important;
+  font-size: clamp(1.95rem, 3vw, 3rem) !important;
+  line-height: 1 !important;
+  letter-spacing: -0.055em !important;
+}
+
+.wm-profile-hero span {
+  display: block !important;
+  max-width: 940px !important;
+  font-size: 0.88rem !important;
+  line-height: 1.42 !important;
+}
+
+.wm-profile-grid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  align-items: start !important;
+}
+
+.wm-profile-grid > .wm-profile-card {
+  grid-column: span 3 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 18px !important;
+  border-radius: 22px !important;
+  align-self: start !important;
+}
+
+.wm-profile-logo-card {
+  grid-column: span 3 !important;
+  grid-row: span 2 !important;
+}
+
+.wm-profile-actions-card {
+  grid-column: span 6 !important;
+}
+
+.wm-profile-card p {
+  margin-top: 0 !important;
+}
+
+.wm-profile-card h2 {
+  margin: 6px 0 10px !important;
+  font-size: 1.12rem !important;
+  line-height: 1.14 !important;
+}
+
+.wm-profile-card > span,
+.wm-profile-note,
+.wm-profile-card small {
+  font-size: 0.78rem !important;
+  line-height: 1.38 !important;
+}
+
+.wm-profile-form-grid {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.wm-profile-form-grid label,
+.wm-profile-card label {
+  display: grid !important;
+  gap: 6px !important;
+}
+
+.wm-profile-card input,
+.wm-profile-card select,
+.wm-profile-card textarea {
+  min-height: 40px !important;
+  height: auto !important;
+  border-radius: 16px !important;
+  font-size: 0.82rem !important;
+}
+
+.wm-profile-card textarea {
+  min-height: 112px !important;
+}
+
+.wm-profile-logo-preview {
+  min-height: 128px !important;
+  height: auto !important;
+  border-radius: 18px !important;
+}
+
+.wm-profile-actions {
+  display: none !important;
+}
+
+.wm-profile-action-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  margin-top: 4px !important;
+}
+
+.wm-profile-action-row button {
+  min-height: 42px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  padding: 0 16px !important;
+  color: #0f172a !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  font-size: 0.82rem !important;
+  font-weight: 850 !important;
+  cursor: pointer !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08) !important;
+}
+
+.wm-profile-action-row button:first-child {
+  border-color: rgba(14, 165, 233, 0.3) !important;
+  background: linear-gradient(135deg, #ffffff, #eff6ff) !important;
+}
+
+.wm-profile-action-row button:last-child {
+  border-color: rgba(246, 163, 64, 0.34) !important;
+  background: linear-gradient(135deg, #fff7ed, #ffffff) !important;
+}
+
+.wm-profile-action-row button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12) !important;
+}
+
+html[data-wingman-route="profile"] .wingman-guru-fab {
+  right: 28px !important;
+  bottom: 28px !important;
+  transform: scale(0.86) !important;
+  opacity: 0.82 !important;
+}
+
+@media (max-width: 1280px) {
+  .wm-profile-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+
+  .wm-profile-grid > .wm-profile-card,
+  .wm-profile-logo-card {
+    grid-column: span 3 !important;
+    grid-row: auto !important;
+  }
+
+  .wm-profile-actions-card {
+    grid-column: span 6 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html[data-wingman-route="profile"] .wingman-page-host > main,
+  .wm-profile-page {
+    padding: 10px !important;
+  }
+
+  .wm-profile-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-profile-grid > .wm-profile-card,
+  .wm-profile-logo-card,
+  .wm-profile-actions-card {
+    grid-column: auto !important;
+  }
+
+  .wm-profile-hero h1 {
+    font-size: 1.7rem !important;
+  }
+}
+
+/* WINGMAN PROFILE LAYOUT REPAIR END */

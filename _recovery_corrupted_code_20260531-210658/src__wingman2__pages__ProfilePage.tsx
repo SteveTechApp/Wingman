@@ -43,7 +43,7 @@ export function ProfilePage() {
           <p>Wingman admin</p>
           <h1>Local profile and proposal settings</h1>
           <span>
-            Store company details, region preference, speech capture settings and report branding locally. This becomes the foundation for branded proposals, reports and intelligence review workflows.
+            Store company details, language preferences and report branding locally. This becomes the foundation for branded proposals, reports and intelligence review workflows.
           </span>
         </div>
       </section>
@@ -93,7 +93,11 @@ export function ProfilePage() {
 
             <label>
               Prepared by
-              <input value={profile.reportPreparedBy} onChange={(event) => updateProfile({ reportPreparedBy: event.target.value })} />
+              <input
+                value={profile.reportPreparedBy}
+                onChange={(event) => updateProfile({ reportPreparedBy: event.target.value })}
+                placeholder="Used if no display name is set"
+              />
             </label>
 
             <label>
@@ -111,6 +115,7 @@ export function ProfilePage() {
         <article className="wm-profile-card">
           <p>User</p>
           <h2>Contact details</h2>
+          <span className="wm-profile-note">Your display name is used in the top bar greeting and proposal context.</span>
 
           <div className="wm-profile-form-grid">
             <label>
@@ -140,12 +145,12 @@ export function ProfilePage() {
         </article>
 
         <article className="wm-profile-card">
-          <p>Region and capture</p>
-          <h2>Market and speech settings</h2>
+          <p>Language</p>
+          <h2>Region and speech capture</h2>
 
           <div className="wm-profile-language-grid">
             <WingmanLanguageSelector
-              label="Region / market preference"
+              label="Wingman region / market"
               value={profile.uiLanguage}
               onChange={updateUiLanguage}
             />
@@ -159,7 +164,7 @@ export function ProfilePage() {
           </div>
 
           <span className="wm-profile-note">
-            Wingman is currently English-first. Region is stored for market context and future localisation. Speech capture controls browser dictation during customer call capture.
+            Region affects visible top-bar wording and future market preference. Speech capture controls browser dictation and recognition during customer feedback capture. This is not full app translation yet.
           </span>
         </article>
 
@@ -191,13 +196,18 @@ export function ProfilePage() {
             <span>New WyreStorm or competitor findings should be staged for review before Finder, Compare or Proposal uses them as trusted data.</span>
           </div>
         </article>
-      </section>
+        <article className="wm-profile-card wm-profile-actions-card">
+          <p>Profile actions</p>
+          <h2>Manage local settings</h2>
+          <span>Print the profile or reset locally stored settings for this browser.</span>
 
-      <section className="wm-profile-actions">
-        <button type="button" onClick={() => window.print()}>Print profile</button>
-        <button type="button" onClick={resetProfile}>Reset local profile</button>
-      </section>
-    </main>
+          <div className="wm-profile-action-row">
+            <button type="button" onClick={() => window.print()}>Print profile</button>
+            <button type="button" onClick={resetProfile}>Reset local profile</button>
+          </div>
+        </article>
+</section>
+</main>
   );
 }
 

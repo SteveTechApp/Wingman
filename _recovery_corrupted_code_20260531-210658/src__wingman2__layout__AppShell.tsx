@@ -6,8 +6,11 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { routeByPath, routeCatalog, routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
+import { WingmanLanguageSelector } from "../components/WingmanLanguageSelector";
 import { clearActiveProject } from "../data/projectStore";
 import { useWingmanLanguage } from "../data/wingmanLanguage";
+import { useWingmanProfile } from "../data/wingmanProfile";
+import { getWingmanTimeContext } from "../data/wingmanDayContext";
 import guruBotIcon from "../../assets/branding/guru-bot.png";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
 
@@ -135,9 +138,31 @@ export function AppShell({ children }: AppShellProps) {
   const [pageResetVersion, setPageResetVersion] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
-  const { uiText } = useWingmanLanguage();
+  const { language, uiText } = useWingmanLanguage();
+  const { profile } = useWingmanProfile();
+  // WINGMAN TIME CONTEXT START
+  const [timeNow, setTimeNow] = useState(() => new Date());
 
-  const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
+  useEffect(() => {
+    const updateTime = () => setTimeNow(new Date());
+
+    updateTime();
+
+    const timerId = window.setInterval(updateTime, 30000);
+
+    return () => {
+      window.clearInterval(timerId);
+    };
+  }, []);
+
+  const timeContext = useMemo(() => getWingmanTimeContext(timeNow, language.id), [language.id, timeNow]);
+
+  const topbarGreeting = useMemo(() => {
+    const displayName = profile.userName.trim() || profile.reportPreparedBy.trim() || "Wingman";
+    return `${timeContext.greeting}, ${displayName}`;
+  }, [profile.reportPreparedBy, profile.userName, timeContext.greeting]);
+  // WINGMAN TIME CONTEXT END
+const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
   const activeLabel = activeRoute?.label ?? "Dashboard";
   const activeSummary = activeRoute?.summary ?? "WyreStorm technical sales workspace.";
   const activeRouteClass = activeRoute ? `wm-route-${activeRoute.segment}` : "wm-route-dashboard";
@@ -290,12 +315,15 @@ export function AppShell({ children }: AppShellProps) {
             {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          <div className="wingman-topbar-title wm-balanced-topbar-title" title={`${activeLabel}: ${activeSummary}`}>
-            <p>{uiText.goodMorning}</p>
+          <div className="wingman-topbar-title wm-balanced-topbar-title" title={`${activeLabel}: ${activeSummary}${timeContext.topbarLabel}`}>
+            <p>{topbarGreeting}</p>
             <span>
-              {activeLabel}: {activeSummary}
-            </span>
+  {activeLabel}: {activeSummary}
+  <strong className="wingman-topbar-day-context">{timeContext.topbarLabel}</strong>
+</span>
           </div>
+
+          <WingmanLanguageSelector compact />
 
           <button type="button" className="wingman-new-project-button" onClick={handleNewProject}>
             <Plus className="h-4 w-4" />

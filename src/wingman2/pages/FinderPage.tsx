@@ -96,6 +96,8 @@ type FinderNeed = {
   control: string;
 };
 
+type FinderStep = "start" | "signal" | "size" | "specialist" | "results";
+
 type ProductMatch = FinderProduct & {
   score: number;
   status: MatchStatus;
@@ -574,6 +576,44 @@ const initialNeed: FinderNeed = {
   processing: "",
   control: "",
 };
+
+const finderSteps: Array<{
+  id: FinderStep;
+  label: string;
+  eyebrow: string;
+  description: string;
+}> = [
+  {
+    id: "start",
+    label: "Start",
+    eyebrow: "Step 1",
+    description: "Pick the commercial starting point, search by SKU or set the likely product path.",
+  },
+  {
+    id: "signal",
+    label: "Signal path",
+    eyebrow: "Step 2",
+    description: "Confirm what signal is moving and the connectors at each end.",
+  },
+  {
+    id: "size",
+    label: "System size",
+    eyebrow: "Step 3",
+    description: "Use I/O count, distance and resolution to narrow the architecture.",
+  },
+  {
+    id: "specialist",
+    label: "Specialist needs",
+    eyebrow: "Step 4",
+    description: "Add the extra needs that change product fit, such as USB, network, audio or control.",
+  },
+  {
+    id: "results",
+    label: "Recommendation",
+    eyebrow: "Step 5",
+    description: "Review products, evidence, cautions, shortlist and project handoff.",
+  },
+];
 
 function nowIso() {
   return new Date().toISOString();
@@ -2580,26 +2620,63 @@ function StatusPill({ status }: { status: MatchStatus }) {
   return <span className={`rounded-full px-3 py-1 text-xs font-black ${classes}`}>{label}</span>;
 }
 
+function FinderStepFooter({
+  activeStep,
+  onPrevious,
+  onNext,
+  onRecommendation,
+}: {
+  activeStep: FinderStep;
+  onPrevious: () => void;
+  onNext: () => void;
+  onRecommendation: () => void;
+}) {
+  const activeIndex = finderSteps.findIndex((step) => step.id === activeStep);
+  const isFirstStep = activeIndex <= 0;
+  const isLastStep = activeIndex === finderSteps.length - 1;
+
+  return (
+    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+      <button
+        type="button"
+        onClick={onPrevious}
+        disabled={isFirstStep}
+        className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Previous
+      </button>
+
+      <div className="flex flex-wrap justify-end gap-2">
+        {!isLastStep ? (
+          <button
+            type="button"
+            onClick={onRecommendation}
+            className="rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-black text-amber-800 transition hover:bg-amber-100"
+          >
+            View recommendation
+          </button>
+        ) : null}
+
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={isLastStep}
+          className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Next
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function FinderPage() {
   const discoveryHandoffAppliedRef = useRef(false);
 
   useEffect(() => {
     document.body.classList.add("wm-product-finder-active");
     return () => document.body.classList.remove("wm-product-finder-active");
-  }, []);
-
-  useEffect(() => {
-    if (discoveryHandoffAppliedRef.current) return;
-
-    const draftNeed = discoveryBriefToFinderNeed(readLatestDiscoveryBrief());
-    if (!draftNeed) return;
-
-    discoveryHandoffAppliedRef.current = true;
-    setNeed((current) => ({
-      ...current,
-      ...draftNeed,
-    }));
-    setMessage("Discovery brief automatically loaded into Finder. Results now reflect the collected room requirement.");
   }, []);
 
   const { projects, activeProjectId } = useProjectStore();
@@ -2613,6 +2690,7 @@ export function FinderPage() {
   const [message, setMessage] = useState("");
   const [shortlist, setShortlist] = useState<ProductSelection[]>(() => readStandaloneShortlist());
   const [expandedResultKey, setExpandedResultKey] = useState<string | null>(null);
+  const [activeStep, setActiveStep] = useState<FinderStep>("start");
 
   useEffect(() => {
     let active = true;
@@ -2655,6 +2733,7 @@ export function FinderPage() {
       ...current,
       ...draftNeed,
     }));
+    setActiveStep("results");
     setMessage("Discovery brief automatically loaded into Finder. Results now reflect the collected room requirement.");
   }, []);
 
@@ -2706,6 +2785,34 @@ export function FinderPage() {
       }),
     [activeProject?.productSelections, matches, need, products.length, shortlist.length, workflowProject?.productSelections],
   );
+
+  const activeStepIndex = Math.max(0, finderSteps.findIndex((step) => step.id === activeStep));
+  const activeStepDefinition = finderSteps[activeStepIndex];
+  const needSummaryItems = [
+    ["Technology", need.technologyType],
+    ["Requirement", need.technicalRequirement],
+    ["Product path", need.productPath],
+    ["Signal", need.signalType],
+    ["Source", need.sourceConnector],
+    ["Output", need.displayConnector],
+    ["Inputs", need.inputs],
+    ["Outputs", need.outputs],
+    ["Distance", need.distance],
+    ["Resolution", need.resolution],
+    ["USB", need.usb],
+    ["Processing", need.processing],
+    ["Network", need.network],
+    ["Audio", need.audio],
+    ["Control", need.control],
+  ].filter(([, value]) => Boolean(value));
+
+  function goToPreviousStep() {
+    setActiveStep(finderSteps[Math.max(activeStepIndex - 1, 0)].id);
+  }
+
+  function goToNextStep() {
+    setActiveStep(finderSteps[Math.min(activeStepIndex + 1, finderSteps.length - 1)].id);
+  }
 
   function setNeedField<K extends keyof FinderNeed>(key: K, value: FinderNeed[K]) {
     setNeed((current) => {
@@ -2776,6 +2883,8 @@ export function FinderPage() {
   function clearFinder() {
     setNeed(initialNeed);
     setSelectedProduct(null);
+    setExpandedResultKey(null);
+    setActiveStep("start");
     setMessage("");
   }
 
@@ -2792,6 +2901,7 @@ export function FinderPage() {
         resolution: "4K60 4:2:0",
         usb: "No USB",
       });
+      setActiveStep("size");
     }
 
     if (kind === "usb") {
@@ -2807,6 +2917,7 @@ export function FinderPage() {
         usb: "USB 2.0 enough",
         query: "hdmi usb extender",
       });
+      setActiveStep("size");
     }
 
     if (kind === "usbC") {
@@ -2821,6 +2932,7 @@ export function FinderPage() {
         usb: "USB 2.0 enough",
         processing: "Scaling",
       });
+      setActiveStep("specialist");
     }
 
     if (kind === "wall") {
@@ -2833,6 +2945,7 @@ export function FinderPage() {
         resolution: "4K60 4:4:4",
         processing: "Video wall processing",
       });
+      setActiveStep("size");
     }
 
     if (kind === "avoip") {
@@ -2847,6 +2960,7 @@ export function FinderPage() {
         network: "Dedicated AV network",
         processing: "AVoIP routing",
       });
+      setActiveStep("size");
     }
 
     if (kind === "ndi") {
@@ -2861,6 +2975,7 @@ export function FinderPage() {
         processing: "AVoIP routing",
         query: "NDI NetworkHD",
       });
+      setActiveStep("signal");
     }
   }
 
@@ -2877,6 +2992,7 @@ export function FinderPage() {
       ...draftNeed,
     }));
 
+    setActiveStep("results");
     setMessage("Discovery brief loaded into technical Finder filters.");
   }
 
@@ -2932,6 +3048,8 @@ export function FinderPage() {
         subtitle="Use the top filter rail to describe the signal problem. Results stay clear and occupy the main workspace."
       >
         <div className="grid gap-4">
+          <div className="wm-finder-two-column-layout">
+            <section className="wm-finder-input-column" aria-label="Finder input filters">
           <div className="wm-finder-quickstart grid gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -2954,10 +3072,7 @@ export function FinderPage() {
             </div>
           </div>
 
-          <WingmanCoachPanel coach={finderCoach} compact showFunnel showVisuals={false} />
-
-          <div className="wm-finder-workbench grid gap-4">
-                        <aside className="wm-finder-filter-panel grid content-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+<aside className="wm-finder-filter-panel grid content-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <div className="wm-finder-filter-header flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4 text-slate-500" />
@@ -3072,7 +3187,12 @@ export function FinderPage() {
                 </div>
               </section>
             </aside>
+            </section>
 
+            <section className="wm-finder-output-column" aria-label="Finder guidance and results">
+          <WingmanCoachPanel coach={finderCoach} compact showFunnel showVisuals={false} />
+
+              <div className="wm-finder-results-and-logic">
             <main className="wm-finder-results-panel grid content-start gap-3">
               {!hasIntent ? (
                 <div className="grid min-h-[360px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
@@ -3264,6 +3384,8 @@ export function FinderPage() {
               ) : null}
 
             </aside>
+              </div>
+            </section>
           </div>
         </div>
       </SectionCard>

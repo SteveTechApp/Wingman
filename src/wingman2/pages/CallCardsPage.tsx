@@ -1153,4 +1153,357 @@ button:disabled {
     justify-content: flex-start;
   }
 }
+
+
+/* WINGMAN LIVE CALL BUTTON OVERRIDE START */
+
+.cca-page .cca-mainCapture .cca-micBar {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr) !important;
+  gap: 14px !important;
+  margin: 8px 0 4px !important;
+  min-height: 66px !important;
+  align-items: stretch !important;
+}
+
+.cca-page .cca-mainCapture .cca-micBar .cca-openMic,
+.cca-page .cca-mainCapture .cca-micBar .cca-captureMic {
+  position: relative !important;
+  width: 100% !important;
+  min-height: 66px !important;
+  height: 66px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 22px !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  font-size: 1.05rem !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.015em !important;
+  text-align: center !important;
+  text-transform: none !important;
+  cursor: pointer !important;
+  overflow: hidden !important;
+  transform: translateZ(0) !important;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease,
+    border-color 160ms ease !important;
+}
+
+.cca-page .cca-mainCapture .cca-micBar .cca-openMic::before,
+.cca-page .cca-mainCapture .cca-micBar .cca-captureMic::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02)),
+    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.18), transparent 9rem) !important;
+}
+
+.cca-page .cca-mainCapture .cca-micBar .cca-openMic:hover,
+.cca-page .cca-mainCapture .cca-micBar .cca-captureMic:hover {
+  transform: translateY(-2px) !important;
+  filter: brightness(1.04) !important;
+}
+
+.cca-page .cca-mainCapture .cca-micBar .cca-openMic:active,
+.cca-page .cca-mainCapture .cca-micBar .cca-captureMic:active {
+  transform: translateY(0) scale(0.99) !important;
+}
+
+.cca-page .cca-mainCapture .cca-micBar .cca-openMic {
+  border-color: rgba(8, 47, 73, 0.85) !important;
+  background:
+    radial-gradient(circle at 16% 0%, rgba(96, 165, 250, 0.22), transparent 10rem),
+    linear-gradient(135deg, #06101d 0%, #0f2941 54%, #155e75 100%) !important;
+  box-shadow:
+    0 20px 36px rgba(8, 17, 31, 0.28),
+    0 0 0 1px rgba(14, 165, 233, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+.cca-page .cca-mainCapture .cca-micBar .cca-openMic:hover {
+  box-shadow:
+    0 24px 46px rgba(8, 17, 31, 0.34),
+    0 0 0 5px rgba(14, 165, 233, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+.cca-page .cca-mainCapture .cca-micBar .cca-captureMic {
+  border-color: rgba(29, 78, 216, 0.85) !important;
+  background:
+    radial-gradient(circle at 16% 0%, rgba(255, 255, 255, 0.2), transparent 9rem),
+    linear-gradient(135deg, #1d4ed8 0%, #2563eb 46%, #0284c7 100%) !important;
+  box-shadow:
+    0 20px 36px rgba(29, 78, 216, 0.28),
+    0 0 0 1px rgba(59, 130, 246, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.cca-page .cca-mainCapture .cca-micBar .cca-captureMic:hover {
+  box-shadow:
+    0 24px 46px rgba(29, 78, 216, 0.34),
+    0 0 0 5px rgba(59, 130, 246, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+.cca-page .cca-mainCapture .cca-micBar .cca-openMic.is-listening,
+.cca-page .cca-mainCapture .cca-micBar .cca-captureMic.is-listening {
+  border-color: rgba(153, 27, 27, 0.9) !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.16), transparent 9rem),
+    linear-gradient(135deg, #dc2626 0%, #b91c1c 52%, #7f1d1d 100%) !important;
+  box-shadow:
+    0 22px 44px rgba(127, 29, 29, 0.36),
+    0 0 0 6px rgba(220, 38, 38, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+.cca-page .cca-mainCapture .cca-micBar .cca-openMic.is-listening::after,
+.cca-page .cca-mainCapture .cca-micBar .cca-captureMic.is-listening::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 18px !important;
+  top: 50% !important;
+  width: 11px !important;
+  height: 11px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  transform: translateY(-50%) !important;
+  animation: ccaMicPulse 1.4s infinite !important;
+}
+
+.cca-page .cca-mainCapture .cca-openerCard {
+  padding: 15px 142px 15px 16px !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(246, 163, 64, 0.38) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.18), transparent 14rem),
+    linear-gradient(180deg, #fffaf0, #fffdf7) !important;
+  box-shadow: 0 12px 28px rgba(146, 64, 14, 0.1) !important;
+}
+
+.cca-page .cca-mainCapture .cca-openerCard strong {
+  margin-top: 6px !important;
+  font-size: 1rem !important;
+  line-height: 1.25 !important;
+}
+
+.cca-page .cca-mainCapture .cca-openerCard small {
+  margin-top: 5px !important;
+  font-size: 0.76rem !important;
+  color: #64748b !important;
+}
+
+@keyframes ccaMicPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255,255,255,0.65);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(255,255,255,0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255,255,255,0);
+  }
+}
+
+/* WINGMAN LIVE CALL BUTTON OVERRIDE END */
+
+
+
+/* WINGMAN LIVE TRANSCRIPT CANVAS OVERRIDE START */
+
+.cca-page .cca-mainCapture {
+  grid-template-rows: auto auto auto minmax(520px, 1fr) auto auto !important;
+}
+
+.cca-page .cca-mainCapture .cca-field.cca-grow {
+  position: relative !important;
+  min-height: 520px !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 10px !important;
+  padding: 0 !important;
+  border-radius: 26px !important;
+}
+
+.cca-page .cca-mainCapture .cca-field.cca-grow > span {
+  min-height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  width: fit-content !important;
+  border-radius: 999px !important;
+  padding: 0 14px !important;
+  color: #075985 !important;
+  background:
+    linear-gradient(135deg, rgba(14, 165, 233, 0.14), rgba(255, 255, 255, 0.82)) !important;
+  border: 1px solid rgba(14, 165, 233, 0.2) !important;
+  font-size: 0.68rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.15em !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 10px 22px rgba(14, 165, 233, 0.08) !important;
+}
+
+.cca-page .cca-mainCapture .cca-field.cca-grow::before {
+  content: "Type or paste the whole customer conversation here. Guru reads this as the live context.";
+  position: absolute !important;
+  right: 16px !important;
+  top: 6px !important;
+  max-width: 460px !important;
+  color: #64748b !important;
+  font-size: 0.78rem !important;
+  font-weight: 650 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  text-align: right !important;
+  pointer-events: none !important;
+}
+
+.cca-page .cca-mainCapture .cca-grow textarea {
+  min-height: 0 !important;
+  height: 100% !important;
+  resize: vertical !important;
+  align-self: stretch !important;
+  border-radius: 28px !important;
+  border: 1px solid rgba(14, 165, 233, 0.24) !important;
+  padding: 24px 26px !important;
+  color: #0f172a !important;
+  background:
+    linear-gradient(90deg, rgba(14, 165, 233, 0.055) 0 1px, transparent 1px 100%),
+    linear-gradient(rgba(14, 165, 233, 0.045) 1px, transparent 1px),
+    radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.07), transparent 18rem),
+    linear-gradient(180deg, rgba(255,255,255,0.99), rgba(248,250,252,0.98)) !important;
+  background-size:
+    32px 32px,
+    100% 34px,
+    auto,
+    auto !important;
+  font-size: 1rem !important;
+  line-height: 1.55 !important;
+  font-weight: 450 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(15, 23, 42, 0.04),
+    0 18px 44px rgba(15, 23, 42, 0.08) !important;
+}
+
+.cca-page .cca-mainCapture .cca-grow textarea::placeholder {
+  color: #94a3b8 !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+.cca-page .cca-mainCapture .cca-grow textarea:focus {
+  border-color: rgba(14, 165, 233, 0.62) !important;
+  background:
+    linear-gradient(90deg, rgba(14, 165, 233, 0.07) 0 1px, transparent 1px 100%),
+    linear-gradient(rgba(14, 165, 233, 0.06) 1px, transparent 1px),
+    radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.1), transparent 18rem),
+    linear-gradient(180deg, rgba(255,255,255,1), rgba(248,250,252,0.99)) !important;
+  background-size:
+    32px 32px,
+    100% 34px,
+    auto,
+    auto !important;
+  box-shadow:
+    0 0 0 5px rgba(14, 165, 233, 0.1),
+    0 22px 52px rgba(14, 165, 233, 0.12),
+    inset 0 1px 0 rgba(15, 23, 42, 0.04) !important;
+}
+
+.cca-page .cca-mainCapture .cca-field:not(.cca-grow) > span {
+  font-size: 0.66rem !important;
+  letter-spacing: 0.14em !important;
+}
+
+.cca-page .cca-mainCapture .cca-field input {
+  min-height: 46px !important;
+  border-radius: 999px !important;
+  padding: 0 18px !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  background: rgba(255,255,255,0.96) !important;
+  font-size: 0.9rem !important;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05) !important;
+}
+
+.cca-page .cca-mainCapture .cca-field input:focus {
+  border-color: rgba(14, 165, 233, 0.55) !important;
+  box-shadow:
+    0 0 0 4px rgba(14, 165, 233, 0.1),
+    0 12px 26px rgba(15, 23, 42, 0.06) !important;
+}
+
+.cca-page .cca-mainCapture .cca-notesArea {
+  min-height: 96px !important;
+  border-radius: 22px !important;
+  padding: 16px !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.08), transparent 14rem),
+    rgba(255,255,255,0.96) !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06) !important;
+}
+
+.cca-page .cca-mainCapture .cca-statusLive {
+  min-height: 34px !important;
+  display: flex !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  padding: 0 14px !important;
+  color: #075985 !important;
+  background: rgba(14, 165, 233, 0.1) !important;
+  border: 1px solid rgba(14, 165, 233, 0.18) !important;
+  font-size: 0.78rem !important;
+  font-weight: 750 !important;
+}
+
+.cca-page .cca-mainCapture .cca-statusText {
+  min-height: 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  padding: 0 12px !important;
+  color: #475569 !important;
+  background: rgba(226, 232, 240, 0.48) !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+}
+
+@media (max-width: 1280px) {
+  .cca-page .cca-mainCapture {
+    grid-template-rows: auto auto auto minmax(420px, 1fr) auto auto !important;
+  }
+
+  .cca-page .cca-mainCapture .cca-field.cca-grow {
+    min-height: 420px !important;
+  }
+
+  .cca-page .cca-mainCapture .cca-field.cca-grow::before {
+    position: static !important;
+    max-width: none !important;
+    text-align: left !important;
+    margin-top: -4px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .cca-page .cca-mainCapture .cca-grow textarea {
+    padding: 18px !important;
+    font-size: 0.92rem !important;
+  }
+
+  .cca-page .cca-mainCapture .cca-field.cca-grow::before {
+    display: none !important;
+  }
+}
+
+/* WINGMAN LIVE TRANSCRIPT CANVAS OVERRIDE END */
+
 `;
