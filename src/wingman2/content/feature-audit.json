@@ -88,6 +88,24 @@
     ]
   },
   {
+    "routeKey": "visualDesign",
+    "status": "wired",
+    "summary": "Visual Design Studio generates guided Mermaid diagrams from project, discovery, Finder, Compare, and Proposal data so reps can copy editable diagrams into Whimsical without a direct API integration.",
+    "needed": [
+      "Add rendered Mermaid preview and save generated diagram variants back to projects.",
+      "Add approved diagram themes once Whimsical or slide export integration is introduced."
+    ]
+  },
+  {
+    "routeKey": "glossary",
+    "status": "wired",
+    "summary": "AV Glossary gives sales users a searchable reference for common AV terms, acronyms, and technologies with role-specific customer, partner, and consultant wording.",
+    "needed": [
+      "Allow glossary terms to be surfaced inline from Finder, Proposal, and Sales Strategy pages.",
+      "Add product-manager approval metadata for glossary copy revisions."
+    ]
+  },
+  {
     "routeKey": "callCards",
     "status": "wired",
     "summary": "Call card journeys are reachable and each card now routes to the most relevant follow-on workflow.",

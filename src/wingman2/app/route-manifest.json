@@ -90,6 +90,24 @@
     "summary": "Turn technical findings into rep-friendly positioning."
   },
   {
+    "key": "visualDesign",
+    "path": "/wingman/visual-design",
+    "segment": "visual-design",
+    "label": "Visual Design Studio",
+    "navLabel": "Visual Design Studio",
+    "pageFile": "VisualDesignStudioPage.tsx",
+    "summary": "Generate Mermaid diagrams from Wingman project data for editable Whimsical boards."
+  },
+  {
+    "key": "glossary",
+    "path": "/wingman/glossary",
+    "segment": "glossary",
+    "label": "AV Glossary",
+    "navLabel": "AV Glossary",
+    "pageFile": "GlossaryPage.tsx",
+    "summary": "Look up AV terms, acronyms and technologies in sales-friendly language."
+  },
+  {
     "key": "callCards",
     "path": "/wingman/call-cards",
     "segment": "call-cards",

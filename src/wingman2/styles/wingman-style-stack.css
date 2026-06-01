@@ -9467,6 +9467,7 @@ body.wm-product-finder-active main :is(.text-amber-500, .text-amber-600, .text-o
 }
 
 .wm-profile-file-button,
+.wm-profile-primary-button,
 .wm-profile-secondary-button,
 .wm-profile-actions button {
   min-height: 36px !important;
@@ -9483,6 +9484,13 @@ body.wm-product-finder-active main :is(.text-amber-500, .text-amber-600, .text-o
   letter-spacing: 0 !important;
   text-transform: none !important;
   cursor: pointer !important;
+}
+
+.wm-profile-primary-button {
+  border-color: rgba(180, 83, 9, 0.42) !important;
+  background: #f6a340 !important;
+  color: #111827 !important;
+  gap: 8px !important;
 }
 
 .wm-profile-file-button input {
@@ -9506,8 +9514,15 @@ body.wm-product-finder-active main :is(.text-amber-500, .text-amber-600, .text-o
 .wm-profile-actions {
   display: flex !important;
   flex-wrap: wrap !important;
+  align-items: center !important;
   justify-content: flex-end !important;
   gap: 10px !important;
+}
+
+.wm-profile-save-status {
+  color: #d1fae5 !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
 }
 
 @media (max-width: 720px) {
@@ -13978,3 +13993,502 @@ html[data-wingman-route="finder"] .wingman-guru-fab {
 }
 
 /* WINGMAN FINDER STABLE RECOVERY END */
+
+/* WINGMAN VISUAL DESIGN AND GLOSSARY START */
+.wm-visual-design-page,
+.wm-glossary-page {
+  display: grid !important;
+  gap: 14px !important;
+  padding-bottom: 28px !important;
+}
+
+.wm-diagram-studio-shell,
+.wm-glossary-workspace {
+  display: grid !important;
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr) !important;
+  gap: 14px !important;
+  align-items: start !important;
+}
+
+.wm-diagram-control-panel,
+.wm-glossary-results {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.wm-diagram-card,
+.wm-diagram-preview-panel,
+.wm-glossary-toolbar,
+.wm-glossary-results,
+.wm-glossary-detail {
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  border-radius: 20px !important;
+  background: #ffffff !important;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08) !important;
+}
+
+.wm-diagram-card,
+.wm-glossary-toolbar,
+.wm-glossary-results,
+.wm-glossary-detail {
+  padding: 14px !important;
+}
+
+.wm-diagram-card-head,
+.wm-diagram-preview-head,
+.wm-glossary-detail-head,
+.wm-glossary-results-head,
+.wm-glossary-say-panel > div {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+.wm-diagram-card-head {
+  justify-content: flex-start !important;
+}
+
+.wm-diagram-card-head svg,
+.wm-glossary-say-panel svg,
+.wm-glossary-definition-grid svg {
+  color: #b45309 !important;
+  flex: 0 0 auto !important;
+}
+
+.wm-diagram-card-head p,
+.wm-diagram-preview-head p,
+.wm-glossary-results-head p,
+.wm-glossary-detail-head p,
+.wm-glossary-definition-grid p,
+.wm-glossary-say-panel p,
+.wm-glossary-two-column h3,
+.wm-glossary-related h3 {
+  margin: 0 !important;
+  color: #b45309 !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+.wm-diagram-card-head span,
+.wm-diagram-preview-head span,
+.wm-diagram-next-action p,
+.wm-glossary-results-head span,
+.wm-glossary-detail-head span,
+.wm-glossary-search span,
+.wm-glossary-audience button span {
+  color: #64748b !important;
+  font-size: 0.8rem !important;
+  line-height: 1.35 !important;
+}
+
+.wm-diagram-template-list,
+.wm-glossary-term-list {
+  display: grid !important;
+  gap: 8px !important;
+  margin-top: 12px !important;
+}
+
+.wm-diagram-template-list button,
+.wm-glossary-term-list button,
+.wm-glossary-category-row button,
+.wm-glossary-audience button,
+.wm-glossary-related button,
+.wm-diagram-preview-head button,
+.wm-glossary-detail-actions button,
+.wm-glossary-detail-actions a {
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  border-radius: 14px !important;
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  cursor: pointer !important;
+}
+
+.wm-diagram-template-list button,
+.wm-glossary-term-list button,
+.wm-glossary-audience button {
+  display: grid !important;
+  gap: 4px !important;
+  padding: 11px !important;
+  text-align: left !important;
+}
+
+.wm-diagram-template-list button.is-active,
+.wm-glossary-term-list button.is-active,
+.wm-glossary-category-row button.is-active,
+.wm-glossary-audience button.is-active {
+  border-color: #0f172a !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.wm-diagram-template-list strong,
+.wm-glossary-term-list strong,
+.wm-diagram-next-action strong,
+.wm-glossary-audience strong {
+  color: inherit !important;
+  font-size: 0.88rem !important;
+  line-height: 1.2 !important;
+  font-weight: 850 !important;
+}
+
+.wm-diagram-template-list span,
+.wm-glossary-term-list span,
+.wm-glossary-term-list small {
+  color: inherit !important;
+  opacity: 0.72 !important;
+  font-size: 0.76rem !important;
+  line-height: 1.32 !important;
+}
+
+.wm-diagram-select-label,
+.wm-glossary-search {
+  display: grid !important;
+  gap: 7px !important;
+  margin-top: 12px !important;
+  color: #64748b !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}
+
+.wm-diagram-select-label select,
+.wm-glossary-search input {
+  width: 100% !important;
+  height: 40px !important;
+  border: 1px solid rgba(148, 163, 184, 0.34) !important;
+  border-radius: 14px !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 0 12px !important;
+  font-size: 0.86rem !important;
+  font-weight: 650 !important;
+  outline: none !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.wm-diagram-coverage-grid,
+.wm-diagram-stat-row,
+.wm-glossary-definition-grid,
+.wm-glossary-two-column {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+  gap: 10px !important;
+  margin-top: 12px !important;
+}
+
+.wm-diagram-coverage-grid div,
+.wm-diagram-stat-row div,
+.wm-glossary-definition-grid section,
+.wm-glossary-two-column section,
+.wm-glossary-say-panel,
+.wm-glossary-related,
+.wm-diagram-review-grid section,
+.wm-diagram-copy-status {
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  border-radius: 16px !important;
+  background: #f8fafc !important;
+  padding: 12px !important;
+}
+
+.wm-diagram-coverage-grid div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: #64748b !important;
+  font-size: 0.8rem !important;
+  font-weight: 800 !important;
+}
+
+.wm-diagram-coverage-grid div[data-ready="true"] {
+  color: #047857 !important;
+  background: #ecfdf5 !important;
+}
+
+.wm-diagram-preview-panel {
+  overflow: hidden !important;
+}
+
+.wm-diagram-preview-head {
+  padding: 16px !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+.wm-diagram-preview-head h2,
+.wm-glossary-detail-head h2 {
+  margin: 4px 0 0 !important;
+  color: #0f172a !important;
+  font-size: 1.25rem !important;
+  line-height: 1.15 !important;
+  font-weight: 850 !important;
+}
+
+.wm-diagram-preview-head button,
+.wm-glossary-detail-actions button,
+.wm-glossary-detail-actions a {
+  min-height: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  border-radius: 999px !important;
+  background: #f6a340 !important;
+  color: #111827 !important;
+  padding: 0 13px !important;
+  font-size: 0.78rem !important;
+  font-weight: 850 !important;
+  text-decoration: none !important;
+}
+
+.wm-diagram-stat-row {
+  margin: 14px !important;
+}
+
+.wm-diagram-stat-row div {
+  margin: 0 !important;
+}
+
+.wm-diagram-stat-row span {
+  display: block !important;
+  color: #64748b !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}
+
+.wm-diagram-stat-row strong {
+  display: block !important;
+  margin-top: 4px !important;
+  color: #0f172a !important;
+  font-size: 1.05rem !important;
+}
+
+.wm-diagram-copy-status {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 14px 14px !important;
+  color: #047857 !important;
+  background: #ecfdf5 !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+}
+
+.wm-diagram-code-shell {
+  margin: 14px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  border-radius: 16px !important;
+  background: #0f172a !important;
+}
+
+.wm-diagram-code-shell > div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #e2e8f0 !important;
+  padding: 10px 12px !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+}
+
+.wm-diagram-code-shell textarea {
+  width: 100% !important;
+  min-height: 420px !important;
+  border: 0 !important;
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  padding: 14px !important;
+  font-family: "Cascadia Code", Consolas, monospace !important;
+  font-size: 0.78rem !important;
+  line-height: 1.55 !important;
+  outline: none !important;
+  resize: vertical !important;
+}
+
+.wm-diagram-review-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+  gap: 12px !important;
+  margin: 14px !important;
+}
+
+.wm-diagram-review-grid h3,
+.wm-glossary-two-column h3 {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  color: #0f172a !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  font-size: 0.9rem !important;
+}
+
+.wm-diagram-review-grid section[data-state="warning"] {
+  border-color: rgba(244, 63, 94, 0.32) !important;
+  background: #fff1f2 !important;
+}
+
+.wm-diagram-review-grid p,
+.wm-diagram-review-grid li,
+.wm-glossary-two-column li,
+.wm-glossary-say-panel strong,
+.wm-glossary-definition-grid strong {
+  color: #334155 !important;
+  font-size: 0.84rem !important;
+  line-height: 1.45 !important;
+}
+
+.wm-diagram-review-grid ul,
+.wm-glossary-two-column ul {
+  display: grid !important;
+  gap: 7px !important;
+  margin: 9px 0 0 !important;
+  padding-left: 18px !important;
+}
+
+.wm-glossary-toolbar {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.wm-glossary-search {
+  position: relative !important;
+  margin: 0 !important;
+}
+
+.wm-glossary-search svg {
+  position: absolute !important;
+  left: 12px !important;
+  bottom: 12px !important;
+  color: #64748b !important;
+}
+
+.wm-glossary-search input {
+  padding-left: 38px !important;
+}
+
+.wm-glossary-audience,
+.wm-glossary-category-row,
+.wm-glossary-related div {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.wm-glossary-category-row button,
+.wm-glossary-related button {
+  min-height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  border-radius: 999px !important;
+  padding: 0 11px !important;
+  font-size: 0.76rem !important;
+  font-weight: 850 !important;
+}
+
+.wm-glossary-category-row button span {
+  display: inline-grid !important;
+  place-items: center !important;
+  min-width: 1.35rem !important;
+  height: 1.35rem !important;
+  border-radius: 999px !important;
+  background: rgba(15, 23, 42, 0.08) !important;
+  font-size: 0.68rem !important;
+}
+
+.wm-glossary-results {
+  align-content: start !important;
+  max-height: calc(100vh - 230px) !important;
+  overflow: auto !important;
+}
+
+.wm-glossary-detail {
+  display: grid !important;
+  gap: 14px !important;
+}
+
+.wm-glossary-detail-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.wm-glossary-definition-grid {
+  margin-top: 0 !important;
+}
+
+.wm-glossary-definition-grid section {
+  display: grid !important;
+  gap: 7px !important;
+}
+
+.wm-glossary-say-panel {
+  display: grid !important;
+  gap: 8px !important;
+  border-color: rgba(246, 163, 64, 0.32) !important;
+  background: #fffaf3 !important;
+}
+
+.wm-glossary-say-panel > span {
+  color: #047857 !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+}
+
+.wm-glossary-two-column {
+  margin-top: 0 !important;
+}
+
+.wm-glossary-two-column section:last-child li {
+  display: flex !important;
+  gap: 7px !important;
+  align-items: flex-start !important;
+}
+
+.wm-glossary-two-column section:last-child svg {
+  color: #b45309 !important;
+  margin-top: 3px !important;
+  flex: 0 0 auto !important;
+}
+
+.wm-glossary-empty {
+  display: grid !important;
+  gap: 5px !important;
+  justify-items: center !important;
+  border: 1px dashed rgba(148, 163, 184, 0.34) !important;
+  border-radius: 16px !important;
+  color: #64748b !important;
+  padding: 18px !important;
+  text-align: center !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-diagram-studio-shell,
+  .wm-glossary-workspace {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-glossary-results {
+    max-height: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .wm-diagram-preview-head,
+  .wm-glossary-detail-head {
+    display: grid !important;
+  }
+
+  .wm-diagram-code-shell textarea {
+    min-height: 320px !important;
+  }
+}
+/* WINGMAN VISUAL DESIGN AND GLOSSARY END */
