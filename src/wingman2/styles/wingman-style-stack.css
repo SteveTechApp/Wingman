@@ -15040,4 +15040,1208 @@ html[data-wingman-route="finder"] .wingman-page-host .flex.border :where(p, span
 
 /* WINGMAN DARK READABILITY SYSTEM END */
 
+/* WINGMAN MERGED GLOBAL UNIFORMITY START */
+
+/* ==========================================================================
+   WINGMAN GLOBAL UNIFORMITY LAYER
+   Imported last from src/main.tsx.
+
+   Purpose:
+   Reduce page-to-page visual drift while local TSX/Tailwind styling is
+   gradually replaced with semantic Wingman classes.
+   ========================================================================== */
+
+:root {
+  --wm-uniform-bg-0: #020817;
+  --wm-uniform-bg-1: #061527;
+  --wm-uniform-panel: rgba(7, 23, 42, 0.86);
+  --wm-uniform-panel-strong: rgba(8, 31, 54, 0.94);
+  --wm-uniform-border: rgba(103, 232, 249, 0.26);
+  --wm-uniform-border-strong: rgba(103, 232, 249, 0.46);
+  --wm-uniform-title: #67e8f9;
+  --wm-uniform-title-soft: #a5f3fc;
+  --wm-uniform-text: #ffffff;
+  --wm-uniform-muted: rgba(226, 242, 255, 0.76);
+  --wm-uniform-faint: rgba(226, 242, 255, 0.56);
+  --wm-uniform-radius: 24px;
+  --wm-uniform-radius-small: 14px;
+  --wm-uniform-shadow: 0 18px 60px rgba(0, 0, 0, 0.34);
+  --wm-uniform-glow: 0 0 0 1px rgba(103, 232, 249, 0.12), 0 18px 60px rgba(8, 145, 178, 0.14);
+}
+
+/* App background */
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(34, 211, 238, 0.13), transparent 34%),
+    radial-gradient(circle at 86% 8%, rgba(20, 184, 166, 0.10), transparent 30%),
+    linear-gradient(135deg, var(--wm-uniform-bg-0), var(--wm-uniform-bg-1) 58%, #020617) !important;
+  color: var(--wm-uniform-text) !important;
+}
+
+body,
+main {
+  color: var(--wm-uniform-text) !important;
+}
+
+/* Headings */
+
+main h1,
+main h2,
+main h3,
+main .wm-page-title,
+main .wm-section-title,
+main .wm-card-title,
+main [class*="page-title"],
+main [class*="section-title"],
+main [class*="card-title"],
+main [class*="heading"] {
+  color: var(--wm-uniform-title) !important;
+}
+
+main h4,
+main h5,
+main h6 {
+  color: var(--wm-uniform-title-soft) !important;
+}
+
+/* Text */
+
+main p,
+main li,
+main label {
+  color: var(--wm-uniform-text) !important;
+}
+
+main small,
+main .wm-muted-text,
+main [class*="muted"],
+main [class*="subtitle"],
+main [class*="description"],
+main [class*="helper"],
+main [class*="hint"] {
+  color: var(--wm-uniform-muted) !important;
+}
+
+main [class*="text-slate-"],
+main [class*="text-gray-"],
+main [class*="text-zinc-"],
+main [class*="text-neutral-"],
+main [class*="text-stone-"] {
+  color: var(--wm-uniform-muted) !important;
+}
+
+main h1[class*="text-"],
+main h2[class*="text-"],
+main h3[class*="text-"],
+main [class*="title"][class*="text-"] {
+  color: var(--wm-uniform-title) !important;
+}
+
+/* Shared Wingman surfaces */
+
+.wm-page,
+.wm-page-shell,
+.wm-page-frame,
+.wm-workspace,
+.wm-route-page {
+  background: transparent !important;
+  color: var(--wm-uniform-text) !important;
+}
+
+.wm-panel,
+.wm-card,
+.wm-section,
+.wm-section-card,
+.wm-action-card,
+.wm-choice-card,
+.wm-page-header,
+.wm-page-hero,
+.wm-ai-rail,
+.wm-guru-panel,
+.wm-product-card,
+.wm-project-card,
+.wm-template-card,
+.wm-call-card,
+.wm-comparison-card,
+.wm-discovery-card,
+.wm-finder-card,
+.wm-proposal-card {
+  background:
+    linear-gradient(145deg, rgba(8, 31, 54, 0.94), rgba(6, 21, 39, 0.84)) !important;
+  border: 1px solid var(--wm-uniform-border) !important;
+  border-radius: var(--wm-uniform-radius) !important;
+  box-shadow: var(--wm-uniform-glow) !important;
+  color: var(--wm-uniform-text) !important;
+}
+
+/* Common Tailwind-style cards still inside pages */
+
+main [class*="rounded-2xl"][class*="border"],
+main [class*="rounded-3xl"][class*="border"],
+main [class*="rounded-xl"][class*="border"] {
+  background:
+    linear-gradient(145deg, rgba(8, 31, 54, 0.94), rgba(6, 21, 39, 0.84)) !important;
+  border-color: var(--wm-uniform-border) !important;
+  color: var(--wm-uniform-text) !important;
+  box-shadow: var(--wm-uniform-glow) !important;
+}
+
+/* Borders */
+
+main [class*="border-white"],
+main [class*="border-slate-"],
+main [class*="border-gray-"],
+main [class*="border-zinc-"],
+main [class*="border-cyan-"],
+main [class*="border-sky-"],
+main [class*="border-blue-"],
+main [class*="border-teal-"] {
+  border-color: var(--wm-uniform-border) !important;
+}
+
+main hr {
+  border-color: var(--wm-uniform-border) !important;
+}
+
+/* Buttons */
+
+main button,
+main a[class*="button"],
+main a[class*="btn"],
+main .wm-primary-action,
+main .wm-secondary-action,
+main .wm-action-button {
+  border-radius: 999px !important;
+  border-color: var(--wm-uniform-border-strong) !important;
+  color: #ffffff !important;
+}
+
+main .wm-primary-action,
+main button[class*="primary"],
+main a[class*="primary"] {
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.94), rgba(20, 184, 166, 0.88)) !important;
+  color: #ffffff !important;
+}
+
+main .wm-secondary-action,
+main a[class*="secondary"] {
+  background: rgba(8, 31, 54, 0.74) !important;
+  color: #ffffff !important;
+}
+
+main button:hover,
+main a:hover {
+  border-color: rgba(103, 232, 249, 0.72) !important;
+}
+
+/* Forms */
+
+main input,
+main select,
+main textarea {
+  background: rgba(2, 8, 23, 0.74) !important;
+  border: 1px solid var(--wm-uniform-border) !important;
+  border-radius: var(--wm-uniform-radius-small) !important;
+  color: #ffffff !important;
+}
+
+main input::placeholder,
+main textarea::placeholder {
+  color: var(--wm-uniform-faint) !important;
+}
+
+main input:focus,
+main select:focus,
+main textarea:focus {
+  border-color: rgba(103, 232, 249, 0.78) !important;
+  outline: 2px solid rgba(103, 232, 249, 0.18) !important;
+  outline-offset: 2px !important;
+}
+
+/* Pills, chips and badges */
+
+main .wm-status-pill,
+main .wm-chip,
+main [class*="pill"],
+main [class*="chip"],
+main [class*="badge"] {
+  border: 1px solid var(--wm-uniform-border) !important;
+  background: rgba(8, 31, 54, 0.76) !important;
+  color: var(--wm-uniform-title-soft) !important;
+  border-radius: 999px !important;
+}
+
+/* Reduce oversized page hero dominance */
+
+main .wm-page-hero,
+main .wm-page-header,
+main [class*="hero"],
+main [class*="Hero"] {
+  padding-block: clamp(1rem, 2vw, 1.75rem) !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Preserve warning/error visibility */
+
+main [class*="danger"],
+main [class*="error"],
+main [class*="destructive"],
+main [class*="text-red-"] {
+  color: #fca5a5 !important;
+}
+
+/* ==========================================================================
+   TEMPLATE LIBRARY COMPACT REDESIGN
+   Global layout rules for /wingman/templates.
+   ========================================================================== */
+
+.wm-template-library-page {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 1rem;
+  min-height: calc(100vh - 96px);
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+.wm-template-library-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.wm-template-library-header .wm-page-subtitle {
+  max-width: 760px;
+}
+
+.wm-template-library-header-actions,
+.wm-template-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.wm-template-library-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.wm-template-stat-card {
+  border: 1px solid var(--wm-uniform-border, rgba(103, 232, 249, 0.26));
+  border-radius: 18px;
+  background: rgba(8, 31, 54, 0.68);
+  padding: 0.85rem 1rem;
+}
+
+.wm-template-stat-card span {
+  display: block;
+  color: var(--wm-uniform-title, #67e8f9);
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.wm-template-stat-card p {
+  margin: 0.3rem 0 0;
+  color: var(--wm-uniform-muted, rgba(226, 242, 255, 0.76)) !important;
+  font-size: 0.82rem;
+}
+
+.wm-template-library-workspace {
+  display: grid;
+  grid-template-columns: minmax(210px, 250px) minmax(0, 1fr) minmax(280px, 340px);
+  gap: 1rem;
+  min-height: 0;
+}
+
+.wm-template-filter-panel,
+.wm-template-results-panel,
+.wm-template-preview-panel {
+  border: 1px solid var(--wm-uniform-border, rgba(103, 232, 249, 0.26));
+  border-radius: 24px;
+  background:
+    linear-gradient(145deg, rgba(8, 31, 54, 0.94), rgba(6, 21, 39, 0.84));
+  box-shadow: var(--wm-uniform-glow, 0 18px 60px rgba(8, 145, 178, 0.14));
+  min-height: 0;
+}
+
+.wm-template-filter-panel,
+.wm-template-preview-panel {
+  padding: 1rem;
+}
+
+.wm-template-results-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  padding: 1rem;
+}
+
+.wm-template-filter-search {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.wm-template-filter-search label {
+  color: var(--wm-uniform-title-soft, #a5f3fc) !important;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wm-template-filter-list {
+  display: grid;
+  gap: 0.45rem;
+  max-height: calc(100vh - 360px);
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.wm-template-filter-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(2, 8, 23, 0.44) !important;
+  border: 1px solid rgba(103, 232, 249, 0.18) !important;
+  text-align: left;
+}
+
+.wm-template-filter-button span {
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.wm-template-filter-button strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.7rem;
+  min-height: 1.7rem;
+  border-radius: 999px;
+  background: rgba(103, 232, 249, 0.12);
+  color: var(--wm-uniform-title, #67e8f9);
+  font-size: 0.76rem;
+}
+
+.wm-template-filter-button.is-active {
+  border-color: rgba(103, 232, 249, 0.72) !important;
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.46), rgba(20, 184, 166, 0.24)) !important;
+}
+
+.wm-template-results-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.wm-template-results-toolbar .wm-section-title {
+  margin: 0.1rem 0 0;
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
+}
+
+.wm-template-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.8rem;
+  overflow: auto;
+  padding: 0.1rem 0.25rem 0.35rem 0.1rem;
+}
+
+.wm-template-card {
+  display: grid;
+  gap: 0.65rem;
+  align-content: start;
+  min-height: 210px;
+  padding: 0.95rem;
+  border-radius: 20px !important;
+  border: 1px solid rgba(103, 232, 249, 0.2) !important;
+  background: rgba(2, 8, 23, 0.38) !important;
+  text-align: left;
+}
+
+.wm-template-card:hover,
+.wm-template-card.is-active {
+  border-color: rgba(103, 232, 249, 0.78) !important;
+  background: linear-gradient(145deg, rgba(8, 145, 178, 0.34), rgba(8, 31, 54, 0.86)) !important;
+}
+
+.wm-template-card-topline,
+.wm-template-card-meta,
+.wm-template-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.wm-template-card-topline {
+  justify-content: space-between;
+}
+
+.wm-template-card-topline span,
+.wm-template-card-topline strong,
+.wm-template-card-meta span,
+.wm-template-card-tags span,
+.wm-template-preview-products span {
+  border: 1px solid rgba(103, 232, 249, 0.22);
+  border-radius: 999px;
+  background: rgba(8, 31, 54, 0.66);
+  color: var(--wm-uniform-title-soft, #a5f3fc);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0.38rem 0.52rem;
+}
+
+.wm-template-card h3 {
+  margin: 0;
+  color: var(--wm-uniform-title, #67e8f9) !important;
+  font-size: 1rem;
+  line-height: 1.15;
+}
+
+.wm-template-card p {
+  margin: 0;
+  color: var(--wm-uniform-muted, rgba(226, 242, 255, 0.76)) !important;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.wm-template-preview-panel {
+  display: grid;
+  align-content: start;
+  gap: 0.9rem;
+  overflow: auto;
+  max-height: calc(100vh - 260px);
+}
+
+.wm-template-preview-panel .wm-section-title {
+  margin: 0;
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+}
+
+.wm-template-preview-panel p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.wm-template-preview-fit {
+  color: var(--wm-uniform-title-soft, #a5f3fc) !important;
+  font-weight: 800;
+}
+
+.wm-template-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.wm-template-preview-grid div {
+  border: 1px solid rgba(103, 232, 249, 0.18);
+  border-radius: 16px;
+  background: rgba(2, 8, 23, 0.38);
+  padding: 0.75rem;
+}
+
+.wm-template-preview-grid span {
+  display: block;
+  color: var(--wm-uniform-muted, rgba(226, 242, 255, 0.76));
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+}
+
+.wm-template-preview-grid strong {
+  color: #ffffff;
+  font-size: 0.88rem;
+}
+
+.wm-template-preview-products {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.wm-template-preview-products h3 {
+  margin: 0;
+  color: var(--wm-uniform-title, #67e8f9) !important;
+  font-size: 1rem;
+}
+
+.wm-template-preview-products div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.wm-template-empty-state {
+  border: 1px dashed rgba(103, 232, 249, 0.34);
+  border-radius: 20px;
+  background: rgba(2, 8, 23, 0.34);
+  padding: 1rem;
+}
+
+.wm-template-empty-state h3,
+.wm-template-empty-state p {
+  margin: 0;
+}
+
+.wm-template-empty-state h3 {
+  color: var(--wm-uniform-title, #67e8f9) !important;
+  margin-bottom: 0.35rem;
+}
+
+@media (max-width: 1180px) {
+  .wm-template-library-workspace {
+    grid-template-columns: minmax(190px, 230px) minmax(0, 1fr);
+  }
+
+  .wm-template-preview-panel {
+    grid-column: 1 / -1;
+    max-height: none;
+  }
+}
+
+@media (max-width: 820px) {
+  .wm-template-library-header,
+  .wm-template-results-toolbar {
+    display: grid;
+  }
+
+  .wm-template-library-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wm-template-library-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-template-filter-list,
+  .wm-template-preview-panel {
+    max-height: none;
+  }
+}
+
+/* TEMPLATE LIBRARY NAME ONLY ALL VIEW START */
+
+.wm-template-library-workspace.is-name-only-mode {
+  grid-template-columns: minmax(210px, 250px) minmax(0, 1fr);
+}
+
+.wm-template-library-workspace.is-name-only-mode .wm-template-preview-panel {
+  display: none;
+}
+
+.wm-template-library-workspace.is-name-only-mode .wm-template-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  align-content: start;
+}
+
+.wm-template-card.is-name-only {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0.9rem;
+  text-align: center;
+}
+
+.wm-template-card.is-name-only h3 {
+  margin: 0;
+  color: var(--wm-uniform-title, #67e8f9) !important;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.wm-template-card.is-name-only:hover {
+  border-color: rgba(103, 232, 249, 0.78) !important;
+  background: linear-gradient(145deg, rgba(8, 145, 178, 0.34), rgba(8, 31, 54, 0.86)) !important;
+}
+
+/* TEMPLATE LIBRARY NAME ONLY ALL VIEW END */
+
+/* TEMPLATE LIBRARY COMPACT ALL INDEX START */
+
+/* In All view, make the page a fast scan index, not a dashboard. */
+
+.wm-template-library-page.is-name-only-mode {
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 0.75rem !important;
+  min-height: auto !important;
+  padding: 0.9rem 1.15rem !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-library-header {
+  align-items: center !important;
+  min-height: 0 !important;
+  padding: 0.75rem 1rem !important;
+  margin-bottom: 0 !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-library-header .wm-section-kicker,
+.wm-template-library-page.is-name-only-mode .wm-template-library-header .wm-page-subtitle {
+  display: none !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-library-header .wm-page-title {
+  margin: 0 !important;
+  font-size: clamp(1.35rem, 2vw, 1.85rem) !important;
+  line-height: 1.05 !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-library-header-actions {
+  gap: 0.5rem !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-library-header-actions a {
+  min-height: 2.1rem !important;
+  padding: 0.45rem 0.75rem !important;
+  font-size: 0.8rem !important;
+}
+
+/* Hide dashboard counters in the name-only overview. */
+.wm-template-library-page.is-name-only-mode .wm-template-library-stats {
+  display: none !important;
+}
+
+/* Convert the workspace into one compact column. */
+.wm-template-library-page.is-name-only-mode .wm-template-library-workspace,
+.wm-template-library-workspace.is-name-only-mode {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 0.65rem !important;
+  min-height: 0 !important;
+}
+
+/* Filter becomes a compact top strip. */
+.wm-template-library-page.is-name-only-mode .wm-template-filter-panel {
+  display: grid !important;
+  grid-template-columns: minmax(210px, 280px) minmax(0, 1fr) !important;
+  align-items: end !important;
+  gap: 0.75rem !important;
+  padding: 0.65rem 0.75rem !important;
+  border-radius: 18px !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-search {
+  margin: 0 !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-search label,
+.wm-template-library-page.is-name-only-mode .wm-template-filter-list .wm-section-kicker {
+  display: none !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-search input {
+  min-height: 2.25rem !important;
+  font-size: 0.82rem !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-list {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 0.45rem !important;
+  max-height: none !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding: 0 !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-button {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-height: 2.25rem !important;
+  padding: 0.4rem 0.55rem !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-button span {
+  font-size: 0.78rem !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-button strong {
+  min-width: 1.45rem !important;
+  min-height: 1.45rem !important;
+  font-size: 0.68rem !important;
+}
+
+/* Results area becomes the visual priority. */
+.wm-template-library-page.is-name-only-mode .wm-template-results-panel {
+  padding: 0.75rem !important;
+  border-radius: 20px !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-results-toolbar {
+  align-items: center !important;
+  margin-bottom: 0.6rem !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-results-toolbar .wm-section-kicker {
+  display: none !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-results-toolbar .wm-section-title {
+  margin: 0 !important;
+  font-size: 1.1rem !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-results-toolbar .wm-secondary-action {
+  display: none !important;
+}
+
+/* Hide preview in default All view. */
+.wm-template-library-page.is-name-only-mode .wm-template-preview-panel,
+.wm-template-library-workspace.is-name-only-mode .wm-template-preview-panel {
+  display: none !important;
+}
+
+/* Dense name grid. */
+.wm-template-library-page.is-name-only-mode .wm-template-card-grid,
+.wm-template-library-workspace.is-name-only-mode .wm-template-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+  gap: 0.45rem !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-card.is-name-only {
+  min-height: 48px !important;
+  padding: 0.45rem 0.55rem !important;
+  border-radius: 14px !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-card.is-name-only h3 {
+  font-size: 0.8rem !important;
+  line-height: 1.12 !important;
+  letter-spacing: 0 !important;
+}
+
+@media (max-width: 820px) {
+  .wm-template-library-page.is-name-only-mode .wm-template-filter-panel {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-template-library-page.is-name-only-mode .wm-template-card-grid,
+  .wm-template-library-workspace.is-name-only-mode .wm-template-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)) !important;
+  }
+}
+
+/* TEMPLATE LIBRARY COMPACT ALL INDEX END */
+
+/* TEMPLATE LIBRARY REMOVE PREVIEW PANEL START */
+
+/* Remove the right-hand selected template explanation panel completely. */
+.wm-template-library-page .wm-template-preview-panel {
+  display: none !important;
+}
+
+/* Reclaim the space so templates are presented clearly. */
+.wm-template-library-page .wm-template-library-workspace {
+  grid-template-columns: minmax(210px, 250px) minmax(0, 1fr) !important;
+}
+
+/* Allow the results panel to breathe once the preview panel is removed. */
+.wm-template-library-page .wm-template-results-panel {
+  min-width: 0 !important;
+}
+
+/* Keep filtered result cards clear but avoid the cramped three-column layout. */
+.wm-template-library-page:not(.is-name-only-mode) .wm-template-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+}
+
+/* In the default name-only view, keep the compact index layout. */
+.wm-template-library-page.is-name-only-mode .wm-template-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+}
+
+@media (max-width: 820px) {
+  .wm-template-library-page .wm-template-library-workspace {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* TEMPLATE LIBRARY REMOVE PREVIEW PANEL END */
+
+/* WINGMAN MERGED GLOBAL UNIFORMITY END */
+
+/* TEMPLATE LIBRARY SLIM TOOLBAR START */
+
+/* Remove the large empty filter tray in the Room Templates page. */
+.wm-template-library-page.is-name-only-mode .wm-template-filter-panel {
+  display: flex !important;
+  align-items: center !important;
+  align-content: center !important;
+  justify-content: flex-start !important;
+  gap: 0.55rem !important;
+  height: 2.75rem !important;
+  min-height: 0 !important;
+  max-height: 2.75rem !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Pull the template grid up by removing the artificial panel feel. */
+.wm-template-library-page.is-name-only-mode .wm-template-library-workspace {
+  gap: 0.5rem !important;
+}
+
+/* Search becomes a compact control, not its own section. */
+.wm-template-library-page.is-name-only-mode .wm-template-filter-search {
+  flex: 0 0 260px !important;
+  display: block !important;
+  margin: 0 !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-search label {
+  display: none !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-search input {
+  width: 100% !important;
+  height: 2.15rem !important;
+  min-height: 2.15rem !important;
+  padding: 0.35rem 0.65rem !important;
+  font-size: 0.78rem !important;
+}
+
+/* Category filters become one tight horizontal chip row. */
+.wm-template-library-page.is-name-only-mode .wm-template-filter-list {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  height: 2.25rem !important;
+  min-height: 0 !important;
+  max-height: 2.25rem !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding: 0 !important;
+  scrollbar-width: none !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-list::-webkit-scrollbar {
+  display: none !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-list .wm-section-kicker {
+  display: none !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-button {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  height: 2.05rem !important;
+  min-height: 2.05rem !important;
+  padding: 0.3rem 0.48rem !important;
+  border-radius: 999px !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-button span {
+  font-size: 0.72rem !important;
+  line-height: 1 !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-filter-button strong {
+  min-width: 1.35rem !important;
+  min-height: 1.35rem !important;
+  font-size: 0.62rem !important;
+}
+
+/* Results should sit directly below the toolbar. */
+.wm-template-library-page.is-name-only-mode .wm-template-results-panel {
+  padding: 0.7rem !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-results-toolbar {
+  margin-bottom: 0.55rem !important;
+}
+
+.wm-template-library-page.is-name-only-mode .wm-template-card-grid {
+  gap: 0.42rem !important;
+}
+
+/* Keep filtered views free of the removed right-hand explanation panel. */
+.wm-template-library-page .wm-template-preview-panel {
+  display: none !important;
+}
+
+.wm-template-library-page .wm-template-library-workspace {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+@media (max-width: 820px) {
+  .wm-template-library-page.is-name-only-mode .wm-template-filter-panel {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    max-height: none !important;
+    gap: 0.45rem !important;
+  }
+
+  .wm-template-library-page.is-name-only-mode .wm-template-filter-search {
+    flex: none !important;
+  }
+}
+
+/* TEMPLATE LIBRARY SLIM TOOLBAR END */
+
+/* TEMPLATE LIBRARY FORCE COMPACT TOOLBAR ALL STATES START */
+
+/* Room Templates should behave like a fast template picker, not a dashboard page. */
+
+.wm-template-library-page {
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 0.65rem !important;
+  padding: 0.85rem 1rem !important;
+  min-height: auto !important;
+}
+
+/* Make the title/header much smaller. */
+.wm-template-library-page .wm-template-library-header,
+.wm-template-library-page .wm-page-header {
+  min-height: 0 !important;
+  padding: 0.7rem 0.9rem !important;
+  margin: 0 !important;
+  align-items: center !important;
+}
+
+.wm-template-library-page .wm-template-library-header .wm-section-kicker,
+.wm-template-library-page .wm-template-library-header .wm-page-subtitle {
+  display: none !important;
+}
+
+.wm-template-library-page .wm-template-library-header .wm-page-title {
+  margin: 0 !important;
+  font-size: clamp(1.3rem, 2vw, 1.85rem) !important;
+  line-height: 1.05 !important;
+}
+
+.wm-template-library-page .wm-template-library-header-actions a {
+  min-height: 2rem !important;
+  padding: 0.42rem 0.72rem !important;
+  font-size: 0.78rem !important;
+}
+
+/* Remove stat cards completely on this page. They are taking space without helping template selection. */
+.wm-template-library-page .wm-template-library-stats {
+  display: none !important;
+}
+
+/* Main workspace should be one clear vertical flow. */
+.wm-template-library-page .wm-template-library-workspace {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 0.45rem !important;
+  min-height: 0 !important;
+}
+
+/* Force the filter/search panel to become a slim toolbar in ALL views. */
+.wm-template-library-page .wm-template-filter-panel {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  align-content: center !important;
+  justify-content: flex-start !important;
+  gap: 0.55rem !important;
+  height: 2.65rem !important;
+  min-height: 2.65rem !important;
+  max-height: 2.65rem !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Search box on the left of the toolbar. */
+.wm-template-library-page .wm-template-filter-search {
+  flex: 0 0 270px !important;
+  display: block !important;
+  margin: 0 !important;
+}
+
+.wm-template-library-page .wm-template-filter-search label {
+  display: none !important;
+}
+
+.wm-template-library-page .wm-template-filter-search input {
+  width: 100% !important;
+  height: 2.15rem !important;
+  min-height: 2.15rem !important;
+  padding: 0.35rem 0.65rem !important;
+  font-size: 0.78rem !important;
+}
+
+/* Application filters become compact chips across the same row. */
+.wm-template-library-page .wm-template-filter-list {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  height: 2.2rem !important;
+  min-height: 2.2rem !important;
+  max-height: 2.2rem !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding: 0 !important;
+  scrollbar-width: none !important;
+}
+
+.wm-template-library-page .wm-template-filter-list::-webkit-scrollbar {
+  display: none !important;
+}
+
+.wm-template-library-page .wm-template-filter-list .wm-section-kicker,
+.wm-template-library-page .wm-template-filter-list > p {
+  display: none !important;
+}
+
+.wm-template-library-page .wm-template-filter-button {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  height: 2.05rem !important;
+  min-height: 2.05rem !important;
+  padding: 0.3rem 0.48rem !important;
+  border-radius: 999px !important;
+}
+
+.wm-template-library-page .wm-template-filter-button span {
+  font-size: 0.72rem !important;
+  line-height: 1 !important;
+}
+
+.wm-template-library-page .wm-template-filter-button strong {
+  min-width: 1.35rem !important;
+  min-height: 1.35rem !important;
+  font-size: 0.62rem !important;
+}
+
+/* Results panel should move up directly under the toolbar. */
+.wm-template-library-page .wm-template-results-panel {
+  padding: 0.7rem !important;
+  border-radius: 18px !important;
+  min-height: 0 !important;
+}
+
+.wm-template-library-page .wm-template-results-toolbar {
+  align-items: center !important;
+  margin-bottom: 0.55rem !important;
+}
+
+.wm-template-library-page .wm-template-results-toolbar .wm-section-kicker {
+  display: none !important;
+}
+
+.wm-template-library-page .wm-template-results-toolbar .wm-section-title {
+  margin: 0 !important;
+  font-size: 1.05rem !important;
+  line-height: 1.1 !important;
+}
+
+.wm-template-library-page .wm-template-results-toolbar .wm-secondary-action {
+  min-height: 2rem !important;
+  padding: 0.4rem 0.7rem !important;
+  font-size: 0.76rem !important;
+}
+
+/* Remove selected-template explanation panel everywhere. */
+.wm-template-library-page .wm-template-preview-panel {
+  display: none !important;
+}
+
+/* Dense result grid. */
+.wm-template-library-page .wm-template-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+  gap: 0.42rem !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+/* In all views, reduce card height. */
+.wm-template-library-page .wm-template-card {
+  min-height: 54px !important;
+  padding: 0.5rem 0.6rem !important;
+  border-radius: 14px !important;
+}
+
+/* In filtered views, stop the detailed cards from becoming large blocks. */
+.wm-template-library-page .wm-template-card:not(.is-name-only) {
+  min-height: 92px !important;
+  gap: 0.35rem !important;
+}
+
+.wm-template-library-page .wm-template-card:not(.is-name-only) p,
+.wm-template-library-page .wm-template-card:not(.is-name-only) .wm-template-card-meta,
+.wm-template-library-page .wm-template-card:not(.is-name-only) .wm-template-card-tags {
+  display: none !important;
+}
+
+.wm-template-library-page .wm-template-card h3 {
+  margin: 0 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.12 !important;
+}
+
+/* Keep only small category/complexity pills in filtered mode. */
+.wm-template-library-page .wm-template-card-topline {
+  gap: 0.25rem !important;
+}
+
+.wm-template-library-page .wm-template-card-topline span,
+.wm-template-library-page .wm-template-card-topline strong {
+  font-size: 0.62rem !important;
+  padding: 0.28rem 0.42rem !important;
+}
+
+/* Reduce top whitespace if older rules are still adding dashboard spacing. */
+.wm-template-library-page .wm-page-hero,
+.wm-template-library-page [class*="hero"],
+.wm-template-library-page [class*="Hero"] {
+  padding-block: 0.65rem !important;
+  margin-bottom: 0 !important;
+}
+
+@media (max-width: 820px) {
+  .wm-template-library-page .wm-template-filter-panel {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    max-height: none !important;
+    gap: 0.45rem !important;
+  }
+
+  .wm-template-library-page .wm-template-filter-search {
+    flex: none !important;
+  }
+
+  .wm-template-library-page .wm-template-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)) !important;
+  }
+}
+
+/* TEMPLATE LIBRARY FORCE COMPACT TOOLBAR ALL STATES END */
 

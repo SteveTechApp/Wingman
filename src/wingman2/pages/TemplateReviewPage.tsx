@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -424,7 +424,8 @@ export function TemplateReviewPage() {
             <div className="mt-5 rounded-2xl border border-[#29465e] bg-[#0d2133] p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="wingman-kicker">Editable WyreStorm BOM</p>
+                  <p className="wingman-kicker">Other AV design scope
+Editable WyreStorm BOM</p>
                   <h3 className="mt-2 text-xl font-black text-slate-950">Template rows</h3>
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-[#0d2133] px-3 py-1.5 text-sm font-semibold text-slate-700">

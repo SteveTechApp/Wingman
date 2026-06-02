@@ -1,11 +1,10 @@
-import "./wingman2/styles/wingman-style-stack.css";
+﻿import "./wingman2/styles/wingman-style-stack.css";
 
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
-
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
@@ -19,3 +18,9 @@ createRoot(rootElement).render(
     </BrowserRouter>
   </React.StrictMode>,
 );
+
+
+
+
+
+
