@@ -1,5 +1,7 @@
-﻿import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
+const callNotesStorageKey = "wingman-guru-call-notes-transcript";
 import {
   readProjectStore,
   saveDiscoveryBriefToProject,
@@ -134,13 +136,13 @@ const DISCOVERY_STEPS: DiscoveryStep[] = [
       },
       {
         id: "two-four-sources",
-        label: "2–4 sources",
+        label: "2â€“4 sources",
         description: "Typical meeting room, teaching room or small venue switching.",
         evidence: "Small switching workflow.",
       },
       {
         id: "five-eight-sources",
-        label: "5–8 sources",
+        label: "5â€“8 sources",
         description: "Matrix, presentation switcher or hospitality source rack likely.",
         evidence: "Matrix or presentation system candidate.",
       },
@@ -173,7 +175,7 @@ const DISCOVERY_STEPS: DiscoveryStep[] = [
       },
       {
         id: "three-eight-displays",
-        label: "3–8 displays",
+        label: "3â€“8 displays",
         description: "Small venue, teaching space, confidence display or matrix opportunity.",
         evidence: "Small-to-medium routed display system.",
       },
@@ -596,6 +598,49 @@ export function DiscoveryPage() {
   const activePanelRef = useRef<HTMLDivElement | null>(null);
 
   const [answers, setAnswers] = useState<DiscoveryAnswers>({});
+
+  useEffect(() => {
+    function applyCallNotes(value: string) {
+      const cleanValue = value.trim();
+
+      if (!cleanValue) {
+        return;
+      }
+
+      setAnswers((current) => ({
+        ...current,
+        callNotes: cleanValue,
+        customerWords: cleanValue,
+        discoverySummary: cleanValue,
+      }) as DiscoveryAnswers);
+    }
+
+    function useStoredCallNotes() {
+      const stored = window.sessionStorage.getItem(callNotesStorageKey);
+
+      if (!stored) {
+        return;
+      }
+
+      applyCallNotes(stored);
+      window.sessionStorage.removeItem(callNotesStorageKey);
+    }
+
+    function handleGuruCallNotes(event: Event) {
+      const customEvent = event as CustomEvent<string>;
+
+      if (typeof customEvent.detail === "string" && customEvent.detail.trim()) {
+        applyCallNotes(customEvent.detail);
+      }
+    }
+
+    useStoredCallNotes();
+    window.addEventListener("wingman:use-call-notes-in-discovery", handleGuruCallNotes);
+
+    return () => {
+      window.removeEventListener("wingman:use-call-notes-in-discovery", handleGuruCallNotes);
+    };
+  }, []);
   const [activeIndex, setActiveIndex] = useState(0);
   const [saved, setSaved] = useState(false);
 
