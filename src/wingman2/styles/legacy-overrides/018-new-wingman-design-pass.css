@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    LEGACY OVERRIDE BLOCK: NEW-WINGMAN-DESIGN-PASS
 
    Extracted from wingman-entry-legacy-overrides.css.
@@ -493,15 +493,15 @@ body {
   border-radius: var(--wm-design-radius) !important;
 }
 
-.wingman-page-host :where(.bg-white, .bg-slate-50, .bg-gray-50) {
+.wingman-page-host :where(.wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector) {
   background: #ffffff !important;
 }
 
-.wingman-page-host :where(.bg-slate-100, .bg-gray-100) {
+.wingman-page-host :where(.wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector) {
   background: #eef3f8 !important;
 }
 
-.wingman-page-host :where(.border-slate-200, .border-gray-200) {
+.wingman-page-host :where(.wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector) {
   border-color: rgba(155, 169, 190, 0.38) !important;
 }
 
@@ -623,3 +623,5 @@ body {
   }
 }
 /* NEW-WINGMAN-DESIGN-PASS-END */
+
+

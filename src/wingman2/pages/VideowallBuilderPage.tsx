@@ -1,4 +1,4 @@
-import { Cable, CheckCircle2, Circle, Clock3, Monitor, Network, PanelTop, Settings2, type LucideIcon } from "lucide-react";
+﻿import { Cable, CheckCircle2, Circle, Clock3, Monitor, Network, PanelTop, Settings2, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
@@ -138,9 +138,9 @@ function progressClasses(state: ProgressState) {
       };
     default:
       return {
-        wrapper: "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100",
+        wrapper: "border-[#29465e] bg-[#0d2133] text-slate-700 hover:bg-[#0d2133]",
         icon: "text-slate-400",
-        badge: "bg-slate-200 text-slate-600",
+        badge: "bg-[#0d2133] text-slate-600",
         label: "To do",
       };
   }
@@ -183,8 +183,8 @@ export function VideowallBuilderPage() {
             {wallTypes.map((type) => {
               const isActive = type.key === selectedWallType;
               return (
-                <div key={type.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <h3 className="text-lg font-semibold text-slate-900">{type.label}</h3>
+                <div key={type.label} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5 shadow-sm">
+                  <h3 className="text-lg font-semibold text-[#edf6ff]">{type.label}</h3>
                   <p className="mt-3 text-sm leading-6 text-slate-600">{type.summary}</p>
                   <button
                     type="button"
@@ -192,7 +192,7 @@ export function VideowallBuilderPage() {
                     className={`mt-5 rounded-full px-4 py-2 text-sm font-medium transition ${
                       isActive
                         ? "bg-slate-900 text-white"
-                        : "border border-slate-300 text-slate-700 hover:bg-slate-50"
+                        : "border border-slate-300 text-slate-700 hover:bg-[#0d2133]"
                     }`}
                   >
                     {isActive ? "Selected path" : "Select path"}
@@ -203,8 +203,8 @@ export function VideowallBuilderPage() {
           </div>
 
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-900">Core design inputs</p>
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5">
+              <p className="text-sm font-semibold text-[#edf6ff]">Core design inputs</p>
               <ul className="mt-4 space-y-2 text-sm text-slate-700">
                 {designFactors.map((item) => (
                   <li key={item}>{item}</li>
@@ -212,24 +212,24 @@ export function VideowallBuilderPage() {
               </ul>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-sm font-semibold text-slate-900">Example wall summary</p>
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5">
+              <p className="text-sm font-semibold text-[#edf6ff]">Example wall summary</p>
               <div className="mt-4 space-y-3 text-sm text-slate-700">
                 <div>
                   <p className="text-slate-500">Wall type</p>
-                  <p className="font-semibold text-slate-900">{wallType.label}</p>
+                  <p className="font-semibold text-[#edf6ff]">{wallType.label}</p>
                 </div>
                 <div>
                   <p className="text-slate-500">Wall size</p>
-                  <p className="font-semibold text-slate-900">{wallType.exampleWallSize}</p>
+                  <p className="font-semibold text-[#edf6ff]">{wallType.exampleWallSize}</p>
                 </div>
                 <div>
                   <p className="text-slate-500">Target environment</p>
-                  <p className="font-semibold text-slate-900">{wallType.targetEnvironment}</p>
+                  <p className="font-semibold text-[#edf6ff]">{wallType.targetEnvironment}</p>
                 </div>
                 <div>
                   <p className="text-slate-500">Signal path</p>
-                  <p className="font-semibold text-slate-900">{wallType.signalPath}</p>
+                  <p className="font-semibold text-[#edf6ff]">{wallType.signalPath}</p>
                 </div>
               </div>
             </div>
@@ -241,7 +241,7 @@ export function VideowallBuilderPage() {
 
             <div className="mt-5 grid gap-3 lg:grid-cols-5">
               {signalFlow.map(({ label, Icon, led, lcd }, index) => (
-                <div key={label} className="relative rounded-2xl border border-sky-200 bg-white p-4 text-sm leading-6">
+                <div key={label} className="relative rounded-2xl border border-sky-200 bg-[#0d2133] p-4 text-sm leading-6">
                   <div className="flex items-center gap-2 font-black text-sky-950">
                     <Icon className="h-4 w-4" />
                     {label}
@@ -257,11 +257,11 @@ export function VideowallBuilderPage() {
             </div>
 
             <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr]">
-              <div className="rounded-2xl border border-sky-200 bg-white p-4">
+              <div className="rounded-2xl border border-sky-200 bg-[#0d2133] p-4">
                 <p className="text-sm font-black text-sky-950">WyreStorm path to consider</p>
                 <p className="mt-2 text-sm leading-6 text-sky-800">{wallType.wyrestormPath}</p>
               </div>
-              <div className="rounded-2xl border border-sky-200 bg-white p-4">
+              <div className="rounded-2xl border border-sky-200 bg-[#0d2133] p-4">
                 <p className="text-sm font-black text-sky-950">Common beginner mistake</p>
                 <p className="mt-2 text-sm leading-6 text-sky-800">
                   Do not start with a processor SKU until the layout behaviour is clear: full canvas, per-display content,
@@ -275,7 +275,7 @@ export function VideowallBuilderPage() {
             <summary>Questions that teach the design</summary>
             <div className="mt-4 grid gap-2 text-sm text-slate-700 md:grid-cols-2">
               {teachingQuestions.map((question) => (
-                <div key={question} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div key={question} className="rounded-xl border border-[#29465e] bg-[#0d2133] p-3">
                   {question}
                 </div>
               ))}
@@ -301,7 +301,7 @@ export function VideowallBuilderPage() {
             <div className="mb-4 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
               <span className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">Completed</span>
               <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-700">Current</span>
-              <span className="rounded-full bg-slate-200 px-3 py-1 text-slate-600">To do</span>
+              <span className="rounded-full bg-[#0d2133] px-3 py-1 text-slate-600">To do</span>
             </div>
 
             <div className="grid gap-3 text-sm">
@@ -342,3 +342,4 @@ export function VideowallBuilderPage() {
     </div>
   );
 }
+

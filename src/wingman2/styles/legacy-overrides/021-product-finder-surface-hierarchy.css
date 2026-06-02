@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    LEGACY OVERRIDE BLOCK: PRODUCT-FINDER-SURFACE-HIERARCHY
 
    Extracted from wingman-entry-legacy-overrides.css.
@@ -51,7 +51,7 @@
   box-shadow: var(--wm-finder-shadow-soft) !important;
 }
 
-.wingman-shell:has(.wingman-nav-link-active[href="/wingman/finder"]) .wingman-page-host :where(.bg-white, .bg-slate-50, .bg-slate-100) {
+.wingman-shell:has(.wingman-nav-link-active[href="/wingman/finder"]) .wingman-page-host :where(.wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector) {
   background: var(--wm-finder-panel) !important;
 }
 
@@ -106,7 +106,7 @@
   border-color: rgba(127, 148, 171, 0.26) !important;
 }
 
-.wingman-shell:has(.wingman-nav-link-active[href="/wingman/finder"]) .wingman-page-host :where(.bg-slate-100.rounded-full, .bg-slate-50.rounded-full) {
+.wingman-shell:has(.wingman-nav-link-active[href="/wingman/finder"]) .wingman-page-host :where(.wm-dark-blue-sanitised-selector.rounded-full, .wm-dark-blue-sanitised-selector.rounded-full) {
   background: rgba(228, 239, 250, 0.78) !important;
   color: #334155 !important;
 }
@@ -154,3 +154,5 @@
 }
 
 /* PRODUCT-FINDER-SURFACE-HIERARCHY-END */
+
+

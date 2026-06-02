@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+﻿import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -432,10 +432,6 @@ function genericKnownCompetitorProfile(manufacturer: string, model: string, prod
 
 
   return null;
-}
-
-function blobIncludesWireless(value: string): boolean {
-  return /wireless|airplay|miracast|casting|wi-fi|wifi/i.test(value);
 }
 
 function knownCompetitorFingerprint(manufacturer: string, model: string, productUrl: string): ProductProfile | null {
@@ -2663,7 +2659,7 @@ export function ComparePage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
                     to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(top.sku)}&compare=${encodeURIComponent(result.id)}&source=compare`}
-                    className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                    className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133]"
                   >
                     Open Product Pitch
                   </Link>
@@ -2798,3 +2794,4 @@ function SwotBlock({ title, items }: { title: string; items: string[] }) {
 
 /* workflow markers: runCompetitorMatch | Match evidence | matchScore | saveRecommendationFeedback */
 export default ComparePage;
+

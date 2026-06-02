@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { MessageCircle, MoveRight } from "lucide-react";
 import {
   buildSalesConversationToneCopy,
@@ -91,7 +91,7 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
       className={[
         "mx-auto mb-5 w-full max-w-6xl rounded-3xl border p-4 shadow-sm",
         isDark
-          ? "border-white/10 bg-white/[0.045] text-slate-100"
+          ? "border-[#29465e] bg-[#0d2133]/[0.045] text-slate-100"
           : "border-amber-200 bg-amber-50/80 text-slate-950",
         className,
       ].join(" ")}
@@ -143,8 +143,8 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
                         ? "border-amber-300 bg-amber-300 text-slate-950"
                         : "border-slate-950 bg-slate-950 text-white"
                       : isDark
-                        ? "border-white/10 bg-white/[0.045] text-slate-200 hover:border-amber-300/60"
-                        : "border-amber-200 bg-white text-slate-700 hover:border-amber-400",
+                        ? "border-[#29465e] bg-[#0d2133]/[0.045] text-slate-200 hover:border-amber-300/60"
+                        : "border-amber-200 bg-[#0d2133] text-slate-700 hover:border-amber-400",
                   ].join(" ")}
                 >
                   <span className="block text-sm font-black">{option.label}</span>
@@ -160,7 +160,7 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
         <div
           className={[
             "rounded-2xl border p-4",
-            isDark ? "border-white/10 bg-slate-950/45" : "border-amber-200 bg-white",
+            isDark ? "border-[#29465e] bg-slate-950/45" : "border-amber-200 bg-[#0d2133]",
           ].join(" ")}
         >
           <p className={["text-xs font-black uppercase tracking-[0.16em]", isDark ? "text-sky-200" : "text-sky-800"].join(" ")}>
@@ -183,3 +183,4 @@ export function SalesToneQuickSetter({ context, className = "", surface = "light
 }
 
 export default SalesToneQuickSetter;
+

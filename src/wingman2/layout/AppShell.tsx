@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { Menu, Plus, Settings, X } from "lucide-react";
+import { Menu, Plus, X } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { routeByPath, routeCatalog, routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
@@ -9,7 +9,6 @@ import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { clearActiveProject } from "../data/projectStore";
 import { useWingmanLanguage } from "../data/wingmanLanguage";
 import { useWingmanProfile } from "../data/wingmanProfile";
-import guruBotIcon from "../../assets/branding/guru-bot.png";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
 
 type AppShellProps = {

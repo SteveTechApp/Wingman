@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -321,7 +321,7 @@ export function TemplateReviewPage() {
         rightSlot={
           <Link
             to={routeCatalogByKey.templates.path}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-800 transition hover:bg-slate-50"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-[#0d2133] px-4 py-2 text-sm font-black text-[#edf6ff] transition hover:bg-[#0d2133]"
           >
             <ArrowLeft className="h-4 w-4" />
             Select another template
@@ -368,7 +368,7 @@ export function TemplateReviewPage() {
               <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">
                 <CheckCircle2 className="h-4 w-4" />
                 <span className="font-semibold">Template saved as a standalone project.</span>
-                <Link to={savedProjectPath} className="rounded-full border border-emerald-300 px-3 py-1 font-semibold hover:bg-white">
+                <Link to={savedProjectPath} className="rounded-full border border-emerald-300 px-3 py-1 font-semibold hover:bg-[#0d2133]">
                   Open project
                 </Link>
               </div>
@@ -377,15 +377,15 @@ export function TemplateReviewPage() {
             <TemplateSchematic template={selectedTemplate} rows={selectedRows} />
 
             <div className="mt-5 grid gap-4 lg:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                 <p className="wingman-kicker">Application</p>
                 <p className="mt-2 text-sm leading-6 text-slate-700">{selectedTemplate.application}</p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                 <p className="wingman-kicker">Scale</p>
                 <p className="mt-2 text-sm leading-6 text-slate-700">{selectedTemplate.scale}</p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                 <p className="wingman-kicker">BOM state</p>
                 <p className="mt-2 text-sm leading-6 text-slate-700">
                   {requiredCount} required rows, {optionalCount} optional or validate rows.
@@ -398,7 +398,7 @@ export function TemplateReviewPage() {
                 Architecture, validation and upgrade notes
               </summary>
               <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                   <p className="wingman-kicker">Architecture</p>
                   <p className="mt-2 text-sm leading-7 text-slate-700">{selectedTemplate.architecture}</p>
                 </div>
@@ -421,21 +421,21 @@ export function TemplateReviewPage() {
               </div>
             </details>
 
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5">
+            <div className="mt-5 rounded-2xl border border-[#29465e] bg-[#0d2133] p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="wingman-kicker">Editable WyreStorm BOM</p>
                   <h3 className="mt-2 text-xl font-black text-slate-950">Template rows</h3>
                 </div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700">
+                <div className="inline-flex items-center gap-2 rounded-full bg-[#0d2133] px-3 py-1.5 text-sm font-semibold text-slate-700">
                   <SlidersHorizontal className="h-4 w-4" />
                   Quantity and include/exclude edits
                 </div>
               </div>
 
-              <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
+              <div className="mt-4 overflow-hidden rounded-2xl border border-[#29465e]">
                 <table className="min-w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-slate-600">
+                  <thead className="bg-[#0d2133] text-slate-600">
                     <tr>
                       <th className="px-4 py-3 font-semibold">Use</th>
                       <th className="px-4 py-3 font-semibold">SKU</th>
@@ -450,7 +450,7 @@ export function TemplateReviewPage() {
                       const enabled = includedStatuses.has(row.status);
 
                       return (
-                        <tr key={row.id} className={`border-t border-slate-100 ${enabled ? "bg-white" : "bg-slate-50 text-slate-400"}`}>
+                        <tr key={row.id} className={`border-t border-[#29465e] ${enabled ? "bg-[#0d2133]" : "bg-[#0d2133] text-slate-400"}`}>
                           <td className="px-4 py-3">
                             <input
                               type="checkbox"
@@ -461,7 +461,7 @@ export function TemplateReviewPage() {
                             />
                           </td>
                           <td className="px-4 py-3">
-                            <p className="font-black text-slate-900">{row.sku}</p>
+                            <p className="font-black text-[#edf6ff]">{row.sku}</p>
                             <p className="mt-1 text-xs text-slate-500">{row.description}</p>
                           </td>
                           <td className="px-4 py-3 text-slate-700">{row.role}</td>
@@ -472,7 +472,7 @@ export function TemplateReviewPage() {
                               max="99"
                               value={row.qty}
                               onChange={(event) => updateRowQty(row.id, Number(event.target.value))}
-                              className="w-20 rounded-lg border border-slate-300 px-2 py-1 text-sm text-slate-900"
+                              className="w-20 rounded-lg border border-slate-300 px-2 py-1 text-sm text-[#edf6ff]"
                               aria-label={`Quantity for ${row.sku}`}
                             />
                           </td>
@@ -503,3 +503,4 @@ export function TemplateReviewPage() {
     </div>
   );
 }
+

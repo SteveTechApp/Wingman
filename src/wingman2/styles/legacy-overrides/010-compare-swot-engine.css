@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    LEGACY OVERRIDE BLOCK: COMPARE-SWOT-ENGINE
 
    Extracted from wingman-entry-legacy-overrides.css.
@@ -73,7 +73,7 @@
 .wm-status {
   border: 1px solid #cbd5e1;
   border-radius: 16px;
-  background: #ffffff;
+  background: var(--wm-sweep-card) !important;
   color: #334155 !important;
   padding: 12px 14px;
   font-size: 0.85rem;
@@ -85,7 +85,7 @@
   width: 100%;
   border: 1px solid #d6dee8;
   border-radius: 16px;
-  background: #ffffff;
+  background: var(--wm-sweep-card) !important;
   padding: 12px;
   text-align: left;
 }
@@ -107,7 +107,7 @@
   justify-content: center;
   border: 1px solid #cbd5e1;
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--wm-sweep-card) !important;
   color: #0f172a !important;
   padding: 0 14px;
   font-size: 0.82rem;
@@ -129,7 +129,7 @@
 .wm-swot-block {
   border: 1px solid #d6dee8;
   border-radius: 22px;
-  background: #ffffff;
+  background: var(--wm-sweep-card) !important;
   box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
 }
 
@@ -203,7 +203,7 @@
   overflow: auto;
   border: 1px solid #cbd5e1;
   border-radius: 22px;
-  background: #ffffff;
+  background: var(--wm-sweep-card) !important;
 }
 
 .wm-compare-v2 table {
@@ -275,7 +275,7 @@
 .wm-shortlist article {
   border: 1px solid #e2e8f0;
   border-radius: 18px;
-  background: #f8fafc;
+  background: var(--wm-sweep-card) !important;
   padding: 13px;
 }
 
@@ -347,7 +347,7 @@
   display: inline-flex;
   border: 1px solid #cbd5e1;
   border-radius: 999px;
-  background: #f8fafc;
+  background: var(--wm-sweep-card) !important;
   color: #334155 !important;
   padding: 6px 10px;
   font-size: 0.76rem;
@@ -360,3 +360,4 @@
   }
 }
 /* COMPARE-SWOT-ENGINE-END */
+

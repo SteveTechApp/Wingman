@@ -1,4 +1,4 @@
-import { Suspense, lazy, type ComponentType, type LazyExoticComponent } from "react";
+﻿import { Suspense, lazy, type ComponentType, type LazyExoticComponent } from "react";
 import type { RouteObject } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { AppShell } from "../layout/AppShell";
@@ -45,7 +45,7 @@ const TemplateReviewRoute = lazy(fromNamedExport(() => import("../pages/Template
 
 function RouteFallback() {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm font-semibold text-slate-600">
+    <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-6 text-sm font-semibold text-slate-600">
       Loading Wingman view...
     </div>
   );
@@ -74,3 +74,4 @@ export const wingmanRoutes: RouteObject[] = [
     ],
   },
 ];
+

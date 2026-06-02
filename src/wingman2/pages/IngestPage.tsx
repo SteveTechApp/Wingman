@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from "react";
+﻿import { useRef, useState, type ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -63,7 +63,7 @@ export function IngestPage() {
         subtitle="Files are converted into requirements, risks, and recommended next actions."
       >
         <div className="grid gap-6 xl:grid-cols-[1.05fr_1fr_340px]">
-          <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+          <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-[#0d2133] p-8 text-center">
             <input
               ref={fileInputRef}
               type="file"
@@ -72,7 +72,7 @@ export function IngestPage() {
               onChange={handleFileChange}
               accept=".pdf,.doc,.docx,.txt,.rtf,.md,.csv,.eml"
             />
-            <p className="text-lg font-semibold text-slate-900">Drop PDFs, emails, schematics, or tenders here</p>
+            <p className="text-lg font-semibold text-[#edf6ff]">Drop PDFs, emails, schematics, or tenders here</p>
             <p className="mt-2 text-sm text-slate-600">
               PDF, DOCX, text, markdown, CSV, and email exports are parsed into requirements locally.
             </p>
@@ -89,8 +89,8 @@ export function IngestPage() {
             </button>
 
             {selectedFiles.length ? (
-              <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 text-left">
-                <p className="text-sm font-semibold text-slate-900">Selected files</p>
+              <div className="mt-5 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-left">
+                <p className="text-sm font-semibold text-[#edf6ff]">Selected files</p>
                 <ul className="mt-3 space-y-2 text-sm text-slate-700">
                   {selectedFiles.map((fileName) => (
                     <li key={fileName}>{fileName}</li>
@@ -110,8 +110,8 @@ export function IngestPage() {
             ) : null}
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-sm font-semibold text-slate-900">Extracted requirements</p>
+          <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5">
+            <p className="text-sm font-semibold text-[#edf6ff]">Extracted requirements</p>
             <ul className="mt-4 space-y-3 text-sm text-slate-700">
               {analysis.requirements.map((requirement) => (
                 <li key={requirement}>{requirement}</li>
@@ -119,8 +119,8 @@ export function IngestPage() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-            <p className="text-sm font-semibold text-slate-900">Unknowns / next actions</p>
+          <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5">
+            <p className="text-sm font-semibold text-[#edf6ff]">Unknowns / next actions</p>
             <ul className="mt-4 space-y-2 text-sm text-slate-700">
               {analysis.unknowns.map((unknown) => (
                 <li key={unknown}>{unknown}</li>
@@ -129,7 +129,7 @@ export function IngestPage() {
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 to={routeCatalogByKey.discovery.path}
-                className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-white"
+                className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-[#0d2133]"
               >
                 Open discovery
               </Link>
@@ -146,3 +146,4 @@ export function IngestPage() {
     </div>
   );
 }
+

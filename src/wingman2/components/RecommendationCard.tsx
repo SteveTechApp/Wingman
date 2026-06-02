@@ -1,4 +1,4 @@
-import { ArrowRight, ShieldCheck, TriangleAlert } from "lucide-react";
+﻿import { ArrowRight, ShieldCheck, TriangleAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ConfidenceMeter } from "./ConfidenceMeter";
 import { StatusChip } from "./StatusChip";
@@ -25,11 +25,11 @@ export function RecommendationCard({
   actionTo,
 }: RecommendationCardProps) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="wingman-kicker">Recommendation</p>
-          <h3 className="mt-1 text-xl font-semibold text-slate-900">{title}</h3>
+          <h3 className="mt-1 text-xl font-semibold text-[#edf6ff]">{title}</h3>
           <p className="mt-1 text-sm text-slate-500">{sku}</p>
         </div>
         <StatusChip
@@ -71,3 +71,4 @@ export function RecommendationCard({
     </div>
   );
 }
+

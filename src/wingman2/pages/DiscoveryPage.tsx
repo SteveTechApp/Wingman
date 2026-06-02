@@ -1,1319 +1,881 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  HelpCircle,
-  Monitor,
-  Save,
-  Sparkles,
-} from "lucide-react";
-import { routeCatalogByKey } from "../app/routeCatalog";
-import { saveDiscoveryBriefToProject } from "../data/projectStore";
-import {
-  buildDiscoveryBriefFromState,
-  readLatestDiscoverySnapshot,
-  writeLatestDiscoverySnapshot,
-} from "../data/workflowHandoff";
+  readProjectStore,
+  saveDiscoveryBriefToProject,
+  type StoredDiscoveryBrief,
+} from "../data/projectStore";
 
-type StepId = "outcome" | "room" | "devices" | "displays" | "exceptions" | "review";
+type StepKey =
+  | "application"
+  | "scale"
+  | "sources"
+  | "displays"
+  | "usb"
+  | "audio"
+  | "control"
+  | "infrastructure";
 
-type DiscoveryState = {
-  outcome: string;
-  roomType: string;
-  roomSize: string;
-  equipmentLocation: string;
-  devices: string[];
-  locations: string[];
-  displayBehaviour: string;
-  displayCount: string;
-  cableRun: string;
-  network: string;
-  signalStandard: string;
-  usbOwnership: string;
-  audioPath: string;
-  controlNeeds: string[];
-  notes: string;
-};
-
-type Step = {
-  id: StepId;
+type DiscoveryOption = {
+  id: string;
   label: string;
-  helper: string;
+  description: string;
+  evidence: string;
 };
 
-type OptionCard = {
-  label: string;
-  helper: string;
-  tags?: string[];
+type DiscoveryStep = {
+  key: StepKey;
+  eyebrow: string;
+  title: string;
+  why: string;
+  ask: string;
+  options: DiscoveryOption[];
 };
+
+type DiscoveryAnswers = Partial<Record<StepKey, string>>;
 
 type QuestionStrategy = {
-  prompt: string;
-  customerFrame: string;
-  reasoning: string;
+  customerQuestion: string;
+  internalCheck: string;
+  workflowFocus: string;
 };
 
-const steps: Step[] = [
-  { id: "outcome", label: "Outcome", helper: "Start with what the customer wants to achieve." },
-  { id: "room", label: "Room", helper: "Apply realistic room assumptions." },
-  { id: "devices", label: "Devices", helper: "Select actual equipment, not connector jargon." },
-  { id: "displays", label: "Displays", helper: "Confirm display behaviour only where it changes the design." },
-  { id: "exceptions", label: "Checks", helper: "Only answer questions triggered by the model." },
-  { id: "review", label: "Review", helper: "Move into Finder or Proposal." },
+const DISCOVERY_STEPS: DiscoveryStep[] = [
+  {
+    key: "application",
+    eyebrow: "1 / 8",
+    title: "What type of opportunity is this?",
+    why: "The application narrows the system shape before Wingman thinks about products.",
+    ask: "Select the closest customer application.",
+    options: [
+      {
+        id: "meeting-room",
+        label: "Meeting room / boardroom",
+        description: "Presentation, Teams/Zoom, USB-C, dual display or BYOD/BYOM.",
+        evidence: "Collaboration-led room.",
+      },
+      {
+        id: "classroom",
+        label: "Classroom / teaching space",
+        description: "Lectern, display or projector, source switching and teacher-friendly operation.",
+        evidence: "Education-led room.",
+      },
+      {
+        id: "hospitality",
+        label: "Pub / sports bar / hospitality",
+        description: "Multiple screens, staff control, Sky/media sources and cost sensitivity.",
+        evidence: "Hospitality distribution opportunity.",
+      },
+      {
+        id: "video-wall",
+        label: "LCD / LED video wall",
+        description: "Wall layout, source behaviour, processor choice, signage or flexible routing.",
+        evidence: "Video wall workflow.",
+      },
+      {
+        id: "distributed-av",
+        label: "Distributed AV / multi-room",
+        description: "Many sources or displays across rooms, floors or larger buildings.",
+        evidence: "Distributed routing opportunity.",
+      },
+      {
+        id: "house-of-worship",
+        label: "House of worship / auditorium",
+        description: "Cameras, confidence monitors, projection, streaming or overflow display.",
+        evidence: "Large-room presentation/capture workflow.",
+      },
+    ],
+  },
+  {
+    key: "scale",
+    eyebrow: "2 / 8",
+    title: "What is the approximate room or system scale?",
+    why: "Scale helps decide whether simple switching, extension, matrix or AV-over-IP is more appropriate.",
+    ask: "Select the closest scale.",
+    options: [
+      {
+        id: "small-room",
+        label: "Small room",
+        description: "Single display or simple local presentation room.",
+        evidence: "Simple room scale.",
+      },
+      {
+        id: "medium-room",
+        label: "Medium room",
+        description: "Boardroom, teaching room, divisible space or several user positions.",
+        evidence: "Medium system scale.",
+      },
+      {
+        id: "large-room",
+        label: "Large room",
+        description: "Auditorium, hall, training room or longer cable paths.",
+        evidence: "Large-room infrastructure risk.",
+      },
+      {
+        id: "multi-zone",
+        label: "Multi-zone / multi-room",
+        description: "Several areas, displays or independently routed zones.",
+        evidence: "Distributed or matrix routing likely.",
+      },
+    ],
+  },
+  {
+    key: "sources",
+    eyebrow: "3 / 8",
+    title: "How many source positions are likely?",
+    why: "Source count and source location affect the switching architecture and cable strategy.",
+    ask: "Select the closest source model.",
+    options: [
+      {
+        id: "one-source",
+        label: "One main source",
+        description: "Laptop, signage player, room PC or single media source.",
+        evidence: "Single-source workflow.",
+      },
+      {
+        id: "two-four-sources",
+        label: "2–4 sources",
+        description: "Typical meeting room, teaching room or small venue switching.",
+        evidence: "Small switching workflow.",
+      },
+      {
+        id: "five-eight-sources",
+        label: "5–8 sources",
+        description: "Matrix, presentation switcher or hospitality source rack likely.",
+        evidence: "Matrix or presentation system candidate.",
+      },
+      {
+        id: "many-sources",
+        label: "More than 8 sources",
+        description: "Distributed AV, AV-over-IP or larger matrix architecture likely.",
+        evidence: "Larger routed system candidate.",
+      },
+    ],
+  },
+  {
+    key: "displays",
+    eyebrow: "4 / 8",
+    title: "How many displays or outputs are needed?",
+    why: "Display count is one of the main drivers for matrix, AV-over-IP, wall processing and receiver count.",
+    ask: "Select the closest output model.",
+    options: [
+      {
+        id: "single-display",
+        label: "Single display / projector",
+        description: "One main output position.",
+        evidence: "Single-output system.",
+      },
+      {
+        id: "dual-display",
+        label: "Dual display",
+        description: "Common boardroom or Teams/BYOD room requirement.",
+        evidence: "Dual-output room.",
+      },
+      {
+        id: "three-eight-displays",
+        label: "3–8 displays",
+        description: "Small venue, teaching space, confidence display or matrix opportunity.",
+        evidence: "Small-to-medium routed display system.",
+      },
+      {
+        id: "many-displays",
+        label: "More than 8 displays",
+        description: "Large venue, multi-zone, signage or distributed AV workflow.",
+        evidence: "Distributed display system.",
+      },
+      {
+        id: "display-wall",
+        label: "Video wall",
+        description: "LCD tiled wall or LED processor input workflow.",
+        evidence: "Wall processing required.",
+      },
+    ],
+  },
+  {
+    key: "usb",
+    eyebrow: "5 / 8",
+    title: "Is USB, camera or conferencing needed?",
+    why: "USB ownership must be confirmed before recommending a video-only path.",
+    ask: "Select the closest USB/conferencing model.",
+    options: [
+      {
+        id: "no-usb",
+        label: "No USB required",
+        description: "Video/audio presentation only.",
+        evidence: "Video-first path acceptable.",
+      },
+      {
+        id: "usb-c-laptop",
+        label: "USB-C laptop sharing",
+        description: "Laptop needs display, audio and possibly USB device access.",
+        evidence: "BYOD/BYOM qualification required.",
+      },
+      {
+        id: "room-camera-audio",
+        label: "Room camera / mic / speakerphone",
+        description: "USB devices must be connected to the meeting host.",
+        evidence: "USB transport path required.",
+      },
+      {
+        id: "multi-camera",
+        label: "Multi-camera / capture",
+        description: "PTZ, NDI, bridge, streaming, recording or production-style workflow.",
+        evidence: "Camera/capture workflow required.",
+      },
+    ],
+  },
+  {
+    key: "audio",
+    eyebrow: "6 / 8",
+    title: "What audio requirement is likely?",
+    why: "Audio often creates hidden dependencies such as DSP, amplifier, speakers, microphones or Dante.",
+    ask: "Select the closest audio model.",
+    options: [
+      {
+        id: "display-audio",
+        label: "Display audio only",
+        description: "Audio follows the display or local soundbar.",
+        evidence: "Simple audio requirement.",
+      },
+      {
+        id: "room-audio",
+        label: "Room speakers / amplifier",
+        description: "Ceiling/wall speakers, amplifier or audio de-embedding may be needed.",
+        evidence: "Installed audio path required.",
+      },
+      {
+        id: "conference-audio",
+        label: "Conference microphones/audio",
+        description: "Microphones, speakerphone, DSP or USB audio ownership must be checked.",
+        evidence: "Conference audio path required.",
+      },
+      {
+        id: "distributed-audio",
+        label: "Distributed / zoned audio",
+        description: "Multiple rooms, zones or venue-wide audio routing.",
+        evidence: "Audio distribution risk.",
+      },
+    ],
+  },
+  {
+    key: "control",
+    eyebrow: "7 / 8",
+    title: "How should the user operate the system?",
+    why: "Control defines whether the system is customer-friendly or becomes a support problem.",
+    ask: "Select the closest control model.",
+    options: [
+      {
+        id: "auto-simple",
+        label: "Simple / automatic",
+        description: "Minimal user interaction; walk in and use.",
+        evidence: "Low-control complexity.",
+      },
+      {
+        id: "button-panel",
+        label: "Button panel / simple source select",
+        description: "Clear source/display selection without complex control.",
+        evidence: "Simple control interface likely.",
+      },
+      {
+        id: "touch-control",
+        label: "Touch panel / IP control",
+        description: "More formal control interface or third-party control system.",
+        evidence: "Control integration required.",
+      },
+      {
+        id: "staff-managed",
+        label: "Staff managed",
+        description: "Hospitality, venue or events staff need repeatable operation.",
+        evidence: "Operational workflow must be defined.",
+      },
+    ],
+  },
+  {
+    key: "infrastructure",
+    eyebrow: "8 / 8",
+    title: "What infrastructure is available?",
+    why: "Cable path, distance and network ownership decide whether HDMI, HDBaseT, matrix or NetworkHD is realistic.",
+    ask: "Select the closest infrastructure condition.",
+    options: [
+      {
+        id: "local-short",
+        label: "Local / short cable paths",
+        description: "Rack and display/source positions are close together.",
+        evidence: "Simple copper path possible.",
+      },
+      {
+        id: "cat-cable",
+        label: "Category cable / HDBaseT distance",
+        description: "Point-to-point extension or matrix receiver routes may fit.",
+        evidence: "HDBaseT candidate.",
+      },
+      {
+        id: "managed-network",
+        label: "Managed AV network available",
+        description: "NetworkHD may be suitable if multicast, VLAN and switch ownership are confirmed.",
+        evidence: "AV-over-IP candidate.",
+      },
+      {
+        id: "unknown-infrastructure",
+        label: "Unknown / needs survey",
+        description: "Cable, rack, power or network information still needs discovery.",
+        evidence: "Infrastructure risk.",
+      },
+    ],
+  },
 ];
 
-const outcomeOptions: OptionCard[] = [
-  {
-    label: "Present device to display",
-    helper: "Laptop, USB-C, HDMI, wireless presentation or simple local switching.",
-    tags: ["Presentation"],
+const baseQuestionStrategyByStep: Record<StepKey, QuestionStrategy> = {
+  application: {
+    customerQuestion: "What is the customer trying to make happen in this space?",
+    internalCheck: "Identify the sales motion first: collaboration, distribution, video wall, venue, support or simple presentation.",
+    workflowFocus: "Choose the application before thinking about SKUs.",
   },
-  {
-    label: "Create meeting / UC room",
-    helper: "Teams, Zoom, camera, microphone, soundbar, speakerphone or room PC workflow.",
-    tags: ["USB", "Audio", "Camera"],
+  scale: {
+    customerQuestion: "How large is the room or system, and how many zones or user areas are involved?",
+    internalCheck: "Use scale to decide whether this is simple switching, extension, matrix or AV-over-IP.",
+    workflowFocus: "Keep the system size visible before selecting a product path.",
   },
-  {
-    label: "Route sources to multiple displays",
-    helper: "Matrix, AV-over-IP, multi-zone venue, training space or sports bar routing.",
-    tags: ["Routing"],
-  },
-  {
-    label: "Build video wall or signage display",
-    helper: "LCD wall, LED wall, signage loop, feature wall or canvas processing.",
-    tags: ["Wall", "Signage"],
-  },
-  {
-    label: "Capture, stream or record content",
-    helper: "Lecture capture, camera bridge, NDI source, recording or monitoring workflow.",
-    tags: ["Capture", "NDI"],
-  },
-  {
-    label: "Replace or compare existing product",
-    helper: "Known competitor SKU, legacy matrix, extender, switcher or processor replacement.",
-    tags: ["Compare"],
-  },
-  {
-    label: "Not sure - guide me",
-    helper: "Use simple prompts and let Wingman infer the likely product path.",
-    tags: ["Guided"],
-  },
-];
-
-const roomOptions: OptionCard[] = [
-  { label: "Huddle room", helper: "Small meeting space with simple presentation and UC." },
-  { label: "Boardroom", helper: "Higher expectation meeting room with presentation, UC and control needs." },
-  { label: "Classroom", helper: "Teaching space with repeatable source/display and audio requirements." },
-  { label: "Training room", helper: "Flexible learning space, often with dual display or UC." },
-  { label: "Lecture theatre", helper: "Larger presentation/capture space with distance and audio risk." },
-  { label: "Retail signage", helper: "Media player, signage display, wall or distributed content." },
-  { label: "Sports bar / hospitality", helper: "Multiple displays, source routing and simple control." },
-  { label: "Control room", helper: "Monitoring, multiview, source routing and uptime considerations." },
-  { label: "House of worship", helper: "Camera, projection, streaming and stage display workflows." },
-  { label: "Healthcare simulation", helper: "Capture, camera, review and monitoring workflow." },
-  { label: "Multi-zone venue", helper: "Several areas with different display/source needs." },
-  { label: "Other / not sure", helper: "Keep the discovery generic until more detail is known." },
-];
-
-const roomSizeOptions = ["Small <10m", "Medium <25m", "Large <50m", "Extra large 50m+", "Unknown"];
-
-const equipmentLocationOptions = [
-  "Behind display",
-  "Credenza",
-  "Table / floor box",
-  "Lectern",
-  "Local rack",
-  "Central rack",
-  "Mixed locations",
-  "Unknown",
-];
-
-const deviceOptions: OptionCard[] = [
-  { label: "Laptop HDMI", helper: "Adds HDMI input. Needs separate USB path if using room camera/audio.", tags: ["HDMI"] },
-  { label: "Laptop USB-C", helper: "Adds USB-C video input and possible BYOD USB host path.", tags: ["USB-C", "BYOD"] },
-  { label: "Wireless presentation", helper: "Adds wireless/software source path.", tags: ["Wireless"] },
-  { label: "Room PC", helper: "Adds HDMI source and fixed USB host candidate.", tags: ["HDMI", "USB host"] },
-  { label: "Microsoft Teams Room Device", helper: "Adds UC host, display output and camera/audio ownership questions.", tags: ["MTR", "USB host"] },
-  { label: "Media player", helper: "Adds fixed HDMI source.", tags: ["HDMI"] },
-  { label: "Signage player", helper: "Adds fixed signage source.", tags: ["Signage"] },
-  { label: "USB camera", helper: "Adds USB peripheral; needs clear host ownership.", tags: ["USB peripheral"] },
-  { label: "PTZ camera", helper: "Confirm HDMI, USB, NDI and control path.", tags: ["Camera"] },
-  { label: "NDI camera", helper: "Adds network video source and NDI bridge/AV-over-IP consideration.", tags: ["NDI"] },
-  { label: "Microphone / DSP", helper: "Adds audio path and UC integration requirement.", tags: ["Audio"] },
-  { label: "Other source", helper: "Flag for manual review.", tags: ["Review"] },
-];
-
-const locationOptions = [
-  "Table",
-  "Floor box",
-  "Wall plate",
-  "Lectern",
-  "Behind display",
-  "Local rack",
-  "Central rack",
-  "Network",
-  "Ceiling",
-  "Mixed locations",
-  "Unknown",
-];
-
-const displayBehaviourOptions: OptionCard[] = [
-  { label: "Single display", helper: "One main display or projector." },
-  { label: "Dual mirrored displays", helper: "Two displays showing the same content." },
-  { label: "Dual independent displays", helper: "Different content or extended desktop/MST consideration." },
-  { label: "Presentation plus conferencing display", helper: "Content display and UC display behaviour." },
-  { label: "Multiple displays same content", helper: "Distribution amplifier, splitter or mirrored routing." },
-  { label: "Different content per display", helper: "Matrix or AV-over-IP routing likely." },
-  { label: "Multiview display", helper: "One output canvas showing multiple sources." },
-  { label: "LCD video wall", helper: "Dedicated wall processor or AV-over-IP wall routing." },
-  { label: "LED wall", helper: "Single canvas feed to LED processor." },
-  { label: "Not sure", helper: "Ask what the viewer should see during the main workflow." },
-];
-
-const displayCountOptions = ["1", "2", "3-4", "5-8", "9+", "Unknown"];
-
-const cableRunOptions = ["Under 5m", "5-10m", "10-35m", "35-70m", "70-100m", "100m+", "Unknown"];
-
-const networkOptions = [
-  "No network needed",
-  "Existing IT network",
-  "Dedicated AV network possible",
-  "Managed switch available",
-  "10G available",
-  "Unknown",
-];
-
-const usbOwnershipOptions: OptionCard[] = [
-  {
-    label: "Room PC / MTR owns USB",
-    helper: "Prioritise fixed UC appliance or room PC as the camera/audio host.",
-  },
-  {
-    label: "BYOD laptop owns USB",
-    helper: "User laptop needs access to room camera/audio. Prefer USB-C where practical.",
-  },
-  {
-    label: "Switchable USB host",
-    helper: "Room PC/MTR and BYOD laptop both need camera/audio access.",
-  },
-  {
-    label: "APO-DG2 / dongle-style BYOD path",
-    helper: "Useful where BYOD should avoid consuming the main switcher USB host path.",
-  },
-  {
-    label: "No room USB required",
-    helper: "Video/audio only; no room camera, mic, touch or USB peripheral transport.",
-  },
-  {
-    label: "Not sure",
-    helper: "Keep as a validation item.",
-  },
-];
-
-
-const signalStandardOptions: OptionCard[] = [
-  {
-    label: "4K60 4:4:4 HDR10 required",
-    helper: "Use when Sky Q, premium streaming or high-quality 4K content must remain intact through the full signal path.",
-    tags: ["18Gbps+", "HDR", "HDCP"],
-  },
-  {
-    label: "4K60 SDR is acceptable",
-    helper: "Use where 4K resolution matters but HDR is not customer-critical.",
-    tags: ["4K60"],
-  },
-  {
-    label: "1080p is acceptable",
-    helper: "Use for legacy displays, lower-cost venue zones or simple monitoring.",
-    tags: ["1080p"],
-  },
-  {
-    label: "Not sure - validate downstream",
-    helper: "Keep HDR, HDCP, EDID and display compatibility as validation items.",
-    tags: ["Validate"],
-  },
-];
-const audioPathOptions: OptionCard[] = [
-  {
-    label: "APO-VX20 / APO-210-UC soundbar",
-    helper: "Small/medium UC room with all-in-one camera/audio endpoint.",
-  },
-  {
-    label: "Room microphone + speakers",
-    helper: "Separate mic and speaker path, likely needs switching/DSP consideration.",
-  },
-  {
-    label: "AMP-2210 + 100V/low-Z speakers",
-    helper: "Larger room speaker reinforcement with amplifier path.",
-  },
-  {
-    label: "Dante / AES67",
-    helper: "Network audio or DSP-integrated room path.",
-  },
-  {
-    label: "Display speakers only",
-    helper: "Simple audio from display; validate if suitable for the room size.",
-  },
-  {
-    label: "Not sure",
-    helper: "Keep as a validation item.",
-  },
-];
-
-const controlOptions = [
-  "No control",
-  "Display power control",
-  "IR",
-  "RS-232",
-  "Web UI",
-  "Touch panel",
-  "Third-party control",
-  "Not sure",
-];
-
-const initialState: DiscoveryState = {
-  outcome: "",
-  roomType: "",
-  roomSize: "Medium <25m",
-  equipmentLocation: "Behind display",
-  devices: [],
-  locations: [],
-  displayBehaviour: "",
-  displayCount: "1",
-  cableRun: "",
-  network: "",
-  signalStandard: "",
-  usbOwnership: "",
-  audioPath: "",
-  controlNeeds: [],
-  notes: "",
-};
-
-const baseQuestionStrategyByStep: Record<StepId, QuestionStrategy> = {
-  outcome: {
-    prompt: "What does the room need to let people do?",
-    customerFrame: "Keep the first question about the job the room has to perform, not the product family.",
-    reasoning: "Outcome-first discovery avoids over-specifying AV hardware before the customer has described the experience they recognise.",
-  },
-  room: {
-    prompt: "Where will this be used, and what makes that space awkward?",
-    customerFrame: "A meeting room, classroom and training room can be similar sizes but need different defaults for control, source ownership and repeatability.",
-    reasoning: "Application context changes the assumed workflow before it changes the SKU shortlist.",
-  },
-  devices: {
-    prompt: "Which real devices do people bring, touch or rely on every day?",
-    customerFrame: "Ask for laptops, room PCs, cameras and microphones before translating them into HDMI, USB-C, USB host or NDI paths.",
-    reasoning: "Device language keeps the conversation natural while still building a useful engineering model.",
+  sources: {
+    customerQuestion: "How many source devices need to be connected now, and where are they located?",
+    internalCheck: "Separate source count from source location so cable and switching decisions stay clear.",
+    workflowFocus: "Confirm the source model before narrowing the architecture.",
   },
   displays: {
-    prompt: "What should each viewer actually see?",
-    customerFrame: "The important difference is whether displays mirror, show independent content, support a call, or act as a wall/canvas.",
-    reasoning: "Display behaviour drives matrix, AVoIP, MST, scaler and wall-processor decisions.",
+    customerQuestion: "How many displays or output positions need content, and do they show the same or different content?",
+    internalCheck: "Display behavior drives splitter, matrix, wall processing and receiver count.",
+    workflowFocus: "Treat display behavior as the route into Finder.",
   },
-  exceptions: {
-    prompt: "What could make the simple answer fail?",
-    customerFrame: "Only ask deeper questions when the chosen outcome suggests USB ownership, distance, HDR, network or audio risk.",
-    reasoning: "Triggered checks keep discovery short for simple rooms and deeper for rooms that need technical validation.",
+  usb: {
+    customerQuestion: "Does any laptop or room PC need access to cameras, microphones, speakers or touch devices?",
+    internalCheck: "USB ownership protects the recommendation from becoming video-only when the room needs conferencing.",
+    workflowFocus: "Confirm USB before recommending a signal path.",
   },
-  review: {
-    prompt: "Does this sound like the room the customer described?",
-    customerFrame: "Read the inferred path back in plain language before moving to Finder or Proposal.",
-    reasoning: "A quick recap catches gaps while the customer still recognises the problem being solved.",
+  audio: {
+    customerQuestion: "Where should audio be heard, and is it display audio, room audio, conferencing audio or zoned audio?",
+    internalCheck: "Audio can add DSP, amplifier, Dante, de-embedding or control dependencies.",
+    workflowFocus: "Use audio to expose hidden proposal dependencies.",
+  },
+  control: {
+    customerQuestion: "How should the user operate the system during a normal day?",
+    internalCheck: "Control must match the customer workflow, not just the hardware capability.",
+    workflowFocus: "Use operation style to avoid support-heavy designs.",
+  },
+  infrastructure: {
+    customerQuestion: "What cabling, rack location, network ownership and distance information is already known?",
+    internalCheck: "Infrastructure decides whether HDMI, HDBaseT, matrix or NetworkHD is realistic.",
+    workflowFocus: "Capture infrastructure risk before moving to quote language.",
   },
 };
 
-function selected(values: string[], option: string) {
-  return values.includes(option);
-}
+function getQuestionStrategy(stepKey: StepKey, answers: DiscoveryAnswers): QuestionStrategy {
+  const base = baseQuestionStrategyByStep[stepKey];
 
-function countBand(count: number) {
-  if (!Number.isFinite(count) || count <= 0) return "Unknown";
-  if (count === 1) return "1";
-  if (count === 2) return "2";
-  if (count <= 4) return "3-4";
-  if (count <= 8) return "5-8";
-  return "9+";
-}
-
-function includesAny(value: string, terms: string[]) {
-  const text = value.toLowerCase();
-  return terms.some((term) => text.includes(term.toLowerCase()));
-}
-
-function getInputModel(state: DiscoveryState) {
-  const inputs = {
-    hdmi: 0,
-    usbC: 0,
-    wireless: 0,
-    networkVideo: 0,
-    usbHostCandidates: [] as string[],
-    fixedUsbHosts: [] as string[],
-    byodUsbHosts: [] as string[],
-    usbPeripherals: [] as string[],
-    audioPaths: [] as string[],
-    tags: [] as string[],
-  };
-
-  if (selected(state.devices, "Laptop HDMI")) {
-    inputs.hdmi += 1;
-    inputs.tags.push("Laptop HDMI: 1 HDMI input");
-  }
-
-  if (selected(state.devices, "Laptop USB-C")) {
-    inputs.usbC += 1;
-    inputs.tags.push("Laptop USB-C: 1 USB-C video input");
-  }
-
-  if (selected(state.devices, "Wireless presentation")) {
-    inputs.wireless += 1;
-    inputs.tags.push("Wireless presentation: software/network source");
-  }
-
-  if (selected(state.devices, "Room PC")) {
-    inputs.hdmi += 1;
-    inputs.fixedUsbHosts.push("Room PC");
-    inputs.usbHostCandidates.push("Room PC USB host");
-    inputs.tags.push("Room PC: HDMI source + fixed USB host");
-  }
-
-  if (selected(state.devices, "Microsoft Teams Room Device")) {
-    inputs.hdmi += 1;
-    inputs.fixedUsbHosts.push("Microsoft Teams Room Device");
-    inputs.usbHostCandidates.push("MTR USB host");
-    inputs.tags.push("MTR: UC host + display output path");
-  }
-
-  if (selected(state.devices, "Media player")) {
-    inputs.hdmi += 1;
-    inputs.tags.push("Media player: 1 HDMI input");
-  }
-
-  if (selected(state.devices, "Signage player")) {
-    inputs.hdmi += 1;
-    inputs.tags.push("Signage player: 1 HDMI input");
-  }
-
-  if (selected(state.devices, "PTZ camera")) {
-    inputs.hdmi += 1;
-    inputs.tags.push("PTZ camera: confirm HDMI / USB / NDI / control path");
-  }
-
-  if (selected(state.devices, "NDI camera")) {
-    inputs.networkVideo += 1;
-    inputs.tags.push("NDI camera: network video source");
-  }
-
-  if (selected(state.devices, "USB camera")) {
-    inputs.usbPeripherals.push("USB camera");
-    inputs.tags.push("USB camera: USB peripheral");
-  }
-
-  if (selected(state.devices, "Microphone / DSP")) {
-    inputs.usbPeripherals.push("Microphone / DSP or USB audio path");
-    inputs.audioPaths.push("Microphone / DSP");
-    inputs.tags.push("Microphone / DSP: audio path");
-  }
-
-  const ucWorkflow =
-    state.outcome === "Create meeting / UC room" ||
-    state.displayBehaviour === "Presentation plus conferencing display" ||
-    selected(state.devices, "USB camera") ||
-    selected(state.devices, "Microphone / DSP") ||
-    selected(state.devices, "Microsoft Teams Room Device") ||
-    selected(state.devices, "Room PC") ||
-    state.audioPath.includes("soundbar") ||
-    state.audioPath.includes("Dante");
-
-  if (ucWorkflow && selected(state.devices, "Laptop USB-C")) {
-    inputs.byodUsbHosts.push("Laptop USB-C");
-    inputs.usbHostCandidates.push("Laptop USB-C BYOD host");
-  }
-
-  if (ucWorkflow && selected(state.devices, "Laptop HDMI")) {
-    inputs.byodUsbHosts.push("Laptop HDMI");
-    inputs.usbHostCandidates.push("Laptop HDMI BYOD host requires separate USB path");
-  }
-
-  if (state.audioPath && state.audioPath !== "Not sure") {
-    inputs.audioPaths.push(state.audioPath);
-  }
-
-  if (inputs.hdmi) inputs.tags.push(`Total HDMI-class inputs: ${inputs.hdmi}`);
-  if (inputs.usbC) inputs.tags.push(`Total USB-C video inputs: ${inputs.usbC}`);
-  if (inputs.networkVideo) inputs.tags.push(`Network video sources: ${inputs.networkVideo}`);
-  if (inputs.usbHostCandidates.length) inputs.tags.push(`USB host candidates: ${inputs.usbHostCandidates.length}`);
-  if (inputs.usbPeripherals.length) inputs.tags.push(`USB peripheral/audio paths: ${inputs.usbPeripherals.length}`);
-
-  return inputs;
-}
-
-function getQuestionStrategy(stepId: StepId, state: DiscoveryState): QuestionStrategy {
-  const base = baseQuestionStrategyByStep[stepId];
-
-  if (stepId === "room" && state.outcome === "Create meeting / UC room") {
+  if (stepKey === "infrastructure" && answers.infrastructure === "managed-network") {
     return {
       ...base,
-      customerFrame: "For a UC room, find out who owns the call, where people sit, and whether BYOD has to feel as easy as the fixed room system.",
+      internalCheck: "Confirm switch ownership, VLAN, multicast/IGMP, bandwidth and endpoint count before treating NetworkHD as quote-ready.",
     };
   }
 
-  if (stepId === "room" && state.outcome === "Route sources to multiple displays") {
+  if (stepKey === "usb" && answers.application === "meeting-room") {
     return {
       ...base,
-      customerFrame: "For routing spaces, frame the room around who chooses content, which displays move together, and what must be simple for staff.",
+      customerQuestion: "Who hosts the call, and which cameras, microphones, speakers or touch displays must that host reach?",
     };
   }
 
-  if (stepId === "devices" && state.roomType === "Classroom") {
+  if (stepKey === "displays" && answers.application === "video-wall") {
     return {
       ...base,
-      customerFrame: "For a classroom, ask what the teacher uses first, then confirm student-facing displays, capture, audio and any visiting-device path.",
-    };
-  }
-
-  if (stepId === "displays" && state.roomType === "Meeting room") {
-    return {
-      ...base,
-      customerFrame: "For a meeting room, separate presentation display behaviour from conferencing display behaviour so the recommendation matches the user journey.",
-    };
-  }
-
-  if (stepId === "exceptions" && getUsbTopology(state).risk !== "Low USB design risk") {
-    return {
-      ...base,
-      customerFrame: "Explain the USB question as camera and microphone ownership, not as a technical bus-routing problem.",
+      customerQuestion: "Does the wall need one full canvas, separate content per display, multiview, signage, or mixed layouts?",
     };
   }
 
   return base;
 }
 
-function getUsbTopology(state: DiscoveryState) {
-  const inputModel = getInputModel(state);
-  const warnings: string[] = [];
-  const actions: string[] = [];
+function getOption(step: DiscoveryStep, id: string | undefined) {
+  return step.options.find((option) => option.id === id);
+}
 
-  if (selected(state.devices, "Laptop HDMI") && inputModel.byodUsbHosts.includes("Laptop HDMI")) {
-    warnings.push("Laptop HDMI does not carry USB. If it must use the room camera/microphone, allow a separate USB path, USB-C alternative, or APO-DG2-style BYOD workflow.");
+function getSelectedRows(answers: DiscoveryAnswers) {
+  return DISCOVERY_STEPS.map((step) => ({
+    step,
+    option: getOption(step, answers[step.key]),
+  })).filter((row) => Boolean(row.option));
+}
+
+function inferArchitecture(answers: DiscoveryAnswers) {
+  const application = answers.application;
+  const displays = answers.displays;
+  const usb = answers.usb;
+  const infrastructure = answers.infrastructure;
+  const sources = answers.sources;
+
+  if (application === "video-wall" || displays === "display-wall") {
+    return {
+      direction: "Dedicated video wall processor first, with AV-over-IP only where flexible routing is required.",
+      family: "SW video wall processors / NetworkHD where justified",
+      products: ["SW-0206-VW", "SW-0204-VW", "NetworkHD architecture if wider routing is needed"],
+      warning: "Confirm wall layout, source behaviour and whether the wall needs full canvas, per-display content, signage or multiview.",
+    };
   }
 
-  if (inputModel.usbHostCandidates.length > 1) {
-    warnings.push("Multiple USB host candidates are present. Confirm whether the selected switcher/core can switch USB hosts, or choose a priority host.");
+  if (application === "hospitality") {
+    return {
+      direction: "Cost-sensitive matrix or NetworkHD 100 depending on source/display count and flexibility.",
+      family: "Matrix switching / NetworkHD 100",
+      products: ["MX-0808-KIT direction", "NetworkHD 100 family", "NHD-150-RX if multiview is required"],
+      warning: "Confirm staff operation, Sky/media source count, display zones and whether expansion is expected.",
+    };
   }
 
-  if (inputModel.fixedUsbHosts.length && inputModel.byodUsbHosts.length) {
-    warnings.push("Fixed Room PC/MTR and BYOD laptop hosts are both present. Do not assume every host can own room USB devices at the same time.");
-    actions.push("Prioritise Room PC/MTR USB if the room is normally a fixed UC room.");
-    actions.push("Use USB-C or APO-DG2-style BYOD path if laptop users need camera/audio without consuming the main USB host path.");
+  if (usb === "usb-c-laptop" || usb === "room-camera-audio") {
+    return {
+      direction: "Presentation / UC-led room design with USB ownership confirmed before product selection.",
+      family: "Presentation switchers / UC products / USB transport",
+      products: ["USB-C presentation switching direction", "UC/BYOD room products", "USB extension where devices are remote"],
+      warning: "Do not quote a video-only path until camera, microphone, speakerphone and host ownership are confirmed.",
+    };
   }
 
-  if (!inputModel.usbHostCandidates.length && inputModel.usbPeripherals.length) {
-    warnings.push("USB peripherals are selected but no clear USB host has been identified.");
-    actions.push("Ask which device owns camera/audio: laptop, Room PC, MTR, or a UC soundbar/appliance.");
+  if (application === "distributed-av" || displays === "many-displays" || sources === "many-sources" || infrastructure === "managed-network") {
+    return {
+      direction: "AV-over-IP or larger matrix architecture depending on network ownership, latency and expansion needs.",
+      family: "NetworkHD 100 / 500 / 600 selected by performance requirement",
+      products: ["NetworkHD 100", "NetworkHD 500", "NetworkHD 600", "NHD-CTL-PRO dependency"],
+      warning: "Confirm NetworkHD family, switch class, multicast/IGMP, VLAN ownership and endpoint count.",
+    };
   }
 
-  if (inputModel.usbPeripherals.length > 1) {
-    warnings.push("Multiple USB/audio peripheral paths are present. Check bandwidth, hubs, ownership and USB 2.0 vs USB 3.x.");
-  }
-
-  if (!actions.length) {
-    actions.push(inputModel.usbHostCandidates.length ? "Confirm host ownership and USB bandwidth." : "No USB host conflict detected yet.");
+  if (infrastructure === "cat-cable") {
+    return {
+      direction: "HDBaseT extension or HDBaseT matrix depending on source/display count.",
+      family: "HDBaseT extenders / HDBaseT matrix",
+      products: ["HDBaseT extender direction", "HDBaseT matrix direction"],
+      warning: "Confirm cable length, cable quality, required resolution, USB need and receiver pairing.",
+    };
   }
 
   return {
-    risk: warnings.length >= 2 ? "High USB design risk" : warnings.length ? "Medium USB design risk" : "Low USB design risk",
-    warnings,
-    actions,
-    summary: inputModel.usbHostCandidates.length
-      ? `${inputModel.usbHostCandidates.length} host candidate${inputModel.usbHostCandidates.length === 1 ? "" : "s"} / ${inputModel.usbPeripherals.length} peripheral path${inputModel.usbPeripherals.length === 1 ? "" : "s"}`
-      : inputModel.usbPeripherals.length
-        ? `No host selected / ${inputModel.usbPeripherals.length} peripheral path${inputModel.usbPeripherals.length === 1 ? "" : "s"}`
-        : "No USB topology requirement captured",
+    direction: "Simple application-led WyreStorm architecture. Confirm remaining details before selecting a final SKU.",
+    family: "Presentation switching / matrix / extension depending on final I/O",
+    products: ["Discovery workflow", "Product Finder next"],
+    warning: "More detail is needed before Wingman should create a quote-ready recommendation.",
   };
 }
 
-function getTriggeredChecks(state: DiscoveryState) {
-  const checks: string[] = [];
-  const inputModel = getInputModel(state);
-  const usb = getUsbTopology(state);
+function buildSummary(answers: DiscoveryAnswers) {
+  const rows = getSelectedRows(answers);
 
-  if (usb.warnings.length) checks.push("USB host ownership");
-  if (inputModel.hdmi + inputModel.usbC + inputModel.wireless + inputModel.networkVideo > 3) checks.push("Switcher input capacity");
-  if (state.displayBehaviour.includes("independent") || state.displayBehaviour.includes("Different")) checks.push("Independent display routing");
-  if (state.displayBehaviour.includes("wall") || state.outcome.includes("video wall")) checks.push("Video wall processing");
-  if (state.cableRun.includes("35-70m") || state.cableRun.includes("70-100m") || state.cableRun.includes("100m+")) checks.push("Long cable transport");
-  if (state.audioPath.includes("Dante") || state.audioPath.includes("AMP-2210")) checks.push("Audio system design");
-  if (state.network.includes("10G")) checks.push("10G network / NHD-600 consideration");
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required") checks.push("Premium 4K / HDR signal path");
+  if (rows.length === 0) {
+    return "No discovery answers captured yet.";
+  }
 
-  return checks.length ? checks : ["No major exception triggered yet"];
+  return rows.map((row) => `${row.step.title}: ${row.option?.label}`).join(" | ");
 }
 
-function getRecommendedProductPath(state: DiscoveryState) {
-  const blob = [
-    state.outcome,
-    state.roomType,
-    state.displayBehaviour,
-    state.devices.join(" "),
-    state.usbOwnership,
-    state.audioPath,
-    state.network,
-  ].join(" ");
+function buildMissingInformation(answers: DiscoveryAnswers) {
+  const missing = DISCOVERY_STEPS.filter((step) => !answers[step.key]).map((step) => step.title);
 
-  if (includesAny(blob, ["LED wall", "LCD video wall", "video wall", "signage"])) return "Video wall / signage processor path";
-  if (includesAny(blob, ["NDI camera", "capture", "stream", "record"])) return "Camera / capture / NDI bridge path";
-  if (includesAny(blob, ["Route sources", "multiple displays", "sports bar", "multi-zone", "Different content"])) return "AVoIP or matrix routing path";
-  if (includesAny(blob, ["meeting", "UC", "Teams", "MTR", "USB camera", "Microphone", "soundbar"])) return "Presentation / UC switcher path";
-  if (includesAny(blob, ["35-70m", "70-100m", "100m+"])) return "HDBaseT or AVoIP transport path";
-  return "Presentation switcher / extender path";
+  if (missing.length > 0) {
+    return missing;
+  }
+
+  const extra = [
+    "Exact source count and source locations",
+    "Exact display count and display locations",
+    "Cable distances and cable type",
+    "Required resolution / refresh rate / HDR requirement",
+    "Rack location and power",
+    "Control ownership",
+  ];
+
+  if (answers.usb !== "no-usb") {
+    extra.unshift("USB host ownership and camera/microphone/speakerphone location");
+  }
+
+  if (answers.infrastructure === "managed-network") {
+    extra.unshift("Network switch ownership, VLAN, multicast/IGMP and 1G/10G requirement");
+  }
+
+  return extra;
 }
 
-function getDesignDirection(state: DiscoveryState) {
-  return getRecommendedProductPath(state);
-}
+function buildDiscoveryBrief(answers: DiscoveryAnswers): StoredDiscoveryBrief {
+  const selectedRows = getSelectedRows(answers);
+  const summary = buildSummary(answers);
+  const architecture = inferArchitecture(answers);
+  const missingInformation = buildMissingInformation(answers);
+  const now = new Date().toISOString();
 
-
-function getSignalStandardSummary(state: DiscoveryState) {
-  if (state.signalStandard) return state.signalStandard;
-
-  if (state.devices.includes("Satellite decoder / Sky Q")) {
-    return "Sky Q selected - confirm whether HDR / premium 4K must be preserved.";
-  }
-
-  if (
-    state.devices.includes("Apple TV") ||
-    state.devices.includes("ROKU player") ||
-    state.devices.includes("Media player") ||
-    state.devices.includes("Signage player")
-  ) {
-    return "Premium video source selected - confirm 4K/HDR requirement.";
-  }
-
-  return "Not triggered yet";
-}
-
-function getDownstreamQualityTags(state: DiscoveryState) {
-  const tags: string[] = [];
-
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required") {
-    tags.push("Require 4K60 4:4:4 HDR10-capable signal path");
-    tags.push("Validate HDMI bandwidth / 18Gbps-class or better");
-    tags.push("Validate HDCP 2.2/2.3");
-    tags.push("Validate EDID management");
-    tags.push("Validate scaler/downsample behaviour");
-    tags.push("Validate display HDR capability");
-  }
-
-  if (state.signalStandard === "4K60 SDR is acceptable") {
-    tags.push("Require 4K60-capable signal path");
-    tags.push("HDR not critical");
-  }
-
-  if (state.signalStandard === "1080p is acceptable") {
-    tags.push("1080p acceptable");
-    tags.push("Do not over-specify premium 4K path unless future expansion or later 4K upgrade is required");
-  }
-
-  if (state.signalStandard === "Not sure - validate downstream") {
-    tags.push("Keep resolution/HDR/HDCP/EDID as validation items");
-  }
-
-  return tags;
-}
-
-function getSignalStandardWarnings(state: DiscoveryState) {
-  const warnings: string[] = [];
-
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required") {
-    warnings.push("Treat the whole downstream chain as premium 4K/HDR: source, switcher, extender/AVoIP, receivers, displays, cable path and EDID/HDCP handling must all be validated.");
-    warnings.push("Do not assume every '4K' product is suitable. Check HDMI bandwidth class, HDR10 support, HDCP 2.2/2.3, EDID management and any scaler/downsample behaviour.");
-  }
-
-  if (state.devices.includes("Satellite decoder / Sky Q") && !state.signalStandard) {
-    warnings.push("Sky Q selected: ask whether HDR is important before selecting product family or cable/transport path.");
-  }
-
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required" && ["35-70m", "70-100m", "100m+"].includes(state.cableRun)) {
-    warnings.push("Premium 4K/HDR over distance: verify HDBaseT/AVoIP/fibre path supports the required HDMI bandwidth, HDR metadata, HDCP and display EDID behaviour.");
-  }
-
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required" && ["9-16", "17-32", "33-49", "50+"].includes(state.displayCount)) {
-    warnings.push("Large venue with premium 4K/HDR: every endpoint and zone may not need HDR. Confirm which displays/zones require full quality and where scaling/downconversion is acceptable.");
-  }
-
-  return warnings;
-}
-
-function getVenueAssumptions(state: DiscoveryState) {
-  const assumptions: string[] = [];
-
-  if (["9-16", "17-32", "33-49", "50+"].includes(state.displayCount)) {
-    assumptions.push("Large display count: favour AV-over-IP, matrix zoning or managed distribution rather than simple splitter logic.");
-    assumptions.push("Confirm whether all screens show the same content, groups/zones, or independent source selection.");
-  }
-
-  if (state.displayCount === "50+") {
-    assumptions.push("50+ displays: assume casino/large venue scale. Network design, control, monitoring and staged deployment become design-critical.");
-  }
-
-  if (state.devices.includes("Satellite decoder / Sky Q")) {
-    assumptions.push("Sky/Satellite source: confirm number of decoders, legal viewing zones, HDCP handling and whether each zone needs independent channel selection.");
-  }
-
-  if (state.devices.includes("Apple TV") || state.devices.includes("ROKU player")) {
-    assumptions.push("Streaming players: confirm network access, account ownership, control method and whether players are local to displays or centralised.");
-  }
-
-  if (state.devices.includes("Visualiser / document camera")) {
-    assumptions.push("Visualiser/document camera: confirm HDMI vs USB output and whether it also needs capture/recording.");
-  }
-
-  if (state.signalStandard === "4K60 4:4:4 HDR10 required") {
-    assumptions.push("Premium 4K/HDR selected: every downstream device must be validated for the required HDMI standard, HDR10, HDCP and EDID behaviour.");
-  }
-
-  return assumptions;
-}
-
-function getMissingItems(state: DiscoveryState) {
-  const missing: string[] = [];
-
-  if (!state.outcome) missing.push("Customer outcome");
-  if (!state.roomType) missing.push("Room type");
-  if (!state.devices.length) missing.push("Devices involved");
-  if (!state.displayBehaviour) missing.push("Display behaviour");
-  if (!state.cableRun) missing.push("Longest cable run");
-
-  if (getUsbTopology(state).risk !== "Low USB design risk" && !state.usbOwnership) {
-    missing.push("USB host ownership");
-  }
-
-  if (state.outcome === "Create meeting / UC room" && !state.audioPath) {
-    missing.push("UC audio path");
-  }
-
-  return missing;
-}
-
-function getConfidence(missingCount: number) {
-  if (missingCount <= 1) return "High confidence";
-  if (missingCount <= 4) return "Medium confidence";
-  return "Low confidence";
-}
-
-function capturedPercent(missingCount: number) {
-  return Math.max(10, Math.round(((7 - Math.min(missingCount, 7)) / 7) * 100));
-}
-
-function OptionButton({
-  option,
-  active,
-  onClick,
-  multi,
-}: {
-  option: OptionCard;
-  active: boolean;
-  onClick: () => void;
-  multi?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`wm-simple-discovery-card ${active ? "is-active" : ""}`}
-    >
-      <span className="wm-simple-discovery-check">{active ? <Check className="h-4 w-4" /> : multi ? "+" : ""}</span>
-      <strong>{option.label}</strong>
-      <small>{option.helper}</small>
-      {option.tags?.length ? (
-        <span className="wm-simple-discovery-tags">
-          {option.tags.map((tag) => (
-            <em key={tag}>{tag}</em>
-          ))}
-        </span>
-      ) : null}
-    </button>
+  const selected = Object.fromEntries(
+    selectedRows.map((row) => [
+      row.step.key,
+      {
+        label: row.option?.label,
+        evidence: row.option?.evidence,
+        description: row.option?.description,
+      },
+    ])
   );
+
+  return {
+    summary,
+    customerWording: summary,
+    createdAt: now,
+    updatedAt: now,
+    source: "Discovery",
+    roomModel: {
+      roomType: selected.application?.label || "Discovery",
+      application: selected.application?.label || "Unknown application",
+      roomSize: selected.scale?.label || "Unknown scale",
+    },
+    sourceModel: {
+      sourceCount: selected.sources?.label || "Unknown source count",
+      notes: selected.sources?.description || "",
+    },
+    outputModel: {
+      displayCount: selected.displays?.label || "Unknown display count",
+      notes: selected.displays?.description || "",
+    },
+    usbModel: {
+      requirement: selected.usb?.label || "Unknown USB requirement",
+      notes: selected.usb?.description || "",
+    },
+    audioModel: {
+      requirement: selected.audio?.label || "Unknown audio requirement",
+      notes: selected.audio?.description || "",
+    },
+    controlModel: {
+      requirement: selected.control?.label || "Unknown control requirement",
+      notes: selected.control?.description || "",
+    },
+    infrastructureModel: {
+      requirement: selected.infrastructure?.label || "Unknown infrastructure",
+      notes: selected.infrastructure?.description || "",
+    },
+    recommendation: {
+      likelyArchitecture: architecture.direction,
+      suggestedFamily: architecture.family,
+      recommendedProducts: architecture.products.map((sku) => ({
+        sku,
+        title: sku,
+        family: architecture.family,
+        category: "Discovery direction",
+        reason: architecture.direction,
+      })),
+      missingInformation,
+      quoteSafetyStatus: missingInformation.length > 0 ? "Review required" : "Qualified discovery - still validate before quote",
+      warning: architecture.warning,
+    },
+    capturedAnswers: answers,
+  } as unknown as StoredDiscoveryBrief;
 }
 
-function PillGroup({
-  title,
-  helper,
-  options,
-  value,
-  values,
-  multi,
-  onSelect,
-}: {
-  title: string;
-  helper?: string;
-  options: string[];
-  value?: string;
-  values?: string[];
-  multi?: boolean;
-  onSelect: (value: string) => void;
-}) {
-  return (
-    <div className="wm-simple-discovery-field">
-      <p>{title}</p>
-      {helper ? <span>{helper}</span> : null}
-      <div>
-        {options.map((option) => {
-          const active = multi ? Boolean(values?.includes(option)) : value === option;
-          return (
-            <button
-              key={option}
-              type="button"
-              onClick={() => onSelect(option)}
-              className={active ? "is-active" : ""}
-            >
-              {option}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+function writeDiscoveryHandoff(brief: StoredDiscoveryBrief) {
+  if (typeof window === "undefined") {
+    return;
+  }
 
-function ValueLine({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p>{label}</p>
-      <strong>{value || "Not captured yet"}</strong>
-    </div>
-  );
-}
+  const payload = {
+    brief,
+    createdAt: new Date().toISOString(),
+    source: "DiscoveryPage",
+    returnRoute: "/wingman/discovery",
+  };
 
-function ListLine({ label, values }: { label: string; values: string[] }) {
-  return <ValueLine label={label} value={values.length ? values.join(", ") : "Not captured yet"} />;
+  window.localStorage.setItem("wingman-discovery-brief", JSON.stringify(brief));
+  window.localStorage.setItem("wingman-discovery-snapshot-v3", JSON.stringify(payload));
+  window.dispatchEvent(new CustomEvent("wingman:discovery-handoff-updated"));
 }
 
 export function DiscoveryPage() {
   const navigate = useNavigate();
-  const restoredDiscovery = readLatestDiscoverySnapshot();
+  const activePanelRef = useRef<HTMLDivElement | null>(null);
 
-  const [activeStepIndex, setActiveStepIndex] = useState(() => restoredDiscovery?.activeStepIndex ?? 0);
-  const [state, setState] = useState<DiscoveryState>(() => ({
-    ...initialState,
-    ...(restoredDiscovery?.state ?? {}),
-  }));
-  const [fullModelOpen, setFullModelOpen] = useState(false);
+  const [answers, setAnswers] = useState<DiscoveryAnswers>({});
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [saved, setSaved] = useState(false);
 
-  const currentStep = steps[activeStepIndex];
-  const missingItems = useMemo(() => getMissingItems(state), [state]);
-  const confidence = getConfidence(missingItems.length);
-  const designDirection = getDesignDirection(state);
-  const inputModel = getInputModel(state);
-  const usbTopology = getUsbTopology(state);
-  const triggeredChecks = getTriggeredChecks(state);
-  const questionStrategy = useMemo(() => getQuestionStrategy(currentStep.id, state), [currentStep.id, state]);
-  const isFirstStep = activeStepIndex === 0;
-  const isLastStep = activeStepIndex === steps.length - 1;
+  const activeStep = DISCOVERY_STEPS[activeIndex];
+  const selectedRows = useMemo(() => getSelectedRows(answers), [answers]);
+  const summary = useMemo(() => buildSummary(answers), [answers]);
+  const architecture = useMemo(() => inferArchitecture(answers), [answers]);
+  const missingInformation = useMemo(() => buildMissingInformation(answers), [answers]);
+  const activeQuestionStrategy = useMemo(
+    () => getQuestionStrategy(activeStep.key, answers),
+    [activeStep.key, answers],
+  );
+  const complete = DISCOVERY_STEPS.every((step) => Boolean(answers[step.key]));
 
-  function setField<K extends keyof DiscoveryState>(key: K, value: DiscoveryState[K]) {
-    setState((current) => ({ ...current, [key]: value }));
-  }
+  const moveToStep = (index: number) => {
+    const safeIndex = Math.min(Math.max(index, 0), DISCOVERY_STEPS.length - 1);
+    setActiveIndex(safeIndex);
 
-  function toggleList(key: "devices" | "locations" | "controlNeeds", value: string) {
-    setState((current) => {
-      const existing = current[key];
-      const next = existing.includes(value)
-        ? existing.filter((item) => item !== value)
-        : [...existing, value];
+    window.setTimeout(() => {
+      activePanelRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 60);
+  };
 
-      const updated = { ...current, [key]: next };
+  const selectOption = (step: DiscoveryStep, option: DiscoveryOption) => {
+    setAnswers((current) => ({
+      ...current,
+      [step.key]: option.id,
+    }));
 
-      if (key === "devices") {
-        const ucTriggered =
-          next.includes("Room PC") ||
-          next.includes("Microsoft Teams Room Device") ||
-          next.includes("USB camera") ||
-          next.includes("Microphone / DSP");
+    setSaved(false);
 
-        return {
-          ...updated,
-          audioPath: current.audioPath || (ucTriggered ? "APO-VX20 / APO-210-UC soundbar" : current.audioPath),
-          usbOwnership: current.usbOwnership || (ucTriggered ? "Room PC / MTR owns USB" : current.usbOwnership),
-        };
+    window.setTimeout(() => {
+      if (activeIndex < DISCOVERY_STEPS.length - 1) {
+        moveToStep(activeIndex + 1);
       }
+    }, 120);
+  };
 
-      return updated;
-    });
-  }
-
-  function currentBrief() {
-    return buildDiscoveryBriefFromState(
-      {
-        ...state,
-        technicalTags: [...inputModel.tags, ...getDownstreamQualityTags(state)],
-        usbTopology,
-        usbTopologyRisk: usbTopology.risk,
-        usbTopologySummary: usbTopology.summary,
-        signalStandard: state.signalStandard,
-        signalStandardSummary: getSignalStandardSummary(state),
-        downstreamQualityTags: getDownstreamQualityTags(state),
-        signalStandardWarnings: getSignalStandardWarnings(state),
-        triggeredChecks,
-        venueAssumptions: getVenueAssumptions(state),
-        recommendedProductPath: designDirection,
-      },
-      {
-        designDirection,
-        confidence,
-        missingItems,
-        capturedPercent: capturedPercent(missingItems.length),
-        returnRoute: routeCatalogByKey.discovery.path,
-      },
-    );
-  }
-
-  function persist(nextStepIndex = activeStepIndex) {
-    const brief = currentBrief();
-
-    writeLatestDiscoverySnapshot({
-      activeStepIndex: nextStepIndex,
-      state,
-      brief,
-      savedAt: brief.savedAt ?? new Date().toISOString(),
+  const clearAnswer = (stepKey: StepKey) => {
+    setAnswers((current) => {
+      const next = { ...current };
+      delete next[stepKey];
+      return next;
     });
 
-    return brief;
-  }
+    setSaved(false);
 
-  function saveDiscoveryBrief() {
-    const brief = persist(activeStepIndex);
-    return saveDiscoveryBriefToProject(brief);
-  }
+    const index = DISCOVERY_STEPS.findIndex((step) => step.key === stepKey);
 
-  function goToStep(index: number) {
-    const nextIndex = Math.max(0, Math.min(steps.length - 1, index));
-    persist(nextIndex);
-    setActiveStepIndex(nextIndex);
-  }
+    if (index >= 0) {
+      moveToStep(index);
+    }
+  };
 
-  function goBack() {
-    goToStep(activeStepIndex - 1);
-  }
+  const saveDiscovery = () => {
+    const brief = buildDiscoveryBrief(answers);
+    saveDiscoveryBriefToProject(brief);
+    writeDiscoveryHandoff(brief);
+    setSaved(true);
+  };
 
-  function goNext() {
-    goToStep(activeStepIndex + 1);
-  }
+  const saveAndOpenProject = () => {
+    saveDiscovery();
+    const snapshot = readProjectStore();
+    const route = snapshot.activeProjectId ? `/wingman/projects/${snapshot.activeProjectId}` : "/wingman/projects";
+    navigate(route);
+  };
 
-  function openFinder() {
-    saveDiscoveryBrief();
-    navigate(routeCatalogByKey.finder.path);
-  }
+  const saveAndOpenFinder = () => {
+    saveDiscovery();
+    navigate(`/wingman/finder?brief=${encodeURIComponent(summary)}`);
+  };
 
-  function openProposal() {
-    saveDiscoveryBrief();
-    navigate(routeCatalogByKey.proposal.path);
-  }
-
-  useEffect(() => {
-    persist(activeStepIndex);
-  }, [activeStepIndex, state, designDirection, confidence]);
-
-  function renderOutcomeStep() {
-    return (
-      <div className="wm-simple-step">
-        <div>
-          <p>Step 1</p>
-          <h2>What is the customer trying to do?</h2>
-          <span>Start with the recognisable outcome. Wingman will infer the technical path behind the scenes.</span>
-        </div>
-
-        <div className="wm-simple-discovery-grid">
-          {outcomeOptions.map((option) => (
-            <OptionButton
-              key={option.label}
-              option={option}
-              active={state.outcome === option.label}
-              onClick={() => setField("outcome", option.label)}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  function renderRoomStep() {
-    return (
-      <div className="wm-simple-step">
-        <div>
-          <p>Step 2</p>
-          <h2>What room or application is it?</h2>
-          <span>Room type gives Wingman sensible defaults without forcing the user through every technical detail.</span>
-        </div>
-
-        <div className="wm-simple-discovery-grid">
-          {roomOptions.map((option) => (
-            <OptionButton
-              key={option.label}
-              option={option}
-              active={state.roomType === option.label}
-              onClick={() => setField("roomType", option.label)}
-            />
-          ))}
-        </div>
-
-        <div className="wm-simple-two-col">
-          <PillGroup
-            title="Room size"
-            helper="Use installed cable path length rather than straight-line room width."
-            options={roomSizeOptions}
-            value={state.roomSize}
-            onSelect={(value) => setField("roomSize", value)}
-          />
-
-          <PillGroup
-            title="Main equipment position"
-            helper="This affects transport, rack position and cable risk."
-            options={equipmentLocationOptions}
-            value={state.equipmentLocation}
-            onSelect={(value) => setField("equipmentLocation", value)}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  function renderDevicesStep() {
-    return (
-      <div className="wm-simple-step">
-        <div>
-          <p>Step 3</p>
-          <h2>Which devices are involved?</h2>
-          <span>Select the actual devices. Wingman converts them into HDMI, USB-C, USB host, USB peripheral, NDI and audio requirements.</span>
-        </div>
-
-        <div className="wm-simple-discovery-grid">
-          {deviceOptions.map((option) => (
-            <OptionButton
-              key={option.label}
-              option={option}
-              active={state.devices.includes(option.label)}
-              onClick={() => toggleList("devices", option.label)}
-              multi
-            />
-          ))}
-        </div>
-
-        <PillGroup
-          title="Where are the devices?"
-          helper="Select all relevant positions. Keep it simple unless the room is complex."
-          options={locationOptions}
-          values={state.locations}
-          onSelect={(value) => toggleList("locations", value)}
-          multi
-        />
-
-        <div className="wm-simple-inference-panel">
-          <p>Inferred signal model</p>
-          <div>
-            {inputModel.tags.length ? inputModel.tags.map((tag) => <span key={tag}>{tag}</span>) : <span>No device inputs selected yet</span>}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  function renderDisplaysStep() {
-    return (
-      <div className="wm-simple-step">
-        <div>
-          <p>Step 4</p>
-          <h2>What should the displays show?</h2>
-          <span>Only capture the behaviour that changes the product path.</span>
-        </div>
-
-        <div className="wm-simple-discovery-grid">
-          {displayBehaviourOptions.map((option) => (
-            <OptionButton
-              key={option.label}
-              option={option}
-              active={state.displayBehaviour === option.label}
-              onClick={() => setField("displayBehaviour", option.label)}
-            />
-          ))}
-        </div>
-
-        <div className="wm-simple-two-col">
-          <PillGroup
-            title="Display count"
-            options={displayCountOptions}
-            value={state.displayCount}
-            onSelect={(value) => setField("displayCount", value)}
-          />
-
-          <PillGroup
-            title="Longest cable path"
-            helper="This is the installed cable route, not the room width."
-            options={cableRunOptions}
-            value={state.cableRun}
-            onSelect={(value) => setField("cableRun", value)}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  function renderExceptionsStep() {
-    return (
-      <div className="wm-simple-step">
-        <div>
-          <p>Step 5</p>
-          <h2>Confirm only the design-critical checks.</h2>
-          <span>These questions are triggered by the previous answers. This avoids showing every AV option to every user.</span>
-        </div>
-
-        <div className="wm-simple-alert" data-risk={usbTopology.risk.includes("High") ? "high" : usbTopology.risk.includes("Medium") ? "medium" : "low"}>
-          <div>
-            <p>USB host / peripheral topology</p>
-            <h3>{usbTopology.summary}</h3>
-            <span>{usbTopology.risk}</span>
-          </div>
-          <ul>
-            {usbTopology.warnings.length ? usbTopology.warnings.map((item) => <li key={item}>{item}</li>) : <li>No USB host conflict detected yet.</li>}
-          </ul>
-        </div>
-
-        <div className="wm-simple-two-col">
-          <div className="wm-simple-option-section">
-            <p>Who should own the room USB devices?</p>
-            <div className="wm-simple-discovery-grid compact">
-              {usbOwnershipOptions.map((option) => (
-                <OptionButton
-                  key={option.label}
-                  option={option}
-                  active={state.usbOwnership === option.label}
-                  onClick={() => setField("usbOwnership", option.label)}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="wm-simple-option-section">
-            <p>How is room audio handled?</p>
-            <div className="wm-simple-discovery-grid compact">
-              {audioPathOptions.map((option) => (
-                <OptionButton
-                  key={option.label}
-                  option={option}
-                  active={state.audioPath === option.label}
-                  onClick={() => setField("audioPath", option.label)}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="wm-simple-two-col">
-          <PillGroup
-            title="Network availability"
-            helper="Only important where AVoIP, NDI, Dante, cloud control or networked control may be used."
-            options={networkOptions}
-            value={state.network}
-            onSelect={(value) => setField("network", value)}
-          />
-
-          <PillGroup
-            title="Control needs"
-            helper="Select only if the user mentioned control, display power or third-party integration."
-            options={controlOptions}
-            values={state.controlNeeds}
-            onSelect={(value) => toggleList("controlNeeds", value)}
-            multi
-          />
-        </div>
-      </div>
-    );
-  }
-
-  function renderReviewStep() {
-    return (
-      <div className="wm-simple-step">
-        <div>
-          <p>Step 6</p>
-          <h2>Review the inferred product path.</h2>
-          <span>Wingman now has enough to move into Product Finder, or save this as the start of the proposal workflow.</span>
-        </div>
-
-        <div className="wm-simple-review-grid">
-          <div>
-            <p>Recommended product path</p>
-            <h3>{designDirection}</h3>
-            <span>{confidence} / {capturedPercent(missingItems.length)}% captured</span>
-          </div>
-          <div>
-            <p>Triggered checks</p>
-            <ul>{triggeredChecks.map((item) => <li key={item}>{item}</li>)}</ul>
-          </div>
-          <div>
-            <p>Open items</p>
-            <ul>{missingItems.length ? missingItems.map((item) => <li key={item}>{item}</li>) : <li>Ready for product selection.</li>}</ul>
-          </div>
-        </div>
-
-        <textarea
-          value={state.notes}
-          onChange={(event) => setField("notes", event.target.value)}
-          placeholder="Optional customer wording, site notes, constraints or assumptions."
-          className="wm-simple-notes"
-        />
-
-        <div className="wm-simple-review-actions">
-          <button type="button" onClick={openFinder}>
-            Open Product Finder
-            <ArrowRight className="h-4 w-4" />
-          </button>
-          <button type="button" onClick={openProposal}>
-            Save to project / proposal
-            <Save className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  function renderStep() {
-    if (currentStep.id === "outcome") return renderOutcomeStep();
-    if (currentStep.id === "room") return renderRoomStep();
-    if (currentStep.id === "devices") return renderDevicesStep();
-    if (currentStep.id === "displays") return renderDisplaysStep();
-    if (currentStep.id === "exceptions") return renderExceptionsStep();
-    return renderReviewStep();
-  }
+  const saveAndOpenProposal = () => {
+    saveDiscovery();
+    navigate(`/wingman/proposal?brief=${encodeURIComponent(summary)}`);
+  };
 
   return (
-    <main className="wm-simple-discovery-page">
-      <section className="wm-simple-discovery-shell">
-        <header className="wm-simple-discovery-head">
+    <main data-wingman-discovery-screen="true" className="wm20-page">
+      <section className="wm20-panel" data-wingman-discovery-capture="true">
+        <div className="wm20-hero-copy">
+          <p className="wm20-eyebrow">Guided discovery</p>
+          <span className="wm20-badge">Live call mode</span>
+          <h1>Ask one question, then move forward automatically</h1>
+          <p>
+            Select an answer and Wingman immediately moves to the next discovery step. The old global
+            auto-advance listener has been removed so options should no longer de-select or jump to the
+            wrong button.
+          </p>
+          <a className="wm-button-secondary" href="#wingman-discovery-current-model">
+            View full model
+          </a>
+        </div>
+      </section>
+
+      <section className="wm20-panel">
+        <div className="wm20-section-heading">
           <div>
-            <p>Wingman workspace</p>
-            <h1>Simplified Discovery</h1>
-            <span>Ask fewer questions. Select recognisable outcomes and devices. Let Wingman infer the engineering model.</span>
+            <p className="wm20-eyebrow">Captured answers</p>
+            <h2>Discovery trail</h2>
           </div>
+          <span className="wm20-badge">{selectedRows.length} / {DISCOVERY_STEPS.length} captured</span>
+        </div>
 
-          <div className="wm-simple-discovery-head-actions">
-            <span>{confidence}</span>
-            <Link to={routeCatalogByKey.finder.path} onClick={() => persist(activeStepIndex)}>Open Finder</Link>
-          </div>
-        </header>
-
-        <nav className="wm-simple-discovery-steps">
-          {steps.map((step, index) => {
-            const active = index === activeStepIndex;
-            const complete = index < activeStepIndex;
+        <div className="wm20-grid">
+          {DISCOVERY_STEPS.map((step, index) => {
+            const option = getOption(step, answers[step.key]);
+            const isActive = index === activeIndex;
 
             return (
               <button
-                key={step.id}
+                key={step.key}
                 type="button"
-                title={step.helper}
-                onClick={() => goToStep(index)}
-                className={active ? "is-active" : complete ? "is-complete" : ""}
+                className={isActive ? "wm20-card-action" : "wm-button-soft"}
+                onClick={() => moveToStep(index)}
+                aria-current={isActive ? "step" : undefined}
               >
-                <span>{complete ? <Check className="h-3 w-3" /> : index + 1}</span>
-                {step.label}
+                <strong>{step.eyebrow}</strong>
+                <span>{option ? option.label : step.title}</span>
               </button>
             );
           })}
-        </nav>
+        </div>
+      </section>
 
-        <div className="wm-simple-discovery-body">
-          <section className="wm-simple-discovery-main">
-            <div className="wm-simple-guidance">
-              <Sparkles className="h-4 w-4" />
-              <div>
-                <p>{currentStep.label} guidance</p>
-                <span>{questionStrategy.prompt}</span>
-                <small>{questionStrategy.customerFrame}</small>
-              </div>
-            </div>
+      <section ref={activePanelRef} className="wm20-panel" data-wingman-current-panel="true">
+        <div className="wm20-section-heading">
+          <div>
+            <p className="wm20-eyebrow">{activeStep.eyebrow}</p>
+            <h2>{activeStep.title}</h2>
+            <p>{activeStep.ask}</p>
+          </div>
+          <span className="wm20-badge">Auto advances after selection</span>
+        </div>
 
-            {renderStep()}
+        <div className="wm20-next">
+          <strong>Why this matters</strong>
+          <p>{activeStep.why}</p>
+        </div>
 
-            <footer className="wm-simple-discovery-footer">
-              <button type="button" disabled={isFirstStep} onClick={goBack}>
-                <ArrowLeft className="h-4 w-4" />
-                Back
+        <div className="wm20-grid">
+          {activeStep.options.map((option) => {
+            const selected = answers[activeStep.key] === option.id;
+
+            return (
+              <button
+                key={option.id}
+                type="button"
+                className={selected ? "wm20-card-action" : "wm-button-soft"}
+                onClick={() => selectOption(activeStep, option)}
+                aria-pressed={selected}
+              >
+                <strong>{option.label}</strong>
+                <span>{option.description}</span>
               </button>
+            );
+          })}
+        </div>
 
-              <div>
-                <button type="button" onClick={() => { saveDiscoveryBrief(); navigate(routeCatalogByKey.callCards.path); }}>
-                  Live call mode
-                </button>
-
-                <button type="button" onClick={openProposal}>
-                  <Save className="h-4 w-4" />
-                  Save to project / proposal
-                </button>
-
-                {isLastStep ? (
-                  <button type="button" onClick={openFinder} className="primary">
-                    Open Product Finder
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                ) : (
-                  <button type="button" onClick={goNext} className="primary">
-                    Next
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            </footer>
-          </section>
-
-          <aside className="wm-simple-model-panel">
-            <div>
-              <Monitor className="h-5 w-5" />
-              <p>Current model</p>
-              <span>{capturedPercent(missingItems.length)}%</span>
-            </div>
-
-            <div className="wm-simple-model-lines">
-              <ValueLine label="Outcome" value={state.outcome} />
-              <ValueLine label="Room" value={state.roomType || "Not captured yet"} />
-              <ValueLine label="Product path" value={designDirection} />
-              <ListLine label="Devices" values={state.devices} />
-              <ValueLine label="Inputs" value={`${inputModel.hdmi} HDMI / ${inputModel.usbC} USB-C / ${inputModel.networkVideo} network`} />
-              <ValueLine label="USB topology" value={usbTopology.summary} />
-              <ValueLine label="USB risk" value={usbTopology.risk} />
-              <ValueLine label="Audio path" value={state.audioPath} />
-              <ValueLine label="Cable run" value={state.cableRun} />
-              <ValueLine label="Signal standard" value={getSignalStandardSummary(state)} />
-            </div>
-
-            <button type="button" onClick={() => setFullModelOpen((open) => !open)}>
-              {fullModelOpen ? "Hide full model" : "View full model"}
+        {answers[activeStep.key] ? (
+          <div className="wm20-next">
+            <strong>Selected</strong>
+            <p>{getOption(activeStep, answers[activeStep.key])?.label}</p>
+            <button type="button" className="wm-button-secondary" onClick={() => clearAnswer(activeStep.key)}>
+              Change this answer
             </button>
+          </div>
+        ) : null}
 
-            {fullModelOpen ? (
-              <div className="wm-simple-full-model">
-                <p>Technical tags</p>
-                <div>
-                  {inputModel.tags.length ? inputModel.tags.map((tag) => <span key={tag}>{tag}</span>) : <span>No tags yet</span>}
-                </div>
-                <p>Triggered checks</p>
-                <div>
-                  {triggeredChecks.map((item) => <span key={item}>{item}</span>)}
-                </div>
-              </div>
-            ) : null}
+        <div className="wm20-actions">
+          <button
+            type="button"
+            className="wm-button-secondary"
+            onClick={() => moveToStep(activeIndex - 1)}
+            disabled={activeIndex === 0}
+          >
+            Back
+          </button>
 
-            <div className="wm-simple-missing">
-              <div>
-                <HelpCircle className="h-4 w-4" />
-                <p>Open items</p>
-              </div>
-              <ul>
-                {missingItems.length ? missingItems.slice(0, 5).map((item) => <li key={item}>- {item}</li>) : <li>- Ready for product selection.</li>}
-              </ul>
-            </div>
-          </aside>
+          <button
+            type="button"
+            className="wm-button-soft"
+            onClick={() => moveToStep(activeIndex + 1)}
+            disabled={activeIndex >= DISCOVERY_STEPS.length - 1}
+          >
+            Skip for now
+          </button>
+        </div>
+      </section>
+
+      <section className="wm20-panel" id="wingman-discovery-current-model">
+        <div className="wm20-section-heading">
+          <div>
+            <p className="wm20-eyebrow">Live discovery model</p>
+            <h2>Current model</h2>
+          </div>
+          <span className="wm20-badge">{complete ? "Ready to save" : "Discovery still incomplete"}</span>
+        </div>
+
+        <div className="wm20-next">
+          <strong>Recommended architecture direction</strong>
+          <p>{architecture.direction}</p>
+        </div>
+
+        <div className="wm20-next">
+          <strong>Likely WyreStorm family direction</strong>
+          <p>{architecture.family}</p>
+          <p>{architecture.products.join(", ")}</p>
+        </div>
+
+        <div className="wm20-next">
+          <strong>What to check before quoting</strong>
+          <ul>
+            {missingInformation.slice(0, 8).map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="wm20-next">
+          <strong>Discovery summary</strong>
+          <p>{summary}</p>
+        </div>
+
+        {saved ? (
+          <div className="wm20-next">
+            <strong>Discovery saved</strong>
+            <p>Discovery has been saved to the active opportunity and handoff storage.</p>
+          </div>
+        ) : null}
+
+        <div className="wm20-actions">
+          <button type="button" className="wm20-card-action" onClick={saveDiscovery}>
+            Save discovery
+          </button>
+
+          <button type="button" className="wm-button-soft" onClick={saveAndOpenFinder}>
+            Save and open Product Finder
+          </button>
+
+          <button type="button" className="wm-button-secondary" onClick={saveAndOpenProposal}>
+            Save and create proposal draft
+          </button>
+
+          <button type="button" className="wm-button-secondary" onClick={saveAndOpenProject}>
+            Save and open opportunity
+          </button>
+        </div>
+      </section>
+
+      <section className="wm20-panel">
+        <div className="wm20-section-heading">
+          <div>
+            <p className="wm20-eyebrow">Discovery support</p>
+            <h2>Ask this next</h2>
+          </div>
+          <Link className="wm-button-soft" to="/wingman/finder">
+            Open Finder manually
+          </Link>
+        </div>
+
+        <div className="wm20-grid">
+          <div className="wm20-next">
+            <strong>Customer-facing question</strong>
+            <p>{activeQuestionStrategy.customerQuestion}</p>
+          </div>
+
+          <div className="wm20-next">
+            <strong>Internal pre-sales check</strong>
+            <p>{activeQuestionStrategy.internalCheck}</p>
+          </div>
+
+          <div className="wm20-next">
+            <strong>Architecture reminder</strong>
+            <p>{activeQuestionStrategy.workflowFocus}</p>
+          </div>
         </div>
       </section>
     </main>
@@ -1321,3 +883,4 @@ export function DiscoveryPage() {
 }
 
 export default DiscoveryPage;
+

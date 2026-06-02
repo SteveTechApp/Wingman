@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { classifyWingmanProduct, isWingmanProductEligibleForFinderNeed, wingmanHardwareTypePriority } from "../lib/productClassification";
 import {
   AlertTriangle,
@@ -2023,7 +2023,7 @@ function toFeatureSearchMatch(product: FinderProduct, need: FinderNeed, filters:
   const cleanProduct = cleanFinderProduct(product);
   const matchingFilters = filters.filter((filter) => filter.matches(cleanProduct));
 
-  if (!isFinderStrictClassAllowed(cleanProduct, need)) {
+  if (suppressedByWingmanClassification || !isFinderStrictClassAllowed(cleanProduct, need)) {
     return suppressedFinderClassMatch(cleanProduct);
   }
   const featureScore = 40 + matchingFilters.reduce((sum, filter) => sum + filter.weight, 0) + (strictMatch ? 12 : 0);
@@ -2569,7 +2569,7 @@ function ChipButton({ active, label, onClick }: { active: boolean; label: string
       className={`inline-flex min-h-[30px] items-center gap-2 rounded-full border px-3 py-1 text-xs font-black transition ${
         active
           ? "border-slate-950 bg-slate-950 text-white"
-          : "border-slate-200 bg-white text-slate-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800"
+          : "border-[#29465e] bg-[#0d2133] text-slate-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800"
       }`}
     >
       {active ? <Check className="h-3.5 w-3.5" /> : null}
@@ -2595,7 +2595,7 @@ function FieldSelect({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+        className="h-9 rounded-xl border border-[#29465e] bg-[#0d2133] px-3 text-sm text-[#edf6ff] outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
       >
         <option value="">Any / not known</option>
         {options.map((option) => (
@@ -2636,12 +2636,12 @@ function FinderStepFooter({
   const isLastStep = activeIndex === finderSteps.length - 1;
 
   return (
-    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#29465e] pt-4">
       <button
         type="button"
         onClick={onPrevious}
         disabled={isFirstStep}
-        className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+        className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-[#0d2133] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133] disabled:cursor-not-allowed disabled:opacity-40"
       >
         Previous
       </button>
@@ -3063,13 +3063,13 @@ export function FinderPage() {
                     isActive
                       ? "border-slate-950 bg-slate-950 text-white shadow-lg"
                       : isComplete
-                        ? "border-emerald-200 bg-emerald-50 text-slate-900 hover:border-emerald-300"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-amber-300 hover:bg-amber-50"
+                        ? "border-emerald-200 bg-emerald-50 text-[#edf6ff] hover:border-emerald-300"
+                        : "border-[#29465e] bg-[#0d2133] text-slate-700 hover:border-amber-300 hover:bg-amber-50"
                   }`}
                 >
                   <span
                     className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black ${
-                      isActive ? "bg-white text-slate-950" : isComplete ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-600"
+                      isActive ? "bg-[#0d2133] text-slate-950" : isComplete ? "bg-emerald-600 text-white" : "bg-[#0d2133] text-slate-600"
                     }`}
                   >
                     {isComplete ? <Check className="h-3.5 w-3.5" /> : index + 1}
@@ -3086,8 +3086,8 @@ export function FinderPage() {
           </nav>
 
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-            <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm" aria-labelledby="finder-active-step-title">
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-4">
+            <section className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm" aria-labelledby="finder-active-step-title">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#29465e] pb-4">
                 <div className="min-w-0">
                   <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-700">{activeStepDefinition.eyebrow}</p>
                   <h2 id="finder-active-step-title" className="mt-1 text-2xl font-black tracking-tight text-slate-950">
@@ -3099,7 +3099,7 @@ export function FinderPage() {
                 <button
                   type="button"
                   onClick={clearFinder}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-100"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-[#0d2133]"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   Reset
@@ -3115,7 +3115,7 @@ export function FinderPage() {
                         <p className="mt-1 text-xs leading-5 text-amber-900">Choose the closest customer problem. Finder fills the need data and moves to the next useful step.</p>
                       </div>
 
-                      <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-3 py-1 text-xs font-black text-amber-800">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-[#0d2133] px-3 py-1 text-xs font-black text-amber-800">
                         <Database className="h-3.5 w-3.5" />
                         {indexState === "ready" ? `${products.length} indexed products` : indexState === "loading" ? "Loading index" : "Clean fallback library"}
                       </div>
@@ -3131,14 +3131,14 @@ export function FinderPage() {
                     </div>
                   </div>
 
-                  <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-2">
+                  <div className="grid gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 md:grid-cols-2">
                     <label className="grid gap-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 md:col-span-2">
                       Technology Type
                       <select
                         id="finder-technology-type"
                         value={need.technologyType}
                         onChange={(event) => setNeedField("technologyType", event.target.value)}
-                        className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold normal-case tracking-normal text-slate-900 shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                        className="min-h-11 rounded-xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm font-semibold normal-case tracking-normal text-[#edf6ff] shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
                       >
                         {technologyTypeOptions.map((option) => (
                           <option key={option} value={option}>
@@ -3150,13 +3150,13 @@ export function FinderPage() {
 
                     <label className="grid gap-1 md:col-span-2">
                       <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Search SKU or requirement</span>
-                      <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
+                      <div className="flex items-center gap-2 rounded-xl border border-[#29465e] bg-[#0d2133] px-3">
                         <Search className="h-4 w-4 text-slate-400" />
                         <input
                           value={need.query}
                           onChange={(event) => setNeedField("query", event.target.value)}
                           placeholder="e.g. HDMI USB extender, NHD-150-RX, multiview"
-                          className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-slate-900 outline-none"
+                          className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-[#edf6ff] outline-none"
                         />
                       </div>
                     </label>
@@ -3168,7 +3168,7 @@ export function FinderPage() {
               ) : null}
 
               {activeStep === "signal" ? (
-                <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-3">
+                <div className="mt-4 grid gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 md:grid-cols-3">
                   <FieldSelect label="Signal type" value={need.signalType} options={signalTypeOptions} onChange={(value) => setNeedField("signalType", value)} />
                   <FieldSelect label="Source connector" value={need.sourceConnector} options={connectorOptions} onChange={(value) => setNeedField("sourceConnector", value)} />
                   <FieldSelect label="Display / output" value={need.displayConnector} options={connectorOptions} onChange={(value) => setNeedField("displayConnector", value)} />
@@ -3176,7 +3176,7 @@ export function FinderPage() {
               ) : null}
 
               {activeStep === "size" ? (
-                <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-2 xl:grid-cols-4">
+                <div className="mt-4 grid gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 md:grid-cols-2 xl:grid-cols-4">
                   <FieldSelect label="Inputs" value={need.inputs} options={inputOptions} onChange={(value) => setNeedField("inputs", value)} />
                   <FieldSelect label="Outputs" value={need.outputs} options={outputOptions} onChange={(value) => setNeedField("outputs", value)} />
                   <FieldSelect label="Distance" value={need.distance} options={distanceOptions} onChange={(value) => setNeedField("distance", value)} />
@@ -3185,7 +3185,7 @@ export function FinderPage() {
               ) : null}
 
               {activeStep === "specialist" ? (
-                <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 md:grid-cols-2 xl:grid-cols-5">
+                <div className="mt-4 grid gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 md:grid-cols-2 xl:grid-cols-5">
                   <FieldSelect label="USB" value={need.usb} options={usbOptions} onChange={(value) => setNeedField("usb", value)} />
                   <FieldSelect label="Processing" value={need.processing} options={processingOptions} onChange={(value) => setNeedField("processing", value)} />
                   <FieldSelect label="Network" value={need.network} options={networkOptions} onChange={(value) => setNeedField("network", value)} />
@@ -3196,7 +3196,7 @@ export function FinderPage() {
 
               {activeStep === "results" ? (
                 <div className="mt-4 grid gap-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                     <div>
                       <p className="text-sm font-black text-slate-950">Product results</p>
                       <p className="mt-1 text-xs leading-5 text-slate-500">
@@ -3205,7 +3205,7 @@ export function FinderPage() {
                     </div>
 
                     {bestMatch ? (
-                      <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
+                      <div className="rounded-full bg-[#0d2133] px-3 py-1 text-xs font-black text-slate-700">
                         Best fit: {bestMatch.sku}
                       </div>
                     ) : null}
@@ -3214,7 +3214,7 @@ export function FinderPage() {
                   <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_320px]">
                     <main className="wm-finder-results-panel grid content-start gap-3">
                       {!hasIntent ? (
-                        <div className="grid min-h-[360px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
+                        <div className="grid min-h-[360px] place-items-center rounded-2xl border border-dashed border-slate-300 bg-[#0d2133] p-8 text-center">
                           <div className="max-w-xl">
                             <PackageSearch className="mx-auto h-12 w-12 text-slate-300" />
                             <h3 className="mt-4 text-xl font-black text-slate-950">No products shown yet</h3>
@@ -3231,7 +3231,7 @@ export function FinderPage() {
                           const cautionLines = getCautionLines(match, need);
 
                           return (
-                            <article key={resultKey} className="wm-finder-result-card rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+                            <article key={resultKey} className="wm-finder-result-card rounded-2xl border border-[#29465e] bg-[#0d2133] p-3 shadow-sm">
                               <div className="grid gap-3">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                   <button
@@ -3240,7 +3240,7 @@ export function FinderPage() {
                                     className="flex min-w-0 flex-1 items-start gap-3 text-left"
                                     aria-expanded={isExpanded}
                                   >
-                                    <span className="mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600">
+                                    <span className="mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-slate-600">
                                       {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                                     </span>
 
@@ -3262,14 +3262,14 @@ export function FinderPage() {
                                   </button>
 
                                   <div className="flex shrink-0 flex-col items-end gap-2">
-                                    <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
+                                    <div className="rounded-full bg-[#0d2133] px-3 py-1 text-xs font-black text-slate-700">
                                       Fit score {Math.min(99, match.score)}%
                                     </div>
 
                                     <button
                                       type="button"
                                       onClick={() => toggleExpandedResult(resultKey)}
-                                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-black text-slate-700 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800"
+                                      className="rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-1 text-xs font-black text-slate-700 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800"
                                     >
                                       {isExpanded ? "Close details" : "Open details"}
                                     </button>
@@ -3278,14 +3278,14 @@ export function FinderPage() {
 
                                 <div className="flex flex-wrap gap-2">
                                   {match.tags.slice(0, isExpanded ? 7 : 4).map((tag) => (
-                                    <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                    <span key={tag} className="rounded-full bg-[#0d2133] px-2.5 py-1 text-xs font-semibold text-slate-600">
                                       {tag}
                                     </span>
                                   ))}
                                 </div>
 
                                 {isExpanded ? (
-                                  <div className="grid gap-3 border-t border-slate-100 pt-3">
+                                  <div className="grid gap-3 border-t border-[#29465e] pt-3">
                                     <p className="text-sm leading-6 text-slate-700">{finderSalesSummary(match)}</p>
 
                                     <ProductSalesKnowledgePanel product={match} mode="finder" />
@@ -3331,7 +3331,7 @@ export function FinderPage() {
                                   <button
                                     type="button"
                                     onClick={() => addToStandaloneShortlist(match)}
-                                    className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                                    className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133]"
                                   >
                                     Shortlist only
                                   </button>
@@ -3345,13 +3345,13 @@ export function FinderPage() {
                                     Add to project
                                   </button>
 
-                                  <Link to={routeCatalogByKey.compare.path} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+                                  <Link to={routeCatalogByKey.compare.path} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133]">
                                     Compare
                                   </Link>
 
                                   <Link
                                     to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(match.sku)}&source=finder`}
-                                    className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                                    className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133]"
                                   >
                                     Pitch {match.sku}
                                   </Link>
@@ -3385,7 +3385,7 @@ export function FinderPage() {
                         </p>
 
                         {bestMatch ? (
-                          <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                          <div className="mt-4 rounded-2xl border border-[#29465e] bg-[#0d2133] p-3">
                             <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Current best match</p>
                             <p className="mt-2 text-lg font-black text-slate-950">{bestMatch.sku}</p>
                             <p className="mt-1 text-sm text-slate-600">{bestMatch.title}</p>
@@ -3400,8 +3400,8 @@ export function FinderPage() {
 
                           <div className="mt-3 space-y-2">
                             {shortlist.slice(0, 6).map((item) => (
-                              <div key={`${item.sku}-${item.addedAt}`} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                                <p className="text-sm font-black text-slate-900">{item.sku}</p>
+                              <div key={`${item.sku}-${item.addedAt}`} className="rounded-xl border border-[#29465e] bg-[#0d2133] p-3">
+                                <p className="text-sm font-black text-[#edf6ff]">{item.sku}</p>
                                 <p className="mt-1 text-xs text-slate-500">{item.title}</p>
                               </div>
                             ))}
@@ -3424,7 +3424,7 @@ export function FinderPage() {
             <aside className="grid content-start gap-3" aria-label="Finder guidance">
               <WingmanCoachPanel coach={finderCoach} compact showFunnel showVisuals={false} />
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm">
                 <div className="flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4 text-slate-500" />
                   <p className="text-sm font-black text-slate-950">Current need</p>
@@ -3433,9 +3433,9 @@ export function FinderPage() {
                 {needSummaryItems.length ? (
                   <dl className="mt-3 grid gap-2">
                     {needSummaryItems.slice(0, 9).map(([label, value]) => (
-                      <div key={label} className="rounded-xl border border-slate-100 bg-slate-50 p-2">
+                      <div key={label} className="rounded-xl border border-[#29465e] bg-[#0d2133] p-2">
                         <dt className="text-[0.68rem] font-black uppercase tracking-[0.12em] text-slate-500">{label}</dt>
-                        <dd className="mt-1 text-sm font-semibold text-slate-800">{value}</dd>
+                        <dd className="mt-1 text-sm font-semibold text-[#edf6ff]">{value}</dd>
                       </div>
                     ))}
                   </dl>
@@ -3467,7 +3467,7 @@ export function FinderPage() {
               <button
                 type="button"
                 onClick={closeAddPanel}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-slate-200 transition hover:bg-[#0d2133]"
                 aria-label="Close add to project panel"
               >
                 <X className="h-5 w-5" />
@@ -3475,14 +3475,14 @@ export function FinderPage() {
             </div>
 
             <div className="mt-5 grid gap-4 lg:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133]/[0.04] p-4">
                 <p className="text-sm font-black">Add to existing project</p>
                 <p className="mt-1 text-xs leading-5 text-slate-400">Attach this product to an existing opportunity.</p>
 
                 <select
                   value={selectedProjectId}
                   onChange={(event) => setSelectedProjectId(event.target.value)}
-                  className="mt-4 h-11 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm text-white outline-none focus:border-amber-400"
+                  className="mt-4 h-11 w-full rounded-xl border border-[#29465e] bg-slate-900 px-3 text-sm text-white outline-none focus:border-amber-400"
                 >
                   {projects.map((project) => (
                     <option key={project.id} value={project.id}>
@@ -3502,7 +3502,7 @@ export function FinderPage() {
                 </button>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133]/[0.04] p-4">
                 <p className="text-sm font-black">Create new project</p>
                 <p className="mt-1 text-xs leading-5 text-slate-400">Start a new Finder-stage project with this product attached.</p>
 
@@ -3510,20 +3510,20 @@ export function FinderPage() {
                   value={newProjectName}
                   onChange={(event) => setNewProjectName(event.target.value)}
                   placeholder="Project name"
-                  className="mt-4 h-11 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm text-white outline-none focus:border-amber-400"
+                  className="mt-4 h-11 w-full rounded-xl border border-[#29465e] bg-slate-900 px-3 text-sm text-white outline-none focus:border-amber-400"
                 />
 
                 <input
                   value={newProjectOwner}
                   onChange={(event) => setNewProjectOwner(event.target.value)}
                   placeholder="Owner"
-                  className="mt-3 h-11 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm text-white outline-none focus:border-amber-400"
+                  className="mt-3 h-11 w-full rounded-xl border border-[#29465e] bg-slate-900 px-3 text-sm text-white outline-none focus:border-amber-400"
                 />
 
                 <button
                   type="button"
                   onClick={addToNewProject}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-slate-100"
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0d2133] px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-[#0d2133]"
                 >
                   <FolderPlus className="h-4 w-4" />
                   Create project and add
@@ -3535,16 +3535,16 @@ export function FinderPage() {
               <button
                 type="button"
                 onClick={() => addToStandaloneShortlist(selectedProduct)}
-                className="rounded-full border border-white/10 px-4 py-2 text-sm font-black text-slate-200 transition hover:bg-white/10"
+                className="rounded-full border border-[#29465e] px-4 py-2 text-sm font-black text-slate-200 transition hover:bg-[#0d2133]"
               >
                 Shortlist only
               </button>
 
-              <Link to={routeCatalogByKey.projects.path} className="rounded-full border border-white/10 px-4 py-2 text-sm font-black text-slate-200 transition hover:bg-white/10">
+              <Link to={routeCatalogByKey.projects.path} className="rounded-full border border-[#29465e] px-4 py-2 text-sm font-black text-slate-200 transition hover:bg-[#0d2133]">
                 Open projects
               </Link>
 
-              <Link to={routeCatalogByKey.proposal.path} className="rounded-full bg-slate-200 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-white">
+              <Link to={routeCatalogByKey.proposal.path} className="rounded-full bg-[#0d2133] px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-[#0d2133]">
                 Continue to proposal
               </Link>
             </div>
@@ -3556,3 +3556,4 @@ export function FinderPage() {
 }
 
 export default FinderPage;
+

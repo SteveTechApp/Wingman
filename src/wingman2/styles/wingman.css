@@ -1,4 +1,4 @@
-@import "@xyflow/react/dist/style.css";
+﻿@import "@xyflow/react/dist/style.css";
 
 /* WINGMAN VISUAL STUDIO START */
 
@@ -108,7 +108,7 @@
   width: 100%;
   border: 1px solid rgba(22, 32, 42, 0.1);
   border-radius: 16px;
-  background: #ffffff;
+  background: var(--wm-sweep-card) !important;
   color: #17202a;
   padding: 13px;
   text-align: left;
@@ -202,7 +202,7 @@
   max-width: 230px;
   border-radius: 20px;
   border: 1px solid rgba(22, 32, 42, 0.14);
-  background: #ffffff;
+  background: var(--wm-sweep-card) !important;
   box-shadow: 0 14px 40px rgba(19, 33, 52, 0.14);
   padding: 14px;
   color: #17202a;
@@ -338,7 +338,7 @@
   padding: 14px;
   border: 1px solid rgba(20, 30, 45, 0.08);
   border-radius: 20px;
-  background: #ffffff;
+  background: var(--wm-sweep-card) !important;
 }
 
 .wm-audience-selector-heading h2,
@@ -380,7 +380,7 @@
   padding: 11px;
   border: 1px solid rgba(20, 30, 45, 0.1);
   border-radius: 16px;
-  background: #f8fafc;
+  background: var(--wm-sweep-card) !important;
   color: #17202a;
   text-align: left;
   cursor: pointer;
@@ -405,7 +405,7 @@
   margin-top: 1px;
   border: 1px solid rgba(20, 30, 45, 0.28);
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--wm-sweep-card) !important;
 }
 
 .wm-audience-option.is-active .wm-audience-radio {
@@ -446,7 +446,7 @@
   padding: 12px;
   border: 1px solid rgba(20, 30, 45, 0.08);
   border-radius: 16px;
-  background: #ffffff;
+  background: var(--wm-sweep-card) !important;
 }
 
 .wm-audience-coaching-grid article span {
@@ -2258,3 +2258,4 @@ button[title*="Guru"] {
 }
 
 /* WINGMAN STABLE TASK FIRST LAYOUT FIX END */
+

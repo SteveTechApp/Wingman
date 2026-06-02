@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    WINGMAN LAYOUT PRIMITIVES
 
    Shared page layout components.
@@ -519,11 +519,11 @@
 
 /* Stop legacy Tailwind-style light cards leaking into migrated pages */
 
-.wm-page-migrated :where(.bg-white, .bg-slate-50, .bg-gray-50, .text-slate-900, .text-gray-900) {
+.wm-page-migrated :where(.wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector) {
   color: var(--wm-migrated-text) !important;
 }
 
-.wm-page-migrated :where(.bg-white, .bg-slate-50, .bg-gray-50) {
+.wm-page-migrated :where(.wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector) {
   background: var(--wm-migrated-card) !important;
   border-color: var(--wm-migrated-border) !important;
 }
@@ -616,3 +616,5 @@
 }
 
 /* WM MIGRATED PAGE VISUAL HARDENING END */
+
+

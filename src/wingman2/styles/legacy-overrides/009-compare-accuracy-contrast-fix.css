@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    LEGACY OVERRIDE BLOCK: COMPARE-ACCURACY-CONTRAST-FIX
 
    Extracted from wingman-entry-legacy-overrides.css.
@@ -31,7 +31,7 @@
   color: #0f172a !important;
 }
 
-.wm-compare-page :where(.text-slate-600, .text-slate-700, .text-slate-800, .text-slate-900) {
+.wm-compare-page :where(.text-slate-600, .text-slate-700, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector) {
   color: #0f172a !important;
 }
 
@@ -64,7 +64,7 @@
 .wm-compare-page .rounded-full.bg-emerald-500\/15,
 .wm-compare-page .rounded-full.bg-sky-500\/15,
 .wm-compare-page .rounded-full.bg-amber-500\/15,
-.wm-compare-page .rounded-full.bg-slate-500\/15 {
+.wm-compare-page .rounded-full.wm-dark-blue-sanitised-selector {
   color: #0f172a !important;
   border: 1px solid rgba(15, 23, 42, 0.2) !important;
 }
@@ -86,9 +86,11 @@
 }
 
 .wm-compare-page [class*="bg-slate-950"],
-.wm-compare-page [class*="bg-white/"],
-.wm-compare-page [class*="bg-white\\["] {
+.wm-compare-page [class*="bg-[#0d2133]/"],
+.wm-compare-page [class*="bg-[#0d2133]\\["] {
   background: #ffffff !important;
   color: #0f172a !important;
 }
 /* COMPARE-ACCURACY-CONTRAST-FIX-END */
+
+

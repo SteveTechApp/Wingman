@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --wm-command-bg: #030914;
   --wm-command-bg-2: #06111f;
   --wm-command-sidebar: #020811;
@@ -497,7 +497,7 @@ textarea {
   box-shadow: 0 0 0 3px rgba(50, 214, 246, 0.12) !important;
 }
 
-.wingman-page-host :where(.bg-white, .bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-gray-100) {
+.wingman-page-host :where(.wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector) {
   background:
     linear-gradient(180deg, rgba(10, 25, 42, 0.96), rgba(6, 15, 28, 0.96)) !important;
   color: var(--wm-command-text) !important;
@@ -514,7 +514,7 @@ textarea {
   color: var(--wm-command-text) !important;
 }
 
-.wingman-page-host :where(.text-slate-950, .text-slate-900, .text-gray-900, .text-black) {
+.wingman-page-host :where(.text-slate-950, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector) {
   color: var(--wm-command-text) !important;
 }
 
@@ -526,7 +526,7 @@ textarea {
   color: var(--wm-command-soft) !important;
 }
 
-.wingman-page-host :where(.border-slate-200, .border-gray-200, .border-slate-300) {
+.wingman-page-host :where(.wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .border-slate-300) {
   border-color: var(--wm-command-border) !important;
 }
 
@@ -554,7 +554,7 @@ textarea {
   color: #130d05 !important;
 }
 
-.wingman-page-host :where(button, a):where(.border, .border-slate-200, .border-slate-300) {
+.wingman-page-host :where(button, a):where(.border, .wm-dark-blue-sanitised-selector, .border-slate-300) {
   border-color: var(--wm-command-border) !important;
 }
 
@@ -980,7 +980,7 @@ textarea {
 }
 
 .wingman-shell .wingman-page-host :where(input, select, textarea),
-.wingman-shell .wingman-page-host :where(input.bg-white, select.bg-white, textarea.bg-white) {
+.wingman-shell .wingman-page-host :where(input.wm-dark-blue-sanitised-selector, select.wm-dark-blue-sanitised-selector, textarea.wm-dark-blue-sanitised-selector) {
   border: 1px solid var(--wm-command-border) !important;
   background: rgba(8, 20, 34, 0.94) !important;
   color: var(--wm-command-text) !important;
@@ -989,3 +989,5 @@ textarea {
 .wingman-shell .wingman-page-host :where(input::placeholder, textarea::placeholder) {
   color: var(--wm-command-soft) !important;
 }
+
+

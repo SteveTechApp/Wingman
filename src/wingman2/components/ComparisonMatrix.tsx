@@ -1,4 +1,4 @@
-import type { CompareRow } from "../types";
+﻿import type { CompareRow } from "../types";
 
 type ComparisonMatrixProps = {
   title: string;
@@ -27,14 +27,14 @@ export function ComparisonMatrix({
   rows,
 }: ComparisonMatrixProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 px-5 py-4">
+    <div className="overflow-hidden rounded-2xl border border-[#29465e] bg-[#0d2133] shadow-sm">
+      <div className="border-b border-[#29465e] px-5 py-4">
         <p className="wingman-kicker">Competitor compare</p>
-        <h3 className="mt-1 text-lg font-semibold text-slate-900">{title}</h3>
+        <h3 className="mt-1 text-lg font-semibold text-[#edf6ff]">{title}</h3>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-sm">
-          <thead className="bg-slate-50 text-slate-600">
+          <thead className="bg-[#0d2133] text-slate-600">
             <tr>
               <th className="px-5 py-3 font-semibold">Specification</th>
               <th className="px-5 py-3 font-semibold">{competitorSku}</th>
@@ -44,8 +44,8 @@ export function ComparisonMatrix({
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.label} className="border-t border-slate-100">
-                <td className="px-5 py-3 font-medium text-slate-900">{row.label}</td>
+              <tr key={row.label} className="border-t border-[#29465e]">
+                <td className="px-5 py-3 font-medium text-[#edf6ff]">{row.label}</td>
                 <td className="px-5 py-3 text-slate-700">{row.competitor}</td>
                 <td className="px-5 py-3 text-slate-700">{row.wyrestorm}</td>
                 <td className="px-5 py-3">
@@ -61,3 +61,4 @@ export function ComparisonMatrix({
     </div>
   );
 }
+

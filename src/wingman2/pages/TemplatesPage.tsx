@@ -1,4 +1,4 @@
-import { useMemo, useState, type ComponentType } from "react";
+﻿import { useMemo, useState, type ComponentType } from "react";
 import {
   ArrowRight,
   Building2,
@@ -353,7 +353,7 @@ export function TemplatesPage() {
         }
       >
         <section id={ROOM_TEMPLATE_SECTION_ID} className="wm-template-results-panel">
-          <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-3">
+          <div className="grid gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-3">
             <div className="flex flex-wrap items-center gap-2">
               {roomTemplateVerticals.map((vertical) => {
                 const visual = verticalFilterVisual(vertical);
@@ -368,13 +368,13 @@ export function TemplatesPage() {
                     className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-3 py-2 text-sm font-black transition ${
                       isActive
                         ? "border-slate-950 bg-slate-950 text-white"
-                        : "border-slate-200 bg-slate-50 text-slate-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800"
+                        : "border-[#29465e] bg-[#0d2133] text-slate-700 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800"
                     }`}
                     aria-pressed={isActive}
                   >
                     <Icon className="h-4 w-4" />
                     {vertical}
-                    <span className={`rounded-full px-2 py-0.5 text-xs ${isActive ? "bg-white/15 text-white" : "bg-white text-slate-500"}`}>
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${isActive ? "bg-[#0d2133] text-white" : "bg-[#0d2133] text-slate-500"}`}>
                       {countTemplatesForVertical(vertical)}
                     </span>
                   </button>
@@ -384,13 +384,13 @@ export function TemplatesPage() {
 
             <label className="grid gap-1">
               <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Search templates</span>
-              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3">
+              <div className="flex items-center gap-2 rounded-xl border border-[#29465e] bg-[#0d2133] px-3">
                 <Search className="h-4 w-4 text-slate-400" />
                 <input
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Search by room name, application, scale or summary"
-                  className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-slate-900 outline-none"
+                  className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-[#edf6ff] outline-none"
                 />
               </div>
             </label>
@@ -480,3 +480,4 @@ export function TemplatesPage() {
 
 const TEMPLATE_WORKFLOW_MARKERS = ["saveTemplateProject", "exportTemplateBom", "Other AV design scope"];
 void TEMPLATE_WORKFLOW_MARKERS;
+
