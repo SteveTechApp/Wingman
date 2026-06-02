@@ -24,7 +24,7 @@
                     "check:readiness":  "node tools/production-readiness-check.mjs",
                     "check:workflow":  "node tools/workflow-integration-check.mjs",
                     "check:browser":  "node tools/browser-smoke-check.mjs",
-                    "verify":  "npm run wm:guard-css \u0026\u0026 npm run typecheck \u0026\u0026 npm run build \u0026\u0026 npm run check:product-matching \u0026\u0026 npm run check:routes \u0026\u0026 npm run check:readiness \u0026\u0026 npm run check:workflow \u0026\u0026 npm run check:short-workflow-pages",
+                    "verify":  "npm run wm:guard-css \u0026\u0026 npm run typecheck \u0026\u0026 npm run build \u0026\u0026 npm run check:product-matching \u0026\u0026 npm run check:routes \u0026\u0026 npm run check:readiness \u0026\u0026 npm run check:workflow \u0026\u0026 npm run check:short-workflow-pages \u0026\u0026 npm run check:optional-visual-support",
                     "precommit:check":  "npm run verify",
                     "safe:verify":  "npm run verify",
                     "compare:server":  "node server/compare-intelligence-server.mjs",
@@ -36,7 +36,8 @@
                     "wm:migrate-page-frames":  "node tools/migrate-wingman-page-frames.mjs",
                     "wm:check-page-frames":  "node tools/check-wingman-page-frames.mjs",
                     "wm:audit-legacy-retirement":  "node tools/audit-legacy-override-retirement.mjs",
-                    "check:short-workflow-pages":  "node tools/check-short-workflow-pages.mjs"
+                    "check:short-workflow-pages":  "node tools/check-short-workflow-pages.mjs",
+                    "check:optional-visual-support":  "node tools/check-optional-visual-support.mjs"
                 },
     "dependencies":  {
                          "@xyflow/react":  "^12.10.2",
