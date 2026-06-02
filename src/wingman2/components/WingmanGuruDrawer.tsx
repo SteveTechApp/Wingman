@@ -2,6 +2,7 @@ import type { FormEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Database, Send, Sparkles, X } from "lucide-react";
 import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
+import { GuruCallNotesInterpreter } from "./GuruCallNotesInterpreter";
 
 type WingmanGuruDrawerProps = {
   open: boolean;
@@ -1432,6 +1433,8 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
             </button>
           ) : null}
         </div>
+
+        <GuruCallNotesInterpreter />
 
         <div className="wingman-guru-messages" ref={messagesRef}>
           {messages.map((message) => (
