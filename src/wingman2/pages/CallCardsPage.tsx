@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SUPPORTED_WINGMAN_LANGUAGES, getStoredWingmanCaptureLanguage, setStoredWingmanCaptureLanguage, type WingmanLanguageId, useWingmanLanguage } from "../data/wingmanLanguage";
 
@@ -155,6 +155,7 @@ const AUDIENCES: Audience[] = [
 ];
 
 const LANGUAGES = SUPPORTED_WINGMAN_LANGUAGES;
+const callNotesStorageKey = "wingman-guru-call-notes-transcript";
 
 function getConversationType(id: ConversationTypeId) {
   return CONVERSATION_TYPES.find((item) => item.id === id) ?? CONVERSATION_TYPES[0];
@@ -441,6 +442,38 @@ export function CallCardsPage() {
   };
 
   const goToRoute = (path: string) => {
+    const handoffSummary = [
+      "Live Call Cards handoff",
+      "",
+      `Conversation type: ${conversationType.title}`,
+      `Audience: ${audience.label}`,
+      `Capture language: ${language.label}`,
+      clue.trim() ? `Opening clue: ${clue.trim()}` : "",
+      "",
+      `Wingman summary: ${interpretation.summary}`,
+      `Ask next: ${interpretation.askNext}`,
+      interpretation.missing.length ? `Missing: ${interpretation.missing.join(", ")}` : "",
+      "",
+      "Captured conversation:",
+      transcript.trim() || "(none)",
+      "",
+      "Question answers:",
+      answersToText(answers) || "(none)",
+      "",
+      "Extra notes:",
+      notes.trim() || "(none)",
+      "",
+      "Quote safety:",
+      "- Treat this as live-call discovery input, not a final design.",
+      "- Validate exact WyreStorm SKUs, dependencies and official datasheets before quoting."
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    if (path === "/wingman/discovery" && typeof window !== "undefined") {
+      window.sessionStorage.setItem(callNotesStorageKey, handoffSummary);
+    }
+
     saveSession();
     navigate(path);
   };
@@ -646,6 +679,14 @@ export function CallCardsPage() {
               />
             </article>
 
+            <details className="cca-supportDetails">
+              <summary>
+                <span>Need more support?</span>
+                <strong>Show Wingman interpretation</strong>
+                <small>Summary, missing detail, product direction and suggested shift.</small>
+              </summary>
+
+              <div className="cca-supportDetailsBody">
             <article className="cca-insightCard">
               <span>Wingman thinks</span>
               <strong>{interpretation.summary}</strong>
@@ -681,7 +722,8 @@ export function CallCardsPage() {
                 <button type="button" onClick={applySuggestedShift}>Switch now</button>
               </article>
             ) : null}
-          </aside>
+              </div>
+            </details>          </aside>
         </section>
 
         <section className="cca-handoffRail">
