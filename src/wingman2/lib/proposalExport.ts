@@ -1,4 +1,4 @@
-import type { StoredProductSelection, StoredProjectProposal } from "../data/projectStore";
+﻿import type { StoredProductSelection, StoredProjectProposal } from "../data/projectStore";
 import type { SalesBomRow } from "./salesReadiness";
 
 export type BomRow = SalesBomRow;
@@ -91,17 +91,17 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>${escapeHtml(proposal.title)} | WyreStorm Wingman Proposal</title>
   <style>
-    body { font-family: Arial, sans-serif; color: #0f172a; margin: 40px; line-height: 1.55; }
+    body { font-family: Arial, sans-serif; color: var(--wm-sweep-text) !important; margin: 40px; line-height: 1.55; }
     h1 { font-size: 34px; margin: 0 0 8px; }
     h2 { font-size: 20px; margin-top: 32px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; }
     p { max-width: 820px; }
     table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
     th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; vertical-align: top; }
-    th { background: #f1f5f9; }
+    th { background: var(--wm-sweep-card) !important; }
     .meta { color: #475569; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
     .notice { background: #fff7ed; border: 1px solid #fed7aa; padding: 12px; margin-top: 18px; }
     .visual-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
-    .visual-card { border: 1px solid #cbd5e1; padding: 12px; background: #f8fafc; }
+    .visual-card { border: 1px solid #cbd5e1; padding: 12px; background: var(--wm-sweep-card) !important; }
     .visual-card strong, .visual-card span { display: block; }
     .visual-card span { margin-top: 8px; color: #0369a1; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
   </style>
@@ -177,3 +177,4 @@ export function exportProposalHtml(proposal: StoredProjectProposal, bomRows: Bom
 export function exportBomCsv(proposal: StoredProjectProposal, bomRows: BomRow[]) {
   saveTextFile(`${fileBaseName(proposal.title)}.bom.csv`, buildBomCsv(bomRows), "text/csv;charset=utf-8");
 }
+

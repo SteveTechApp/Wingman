@@ -1,4 +1,4 @@
-import { ArrowRight, HelpCircle, MoveRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type PageHeroAction = {
@@ -25,38 +25,14 @@ function actionClass(variant: PageHeroAction["variant"]) {
 
 export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHeroProps) {
   return (
-    <section className="wingman-page-hero wingman-page-hero-compact wingman-panel wingman-grid">
+    <section className="wingman-page-hero wingman-page-hero-compact wingman-panel wingman-grid" aria-describedby="wingman-page-purpose">
       <div className="wingman-hero-copy">
         <p className="wingman-kicker">{eyebrow}</p>
         <h1 className="wingman-display">{title}</h1>
-      </div>
-
-      <div className="wingman-hero-quick-actions">
-        <details className="wingman-guidance-details">
-          <summary>
-            <HelpCircle className="h-5 w-5" />
-            <span>
-              Why this page
-              <small>Open only if useful</small>
-            </span>
-          </summary>
-          <div className="wingman-guidance-popover">
-            <p>{purpose}</p>
-          </div>
-        </details>
-
-        <details className="wingman-guidance-details">
-          <summary>
-            <MoveRight className="h-5 w-5" />
-            <span>
-              Next move
-              <small>Keep the call moving</small>
-            </span>
-          </summary>
-          <div className="wingman-guidance-popover">
-            <p>{nextMove}</p>
-          </div>
-        </details>
+        <p id="wingman-page-purpose" className="wingman-hero-purpose">
+          {purpose}
+        </p>
+        <p className="sr-only">Next move: {nextMove}</p>
       </div>
 
       {actions?.length ? (

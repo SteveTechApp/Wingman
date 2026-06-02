@@ -240,6 +240,8 @@ export function buildDiscoveryBriefFromState(
     usbTransport,
     audioNeeds: [audioPath].filter(Boolean),
     audioPath,
+    processingNeeds: [processing].filter(Boolean),
+    processingRequirement: processing,
     controlNeeds: list(state.controlNeeds),
     networkAvailability: text(state.network, "Unknown"),
     videoWallRequirement: /wall|signage|multiview/i.test([state.outcome, state.displayBehaviour].join(" "))

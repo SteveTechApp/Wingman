@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
+﻿import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
   AlertTriangle,
@@ -109,7 +109,7 @@ function WingmanSelectionCard({
       )} ${selectedClass}`}
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="rounded-2xl bg-white/80 p-2 text-slate-950 shadow-sm">
+        <div className="rounded-2xl bg-[#0d2133] p-2 text-slate-950 shadow-sm">
           <Icon className="h-5 w-5" />
         </div>
         {indicator ? (
@@ -131,7 +131,7 @@ function WingmanSelectionCard({
       {metaBadges?.length ? (
         <div className="mt-auto flex flex-wrap gap-2 pt-3">
           {metaBadges.map((badge) => (
-            <span key={badge} className="rounded-full border border-white/70 bg-white/70 px-2.5 py-1 text-[11px] font-bold text-slate-700">
+            <span key={badge} className="rounded-full border border-[#29465e] bg-[#0d2133] px-2.5 py-1 text-[11px] font-bold text-slate-700">
               {badge}
             </span>
           ))}
@@ -959,14 +959,14 @@ export function SalesHelperPage() {
             title="2. Ask this next"
             subtitle="Only the current question is shown prominently. Previous answers stay in the summary panel."
             rightSlot={
-              <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-black text-slate-700">
+              <div className="flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm font-black text-slate-700">
                 <ConversationIcon className="h-4 w-4 text-amber-500" />
                 {capturedCount}/{activeConversation.questions.length} captured
               </div>
             }
           >
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-              <div className="mb-5 h-2 overflow-hidden rounded-full bg-white">
+            <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-4">
+              <div className="mb-5 h-2 overflow-hidden rounded-full bg-[#0d2133]">
                 <div
                   className="h-full rounded-full bg-slate-950 transition-all"
                   style={{ width: `${progressPercent}%` }}
@@ -974,12 +974,12 @@ export function SalesHelperPage() {
               </div>
 
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-                <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-5 shadow-sm">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black uppercase tracking-[0.14em] text-amber-900">
                       Question {safeQuestionIndex + 1}
                     </span>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                    <span className="rounded-full bg-[#0d2133] px-3 py-1 text-xs font-bold text-slate-600">
                       {activeQuestion.category}
                     </span>
                     {currentAnswer.status === "unknown" ? (
@@ -998,7 +998,7 @@ export function SalesHelperPage() {
                     {activeQuestion.prompt}
                   </h2>
 
-                  <details className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-slate-700">
+                  <details className="mt-4 rounded-2xl border border-[#29465e] bg-[#0d2133] p-3 text-slate-700">
                     <summary className="flex cursor-pointer items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                       <HelpCircle className="h-4 w-4 text-slate-500" />
                       Why this matters
@@ -1022,7 +1022,7 @@ export function SalesHelperPage() {
                             className={`rounded-full border px-3 py-2 text-sm font-semibold transition ${
                               selected
                                 ? "border-slate-950 bg-slate-950 text-white"
-                                : "border-slate-200 bg-white text-slate-700 hover:border-amber-300 hover:bg-amber-50"
+                                : "border-[#29465e] bg-[#0d2133] text-slate-700 hover:border-amber-300 hover:bg-amber-50"
                             }`}
                           >
                             {chip}
@@ -1041,7 +1041,7 @@ export function SalesHelperPage() {
                       onChange={updateNote}
                       rows={3}
                       placeholder={activeQuestion.notePlaceholder}
-                      className="mt-2 min-h-[84px] w-full resize-y rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+                      className="mt-2 min-h-[84px] w-full resize-y rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 py-3 text-sm leading-6 text-[#edf6ff] outline-none transition placeholder:text-slate-400 focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
                     />
                   </label>
 
@@ -1051,7 +1051,7 @@ export function SalesHelperPage() {
                         type="button"
                         onClick={goPrevious}
                         disabled={safeQuestionIndex === 0}
-                        className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-[#0d2133] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133] disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <ArrowLeft className="h-4 w-4" />
                         Previous
@@ -1071,7 +1071,7 @@ export function SalesHelperPage() {
                       <button
                         type="button"
                         onClick={markUnknown}
-                        className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                        className="rounded-full border border-slate-300 bg-[#0d2133] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133]"
                       >
                         Mark unknown
                       </button>
@@ -1086,7 +1086,7 @@ export function SalesHelperPage() {
                   </div>
                 </div>
 
-                <aside className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+                <aside className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm">
                   <div className="flex items-center gap-2 text-sm font-black text-slate-950">
                     <Search className="h-4 w-4 text-amber-500" />
                     Listen for
@@ -1096,14 +1096,14 @@ export function SalesHelperPage() {
                     {activeQuestion.listenFor.map((item) => (
                       <span
                         key={item}
-                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-bold text-slate-600"
+                        className="rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-1 text-xs font-bold text-slate-600"
                       >
                         {item}
                       </span>
                     ))}
                   </div>
 
-                  <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="mt-5 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                     <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
                       Recommended next action
                     </p>
@@ -1156,7 +1156,7 @@ export function SalesHelperPage() {
                   <button
                     type="button"
                     onClick={clearActiveConversation}
-                    className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-[#0d2133] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133]"
                   >
                     <Eraser className="h-4 w-4" />
                     Clear
@@ -1164,7 +1164,7 @@ export function SalesHelperPage() {
                 </div>
               }
             >
-              <div className="rounded-2xl border border-slate-200 bg-slate-950 p-4 text-slate-100">
+              <div className="rounded-2xl border border-[#29465e] bg-slate-950 p-4 text-slate-100">
                 <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.14em] text-amber-300">
                   <ClipboardList className="h-4 w-4" />
                   Live sales capture
@@ -1174,7 +1174,7 @@ export function SalesHelperPage() {
                 </pre>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                 <div>
                   <p className="text-sm font-black text-slate-950">Save this capture</p>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
@@ -1211,15 +1211,15 @@ export function SalesHelperPage() {
               </div>
 
               <div className="mt-4 grid gap-3">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
-                  <p className="flex items-center gap-2 font-black text-slate-900">
+                <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-sm leading-6 text-slate-700">
+                  <p className="flex items-center gap-2 font-black text-[#edf6ff]">
                     <MessageSquareText className="h-4 w-4 text-amber-500" />
                     {projectGuidance.outputPurpose.motion}
                   </p>
                   <p className="mt-2">{projectGuidance.outputPurpose.customerOutput}</p>
                 </div>
                 {projectGuidance.repGuidance.slice(0, 2).map((item) => (
-                  <div key={item} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
+                  <div key={item} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-sm leading-6 text-slate-700">
                     {item}
                   </div>
                 ))}
@@ -1232,3 +1232,4 @@ export function SalesHelperPage() {
     </div>
   );
 }
+

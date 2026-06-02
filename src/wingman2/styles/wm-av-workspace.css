@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --wm-av-graphite: #0b0f14;
   --wm-av-ink: #111820;
   --wm-av-panel: #161f2a;
@@ -359,7 +359,7 @@ textarea {
 .wingman-surface,
 .wm-balanced-section-card,
 .wm-command-panel,
-.wingman-page-host :where(.bg-white, .bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-gray-100) {
+.wingman-page-host :where(.wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector, .wm-dark-blue-sanitised-selector) {
   border: 1px solid rgba(154, 164, 178, 0.18) !important;
   border-radius: var(--wm-av-radius) !important;
   background: linear-gradient(180deg, rgba(22, 31, 42, 0.95), rgba(15, 23, 32, 0.95)) !important;
@@ -816,3 +816,5 @@ body.wm-copy-discipline-mode .wm-copy-support-trigger {
     grid-template-columns: 1fr !important;
   }
 }
+
+

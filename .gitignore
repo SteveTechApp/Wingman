@@ -85,6 +85,7 @@ _IMPORT/
 _QUARANTINE/
 quarantine/
 _AUDITS/
+_backup*/
 _backups/
 backups/
 .codex/

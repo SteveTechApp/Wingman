@@ -1,4 +1,4 @@
-type ConfidenceMeterProps = {
+﻿type ConfidenceMeterProps = {
   score: number;
 };
 
@@ -17,11 +17,12 @@ export function ConfidenceMeter({ score }: ConfidenceMeterProps) {
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
           Confidence
         </span>
-        <span className="text-sm font-semibold text-slate-800">{safe}%</span>
+        <span className="text-sm font-semibold text-[#edf6ff]">{safe}%</span>
       </div>
-      <div className="h-2 rounded-full bg-slate-200">
+      <div className="h-2 rounded-full bg-[#0d2133]">
         <div className={`h-2 rounded-full ${barClass}`} style={{ width: `${safe}%` }} />
       </div>
     </div>
   );
 }
+

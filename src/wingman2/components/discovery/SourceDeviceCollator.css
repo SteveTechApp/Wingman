@@ -1,4 +1,4 @@
-.wmg-engineering-canvas {
+﻿.wmg-engineering-canvas {
   width: min(100%, 1500px);
   margin: 0 auto 1.5rem;
   padding: 1rem;
@@ -251,7 +251,7 @@
   border-radius: 14px;
   outline: none;
   background: rgba(241, 245, 249, 0.96);
-  color: #0f172a;
+  color: var(--wm-sweep-text) !important;
   font-size: 0.86rem;
   font-weight: 750;
 }
@@ -738,3 +738,4 @@
   text-transform: uppercase;
 }
 /* End simplified AV position options */
+

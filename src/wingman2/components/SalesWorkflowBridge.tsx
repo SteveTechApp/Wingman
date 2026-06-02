@@ -1,4 +1,4 @@
-type SalesWorkflowBridgeVariant = "salesHelper" | "callCards";
+﻿type SalesWorkflowBridgeVariant = "salesHelper" | "callCards";
 
 type SalesWorkflowBridgeProps = {
   variant: SalesWorkflowBridgeVariant;
@@ -114,7 +114,7 @@ const bridgeStyles = `
   border: 1px solid rgba(251, 191, 36, 0.62);
   border-radius: 999px;
   padding: 0 12px;
-  color: #111827;
+  color: var(--wm-sweep-text) !important;
   background: #f59e0b;
   font-size: 0.76rem;
   font-weight: 700;
@@ -147,3 +147,4 @@ const bridgeStyles = `
   }
 }
 `;
+

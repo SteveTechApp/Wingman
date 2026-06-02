@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, CheckCircle2, Save, ShieldCheck } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -108,7 +108,7 @@ export function ProjectDetailPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 to={routeCatalogByKey.projects.path}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-[#0d2133] px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-[#0d2133]"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Projects
@@ -125,15 +125,15 @@ export function ProjectDetailPage() {
           }
         >
           <div className="grid gap-4 lg:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Owner</p>
-              <p className="mt-2 font-semibold text-slate-900">{project.owner}</p>
+              <p className="mt-2 font-semibold text-[#edf6ff]">{project.owner}</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Stage</p>
-              <p className="mt-2 font-semibold text-slate-900">{project.stage}</p>
+              <p className="mt-2 font-semibold text-[#edf6ff]">{project.stage}</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Status</p>
               <div className="mt-2">
                 <StatusChip
@@ -142,9 +142,9 @@ export function ProjectDetailPage() {
                 />
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Sync</p>
-              <p className="mt-2 text-sm font-semibold text-slate-900">{syncStatus.message}</p>
+              <p className="mt-2 text-sm font-semibold text-[#edf6ff]">{syncStatus.message}</p>
             </div>
           </div>
 
@@ -153,9 +153,9 @@ export function ProjectDetailPage() {
               <p className="text-xs font-black uppercase tracking-[0.14em]">Requirement readiness</p>
               <p className="mt-2 text-4xl font-black">{readiness.score}%</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Confirmed</p>
-              <p className="mt-2 text-2xl font-black text-slate-900">{readiness.confirmed}</p>
+              <p className="mt-2 text-2xl font-black text-[#edf6ff]">{readiness.confirmed}</p>
             </div>
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
               <p className="text-xs font-black uppercase tracking-[0.14em]">Needs review</p>
@@ -181,13 +181,13 @@ export function ProjectDetailPage() {
         >
           <div className="grid gap-3">
             {requirements.map((requirement) => (
-              <div key={requirement.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div key={requirement.id} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm">
                 <div className="grid gap-3 lg:grid-cols-[180px_1fr_160px]">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
                       {requirement.category}
                     </p>
-                    <p className="mt-2 font-black text-slate-900">{requirement.label}</p>
+                    <p className="mt-2 font-black text-[#edf6ff]">{requirement.label}</p>
                     <p className="mt-1 text-xs text-slate-500">{requirement.source}</p>
                   </div>
 
@@ -196,7 +196,7 @@ export function ProjectDetailPage() {
                     <textarea
                       value={requirement.value}
                       onChange={(event) => updateRequirement(requirement.id, { value: event.target.value })}
-                      className="min-h-20 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+                      className="min-h-20 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 py-3 text-sm leading-6 text-[#edf6ff] outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
                     />
                     <span className="text-xs leading-5 text-slate-500">{requirement.whyItMatters}</span>
                   </label>
@@ -208,7 +208,7 @@ export function ProjectDetailPage() {
                       onChange={(event) =>
                         updateRequirement(requirement.id, { status: event.target.value as StoredRequirementStatus })
                       }
-                      className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+                      className="rounded-2xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm font-semibold text-[#edf6ff] outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
                     >
                       {statusOptions.map((status) => (
                         <option key={status} value={status}>
@@ -243,13 +243,13 @@ export function ProjectDetailPage() {
               </div>
             ) : null}
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <p className="text-sm font-black text-slate-900">Selected products</p>
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+              <p className="text-sm font-black text-[#edf6ff]">Selected products</p>
               <div className="mt-3 space-y-2 text-sm text-slate-700">
                 {project.productSelections?.length ? (
                   project.productSelections.map((product) => (
-                    <p key={product.sku} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                      <span className="font-black text-slate-900">{product.sku}</span> {product.title || product.family || ""}
+                    <p key={product.sku} className="rounded-xl border border-[#29465e] bg-[#0d2133] p-3">
+                      <span className="font-black text-[#edf6ff]">{product.sku}</span> {product.title || product.family || ""}
                     </p>
                   ))
                 ) : (
@@ -258,12 +258,12 @@ export function ProjectDetailPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <p className="text-sm font-black text-slate-900">Evidence used</p>
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+              <p className="text-sm font-black text-[#edf6ff]">Evidence used</p>
               <div className="mt-3 space-y-2 text-sm text-slate-700">
                 {recommendationEvidence?.evidenceUsed.length ? (
                   recommendationEvidence.evidenceUsed.slice(0, 5).map((item) => (
-                    <p key={item} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <p key={item} className="rounded-xl border border-[#29465e] bg-[#0d2133] p-3">
                       {item}
                     </p>
                   ))
@@ -273,8 +273,8 @@ export function ProjectDetailPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <p className="text-sm font-black text-slate-900">Governed dependencies</p>
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+              <p className="text-sm font-black text-[#edf6ff]">Governed dependencies</p>
               <div className="mt-3 space-y-2 text-sm text-slate-700">
                 {recommendationEvidence?.requiredDependencies.length ? (
                   recommendationEvidence.requiredDependencies.slice(0, 4).map((dependency) => (
@@ -302,8 +302,8 @@ export function ProjectDetailPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <p className="text-sm font-black text-slate-900">Next actions</p>
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+              <p className="text-sm font-black text-[#edf6ff]">Next actions</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Link to={routeCatalogByKey.discovery.path} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
                   Discovery
@@ -327,3 +327,4 @@ export function ProjectDetailPage() {
 }
 
 export default ProjectDetailPage;
+

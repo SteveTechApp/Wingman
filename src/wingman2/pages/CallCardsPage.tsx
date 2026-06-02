@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { WingmanLanguageSelector } from "../components/WingmanLanguageSelector";
 import { SUPPORTED_WINGMAN_LANGUAGES, getStoredWingmanCaptureLanguage, setStoredWingmanCaptureLanguage, type WingmanLanguageId, useWingmanLanguage } from "../data/wingmanLanguage";
 
 type ConversationTypeId = "displayAttach" | "meetingRoom" | "productSku" | "competitor" | "supportRisk";
@@ -717,7 +716,7 @@ const pageStyles = `
 .cca-page {
   min-height: 100%;
   padding: 10px 14px;
-  color: #111827;
+  color: var(--wm-sweep-text) !important;
   background:
     radial-gradient(circle at top right, rgba(245, 158, 11, 0.1), transparent 34%),
     linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
@@ -766,7 +765,7 @@ const pageStyles = `
 
 .cca-header h1 {
   margin: 4px 0 0;
-  color: #0f172a;
+  color: var(--wm-sweep-text) !important;
   font-size: clamp(1.35rem, 2.2vw, 1.9rem);
   line-height: 1;
   letter-spacing: -0.04em;
@@ -795,7 +794,7 @@ const pageStyles = `
   border-radius: 999px;
   padding: 0 12px;
   color: #334155;
-  background: #f8fafc;
+  background: var(--wm-sweep-card) !important;
   font-size: 0.76rem;
   font-weight: 760;
   cursor: pointer;
@@ -820,8 +819,8 @@ const pageStyles = `
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 16px;
   padding: 10px;
-  color: #0f172a;
-  background: #ffffff;
+  color: var(--wm-sweep-text) !important;
+  background: var(--wm-sweep-card) !important;
   text-align: left;
   cursor: pointer;
 }
@@ -871,8 +870,8 @@ const pageStyles = `
   width: 100%;
   border: 1px solid rgba(148, 163, 184, 0.34);
   border-radius: 14px;
-  color: #0f172a;
-  background: #ffffff;
+  color: var(--wm-sweep-text) !important;
+  background: var(--wm-sweep-card) !important;
   font: inherit;
   outline: none;
   text-transform: none;
@@ -921,7 +920,7 @@ const pageStyles = `
 .cca-insightCard {
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 18px;
-  background: #f8fafc;
+  background: var(--wm-sweep-card) !important;
   padding: 12px;
 }
 
@@ -946,7 +945,7 @@ const pageStyles = `
 .cca-insightCard strong {
   display: block;
   margin-top: 6px;
-  color: #0f172a;
+  color: var(--wm-sweep-text) !important;
   font-size: 0.96rem;
   line-height: 1.28;
 }
@@ -1066,8 +1065,8 @@ const pageStyles = `
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 16px;
   padding: 10px 12px;
-  color: #0f172a;
-  background: #ffffff;
+  color: var(--wm-sweep-text) !important;
+  background: var(--wm-sweep-card) !important;
   text-align: left;
   cursor: pointer;
 }
@@ -1507,3 +1506,4 @@ button:disabled {
 /* WINGMAN LIVE TRANSCRIPT CANVAS OVERRIDE END */
 
 `;
+

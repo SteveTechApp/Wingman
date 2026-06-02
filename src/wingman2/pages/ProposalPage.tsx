@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Download, ShieldCheck, Table, Wrench, XCircle, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -278,7 +278,7 @@ export function ProposalPage() {
         >
           <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-amber-950">
             <div className="flex flex-wrap items-start gap-4">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-amber-700">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0d2133] text-amber-700">
                 <AlertTriangle className="h-6 w-6" />
               </div>
 
@@ -298,14 +298,14 @@ export function ProposalPage() {
 
                   <Link
                     to={routeCatalogByKey.discovery.path}
-                    className="rounded-full border border-amber-300 bg-white px-5 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100"
+                    className="rounded-full border border-amber-300 bg-[#0d2133] px-5 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100"
                   >
                     Start Discovery
                   </Link>
 
                   <Link
                     to={routeCatalogByKey.finder.path}
-                    className="rounded-full border border-amber-300 bg-white px-5 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100"
+                    className="rounded-full border border-amber-300 bg-[#0d2133] px-5 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100"
                   >
                     Open Product Finder
                   </Link>
@@ -338,7 +338,7 @@ export function ProposalPage() {
             <button
               type="button"
               onClick={() => exportProposalHtml(proposal, bomRows)}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-[#0d2133]"
             >
               <Download className="h-4 w-4" />
               Export proposal
@@ -346,14 +346,14 @@ export function ProposalPage() {
             <button
               type="button"
               onClick={() => exportBomCsv(proposal, bomRows)}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-[#0d2133]"
             >
               <Table className="h-4 w-4" />
               Export BOM
             </button>
             <Link
               to={routeCatalogByKey.support.path}
-              className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
+              className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-[#0d2133]"
             >
               Request review
             </Link>
@@ -369,8 +369,8 @@ export function ProposalPage() {
         <WingmanCoachPanel coach={proposalCoach} compact showFunnel={false} showVisuals />
 
         <div className="grid gap-6 xl:grid-cols-[260px_1fr]">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-sm font-semibold text-slate-900">Sections</p>
+          <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+            <p className="text-sm font-semibold text-[#edf6ff]">Sections</p>
             <div className="mt-4 space-y-2 text-sm">
               {sections.map((item, index) => (
                 <div
@@ -378,7 +378,7 @@ export function ProposalPage() {
                   className={`rounded-2xl px-4 py-3 ${
                     index === 0
                       ? "bg-slate-900 text-white"
-                      : "border border-slate-200 bg-white text-slate-700"
+                      : "border border-[#29465e] bg-[#0d2133] text-slate-700"
                   }`}
                 >
                   {item}
@@ -387,7 +387,7 @@ export function ProposalPage() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-3xl border border-[#29465e] bg-[#0d2133] shadow-sm">
             <div className="bg-slate-950 px-8 py-10 text-white">
               <p className="wingman-kicker text-slate-400">WyreStorm Wingman proposal</p>
               <h2 className="wingman-display mt-3 text-5xl">{context.discovery.projectTitle}</h2>
@@ -429,10 +429,10 @@ export function ProposalPage() {
                       <p className="mt-2 text-sm leading-6">{salesReadiness.outputPurpose.summary}</p>
                     </div>
                     <div className="grid gap-3 md:grid-cols-2">
-                      <div className="rounded-2xl border border-sky-200 bg-white p-3 text-sm leading-6">
+                      <div className="rounded-2xl border border-sky-200 bg-[#0d2133] p-3 text-sm leading-6">
                         {salesReadiness.outputPurpose.customerOutput}
                       </div>
-                      <div className="rounded-2xl border border-sky-200 bg-white p-3 text-sm leading-6">
+                      <div className="rounded-2xl border border-sky-200 bg-[#0d2133] p-3 text-sm leading-6">
                         {salesReadiness.outputPurpose.nextAction}
                       </div>
                     </div>
@@ -444,7 +444,7 @@ export function ProposalPage() {
                 <p className="wingman-kicker">Transferable visuals</p>
                 <div className="mt-2 grid gap-3 md:grid-cols-2">
                   {proposalCoach.visualBlocks.slice(0, 4).map((block) => (
-                    <div key={block.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
+                    <div key={block.id} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-sm leading-6 text-slate-700">
                       <p className="font-black text-slate-950">{block.title}</p>
                       <p className="mt-1">{block.summary}</p>
                       <p className="mt-2 font-semibold text-sky-800">{block.proposalUse}</p>
@@ -486,14 +486,14 @@ export function ProposalPage() {
                         const governanceKind = dependency.governanceKind ?? (dependency.sku.startsWith("TBC-") ? "Prompt" : "Exact");
 
                         return (
-                          <div key={dependency.id} className="rounded-2xl border border-indigo-200 bg-white p-3 text-sm leading-6">
+                          <div key={dependency.id} className="rounded-2xl border border-indigo-200 bg-[#0d2133] p-3 text-sm leading-6">
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <p className="font-black text-indigo-950">{dependency.label}</p>
                               <div className="flex flex-wrap gap-2">
                                 <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-black text-indigo-700">
                                   {governanceKind}
                                 </span>
-                                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-700">
+                                <span className="rounded-full bg-[#0d2133] px-2.5 py-1 text-xs font-black text-slate-700">
                                   {dependency.confidence}
                                 </span>
                               </div>
@@ -505,7 +505,7 @@ export function ProposalPage() {
                         );
                       })
                     ) : (
-                      <div className="rounded-2xl border border-indigo-200 bg-white p-3 text-sm text-indigo-800">
+                      <div className="rounded-2xl border border-indigo-200 bg-[#0d2133] p-3 text-sm text-indigo-800">
                         No governed dependencies have been triggered yet.
                       </div>
                     )}
@@ -515,9 +515,9 @@ export function ProposalPage() {
 
               <div className="lg:col-span-2">
                 <p className="wingman-kicker">Bill of materials</p>
-                <div className="mt-2 overflow-hidden rounded-2xl border border-slate-200">
+                <div className="mt-2 overflow-hidden rounded-2xl border border-[#29465e]">
                   <table className="min-w-full text-left text-sm">
-                    <thead className="bg-slate-50 text-slate-600">
+                    <thead className="bg-[#0d2133] text-slate-600">
                       <tr>
                         <th className="px-4 py-3 font-semibold">SKU</th>
                         <th className="px-4 py-3 font-semibold">Role</th>
@@ -528,8 +528,8 @@ export function ProposalPage() {
                     <tbody>
                       {bomRows.length ? (
                         bomRows.map((row) => (
-                          <tr key={`${row.item}-${row.sku}`} className="border-t border-slate-100">
-                            <td className="px-4 py-3 font-semibold text-slate-900">{row.sku}</td>
+                          <tr key={`${row.item}-${row.sku}`} className="border-t border-[#29465e]">
+                            <td className="px-4 py-3 font-semibold text-[#edf6ff]">{row.sku}</td>
                             <td className="px-4 py-3 text-slate-700">{row.role}</td>
                             <td className="px-4 py-3 text-slate-700">{row.qty}</td>
                             <td className="px-4 py-3 text-slate-700">{row.type}</td>
@@ -556,7 +556,7 @@ export function ProposalPage() {
                     </div>
                   ) : null}
                   {salesReadiness.evidence.slice(0, 8).map((item) => (
-                    <div key={item} className="rounded-2xl border border-slate-200 bg-white p-3">
+                    <div key={item} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-3">
                       {item}
                     </div>
                   ))}
@@ -566,7 +566,7 @@ export function ProposalPage() {
                 <summary>Rep guidance</summary>
                 <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
                   {salesReadiness.repGuidance.map((item) => (
-                    <li key={item} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">{item}</li>
+                    <li key={item} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-3">{item}</li>
                   ))}
                 </ul>
               </details>
@@ -582,7 +582,7 @@ export function ProposalPage() {
                 <summary>Assumptions to validate</summary>
                 <ul className="mt-2 grid gap-2 text-sm leading-6 text-slate-700 md:grid-cols-2">
                   {context.assumptions.map((assumption) => (
-                    <li key={assumption} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <li key={assumption} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-3">
                       {assumption}
                     </li>
                   ))}
@@ -596,7 +596,7 @@ export function ProposalPage() {
                       key={rating}
                       type="button"
                       onClick={() => captureFeedback(rating, label)}
-                      className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-[#0d2133]"
                     >
                       <Icon className="h-4 w-4" />
                       {label}
@@ -612,3 +612,4 @@ export function ProposalPage() {
     </div>
   );
 }
+

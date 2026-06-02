@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { ProductSalesKnowledgePanel } from "../components/ProductSalesKnowledgePanel";
@@ -361,69 +361,6 @@ function buildPitchHeadline(product: ProductRecord): string {
   return `${product.sku}: product context for a customer conversation`;
 }
 
-function buildWhatItHelps(product: ProductRecord): string[] {
-  const output = [
-    `Position ${product.sku} clearly in the ${product.family} conversation.`,
-    "Explain the customer outcome before discussing technical detail."
-  ];
-
-  if (product.features.length > 0) {
-    output.push(`Connect the explanation to ${product.features.slice(0, 3).join(", ")}.`);
-  }
-
-  return output;
-}
-
-function buildBestFit(product: ProductRecord): string[] {
-  const text = searchHaystack(product);
-  const output: string[] = [];
-
-  if (text.includes("meeting") || text.includes("conference") || text.includes("uc")) {
-    output.push("Meeting rooms, classrooms and collaboration spaces.");
-  }
-
-  if (text.includes("networkhd") || text.includes("avoip") || text.includes("av over ip")) {
-    output.push("Flexible routed systems where sources and displays may expand.");
-  }
-
-  if (text.includes("video wall") || text.includes("multiview")) {
-    output.push("Applications needing processing, layout control or multiple source windows.");
-  }
-
-  if (text.includes("dante") || text.includes("audio") || text.includes("amplifier")) {
-    output.push("Rooms where audio needs to be integrated, controlled and supportable.");
-  }
-
-  if (output.length === 0) {
-    output.push("Projects where the customer needs a professional, supportable WyreStorm AV building block.");
-  }
-
-  return output;
-}
-
-function buildQuestions(product: ProductRecord): string[] {
-  const text = searchHaystack(product);
-  const output = ["What sources, displays and room locations need to be connected?"];
-
-  if (text.includes("usb") || text.includes("camera") || text.includes("conference") || text.includes("uc")) {
-    output.push("Are USB cameras, speakerphones, touch displays or BYOD workflows required?");
-  }
-
-  if (text.includes("networkhd") || text.includes("avoip") || text.includes("dante")) {
-    output.push("Is there a suitable network or dedicated AV VLAN available?");
-  }
-
-  if (text.includes("hdbaset") || text.includes("extension") || text.includes("receiver")) {
-    output.push("What is the real installed cable-route distance, not just the room length?");
-  }
-
-  if (text.includes("video wall") || text.includes("multiview")) {
-    output.push("Does the customer need one full canvas, multiple layouts, or true multiview?");
-  }
-
-  return Array.from(new Set(output)).slice(0, 4);
-}
-
 function productSearchUrl(sku: string): string {
   return `https://wyrestorm.com/?s=${encodeURIComponent(sku)}`;
 }
@@ -511,7 +448,7 @@ function evidenceSelection(product: RecommendationEvidenceProduct, evidence: Sto
 
 function EvidenceList({ title, items, empty }: { title: string; items: string[]; empty: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
       <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{title}</p>
       <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
         {compactList(items, empty).map((item) => (
@@ -820,13 +757,13 @@ export function ProductPitchPage() {
           </article>
 
           <div className="grid gap-3 lg:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Customer requirement</p>
-              <p className="mt-2 text-sm leading-6 text-slate-800">{recommendationEvidence.customerRequirement}</p>
+              <p className="mt-2 text-sm leading-6 text-[#edf6ff]">{recommendationEvidence.customerRequirement}</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Product direction</p>
-              <p className="mt-2 text-sm font-black leading-6 text-slate-900">{recommendationEvidence.productDirection}</p>
+              <p className="mt-2 text-sm font-black leading-6 text-[#edf6ff]">{recommendationEvidence.productDirection}</p>
             </div>
             <div className={`rounded-2xl border p-4 ${quoteSafetyClassName(recommendationEvidence.quoteSafetyStatus)}`}>
               <p className="text-xs font-black uppercase tracking-[0.14em]">Quote safety</p>
@@ -835,9 +772,9 @@ export function ProductPitchPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
             <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Suggested system shape</p>
-            <p className="mt-2 text-sm leading-6 text-slate-800">{recommendationEvidence.systemShape}</p>
+            <p className="mt-2 text-sm leading-6 text-[#edf6ff]">{recommendationEvidence.systemShape}</p>
           </div>
 
           <div className="grid gap-4 xl:grid-cols-2">
@@ -879,3 +816,4 @@ export function ProductPitchPage() {
 }
 
 export default ProductPitchPage;
+

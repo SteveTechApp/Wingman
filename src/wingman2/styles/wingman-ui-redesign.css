@@ -1,4 +1,4 @@
-/* Wingman guided sales intelligence redesign layer.
+﻿/* Wingman guided sales intelligence redesign layer.
    Keep this file small, visual-only and route-safe. It should not change data flow. */
 
 :root {
@@ -213,7 +213,7 @@
 
 .wm-journey-step[data-state="active"] {
   border-color: rgba(246, 163, 64, 0.45);
-  color: #1f2937;
+  color: var(--wm-sweep-text) !important;
   background: linear-gradient(135deg, rgba(255, 243, 224, 0.96), rgba(255, 255, 255, 0.96));
   box-shadow: inset 3px 0 0 var(--wm-orange);
 }
@@ -459,7 +459,7 @@
 .wm-ai-rail-mini {
   display: grid;
   gap: 5px;
-  color: #0f172a;
+  color: var(--wm-sweep-text) !important;
 }
 
 .wm-ai-rail-mini span {
@@ -1495,3 +1495,4 @@
     display: none;
   }
 }
+
