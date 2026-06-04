@@ -1,4 +1,4 @@
-﻿import { Suspense, lazy, type ComponentType, type LazyExoticComponent } from "react";
+import { Suspense, lazy, type ComponentType, type LazyExoticComponent } from "react";
 import type { RouteObject } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { AppShell } from "../layout/AppShell";
@@ -20,6 +20,11 @@ function fromNamedExport<TModule extends Record<string, unknown>>(
 
 const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   dashboard: lazy(fromNamedExport(() => import("../pages/DashboardPage"), "DashboardPage")),
+  callCoach: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "CallCoachPage")),
+  products: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "ProductsPage")),
+  documents: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "DocumentsPage")),
+  responsePack: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "ResponsePackPage")),
+  learn: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "LearnPage")),
   projects: lazy(fromNamedExport(() => import("../pages/ProjectsPage"), "ProjectsPage")),
   discovery: lazy(fromNamedExport(() => import("../pages/DiscoveryPage"), "DiscoveryPage")),
   finder: lazy(fromNamedExport(() => import("../pages/FinderPage"), "FinderPage")),
@@ -32,6 +37,7 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   visualDesign: lazy(fromNamedExport(() => import("../pages/VisualDesignStudioPage"), "VisualDesignStudioPage")),
   glossary: lazy(fromNamedExport(() => import("../pages/GlossaryPage"), "GlossaryPage")),
   callCards: lazy(fromNamedExport(() => import("../pages/CallCardsPage"), "CallCardsPage")),
+  productCallCards: lazy(() => import("../pages/ProductCallCardsPage")),
   ingest: lazy(fromNamedExport(() => import("../pages/IngestPage"), "IngestPage")),
   proposal: lazy(fromNamedExport(() => import("../pages/ProposalPage"), "ProposalPage")),
   support: lazy(fromNamedExport(() => import("../pages/SupportPage"), "SupportPage")),
@@ -64,10 +70,12 @@ export const wingmanRoutes: RouteObject[] = [
     path: "/wingman",
     element: <AppShell />,
     children: [
-      { index: true, element: <Navigate to={routeCatalog[0].segment} replace /> },
+      { index: true, element: routeElement(pageRegistry.dashboard) },
+      { path: "dashboard", element: <Navigate to="/wingman" replace /> },
+      { path: "profile", element: <Navigate to="/wingman/settings" replace /> },
       { path: "projects/:projectId", element: routeElement(ProjectDetailRoute) },
       { path: "templates/:templateId", element: routeElement(TemplateReviewRoute) },
-      ...routeCatalog.map((route) => ({
+      ...routeCatalog.filter((route) => route.key !== "dashboard").map((route) => ({
         path: route.segment,
         element: routeElement(pageRegistry[route.key]),
       })),

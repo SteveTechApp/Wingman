@@ -2,10 +2,50 @@
   {
     "routeKey": "dashboard",
     "status": "wired",
-    "summary": "Dashboard routing, launch actions, and project summary links are now connected to real routes.",
+    "summary": "Home now answers the starting question by intent and routes users to Call Coach, Products, Compare, Documents, Response Pack or Projects.",
     "needed": [
-      "Replace static KPI values with live project and workflow metrics.",
-      "Add recent activity and saved-work state from a canonical project store."
+      "Replace static recent-work examples with live project activity once backend persistence is available."
+    ]
+  },
+  {
+    "routeKey": "callCoach",
+    "status": "wired",
+    "summary": "Call Coach groups Live Call Cards, Product Call Cards, Discovery, Sales Helper and escalation checks around live sales conversation support.",
+    "needed": [
+      "Unify saved call notes and escalation outcomes under the project record."
+    ]
+  },
+  {
+    "routeKey": "products",
+    "status": "wired",
+    "summary": "Products groups Finder, Product Families, Product Call Cards, Product Pitch, attach-product flow and follow-up wording under one SKU/product intent.",
+    "needed": [
+      "Add deeper cross-filtering between Finder results and Product Call Card data."
+    ]
+  },
+  {
+    "routeKey": "compare",
+    "status": "partial",
+    "summary": "Compare now builds its review from saved discovery/Finder context, accepts editable competitor input, calls protected lookup and match resolver endpoints, shows scored evidence, and captures feedback only when an active project exists.",
+    "needed": [
+      "Add approval/review workflow for accepted competitor replacements.",
+      "Add comparison-only export that remains separate from proposal and BOM."
+    ]
+  },
+  {
+    "routeKey": "documents",
+    "status": "wired",
+    "summary": "Documents groups ingest, document/BOM review, requirement extraction, competitor detection and response-pack handoff.",
+    "needed": [
+      "Add richer extracted-item review states and document review history."
+    ]
+  },
+  {
+    "routeKey": "responsePack",
+    "status": "wired",
+    "summary": "Response Pack groups proposal output, support packs, customer response wording, export helpers and technical/commercial review gates.",
+    "needed": [
+      "Add branded document/PDF lifecycle and approval tracking before customer issue."
     ]
   },
   {
@@ -17,12 +57,54 @@
     ]
   },
   {
+    "routeKey": "learn",
+    "status": "wired",
+    "summary": "Learn groups Glossary, Product Intelligence, Support and training/reference material for users who need AV or product guidance.",
+    "needed": [
+      "Add inline links from complex workflow terms back to Learn content."
+    ]
+  },
+  {
+    "routeKey": "profile",
+    "status": "wired",
+    "summary": "Profile / Admin stores local user, company, language, and proposal branding settings that influence generated output and localisation-sensitive customer wording.",
+    "needed": [
+      "Add visible validation for incomplete branding fields before proposal export.",
+      "Expose language and terminology preferences more directly in customer-facing copy tools."
+    ]
+  },
+  {
+    "routeKey": "callCards",
+    "status": "wired",
+    "summary": "Call card journeys are reachable and each card now routes to the most relevant follow-on workflow.",
+    "needed": [
+      "Filter cards by room type, workflow stage, and competitor context.",
+      "Allow saving call outcomes back into project notes."
+    ]
+  },
+  {
+    "routeKey": "productCallCards",
+    "status": "wired",
+    "summary": "Product Call Cards is selection-first and exposes one-line positioning, one-minute brief, questions, listen-for triggers, objections, disqualifiers, attach products and follow-up wording after SKU selection.",
+    "needed": [
+      "Expand approved SKU coverage and add product-manager review metadata."
+    ]
+  },
+  {
     "routeKey": "discovery",
     "status": "partial",
     "summary": "Discovery captures structured room, source-path, output, USB, transport, and budget posture inputs with application-specific ask-first guidance, why-it-matters explanations, and safe unknown/validation paths, then saves both a legacy handoff and canonical project workflow data.",
     "needed": [
       "Add backend conflict handling and visible sync status for saved discovery records.",
       "Map requirement edits back into discovery fields where a user corrects the project detail record."
+    ]
+  },
+  {
+    "routeKey": "salesHelper",
+    "status": "wired",
+    "summary": "Sales Helper now includes project-aware guided rep mode with readiness scoring, sales-motion guidance, and escalation guidance alongside static positioning and objection cards.",
+    "needed": [
+      "Tie objection handling to the matched product family or competitor profile."
     ]
   },
   {
@@ -53,12 +135,39 @@
     ]
   },
   {
-    "routeKey": "compare",
+    "routeKey": "ingest",
     "status": "partial",
-    "summary": "Compare now builds its review from saved discovery/Finder context, accepts editable competitor input, calls protected lookup and match resolver endpoints, shows scored evidence, and captures feedback only when an active project exists.",
+    "summary": "Ingest now parses PDF, DOCX, text, markdown, CSV, and email exports into structured requirements and unknowns, and persists them only when an active project exists.",
     "needed": [
-      "Add approval/review workflow for accepted competitor replacements.",
-      "Add comparison-only export that remains separate from proposal and BOM."
+      "Add legacy .doc conversion support or a clear guided conversion path.",
+      "Map extracted requirements into editable discovery fields."
+    ]
+  },
+  {
+    "routeKey": "proposal",
+    "status": "partial",
+    "summary": "Proposal now reads canonical project context, saved discovery, shortlist, ingest, and compare warnings, classifies the output as competitor replacement, outcome SKU, or room/tender BOM, builds a governed dependency-aware BOM with validation questions and evidence, captures feedback, saves the generated preview back to the active project, and exports proposal HTML plus BOM CSV.",
+    "needed": [
+      "Add branded document/PDF generation and template selection.",
+      "Connect exact accessory/dependency data, lifecycle, and regional suitability before customer issue."
+    ]
+  },
+  {
+    "routeKey": "support",
+    "status": "wired",
+    "summary": "Support now acts as the completion and escalation hub, including the current feature audit view. Guru remains available globally as a standalone real-time AV/WyreStorm technical assistant, not only as a proposal helper.",
+    "needed": [
+      "Connect escalation actions to real contacts, queues, or internal workflows.",
+      "Track review outcomes and approval status against each project."
+    ]
+  },
+  {
+    "routeKey": "intelligence",
+    "status": "partial",
+    "summary": "Product Intelligence exposes the product data review surface for WyreStorm and competitor records so classifications, lifecycle notes, and generated sales-language fields can be checked before they affect customer-facing workflows.",
+    "needed": [
+      "Add reviewer assignment, approval history, and clearer duplicate-field warnings.",
+      "Prioritise enrichment for repeated product-language fields that currently rely on family-level fallback copy."
     ]
   },
   {
@@ -80,14 +189,6 @@
     ]
   },
   {
-    "routeKey": "salesHelper",
-    "status": "wired",
-    "summary": "Sales Helper now includes project-aware guided rep mode with readiness scoring, sales-motion guidance, and escalation guidance alongside static positioning and objection cards.",
-    "needed": [
-      "Tie objection handling to the matched product family or competitor profile."
-    ]
-  },
-  {
     "routeKey": "visualDesign",
     "status": "wired",
     "summary": "Visual Design Studio generates guided Mermaid diagrams from project, discovery, Finder, Compare, and Proposal data so reps can copy editable diagrams into Whimsical without a direct API integration.",
@@ -103,60 +204,6 @@
     "needed": [
       "Allow glossary terms to be surfaced inline from Finder, Proposal, and Sales Strategy pages.",
       "Add product-manager approval metadata for glossary copy revisions."
-    ]
-  },
-  {
-    "routeKey": "callCards",
-    "status": "wired",
-    "summary": "Call card journeys are reachable and each card now routes to the most relevant follow-on workflow.",
-    "needed": [
-      "Filter cards by room type, workflow stage, and competitor context.",
-      "Allow saving call outcomes back into project notes."
-    ]
-  },
-  {
-    "routeKey": "ingest",
-    "status": "partial",
-    "summary": "Ingest now parses PDF, DOCX, text, markdown, CSV, and email exports into structured requirements and unknowns, and persists them only when an active project exists.",
-    "needed": [
-      "Add legacy .doc conversion support or a clear guided conversion path.",
-      "Map extracted requirements into editable discovery fields."
-    ]
-  },
-  {
-    "routeKey": "proposal",
-    "status": "partial",
-    "summary": "Proposal now reads canonical project context, saved discovery, shortlist, ingest, and compare warnings, classifies the output as competitor replacement, outcome SKU, or room/tender BOM, builds a governed dependency-aware BOM with validation questions and evidence, captures feedback, saves the generated preview back to the active project, and exports proposal HTML plus BOM CSV.",
-    "needed": [
-      "Add branded document/PDF generation and template selection.",
-      "Connect exact accessory/dependency data, lifecycle, and regional suitability before customer issue."
-    ]
-  },
-  {
-    "routeKey": "intelligence",
-    "status": "partial",
-    "summary": "Product Intelligence exposes the product data review surface for WyreStorm and competitor records so classifications, lifecycle notes, and generated sales-language fields can be checked before they affect customer-facing workflows.",
-    "needed": [
-      "Add reviewer assignment, approval history, and clearer duplicate-field warnings.",
-      "Prioritise enrichment for repeated product-language fields that currently rely on family-level fallback copy."
-    ]
-  },
-  {
-    "routeKey": "profile",
-    "status": "wired",
-    "summary": "Profile / Admin stores local user, company, language, and proposal branding settings that influence generated output and localisation-sensitive customer wording.",
-    "needed": [
-      "Add visible validation for incomplete branding fields before proposal export.",
-      "Expose language and terminology preferences more directly in customer-facing copy tools."
-    ]
-  },
-  {
-    "routeKey": "support",
-    "status": "wired",
-    "summary": "Support now acts as the completion and escalation hub, including the current feature audit view. Guru remains available globally as a standalone real-time AV/WyreStorm technical assistant, not only as a proposal helper.",
-    "needed": [
-      "Connect escalation actions to real contacts, queues, or internal workflows.",
-      "Track review outcomes and approval status against each project."
     ]
   }
 ]

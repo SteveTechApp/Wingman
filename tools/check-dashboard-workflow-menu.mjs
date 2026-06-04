@@ -31,16 +31,17 @@ const css = read(files.css);
 const packageJson = JSON.parse(read(files.packageJson) || "{}");
 
 [
-  'data-wingman-dashboard-menu="true"',
   "What are you trying to do?",
-  "Start a customer call",
-  "Paste notes or transcript",
-  "Build the AV requirement",
-  "Find a product direction",
+  "Guide a customer call",
+  "Position a specific WyreStorm product",
   "Compare a competitor",
-  "Create customer follow-up",
-  "Open existing opportunity",
-  "routeCatalogByKey.callCards.path",
+  "Review a document or BOM",
+  "Create a response pack",
+  "Continue a project",
+  "routeCatalogByKey.callCoach.path",
+  "routeCatalogByKey.products.path",
+  "routeCatalogByKey.documents.path",
+  "routeCatalogByKey.responsePack.path",
 ].forEach((marker) => requireMarker("DashboardPage.tsx", dashboard, marker));
 
 [
@@ -62,6 +63,10 @@ if (activeImports.length) {
 
 if (!packageJson.scripts?.["check:dashboard-workflow-menu"]) {
   errors.push("package.json missing check:dashboard-workflow-menu script.");
+}
+
+if (!packageJson.scripts?.["check:navigation-consolidation"]) {
+  errors.push("package.json missing check:navigation-consolidation script.");
 }
 
 if (!String(packageJson.scripts?.verify || "").includes("check:dashboard-workflow-menu")) {
