@@ -17030,3 +17030,63 @@ main [class*="text-red-"] {
 }
 
 /* WINGMAN NAVIGATION CONSOLIDATION END */
+
+/* WINGMAN PROFILE CONTRAST REPAIR START */
+
+html[data-wingman-route="profile"] .wm-profile-hero,
+html[data-wingman-route="profile"] .wm-profile-card {
+  background:
+    radial-gradient(circle at top right, rgba(246, 163, 64, 0.08), transparent 22rem),
+    #ffffff !important;
+  color: #0f172a !important;
+}
+
+html[data-wingman-route="profile"] .wm-profile-hero p,
+html[data-wingman-route="profile"] .wm-profile-card > p {
+  color: #b45309 !important;
+}
+
+html[data-wingman-route="profile"] .wm-profile-hero h1,
+html[data-wingman-route="profile"] .wm-profile-card h2,
+html[data-wingman-route="profile"] .wm-profile-card strong,
+html[data-wingman-route="profile"] .wm-profile-card label {
+  color: #0f172a !important;
+}
+
+html[data-wingman-route="profile"] .wm-profile-hero span,
+html[data-wingman-route="profile"] .wm-profile-card span,
+html[data-wingman-route="profile"] .wm-profile-note {
+  color: #475569 !important;
+}
+
+html[data-wingman-route="profile"] .wm-profile-card input,
+html[data-wingman-route="profile"] .wm-profile-card select,
+html[data-wingman-route="profile"] .wm-profile-card textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html[data-wingman-route="profile"] .wm-profile-card input::placeholder,
+html[data-wingman-route="profile"] .wm-profile-card textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html[data-wingman-route="profile"] .wm-profile-info-list {
+  background: #fffaf3 !important;
+  color: #0f172a !important;
+}
+
+html[data-wingman-route="profile"] .wm-profile-primary-button {
+  color: #111827 !important;
+}
+
+html[data-wingman-route="profile"] .wm-profile-secondary-button,
+html[data-wingman-route="profile"] .wm-profile-actions button {
+  color: #0f172a !important;
+}
+
+html[data-wingman-route="profile"] .wm-profile-card .wm-profile-save-status {
+  color: #0f766e !important;
+}
+
+/* WINGMAN PROFILE CONTRAST REPAIR END */

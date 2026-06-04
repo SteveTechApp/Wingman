@@ -25,7 +25,7 @@
                     "check:readiness":  "node tools/production-readiness-check.mjs",
                     "check:workflow":  "node tools/workflow-integration-check.mjs",
                     "check:browser":  "node tools/browser-smoke-check.mjs",
-                    "verify":  "npm run wm:guard-css \u0026\u0026 npm run typecheck \u0026\u0026 npm run build \u0026\u0026 npm run check:navigation-consolidation \u0026\u0026 npm run check:product-matching \u0026\u0026 npm run check:routes \u0026\u0026 npm run check:readiness \u0026\u0026 npm run check:workflow \u0026\u0026 npm run check:short-workflow-pages \u0026\u0026 npm run check:optional-visual-support \u0026\u0026 npm run check:call-cards-focused-workflow \u0026\u0026 npm run check:dashboard-workflow-menu \u0026\u0026 npm run check:dashboard-menu-layout-density",
+                    "verify":  "npm run wm:guard-css \u0026\u0026 npm run typecheck \u0026\u0026 npm run build \u0026\u0026 npm run check:navigation-consolidation \u0026\u0026 npm run check:project-sync \u0026\u0026 npm run check:product-matching \u0026\u0026 npm run check:routes \u0026\u0026 npm run check:readiness \u0026\u0026 npm run check:workflow \u0026\u0026 npm run check:short-workflow-pages \u0026\u0026 npm run check:optional-visual-support \u0026\u0026 npm run check:call-cards-focused-workflow \u0026\u0026 npm run check:dashboard-workflow-menu \u0026\u0026 npm run check:dashboard-menu-layout-density",
                     "precommit:check":  "npm run verify",
                     "safe:verify":  "npm run verify",
                     "compare:server":  "node server/compare-intelligence-server.mjs",
@@ -42,7 +42,8 @@
                     "check:call-cards-focused-workflow":  "node tools/check-call-cards-focused-workflow.mjs",
                     "check:dashboard-workflow-menu":  "node tools/check-dashboard-workflow-menu.mjs",
                     "check:dashboard-menu-layout-density":  "node tools/check-dashboard-menu-layout-density.mjs",
-                    "check:call-cards":  "node tools/check-product-positioning-cards.mjs"
+                    "check:call-cards":  "node tools/check-product-positioning-cards.mjs",
+                    "check:project-sync":  "node tools/check-project-sync-readiness.mjs"
                 },
     "dependencies":  {
                          "@xyflow/react":  "^12.10.2",
