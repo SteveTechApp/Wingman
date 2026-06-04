@@ -1,12 +1,57 @@
-import { useState, type ChangeEvent } from "react";
-import { Save } from "lucide-react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { Cloud, LogIn, LogOut, Save, UserPlus } from "lucide-react";
 import { WingmanLanguageSelector } from "../components/WingmanLanguageSelector";
+import {
+  getWingmanSession,
+  loginWingmanWorkspace,
+  logoutWingmanWorkspace,
+  signUpWingmanWorkspace,
+  type WingmanWorkspaceSession,
+} from "../api/wingmanApi";
+import {
+  hydrateProjectStoreFromBackend,
+  projectBackendSyncEnabled,
+  resetProjectBackendSyncSessionState,
+  useProjectStore,
+} from "../data/projectStore";
 import { setStoredWingmanCaptureLanguage, setStoredWingmanLanguage, type WingmanLanguageId } from "../data/wingmanLanguage";
 import { useWingmanProfile } from "../data/wingmanProfile";
 
 export function ProfilePage() {
   const { profile, updateProfile, resetProfile } = useWingmanProfile();
+  const { syncStatus } = useProjectStore();
   const [saveMessage, setSaveMessage] = useState("");
+  const [workspaceSession, setWorkspaceSession] = useState<WingmanWorkspaceSession | null>(null);
+  const [workspaceAuthMode, setWorkspaceAuthMode] = useState<"login" | "signup">("login");
+  const [workspaceAuthBusy, setWorkspaceAuthBusy] = useState(false);
+  const [workspaceAuthMessage, setWorkspaceAuthMessage] = useState("");
+  const [workspaceAuthForm, setWorkspaceAuthForm] = useState({
+    name: profile.userName || profile.reportPreparedBy,
+    company: profile.companyName,
+    email: profile.email,
+    password: "",
+  });
+  const syncEnabled = projectBackendSyncEnabled();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getWingmanSession()
+      .then((payload) => {
+        if (!cancelled) {
+          setWorkspaceSession(payload.session ?? null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setWorkspaceSession(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const saveProfile = () => {
     updateProfile({});
@@ -54,6 +99,67 @@ export function ProfilePage() {
   const patchProfile = (patch: Parameters<typeof updateProfile>[0]) => {
     updateProfile(patch);
     setSaveMessage("");
+  };
+
+  const patchWorkspaceAuthForm = (patch: Partial<typeof workspaceAuthForm>) => {
+    setWorkspaceAuthForm((current) => ({ ...current, ...patch }));
+    setWorkspaceAuthMessage("");
+  };
+
+  const completeWorkspaceAuth = async (session: WingmanWorkspaceSession | undefined, message: string) => {
+    setWorkspaceSession(session ?? null);
+    setWorkspaceAuthForm((current) => ({ ...current, password: "" }));
+    setWorkspaceAuthMessage(message);
+    resetProjectBackendSyncSessionState();
+    await hydrateProjectStoreFromBackend();
+  };
+
+  const submitWorkspaceAuth = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setWorkspaceAuthBusy(true);
+    setWorkspaceAuthMessage("");
+
+    try {
+      const payload =
+        workspaceAuthMode === "signup"
+          ? await signUpWingmanWorkspace({
+              name: workspaceAuthForm.name,
+              company: workspaceAuthForm.company,
+              email: workspaceAuthForm.email,
+              password: workspaceAuthForm.password,
+            })
+          : await loginWingmanWorkspace({
+              email: workspaceAuthForm.email,
+              password: workspaceAuthForm.password,
+            });
+
+      await completeWorkspaceAuth(
+        payload.session,
+        syncEnabled
+          ? "Workspace session active. Project recovery sync is ready."
+          : "Workspace session active. Enable VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC=true to sync projects.",
+      );
+    } catch (error) {
+      setWorkspaceAuthMessage(error instanceof Error ? error.message : "Workspace sign-in failed.");
+    } finally {
+      setWorkspaceAuthBusy(false);
+    }
+  };
+
+  const logoutWorkspace = async () => {
+    setWorkspaceAuthBusy(true);
+    setWorkspaceAuthMessage("");
+
+    try {
+      await logoutWingmanWorkspace();
+      setWorkspaceSession(null);
+      resetProjectBackendSyncSessionState();
+      setWorkspaceAuthMessage("Signed out. Projects remain available in this browser.");
+    } catch (error) {
+      setWorkspaceAuthMessage(error instanceof Error ? error.message : "Workspace sign-out failed.");
+    } finally {
+      setWorkspaceAuthBusy(false);
+    }
   };
 
   return (
@@ -157,6 +263,90 @@ export function ProfilePage() {
               <input value={profile.phone} onChange={(event) => patchProfile({ phone: event.target.value })} />
             </label>
           </div>
+        </article>
+
+        <article className="wm-profile-card">
+          <p>Workspace sync</p>
+          <h2>Live-call recovery</h2>
+
+          <div className="wm-profile-info-list">
+            <strong>{syncEnabled ? "Backend project sync is enabled" : "Backend project sync is off"}</strong>
+            <span>
+              {syncEnabled
+                ? "Sign in to sync active projects and recover live-call work across refreshes or devices."
+                : "Set VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC=true when the backend is running to move projects beyond browser-only storage."}
+            </span>
+          </div>
+
+          <div className="wm-profile-info-list">
+            <strong className="inline-flex items-center gap-2">
+              <Cloud className="h-4 w-4" />
+              {syncStatus.state}
+            </strong>
+            <span>{syncStatus.message}</span>
+          </div>
+
+          {workspaceSession ? (
+            <div className="wm-profile-info-list">
+              <strong>{workspaceSession.workspace?.name ?? "Wingman workspace"}</strong>
+              <span>
+                Signed in as {workspaceSession.user?.name || workspaceSession.user?.email || "Wingman user"}.
+              </span>
+              <button type="button" className="wm-profile-secondary-button" onClick={logoutWorkspace} disabled={workspaceAuthBusy}>
+                <LogOut className="h-4 w-4" />
+                <span>Sign out</span>
+              </button>
+            </div>
+          ) : (
+            <form className="wm-profile-form-grid" onSubmit={submitWorkspaceAuth}>
+              <label>
+                Mode
+                <select value={workspaceAuthMode} onChange={(event) => setWorkspaceAuthMode(event.target.value as typeof workspaceAuthMode)}>
+                  <option value="login">Sign in</option>
+                  <option value="signup">Create workspace</option>
+                </select>
+              </label>
+
+              {workspaceAuthMode === "signup" ? (
+                <>
+                  <label>
+                    Name
+                    <input value={workspaceAuthForm.name} onChange={(event) => patchWorkspaceAuthForm({ name: event.target.value })} />
+                  </label>
+
+                  <label>
+                    Company
+                    <input value={workspaceAuthForm.company} onChange={(event) => patchWorkspaceAuthForm({ company: event.target.value })} />
+                  </label>
+                </>
+              ) : null}
+
+              <label>
+                Email
+                <input
+                  type="email"
+                  value={workspaceAuthForm.email}
+                  onChange={(event) => patchWorkspaceAuthForm({ email: event.target.value })}
+                />
+              </label>
+
+              <label>
+                Password
+                <input
+                  type="password"
+                  value={workspaceAuthForm.password}
+                  onChange={(event) => patchWorkspaceAuthForm({ password: event.target.value })}
+                />
+              </label>
+
+              <button type="submit" className="wm-profile-primary-button" disabled={workspaceAuthBusy}>
+                {workspaceAuthMode === "signup" ? <UserPlus className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+                <span>{workspaceAuthBusy ? "Working..." : workspaceAuthMode === "signup" ? "Create workspace" : "Sign in"}</span>
+              </button>
+            </form>
+          )}
+
+          {workspaceAuthMessage ? <span className="wm-profile-save-status" role="status">{workspaceAuthMessage}</span> : null}
         </article>
 
         <article className="wm-profile-card">

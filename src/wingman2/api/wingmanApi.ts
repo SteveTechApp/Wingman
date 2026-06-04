@@ -86,6 +86,32 @@ export type CompetitorMatchResponse = {
   compare_readiness?: CompetitorMatchCandidate["readiness"] | null;
 };
 
+export type WingmanWorkspaceSession = {
+  mode?: string;
+  issuedAt?: string;
+  user?: {
+    id?: string;
+    name?: string;
+    email?: string;
+    company?: string;
+    role?: string;
+  };
+  workspace?: {
+    id?: string;
+    name?: string;
+    slug?: string;
+    tier?: string;
+    memberCount?: number;
+  };
+  workspaceRole?: string;
+  permissions?: Record<string, boolean>;
+};
+
+export type WingmanSessionResponse = {
+  ok: boolean;
+  session?: WingmanWorkspaceSession;
+};
+
 export class WingmanApiError extends Error {
   status: number;
 
@@ -102,6 +128,22 @@ async function parseJsonResponse(response: Response) {
   } catch {
     return null;
   }
+}
+
+export async function getWingmanJson<T>(path: string): Promise<T> {
+  const response = await fetch(path, {
+    method: "GET",
+    credentials: "include",
+    cache: "no-store",
+  });
+  const payload = await parseJsonResponse(response);
+
+  if (!response.ok) {
+    const message = typeof payload?.error === "string" ? payload.error : `Request failed with status ${response.status}.`;
+    throw new WingmanApiError(message, response.status);
+  }
+
+  return payload as T;
 }
 
 export async function postWingmanJson<T>(path: string, body: unknown): Promise<T> {
@@ -137,4 +179,20 @@ export function runCompetitorMatch(input: { manufacturer: string; model: string;
     model: input.model,
     productUrl: input.productUrl || "",
   });
+}
+
+export function getWingmanSession() {
+  return getWingmanJson<WingmanSessionResponse>("/api/wingman/auth/session");
+}
+
+export function signUpWingmanWorkspace(input: { name: string; company: string; email: string; password: string }) {
+  return postWingmanJson<WingmanSessionResponse>("/api/wingman/auth/signup", input);
+}
+
+export function loginWingmanWorkspace(input: { email: string; password: string }) {
+  return postWingmanJson<WingmanSessionResponse>("/api/wingman/auth/login", input);
+}
+
+export function logoutWingmanWorkspace() {
+  return postWingmanJson<{ ok: boolean }>("/api/wingman/auth/logout", {});
 }

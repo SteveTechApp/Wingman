@@ -226,7 +226,8 @@ type LocalProjectStorageMode = {
 
 type RemoteProjectStorageMode = {
   kind: "remote";
-  authToken: string;
+  authToken?: string;
+  authSource: "storage-token" | "http-only-cookie";
 };
 
 type ProjectStorageMode = LocalProjectStorageMode | RemoteProjectStorageMode;
@@ -247,7 +248,10 @@ const PROJECT_SYNC_ENDPOINT = "/api/wingman/projects/sync";
 const PROJECTS_ENDPOINT = "/api/wingman/projects";
 const BACKEND_SYNC_DEBOUNCE_MS = 600;
 const PROJECT_BACKEND_SYNC_ENABLED = String(import.meta.env.VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC ?? "").toLowerCase() === "true";
-const LOCAL_PROJECT_MODE_MESSAGE = "Projects are running in local mode. Remote project sync is not signed in.";
+const PROJECT_SYNC_DISABLED_MESSAGE = "Project backend sync is disabled. Projects are saved in this browser.";
+const PROJECT_SYNC_SIGN_IN_MESSAGE = "Project backend sync is enabled, but Wingman is not signed in. Local changes are preserved.";
+const PROJECT_SYNC_REJECTED_MESSAGE = "Project backend sync was rejected by the server. Local changes are preserved.";
+const LOCAL_PROJECT_MODE_MESSAGE = PROJECT_SYNC_SIGN_IN_MESSAGE;
 const PROJECT_SYNC_AUTH_STORAGE_KEYS = [
   "wingman.projectSyncToken",
   "wingman.sessionToken",
@@ -798,14 +802,23 @@ function statusVariant(value: unknown): StatusVariant {
   return "alternative";
 }
 
-function projectBackendSyncEnabled() {
+export function projectBackendSyncEnabled() {
   return PROJECT_BACKEND_SYNC_ENABLED;
 }
 
-function localProjectSyncStatus(previous?: StoredProjectSyncStatus | null): StoredProjectSyncStatus {
+function localProjectMessage(reason: LocalProjectStorageMode["reason"]) {
+  if (reason === "sync-disabled") return PROJECT_SYNC_DISABLED_MESSAGE;
+  if (reason === "remote-rejected") return PROJECT_SYNC_REJECTED_MESSAGE;
+  return PROJECT_SYNC_SIGN_IN_MESSAGE;
+}
+
+function localProjectSyncStatus(
+  previous?: StoredProjectSyncStatus | null,
+  reason: LocalProjectStorageMode["reason"] = "missing-auth",
+): StoredProjectSyncStatus {
   return {
     state: "local",
-    message: LOCAL_PROJECT_MODE_MESSAGE,
+    message: localProjectMessage(reason),
     updatedAt: previous?.updatedAt ?? nowIso(),
   };
 }
@@ -870,16 +883,18 @@ function getProjectStorageMode(): ProjectStorageMode {
   }
 
   const authToken = getProjectSyncAuthToken();
-  if (!authToken) {
-    return { kind: "local", reason: "missing-auth" };
-  }
-
-  return { kind: "remote", authToken };
+  return {
+    kind: "remote",
+    authToken: authToken || undefined,
+    authSource: authToken ? "storage-token" : "http-only-cookie",
+  };
 }
 
 function buildProjectApiRequest(init: RequestInit, storageMode: RemoteProjectStorageMode): RequestInit {
   const headers = new Headers(init.headers);
-  headers.set("Authorization", `Bearer ${storageMode.authToken}`);
+  if (storageMode.authToken) {
+    headers.set("Authorization", `Bearer ${storageMode.authToken}`);
+  }
 
   return {
     ...init,
@@ -928,6 +943,11 @@ async function fetchBackendProjectStore(storageMode: RemoteProjectStorageMode) {
 
     if (response.status === 401) {
       backendSyncRejectedForSession = true;
+      setProjectSyncStatus({
+        state: "local",
+        message: PROJECT_SYNC_SIGN_IN_MESSAGE,
+        updatedAt: nowIso(),
+      });
       return null;
     }
     if (!response.ok) return null;
@@ -999,7 +1019,7 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode:
           backendSyncRejectedForSession = true;
           setProjectSyncStatus({
             state: "local",
-            message: LOCAL_PROJECT_MODE_MESSAGE,
+            message: PROJECT_SYNC_SIGN_IN_MESSAGE,
             updatedAt: nowIso(),
           });
           return;
@@ -1057,7 +1077,7 @@ export function writeProjectStore(snapshot: ProjectStoreSnapshot, options: { syn
   const storageMode = getProjectStorageMode();
   const store = safeStore({
     ...snapshot,
-    syncStatus: storageMode.kind === "local" ? localProjectSyncStatus(snapshot.syncStatus) : snapshot.syncStatus,
+    syncStatus: storageMode.kind === "local" ? localProjectSyncStatus(snapshot.syncStatus, storageMode.reason) : snapshot.syncStatus,
   });
   window.localStorage.setItem(PROJECT_STORE_KEY, JSON.stringify(store));
   if (options.syncBackend !== false && storageMode.kind === "remote") {
@@ -1123,6 +1143,11 @@ export async function hydrateProjectStoreFromBackend() {
   }
 
   return backendHydrationPromise;
+}
+
+export function resetProjectBackendSyncSessionState() {
+  backendSyncRejectedForSession = false;
+  backendHydrationPromise = null;
 }
 
 export function resetProjectStore() {
@@ -1204,8 +1229,9 @@ export function deleteStoredProposalDraft(draftId: string) {
 }
 
 export function getProjectSyncStatus(snapshot: ProjectStoreSnapshot = readProjectStore()) {
-  if (getProjectStorageMode().kind === "local") {
-    return localProjectSyncStatus(snapshot.syncStatus);
+  const storageMode = getProjectStorageMode();
+  if (storageMode.kind === "local") {
+    return localProjectSyncStatus(snapshot.syncStatus, storageMode.reason);
   }
 
   return snapshot.syncStatus ?? {
