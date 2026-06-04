@@ -1,144 +1,96 @@
-import type { LucideIcon } from "lucide-react";
-import {
-  ArrowRight,
-  ClipboardList,
-  FileText,
-  FolderKanban,
-  Headphones,
-  MessageSquareText,
-  PackageSearch,
-  Scale,
-} from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 
-type WorkflowAction = {
+type StartOption = {
   title: string;
-  helper: string;
-  path: string;
-  icon: LucideIcon;
-  tag: string;
-  mode: "primary" | "standard";
+  intent: string;
+  action: string;
+  to: string;
 };
 
-const workflowActions: WorkflowAction[] = [
+const startOptions: StartOption[] = [
   {
-    title: "Start a customer call",
-    helper: "Use Live Call Cards to listen, capture, ask the next question and hand off to Discovery.",
-    path: routeCatalogByKey.callCards.path,
-    icon: Headphones,
-    tag: "Best live start",
-    mode: "primary",
+    title: "Guide a customer call",
+    intent: "Use Call Coach for inbound calls, product-specific conversations, discovery, call-out day prompts and escalation checks.",
+    action: "Open Call Coach",
+    to: routeCatalogByKey.callCoach.path,
   },
   {
-    title: "Paste notes or transcript",
-    helper: "Use Discovery when you already have notes, an email, a tender extract or a call summary.",
-    path: routeCatalogByKey.discovery.path,
-    icon: MessageSquareText,
-    tag: "Interpret notes",
-    mode: "primary",
+    title: "Position a specific WyreStorm product",
+    intent: "Use Products to find a SKU, open Product Call Cards, build a product pitch or attach products to work in progress.",
+    action: "Open Products",
+    to: routeCatalogByKey.products.path,
   },
   {
-    title: "Build the AV requirement",
-    helper: "Capture room purpose, sources, displays, USB, audio, control and installation gaps.",
-    path: routeCatalogByKey.discovery.path,
-    icon: ClipboardList,
-    tag: "Discovery",
-    mode: "standard",
+    title: "Compare a competitor product",
+    intent: "Use Compare when the customer names a competitor product and you need a GOOD MATCH, PARTIAL MATCH or NO MATCH decision.",
+    action: "Open Compare",
+    to: routeCatalogByKey.compare.path,
   },
   {
-    title: "Find a product direction",
-    helper: "Move from requirement to WyreStorm architecture, product family and shortlist.",
-    path: routeCatalogByKey.finder.path,
-    icon: PackageSearch,
-    tag: "Finder",
-    mode: "standard",
+    title: "Review a document or BOM",
+    intent: "Use Documents when a customer sends a scope, notes, BOM, email export or competitor specification.",
+    action: "Open Documents",
+    to: routeCatalogByKey.documents.path,
   },
   {
-    title: "Compare a competitor",
-    helper: "Translate competitor or legacy-system mentions into a WyreStorm-fit conversation.",
-    path: routeCatalogByKey.compare.path,
-    icon: Scale,
-    tag: "Compare",
-    mode: "standard",
+    title: "Create a response pack",
+    intent: "Use Response Pack to create customer requirement summaries, suggested system shapes, products to review and review-gated output.",
+    action: "Open Response Pack",
+    to: routeCatalogByKey.responsePack.path,
   },
   {
-    title: "Create customer follow-up",
-    helper: "Generate proposal-safe wording, missing questions and next-step customer language.",
-    path: routeCatalogByKey.proposal.path,
-    icon: FileText,
-    tag: "Proposal",
-    mode: "standard",
-  },
-  {
-    title: "Open existing opportunity",
-    helper: "Return to saved projects and continue from the latest evidence or next action.",
-    path: routeCatalogByKey.projects.path,
-    icon: FolderKanban,
-    tag: "Projects",
-    mode: "standard",
+    title: "Continue a project",
+    intent: "Use Projects to resume saved calls, document reviews, comparisons, response packs and active work.",
+    action: "Open Projects",
+    to: routeCatalogByKey.projects.path,
   },
 ];
 
-function WorkflowCard({ action }: { action: WorkflowAction }) {
-  const Icon = action.icon;
-
-  return (
-    <Link to={action.path} className={`wm-dashboard-workflow-card is-${action.mode}`}>
-      <span className="wm-dashboard-workflow-tag">{action.tag}</span>
-      <span className="wm-dashboard-workflow-icon">
-        <Icon size={22} strokeWidth={1.9} />
-      </span>
-      <span className="wm-dashboard-workflow-copy">
-        <strong>{action.title}</strong>
-        <span>{action.helper}</span>
-      </span>
-      <ArrowRight className="wm-dashboard-workflow-arrow" size={18} strokeWidth={2} />
-    </Link>
-  );
-}
-
 export function DashboardPage() {
-  const primaryActions = workflowActions.filter((action) => action.mode === "primary");
-  const nextActions = workflowActions.filter((action) => action.mode !== "primary");
-
   return (
-    <main className="wm-dashboard-page wm-workflow-dashboard-page" data-wingman-dashboard-menu="true">
-      <section className="wm-workflow-dashboard-shell" aria-labelledby="wingman-dashboard-title">
-        <header className="wm-workflow-dashboard-hero">
-          <p className="wm-dashboard-eyebrow">WyreStorm Wingman</p>
-          <h1 id="wingman-dashboard-title">What are you trying to do?</h1>
-          <p>
-            Start with the customer conversation. Wingman will help capture the requirement, ask the next question,
-            interpret the AV design and move you to the right workflow.
-          </p>
-        </header>
+    <main data-wingman-page="true" data-wingman-page-key="Home" className="wm-navhub-page wm-home-page">
+      <section className="wm-navhub-hero" aria-labelledby="wingman-home-title">
+        <p className="wm-navhub-eyebrow">WyreStorm Wingman</p>
+        <h1 id="wingman-home-title">What are you trying to do?</h1>
+        <p>
+          Start from the customer task. Wingman will route you to the right tool without making you choose between
+          overlapping feature names.
+        </p>
+      </section>
 
-        <section className="wm-dashboard-menu-section is-primary" aria-label="Start here">
-          <div className="wm-dashboard-menu-heading">
-            <span>Start here</span>
-            <strong>Choose the route that matches the conversation in front of you.</strong>
-          </div>
+      <section className="wm-home-start-grid" aria-label="Wingman starting options">
+        {startOptions.map((option) => (
+          <Link key={option.title} to={option.to} className="wm-navhub-card">
+            <span>{option.action}</span>
+            <strong>{option.title}</strong>
+            <p>{option.intent}</p>
+          </Link>
+        ))}
+      </section>
 
-          <div className="wm-dashboard-workflow-panel">
-            {primaryActions.map((action) => (
-              <WorkflowCard key={action.title} action={action} />
-            ))}
-          </div>
-        </section>
-
-        <section className="wm-dashboard-menu-section" aria-label="Continue workflow">
-          <div className="wm-dashboard-menu-heading">
-            <span>Continue workflow</span>
-            <strong>Move to the right tool when the requirement becomes clearer.</strong>
-          </div>
-
-          <div className="wm-dashboard-workflow-panel is-secondary">
-            {nextActions.map((action) => (
-              <WorkflowCard key={action.title} action={action} />
-            ))}
-          </div>
-        </section>
+      <section className="wm-navhub-secondary" aria-label="Wingman grouped destinations">
+        <div>
+          <p className="wm-navhub-eyebrow">Primary destinations</p>
+          <h2>Grouped by user intent</h2>
+        </div>
+        <div className="wm-navhub-secondary-grid">
+          {[
+            routeCatalogByKey.callCoach,
+            routeCatalogByKey.products,
+            routeCatalogByKey.compare,
+            routeCatalogByKey.documents,
+            routeCatalogByKey.responsePack,
+            routeCatalogByKey.projects,
+            routeCatalogByKey.learn,
+          ].map((route) => (
+            <Link key={route.key} to={route.path} className="wm-navhub-card">
+              <span>{route.navLabel}</span>
+              <strong>{route.label}</strong>
+              <p>{route.summary}</p>
+            </Link>
+          ))}
+        </div>
       </section>
     </main>
   );

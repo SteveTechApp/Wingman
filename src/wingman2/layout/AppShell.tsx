@@ -3,7 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Menu, Plus, X } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
-import { routeByPath, routeCatalog, routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
+import {
+  consolidatedPrimaryNavKeys,
+  routeByPath,
+  routeCatalog,
+  routeCatalogByKey,
+  type WingmanRouteKey,
+} from "../app/routeCatalog";
 import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { clearActiveProject } from "../data/projectStore";
@@ -16,28 +22,6 @@ type AppShellProps = {
 };
 
 const routeClassNames = routeCatalog.map((route) => `wm-route-${route.segment}`);
-
-const primaryNavKeys: WingmanRouteKey[] = [
-  "dashboard",
-  "discovery",
-  "finder",
-  "templates",
-  "compare",
-  "videowall",
-  "salesHelper",
-  "proposal",
-];
-
-const secondaryNavKeys: WingmanRouteKey[] = [
-  "projects",
-  "ingest",
-  "productFamilies",
-  "productPitch",
-  "visualDesign",
-  "glossary",
-  "callCards",
-  "support",
-];
 
 const storedProjectKeys = [
   "wingman-current-project",
@@ -119,15 +103,7 @@ function resetMainScrollPosition() {
 
 function navDisplayLabel(key: WingmanRouteKey, navLabel: string) {
   const compactLabels: Partial<Record<WingmanRouteKey, string>> = {
-    compare: "Competitor Compare",
-    proposal: "Proposal",
-    salesHelper: "Sales Strategy",
-    videowall: "Video Wall",
-    productFamilies: "Product Families",
-    productPitch: "Product Pitch",
-    visualDesign: "Visual Studio",
-    glossary: "AV Glossary",
-    callCards: "Call Cards",
+    profile: "Settings",
   };
 
   return compactLabels[key] ?? navLabel;
@@ -143,11 +119,10 @@ export function AppShell({ children }: AppShellProps) {
   const { profile } = useWingmanProfile();
 
   const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
-  const activeLabel = activeRoute?.label ?? "Dashboard";
+  const activeLabel = activeRoute?.label ?? "Home";
   const activeSummary = activeRoute?.summary ?? "WyreStorm technical sales workspace.";
   const activeRouteClass = activeRoute ? `wm-route-${activeRoute.segment}` : "wm-route-dashboard";
-  const primaryNav = useMemo(() => primaryNavKeys.map((key) => routeCatalogByKey[key]), []);
-  const secondaryNav = useMemo(() => secondaryNavKeys.map((key) => routeCatalogByKey[key]), []);
+  const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
   const topbarGreeting = useMemo(() => {
     const displayName = profile.userName.trim() || profile.reportPreparedBy.trim() || "Wingman";
 
@@ -232,29 +207,6 @@ export function AppShell({ children }: AppShellProps) {
           ))}
         </nav>
 
-        <nav className="wingman-nav wingman-nav-secondary" aria-label="Wingman secondary navigation">
-          {secondaryNav.map(({ path, navLabel, icon: Icon, summary, key }) => (
-            <NavLink
-              key={path}
-              to={path}
-              title={summary}
-              aria-label={`${navLabel}: ${summary}`}
-              className={({ isActive }) =>
-                ["wingman-nav-link", "wingman-nav-link-secondary", isActive ? "wingman-nav-link-active" : ""]
-                  .filter(Boolean)
-                  .join(" ")
-              }
-            >
-              <Icon className="wingman-nav-icon" />
-              <span className="wingman-nav-copy">
-                <span>{navDisplayLabel(key, navLabel)}</span>
-              </span>
-              <span className="wingman-nav-tooltip" role="tooltip">
-                {summary}
-              </span>
-            </NavLink>
-          ))}
-        </nav>
       </aside>
 
       <div

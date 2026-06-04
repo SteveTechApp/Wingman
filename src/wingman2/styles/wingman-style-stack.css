@@ -16905,3 +16905,128 @@ main [class*="text-red-"] {
 }
 
 /* WINGMAN DASHBOARD MENU LAYOUT REPAIR END */
+
+/* WINGMAN NAVIGATION CONSOLIDATION START */
+
+.wm-navhub-page {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  color: var(--wm-white, #f6fbff);
+}
+
+.wm-navhub-hero,
+.wm-navhub-secondary {
+  border: 1px solid var(--wm-line, rgba(91, 215, 255, 0.24));
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(7, 22, 41, 0.94), rgba(3, 12, 24, 0.92));
+  box-shadow: var(--wm-glow, 0 0 0 1px rgba(91, 215, 255, 0.12));
+  padding: clamp(1rem, 2vw, 1.4rem);
+}
+
+.wm-navhub-hero h1,
+.wm-navhub-secondary h2 {
+  margin: 0.25rem 0 0;
+  color: var(--wm-aqua, #63f3ff);
+  font-size: clamp(1.65rem, 3vw, 2.6rem);
+  line-height: 1;
+}
+
+.wm-navhub-hero p,
+.wm-navhub-secondary p {
+  max-width: 70rem;
+  margin: 0.65rem 0 0;
+  color: var(--wm-soft, #d7e8f8);
+}
+
+.wm-navhub-eyebrow {
+  margin: 0;
+  color: var(--wm-aqua-soft, #9bf7ff) !important;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.wm-navhub-submodes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.wm-navhub-submodes span {
+  border: 1px solid rgba(99, 243, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(7, 22, 41, 0.76);
+  color: var(--wm-soft, #d7e8f8);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.45rem 0.7rem;
+}
+
+.wm-navhub-grid,
+.wm-home-start-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.85rem;
+}
+
+.wm-navhub-secondary {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.wm-navhub-secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.75rem;
+}
+
+.wm-navhub-card {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  min-height: 10.5rem;
+  border: 1px solid rgba(91, 215, 255, 0.22);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(8, 25, 45, 0.94), rgba(3, 12, 24, 0.92));
+  color: var(--wm-white, #f6fbff);
+  padding: 1rem;
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.wm-navhub-card:hover,
+.wm-navhub-card:focus-visible {
+  border-color: rgba(99, 243, 255, 0.58);
+  background: linear-gradient(180deg, rgba(12, 42, 72, 0.96), rgba(5, 18, 34, 0.94));
+  transform: translateY(-1px);
+}
+
+.wm-navhub-card span {
+  color: var(--wm-aqua-soft, #9bf7ff);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.wm-navhub-card strong {
+  color: #ffffff;
+  font-size: 1.05rem;
+  line-height: 1.15;
+}
+
+.wm-navhub-card p,
+.wm-navhub-card small {
+  margin: 0;
+  color: var(--wm-soft, #d7e8f8);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.wm-navhub-card small {
+  color: var(--wm-muted, #9fb4ca);
+}
+
+/* WINGMAN NAVIGATION CONSOLIDATION END */
