@@ -654,6 +654,9 @@ export function DiscoveryPage() {
     [activeStep.key, answers],
   );
   const complete = DISCOVERY_STEPS.every((step) => Boolean(answers[step.key]));
+  const hasMinimumRequired = Boolean(answers.application);
+  const answeredCount = DISCOVERY_STEPS.filter((step) => Boolean(answers[step.key])).length;
+  const [showValidationWarning, setShowValidationWarning] = useState(false);
 
   const moveToStep = (index: number) => {
     const safeIndex = Math.min(Math.max(index, 0), DISCOVERY_STEPS.length - 1);
@@ -674,6 +677,10 @@ export function DiscoveryPage() {
     }));
 
     setSaved(false);
+
+    if (step.key === "application") {
+      setShowValidationWarning(false);
+    }
 
     window.setTimeout(() => {
       if (activeIndex < DISCOVERY_STEPS.length - 1) {
@@ -699,6 +706,12 @@ export function DiscoveryPage() {
   };
 
   const saveDiscovery = () => {
+    if (!hasMinimumRequired) {
+      setShowValidationWarning(true);
+      moveToStep(0);
+      return;
+    }
+    setShowValidationWarning(false);
     const brief = buildDiscoveryBrief(answers);
     saveDiscoveryBriefToProject(brief);
     writeDiscoveryHandoff(brief);
@@ -753,17 +766,22 @@ export function DiscoveryPage() {
           {DISCOVERY_STEPS.map((step, index) => {
             const option = getOption(step, answers[step.key]);
             const isActive = index === activeIndex;
+            const isRequired = step.key === "application";
+            const isMissing = !option;
+            const showError = showValidationWarning && isRequired && isMissing;
 
             return (
               <button
                 key={step.key}
                 type="button"
-                className={isActive ? "wm20-card-action" : "wm-button-soft"}
+                className={`${isActive ? "wm20-card-action" : "wm-button-soft"} ${showError ? "ring-2 ring-red-500" : ""}`}
                 onClick={() => moveToStep(index)}
                 aria-current={isActive ? "step" : undefined}
+                aria-invalid={showError ? "true" : undefined}
               >
-                <strong>{step.eyebrow}</strong>
+                <strong>{step.eyebrow}{isRequired && !option ? " *" : ""}</strong>
                 <span>{option ? option.label : step.title}</span>
+                {showError && <span className="text-red-400 text-sm mt-1">Required</span>}
               </button>
             );
           })}
@@ -774,8 +792,14 @@ export function DiscoveryPage() {
         <div className="wm20-section-heading">
           <div>
             <p className="wm20-eyebrow">{activeStep.eyebrow}</p>
-            <h2>{activeStep.title}</h2>
+            <h2>
+              {activeStep.title}
+              {activeStep.key === "application" && <span className="text-red-400 ml-1">*</span>}
+            </h2>
             <p>{activeStep.ask}</p>
+            {activeStep.key === "application" && !answers.application && (
+              <p className="text-amber-400 text-sm mt-2">This field is required before saving</p>
+            )}
           </div>
           <span className="wm20-badge">Auto advances after selection</span>
         </div>
@@ -869,6 +893,13 @@ export function DiscoveryPage() {
           <p>{summary}</p>
         </div>
 
+        {showValidationWarning && !hasMinimumRequired ? (
+          <div className="wm20-next" style={{ borderColor: "rgb(239 68 68)" }}>
+            <strong className="text-red-400">Required field missing</strong>
+            <p className="text-red-300">Please select an application type before saving. This helps Wingman provide accurate recommendations.</p>
+          </div>
+        ) : null}
+
         {saved ? (
           <div className="wm20-next">
             <strong>Discovery saved</strong>
@@ -877,19 +908,43 @@ export function DiscoveryPage() {
         ) : null}
 
         <div className="wm20-actions">
-          <button type="button" className="wm20-card-action" onClick={saveDiscovery}>
+          <button
+            type="button"
+            className="wm20-card-action"
+            onClick={saveDiscovery}
+            disabled={!hasMinimumRequired}
+            title={!hasMinimumRequired ? "Select an application type to enable saving" : undefined}
+          >
             Save discovery
           </button>
 
-          <button type="button" className="wm-button-soft" onClick={saveAndOpenFinder}>
+          <button
+            type="button"
+            className="wm-button-soft"
+            onClick={saveAndOpenFinder}
+            disabled={!hasMinimumRequired}
+            title={!hasMinimumRequired ? "Select an application type first" : undefined}
+          >
             Save and open Product Finder
           </button>
 
-          <button type="button" className="wm-button-secondary" onClick={saveAndOpenProposal}>
+          <button
+            type="button"
+            className="wm-button-secondary"
+            onClick={saveAndOpenProposal}
+            disabled={!hasMinimumRequired}
+            title={!hasMinimumRequired ? "Select an application type first" : undefined}
+          >
             Save and create proposal draft
           </button>
 
-          <button type="button" className="wm-button-secondary" onClick={saveAndOpenProject}>
+          <button
+            type="button"
+            className="wm-button-secondary"
+            onClick={saveAndOpenProject}
+            disabled={!hasMinimumRequired}
+            title={!hasMinimumRequired ? "Select an application type first" : undefined}
+          >
             Save and open opportunity
           </button>
         </div>

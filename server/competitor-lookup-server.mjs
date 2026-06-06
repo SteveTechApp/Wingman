@@ -2096,6 +2096,34 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (method === "GET" && url.pathname === "/api/health") {
+    const version = process.env.WINGMAN_VERSION || "0.1.0";
+    sendJson(res, 200, {
+      status: "ok",
+      timestamp: nowIso(),
+      version,
+    });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/ready") {
+    // Kubernetes-style readiness check - verify server is ready to accept traffic
+    const isReady = server.listening;
+    if (isReady) {
+      sendJson(res, 200, {
+        ready: true,
+        timestamp: nowIso(),
+      });
+    } else {
+      sendJson(res, 503, {
+        ready: false,
+        timestamp: nowIso(),
+        error: "Server is not ready to accept traffic.",
+      });
+    }
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/health/details") {
     sendJson(res, 200, buildHealthPayload());
     return;
   }

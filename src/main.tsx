@@ -38,6 +38,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import "./wingman2/styles/wingman-style-stack.css";
 const rootElement = document.getElementById("root");
 
@@ -47,9 +48,11 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ErrorBoundary>
   </React.StrictMode>,
 );
 
