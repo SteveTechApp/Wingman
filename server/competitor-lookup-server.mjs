@@ -61,6 +61,7 @@ const parsedUiPort = Number(process.env.WINGMAN_UI_PORT || 3000);
 const UI_PORT = Number.isFinite(parsedUiPort) ? parsedUiPort : 3000;
 const CORS_ALLOW_ORIGIN = String(process.env.WINGMAN_CORS_ALLOW_ORIGIN || `http://${UI_HOST}:${UI_PORT}`).trim();
 const CORS_ALLOW_CREDENTIALS = CORS_ALLOW_ORIGIN !== "*";
+const CORS_REJECT_WILDCARD_IN_PRODUCTION = process.env.NODE_ENV === "production" && CORS_ALLOW_ORIGIN === "*";
 const MAX_JSON_BODY_BYTES = Math.max(1024, Number(process.env.WINGMAN_MAX_JSON_BODY_BYTES || 1_048_576));
 const RETRY_ATTEMPTS = Number(process.env.LOOKUP_RETRY_ATTEMPTS || 3);
 const FETCH_TIMEOUT_MS = Number(process.env.LOOKUP_TIMEOUT_MS || 4500);
@@ -194,6 +195,11 @@ function parseLookupQuery(query) {
 }
 
 function withCorsHeaders(base = {}) {
+  // In production, if CORS is wildcard, log a warning (once per startup)
+  if (CORS_REJECT_WILDCARD_IN_PRODUCTION && !withCorsHeaders._warned) {
+    withCorsHeaders._warned = true;
+    console.warn("[SECURITY] CORS wildcard (*) is configured in production. Set WINGMAN_CORS_ALLOW_ORIGIN to a specific origin.");
+  }
   const headers = {
     "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
@@ -2096,6 +2102,34 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (method === "GET" && url.pathname === "/api/health") {
+    const version = process.env.WINGMAN_VERSION || "0.1.0";
+    sendJson(res, 200, {
+      status: "ok",
+      timestamp: nowIso(),
+      version,
+    });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/ready") {
+    // Kubernetes-style readiness check - verify server is ready to accept traffic
+    const isReady = server.listening;
+    if (isReady) {
+      sendJson(res, 200, {
+        ready: true,
+        timestamp: nowIso(),
+      });
+    } else {
+      sendJson(res, 503, {
+        ready: false,
+        timestamp: nowIso(),
+        error: "Server is not ready to accept traffic.",
+      });
+    }
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/health/details") {
     sendJson(res, 200, buildHealthPayload());
     return;
   }
@@ -2330,6 +2364,46 @@ const server = http.createServer(async (req, res) => {
 
   if (method === "POST" && url.pathname === "/api/product-intelligence/status") {
     await runProtectedRoute(res, () => handleProductIntelligenceStatusPost(req, res, url, { sendJson, parseJsonBody }));
+    return;
+  }
+
+  // New competitor match engine endpoint
+  if (method === "POST" && url.pathname === "/api/compare/match") {
+    await runProtectedRoute(res, async () => {
+      try {
+        const body = await parseJsonBody(req);
+        const { compareCompetitor } = await import("./competitor/match-engine.mjs");
+        const result = await compareCompetitor(
+          body.input || "",
+          body.brand || undefined,
+          Math.min(body.maxResults || 5, 10)
+        );
+        sendJson(res, 200, result);
+      } catch (error) {
+        sendJson(res, 500, {
+          error: "Comparison failed",
+          message: error.message,
+        });
+      }
+    });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/compare/analyze") {
+    await runProtectedRoute(res, async () => {
+      try {
+        const input = url.searchParams.get("input") || "";
+        const brand = url.searchParams.get("brand") || undefined;
+        const { compareCompetitor } = await import("./competitor/match-engine.mjs");
+        const result = await compareCompetitor(input, brand, 1);
+        sendJson(res, 200, result.competitor);
+      } catch (error) {
+        sendJson(res, 500, {
+          error: "Analysis failed",
+          message: error.message,
+        });
+      }
+    });
     return;
   }
 
