@@ -1,4 +1,4 @@
-/* Consolidated Wingman style stack. Keep imported once from src/main.tsx. */
+﻿/* Consolidated Wingman style stack. Keep imported once from src/main.tsx. */
 
 @tailwind base;
 
@@ -9638,8 +9638,16 @@ body.wm-product-finder-active main :is(.text-amber-500, .text-amber-600, .text-o
 }
 
 .wm-intel-status-pill[data-status="needs-review"] {
-  color: #7c2d12 !important;
-  background: #ffedd5 !important;
+  background: #061826 !important;
+  background-color: #061826 !important;
+  background-image: none !important;
+  border: 1px solid rgba(58, 226, 245, 0.56) !important;
+  color: #8ff6ff !important;
+  -webkit-text-fill-color: #8ff6ff !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.045),
+    0 0 16px rgba(58, 226, 245, 0.16) !important;
+  text-shadow: none !important;
 }
 
 .wm-intel-status-pill[data-status="rejected"] {
@@ -12748,8 +12756,16 @@ table {
 }
 
 .wm-intel-status-pill[data-status="needs-review"] {
-  background: rgba(255, 247, 237, 0.95);
-  color: #9a3412;
+  background: #061826 !important;
+  background-color: #061826 !important;
+  background-image: none !important;
+  border: 1px solid rgba(58, 226, 245, 0.56) !important;
+  color: #8ff6ff !important;
+  -webkit-text-fill-color: #8ff6ff !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.045),
+    0 0 16px rgba(58, 226, 245, 0.16) !important;
+  text-shadow: none !important;
 }
 
 .wm-intel-danger-row {
@@ -20206,3 +20222,1701 @@ html[data-wingman-route="intelligence"] .wingman-page-host .wm-intel-toggle inpu
 }
 
 /* WINGMAN_LEGACY_SPECIFICITY_OVERRIDES_END */
+
+/* WINGMAN_TEMPLATE_REVIEW_DARK_DETAIL_START */
+/* Template detail pages contain a nested schematic/BOM canvas that previously
+   kept its original white document styling. Fold it into the shared Wingman UI. */
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-shell,
+.wm-route-templates .wingman-page-host .wm-template-detail-shell {
+  overflow: hidden !important;
+  border: 1px solid var(--wm-consistency-border, rgba(74, 245, 230, 0.28)) !important;
+  border-radius: 18px !important;
+  background: var(--wm-consistency-panel, linear-gradient(145deg, rgba(8, 31, 54, 0.94), rgba(5, 18, 32, 0.94))) !important;
+  color: var(--wm-consistency-text, #f7fbff) !important;
+  box-shadow: var(--wm-consistency-shadow, 0 16px 42px rgba(0, 0, 0, 0.26)) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wingman-page-hero {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: end !important;
+  min-height: 0 !important;
+  padding: 18px 20px !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wingman-page-hero .wingman-hero-actions {
+  grid-column: auto !important;
+  align-self: end !important;
+  justify-content: flex-end !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wingman-page-hero .wingman-hero-action {
+  margin: 0 !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-schematic,
+.wm-route-templates .wingman-page-host .wm-template-schematic {
+  overflow: hidden !important;
+  border: 1px solid var(--wm-consistency-border, rgba(74, 245, 230, 0.28)) !important;
+  border-radius: 18px !important;
+  background: var(--wm-consistency-panel, linear-gradient(145deg, rgba(8, 31, 54, 0.94), rgba(5, 18, 32, 0.94))) !important;
+  color: var(--wm-consistency-text, #f7fbff) !important;
+  box-shadow: var(--wm-consistency-shadow, 0 16px 42px rgba(0, 0, 0, 0.26)) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-schematic-header,
+.wm-route-templates .wingman-page-host .wm-template-schematic-header,
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-legend,
+.wm-route-templates .wingman-page-host .wm-template-cable-legend {
+  border-color: rgba(74, 245, 230, 0.18) !important;
+  background: rgba(3, 14, 25, 0.72) !important;
+  color: var(--wm-consistency-text, #f7fbff) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-schematic-header h3,
+.wm-route-templates .wingman-page-host .wm-template-schematic-header h3 {
+  color: var(--wm-consistency-title, #65d7f4) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-schematic-header span,
+.wm-route-templates .wingman-page-host .wm-template-schematic-header span {
+  color: var(--wm-consistency-muted, rgba(226, 239, 250, 0.8)) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-schematic-flow,
+.wm-route-templates .wingman-page-host .wm-template-schematic-flow {
+  background: rgba(3, 14, 25, 0.82) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-schematic-node,
+.wm-route-templates .wingman-page-host .wm-template-schematic-node {
+  border-color: rgba(74, 245, 230, 0.24) !important;
+  background: var(--wm-consistency-panel-soft, linear-gradient(145deg, rgba(10, 36, 56, 0.9), rgba(5, 18, 32, 0.88))) !important;
+  color: var(--wm-consistency-text, #f7fbff) !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-schematic-node small,
+.wm-route-templates .wingman-page-host .wm-template-schematic-node small {
+  color: #071827 !important;
+  background: var(--wm-consistency-title, #65d7f4) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-schematic-node strong,
+.wm-route-templates .wingman-page-host .wm-template-schematic-node strong {
+  color: var(--wm-consistency-title, #65d7f4) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-schematic-node p,
+.wm-route-templates .wingman-page-host .wm-template-schematic-node p {
+  color: var(--wm-consistency-muted, rgba(226, 239, 250, 0.8)) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-schematic-node span,
+.wm-route-templates .wingman-page-host .wm-template-schematic-node span,
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-legend span,
+.wm-route-templates .wingman-page-host .wm-template-cable-legend span,
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-table span,
+.wm-route-templates .wingman-page-host .wm-template-cable-table span {
+  border: 1px solid rgba(74, 245, 230, 0.22) !important;
+  background: rgba(8, 31, 54, 0.84) !important;
+  color: var(--wm-consistency-title-soft, #a8f4ff) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-table,
+.wm-route-templates .wingman-page-host .wm-template-cable-table {
+  border-color: var(--wm-consistency-border, rgba(74, 245, 230, 0.28)) !important;
+  background: rgba(3, 14, 25, 0.82) !important;
+  color: var(--wm-consistency-text, #f7fbff) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-table th,
+.wm-route-templates .wingman-page-host .wm-template-cable-table th {
+  border-color: rgba(74, 245, 230, 0.18) !important;
+  background: rgba(74, 245, 230, 0.1) !important;
+  color: var(--wm-consistency-title-soft, #a8f4ff) !important;
+  letter-spacing: 0 !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-table td,
+.wm-route-templates .wingman-page-host .wm-template-cable-table td {
+  border-color: rgba(74, 245, 230, 0.14) !important;
+  color: var(--wm-consistency-muted, rgba(226, 239, 250, 0.8)) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-cable-table td:first-child,
+.wm-route-templates .wingman-page-host .wm-template-cable-table td:first-child {
+  color: var(--wm-consistency-text, #f7fbff) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-actions button,
+.wm-route-templates .wingman-page-host .wm-template-detail-actions button {
+  border-color: var(--wm-consistency-border, rgba(74, 245, 230, 0.28)) !important;
+  background: rgba(8, 31, 54, 0.86) !important;
+  color: var(--wm-consistency-text, #f7fbff) !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-actions .wm-template-action-primary,
+.wm-route-templates .wingman-page-host .wm-template-detail-actions .wm-template-action-primary {
+  border-color: var(--wm-consistency-border-strong, rgba(74, 245, 230, 0.48)) !important;
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.9), rgba(45, 153, 255, 0.62)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(8, 145, 178, 0.18) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-shell :is(.bg-white, .bg-slate-50, .bg-slate-100, .bg-cyan-50, .bg-sky-100, .bg-emerald-100, .bg-cyan-100),
+.wm-route-templates .wingman-page-host .wm-template-detail-shell :is(.bg-white, .bg-slate-50, .bg-slate-100, .bg-cyan-50, .bg-sky-100, .bg-emerald-100, .bg-cyan-100) {
+  background: var(--wm-consistency-panel-soft, linear-gradient(145deg, rgba(10, 36, 56, 0.9), rgba(5, 18, 32, 0.88))) !important;
+  border-color: var(--wm-consistency-border, rgba(74, 245, 230, 0.28)) !important;
+  color: var(--wm-consistency-text, #f7fbff) !important;
+}
+
+html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-shell :is(.text-cyan-950, .text-sky-950, .text-emerald-800, .text-cyan-900),
+.wm-route-templates .wingman-page-host .wm-template-detail-shell :is(.text-cyan-950, .text-sky-950, .text-emerald-800, .text-cyan-900) {
+  color: var(--wm-consistency-title-soft, #a8f4ff) !important;
+}
+
+/* WINGMAN_TEMPLATE_REVIEW_DARK_DETAIL_END */
+
+/* WINGMAN_SETTINGS_2X2_GRID_START */
+/* Settings should scan as four equal cards: identity/user on row one,
+   defaults/workspace sync on row two. */
+
+html[data-wingman-route="profile"] .wingman-page-host .wm-profile-page .wm-profile-grid,
+.wm-route-settings .wingman-page-host .wm-profile-page .wm-profile-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  padding: 12px !important;
+  align-items: stretch !important;
+}
+
+html[data-wingman-route="profile"] .wingman-page-host .wm-profile-page .wm-profile-card,
+.wm-route-settings .wingman-page-host .wm-profile-page .wm-profile-card {
+  min-height: 210px !important;
+  padding: 13px !important;
+}
+
+html[data-wingman-route="profile"] .wingman-page-host .wm-profile-page .wm-profile-card-head,
+.wm-route-settings .wingman-page-host .wm-profile-page .wm-profile-card-head {
+  min-height: 40px !important;
+}
+
+@media (max-width: 760px) {
+  html[data-wingman-route="profile"] .wingman-page-host .wm-profile-page .wm-profile-grid,
+  .wm-route-settings .wingman-page-host .wm-profile-page .wm-profile-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route="profile"] .wingman-page-host .wm-profile-page .wm-profile-card,
+  .wm-route-settings .wingman-page-host .wm-profile-page .wm-profile-card {
+    min-height: 0 !important;
+  }
+}
+
+/* WINGMAN_SETTINGS_2X2_GRID_END */
+
+/* WINGMAN_COMPACT_HERO_DEPTH_START */
+/* Keep page headers shallow across the legacy and shared hero variants. */
+
+html[data-wingman-route] .wingman-page-host .wingman-page-hero.wingman-page-hero-compact {
+  grid-template-columns: minmax(0, 1fr) max-content !important;
+  grid-template-areas: "copy actions" !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin: 0 !important;
+  padding: 14px 18px !important;
+  border-radius: 18px !important;
+}
+
+html[data-wingman-route] .wingman-page-host .wingman-page-hero.wingman-page-hero-compact .wingman-hero-copy {
+  display: grid !important;
+  grid-area: copy !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route] .wingman-page-host .wingman-page-hero.wingman-page-hero-compact .wingman-display {
+  max-width: 920px !important;
+  font-size: clamp(2rem, 2.45vw, 2.7rem) !important;
+  line-height: 1.04 !important;
+}
+
+html[data-wingman-route] .wingman-page-host .wingman-page-hero.wingman-page-hero-compact .wingman-kicker {
+  margin: 0 !important;
+}
+
+html[data-wingman-route] .wingman-page-host .wingman-page-hero.wingman-page-hero-compact .wingman-hero-purpose {
+  margin: 4px 0 0 !important;
+}
+
+html[data-wingman-route] .wingman-page-host .wingman-page-hero.wingman-page-hero-compact .wingman-hero-actions {
+  display: flex !important;
+  grid-area: actions !important;
+  align-self: center !important;
+  justify-self: end !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  width: auto !important;
+  max-width: 420px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 8px !important;
+}
+
+html[data-wingman-route] .wingman-page-host .wingman-page-hero.wingman-page-hero-compact .wingman-hero-action {
+  min-height: 36px !important;
+  margin: 0 !important;
+  padding: 0 13px !important;
+  border-radius: 999px !important;
+  white-space: nowrap !important;
+}
+
+html[data-wingman-route="compare"] .wingman-page-host .wm-cr-hero,
+.wm-route-compare .wingman-page-host .wm-cr-hero {
+  grid-template-columns: minmax(0, 1fr) max-content !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 14px 18px !important;
+}
+
+html[data-wingman-route="compare"] .wingman-page-host .wm-cr-hero h1,
+.wm-route-compare .wingman-page-host .wm-cr-hero h1 {
+  max-width: 780px !important;
+  font-size: clamp(1.9rem, 2.3vw, 2.55rem) !important;
+  line-height: 1.04 !important;
+}
+
+html[data-wingman-route="compare"] .wingman-page-host .wm-cr-hero-copy,
+.wm-route-compare .wingman-page-host .wm-cr-hero-copy {
+  max-width: 780px !important;
+  margin-top: 6px !important;
+}
+
+html[data-wingman-route="compare"] .wingman-page-host .wm-cr-actions,
+.wm-route-compare .wingman-page-host .wm-cr-actions {
+  align-self: center !important;
+  justify-self: end !important;
+  justify-content: flex-end !important;
+  width: min(100%, 380px) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 8px !important;
+}
+
+html[data-wingman-route="compare"] .wingman-page-host .wm-cr-actions a,
+.wm-route-compare .wingman-page-host .wm-cr-actions a {
+  min-height: 36px !important;
+  padding: 0 13px !important;
+  white-space: nowrap !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-page-host .wm-product-call-cards-hero,
+html[data-wingman-route="product-call-cards"] .wingman-page-host .wm-product-call-cards-hero,
+.wm-route-product-call-cards .wingman-page-host .wm-product-call-cards-hero {
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: start !important;
+  gap: 6px !important;
+  padding: 14px 18px !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-page-host .wm-product-call-cards-hero h1,
+html[data-wingman-route="product-call-cards"] .wingman-page-host .wm-product-call-cards-hero h1,
+.wm-route-product-call-cards .wingman-page-host .wm-product-call-cards-hero h1 {
+  max-width: 820px !important;
+  margin: 0 !important;
+  font-size: clamp(1.9rem, 2.3vw, 2.55rem) !important;
+  line-height: 1.04 !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-page-host .wm-product-call-cards-hero p,
+html[data-wingman-route="product-call-cards"] .wingman-page-host .wm-product-call-cards-hero p,
+.wm-route-product-call-cards .wingman-page-host .wm-product-call-cards-hero p {
+  max-width: 820px !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 900px) {
+  html[data-wingman-route] .wingman-page-host .wingman-page-hero.wingman-page-hero-compact,
+  html[data-wingman-route="compare"] .wingman-page-host .wm-cr-hero,
+  .wm-route-compare .wingman-page-host .wm-cr-hero {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "copy"
+      "actions" !important;
+    align-items: start !important;
+    padding: 14px 16px !important;
+  }
+
+  html[data-wingman-route] .wingman-page-host .wingman-page-hero.wingman-page-hero-compact .wingman-hero-actions,
+  html[data-wingman-route="compare"] .wingman-page-host .wm-cr-actions,
+  .wm-route-compare .wingman-page-host .wm-cr-actions {
+    justify-self: start !important;
+    justify-content: flex-start !important;
+    max-width: 100% !important;
+  }
+}
+
+/* WINGMAN_COMPACT_HERO_DEPTH_END */
+
+/* WINGMAN PRODUCT INTELLIGENCE REVIEW STATUS CHIPS - START */
+[data-wingman-product-intelligence-page="true"] [class*="bg-amber-"]:not(input):not(select):not(textarea),
+[data-wingman-product-intelligence-page="true"] [class*="bg-yellow-"]:not(input):not(select):not(textarea),
+[data-wingman-product-intelligence-page="true"] [class*="bg-orange-"]:not(input):not(select):not(textarea),
+[data-wingman-product-intelligence-page="true"] [class*="bg-[#fff"]:not(input):not(select):not(textarea),
+[data-wingman-product-intelligence-page="true"] [class*="bg-[#fef"]:not(input):not(select):not(textarea),
+[data-wingman-product-intelligence-page="true"] [class*="bg-[#ffed"]:not(input):not(select):not(textarea),
+[data-wingman-product-intelligence-page="true"] [class*="bg-[#fff4"]:not(input):not(select):not(textarea) {
+  background: rgba(58, 226, 245, 0.12) !important;
+  border: 1px solid rgba(58, 226, 245, 0.46) !important;
+  color: #8ff6ff !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 10px 26px rgba(0, 0, 0, 0.22) !important;
+}
+
+[data-wingman-product-intelligence-page="true"] [class*="bg-amber-"]:not(input):not(select):not(textarea) *,
+[data-wingman-product-intelligence-page="true"] [class*="bg-yellow-"]:not(input):not(select):not(textarea) *,
+[data-wingman-product-intelligence-page="true"] [class*="bg-orange-"]:not(input):not(select):not(textarea) *,
+[data-wingman-product-intelligence-page="true"] [class*="bg-[#fff"]:not(input):not(select):not(textarea) *,
+[data-wingman-product-intelligence-page="true"] [class*="bg-[#fef"]:not(input):not(select):not(textarea) *,
+[data-wingman-product-intelligence-page="true"] [class*="bg-[#ffed"]:not(input):not(select):not(textarea) *,
+[data-wingman-product-intelligence-page="true"] [class*="bg-[#fff4"]:not(input):not(select):not(textarea) * {
+  color: #8ff6ff !important;
+}
+
+[data-wingman-product-intelligence-page="true"] [class*="bg-amber-"]:not(input):not(select):not(textarea),
+[data-wingman-product-intelligence-page="true"] [class*="bg-yellow-"]:not(input):not(select):not(textarea),
+[data-wingman-product-intelligence-page="true"] [class*="bg-orange-"]:not(input):not(select):not(textarea) {
+  min-height: unset !important;
+  width: fit-content !important;
+  max-width: max-content !important;
+  border-radius: 999px !important;
+  padding: 0.42rem 0.72rem !important;
+  font-size: 0.72rem !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.055em !important;
+  text-transform: uppercase !important;
+  text-shadow: none !important;
+  white-space: nowrap !important;
+}
+
+[data-wingman-product-intelligence-page="true"] [class*="text-amber-"],
+[data-wingman-product-intelligence-page="true"] [class*="text-yellow-"],
+[data-wingman-product-intelligence-page="true"] [class*="text-orange-"] {
+  color: #8ff6ff !important;
+}
+/* WINGMAN PRODUCT INTELLIGENCE REVIEW STATUS CHIPS - END */
+
+/* WINGMAN PRODUCT INTELLIGENCE REVIEW CHIP CONTRAST HARD FIX - START */
+:root {
+  --wm-pi-review-chip-bg: #061826;
+  --wm-pi-review-chip-border: rgba(58, 226, 245, 0.58);
+  --wm-pi-review-chip-text: #8ff6ff;
+}
+
+.wm-product-intelligence-review-chip,
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-amber-"],
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-yellow-"],
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-orange-"],
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-[#fff"],
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-[#fef"],
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-[#ff"],
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][style*="background"][style*="255"],
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][style*="#fff"],
+:is(span, button, div, a)[class*="rounded-full"][class*="uppercase"][class*="bg-amber-"],
+:is(span, button, div, a)[class*="rounded-full"][class*="uppercase"][class*="bg-yellow-"],
+:is(span, button, div, a)[class*="rounded-full"][class*="uppercase"][class*="bg-orange-"],
+:is(span, button, div, a)[class*="rounded-full"][class*="uppercase"][style*="background"][style*="255"],
+:is(span, button, div, a)[class*="rounded-full"][class*="uppercase"][style*="#fff"] {
+  background: var(--wm-pi-review-chip-bg) !important;
+  background-color: var(--wm-pi-review-chip-bg) !important;
+  background-image: none !important;
+  border: 1px solid var(--wm-pi-review-chip-border) !important;
+  color: var(--wm-pi-review-chip-text) !important;
+  -webkit-text-fill-color: var(--wm-pi-review-chip-text) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 18px rgba(58, 226, 245, 0.16) !important;
+  text-shadow: none !important;
+  white-space: nowrap !important;
+}
+
+.wm-product-intelligence-review-chip *,
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-amber-"] *,
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-yellow-"] *,
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-orange-"] *,
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-[#fff"] *,
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-[#fef"] *,
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][class*="bg-[#ff"] *,
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][style*="background"][style*="255"] *,
+body:has([data-wingman-product-intelligence-page="true"]) :is(span, button, div, a)[class*="rounded-full"][style*="#fff"] * {
+  color: var(--wm-pi-review-chip-text) !important;
+  -webkit-text-fill-color: var(--wm-pi-review-chip-text) !important;
+}
+/* WINGMAN PRODUCT INTELLIGENCE REVIEW CHIP CONTRAST HARD FIX - END */
+
+/* WINGMAN GLOBAL SCROLL AND DISABLED BUTTON CONTRAST FIX - START */
+
+/* 
+  Global page scroll repair.
+  Several Wingman pages are taller than one screen, but fixed-height / overflow-hidden wrappers
+  can prevent the browser from scrolling to the lower content.
+*/
+html,
+body,
+#root {
+  min-height: 100% !important;
+  height: auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+body {
+  min-height: 100svh !important;
+}
+
+#root {
+  min-height: 100svh !important;
+}
+
+/* Top-level app wrappers should not lock the entire UI to one viewport height. */
+#root > div,
+#root > main,
+#root > section {
+  min-height: 100svh !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* Common Tailwind viewport-height classes used on shell wrappers. */
+#root > [class*="h-screen"],
+#root > [class*="min-h-screen"],
+#root > div > [class*="h-screen"],
+#root > div > [class*="min-h-screen"],
+#root main[class*="h-screen"],
+#root main[class*="min-h-screen"] {
+  min-height: 100svh !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* Main content areas should be allowed to extend and let the page scroll. */
+main,
+[role="main"],
+[data-wingman-page],
+[data-wingman-screen],
+[data-wingman-glossary-page],
+[data-wingman-product-intelligence-page="true"] {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* Keep panels usable where content is intentionally scrollable, but do not trap the whole page. */
+main[class*="overflow-hidden"],
+[role="main"][class*="overflow-hidden"],
+[data-wingman-page][class*="overflow-hidden"],
+[data-wingman-screen][class*="overflow-hidden"] {
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+}
+
+/*
+  Disabled / unavailable button contrast repair.
+  Fixes pale pills such as "Use in call" while keeping them visibly disabled.
+*/
+button:disabled,
+button[disabled],
+button[aria-disabled="true"],
+[role="button"][aria-disabled="true"],
+a[aria-disabled="true"] {
+  background: rgba(6, 24, 38, 0.96) !important;
+  background-color: rgba(6, 24, 38, 0.96) !important;
+  background-image: none !important;
+  border: 1px solid rgba(58, 226, 245, 0.34) !important;
+  color: rgba(143, 246, 255, 0.74) !important;
+  -webkit-text-fill-color: rgba(143, 246, 255, 0.74) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  text-shadow: none !important;
+}
+
+button:disabled *,
+button[disabled] *,
+button[aria-disabled="true"] *,
+[role="button"][aria-disabled="true"] *,
+a[aria-disabled="true"] * {
+  color: rgba(143, 246, 255, 0.74) !important;
+  -webkit-text-fill-color: rgba(143, 246, 255, 0.74) !important;
+}
+
+/* Extra protection against light Tailwind disabled states. */
+button:disabled[class*="bg-white"],
+button:disabled[class*="bg-slate-"],
+button:disabled[class*="bg-gray-"],
+button:disabled[class*="bg-zinc-"],
+button:disabled[class*="bg-neutral-"],
+button:disabled[class*="bg-stone-"],
+button[disabled][class*="bg-white"],
+button[disabled][class*="bg-slate-"],
+button[disabled][class*="bg-gray-"],
+button[disabled][class*="bg-zinc-"],
+button[disabled][class*="bg-neutral-"],
+button[disabled][class*="bg-stone-"] {
+  background: rgba(6, 24, 38, 0.96) !important;
+  background-color: rgba(6, 24, 38, 0.96) !important;
+  color: rgba(143, 246, 255, 0.74) !important;
+  -webkit-text-fill-color: rgba(143, 246, 255, 0.74) !important;
+}
+
+/* Disabled light pill / badge style buttons. */
+:is(button, a, [role="button"]):disabled[class*="rounded-full"],
+:is(button, a, [role="button"])[disabled][class*="rounded-full"],
+:is(button, a, [role="button"])[aria-disabled="true"][class*="rounded-full"] {
+  background: #061826 !important;
+  background-color: #061826 !important;
+  border-color: rgba(58, 226, 245, 0.38) !important;
+  color: rgba(143, 246, 255, 0.72) !important;
+  -webkit-text-fill-color: rgba(143, 246, 255, 0.72) !important;
+}
+
+/* WINGMAN GLOBAL SCROLL AND DISABLED BUTTON CONTRAST FIX - END */
+
+/* WINGMAN PRODUCT INTELLIGENCE STATUS CHIP FINAL OVERRIDE - START */
+.wm-product-intelligence-status-chip {
+  background: #061826 !important;
+  background-color: #061826 !important;
+  background-image: none !important;
+  border: 1px solid rgba(58, 226, 245, 0.48) !important;
+  color: #8ff6ff !important;
+  -webkit-text-fill-color: #8ff6ff !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 18px rgba(58, 226, 245, 0.14) !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.wm-product-intelligence-status-chip *,
+.wm-product-intelligence-status-chip span {
+  color: #8ff6ff !important;
+  -webkit-text-fill-color: #8ff6ff !important;
+}
+
+/* Global safety net for any remaining pale rounded status pills in the dark Wingman UI. */
+#root :is(span, button, div, a)[class*="rounded-full"][class*="bg-amber-50"],
+#root :is(span, button, div, a)[class*="rounded-full"][class*="bg-amber-100"],
+#root :is(span, button, div, a)[class*="rounded-full"][class*="bg-yellow-50"],
+#root :is(span, button, div, a)[class*="rounded-full"][class*="bg-yellow-100"],
+#root :is(span, button, div, a)[class*="rounded-full"][class*="bg-orange-50"],
+#root :is(span, button, div, a)[class*="rounded-full"][class*="bg-orange-100"],
+#root :is(span, button, div, a)[class*="rounded-full"][class*="bg-white"],
+#root :is(span, button, div, a)[class*="rounded-full"][class*="bg-slate-50"],
+#root :is(span, button, div, a)[class*="rounded-full"][class*="bg-gray-50"] {
+  background: #061826 !important;
+  background-color: #061826 !important;
+  border-color: rgba(58, 226, 245, 0.48) !important;
+  color: #8ff6ff !important;
+  -webkit-text-fill-color: #8ff6ff !important;
+}
+/* WINGMAN PRODUCT INTELLIGENCE STATUS CHIP FINAL OVERRIDE - END */
+
+/* WINGMAN INTELLIGENCE NEEDS REVIEW PILL EXACT OVERRIDE - START */
+/*
+  Exact Product Intelligence status-pill contrast fix.
+  DevTools showed the pale rule was:
+  .wm-intel-status-pill[data-status="needs-review"] {
+    color: #7c2d12 !important;
+    background: #ffedd5 !important;
+  }
+*/
+html[data-wingman-route] body #root main.wingman-app-main .wm-intel-status-pill[data-status="needs-review"],
+html[data-wingman-route] body #root .wingman-page-host .wm-intel-status-pill[data-status="needs-review"],
+#root .wm-intel-status-pill[data-status="needs-review"],
+.wm-intel-status-pill[data-status="needs-review"] {
+  background: #061826 !important;
+  background-color: #061826 !important;
+  background-image: none !important;
+  border: 1px solid rgba(58, 226, 245, 0.56) !important;
+  color: #8ff6ff !important;
+  -webkit-text-fill-color: #8ff6ff !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.045),
+    0 0 16px rgba(58, 226, 245, 0.16) !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+}
+
+html[data-wingman-route] body #root main.wingman-app-main .wm-intel-status-pill[data-status="needs-review"] *,
+html[data-wingman-route] body #root .wingman-page-host .wm-intel-status-pill[data-status="needs-review"] *,
+#root .wm-intel-status-pill[data-status="needs-review"] *,
+.wm-intel-status-pill[data-status="needs-review"] * {
+  color: #8ff6ff !important;
+  -webkit-text-fill-color: #8ff6ff !important;
+}
+/* WINGMAN INTELLIGENCE NEEDS REVIEW PILL EXACT OVERRIDE - END */
+
+/* WINGMAN REMOVE PRODUCT INTELLIGENCE PAGE - START */
+a[href="/wingman/intelligence"],
+a[href$="/wingman/intelligence"],
+button[data-route="intelligence"],
+button[data-wingman-route="intelligence"],
+[data-route="intelligence"],
+[data-wingman-route="intelligence"],
+[data-to="/wingman/intelligence"],
+[data-href="/wingman/intelligence"] {
+  display: none !important;
+}
+/* WINGMAN REMOVE PRODUCT INTELLIGENCE PAGE - END */
+
+/* WINGMAN ROOM TEMPLATES COMPACT PAGE FIX - START */
+
+/*
+  Room Templates compact layout.
+  Removes the oversized "Start blank discovery / No template" strip
+  and collapses the large hero area so templates are visible above the fold.
+*/
+
+[data-wingman-room-templates-page="true"] section:first-of-type:has(:is(h1, h2, h3, p, span):first-child),
+[data-wingman-room-templates-page="true"] .wm-template-start-strip,
+[data-wingman-room-templates-page="true"] .wm-room-template-start-strip,
+[data-wingman-room-templates-page="true"] [class*="start-blank"],
+[data-wingman-room-templates-page="true"] [class*="blank-discovery"] {
+  display: none !important;
+}
+/* Compact the main hero block. */
+[data-wingman-room-templates-page="true"] .wm-room-template-compact-hero,
+[data-wingman-room-templates-page="true"] [class*="hero"],
+[data-wingman-room-templates-page="true"] section:has(:is(h1, h2):not(svg)) {
+  min-height: unset !important;
+  height: auto !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+  margin-top: 0 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* Reduce the large heading so it does not dominate the screen. */
+[data-wingman-room-templates-page="true"] h1,
+[data-wingman-room-templates-page="true"] h2 {
+  font-size: clamp(1.65rem, 2.6vw, 2.5rem) !important;
+  line-height: 1.05 !important;
+  margin: 0 !important;
+}
+
+/* Move action buttons into the compact hero height. */
+[data-wingman-room-templates-page="true"] .wm-room-template-compact-hero button,
+[data-wingman-room-templates-page="true"] [class*="hero"] button {
+  min-height: 2.25rem !important;
+  padding: 0.55rem 0.85rem !important;
+}
+
+/* Bring the search/filter row up. */
+[data-wingman-room-templates-page="true"] input[type="search"],
+[data-wingman-room-templates-page="true"] input[placeholder*="Search room"],
+[data-wingman-room-templates-page="true"] input[placeholder*="product"],
+[data-wingman-room-templates-page="true"] input[placeholder*="vertical"] {
+  min-height: 2.25rem !important;
+}
+
+/* Keep the template grid dense and readable. */
+[data-wingman-room-templates-page="true"] [class*="grid"] {
+  gap: 0.45rem !important;
+}
+
+[data-wingman-room-templates-page="true"] [class*="grid"] button,
+[data-wingman-room-templates-page="true"] [class*="grid"] a,
+[data-wingman-room-templates-page="true"] [class*="template"] button {
+  min-height: 3.2rem !important;
+  padding: 0.55rem 0.7rem !important;
+  font-size: 0.78rem !important;
+  line-height: 1.12 !important;
+}
+
+/* Remove excess top blank space inside large cards. */
+[data-wingman-room-templates-page="true"] section,
+[data-wingman-room-templates-page="true"] article,
+[data-wingman-room-templates-page="true"] .wm-card,
+[data-wingman-room-templates-page="true"] [class*="card"] {
+  scroll-margin-top: 1rem !important;
+}
+
+/* WINGMAN ROOM TEMPLATES COMPACT PAGE FIX - END */
+
+/* WINGMAN ROOM TEMPLATES COMPACT SAFE FIX - START */
+[data-wingman-room-templates-page="true"] .wm-room-template-blank-strip {
+  display: none !important;
+}
+
+[data-wingman-room-templates-page="true"] .wm-room-template-compact-hero {
+  min-height: unset !important;
+  height: auto !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+  margin-top: 0 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+[data-wingman-room-templates-page="true"] .wm-room-template-compact-hero h1,
+[data-wingman-room-templates-page="true"] .wm-room-template-compact-hero h2 {
+  font-size: clamp(1.65rem, 2.6vw, 2.5rem) !important;
+  line-height: 1.05 !important;
+  margin: 0 !important;
+}
+
+[data-wingman-room-templates-page="true"] .wm-room-template-compact-hero button {
+  min-height: 2.25rem !important;
+  padding: 0.55rem 0.85rem !important;
+}
+
+[data-wingman-room-templates-page="true"] input[type="search"],
+[data-wingman-room-templates-page="true"] input[placeholder*="Search room"],
+[data-wingman-room-templates-page="true"] input[placeholder*="product"],
+[data-wingman-room-templates-page="true"] input[placeholder*="vertical"] {
+  min-height: 2.25rem !important;
+}
+
+[data-wingman-room-templates-page="true"] [class*="grid"] {
+  gap: 0.45rem !important;
+}
+
+[data-wingman-room-templates-page="true"] [class*="grid"] button,
+[data-wingman-room-templates-page="true"] [class*="grid"] a {
+  min-height: 3.2rem !important;
+  padding: 0.55rem 0.7rem !important;
+  font-size: 0.78rem !important;
+  line-height: 1.12 !important;
+}
+/* WINGMAN ROOM TEMPLATES COMPACT SAFE FIX - END */
+
+/* WINGMAN HIDE ROOM TEMPLATE BLANK DISCOVERY CARD - START */
+/* Remove the Start blank discovery / No template card from /wingman/templates */
+html[data-wingman-route="templates"] .wm-template-start-card-blank,
+html[data-wingman-route="templates"] a.wm-template-start-card.wm-template-start-card-blank,
+[data-wingman-room-templates-page="true"] .wm-template-start-card-blank,
+.wm-template-start-card-blank {
+  display: none !important;
+}
+/* WINGMAN HIDE ROOM TEMPLATE BLANK DISCOVERY CARD - END */
+
+/* WINGMAN GLOBAL PAGE SCROLL REPAIR - START */
+/*
+  Global Wingman scroll repair.
+
+  Purpose:
+  - Keep the left navigation and top bar stable.
+  - Make the main Wingman content area scroll when page content runs below the viewport.
+  - Stop page cards, page hosts and route wrappers from clipping content off the bottom.
+  - Add safe bottom padding so buttons/content are not hidden behind the browser/taskbar edge.
+*/
+
+/* App root must occupy the viewport, but not trap content invisibly. */
+html,
+body,
+#root {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 100% !important;
+}
+
+html {
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+body,
+#root {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+/* Main shell: fixed viewport shell with internal scrolling on the content lane. */
+.wingman-shell,
+.wingman-authority-shell,
+#root > .wingman-shell,
+#root > .wingman-authority-shell {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Horizontal app layout must allow the workspace to shrink and scroll internally. */
+.wingman-workspace,
+.wingman-mobile-shell,
+.wingman-shell > div,
+.wingman-authority-shell > div {
+  min-height: 0 !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+/* The top bar remains visible; the main page underneath becomes the scrolling region. */
+.wingman-app-main,
+main.wingman-app-main {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: calc(100dvh - var(--wingman-topbar-height, 4rem)) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain !important;
+  scrollbar-gutter: stable both-edges !important;
+  padding-bottom: max(3.5rem, env(safe-area-inset-bottom)) !important;
+}
+
+/* Make route/page wrappers expand naturally inside the scrolling main area. */
+.wingman-page-host,
+.wm-page,
+[data-wingman-page],
+[data-wingman-screen],
+[data-wingman-dashboard-page],
+[data-wingman-room-templates-page],
+[data-wingman-product-intelligence-page],
+[data-wingman-compare-screen],
+[data-wingman-route] .wingman-page-host {
+  min-height: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Stop common full-screen utility classes from clipping route content inside the page host. */
+.wingman-page-host [class~="h-screen"],
+.wingman-page-host [class~="max-h-screen"],
+.wingman-page-host [class*="h-[100vh"],
+.wingman-page-host [class*="max-h-[100vh"],
+.wingman-page-host [class*="h-dvh"],
+.wingman-page-host [class*="max-h-dvh"] {
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* Sections/cards should not hide content unless they are deliberate internal scrollers. */
+.wingman-page-host section,
+.wingman-page-host article,
+.wingman-page-host form,
+.wingman-page-host .wm-card,
+.wingman-page-host [class*="card"],
+.wingman-page-host [class*="panel"] {
+  max-height: none !important;
+}
+
+/* Undo broad overflow-hidden on page-level containers, while preserving obvious internal UI controls. */
+.wingman-page-host > div[class*="overflow-hidden"],
+.wingman-page-host > section[class*="overflow-hidden"],
+.wingman-page-host > article[class*="overflow-hidden"],
+.wingman-page-host .wm-page[class*="overflow-hidden"],
+.wingman-page-host [data-wingman-page][class*="overflow-hidden"],
+.wingman-page-host [data-wingman-screen][class*="overflow-hidden"] {
+  overflow: visible !important;
+}
+
+/* Keep deliberate list panes usable when a page has a two-column browser/list layout. */
+.wingman-page-host [class*="record-list"],
+.wingman-page-host [class*="term-list"],
+.wingman-page-host [class*="search-results"],
+.wingman-page-host [class*="template-list"],
+.wingman-page-host [class*="result-list"],
+.wingman-page-host [class*="scroll-panel"],
+.wingman-page-host [data-wingman-scroll-panel="true"] {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Make bottom actions reachable on every page. */
+.wingman-page-host::after,
+.wm-page::after {
+  content: "";
+  display: block;
+  height: 2.25rem;
+  flex: 0 0 auto;
+}
+
+/* Mobile/narrow displays need a little more breathing room at the bottom. */
+@media (max-width: 980px) {
+  .wingman-app-main,
+  main.wingman-app-main {
+    max-height: calc(100dvh - var(--wingman-topbar-height, 3.5rem)) !important;
+    padding-bottom: max(5rem, env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Fallback for browsers where dvh behaves unexpectedly. */
+@supports not (height: 100dvh) {
+  body,
+  #root,
+  .wingman-shell,
+  .wingman-authority-shell {
+    height: 100vh !important;
+    max-height: 100vh !important;
+  }
+
+  .wingman-app-main,
+  main.wingman-app-main {
+    max-height: calc(100vh - var(--wingman-topbar-height, 4rem)) !important;
+  }
+}
+/* WINGMAN GLOBAL PAGE SCROLL REPAIR - END */
+
+/* WINGMAN VERTICAL ONLY LAYOUT POLICY - START */
+/*
+  Wingman vertical-only layout policy.
+
+  Rules:
+  - No page-level horizontal scrolling.
+  - Main route content may scroll vertically only when unavoidable.
+  - Nested flex/grid/card containers must shrink instead of forcing the viewport wider.
+  - Long labels, SKUs, URLs and product names wrap rather than creating horizontal overflow.
+  - Tables/media/diagrams scale or wrap inside the page instead of widening the page.
+*/
+
+/* Absolute page-level horizontal scroll lock. */
+html,
+body,
+#root,
+.wingman-shell,
+.wingman-authority-shell,
+.wingman-mobile-shell,
+.wingman-workspace,
+.wingman-app-main,
+main.wingman-app-main,
+.wingman-page-host,
+.wm-page {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+/* The app shell remains viewport based; only the main content lane scrolls vertically. */
+html,
+body,
+#root {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+body,
+#root,
+.wingman-shell,
+.wingman-authority-shell {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+.wingman-app-main,
+main.wingman-app-main {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain !important;
+  scrollbar-gutter: stable !important;
+  padding-bottom: max(3.5rem, env(safe-area-inset-bottom)) !important;
+}
+
+/* Route wrappers must not create their own horizontal viewport. */
+.wingman-page-host,
+.wingman-page-host > *,
+.wm-page,
+[data-wingman-page],
+[data-wingman-screen],
+[data-wingman-route],
+[data-wingman-dashboard-page],
+[data-wingman-room-templates-page],
+[data-wingman-compare-screen],
+[data-wingman-glossary-page],
+[data-wingman-product-intelligence-page] {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Critical fix for nested flex/grid layouts. Without min-width:0, cards force sideways overflow. */
+.wingman-page-host *,
+.wm-page *,
+.wingman-app-main *,
+main.wingman-app-main * {
+  box-sizing: border-box !important;
+  min-width: 0;
+}
+
+.wingman-page-host :is(.flex, [class*="flex"], .grid, [class*="grid"]),
+.wm-page :is(.flex, [class*="flex"], .grid, [class*="grid"]) {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.wingman-page-host :is(.flex, [class*="flex"]) > *,
+.wm-page :is(.flex, [class*="flex"]) > *,
+.wingman-page-host :is(.grid, [class*="grid"]) > *,
+.wm-page :is(.grid, [class*="grid"]) > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Cards, panels and forms should wrap content, not widen the page. */
+.wingman-page-host :is(section, article, form, aside, header, footer),
+.wm-page :is(section, article, form, aside, header, footer),
+.wingman-page-host :is(.wm-card, [class*="card"], [class*="panel"], [class*="hero"]),
+.wm-page :is(.wm-card, [class*="card"], [class*="panel"], [class*="hero"]) {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Text-heavy AV/product content must wrap instead of creating horizontal scroll. */
+.wingman-page-host :is(p, li, dd, dt, span, strong, small, label, h1, h2, h3, h4, h5, h6, button, a),
+.wm-page :is(p, li, dd, dt, span, strong, small, label, h1, h2, h3, h4, h5, h6, button, a) {
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+
+/* Inputs must fit the page width. */
+.wingman-page-host :is(input, textarea, select),
+.wm-page :is(input, textarea, select) {
+  max-width: 100% !important;
+}
+
+/* Media and diagrams scale to their container rather than forcing sideways overflow. */
+.wingman-page-host :is(img, svg, canvas, video, iframe),
+.wm-page :is(img, svg, canvas, video, iframe) {
+  max-width: 100% !important;
+}
+
+/* Tables should fit the available page width; cells wrap. */
+.wingman-page-host table,
+.wm-page table {
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+.wingman-page-host :is(th, td),
+.wm-page :is(th, td) {
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  white-space: normal !important;
+}
+
+/* Code/pre blocks are a common hidden horizontal-scroll source. Wrap them in Wingman UI. */
+.wingman-page-host :is(pre, code),
+.wm-page :is(pre, code) {
+  max-width: 100% !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+  overflow-x: hidden !important;
+}
+
+/* Button rows and chip rows should wrap instead of extending sideways. */
+.wingman-page-host :is([class*="button-row"], [class*="actions"], [class*="chips"], [class*="filters"], [class*="tabs"]),
+.wm-page :is([class*="button-row"], [class*="actions"], [class*="chips"], [class*="filters"], [class*="tabs"]) {
+  flex-wrap: wrap !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Dense grids should reduce columns automatically on narrower screens. */
+@media (max-width: 1320px) {
+  .wingman-page-host [class*="grid-cols-6"],
+  .wingman-page-host [class*="grid-cols-7"],
+  .wingman-page-host [class*="grid-cols-8"],
+  .wm-page [class*="grid-cols-6"],
+  .wm-page [class*="grid-cols-7"],
+  .wm-page [class*="grid-cols-8"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .wingman-page-host [class*="grid-cols-4"],
+  .wingman-page-host [class*="grid-cols-5"],
+  .wingman-page-host [class*="grid-cols-6"],
+  .wingman-page-host [class*="grid-cols-7"],
+  .wingman-page-host [class*="grid-cols-8"],
+  .wm-page [class*="grid-cols-4"],
+  .wm-page [class*="grid-cols-5"],
+  .wm-page [class*="grid-cols-6"],
+  .wm-page [class*="grid-cols-7"],
+  .wm-page [class*="grid-cols-8"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .wingman-app-main,
+  main.wingman-app-main {
+    padding-bottom: max(5rem, env(safe-area-inset-bottom)) !important;
+  }
+}
+/* WINGMAN VERTICAL ONLY LAYOUT POLICY - END */
+
+/* WINGMAN TEMPLATE DETAIL NO HORIZONTAL SCROLL - START */
+/*
+  Template detail repair:
+  - Removes the horizontal scrollbar from the room schematic / connectivity flow.
+  - Converts the flow into a wrapping grid.
+  - Keeps vertical scroll only if the full workflow cannot fit on one screen.
+*/
+
+html[data-wingman-route="templates"] body,
+html[data-wingman-route="templates"] #root,
+html[data-wingman-route="templates"] .wingman-shell,
+html[data-wingman-route="templates"] .wingman-workspace,
+html[data-wingman-route="templates"] .wingman-app-main,
+html[data-wingman-route="templates"] .wingman-page-host,
+[data-wingman-template-detail-page="true"] {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+[data-wingman-template-detail-page="true"] *,
+html[data-wingman-route="templates"] .wingman-page-host * {
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+[data-wingman-template-detail-page="true"] [class*="overflow-x-auto"],
+[data-wingman-template-detail-page="true"] [class*="overflow-auto"],
+html[data-wingman-route="templates"] .wingman-page-host [class*="overflow-x-auto"],
+html[data-wingman-route="templates"] .wingman-page-host [class*="overflow-auto"] {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+}
+
+/* The schematic flow should wrap instead of scrolling sideways. */
+[data-wingman-template-detail-page="true"] .wm-template-detail-no-horizontal-scroll,
+[data-wingman-template-detail-page="true"] [class*="schematic"],
+[data-wingman-template-detail-page="true"] [class*="connectivity"],
+[data-wingman-template-detail-page="true"] [class*="signal-flow"],
+html[data-wingman-route="templates"] .wingman-page-host [class*="schematic"],
+html[data-wingman-route="templates"] .wingman-page-host [class*="connectivity"],
+html[data-wingman-route="templates"] .wingman-page-host [class*="signal-flow"] {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Convert long horizontal card rows into wrapped rows. */
+[data-wingman-template-detail-page="true"] .wm-template-detail-no-horizontal-scroll > div,
+[data-wingman-template-detail-page="true"] [class*="schematic"] > div,
+[data-wingman-template-detail-page="true"] [class*="connectivity"] > div,
+[data-wingman-template-detail-page="true"] [class*="signal-flow"] > div,
+html[data-wingman-route="templates"] .wingman-page-host [class*="schematic"] > div,
+html[data-wingman-route="templates"] .wingman-page-host [class*="connectivity"] > div,
+html[data-wingman-route="templates"] .wingman-page-host [class*="signal-flow"] > div {
+  max-width: 100% !important;
+  flex-wrap: wrap !important;
+}
+
+/* Cards in the flow become responsive tiles. */
+[data-wingman-template-detail-page="true"] .wm-template-detail-no-horizontal-scroll :is(article, section, div)[class*="card"],
+[data-wingman-template-detail-page="true"] [class*="schematic"] :is(article, section, div)[class*="card"],
+[data-wingman-template-detail-page="true"] [class*="connectivity"] :is(article, section, div)[class*="card"],
+[data-wingman-template-detail-page="true"] [class*="signal-flow"] :is(article, section, div)[class*="card"] {
+  flex: 1 1 min(15rem, 100%) !important;
+  width: auto !important;
+  max-width: 100% !important;
+}
+
+/* Catch Tailwind width utilities used by the flow cards. */
+[data-wingman-template-detail-page="true"] [class*="w-["],
+html[data-wingman-route="templates"] .wingman-page-host [class*="w-["] {
+  max-width: 100% !important;
+}
+
+/* Remove visual arrow separators where wrapping would make them misleading. */
+[data-wingman-template-detail-page="true"] .wm-template-detail-no-horizontal-scroll svg,
+[data-wingman-template-detail-page="true"] [class*="schematic"] svg,
+[data-wingman-template-detail-page="true"] [class*="connectivity"] svg,
+[data-wingman-template-detail-page="true"] [class*="signal-flow"] svg {
+  flex: 0 0 auto !important;
+  max-width: 1.25rem !important;
+}
+
+/* Route-specific hard stop for the bottom horizontal scrollbar seen on template detail pages. */
+html[data-wingman-route="templates"] .wingman-page-host {
+  overflow-x: hidden !important;
+}
+
+html[data-wingman-route="templates"] .wingman-app-main {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+/* WINGMAN TEMPLATE DETAIL NO HORIZONTAL SCROLL - END */
+
+/* WINGMAN ROOM TEMPLATE ADVISOR REFACTOR - START */
+/*
+  Room Template Advisor refactor:
+  - Compact template library.
+  - Clear advisory workflow.
+  - Data-driven room assumptions.
+  - Responsive Visio-style schematic.
+  - No horizontal scrolling.
+*/
+
+html[data-wingman-route="templates"] .wingman-app-main,
+html[data-wingman-route="templates"] .wingman-page-host,
+[data-wingman-room-templates-page="true"] {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+}
+
+[data-wingman-room-templates-page="true"],
+[data-wingman-room-templates-page="true"] * {
+  box-sizing: border-box !important;
+  min-width: 0;
+}
+
+.wm-room-advisor-page {
+  width: 100%;
+  max-width: 100%;
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  color: #e9f8ff;
+}
+
+.wm-room-advisor-hero,
+.wm-room-advisor-detail-hero,
+.wm-template-advisor-card,
+.wm-room-template-controls,
+.wm-room-template-stepper {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid rgba(58, 226, 245, 0.22);
+  background:
+    radial-gradient(circle at top left, rgba(58, 226, 245, 0.10), transparent 42%),
+    rgba(4, 19, 31, 0.92);
+  border-radius: 1.25rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+.wm-room-advisor-hero,
+.wm-room-advisor-detail-hero {
+  min-height: unset;
+  padding: 1rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.wm-room-advisor-hero span,
+.wm-room-advisor-detail-hero span,
+.wm-template-section-head span,
+.wm-room-template-advice-card span,
+.wm-template-advisor-card > span,
+.wm-assumption-grid span,
+.wm-template-recognition-grid span {
+  display: block;
+  color: #66e7f8;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.wm-room-advisor-hero h1,
+.wm-room-advisor-detail-hero h1,
+.wm-template-advisor-card h1,
+.wm-template-advisor-card h2 {
+  margin: 0.2rem 0 0;
+  color: #66e7f8;
+  line-height: 1.04;
+}
+
+.wm-room-advisor-hero h1,
+.wm-room-advisor-detail-hero h1 {
+  font-size: clamp(1.6rem, 3vw, 2.7rem);
+}
+
+.wm-room-advisor-hero p,
+.wm-room-advisor-detail-hero p,
+.wm-template-section-head p,
+.wm-template-advisor-card p,
+.wm-room-template-advice-card p {
+  color: rgba(233, 248, 255, 0.82);
+}
+
+.wm-room-advisor-detail-hero nav,
+.wm-template-handoff-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.wm-room-advisor-detail-hero a,
+.wm-template-handoff-grid a,
+.wm-template-handoff-grid button,
+.wm-room-template-return-link {
+  border: 1px solid rgba(58, 226, 245, 0.34);
+  background: rgba(8, 35, 54, 0.9);
+  color: #e9f8ff;
+  border-radius: 999px;
+  padding: 0.62rem 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.wm-room-advisor-detail-hero a:last-child,
+.wm-template-handoff-grid button:first-child,
+.wm-room-template-filter-row button.is-selected {
+  background: linear-gradient(135deg, rgba(27, 161, 210, 0.96), rgba(33, 197, 216, 0.76));
+  color: #ffffff;
+}
+
+.wm-room-template-controls {
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.wm-room-template-controls input {
+  width: 100%;
+  border: 1px solid rgba(58, 226, 245, 0.28);
+  background: rgba(0, 9, 16, 0.88);
+  color: #ffffff;
+  border-radius: 0.8rem;
+  padding: 0.75rem 0.9rem;
+}
+
+.wm-room-template-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.wm-room-template-filter-row button {
+  border: 1px solid rgba(58, 226, 245, 0.28);
+  background: rgba(6, 24, 38, 0.94);
+  color: #e9f8ff;
+  border-radius: 999px;
+  padding: 0.48rem 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wm-room-template-library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(21rem, 100%), 1fr));
+  gap: 0.8rem;
+}
+
+.wm-room-template-advice-card {
+  display: grid;
+  gap: 0.9rem;
+  border: 1px solid rgba(58, 226, 245, 0.22);
+  background: rgba(4, 20, 33, 0.92);
+  border-radius: 1rem;
+  padding: 1rem;
+  text-decoration: none;
+  color: #e9f8ff;
+  min-height: 13rem;
+}
+
+.wm-room-template-advice-card:hover {
+  border-color: rgba(58, 226, 245, 0.55);
+  transform: translateY(-1px);
+}
+
+.wm-room-template-advice-card strong {
+  display: block;
+  margin-top: 0.25rem;
+  color: #ffffff;
+  font-size: 1.05rem;
+}
+
+.wm-room-template-advice-card dl {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.wm-room-template-advice-card div {
+  min-width: 0;
+}
+
+.wm-room-template-advice-card dt {
+  color: rgba(233, 248, 255, 0.58);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.wm-room-template-advice-card dd {
+  margin: 0;
+  color: #8ff6ff;
+  font-weight: 800;
+}
+
+.wm-room-template-stepper {
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(12.5rem, 100%), 1fr));
+  gap: 0.6rem;
+}
+
+.wm-room-template-stepper button {
+  min-height: 4.6rem;
+  text-align: left;
+  border: 1px solid rgba(58, 226, 245, 0.24);
+  background: rgba(6, 24, 38, 0.88);
+  color: #ffffff;
+  border-radius: 0.95rem;
+  padding: 0.75rem;
+  cursor: pointer;
+}
+
+.wm-room-template-stepper button.is-selected {
+  border-color: rgba(58, 226, 245, 0.62);
+  background: rgba(16, 91, 118, 0.62);
+}
+
+.wm-room-template-stepper strong,
+.wm-room-template-stepper span {
+  display: block;
+}
+
+.wm-room-template-stepper span {
+  margin-top: 0.25rem;
+  color: rgba(233, 248, 255, 0.68);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.wm-template-advisor-card {
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.wm-template-section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.wm-template-section-head strong {
+  color: #8ff6ff;
+  border: 1px solid rgba(58, 226, 245, 0.32);
+  border-radius: 999px;
+  padding: 0.5rem 0.75rem;
+  background: rgba(6, 24, 38, 0.9);
+  white-space: nowrap;
+}
+
+.wm-template-recognition-grid,
+.wm-assumption-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  gap: 0.7rem;
+}
+
+.wm-template-recognition-grid article,
+.wm-assumption-grid article,
+.wm-advisor-columns article,
+.wm-template-warning-box {
+  border: 1px solid rgba(58, 226, 245, 0.18);
+  background: rgba(0, 10, 18, 0.68);
+  border-radius: 0.95rem;
+  padding: 0.85rem;
+}
+
+.wm-assumption-grid article:last-child {
+  border-color: rgba(255, 165, 80, 0.32);
+}
+
+.wm-advisor-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(22rem, 100%), 1fr));
+  gap: 0.8rem;
+}
+
+.wm-advisor-columns h3 {
+  margin: 0 0 0.55rem;
+  color: #66e7f8;
+}
+
+.wm-advisor-bullet-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: rgba(233, 248, 255, 0.84);
+}
+
+.wm-advisor-bullet-list li + li {
+  margin-top: 0.42rem;
+}
+
+.wm-template-handoff-grid {
+  justify-content: start;
+}
+
+.wm-template-warning-box strong {
+  color: #ffca7a;
+}
+
+.wm-visio-shell {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(58, 226, 245, 0.20);
+  background: rgba(0, 8, 15, 0.78);
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+
+.wm-visio-shell svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 68vh;
+}
+
+.wm-diagram-bg {
+  fill: rgba(2, 15, 26, 0.96);
+  stroke: rgba(58, 226, 245, 0.12);
+}
+
+.wm-diagram-location {
+  fill: rgba(6, 28, 45, 0.94);
+  stroke: rgba(58, 226, 245, 0.32);
+  stroke-width: 1.5;
+}
+
+.wm-diagram-location-title {
+  fill: #66e7f8;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wm-diagram-location-subtitle {
+  fill: rgba(233, 248, 255, 0.64);
+  font-size: 11px;
+}
+
+.wm-diagram-device {
+  fill: rgba(3, 15, 27, 0.96);
+  stroke: rgba(144, 197, 208, 0.28);
+  stroke-width: 1;
+}
+
+.wm-diagram-device.is-wyrestorm {
+  stroke: rgba(58, 226, 245, 0.68);
+  fill: rgba(10, 45, 62, 0.98);
+}
+
+.wm-diagram-device-label {
+  fill: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.wm-diagram-sku {
+  fill: #8ff6ff;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.wm-diagram-line {
+  stroke: rgba(233, 248, 255, 0.70);
+  stroke-width: 2;
+  fill: none;
+}
+
+.wm-line-hdmi {
+  stroke: #66e7f8;
+}
+
+.wm-line-usb {
+  stroke: #a78bfa;
+}
+
+.wm-line-lan {
+  stroke: #34d399;
+}
+
+.wm-line-audio {
+  stroke: #f59e0b;
+}
+
+.wm-line-control {
+  stroke: #f472b6;
+}
+
+.wm-diagram-line.needs-validation {
+  stroke-dasharray: 6 5;
+}
+
+.wm-diagram-arrow {
+  fill: currentColor;
+  color: inherit;
+}
+
+.wm-diagram-line-label-bg {
+  fill: rgba(0, 9, 16, 0.88);
+  stroke: rgba(58, 226, 245, 0.18);
+}
+
+.wm-diagram-line-label {
+  fill: #e9f8ff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.wm-template-signal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.wm-template-signal-legend span {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  border: 1px solid rgba(58, 226, 245, 0.18);
+  border-radius: 999px;
+  padding: 0.38rem 0.55rem;
+  color: rgba(233, 248, 255, 0.82);
+  background: rgba(6, 24, 38, 0.88);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.wm-template-signal-legend i {
+  width: 1.5rem;
+  height: 0;
+  border-top: 2px solid currentColor;
+}
+
+@media (max-width: 980px) {
+  .wm-room-advisor-hero,
+  .wm-room-advisor-detail-hero,
+  .wm-template-section-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wm-room-advisor-detail-hero nav {
+    justify-content: start;
+  }
+
+  .wm-visio-shell svg {
+    max-height: none;
+  }
+}
+/* WINGMAN ROOM TEMPLATE ADVISOR REFACTOR - END */
