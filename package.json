@@ -64,7 +64,10 @@
     "check:dashboard-compact-buttons": "node tools/check-dashboard-compact-buttons.mjs",
     "check:dashboard-primary-buttons": "node tools/check-dashboard-primary-buttons.mjs",
     "check:dashboard-original-card-layout": "node tools/check-dashboard-original-card-layout.mjs",
-    "check:dashboard-element-typing": "node tools/check-dashboard-element-typing.mjs"
+    "check:dashboard-element-typing": "node tools/check-dashboard-element-typing.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@xyflow/react": "^12.10.2",
@@ -80,6 +83,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.0.0",
     "@eslint/js": "^9.39.4",
     "@playwright/test": "^1.59.1",
     "@types/react": "^18.3.12",
@@ -97,6 +101,9 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.58.2",
-    "vite": "^8.0.8"
+    "vite": "^8.0.8",
+    "vitest": "^3.2.0",
+    "jsdom": "^26.1.0",
+    "@testing-library/jest-dom": "^6.6.0"
   }
 }
