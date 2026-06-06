@@ -2,34 +2,31 @@
 
 ## Current rule
 
-Do not remove layout CSS wholesale.
-
-Some legacy CSS files contain structural layout as well as visual styling. The correct process is:
-
-1. Keep structural CSS active until shared components replace it.
-2. Remove duplicate visual override files.
-3. Keep `wingman-authority-system.css` as the final visual override.
-4. Rebuild one page at a time using shared layout components.
-5. Retire old CSS only after the page has been migrated.
-
-## Active structural / legacy files to keep for now
+The app now uses one consolidated stylesheet:
 
 - `wingman-style-stack.css`
-- `wm-av-workspace.css`
-- `wm-command-ui.css`
-- `wm-route-redesign.css`
-- `wm-brand-reset.css`
-- `wm-sidebar-no-horizontal-scroll.css`
-- page/component CSS that contains actual layout geometry
 
-## Obsolete visual override files
+The retired split stylesheets and legacy override folders have been archived out of the repo. Do not reintroduce page-level CSS imports.
 
-These should not be imported:
+## Current Rule
 
-- `wingman-visual-consistency.css`
-- `wingman-authority-override.css`
-- `wm-global-visual-system.css`
-- `wingman-copy-discipline.css`
+1. `src/main.tsx` imports exactly one stylesheet.
+2. New app-wide layout, route, card, button, and form rules go into `wingman-style-stack.css`.
+3. Page files must not import CSS directly.
+4. Prefer shared layout components before adding new selectors.
+5. Retire stale selectors after the page has been migrated and verified.
+
+## Archived Files
+
+These should stay archived and should not be imported again:
+
+- `legacy-overrides/`
+- `wingman-authority-system.css`
+- `wingman-density-governance.css`
+- `wingman-ui-redesign.css`
+- `wingman.css`
+- `wm-*.css`
+- route-specific visual patch files
 
 ## Target
 
