@@ -2367,6 +2367,46 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // New competitor match engine endpoint
+  if (method === "POST" && url.pathname === "/api/compare/match") {
+    await runProtectedRoute(res, async () => {
+      try {
+        const body = await parseJsonBody(req);
+        const { compareCompetitor } = await import("./competitor/match-engine.mjs");
+        const result = await compareCompetitor(
+          body.input || "",
+          body.brand || undefined,
+          Math.min(body.maxResults || 5, 10)
+        );
+        sendJson(res, 200, result);
+      } catch (error) {
+        sendJson(res, 500, {
+          error: "Comparison failed",
+          message: error.message,
+        });
+      }
+    });
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/compare/analyze") {
+    await runProtectedRoute(res, async () => {
+      try {
+        const input = url.searchParams.get("input") || "";
+        const brand = url.searchParams.get("brand") || undefined;
+        const { compareCompetitor } = await import("./competitor/match-engine.mjs");
+        const result = await compareCompetitor(input, brand, 1);
+        sendJson(res, 200, result.competitor);
+      } catch (error) {
+        sendJson(res, 500, {
+          error: "Analysis failed",
+          message: error.message,
+        });
+      }
+    });
+    return;
+  }
+
   sendJson(res, 404, {
     ok: false,
 error: "Route not found.",
