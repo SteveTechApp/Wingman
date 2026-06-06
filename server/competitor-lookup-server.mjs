@@ -61,6 +61,7 @@ const parsedUiPort = Number(process.env.WINGMAN_UI_PORT || 3000);
 const UI_PORT = Number.isFinite(parsedUiPort) ? parsedUiPort : 3000;
 const CORS_ALLOW_ORIGIN = String(process.env.WINGMAN_CORS_ALLOW_ORIGIN || `http://${UI_HOST}:${UI_PORT}`).trim();
 const CORS_ALLOW_CREDENTIALS = CORS_ALLOW_ORIGIN !== "*";
+const CORS_REJECT_WILDCARD_IN_PRODUCTION = process.env.NODE_ENV === "production" && CORS_ALLOW_ORIGIN === "*";
 const MAX_JSON_BODY_BYTES = Math.max(1024, Number(process.env.WINGMAN_MAX_JSON_BODY_BYTES || 1_048_576));
 const RETRY_ATTEMPTS = Number(process.env.LOOKUP_RETRY_ATTEMPTS || 3);
 const FETCH_TIMEOUT_MS = Number(process.env.LOOKUP_TIMEOUT_MS || 4500);
@@ -194,6 +195,11 @@ function parseLookupQuery(query) {
 }
 
 function withCorsHeaders(base = {}) {
+  // In production, if CORS is wildcard, log a warning (once per startup)
+  if (CORS_REJECT_WILDCARD_IN_PRODUCTION && !withCorsHeaders._warned) {
+    withCorsHeaders._warned = true;
+    console.warn("[SECURITY] CORS wildcard (*) is configured in production. Set WINGMAN_CORS_ALLOW_ORIGIN to a specific origin.");
+  }
   const headers = {
     "Access-Control-Allow-Origin": CORS_ALLOW_ORIGIN,
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
