@@ -27,6 +27,10 @@ const SESSION_COOKIE_SECURE = !["0", "false", "off", "no"].includes(
     .trim()
     .toLowerCase(),
 );
+const SESSION_COOKIE_SAMESITE = String(
+  process.env.WINGMAN_SESSION_COOKIE_SAMESITE ?? (process.env.NODE_ENV === "production" ? "Strict" : "Lax")
+).trim();
+const MIN_PASSWORD_LENGTH = Math.max(8, Number(process.env.WINGMAN_MIN_PASSWORD_LENGTH || 10));
 const STORAGE_FAIL_CLOSED = !["0", "false", "off", "no"].includes(
   String(process.env.WINGMAN_STORAGE_FAIL_CLOSED ?? (process.env.NODE_ENV === "production" ? "true" : "false"))
     .trim()
@@ -1195,11 +1199,12 @@ export async function handleWingmanHealthGet(_req, res, { sendJson }) {
 }
 
 function buildWingmanSessionCookie(token) {
+  const sameSite = ["Strict", "Lax", "None"].includes(SESSION_COOKIE_SAMESITE) ? SESSION_COOKIE_SAMESITE : "Lax";
   const parts = [
     `wingman_session=${encodeURIComponent(String(token || ""))}`,
     "Path=/",
     "HttpOnly",
-    "SameSite=Lax",
+    `SameSite=${sameSite}`,
     "Max-Age=2592000",
   ];
   if (SESSION_COOKIE_SECURE) parts.push("Secure");
@@ -1207,11 +1212,12 @@ function buildWingmanSessionCookie(token) {
 }
 
 function buildExpiredWingmanSessionCookie() {
+  const sameSite = ["Strict", "Lax", "None"].includes(SESSION_COOKIE_SAMESITE) ? SESSION_COOKIE_SAMESITE : "Lax";
   const parts = [
     "wingman_session=",
     "Path=/",
     "HttpOnly",
-    "SameSite=Lax",
+    `SameSite=${sameSite}`,
     "Max-Age=0",
     "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
   ];
@@ -1254,6 +1260,11 @@ export async function handleWingmanAuthSignupPost(req, res, { sendJson, parseJso
 
   if (!name || !company || !email || !password) {
     sendJson(res, 400, { ok: false, error: "Name, company, email, and password are required." });
+    return;
+  }
+
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    sendJson(res, 400, { ok: false, error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.` });
     return;
   }
 
@@ -2081,6 +2092,10 @@ export async function handleWingmanInvitationAcceptPost(req, res, url, { sendJso
       const name = tidy(body?.name);
       if (!name || !password) {
         sendJson(res, 400, { ok: false, error: "Name and password are required to activate this invitation." });
+        return;
+      }
+      if (password.length < MIN_PASSWORD_LENGTH) {
+        sendJson(res, 400, { ok: false, error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.` });
         return;
       }
       const passwordRecord = await hashPassword(password);
