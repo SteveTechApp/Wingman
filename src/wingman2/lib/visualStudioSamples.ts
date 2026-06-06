@@ -141,6 +141,100 @@ export const visualStudioDiagrams: VisualDiagramModel[] = [
     ]
   },
   {
+    id: "classroom-room-wiring",
+    title: "Education Room Wiring Schematic",
+    subtitle: "Location-based AV view for table, lectern, rack, display and network paths.",
+    kind: "room-wiring",
+    customerSummary:
+      "A room-first graphic that helps a teacher, IT lead or installer see where the user connects and where the AV system lives.",
+    technicalSummary:
+      "Shows physical locations, signal types and validation points before the schematic becomes an engineering drawing.",
+    assumptions: [
+      "The room has a teaching position, front display and equipment location.",
+      "The diagram is a concept schematic, not a final cable schedule.",
+      "USB, control and network ownership still need to be confirmed."
+    ],
+    missingInformation: [
+      "Exact cable distances and routes.",
+      "Where the rack, lectern and network switch are physically located.",
+      "Whether USB devices follow a laptop, room PC or fixed teaching station."
+    ],
+    quoteRisks: [
+      "Do not quote extenders or AVoIP endpoints without confirming cable route and distance.",
+      "Do not hide USB ownership inside a simple video line.",
+      "Confirm control and commissioning responsibility before handover."
+    ],
+    nextActions: [
+      "Mark table, lectern, rack and display locations.",
+      "Confirm source count and display behaviour.",
+      "Add product front/back images once SKU assets are attached."
+    ],
+    nodes: [
+      { id: "users", label: "Teacher / Presenter", subtitle: "Uses laptop or room source", kind: "customer", status: "normal", column: 0, row: 1 },
+      { id: "lectern", label: "Lectern / Table", subtitle: "HDMI, USB-C, USB or audio input", kind: "source", status: "normal", column: 1, row: 1 },
+      { id: "rack", label: "Rack / Equipment", subtitle: "Switcher, extender or AVoIP endpoint", kind: "switching", status: "recommended", column: 2, row: 1 },
+      { id: "network", label: "Network Closet", subtitle: "LAN / AVoIP / control where required", kind: "network", status: "optional", column: 2, row: 0 },
+      { id: "usb", label: "USB Devices", subtitle: "Camera, mic, touch or document camera", kind: "usb", status: "missing", column: 2, row: 2 },
+      { id: "display", label: "Front Display", subtitle: "Display, projector or dual display", kind: "display", status: "normal", column: 3, row: 1 },
+      { id: "control", label: "Control Method", subtitle: "Panel, presets or third-party system", kind: "controller", status: "risk", column: 3, row: 0 }
+    ],
+    edges: [
+      { id: "e1", source: "users", target: "lectern", label: "Connect / present" },
+      { id: "e2", source: "lectern", target: "rack", label: "HDMI / USB-C / USB" },
+      { id: "e3", source: "rack", target: "display", label: "Display output" },
+      { id: "e4", source: "rack", target: "network", label: "LAN / AVoIP", status: "optional" },
+      { id: "e5", source: "usb", target: "rack", label: "USB ownership", status: "missing" },
+      { id: "e6", source: "control", target: "rack", label: "Control", status: "risk" }
+    ]
+  },
+  {
+    id: "product-port-view",
+    title: "Product Connection / Port Ownership View",
+    subtitle: "Device-centred schematic for front/back product education and quote checks.",
+    kind: "product-connection",
+    customerSummary:
+      "A simple device view that explains what connects into the product, what comes out, and which supporting paths matter.",
+    technicalSummary:
+      "Groups likely input, output, USB, network, audio and control paths around a selected SKU so port claims are explicit.",
+    assumptions: [
+      "Product image assets are not yet attached to every SKU.",
+      "Port labels are inferred from product intelligence until verified against the product page or datasheet.",
+      "Accessories and cables are supporting items, not primary equivalents."
+    ],
+    missingInformation: [
+      "Front and rear product image for the selected SKU.",
+      "Exact port count and connector orientation.",
+      "Required accessories, receivers, power supplies and mounting hardware."
+    ],
+    quoteRisks: [
+      "Do not use a connection view as final engineering evidence without datasheet validation.",
+      "Confirm whether USB, network and audio features are required or merely available.",
+      "Show receiver/controller dependencies next to the primary product."
+    ],
+    nextActions: [
+      "Attach official front and rear product images per SKU.",
+      "Map ports to signal types and required accessories.",
+      "Link this view from Product Pitch, Finder and Proposal."
+    ],
+    nodes: [
+      { id: "inputs", label: "Inputs", subtitle: "Sources, hosts or upstream devices", kind: "source", status: "normal", column: 0, row: 1 },
+      { id: "device", label: "Selected WyreStorm SKU", subtitle: "Front/back image and port map", kind: "transport", status: "recommended", column: 1, row: 1 },
+      { id: "outputs", label: "Outputs", subtitle: "Display, receiver or downstream path", kind: "display", status: "normal", column: 2, row: 1 },
+      { id: "network", label: "Network", subtitle: "LAN, AVoIP, IP control or firmware", kind: "network", status: "optional", column: 1, row: 0 },
+      { id: "usb", label: "USB", subtitle: "Host/device ownership and bandwidth", kind: "usb", status: "missing", column: 1, row: 2 },
+      { id: "audio", label: "Audio", subtitle: "Embed, de-embed, Dante, mic or speaker", kind: "audio", status: "optional", column: 2, row: 0 },
+      { id: "risk", label: "Image / Port Check", subtitle: "Front and rear view required", kind: "warning", status: "risk", column: 3, row: 1 }
+    ],
+    edges: [
+      { id: "e1", source: "inputs", target: "device", label: "Input signal" },
+      { id: "e2", source: "device", target: "outputs", label: "Output signal" },
+      { id: "e3", source: "network", target: "device", label: "LAN / control" },
+      { id: "e4", source: "usb", target: "device", label: "USB", status: "missing" },
+      { id: "e5", source: "device", target: "audio", label: "Audio path", status: "optional" },
+      { id: "e6", source: "device", target: "risk", label: "Validate image and ports", status: "risk" }
+    ]
+  },
+  {
     id: "proposal-overview",
     title: "Proposal System Overview",
     subtitle: "Customer-safe summary visual for a first-pass proposal.",

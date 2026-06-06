@@ -22,7 +22,9 @@ export type DiagramTypeId =
   | "video-wall-decision"
   | "competitor-map"
   | "product-family-tree"
-  | "proposal-overview";
+  | "proposal-overview"
+  | "room-wiring-schematic"
+  | "product-connection-view";
 
 export type DiagramTemplate = {
   id: DiagramTypeId;
@@ -108,6 +110,20 @@ export const DIAGRAM_TEMPLATES: DiagramTemplate[] = [
     shortTitle: "Proposal overview",
     description: "Summarise the proposed system, selected WyreStorm products, dependencies and validation notes.",
     bestFor: "Customer-safe proposal diagrams and internal review before issue.",
+  },
+  {
+    id: "room-wiring-schematic",
+    title: "Room wiring schematic",
+    shortTitle: "Room wiring",
+    description: "Show table, lectern, rack, display wall, network and WyreStorm device locations with signal types.",
+    bestFor: "Helping sales users explain what sits where in a real room before engineering review.",
+  },
+  {
+    id: "product-connection-view",
+    title: "Product connection / port view",
+    shortTitle: "Product ports",
+    description: "Show the selected SKU as a device block with likely input, output, USB, network, audio and control paths.",
+    bestFor: "Product education, call coaching, and making front/back device imagery more useful once assets are ingested.",
   },
 ];
 
@@ -375,6 +391,14 @@ function assumptionsFor(project: StoredProject | null | undefined, diagramType: 
 
   if (diagramType === "usb-conferencing") {
     assumptions.push("USB ownership is shown separately from the video path so conferencing devices are not treated as simple display transport.");
+  }
+
+  if (diagramType === "room-wiring-schematic") {
+    assumptions.push("Room wiring is a concept schematic; final cable routes, distances and installation details need technical review.");
+  }
+
+  if (diagramType === "product-connection-view") {
+    assumptions.push("Port labels are inferred from Wingman product intelligence until verified front/back product imagery is attached.");
   }
 
   return assumptions;
@@ -697,6 +721,104 @@ function buildProposalOverview(project?: StoredProject | null): DiagramGeneratio
   };
 }
 
+function buildRoomWiringSchematic(project?: StoredProject | null): DiagramGenerationResult {
+  const products = collectProducts(project);
+  const blockers = validationBlockers(project, "room-wiring-schematic", products);
+  const sources = sourcesFromProject(project);
+  const displays = displaysFromProject(project);
+  const primaryProducts = products.slice(0, 4);
+  const sourceLabel = sources.length ? sources.join(" / ") : "Table, lectern or room sources";
+  const displayLabel = displays.length ? displays.join(" / ") : "Room display outputs";
+  const hasNetwork = hasNetworkHd(project, products);
+  const hasUsb = hasUsbNeed(project, products);
+  const nodes: MermaidNode[] = [
+    mermaidNode("users", "Room users / presenter", "round", "customer"),
+    mermaidNode("table", sourceLabel, "rect", "customer"),
+    mermaidNode("rack", "Rack / equipment location", "subroutine", primaryProducts.length ? "wyrestorm" : "blocker"),
+    ...productNodes(primaryProducts, "WyreStorm devices to select"),
+    mermaidNode("network", hasNetwork ? "AV network / managed switch" : "Network / LAN if required", "rect", hasNetwork ? "option" : undefined),
+    mermaidNode("usb", hasUsb ? "USB devices and host ownership" : "USB path if required", "rect", hasUsb ? "option" : undefined),
+    mermaidNode("control", "Control path / presets / third-party control", "rect", "option"),
+    mermaidNode("display_wall", displayLabel, "rect", "customer"),
+    ...blockerNodes(blockers),
+  ];
+  const productIds = primaryProducts.length ? primaryProducts.map((product) => product.sku) : ["product_tbc"];
+  const edges: MermaidEdge[] = [
+    mermaidEdge("users", "table", "connect / operate"),
+    mermaidEdge("table", "rack", "HDMI / USB-C / USB / audio as qualified"),
+    ...productIds.map((id) => mermaidEdge("rack", id, "installed device")),
+    ...productIds.map((id) => mermaidEdge(id, "display_wall", "display output")),
+    mermaidEdge("rack", "control", "control / API / RS-232 / IR"),
+    mermaidEdge("rack", "network", hasNetwork ? "AV-over-IP / LAN" : "optional LAN"),
+    mermaidEdge("table", "usb", hasUsb ? "USB host path" : "optional USB"),
+    mermaidEdge("usb", "rack", "USB switching / extension", hasUsb ? "arrow" : "dotted"),
+    ...blockers.map((_, index) => mermaidEdge("rack", `blocker_${index + 1}`, "validate", "dotted")),
+  ];
+
+  return {
+    diagramType: "room-wiring-schematic",
+    title: "Room wiring schematic",
+    summary: "Location-based view of the room, device positions and signal types.",
+    sourceLabel: project?.name ?? "Sample room wiring",
+    mermaid: buildMermaidFlowchart({ title: "Room wiring schematic", direction: "LR", nodes, edges }),
+    blockers,
+    assumptions: assumptionsFor(project, "room-wiring-schematic"),
+    stats: [
+      { label: "Products", value: String(products.length) },
+      { label: "Network path", value: hasNetwork ? "Shown" : "Optional" },
+      { label: "USB path", value: hasUsb ? "Shown" : "Optional" },
+    ],
+  };
+}
+
+function buildProductConnectionView(project?: StoredProject | null): DiagramGenerationResult {
+  const products = collectProducts(project);
+  const product = products[0];
+  const blockers = validationBlockers(project, "product-connection-view", products);
+  const productText = `${product?.sku ?? ""} ${product?.title ?? ""} ${product?.family ?? ""} ${product?.role ?? ""}`.toLowerCase();
+  const hasNetwork = /nhd|networkhd|avoip|av over ip|lan|network/.test(productText) || hasNetworkHd(project, products);
+  const hasUsb = /usb|uc|byod|byom|kvm|camera/.test(productText) || hasUsbNeed(project, products);
+  const hasAudio = /audio|dante|aes67|speaker|microphone|arc|earc/.test(productText) || projectHas(project, ["audio", "dante", "speaker", "microphone"]);
+  const hasControl = /control|rs-232|rs232|ir|cec|api/.test(productText) || projectHas(project, ["control", "rs-232", "ir", "cec", "api"]);
+  const productNode = product ? `${product.sku} - ${product.title}` : "Selected SKU / device front and rear view";
+  const nodes: MermaidNode[] = [
+    mermaidNode("input_side", "Input side: sources / hosts", "rect", "customer"),
+    mermaidNode("device", productNode, "subroutine", product ? "wyrestorm" : "blocker"),
+    mermaidNode("output_side", "Output side: display / receiver / downstream device", "rect", "customer"),
+    mermaidNode("network_port", hasNetwork ? "LAN / AVoIP / control network" : "Network port if present", "rect", hasNetwork ? "option" : undefined),
+    mermaidNode("usb_port", hasUsb ? "USB host / device ownership" : "USB ports if present", "rect", hasUsb ? "option" : undefined),
+    mermaidNode("audio_port", hasAudio ? "Audio embed / de-embed / DSP path" : "Audio ports if present", "rect", hasAudio ? "option" : undefined),
+    mermaidNode("control_port", hasControl ? "RS-232 / IR / CEC / API control" : "Control path if present", "rect", hasControl ? "option" : undefined),
+    mermaidNode("image_need", "Attach front and rear product image when asset is available", "rect", "blocker"),
+    ...blockerNodes(blockers),
+  ];
+  const edges: MermaidEdge[] = [
+    mermaidEdge("input_side", "device", "input connection"),
+    mermaidEdge("device", "output_side", "output connection"),
+    mermaidEdge("device", "network_port", hasNetwork ? "RJ45 / fibre / LAN" : "verify"),
+    mermaidEdge("device", "usb_port", hasUsb ? "USB" : "verify", hasUsb ? "arrow" : "dotted"),
+    mermaidEdge("device", "audio_port", hasAudio ? "audio" : "verify", hasAudio ? "arrow" : "dotted"),
+    mermaidEdge("device", "control_port", hasControl ? "control" : "verify", hasControl ? "arrow" : "dotted"),
+    mermaidEdge("device", "image_need", "visual asset"),
+    ...blockers.map((_, index) => mermaidEdge("device", `blocker_${index + 1}`, "quote check", "dotted")),
+  ];
+
+  return {
+    diagramType: "product-connection-view",
+    title: "Product connection / port view",
+    summary: "Device-centred view that prepares Wingman for front/back product imagery and port-level coaching.",
+    sourceLabel: product?.sku ?? project?.name ?? "Sample product connection",
+    mermaid: buildMermaidFlowchart({ title: "Product connection view", direction: "LR", nodes, edges }),
+    blockers,
+    assumptions: assumptionsFor(project, "product-connection-view"),
+    stats: [
+      { label: "Product", value: product?.sku ?? "TBC" },
+      { label: "USB", value: hasUsb ? "Likely" : "Verify" },
+      { label: "Network", value: hasNetwork ? "Likely" : "Verify" },
+    ],
+  };
+}
+
 export function generateDiagram(input: DiagramGenerationInput): DiagramGenerationResult {
   switch (input.diagramType) {
     case "networkhd-topology":
@@ -711,6 +833,10 @@ export function generateDiagram(input: DiagramGenerationInput): DiagramGeneratio
       return buildFamilyTree(input.project);
     case "proposal-overview":
       return buildProposalOverview(input.project);
+    case "room-wiring-schematic":
+      return buildRoomWiringSchematic(input.project);
+    case "product-connection-view":
+      return buildProductConnectionView(input.project);
     case "signal-flow":
     default:
       return buildSignalFlow(input.project);

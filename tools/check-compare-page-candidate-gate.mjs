@@ -6,15 +6,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, "..");
 
-const comparePath = path.join(root, "src/wingman2/pages/ComparePage.tsx");
+const routesPath = path.join(root, "src/wingman2/app/routes.tsx");
+const comparePath = path.join(root, "src/wingman2/pages/ComparePageNew.tsx");
+const enginePath = path.join(root, "src/wingman2/lib/competitorMatchEngine.ts");
 const gatePath = path.join(root, "src/wingman2/lib/compareCandidateGate.ts");
 
-if (!existsSync(comparePath) || !existsSync(gatePath)) {
+if (!existsSync(routesPath) || !existsSync(comparePath) || !existsSync(enginePath) || !existsSync(gatePath)) {
   console.error("[compare-page-candidate-gate] Required files are missing.");
   process.exit(1);
 }
 
+const routes = readFileSync(routesPath, "utf8");
 const compare = readFileSync(comparePath, "utf8");
+const engine = readFileSync(enginePath, "utf8");
 const gate = readFileSync(gatePath, "utf8");
 
 const requiredGateMarkers = [
@@ -26,15 +30,23 @@ const requiredGateMarkers = [
 ];
 
 const requiredPageMarkers = [
-  "wingmanCompareCandidateInput",
-  "wingmanBuildCompareGateContext",
-  "buildCompetitorDecisionEvidence",
+  "readIndexedProducts",
+  "compareCompetitor",
+  "Find WyreStorm Alternatives",
+];
+
+const requiredEngineMarkers = [
   "gateCompareCandidate",
+  "gateInputForProduct",
+  ".filter((product) => gateCompareCandidate",
+  "competitorClass: toGateClass(competitor.technologyClass)",
 ];
 
 const missing = [
+  ...["ComparePageNew"].filter((marker) => !routes.includes(marker)).map((marker) => "routes missing active ComparePageNew route: " + marker),
   ...requiredGateMarkers.filter((marker) => !gate.includes(marker)).map((marker) => "compareCandidateGate missing: " + marker),
   ...requiredPageMarkers.filter((marker) => !compare.includes(marker)).map((marker) => "ComparePage missing: " + marker),
+  ...requiredEngineMarkers.filter((marker) => !engine.includes(marker)).map((marker) => "competitorMatchEngine missing: " + marker),
 ];
 
 if (missing.length) {
@@ -43,11 +55,4 @@ if (missing.length) {
   process.exit(1);
 }
 
-if (!compare.includes("const wingmanCandidateGate = gateCompareCandidate(")) {
-  console.warn("[compare-page-candidate-gate] Candidate gate helpers are present, but matchScore was not patched automatically.");
-  console.warn("[compare-page-candidate-gate] Review reports/compare-page-candidate-gate-repair.md before treating Compare as fully gated.");
-  console.log("[compare-page-candidate-gate] Gate engine installed; page wiring still needs exact local matchScore patch.");
-  process.exit(0);
-}
-
-console.log("[compare-page-candidate-gate] Verified ComparePage applies hard candidate gate before matchScore ranking.");
+console.log("[compare-page-candidate-gate] Verified active Compare page applies hard candidate gate before match ranking.");

@@ -873,14 +873,14 @@ const coreRoomTemplates: RoomTemplate[] = [
       "Local HDMI matrix with optional switcher ahead of it, display/projector outputs, ARC/audio handoff as required, and control integration by others.",
     bom: [
       {
-        id: "expmx0402",
-        sku: "EXP-MX-0402-H2",
-        description: "4x2 HDMI matrix",
-        role: "Local source routing",
+        id: "mx0404hdmi",
+        sku: "MX-0404-HDMI",
+        description: "4x4 HDMI matrix",
+        role: "Primary local source routing",
         qty: 1,
         type: "Required",
         status: "included",
-        evidence: "Fixed media rooms often need several HDMI sources to feed two display paths.",
+        evidence: "Fixed media rooms often need several HDMI sources to feed multiple display paths without using an EXP product as the primary matrix.",
         notes: "Confirm source count, display count, audio return, and control requirements.",
       },
       {

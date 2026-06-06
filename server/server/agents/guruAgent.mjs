@@ -37,7 +37,14 @@ export async function runGuruAgent(input, deps = {}) {
       responseJsonSchema: guruResponseSchema,
       temperature: 0.3,
     });
-  } catch {
+  } catch (error) {
+    // Never fail silently: a live key is configured but the model call failed.
+    // Log a clear warning so operators can see degraded answers in production,
+    // then return the locally-derived answer as a graceful fallback.
+    console.warn(
+      "[guruAgent] Gemini call failed; returning locally-derived fallback answer.",
+      error instanceof Error ? error.message : error,
+    );
     return deriveGuruAnswer(payload);
   }
 }

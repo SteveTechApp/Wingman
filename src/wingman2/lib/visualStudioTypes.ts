@@ -4,7 +4,9 @@ export type VisualDiagramKind =
   | "usb-conferencing"
   | "video-wall"
   | "proposal-overview"
-  | "competitor-map";
+  | "competitor-map"
+  | "room-wiring"
+  | "product-connection";
 
 export type VisualDiagramMode = "technical" | "customer";
 
