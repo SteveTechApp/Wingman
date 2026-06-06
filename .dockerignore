@@ -1,0 +1,57 @@
+# Dependencies
+node_modules
+server/node_modules
+
+# Build outputs
+dist
+build
+
+# Git
+.git
+.gitattributes
+.githooks
+
+# IDE and editor
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Environment files (should be passed via docker-compose)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test and development files
+coverage
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+playwright-report
+test-results
+
+# Documentation (not needed in image)
+*.md
+docs
+
+# Supabase local config
+supabase/.temp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (prevent recursive copy)
+Dockerfile
+Dockerfile.*
+docker-compose.yml
+docker-compose*.yml
+
+# Tools and utilities (not needed in production)
+tools
