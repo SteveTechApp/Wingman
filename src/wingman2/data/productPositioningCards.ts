@@ -403,7 +403,7 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     technicalCheckQuestions: ["Confirm wireless platform requirements.", "Confirm USB/BYOD workflow.", "Confirm outputs.", "Confirm network/access policy.", "Confirm resolution and HDCP."],
     listenForTriggers: ["wireless presentation", "AirPlay", "Miracast", "guest laptop", "BYOD meeting room", "simple user experience"],
     disqualifiers: ["Do not present as a Teams-certified appliance.", "Do not ignore customer IT wireless/network policy.", "Do not use where output/source count exceeds the model."],
-    caveats: ["Wireless presentation depends on device support and network/customer policy.", "Confirm BYOD versus certified room-system requirement."],
+    caveats: ["Wireless presentation depends on device support and network/customer policy.", "Confirm BYOD versus certified room-system requirement.", "WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install."],
     objectionHandling: [
       { objection: "Is this a Teams Room?", response: "No. Position this as BYOD/BYOM presentation switching, not as a certified Teams appliance." },
       { objection: "Can users present wirelessly from any device?", response: "Check the required wireless platforms and customer IT policy before confirming." }
@@ -452,7 +452,7 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     technicalCheckQuestions: ["Confirm inputs/outputs.", "Confirm wireless support.", "Confirm USB workflow.", "Confirm network policy.", "Confirm resolution/HDCP."],
     listenForTriggers: ["larger meeting room", "dual display", "wireless presentation", "BYOD", "USB camera", "guest presenters"],
     disqualifiers: ["Do not present as a Teams-certified endpoint.", "Do not ignore network/wireless policy.", "Do not recommend if a simple smaller switcher fits better."],
-    caveats: ["Confirm exact source/output and USB requirements before selection.", "Wireless performance depends on environment and IT policy."],
+    caveats: ["Confirm exact source/output and USB requirements before selection.", "Wireless performance depends on environment and IT policy.", "WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install."],
     objectionHandling: [
       { objection: "Why not the smaller model?", response: "Use the smaller model where the room is simpler. Step up when the room has more inputs, outputs or workflow requirements." },
       { objection: "Does this replace a UC codec?", response: "No. It supports BYOD/BYOM room workflows; check whether the customer needs a certified UC appliance." }
@@ -692,7 +692,7 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     technicalCheckQuestions: ["Confirm room size.", "Confirm USB host path.", "Confirm acoustic expectations.", "Confirm camera/platform.", "Confirm whether larger APO audio is required."],
     listenForTriggers: ["huddle room", "USB audio", "BYOD call", "poor meeting audio", "small room"],
     disqualifiers: ["Do not position for large rooms without audio design review.", "Do not replace a specified DSP system casually.", "Do not ignore microphone pickup distance."],
-    caveats: ["Room audio depends on acoustics, room size and user behaviour.", "Escalate complex rooms for audio review."],
+    caveats: ["Room audio depends on acoustics, room size and user behaviour.", "WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install.", "Escalate complex rooms for audio review."],
     objectionHandling: [
       { objection: "Can the display speakers do this?", response: "Display speakers may be enough for playback, but conferencing needs microphone pickup and echo-controlled audio path." }
     ],
@@ -739,7 +739,7 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     technicalCheckQuestions: ["Confirm pickup distance.", "Confirm USB/audio path.", "Confirm room size.", "Confirm platform/host.", "Confirm whether DSP/audio design is required."],
     listenForTriggers: ["table microphone", "speakerphone", "BYOD audio", "people at far end cannot hear us", "meeting room audio"],
     disqualifiers: ["Do not position as a full DSP system.", "Do not ignore room acoustics.", "Do not use for large rooms without review."],
-    caveats: ["Audio performance depends on room size, acoustics and user placement.", "Escalate complex spaces."],
+    caveats: ["Audio performance depends on room size, acoustics and user placement.", "WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install.", "Escalate complex spaces."],
     objectionHandling: [
       { objection: "Why not use the laptop microphone?", response: "Laptop microphones are not designed for a meeting table. A room audio product gives a more reliable experience for participants." }
     ],

@@ -116,6 +116,11 @@ describe("analyzeCompetitor", () => {
       expect(result.role).toBe("transceiver");
     });
 
+    it("should detect common DM-NVX endpoint SKUs as transceiver-class products", () => {
+      const result = analyzeCompetitor("DM-NVX-360");
+      expect(result.role).toBe("transceiver");
+    });
+
     it("should detect matrix role", () => {
       const result = analyzeCompetitor("MX-8x8 Matrix");
       expect(result.role).toBe("matrix");
@@ -237,6 +242,55 @@ describe("compareCompetitor", () => {
       const result = compareCompetitor("DM-NVX-350", mockProducts);
       expect(result.matches.length).toBeGreaterThan(0);
       expect(result.matches[0].sku).toMatch(/NHD/);
+    });
+
+    it("should not rank UC, camera, rack, or accessory products as DM-NVX AVoIP equivalents", () => {
+      const richProducts: WyrestormProduct[] = [
+        {
+          sku: "APO-210-UC",
+          name: "Apollo video-speakerphone switcher",
+          category: "UC / conferencing",
+          features: ["USB-C", "Wireless presentation", "NDI", "Speakerphone"],
+          tags: ["Audio", "UC / conferencing", "AVoIP"],
+        },
+        {
+          sku: "CAM-210-PTZ",
+          name: "PTZ camera",
+          category: "UC / conferencing",
+          features: ["NDI", "USB", "Camera"],
+          tags: ["Camera", "AVoIP"],
+        },
+        {
+          sku: "NHD-000-RACK4",
+          name: "NetworkHD rack mount",
+          category: "AVoIP",
+          features: ["AVoIP", "Rack accessory"],
+          tags: ["NetworkHD", "rack-mount", "Accessory"],
+        },
+        {
+          sku: "NHD-500-TX",
+          name: "NetworkHD 500 4K60 Encoder",
+          category: "AVoIP",
+          features: ["4K60", "HDR", "PoE", "AV over IP", "Encoder"],
+          tags: ["AVOIP", "encoder", "NetworkHD 500"],
+        },
+        {
+          sku: "NHD-600-TRX",
+          name: "NetworkHD 600 4K60 SDVoE Transceiver",
+          category: "AVoIP",
+          features: ["4K60", "HDR", "PoE", "AV over IP", "Transceiver"],
+          tags: ["AVOIP", "transceiver", "NetworkHD 600"],
+        },
+      ];
+
+      const result = compareCompetitor("DM-NVX-360", richProducts, "Crestron", 5);
+      const skus = result.matches.map((match) => match.sku);
+
+      expect(skus[0]).toMatch(/^NHD-/);
+      expect(skus).toContain("NHD-600-TRX");
+      expect(skus).not.toContain("APO-210-UC");
+      expect(skus).not.toContain("CAM-210-PTZ");
+      expect(skus).not.toContain("NHD-000-RACK4");
     });
 
     it("should match matrix competitor to matrix products", () => {

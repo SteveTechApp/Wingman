@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
@@ -11,6 +11,24 @@ const previewCommand = process.platform === "win32" ? "cmd.exe" : "npx";
 const previewArgs = process.platform === "win32"
   ? ["/d", "/s", "/c", `npx vite preview --host 127.0.0.1 --port ${port}`]
   : ["vite", "preview", "--host", "127.0.0.1", "--port", String(port)];
+
+function stopWindowsPortListener() {
+  if (process.platform !== "win32") return;
+
+  const command = [
+    `$ids = Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction SilentlyContinue`,
+    "| Select-Object -ExpandProperty OwningProcess -Unique;",
+    "foreach ($id in $ids) {",
+    "if ($id) { Stop-Process -Id $id -Force -ErrorAction SilentlyContinue }",
+    "}",
+  ].join(" ");
+
+  try {
+    execFileSync("powershell.exe", ["-NoProfile", "-Command", command], { stdio: "ignore" });
+  } catch {
+    // Best-effort cleanup for stale local preview servers.
+  }
+}
 
 async function waitForPreview() {
   const deadline = Date.now() + 20_000;
@@ -34,6 +52,30 @@ async function assertPageText(page, pathname, expectedText) {
   }
 }
 
+async function assertCompareWorkflow(page) {
+  await page.goto(`http://127.0.0.1:${port}/wingman/compare`, { waitUntil: "networkidle" });
+  await page.locator("#competitor-sku").fill("DM-NVX-360");
+  await page.getByRole("button", { name: "Find WyreStorm Alternatives" }).click();
+  await page.locator("text=WyreStorm Alternatives").waitFor({ state: "visible", timeout: 5000 });
+  const text = await page.locator("body").innerText();
+
+  if (text.includes("Product data not loaded")) {
+    throw new Error("Compare workflow could not load product data.");
+  }
+
+  if (!/NHD-|NetworkHD|WyreStorm/i.test(text)) {
+    throw new Error("Compare workflow did not render a sensible WyreStorm match.");
+  }
+
+  for (const blockedSku of ["APO-210-UC", "APO-SKY-MIC", "COM-MIC-HUB", "CAM-210-PTZ"]) {
+    if (text.includes(blockedSku)) {
+      throw new Error(`Compare workflow rendered blocked non-equivalent candidate ${blockedSku}.`);
+    }
+  }
+}
+
+stopWindowsPortListener();
+
 const preview = spawn(previewCommand, previewArgs, {
   cwd: projectRoot,
   env: {
@@ -54,12 +96,14 @@ try {
   const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
 
   await assertPageText(page, "/wingman/ingest", "Document Ingest");
-  await assertPageText(page, "/wingman/compare", "Competitor Comparison");
+  await assertPageText(page, "/wingman/compare", "Competitor Compare");
+  await assertCompareWorkflow(page);
   await assertPageText(page, "/wingman/proposal", "Proposal Builder");
   await assertPageText(page, "/wingman/projects/northbridge-meeting-room-refresh", "Editable requirements");
 
-  console.log("[browser-smoke] Verified built app pages and project detail route in a real browser.");
+  console.log("[browser-smoke] Verified built app pages, Compare workflow, and project detail route in a real browser.");
 } finally {
   if (browser) await browser.close();
   preview.kill("SIGTERM");
+  stopWindowsPortListener();
 }

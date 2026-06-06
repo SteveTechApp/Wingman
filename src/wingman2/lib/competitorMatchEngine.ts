@@ -5,6 +5,8 @@
  * based on technology class, capabilities, and role matching.
  */
 
+import { gateCompareCandidate, type CompareCompetitorClass } from "./compareCandidateGate";
+
 export type TechnologyClass =
   | "AVOIP"
   | "HDBASET"
@@ -48,12 +50,20 @@ export type WyrestormProduct = {
   name: string;
   title?: string;
   family?: string;
+  category?: string;
+  productFamily?: string;
+  governanceRole?: string;
   role?: string;
+  technologies?: string[];
+  connectors?: string[];
   features?: string[];
   featureTags?: string[];
   tags?: string[];
   capabilities?: string[];
+  applications?: string[];
+  searchTerms?: string[];
   description?: string;
+  summary?: string;
 };
 
 export type MatchResult = {
@@ -118,7 +128,7 @@ const TECH_CLASS_PATTERNS: [RegExp[], TechnologyClass][] = [
 const ROLE_PATTERNS: [RegExp[], ProductRole][] = [
   [[/\b(enc|encoder|tx|transmit|-e\d{2,3}|send)\b/i], "encoder"],
   [[/\b(dec|decoder|rx|receiv|-d\d{2,3})\b/i], "decoder"],
-  [[/\b(transceiver|tcvr|bidirect|two.?way)\b/i], "transceiver"],
+  [[/\b(transceiver|tcvr|bidirect|two.?way|dm-nvx-(350|351|360|363))\b/i], "transceiver"],
   [[/\b(transmitter|tx-|sender)\b/i], "transmitter"],
   [[/\b(receiver|rx-)\b/i], "receiver"],
   [[/\b(matrix|mtrx|mx-?\d{2,4})\b/i], "matrix"],
@@ -206,6 +216,47 @@ function extractCapabilities(input: string): string[] {
   return [...new Set(caps)];
 }
 
+function stringList(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => (typeof item === "string" || typeof item === "number" ? String(item) : ""))
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    return value
+      .split(/[;\n|]+/g)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+function productText(product: WyrestormProduct): string {
+  return [
+    product.sku,
+    product.name,
+    product.title,
+    product.family,
+    product.productFamily,
+    product.category,
+    product.governanceRole,
+    product.role,
+    product.description,
+    product.summary,
+    ...stringList(product.technologies),
+    ...stringList(product.connectors),
+    ...stringList(product.features),
+    ...stringList(product.featureTags),
+    ...stringList(product.tags),
+    ...stringList(product.capabilities),
+    ...stringList(product.applications),
+    ...stringList(product.searchTerms),
+  ].join(" ").toLowerCase();
+}
+
 function buildEvidence(
   input: string,
   brand: string,
@@ -288,14 +339,41 @@ const TECH_CLASS_COMPATIBILITY: Record<TechnologyClass, TechnologyClass[]> = {
 };
 
 function getProductTechClass(product: WyrestormProduct): TechnologyClass {
-  const searchText = [
-    product.sku,
-    product.name,
-    product.family,
-    product.role,
-    ...(product.features || []),
-    ...(product.tags || []),
-  ].join(" ").toLowerCase();
+  const sku = String(product.sku ?? "").trim().toUpperCase();
+  const category = String(product.category ?? "").toLowerCase();
+  const searchText = productText(product);
+
+  if (/^NHD-/.test(sku) || category.includes("avoip") || searchText.includes("networkhd av over ip")) {
+    return "AVOIP";
+  }
+
+  if (/^EX-/.test(sku) || /^RX-/.test(sku) || /^TX-/.test(sku) || category.includes("hdbaset")) {
+    return "HDBASET";
+  }
+
+  if (/^MX-/.test(sku) || category.includes("matrix")) {
+    return "MATRIX";
+  }
+
+  if (/^SW-/.test(sku) || category.includes("presentation")) {
+    return "PRESENTATION";
+  }
+
+  if (/^APO-/.test(sku) || category.includes("uc") || category.includes("conferencing")) {
+    return "USB_CONFERENCE";
+  }
+
+  if (/^CAM-/.test(sku) || category.includes("camera")) {
+    return "USB_CONFERENCE";
+  }
+
+  if (/^AMP-/.test(sku) || category.includes("audio")) {
+    return "AUDIO";
+  }
+
+  if (/^CAB-/.test(sku) || category.includes("cable") || category.includes("accessory")) {
+    return "UNKNOWN";
+  }
 
   // Check family-based mappings first
   for (const [family, classes] of Object.entries(WYRESTORM_TECH_MAP)) {
@@ -316,11 +394,7 @@ function getProductTechClass(product: WyrestormProduct): TechnologyClass {
 }
 
 function getProductRole(product: WyrestormProduct): ProductRole {
-  const searchText = [
-    product.sku,
-    product.name,
-    product.role,
-  ].join(" ").toLowerCase();
+  const searchText = productText(product);
 
   for (const [patterns, role] of ROLE_PATTERNS) {
     if (patterns.some((p) => p.test(searchText))) {
@@ -332,15 +406,41 @@ function getProductRole(product: WyrestormProduct): ProductRole {
 }
 
 function extractProductCapabilities(product: WyrestormProduct): string[] {
-  const searchText = [
-    product.name,
-    product.description,
-    ...(product.features || []),
-    ...(product.featureTags || []),
-    ...(product.capabilities || []),
-  ].join(" ");
+  const searchText = productText(product);
 
   return extractCapabilities(searchText);
+}
+
+function toGateClass(technologyClass: TechnologyClass): CompareCompetitorClass {
+  if (technologyClass === "EXTENDER") return "HDBASET";
+  if (technologyClass === "USB_CONFERENCE") return "USB_EXTENSION";
+  return technologyClass;
+}
+
+function gateInputForProduct(product: WyrestormProduct) {
+  return {
+    sku: product.sku,
+    title: product.title || product.name,
+    role: product.role || product.governanceRole || product.category,
+    category: product.category,
+    family: product.family,
+    productFamily: product.productFamily,
+    tags: stringList(product.tags),
+    features: stringList(product.features),
+    text: [
+      product.sku,
+      product.name,
+      product.title,
+      product.category,
+      product.family,
+      product.productFamily,
+      product.role,
+      product.governanceRole,
+      ...stringList(product.technologies),
+      ...stringList(product.features),
+      ...stringList(product.tags),
+    ].join(" "),
+  };
 }
 
 function scoreProduct(
@@ -378,6 +478,12 @@ function scoreProduct(
       score += 20;
       matchReasons.push(`Compatible role: ${competitor.role} ↔ ${productRole}`);
     }
+  } else if (
+    competitor.technologyClass === "AVOIP" &&
+    ["encoder", "decoder", "transceiver", "transmitter", "receiver"].includes(productRole)
+  ) {
+    score += 15;
+    matchReasons.push(`AVoIP endpoint role: ${productRole}`);
   }
 
   // Capability overlap
@@ -479,9 +585,15 @@ export function findMatches(
   maxResults = 5
 ): CompareResult {
   const relevance = isRelevantToWyrestorm(competitor);
+  const gateContext = {
+    competitorClass: toGateClass(competitor.technologyClass),
+    competitorRole: competitor.role,
+    applicationContext: competitor.originalInput,
+  };
 
   // Score all products
   const scoredProducts = products
+    .filter((product) => gateCompareCandidate(gateInputForProduct(product), gateContext).allowed)
     .map((product) => scoreProduct(competitor, product))
     .filter((result) => result.score > 0)
     .sort((a, b) => b.score - a.score)

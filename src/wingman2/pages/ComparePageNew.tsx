@@ -31,6 +31,18 @@ const KNOWN_BRANDS = [
 
 type PageState = "input" | "analyzing" | "results" | "error";
 
+function readIndexedProducts(data: unknown): WyrestormProduct[] {
+  if (Array.isArray(data)) {
+    return data as WyrestormProduct[];
+  }
+
+  if (data && typeof data === "object" && Array.isArray((data as { products?: unknown }).products)) {
+    return (data as { products: WyrestormProduct[] }).products;
+  }
+
+  return [];
+}
+
 export default function ComparePageNew() {
   const [state, setState] = useState<PageState>("input");
   const [competitorInput, setCompetitorInput] = useState("");
@@ -49,7 +61,7 @@ export default function ComparePageNew() {
         const res = await fetch("/product-intelligence-index.json");
         if (!res.ok) throw new Error("Failed to load product data");
         const data = await res.json();
-        setProducts(Array.isArray(data) ? data : []);
+        setProducts(readIndexedProducts(data));
       } catch (err) {
         console.error("Failed to load products:", err);
       }
