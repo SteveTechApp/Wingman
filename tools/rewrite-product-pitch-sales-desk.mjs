@@ -1,22 +1,33 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
-import { Link, useSearchParams } from "react-router-dom";
-import { routeCatalogByKey } from "../app/routeCatalog";
-import { ProductSalesKnowledgePanel } from "../components/ProductSalesKnowledgePanel";
-import {
-  saveRecommendationEvidenceToProject,
-  useProjectStore,
-  type StoredQuoteSafetyStatus,
-  type StoredRecommendationEvidence,
-  type StoredProductSelection,
-} from "../data/projectStore";
-import { readLatestDiscoveryBrief } from "../data/workflowHandoff";
-import {
-  buildRecommendationEvidence,
-  productToSelection,
-  type RecommendationEvidenceCompare,
-  type RecommendationEvidenceProduct,
-} from "../lib/recommendationEvidence";
+const root = process.cwd();
+const pagePath = join(root, "src", "wingman2", "pages", "ProductPitchPage.tsx");
+const stylePath = join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
+const backupDir = join(root, "backups", "product-pitch-sales-desk-" + new Date().toISOString().replace(/[:.]/g, "-"));
+
+function fail(message) {
+  console.error(message);
+  process.exit(1);
+}
+
+function ensureFile(path, label) {
+  if (existsSync(path)) return;
+  fail("Missing " + label + ": " + path);
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+ensureFile(pagePath, "ProductPitchPage.tsx");
+ensureFile(stylePath, "wingman-style-stack.css");
+
+mkdirSync(backupDir, { recursive: true });
+copyFileSync(pagePath, join(backupDir, "ProductPitchPage.tsx.bak"));
+copyFileSync(stylePath, join(backupDir, "wingman-style-stack.css.bak"));
+
+const page = String.raw`import { useEffect, useMemo, useState } from "react";
 
 type PitchObjection = {
   objection: string;
@@ -36,10 +47,6 @@ type PitchProduct = {
   validationQuestion: string;
   applicationFit: string[];
   majorFeatures: string[];
-  summary?: string;
-  features?: string[];
-  url?: string;
-  sourceText?: string;
   customerQuestions: string[];
   checks: string[];
   objections: PitchObjection[];
@@ -287,8 +294,6 @@ const sectionLabels = [
 
 type PitchSection = (typeof sectionLabels)[number];
 
-const COMPARE_RECORDS_KEY = "wm_competitor_compare_swot_records_v1";
-
 function asRecord(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object") return {};
   if (Array.isArray(value)) return {};
@@ -334,14 +339,6 @@ function firstArray(source: Record<string, unknown>, keys: string[], fallback: s
   }
 
   return fallback;
-}
-
-function safeSourceText(source: Record<string, unknown>) {
-  try {
-    return JSON.stringify(source).slice(0, 5000);
-  } catch {
-    return "";
-  }
 }
 
 function normaliseObjections(value: unknown): PitchObjection[] {
@@ -488,8 +485,6 @@ function normaliseProduct(entry: unknown, index: number): PitchProduct | null {
     ["Add key product features to the product intelligence record."]
   );
 
-  const url = firstText(source, ["url", "productUrl", "link", "href"], "");
-
   const customerQuestions = firstArray(
     source,
     ["customerQuestions", "discoveryQuestions", "questions", "qualificationQuestions"],
@@ -537,10 +532,6 @@ function normaliseProduct(entry: unknown, index: number): PitchProduct | null {
     validationQuestion,
     applicationFit,
     majorFeatures,
-    summary: description,
-    features: majorFeatures,
-    url,
-    sourceText: safeSourceText(source),
     customerQuestions,
     checks,
     objections: objections.length > 0 ? objections : [
@@ -585,82 +576,6 @@ function includesSearch(product: PitchProduct, term: string): boolean {
   return haystack.includes(term);
 }
 
-function productSearchUrl(sku: string): string {
-  return `https://wyrestorm.com/?s=${encodeURIComponent(sku)}`;
-}
-
-function readCompareContext(compareId: string): RecommendationEvidenceCompare | null {
-  if (typeof window === "undefined" || !compareId) return null;
-
-  try {
-    const raw = window.localStorage.getItem(COMPARE_RECORDS_KEY);
-    if (!raw) return null;
-
-    const records = JSON.parse(raw) as Array<Record<string, unknown>>;
-    const record = records.find((item) => toText(item.id) === compareId);
-    if (!record) return null;
-
-    const competitor = asRecord(record.competitor);
-    const shortlist = Array.isArray(record.shortlist) ? record.shortlist : [];
-    const top = asRecord(shortlist.find((item) => Object.keys(asRecord(item)).length > 0));
-
-    return {
-      id: toText(record.id),
-      competitorBrand: toText(record.manufacturer) || toText(competitor.manufacturer),
-      competitorSku: toText(record.model) || toText(competitor.sku),
-      competitorName: toText(competitor.title),
-      wyrestormSku: toText(top.sku),
-      wyrestormTitle: toText(top.title),
-      matchScore: Number.isFinite(Number(record.matchScore)) ? Number(record.matchScore) : Number(top.confidence),
-      confidence: toText(top.confidence),
-      summary: toText(competitor.summary),
-      warnings: toArray(record.reviewNotes),
-      evidence: toArray(competitor.evidence),
-      source: "Competitor Compare",
-    };
-  } catch {
-    return null;
-  }
-}
-
-function productEvidenceContext(product: PitchProduct): RecommendationEvidenceProduct {
-  return {
-    sku: product.sku,
-    title: product.name,
-    name: product.name,
-    family: product.family,
-    category: product.category,
-    summary: product.summary || product.description,
-    features: product.features || product.majorFeatures,
-    tags: product.tags,
-    source: "Product Pitch",
-    isFallback: !product.sourceText,
-  };
-}
-
-function quoteSafetyLabel(status: StoredQuoteSafetyStatus) {
-  if (status === "quote-ready") return "Quote-ready draft";
-  if (status === "validate-before-quote") return "Validate before quote";
-  return "Do not quote yet";
-}
-
-function evidenceSelection(product: RecommendationEvidenceProduct, evidence: StoredRecommendationEvidence): StoredProductSelection {
-  const status =
-    evidence.quoteSafetyStatus === "quote-ready"
-      ? "recommended"
-      : evidence.quoteSafetyStatus === "do-not-quote-yet"
-        ? "caution"
-        : "alternative";
-  const selection = productToSelection(product, "Product Pitch");
-
-  return {
-    ...selection,
-    status,
-    evidence: evidence.evidenceUsed.slice(0, 8),
-    cautions: [...evidence.missingInformation, ...evidence.quoteChecks].slice(0, 8),
-  };
-}
-
 function HelperCard(props: { title: string; value: string; eyebrow?: string }) {
   return (
     <article className="wm-pitch-helper-card">
@@ -700,20 +615,13 @@ function ObjectionList(props: { objections: PitchObjection[] }) {
   );
 }
 
-function EvidenceMiniList(props: { items: string[]; empty: string }) {
-  return <BulletList items={props.items.length > 0 ? props.items.slice(0, 4) : [props.empty]} />;
-}
-
-export function ProductPitchPage() {
+export default function ProductPitchPage() {
   const [products, setProducts] = useState<PitchProduct[]>(fallbackProducts);
   const [selectedSku, setSelectedSku] = useState(fallbackProducts[0]?.sku || "");
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFamily, setActiveFamily] = useState("All");
   const [activeSection, setActiveSection] = useState<PitchSection>("Talk track");
   const [indexStatus, setIndexStatus] = useState("Starter sales-support data loaded");
-  const [saveMessage, setSaveMessage] = useState("");
-  const [searchParams] = useSearchParams();
-  const { activeProject } = useProjectStore();
 
   useEffect(() => {
     let cancelled = false;
@@ -742,27 +650,14 @@ export function ProductPitchPage() {
   }, []);
 
   useEffect(() => {
-    const skuParam = (searchParams.get("sku") ?? "").trim().toUpperCase();
-    const queryParam = (searchParams.get("q") ?? "").trim();
-    const familyParam = (searchParams.get("family") ?? "").trim();
+    if (products.some((product) => product.sku === selectedSku)) return;
 
-    if (skuParam) {
-      setSelectedSku(skuParam);
-      setSearchTerm(skuParam);
-      setSaveMessage("");
-      return;
-    }
+    const firstProduct = products[0];
 
-    if (queryParam) {
-      setSearchTerm(queryParam);
-      setSaveMessage("");
+    if (firstProduct) {
+      setSelectedSku(firstProduct.sku);
     }
-
-    if (familyParam) {
-      setActiveFamily(familyParam);
-      setSaveMessage("");
-    }
-  }, [searchParams]);
+  }, [products, selectedSku]);
 
   const families = useMemo(() => {
     return Array.from(new Set(products.map((product) => product.family).filter(Boolean))).sort();
@@ -777,16 +672,6 @@ export function ProductPitchPage() {
       return familyMatches && searchMatches;
     });
   }, [activeFamily, products, searchTerm]);
-
-  useEffect(() => {
-    if (products.some((product) => product.sku === selectedSku)) return;
-
-    const firstProduct = filteredProducts[0] || products[0];
-
-    if (firstProduct && !searchTerm.trim()) {
-      setSelectedSku(firstProduct.sku);
-    }
-  }, [filteredProducts, products, searchTerm, selectedSku]);
 
   const selectedProduct = useMemo(() => {
     return (
@@ -804,46 +689,6 @@ export function ProductPitchPage() {
       selectedProduct.validationQuestion
     ];
   }, [selectedProduct]);
-
-  const selectedEvidenceProduct = useMemo(
-    () => productEvidenceContext(selectedProduct),
-    [selectedProduct],
-  );
-
-  const compareContext = useMemo(
-    () => readCompareContext((searchParams.get("compare") ?? "").trim()),
-    [searchParams],
-  );
-
-  const discoveryBrief = useMemo(
-    () => activeProject?.discoveryBrief ?? readLatestDiscoveryBrief(),
-    [activeProject],
-  );
-
-  const recommendationEvidence = useMemo(() => {
-    return buildRecommendationEvidence({
-      source: compareContext ? "Competitor Compare" : searchParams.get("source") === "finder" ? "Product Finder" : "Product Pitch",
-      project: activeProject,
-      discoveryBrief,
-      product: selectedEvidenceProduct,
-      compare: compareContext,
-      query: searchTerm,
-    });
-  }, [activeProject, compareContext, discoveryBrief, searchParams, searchTerm, selectedEvidenceProduct]);
-
-  function selectProduct(sku: string): void {
-    setSelectedSku(sku);
-    setActiveSection("Talk track");
-    setSaveMessage("");
-  }
-
-  function savePitchEvidence(): void {
-    const project = saveRecommendationEvidenceToProject(
-      recommendationEvidence,
-      evidenceSelection(selectedEvidenceProduct, recommendationEvidence),
-    );
-    setSaveMessage(`Saved pitch evidence to ${project.name}.`);
-  }
 
   function renderPitchSection() {
     if (activeSection === "Talk track") {
@@ -893,7 +738,6 @@ export function ProductPitchPage() {
               <BulletList items={selectedProduct.related.length > 0 ? selectedProduct.related : ["No related products added yet."]} />
             </article>
           </div>
-          <ProductSalesKnowledgePanel product={selectedProduct} mode="pitch" />
         </div>
       );
     }
@@ -926,20 +770,6 @@ export function ProductPitchPage() {
                 Capture the answer before moving this into a proposal support pack.
               </p>
             </article>
-            <article>
-              <h3>Customer-safe wording</h3>
-              <EvidenceMiniList
-                items={recommendationEvidence.customerSafeWording}
-                empty="Confirm the requirement before presenting customer wording."
-              />
-            </article>
-            <article>
-              <h3>Project evidence</h3>
-              <EvidenceMiniList
-                items={recommendationEvidence.evidenceUsed}
-                empty="No structured evidence has been captured yet."
-              />
-            </article>
           </div>
         </div>
       );
@@ -962,21 +792,6 @@ export function ProductPitchPage() {
               ]}
             />
           </article>
-          <article>
-            <h3>Quote safety</h3>
-            <p>{recommendationEvidence.quoteSafetyMessage}</p>
-            <EvidenceMiniList
-              items={recommendationEvidence.missingInformation}
-              empty="No major missing information is currently flagged."
-            />
-          </article>
-          <article>
-            <h3>Required dependencies</h3>
-            <EvidenceMiniList
-              items={recommendationEvidence.requiredDependencies}
-              empty="No governed required dependency is selected yet."
-            />
-          </article>
         </div>
       </div>
     );
@@ -991,10 +806,6 @@ export function ProductPitchPage() {
           <p>
             Select a product, lead with the customer problem, then keep the sales helper cards visible while the conversation moves.
           </p>
-          <nav className="wm-pitch-header-actions" aria-label="Related pitch tools">
-            <Link to={routeCatalogByKey.productFamilies.path}>Product Families</Link>
-            <Link to={routeCatalogByKey.finder.path}>Product Finder</Link>
-          </nav>
         </div>
 
         <div className="wm-pitch-header-status">
@@ -1017,10 +828,7 @@ export function ProductPitchPage() {
           <input
             className="wm-pitch-search"
             value={searchTerm}
-            onChange={(event) => {
-              setSearchTerm(event.target.value);
-              setSaveMessage("");
-            }}
+            onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search product, feature or use case"
             type="search"
           />
@@ -1029,10 +837,7 @@ export function ProductPitchPage() {
             <button
               className={activeFamily === "All" ? "is-active" : ""}
               type="button"
-              onClick={() => {
-                setActiveFamily("All");
-                setSaveMessage("");
-              }}
+              onClick={() => setActiveFamily("All")}
             >
               All
             </button>
@@ -1041,10 +846,7 @@ export function ProductPitchPage() {
                 className={activeFamily === family ? "is-active" : ""}
                 key={family}
                 type="button"
-                onClick={() => {
-                  setActiveFamily(family);
-                  setSaveMessage("");
-                }}
+                onClick={() => setActiveFamily(family)}
               >
                 {family}
               </button>
@@ -1057,7 +859,10 @@ export function ProductPitchPage() {
                 className={selectedProduct.sku === product.sku ? "is-selected" : ""}
                 key={product.sku}
                 type="button"
-                onClick={() => selectProduct(product.sku)}
+                onClick={() => {
+                  setSelectedSku(product.sku);
+                  setActiveSection("Talk track");
+                }}
               >
                 <strong>{product.sku}</strong>
                 <span>{product.name}</span>
@@ -1083,7 +888,6 @@ export function ProductPitchPage() {
             <div className="wm-pitch-category-card">
               <span>Best used for</span>
               <strong>{selectedProduct.category}</strong>
-              <small>{quoteSafetyLabel(recommendationEvidence.quoteSafetyStatus)}</small>
             </div>
           </article>
 
@@ -1108,18 +912,6 @@ export function ProductPitchPage() {
               title="Validation question"
               value={selectedProduct.validationQuestion}
             />
-          </div>
-
-          <div className="wm-pitch-evidence-strip">
-            <div>
-              <span>Project evidence</span>
-              <strong>{quoteSafetyLabel(recommendationEvidence.quoteSafetyStatus)}</strong>
-              <p>{recommendationEvidence.quoteSafetyMessage}</p>
-            </div>
-            <button type="button" className="wm-pitch-save-button" onClick={savePitchEvidence}>
-              Save pitch to project
-            </button>
-            {saveMessage ? <small>{saveMessage}</small> : null}
           </div>
 
           <nav className="wm-pitch-tabs" aria-label="Product support sections">
@@ -1170,22 +962,481 @@ export function ProductPitchPage() {
               Do not present this as a guaranteed fit until the product role matches the actual customer requirement.
             </p>
           </article>
-
-          <article>
-            <h3>Source links</h3>
-            <p>Open the source page or search WyreStorm before turning this into a final quote.</p>
-            <div className="wm-pitch-link-stack">
-              {selectedProduct.url ? (
-                <a href={selectedProduct.url} target="_blank" rel="noreferrer">Product page</a>
-              ) : null}
-              <a href={productSearchUrl(selectedProduct.sku)} target="_blank" rel="noreferrer">WyreStorm search</a>
-            </div>
-          </article>
         </aside>
       </section>
     </main>
   );
 }
+`;
 
-export default ProductPitchPage;
+const markerStart = "/* === Product Pitch Sales Desk redesign start === */";
+const markerEnd = "/* === Product Pitch Sales Desk redesign end === */";
 
+const css = String.raw`${markerStart}
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] {
+  min-height: calc(100vh - 24px);
+  max-height: calc(100vh - 24px);
+  overflow: hidden;
+  padding: 14px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at top left, rgba(45, 212, 191, 0.12), transparent 34rem),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 32rem),
+    #020817;
+}
+
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] * {
+  box-sizing: border-box;
+}
+
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] h1,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] h2,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] h3,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] h4,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] p,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] span,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] small,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] strong,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] li {
+  color: #ffffff;
+}
+
+.wm-pitch-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 14px;
+  align-items: stretch;
+  min-height: 104px;
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(94, 234, 212, 0.22);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(8, 18, 32, 0.96), rgba(8, 47, 73, 0.62));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+}
+
+.wm-pitch-header h1 {
+  margin: 2px 0 4px;
+  font-size: clamp(1.55rem, 2vw, 2.15rem);
+  line-height: 1.02;
+  color: #5eead4 !important;
+}
+
+.wm-pitch-header p {
+  max-width: 900px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78) !important;
+  font-size: 0.95rem;
+}
+
+.wm-pitch-eyebrow,
+.wm-pitch-helper-card > span {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 6px;
+  color: #67e8f9 !important;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wm-pitch-header-status {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 2px;
+  padding: 12px;
+  border: 1px solid rgba(103, 232, 249, 0.18);
+  border-radius: 18px;
+  background: rgba(2, 8, 23, 0.54);
+}
+
+.wm-pitch-header-status strong {
+  color: #5eead4 !important;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.wm-pitch-header-status span {
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.wm-pitch-header-status small {
+  color: rgba(255, 255, 255, 0.62) !important;
+  font-size: 0.72rem;
+}
+
+.wm-pitch-workbench {
+  display: grid;
+  grid-template-columns: minmax(245px, 0.78fr) minmax(520px, 1.75fr) minmax(260px, 0.85fr);
+  gap: 12px;
+  height: calc(100vh - 154px);
+  min-height: 560px;
+}
+
+.wm-pitch-product-picker,
+.wm-pitch-centre,
+.wm-pitch-assist-rail {
+  min-height: 0;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 22px;
+  background: rgba(5, 12, 24, 0.9);
+  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.26);
+}
+
+.wm-pitch-product-picker,
+.wm-pitch-assist-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.wm-pitch-centre {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.wm-pitch-panel-heading {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.wm-pitch-panel-heading > span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(94, 234, 212, 0.42);
+  border-radius: 999px;
+  background: rgba(20, 184, 166, 0.16);
+  color: #5eead4 !important;
+  font-weight: 900;
+}
+
+.wm-pitch-panel-heading h2 {
+  margin: 0;
+  color: #5eead4 !important;
+  font-size: 1rem;
+}
+
+.wm-pitch-panel-heading p {
+  margin: 2px 0 0;
+  color: rgba(255, 255, 255, 0.62) !important;
+  font-size: 0.78rem;
+}
+
+.wm-pitch-search {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid rgba(103, 232, 249, 0.22);
+  border-radius: 14px;
+  color: #ffffff;
+  background: rgba(2, 8, 23, 0.82);
+  outline: none;
+}
+
+.wm-pitch-search::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.wm-pitch-search:focus {
+  border-color: rgba(94, 234, 212, 0.7);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.16);
+}
+
+.wm-pitch-family-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 78px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.wm-pitch-family-chips button,
+.wm-pitch-tabs button {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.88);
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.wm-pitch-family-chips button {
+  padding: 7px 9px;
+  font-size: 0.72rem;
+}
+
+.wm-pitch-family-chips button.is-active,
+.wm-pitch-tabs button.is-active {
+  border-color: rgba(94, 234, 212, 0.68);
+  background: rgba(20, 184, 166, 0.18);
+  color: #5eead4 !important;
+}
+
+.wm-pitch-product-list {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 3px;
+}
+
+.wm-pitch-product-list button {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 16px;
+  text-align: left;
+  background: rgba(15, 23, 42, 0.72);
+  cursor: pointer;
+}
+
+.wm-pitch-product-list button:hover,
+.wm-pitch-product-list button.is-selected {
+  border-color: rgba(94, 234, 212, 0.66);
+  background: rgba(8, 47, 73, 0.76);
+}
+
+.wm-pitch-product-list button strong {
+  color: #5eead4 !important;
+  font-size: 0.88rem;
+}
+
+.wm-pitch-product-list button span {
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.wm-pitch-product-list button small {
+  color: rgba(255, 255, 255, 0.58) !important;
+  font-size: 0.7rem;
+}
+
+.wm-pitch-product-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(94, 234, 212, 0.24);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(8, 47, 73, 0.62), rgba(15, 23, 42, 0.92));
+}
+
+.wm-pitch-product-hero h2 {
+  margin: 3px 0 0;
+  color: #5eead4 !important;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.wm-pitch-product-hero h3 {
+  margin: 4px 0 6px;
+  color: #ffffff !important;
+  font-size: 1rem;
+}
+
+.wm-pitch-product-hero p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.74) !important;
+  font-size: 0.86rem;
+  line-height: 1.38;
+}
+
+.wm-pitch-category-card {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 12px;
+  border: 1px solid rgba(103, 232, 249, 0.2);
+  border-radius: 16px;
+  background: rgba(2, 8, 23, 0.55);
+}
+
+.wm-pitch-category-card span {
+  color: rgba(255, 255, 255, 0.58) !important;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.wm-pitch-category-card strong {
+  color: #5eead4 !important;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.wm-pitch-helper-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.wm-pitch-helper-card,
+.wm-pitch-section-content article,
+.wm-pitch-assist-rail article,
+.wm-pitch-objection-list article {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.66);
+}
+
+.wm-pitch-helper-card {
+  min-height: 118px;
+  padding: 10px;
+}
+
+.wm-pitch-helper-card h3,
+.wm-pitch-section-content h3,
+.wm-pitch-assist-rail h3,
+.wm-pitch-objection-list h4 {
+  margin: 4px 0 6px;
+  color: #5eead4 !important;
+  font-size: 0.9rem;
+}
+
+.wm-pitch-helper-card p,
+.wm-pitch-section-content p,
+.wm-pitch-assist-rail p,
+.wm-pitch-objection-list p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.76) !important;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.wm-pitch-tabs {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.wm-pitch-tabs button {
+  min-height: 36px;
+  padding: 6px 8px;
+  font-size: 0.72rem;
+}
+
+.wm-pitch-section-content {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 3px;
+}
+
+.wm-pitch-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wm-pitch-section-content article {
+  min-height: 190px;
+  padding: 12px;
+}
+
+.wm-pitch-bullet-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.wm-pitch-bullet-list li {
+  color: rgba(255, 255, 255, 0.78) !important;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.wm-pitch-objection-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wm-pitch-objection-list article {
+  padding: 12px;
+}
+
+.wm-pitch-assist-rail article {
+  padding: 12px;
+}
+
+.wm-pitch-assist-rail {
+  overflow: auto;
+}
+
+.wm-pitch-muted {
+  color: rgba(255, 255, 255, 0.56) !important;
+}
+
+@media (max-width: 1240px) {
+  .wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] {
+    max-height: none;
+    overflow: auto;
+  }
+
+  .wm-pitch-workbench {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+  }
+
+  .wm-pitch-product-picker,
+  .wm-pitch-centre,
+  .wm-pitch-assist-rail {
+    overflow: visible;
+  }
+
+  .wm-pitch-helper-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-pitch-header,
+  .wm-pitch-product-hero,
+  .wm-pitch-two-column,
+  .wm-pitch-objection-list {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-pitch-helper-grid,
+  .wm-pitch-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+${markerEnd}
+`;
+
+writeFileSync(pagePath, page, "utf8");
+
+const existingStyle = readFileSync(stylePath, "utf8");
+const markerPattern = new RegExp(
+  escapeRegExp(markerStart) + "[\\s\\S]*?" + escapeRegExp(markerEnd) + "\\n?",
+  "g"
+);
+
+const cleanedStyle = existingStyle.replace(markerPattern, "").trimEnd();
+writeFileSync(stylePath, cleanedStyle + "\n\n" + css + "\n", "utf8");
+
+console.log("");
+console.log("Product Pitch sales desk rewrite complete.");
+console.log("Updated: " + pagePath);
+console.log("Updated: " + stylePath);
+console.log("Backups: " + backupDir);
+console.log("");

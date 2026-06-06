@@ -21920,3 +21920,560 @@ html[data-wingman-route="templates"] .wingman-page-host,
   }
 }
 /* WINGMAN ROOM TEMPLATE ADVISOR REFACTOR - END */
+
+/* === Product Pitch Sales Desk redesign start === */
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] {
+  min-height: calc(100vh - 24px);
+  max-height: calc(100vh - 24px);
+  overflow: hidden;
+  padding: 14px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at top left, rgba(45, 212, 191, 0.12), transparent 34rem),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 32rem),
+    #020817;
+}
+
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] * {
+  box-sizing: border-box;
+}
+
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] h1,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] h2,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] h3,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] h4,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] p,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] span,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] small,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] strong,
+.wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] li {
+  color: #ffffff;
+}
+
+.wm-pitch-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 14px;
+  align-items: stretch;
+  min-height: 104px;
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(94, 234, 212, 0.22);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(8, 18, 32, 0.96), rgba(8, 47, 73, 0.62));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+}
+
+.wm-pitch-header h1 {
+  margin: 2px 0 4px;
+  font-size: clamp(1.55rem, 2vw, 2.15rem);
+  line-height: 1.02;
+  color: #5eead4 !important;
+}
+
+.wm-pitch-header p {
+  max-width: 900px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78) !important;
+  font-size: 0.95rem;
+}
+
+.wm-pitch-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.wm-pitch-header-actions a,
+.wm-pitch-link-stack a {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(94, 234, 212, 0.34);
+  border-radius: 999px;
+  color: #5eead4 !important;
+  background: rgba(20, 184, 166, 0.12);
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.wm-pitch-header-actions a {
+  min-height: 32px;
+  padding: 6px 11px;
+}
+
+.wm-pitch-eyebrow,
+.wm-pitch-helper-card > span {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 6px;
+  color: #67e8f9 !important;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wm-pitch-header-status {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 2px;
+  padding: 12px;
+  border: 1px solid rgba(103, 232, 249, 0.18);
+  border-radius: 18px;
+  background: rgba(2, 8, 23, 0.54);
+}
+
+.wm-pitch-header-status strong {
+  color: #5eead4 !important;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.wm-pitch-header-status span {
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.wm-pitch-header-status small {
+  color: rgba(255, 255, 255, 0.62) !important;
+  font-size: 0.72rem;
+}
+
+.wm-pitch-workbench {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.7fr) minmax(410px, 1.65fr) minmax(190px, 0.75fr);
+  gap: 12px;
+  height: calc(100vh - 154px);
+  min-height: 560px;
+}
+
+.wm-pitch-product-picker,
+.wm-pitch-centre,
+.wm-pitch-assist-rail {
+  min-height: 0;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 22px;
+  background: rgba(5, 12, 24, 0.9);
+  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.26);
+}
+
+.wm-pitch-product-picker,
+.wm-pitch-assist-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.wm-pitch-centre {
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.wm-pitch-panel-heading {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.wm-pitch-panel-heading > span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(94, 234, 212, 0.42);
+  border-radius: 999px;
+  background: rgba(20, 184, 166, 0.16);
+  color: #5eead4 !important;
+  font-weight: 900;
+}
+
+.wm-pitch-panel-heading h2 {
+  margin: 0;
+  color: #5eead4 !important;
+  font-size: 1rem;
+}
+
+.wm-pitch-panel-heading p {
+  margin: 2px 0 0;
+  color: rgba(255, 255, 255, 0.62) !important;
+  font-size: 0.78rem;
+}
+
+.wm-pitch-search {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid rgba(103, 232, 249, 0.22);
+  border-radius: 14px;
+  color: #ffffff;
+  background: rgba(2, 8, 23, 0.82);
+  outline: none;
+}
+
+.wm-pitch-search::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.wm-pitch-search:focus {
+  border-color: rgba(94, 234, 212, 0.7);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.16);
+}
+
+.wm-pitch-family-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 78px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.wm-pitch-family-chips button,
+.wm-pitch-tabs button {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.88);
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.wm-pitch-family-chips button {
+  padding: 7px 9px;
+  font-size: 0.72rem;
+}
+
+.wm-pitch-family-chips button.is-active,
+.wm-pitch-tabs button.is-active {
+  border-color: rgba(94, 234, 212, 0.68);
+  background: rgba(20, 184, 166, 0.18);
+  color: #5eead4 !important;
+}
+
+.wm-pitch-product-list {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 3px;
+}
+
+.wm-pitch-product-list button {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 16px;
+  text-align: left;
+  background: rgba(15, 23, 42, 0.72);
+  cursor: pointer;
+}
+
+.wm-pitch-product-list button:hover,
+.wm-pitch-product-list button.is-selected {
+  border-color: rgba(94, 234, 212, 0.66);
+  background: rgba(8, 47, 73, 0.76);
+}
+
+.wm-pitch-product-list button strong {
+  color: #5eead4 !important;
+  font-size: 0.88rem;
+}
+
+.wm-pitch-product-list button span {
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.wm-pitch-product-list button small {
+  color: rgba(255, 255, 255, 0.58) !important;
+  font-size: 0.7rem;
+}
+
+.wm-pitch-product-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(94, 234, 212, 0.24);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(8, 47, 73, 0.62), rgba(15, 23, 42, 0.92));
+}
+
+.wm-pitch-product-hero h2 {
+  margin: 3px 0 0;
+  color: #5eead4 !important;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.wm-pitch-product-hero h3 {
+  margin: 4px 0 6px;
+  color: #ffffff !important;
+  font-size: 1rem;
+}
+
+.wm-pitch-product-hero p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.74) !important;
+  font-size: 0.86rem;
+  line-height: 1.38;
+}
+
+.wm-pitch-category-card {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 12px;
+  border: 1px solid rgba(103, 232, 249, 0.2);
+  border-radius: 16px;
+  background: rgba(2, 8, 23, 0.55);
+}
+
+.wm-pitch-category-card span {
+  color: rgba(255, 255, 255, 0.58) !important;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.wm-pitch-category-card strong {
+  color: #5eead4 !important;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.wm-pitch-category-card small {
+  color: rgba(255, 255, 255, 0.64) !important;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.wm-pitch-helper-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.wm-pitch-helper-card,
+.wm-pitch-section-content article,
+.wm-pitch-assist-rail article,
+.wm-pitch-objection-list article {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.66);
+}
+
+.wm-pitch-helper-card {
+  min-height: 118px;
+  padding: 10px;
+}
+
+.wm-pitch-evidence-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid rgba(94, 234, 212, 0.22);
+  border-radius: 16px;
+  background: rgba(2, 8, 23, 0.62);
+}
+
+.wm-pitch-evidence-strip span {
+  color: #67e8f9 !important;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-pitch-evidence-strip strong {
+  display: block;
+  margin-top: 2px;
+  color: #5eead4 !important;
+  font-size: 0.86rem;
+}
+
+.wm-pitch-evidence-strip p {
+  margin: 2px 0 0;
+  color: rgba(255, 255, 255, 0.68) !important;
+  font-size: 0.76rem;
+}
+
+.wm-pitch-evidence-strip small {
+  grid-column: 1 / -1;
+  color: #bbf7d0 !important;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.wm-pitch-save-button {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid rgba(94, 234, 212, 0.48);
+  border-radius: 999px;
+  color: #022c22;
+  background: #5eead4;
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.wm-pitch-link-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.wm-pitch-link-stack a {
+  min-height: 30px;
+  padding: 6px 10px;
+}
+
+.wm-pitch-helper-card h3,
+.wm-pitch-section-content h3,
+.wm-pitch-assist-rail h3,
+.wm-pitch-objection-list h4 {
+  margin: 4px 0 6px;
+  color: #5eead4 !important;
+  font-size: 0.9rem;
+}
+
+.wm-pitch-helper-card p,
+.wm-pitch-section-content p,
+.wm-pitch-assist-rail p,
+.wm-pitch-objection-list p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.76) !important;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.wm-pitch-tabs {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.wm-pitch-tabs button {
+  min-height: 36px;
+  padding: 6px 8px;
+  font-size: 0.72rem;
+}
+
+.wm-pitch-section-content {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 3px;
+}
+
+.wm-pitch-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wm-pitch-section-content article {
+  min-height: 190px;
+  padding: 12px;
+}
+
+.wm-pitch-bullet-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.wm-pitch-bullet-list li {
+  color: rgba(255, 255, 255, 0.78) !important;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.wm-pitch-objection-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wm-pitch-objection-list article {
+  padding: 12px;
+}
+
+.wm-pitch-assist-rail article {
+  padding: 12px;
+}
+
+.wm-pitch-assist-rail {
+  overflow: auto;
+}
+
+.wm-pitch-muted {
+  color: rgba(255, 255, 255, 0.56) !important;
+}
+
+@media (max-width: 1440px) {
+  .wm-pitch-helper-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wm-pitch-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1180px) {
+  .wm-product-pitch-page[data-wingman-product-pitch-sales-desk="true"] {
+    max-height: none;
+    overflow: auto;
+  }
+
+  .wm-pitch-workbench {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+  }
+
+  .wm-pitch-product-picker,
+  .wm-pitch-centre,
+  .wm-pitch-assist-rail {
+    overflow: visible;
+  }
+
+  .wm-pitch-helper-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-pitch-header,
+  .wm-pitch-product-hero,
+  .wm-pitch-evidence-strip,
+  .wm-pitch-two-column,
+  .wm-pitch-objection-list {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-pitch-helper-grid,
+  .wm-pitch-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+/* === Product Pitch Sales Desk redesign end === */
