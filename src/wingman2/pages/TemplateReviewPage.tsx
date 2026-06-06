@@ -230,7 +230,7 @@ export function TemplateReviewPage() {
 
   if (!selectedTemplate) {
     return (
-      <div className="pb-10">
+      <div data-wingman-template-detail-page="true" className="pb-10">
         <PageHero
           eyebrow="Room Template Review"
           title="Template not found."
@@ -435,7 +435,7 @@ Editable WyreStorm BOM</p>
                 </div>
               </div>
 
-              <div className="mt-4 overflow-hidden rounded-2xl border border-[#29465e]">
+              <div className="mt-4 overflow-hidden rounded-2xl border border-[#29465e] wm-template-detail-no-horizontal-scroll">
                 <table className="min-w-full text-left text-sm">
                   <thead className="bg-[#0d2133] text-white/60">
                     <tr>

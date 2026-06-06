@@ -270,8 +270,8 @@ export function TemplateSchematic({ template, rows }: { template: RoomTemplate; 
   const cableRows = useMemo(() => buildCableRows(template, rows), [template, rows]);
 
   return (
-    <section className="wm-template-schematic mt-5">
-      <div className="wm-template-schematic-header">
+    <section data-wingman-template-detail-page="true" className="wm-template-schematic mt-5 wm-template-detail-no-horizontal-scroll">
+      <div className="wm-template-schematic-header wm-template-detail-no-horizontal-scroll">
         <div>
           <p className="wingman-kicker">Room schematic</p>
           <h3>Example connectivity view</h3>
@@ -281,7 +281,7 @@ export function TemplateSchematic({ template, rows }: { template: RoomTemplate; 
         </div>
       </div>
 
-      <div className="wm-template-schematic-flow" aria-label={`Example schematic for ${template.name}`}>
+      <div className="wm-template-schematic-flow wm-template-detail-no-horizontal-scroll" aria-label={`Example schematic for ${template.name}`}>
         {nodes.map((node, index) => (
           <Fragment key={node.label}>
             <article className={`wm-template-schematic-node wm-template-schematic-node-${node.tone}`}>
@@ -292,7 +292,7 @@ export function TemplateSchematic({ template, rows }: { template: RoomTemplate; 
             </article>
 
             {index < nodes.length - 1 ? (
-              <div className="wm-template-schematic-connector" aria-hidden="true">
+              <div className="wm-template-schematic-connector wm-template-detail-no-horizontal-scroll" aria-hidden="true">
                 <span />
               </div>
             ) : null}

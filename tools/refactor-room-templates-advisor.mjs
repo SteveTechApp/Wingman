@@ -1,4 +1,136 @@
-﻿import { useMemo, useState } from "react";
+﻿import fs from "node:fs";
+import path from "node:path";
+
+const root = process.cwd();
+const srcDir = path.join(root, "src");
+const routesPath = path.join(root, "src", "wingman2", "app", "routes.tsx");
+const cssPath = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
+
+function fail(message) {
+  throw new Error(message);
+}
+
+function backup(file) {
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  fs.copyFileSync(file, `${file}.bak-room-template-advisor-${stamp}`);
+}
+
+function walk(dir) {
+  const out = [];
+
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      if (["node_modules", "dist", "build", ".git"].includes(entry.name)) continue;
+      out.push(...walk(full));
+      continue;
+    }
+
+    out.push(full);
+  }
+
+  return out;
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function toSlug(value) {
+  return value
+    .toLowerCase()
+    .replace(/networkhd\s+/g, "networkhd")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function findRoomTemplatesPage() {
+  let exportName = "RoomTemplatesPage";
+  let filePath = "";
+
+  if (fs.existsSync(routesPath)) {
+    const routesText = fs.readFileSync(routesPath, "utf8");
+
+    const namedMatch =
+      routesText.match(/(?:templates|roomTemplates)\s*:\s*lazy\(fromNamedExport\(\(\)\s*=>\s*import\(["']([^"']+)["']\),\s*["']([^"']+)["']\)\)/);
+
+    if (namedMatch) {
+      const importPath = namedMatch[1];
+      exportName = namedMatch[2];
+
+      const routeDir = path.dirname(routesPath);
+      const resolvedBase = path.resolve(routeDir, importPath);
+      const candidates = [
+        resolvedBase,
+        `${resolvedBase}.tsx`,
+        `${resolvedBase}.ts`,
+        path.join(resolvedBase, "index.tsx")
+      ];
+
+      for (const candidate of candidates) {
+        if (fs.existsSync(candidate)) {
+          filePath = candidate;
+          return { filePath, exportName };
+        }
+      }
+    }
+
+    const defaultMatch =
+      routesText.match(/(?:templates|roomTemplates)\s*:\s*lazy\(\(\)\s*=>\s*import\(["']([^"']+)["']\)\)/);
+
+    if (defaultMatch) {
+      const importPath = defaultMatch[1];
+
+      const routeDir = path.dirname(routesPath);
+      const resolvedBase = path.resolve(routeDir, importPath);
+      const candidates = [
+        resolvedBase,
+        `${resolvedBase}.tsx`,
+        `${resolvedBase}.ts`,
+        path.join(resolvedBase, "index.tsx")
+      ];
+
+      for (const candidate of candidates) {
+        if (fs.existsSync(candidate)) {
+          filePath = candidate;
+          return { filePath, exportName };
+        }
+      }
+    }
+  }
+
+  const sourceFiles = walk(srcDir).filter((file) => /\.(tsx|jsx|ts|js)$/.test(file));
+
+  const candidates = sourceFiles.filter((file) => {
+    const text = fs.readFileSync(file, "utf8");
+
+    return /Choose the right starting point faster/i.test(text)
+      && /Start discovery/i.test(text)
+      && /Product pitch/i.test(text)
+      && /templates/i.test(text);
+  });
+
+  if (candidates.length === 0) {
+    fail("Could not locate the Room Templates page source.");
+  }
+
+  candidates.sort((a, b) => a.length - b.length);
+
+  return { filePath: candidates[0], exportName };
+}
+
+if (!fs.existsSync(srcDir)) fail("Cannot find src folder. Run this from C:\\Users\\Steve\\Wingman.");
+if (!fs.existsSync(cssPath)) fail("Cannot find src/wingman2/styles/wingman-style-stack.css.");
+
+const { filePath: pagePath, exportName } = findRoomTemplatesPage();
+
+const extraExport =
+  exportName && exportName !== "default" && exportName !== "RoomTemplatesPage"
+    ? `export const ${exportName} = RoomTemplatesPage;\n`
+    : "";
+
+const pageSource = String.raw`import { useMemo, useState } from "react";
 
 type TemplateStep = "recognise" | "assumptions" | "schematic" | "validate" | "handoff";
 
@@ -760,14 +892,6 @@ const steps: Array<{ id: TemplateStep; label: string; helper: string }> = [
   { id: "handoff", label: "Save / export", helper: "Capture next actions and hand off the design." }
 ];
 
-
-function toSlug(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/networkhd\s+/g, "networkhd")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 function getRouteTemplateId() {
   if (typeof window === "undefined") return "";
 
@@ -789,7 +913,7 @@ function classNames(...values: Array<string | false | null | undefined>) {
 
 function truncate(value: string, max = 28) {
   if (value.length <= max) return value;
-  return value.slice(0, max - 1).trimEnd() + "â€¦";
+  return value.slice(0, max - 1).trimEnd() + "…";
 }
 
 function splitLabel(value: string, max = 24) {
@@ -1131,7 +1255,7 @@ function HandoffPanel({ template }: { template: AdvisoryTemplate }) {
   function exportBom() {
     const rows = template.locations.flatMap((location) =>
       location.devices
-        .filter((device) => device.wyrestorm || device.sku)
+        .filter((device) => device.wyreStorm || device.sku)
         .map((device) => ({
           location: location.label,
           sku: device.sku || "TBC",
@@ -1344,6 +1468,507 @@ export function RoomTemplatesPage() {
   return <TemplateLibrary />;
 }
 
-export const TemplatesPage = RoomTemplatesPage;
-export default RoomTemplatesPage;
+__EXTRA_EXPORT__export default RoomTemplatesPage;
+`;
 
+const finalPageSource = pageSource.replace("__EXTRA_EXPORT__", extraExport);
+
+backup(pagePath);
+fs.writeFileSync(pagePath, finalPageSource, "utf8");
+
+console.log(`Replaced Room Templates page: ${path.relative(root, pagePath)}`);
+console.log(`Route export preserved: ${exportName}`);
+
+const start = "/* WINGMAN ROOM TEMPLATE ADVISOR REFACTOR - START */";
+const end = "/* WINGMAN ROOM TEMPLATE ADVISOR REFACTOR - END */";
+
+const cssBlock = `${start}
+/*
+  Room Template Advisor refactor:
+  - Compact template library.
+  - Clear advisory workflow.
+  - Data-driven room assumptions.
+  - Responsive Visio-style schematic.
+  - No horizontal scrolling.
+*/
+
+html[data-wingman-route="templates"] .wingman-app-main,
+html[data-wingman-route="templates"] .wingman-page-host,
+[data-wingman-room-templates-page="true"] {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+}
+
+[data-wingman-room-templates-page="true"],
+[data-wingman-room-templates-page="true"] * {
+  box-sizing: border-box !important;
+  min-width: 0;
+}
+
+.wm-room-advisor-page {
+  width: 100%;
+  max-width: 100%;
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  color: #e9f8ff;
+}
+
+.wm-room-advisor-hero,
+.wm-room-advisor-detail-hero,
+.wm-template-advisor-card,
+.wm-room-template-controls,
+.wm-room-template-stepper {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid rgba(58, 226, 245, 0.22);
+  background:
+    radial-gradient(circle at top left, rgba(58, 226, 245, 0.10), transparent 42%),
+    rgba(4, 19, 31, 0.92);
+  border-radius: 1.25rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+.wm-room-advisor-hero,
+.wm-room-advisor-detail-hero {
+  min-height: unset;
+  padding: 1rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.wm-room-advisor-hero span,
+.wm-room-advisor-detail-hero span,
+.wm-template-section-head span,
+.wm-room-template-advice-card span,
+.wm-template-advisor-card > span,
+.wm-assumption-grid span,
+.wm-template-recognition-grid span {
+  display: block;
+  color: #66e7f8;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.wm-room-advisor-hero h1,
+.wm-room-advisor-detail-hero h1,
+.wm-template-advisor-card h1,
+.wm-template-advisor-card h2 {
+  margin: 0.2rem 0 0;
+  color: #66e7f8;
+  line-height: 1.04;
+}
+
+.wm-room-advisor-hero h1,
+.wm-room-advisor-detail-hero h1 {
+  font-size: clamp(1.6rem, 3vw, 2.7rem);
+}
+
+.wm-room-advisor-hero p,
+.wm-room-advisor-detail-hero p,
+.wm-template-section-head p,
+.wm-template-advisor-card p,
+.wm-room-template-advice-card p {
+  color: rgba(233, 248, 255, 0.82);
+}
+
+.wm-room-advisor-detail-hero nav,
+.wm-template-handoff-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.wm-room-advisor-detail-hero a,
+.wm-template-handoff-grid a,
+.wm-template-handoff-grid button,
+.wm-room-template-return-link {
+  border: 1px solid rgba(58, 226, 245, 0.34);
+  background: rgba(8, 35, 54, 0.9);
+  color: #e9f8ff;
+  border-radius: 999px;
+  padding: 0.62rem 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.wm-room-advisor-detail-hero a:last-child,
+.wm-template-handoff-grid button:first-child,
+.wm-room-template-filter-row button.is-selected {
+  background: linear-gradient(135deg, rgba(27, 161, 210, 0.96), rgba(33, 197, 216, 0.76));
+  color: #ffffff;
+}
+
+.wm-room-template-controls {
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.wm-room-template-controls input {
+  width: 100%;
+  border: 1px solid rgba(58, 226, 245, 0.28);
+  background: rgba(0, 9, 16, 0.88);
+  color: #ffffff;
+  border-radius: 0.8rem;
+  padding: 0.75rem 0.9rem;
+}
+
+.wm-room-template-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.wm-room-template-filter-row button {
+  border: 1px solid rgba(58, 226, 245, 0.28);
+  background: rgba(6, 24, 38, 0.94);
+  color: #e9f8ff;
+  border-radius: 999px;
+  padding: 0.48rem 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wm-room-template-library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(21rem, 100%), 1fr));
+  gap: 0.8rem;
+}
+
+.wm-room-template-advice-card {
+  display: grid;
+  gap: 0.9rem;
+  border: 1px solid rgba(58, 226, 245, 0.22);
+  background: rgba(4, 20, 33, 0.92);
+  border-radius: 1rem;
+  padding: 1rem;
+  text-decoration: none;
+  color: #e9f8ff;
+  min-height: 13rem;
+}
+
+.wm-room-template-advice-card:hover {
+  border-color: rgba(58, 226, 245, 0.55);
+  transform: translateY(-1px);
+}
+
+.wm-room-template-advice-card strong {
+  display: block;
+  margin-top: 0.25rem;
+  color: #ffffff;
+  font-size: 1.05rem;
+}
+
+.wm-room-template-advice-card dl {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.wm-room-template-advice-card div {
+  min-width: 0;
+}
+
+.wm-room-template-advice-card dt {
+  color: rgba(233, 248, 255, 0.58);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.wm-room-template-advice-card dd {
+  margin: 0;
+  color: #8ff6ff;
+  font-weight: 800;
+}
+
+.wm-room-template-stepper {
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(12.5rem, 100%), 1fr));
+  gap: 0.6rem;
+}
+
+.wm-room-template-stepper button {
+  min-height: 4.6rem;
+  text-align: left;
+  border: 1px solid rgba(58, 226, 245, 0.24);
+  background: rgba(6, 24, 38, 0.88);
+  color: #ffffff;
+  border-radius: 0.95rem;
+  padding: 0.75rem;
+  cursor: pointer;
+}
+
+.wm-room-template-stepper button.is-selected {
+  border-color: rgba(58, 226, 245, 0.62);
+  background: rgba(16, 91, 118, 0.62);
+}
+
+.wm-room-template-stepper strong,
+.wm-room-template-stepper span {
+  display: block;
+}
+
+.wm-room-template-stepper span {
+  margin-top: 0.25rem;
+  color: rgba(233, 248, 255, 0.68);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.wm-template-advisor-card {
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.wm-template-section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.wm-template-section-head strong {
+  color: #8ff6ff;
+  border: 1px solid rgba(58, 226, 245, 0.32);
+  border-radius: 999px;
+  padding: 0.5rem 0.75rem;
+  background: rgba(6, 24, 38, 0.9);
+  white-space: nowrap;
+}
+
+.wm-template-recognition-grid,
+.wm-assumption-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  gap: 0.7rem;
+}
+
+.wm-template-recognition-grid article,
+.wm-assumption-grid article,
+.wm-advisor-columns article,
+.wm-template-warning-box {
+  border: 1px solid rgba(58, 226, 245, 0.18);
+  background: rgba(0, 10, 18, 0.68);
+  border-radius: 0.95rem;
+  padding: 0.85rem;
+}
+
+.wm-assumption-grid article:last-child {
+  border-color: rgba(255, 165, 80, 0.32);
+}
+
+.wm-advisor-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(22rem, 100%), 1fr));
+  gap: 0.8rem;
+}
+
+.wm-advisor-columns h3 {
+  margin: 0 0 0.55rem;
+  color: #66e7f8;
+}
+
+.wm-advisor-bullet-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: rgba(233, 248, 255, 0.84);
+}
+
+.wm-advisor-bullet-list li + li {
+  margin-top: 0.42rem;
+}
+
+.wm-template-handoff-grid {
+  justify-content: start;
+}
+
+.wm-template-warning-box strong {
+  color: #ffca7a;
+}
+
+.wm-visio-shell {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(58, 226, 245, 0.20);
+  background: rgba(0, 8, 15, 0.78);
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+
+.wm-visio-shell svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 68vh;
+}
+
+.wm-diagram-bg {
+  fill: rgba(2, 15, 26, 0.96);
+  stroke: rgba(58, 226, 245, 0.12);
+}
+
+.wm-diagram-location {
+  fill: rgba(6, 28, 45, 0.94);
+  stroke: rgba(58, 226, 245, 0.32);
+  stroke-width: 1.5;
+}
+
+.wm-diagram-location-title {
+  fill: #66e7f8;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wm-diagram-location-subtitle {
+  fill: rgba(233, 248, 255, 0.64);
+  font-size: 11px;
+}
+
+.wm-diagram-device {
+  fill: rgba(3, 15, 27, 0.96);
+  stroke: rgba(144, 197, 208, 0.28);
+  stroke-width: 1;
+}
+
+.wm-diagram-device.is-wyrestorm {
+  stroke: rgba(58, 226, 245, 0.68);
+  fill: rgba(10, 45, 62, 0.98);
+}
+
+.wm-diagram-device-label {
+  fill: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.wm-diagram-sku {
+  fill: #8ff6ff;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.wm-diagram-line {
+  stroke: rgba(233, 248, 255, 0.70);
+  stroke-width: 2;
+  fill: none;
+}
+
+.wm-line-hdmi {
+  stroke: #66e7f8;
+}
+
+.wm-line-usb {
+  stroke: #a78bfa;
+}
+
+.wm-line-lan {
+  stroke: #34d399;
+}
+
+.wm-line-audio {
+  stroke: #f59e0b;
+}
+
+.wm-line-control {
+  stroke: #f472b6;
+}
+
+.wm-diagram-line.needs-validation {
+  stroke-dasharray: 6 5;
+}
+
+.wm-diagram-arrow {
+  fill: currentColor;
+  color: inherit;
+}
+
+.wm-diagram-line-label-bg {
+  fill: rgba(0, 9, 16, 0.88);
+  stroke: rgba(58, 226, 245, 0.18);
+}
+
+.wm-diagram-line-label {
+  fill: #e9f8ff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.wm-template-signal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.wm-template-signal-legend span {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  border: 1px solid rgba(58, 226, 245, 0.18);
+  border-radius: 999px;
+  padding: 0.38rem 0.55rem;
+  color: rgba(233, 248, 255, 0.82);
+  background: rgba(6, 24, 38, 0.88);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.wm-template-signal-legend i {
+  width: 1.5rem;
+  height: 0;
+  border-top: 2px solid currentColor;
+}
+
+@media (max-width: 980px) {
+  .wm-room-advisor-hero,
+  .wm-room-advisor-detail-hero,
+  .wm-template-section-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wm-room-advisor-detail-hero nav {
+    justify-content: start;
+  }
+
+  .wm-visio-shell svg {
+    max-height: none;
+  }
+}
+${end}`;
+
+const originalCss = fs.readFileSync(cssPath, "utf8");
+let updatedCss = originalCss;
+
+const blockRegex = new RegExp(`${escapeRegExp(start)}[\\s\\S]*?${escapeRegExp(end)}`);
+
+if (blockRegex.test(updatedCss)) {
+  updatedCss = updatedCss.replace(blockRegex, cssBlock);
+}
+
+if (!blockRegex.test(originalCss)) {
+  updatedCss = `${updatedCss.trimEnd()}\n\n${cssBlock}\n`;
+}
+
+if (updatedCss !== originalCss) {
+  backup(cssPath);
+  fs.writeFileSync(cssPath, updatedCss, "utf8");
+  console.log(`Updated CSS: ${path.relative(root, cssPath)}`);
+}
+
+console.log("");
+console.log("Room Templates advisory refactor applied.");
+console.log("Next: run typecheck/build, restart Vite and hard refresh.");

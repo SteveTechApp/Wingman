@@ -260,7 +260,7 @@ export function ProposalPage() {
 
   if (!context.project) {
     return (
-      <div className="pb-10">
+      <div data-wingman-template-detail-page="true" className="pb-10">
         <PageHero
           eyebrow="Customer Proposal Builder"
           title="Open a project before building a proposal."
@@ -387,7 +387,7 @@ export function ProposalPage() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-3xl border border-[#29465e] bg-[#0d2133] shadow-sm">
+          <div className="overflow-hidden rounded-3xl border border-[#29465e] bg-[#0d2133] shadow-sm wm-template-detail-no-horizontal-scroll">
             <div className="bg-slate-950 px-8 py-10 text-white">
               <p className="wingman-kicker text-slate-400">WyreStorm Wingman proposal</p>
               <h2 className="wingman-display mt-3 text-5xl">{context.discovery.projectTitle}</h2>
@@ -515,7 +515,7 @@ export function ProposalPage() {
 
               <div className="lg:col-span-2">
                 <p className="wingman-kicker">Bill of materials</p>
-                <div className="mt-2 overflow-hidden rounded-2xl border border-[#29465e]">
+                <div className="mt-2 overflow-hidden rounded-2xl border border-[#29465e] wm-template-detail-no-horizontal-scroll">
                   <table className="min-w-full text-left text-sm">
                     <thead className="bg-[#0d2133] text-white/60">
                       <tr>
