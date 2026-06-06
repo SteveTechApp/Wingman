@@ -3,7 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const pagesDir = path.join(root, "src", "wingman2", "pages");
-const densityPath = path.join(root, "src", "wingman2", "styles", "wingman-density-governance.css");
+const styleStackPath = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
 const layoutIndexPath = path.join(root, "src", "wingman2", "components", "layout", "index.ts");
 
 function fail(message) {
@@ -15,18 +15,18 @@ if (!fs.existsSync(pagesDir)) {
   fail("src/wingman2/pages was not found.");
 }
 
-if (!fs.existsSync(densityPath)) {
-  fail("wingman-density-governance.css was not found.");
+if (!fs.existsSync(styleStackPath)) {
+  fail("wingman-style-stack.css was not found.");
 }
 
 if (!fs.existsSync(layoutIndexPath)) {
   fail("shared layout primitives index.ts was not found.");
 }
 
-const density = fs.readFileSync(densityPath, "utf8");
+const styleStack = fs.readFileSync(styleStackPath, "utf8");
 
-if (!density.includes("WM ALL PAGES DENSITY GOVERNANCE BEGIN")) {
-  fail("App-wide density governance block is missing from wingman-density-governance.css.");
+if (!styleStack.includes(".wingman-page-host") || !styleStack.includes(".wingman-section-card")) {
+  fail("Shared page frame/card rules are missing from wingman-style-stack.css.");
 }
 
 const pageFiles = fs

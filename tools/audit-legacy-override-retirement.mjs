@@ -83,8 +83,32 @@ function recommendation(category, _fileName) {
 }
 
 if (!fs.existsSync(legacyDir)) {
-  console.error("Missing legacy override directory.");
-  process.exit(1);
+  fs.mkdirSync(reportDir, { recursive: true });
+
+  const retiredSummary = {
+    generatedAt: new Date().toISOString(),
+    rows: [],
+    status: "retired",
+    message: "The legacy override directory has already been archived. Keep new route styling in wingman-style-stack.css.",
+  };
+
+  fs.writeFileSync(jsonPath, JSON.stringify(retiredSummary, null, 2));
+  fs.writeFileSync(
+    reportPath,
+    [
+      "# Wingman Legacy Override Retirement Report",
+      "",
+      `Generated: ${retiredSummary.generatedAt}`,
+      "",
+      "The legacy override directory has already been archived.",
+      "",
+      "Keep new route styling in `src/wingman2/styles/wingman-style-stack.css`.",
+      "",
+    ].join("\n"),
+  );
+
+  console.log("Legacy override directory already retired.");
+  process.exit(0);
 }
 
 const files = fs

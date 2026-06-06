@@ -3,7 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const finderPath = path.join(root, "src", "wingman2", "pages", "FinderPage.tsx");
-const authorityPath = path.join(root, "src", "wingman2", "styles", "wingman-authority-system.css");
+const styleStackPath = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
 const layoutIndexPath = path.join(root, "src", "wingman2", "components", "layout", "index.ts");
 
 function fail(message) {
@@ -15,8 +15,8 @@ if (!fs.existsSync(finderPath)) {
   fail("FinderPage.tsx was not found.");
 }
 
-if (!fs.existsSync(authorityPath)) {
-  fail("wingman-authority-system.css was not found.");
+if (!fs.existsSync(styleStackPath)) {
+  fail("wingman-style-stack.css was not found.");
 }
 
 if (!fs.existsSync(layoutIndexPath)) {
@@ -24,7 +24,7 @@ if (!fs.existsSync(layoutIndexPath)) {
 }
 
 const finder = fs.readFileSync(finderPath, "utf8");
-const authority = fs.readFileSync(authorityPath, "utf8");
+const styleStack = fs.readFileSync(styleStackPath, "utf8");
 
 const cssImports = [...finder.matchAll(/import\s+["'][^"']+\.css["'];/g)];
 
@@ -32,8 +32,11 @@ if (cssImports.length > 0) {
   fail("FinderPage.tsx must not import CSS directly. Use wingman-style-stack.css only.");
 }
 
-if (!authority.includes("WM FINDER CLEAN WORKSPACE BEGIN")) {
-  fail("Finder cleanup block is missing from wingman-authority-system.css.");
+if (
+  !styleStack.includes("WINGMAN FINDER STABLE RECOVERY START") &&
+  !styleStack.includes("WINGMAN-FINDER-TOP-FILTER-REDESIGN-START")
+) {
+  fail("Finder cleanup rules are missing from wingman-style-stack.css.");
 }
 
 const paragraphCount = [...finder.matchAll(/<p[\s>]/g)].length;

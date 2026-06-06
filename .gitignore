@@ -90,6 +90,7 @@ _backups/
 backups/
 .codex/
 lighthouse-reports/
+reports/
 _release/
 release/
 
